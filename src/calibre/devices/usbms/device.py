@@ -222,6 +222,8 @@ class Device(DeviceConfig, DevicePlugin):
         for pnp_id in pnp_id_iterator():
             if self.windows_match_device(pnp_id, 'WINDOWS_MAIN_MEM'):
                 return True
+            if debug:
+                print '\tNo match found in:', pnp_id
         return False
 
     def open_windows(self):

@@ -44,7 +44,12 @@ def debug(ioreg_to_tmp=False, buf=None):
     try:
         out = partial(prints, file=buf)
         out('Version:', __version__)
+        wmi = Wmi =None
+        if iswindows:
+            wmi = __import__('wmi', globals(), locals(), [], -1)
+            Wmi = wmi.WMI(find_classes=False)
         s = DeviceScanner()
+        s.wmi = Wmi
         s.scan()
         devices = (s.devices)
         if not iswindows:
@@ -54,10 +59,7 @@ def debug(ioreg_to_tmp=False, buf=None):
                     d[i] = hex(d[i])
         out('USB devices on system:')
         out(pprint.pformat(devices))
-        wmi = Wmi =None
         if iswindows:
-            wmi = __import__('wmi', globals(), locals(), [], -1)
-            Wmi = wmi.WMI(find_classes=False)
             drives = []
             out('Drives detected:')
             out('\t', '(ID, Partitions, Drive letter)')
@@ -81,7 +83,6 @@ def debug(ioreg_to_tmp=False, buf=None):
             ioreg = Device.run_ioreg()
             ioreg = 'Output from mount:\n\n'+mount+'\n\n'+ioreg
         connected_devices = []
-        s.wmi = Wmi
         for dev in device_plugins():
             owmi = getattr(dev, 'wmi', None)
             dev.wmi = Wmi

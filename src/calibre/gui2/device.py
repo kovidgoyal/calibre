@@ -177,7 +177,7 @@ class DeviceManager(Thread):
             self.wmi = wmi.WMI(find_classes=False)
             self.scanner.wmi = self.wmi
             for x in self.devices:
-                x[0].wmi = self.wmi
+                x.wmi = self.wmi
         try:
             while self.keep_going:
                 self.detect_device()
