@@ -801,33 +801,29 @@ class Device(DeviceConfig, DevicePlugin):
         fname = sanitize(fname)
         ext = os.path.splitext(fname)[1]
 
-        if special_tag is None:
-            from calibre.library.save_to_disk import get_components
-            extra_components = get_components(template, mdata, fname)
+        from calibre.library.save_to_disk import get_components
+        extra_components = get_components(template, mdata, fname)
+        if not extra_components:
+            extra_components.append(sanitize(self.filename_callback(fname,
+                mdata)))
         else:
+            extra_components[-1] = sanitize(self.filename_callback(extra_components[-1]+ext, mdata))
+
+        if special_tag is not None:
+            name = extra_components[-1]
+            extra_components = []
             tag = special_tag
             if tag.startswith(_('News')):
                 extra_components.append('News')
-                c = sanitize(mdata.title if mdata.title else '')
-                #c = c.split('[')[0].strip()
-                if c:
-                    extra_components.append(c)
             else:
                 for c in tag.split('/'):
                     c = sanitize(c)
                     if not c: continue
                     extra_components.append(c)
-
+            extra_components.append(name)
 
         if not use_subdirs:
-            extra_components = extra_components[:1]
-
-        if not extra_components:
-            fname = sanitize(self.filename_callback(fname, mdata))
-            extra_components.append(fname)
-            extra_components = [str(x) for x in extra_components]
-        else:
-            extra_components[-1] += ext
+            extra_components = extra_components[-1:]
 
         def remove_trailing_periods(x):
             ans = x

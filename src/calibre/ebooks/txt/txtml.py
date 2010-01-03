@@ -98,17 +98,15 @@ class TXTMLizer(object):
 
         # Remove excessive newlines.
         text = re.sub('\n[ ]+\n', '\n\n', text)
-        if self.opts.flush_paras:
+        if self.opts.remove_paragraph_spacing:
             text = re.sub('\n{2,}', '\n', text)
+            text = re.sub('(?imu)^(?=.)', '\t', text)
         else:
-            text = re.sub('\n{3,}', '\n\n', text)
+            text = re.sub('\n{4,}', '\n\n\n', text)
 
         # Replace spaces at the beginning and end of lines
         text = re.sub('(?imu)^[ ]+', '', text)
         text = re.sub('(?imu)[ ]+$', '', text)
-
-        if self.opts.indent_paras:
-            text = re.sub('(?imu)^(?=.)', '\t', text)
 
         if self.opts.max_line_length:
             max_length = self.opts.max_line_length
