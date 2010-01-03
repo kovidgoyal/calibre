@@ -86,7 +86,7 @@ At the moment |app| has full support for the SONY PRS 300/500/505/600/700/900, B
 How can I help get my device supported in |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If your device appears as a USB disk to the operating system. Adding support for it to |app| is very easy.
+If your device appears as a USB disk to the operating system, adding support for it to |app| is very easy.
 We just need some information from you:
 
   * What e-book formats does your device support?
