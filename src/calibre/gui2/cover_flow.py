@@ -66,7 +66,6 @@ if pictureflow is not None:
             return self.model.cover(index)
 
 
-
     class CoverFlow(pictureflow.PictureFlow):
 
         def __init__(self, height=300, parent=None, text_height=25):

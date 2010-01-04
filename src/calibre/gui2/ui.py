@@ -528,17 +528,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.cover_flow.setVisible(False)
             if not config['separate_cover_flow']:
                 self.library.layout().addWidget(self.cover_flow)
-            self.connect(self.cover_flow, SIGNAL('currentChanged(int)'),
-                         self.sync_cf_to_listview)
-            self.connect(self.cover_flow, SIGNAL('itemActivated(int)'),
-                         self.show_book_info)
+            #self.connect(self.cover_flow, SIGNAL('currentChanged(int)'),
+            #             self.sync_cf_to_listview)
+            #self.connect(self.cover_flow, SIGNAL('itemActivated(int)'),
+            #             self.show_book_info)
             self.connect(self.status_bar.cover_flow_button,
                          SIGNAL('toggled(bool)'), self.toggle_cover_flow)
             self.connect(self.cover_flow, SIGNAL('stop()'),
                          self.status_bar.cover_flow_button.toggle)
-            QObject.connect(self.library_view.selectionModel(),
-                        SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
-                            self.sync_cf_to_listview)
+            #QObject.connect(self.library_view.selectionModel(),
+            #            SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
+            #                self.sync_cf_to_listview)
             self.db_images = DatabaseImages(self.library_view.model())
             self.cover_flow.setImages(self.db_images)
         else:
@@ -669,6 +669,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def toggle_cover_flow(self, show):
         if config['separate_cover_flow']:
             if show:
+                self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
                 d = QDialog(self)
                 ah, aw = available_height(), available_width()
                 d.resize(int(aw/2.), ah-60)
@@ -684,6 +685,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     self.uncheck_cover_button)
                 self.cf_dialog = d
             else:
+                idx = self.library_view.model().index(self.cover_flow.currentSlide(), 0)
+                if idx.isValid():
+                    sm = self.library_view.selectionModel()
+                    sm.select(idx, sm.ClearAndSelect|sm.Rows)
+                    self.library_view.setCurrentIndex(idx)
                 cfd = getattr(self, 'cf_dialog', None)
                 if cfd is not None:
                     self.cover_flow.setVisible(False)
@@ -691,6 +697,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     self.cf_dialog = None
         else:
             if show:
+                self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
                 self.library_view.setCurrentIndex(
                         self.library_view.currentIndex())
                 self.cover_flow.setVisible(True)
@@ -700,8 +707,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.library_view.scrollTo(self.library_view.currentIndex())
             else:
                 self.cover_flow.setVisible(False)
+                idx = self.library_view.model().index(self.cover_flow.currentSlide(), 0)
+                if idx.isValid():
+                    sm = self.library_view.selectionModel()
+                    sm.select(idx, sm.ClearAndSelect|sm.Rows)
+                    self.library_view.setCurrentIndex(idx)
                 #self.status_bar.book_info.book_data.setMaximumHeight(1000)
-            self.resize(self.width(), self._calculated_available_height)
+            #self.resize(self.width(), self._calculated_available_height)
             #self.setMaximumHeight(available_height())
 
     def toggle_tags_view(self, show):
