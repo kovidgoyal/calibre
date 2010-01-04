@@ -8,10 +8,10 @@
   date: 2010-01-03
 
   new features:
-    - title: Allow users to cutomize where books are placed by the Send to Device action
+    - title: Allow users to customize where books are placed by the Send to Device action
       type: major
       description: >
-        "Uses can now specify the folder structure and file name  of files placed on the device when using the 
+        "Users can now specify the folder structure and file name  of files placed on the device when using the 
         Send to Device action. This is useful for those devices that allow browsing of the on device folder 
         structure. Customization is available via Preferences->Add/Save->Sending to device and can also
         be overriden on a per device basis from Preferences->Plugins->Device Interface plugins"
