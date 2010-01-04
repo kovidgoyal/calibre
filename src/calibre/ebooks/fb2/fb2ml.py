@@ -32,11 +32,8 @@ TAG_MAP = {
     'p' : 'p',
     'li' : 'p',
     'div': 'p',
+    'br' : 'p',
 }
-
-TAG_FORCE_P = [
-    'br',
-]
 
 TAG_SPACE = []
 
@@ -46,6 +43,10 @@ TAG_IMAGES = [
 
 TAG_LINKS = [
     'a',
+]
+
+BLOCK = [
+    'p',
 ]
 
 STYLES = [
@@ -240,7 +241,8 @@ class FB2MLizer(object):
         if id_name:
             fb2_text.append(self.get_anchor(page, id_name))
 
-        if tag in TAG_FORCE_P:
+        fb2_tag = TAG_MAP.get(tag, None)
+        if fb2_tag == 'p':
             if 'p' in tag_stack+tags:
                 # Close all up to p. Close p. Reopen all closed tags including p.
                 all_tags = tag_stack+tags
@@ -257,9 +259,7 @@ class FB2MLizer(object):
             else:
                 fb2_text.append('<p>')
                 tags.append('p')
-
-        fb2_tag = TAG_MAP.get(tag, None)
-        if fb2_tag and fb2_tag not in tag_stack+tags:
+        elif fb2_tag and fb2_tag not in tag_stack+tags:
             fb2_text.append('<%s>' % fb2_tag)
             tags.append(fb2_tag)
 
