@@ -42,6 +42,7 @@ STYLES = [
 
 BLOCK_TAGS = [
     'p',
+    'div',
 ]
 
 BLOCK_STYLES = [
@@ -188,7 +189,7 @@ class PMLMLizer(object):
             text = re.sub('\n{2,}', '\n', text)
             text = re.sub('(?imu)^(?P<text>.+)$', lambda mo: mo.group('text') if re.search(r'\\[XxCm]', mo.group('text')) else '    %s' % mo.group('text'), text)
         else:
-            text = re.sub('\n{4,}', '\n\n\n', text)
+            text = re.sub('\n{3,}', '\n\n', text)
 
 
         return text
@@ -199,6 +200,7 @@ class PMLMLizer(object):
             return []
 
         text = []
+        tags = []
         style = stylizer.style(elem)
 
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
@@ -206,13 +208,14 @@ class PMLMLizer(object):
             return []
 
         tag = barename(elem.tag)
-        tag_count = 0
 
         # Are we in a paragraph block?
-        if tag in BLOCK_TAGS: # or style['display'] in BLOCK_STYLES:
-            if 'block' not in tag_stack:
-                tag_count += 1
-                tag_stack.append('block')
+        if tag in BLOCK_TAGS or style['display'] in BLOCK_STYLES:
+            if 'block' not in tag_stack+tags:
+                tags.append('block')
+            else:
+                # Start new block
+                text.append('\n\n')
 
         # Process tags that need special processing and that do not have inner
         # text. Usually these require an argument
@@ -245,14 +248,13 @@ class PMLMLizer(object):
         #    text.append('\\p')
 
         pml_tag = TAG_MAP.get(tag, None)
-        if pml_tag and pml_tag not in tag_stack:
-            tag_count += 1
+        if pml_tag and pml_tag not in tag_stack+tags:
             text.append('\\%s' % pml_tag)
-            tag_stack.append(pml_tag)
+            tags.append(pml_tag)
 
         # Special processing of tags that require an argument.
         # Anchors links
-        if tag in LINK_TAGS and 'q' not in tag_stack:
+        if tag in LINK_TAGS and 'q' not in tag_stack+tags:
             href = elem.get('href')
             if href:
                 href = page.abshref(href)
@@ -263,8 +265,7 @@ class PMLMLizer(object):
                         self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
                     href = self.link_hrefs[href]
                     text.append('\\q="#%s"' % href)
-                tag_count += 1
-                tag_stack.append('q')
+                tags.append('q')
 
         # Anchor ids
         id_name = elem.get('id')
@@ -274,10 +275,9 @@ class PMLMLizer(object):
         # Processes style information
         for s in STYLES:
             style_tag = s[1].get(style[s[0]], None)
-            if style_tag and style_tag not in tag_stack:
-                tag_count += 1
+            if style_tag and style_tag not in tag_stack+tags:
                 text.append('\\%s' % style_tag)
-                tag_stack.append(style_tag)
+                tags.append(style_tag)
         # margin
 
         # Proccess tags that contain text.
@@ -285,16 +285,15 @@ class PMLMLizer(object):
             text.append(self.remove_newlines(elem.text))
 
         for item in elem:
-            text += self.dump_text(item, stylizer, page, tag_stack)
+            text += self.dump_text(item, stylizer, page, tag_stack+tags)
 
-        close_tag_list = []
-        for i in range(0, tag_count):
-            close_tag_list.insert(0, tag_stack.pop())
-        text += self.close_tags(close_tag_list)
+        tags.reverse()
+        text += self.close_tags(tags)
+
         if tag in SEPARATE_TAGS:
             text.append('\n\n')
 
-        if 'block' not in tag_stack:
+        if 'block' not in tag_stack+tags:
             text.append('\n\n')
 
         #if style['page-break-after'] == 'always':
