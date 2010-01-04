@@ -1,7 +1,4 @@
-import string, re
-from calibre import strftime
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class NYTimes(BasicNewsRecipe):
 
@@ -10,7 +7,7 @@ class NYTimes(BasicNewsRecipe):
     description = 'Medical news'
     timefmt = ' [%d %b, %Y]'
     needs_subscription = True
-    
+
     no_stylesheets = True
     #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
     #remove_tags_after  = dict(name='td', attrs={'class':'newptool1'})
@@ -19,8 +16,8 @@ class NYTimes(BasicNewsRecipe):
        #dict(name='div', attrs={'class':'related-articles'}),
        #dict(name='div', attrs={'id':['qrformdiv', 'inSection', 'alpha-inner']}),
        dict(name='form', attrs={'onsubmit':"return verifySearch(this.w,'Keyword, citation, or author')"}),
-       dict(name='table', attrs={'cellspacing':'0'}),	
-    ]    
+       dict(name='table', attrs={'cellspacing':'0'}),
+    ]
 
     def preprocess_html(self, soup):
         table = soup.find('table')
@@ -28,7 +25,7 @@ class NYTimes(BasicNewsRecipe):
             table.extract()
         return soup
 
-    #TO LOGIN 
+    #TO LOGIN
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         br.open('http://content.nejm.org/cgi/login?uri=/')
@@ -44,7 +41,7 @@ class NYTimes(BasicNewsRecipe):
     #TO GET ARTICLE TOC
     def nejm_get_index(self):
             return self.index_to_soup('http://content.nejm.org/current.dtl')
-    
+
     # To parse artice toc
     def parse_index(self):
             soup = self.nejm_get_index()

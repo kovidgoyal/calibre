@@ -5,6 +5,131 @@
 # Also, each release can have new and improved recipes.
 
 - version: 0.6.31
+  date: 2010-01-03
+
+  new features:
+    - title: Allow users to cutomize where books are placed by the Send to Device action
+      type: major
+      description: >
+        "Uses can now specify the folder structure and file name  of files placed on the device when using the 
+        Send to Device action. This is useful for those devices that allow browsing of the on device folder 
+        structure. Customization is available via Preferences->Add/Save->Sending to device and can also
+        be overriden on a per device basis from Preferences->Plugins->Device Interface plugins"
+
+    - title: "Browse by tags: Make clicking on a tag cause all other tags to be de-selected, unless CTRL or SHIFT is pressed."
+
+    - title: "News downloads: Automagically handle PDF covers"
+        
+    - title: Sort tags in the main view alphabetically
+      tickets: [4234]
+
+    - title: Add command line option to content server to specify the path to the library to be served
+
+    - title: Support for the Hanvon N516, Binatone Readme and the Longshine ShineBook
+
+  bug fixes:
+    - title: Fix various issues that could prevent calibre from starting on OS X
+
+    - title: "Speed up device detection on windows. Difference will be noticeable for all the EB600 clones in particular"
+
+    - title: Fix regression preventing User style sheets from working in the e-book viewer for the past couple of releases.
+      tickets: [4331]
+
+    - title: "Don't update main books list when showing Cover Browser. Should speed it up on slow computers."
+      tickets: [4412]
+
+    - title: Fix detection of iRiver Story on windows
+      tickets: [4357]
+
+    - title: "EPUB Output: Fix play order in generated NCX being uniformly zero when the input HTML file has a name with special characters."
+      tickets: [4397]
+
+    - title: "Fix bug that prevented the changing of case of authors/series and publishers."
+
+    - title: Fix editing series name in main screen would cause an extra space to be added at the end
+      tickets: [4400]
+
+    - title: Fix support for Android devices on linux
+      tickets: [4404]
+
+    - title: "Allow GUI to start even if home directory does not support sockets on Linux/OS X"
+      ticket: [4074]
+
+    - title: "TXT Input: Remove specific options for indent and flush paragraphs, use the look and feel remove paragraph spacing option instead."
+
+    - title: "MOBI metadata: Don't leave around a styles.css file when trying to extract embedded metadata"
+
+    - title: "MOBI Input: Change default encoding for files that don't specify a codepage from cp1251 to cp1252"
+
+    - title: "Linux binary: Add system QT_PLUGIN_PATH to enable calibre to use the user specified Qt style"
+
+  new recipes:
+    - title: Foreign Affairs
+      author: kwetal
+
+    - title: New England Journal of Medicine
+      author: Krittika Goyal
+
+    - title: Asia One
+      author: Bruce
+
+    - title: Mother Jones
+      author: kwetal
+
+    - title: Entrepreneur Magazine
+      author: kwetal
+
+    - title: Milwaukee Journal Sentinel
+      author: Krittika Goyal
+
+    - title: Pilot One
+      author: Krittika Goyal
+
+    - title: Cyprus Weekly
+      author: kwetal
+
+    - title: RTE
+      author: Robin Phillips
+
+    - title: Psychology Today
+      author: Krittika Goyal
+
+    - title: The Providence Journal
+      author: Krittika Goyal
+
+    - title: The Denver Post
+      author: Krittika Goyal
+
+    - title: Pro Publica
+      author: kwetal
+
+    - title: Big Government
+      author: kwetal
+
+    - title: El Universal Impressa
+      author: kwetal
+
+    - title: Journal of Accountancy
+      author: kwetal
+
+    - title: The New York Magazine
+      author: Kovid Goyal
+
+    - title: Chowk
+      author: kwetal
+
+    - title: Dawn
+      author: kwetal
+
+    - title: The News
+      author: kwetal
+
+  improved recipes:
+    - The National Post
+    - The Economist (free)
+    - The Independent
+
+- version: 0.6.31
   date: 2009-12-27
 
   new features:

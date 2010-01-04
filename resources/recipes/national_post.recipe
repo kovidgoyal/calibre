@@ -1,5 +1,3 @@
-import string, re
-from calibre import strftime
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
@@ -10,7 +8,7 @@ class NYTimes(BasicNewsRecipe):
     description = 'Canadian national newspaper'
     timefmt = ' [%d %b, %Y]'
     needs_subscription = False
-    
+
     no_stylesheets = True
     #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
     #remove_tags_after  = dict(name='td', attrs={'class':'newptool1'})
@@ -19,8 +17,8 @@ class NYTimes(BasicNewsRecipe):
        dict(name='div', attrs={'class':'story-tools'}),
        #dict(name='div', attrs={'id':['qrformdiv', 'inSection', 'alpha-inner']}),
        #dict(name='form', attrs={'onsubmit':''}),
-       #dict(name='table', attrs={'cellspacing':'0'}),	
-    ]    
+       #dict(name='table', attrs={'cellspacing':'0'}),
+    ]
 
    # def preprocess_html(self, soup):
         # table = soup.find('table')
@@ -33,7 +31,7 @@ class NYTimes(BasicNewsRecipe):
     #TO GET ARTICLE TOC
     def nejm_get_index(self):
             return self.index_to_soup('http://www.nationalpost.com/todays-paper/index.html')
-    
+
     # To parse artice toc
     def parse_index(self):
             soup = self.nejm_get_index()
