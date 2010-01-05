@@ -57,7 +57,7 @@ class PRS505(CLI, Device):
 
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of metadata fields '
             'to turn into collections on the device.')
-    EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['series', 'tags'])
+    EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['series', 'tags', 'authors'])
 
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
