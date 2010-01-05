@@ -177,7 +177,7 @@ class PluginModel(QAbstractItemModel):
                 ans='%s (%s) %s %s\n%s'%(plugin.name, ver, _('by'), plugin.author, desc)
                 c = plugin_customization(plugin)
                 if c:
-                    ans += '\nCustomization: '+c
+                    ans += _('\nCustomization: ')+c
                 return QVariant(ans)
             if role == Qt.DecorationRole:
                 return self.disabled_icon if is_disabled(plugin) else self.icon
