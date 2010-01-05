@@ -11,8 +11,7 @@ from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
 class ConfigWidget(QWidget, Ui_ConfigWidget):
 
     def __init__(self, settings, all_formats, supports_subdirs,
-        must_read_metadata, extra_customization_message,
-        extra_customization_value):
+        must_read_metadata, extra_customization_message):
 
         QWidget.__init__(self)
         Ui_ConfigWidget.__init__(self)
@@ -41,8 +40,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             self.opt_read_metadata.hide()
         if extra_customization_message:
             self.extra_customization_label.setText(extra_customization_message)
-            if extra_customization_value:
-                self.opt_extra_customization.setText(extra_customization_value)
+            self.opt_extra_customization.setText(settings.extra_customization)
         else:
             self.extra_customization_label.setVisible(False)
             self.opt_extra_customization.setVisible(False)
