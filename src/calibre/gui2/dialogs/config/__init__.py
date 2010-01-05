@@ -437,6 +437,8 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.priority_label.setVisible(iswindows)
         self._plugin_model = PluginModel()
         self.plugin_view.setModel(self._plugin_model)
+        self.plugin_view.setStyleSheet(
+                "QTreeView::item { padding-bottom: 10px;}")
         self.connect(self.toggle_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='toggle'))
         self.connect(self.customize_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='customize'))
         self.connect(self.remove_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='remove'))
