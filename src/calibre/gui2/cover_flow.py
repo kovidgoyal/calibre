@@ -57,7 +57,13 @@ if pictureflow is not None:
             return self.model.count()
 
         def caption(self, index):
-            return self.model.title(index)
+            try:
+                ans = self.model.title(index)
+                if not ans:
+                    ans = ''
+            except:
+                ans = ''
+            return ans
 
         def reset(self):
             self.emit(SIGNAL('dataChanged()'))

@@ -152,9 +152,9 @@ class Delegate(QStyledItemDelegate):
 
 class Shortcuts(QAbstractListModel):
 
-    TEMPLATE = '''
+    TEMPLATE = u'''
     <p><b>{0}</b><br>
-    Keys: <code>{1}</code></p>
+    {2}: <code>{1}</code></p>
     '''
 
     def __init__(self, shortcuts, config_file_base_name, parent=None):
@@ -212,7 +212,7 @@ class Shortcuts(QAbstractListModel):
         key = self.order[row]
         if role == Qt.DisplayRole:
             return QVariant(self.TEMPLATE.format(self.descriptions[key],
-                    _(' or ').join(self.get_shortcuts(key))))
+                    _(' or ').join(self.get_shortcuts(key)), _('Keys')))
         if role == Qt.ToolTipRole:
             return QVariant(_('Double click to change'))
         if role == DEFAULTS:

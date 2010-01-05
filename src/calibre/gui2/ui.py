@@ -533,8 +533,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if not config['separate_cover_flow']:
                 self.library.layout().addWidget(self.cover_flow)
             self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
-            #self.connect(self.cover_flow, SIGNAL('itemActivated(int)'),
-            #             self.show_book_info)
             self.connect(self.status_bar.cover_flow_button,
                          SIGNAL('toggled(bool)'), self.toggle_cover_flow)
             self.connect(self.cover_flow, SIGNAL('stop()'),
@@ -758,7 +756,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     sm.select(index, sm.ClearAndSelect|sm.Rows)
                     self.library_view.setCurrentIndex(index)
         except:
-            #raise
             pass
 
 
