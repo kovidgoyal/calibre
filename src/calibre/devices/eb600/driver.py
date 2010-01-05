@@ -16,7 +16,6 @@ Windows PNP strings:
 '''
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.constants import iswindows
 
 class EB600(USBMS):
 
@@ -88,16 +87,14 @@ class SHINEBOOK(EB600):
 
     @classmethod
     def can_handle(cls, dev, debug=False):
-        try:
-            if not iswindows:
-                return dev[4] == 'ShineBook'
-        except:
-            pass
-        return True
+        return dev[4] == 'ShineBook'
 
 
 
 class POCKETBOOK360(EB600):
+
+    # Device info on OS X
+    # (8069L, 5768L, 272L, u'', u'', u'1.00')
 
     name = 'PocketBook 360 Device Interface'
 
@@ -111,6 +108,10 @@ class POCKETBOOK360(EB600):
 
     OSX_MAIN_MEM   = 'Philips Mass Storge Media'
     OSX_CARD_A_MEM = 'Philips Mass Storge Media'
+
+    @classmethod
+    def can_handle(cls, dev, debug=False):
+        return dev[-1] == '1.00' and not dev[-2] and not dev[-3]
 
 class GER2(EB600):
 

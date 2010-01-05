@@ -518,6 +518,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
+            self.cf_last_updated_at = None
+            self.cover_flow_sync_timer = QTimer(self)
+            self.cover_flow_sync_timer.timeout.connect(self.cover_flow_do_sync)
+            self.cover_flow_sync_flag = True
             text_height = 40 if config['separate_cover_flow'] else 25
             ah = available_height()
             cfh = ah-100
@@ -528,17 +532,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.cover_flow.setVisible(False)
             if not config['separate_cover_flow']:
                 self.library.layout().addWidget(self.cover_flow)
-            #self.connect(self.cover_flow, SIGNAL('currentChanged(int)'),
-            #             self.sync_cf_to_listview)
+            self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
             #self.connect(self.cover_flow, SIGNAL('itemActivated(int)'),
             #             self.show_book_info)
             self.connect(self.status_bar.cover_flow_button,
                          SIGNAL('toggled(bool)'), self.toggle_cover_flow)
             self.connect(self.cover_flow, SIGNAL('stop()'),
                          self.status_bar.cover_flow_button.toggle)
-            #QObject.connect(self.library_view.selectionModel(),
-            #            SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
-            #                self.sync_cf_to_listview)
+            self.library_view.selectionModel().currentRowChanged.connect(
+                    self.sync_cf_to_listview)
             self.db_images = DatabaseImages(self.library_view.model())
             self.cover_flow.setImages(self.db_images)
         else:
@@ -684,7 +686,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.connect(d, SIGNAL('finished(int)'),
                     self.uncheck_cover_button)
                 self.cf_dialog = d
+                self.cover_flow_sync_timer.start(500)
             else:
+                self.cover_flow_sync_timer.stop()
                 idx = self.library_view.model().index(self.cover_flow.currentSlide(), 0)
                 if idx.isValid():
                     sm = self.library_view.selectionModel()
@@ -705,7 +709,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 #self.status_bar.book_info.book_data.setMaximumHeight(100)
                 #self.status_bar.setMaximumHeight(120)
                 self.library_view.scrollTo(self.library_view.currentIndex())
+                self.cover_flow_sync_timer.start(500)
             else:
+                self.cover_flow_sync_timer.stop()
                 self.cover_flow.setVisible(False)
                 idx = self.library_view.model().index(self.cover_flow.currentSlide(), 0)
                 if idx.isValid():
@@ -731,14 +737,33 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if view is self.current_view():
             self.search.search_done(ok)
 
-    def sync_cf_to_listview(self, index, *args):
-        if not hasattr(index, 'row') and \
-                self.library_view.currentIndex().row() != index:
-            index = self.library_view.model().index(index, 0)
-            self.library_view.setCurrentIndex(index)
-        if hasattr(index, 'row') and self.cover_flow.isVisible() and \
-                self.cover_flow.currentSlide() != index.row():
-            self.cover_flow.setCurrentSlide(index.row())
+    def sync_cf_to_listview(self, current, previous):
+        if self.cover_flow_sync_flag and self.cover_flow.isVisible() and \
+                self.cover_flow.currentSlide() != current.row():
+            self.cover_flow.setCurrentSlide(current.row())
+        self.cover_flow_sync_flag = True
+
+    def cover_flow_do_sync(self):
+        self.cover_flow_sync_flag = True
+        try:
+            if self.cover_flow.isVisible() and self.cf_last_updated_at is not None and \
+                time.time() - self.cf_last_updated_at > 0.5:
+                self.cf_last_updated_at = None
+                row = self.cover_flow.currentSlide()
+                m = self.library_view.model()
+                index = m.index(row, 0)
+                if self.library_view.currentIndex().row() != row and index.isValid():
+                    self.cover_flow_sync_flag = False
+                    sm = self.library_view.selectionModel()
+                    sm.select(index, sm.ClearAndSelect|sm.Rows)
+                    self.library_view.setCurrentIndex(index)
+        except:
+            #raise
+            pass
+
+
+    def sync_listview_to_cf(self, row):
+        self.cf_last_updated_at = time.time()
 
     def another_instance_wants_to_talk(self):
         try:
