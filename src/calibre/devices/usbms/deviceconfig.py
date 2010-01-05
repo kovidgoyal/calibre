@@ -47,8 +47,7 @@ class DeviceConfig(object):
     def config_widget(cls):
         from calibre.gui2.device_drivers.configwidget import ConfigWidget
         cw = ConfigWidget(cls.settings(), cls.FORMATS, cls.SUPPORTS_SUB_DIRS,
-            cls.MUST_READ_METADATA, cls.EXTRA_CUSTOMIZATION_MESSAGE,
-            cls.EXTRA_CUSTOMIZATION_DEFAULT)
+            cls.MUST_READ_METADATA, cls.EXTRA_CUSTOMIZATION_MESSAGE)
         return cw
 
     @classmethod
