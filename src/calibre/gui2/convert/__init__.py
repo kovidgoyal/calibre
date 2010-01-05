@@ -145,10 +145,8 @@ class Widget(QWidget):
             help = help_provider(name)
             if not help: continue
             g._help = help
-            g.setToolTip('\n'.join(w.wrap(help.replace('<', '&lt;').replace('>',
-                '&gt;'))))
-            g.setWhatsThis('\n'.join(w.wrap(help.replace('<', '&lt;').replace('>',
-                '&gt;'))))
+            g.setToolTip('\n'.join(w.wrap(help)))
+            g.setWhatsThis('\n'.join(w.wrap(help)))
             g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
 
 

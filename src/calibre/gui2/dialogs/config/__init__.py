@@ -177,7 +177,7 @@ class PluginModel(QAbstractItemModel):
                 ans='%s (%s) %s %s\n%s'%(plugin.name, ver, _('by'), plugin.author, desc)
                 c = plugin_customization(plugin)
                 if c:
-                    ans += '\nCustomization: '+c
+                    ans += _('\nCustomization: ')+c
                 return QVariant(ans)
             if role == Qt.DecorationRole:
                 return self.disabled_icon if is_disabled(plugin) else self.icon
@@ -437,6 +437,8 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.priority_label.setVisible(iswindows)
         self._plugin_model = PluginModel()
         self.plugin_view.setModel(self._plugin_model)
+        self.plugin_view.setStyleSheet(
+                "QTreeView::item { padding-bottom: 10px;}")
         self.connect(self.toggle_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='toggle'))
         self.connect(self.customize_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='customize'))
         self.connect(self.remove_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='remove'))

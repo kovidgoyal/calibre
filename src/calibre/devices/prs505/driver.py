@@ -56,8 +56,9 @@ class PRS505(CLI, Device):
     EBOOK_DIR_MAIN = 'database/media/books'
 
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of metadata fields '
-            'to turn into collections on the device.')
-    EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['series', 'tags', 'authors'])
+            'to turn into collections on the device. Posiibilities include: ')+\
+                    'series, tags, authors'
+    EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['series', 'tags'])
 
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id

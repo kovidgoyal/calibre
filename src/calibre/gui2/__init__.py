@@ -529,6 +529,18 @@ class Application(QApplication):
         self.load_translations()
         qt_app = self
 
+        if islinux:
+            self.setStyleSheet('''
+                    QToolTip {
+                        border: 2px solid black;
+                        padding: 5px;
+                        border-radius: 10px;
+                        opacity: 200;
+                        background-color: #e1e1ff;
+                    }
+            ''')
+
+
     def load_translations(self):
         if self._translator is not None:
             self.removeTranslator(self._translator)
