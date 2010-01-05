@@ -180,7 +180,7 @@ class BookList(_BookList):
                     return child
         return None
 
-    def add_book(self, mi, name, size, ctime):
+    def add_book(self, mi, name, collections, size, ctime):
         """ Add a node into the DOM tree, representing a book """
         book = self.book_by_path(name)
         if book is not None:
@@ -221,12 +221,18 @@ class BookList(_BookList):
         book = Book(node, self.mountpath, [], prefix=self.prefix)
         book.datetime = ctime
         self.append(book)
+
         tags = []
-        if mi.tags:
-            tags.extend(mi.tags)
-        if mi.series:
-            tags.append(mi.series)
+        for item in collections:
+            item = item.strip()
+            mitem = getattr(mi, item, None)
+            if mitem:
+                if isinstance(mitem, list):
+                    tags.extend(mitem)
+                else:
+                    tags.append(mitem)
         if tags:
+            tags = list(set(tags))
             if hasattr(mi, 'tag_order'):
                 self.tag_order.update(mi.tag_order)
             self.set_tags(book, tags)

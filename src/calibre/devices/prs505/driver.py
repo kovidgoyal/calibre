@@ -55,6 +55,10 @@ class PRS505(CLI, Device):
     MUST_READ_METADATA = True
     EBOOK_DIR_MAIN = 'database/media/books'
 
+    EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of metadata fields '
+            'to turn into collections on the device.')
+    EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['series', 'tags'])
+
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
 
@@ -159,7 +163,8 @@ class PRS505(CLI, Device):
             if name.startswith('/'):
                 name = name[1:]
 
-            booklists[blist].add_book(info, name, *location[1:-1])
+            opts = self.settings()
+            booklists[blist].add_book(info, name, opts.extra_customization.split(','), *location[1:-1])
         fix_ids(*booklists)
 
     def delete_books(self, paths, end_session=True):
