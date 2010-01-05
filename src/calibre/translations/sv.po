@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-04 02:55+0000\n"
-"PO-Revision-Date: 2010-01-04 02:38+0000\n"
+"PO-Revision-Date: 2010-01-04 20:01+0000\n"
 "Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-04 04:37+0000\n"
+"X-Launchpad-Export-Date: 2010-01-05 04:39+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -2784,7 +2784,7 @@ msgstr "Serietidningsindata"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:17
 msgid "Options specific to"
-msgstr ""
+msgstr "Alternativ specifika för"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:13
@@ -2826,7 +2826,7 @@ msgstr "Formulär"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:94
 msgid "&Number of Colors:"
-msgstr ""
+msgstr "&Antal färger:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:96
@@ -2836,7 +2836,7 @@ msgstr "Inaktivera &normalisering"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:97
 msgid "Keep &aspect ratio"
-msgstr ""
+msgstr "Behåll &proportion"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:98
@@ -3031,6 +3031,18 @@ msgid ""
 "ebook.com/user_manual/conversion.html#font-size-rescaling\">User Manual</a> "
 "for a discussion of how font size rescaling works.</p>"
 msgstr ""
+"<p> Guiden hjälper dig välja en lämplig teckenstorleksnyckel för dina behov. "
+"Skriv bara in basteckenstorleken av ingående dokument och sedan ange en "
+"teckenstorleken. Guiden kommer att visa vilken teckenstorlek som kommer att "
+"användas för omskalningsalgoritmen för teckensnittet. Du kan justera "
+"algoritmen genom att justera utbasteckenstorleken och typsnittsnyckel nedan. "
+"När du hittar värden som passar dig, klicka på OK. </p>\n"
+"<p> Som standard om basteckenstorleken ut är noll och / eller ingen "
+"typsnittsnyckel anges, calibre kommer att använda värdena från den aktuella "
+"utprofilen. </p>\n"
+"<p> Se <a href=\"http://calibre-ebook.com/user_manual/conversion.html#font-"
+"size-rescaling\"> Bruksanvisning </a> för en beskrivning om hur "
+"teckenstorleksomskalning fungerar. < /p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:103
 msgid "&Output document"
@@ -3083,7 +3095,7 @@ msgstr "0.0 pt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
-msgstr ""
+msgstr "Utseende och känsla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:18
 msgid "Control the look and feel of the output"
@@ -3123,10 +3135,13 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
 msgstr ""
+"<p> När calibre tar bort styckesavstånd ställer det automatiskt ett "
+"styckesindraget, för att säkerställa att punkterna kan lätt skiljas. Det här "
+"alternativet styr bredden på nämnda indraget."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:131
 msgid " em"
-msgstr ""
+msgstr " em"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:132
 msgid "Insert &blank line"
@@ -3138,7 +3153,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:134
 msgid "&Linearize tables"
-msgstr ""
+msgstr "&Linearisera tabeller"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:135
 msgid "&Transliterate unicode characters to ASCII."
@@ -3154,7 +3169,7 @@ msgstr "LRF utdata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:116
 msgid "Enable &autorotation of wide images"
-msgstr ""
+msgstr "Aktivera &autorotation av breda bilder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:117
 msgid "&Wordspace:"
@@ -3162,15 +3177,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:119
 msgid "Minimum para. &indent:"
-msgstr ""
+msgstr "Minimum styckes&indrag:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:121
 msgid "Render &tables as images"
-msgstr ""
+msgstr "Framställ &tabeller som bilder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:122
 msgid "Text size multiplier for text in rendered tables:"
-msgstr ""
+msgstr "Textstorleksmultiplikator för text i framställda tabeller:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:123
 msgid "Add &header"
@@ -3413,7 +3428,7 @@ msgstr "PDB utdata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:36
 msgid "&Format:"
-msgstr ""
+msgstr "&Format:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:12
 msgid "PDF Input"
@@ -3466,7 +3481,7 @@ msgstr "~"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:46
 msgid "Regex Builder"
-msgstr ""
+msgstr "Regulära uttrycksbyggare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:47
 msgid "Preview"
@@ -3474,7 +3489,7 @@ msgstr "Förhandsgranskning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:48
 msgid "Regex:"
-msgstr ""
+msgstr "Regulära uttryck:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:171
 msgid "Convert"
@@ -3482,7 +3497,7 @@ msgstr "Konvertera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:196
 msgid "Options specific to the input format."
-msgstr ""
+msgstr "Alternativ specifika för de ingående formatet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:61
@@ -3550,7 +3565,7 @@ msgstr "XPath-uttrycket %s är ogiltig."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:60
 msgid "Chapter &mark:"
-msgstr ""
+msgstr "Kapitel&markering:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:61
 msgid "Remove first &image"
@@ -3576,7 +3591,7 @@ msgstr ""
 msgid ""
 "Table of\n"
 "Contents"
-msgstr ""
+msgstr "Innehållsförteckning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:18
 msgid "Control the creation/conversion of the Table of Contents."
@@ -3584,15 +3599,15 @@ msgstr "Styr skapande / omvandling av innehållsförteckningen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:29
 msgid "Level &1 TOC (XPath expression):"
-msgstr ""
+msgstr "Nivå &1 Innehållsförteckning (XPath uttryck):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:30
 msgid "Level &2 TOC (XPath expression):"
-msgstr ""
+msgstr "Nivå  &2 Innehållsförteckning (XPath uttryck):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:31
 msgid "Level &3 TOC (XPath expression):"
-msgstr ""
+msgstr "Nivå  &3 Innehållsförteckning (XPath uttryck):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:63
 msgid "Do not add &detected chapters to the Table of Contents"
@@ -3612,7 +3627,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:67
 msgid "TOC &Filter:"
-msgstr ""
+msgstr "Innehållsförtecknings&filter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
@@ -3628,6 +3643,9 @@ msgid ""
 "advanced formatting. To learn more visit <a "
 "href=\"http://daringfireball.net/projects/markdown\">markdown</a>."
 msgstr ""
+"<p> Markdown är ett enkelt språk för uppmärkning av textfiler, som möjliggör "
+"avancerad formatering. Om du vill veta mer besök <a "
+"href=\"http://daringfireball.net/projects/markdown\"> markdown </a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:16
 msgid "TXT Output"
@@ -3710,7 +3728,7 @@ msgstr "hr"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:80
 msgid "span"
-msgstr ""
+msgstr "span"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:81
 msgid "Having the &attribute:"
@@ -3718,7 +3736,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:82
 msgid "With &value:"
-msgstr ""
+msgstr "Med &värde:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:83
 msgid "(A regular expression)"
@@ -3733,6 +3751,13 @@ msgid ""
 "tag.</p><p>To learn more advanced usage of XPath see the <a "
 "href=\"http://calibre-ebook.com/user_manual/xpath.html\">XPath Tutorial</a>."
 msgstr ""
+"<p> Till exempel, för att matcha alla h2 taggar som har class = \"kapitel\", "
+"ange tagg till <i> H2 </i>, attribut <i> class </i> och värde till <i> "
+"kapitel </i>. </p> Om attribut lämnas tomt matchar alla attribut och lämnas "
+"värdet tomt kommer att matcha alla värden. Ange tag till * så matchas alla "
+"taggar. </Strong> Om du vill veta mer avancerad användning av XPath se <a "
+"href=\"http://calibre-ebook.com/user_manual/xpath.html\"> XPath Tutorial < "
+"/a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:39
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:130
@@ -3819,7 +3844,7 @@ msgstr "vald att skickas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:515
 msgid "Choose format to send to device"
-msgstr ""
+msgstr "Välj format att skicka till enhet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:522
 msgid "No device"
@@ -3827,7 +3852,7 @@ msgstr "Ingen enhet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:523
 msgid "Cannot send: No device is connected"
-msgstr ""
+msgstr "Kan inte skicka: ingen enhet är ansluten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:526
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:530
@@ -3837,7 +3862,7 @@ msgstr "Inget kort"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:527
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:531
 msgid "Cannot send: Device has no storage card"
-msgstr ""
+msgstr "Kan inte skicka: Enhet har inget minneskort"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:572
 msgid "E-book:"
@@ -3845,12 +3870,12 @@ msgstr "E-bok:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:575
 msgid "Attached, you will find the e-book"
-msgstr ""
+msgstr "Bifogat, kommer du finna e-boken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:576
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:177
 msgid "by"
-msgstr ""
+msgstr "av"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:577
 msgid "in the %s format."
@@ -4003,7 +4028,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:170
 msgid "%(plugin_type)s %(plugins)s"
-msgstr ""
+msgstr "%(plugin_type)s %(plugins)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:171
 msgid "plugins"
@@ -4119,7 +4144,7 @@ msgstr "Instickmodulen: %s kan inte inaktiveras"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:558
 msgid "Plugin not customizable"
-msgstr ""
+msgstr "Instickmodulen går inte att anpassa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:559
 msgid "Plugin: %s does not need customization"
@@ -4163,7 +4188,7 @@ msgstr "Ogiltig storlek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:707
 msgid "The size %s is invalid. must be of the form widthxheight"
-msgstr ""
+msgstr "Storleken %s är ogiltig. måste vara av formen bredd x höjd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:760
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:765
@@ -4265,15 +4290,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:111
 msgid "Convert non-English characters to &English equivalents"
-msgstr ""
+msgstr "Konvertera icke-engelska tecken &engelska motsvarigheter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:112
 msgid "Format &dates as:"
-msgstr ""
+msgstr "Formatera &datum som:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:113
 msgid "File &formats to save:"
-msgstr ""
+msgstr "Fil&format för att spara:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:114
 msgid "Replace space with &underscores"
@@ -4285,7 +4310,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:116
 msgid "&Saving books"
-msgstr ""
+msgstr "&Spara böcker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:117
 msgid ""
@@ -4320,7 +4345,7 @@ msgstr "Bläddra fram till den nya databasen platsen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:503
 msgid "Show notification when &new version is available"
-msgstr ""
+msgstr "Visa meddelande när &ny version finns tillgänglig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:504
 msgid "Download &social metadata (tags/ratings/etc.) by default"
@@ -4358,7 +4383,7 @@ msgstr "Låg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:512
 msgid "Job &priority:"
-msgstr ""
+msgstr "Jobb&prioritet:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:513
 msgid "Preferred &output format:"
@@ -4482,10 +4507,13 @@ msgid ""
 "collection using a browser from anywhere in the world. Any changes to the "
 "settings will only take effect after a server restart."
 msgstr ""
+"calibre innehåller en nätverksserver som ger dig tillgång till din "
+"boksamling med en webbläsare från hela världen. Eventuella ändringar i "
+"inställningarna träder i kraft först efter en serveromstart."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:547
 msgid "Server &port:"
-msgstr ""
+msgstr "Server&port:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:548
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:58
@@ -4506,6 +4534,8 @@ msgid ""
 "If you leave the password blank, anyone will be able to access your book "
 "collection using the web interface."
 msgstr ""
+"Om du lämnar lösenordet tomt, kan vem som helst komma åt din boksamling med "
+"webbgränssnittet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:551
 msgid ""
@@ -4539,7 +4569,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:557
 msgid "&Test Server"
-msgstr ""
+msgstr "&Testserver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:558
 msgid "Run server &automatically on startup"
@@ -4559,6 +4589,12 @@ msgid ""
 "on your iPhone. Here myhostname should be the fully qualified hostname or "
 "the IP address of the computer calibre is running on."
 msgstr ""
+"<p> Kom ihåg att låta calibre köra eftersom server bara kör så länge calibre "
+"är igång.\n"
+"<p> Stanza borde se din calibre samling automatiskt. Om inte, prova att "
+"lägga till webbadressen http://myhostname:8080 som en ny katalog i Stanza -"
+"läsaren på din iPhone. Här värddatornamn bör vara fullständigt värdnamn "
+"eller IP-adressen för datorn calibre körs på."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:562
 msgid ""
@@ -4808,7 +4844,7 @@ msgstr "Kommaseparerad lista med taggar för att ta bort från böckerna. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:156
 msgid "Remove &format:"
-msgstr ""
+msgstr "Ta bort &format:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:157
 msgid "&Swap title and author"
@@ -4962,11 +4998,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:380
 msgid "dd MMM yyyy"
-msgstr ""
+msgstr "dd MMM yyyy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:381
 msgid "&Date:"
-msgstr ""
+msgstr "&Datum:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:382
 msgid "&Comments"
@@ -5032,7 +5068,7 @@ msgstr "Senast hämtad: aldrig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:191
 msgid "%d days, %d hours and %d minutes ago"
-msgstr ""
+msgstr "%d dagar, %d timmar och %d minuter sedan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:193
 msgid "Last downloaded"
@@ -5129,7 +5165,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:213
 msgid "For the scheduling to work, you must leave calibre running."
-msgstr ""
+msgstr "För schemaläggning ska fungera måste du lämna calibre igång."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:214
 msgid "&Schedule"
@@ -5216,10 +5252,12 @@ msgid ""
 "See the <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-search-"
 "interface\">User Manual</a> for more help"
 msgstr ""
+"Se <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-search-"
+"interface\"> Bruksanvisning </ a> för mer hjälp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:45
 msgid "Choose formats"
-msgstr ""
+msgstr "Välj format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:62
 msgid "Are your sure?"
@@ -5230,6 +5268,8 @@ msgid ""
 "The following tags are used by one or more books. Are you certain you want "
 "to delete them?"
 msgstr ""
+"Följande taggar används av en eller flera böcker. Är du säker på att du vill "
+"ta bort dem?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:123
 msgid "Tag Editor"
@@ -5412,6 +5452,16 @@ msgid ""
 "use the \"Advanced mode\" to further customize the fetch "
 "process.</p></body></html>"
 msgstr ""
+"<html> <head> <meta name=\"qrichtext\" content=\"1\" /> <style "
+"type=\"text/css\">\n"
+"p, li (white-space: pre-wrap;)\n"
+"</style> </head> <body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"> Skapa ett grundläggande "
+"nyhetsrecept, genom att lägga till RSS-flöden för det. <br /> För de flesta "
+"typer av flöden, måste du använda \"Avancerat läge\" för att ytterligare "
+"anpassa hämtprocessen. </p> </body> </html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:260
 msgid "Recipe &title:"
@@ -5494,6 +5544,27 @@ msgid ""
 "expression on a few sample filenames. The group names for the various "
 "metadata entries are documented in tooltips.</p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html> <head> <meta name=\"qrichtext\" content=\"1\" /> <style "
+"type=\"text/css\">\n"
+"p, li (white-space: pre-wrap;)\n"
+"</style> </head> <body style=\" font-family:'Candara'; font-size:10pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"> Ange ett reguljärt "
+"uttrycksmönster att använda när man försöker gissa e-boks metadata från "
+"filnamn. </p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"> A <a href = "
+"\"http://docs.python.org/lib/re-syntax.html\"> <span style=\" text-"
+"decoration: underline; color:#0000ff;\"> referens </ span> </a > på syntax "
+"för reguljära uttryck finns. </ p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"> Använd <span style = "
+"\"font-weight: 600;\"> Test </ span> funktionaliten nedan för att testa ditt "
+"vanliga uttryck på ett par exempel på filnamn. Gruppnamnen för de olika "
+"metadata poster dokumenteras i verktygstips. </ P> </ body> </ html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:114
 msgid "Regular &expression"
@@ -5513,7 +5584,7 @@ msgstr "Titel:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:119
 msgid "Regular expression (?P&lt;title&gt;)"
-msgstr ""
+msgstr "Reguljära uttryck (?P&lt;title&gt;)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:123
@@ -5534,7 +5605,7 @@ msgstr "Författare:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:122
 msgid "Regular expression (?P<author>)"
-msgstr ""
+msgstr "Reguljära uttryck (?P<author>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:124
 msgid "Series:"
@@ -5542,7 +5613,7 @@ msgstr "Serier:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:125
 msgid "Regular expression (?P<series>)"
-msgstr ""
+msgstr "Reguljära uttryck (?P<series>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:127
 msgid "Series index:"
@@ -5550,7 +5621,7 @@ msgstr "Indexserier:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:128
 msgid "Regular expression (?P<series_index>)"
-msgstr ""
+msgstr "Reguljära uttryck (?P<series_index>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:130
 msgid "ISBN:"
@@ -5558,7 +5629,7 @@ msgstr "ISBN:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:131
 msgid "Regular expression (?P<isbn>)"
-msgstr ""
+msgstr "Reguljära uttryck (?P<isbn>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:53
 msgid "Job"
@@ -5693,7 +5764,7 @@ msgstr "LRF visare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:129
 msgid "Parsing LRF file"
-msgstr ""
+msgstr "Tolkar LRF-fil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:130
 msgid "LRF Viewer toolbar"
@@ -5868,7 +5939,7 @@ msgstr "F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:356
 msgid "Convert E-books"
-msgstr ""
+msgstr "Omvandlar e-böcker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:357
 msgid "C"
@@ -6091,7 +6162,7 @@ msgstr "Sök (Avancerad Sökning klicka på knappen till vänster)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:159
 msgid "Error communicating with device"
-msgstr ""
+msgstr "Fel vid kommunikation med enheten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:176
 msgid "&Restore"
@@ -6664,7 +6735,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:155
 msgid "&Monospace family:"
-msgstr ""
+msgstr "&Monospace familj:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:156
 msgid "&Default font size:"
@@ -6730,7 +6801,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:172
 msgid "Double click to change a keyboard shortcut"
-msgstr ""
+msgstr "Dubbelklicka för att ändra ett kortkommando"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:173
 msgid "&Keyboard shortcuts"
@@ -6832,7 +6903,7 @@ msgstr "Rulla neråt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:39
 msgid "Scroll up"
-msgstr ""
+msgstr "Rulla uppåt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:42
 msgid "Scroll left"
@@ -7314,14 +7385,15 @@ msgstr "&Port:"
 msgid ""
 "The port your mail server listens for connections on. The default is 25"
 msgstr ""
+"Hamnen din mailserver lyssnar efter anslutningar på. Grundinställning är 25"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:118
 msgid "Your username on the mail server"
-msgstr ""
+msgstr "Ditt användarnamn på e-postservern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:120
 msgid "Your password on the mail server"
-msgstr ""
+msgstr "Ditt lösenord på e-postservern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:121
 msgid "&Show"
@@ -7357,7 +7429,7 @@ msgstr "Använd Gmail"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:128
 msgid "&Test email"
-msgstr ""
+msgstr "E-post &Test"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:44
 msgid ""
@@ -7366,6 +7438,10 @@ msgid ""
 "directly on the device. To do this you have to turn on the calibre content "
 "server."
 msgstr ""
+"<p> Om du använder <a href=\"http://www.lexcycle.com/download\"> Stanza </ "
+"a> e-boksprogrammet på din iPhone / iTouch, kan du öppna din calibre "
+"boksamling direkt på enheten. För att göra detta måste du slå på calibre "
+"innehållsservern."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:45
 msgid "Turn on the &content server"
@@ -7692,7 +7768,7 @@ msgstr "Specificering av den här växeln kommer att stänga av detta beteende."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:579
 msgid "You must specify some ids or the %s option"
-msgstr ""
+msgstr "Du måste ange några IDs eller %s alternativ"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:591
 msgid ""
@@ -7705,106 +7781,123 @@ msgid ""
 "\n"
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
+"%% prog kommando [alternativ] [argument]\n"
+"\n"
+"%% PROG är kommandoradsgränssnitt till calibres bokdatabasen.\n"
+"\n"
+"kommando är en av:\n"
+"  %s\n"
+"\n"
+"For help on an individual command: %%prog command --help\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1642
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
-msgstr ""
+msgstr "<p> Migrera gamla databasen med e-bokbibliotek i% s <br> <center>"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1671
 msgid "Copying <b>%s</b>"
-msgstr ""
+msgstr "Kopiering <b>% s </ b>"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1688
 msgid "Compacting database"
-msgstr ""
+msgstr "Komprimerande databas"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1781
 msgid "Checking SQL integrity..."
-msgstr ""
+msgstr "Kontrollerar SQL integritet ..."
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1818
 msgid "Checking for missing files."
-msgstr ""
+msgstr "Kontroll av saknade filer."
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1840
 msgid "Checked id"
-msgstr ""
+msgstr "Kontrollerad id"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:24
 msgid "The title"
-msgstr ""
+msgstr "Titeln"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:25
 msgid "The authors"
-msgstr ""
+msgstr "Författarna"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:26
 msgid "The author sort string"
-msgstr ""
+msgstr "Författaresorterasträngen"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:27
 msgid "The tags"
-msgstr ""
+msgstr "Taggarna"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:28
 msgid "The series"
-msgstr ""
+msgstr "Serien"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:29
 msgid "The series number. To get leading zeros use {series_index:03n}"
 msgstr ""
+"Serienummerenö. För att få inledande nollor använd {series_index: 03N}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:30
 msgid "The rating"
-msgstr ""
+msgstr "Betyget"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:31
 msgid "The ISBN"
-msgstr ""
+msgstr "ISBN numret"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:32
 msgid "The publisher"
-msgstr ""
+msgstr "Förlaget"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:33
 msgid "The date"
-msgstr ""
+msgstr "Datumet"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:34
 msgid "The published date"
-msgstr ""
+msgstr "Utgivningsdatumet"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:35
 msgid "The calibre internal id"
-msgstr ""
+msgstr "calibre-interna id"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:45
 msgid "Options to control saving to disk"
-msgstr ""
+msgstr "Alternativ för att kontrollera att spara till disk"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:51
 msgid ""
 "Normally, calibre will update the metadata in the saved files from what is "
 "in the calibre library. Makes saving to disk slower."
 msgstr ""
+"Normalt kommer calibre uppdatera metadata i de sparade filerna från det som "
+"står i calibre-biblioteket. Gör sparning till disk långsammare."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:54
 msgid ""
 "Normally, calibre will write the metadata into a separate OPF file along "
 "with the actual e-book files."
 msgstr ""
+"Normalt kommer calibre skriva metadata i en separat OPF-fil tillsammans med "
+"själva e-boksfiler."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:57
 msgid ""
 "Normally, calibre will save the cover in a separate file along with the "
 "actual e-book file(s)."
 msgstr ""
+"Normalt kommer calibre spara omslaget i en separat fil tillsammans med "
+"själva e-boksfil(er)."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:60
 msgid ""
 "Comma separated list of formats to save for each book. By default all "
 "available books are saved."
 msgstr ""
+"Kommaseparerad lista av format för att spara för varje bok. Som standard "
+"sparas alla tillgängliga böcker."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:63
 msgid ""
@@ -7813,6 +7906,10 @@ msgid ""
 "subdirectory with filenames containing title and author. Available controls "
 "are: {%s}"
 msgstr ""
+"Mallen att kontrollera filnamnet och katalogstrukturen av de sparade "
+"filerna. Standard är \"%s\" som kan spara böcker till en per-författare "
+"underkatalog med filnamn som innehåller titel och författare. Tillgängliga "
+"kontroller: {%s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:68
 msgid ""
@@ -7821,6 +7918,10 @@ msgid ""
 "directory with filenames containing title and author. Available controls "
 "are: {%s}"
 msgstr ""
+"Mallen att kontrollera filnamnet och katalogstrukturen av filer som sänds "
+"till enheten. Standard är \"%s\" som kan spara böcker till en per-författare "
+"katalog med filnamn som innehåller titel och författare. Tillgängliga "
+"kontroller: {%s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:75
 msgid ""
@@ -7829,28 +7930,35 @@ msgid ""
 "experience errors when saving, depending on how well the filesystem you are "
 "saving to supports unicode."
 msgstr ""
+"Normalt kommer calibre konvertera alla icke engelska tecken till engelska "
+"motsvarigheter till filnamnen. VARNING: Om du stänga av denna funktion kan "
+"det uppstå fel vid sparande, beroende på hur väl filsystemet du sparar till "
+"har stöd för unicode."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:81
 msgid ""
 "The format in which to display dates. %d - day, %b - month, %Y - year. "
 "Default is: %b, %Y"
 msgstr ""
+"I vilket format för att visa datum. %d - day, %b - månad, %Y - year. "
+"Grundinställning är: %b%Y"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:84
 msgid "Convert paths to lowercase."
-msgstr ""
+msgstr "Konvertera sökvägar till gemener."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:86
 msgid "Replace whitespace with underscores."
-msgstr ""
+msgstr "Ersätt blanksteg med understreck"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:245
 msgid "Requested formats not available"
-msgstr ""
+msgstr "Efterfrågade format finns inte"
 
 #: /home/kovid/work/calibre/src/calibre/library/server.py:378
 msgid "Password to access your calibre library. Username is "
 msgstr ""
+"Lösenord för att komma åt din calibre-biblioteket. Användarnamnet är "
 
 #: /home/kovid/work/calibre/src/calibre/library/server.py:856
 msgid ""
@@ -7858,164 +7966,169 @@ msgid ""
 "\n"
 "Start the calibre content server."
 msgstr ""
+"[alternativ]\n"
+"\n"
+"Starta kaliber innehåll servern."
 
 #: /home/kovid/work/calibre/src/calibre/library/server.py:858
 msgid "Path to the library folder to serve with the content server"
-msgstr ""
+msgstr "Sökväg till mappen Bibliotek att tjäna med innehållet server"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:48
 msgid "%sUsage%s: %s\n"
-msgstr ""
+msgstr "%sAnvändning%s: %s\n"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:92
 msgid "Created by "
-msgstr ""
+msgstr "Skapad av "
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:93
 msgid ""
 "Whenever you pass arguments to %prog that have spaces in them, enclose the "
 "arguments in quotation marks."
 msgstr ""
+"Närhelst du skickar argument till %prog som har mellanslag i dem, bifoga "
+"argumenten med citattecken."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:631
 msgid "Path to the database in which books are stored"
-msgstr ""
+msgstr "Sökvägen till den databas där böcker finns lagrade"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:633
 msgid "Pattern to guess metadata from filenames"
-msgstr ""
+msgstr "Mönster att gissa metadata från filnamn"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:635
 msgid "Access key for isbndb.com"
-msgstr ""
+msgstr "Accessnyckel för isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:637
 msgid "Default timeout for network operations (seconds)"
-msgstr ""
+msgstr "Standard tidsbegränsning för nätdrift (sekunder)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:639
 msgid "Path to directory in which your library of books is stored"
-msgstr ""
+msgstr "Sökvägen till katalogen där ditt bibliotek med böcker lagras"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:641
 msgid "The language in which to display the user interface"
-msgstr ""
+msgstr "Vilket språk som ska visas i användargränssnittet"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:643
 msgid "The default output format for ebook conversions."
-msgstr ""
+msgstr "Standardutdataformatet för e-bokomvandlingar."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:647
 msgid "Ordered list of formats to prefer for input."
-msgstr ""
+msgstr "Ordnad lista av format att föredra för indata"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:649
 msgid "Read metadata from files"
-msgstr ""
+msgstr "Läs metadata från filer"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:651
 msgid "The priority of worker processes"
-msgstr ""
+msgstr "Prioritet för arbetsprocesser"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:653
 msgid "Swap author first and last names when reading metadata"
-msgstr ""
+msgstr "Växla mellan författares för- och efternamn vid läsning av metadata"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
-msgstr ""
+msgstr "Väntar..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:51
 msgid "Stopped"
-msgstr ""
+msgstr "Stoppad"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:53
 msgid "Finished"
-msgstr ""
+msgstr "Klar"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:70
 msgid "Working..."
-msgstr ""
+msgstr "Arbetar..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:93
 msgid "Brazilian Portuguese"
-msgstr ""
+msgstr "Brasiliansk portugisiska"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:94
 msgid "English (UK)"
-msgstr ""
+msgstr "Engelska (Storbritannien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:95
 msgid "Simplified Chinese"
-msgstr ""
+msgstr "Kinesiska (förenklad)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:96
 msgid "Chinese (HK)"
-msgstr ""
+msgstr "Kinesiska (HK)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:97
 msgid "Traditional Chinese"
-msgstr ""
+msgstr "Kinesiska (Traditionell)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:98
 msgid "English"
-msgstr ""
+msgstr "Engelska"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
 msgid "English (Australia)"
-msgstr ""
+msgstr "Engelska (Australien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
 msgid "English (Canada)"
-msgstr ""
+msgstr "Engelska (Kanada)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "English (India)"
-msgstr ""
+msgstr "Engelska (Indien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (Thailand)"
-msgstr ""
+msgstr "Engelska (Thailand)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 msgid "English (Cyprus)"
-msgstr ""
+msgstr "Engelska (Cyprus)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
 msgid "English (Pakistan)"
-msgstr ""
+msgstr "Engelska (Pakistan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
 msgid "English (Singapore)"
-msgstr ""
+msgstr "Engelska (Singapore)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
 msgid "German (AT)"
-msgstr ""
+msgstr "Tyska (Österrike)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 msgid "Dutch (NL)"
-msgstr ""
+msgstr "Holländska (Nederländerna)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "Dutch (BE)"
-msgstr ""
+msgstr "Holländska (Belgien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
-msgstr ""
+msgstr "Adressen måste ha programmet sftp"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:57
 msgid "host must be of the form user@hostname"
-msgstr ""
+msgstr "värden måste ha formen användarnamn@värdnamn"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:68
 msgid "Failed to negotiate SSH session: "
-msgstr ""
+msgstr "Misslyckades med att förhandla SSH-session: "
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:71
 msgid "Failed to authenticate with server: %s"
-msgstr ""
+msgstr "Gick inte att verifiera med server: %s"
 
 #: /home/kovid/work/calibre/src/calibre/utils/smtp.py:234
 msgid "Control email delivery"

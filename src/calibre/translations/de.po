@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-01-04 02:55+0000\n"
-"PO-Revision-Date: 2010-01-04 02:00+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-01-04 08:55+0000\n"
+"Last-Translator: Ragle <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-04 04:36+0000\n"
+"X-Launchpad-Export-Date: 2010-01-05 04:38+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -8271,31 +8271,31 @@ msgstr "Englisch"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
 msgid "English (Australia)"
-msgstr ""
+msgstr "Englisch (Australien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
 msgid "English (Canada)"
-msgstr ""
+msgstr "Englisch (Kanada)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "English (India)"
-msgstr ""
+msgstr "Englisch (Indien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (Thailand)"
-msgstr ""
+msgstr "Englisch (Thailand)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 msgid "English (Cyprus)"
-msgstr ""
+msgstr "Englisch (Zypern)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
 msgid "English (Pakistan)"
-msgstr ""
+msgstr "Englisch (Pakistan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
 msgid "English (Singapore)"
-msgstr ""
+msgstr "Englisch (Singapur)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
 msgid "German (AT)"

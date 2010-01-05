@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-04 02:55+0000\n"
-"PO-Revision-Date: 2010-01-03 08:26+0000\n"
+"PO-Revision-Date: 2010-01-04 20:30+0000\n"
 "Last-Translator: Øyvind Øritsland <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-04 04:37+0000\n"
+"X-Launchpad-Export-Date: 2010-01-05 04:38+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -6840,7 +6840,7 @@ msgstr "&Vanlig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:172
 msgid "Double click to change a keyboard shortcut"
-msgstr ""
+msgstr "Dobbeltklikk for å endre hurtigtast for tastaturet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:173
 msgid "&Keyboard shortcuts"
@@ -8106,31 +8106,31 @@ msgstr "Engelsk"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
 msgid "English (Australia)"
-msgstr ""
+msgstr "Engelsk (Australia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
 msgid "English (Canada)"
-msgstr ""
+msgstr "Engelsk (Kanada)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "English (India)"
-msgstr ""
+msgstr "Engelsk (India)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (Thailand)"
-msgstr ""
+msgstr "Engelsk (Thailand)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 msgid "English (Cyprus)"
-msgstr ""
+msgstr "Engelsk (Kypros)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
 msgid "English (Pakistan)"
-msgstr ""
+msgstr "Engelsk (Pakistan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
 msgid "English (Singapore)"
-msgstr ""
+msgstr "Engelsk (Singapor)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
 msgid "German (AT)"
