@@ -1,0 +1,124 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+from calibre.ptempfile import PersistentTemporaryFile
+
+class ForeignAffairsRecipe(BasicNewsRecipe):
+    __license__  = 'GPL v3'
+    __author__ = 'kwetal'
+    language = 'en'
+    version = 1
+
+    title = u'Foreign Affairs (Subcription or (free) Registration)'
+    publisher = u'Council on Foreign Relations'
+    category = u'USA, Foreign Affairs'
+    description = u'The leading forum for serious discussion of American foreign policy and international affairs.'
+
+    no_stylesheets = True
+    remove_javascript = True
+
+    INDEX = 'http://www.foreignaffairs.com'
+
+    remove_tags = []
+    remove_tags.append(dict(name = 'base'))
+    #remove_tags.append(dict(name = '', attrs = {'': ''}))
+
+    remove_tags_before = dict(name = 'h1', attrs = {'class': 'print-title'})
+
+    remove_tags_after = dict(name = 'div', attrs = {'class': 'print-footer'})
+
+    extra_css = '''
+                body{font-family:verdana,arial,helvetica,geneva,sans-serif;}
+                div.print-footer {font-size: x-small; color: #696969;}
+                '''
+
+    conversion_options = {'comments': description, 'tags': category, 'language': 'en',
+                          'publisher': publisher}
+
+    temp_files = []
+    articles_are_obfuscated = True
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        br.open(url)
+
+        response = br.follow_link(url_regex = r'/print/[0-9]+', nr = 0)
+        html = response.read()
+
+        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+        self.temp_files[-1].write(html)
+        self.temp_files[-1].close()
+
+        return self.temp_files[-1].name
+
+    def parse_index(self):
+        soup = self.index_to_soup('http://www.foreignaffairs.com/magazine')
+        articles = []
+        answer = []
+        content = soup.find('div', attrs = {'class': 'center-wrapper'})
+        if content:
+            for div in content.findAll('div', attrs = {'class': re.compile(r'view-row\s+views-row-[0-9]+\s+views-row-[odd|even].*')}):
+                tag = div.find('div', attrs = {'class': 'views-field-title'})
+                if tag:
+                    a = tag.find('a')
+                    if a:
+                        title = self.tag_to_string(a)
+                        url = self.INDEX + a['href']
+
+                        author = self.tag_to_string(div.find('div', attrs = {'class': 'views-field-field-article-display-authors-value'}))
+                        tag = div.find('span', attrs = {'class': 'views-field-field-article-summary-value'})
+                        # If they ever fix their markup, this will break :-(
+                        summary = self.tag_to_string(tag.findNextSibling('p'))
+                        description = author  + '<br/>' + summary
+
+                        articles.append({'title': title, 'date': None, 'url': url, 'description': description})
+                    else:
+                        continue
+                else:
+                    continue
+
+            answer.append(('Magazine', articles))
+
+            ul = content.find('ul')
+            if ul:
+                articles = []
+                for li in ul.findAll('li'):
+                    tag = li.find('div', attrs = {'class': 'views-field-title'})
+                    if tag:
+                        a = tag.find('a')
+                        if a:
+                            title = self.tag_to_string(a)
+                            url = self.INDEX + a['href']
+                            description = ''
+                            tag = li.find('div', attrs = {'class': 'views-field-field-article-display-authors-value'})
+                            if tag:
+                                description = self.tag_to_string(tag)
+
+                            articles.append({'title': title, 'date': None, 'url': url, 'description': description})
+                        else:
+                            continue
+                    else:
+                        continue
+
+                answer.append(('Letters to the Editor', articles))
+
+        return answer
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs = {'src': True}):
+            if not img['src'].startswith('http://'):
+                img['src'] = self.INDEX + img['src']
+
+        return soup
+
+    needs_subscription = True
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('https://www.foreignaffairs.com/user?destination=home')
+            br.select_form(nr = 1)
+            br['name']   = self.username
+            br['pass'] = self.password
+            br.submit()
+        return br
+

@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 '''
 import os, math, re, glob
+from base64 import b64encode
 from PyQt4.Qt import QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
                      QColor, QPoint, QImage, QRegion, QVariant, \
@@ -16,7 +17,6 @@ from calibre.utils.config import Config, StringConfig
 from calibre.utils.localization import get_language
 from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.gui2.shortcuts import Shortcuts, ShortcutConfig
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import iswindows
 from calibre import prints, guess_type
 from calibre.gui2.viewer.keys import SHORTCUTS
@@ -189,10 +189,9 @@ class Document(QWebPage):
 
     def set_user_stylesheet(self):
         raw = config().parse().user_css
-        pt = PersistentTemporaryFile('_user_stylesheet.css')
-        pt.write(raw.encode('utf-8'))
-        pt.close()
-        self.settings().setUserStyleSheetUrl(QUrl.fromLocalFile(pt.name))
+        data = 'data:text/css;charset=utf-8;base64,'
+        data += b64encode(raw.encode('utf-8'))
+        self.settings().setUserStyleSheetUrl(QUrl(data))
 
     def misc_config(self):
         opts = config().parse()

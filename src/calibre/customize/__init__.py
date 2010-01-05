@@ -31,7 +31,8 @@ class Plugin(object):
     #: For example: ``['windows', 'osx', 'linux']
     supported_platforms = []
 
-    #: The name of this plugin
+    #: The name of this plugin. You must set it something other
+    #: than Trivial Plugin for it to work.
     name           = 'Trivial Plugin'
 
     #: The version of this plugin as a 3-tuple (major, minor, revision)

@@ -245,7 +245,7 @@
        <item>
         <widget class="QLabel" name="label_9">
          <property name="text">
-          <string>Double click to change a keyborad shortcut</string>
+          <string>Double click to change a keyboard shortcut</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>

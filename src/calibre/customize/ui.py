@@ -66,7 +66,8 @@ def load_plugin(path_to_zip_file):
                 raw = re.sub('\r\n', '\n', raw)
                 exec raw in locals
                 for x in locals.values():
-                    if isinstance(x, type) and issubclass(x, Plugin):
+                    if isinstance(x, type) and issubclass(x, Plugin) and \
+                            x.name != 'Trivial Plugin':
                         if x.minimum_calibre_version > version or \
                             platform not in x.supported_platforms:
                             continue
