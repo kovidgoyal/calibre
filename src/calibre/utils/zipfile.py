@@ -1,9 +1,10 @@
 """
-Read and write ZIP files. Modified by Kovid Goyal to support replacing files in 
+Read and write ZIP files. Modified by Kovid Goyal to support replacing files in
 a zip archive.
 """
 from __future__ import with_statement
 from calibre.ptempfile import TemporaryDirectory
+from calibre import sanitize_file_name
 import struct, os, time, sys, shutil
 import binascii, cStringIO
 
@@ -789,80 +790,80 @@ class ZipFile:
 
             if self.debug > 2:
                 print "total", total
-    
-    def _calculate_file_offsets(self):
-        for zip_info in self.filelist:                                            
-            self.fp.seek(zip_info.header_offset, 0)                               
-            fheader = self.fp.read(30)                                            
-            if fheader[0:4] != stringFileHeader:                                  
-                raise BadZipfile, "Bad magic number for file header"              
-            fheader = struct.unpack(structFileHeader, fheader)                    
-            # file_offset is computed here, since the extra field for             
-            # the central directory and for the local file header                 
-            # refer to different fields, and they can have different              
-            # lengths                                                             
-            file_offset = (zip_info.header_offset + 30                            
-                                + fheader[_FH_FILENAME_LENGTH]                    
-                                + fheader[_FH_EXTRA_FIELD_LENGTH])                
-            fname = self.fp.read(fheader[_FH_FILENAME_LENGTH])                    
-            if fname != zip_info.orig_filename:                                   
-                raise RuntimeError(                                    
-                      'File name in directory "%s" and header "%s" differ.' % (   
-                          zip_info.orig_filename, fname))                          
-                                                                                  
-            zip_info.file_offset = file_offset
-            
-    def replace(self, filename, arcname=None, compress_type=None):                
-        """Delete arcname, and put the bytes from filename into the               
-        archive under the name arcname."""                                        
-        deleteName = arcname                                                      
-        if deleteName is None:                                                    
-            deleteName = filename                                                 
-        self.delete(deleteName)                                                   
-        self.write(filename, arcname, compress_type)                              
-                                                                                  
-    def replacestr(self, zinfo, bytes):                                           
-        """Delete zinfo.filename, and write a new file into the archive. The      
-        contents is the string 'bytes'."""                                        
-        self.delete(zinfo.filename)                                               
-        self.writestr(zinfo, bytes)                                               
 
-    def delete(self, name):                                                       
-        """Delete the file from the archive. If it appears multiple               
-        times only the first instance will be deleted."""                         
-        for i in range (0, len(self.filelist)):                                   
-            if self.filelist[i].filename == name:                                 
-                if self.debug:                                                    
-                    print "Removing", name                                        
-                deleted_offset = self.filelist[i].header_offset                   
+    def _calculate_file_offsets(self):
+        for zip_info in self.filelist:
+            self.fp.seek(zip_info.header_offset, 0)
+            fheader = self.fp.read(30)
+            if fheader[0:4] != stringFileHeader:
+                raise BadZipfile, "Bad magic number for file header"
+            fheader = struct.unpack(structFileHeader, fheader)
+            # file_offset is computed here, since the extra field for
+            # the central directory and for the local file header
+            # refer to different fields, and they can have different
+            # lengths
+            file_offset = (zip_info.header_offset + 30
+                                + fheader[_FH_FILENAME_LENGTH]
+                                + fheader[_FH_EXTRA_FIELD_LENGTH])
+            fname = self.fp.read(fheader[_FH_FILENAME_LENGTH])
+            if fname != zip_info.orig_filename:
+                raise RuntimeError(
+                      'File name in directory "%s" and header "%s" differ.' % (
+                          zip_info.orig_filename, fname))
+
+            zip_info.file_offset = file_offset
+
+    def replace(self, filename, arcname=None, compress_type=None):
+        """Delete arcname, and put the bytes from filename into the
+        archive under the name arcname."""
+        deleteName = arcname
+        if deleteName is None:
+            deleteName = filename
+        self.delete(deleteName)
+        self.write(filename, arcname, compress_type)
+
+    def replacestr(self, zinfo, bytes):
+        """Delete zinfo.filename, and write a new file into the archive. The
+        contents is the string 'bytes'."""
+        self.delete(zinfo.filename)
+        self.writestr(zinfo, bytes)
+
+    def delete(self, name):
+        """Delete the file from the archive. If it appears multiple
+        times only the first instance will be deleted."""
+        for i in range (0, len(self.filelist)):
+            if self.filelist[i].filename == name:
+                if self.debug:
+                    print "Removing", name
+                deleted_offset = self.filelist[i].header_offset
                 deleted_size   = (self.filelist[i].file_offset - self.filelist[i].header_offset) + self.filelist[i].compress_size
-                zinfo_size = struct.calcsize(structCentralDir) + len(self.filelist[i].filename) + len(self.filelist[i].extra)    
-                # Remove the file's data from the archive.                                                                       
-                current_offset = self.fp.tell()                                                                                  
-                self.fp.seek(0, 2)                                                                                               
-                archive_size = self.fp.tell()                                                                                    
-                self.fp.seek(deleted_offset + deleted_size)                                                                      
-                buf = self.fp.read()                                                                                             
-                self.fp.seek(deleted_offset)                                                                                     
-                self.fp.write(buf)                                                                                               
-                self.fp.truncate(archive_size - deleted_size - zinfo_size)                                                       
-                if current_offset > deleted_offset + deleted_size:                                                               
-                    current_offset -= deleted_size                                                                               
-                elif current_offset > deleted_offset:                                                                            
-                    current_offset = deleted_offset                                                                              
-                self.fp.seek(current_offset, 0)                                                                                  
-                # Remove file from central directory.                                                                            
-                del self.filelist[i]                                                                                             
-                # Adjust the remaining offsets in the central directory.                                                         
-                for j in range (i, len(self.filelist)):                                                                          
-                    if self.filelist[j].header_offset > deleted_offset:                                                          
-                        self.filelist[j].header_offset -= deleted_size                                                           
-                    if self.filelist[j].file_offset > deleted_offset:                                                            
+                zinfo_size = struct.calcsize(structCentralDir) + len(self.filelist[i].filename) + len(self.filelist[i].extra)
+                # Remove the file's data from the archive.
+                current_offset = self.fp.tell()
+                self.fp.seek(0, 2)
+                archive_size = self.fp.tell()
+                self.fp.seek(deleted_offset + deleted_size)
+                buf = self.fp.read()
+                self.fp.seek(deleted_offset)
+                self.fp.write(buf)
+                self.fp.truncate(archive_size - deleted_size - zinfo_size)
+                if current_offset > deleted_offset + deleted_size:
+                    current_offset -= deleted_size
+                elif current_offset > deleted_offset:
+                    current_offset = deleted_offset
+                self.fp.seek(current_offset, 0)
+                # Remove file from central directory.
+                del self.filelist[i]
+                # Adjust the remaining offsets in the central directory.
+                for j in range (i, len(self.filelist)):
+                    if self.filelist[j].header_offset > deleted_offset:
+                        self.filelist[j].header_offset -= deleted_size
+                    if self.filelist[j].file_offset > deleted_offset:
                         self.filelist[j].file_offset -= deleted_size
-                self._didModify = True                                                             
-                return                                                                                                           
-        if self.debug:                                                                                                           
-            print name, "not in archive"                                            
+                self._didModify = True
+                return
+        if self.debug:
+            print name, "not in archive"
 
     def namelist(self):
         """Return a list of file names in the archive."""
@@ -1035,10 +1036,14 @@ class ZipFile:
             os.unlink(upperdirs)
         if upperdirs and not os.path.exists(upperdirs):
             os.makedirs(upperdirs)
-        
+
         source = self.open(member, pwd=pwd)
         if not os.path.exists(targetpath): # Could be a previously automatically created directory
-            target = open(targetpath, "wb")
+            try:
+                target = open(targetpath, "wb")
+            except IOError:
+                targetpath = sanitize_file_name(targetpath)
+                target = open(targetpath, "wb")
             shutil.copyfileobj(source, target)
             source.close()
             target.close()
@@ -1179,7 +1184,7 @@ class ZipFile:
                   zinfo.file_size))
         self.filelist.append(zinfo)
         self.NameToInfo[zinfo.filename] = zinfo
-        
+
     def add_dir(self, path, prefix=''):
         '''
         Add a directory recursively to the zip file with an optional prefix.
@@ -1195,10 +1200,10 @@ class ZipFile:
                 if os.path.isdir(f):
                     self.add_dir(f, prefix=arcname)
                 else:
-                    self.write(f, arcname) 
+                    self.write(f, arcname)
         finally:
             os.chdir(cwd)
-            
+
 
     def __del__(self):
         """Call the "close()" method in case the user forgot."""
@@ -1294,7 +1299,7 @@ class ZipFile:
                 if self.debug > 0:
                     msg = 'Archive comment is too long; truncating to %d bytes' \
                           % ZIP_MAX_COMMENT
-                    print msg      
+                    print msg
                 self.comment = self.comment[:ZIP_MAX_COMMENT]
 
             endrec = struct.pack(structEndArchive, stringEndArchive,
@@ -1314,7 +1319,7 @@ def safe_replace(zipstream, name, datastream):
     Replace a file in a zip file in a safe manner. This proceeds by extracting
     and re-creating the zipfile. This is neccessary because :method:`ZipFile.replace`
     sometimes created corrupted zip files.
-    
+
     :param zipstream:  Stream from a zip file
     :param name:       The name of the file to replace
     :param datastream: The data to replace the file with.
