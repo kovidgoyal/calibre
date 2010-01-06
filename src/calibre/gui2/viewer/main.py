@@ -25,6 +25,7 @@ from calibre.utils.config import Config, StringConfig, dynamic
 from calibre.gui2.search_box import SearchBox2
 from calibre.ebooks.metadata import MetaInformation
 from calibre.customize.ui import available_input_formats
+from calibre.gui2.viewer.dictionary import Lookup
 
 class TOCItem(QStandardItem):
 
@@ -171,6 +172,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pending_bookmark  = None
         self.selected_text     = None
         self.read_settings()
+        self.dictionary_box.hide()
+        self.close_dictionary_view.clicked.connect(lambda
+                x:self.dictionary_box.hide())
         self.history = History(self.action_back, self.action_forward)
         self.metadata = Metadata(self)
         self.pos = DoubleSpinBox()
@@ -239,6 +243,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_bookmark.setMenu(self.bookmarks_menu)
         self.set_bookmarks([])
 
+
         if pathtoebook is not None:
             f = functools.partial(self.load_ebook, pathtoebook)
             QTimer.singleShot(50, f)
@@ -261,6 +266,19 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         ca.setShortcut(QKeySequence.Copy)
         self.addAction(ca)
 
+    def lookup(self, word):
+        self.dictionary_view.setHtml('<html><body><p>'+ \
+            _('Connecting to dict.org to lookup: <b>%s</b>&hellip;')%word + \
+            '</p></body></html>')
+        self.dictionary_box.show()
+        self._lookup = Lookup(word, parent=self)
+        self._lookup.finished.connect(self.looked_up)
+        self._lookup.start()
+
+    def looked_up(self, *args):
+        html = self._lookup.html_result
+        self._lookup = None
+        self.dictionary_view.setHtml(html)
 
     def set_max_width(self):
         from calibre.gui2.viewer.documentview import config
