@@ -32,8 +32,31 @@ class Text(object):
         self.color = self.font.color
         self.font_family = self.font.family
 
+        text.tail = ''
         self.text_as_string = etree.tostring(text, method='text',
                 encoding=unicode)
+        self.raw = text.text if text.text else u''
+        for x in text.iterchildren():
+            self.raw += etree.tostring(x, method='xml', encoding=unicode)
+            if x.tail:
+                self.raw += x.tail
+        self.average_character_width = self.width/len(self.text_as_string)
+
+    def coalesce(self, other, page_number):
+        if self.opts.verbose > 2:
+            self.log.debug('Coalescing %r with %r on page %d'%(self.text_as_string,
+                other.text_as_string, page_number))
+        self.top = min(self.top, other.top)
+        self.right = other.right
+        self.width = self.right - self.left
+        self.bottom = max(self.bottom, other.bottom)
+        self.height = self.bottom - self.top
+        self.font_size = max(self.font_size, other.font_size)
+        self.font = other.font if self.font_size == other.font_size else other.font
+        self.text_as_string += other.text_as_string
+        self.raw += other.raw
+        self.average_character_width = (self.average_character_width +
+                other.average_character_width)/2.0
 
 class FontSizeStats(dict):
 
@@ -110,6 +133,15 @@ class HorizontalBox(object):
 
 class Page(object):
 
+    # Fraction of a character width that two strings have to be apart,
+    # for them to be considered part of the same text fragment
+    COALESCE_FACTOR = 0.5
+
+    # Fraction of text height that two strings' bottoms can differ by
+    # for them to be considered to be part of the same text fragment
+    LINE_FACTOR = 0.4
+
+
     def __init__(self, page, font_map, opts, log):
         self.opts, self.log = opts, log
         self.font_map = font_map
@@ -123,6 +155,7 @@ class Page(object):
 
         for text in page.xpath('descendant::text'):
             self.texts.append(Text(text, self.font_map, self.opts, self.log))
+            text = self.texts[-1]
             self.left_margin = min(text.left, self.left_margin)
             self.right_margin = max(text.right, self.right_margin)
 
@@ -136,7 +169,32 @@ class Page(object):
 
         self.font_size_stats = FontSizeStats(self.font_size_stats)
 
-        self.identify_columns()
+        self.coalesce_fragments()
+
+        #self.identify_columns()
+
+    def coalesce_fragments(self):
+
+        def find_match(frag):
+            for t in self.texts:
+                hdelta = t.left - frag.right
+                hoverlap = self.COALESCE_FACTOR * frag.average_character_width
+                if t is not frag and hdelta > -hoverlap and \
+                    hdelta < hoverlap and \
+                    abs(t.bottom - frag.bottom) < self.LINE_FACTOR*frag.height:
+                        return t
+
+        match_found = True
+        while match_found:
+            match_found, match = False, None
+            for frag in self.texts:
+                match = find_match(frag)
+                if match is not None:
+                    match_found = True
+                    frag.coalesce(match, self.number)
+                    break
+            if match is not None:
+                self.texts.remove(match)
 
     def sort_into_horizontal_boxes(self, document_font_size_stats):
         self.horizontal_boxes = []
@@ -190,7 +248,7 @@ class PDFDocument(object):
         self.fonts = []
         self.font_map = {}
 
-        for spec in self.root.xpath('//fonts'):
+        for spec in self.root.xpath('//font'):
             self.fonts.append(Font(spec))
             self.font_map[self.fonts[-1].id] = self.fonts[-1]
 
@@ -210,7 +268,8 @@ class PDFDocument(object):
     def collect_font_statistics(self):
         self.font_size_stats = {}
         for p in self.pages:
-            for sz, chars in p.font_size_stats:
+            for sz in p.font_size_stats:
+                chars = p.font_size_stats[sz]
                 if sz not in self.font_size_stats:
                     self.font_size_stats[sz] = 0
                 self.font_size_stats[sz] += chars

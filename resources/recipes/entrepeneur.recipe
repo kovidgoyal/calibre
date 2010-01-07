@@ -1,23 +1,19 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
-class EntrepeneurRecipe(BasicNewsRecipe):
+class EntrepeneurMagRecipe(BasicNewsRecipe):
     __license__  = 'GPL v3'
     __author__ = 'kwetal'
     language = 'en'
     version = 1
 
-    title = u'Entrepeneur'
+    title = u'Entrepeneur Magazine'
     publisher = u'Entrepreneur Media, Inc'
     category = u'Business'
     description = u'Online magazine on business, small business, management and economy'
 
-    oldest_article = 21
-    max_articles_per_feed = 100
-    use_embedded_content = False
     encoding = 'utf-8'
 
-    remove_empty_feeds = True
     no_stylesheets = True
     remove_javascript = True
 
@@ -30,15 +26,7 @@ class EntrepeneurRecipe(BasicNewsRecipe):
 
     remove_attributes = ['style']
 
-    # feeds from http://www.entrepreneur.com/feeds/index.html
-    feeds = []
-    feeds.append((u'The Latest Headlines', u'http://feeds.feedburner.com/entrepreneur/latest'))
-    feeds.append((u'Starting a Business', u'http://feeds.feedburner.com/entrepreneur/startingabusiness.rss'))
-    feeds.append((u'Grow Your Business', u'http://feeds.feedburner.com/entrepreneur/growingyourbusiness.rss'))
-    feeds.append((u'Sales and Marketing', u'http://feeds.feedburner.com/entrepreneur/salesandmarketing'))
-    feeds.append((u'Online Business', u'http://feeds.feedburner.com/entrepreneur/ebiz'))
-    feeds.append((u'Franchises', u'http://feeds.feedburner.com/entrepreneur/franchises'))
-    #feeds.append((u'', u''))
+    INDEX = 'http://www.entrepeneur.com'
 
     extra_css = '''
                 body{font-family:verdana,arial,helvetica,geneva,sans-serif;}
@@ -52,11 +40,41 @@ class EntrepeneurRecipe(BasicNewsRecipe):
                     margin-bottom: 0em;}
                 '''
 
-    def get_article_url(self, article):
-        return article.feedburner_origlink
+    conversion_options = {'comments': description, 'language': 'en',
+                          'publisher': publisher}
+
+    def parse_index(self):
+        soup = self.index_to_soup('http://www.entrepreneur.com/magazine/entrepreneur/index.html')
+        answer = []
+
+        div = soup.find('div', attrs = {'id': 'magfeature'})
+        if div:
+            a = div.find('a', attrs = {'class': 'headline'})
+            if a:
+                title = self.tag_to_string(a)
+                url = self.INDEX + a['href']
+                description = a.findNextSibling(text = True)
+
+                articles = [{'title': title, 'date': None, 'url': url, 'description': description}]
+                answer.append(('Cover Story', articles))
+
+        for div in soup.findAll('div', attrs = {'class': 'subhead-special'}):
+            articles = []
+            for tag in div.findNextSiblings(['a', 'div'], attrs = {'class': ['h2', 'subhead-special']}):
+                if tag.name == 'div' and tag['class'] == 'subhead-special':
+                    break
+                if tag.name == 'a' and tag['class'] == 'h2':
+                    title = self.tag_to_string(tag)
+                    url = tag['href']
+                    description = tag.findNextSibling(text = True)
+                    articles.append({'title': title, 'date': None, 'url': url, 'description': description})
+            answer.append((self.tag_to_string(div), articles))
+
+        return answer
+
 
     def print_version(self, url):
-        id = url.rpartition('/')[2].replace('article', '')
+        id = url.rpartition('/')[2]
 
         return 'http://www.entrepreneur.com/article/printthis/' + id
 
