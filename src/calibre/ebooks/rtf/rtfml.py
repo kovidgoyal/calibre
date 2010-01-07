@@ -23,6 +23,7 @@ from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, \
     OEB_RASTER_IMAGES
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.metadata import authors_to_string
+from calibre.utils.filenames import ascii_text
 
 TAGS = {
     'b': '\\b',
@@ -77,6 +78,22 @@ TODO:
     * Tables
     * Fonts
 '''
+
+def txt2rtf(text):
+    if not isinstance(text, unicode):
+        return text
+    buf = cStringIO.StringIO()
+    for x in text:
+        val = ord(x)
+        if val <= 127:
+            buf.write(x)
+        else:
+            repl = ascii_text(x)
+            c = r'\uc{2}\u{0:d}{1}'.format(val, repl, len(repl))
+            buf.write(c)
+    return buf.getvalue()
+
+
 class RTFMLizer(object):
 
     def __init__(self, log):
@@ -217,7 +234,7 @@ class RTFMLizer(object):
 
         # Proccess tags that contain text.
         if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
-            text += '%s' % elem.text
+            text += txt2rtf(elem.text)
 
         for item in elem:
             text += self.dump_text(item, stylizer, tag_stack)
@@ -233,8 +250,8 @@ class RTFMLizer(object):
 
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
             if 'block' in tag_stack:
-                text += '%s ' % elem.tail
+                text += '%s ' % txt2rtf(elem.tail)
             else:
-                text += '{\\par \\pard \\hyphpar %s}' % elem.tail
+                text += '{\\par \\pard \\hyphpar %s}' % txt2rtf(elem.tail)
 
         return text
