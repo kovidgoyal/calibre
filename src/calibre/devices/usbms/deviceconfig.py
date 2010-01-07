@@ -64,7 +64,7 @@ class DeviceConfig(object):
                 ec = None
             proxy['extra_customization'] = ec
         st = unicode(config_widget.opt_save_template.text())
-        proxy['save_template'] = st
+        proxy['save_template'] = st if st else cls._default_save_template()
 
     @classmethod
     def settings(cls):
