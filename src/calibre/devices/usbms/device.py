@@ -805,7 +805,7 @@ class Device(DeviceConfig, DevicePlugin):
                     break
 
         settings = self.settings()
-        template = settings.save_template
+        template = self.save_template()
         use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs
 
         fname = sanitize(fname)

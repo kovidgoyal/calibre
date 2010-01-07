@@ -71,5 +71,13 @@ class DeviceConfig(object):
         return cls._config().parse()
 
     @classmethod
+    def save_template(cls):
+        st = cls.settings().save_template
+        if st:
+            return st
+        else:
+            return cls._default_save_template()
+
+    @classmethod
     def customization_help(cls, gui=False):
         return cls.HELP_MESSAGE
