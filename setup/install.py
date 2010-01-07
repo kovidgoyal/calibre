@@ -185,7 +185,7 @@ class Develop(Command):
         script = template.format(
                 module=mod, func=func,
                 path=self.libdir, resources=self.sharedir,
-                executables=self.staging_bindir,
+                executables=self.bindir,
                 extensions=self.j(self.libdir, 'calibre', 'plugins'))
         path = self.j(self.staging_bindir, name)
         if not os.path.exists(self.staging_bindir):

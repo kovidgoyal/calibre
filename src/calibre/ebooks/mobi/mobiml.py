@@ -245,7 +245,7 @@ class MobiMLizer(object):
                         bgcolor=istate.bgcolor)
             if istate.fgcolor != 'black':
                 inline = etree.SubElement(inline, XHTML('font'),
-                        color=istate.fgcolor)
+                        color=unicode(istate.fgcolor))
             if istate.strikethrough:
                 inline = etree.SubElement(inline, XHTML('s'))
             bstate.inline = inline

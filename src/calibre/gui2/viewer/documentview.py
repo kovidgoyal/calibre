@@ -9,8 +9,8 @@ import os, math, re, glob
 from base64 import b64encode
 from PyQt4.Qt import QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
-                     QColor, QPoint, QImage, QRegion, QVariant, \
-                     QFont, QObject, QApplication, pyqtSignature
+                     QColor, QPoint, QImage, QRegion, QVariant, QIcon, \
+                     QFont, QObject, QApplication, pyqtSignature, QAction
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
@@ -394,10 +394,20 @@ class DocumentView(QWebView):
         self.connect(self.document, SIGNAL('selectionChanged()'), self.selection_changed)
         self.connect(self.document, SIGNAL('animated_scroll_done()'),
                 self.animated_scroll_done, Qt.QueuedConnection)
+        copy_action = self.pageAction(self.document.Copy)
+        copy_action.setIcon(QIcon(I('convert.svg')))
+        d = self.document
+        self.unimplemented_actions = list(map(self.pageAction,
+            [d.DownloadImageToDisk, d.OpenLinkInNewWindow, d.DownloadLinkToDisk,
+                d.OpenImageInNewWindow, d.OpenLink]))
+        self.dictionary_action = QAction(QIcon(I('dictionary.png')),
+                _('&Lookup in dictionary'), self)
+        self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)
+        self.dictionary_action.triggered.connect(self.lookup)
 
     @property
     def copy_action(self):
-        return self.document.action(QWebPage.Copy)
+        return self.pageAction(self.document.Copy)
 
     def animated_scroll_done(self):
         if self.manager is not None:
@@ -425,6 +435,21 @@ class DocumentView(QWebView):
     def selection_changed(self):
         if self.manager is not None:
             self.manager.selection_changed(unicode(self.document.selectedText()))
+
+    def contextMenuEvent(self, ev):
+        menu = self.document.createStandardContextMenu()
+        for action in self.unimplemented_actions:
+            menu.removeAction(action)
+        text = unicode(self.selectedText())
+        if text:
+            menu.insertAction(list(menu.actions())[0], self.dictionary_action)
+        menu.exec_(ev.globalPos())
+
+    def lookup(self, *args):
+        if self.manager is not None:
+            t = unicode(self.selectedText()).strip()
+            if t:
+                self.manager.lookup(t.split()[0])
 
     def set_manager(self, manager):
         self.manager = manager

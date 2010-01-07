@@ -31,6 +31,7 @@ class IncMagazineRecipe(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
+        self.browser.open(self.INDEX)
 
         url = self.browser.geturl()
         date = url.rpartition('/')[0].rpartition('/')[2]
