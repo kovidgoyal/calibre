@@ -8,7 +8,8 @@ import os, re, sys, shutil, pprint
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.customize.ui import input_profiles, output_profiles, \
         plugin_for_input_format, plugin_for_output_format, \
-        available_input_formats, available_output_formats
+        available_input_formats, available_output_formats, \
+        run_plugins_on_preprocess, run_plugins_on_postprocess
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre import extract, walk
@@ -470,6 +471,14 @@ OptionRecommendation(name='language',
             self.log('Processing archive...')
             tdir = PersistentTemporaryDirectory('_plumber')
             self.input, input_fmt = self.unarchive(self.input, tdir)
+        if os.access(self.input, os.R_OK):
+            nfp = run_plugins_on_preprocess(self.input, input_fmt)
+            if nfp != self.input:
+                self.input = nfp
+                input_fmt = os.path.splitext(self.input)[1]
+                if not input_fmt:
+                    raise ValueError('Input file must have an extension')
+                input_fmt = input_fmt[1:].lower()
 
         if os.path.exists(self.output) and os.path.isdir(self.output):
             output_fmt = 'oeb'
@@ -842,6 +851,8 @@ OptionRecommendation(name='language',
         self.output_plugin.convert(self.oeb, self.output, self.input_plugin,
                 self.opts, self.log)
         self.ui_reporter(1.)
+        run_plugins_on_postprocess(self.output, self.output_fmt)
+
         self.log(self.output_fmt.upper(), 'output written to', self.output)
         self.flush()
 
