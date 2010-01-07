@@ -64,11 +64,19 @@ class DeviceConfig(object):
                 ec = None
             proxy['extra_customization'] = ec
         st = unicode(config_widget.opt_save_template.text())
-        proxy['save_template'] = st if st else cls._default_save_template()
+        proxy['save_template'] = st
 
     @classmethod
     def settings(cls):
         return cls._config().parse()
+
+    @classmethod
+    def save_template(cls):
+        st = cls.settings().save_template
+        if st:
+            return st
+        else:
+            return cls._default_save_template()
 
     @classmethod
     def customization_help(cls, gui=False):
