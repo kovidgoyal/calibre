@@ -70,8 +70,6 @@ class CYBOOK_OPUS(CYBOOKG3):
     author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 
-    FORMATS = ['epub', 'pdf', 'txt']
-
     VENDOR_ID   = [0x0bda]
     PRODUCT_ID  = [0x0703]
     BCD         = [0x110]
@@ -90,5 +88,5 @@ class CYBOOK_OPUS(CYBOOKG3):
     @classmethod
     def can_handle(cls, device_info, debug=False):
         if isunix:
-            return device_info[3] == 'Bookeen'
+            return device_info[3] == 'Bookeen' and device_info[4] == 'Cybook Opus'
         return True

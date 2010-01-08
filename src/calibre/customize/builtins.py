@@ -455,6 +455,7 @@ plugins += [
     TCROutput,
     TXTOutput,
 ]
+# Order here matters. The first matched device is the one used.
 plugins += [
     HANLINV3,
     HANLINV5,
