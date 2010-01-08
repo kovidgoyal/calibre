@@ -79,7 +79,7 @@ class LibraryServer(object):
             </book>
         ''')
 
-    MOBILE_UA = re.compile('(?i)(?:iPhone|Opera Mini|NetFront|webOS|Mobile|Android|imode|DoCoMo|Minimo|Blackberry|MIDP|Symbian)')
+    MOBILE_UA = re.compile('(?i)(?:iPhone|Opera Mini|NetFront|webOS|Mobile|Android|imode|DoCoMo|Minimo|Blackberry|MIDP|Symbian|HD2)')
 
     MOBILE_BOOK = textwrap.dedent('''\
     <tr xmlns:py="http://genshi.edgewall.org/">
@@ -90,7 +90,7 @@ class LibraryServer(object):
         <py:for each="format in r[13].split(',')">
             <span class="button"><a href="/get/${format}/${authors}-${r[1]}_${r[0]}.${format}">${format.lower()}</a></span>&nbsp;
         </py:for>
-       ${r[1]} by ${authors} - ${r[6]/1024}k - ${r[3] if r[3] else ''} ${pubdate} ${'['+r[7]+']' if r[7] else ''}
+       ${r[1]}${(' ['+r[9]+'-'+r[10]+']') if r[9] else ''} by ${authors} - ${r[6]/1024}k - ${r[3] if r[3] else ''} ${pubdate} ${'['+r[7]+']' if r[7] else ''}
     </td>
     </tr>
     ''')
