@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-07 02:36+0000\n"
-"PO-Revision-Date: 2010-01-06 15:05+0000\n"
+"PO-Revision-Date: 2010-01-07 13:34+0000\n"
 "Last-Translator: vbk <vbkaisetsu@gmail.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-07 04:48+0000\n"
+"X-Launchpad-Export-Date: 2010-01-08 04:37+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:42
@@ -1513,7 +1513,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:394
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1106
 msgid "Title"
-msgstr ""
+msgstr "書籍名"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:359
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:57
@@ -1521,7 +1521,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:399
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1107
 msgid "Author(s)"
-msgstr ""
+msgstr "著者"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:360
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:59
@@ -1541,7 +1541,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:355
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:94
 msgid "Comments"
-msgstr ""
+msgstr "コメント"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:370
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:170
@@ -1551,7 +1551,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Tags"
-msgstr ""
+msgstr "タグ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:372
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:171
@@ -1559,7 +1559,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Series"
-msgstr ""
+msgstr "シリーズ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:373
 msgid "Language"
@@ -1574,7 +1574,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:167
 msgid "Published"
-msgstr ""
+msgstr "発行日"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:379
 msgid "Rights"
@@ -2415,7 +2415,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:67
 msgid "Bulk Convert"
-msgstr ""
+msgstr "まとめて変換"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:185
@@ -3418,7 +3418,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:321
 msgid "Set default send to device action"
-msgstr ""
+msgstr "既定のデバイス送信処理を設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:326
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:333
@@ -3589,7 +3589,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1045
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:92
 msgid "Path"
-msgstr ""
+msgstr "パス名"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:88
@@ -3924,7 +3924,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:366
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:193
 msgid "Preferences"
-msgstr ""
+msgstr "基本設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:502
 msgid ""
@@ -4644,11 +4644,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:213
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:190
 msgid "Schedule news download"
-msgstr ""
+msgstr "ニュースのダウンロード・スケジュール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:216
 msgid "Add a custom news source"
-msgstr ""
+msgstr "カスタム・ニュースソースを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:278
@@ -4661,7 +4661,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:193
 msgid "Download &all scheduled"
-msgstr ""
+msgstr "すべてダウンロード(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:194
 msgid "blurb"
@@ -4722,7 +4722,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid " days"
-msgstr ""
+msgstr " 日経過したニュースを削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:209
 msgid "&Account"
@@ -4760,7 +4760,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:221
 msgid "Delete downloaded news older than "
-msgstr ""
+msgstr "ダウンロード後 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:36
 msgid "contains"
@@ -4966,7 +4966,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:248
 msgid "Add custom news source"
-msgstr ""
+msgstr "カスタム・ニュースソースを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:249
 msgid "Available user recipes"
@@ -5204,16 +5204,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1108
 msgid "Size (MB)"
-msgstr ""
+msgstr "サイズ (MB)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1109
 msgid "Date"
-msgstr ""
+msgstr "日付"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:168
 msgid "Rating"
-msgstr ""
+msgstr "評価"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:343
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:349
@@ -5418,7 +5418,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:346
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:347
 msgid "Remove books"
-msgstr ""
+msgstr "書籍を削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:348
 msgid "Del"
@@ -5426,7 +5426,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:349
 msgid "Edit meta information"
-msgstr ""
+msgstr "メタ情報を編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:350
 msgid "E"
@@ -5434,12 +5434,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:351
 msgid "Send to device"
-msgstr ""
+msgstr "デバイスに転送"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:352
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:304
 msgid "Save to disk"
-msgstr ""
+msgstr "ディスクに保存"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:353
 msgid "S"
@@ -5447,7 +5447,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:354
 msgid "Fetch news"
-msgstr ""
+msgstr "ニュースの読み込み"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:355
 msgid "F"
@@ -5602,11 +5602,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:196
 msgid "Click to browse books by their covers"
-msgstr ""
+msgstr "クリックで書籍の表紙をブラウズ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:196
 msgid "Click to turn off Cover Browsing"
-msgstr ""
+msgstr "クリックで表紙ブラウズを終了"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:201
 msgid ""
@@ -5671,7 +5671,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:142
 msgid "Search (For Advanced Search click the button to the left)"
-msgstr ""
+msgstr "検索 (高度な検索は左のボタンをクリック)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:159
 msgid "Error communicating with device"
@@ -5691,7 +5691,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:222
 msgid "<p>For help see the: <a href=\"%s\">User Manual</a><br>"
-msgstr ""
+msgstr "<p>ヘルプをご覧になるには <a href=\"%s\">ユーザー・マニュアル</a> を参照してください。<br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:224
 msgid "<b>%s</b>: %s by <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
@@ -5699,23 +5699,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:247
 msgid "Edit metadata individually"
-msgstr ""
+msgstr "メタデータを個別に編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:249
 msgid "Edit metadata in bulk"
-msgstr ""
+msgstr "複数のメタデータを編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:251
 msgid "Download metadata and covers"
-msgstr ""
+msgstr "メタデータ・表紙をダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:252
 msgid "Download only metadata"
-msgstr ""
+msgstr "メタデータのみダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:253
 msgid "Download only covers"
-msgstr ""
+msgstr "表紙のみダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:254
 msgid "Download only social metadata"
@@ -5723,7 +5723,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:257
 msgid "Add books from a single directory"
-msgstr ""
+msgstr "一つのディレクトリから書籍を追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:258
 msgid ""
@@ -5752,7 +5752,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:315
 msgid "View specific format"
-msgstr ""
+msgstr "指定したフォーマットで表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:319
 msgid "Remove selected books"
@@ -5772,7 +5772,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:356
 msgid "Convert individually"
-msgstr ""
+msgstr "個別に変換"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:357
 msgid "Bulk convert"
@@ -5780,7 +5780,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:372
 msgid "Run welcome wizard"
-msgstr ""
+msgstr "ウェルカム・ウィザードを開始"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:408
 msgid "Similar books..."
@@ -5928,7 +5928,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1170
 msgid "Cannot download metadata"
-msgstr ""
+msgstr "メタデータをダウンロードできません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1171
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1228
@@ -5969,7 +5969,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1227
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1260
 msgid "Cannot edit metadata"
-msgstr ""
+msgstr "メタデータを編集できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1285
 msgid "Cannot save to disk"
@@ -6547,6 +6547,9 @@ msgid ""
 "%d\n"
 "books"
 msgstr ""
+"ライブラリに\n"
+"%d\n"
+"書籍あります"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:197
 msgid ""
