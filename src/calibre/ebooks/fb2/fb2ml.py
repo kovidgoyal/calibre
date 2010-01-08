@@ -117,9 +117,10 @@ class FB2MLizer(object):
         '<book-title>%s</book-title> ' \
         '</title-info><document-info> ' \
         '<program-used>%s - %s</program-used></document-info>\n' \
-        '</description>\n<body>\n<section>' % (author_first, author_middle,
+        '</description>\n<body>\n<section>' % tuple(map(prepare_string_for_xml,
+            (author_first, author_middle,
             author_last, self.oeb_book.metadata.title[0].value,
-            __appname__, __version__)
+            __appname__, __version__)))
 
     def get_cover_page(self):
         output = u''
