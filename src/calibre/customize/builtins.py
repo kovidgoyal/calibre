@@ -402,7 +402,7 @@ from calibre.customize.profiles import input_profiles, output_profiles
 
 from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX
 from calibre.devices.blackberry.driver import BLACKBERRY
-from calibre.devices.cybookg3.driver import CYBOOKG3, CYBOOK_OPUS
+from calibre.devices.cybook.driver import CYBOOK
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK
 from calibre.devices.iliad.driver import ILIAD
@@ -460,7 +460,7 @@ plugins += [
     HANLINV3,
     HANLINV5,
     BLACKBERRY,
-    CYBOOKG3,
+    CYBOOK,
     ILIAD,
     IREXDR1000,
     JETBOOK,
@@ -476,7 +476,6 @@ plugins += [
     ANDROID,
     N770,
     N810,
-    CYBOOK_OPUS,
     COOL_ER,
     ESLICK,
     NUUT2,
