@@ -7,6 +7,7 @@ economist.com
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 
 import mechanize, string, urllib, time
 
@@ -103,3 +104,22 @@ class Economist(BasicNewsRecipe):
         if not ans:
             raise Exception('Could not find any articles. Has your subscription expired?')
         return ans
+
+    def eco_find_image_tables(self, soup):
+        for x in soup.findAll('table', align='right'):
+            if len(x.findAll('font')) in (1,2) and len(x.findAll('img')) == 1:
+                yield x
+
+    def postprocess_html(self, soup, first):
+        for table in list(self.eco_find_image_tables(soup)):
+            caption = table.find('font')
+            img = table.find('img')
+            div = Tag(soup, 'div')
+            div['style'] = 'text-align:center;font-size:70%'
+            ns = NavigableString(self.tag_to_string(caption))
+            div.insert(0, ns)
+            div.insert(1, Tag(soup, 'br'))
+            img.extract()
+            div.insert(2, img)
+            table.replaceWith(div)
+        return soup

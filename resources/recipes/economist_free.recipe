@@ -1,6 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.threadpool import ThreadPool, makeRequests
-import time
+from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+import time, string
 from datetime import datetime
 from lxml import html
 
@@ -48,7 +49,30 @@ class Economist(BasicNewsRecipe):
         for r in requests: pool.putRequest(r)
         pool.wait()
 
-        return [(t, a) for t, a in self.feed_dict.items()]
+        return self.eco_sort_sections([(t, a) for t, a in
+            self.feed_dict.items()])
+
+    def eco_sort_sections(self, feeds):
+        order = {
+            'The World This Week': 1,
+            'Leaders': 2,
+            'Letters': 3,
+            'Briefing': 4,
+            'Business': 5,
+            'Finance And Economics': 6,
+            'Science & Technology': 7,
+            'Books & Arts': 8,
+            'International': 9,
+            'United States': 10,
+            'Asia': 11,
+            'Europe': 12,
+            'The Americas': 13,
+            'Middle East & Africa': 14,
+            'Britain': 15,
+            'Obituary': 16,
+        }
+        return sorted(feeds, cmp=lambda x,y:cmp(order.get(x[0], 100),
+            order.get(y[0], 100)))
 
     def process_eco_feed_article(self, args):
         from calibre import browser
@@ -61,8 +85,8 @@ class Economist(BasicNewsRecipe):
         matches = root.xpath('//*[@class = "article-section"]')
         feedtitle = 'Miscellaneous'
         if matches:
-            feedtitle = html.tostring(matches[0], method='text',
-                    encoding=unicode)
+            feedtitle = string.capwords(html.tostring(matches[0], method='text',
+                    encoding=unicode))
         return (i, feedtitle, url, title, description, author, published)
 
     def eco_article_found(self, req, result):
@@ -81,3 +105,22 @@ class Economist(BasicNewsRecipe):
     def eco_article_failed(self, req, tb):
         self.log.error('Failed to download %s with error:'%req.args[0][2])
         self.log.debug(tb)
+
+    def eco_find_image_tables(self, soup):
+        for x in soup.findAll('table', align='right'):
+            if len(x.findAll('font')) in (1,2) and len(x.findAll('img')) == 1:
+                yield x
+
+    def postprocess_html(self, soup, first):
+        for table in list(self.eco_find_image_tables(soup)):
+            caption = table.find('font')
+            img = table.find('img')
+            div = Tag(soup, 'div')
+            div['style'] = 'text-align:center;font-size:70%'
+            ns = NavigableString(self.tag_to_string(caption))
+            div.insert(0, ns)
+            div.insert(1, Tag(soup, 'br'))
+            img.extract()
+            div.insert(2, img)
+            table.replaceWith(div)
+        return soup
