@@ -18,6 +18,29 @@ class Font(object):
         self.color = spec.get('color')
         self.family = spec.get('family')
 
+class Column(object):
+
+    def __init__(self):
+        self.left = self.right = self.top = self.bottom = 0
+        self.width = self.height = 0
+        self.elements = []
+
+    def add(self, elem):
+        if elem in self.elements: return
+        self.elements.append(elem)
+        self.elements.sort(cmp=lambda x,y:cmp(x.bottom,y.bottom))
+        self.top = self.elements[0].top
+        self.bottom = self.elements[-1].bottom
+        self.left, self.right = sys.maxint, 0
+        for x in self:
+            self.left = min(self.left, x.left)
+            self.right = max(self.right, x.right)
+        self.width, self.height = self.right-self.left, self.bottom-self.top
+
+    def __iter__(self):
+        for x in self.elements:
+            yield x
+
 class Element(object):
 
     def __eq__(self, other):
@@ -35,7 +58,6 @@ class Image(Element):
           map(float, map(img.get, ('top', 'left', 'rwidth', 'rheight', 'iwidth',
               'iheight')))
         self.src = img.get('src')
-
 
 
 class Text(Element):
@@ -191,18 +213,43 @@ class Page(object):
         for i, x in enumerate(self.elements):
             x.idx = i
         self.current_region = None
+        processed = set([])
         for x in self.elements:
-            self.find_elements_in_row_of(x)
+            if x in processed: continue
+            elems = set(self.find_elements_in_row_of(x))
+            columns = self.sort_into_columns(x, elems)
+            processed.update(elems)
+            columns
+
+    def sort_into_columns(self, elem, neighbors):
+        columns = [Column()]
+        columns[0].add(elem)
+        for x in neighbors:
+            added = False
+            for c in columns:
+                if c.contains(x):
+                    c.add(x)
+                    added = True
+                    break
+            if not added:
+                columns.append(Column())
+                columns[-1].add(x)
+                columns.sort(cmp=lambda x,y:cmp(x.left, y.left))
+        return columns
 
     def find_elements_in_row_of(self, x):
         interval = Interval(x.top - self.YFUZZ * self.average_text_height,
                 x.top + self.YFUZZ*(1+self.average_text_height))
+        h_interval = Interval(x.left, x.right)
         m = max(0, x.idx-15)
         for y in self.elements[m:x.idx+15]:
-            y_interval = Interval(y.top, y.bottom)
-            if interval.intersection(y_interval).width > \
-                0.5*self.average_text_height:
-                yield y
+            if y is not x:
+                y_interval = Interval(y.top, y.bottom)
+                x_interval = Interval(y.left, y.right)
+                if interval.intersection(y_interval).width > \
+                    0.5*self.average_text_height and \
+                    x_interval.intersection(h_interval).width <= 0:
+                    yield y
 
 
 class PDFDocument(object):
