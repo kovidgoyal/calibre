@@ -197,6 +197,12 @@ class Page(object):
     def find_elements_in_row_of(self, x):
         interval = Interval(x.top - self.YFUZZ * self.average_text_height,
                 x.top + self.YFUZZ*(1+self.average_text_height))
+        m = max(0, x.idx-15)
+        for y in self.elements[m:x.idx+15]:
+            y_interval = Interval(y.top, y.bottom)
+            if interval.intersection(y_interval).width > \
+                0.5*self.average_text_height:
+                yield y
 
 
 class PDFDocument(object):

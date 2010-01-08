@@ -43,8 +43,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>879</width>
-        <height>710</height>
+        <width>869</width>
+        <height>698</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -408,7 +408,11 @@
                 </property>
                 <layout class="QGridLayout" name="gridLayout_4">
                  <item row="0" column="0">
-                  <widget class="QTextEdit" name="comments"/>
+                  <widget class="QTextEdit" name="comments">
+                   <property name="acceptRichText">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
                  </item>
                 </layout>
                </widget>
