@@ -416,6 +416,7 @@ class NookOutput(OutputProfile):
 
     # Screen size is a best guess
     screen_size               = (600, 730)
+    comic_screen_size         = (584, 730)
     dpi                       = 167
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
