@@ -802,7 +802,7 @@ class LibraryServer(object):
 
 
     @expose
-    def get(self, what, id):
+    def get(self, what, id, *args, **kwargs):
         'Serves files, covers, thumbnails from the calibre database'
         try:
             id = int(id)
