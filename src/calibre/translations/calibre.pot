@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.6.32\n"
-"POT-Creation-Date: 2010-01-08 15:35+MST\n"
-"PO-Revision-Date: 2010-01-08 15:35+MST\n"
+"POT-Creation-Date: 2010-01-09 10:18+MST\n"
+"PO-Revision-Date: 2010-01-09 10:18+MST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -123,11 +123,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database.py:913
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:703
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:715
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1132
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1169
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1503
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1505
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1616
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1135
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1172
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1509
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1511
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1622
 #: /home/kovid/work/calibre/src/calibre/library/server.py:645
 #: /home/kovid/work/calibre/src/calibre/library/server.py:717
 #: /home/kovid/work/calibre/src/calibre/library/server.py:764
@@ -511,7 +511,7 @@ msgid "Communicate with the Sony PRS-300/505/500 eBook reader."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:58
-msgid "Comma separated list of metadata fields to turn into collections on the device. Posiibilities include: "
+msgid "Comma separated list of metadata fields to turn into collections on the device. Possibilities include: "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:139
@@ -583,9 +583,9 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:826
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1065
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1069
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1403
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1068
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1072
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1409
 msgid "News"
 msgstr ""
 
@@ -6639,27 +6639,27 @@ msgid ""
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1642
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1648
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1671
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1677
 msgid "Copying <b>%s</b>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1688
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1694
 msgid "Compacting database"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1781
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1787
 msgid "Checking SQL integrity..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1818
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1824
 msgid "Checking for missing files."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1840
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1846
 msgid "Checked id"
 msgstr ""
 
