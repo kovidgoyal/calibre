@@ -924,7 +924,10 @@ class LibraryDatabase2(LibraryDatabase):
             fmt_path = os.path.join(path, name+format)
             if os.path.exists(fmt_path):
                 return fmt_path
-            candidates = glob.glob(os.path.join(path, '*'+format))
+            try:
+                candidates = glob.glob(os.path.join(path, '*'+format))
+            except: # If path contains strange characters this throws an exc
+                candidates = []
             if format and candidates and os.path.exists(candidates[0]):
                 shutil.copyfile(candidates[0], fmt_path)
                 return fmt_path
@@ -1353,7 +1356,10 @@ class LibraryDatabase2(LibraryDatabase):
     def set_series_index(self, id, idx, notify=True):
         if idx is None:
             idx = 1.0
-        idx = float(idx)
+        try:
+            idx = float(idx)
+        except:
+            idx = 1.0
         self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (idx, id))
         self.conn.commit()
         self.data.set(id, FIELD_MAP['series_index'], idx, row_is_id=True)
