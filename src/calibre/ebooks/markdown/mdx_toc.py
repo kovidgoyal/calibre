@@ -44,13 +44,13 @@ class TocExtension (markdown.Extension):
         replaces first string occurence of "///Table of Contents Goes Here///"
     """
 
-    def __init__ (self) :
+    def __init__ (self, configs) :
         #maybe add these as parameters to the class init?
         self.TOC_INCLUDE_MARKER = "///Table of Contents///"
         self.TOC_TITLE = "Table Of Contents"
         self.auto_toc_heading_type=2
         self.toc_heading_type=3
-
+        self.configs = configs
 
     def extendMarkdown(self, md, md_globals) :
         # Just insert in the end
@@ -148,16 +148,23 @@ class TocPostprocessor (markdown.Postprocessor):
     def run(self, doc):
         tocPlaceholder = self.toc.findTocPlaceholder(doc)
 
-        tocDiv = self.toc.createTocDiv(doc)
-        if tocDiv:
-            if tocPlaceholder :
-                # Replace "magic" pattern with toc
-                tocPlaceholder.parent.replaceChild(tocPlaceholder, tocDiv)
-            else :
-                # Dump at the end of the DOM
-                # Probably want to use CSS to position div
-                doc.documentElement.appendChild(tocDiv)
+        if self.toc.configs["disable_toc"]:
+            if tocPlaceholder:
+                tocPlaceholder.parent.replaceChild(tocPlaceholder, "")
+                
+        else:
+
+            tocDiv = self.toc.createTocDiv(doc)
+
+            if tocDiv:
+                if tocPlaceholder :
+                    # Replace "magic" pattern with toc
+                    tocPlaceholder.parent.replaceChild(tocPlaceholder, tocDiv)
+                else :
+                    # Dump at the end of the DOM
+                    # Probably want to use CSS to position div
+                    doc.documentElement.appendChild(tocDiv)
 
 
 def makeExtension(configs=None) :
-    return TocExtension()
+    return TocExtension(configs)

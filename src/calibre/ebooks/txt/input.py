@@ -31,6 +31,8 @@ class TXTInput(InputFormatPlugin):
         OptionRecommendation(name='markdown', recommended_value=False,
             help=_('Run the text input through the markdown pre-processor. To '
                 'learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
+        OptionRecommendation(name="markdown_disable_toc", recommended_value=False,
+            help=_('Do not insert a Table of Contents.')),
     ])
 
     def convert(self, stream, options, file_ext, log,
@@ -50,7 +52,7 @@ class TXTInput(InputFormatPlugin):
         if options.markdown:
             log.debug('Running text though markdown conversion...')
             try:
-                html = convert_markdown(txt)
+                html = convert_markdown(txt, options.markdown_disable_toc)
             except RuntimeError:
                 raise ValueError('This txt file has malformed markup, it cannot be'
                     'converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
