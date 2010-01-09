@@ -55,7 +55,7 @@ class TXTInput(InputFormatPlugin):
                 html = convert_markdown(txt, disable_toc=options.markdown_disable_toc)
             except RuntimeError:
                 raise ValueError('This txt file has malformed markup, it cannot be'
-                    'converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
+                    ' converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
         else:
             html = convert_basic(txt)
 
