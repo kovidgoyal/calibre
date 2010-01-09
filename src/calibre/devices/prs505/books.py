@@ -187,7 +187,7 @@ class BookList(_BookList):
             self.remove_book(name)
 
         node = self.document.createElement(self.prefix + "text")
-        mime = MIME_MAP[name.rpartition('.')[-1].lower()]
+        mime = MIME_MAP.get(name.rpartition('.')[-1].lower(), MIME_MAP['epub'])
         cid = self.max_id()+1
         try:
             sourceid = str(self[0].sourceid) if len(self) else '1'
