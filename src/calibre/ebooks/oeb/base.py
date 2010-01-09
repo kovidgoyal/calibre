@@ -960,7 +960,7 @@ class Manifest(object):
             else:
                 title = _('Unknown')
 
-            return self._parse_xhtml(convert_markdown(data, title))
+            return self._parse_xhtml(convert_markdown(data, title=title))
 
 
         def _parse_css(self, data):

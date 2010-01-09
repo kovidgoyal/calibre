@@ -39,10 +39,11 @@ def convert_basic(txt, title=''):
 
     return HTML_TEMPLATE % (title, '\n'.join(lines))
 
-def convert_markdown(txt, title=''):
+def convert_markdown(txt, title='', disable_toc=False):
     md = markdown.Markdown(
-        extensions=['footnotes', 'tables', 'toc'],
-        safe_mode=False,)
+          extensions=['footnotes', 'tables', 'toc'],
+          extension_configs={"toc": {"disable_toc": disable_toc}},
+          safe_mode=False)
     return HTML_TEMPLATE % (title, md.convert(txt))
 
 def separate_paragraphs_single_line(txt):
