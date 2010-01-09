@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 import re
 
 class NatureNews(BasicNewsRecipe):
@@ -18,7 +17,7 @@ class NatureNews(BasicNewsRecipe):
        #dict(name='div', attrs={'class':['pt-box-title', 'pt-box-content']}),
        #dict(name='div', attrs={'id':['block-td_search_160', 'block-cam_search_160']}),
        dict(name='h2', attrs={'id':'comments'}),
-       dict(name='ul', attrs={'class':'toolsmenu xoxo'}),	
+       dict(name='ul', attrs={'class':'toolsmenu xoxo'}),
     ]
 
     preprocess_regexps = [
@@ -26,19 +25,7 @@ class NatureNews(BasicNewsRecipe):
     ]
 
     feeds = [('Nature News', 'http://feeds.nature.com/news/rss/most_recent')]
-        
+
     def get_article_url(self, article):
         return article.get('id')
 
-    #def preprocess_html(self, soup):
-        #story = soup.find(name='div', attrs={'id':'contentColumn'})
-        #td = heading.findParent(name='td')
-        #td.extract()
-        #soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
-        #body = soup.find(name='body')
-        #body.insert(0, story)
-        #for x in soup.findAll(name='p', text=lambda x:x and '--&gt;' in x):
-             #p = x.findParent('p')
-             #if p is not None:
-                  #p.extract()
-        #return soup
