@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-01-08 22:57+0000\n"
-"PO-Revision-Date: 2010-01-09 01:58+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2010-01-09 17:37+0000\n"
+"PO-Revision-Date: 2010-01-09 17:07+0000\n"
+"Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-09 07:48+0000\n"
+"X-Launchpad-Export-Date: 2010-01-10 07:15+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:42
@@ -125,11 +125,11 @@ msgstr "Gör ingenting"
 #: /home/kovid/work/calibre/src/calibre/library/database.py:913
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:703
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:715
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1132
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1169
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1503
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1505
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1616
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1135
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1172
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1509
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1511
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1622
 #: /home/kovid/work/calibre/src/calibre/library/server.py:645
 #: /home/kovid/work/calibre/src/calibre/library/server.py:717
 #: /home/kovid/work/calibre/src/calibre/library/server.py:764
@@ -466,7 +466,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr ""
+msgstr "Kommunicera med Cybook Gen 3 / Opus eboksläsare."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:23
 msgid "Communicate with the EB600 eBook reader."
@@ -575,7 +575,7 @@ msgstr "Kommunicera med Sony PRS-300/505/500 e-boksläsare."
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:58
 msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
-"device. Posiibilities include: "
+"device. Possibilities include: "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:139
@@ -651,9 +651,9 @@ msgstr "Det finns tillräckligt mycket ledigt utrymme på minneskortet"
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:826
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1065
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1069
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1403
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1068
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1072
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1409
 msgid "News"
 msgstr "Nyheter"
 
@@ -2877,7 +2877,7 @@ msgstr "Ta bort &fläckar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:95
 msgid "&Disable comic processing"
-msgstr ""
+msgstr "Inaktivera serietidningsbearbetning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:111
@@ -3623,7 +3623,7 @@ msgstr "Antal &länkar för att lägga till innehållsförteckningen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:65
 msgid "Chapter &threshold"
-msgstr ""
+msgstr "Kapitel&tröskel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:66
 msgid "&Force use of auto-generated Table of Contents"
@@ -4044,6 +4044,8 @@ msgid ""
 "\n"
 "Customization: "
 msgstr ""
+"\n"
+"Anpassning: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:196
 msgid "Conversion"
@@ -6828,7 +6830,7 @@ msgstr "Kortkommandon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
-msgstr ""
+msgstr "Inga resultat hittades för:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:33
 msgid "Options to customize the ebook viewer"
@@ -6890,7 +6892,7 @@ msgstr "Standard typsnitt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:404
 msgid "&Lookup in dictionary"
-msgstr ""
+msgstr "&Leta i ordlista"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
@@ -6967,7 +6969,7 @@ msgstr "Förhandsgranska"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:271
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
-msgstr ""
+msgstr "Ansluta till dict.org att slå upp: <b>%s</b>&hellip;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:370
 msgid "Choose ebook"
@@ -7046,7 +7048,7 @@ msgstr "E-bokläsare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:179
 msgid "Close dictionary"
-msgstr ""
+msgstr "Stäng ordbok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:181
 msgid "toolBar"
@@ -7825,27 +7827,27 @@ msgstr ""
 "\n"
 "For help on an individual command: %%prog command --help\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1642
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1648
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr "<p> Migrera gamla databasen med e-bokbibliotek i%s <br> <center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1671
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1677
 msgid "Copying <b>%s</b>"
 msgstr "Kopiering <b>%s </ b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1688
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1694
 msgid "Compacting database"
 msgstr "Komprimerande databas"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1781
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1787
 msgid "Checking SQL integrity..."
 msgstr "Kontrollerar SQL integritet ..."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1818
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1824
 msgid "Checking for missing files."
 msgstr "Kontroll av saknade filer."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1840
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1846
 msgid "Checked id"
 msgstr "Kontrollerad id"
 
@@ -7872,6 +7874,7 @@ msgstr "Serien"
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:29
 msgid "The series number. To get leading zeros use {series_index:0>3s}"
 msgstr ""
+"Det serienummer. För att få inledande nollor använd (series_index: 0>3s)"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:30
 msgid "The rating"
