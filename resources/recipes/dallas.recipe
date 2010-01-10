@@ -1,0 +1,28 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DallasNews(BasicNewsRecipe):
+    title          = u'The Dallas Morning News'
+    language       = 'en'
+    oldest_article = 2 #days
+    max_articles_per_feed = 25
+
+    no_stylesheets = True
+    remove_tags_before = dict(name='h2', attrs={'class':'vitstoryheadline'})
+    remove_tags_after  = dict(name='div', attrs={'style':'width: 100%; clear: right'})
+    remove_tags_after  = dict(name='div', attrs={'id':'article_tools_bottom'})
+    remove_tags = [
+       dict(name='iframe'),
+       dict(name='div', attrs={'class':'biblockmore'}),
+       dict(name='div', attrs={'style':'width: 100%; clear: right'}),
+       dict(name='div', attrs={'id':'article_tools_bottom'}),
+       #dict(name='ul', attrs={'class':'articleTools'}),
+    ]
+
+    feeds          = [
+                      ('Latest News', 'http://www.dallasnews.com/newskiosk/rss/dallasnewslatestnews.xml'),
+                      ('Local News', 'http://www.dallasnews.com/newskiosk/rss/dallasnewslocalnews.xml'),
+		      ('Nation and World', 'http://www.dallasnews.com/newskiosk/rss/dallasnewsnationworld.xml'),
+		      ('Politics', 'http://www.dallasnews.com/newskiosk/rss/dallasnewsnationalpolitics.xml'),
+		      ('Science', 'http://www.dallasnews.com/newskiosk/rss/dallasnewsscience.xml'),
+                    ]
+

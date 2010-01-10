@@ -1,0 +1,59 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+__author__    = 'Lorenzo Vigentini'
+__copyright__ = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
+description   = 'the Escapist Magazine - v1.02 (09, January 2010)'
+
+'''
+http://www.escapistmagazine.com/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class al(BasicNewsRecipe):
+    author        = 'Lorenzo Vigentini'
+    description   = 'the Escapist Magazine'
+
+    cover_url      = 'http://cdn.themis-media.com/themes/escapistmagazine/default/images/logo.png'
+    title          = u'the Escapist Magazine'
+    publisher      = 'Themis media'
+    category       = 'Video games news, lifestyle, gaming culture'
+
+    language       = 'en'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article = 1
+    max_articles_per_feed = 100
+    use_embedded_content  = False
+    recursion             = 10
+
+    remove_javascript     = True
+    no_stylesheets        = True
+
+    feeds          = [
+                       (u'Daily News', u'http://www.escapistmagazine.com/rss/news/0.xml'),
+                       (u'Articles', u'http://www.escapistmagazine.com/rss/articles/0.xml')
+                     ]
+
+    def print_version(self,url):
+        baseURL='http://www.escapistmagazine.com'
+        segments = url.split('/')
+        #basename = '/'.join(segments[:3]) + '/'
+        subPath= '/'+ segments[3] + '/'
+        articleURL=(segments[len(segments)-1])[0:5]
+
+        if articleURL[4] =='-':
+            articleURL=articleURL[:4]
+
+        printVerString='print/'+ articleURL
+        s=  baseURL + subPath + printVerString
+        return s
+
+    keep_only_tags     = [
+                            dict(name='div', attrs={'id':'article'})
+                        ]
+
+    remove_tags        = [
+                            dict(name='div',attrs={'id':['ad_leaderboard','print_notice','bottom_panel_container']})
+                         ]
+

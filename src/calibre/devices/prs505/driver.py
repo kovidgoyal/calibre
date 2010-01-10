@@ -56,7 +56,7 @@ class PRS505(CLI, Device):
     EBOOK_DIR_MAIN = 'database/media/books'
 
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of metadata fields '
-            'to turn into collections on the device. Posiibilities include: ')+\
+            'to turn into collections on the device. Possibilities include: ')+\
                     'series, tags, authors'
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['series', 'tags'])
 

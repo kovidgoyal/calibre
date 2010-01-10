@@ -191,9 +191,9 @@ class RecursiveFetcher(object):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
         # Not sure is this is really needed as I think mechanize
-        # handles quoting automatically, but leaving it in
+        # handles quoting automatically, but leaving it
         # in case it breaks something
-        if re.search(r'\s+|,', url) is not None:
+        if re.search(r'\s+', url) is not None:
             purl = list(urlparse.urlparse(url))
             for i in range(2, 6):
                 purl[i] = quote(purl[i])

@@ -468,6 +468,7 @@ class MobiReader(object):
         self.processed_html = self.processed_html.replace('\r\n', '\n')
         self.processed_html = self.processed_html.replace('> <', '>\n<')
         self.processed_html = self.processed_html.replace('<mbp: ', '<mbp:')
+        self.processed_html = re.sub(r'<?xml[^>]*>', '', self.processed_html)
 
     def remove_random_bytes(self, html):
         return re.sub('\x14|\x15|\x19|\x1c|\x1d|\xef|\x12|\x13|\xec|\x08',
@@ -490,6 +491,8 @@ class MobiReader(object):
             'xx-large': '6',
             }
         mobi_version = self.book_header.mobi_version
+        for x in root.xpath('//ncx'):
+            x.getparent().remove(x)
         for i, tag in enumerate(root.iter(etree.Element)):
             tag.attrib.pop('xmlns', '')
             for x in tag.attrib:

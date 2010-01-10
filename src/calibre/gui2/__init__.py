@@ -605,9 +605,9 @@ def build_forms(srcdir, info=None):
             if form.endswith('viewer%smain.ui'%os.sep):
                 info('\t\tPromoting WebView')
                 dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
-                if iswindows:
-                    dat = dat.replace('self.view = QWebView(', 'self.view = DocumentView(')
-                    dat = dat.replace('from QtWebKit.QWebView import QWebView', '')
+                dat = dat.replace('self.view = QWebView(', 'self.view = DocumentView(')
+                dat = dat.replace('from QtWebKit.QWebView import QWebView',
+                        'from PyQt4 import QtWebKit\nfrom PyQt4.QtWebKit import QWebView')
                 dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
 
             open(compiled_form, 'wb').write(dat)

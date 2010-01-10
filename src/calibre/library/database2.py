@@ -924,7 +924,10 @@ class LibraryDatabase2(LibraryDatabase):
             fmt_path = os.path.join(path, name+format)
             if os.path.exists(fmt_path):
                 return fmt_path
-            candidates = glob.glob(os.path.join(path, '*'+format))
+            try:
+                candidates = glob.glob(os.path.join(path, '*'+format))
+            except: # If path contains strange characters this throws an exc
+                candidates = []
             if format and candidates and os.path.exists(candidates[0]):
                 shutil.copyfile(candidates[0], fmt_path)
                 return fmt_path
@@ -1122,10 +1125,18 @@ class LibraryDatabase2(LibraryDatabase):
         self.set_path(id, True)
         self.notify('metadata', [id])
 
-    def set_metadata(self, id, mi):
+    def set_metadata(self, id, mi, ignore_errors=False):
         '''
         Set metadata for the book `id` from the `MetaInformation` object `mi`
         '''
+        def doit(func, *args, **kwargs):
+            try:
+                func(*args, **kwargs)
+            except:
+                if ignore_errors:
+                    traceback.print_exc()
+                else:
+                    raise
         if mi.title:
             self.set_title(id, mi.title)
         if not mi.authors:
@@ -1135,29 +1146,29 @@ class LibraryDatabase2(LibraryDatabase):
             authors += string_to_authors(a)
         self.set_authors(id, authors, notify=False)
         if mi.author_sort:
-            self.set_author_sort(id, mi.author_sort, notify=False)
+            doit(self.set_author_sort, id, mi.author_sort, notify=False)
         if mi.publisher:
-            self.set_publisher(id, mi.publisher, notify=False)
+            doit(self.set_publisher, id, mi.publisher, notify=False)
         if mi.rating:
-            self.set_rating(id, mi.rating, notify=False)
+            doit(self.set_rating, id, mi.rating, notify=False)
         if mi.series:
-            self.set_series(id, mi.series, notify=False)
+            doit(self.set_series, id, mi.series, notify=False)
         if mi.cover_data[1] is not None:
-            self.set_cover(id, mi.cover_data[1])
+            doit(self.set_cover, id, mi.cover_data[1])
         elif mi.cover is not None and os.access(mi.cover, os.R_OK):
-            self.set_cover(id, open(mi.cover, 'rb').read())
+            doit(self.set_cover, id, open(mi.cover, 'rb'))
         if mi.tags:
-            self.set_tags(id, mi.tags, notify=False)
+            doit(self.set_tags, id, mi.tags, notify=False)
         if mi.comments:
-            self.set_comment(id, mi.comments, notify=False)
+            doit(self.set_comment, id, mi.comments, notify=False)
         if mi.isbn and mi.isbn.strip():
-            self.set_isbn(id, mi.isbn, notify=False)
+            doit(self.set_isbn, id, mi.isbn, notify=False)
         if mi.series_index:
-            self.set_series_index(id, mi.series_index, notify=False)
+            doit(self.set_series_index, id, mi.series_index, notify=False)
         if mi.pubdate:
-            self.set_pubdate(id, mi.pubdate, notify=False)
+            doit(self.set_pubdate, id, mi.pubdate, notify=False)
         if getattr(mi, 'timestamp', None) is not None:
-            self.set_timestamp(id, mi.timestamp, notify=False)
+            doit(self.set_timestamp, id, mi.timestamp, notify=False)
         self.set_path(id, True)
         self.notify('metadata', [id])
 
@@ -1353,7 +1364,10 @@ class LibraryDatabase2(LibraryDatabase):
     def set_series_index(self, id, idx, notify=True):
         if idx is None:
             idx = 1.0
-        idx = float(idx)
+        try:
+            idx = float(idx)
+        except:
+            idx = 1.0
         self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (idx, id))
         self.conn.commit()
         self.data.set(id, FIELD_MAP['series_index'], idx, row_is_id=True)
@@ -1513,7 +1527,7 @@ class LibraryDatabase2(LibraryDatabase):
         id = obj.lastrowid
         self.data.books_added([id], self)
         self.set_path(id, True)
-        self.set_metadata(id, mi)
+        self.set_metadata(id, mi, ignore_errors=True)
         for path in formats:
             ext = os.path.splitext(path)[1][1:].lower()
             if ext == 'opf':

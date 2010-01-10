@@ -15,7 +15,7 @@ pdfreflow, pdfreflow_err = plugins['pdfreflow']
 class PDFInput(InputFormatPlugin):
 
     name        = 'PDF Input'
-    author      = 'John Schember'
+    author      = 'Kovid Goyal and John Schember'
     description = 'Convert PDF files to HTML'
     file_types  = set(['pdf'])
 

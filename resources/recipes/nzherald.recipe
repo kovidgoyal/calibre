@@ -1,0 +1,73 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class NewZealandHerald(BasicNewsRecipe):
+
+    title       = 'New Zealand Herald'
+    __author__  = 'Krittika Goyal'
+    description = 'Daily news'
+    timefmt = ' [%d %b, %Y]'
+
+    no_stylesheets = True
+    remove_tags_before = dict(name='div', attrs={'class':'contentContainer left eight'})
+    remove_tags_after  = dict(name='div', attrs={'class':'callToAction'})
+    remove_tags = [
+       dict(name='iframe'),
+       dict(name='div', attrs={'class':['sectionHeader', 'tools','callToAction', 'contentContainer right two nopad relatedColumn']}),
+       #dict(name='div', attrs={'id':['shareContainer']}),
+       #dict(name='form', attrs={'onsubmit':"return verifySearch(this.w,'Keyword, citation, or #author')"}),
+       #dict(name='table', attrs={'cellspacing':'0'}),
+    ]
+
+    def preprocess_html(self, soup):
+        table = soup.find('table')
+        if table is not None:
+            table.extract()
+        return soup
+
+    #TO GET ARTICLES IN SECTION
+    def nz_parse_section(self, url):
+            soup = self.index_to_soup(url)
+            div = soup.find(attrs={'class':'col-300 categoryList'})
+            date = div.find(attrs={'class':'link-list-heading'})
+
+            current_articles = []
+            for x in date.findAllNext(attrs={'class':['linkList', 'link-list-heading']}):
+                if x.get('class') == 'link-list-heading': break
+                for li in x.findAll('li'):
+                    a = li.find('a', href=True)
+                    if a is None:
+                        continue
+                    title = self.tag_to_string(a)
+                    url = a.get('href', False)
+                    if not url or not title:
+                        continue
+                    if url.startswith('/'):
+                         url = 'http://www.nzherald.co.nz'+url
+                    self.log('\t\tFound article:', title)
+                    self.log('\t\t\t', url)
+                    current_articles.append({'title': title, 'url':url,
+                        'description':'', 'date':''})
+
+            return current_articles
+
+
+    # To GET SECTIONS
+    def parse_index(self):
+            feeds = []
+            for title, url in [
+                ('National',
+                 'http://www.nzherald.co.nz/nz/news/headlines.cfm?c_id=1'),
+                ('World',
+                 'http://www.nzherald.co.nz/world/news/headlines.cfm?c_id=2'),
+                ('Politics',
+                 'http://www.nzherald.co.nz/politics/news/headlines.cfm?c_id=280'),
+                ('Crime',
+                 'http://www.nzherald.co.nz/crime/news/headlines.cfm?c_id=30'),
+                ('Environment',
+                 'http://www.nzherald.co.nz/environment/news/headlines.cfm?c_id=39'),
+             ]:
+               articles = self.nz_parse_section(url)
+               if articles:
+                   feeds.append((title, articles))
+            return feeds
+

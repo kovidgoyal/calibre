@@ -18,9 +18,52 @@ class Font(object):
         self.color = spec.get('color')
         self.family = spec.get('family')
 
-class Text(object):
+class Column(object):
 
-    def __init__(self, text, font_map, opts, log):
+    def __init__(self):
+        self.left = self.right = self.top = self.bottom = 0
+        self.width = self.height = 0
+        self.elements = []
+
+    def add(self, elem):
+        if elem in self.elements: return
+        self.elements.append(elem)
+        self.elements.sort(cmp=lambda x,y:cmp(x.bottom,y.bottom))
+        self.top = self.elements[0].top
+        self.bottom = self.elements[-1].bottom
+        self.left, self.right = sys.maxint, 0
+        for x in self:
+            self.left = min(self.left, x.left)
+            self.right = max(self.right, x.right)
+        self.width, self.height = self.right-self.left, self.bottom-self.top
+
+    def __iter__(self):
+        for x in self.elements:
+            yield x
+
+class Element(object):
+
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def __hash__(self):
+        return hash(self.id)
+
+class Image(Element):
+
+    def __init__(self, img, opts, log, idc):
+        self.opts, self.log = opts, log
+        self.id = idc.next()
+        self.top, self.left, self.width, self.height, self.iwidth, self.iheight = \
+          map(float, map(img.get, ('top', 'left', 'rwidth', 'rheight', 'iwidth',
+              'iheight')))
+        self.src = img.get('src')
+
+
+class Text(Element):
+
+    def __init__(self, text, font_map, opts, log, idc):
+        self.id = idc.next()
         self.opts, self.log = opts, log
         self.font_map = font_map
         self.top, self.left, self.width, self.height = map(float, map(text.get,
@@ -90,47 +133,6 @@ class Interval(object):
         return hash('(%f,%f)'%self.left, self.right)
 
 
-class HorizontalBox(object):
-
-    def __init__(self, base_text):
-        self.texts = [base_text]
-        self.bottom = base_text.bottom
-        self.number_of_columns = None
-        self.column_map = {}
-
-    def append(self, t):
-        self.texts.append(t)
-
-    def sort(self, left_margin, right_margin):
-        self.texts.sort(cmp=lambda x,y: cmp(x.left, y.left))
-        self.top, self.bottom = sys.maxint, 0
-        for t in self.texts:
-            self.top = min(self.top, t.top)
-            self.bottom = max(self.bottom, t.bottom)
-        self.left = self.texts[0].left
-        self.right = self.texts[-1].right
-        self.gaps = []
-        for i, t in enumerate(self.texts[1:]):
-            gap = Interval(self.texts[i].right, t.left)
-            if gap.width > 3:
-                self.gaps.append(gap)
-        left = Interval(left_margin, self.texts[0].left)
-        if left.width > 3:
-            self.gaps.insert(0, left)
-        right = Interval(self.texts[-1].right, right_margin)
-        if right.width > 3:
-            self.gaps.append(right)
-
-    def has_intersection_with(self, gap):
-        for g in self.gaps:
-            if g.intersection(gap):
-                return True
-        return False
-
-    def identify_columns(self, column_gaps):
-        self.number_of_columns = len(column_gaps) + 1
-
-
 class Page(object):
 
     # Fraction of a character width that two strings have to be apart,
@@ -141,8 +143,10 @@ class Page(object):
     # for them to be considered to be part of the same text fragment
     LINE_FACTOR = 0.4
 
+    YFUZZ = 1.5
 
-    def __init__(self, page, font_map, opts, log):
+
+    def __init__(self, page, font_map, opts, log, idc):
         self.opts, self.log = opts, log
         self.font_map = font_map
         self.number = int(page.get('number'))
@@ -154,7 +158,7 @@ class Page(object):
         self.left_margin, self.right_margin = self.width, 0
 
         for text in page.xpath('descendant::text'):
-            self.texts.append(Text(text, self.font_map, self.opts, self.log))
+            self.texts.append(Text(text, self.font_map, self.opts, self.log, idc))
             text = self.texts[-1]
             self.left_margin = min(text.left, self.left_margin)
             self.right_margin = max(text.right, self.right_margin)
@@ -162,16 +166,22 @@ class Page(object):
         self.textwidth = self.right_margin - self.left_margin
 
         self.font_size_stats = {}
+        self.average_text_height = 0
         for t in self.texts:
             if t.font_size not in self.font_size_stats:
                 self.font_size_stats[t.font_size] = 0
             self.font_size_stats[t.font_size] += len(t.text_as_string)
+            self.average_text_height += t.height
+        self.average_text_height /= len(self.texts)
 
         self.font_size_stats = FontSizeStats(self.font_size_stats)
 
         self.coalesce_fragments()
 
-        #self.identify_columns()
+        self.elements = list(self.texts)
+        for img in page.xpath('descendant::img'):
+            self.elements.append(Image(img, self.opts, self.log, idc))
+        self.elements.sort(cmp=lambda x,y:cmp(x.top, y.top))
 
     def coalesce_fragments(self):
 
@@ -196,46 +206,50 @@ class Page(object):
             if match is not None:
                 self.texts.remove(match)
 
-    def sort_into_horizontal_boxes(self, document_font_size_stats):
-        self.horizontal_boxes = []
+    def first_pass(self):
+        self.regions = []
+        if not self.elements:
+            return
+        for i, x in enumerate(self.elements):
+            x.idx = i
+        self.current_region = None
+        processed = set([])
+        for x in self.elements:
+            if x in processed: continue
+            elems = set(self.find_elements_in_row_of(x))
+            columns = self.sort_into_columns(x, elems)
+            processed.update(elems)
+            columns
 
-        def find_closest_match(text):
-            'Return horizontal box whose bottom is closest to text or None'
-            min, ans = 3.1, None
-            for hb in self.horizontal_boxes:
-                diff = abs(text.bottom - hb.bottom)
-                if diff < min:
-                    diff, ans = min, hb
-            return ans
+    def sort_into_columns(self, elem, neighbors):
+        columns = [Column()]
+        columns[0].add(elem)
+        for x in neighbors:
+            added = False
+            for c in columns:
+                if c.contains(x):
+                    c.add(x)
+                    added = True
+                    break
+            if not added:
+                columns.append(Column())
+                columns[-1].add(x)
+                columns.sort(cmp=lambda x,y:cmp(x.left, y.left))
+        return columns
 
-        for t in self.texts:
-            hb = find_closest_match(t)
-            if hb is None:
-                self.horizontal_boxes.append(HorizontalBox(t))
-            else:
-                hb.append(t)
-
-
-        for hb in self.horizontal_boxes:
-            hb.sort(self.left_margin, self.right_margin)
-
-        self.horizontal_boxes.sort(cmp=lambda x,y: cmp(x.bottom, y.bottom))
-
-    def identify_columns(self):
-
-        def neighborhood(i):
-            if i == len(self.horizontal_boxes)-1:
-                return self.horizontal_boxes[i-2:i]
-            if i == len(self.horizontal_boxes)-2:
-                return (self.horizontal_boxes[i-1], self.horizontal_boxes[i+1])
-            return self.horizontal_boxes[i+1], self.horizontal_boxes[i+2]
-
-        for i, hbox in enumerate(self.horizontal_boxes):
-            n1, n2 = neighborhood(i)
-            for gap in hbox.gaps:
-                gap.is_column_gap =  n1.has_intersection_with(gap) and \
-                    n2.has_intersection_with(gap)
-
+    def find_elements_in_row_of(self, x):
+        interval = Interval(x.top - self.YFUZZ * self.average_text_height,
+                x.top + self.YFUZZ*(1+self.average_text_height))
+        h_interval = Interval(x.left, x.right)
+        m = max(0, x.idx-15)
+        for y in self.elements[m:x.idx+15]:
+            if y is not x:
+                y_interval = Interval(y.top, y.bottom)
+                x_interval = Interval(y.left, y.right)
+                if interval.intersection(y_interval).width > \
+                    0.5*self.average_text_height and \
+                    x_interval.intersection(h_interval).width <= 0:
+                    yield y
 
 
 class PDFDocument(object):
@@ -244,6 +258,7 @@ class PDFDocument(object):
         self.opts, self.log = opts, log
         parser = etree.XMLParser(recover=True)
         self.root = etree.fromstring(xml, parser=parser)
+        idc = iter(xrange(sys.maxint))
 
         self.fonts = []
         self.font_map = {}
@@ -256,14 +271,15 @@ class PDFDocument(object):
         self.page_map = {}
 
         for page in self.root.xpath('//page'):
-            page = Page(page, self.font_map, opts, log)
+            page = Page(page, self.font_map, opts, log, idc)
             self.page_map[page.id] = page
             self.pages.append(page)
 
         self.collect_font_statistics()
 
         for page in self.pages:
-            page.sort_into_horizontal_boxes(self.font_size_stats)
+            page.document_font_stats = self.font_size_stats
+            page.first_pass()
 
     def collect_font_statistics(self):
         self.font_size_stats = {}

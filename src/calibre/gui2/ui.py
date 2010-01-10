@@ -576,6 +576,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
 
+        if self.cover_flow is not None and dynamic.get('cover_flow_visible', False):
+            self.status_bar.cover_flow_button.toggle()
+
+        if dynamic.get('tag_view_visible', False):
+            self.status_bar.tag_view_button.toggle()
+
+
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
         self.search.setMaximumWidth(self.width()-150)
@@ -1837,6 +1844,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def write_settings(self):
         config.set('main_window_geometry', self.saveGeometry())
         dynamic.set('sort_column', self.library_view.model().sorted_on)
+        dynamic.set('tag_view_visible', self.tags_view.isVisible())
+        dynamic.set('cover_flow_visible', self.cover_flow.isVisible())
         self.library_view.write_settings()
         if self.device_connected:
             self.save_device_view_settings()

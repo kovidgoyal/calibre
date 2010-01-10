@@ -6,6 +6,7 @@ from PyQt4.QtGui import QDialog
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
 from calibre.gui2 import qstring_to_unicode
 from calibre.gui2 import question_dialog, error_dialog
+from calibre.constants import islinux
 
 class TagEditor(QDialog, Ui_TagEditor):
 
@@ -42,7 +43,8 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.connect(self.add_tag_button, SIGNAL('clicked()'), self.add_tag)
         self.connect(self.delete_button,  SIGNAL('clicked()'), self.delete_tags)
         self.connect(self.add_tag_input,  SIGNAL('returnPressed()'), self.add_tag)
-        self.connect(self.available_tags, SIGNAL('itemActivated(QListWidgetItem*)'), self.apply_tags)
+        if not islinux:
+            self.connect(self.available_tags, SIGNAL('itemActivated(QListWidgetItem*)'), self.apply_tags)
         self.connect(self.applied_tags,   SIGNAL('itemActivated(QListWidgetItem*)'), self.unapply_tags)
 
 

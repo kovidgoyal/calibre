@@ -27,7 +27,7 @@ class NYTimes(BasicNewsRecipe):
                        'side_tool', 'side_index',
                        'relatedArticles', 'relatedTopics', 'adxSponLink']),
                    dict(name=['script', 'noscript', 'style'])]
-    encoding = 'cp1252'
+    #encoding = 'cp1252'
     no_stylesheets = True
     extra_css = 'h1 {font: sans-serif large;}\n.byline {font:monospace;}'
 
@@ -118,5 +118,5 @@ class NYTimes(BasicNewsRecipe):
         if refresh is None:
             return soup
         content = refresh.get('content').partition('=')[2]
-        raw = self.browser.open('http://www.nytimes.com'+content).read()
+        raw = self.browser.open_novisit('http://www.nytimes.com'+content).read()
         return BeautifulSoup(raw.decode('cp1252', 'replace'))
