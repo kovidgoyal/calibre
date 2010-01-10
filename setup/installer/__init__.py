@@ -111,6 +111,7 @@ class VMInstaller(Command):
             self.vm = self.VM
         if not self.vmware_started():
             self.start_vmware()
+        subprocess.call(['chmod', '-R', '+r', 'resources/recipes'])
         self.start_vm()
         self.download_installer()
         if not self.dont_shutdown:
