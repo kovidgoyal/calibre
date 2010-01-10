@@ -7763,7 +7763,7 @@ msgstr ""
 "Ange metadata lagrays i calibre databas för boken som identifieras med hjälp "
 "av id\n"
 "från OPf fil metadata.opf. ID är ett ID-nummer från listkommandot. Du\n"
-"kan få en snabb känsla för OPf format med hjälp av - som-opf växel till\n"
+"kan få en snabb känsla för OPf format med hjälp av --as-opf växel till\n"
 "show_metadata kommando.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:517
@@ -8376,8 +8376,8 @@ msgstr ""
 "Varje länk som matchar det reguljära uttrycket kommer att ignoreras. Detta "
 "alternativ kan anges flera gånger, i vilket fall så länge något regexp "
 "matchar en länk, blir det ignorat.Grundinställning är att inga länkar "
-"ignoreras. Om både - filter-är regexp och - match-regexp anges så används - "
-"filter-regexp först."
+"ignoreras. Om både --filter-regexp och --match-regexp anges så används "
+"--filter-regexp först."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:481
 msgid "Do not download CSS stylesheets."
