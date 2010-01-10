@@ -140,11 +140,11 @@ First install the Stanza reader on your iPhone using iTunes.
   * Convert the books you want to read on your iPhone to EPUB format by selecting them and clicking the Convert button.
   * Turn on the Content Server in |app|'s preferences and leave |app| running.
 
-Now you should be able to access your books on your iPhone by opening Stanza and going to "Shared Books". Under Shared Books you will see an entry "Book in calibre". If you don't, make sure your iPhone is connected using the WiFi network in your house, not 3G. If the |app| catalog is still not detected in Stanza, you can add it manually in Stanza, by clicking "Online Catalog" and the clicking the plus icon in the lower right corner to add a new catalog. In the Add Catalog screen enter whatever name you like and in the URL field, enter the following::
+Now you should be able to access your books on your iPhone by opening Stanza. Go to "Get Books" and then click the "Shared" tab. Under Shared you will see an entry "Books in calibre". If you don't, make sure your iPhone is connected using the WiFi network in your house, not 3G. If the |app| catalog is still not detected in Stanza, you can add it manually in Stanza. To do this, click the "Shared" tab, then click the "Edit" button and then click "Add book source" to add a new book source. In the Add Book Source screen enter whatever name you like and in the URL field, enter the following::
 
     http://192.168.1.2:8080/
 
-Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port. The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address.  
+Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port. The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address.   Now click "Save" and you are done.
 
 How do I use |app| with my Android phone?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
