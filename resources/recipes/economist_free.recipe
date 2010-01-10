@@ -107,7 +107,7 @@ class Economist(BasicNewsRecipe):
         self.log.debug(tb)
 
     def eco_find_image_tables(self, soup):
-        for x in soup.findAll('table', align='right'):
+        for x in soup.findAll('table', align=['right', 'center']):
             if len(x.findAll('font')) in (1,2) and len(x.findAll('img')) == 1:
                 yield x
 
