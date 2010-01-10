@@ -237,6 +237,8 @@ class Stylizer(object):
                 style.update(self._normalize_edge(prop.cssValue, name))
             elif name == 'font':
                 style.update(self._normalize_font(prop.cssValue))
+            elif name == 'list-style':
+                style.update(self._normalize_list_style(prop.cssValue))
             else:
                 style[name] = prop.value
         if 'font-size' in style:
@@ -267,6 +269,31 @@ class Stylizer(object):
         edges = ('top', 'right', 'bottom', 'left')
         for edge, value in itertools.izip(edges, values):
             style["%s-%s" % (name, edge)] = value
+        return style
+
+    def _normalize_list_style(self, cssvalue):
+        composition = ('list-style-type', 'list-style-position',
+                       'list-style-image')
+        style = {}
+        if cssvalue.cssText == 'inherit':
+            for key in composition:
+                style[key] = 'inherit'
+        else:
+            try:
+                primitives = [v.cssText for v in cssvalue]
+            except TypeError:
+                primitives = [cssvalue.cssText]
+            primitives.reverse()
+            value = primitives.pop()
+            for key in composition:
+                if cssprofiles.validate(key, value):
+                    style[key] = value
+                    if not primitives: break
+                    value = primitives.pop()
+            for key in composition:
+                if key not in style:
+                    style[key] = DEFAULTS[key]
+
         return style
 
     def _normalize_font(self, cssvalue):
