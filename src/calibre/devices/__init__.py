@@ -97,6 +97,8 @@ def debug(ioreg_to_tmp=False, buf=None):
         out('Devices possibly connected:', end=' ')
         for dev, det in connected_devices:
             out(dev.name, end=', ')
+        if not connected_devices:
+            out('None', end='')
         out(' ')
         for dev, det in connected_devices:
             out('Trying to open', dev.name, '...', end=' ')
