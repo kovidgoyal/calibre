@@ -43,7 +43,9 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.connect(self.add_tag_button, SIGNAL('clicked()'), self.add_tag)
         self.connect(self.delete_button,  SIGNAL('clicked()'), self.delete_tags)
         self.connect(self.add_tag_input,  SIGNAL('returnPressed()'), self.add_tag)
-        if not islinux:
+        if islinux:
+            self.available_tags.itemDoubleClicked.connect(self.apply_tags)
+        else:
             self.connect(self.available_tags, SIGNAL('itemActivated(QListWidgetItem*)'), self.apply_tags)
         self.connect(self.applied_tags,   SIGNAL('itemActivated(QListWidgetItem*)'), self.unapply_tags)
 
