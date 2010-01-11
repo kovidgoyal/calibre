@@ -168,6 +168,7 @@ class Stylizer(object):
         self.rules = rules
         self._styles = {}
         class_sel_pat = re.compile(r'\.[a-z]+', re.IGNORECASE)
+        capital_sel_pat = re.compile(r'h|[A-Z]+')
         for _, _, cssdict, text, _ in rules:
             try:
                 selector = CSSSelector(text)
@@ -176,6 +177,15 @@ class Stylizer(object):
                     SelectorSyntaxError):
                 continue
             matches = selector(tree)
+
+            if not matches:
+                ntext = capital_sel_pat.sub(lambda m: m.group().lower(), text)
+                if ntext != text:
+                    self.logger.warn('Transformed CSS selector', text, 'to',
+                            ntext)
+                    selector = CSSSelector(ntext)
+                    matches = selector(tree)
+
             if not matches and class_sel_pat.match(text):
                 found = False
                 for x in tree.xpath('//*[@class]'):
