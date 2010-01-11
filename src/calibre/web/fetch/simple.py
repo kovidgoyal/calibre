@@ -158,7 +158,7 @@ class RecursiveFetcher(object):
                 pass
 
         def remove_beyond(tag, next):
-            while tag is not None and tag.name != 'body':
+            while tag is not None and getattr(tag, 'name', None) != 'body':
                 after = getattr(tag, next)
                 while after is not None:
                     ns = getattr(tag, next)
