@@ -191,6 +191,8 @@ class Develop(Command):
         if not os.path.exists(self.staging_bindir):
             os.makedirs(self.staging_bindir)
         self.info('Installing binary:', path)
+        if os.path.lexists(path) and not os.path.exists(path):
+            os.remove(path)
         open(path, 'wb').write(script)
         os.chmod(path, self.MODE)
         self.manifest.append(path)

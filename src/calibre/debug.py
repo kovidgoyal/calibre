@@ -32,9 +32,6 @@ Run an embedded python interpreter.
             help='Add a simple plugin (i.e. a plugin that consists of only a '
             '.py file), by specifying the path to the py file containing the '
             'plugin code.')
-    parser.add_option('--pdfreflow', default=None,
-            help='Path to PDF file to try and reflow. Output will be placed in '
-            'current directory. ')
 
     return parser
 
@@ -117,11 +114,6 @@ def main(args=sys.argv):
         prints('CALIBRE_RESOURCES_PATH='+sys.resources_location)
         prints('CALIBRE_EXTENSIONS_PATH='+sys.extensions_location)
         prints('CALIBRE_PYTHON_PATH='+os.pathsep.join(sys.path))
-    elif opts.pdfreflow:
-        from calibre.ebooks.pdf.reflow import option_parser as px, run
-        from calibre.utils.logging import default_log
-        opts2, args = px().parse_args(['xxxx', '-vvvv', opts.pdfreflow])
-        run(opts2, opts.pdfreflow, default_log)
     else:
         from calibre import ipython
         ipython()

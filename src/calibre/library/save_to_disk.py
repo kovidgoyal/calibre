@@ -23,7 +23,8 @@ DEFAULT_SEND_TEMPLATE = '{author_sort}/{title} - {authors}'
 FORMAT_ARG_DESCS = dict(
         title=_('The title'),
         authors=_('The authors'),
-        author_sort=_('The author sort string'),
+        author_sort=_('The author sort string. To use only the first letter '
+            'of the name use {author_sort[0]}'),
         tags=_('The tags'),
         series=_('The series'),
         series_index=_('The series number. To get leading zeros use {series_index:0>3s}'),
@@ -94,6 +95,15 @@ def preprocess_template(template):
         template = template.decode(preferred_encoding, 'replace')
     return template
 
+def safe_format(x, format_args):
+    try:
+        return x.format(**format_args).strip()
+    except IndexError: # Thrown if user used [] and index is out of bounds
+        pass
+    except AttributeError: # Thrown if user used a non existing attribute
+        pass
+    return ''
+
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,
         to_lowercase=False):
@@ -124,7 +134,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
         format_args['pubdate'] = strftime(timefmt, mi.pubdate.timetuple())
     format_args['id'] = str(id)
     components = [x.strip() for x in template.split('/') if x.strip()]
-    components = [x.format(**format_args).strip() for x in components]
+    components = [safe_format(x, format_args) for x in components]
     components = [sanitize_func(x) for x in components if x]
     if not components:
         components = [str(id)]

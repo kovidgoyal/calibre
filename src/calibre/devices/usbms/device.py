@@ -71,6 +71,11 @@ class Device(DeviceConfig, DevicePlugin):
     OSX_CARD_A_MEM = None
     OSX_CARD_B_MEM = None
 
+    # Used by the new driver detection to disambiguate main memory from
+    # storage cards. Should be a regular expression that matches the
+    # main memory mount point assigned by OS X
+    OSX_MAIN_MEM_VOL_PAT = None
+
     MAIN_MEMORY_VOLUME_LABEL  = ''
     STORAGE_CARD_VOLUME_LABEL = ''
     STORAGE_CARD2_VOLUME_LABEL = None
@@ -414,6 +419,16 @@ class Device(DeviceConfig, DevicePlugin):
             drives['carda'] = matches[1]
         if len(matches) > 2:
             drives['cardb'] = matches[2]
+
+        pat = self.OSX_MAIN_MEM_VOL_PAT
+        if pat is not None and len(drives) > 1 and 'main' in drives:
+            if pat.search(drives['main']) is None:
+                main = drives['main']
+                for x in ('carda', 'cardb'):
+                    if x in drives and pat.search(drives[x]):
+                        drives['main'] = drives.pop(x)
+                        drives[x] = main
+                        break
 
         return drives
 
