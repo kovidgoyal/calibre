@@ -4,6 +4,98 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.33
+  date: 2010-01-10
+
+  new features:
+    - title: "The e-book viewer now has built-in dictionary lookup"
+      type: major
+      description: >
+        "You can now right click on a word to lookup its meaning in an online dictionary.
+        calibre uses the public domain dictionaries available at dict.org"
+
+    - title: "RTF Output: Add support for unicode characters"
+
+    - title: "Allow the metadata that is used to create collections when sending books to SONY readers to be customized"
+      description: >
+        "By default collections are created on the SONY reader corresponding to series and tags. Now you can add other
+        metadata fields, like author, or remove ones you dislike, by going to Preferences->Plugins and customizing
+        the device interface plugin corresponding to your device."
+
+    - title: "TXT Input: Add option to disable insertion of Table of Contents into output text."
+      tickets: [4506]
+
+    - title: "Remember state of cover and tag browsing views on restart"
+
+  bug fixes:
+    - title: "EPUB Output: Add id attributes to anchors that have only name, as Adobe Digital Editions apparently can't handle only name attributes"
+      tickets: [4474]
+
+    - title: "Conversion pipeline: Handle the list-style shortcut CSS property correctly"
+      tickets: [4418]
+
+    - title: "EPUB Output: Fix generation of comics with PNG images for the Nook"
+      tickets: [4492]
+
+    - title: "Fix bug that could prevent loading of some custom plugins"
+      tickets: [4414]
+
+    - title: "News download: Handle URLs with both commas and non-ASCII characters correctly"
+
+    - title: "Ignore invalid metadata when adding books from command line instead of erroring out"
+      tickets: [4496]
+
+    - title: Fix remove header/footer assistant when converting HTML files
+      tickets: [4484]
+
+    - title: "Workaround for browsers like iPhone Safari that send extra arguments when downloading books from the content server"
+
+    - title: "Content server: Recognize the HTC HD2 as a mobile browser and add series information to the mobile version of the web page."
+      tickets: [4488]
+
+    - title: "FB2 Output: Properly escape metadata before inserting it into the file"
+      
+    - title: "Don't accept rich text in the comments fields of the edit meta information dialog"
+
+    - title: "Fix device detection for Cybook gen 3 with firmware 2.0"
+
+    - title: "Send to device: Use default save template when driver specific one is empty or unspecified"
+
+    - title: "Fix framework for running post-process and preprocess file type plugins"
+
+    - title: "Linux develop/install commands: Use bindir instead of staging bindir in the launchers"
+      tickets: [4437]
+
+    - title: "E-book viewer: Sanitize file names when unzipping EPUB files"
+      tickets: [4426]
+
+
+  new recipes:
+    - title: The Escapist
+      author: Lorenzo Vigentini
+
+    - title: Washington Post cartoons
+      author: kwetal
+
+    - title: The Dallas Morning News
+      author: Krittika Goyal
+
+    - title: sg.hu
+      author: davotibarna
+
+    - title: The New Zealand Herald
+      author: Krittika Goyal
+
+    - title: Nature News
+      author: Krittika Goyal
+
+  improved recipes:
+    - El Pais
+    - The Economist
+    - The New York Times
+    - Entrepreneur Magazine
+    - CNN
+
 - version: 0.6.32
   date: 2010-01-03
 

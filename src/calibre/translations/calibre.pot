@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.6.32\n"
-"POT-Creation-Date: 2010-01-09 10:18+MST\n"
-"PO-Revision-Date: 2010-01-09 10:18+MST\n"
+"Project-Id-Version: calibre 0.6.33\n"
+"POT-Creation-Date: 2010-01-10 16:40+MST\n"
+"PO-Revision-Date: 2010-01-10 16:40+MST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -123,11 +123,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database.py:913
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:703
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:715
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1135
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1172
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1509
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1511
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1622
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1143
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1180
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1517
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1519
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1630
 #: /home/kovid/work/calibre/src/calibre/library/server.py:645
 #: /home/kovid/work/calibre/src/calibre/library/server.py:717
 #: /home/kovid/work/calibre/src/calibre/library/server.py:764
@@ -585,7 +585,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1068
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1072
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1409
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1417
 msgid "News"
 msgstr ""
 
@@ -1955,6 +1955,10 @@ msgstr ""
 msgid "Run the text input through the markdown pre-processor. To learn more about markdown see"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:35
+msgid "Do not insert a Table of Contents into the output text."
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
 msgid "Type of newline to use. Options are %s. Default is 'system'. Use 'old_mac' for compatibility with Mac OS 9 and earlier. For Mac OS X use 'unix'. 'system' will default to the newline type used by this OS."
 msgstr ""
@@ -2203,7 +2207,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:62
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:45
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:67
@@ -2752,12 +2756,12 @@ msgid "PDB Input"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:32
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:43
 msgid "Treat each &line as a paragraph"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:33
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:42
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:44
 msgid "Assume print formatting"
 msgstr ""
 
@@ -2975,12 +2979,16 @@ msgstr ""
 msgid "TXT Input"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:40
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:45
 msgid "Process using markdown"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:41
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:46
 msgid "<p>Markdown is a simple markup language for text files, that allows for advanced formatting. To learn more visit <a href=\"http://daringfireball.net/projects/markdown\">markdown</a>."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:47
+msgid "Do not insert Table of Contents into output text when using markdown"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:16
@@ -6639,27 +6647,27 @@ msgid ""
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1648
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1656
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1677
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1685
 msgid "Copying <b>%s</b>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1694
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1702
 msgid "Compacting database"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1787
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1795
 msgid "Checking SQL integrity..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1824
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1832
 msgid "Checking for missing files."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1846
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1854
 msgid "Checked id"
 msgstr ""
 
