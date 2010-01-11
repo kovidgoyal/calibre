@@ -1,6 +1,8 @@
 #!/usr/bin/env  python
 __license__   = 'GPL v3'
+__author__    = 'Lorenzo Vigentini, based on earlier version by Kovid Goyal'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
+description   = 'Main daily newspaper from Spain - v1.02 (10, January 2010)'
 __docformat__ = 'restructuredtext en'
 
 '''
@@ -10,18 +12,54 @@ elpais.es
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElPais(BasicNewsRecipe):
-    title          = u'EL PAIS'
-    language = 'es'
+    __author__        = 'Kovid Goyal & Lorenzo Vigentini'
+    description   = 'Main daily newspaper from Spain'
 
-    oldest_article = 7
-    max_articles_per_feed = 100
+    cover_url      = 'http://www.elpais.com/im/tit_logo_global.gif'
+    title          = u'El Pais'
+    publisher      = 'Ediciones El Pais SL'
+    category       = 'News, politics, culture, economy, general interest'
+
+    language       = 'es'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article = 2
+    max_articles_per_feed = 15
+
+    use_embedded_content  = False
+    recursion             = 5
+
+    remove_javascript = True
     no_stylesheets = True
 
-    remove_tags    = [dict(name='div', attrs={'class':'zona_superior'}), dict(name='div', attrs={'class':'limpiar'}), dict(name='div', attrs={'id':'pie'})]
-    extra_css      = 'h1 {font: sans-serif large;} \n h2 {font: sans-serif medium;} \n h3 {font: sans-serif small;} \n h4 {font: sans-serif bold small;} \n p{ font:10pt serif}'
+    keep_only_tags = [ dict(name='div', attrs={'class':['cabecera_noticia','cabecera_noticia_reportaje','contenido_noticia','caja_despiece','presentacion']})]
+    extra_css      = '''
+                        p{style:normal size:12 serif}
 
-    feeds          = [(u'Internacional', u'http://www.elpais.es/rss/rss_section.html?anchor=elpporint'), (u'Espana', u'http://www.elpais.es/rss/rss_section.html?anchor=elppornac'), (u'Deportes', u'http://www.elpais.es/rss/rss_section.html?anchor=elppordep'), (u'Economia', u'http://www.elpais.es/rss/rss_section.html?anchor=elpporeco'), (u'Tecnologia', u'http://www.elpais.es/rss/rss_section.html?anchor=elpportec'), (u'Cultura', u'http://www.elpais.es/rss/rss_section.html?anchor=elpporcul'), (u'Gente', u'http://www.elpais.es/rss/rss_section.html?anchor=elpporgen'), (u'Sociedad', u'http://www.elpais.es/rss/rss_section.html?anchor=elpporsoc'), (u'Opinion', u'http://www.elpais.es/rss/rss_section.html?anchor=elpporopi')]
+                    '''
 
-    def print_version(self, url):
-        url = url+'?print=1'
-        return url
+    remove_tags    = [
+                        dict(name='div', attrs={'class':['zona_superior','pie_enlaces_inferiores','contorno_f','ampliar']}),
+                        dict(name='div', attrs={'class':['limpiar','mod_apoyo','borde_sup','votos','info_complementa','info_relacionada']}),
+                        dict(name='div', attrs={'id':['suscribirse suscrito','google_noticia','utilidades','coment','foros_not','pie','lomas']})
+                    ]
+
+    feeds          = [
+                        (u'Titulares de portada', u'http://www.elpais.com/rss/feed.html?feedId=1022'),
+                        (u'Internacional', u'http://www.elpais.com/rss/feed.html?feedId=1001'),
+                        (u'Espana', u'http://www.elpais.com/rss/feed.html?feedId=1002'),
+                        (u'Deportes', u'http://www.elpais.com/rss/feed.html?feedId=1007'),
+                        (u'Economia', u'http://www.elpais.com/rss/feed.html?feedId=1006'),
+                        (u'Politica', u'http://www.elpais.com/rss/feed.html?feedId=17073'),
+                        (u'Tecnologia', u'http://www.elpais.com/rss/feed.html?feedId=1005'),
+                        (u'Cultura', u'http://www.elpais.com/rss/feed.html?feedId=1008'),
+                        (u'Gente', u'http://www.elpais.com/rss/feed.html?feedId=1009'),
+                        (u'Sociedad', u'http://www.elpais.com/rss/feed.html?feedId=1004'),
+                        (u'Opinion', u'http://www.elpais.com/rss/feed.html?feedId=1003'),
+                        (u'Ciencia', u'http://www.elpais.com/rss/feed.html?feedId=17068'),
+                        (u'Justicia y leyes', u'http://www.elpais.com/rss/feed.html?feedId=17069'),
+                    ]
+
+def print_version(self, url):
+    url = url+'?print=1'
+    return url
