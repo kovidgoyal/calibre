@@ -34,6 +34,7 @@ class CYBOOK(USBMS):
     VENDOR_NAME = 'BOOKEEN'
     WINDOWS_MAIN_MEM = re.compile(r'CYBOOK_(OPUS|GEN3)__-FD')
     WINDOWS_CARD_A_MEM = re.compile('CYBOOK_(OPUS|GEN3)__-SD')
+    OSX_MAIN_MEM_VOL_PAT = re.compile(r'/Cybook')
 
     EBOOK_DIR_MAIN = 'eBooks'
     EBOOK_DIR_CARD_A = 'eBooks'
