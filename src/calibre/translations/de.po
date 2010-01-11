@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-01-08 22:57+0000\n"
-"PO-Revision-Date: 2010-01-08 23:55+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2010-01-11 00:36+0000\n"
+"PO-Revision-Date: 2010-01-10 20:04+0000\n"
+"Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-09 07:47+0000\n"
+"X-Launchpad-Export-Date: 2010-01-11 04:54+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -126,11 +126,11 @@ msgstr "Macht absolut gar nichts"
 #: /home/kovid/work/calibre/src/calibre/library/database.py:913
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:703
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:715
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1132
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1169
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1503
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1505
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1616
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1143
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1180
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1517
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1519
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1630
 #: /home/kovid/work/calibre/src/calibre/library/server.py:645
 #: /home/kovid/work/calibre/src/calibre/library/server.py:717
 #: /home/kovid/work/calibre/src/calibre/library/server.py:764
@@ -468,7 +468,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr ""
+msgstr "Kommunikation mit dem Cybook Gen 3 / Opus eBook Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:23
 msgid "Communicate with the EB600 eBook reader."
@@ -577,8 +577,10 @@ msgstr "Kommunikation mit dem Sony PRS-300/505/500 eBook Reader."
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:58
 msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
-"device. Posiibilities include: "
+"device. Possibilities include: "
 msgstr ""
+"Mit Kommata getrennte Liste von Metadatenfeldern um Büchersammlungen auf dem "
+"Gerät zu erstellen. Möglichkeiten sind: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:139
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:141
@@ -655,9 +657,9 @@ msgstr "Nicht genügend freier Speicherplatz auf der Speicherkarte"
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:826
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1065
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1069
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1403
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1068
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1072
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1417
 msgid "News"
 msgstr "Nachrichten"
 
@@ -2606,6 +2608,10 @@ msgstr ""
 "Texteingabe durch die Markdown-Vorverarbeitung laufen lassen. Mehr über "
 "Markdown erfahren Sie unter"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:35
+msgid "Do not insert a Table of Contents into the output text."
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
 msgid ""
 "Type of newline to use. Options are %s. Default is 'system'. Use 'old_mac' "
@@ -2907,7 +2913,7 @@ msgstr "Eingabe"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:62
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:45
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:67
@@ -3517,12 +3523,12 @@ msgid "PDB Input"
 msgstr "PDB-Eingabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:32
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:43
 msgid "Treat each &line as a paragraph"
 msgstr "Jede Zei&le als Absatz behandeln"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:33
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:42
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:44
 msgid "Assume print formatting"
 msgstr "Druck-Formatierung übernehmen"
 
@@ -3746,11 +3752,11 @@ msgstr "&Filter für Inhaltsverzeichnis:"
 msgid "TXT Input"
 msgstr "TXT Input"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:40
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:45
 msgid "Process using markdown"
 msgstr "Prozess verwendet Markdown"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:41
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:46
 msgid ""
 "<p>Markdown is a simple markup language for text files, that allows for "
 "advanced formatting. To learn more visit <a "
@@ -3759,6 +3765,10 @@ msgstr ""
 "<p>Markdown ist eine einfache Markup Sprache für Textdateien, die erweiterte "
 "Formatierung unterstützt. Weitere Informationen gibt es auf der Seite <a "
 "href=\"http://daringfireball.net/projects/markdown\">Markdown</a>."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:47
+msgid "Do not insert Table of Contents into output text when using markdown"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:16
 msgid "TXT Output"
@@ -4153,6 +4163,8 @@ msgid ""
 "\n"
 "Customization: "
 msgstr ""
+"\n"
+"Anpassung: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:196
 msgid "Conversion"
@@ -6214,7 +6226,7 @@ msgstr "Tastenkürzel anpassen für"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:215
 msgid "Keys"
-msgstr ""
+msgstr "Schlüssel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:217
 msgid "Double click to change"
@@ -6990,7 +7002,7 @@ msgstr "Tasten&kürzel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
-msgstr ""
+msgstr "Kein Ergebnis gefunden für:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:33
 msgid "Options to customize the ebook viewer"
@@ -7052,7 +7064,7 @@ msgstr "Standardschriftart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:404
 msgid "&Lookup in dictionary"
-msgstr ""
+msgstr "Im Wörterbuch nachsch&lagen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
@@ -7130,7 +7142,7 @@ msgstr "Druckvorschau"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:271
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
-msgstr ""
+msgstr "Verbinde mit dict.org zum Nachschlagen von: <b>%s</b>&hellip;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:370
 msgid "Choose ebook"
@@ -7211,7 +7223,7 @@ msgstr "eBook Viewer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:179
 msgid "Close dictionary"
-msgstr ""
+msgstr "Wörterbuch schließen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:181
 msgid "toolBar"
@@ -8009,27 +8021,27 @@ msgstr ""
 "\n"
 "Sie erhalten Hilfe zu einem bestimmten Befehl mit: %%prog command --help\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1642
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1656
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr "<p>Migriere alte Datenbank zu eBook Bibliothek in %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1671
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1685
 msgid "Copying <b>%s</b>"
 msgstr "Kopiere <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1688
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1702
 msgid "Compacting database"
 msgstr "Komprimiere Datenbank"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1781
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1795
 msgid "Checking SQL integrity..."
 msgstr "Überprüfe SQL Vollständigkeit..."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1818
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1832
 msgid "Checking for missing files."
 msgstr "Überprüfe fehlende Dateien."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1840
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1854
 msgid "Checked id"
 msgstr "Überprüfte ID"
 
@@ -8056,6 +8068,7 @@ msgstr "Die Reihen"
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:29
 msgid "The series number. To get leading zeros use {series_index:0>3s}"
 msgstr ""
+"Reihennummerierung. Für vorangestellte Nullen {series_index:0>3s} verwenden"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:30
 msgid "The rating"
