@@ -204,23 +204,22 @@ get_registry_property(HDEVINFO hDevInfo, DWORD index, DWORD property, BOOL *iter
     return buffer;
 }
 
-static BOOL
-check_device_id(LPTSTR buffer, unsigned int vid, unsigned int pid) {
-    WCHAR xVid[9], dVid[9], xPid[9], dPid[9];
-    unsigned int j;
-    swprintf(xVid, L"vid_%4.4x", vid);
-    swprintf(dVid, L"vid_%4.4d", vid);
-    swprintf(xPid, L"pid_%4.4x", pid);
-    swprintf(dPid, L"pid_%4.4d", pid);
-
-    for (j = 0; j < wcslen(buffer); j++) buffer[j] = tolower(buffer[j]);
-
-    return ( (wcsstr(buffer, xVid) != NULL || wcsstr(buffer, dVid) != NULL ) &&
-             (wcsstr(buffer, xPid) != NULL || wcsstr(buffer, dPid) != NULL )
-           );
-}
-
-
+static BOOL                                                                                                                                                                           
+check_device_id(LPTSTR buffer, unsigned int vid, unsigned int pid) {                                                                                                                  
+    WCHAR xVid[9], dVid[9], xPid[9], dPid[9];                                                                                                                                         
+    unsigned int j;                                                                                                                                                                   
+    _snwprintf_s(xVid, 9, _TRUNCATE, L"vid_%4.4x", vid);
+    _snwprintf_s(dVid, 9, _TRUNCATE, L"vid_%4.4d", vid);
+    _snwprintf_s(xPid, 9, _TRUNCATE, L"pid_%4.4x", pid);
+    _snwprintf_s(dPid, 9, _TRUNCATE, L"pid_%4.4d", pid);
+                                                                                                                                                                                      
+    for (j = 0; j < wcslen(buffer); j++) buffer[j] = tolower(buffer[j]);                                                                                                              
+                                                                                                                                                                                      
+    return ( (wcsstr(buffer, xVid) != NULL || wcsstr(buffer, dVid) != NULL ) &&                                                                                                       
+             (wcsstr(buffer, xPid) != NULL || wcsstr(buffer, dPid) != NULL )                                                                                                          
+           );                                                                                                                                                                         
+}                                                                                                                                                                                     
+    
 static HDEVINFO
 create_device_info_set(LPGUID guid, PCTSTR enumerator, HWND parent, DWORD flags) {
     HDEVINFO hDevInfo;
@@ -286,7 +285,7 @@ get_all_removable_disks(struct tagDrives *g_drives)
 				if(GetVolumeNameForVolumeMountPoint(caDrive, volume, BUFSIZE))
 	            {
 		            g_drives[g_count].letter = caDrive[0];
-					wcscpy(g_drives[g_count].volume, volume);
+					wcscpy_s(g_drives[g_count].volume, BUFSIZE, volume);
 					g_count ++;
 				}
 
@@ -515,15 +514,17 @@ winutil_eject_drive(PyObject *self, PyObject *args) {
 
 
 PSP_DEVICE_INTERFACE_DETAIL_DATA
-get_device_grandparent(HDEVINFO hDevInfo, DWORD index, PWSTR buf, PWSTR volume_id,
-                       BOOL *iterate) {
+get_device_ancestors(HDEVINFO hDevInfo, DWORD index, PyObject *candidates, BOOL *iterate, BOOL ddebug) {
     SP_DEVICE_INTERFACE_DATA            interfaceData;
     SP_DEVINFO_DATA						devInfoData;
     BOOL                                status;
     PSP_DEVICE_INTERFACE_DETAIL_DATA    interfaceDetailData;
     DWORD                               interfaceDetailDataSize,
                                         reqSize;
-    DEVINST                             parent;
+    DEVINST                             parent, pos;
+    wchar_t                             temp[BUFSIZE];
+    int                                 i;
+    PyObject                            *devid;
 
     interfaceData.cbSize = sizeof (SP_INTERFACE_DEVICE_DATA);
     devInfoData.cbSize   = sizeof (SP_DEVINFO_DATA);
@@ -549,7 +550,7 @@ get_device_grandparent(HDEVINFO hDevInfo, DWORD index, PWSTR buf, PWSTR volume_i
     );
 
     interfaceDetailDataSize = reqSize;
-    interfaceDetailData = (PSP_DEVICE_INTERFACE_DETAIL_DATA)PyMem_Malloc(interfaceDetailDataSize+10);
+    interfaceDetailData = (PSP_DEVICE_INTERFACE_DETAIL_DATA)PyMem_Malloc(interfaceDetailDataSize+50);
     if ( interfaceDetailData == NULL ) {
         PyErr_NoMemory();
         return NULL;
@@ -563,38 +564,49 @@ get_device_grandparent(HDEVINFO hDevInfo, DWORD index, PWSTR buf, PWSTR volume_i
                   interfaceDetailDataSize,  // Interface detail data size
                   &reqSize,                 // Buffer size required to get the detail data
                   &devInfoData);            // Interface device info
+    if (ddebug) printf("Getting ancestors\n"); fflush(stdout);
 
     if ( status == FALSE ) {PyErr_SetFromWindowsErr(0); PyMem_Free(interfaceDetailData); return NULL;}
 
-    // Get the device instance of parent. This points to USBSTOR.
-    CM_Get_Parent(&parent, devInfoData.DevInst, 0);
-    // Get the device ID of the USBSTORAGE volume
-    CM_Get_Device_ID(parent, volume_id, BUFSIZE, 0);
-    // Get the device instance of grand parent. This points to USB root.
-	CM_Get_Parent(&parent, parent, 0);
-	// Get the device ID of the USB root.
-	CM_Get_Device_ID(parent, buf, BUFSIZE, 0);
+    pos = devInfoData.DevInst;
+
+    for(i = 0; i < 10; i++) {
+        // Get the device instance of parent.
+        if (CM_Get_Parent(&parent, pos, 0) != CR_SUCCESS) break;
+        if (CM_Get_Device_ID(parent, temp, BUFSIZE, 0) == CR_SUCCESS) {
+            if (ddebug) wprintf(L"device id: %s\n", temp); fflush(stdout);
+            devid = PyUnicode_FromWideChar(temp, wcslen(temp));
+            if (devid) {
+                PyList_Append(candidates, devid);
+                Py_DECREF(devid);
+            }
+        }
+        pos = parent;
+    }
 
     return interfaceDetailData;
 }
 
 static PyObject *
-winutil_get_mounted_volumes_for_usb_device(PyObject *self, PyObject *args) {
-    unsigned int vid, pid, length, j;
-	HDEVINFO hDevInfo;
-	BOOL  iterate = TRUE;
+winutil_get_removable_drives(PyObject *self, PyObject *args) {
+    HDEVINFO hDevInfo;
+	BOOL  iterate = TRUE, ddebug = FALSE;
 	PSP_DEVICE_INTERFACE_DETAIL_DATA interfaceDetailData;
     DWORD i;
-    WCHAR buf[BUFSIZE], volume[BUFSIZE], volume_id[BUFSIZE];
+    unsigned int j, length;
+    WCHAR volume[BUFSIZE];
     struct tagDrives g_drives[MAX_DRIVES];
-    PyObject *volumes, *key, *val;
+    PyObject *volumes, *key, *candidates, *pdebug = Py_False, *temp;
 
-    if (!PyArg_ParseTuple(args, "ii", &vid, &pid)) {
+    if (!PyArg_ParseTuple(args, "|O", &pdebug)) {
     	return NULL;
     }
 
+    ddebug = PyObject_IsTrue(pdebug);
+
     volumes = PyDict_New();
     if (volumes == NULL) return NULL;
+    
 
     for (j = 0; j < MAX_DRIVES; j++) g_drives[j].letter = 0;
 
@@ -609,47 +621,44 @@ winutil_get_mounted_volumes_for_usb_device(PyObject *self, PyObject *args) {
 
     // Enumerate through the set
     for (i=0; iterate; i++) {
-        interfaceDetailData = get_device_grandparent(hDevInfo, i, buf, volume_id, &iterate);
+        candidates = PyList_New(0);
+        if (candidates == NULL) return PyErr_NoMemory();
+
+        interfaceDetailData = get_device_ancestors(hDevInfo, i, candidates, &iterate, ddebug);
         if (interfaceDetailData == NULL) {
             PyErr_Print(); continue;
         }
-        debug("Device num: %d Device Id: %ws\n\n", i, buf);
-        if (check_device_id(buf, vid, pid)) {
-            debug("Device matches\n\n");
-            length = wcslen(interfaceDetailData->DevicePath);
-            interfaceDetailData->DevicePath[length] = '\\';
-            interfaceDetailData->DevicePath[length+1] = 0;
-            if(GetVolumeNameForVolumeMountPoint(interfaceDetailData->DevicePath, volume, BUFSIZE)) {
 
-                for(j = 0; j < MAX_DRIVES; j++) {
-                    // Compare volume mount point with the one stored earlier.
-                    // If both match, return the corresponding drive letter.
-                    if(g_drives[j].letter != 0 && wcscmp(g_drives[j].volume, volume)==0)
-                    {
-                        key = PyUnicode_FromWideChar(volume_id, wcslen(volume_id));
-                        val = PyString_FromFormat("%c", (char)g_drives[j].letter);
-                        if (key == NULL || val == NULL) {
-                            PyErr_NoMemory();
-                            PyMem_Free(interfaceDetailData);
-                            return NULL;
-                        }
-                        PyDict_SetItem(volumes, key, val);
-                    }
+        length = wcslen(interfaceDetailData->DevicePath);
+        interfaceDetailData->DevicePath[length] = L'\\';
+        interfaceDetailData->DevicePath[length+1] = 0;
+
+        if (ddebug) wprintf(L"Device path: %s\n", interfaceDetailData->DevicePath); fflush(stdout);
+        // On Vista+ DevicePath contains the information we need.
+        temp = PyUnicode_FromWideChar(interfaceDetailData->DevicePath, length);
+        if (temp == NULL) return PyErr_NoMemory();
+        PyList_Append(candidates, temp);
+        Py_DECREF(temp);
+        if(GetVolumeNameForVolumeMountPointW(interfaceDetailData->DevicePath, volume, BUFSIZE)) {
+            if (ddebug) wprintf(L"Volume: %s\n", volume); fflush(stdout);
+            
+            for(j = 0; j < MAX_DRIVES; j++) {
+                if(g_drives[j].letter != 0 && wcscmp(g_drives[j].volume, volume)==0) {
+                    if (ddebug) printf("Found drive: %c\n", (char)g_drives[j].letter); fflush(stdout);
+                    key = PyBytes_FromFormat("%c", (char)g_drives[j].letter);
+                    if (key == NULL) return PyErr_NoMemory();
+                    PyDict_SetItem(volumes, key, candidates);
+                    Py_DECREF(candidates);
+                    break;
                 }
-
-            } else {
-                debug("Failed to get volume name for volume mount point:\n");
-                if (DEBUG) debug("%ws\n\n", format_last_error());
             }
 
-            PyMem_Free(interfaceDetailData);
         }
-
+        PyMem_Free(interfaceDetailData);
     } //for
 
     SetupDiDestroyDeviceInfoList(hDevInfo);
     return volumes;
-
 }
 
 static PyObject *
@@ -876,21 +885,22 @@ static PyMethodDef WinutilMethods[] = {
     		"script being run. So to replace sys.argv, you should use "
     		"sys.argv[1:] = argv()[1:]."},
 
-	{"is_usb_device_connected", winutil_is_usb_device_connected, METH_VARARGS,
-    "is_usb_device_connected(vid, pid) -> bool\n\n"
-    		"Check if the USB device identified by VendorID: vid (integer) and"
-    		" ProductID: pid (integer) is currently connected."},
+    {"is_usb_device_connected", winutil_is_usb_device_connected, METH_VARARGS,
+        "is_usb_device_connected(vid, pid) -> bool\n\n"
+               "Check if the USB device identified by VendorID: vid (integer) and"
+               " ProductID: pid (integer) is currently connected."},
 
 	{"get_usb_devices", winutil_get_usb_devices, METH_VARARGS,
 	    "get_usb_devices() -> list of strings\n\n"
 	    		"Return a list of the hardware IDs of all USB devices "
 	    		"connected to the system."},
 
-	{"get_mounted_volumes_for_usb_device", winutil_get_mounted_volumes_for_usb_device, METH_VARARGS,
-		    "get_mounted_volumes_for_usb_device(vid, pid) -> dict\n\n"
-		    		"Return a dictionary of volume_id:drive_letter for all"
-		    		"volumes mounted on the system that belong to the"
-		    		"usb device specified by vid (integer) and pid (integer)."},
+	{"get_removable_drives", winutil_get_removable_drives, METH_VARARGS,
+    "get_removable_drives(debug=False) -> dict\n\n"
+    		"Return mapping of all removable drives in the system. Maps drive letters "
+    		"to a list of device id strings, atleast one of which will carry the information "
+            "needed for device matching. On Vista+ it is always the last string in the list. "
+            "Note that you should upper case all strings."},
 
 	{"set_debug", winutil_set_debug, METH_VARARGS,
 			"set_debug(bool)\n\nSet debugging mode."
