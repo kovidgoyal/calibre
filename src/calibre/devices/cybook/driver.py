@@ -39,7 +39,7 @@ class CYBOOK(USBMS):
     EBOOK_DIR_MAIN = 'eBooks'
     EBOOK_DIR_CARD_A = 'eBooks'
     THUMBNAIL_HEIGHT = 144
-    DELETE_EXTS = ['.mbp', '.dat', '.bin', '_6090.t2b', 'epub.bin', 'epub.dat', 'epub.thn']
+    DELETE_EXTS = ['.mbp', '.dat', '.bin', '_6090.t2b', '.thn']
     SUPPORTS_SUB_DIRS = True
 
     def upload_cover(self, path, filename, metadata):
