@@ -203,18 +203,6 @@ class Device(DeviceConfig, DevicePlugin):
 
         return False
 
-    def windows_get_drive_prefix(self, drive):
-        prefix = None
-
-        try:
-            partition = drive.associators("Win32_DiskDriveToDiskPartition")[0]
-            logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
-            prefix = logical_disk.DeviceID + os.sep
-        except IndexError:
-            pass
-
-        return prefix
-
     def windows_sort_drives(self, drives):
         '''
         Called to disambiguate main memory and storage card for devices that
@@ -223,8 +211,10 @@ class Device(DeviceConfig, DevicePlugin):
         '''
         return drives
 
-    def can_handle_windows(self, device_id, pnp_id_iterator, debug=False):
-        for pnp_id in pnp_id_iterator():
+    def can_handle_windows(self, device_id, debug=False):
+        from calibre.devices.scanner import win_pnp_drives
+        drives = win_pnp_drives()
+        for pnp_id in drives.values():
             if self.windows_match_device(pnp_id, 'WINDOWS_MAIN_MEM'):
                 return True
             if debug:
@@ -232,29 +222,20 @@ class Device(DeviceConfig, DevicePlugin):
         return False
 
     def open_windows(self):
+        from calibre.devices.scanner import win_pnp_drives
 
-        def matches_q(drive, attr):
-            q = getattr(self, attr)
-            if q is None: return False
-            if isinstance(q, basestring):
-                q = [q]
-            pnp = str(drive.PNPDeviceID)
-            for x in q:
-                if x in pnp:
-                    return True
-            return False
-
-        time.sleep(8)
+        time.sleep(5)
         drives = {}
-        c = self.wmi
-        for drive in c.Win32_DiskDrive():
-            pnp_id = str(drive.PNPDeviceID)
-            if self.windows_match_device(pnp_id, 'WINDOWS_CARD_A_MEM') and not drives.get('carda', None):
-                drives['carda'] = self.windows_get_drive_prefix(drive)
-            elif self.windows_match_device(pnp_id, 'WINDOWS_CARD_B_MEM') and not drives.get('cardb', None):
-                drives['cardb'] = self.windows_get_drive_prefix(drive)
-            elif self.windows_match_device(pnp_id, 'WINDOWS_MAIN_MEM') and not drives.get('main', None):
-                drives['main'] = self.windows_get_drive_prefix(drive)
+        for drive, pnp_id in win_pnp_drives().items():
+            if self.windows_match_device(pnp_id, 'WINDOWS_CARD_A_MEM') and \
+                    not drives.get('carda', False):
+                drives['carda'] = drive
+            elif self.windows_match_device(pnp_id, 'WINDOWS_CARD_B_MEM') and \
+                    not drives.get('cardb', False):
+                drives['cardb'] = drive
+            elif self.windows_match_device(pnp_id, 'WINDOWS_MAIN_MEM') and \
+                    not drives.get('main', False):
+                drives['main'] = drive
 
             if 'main' in drives.keys() and 'carda' in drives.keys() and \
                     'cardb' in drives.keys():

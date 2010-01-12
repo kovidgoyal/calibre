@@ -9,7 +9,7 @@ For usage information run the script.
 import StringIO, sys, time, os
 from optparse import OptionParser
 
-from calibre import __version__, iswindows, __appname__
+from calibre import __version__, __appname__
 from calibre.devices.errors import PathError
 from calibre.utils.terminfo import TerminalController
 from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
@@ -198,14 +198,9 @@ def main():
     args = args[1:]
     dev = None
     scanner = DeviceScanner()
-    if iswindows:
-        import wmi, pythoncom
-        pythoncom.CoInitialize()
-        scanner.wmi = wmi.WMI(find_classes=False)
     scanner.scan()
     connected_devices = []
     for d in device_plugins():
-        d.wmi = scanner.wmi
         ok, det = scanner.is_device_connected(d)
         if ok:
             dev = d

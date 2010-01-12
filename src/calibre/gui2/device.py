@@ -13,7 +13,6 @@ from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, QPixmap, \
 from calibre.customize.ui import available_input_formats, available_output_formats, \
     device_plugins
 from calibre.devices.interface import DevicePlugin
-from calibre.constants import iswindows
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
@@ -85,7 +84,6 @@ class DeviceManager(Thread):
         self.job_manager    = job_manager
         self.current_job    = None
         self.scanner        = DeviceScanner()
-        self.wmi            = None
         self.connected_device = None
         self.ejected_devices = set([])
 
@@ -133,7 +131,6 @@ class DeviceManager(Thread):
         self.connected_device = None
 
     def detect_device(self):
-        self.scanner.rescan_pnp_ids = not self.is_device_connected
         self.scanner.scan()
         if self.is_device_connected:
             connected, detected_device = \
@@ -170,30 +167,18 @@ class DeviceManager(Thread):
                 pass
 
     def run(self):
-        if iswindows:
-            import pythoncom
-            pythoncom.CoInitialize()
-            wmi = __import__('wmi', globals(), locals(), [], -1)
-            self.wmi = wmi.WMI(find_classes=False)
-            self.scanner.wmi = self.wmi
-            for x in self.devices:
-                x.wmi = self.wmi
-        try:
-            while self.keep_going:
-                self.detect_device()
-                while True:
-                    job = self.next()
-                    if job is not None:
-                        self.current_job = job
-                        self.device.set_progress_reporter(job.report_progress)
-                        self.current_job.run()
-                        self.current_job = None
-                    else:
-                        break
-                time.sleep(self.sleep_time)
-        finally:
-            if iswindows:
-                pythoncom.CoUninitialize()
+        while self.keep_going:
+            self.detect_device()
+            while True:
+                job = self.next()
+                if job is not None:
+                    self.current_job = job
+                    self.device.set_progress_reporter(job.report_progress)
+                    self.current_job.run()
+                    self.current_job = None
+                else:
+                    break
+            time.sleep(self.sleep_time)
 
 
     def create_job(self, func, done, description, args=[], kwargs={}):

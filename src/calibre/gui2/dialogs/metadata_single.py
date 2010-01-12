@@ -171,7 +171,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if self._add_formats(paths):
             event.accept()
 
-    def remove_format(self, x=None):
+    def remove_format(self, *args):
         rows = self.formats.selectionModel().selectedRows(0)
         for row in rows:
             self.formats.takeItem(row.row())

@@ -141,8 +141,8 @@ class FormatList(QListWidget):
         if event.key() == Qt.Key_Delete:
             self.emit(SIGNAL('delete_format()'))
         else:
-            QListWidget.keyPressEvent(self, event)
-            
+            return QListWidget.keyPressEvent(self, event)
+
 
 class ImageView(QLabel):
 
