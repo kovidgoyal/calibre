@@ -23,9 +23,10 @@ KEY = Qt.UserRole + 3
 
 class Customize(QFrame, Ui_Frame):
 
-    def __init__(self, dup_check, parent=None):
+    def __init__(self, index, dup_check, parent=None):
         QFrame.__init__(self, parent)
         self.setupUi(self)
+        self.data_model = index.model()
         self.setFocusPolicy(Qt.StrongFocus)
         self.setAutoFillBackground(True)
         self.custom.toggled.connect(self.custom_toggled)
@@ -86,11 +87,20 @@ class Delegate(QStyledItemDelegate):
     def __init__(self, parent=None):
         QStyledItemDelegate.__init__(self, parent)
         self.editing_indices = {}
+        self.closeEditor.connect(self.editing_done)
 
     def to_doc(self, index):
         doc =  QTextDocument()
         doc.setHtml(index.data().toString())
         return doc
+
+    def editing_done(self, editor, hint):
+        remove = None
+        for row, w in self.editing_indices.items():
+            remove = (row, w.data_model.index(row))
+        if remove is not None:
+            self.editing_indices.pop(remove[0])
+            self.sizeHintChanged.emit(remove[1])
 
     def sizeHint(self, option, index):
         if index.row() in self.editing_indices:
@@ -111,7 +121,7 @@ class Delegate(QStyledItemDelegate):
         painter.restore()
 
     def createEditor(self, parent, option, index):
-        w = Customize(index.model().duplicate_check, parent=parent)
+        w = Customize(index, index.model().duplicate_check, parent=parent)
         self.editing_indices[index.row()] = w
         self.sizeHintChanged.emit(index)
         return w
@@ -135,8 +145,6 @@ class Delegate(QStyledItemDelegate):
                     setattr(editor, 'shortcut%d'%(x+1), seq)
 
     def setModelData(self, editor, model, index):
-        self.editing_indices.pop(index.row())
-        self.sizeHintChanged.emit(index)
         self.closeEditor.emit(editor, self.NoHint)
         custom = []
         if editor.custom.isChecked():
