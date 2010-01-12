@@ -137,6 +137,13 @@ class FormatList(QListWidget):
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Delete:
+            self.emit(SIGNAL('delete_format()'))
+        else:
+            QListWidget.keyPressEvent(self, event)
+            
+
 class ImageView(QLabel):
 
     MAX_WIDTH  = 400

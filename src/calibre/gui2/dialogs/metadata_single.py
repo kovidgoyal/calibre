@@ -171,7 +171,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if self._add_formats(paths):
             event.accept()
 
-    def remove_format(self, x):
+    def remove_format(self, x=None):
         rows = self.formats.selectionModel().selectedRows(0)
         for row in rows:
             self.formats.takeItem(row.row())
@@ -327,6 +327,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         self.deduce_author_sort)
         self.connect(self.formats, SIGNAL('itemDoubleClicked(QListWidgetItem*)'),
                 self.show_format)
+        self.connect(self.formats, SIGNAL('delete_format()'), self.remove_format)
         self.connect(self.button_set_cover, SIGNAL('clicked()'), self.set_cover)
         self.connect(self.button_set_metadata, SIGNAL('clicked()'),
                 self.set_metadata_from_format)
