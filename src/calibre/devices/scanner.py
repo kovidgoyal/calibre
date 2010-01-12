@@ -6,6 +6,7 @@ manner.
 '''
 
 import sys, os
+from threading import RLock
 
 from calibre import iswindows, isosx, plugins, islinux
 
@@ -21,6 +22,54 @@ elif isosx:
         osx_scanner = plugins['usbobserver'][0].get_usb_devices
     except:
         raise RuntimeError('Failed to load the usbobserver plugin: %s'%plugins['usbobserver'][1])
+
+class WinPNPScanner(object):
+
+    def __init__(self):
+        self.scanner = None
+        if iswindows:
+            self.scanner = plugins['winutil'][0].get_removable_drives
+            self.lock = RLock()
+
+    def drive_is_ok(self, letter, debug=False):
+        import win32api, win32file
+        with self.lock:
+            oldError = win32api.SetErrorMode(1) #SEM_FAILCRITICALERRORS = 1
+            try:
+                ans = True
+                try:
+                    win32file.GetDiskFreeSpaceEx(letter+':\\')
+                except:
+                    ans = False
+                return ans
+            finally:
+                win32api.SetErrorMode(oldError)
+
+    def __call__(self, debug=False):
+        if self.scanner is None:
+            return {}
+        try:
+            drives = self.scanner(debug)
+        except:
+            drives = {}
+            if debug:
+                import traceback
+                traceback.print_exc()
+        remove = set([])
+        for letter in drives:
+            if not self.drive_is_ok(letter, debug=debug):
+                remove.add(letter)
+        for letter in remove:
+            drives.pop(letter)
+        ans = {}
+        for key, val in drives.items():
+            val = [x.upper() for x in val]
+            val = [x for x in val if 'USBSTOR' in x]
+            if val:
+                ans[key+':\\'] = val[-1]
+        return ans
+
+win_pnp_drives = WinPNPScanner()
 
 class LinuxScanner(object):
 
@@ -85,26 +134,13 @@ class DeviceScanner(object):
             raise RuntimeError('DeviceScanner requires the /sys filesystem to work.')
         self.scanner = win_scanner if iswindows else osx_scanner if isosx else linux_scanner
         self.devices = []
-        self.wmi = None
-        self.pnp_ids = set([])
-        self.rescan_pnp_ids = True
 
     def scan(self):
         '''Fetch list of connected USB devices from operating system'''
         self.devices = self.scanner()
-        if self.rescan_pnp_ids:
-            self.pnp_ids = set([])
-
-    def pnp_id_iterator(self):
-        if self.wmi is not None and not self.pnp_ids:
-            for drive in self.wmi.Win32_DiskDrive():
-                if drive.Partitions > 0:
-                    self.pnp_ids.add(str(drive.PNPDeviceID))
-        for x in self.pnp_ids:
-            yield x
 
     def is_device_connected(self, device, debug=False):
-        return device.is_usb_connected(self.devices, self.pnp_id_iterator, debug=debug)
+        return device.is_usb_connected(self.devices, debug=debug)
 
 
 def main(args=sys.argv):
