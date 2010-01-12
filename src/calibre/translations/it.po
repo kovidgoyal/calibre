@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-01-08 22:57+0000\n"
-"PO-Revision-Date: 2010-01-09 00:33+0000\n"
-"Last-Translator: lorenzov <l.vigentini@ed.ac.uk>\n"
+"POT-Creation-Date: 2010-01-11 00:36+0000\n"
+"PO-Revision-Date: 2010-01-11 22:01+0000\n"
+"Last-Translator: usa_getta <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-09 07:47+0000\n"
+"X-Launchpad-Export-Date: 2010-01-12 04:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -128,11 +128,11 @@ msgstr "Non fa assolutamente niente"
 #: /home/kovid/work/calibre/src/calibre/library/database.py:913
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:703
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:715
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1132
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1169
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1503
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1505
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1616
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1143
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1180
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1517
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1519
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1630
 #: /home/kovid/work/calibre/src/calibre/library/server.py:645
 #: /home/kovid/work/calibre/src/calibre/library/server.py:717
 #: /home/kovid/work/calibre/src/calibre/library/server.py:764
@@ -308,7 +308,7 @@ msgstr "Questo profilo è stato creato per l'Hanlin V3 ed i suoi cloni."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:121
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:323
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr "Questo profilo è adatto per Hanlin V5 e i suoi modelli cloni."
+msgstr "Questo profilo è adatto per Hanlin V5 e i suoi cloni."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:131
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:331
@@ -578,7 +578,7 @@ msgstr "Comunicazione in corso con il Sony PRS-300/505/500."
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:58
 msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
-"device. Posiibilities include: "
+"device. Possibilities include: "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:139
@@ -655,9 +655,9 @@ msgstr "Non c'è spazio sufficiente nella scheda di memoria"
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:826
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1065
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1069
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1403
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1068
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1072
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1417
 msgid "News"
 msgstr "Notizie"
 
@@ -2610,6 +2610,10 @@ msgstr ""
 "Analizzare il testo sorgente utilizzando il pre-processore markdown. Per "
 "maggiori informazioni su markdown vedere"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:35
+msgid "Do not insert a Table of Contents into the output text."
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
 msgid ""
 "Type of newline to use. Options are %s. Default is 'system'. Use 'old_mac' "
@@ -2911,7 +2915,7 @@ msgstr "input"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:62
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:45
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:67
@@ -3520,12 +3524,12 @@ msgid "PDB Input"
 msgstr "Input PDB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:32
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:43
 msgid "Treat each &line as a paragraph"
 msgstr "Considera ogni linea come un paragrafo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:33
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:42
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:44
 msgid "Assume print formatting"
 msgstr "Inferire il formato di stampa"
 
@@ -3748,11 +3752,11 @@ msgstr "Tavola dei contentuti (TOC) &Filter."
 msgid "TXT Input"
 msgstr "Input TXT"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:40
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:45
 msgid "Process using markdown"
 msgstr "Analizzare utilizzando markdown"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:41
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:46
 msgid ""
 "<p>Markdown is a simple markup language for text files, that allows for "
 "advanced formatting. To learn more visit <a "
@@ -3761,6 +3765,10 @@ msgstr ""
 "<p>Markdown e' un semplice linguaggio markup per documenti di testo che "
 "permette formattazione avanzata. Per maggiori informazioni andate su <a "
 "href=\"http://daringfireball.net/projects/markdown\">markdown</a>."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:47
+msgid "Do not insert Table of Contents into output text when using markdown"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:16
 msgid "TXT Output"
@@ -6444,7 +6452,7 @@ msgstr "Converti in gruppo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:372
 msgid "Run welcome wizard"
-msgstr "Fai partire l'assistenze di configurazione iniziale"
+msgstr "Fai partire l'assistente di configurazione iniziale"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:408
 msgid "Similar books..."
@@ -8006,28 +8014,28 @@ msgstr ""
 "\n"
 "Per aiuto su un comando particolare: %%prog command --help\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1642
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1656
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 "<p>Sto migrando il vecchio database nella nuova biblioteca in %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1671
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1685
 msgid "Copying <b>%s</b>"
 msgstr "Sto copiando <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1688
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1702
 msgid "Compacting database"
 msgstr "Compattazione database"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1781
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1795
 msgid "Checking SQL integrity..."
 msgstr "Controllo di integrita' SQL..."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1818
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1832
 msgid "Checking for missing files."
 msgstr "Controllo per file mancanti"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1840
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1854
 msgid "Checked id"
 msgstr "ID controllate"
 
