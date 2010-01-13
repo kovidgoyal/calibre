@@ -421,7 +421,8 @@ from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import N516
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
-plugins = [HTML2ZIP, PML2PMLZ, GoogleBooks, ISBNDB, Amazon]
+from calibre.library.catalog import CSV_XML
+plugins = [HTML2ZIP, PML2PMLZ, GoogleBooks, ISBNDB, Amazon, CSV_XML]
 plugins += [
     ComicInput,
     EPUBInput,
