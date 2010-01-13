@@ -48,7 +48,7 @@ class Plugin(object):
     #: the plugins are run in order of decreasing priority
     #: i.e. plugins with higher priority will be run first.
     #: The highest possible priority is ``sys.maxint``.
-    #: Default pririty is 1.
+    #: Default priority is 1.
     priority = 1
 
     #: The earliest version of calibre this plugin requires
@@ -226,4 +226,55 @@ class MetadataWriterPlugin(Plugin):
         '''
         pass
 
+class CatalogPlugin(Plugin):
+    '''
+    A plugin that implements a catalog generator.
+    '''
+    
+    #: Output file type for which this plugin should be run
+    #: For example: 'epub' or 'xml'
+    file_types = set([])
 
+    type = _('Catalog generator')
+    
+    #: CLI parser options specific to this plugin, declared as namedtuple Option
+    #:
+    #: from collections import namedtuple
+    #: Option = namedtuple('Option', 'option, default, dest, help')
+    #: cli_options = [Option('--catalog-title',
+    #:                       default = 'My Catalog',
+    #:                       dest = 'catalog_title',
+    #:                       help = (_('Title of generated catalog. \nDefault:') + " '" + 
+    #:                       '%default' + "'"))]
+
+    cli_options = []
+
+    def run(self, path_to_output, opts, log):
+        '''
+        Run the plugin. Must be implemented in subclasses.
+        It should generate the catalog in the format specified
+        in file_types, returning the absolute path to the
+        generated catalog file. If an error is encountered
+        it should raise an Exception and return None. The default 
+        implementation simply returns None.
+
+        The generated catalog file should be created with the
+        :meth:`temporary_file` method.
+
+        :param path_to_output: Absolute path to the generated catalog file.
+        :param opts: A dictionary of keyword arguments
+
+        :return: Absolute path to the modified ebook.
+        
+        Access the opts object as a dictionary with this code:
+        opts_dict = vars(opts)
+        keys = opts_dict.keys()
+        keys.sort()
+        print "opts:"
+        for key in keys:
+            print "\t%s: %s" % (key, opts_dict[key])
+
+        '''
+        # Default implementation does nothing
+        print "CatalogPlugin.generate_catalog() default method, should be overridden in subclass"
+        return None

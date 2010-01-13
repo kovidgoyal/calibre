@@ -5,8 +5,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, shutil, traceback, functools, sys, re
 from contextlib import closing
 
-from calibre.customize import Plugin, FileTypePlugin, MetadataReaderPlugin, \
-                              MetadataWriterPlugin
+from calibre.customize import Plugin, CatalogPlugin, FileTypePlugin, \
+                              MetadataReaderPlugin, MetadataWriterPlugin
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.profiles import InputProfile, OutputProfile
 from calibre.customize.builtins import plugins as builtin_plugins
@@ -300,6 +300,7 @@ def find_plugin(name):
         if plugin.name == name:
             return plugin
 
+
 def input_format_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, InputFormatPlugin):
@@ -328,6 +329,7 @@ def available_input_formats():
     formats.add('zip'), formats.add('rar')
     return formats
 
+
 def output_format_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, OutputFormatPlugin):
@@ -346,6 +348,27 @@ def available_output_formats():
         if not is_disabled(plugin):
             formats.add(plugin.file_type)
     return formats
+
+
+def catalog_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, CatalogPlugin):
+            yield plugin
+            
+def available_catalog_formats():
+    formats = set([])
+    for plugin in catalog_plugins():
+        if not is_disabled(plugin):
+            for format in plugin.file_types:
+                formats.add(format)
+    return formats    
+
+def plugin_for_catalog_format(fmt):
+    for plugin in catalog_plugins():
+        if fmt.lower() in plugin.file_types:
+            return plugin
+    else:
+        return None
 
 def device_plugins():
     for plugin in _initialized_plugins:
