@@ -48,7 +48,7 @@ class Plugin(object):
     #: the plugins are run in order of decreasing priority
     #: i.e. plugins with higher priority will be run first.
     #: The highest possible priority is ``sys.maxint``.
-    #: Default pririty is 1.
+    #: Default priority is 1.
     priority = 1
 
     #: The earliest version of calibre this plugin requires
@@ -226,4 +226,75 @@ class MetadataWriterPlugin(Plugin):
         '''
         pass
 
+class CatalogPlugin(Plugin):
+    '''
+    A plugin that implements a catalog generator.
+    '''
 
+    #: Output file type for which this plugin should be run
+    #: For example: 'epub' or 'xml'
+    file_types = set([])
+
+    type = _('Catalog generator')
+
+    #: CLI parser options specific to this plugin, declared as namedtuple Option
+    #:
+    #: from collections import namedtuple
+    #: Option = namedtuple('Option', 'option, default, dest, help')
+    #: cli_options = [Option('--catalog-title',
+    #:                       default = 'My Catalog',
+    #:                       dest = 'catalog_title',
+    #:                       help = (_('Title of generated catalog. \nDefault:') + " '" +
+    #:                       '%default' + "'"))]
+
+    cli_options = []
+
+    def search_sort_db_as_dict(self, db, opts):
+        if opts.search_text:
+            db.search(opts.search_text)
+        if opts.sort_by:
+            # 2nd arg = ascending
+            db.sort(opts.sort_by, True)
+
+        return db.get_data_as_dict()
+
+    def get_output_fields(self, opts):
+        # Return a list of requested fields, with opts.sort_by first
+        all_fields = set(
+                          ['author_sort','authors','comments','cover','formats',                           'id','isbn','pubdate','publisher','rating',
+                          'series_index','series','size','tags','timestamp',
+                          'title','uuid'])
+
+        fields = all_fields
+        if opts.fields != 'all':
+            # Make a list from opts.fields
+            requested_fields = set(opts.fields.split(','))
+            fields = list(all_fields & requested_fields)
+        else:
+            fields = list(all_fields)
+        fields.sort()
+        fields.insert(0,fields.pop(int(fields.index(opts.sort_by))))
+        return fields
+
+    def run(self, path_to_output, opts, db):
+        '''
+        Run the plugin. Must be implemented in subclasses.
+        It should generate the catalog in the format specified
+        in file_types, returning the absolute path to the
+        generated catalog file. If an error is encountered
+        it should raise an Exception and return None. The default
+        implementation simply returns None.
+
+        The generated catalog file should be created with the
+        :meth:`temporary_file` method.
+
+        :param path_to_output: Absolute path to the generated catalog file.
+        :param opts: A dictionary of keyword arguments
+        :param db: A LibraryDatabase2 object
+
+        :return: None
+
+        '''
+        # Default implementation does nothing
+        raise NotImplementedError('CatalogPlugin.generate_catalog() default '
+                'method, should be overridden in subclass')
