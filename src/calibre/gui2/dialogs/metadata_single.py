@@ -148,7 +148,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 bad_perms.append(_file)
                 continue
 
-            _file = run_plugins_on_import(_file)
+            nfile = run_plugins_on_import(_file)
+            if nfile is not None:
+                _file = nfile
             size = os.stat(_file).st_size
             ext = os.path.splitext(_file)[1].lower().replace('.', '')
             for row in range(self.formats.count()):

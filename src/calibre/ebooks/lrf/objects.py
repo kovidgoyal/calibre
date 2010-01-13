@@ -881,7 +881,10 @@ class Text(LRFStream):
                     open_containers.append(c)
 
         if len(open_containers) > 0:
-            raise LRFParseError('Malformed text stream %s'%([i.name for i in open_containers if isinstance(i, Text.TextTag)],))
+            if len(open_containers) == 1:
+                s += u'</%s>'%(open_containers[0].name,)
+            else:
+                raise LRFParseError('Malformed text stream %s'%([i.name for i in open_containers if isinstance(i, Text.TextTag)],))
         return s
 
     def to_html(self):
