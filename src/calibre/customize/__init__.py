@@ -249,7 +249,34 @@ class CatalogPlugin(Plugin):
 
     cli_options = []
 
-    def run(self, path_to_output, opts, log):
+    def search_sort_db_as_dict(self, db, opts):
+        if opts.search_text:
+            db.search(opts.search_text)
+        if opts.sort_by:
+            # 2nd arg = ascending
+            db.sort(opts.sort_by, True)
+
+        return db.get_data_as_dict()
+    
+    def get_output_fields(self, opts):
+        # Return a list of requested fields, with opts.sort_by first
+        all_fields = set( 
+                          ['author_sort','authors','comments','cover','formats',                           'id','isbn','pubdate','publisher','rating',
+                          'series_index','series','size','tags','timestamp',
+                          'title','uuid'])
+
+        fields = all_fields
+        if opts.fields != 'all':
+            # Make a list from opts.fields            
+            requested_fields = set(opts.fields.split(','))
+            fields = list(all_fields & requested_fields)
+        else:
+            fields = list(all_fields)
+        fields.sort()
+        fields.insert(0,fields.pop(int(fields.index(opts.sort_by))))
+        return fields
+
+    def run(self, path_to_output, opts, db):
         '''
         Run the plugin. Must be implemented in subclasses.
         It should generate the catalog in the format specified
@@ -263,17 +290,10 @@ class CatalogPlugin(Plugin):
 
         :param path_to_output: Absolute path to the generated catalog file.
         :param opts: A dictionary of keyword arguments
+        :param db: A LibraryDatabase2 object
 
-        :return: Absolute path to the modified ebook.
+        :return: None
         
-        Access the opts object as a dictionary with this code:
-        opts_dict = vars(opts)
-        keys = opts_dict.keys()
-        keys.sort()
-        print "opts:"
-        for key in keys:
-            print "\t%s: %s" % (key, opts_dict[key])
-
         '''
         # Default implementation does nothing
         print "CatalogPlugin.generate_catalog() default method, should be overridden in subclass"
