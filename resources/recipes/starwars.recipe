@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class TheForce(BasicNewsRecipe):
     title          = u'The Force'
@@ -21,11 +20,11 @@ class TheForce(BasicNewsRecipe):
        #dict(name='div', attrs={'class':['pt-box-title', 'pt-box-content', 'blog-entry-footer', 'item-list', 'article-sub-meta']}),
        #dict(name='div', attrs={'id':['block-td_search_160', 'block-cam_search_160']}),
        #dict(name='table', attrs={'cellspacing':'0'}),
-       #dict(name='ul', attrs={'class':'articleTools'}),	
+       #dict(name='ul', attrs={'class':'articleTools'}),
     ]
 
     feeds          = [
-('The Force', 
+('The Force',
  'http://www.theforce.net/outnews/tfnrdf.xml'),
 ]
 
