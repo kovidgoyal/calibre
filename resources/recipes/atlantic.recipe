@@ -65,6 +65,9 @@ class TheAtlantic(BasicNewsRecipe):
                 date = self.tag_to_string(byline) if byline else ''
                 description = ''
 
+                self.log('\tFound article:', title)
+                self.log('\t\t', url)
+
                 articles.append({
                                  'title':title,
                                  'date':date,
