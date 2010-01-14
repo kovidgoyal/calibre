@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class NYTimes(BasicNewsRecipe):
@@ -9,21 +10,17 @@ class NYTimes(BasicNewsRecipe):
     needs_subscription = True
 
     no_stylesheets = True
-    #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
-    #remove_tags_after  = dict(name='td', attrs={'class':'newptool1'})
+    remove_tags_before = dict(name='div', attrs={'align':'center'})
+    remove_tags_after  = dict(name='ol', attrs={'compact':'COMPACT'})
     remove_tags = [
        dict(name='iframe'),
        #dict(name='div', attrs={'class':'related-articles'}),
-       #dict(name='div', attrs={'id':['qrformdiv', 'inSection', 'alpha-inner']}),
-       dict(name='form', attrs={'onsubmit':"return verifySearch(this.w,'Keyword, citation, or author')"}),
-       dict(name='table', attrs={'cellspacing':'0'}),
+       dict(name='div', attrs={'id':['sidebar']}),
+       #dict(name='form', attrs={'onsubmit':"return verifySearch(this.w,'Keyword, citation, or author')"}),
+       dict(name='table', attrs={'align':'RIGHT'}),
     ]
 
-    def preprocess_html(self, soup):
-        table = soup.find('table')
-        if table is not None:
-            table.extract()
-        return soup
+
 
     #TO LOGIN
     def get_browser(self):
@@ -44,9 +41,9 @@ class NYTimes(BasicNewsRecipe):
 
     # To parse artice toc
     def parse_index(self):
-            soup = self.nejm_get_index()
+            parse_soup = self.nejm_get_index()
 
-            div = soup.find(id='centerTOC')
+            div = parse_soup.find(id='centerTOC')
 
             current_section = None
             current_articles = []
@@ -80,4 +77,21 @@ class NYTimes(BasicNewsRecipe):
                 feeds.append((current_section, current_articles))
 
             return feeds
+
+    def preprocess_html(self, soup):
+        for a in soup.findAll(text=lambda x: x and '[in this window]' in x):
+            a = a.findParent('a')
+            url = a.get('href', None)
+            if not url:
+                continue
+            if url.startswith('/'):
+                url = 'http://content.nejm.org'+url
+            isoup = self.index_to_soup(url)
+            img = isoup.find('img', src=lambda x: x and
+                    x.startswith('/content/'))
+            if img is not None:
+                img.extract()
+                table = a.findParent('table')
+                table.replaceWith(img)
+        return soup
 
