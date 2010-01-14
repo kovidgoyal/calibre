@@ -656,6 +656,7 @@ def catalog_option_parser(args):
 
     # Merge options from GUI Preferences
     '''
+    # Placeholder sample code until we implement GUI preferences
     from calibre.library.save_to_disk import config
     c = config()
     for pref in ['asciiize', 'update_metadata', 'write_opf', 'save_cover']:
@@ -690,7 +691,8 @@ def command_catalog(args, dbpath):
         return 1
     if opts.verbose:
         log("library.cli:command_catalog dispatching to plugin %s" % plugin.name)
-    plugin.run(args[1], opts, get_db(dbpath, opts))
+    with plugin:
+        plugin.run(args[1], opts, get_db(dbpath, opts))
     return 0
 
 # end of GR additions

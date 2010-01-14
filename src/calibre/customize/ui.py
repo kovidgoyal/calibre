@@ -366,8 +366,7 @@ def available_catalog_formats():
 def plugin_for_catalog_format(fmt):
     for plugin in catalog_plugins():
         if fmt.lower() in plugin.file_types:
-            with plugin:
-                return plugin
+            return plugin
 
 def device_plugins():
     for plugin in _initialized_plugins:
