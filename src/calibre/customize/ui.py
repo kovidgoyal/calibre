@@ -354,21 +354,20 @@ def catalog_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, CatalogPlugin):
             yield plugin
-            
+
 def available_catalog_formats():
     formats = set([])
     for plugin in catalog_plugins():
         if not is_disabled(plugin):
             for format in plugin.file_types:
                 formats.add(format)
-    return formats    
+    return formats
 
 def plugin_for_catalog_format(fmt):
     for plugin in catalog_plugins():
         if fmt.lower() in plugin.file_types:
-            return plugin
-    else:
-        return None
+            with plugin:
+                return plugin
 
 def device_plugins():
     for plugin in _initialized_plugins:
