@@ -151,6 +151,8 @@ class USBMS(CLI, Device):
                 for ext in self.DELETE_EXTS:
                     if os.path.exists(filepath + ext):
                         os.unlink(filepath + ext)
+                    if os.path.exists(path + ext):
+                        os.unlink(path + ext)
 
                 if self.SUPPORTS_SUB_DIRS:
                     try:
