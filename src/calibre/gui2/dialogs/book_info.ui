@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>BookInfo</class>
- <widget class="QDialog" name="BookInfo" >
-  <property name="geometry" >
+ <widget class="QDialog" name="BookInfo">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,70 +10,77 @@
     <height>783</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout" >
-   <item row="0" column="0" colspan="2" >
-    <widget class="QLabel" name="title" >
-     <property name="text" >
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="title">
+     <property name="text">
       <string>TextLabel</string>
      </property>
-     <property name="alignment" >
+     <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
-   <item row="1" column="0" >
-    <widget class="QGraphicsView" name="cover" />
+   <item row="1" column="0">
+    <widget class="QGraphicsView" name="cover"/>
    </item>
-   <item row="1" column="1" >
-    <layout class="QVBoxLayout" name="verticalLayout" >
+   <item row="1" column="1">
+    <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QLabel" name="text" >
-       <property name="text" >
+      <widget class="QLabel" name="text">
+       <property name="text">
         <string>TextLabel</string>
        </property>
-       <property name="alignment" >
+       <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
        </property>
-       <property name="wordWrap" >
+       <property name="wordWrap">
         <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox" >
-       <property name="title" >
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
         <string>Comments</string>
        </property>
-       <layout class="QGridLayout" >
-        <item row="0" column="0" >
-         <widget class="QTextBrowser" name="comments" />
+       <layout class="QGridLayout">
+        <item row="0" column="0">
+         <widget class="QTextBrowser" name="comments"/>
         </item>
        </layout>
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout" >
+      <widget class="QCheckBox" name="fit_cover">
+       <property name="text">
+        <string>Fit &amp;cover to view</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QPushButton" name="previous_button" >
-         <property name="text" >
+        <widget class="QPushButton" name="previous_button">
+         <property name="text">
           <string>&amp;Previous</string>
          </property>
-         <property name="icon" >
-          <iconset resource="../../../../resources/images.qrc" >
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
            <normaloff>:/images/previous.svg</normaloff>:/images/previous.svg</iconset>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="next_button" >
-         <property name="text" >
+        <widget class="QPushButton" name="next_button">
+         <property name="text">
           <string>&amp;Next</string>
          </property>
-         <property name="icon" >
-          <iconset resource="../../../../resources/images.qrc" >
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
            <normaloff>:/images/next.svg</normaloff>:/images/next.svg</iconset>
          </property>
         </widget>
@@ -84,7 +92,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../../resources/images.qrc" />
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections/>
 </ui>

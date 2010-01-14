@@ -1,0 +1,52 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.eluniversal.com
+'''
+
+from calibre import strftime
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class ElUniversal(BasicNewsRecipe):
+    title                  = 'El Universal'
+    __author__             = 'Darko Miletic'
+    description            = 'Noticias de Venezuela'
+    oldest_article         = 2
+    max_articles_per_feed  = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
+    encoding               = 'cp1252'
+    publisher              = 'El Universal'
+    category               = 'news, Caracas, Venezuela, world'
+    language               = 'es'
+    cover_url              = strftime('http://static.eluniversal.com/%Y/%m/%d/portada.jpg')
+
+    conversion_options = {
+                             'comments'        : description
+                            ,'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                         }
+
+    keep_only_tags   = [dict(name='div', attrs={'class':'Nota'})]
+    remove_tags      = [
+                          dict(name=['object','link','script','iframe'])
+                         ,dict(name='div',attrs={'class':'Herramientas'})
+                       ]
+
+    feeds = [
+               (u'Ultimas Noticias', u'http://www.eluniversal.com/rss/avances.xml'    )
+              ,(u'Economia'        , u'http://www.eluniversal.com/rss/eco_avances.xml')
+              ,(u'Internacionales' , u'http://www.eluniversal.com/rss/int_avances.xml')
+              ,(u'Deportes'        , u'http://www.eluniversal.com/rss/dep_avances.xml')
+              ,(u'Cultura'         , u'http://www.eluniversal.com/rss/cul_avances.xml')
+              ,(u'Nacional y politica' , u'http://www.eluniversal.com/rss/pol_avances.xml')
+              ,(u'Ciencia y tecnologia', u'http://www.eluniversal.com/rss/cyt_avances.xml')
+              ,(u'Universo empresarial', u'http://www.eluniversal.com/rss/uni_avances.xml')
+              ,(u'Caracas'        , u'http://www.eluniversal.com/rss/ccs_avances.xml')
+            ]
+
+    def print_version(self, url):
+        rp,sep,rest = url.rpartition('/')
+        return rp + sep + 'imp_' + rest
+

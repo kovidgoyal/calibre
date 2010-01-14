@@ -691,7 +691,8 @@ def command_catalog(args, dbpath):
         return 1
     if opts.verbose:
         log("library.cli:command_catalog dispatching to plugin %s" % plugin.name)
-    plugin.run(args[1], opts, get_db(dbpath, opts))
+    with plugin:
+        plugin.run(args[1], opts, get_db(dbpath, opts))
     return 0
 
 # end of GR additions    
