@@ -656,6 +656,7 @@ def catalog_option_parser(args):
     
     # Merge options from GUI Preferences
     '''
+    # Placeholder sample code until we implement GUI preferences
     from calibre.library.save_to_disk import config
     c = config()
     for pref in ['asciiize', 'update_metadata', 'write_opf', 'save_cover']:
