@@ -165,7 +165,8 @@ class PRS505(CLI, Device):
                 name = name[1:]
 
             opts = self.settings()
-            booklists[blist].add_book(info, name, opts.extra_customization.split(','), *location[1:-1])
+            collections = opts.extra_customization.split(',') if opts.extra_customization else []
+            booklists[blist].add_book(info, name, collections, *location[1:-1])
         fix_ids(*booklists)
 
     def delete_books(self, paths, end_session=True):

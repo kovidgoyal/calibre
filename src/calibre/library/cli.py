@@ -591,14 +591,14 @@ def catalog_option_parser(args):
     from calibre.utils.logging import Log
 
     def add_plugin_parser_options(fmt, parser, log):
-    
+
         # Fetch the extension-specific CLI options from the plugin
         plugin = plugin_for_catalog_format(fmt)
         for option in plugin.cli_options:
-            parser.add_option(option.option, 
-                              default=option.default, 
-                              dest=option.dest, 
-                              help=option.help)            
+            parser.add_option(option.option,
+                              default=option.default,
+                              dest=option.dest,
+                              help=option.help)
 
         return plugin
 
@@ -608,7 +608,7 @@ def catalog_option_parser(args):
 
     def validate_command_line(parser, args, log):
         # calibredb catalog path/to/destination.[epub|csv|xml|...] [options]
-        
+
         # Validate form
         if not len(args) or args[0].startswith('-'):
             print_help(parser, log)
@@ -616,17 +616,17 @@ def catalog_option_parser(args):
             "To review options for an output format, type 'calibredb catalog <.extension> --help'\n"
             "For example, 'calibredb catalog .xml --help'\n")
             raise SystemExit(1)
-    
+
         # Validate plugin exists for specified output format
         output = os.path.abspath(args[0])
         file_extension = output[output.rfind('.') + 1:].lower()
-        
+
         if not file_extension in available_catalog_formats():
             print_help(parser, log)
             log.error("No catalog plugin available for extension '%s'.\n" % file_extension +
                       "Catalog plugins available for %s\n" % ', '.join(available_catalog_formats()) )
             raise SystemExit(1)
-        
+
         return output, file_extension
 
     # Entry point
@@ -634,7 +634,7 @@ def catalog_option_parser(args):
     parser = get_parser(_(
     '''
     %prog catalog /path/to/destination.(csv|epub|mobi|xml ...) [options]
-    
+
     Export a catalog in format specified by path/to/destination extension.
     Options control how entries are displayed in the generated catalog ouput.
     '''))
@@ -642,18 +642,18 @@ def catalog_option_parser(args):
     # Confirm that a plugin handler exists for specified output file extension
     # Will raise SystemExit(1) if no plugin matching file_extension
     output, fmt = validate_command_line(parser, args, log)
-    
+
     # Add options common to all catalog plugins
     parser.add_option('-s', '--search', default=None, dest='search_text',
                       help=_("Filter the results by the search query.  For the format of the search query, please see the search-related documentation in the User Manual.\n"+
                       "Default: no filtering"))
     parser.add_option('-v','--verbose', default=False, action='store_true',
-                      dest='verbose', 
+                      dest='verbose',
                       help=_('Show detailed output information. Useful for debugging'))
 
     # Add options specific to fmt plugin
     plugin = add_plugin_parser_options(fmt, parser, log)
-    
+
     # Merge options from GUI Preferences
     '''
     from calibre.library.save_to_disk import config
@@ -677,7 +677,7 @@ def catalog_option_parser(args):
         parser.add_option(switch, default=False, action='store_true',
                 help=opt.help)
     '''
-    
+
     return parser, plugin, log
 
 def command_catalog(args, dbpath):
@@ -693,7 +693,7 @@ def command_catalog(args, dbpath):
     plugin.run(args[1], opts, get_db(dbpath, opts))
     return 0
 
-# end of GR additions    
+# end of GR additions
 
 COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
                 'show_metadata', 'set_metadata', 'export', 'catalog')
