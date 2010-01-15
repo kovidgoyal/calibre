@@ -92,6 +92,8 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
     if as_unicode:
         one = one.decode(filesystem_encoding)
     one = one.replace('..', substitute)
+    if one.endswith('.'):
+        one = one[:-1]+'_'
     return one
 
 
