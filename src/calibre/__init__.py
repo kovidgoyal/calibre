@@ -451,6 +451,8 @@ if isosx:
         traceback.print_exc()
 
 def ipython(user_ns=None):
+    old_argv = sys.argv
+    sys.argv = ['ipython']
     if user_ns is None:
         user_ns = locals()
     from calibre.utils.config import config_dir
@@ -514,5 +516,6 @@ main()
     from IPython.Shell import IPShellEmbed
     ipshell = IPShellEmbed(user_ns=user_ns)
     ipshell()
+    sys.argv = old_argv
 
 

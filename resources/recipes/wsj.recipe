@@ -16,7 +16,7 @@ class WallStreetJournal(BasicNewsRecipe):
         needs_subscription = True
         language = 'en'
 
-        max_articles_per_feed = 25
+        max_articles_per_feed = 1000
         timefmt  = ' [%a, %b %d, %Y]'
         no_stylesheets = True
 
