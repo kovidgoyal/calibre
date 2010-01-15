@@ -145,10 +145,7 @@ class DBAdder(Thread):
         else:
             self.names.append(name)
             self.paths.append(formats[0])
-            self.infos.append({'title':mi.title,
-                           'authors':', '.join(mi.authors),
-                           'cover':None,
-                           'tags':mi.tags if mi.tags else []})
+            self.infos.append(mi)
         return mi.title
 
     def add_formats(self, id, formats):

@@ -29,7 +29,8 @@ class GlobeAndMail(BasicNewsRecipe):
     remove_tags_before = dict(id="article-top")
     remove_tags = [
 		{'id':['util', 'article-tabs', 'comments', 'article-relations',
-		'gallery-controls', 'video', 'galleryLoading','deck','header'] },
+		'gallery-controls', 'video', 'galleryLoading','deck','header',
+        'toolsBottom'] },
 		{'class':['credit','inline-img-caption','tab-pointer'] },
 		dict(name='div', attrs={'id':'lead-photo'}),
 		dict(name='div', attrs={'class':'right'}),
@@ -67,4 +68,9 @@ class GlobeAndMail(BasicNewsRecipe):
             (u'Real Estate', u'http://www.theglobeandmail.com/real-estate/?service=rss'),
             (u'Auto', u'http://www.theglobeandmail.com/auto/?service=rss')
             ]
+
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if '/video/' not in url:
+            return url
 
