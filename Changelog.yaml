@@ -4,6 +4,84 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.34
+  date: 2010-01-15
+
+  new features:
+    - title: Prelimiary driver for The Google Nexus One smartphone. 
+
+    - title: Implement copy/paste of covers in the edit meta information dialog via a right click menu
+      tickets: [4564]
+
+    - title: "Autofit covers in available space when viewing book details (can be turned off)"
+      tickets: [4536]
+
+  bug fixes:
+    - title: "Switch to non WMI based method of detecting devices on windows"
+      type: major
+      desc: >
+        "Previously, on windows, calibre used something called Windows Management Instrumentation (WMI) to
+        query the operating system for connected devices. Unfortunately, WMI seems to be broken ona  number
+        of windows installs. calibre now uses the windows API to directly query the operating system for this 
+        information. This should fix device detection on most remaining systems."
+
+    - title: "Conversion pipeline: Automatically change case of upper cased CSS tag selectors to lower case, so that they match"
+
+    - title: "Fix regression taht broke using the Add bokos button to add books directly to a connected device"
+
+    - title: "EPUB Output: Remove <img> tags with empty src attributes as older versions of ADE choke on them"
+
+    - title: "When creating paths on the hard disk/device replace a trailing period in a path component as windows silently discards them, causing various bugs"
+      tickets: [4570]
+
+    - title: "Linux systray notifications: Ignore DBUS errors when sending notifications"
+
+    - title: "PRS Drivers: Don't error out if user sets collection generating metadata to None"
+
+    - title: "LRF Input: Handle malformed CharButtons"
+      tickets: [4552]
+
+    - title: "Cybook Driver: Remove aux files created for epubs."
+
+    - title: "When using Save to disk/Send to device templates, ignore index and attribute errors if the user incorrectly uses advanced formatting"
+
+    - title: "Linux install: remove broken symlinks when installing launchers, instead of erroring out"
+
+    - title: "Fix detection of CyBook Gen 3 with firmware 2 on OS X"
+      tickets: [4521]
+
+
+
+  new recipes:
+    - title: MSNBC
+      author: Darko Miletic 
+
+    - title: Norte Castilla
+      author: Lorenzo Vigentini
+
+    - title: El Universal (Venezuela)
+      author: Darko Miletic
+
+    - title: Think Progress
+      author: Xanthan Gum
+
+    - title: News and Observer
+      author: Krittika Goyal
+
+    - title: The Force
+      author: Krittika Goyal
+
+    - title: "l'Espresso, Quotidiano, La Gazzeta dello Sport and Panorama"
+      author: Lorenzo Vigentini
+
+  improved recipes:
+    - WSJ
+    - Globe and Mail
+    - New England Journal of Medicine
+    - New York Times
+    - Christian Science Monitor
+ 
+
 - version: 0.6.33
   date: 2010-01-10
 
@@ -27,7 +105,10 @@
 
     - title: "Remember state of cover and tag browsing views on restart"
 
+    - title: "Support using Delte key to delete formats in edit meta information dialog"
+
   bug fixes:
+
     - title: "EPUB Output: Add id attributes to anchors that have only name, as Adobe Digital Editions apparently can't handle only name attributes"
       tickets: [4474]
 
