@@ -2,8 +2,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1255797795(BasicNewsRecipe):
     title          = u'Corren'
+    language = 'sv'
     __author__ = 'Jonas Svensson'
-    simultaneous_downloads = 1 
+    simultaneous_downloads = 1
     no_stylesheets = True
     oldest_article = 7
     max_articles_per_feed = 100
@@ -35,4 +36,4 @@ class AdvancedUserRecipe1255797795(BasicNewsRecipe):
         url = url.replace("ostergotland/mjolby/artikel.aspx", "Print.aspx")
         url = url.replace("ostergotland/motala/artikel.aspx", "Print.aspx")
         return url.replace("nyheter/artikel.aspx", "Print.aspx")
- 
+
