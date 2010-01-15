@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-01-09 17:37+0000\n"
-"PO-Revision-Date: 2010-01-09 17:07+0000\n"
-"Last-Translator: Merarom <Unknown>\n"
+"POT-Creation-Date: 2010-01-11 00:36+0000\n"
+"PO-Revision-Date: 2010-01-10 23:09+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-10 07:15+0000\n"
+"X-Launchpad-Export-Date: 2010-01-12 04:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:42
@@ -125,11 +125,11 @@ msgstr "Gör ingenting"
 #: /home/kovid/work/calibre/src/calibre/library/database.py:913
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:703
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:715
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1135
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1172
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1509
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1511
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1622
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1143
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1180
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1517
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1519
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1630
 #: /home/kovid/work/calibre/src/calibre/library/server.py:645
 #: /home/kovid/work/calibre/src/calibre/library/server.py:717
 #: /home/kovid/work/calibre/src/calibre/library/server.py:764
@@ -653,7 +653,7 @@ msgstr "Det finns tillräckligt mycket ledigt utrymme på minneskortet"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1068
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1072
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1409
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1417
 msgid "News"
 msgstr "Nyheter"
 
@@ -2521,6 +2521,10 @@ msgid ""
 "markdown see"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:35
+msgid "Do not insert a Table of Contents into the output text."
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
 msgid ""
 "Type of newline to use. Options are %s. Default is 'system'. Use 'old_mac' "
@@ -2813,7 +2817,7 @@ msgstr "indata"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:62
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:45
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:67
@@ -3416,12 +3420,12 @@ msgid "PDB Input"
 msgstr "PDB indata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:32
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:43
 msgid "Treat each &line as a paragraph"
 msgstr "Behandla varje rad som ett stycke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:33
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:42
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:44
 msgid "Assume print formatting"
 msgstr "Anta utskriftsformatering"
 
@@ -3637,11 +3641,11 @@ msgstr "Innehållsförtecknings&filter"
 msgid "TXT Input"
 msgstr "TXT indata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:40
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:45
 msgid "Process using markdown"
 msgstr "Processen använder markdown"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:41
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:46
 msgid ""
 "<p>Markdown is a simple markup language for text files, that allows for "
 "advanced formatting. To learn more visit <a "
@@ -3650,6 +3654,10 @@ msgstr ""
 "<p> Markdown är ett enkelt språk för uppmärkning av textfiler, som möjliggör "
 "avancerad formatering. Om du vill veta mer besök <a "
 "href=\"http://daringfireball.net/projects/markdown\"> markdown </a>."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:47
+msgid "Do not insert Table of Contents into output text when using markdown"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:16
 msgid "TXT Output"
@@ -7762,8 +7770,8 @@ msgstr ""
 "\n"
 "Ange metadata lagrays i calibre databas för boken som identifieras med hjälp "
 "av id\n"
-"från OPf fil metadata.opf. ID är ett ID-nummer från listkommandot. Du\n"
-"kan få en snabb känsla för OPf format med hjälp av --as-opf växel till\n"
+"från OPF fil metadata.opf. ID är ett ID-nummer från listkommandot. Du\n"
+"kan få en snabb känsla för OPf format med hjälp av  --as-opf växel till\n"
 "show_metadata kommando.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:517
@@ -7827,27 +7835,27 @@ msgstr ""
 "\n"
 "For help on an individual command: %%prog command --help\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1648
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1656
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr "<p> Migrera gamla databasen med e-bokbibliotek i%s <br> <center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1677
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1685
 msgid "Copying <b>%s</b>"
 msgstr "Kopiering <b>%s </ b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1694
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1702
 msgid "Compacting database"
 msgstr "Komprimerande databas"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1787
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1795
 msgid "Checking SQL integrity..."
 msgstr "Kontrollerar SQL integritet ..."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1824
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1832
 msgid "Checking for missing files."
 msgstr "Kontroll av saknade filer."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1846
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1854
 msgid "Checked id"
 msgstr "Kontrollerad id"
 
@@ -8376,8 +8384,8 @@ msgstr ""
 "Varje länk som matchar det reguljära uttrycket kommer att ignoreras. Detta "
 "alternativ kan anges flera gånger, i vilket fall så länge något regexp "
 "matchar en länk, blir det ignorat.Grundinställning är att inga länkar "
-"ignoreras. Om både --filter-regexp och --match-regexp anges så används "
-"--filter-regexp först."
+"ignoreras. Om både --filter-regexp och --match-regexp anges så används  --"
+"filter-regexp först."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:481
 msgid "Do not download CSS stylesheets."
