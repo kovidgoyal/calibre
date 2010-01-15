@@ -36,8 +36,8 @@ class PRS505(CLI, Device):
 
     VENDOR_NAME        = 'SONY'
     WINDOWS_MAIN_MEM   = re.compile('PRS-(505|300|500)')
-    WINDOWS_CARD_A_MEM = re.compile(r'PRS-(505|500)/\S+:MS')
-    WINDOWS_CARD_B_MEM = re.compile(r'PRS-(505|500)/\S+:SD')
+    WINDOWS_CARD_A_MEM = re.compile(r'PRS-(505|500)[#/]\S+:MS')
+    WINDOWS_CARD_B_MEM = re.compile(r'PRS-(505|500)[#/]\S+:SD')
 
     OSX_MAIN_MEM   = re.compile(r'Sony PRS-(((505|300|500)/[^:]+)|(300)) Media')
     OSX_CARD_A_MEM = re.compile(r'Sony PRS-(505|500)/[^:]+:MS Media')
@@ -219,9 +219,9 @@ class PRS700(PRS505):
 
     BCD          = [0x31a]
 
-    WINDOWS_MAIN_MEM = re.compile('PRS-((700/)|((6|9)00&))')
-    WINDOWS_CARD_A_MEM = re.compile(r'PRS-((700/\S+:)|((6|9)00_))MS')
-    WINDOWS_CARD_B_MEM = re.compile(r'PRS-((700/\S+:)|((6|9)00_))SD')
+    WINDOWS_MAIN_MEM = re.compile('PRS-((700[#/])|((6|9)00&))')
+    WINDOWS_CARD_A_MEM = re.compile(r'PRS-((700[/#]\S+:)|((6|9)00[#_]))MS')
+    WINDOWS_CARD_B_MEM = re.compile(r'PRS-((700[/#]\S+:)|((6|9)00[#_]))SD')
 
     OSX_MAIN_MEM   = re.compile(r'Sony PRS-((700/[^:]+)|((6|9)00)) Media')
     OSX_CARD_A_MEM = re.compile(r'Sony PRS-((700/[^:]+:)|((6|9)00 ))MS Media')
