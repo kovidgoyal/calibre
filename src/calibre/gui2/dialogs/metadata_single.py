@@ -430,9 +430,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.authors.setText(title)
         self.author_sort.setText('')
 
-    def cover_dropped(self, paths):
+    def cover_dropped(self, cover_data):
         self.cover_changed = True
-        self.cover_data = self.cover.cover_data
+        self.cover_data = cover_data
 
     def initialize_combos(self):
         self.initalize_authors()
