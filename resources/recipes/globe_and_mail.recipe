@@ -44,7 +44,7 @@ class GlobeAndMail(BasicNewsRecipe):
 		dict(name='div', attrs={'id':'blog-header'}),
 		dict(name='div', attrs={'id':'right-rail'}),
 		dict(name='div', attrs={'id':'group-footer-container'}),
-		dict(name=['iframe','img'])
+		dict(name=['iframe'])
 		]
     remove_tags_after = [{'id':['article-content']},
 		{'class':['pull','inline-img'] },
