@@ -97,7 +97,12 @@ def generate_calibredb_help(preamble, info):
 
     lines, toc = [], []
     for cmd in COMMANDS:
-        parser = getattr(cli, cmd+'_option_parser')()
+        args = []
+        if cmd == 'catalog':
+            args = [['doc.xml', '-h']]
+        parser = getattr(cli, cmd+'_option_parser')(*args)
+        if cmd == 'catalog':
+            parser = parser[0]
         toc.append('  * :ref:`calibredb-%s`'%cmd)
         lines += ['.. _calibredb-'+cmd+':', '']
         lines += [cmd, '~'*20, '']
