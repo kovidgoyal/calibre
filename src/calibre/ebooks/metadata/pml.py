@@ -16,6 +16,7 @@ import re
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.zipfile import ZipFile
+from calibre import prepare_string_for_xml
 
 def get_metadata(stream, extract_cover=True):
     """ Return metadata as a L{MetaInfo} object """
@@ -42,21 +43,21 @@ def get_metadata(stream, extract_cover=True):
     for comment in re.findall(r'(?mus)\\v.*?\\v', pml):
         m = re.search(r'TITLE="(.*?)"', comment)
         if m:
-            mi.title = m.group(1).strip().decode('cp1252', 'replace')
+            mi.title = re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
         m = re.search(r'AUTHOR="(.*?)"', comment)
         if m:
             if mi.authors == [_('Unknown')]:
                 mi.authors = []
-            mi.authors.append(m.group(1).strip().decode('cp1252', 'replace'))
+            mi.authors.append(re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace'))))
         m = re.search(r'PUBLISHER="(.*?)"', comment)
         if m:
-            mi.publisher = m.group(1).strip().decode('cp1252', 'replace')
+            mi.publisher = re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
         m = re.search(r'COPYRIGHT="(.*?)"', comment)
         if m:
-            mi.rights = m.group(1).strip().decode('cp1252', 'replace')
+            mi.rights = re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
         m = re.search(r'ISBN="(.*?)"', comment)
         if m:
-            mi.isbn = m.group(1).strip().decode('cp1252', 'replace')
+            mi.isbn = re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
 
     return mi
 
