@@ -1769,7 +1769,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                       '<a href="%s">DRM</a>ed book. You must first remove the '
                       'DRM using third party tools.')%\
                         (job.description.split(':')[-1],
-                            'http://wiki.mobileread.com/wiki/DRM'))
+                            'http://bugs.calibre-ebook.com/wiki/DRM'))
                 d.setModal(False)
                 d.show()
                 self._modeless_dialogs.append(d)

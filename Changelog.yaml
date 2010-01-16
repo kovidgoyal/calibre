@@ -16,6 +16,8 @@
     - title: "Autofit covers in available space when viewing book details (can be turned off)"
       tickets: [4536]
 
+    - title: "Tips for recipe writers added to the wiki at http://bugs.calibre-ebook.com/wiki/RecipeTips"
+
   bug fixes:
     - title: "Switch to non WMI based method of detecting devices on windows"
       type: major
@@ -49,8 +51,6 @@
 
     - title: "Fix detection of CyBook Gen 3 with firmware 2 on OS X"
       tickets: [4521]
-
-
 
   new recipes:
     - title: MSNBC
