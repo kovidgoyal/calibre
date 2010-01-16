@@ -6,7 +6,7 @@ class NewZealandHerald(BasicNewsRecipe):
     __author__  = 'Krittika Goyal'
     description = 'Daily news'
     timefmt = ' [%d %b, %Y]'
-    language = 'en_AU'
+    language = 'en_NZ'
 
     no_stylesheets = True
     remove_tags_before = dict(name='div', attrs={'class':'contentContainer left eight'})

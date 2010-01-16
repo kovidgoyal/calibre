@@ -1,0 +1,50 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+class stuffconz(BasicNewsRecipe):
+    title          = u'stuff.co.nz'
+    language       = 'en_NZ'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 1 #days
+    max_articles_per_feed = 25
+    #encoding = 'latin1'
+
+    remove_stylesheets = True
+    #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
+    remove_tags_after  = dict(name='div', attrs={'id':'related_box'})
+    remove_tags = [
+       dict(name='iframe'),
+       dict(name='div', attrs={'class':['story_feature_title']}),
+       dict(name='div', attrs={'id':['toolbox', 'related_box', 'adSTORYBODY']}),
+       dict(name='span', attrs={'class':['related_link', 'slideshowcontrols']}),
+       #dict(name='ul', attrs={'class':'articleTools'}),
+    ]
+
+    feeds          = [
+('Dominion Post',
+ 'http://www.stuff.co.nz/rss/dominion-post'),
+('National',
+ 'http://www.stuff.co.nz/rss/national'),
+('World',
+ 'http://www.stuff.co.nz/rss/world'),
+('Business',
+ 'http://www.stuff.co.nz/rss/business'),
+('Technology',
+ 'http://www.stuff.co.nz/rss/technology'),
+('Sport',
+ 'http://www.stuff.co.nz/rss/sport'),
+('Entertainment',
+ 'http://www.stuff.co.nz/rss/entertainment'),
+('Life and Style',
+ 'http://www.stuff.co.nz/rss/life-style'),
+
+]
+
+    def preprocess_html(self, soup):
+        story = soup.find(name='div', attrs={'id':'left_col'})
+        #td = heading.findParent(name='td')
+        #td.extract()
+        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
+        body = soup.find(name='body')
+        body.insert(0, story)
+        return soup
