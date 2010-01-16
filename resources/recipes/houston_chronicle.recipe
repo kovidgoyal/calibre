@@ -5,7 +5,7 @@ class HoustonChronicle(BasicNewsRecipe):
     title          = u'The Houston Chronicle'
     description    = 'News from Houston, Texas'
     __author__	   = 'Kovid Goyal'
-    language       = 'US'
+    language       = 'en'
     timefmt        = ' [%a, %d %b, %Y]'
     no_stylesheets = True
 

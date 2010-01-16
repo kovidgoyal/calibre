@@ -55,7 +55,7 @@ class CSV_XML(CatalogPlugin):
                 log("  %s: %s" % (key, opts_dict[key]))
 
         # Get the sorted, filtered database as a dictionary
-        data = self.search_sort_db_as_dict(db, opts)
+        data = self.search_sort_db(db, opts)
 
         if not len(data):
             log.error("\nNo matching database entries for search criteria '%s'" % opts.search_text)

@@ -12,6 +12,7 @@ class weltDe(BasicNewsRecipe):
 
     title = 'Weltonline'
     description = 'german newspaper'
+    language = 'de'
     __author__ = 'Oliver Niesner'
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'

@@ -92,6 +92,9 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
     if as_unicode:
         one = one.decode(filesystem_encoding)
     one = one.replace('..', substitute)
+    # Windows doesn't like path components that end with a period
+    if one.endswith('.'):
+        one = one[:-1]+'_'
     return one
 
 
@@ -448,6 +451,8 @@ if isosx:
         traceback.print_exc()
 
 def ipython(user_ns=None):
+    old_argv = sys.argv
+    sys.argv = ['ipython']
     if user_ns is None:
         user_ns = locals()
     from calibre.utils.config import config_dir
@@ -511,5 +516,6 @@ main()
     from IPython.Shell import IPShellEmbed
     ipshell = IPShellEmbed(user_ns=user_ns)
     ipshell()
+    sys.argv = old_argv
 
 

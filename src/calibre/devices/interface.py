@@ -60,7 +60,8 @@ class DevicePlugin(Plugin):
             import traceback
             traceback.print_exc()
 
-    def is_usb_connected_windows(self, devices_on_system, debug=False):
+    def is_usb_connected_windows(self, devices_on_system, debug=False,
+            only_presence=False):
 
         def id_iterator():
             if hasattr(self.VENDOR_ID, 'keys'):
@@ -85,7 +86,7 @@ class DevicePlugin(Plugin):
                    self.test_bcd_windows(device_id, bcd):
                        if debug:
                            self.print_usb_device_info(device_id)
-                       if self.can_handle_windows(device_id, debug=debug):
+                       if only_presence or self.can_handle_windows(device_id, debug=debug):
                            return True
         return False
 
@@ -97,7 +98,8 @@ class DevicePlugin(Plugin):
                 return True
         return False
 
-    def is_usb_connected(self, devices_on_system, debug=False):
+    def is_usb_connected(self, devices_on_system, debug=False,
+            only_presence=False):
         '''
         Return True, device_info if a device handled by this plugin is currently connected.
 
@@ -105,7 +107,7 @@ class DevicePlugin(Plugin):
         '''
         if iswindows:
             return self.is_usb_connected_windows(devices_on_system,
-                    debug=debug), None
+                    debug=debug, only_presence=only_presence), None
 
         vendors_on_system = set([x[0] for x in devices_on_system])
         vendors = self.VENDOR_ID if hasattr(self.VENDOR_ID, '__len__') else [self.VENDOR_ID]

@@ -97,6 +97,7 @@ _extra_lang_codes = {
         'zh_TW' : _('Traditional Chinese'),
         'en'    : _('English'),
         'en_AU' : _('English (Australia)'),
+        'en_NZ' : _('English (New Zealand)'),
         'en_CA' : _('English (Canada)'),
         'en_IN' : _('English (India)'),
         'en_TH' : _('English (Thailand)'),

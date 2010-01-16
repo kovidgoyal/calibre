@@ -264,13 +264,21 @@ class EPUBOutput(OutputFormatPlugin):
             if body:
                 body = body[0]
 
-            # Add id attribute to <a> tags that have name
-            for x in XPath('//h:a[@name]')(body):
-                if not x.get('id', False):
-                    x.set('id', x.get('name'))
-
-            # Replace <br> that are children of <body> as ADE doesn't handle them
             if hasattr(body, 'xpath'):
+                # remove <img> tags with empty src elements
+                bad = []
+                for x in XPath('//h:img')(body):
+                    if not x.get('src', '').strip():
+                        bad.append(x)
+                for img in bad:
+                    img.getparent().remove(img)
+
+                # Add id attribute to <a> tags that have name
+                for x in XPath('//h:a[@name]')(body):
+                    if not x.get('id', False):
+                        x.set('id', x.get('name'))
+
+                # Replace <br> that are children of <body> as ADE doesn't handle them
                 for br in XPath('./h:br')(body):
                     if br.getparent() is None:
                         continue

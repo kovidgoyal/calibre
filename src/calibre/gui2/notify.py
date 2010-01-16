@@ -50,9 +50,13 @@ class KDENotifier(DBUSNotifier):
             replaces_id = self.dbus.UInt32()
         event_id = ''
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
-        self._notify.Notify('calibre', replaces_id, event_id, self.ICON, summary, body,
+        try:
+            self._notify.Notify('calibre', replaces_id, event_id, self.ICON, summary, body,
                 self.dbus.Array(signature='s'), self.dbus.Dictionary(signature='sv'),
                 timeout)
+        except:
+            import traceback
+            traceback.print_exc()
 
 class FDONotifier(DBUSNotifier):
 
@@ -64,9 +68,13 @@ class FDONotifier(DBUSNotifier):
         if replaces_id is None:
             replaces_id = self.dbus.UInt32()
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
-        self._notify.Notify('calibre', replaces_id, self.ICON, summary, body,
+        try:
+            self._notify.Notify('calibre', replaces_id, self.ICON, summary, body,
                 self.dbus.Array(signature='s'), self.dbus.Dictionary(signature='sv'),
                 timeout)
+        except:
+            import traceback
+            traceback.print_exc()
 
 class QtNotifier(Notifier):
 

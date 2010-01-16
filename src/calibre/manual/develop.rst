@@ -176,3 +176,32 @@ in your favorite editor and add the line::
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
 
+Debugging tips
+----------------
+
+Running calibre code in a python debugger is not easy, unless you install from source on linux. However, python is a
+dynamically typed language with excellent facilities for introspection. I wrote the core calibre code without once
+using a debugger. There are two main strategies to debug calibre code:
+
+Using an interactive python interpreter
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can insert the following two lines of code to start an interactive python session at that point::
+
+    from calibre import ipython
+    ipython(locals())
+
+When running from the command line, this will start an interactive python interpreter with access to all
+locally defined variables (variables in the local scope). The interactive prompt even has TAB completion
+for object properties and you can use the various python facilities for introspection, such as
+:function:`dir`, :function:`type`, :function:`repr`, etc.
+
+Using print statements
+^^^^^^^^^^^^^^^^^^^^^^^
+
+This is my favorite way to debug. Simply insert print statements at points of interest and run your program in the
+terminal. For example, you can start the GUI from the terminal as::
+
+    calibre-debug -g
+
+

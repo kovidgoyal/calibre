@@ -29,7 +29,7 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.view = view
         self.current_row = None
         self.fit_cover.setChecked(dynamic.get('book_info_dialog_fit_cover',
-            False))
+            True))
         self.refresh(row)
         self.connect(self.view.selectionModel(), SIGNAL('currentChanged(QModelIndex,QModelIndex)'), self.slave)
         self.connect(self.next_button, SIGNAL('clicked()'), self.next)

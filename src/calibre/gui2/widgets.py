@@ -14,7 +14,7 @@ from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QMenu, QStringListModel, QCompleter, QStringList
 
 from calibre.gui2 import human_readable, NONE, TableView, \
-                         qstring_to_unicode, error_dialog
+                         qstring_to_unicode, error_dialog, pixmap_to_data
 from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
@@ -178,8 +178,8 @@ class ImageView(QLabel):
             if not pmap.isNull():
                 self.setPixmap(pmap)
                 event.accept()
-                self.cover_data = open(path, 'rb').read()
-                self.emit(SIGNAL('cover_changed(PyQt_PyObject)'), paths)
+                self.emit(SIGNAL('cover_changed(PyQt_PyObject)'), open(path,
+                    'rb').read())
                 break
 
     def dragMoveEvent(self, event):
@@ -190,6 +190,29 @@ class ImageView(QLabel):
         width, height = fit_image(pixmap.width(), pixmap.height(), self.MAX_WIDTH, self.MAX_HEIGHT)[1:]
         self.setMaximumWidth(width)
         self.setMaximumHeight(height)
+
+    def contextMenuEvent(self, ev):
+        cm = QMenu(self)
+        copy = cm.addAction(_('Copy Image'))
+        paste = cm.addAction(_('Paste Image'))
+        if not QApplication.instance().clipboard().mimeData().hasImage():
+            paste.setEnabled(False)
+        copy.triggered.connect(self.copy_to_clipboard)
+        paste.triggered.connect(self.paste_from_clipboard)
+        cm.exec_(ev.globalPos())
+
+    def copy_to_clipboard(self):
+        QApplication.instance().clipboard().setPixmap(self.pixmap())
+
+    def paste_from_clipboard(self):
+        cb = QApplication.instance().clipboard()
+        pmap = cb.pixmap()
+        if pmap.isNull() and cb.supportsSelection():
+            pmap = cb.pixmap(cb.Selection)
+        if not pmap.isNull():
+            self.setPixmap(pmap)
+            self.emit(SIGNAL('cover_changed(PyQt_PyObject)'),
+                    pixmap_to_data(pmap))
 
 
 class LocationModel(QAbstractListModel):

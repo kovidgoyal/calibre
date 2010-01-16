@@ -1,0 +1,58 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+msnbc.msn.com
+'''
+
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class MsNBC(BasicNewsRecipe):
+    title                  = 'msnbc.com'
+    __author__             = 'Darko Miletic'
+    description            = 'A Fuller Spectrum of News'
+    oldest_article         = 2
+    max_articles_per_feed  = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
+    encoding               = 'utf8'
+    publisher              = 'msnbc.com'
+    category               = 'news, USA, world'
+    language               = 'en'
+    extra_css              = ' body{ font-family: sans-serif } .head{font-family: serif; font-size: xx-large; font-weight: bold; color: #CC0000} .abstract{font-weight: bold} .source{font-size: small} .updateTime{font-size: small} '
+
+    conversion_options = {
+                             'comments' : description
+                            ,'tags'     : category
+                            ,'language' : language
+                            ,'publisher': publisher
+                         }
+
+    preprocess_regexps = [
+        (re.compile(r'</style></head>', re.DOTALL|re.IGNORECASE),lambda match: '</style>')
+       ,(re.compile(r'<div class="head">', re.DOTALL|re.IGNORECASE),lambda match: '</head><body><div class="head">'),
+    ]
+
+    remove_tags_before = dict(name='div', attrs={'class':'head'})
+    remove_tags_after = dict(name='div', attrs={'class':'copyright'})
+    remove_tags      = [dict(name=['iframe','object','link','script','form'])]
+
+    feeds = [
+               (u'US News'       , u'http://rss.msnbc.msn.com/id/3032524/device/rss/rss.xml'      )
+              ,(u'World News'    , u'http://rss.msnbc.msn.com/id/3032506/device/rss/rss.xml'      )
+              ,(u'Politics'      , u'http://rss.msnbc.msn.com/id/3032552/device/rss/rss.xml'      )
+              ,(u'Business'      , u'http://rss.msnbc.msn.com/id/3032071/device/rss/rss.xml'      )
+              ,(u'Sports'        , u'http://rss.nbcsports.msnbc.com/id/3032112/device/rss/rss.xml')
+              ,(u'Entertainment' , u'http://rss.msnbc.msn.com/id/3032083/device/rss/rss.xml'      )
+              ,(u'Health'        , u'http://rss.msnbc.msn.com/id/3088327/device/rss/rss.xml'      )
+              ,(u'Tech & Science', u'http://rss.msnbc.msn.com/id/3032117/device/rss/rss.xml'      )
+            ]
+
+    def print_version(self, url):
+        return url + 'print/1/displaymode/1098/'
+
+    def preprocess_html(self, soup):
+        for item in soup.head.findAll('div'):
+            item.extract()
+        return soup
+

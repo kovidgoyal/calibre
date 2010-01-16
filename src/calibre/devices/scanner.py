@@ -139,8 +139,11 @@ class DeviceScanner(object):
         '''Fetch list of connected USB devices from operating system'''
         self.devices = self.scanner()
 
-    def is_device_connected(self, device, debug=False):
-        return device.is_usb_connected(self.devices, debug=debug)
+    def is_device_connected(self, device, debug=False, only_presence=False):
+        ''' If only_presence is True don't perform any expensive checks (used
+        only in windows)'''
+        return device.is_usb_connected(self.devices, debug=debug,
+                only_presence=only_presence)
 
 
 def main(args=sys.argv):

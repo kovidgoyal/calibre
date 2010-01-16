@@ -42,7 +42,7 @@ class ZeitDe(BasicNewsRecipe):
                 .headline iconportrait_inline{font-family:Arial,Helvetica,sans-serif;font-size:x-small}
                 '''
     #filter_regexps = [r'ad.de.doubleclick.net/']
-    
+
     keep_only_tags = [
                         dict(name='div', attrs={'class':["article"]}) ,
                          ]
@@ -52,32 +52,32 @@ class ZeitDe(BasicNewsRecipe):
                      dict(name='div', attrs={'id':["place_5","place_4"]})
                   ]
 
-    
+
 
     def get_article_url(self, article):
-         
+
         ans = article.get('guid',None)
-        
+
         try:
             self.log('Looking for full story link in', ans)
             soup = self.index_to_soup(ans)
             x = soup.find(text="Auf einer Seite lesen")
-            
+
             if x is not None:
-                
+
                 a = x.parent
                 if a and a.has_key('href'):
                     ans = a['href']
                     self.log('Found full story link', ans)
         except:
             pass
-        
+
         if 'video' in ans or 'quiz' in ans :
 
               ans = None
         return ans
-         
-    
+
+
 
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = self.lang
@@ -87,7 +87,7 @@ class ZeitDe(BasicNewsRecipe):
 
         return soup
 
-   
+
     #def print_version(self,url):
     #    return url.replace('http://www.zeit.de/', 'http://images.zeit.de/text/').replace('?from=rss', '')
 

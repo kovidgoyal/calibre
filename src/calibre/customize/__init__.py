@@ -249,7 +249,7 @@ class CatalogPlugin(Plugin):
 
     cli_options = []
 
-    def search_sort_db_as_dict(self, db, opts):
+    def search_sort_db(self, db, opts):
         if opts.search_text:
             db.search(opts.search_text)
         if opts.sort_by:

@@ -8,6 +8,7 @@ class NYTimes(BasicNewsRecipe):
     description = 'Canadian national newspaper'
     timefmt = ' [%d %b, %Y]'
     needs_subscription = False
+    language = 'en_CA'
 
     no_stylesheets = True
     #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
