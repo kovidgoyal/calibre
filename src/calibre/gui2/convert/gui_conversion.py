@@ -20,3 +20,20 @@ def gui_convert(input, output, recommendations, notification=DummyReporter(),
 
     plumber.run()
 
+def gui_catalog(fmt, title, dbspec, ids, out_file_name,
+        notification=DummyReporter(), log=None):
+    if log is None:
+        log = Log()
+    if dbspec is None:
+        from calibre.utils.config import prefs
+        from calibre.library.database2 import LibraryDatabase2
+        dbpath = prefs['library_path']
+        db = LibraryDatabase2(dbpath)
+    else: # To be implemented in the future
+        pass
+    # Implement the interface to the catalog generating code here
+    db
+
+
+
+

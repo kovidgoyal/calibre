@@ -236,6 +236,24 @@ def fetch_scheduled_recipe(arg):
 
     return 'gui_convert', args, _('Fetch news from ')+arg['title'], fmt.upper(), [pt]
 
+def generate_catalog(parent, dbspec, ids):
+    from calibre.gui2.dialogs.catalog import Catalog
+    d = Catalog(parent, dbspec, ids)
+    if d.exec_() != d.Accepted:
+        return None
+    out = PersistentTemporaryFile(suffix='_catalog_out.'+d.catalog_format.lower())
+    args = [
+        d.catalog_format,
+        d.catalog_title,
+        dbspec,
+        ids,
+        out.name,
+        ]
+    out.close()
+
+    return 'gui_catalog', args, _('Generate catalog'), out.name, d.catalog_sync, \
+            d.catalog_title
+
 def convert_existing(parent, db, book_ids, output_format):
     already_converted_ids = []
     already_converted_titles = []
