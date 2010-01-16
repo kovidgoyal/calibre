@@ -134,7 +134,8 @@ class DeviceManager(Thread):
         self.scanner.scan()
         if self.is_device_connected:
             connected, detected_device = \
-                self.scanner.is_device_connected(self.connected_device)
+                self.scanner.is_device_connected(self.connected_device,
+                        only_presence=True)
             if not connected:
                 self.connected_device_removed()
         else:
