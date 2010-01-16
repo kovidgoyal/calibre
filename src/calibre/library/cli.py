@@ -645,7 +645,9 @@ def catalog_option_parser(args):
 
     # Add options common to all catalog plugins
     parser.add_option('-s', '--search', default=None, dest='search_text',
-                      help=_("Filter the results by the search query.  For the format of the search query, please see the search-related documentation in the User Manual.\n"+
+                      help=_("Filter the results by the search query. "
+                          "For the format of the search query, please see "
+                          "the search-related documentation in the User Manual.\n"
                       "Default: no filtering"))
     parser.add_option('-v','--verbose', default=False, action='store_true',
                       dest='verbose',
