@@ -1,0 +1,82 @@
+#!/usr/bin/env  python
+__license__     = 'GPL v3'
+__author__      = 'Lorenzo Vigentini'
+__copyright__   = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
+__version__     = 'v1.01'
+__date__        = '14, January 2010'
+__description__ = 'MacVideo is an independent journal not affiliated with Apple Computer, It is a publication of IDG Communication focusing on video production and editing.'
+
+'''
+http://www.macvideo.tv/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+
+temp_files = []
+articles_are_obfuscated = True
+
+class macVideo(BasicNewsRecipe):
+    __author__    = 'Lorenzo Vigentini'
+    description   = 'MacVideo is an independent journal not affiliated with Apple Computer, It is a publication of IDG Communication focusing on video production and editing.'
+    cover_url     = 'http://www.macvideo.tv/images/shared/macvideo-logo.jpg'
+
+    title          = 'MacVideo '
+    publisher      = 'IDG Communication'
+    category       = 'Apple, Mac, video, computing, product reviews, editing, cameras, production'
+
+    language       = 'en'
+    encoding       = 'cp1252'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article        = 30
+    max_articles_per_feed = 25
+    use_embedded_content  = False
+    recursion             = 10
+
+    remove_javascript     = True
+    no_stylesheets        = True
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        br.open(url+'&print')
+
+        response = br.follow_link(url, nr = 0)
+        html = response.read()
+
+        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+        self.temp_files[-1].write(html)
+        self.temp_files[-1].close()
+        return self.temp_files[-1].name
+
+    keep_only_tags     = [
+                            dict(name='div', attrs={'id':'mainContent'})
+                        ]
+
+    remove_tags        = [
+                            dict(name='div', attrs={'class':['submissionBar','mpuContainer']}),
+                            dict(name='p', attrs={'class':'articlePag'}),
+                            dict(name='ul', attrs={'id':'articleIconsList'})
+                        ]
+
+    feeds          = [
+                       (u'News', u'http://www.macvideo.tv/rss/feeds/macvideo-news.xml'),
+                       (u'Reviews', u'http://www.macvideo.tv/rss/feeds/macvideo-reviews.xml'),
+                       (u'Interviews', u'http://www.macvideo.tv/rss/feeds/macvideo-features-interviews.xml'),
+                       (u'Features', u'http://www.macvideo.tv/rss/feeds/macvideo-features-features.xml'),
+                       (u'Rick Young', u'http://www.macvideo.tv/rss/feeds/blog100140.xml'),
+                       (u'Matt Davis', u'http://www.macvideo.tv/rss/feeds/blog101658.xml'),
+                       (u'Adrian Miskelly', u'http://www.macvideo.tv/rss/feeds/blog101750.xml')
+                     ]
+
+    extra_css = '''
+                h1 {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:20px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:18px;}
+                h2 {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:18px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:16px; }
+                h3 {color:#333333;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px;}
+                h4 {color:#333333; font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; }
+                h5 {color:#333333; font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:12px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; text-transform:uppercase;}
+                .newsdate {color:#333333;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:italic; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
+                .author {color:#333333;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:bold; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
+                p {font-family:Arial,Helvetica,sans-serif; font-size:10px;}
+                img {align:left;}
+                '''
