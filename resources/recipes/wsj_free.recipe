@@ -1,0 +1,261 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+
+'''
+online.wsj.com.com
+'''
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class WSJ(BasicNewsRecipe):
+    # formatting adapted from original recipe by Kovid Goyal and Sujata Raman
+    title          = u'Wall Street Journal (free)'
+    __author__     = 'Nick Redding'
+    language = 'en'
+    description = ('All the free content from the Wall Street Journal (business'
+            ', financial and political news)')
+    no_stylesheets = True
+    timefmt = ' [%b %d]'
+    extra_css   = '''h1{font-size:large; font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif;}
+                    h2{font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif; font-size:small; font-style:italic;}
+                    .subhead{font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif; font-size:small; font-style:italic;}
+                    .insettipUnit {font-family:Arial,Sans-serif;font-size:xx-small;}
+                    .targetCaption{font-size:x-small; font-family:Arial,Helvetica,sans-serif;}
+                    .article{font-family :Arial,Helvetica,sans-serif; font-size:x-small;}
+                    .tagline { ont-size:xx-small;}
+                    .dateStamp {font-family:Arial,Helvetica,sans-serif;}
+                    h3{font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
+                    .byline {font-family:Arial,Helvetica,sans-serif; font-size:xx-small; list-style-type: none;}
+                    .metadataType-articleCredits {list-style-type: none;}
+                    h6{ font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif; font-size:small;font-style:italic;}
+                    .paperLocation{font-size:xx-small;}'''
+
+    remove_tags_before = dict(name='h1')
+    remove_tags =   [   dict(id=["articleTabs_tab_article", "articleTabs_tab_comments",
+                                 "articleTabs_tab_interactive","articleTabs_tab_video",
+                                 "articleTabs_tab_map","articleTabs_tab_slideshow"]),
+			{'class':['footer_columns','network','insetCol3wide','interactive','video','slideshow','map',
+			'insettip','insetClose','more_in', "insetContent", 'articleTools_bottom', 'aTools', 'tooltip',
+			'adSummary', 'nav-inline','insetFullBracket']},
+                        dict(rel='shortcut icon'),
+                    ]
+    remove_tags_after = [dict(id="article_story_body"), {'class':"article story"}]
+
+
+    def preprocess_html(self,soup):
+        # This gets rid of the annoying superfluous bullet symbol preceding columnist bylines
+        ultag = soup.find('ul',attrs={'class' : 'cMetadata metadataType-articleCredits'})
+        if ultag:
+            a = ultag.h3
+            if a:
+                ultag.replaceWith(a)
+        return soup
+
+    def parse_index(self):
+
+        articles = {}
+        key = None
+        ans = []
+
+        def parse_index_page(page_name,page_title,omit_paid_content):
+
+            def article_title(tag):
+                atag = tag.find('h2') # title is usually in an h2 tag
+                if not atag: # if not, get text from the a tag
+                    atag = tag.find('a',href=True)
+                    if not atag:
+                        return ''
+                    t = self.tag_to_string(atag,False)
+                    if t == '':
+                        # sometimes the title is in the second a tag
+                        atag.extract()
+                        atag = tag.find('a',href=True)
+                        if not atag:
+                            return ''
+                        return self.tag_to_string(atag,False)
+                    return t
+                return self.tag_to_string(atag,False)
+
+            def article_author(tag):
+                atag = tag.find('strong') # author is usually in a strong tag
+                if not atag:
+                     atag = tag.find('h4') # if not, look for an h4 tag
+                     if not atag:
+                         return ''
+                return self.tag_to_string(atag,False)
+
+            def article_summary(tag):
+                atag = tag.find('p')
+                if not atag:
+                    return ''
+                subtag = atag.strong
+                if subtag:
+                    subtag.extract()
+                return self.tag_to_string(atag,False)
+
+            def article_url(tag):
+                atag = tag.find('a',href=True)
+                if not atag:
+                    return ''
+                url = re.sub(r'\?.*', '', atag['href'])
+                return url
+
+            def handle_section_name(tag):
+                # turns a tag into a section name with special processing
+                # for Wat's News, U.S., World & U.S. and World
+                s = self.tag_to_string(tag,False)
+                if ("What" in s) and ("News" in s):
+                    s = "What's News"
+                elif (s == "U.S.") or (s == "World & U.S.") or (s == "World"):
+                    s = s + " News"
+                return s
+
+
+
+            mainurl = 'http://online.wsj.com'
+            pageurl = mainurl+page_name
+            #self.log("Page url %s" % pageurl)
+            soup = self.index_to_soup(pageurl)
+            # Find each instance of div with class including "headlineSummary"
+            for divtag in soup.findAll('div',attrs={'class' : re.compile("^headlineSummary")}):
+
+                # divtag contains all article data as ul's and li's
+                # first, check if there is an h3 tag which provides a section name
+                stag = divtag.find('h3')
+                if stag:
+                    if stag.parent['class'] == 'dynamic':
+                        # a carousel of articles is too complex to extract a section name
+                        # for each article, so we'll just call the section "Carousel"
+                        section_name = 'Carousel'
+                    else:
+                        section_name = handle_section_name(stag)
+                else:
+                    section_name = "What's News"
+                #self.log("div Section %s" % section_name)
+                # find each top-level ul in the div
+                # we don't restrict to class = newsItem because the section_name
+                # sometimes changes via a ul tag inside the div
+                for ultag in divtag.findAll('ul',recursive=False):
+                    stag = ultag.find('h3')
+                    if stag:
+                        if stag.parent.name == 'ul':
+                            # section name has changed
+                            section_name = handle_section_name(stag)
+                            #self.log("ul Section %s" % section_name)
+                            # delete the h3 tag so it doesn't get in the way
+                            stag.extract()
+                    # find each top level li in the ul
+                    for litag in ultag.findAll('li',recursive=False):
+                        stag = litag.find('h3')
+                        if stag:
+                            # section name has changed
+                            section_name = handle_section_name(stag)
+                            #self.log("li Section %s" % section_name)
+                            # delete the h3 tag so it doesn't get in the way
+                            stag.extract()
+                        # if there is a ul tag inside the li it is superfluous;
+                        # it is probably a list of related articles
+                        utag = litag.find('ul')
+                        if utag:
+                            utag.extract()
+                        # now skip paid subscriber articles if desired
+                        subscriber_tag = litag.find(text="Subscriber Content")
+                        if subscriber_tag:
+                                if omit_paid_content:
+                                    continue
+                                # delete the tip div so it doesn't get in the way
+                                tiptag = litag.find("div", { "class" : "tipTargetBox" })
+                                if tiptag:
+                                    tiptag.extract()
+                        h1tag = litag.h1
+                        # if there's an h1 tag, it's parent is a div which should replace
+                        # the li tag for the analysis
+                        if h1tag:
+                            litag = h1tag.parent
+                        h5tag = litag.h5
+                        if h5tag:
+                            # section mame has changed
+                            section_name = self.tag_to_string(h5tag,False)
+                            #self.log("h5 Section %s" % section_name)
+                            # delete the h5 tag so it doesn't get in the way
+                            h5tag.extract()
+                        url = article_url(litag)
+                        if url == '':
+                            continue
+                        if url.startswith("/article"):
+                            url = mainurl+url
+                        if not url.startswith("http"):
+                            continue
+                        if not url.endswith(".html"):
+                            continue
+                        if 'video' in url:
+                            continue
+                        title = article_title(litag)
+                        if title == '':
+                            continue
+                        #self.log("URL %s" % url)
+                        #self.log("Title %s" % title)
+                        pubdate = ''
+                        #self.log("Date %s" % pubdate)
+                        author = article_author(litag)
+                        if author == '':
+                            author = section_name
+                        elif author == section_name:
+                            author = ''
+                        else:
+                            author = section_name+': '+author
+                        #if not author == '':
+                        #    self.log("Author %s" % author)
+                        description = article_summary(litag)
+                        #if not description == '':
+                        #    self.log("Description %s" % description)
+                        if not articles.has_key(page_title):
+                            articles[page_title] = []
+                        articles[page_title].append(dict(title=title,url=url,date=pubdate,description=description,author=author,content=''))
+
+        # customization notes: delete sections you are not interested in
+        # set omit_paid_content to False if you want the paid content article previews
+        sectionlist = ['Front Page','Commentary','World News','US News','Business','Markets',
+                       'Technology','Personal Finance','Life & Style','Real Estate','Careers','Small Business']
+        omit_paid_content = True
+
+        if 'Front Page' in sectionlist:
+            parse_index_page('/home-page','Front Page',omit_paid_content)
+            ans.append('Front Page')
+        if 'Commentary' in sectionlist:
+            parse_index_page('/public/page/news-opinion-commentary.html','Commentary',omit_paid_content)
+            ans.append('Commentary')
+        if 'World News' in sectionlist:
+            parse_index_page('/public/page/news-global-world.html','World News',omit_paid_content)
+            ans.append('World News')
+        if 'US News' in sectionlist:
+            parse_index_page('/public/page/news-world-business.html','US News',omit_paid_content)
+            ans.append('US News')
+        if 'Business' in sectionlist:
+            parse_index_page('/public/page/news-business-us.html','Business',omit_paid_content)
+            ans.append('Business')
+        if 'Markets' in sectionlist:
+            parse_index_page('/public/page/news-financial-markets-stock.html','Markets',omit_paid_content)
+            ans.append('Markets')
+        if 'Technology' in sectionlist:
+            parse_index_page('/public/page/news-tech-technology.html','Technology',omit_paid_content)
+            ans.append('Technology')
+        if 'Personal Finance' in sectionlist:
+            parse_index_page('/public/page/news-personal-finance.html','Personal Finance',omit_paid_content)
+            ans.append('Personal Finance')
+        if 'Life & Style' in sectionlist:
+            parse_index_page('/public/page/news-lifestyle-arts-entertainment.html','Life & Style',omit_paid_content)
+            ans.append('Life & Style')
+        if 'Real Estate' in sectionlist:
+            parse_index_page('/public/page/news-real-estate-homes.html','Real Estate',omit_paid_content)
+            ans.append('Real Estate')
+        if 'Careers' in sectionlist:
+            parse_index_page('/public/page/news-career-jobs.html','Careers',omit_paid_content)
+            ans.append('Careers')
+        if 'Small Business' in sectionlist:
+            parse_index_page('/public/page/news-small-business-marketing.html','Small Business',omit_paid_content)
+            ans.append('Small Business')
+
+        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
+        return ans
