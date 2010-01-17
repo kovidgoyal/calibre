@@ -25,7 +25,6 @@ class ledevoir(BasicNewsRecipe):
     encoding       = 'utf-8'
     timefmt        = '[%a, %d %b, %Y]'
 
-    oldest_article = 1
     max_articles_per_feed = 50
     use_embedded_content  = False
     recursion             = 10
