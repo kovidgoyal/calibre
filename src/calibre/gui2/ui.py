@@ -31,7 +31,7 @@ from calibre.utils.ipc.server import Server
 from calibre.gui2 import warning_dialog, choose_files, error_dialog, \
                             question_dialog,\
                            pixmap_to_data, choose_dir, \
-                           Dispatcher, \
+                           Dispatcher, gprefs, \
                            available_height, \
                            max_available_height, config, info_dialog, \
                            available_width, GetMetadata
@@ -518,7 +518,21 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.library_view.model(), SIGNAL('count_changed(int)'),
                      self.tags_view.recount)
         self.connect(self.search, SIGNAL('cleared()'), self.tags_view.clear)
+        if not gprefs.get('quick_start_guide_added', False):
+            from calibre.ebooks.metadata import MetaInformation
+            mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
+            mi.author_sort = 'Schember, John'
+            mi.comments = "A guide to get you up an running with calibre"
+            mi.publisher = 'calibre'
+            self.library_view.model().add_books([P('quick_start.epub')], ['epub'],
+                    [mi])
+            gprefs['quick_start_guide_added'] = True
+            self.library_view.model().books_added(1)
+            if hasattr(self, 'db_images'):
+                self.db_images.reset()
+
         self.library_view.model().count_changed()
+
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
@@ -1007,7 +1021,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if not books:
             return
         self._add_books(books, to_device)
-
 
     def _add_books(self, paths, to_device, on_card=None):
         if on_card is None:

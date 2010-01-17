@@ -1,29 +1,38 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class NrcNextRecipe(BasicNewsRecipe):
-    __license__   = 'GPL v3'
+    __license__  = 'GPL v3'
     __author__ = 'kwetal'
-    version = 1
     language = 'nl'
+    country = 'NL'
+    version = 2
+
+    title = u'nrcnext'
+    publisher = u'NRC Media'
+    category = u'News, Opinion, the Netherlands'
     description = u'Dutch newsblog from the Dutch daily newspaper nrcnext.'
-    title          = u'nrcnext'
+
+    conversion_options = {'comments': description, 'language': language, 'publisher': publisher}
 
     no_stylesheets = True
-    template_css = ''
+    remove_javascript = True
 
-    # I want to do some special processing on the articles. I could not solve it with the 'extra_css' property . So we do it the hard way.
     keep_only_tags = [dict(name='div', attrs={'id' : 'main'})]
-    # If that's overkill for you comment out the previous line and uncomment the next. Then get rid of the preprocess_html() method.
-    #keep_only_tags = [dict(name='div', attrs={'class' : 'post'}), dict(name='div', attrs={'class' : 'vlag'}) ]
 
-    remove_tags = [dict(name = 'div', attrs = {'class' : 'meta'}),
-                          dict(name = 'div', attrs = {'class' : 'datumlabel'}),
-                          dict(name = 'ul', attrs = {'class' : 'cats single'}),
-                          dict(name = 'ul', attrs = {'class' : 'cats onderwerpen'}),
-                          dict(name = 'ul', attrs = {'class' : 'cats rubrieken'})]
+    remove_tags = []
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'meta'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'datumlabel'}))
+    remove_tags.append(dict(name = 'ul', attrs = {'class' : 'cats single'}))
+    remove_tags.append(dict(name = 'ul', attrs = {'class' : 'cats onderwerpen'}))
+    remove_tags.append(dict(name = 'ul', attrs = {'class' : 'cats rubrieken'}))
 
-    use_embedded_content = False
+    extra_css = '''
+                body {font-family: verdana, arial, helvetica, geneva, sans-serif; text-align: left;}
+                p.wp-caption-text {font-size: x-small; color: #666666;}
+                h2.sub_title {font-size: medium; color: #696969;}
+                h2.vlag {font-size: small; font-weight: bold;}
+                '''
 
     def parse_index(self) :
         # Use the wesbite as an index. Their RSS feeds can be out of date.
@@ -44,10 +53,11 @@ class NrcNextRecipe(BasicNewsRecipe):
                 # Find the links to the actual articles and rember the location they're pointing to and the title
                 a = post.find('a', attrs={'rel' : 'bookmark'})
                 href = a['href']
-                title = a.renderContents()
+                title = self.tag_to_string(a)
 
                 if index == 'columnisten' :
-                    # In this feed/page articles can be written by more than one author. It is nice to see their names in the titles.
+                    # In this feed/page articles can be written by more than one author.
+                    # It is nice to see their names in the titles.
                     flag = post.find('h2', attrs = {'class' : 'vlag'})
                     author = flag.contents[0].renderContents()
                     completeTitle = u''.join([author, u': ', title])
@@ -71,44 +81,46 @@ class NrcNextRecipe(BasicNewsRecipe):
         return answer
 
     def preprocess_html(self, soup) :
-        # This method is called for every page, be it cartoon or TOC. We need to process each in their own way
-        if soup.find('div', attrs = {'id' : 'main', 'class' : 'single'}) :
-            # It's an article, find the interesting part
+        if soup.find('div', attrs = {'id' : 'main', 'class' : 'single'}):
             tag = soup.find('div', attrs = {'class' : 'post'})
-            if tag :
-                # And replace any links with their text, so they don't show up underlined on my reader.
-                for link in tag.findAll('a') :
-                    link.replaceWith(link.renderContents())
+            if tag:
+                h2 = tag.find('h2', 'vlag')
+                if h2:
+                    new_h2 = Tag(soup, 'h2', attrs = [('class', 'vlag')])
+                    new_h2.append(self.tag_to_string(h2))
+                    h2.replaceWith(new_h2)
+                else:
+                    h2 = tag.find('h2')
+                    if h2:
+                        new_h2 = Tag(soup, 'h2', attrs = [('class', 'sub_title')])
+                        new_h2.append(self.tag_to_string(h2))
+                        h2.replaceWith(new_h2)
 
-                # Slows down my Sony reader; feel free to comment out
-                for movie in tag.findAll('span', attrs = {'class' : 'vvqbox vvqvimeo'}) :
+                h1 = tag.find('h1')
+                if h1:
+                    new_h1 = Tag(soup, 'h1')
+                    new_h1.append(self.tag_to_string(h1))
+                    h1.replaceWith(new_h1)
+
+                # Slows down my reader.
+                for movie in tag.findAll('span', attrs = {'class' : 'vvqbox vvqvimeo'}):
                     movie.extract()
-                for movie in tag.findAll('span', attrs = {'class' : 'vvqbox vvqyoutube'}) :
+                for movie in tag.findAll('span', attrs = {'class' : 'vvqbox vvqyoutube'}):
                     movie.extract()
+                for iframe in tag.findAll('iframe') :
+                    iframe.extract()
 
-                homeMadeSoup = BeautifulSoup('<html><head></head><body></body></html>')
-                body = homeMadeSoup.find('body')
-                body.append(tag)
+                fresh_soup = self.getFreshSoup(soup)
+                fresh_soup.body.append(tag)
 
-                return homeMadeSoup
-            else :
+                return fresh_soup
+            else:
                 # This should never happen and other famous last words...
                 return soup
-        else :
-            # It's a TOC, return the whole lot.
-            return soup
 
-    def postproces_html(self, soup) :
-        # Should not happen, but it does. Slows down my Sony eReader
-        for img in soup.findAll('img') :
-            if img['src'].startswith('http://') :
-                img.extract()
-
-        # Happens for some movies which we are not able to view anyway
-        for iframe in soup.findAll('iframe') :
-            if iframe['src'].startswith('http://') :
-                iframe.extract()
-
-
-
+    def getFreshSoup(self, oldSoup):
+        freshSoup = BeautifulSoup('<html><head><title></title></head><body></body></html>')
+        if oldSoup.head.title:
+            freshSoup.head.title.append(self.tag_to_string(oldSoup.head.title))
+        return freshSoup
 
