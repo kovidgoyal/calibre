@@ -1,0 +1,80 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+__author__    = 'Lorenzo Vigentini'
+__copyright__ = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
+__version__     = 'v1.01'
+__date__        = '14, January 2010'
+__description__   = 'Canadian Paper '
+
+'''
+http://www.ledevoir.com/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ledevoir(BasicNewsRecipe):
+    author        = 'Lorenzo Vigentini'
+    description   = 'Canadian Paper'
+
+    cover_url      = 'http://www.ledevoir.com/images/ul/graphiques/logo_devoir.gif'
+    title          = u'Le Devoir'
+    publisher      = 'leDevoir.com'
+    category       = 'News, finance, economy, politics'
+
+    language       = 'fr'
+    encoding       = 'utf-8'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article = 1
+    max_articles_per_feed = 50
+    use_embedded_content  = False
+    recursion             = 10
+
+    remove_javascript     = True
+    no_stylesheets        = True
+
+    keep_only_tags  = [
+                        dict(name='div', attrs={'id':'article'}),
+                        dict(name='ul', attrs={'id':'ariane'})
+                    ]
+
+    remove_tags     = [
+                        dict(name='div', attrs={'id':'dialog'}),
+                        dict(name='div', attrs={'class':['interesse_actions','reactions']}),
+                        dict(name='ul', attrs={'class':'mots_cles'}),
+                        dict(name='a', attrs={'class':'haut'}),
+                        dict(name='h5', attrs={'class':'interesse_actions'})
+                    ]
+
+    feeds          = [
+                       (u'A la une', 'http://www.ledevoir.com/rss/manchettes.xml'),
+                       (u'Edition complete', 'http://feeds2.feedburner.com/fluxdudevoir'),
+                       (u'Opinions', 'http://www.ledevoir.com/rss/opinions.xml'),
+                       (u'Chroniques', 'http://www.ledevoir.com/rss/chroniques.xml'),
+                       (u'Politique', 'http://www.ledevoir.com/rss/section/politique.xml?id=51'),
+                       (u'International', 'http://www.ledevoir.com/rss/section/international.xml?id=76'),
+                       (u'Culture', 'http://www.ledevoir.com/rss/section/culture.xml?id=48'),
+                       (u'Environnement', 'http://www.ledevoir.com/rss/section/environnement.xml?id=78'),
+                       (u'Societe', 'http://www.ledevoir.com/rss/section/societe.xml?id=52'),
+                       (u'Economie', 'http://www.ledevoir.com/rss/section/economie.xml?id=49'),
+                       (u'Sports', 'http://www.ledevoir.com/rss/section/sports.xml?id=85'),
+                       (u'Loisirs', 'http://www.ledevoir.com/rss/section/loisirs.xml?id=50')
+                     ]
+
+    extra_css = '''
+                h1 {color:#1C1E7C;font-family:Times,Georgia,serif;font-size:1.85em;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant:normal;font-weight:bold;line-height:1.2em;margin:0 0 5px;}
+                h2 {color:#333333;font-family:Times,Georgia,serif;font-size:1.5em;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant:normal;font-weight:normal;line-height:1.2em;margin:0 0 5px;}
+                h3 {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:15px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px;}
+                h4 {color:#333333; font-family:Arial,Helvetica,sans-serif;font-size:13px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; }
+                h5 {color:#333333; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; text-transform:uppercase;}
+                .specs {line-height:1em;margin:1px 0;}
+                .specs span.auteur {font:0.85em/1.1em Arial, Verdana, sans-serif;color:#787878;}
+                .specs span.auteur a,
+                .specs span.auteur span {text-transform:uppercase;color:#787878;}
+                .specs .date {font:0.85em/1.1em Arial, Verdana, sans-serif;color:#787878;}
+                ul#ariane {list-style-type:none;margin:0;padding:5px 0 8px 0;font:0.85em/1.2em Arial, Verdana, sans-serif;color:#2E2E2E;border-bottom:10px solid #fff;}
+                ul#ariane li {display:inline;}
+                ul#ariane a {color:#2E2E2E;text-decoration:underline;}
+                .credit {color:#787878;font-size:0.71em;line-height:1.1em;font-weight:bold;}
+                .texte {font-size:1.15em;line-height:1.4em;margin-bottom:17px;}
+                '''
