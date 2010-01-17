@@ -1,0 +1,91 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+import re
+
+class JoopRecipe(BasicNewsRecipe):
+    __license__  = 'GPL v3'
+    __author__ = 'kwetal'
+    language = 'nl'
+    country = 'NL'
+    version = 1
+
+    title = u'Joop'
+    publisher = u'Vara'
+    category = u'News, Politics, Discussion'
+    description = u'Political blog from the Netherlands'
+
+    oldest_article = 7
+    max_articles_per_feed = 100
+    use_embedded_content = False
+
+    no_stylesheets = True
+    remove_javascript = True
+
+    keep_only_tags = []
+    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'author_head clearfix photo'}))
+    keep_only_tags.append(dict(name = 'h2', attrs = {'class': 'columnhead smallline'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class': re.compile('article.*')}))
+
+    extra_css = '''
+                body {font-family: verdana, arial, helvetica, geneva, sans-serif;}
+                img {margin-right: 0.4em;}
+                h3 {font-size: medium; font-style: italic; font-weight: normal;}
+                h2 {font-size: xx-large; font-weight: bold}
+                sub {color: #666666; font-size: x-small; font-weight: normal;}
+                div.joop_byline {font-size: large}
+                div.joop_byline_job {font-size: small; color: #696969;}
+                div.joop_date {font-size: x-small; font-style: italic; margin-top: 0.6em}
+                '''
+
+    INDEX = 'http://www.joop.nl'
+
+    conversion_options = {'comments': description, 'tags': category, 'language': language,
+                          'publisher': publisher}
+
+    def parse_index(self):
+        sections = ['Politiek', 'Wereld', 'Economie', 'Groen', 'Media', 'Leven', 'Show', 'Opinies']
+        soup = self.index_to_soup(self.INDEX)
+        answer = []
+
+        div = soup.find('div', attrs = {'id': 'footer'})
+        for section in sections:
+            articles = []
+            h2 = div.find(lambda tag: tag.name == 'h2' and tag.renderContents() == section)
+            if h2:
+                ul = h2.findNextSibling('ul', 'linklist')
+                if ul:
+                    for li in ul.findAll('li'):
+                        title = self.tag_to_string(li.a)
+                        url = self.INDEX + li.a['href']
+                        articles.append({'title': title, 'date': None, 'url': url, 'description': ''})
+
+            answer.append((section, articles))
+
+        return answer
+
+    def preprocess_html(self, soup):
+        div = soup.find('div', 'author_head clearfix photo')
+        if div:
+            h2 = soup.find('h2')
+            if h2:
+                h2.name = 'div'
+                h2['class'] = 'joop_byline'
+                span = h2.find('span')
+                if span:
+                    span.name = 'div'
+                    span['class'] = 'joop_byline_job'
+                div.replaceWith(h2)
+
+        h2 = soup.find('h2', attrs = {'class': 'columnhead smallline'})
+        if h2:
+            txt = None
+            span = h2.find('span', 'info')
+            if span:
+                txt = span.find(text = True)
+            div = Tag(soup, 'div', attrs = [('class', 'joop_date')])
+            div.append(txt)
+            h2.replaceWith(div)
+
+        return soup
+
+
