@@ -95,6 +95,7 @@ class PRS500(DeviceConfig, DevicePlugin):
     PRODUCT_ID   = 0x029b #: Product Id for the PRS-500
     BCD          = [0x100]
     PRODUCT_NAME = 'PRS-500'
+    gui_name     = PRODUCT_NAME
     VENDOR_NAME  = 'SONY'
     INTERFACE_ID = 0      #: The interface we use to talk to the device
     BULK_IN_EP   = 0x81   #: Endpoint for Bulk reads
@@ -113,10 +114,6 @@ class PRS500(DeviceConfig, DevicePlugin):
 
     SUPPORTS_SUB_DIRS = False
     MUST_READ_METADATA = True
-
-    @classmethod
-    def get_gui_name(cls):
-        return 'PRS-500'
 
     def log_packet(self, packet, header, stream=sys.stderr):
         """

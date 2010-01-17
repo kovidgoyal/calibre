@@ -1,0 +1,76 @@
+#!/usr/bin/env  python
+__license__     = 'GPL v3'
+__author__      = 'Lorenzo Vigentini'
+__copyright__   = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
+__version__     = 'v1.01'
+__date__        = '14, January 2010'
+__description__ = 'Digital Arts - comprehensive coverage of the art of graphic design, 3D, animation, video, effects, web and interactive design, in print and online.'
+
+'''
+http://media.digitalartsonline.co.uk/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+
+temp_files = []
+articles_are_obfuscated = True
+
+class digiArts(BasicNewsRecipe):
+    __author__    = 'Lorenzo Vigentini'
+    description   = 'Digital Arts - comprehensive coverage of the art of graphic design, 3D, animation, video, effects, web and interactive design, in print and online.'
+    cover_url     = 'http://media.digitalartsonline.co.uk/graphics/logo_digital_arts.gif'
+
+    title          = 'Digital Arts Magazine  '
+    publisher      = 'IDG Communication'
+    category       = 'Multimedia, photo, video, computing, product reviews, editing, cameras, production'
+
+    language       = 'en'
+    encoding       = 'cp1252'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article        = 30
+    max_articles_per_feed = 100
+    use_embedded_content  = False
+    recursion             = 10
+
+    remove_javascript     = True
+    no_stylesheets        = True
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        br.open(url+'&print')
+
+        response = br.follow_link(url, nr = 0)
+        html = response.read()
+
+        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+        self.temp_files[-1].write(html)
+        self.temp_files[-1].close()
+        return self.temp_files[-1].name
+
+    keep_only_tags     = [
+                            dict(name='div', attrs={'id':['articleHeader','articleContent']})
+                        ]
+
+    remove_tags        = [
+                            dict(name='div', attrs={'class':['submissionBar','mpuContainer']}),
+                            dict(name='div', attrs={'id':['articleSidebar','articleFooter']})
+                        ]
+    remove_tags_after   = [
+                            dict(name='p', attrs={'id':'articlePageList'})
+                        ]
+    feeds          = [
+                       (u'Content', u'http://rss.feedsportal.com/c/662/f/8410/index.rss')
+                    ]
+
+    extra_css = '''
+                h1 {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:20px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:18px;}
+                h2 {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:18px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:16px; }
+                h3 {color:#333333;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px;}
+                h4 {color:#333333; font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; }
+                h5 {color:#333333; font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:12px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; text-transform:uppercase;}
+                .newsdate {color:#333333;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:italic; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
+                .author {color:#333333;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:bold; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
+                img {align:left;}
+                '''

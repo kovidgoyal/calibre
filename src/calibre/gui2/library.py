@@ -232,6 +232,11 @@ class BooksModel(QAbstractTableModel):
         self.count_changed()
         return ret
 
+    def add_catalog(self, path, title):
+        ret = self.db.add_catalog(path, title)
+        self.count_changed()
+        return ret
+
     def count_changed(self, *args):
         self.emit(SIGNAL('count_changed(int)'), self.db.count())
 

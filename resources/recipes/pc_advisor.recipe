@@ -1,0 +1,87 @@
+#!/usr/bin/env  python
+__license__     = 'GPL v3'
+__author__      = 'Lorenzo Vigentini'
+__copyright__   = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
+__version__     = 'v1.01'
+__date__        = '14, January 2010'
+__description__ = 'PC Advisor delivers expert advice you can trust to business and home PC users who want to buy the best-value equipment and make the most out of the equipment they already own.'
+
+'''
+http://www.pcadvisor.co.uk/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class pcAdvisor(BasicNewsRecipe):
+    __author__    = 'Lorenzo Vigentini'
+    description   = 'PC Advisor delivers expert advice you can trust to business and home PC users who want to buy the best-value equipment and make the most out of the equipment they already own.'
+
+    cover_url      = 'http://media.pcadvisor.co.uk/images/spacer.gif'
+    title          = 'Pc Advisor '
+    publisher      = 'IDG Communication'
+    category       = 'PC, computing, product reviews, UK'
+
+    language       = 'en'
+    encoding       = 'cp1252'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article        = 15
+    max_articles_per_feed = 25
+    use_embedded_content  = False
+    recursion             = 10
+
+    remove_javascript     = True
+    no_stylesheets = True
+
+    keep_only_tags     = [
+                            dict(name='div', attrs={'id':'articlecontent'})
+                        ]
+
+    remove_tags        = [
+                            dict(name='div', attrs={'id':['crosssitesignup','submitarticle','dontPrint','commentsForm','userReviewFormContainer','reevooContainerId']}),
+                            dict(name='div', attrs={'class':'mpu'}),
+                            dict(name='p', attrs={'id':'articlePageList'}),
+                            dict(name='div', attrs={'style':['margin: 0pt 10px 5px;','margin: 0pt 10px 5px;']}),
+                            dict(name='p', attrs={'class':'dontPrint'}),
+                            dict(name='h2', attrs={'class':'sectionTitle'}),
+                            dict(name='a', attrs={'title':'Subscribe to PC Advisor'}),
+                            dict(name='a', attrs={'name':'revooContent'}),
+                            {'name':['form','script','link']}
+                        ]
+
+    remove_tags_after = [
+                            dict(name='p', attrs={'id':'crosssitesignup'})
+                        ]
+
+    def get_article_url(self, article):
+        return article.get('guid',  None)
+
+    feeds          = [
+                       (u'News Headlines', u'http://www.pcadvisor.co.uk/rss/feeds/pcanews.xml'),
+                       (u'Reviews', u'http://www.pcadvisor.co.uk/rss/feeds/pcareviews.xml'),
+                       (u'New Products', u'http://www.pcadvisor.co.uk/rss/feeds/blog18.xml'),
+                       (u'PC Advisor Blog', u'http://www.pcadvisor.co.uk/rss/feeds/blog4.xml'),
+                       (u'PC Security', u'http://www.pcadvisor.co.uk/rss/feeds/pca-security.xml'),
+                       (u'Laptops', u'http://www.pcadvisor.co.uk/rss/feeds/pca-laptop.xml'),
+                       (u'Green Computing', u'http://www.pcadvisor.co.uk/rss/feeds/pca-green-computing.xml'),
+                       (u'Internet and broadband', u'http://www.pcadvisor.co.uk/rss/feeds/pca-internet.xml'),
+                       (u'Prones and PDAs', u'http://www.pcadvisor.co.uk/rss/feeds/pca-phones.xml'),
+                       (u'Software', u'http://www.pcadvisor.co.uk/rss/feeds/pca-software.xml'),
+                       (u'Small Business', u'http://www.pcadvisor.co.uk/rss/feeds/pca-small-business.xml'),
+                       (u'Photo and video', u'http://www.pcadvisor.co.uk/rss/feeds/pca-photo-video.xml'),
+                       (u'Mac News', u'http://www.pcadvisor.co.uk/rss/feeds/pca-mac.xml'),
+                       (u'Linux', u'http://www.pcadvisor.co.uk/rss/feeds/pca-linux.xml'),
+                       (u'WiFi and Networking', u'http://www.pcadvisor.co.uk/rss/feeds/pca-networking.xml'),
+                       (u'Gadgets', u'http://www.pcadvisor.co.uk/rss/feeds/pca-gadgets.xml')
+                     ]
+
+    extra_css = '''
+                h1 {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:20px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:18px;}
+                h2 {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:18px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:16px; }
+                h3 {color:#333333;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px;}
+                h4 {color:#333333; font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; }
+                h5 {color:#333333; font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:12px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; text-transform:uppercase;}
+                .newsdate {color:#333333;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:italic; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
+                .author {color:#333333;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:bold; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
+                p {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:10px;}
+                '''

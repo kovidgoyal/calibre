@@ -98,13 +98,6 @@ class Device(DeviceConfig, DevicePlugin):
             self.detected_device = None
         self.set_progress_reporter(report_progress)
 
-    @classmethod
-    def get_gui_name(cls):
-        x = getattr(cls, 'gui_name', None)
-        if x is None:
-            x = cls.__name__
-        return x
-
     def set_progress_reporter(self, report_progress):
         self.report_progress = report_progress
         self.report_progress = report_progress

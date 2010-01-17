@@ -43,6 +43,15 @@ class DevicePlugin(Plugin):
     #: Icon for this device
     icon = I('reader.svg')
 
+    @classmethod
+    def get_gui_name(cls):
+        if hasattr(cls, 'gui_name'):
+            return cls.gui_name
+        if hasattr(cls, '__name__'):
+            return cls.__name__
+        return cls.name
+
+
     def test_bcd_windows(self, device_id, bcd):
         if bcd is None or len(bcd) == 0:
             return True

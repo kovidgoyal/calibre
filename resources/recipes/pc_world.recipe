@@ -1,0 +1,105 @@
+#!/usr/bin/env  python
+__license__     = 'GPL v3'
+__author__      = 'Lorenzo Vigentini'
+__copyright__   = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
+__version__     = 'v1.01'
+__date__        = '14, January 2010'
+__description__ = 'PC World and Macworld consistently deliver editorial excellence through award-winning content and trusted product reviews.'
+
+'''
+http://www.pcworld.com/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+
+temp_files = []
+articles_are_obfuscated = True
+
+class pcWorld(BasicNewsRecipe):
+    __author__    = 'Lorenzo Vigentini'
+    description   = 'PC World and Macworld consistently deliver editorial excellence through award-winning content and trusted product reviews.'
+    cover_url     = 'http://images.pcworld.com/images/common/header/header-logo.gif'
+
+    title          = 'PCWorld '
+    publisher      = 'IDG Communication'
+    category       = 'PC, video, computing, product reviews, editing, cameras, production'
+
+    language       = 'en'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article        = 7
+    max_articles_per_feed = 20
+    use_embedded_content  = False
+    recursion             = 10
+
+    remove_javascript     = True
+    no_stylesheets        = True
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        br.open(url+'&print')
+
+        response = br.follow_link(url, nr = 0)
+        html = response.read()
+
+        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+        self.temp_files[-1].write(html)
+        self.temp_files[-1].close()
+        return self.temp_files[-1].name
+
+    keep_only_tags     = [
+                            dict(name='div', attrs={'class':'article'})
+                        ]
+
+    remove_tags        = [
+                            dict(name='div', attrs={'class':['toolBar','mac_tags','toolBar  btmTools','recommend longRecommend','recommend shortRecommend','textAds']}),
+                            dict(name='div', attrs={'id':['sidebar','comments','mac_tags']}),
+                            dict(name='ul', attrs={'class':'tools'}),
+                            dict(name='li', attrs={'class':'sub'})
+                        ]
+
+    feeds          = [
+                       (u'PCWorld Headlines', u'http://feeds.pcworld.com/pcworld/latestnews'),
+                       (u'How-To', u'http://feeds.pcworld.com/pcworld/update/howto'),
+                       (u'Today@PCWorld', u'http://feeds.pcworld.com/pcworld/blogs/todayatpcw'),
+                       (u'Reviews', u'http://feeds.pcworld.com/pcworld/update/reviews'),
+                       (u'Most Popular Downloads', u'http://feeds.pcworld.com/pcworld/downloads/monthly'),
+                       (u'Answer Lines', u'http://feeds.pcworld.com/pcworld/blogs/answer_line'),
+                       (u'Digital Focus', u'http://feeds.pcworld.com/pcworld/blogs/digital_focus'),
+                       (u'Download this', u'http://feeds.pcworld.com/pcworld/blogs/download_this/'),
+                       (u'Game on', u'http://feeds.pcworld.com/pcworld/blogs/game_on'),
+                       (u'Geek tech', u'http://feeds.pcworld.com/pcworld/blogs/geektech/'),
+                       (u'Hassle free PC', u'http://feeds.pcworld.com/pcworld/blogs/hassle-free_pc'),
+                       (u'Mobile computing', u'http://feeds.pcworld.com/pcworld/blogs/mobile_computing'),
+                       (u'Security alert', u'http://feeds.pcworld.com/pcworld/blogs/security_alert/'),
+                       (u'BizFeed', u'http://feeds.pcworld.com/pcworld/businesscenter/bizfeed/'),
+                       (u'The Cost Cutter', u'http://feeds.pcworld.com/pcworld/businesscenter/cost_cutter/'),
+                       (u'Linux line', u'http://feeds.pcworld.com/pcworld/businesscenter/linuxline/'),
+                       (u'Net Work', u'http://feeds.pcworld.com/pcworld/businesscenter/network/'),
+                       (u'Peer-to-Peer', u'http://feeds.pcworld.com/pcworld/businesscenter/peertopeer/'),
+                       (u'Tech inciter', u'http://feeds.pcworld.com/pcworld/businesscenter/tech_inciter/'),
+                       (u'Gadgets and gear', u'http://feeds.pcworld.com/pcworld/update/gadgets'),
+                       (u'Home Entertainment', u'http://feeds.pcworld.com/pcworld/update/home-entertainment'),
+                       (u'Mobile Devices', u'http://feeds.pcworld.com/pcworld/update/mobile-devices')
+                     ]
+
+    extra_css = '''
+                h1 {color:#FF0000;font-family:Arial,Helvetica,sans-serif; font-size:20px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:18px;}
+                h2 {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:16px; }
+                h3 {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:15px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px;}
+                h4 {color:#333333; font-family:Arial,Helvetica,sans-serif;font-size:13px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; }
+                h5 {color:#333333; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; text-transform:uppercase;}
+                .newsdate {color:#333333;font-family:Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:italic; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
+                .articleInfo {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:bold; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
+                img {align:left;}
+                #breadcrumb {}
+                #breadcrumb ul {padding:0;margin:2px 0 0 0;}
+                #breadcrumb li {list-style:none;display:inline;padding:0;}
+                #breadcrumb li big {padding-right:2px;}
+                #articleHead {border-top:1px solid #CCC;padding-top:5px;clear:both;margin-bottom:10px;}
+                #articleHead h1 {font-size:25px;line-height:28px;margin:10px 0px 2px;padding:0px;}
+                #articleHead h2 {font-size:14px;line-height:16px;margin:0px 0px 6px;padding:0px;}
+                #articleHead p {font-size:15px;font-weight:bold;margin:0px;padding:0px;}
+                #articleHead .date {color:#999;margin:0px 0px 20px;padding:0px;}
+                '''
