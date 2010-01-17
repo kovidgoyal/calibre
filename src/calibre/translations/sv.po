@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-01-15 21:10+0000\n"
-"PO-Revision-Date: 2010-01-15 20:41+0000\n"
+"POT-Creation-Date: 2010-01-16 20:54+0000\n"
+"PO-Revision-Date: 2010-01-16 22:19+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-16 04:34+0000\n"
+"X-Launchpad-Export-Date: 2010-01-17 04:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:42
@@ -107,19 +107,19 @@ msgstr "Gör ingenting"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:107
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:134
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:550
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:559
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:779
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:782
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:551
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:560
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:839
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:842
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:454
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:170
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:397
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:419
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:914
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1040
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:402
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:424
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:919
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1045
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:183
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:281
 #: /home/kovid/work/calibre/src/calibre/library/database.py:913
@@ -127,13 +127,13 @@ msgstr "Gör ingenting"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:715
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1143
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1180
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1517
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1519
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1630
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1547
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1549
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1660
 #: /home/kovid/work/calibre/src/calibre/library/server.py:645
 #: /home/kovid/work/calibre/src/calibre/library/server.py:717
 #: /home/kovid/work/calibre/src/calibre/library/server.py:764
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -605,23 +605,23 @@ msgstr "Skickar metadata till enheten..."
 msgid "Communicate with the Sony PRS-600/700/900 eBook reader."
 msgstr "Kommunicera med Sony PRS-600/700/900 e-boksläsare."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:257
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:250
 msgid "Unable to detect the %s disk drive. Try rebooting."
 msgstr "Det går inte att upptäcka %s hårddisken. Prova omstart."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:436
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:429
 msgid "Unable to detect the %s mount point. Try rebooting."
 msgstr "Det går inte att upptäcka %s monteringspunkten. Prova omstart."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:491
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:484
 msgid "Unable to detect the %s disk drive."
 msgstr "Det går inte att upptäcka %s hårddisken."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:584
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:577
 msgid "Could not find mount helper: %s."
 msgstr "Kunde inte hitta montera hjälpen: %s."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:596
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:589
 msgid ""
 "Unable to detect the %s disk drive. Your  kernel is probably exporting a "
 "deprecated version of SYSFS."
@@ -629,35 +629,35 @@ msgstr ""
 "Det går inte att upptäcka %s hårddisken. Din kärna exporterar förmodligen en "
 "ogiltig version av SYSFS."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:604
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:597
 msgid "Unable to mount main memory (Error code: %d)"
 msgstr "Det går inte att montera primärminne (Felkod:%d)"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:741
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:743
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:734
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:736
 msgid "The reader has no storage card in this slot."
 msgstr "Läsaren har inget minneskort i kortplatsen."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:745
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:738
 msgid "Selected slot: %s is not supported."
 msgstr "Vald kortplats: %s stöds inte."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:778
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:771
 msgid "There is insufficient free space in main memory"
 msgstr "Det finns tillräckligt med ledigt utrymme i primärminnet"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:780
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:782
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:773
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:775
 msgid "There is insufficient free space on the storage card"
 msgstr "Det finns tillräckligt mycket ledigt utrymme på minneskortet"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:799
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:822
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:792
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:815
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1068
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1072
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1417
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1447
 msgid "News"
 msgstr "Nyheter"
 
@@ -1716,16 +1716,16 @@ msgstr "Serietidning"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:163
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:394
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1106
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:399
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1111
 msgid "Title"
 msgstr "Titel"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:359
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:57
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:164
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:399
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1107
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:404
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1112
 msgid "Author(s)"
 msgstr "Författare"
 
@@ -1744,16 +1744,16 @@ msgstr "Producent"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:67
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:355
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:360
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:94
 msgid "Comments"
 msgstr "Kommentarer"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:370
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:170
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:344
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1050
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1110
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:349
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1055
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1115
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Tags"
@@ -1761,7 +1761,7 @@ msgstr "Taggar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:372
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:171
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:360
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:365
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Series"
@@ -1772,7 +1772,7 @@ msgid "Language"
 msgstr "Språk"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:375
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1049
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1054
 msgid "Timestamp"
 msgstr "Tidsstämpel"
 
@@ -2249,7 +2249,7 @@ msgstr ""
 "kommando ...\n"
 "\n"
 "Kommandot kan vara något av följande:\n"
-"[%% kommandon]\n"
+"[%%commands]\n"
 "\n"
 "Använd %prog kommando --help för att få mer information om ett visst "
 "kommando\n"
@@ -2708,7 +2708,7 @@ msgid "The specified directory could not be processed."
 msgstr "Den angivna katalogen kunde inte behandlas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:194
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:494
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:495
 msgid "No books"
 msgstr "Inga böcker"
 
@@ -3470,7 +3470,7 @@ msgid "RB Output"
 msgstr "RB utdata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:77
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1551
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1609
 msgid "Choose the format to view"
 msgstr "Välj format för visning"
 
@@ -3784,182 +3784,188 @@ msgstr "Inga detaljer tillgängliga."
 msgid "Device no longer connected."
 msgstr "Enheten inte längre ansluten."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:207
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:208
 msgid "Get device information"
 msgstr "Hämta enhetens informaton"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:218
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:219
 msgid "Get list of books on device"
 msgstr "Hämta lista över böcker på enheten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:227
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:228
 msgid "Send metadata to device"
 msgstr "Skicka metadata till enheten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:236
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:237
 msgid "Upload %d books to device"
 msgstr "Ladda upp %d böcker till enheten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:251
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:252
 msgid "Delete books from device"
 msgstr "Ta bort böcker från enheten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:268
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:269
 msgid "Download books from device"
 msgstr "Hämta böcker från enheten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:278
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:279
 msgid "View book on device"
 msgstr "Visa böcker på enheten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:285
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:286
 msgid "and delete from library"
 msgstr "och ta bort från biblioteket"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:306
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:307
 msgid "Set default send to device action"
 msgstr "Ange skicka till enhet grundinställing"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:311
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:318
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:320
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:322
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:312
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:319
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:321
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:323
 msgid "Email to"
 msgstr "E-post till"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:333
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:340
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:334
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:341
 msgid "Send to main memory"
 msgstr "Skicka till primärminnet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:335
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:342
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:336
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:343
 msgid "Send to storage card A"
 msgstr "Skicka till lagringskort A"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:337
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:344
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:338
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:345
 msgid "Send to storage card B"
 msgstr "Skicka till lagringskort B"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:347
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:348
 msgid "Send specific format to main memory"
 msgstr "Skicka till angivet format till primärminnet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:349
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:350
 msgid "Send specific format to storage card A"
 msgstr "Skicka angivet format till lagringskort A"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:351
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:352
 msgid "Send specific format to storage card B"
 msgstr "Skicka angivet format till lagringskort B"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:495
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:496
 msgid "selected to send"
 msgstr "vald att skickas"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:500
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:501
 msgid "Choose format to send to device"
 msgstr "Välj format att skicka till enhet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:507
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:508
 msgid "No device"
 msgstr "Ingen enhet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:508
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:509
 msgid "Cannot send: No device is connected"
 msgstr "Kan inte skicka: ingen enhet är ansluten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:511
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:515
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:512
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:516
 msgid "No card"
 msgstr "Inget kort"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:512
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:516
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:513
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:517
 msgid "Cannot send: Device has no storage card"
 msgstr "Kan inte skicka: Enhet har inget minneskort"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:557
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:558
 msgid "E-book:"
 msgstr "E-bok:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:560
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:561
 msgid "Attached, you will find the e-book"
 msgstr "Bifogat, kommer du finna e-boken"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:561
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:562
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:177
 msgid "by"
 msgstr "av"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:562
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:563
 msgid "in the %s format."
 msgstr "i %s formatet."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:575
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:576
 msgid "Sending email to"
 msgstr "Skickar e-post till"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:605
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:612
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:606
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:613
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:705
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:821
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:828
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:765
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:881
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:888
 msgid "No suitable formats"
 msgstr "Inga lämpliga format"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:606
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:607
 msgid "Auto convert the following books before sending via email?"
 msgstr ""
 "Automatisk omvandling av följande böcker innan de skickas via e-post?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:613
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:614
 msgid ""
 "Could not email the following books as no suitable formats were found:"
 msgstr ""
 "Kunde inte skicka följande böcker eftersom inte något lämpligt format "
 "hittades:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:631
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:632
 msgid "Failed to email books"
 msgstr "Misslyckades med att skicka böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:632
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:633
 msgid "Failed to email the following books:"
 msgstr "Misslyckades att skicka följande böcker:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:636
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:637
 msgid "Sent by email:"
 msgstr "Skickat via e-post:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:663
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:664
 msgid "News:"
 msgstr "Nyheter:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:664
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:665
 msgid "Attached is the"
 msgstr "Bifogat är"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:675
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:676
 msgid "Sent news to"
 msgstr "Skickat nyheter till"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:706
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:822
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:766
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:882
 msgid "Auto convert the following books before uploading to the device?"
 msgstr ""
 "Automatisk omvandling av följande böcker innan de laddas upp till enheten?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:736
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:735
+msgid "Sending catalogs to device."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:796
 msgid "Sending news to device."
 msgstr "Skickar  nyheter till enheten."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:790
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:850
 msgid "Sending books to device."
 msgstr "Skickar böcker till enheten."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:829
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:889
 msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found. Convert the book(s) to a format supported by your device first."
@@ -3968,11 +3974,11 @@ msgstr ""
 "format hittades. Konvertera boken/böckerna till ett format som stöds av "
 "enheten först."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:877
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:937
 msgid "No space on device"
 msgstr "Inte mer ledigt utrymme på enheten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:878
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:938
 msgid ""
 "<p>Cannot upload books to device there is no more free space available "
 msgstr ""
@@ -3993,8 +3999,8 @@ msgstr "Spara mall:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:111
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:351
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1045
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:356
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1050
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:92
 msgid "Path"
 msgstr "Sökväg"
@@ -4004,7 +4010,7 @@ msgstr "Sökväg"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:117
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:216
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:350
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:355
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Formats"
@@ -4021,6 +4027,36 @@ msgstr "Föregående"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:70
 msgid "&Next"
 msgstr "&Nästa"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:24
+msgid "My Books"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:69
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:254
+msgid "Generate catalog"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:70
+msgid "Catalog &format:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:71
+msgid ""
+"Catalog &title (existing catalog with the same title will be replaced):"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:72
+msgid "&Send catalog to device automatically"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:73
+msgid "Catalog options"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:74
+msgid "Generate catalog for {0} books"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:40
 msgid "Choose Format"
@@ -4128,7 +4164,7 @@ msgstr "ny e-postadress"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:477
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:821
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:158
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1224
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1229
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:53
 msgid "Error"
 msgstr "Fel"
@@ -4202,7 +4238,7 @@ msgid "Access log:"
 msgstr "Åtkomstlogg:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:676
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:641
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:645
 msgid "Failed to start content server"
 msgstr "Misslyckades med att starta innehållsservern"
 
@@ -4893,7 +4929,7 @@ msgid "Choose formats for "
 msgstr "Välj format för "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:137
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:985
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:990
 msgid "Books"
 msgstr "Böcker"
 
@@ -5717,12 +5753,12 @@ msgid " - Jobs"
 msgstr " -Jobb"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:165
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1108
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1113
 msgid "Size (MB)"
 msgstr "Storlek (MB)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:166
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1109
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1114
 msgid "Date"
 msgstr "Datum"
 
@@ -5730,9 +5766,9 @@ msgstr "Datum"
 msgid "Rating"
 msgstr "Betyg"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:343
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:349
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:348
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:354
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:359
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:77
@@ -5740,26 +5776,26 @@ msgstr "Betyg"
 msgid "None"
 msgstr "Ingen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:360
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:365
 msgid "Book <font face=\"serif\">%s</font> of %s."
 msgstr "Bok <font face=\"serif\">%s</font> av %s."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:872
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:877
 msgid "Not allowed"
 msgstr "Inte tillåten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:873
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:878
 msgid ""
 "Dropping onto a device is not supported. First add the book to the calibre "
 "library."
 msgstr ""
 "Släppa på en enhet stöds inte. Först lägga till boken i calibre biblioteket."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1044
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1049
 msgid "Format"
 msgstr "Format"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1098
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1103
 msgid "Double click to <b>edit</b> me<br><br>"
 msgstr "Dubbelklicka <b> redigera </ b> me <br> <br>"
 
@@ -6179,11 +6215,11 @@ msgstr "Köar "
 msgid "Fetch news from "
 msgstr "Hämta nyheter från "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:248
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:266
 msgid "Convert existing"
 msgstr "Konvertering finns"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:249
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:267
 msgid ""
 "The following books have already been converted to %s format. Do you wish to "
 "reconvert them?"
@@ -6221,7 +6257,7 @@ msgstr "<p> För hjälp se: <a href=\"%s\"> Användarhandbok </ a> <br>"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:224
 msgid "<b>%s</b>: %s by <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
 msgstr ""
-"<b>%s </ b>:%s av <b> Kovid Goyal%% (version) s </ b> <br>%% (enhet) s </ p>"
+"<b>%s </ b>:%s av <b> Kovid Goyal %%(version)s </ b> <br>%%(device)s </ p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:247
 msgid "Edit metadata individually"
@@ -6276,7 +6312,7 @@ msgid "Save to disk in a single directory"
 msgstr "Spara till disk i en enda katalog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:306
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1659
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1717
 msgid "Save only %s format to disk"
 msgstr "Spara bara %s-format på disk"
 
@@ -6308,50 +6344,54 @@ msgstr "Omvandla individuellt"
 msgid "Bulk convert"
 msgstr "Massomvandling"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:372
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:360
+msgid "Create catalog of the books in your calibre library"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:376
 msgid "Run welcome wizard"
 msgstr "Kör välkomstguide"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:408
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:412
 msgid "Similar books..."
 msgstr "Liknande böcker..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:468
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:469
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:473
 msgid "Bad database location"
 msgstr "Dålig databasplats"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:471
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:475
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:557
 msgid "Calibre Library"
 msgstr "Calibre bibliotek"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:481
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1815
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:485
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1873
 msgid "Choose a location for your ebook library."
 msgstr "Välj en plats för ditt e-bokbibliotek"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:685
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:689
 msgid "Browse by covers"
 msgstr "Bläddra bland omslag"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:833
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:837
 msgid "Device: "
 msgstr "Enhet: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:835
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:839
 msgid " detected."
 msgstr " funnen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:859
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:863
 msgid "Connected "
 msgstr "Ansluten "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:871
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:875
 msgid "Device database corrupted"
 msgstr "Enhetsdatabas skadad"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:872
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:876
 msgid ""
 "\n"
 "                <p>The database of books on the reader is corrupted. Try the "
@@ -6379,86 +6419,86 @@ msgstr ""
 "                </ ol>\n"
 "                "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:933
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:938
 msgid "How many empty books?"
 msgstr "Hur många tomma böcker?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:934
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:939
 msgid "How many empty books should be added?"
 msgstr "Hur många tomma böcker ska läggas till?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:978
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1025
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:983
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1030
 msgid "Uploading books to device."
 msgstr "Laddar upp böcker till enheten."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:986
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:991
 msgid "EPUB Books"
 msgstr "EPUB-böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:987
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:992
 msgid "LRF Books"
 msgstr "LRF-böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:988
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:993
 msgid "HTML Books"
 msgstr "HTML-böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:989
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:994
 msgid "LIT Books"
 msgstr "LIT-böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:990
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:995
 msgid "MOBI Books"
 msgstr "MOBI-böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:991
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:996
 msgid "Text books"
 msgstr "Textböcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:992
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:997
 msgid "PDF Books"
 msgstr "PDF-böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:993
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:998
 msgid "Comics"
 msgstr "Serier"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:994
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:999
 msgid "Archives"
 msgstr "Arkiv"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:998
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1003
 msgid "Supported books"
 msgstr "Stödd böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1034
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1039
 msgid "Failed to read metadata"
 msgstr "Misslyckades läsa metadata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1035
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1040
 msgid "Failed to read metadata from the following"
 msgstr "Misslyckades läsa metadat från följande"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1054
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1059
 msgid "Cannot delete"
 msgstr "Kan inte ta bort"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1057
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1545
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1564
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1062
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1603
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1622
 msgid "No book selected"
 msgstr "Inga böcker valda"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1067
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1072
 msgid "Choose formats to be deleted"
 msgstr "Välj format som ska tas bort"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1083
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1088
 msgid "Choose formats <b>not</b> to be deleted"
 msgstr "Välj format <b> inte </ b> som ska raderas"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1119
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1124
 msgid ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your computer. Are you sure?"
@@ -6466,110 +6506,123 @@ msgstr ""
 "De utvalda böckerna <b> tas permanent bort </ b> och filer tas bort från "
 "datorn. Är du säker?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1146
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1151
 msgid "Deleting books from device."
 msgstr "Tar bort böcker från enheten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1177
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1182
 msgid "Cannot download metadata"
 msgstr "Kan inte hämta metadata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1178
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1235
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1268
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1293
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1406
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1183
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1240
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1273
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1298
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1356
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1459
 msgid "No books selected"
 msgstr "Inga böcker valda"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1193
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1198
 msgid "social metadata"
 msgstr "social metadata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1195
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1200
 msgid "covers"
 msgstr "omslag"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1195
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1200
 msgid "metadata"
 msgstr "metadata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1197
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1202
 msgid "Downloading %s for %d book(s)"
 msgstr "Hämtar %s för %d böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1219
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1224
 msgid "Failed to download some metadata"
 msgstr "Misslyckades hämta någon metadata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1220
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1225
 msgid "Failed to download metadata for the following:"
 msgstr "Misslyckades hämta metadata för följande:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1223
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1228
 msgid "Failed to download metadata:"
 msgstr "Misslyckades hämta metadata:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1234
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1267
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1239
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1272
 msgid "Cannot edit metadata"
 msgstr "Kan inte redigera metadata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1292
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1297
 msgid "Cannot save to disk"
 msgstr "Kan inte spara till disk"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1295
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1300
 msgid "Choose destination directory"
 msgstr "Välj målkatalog"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1322
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1327
 msgid "Error while saving"
 msgstr "Fel uppstod vid sparning"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1323
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1328
 msgid "There was an error while saving."
 msgstr "Fel uppstod vid sparning."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1330
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1331
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1335
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1336
 msgid "Could not save some books"
 msgstr "Kunde inte spara några böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1332
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1337
 msgid "Click the show details button to see which ones."
 msgstr "Klicka på \"Visa detaljer\" knappen för att se vilken."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1351
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1357
+msgid "No books selected to generate catalog for"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1369
+msgid "Generating %s catalog..."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1380
+msgid "Catalog generated."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1393
 msgid "Fetching news from "
 msgstr "Hämtar nyheter från "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1365
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1407
 msgid " fetched."
 msgstr " hämtade."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1405
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1458
 msgid "Cannot convert"
 msgstr "Kan inte omvandla"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1434
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1487
 msgid "Starting conversion of %d book(s)"
 msgstr "Påbörja omvandling av %d böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1545
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1601
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1603
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1659
 msgid "Cannot view"
 msgstr "Kan inte visa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1563
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1621
 msgid "Cannot open folder"
 msgstr "Kan inte öppna mapp"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1585
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1643
 msgid "Multiple Books Selected"
 msgstr "Flera böcker valda"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1586
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1644
 msgid ""
 "You are attempting to open %d books. Opening too many books at once can be "
 "slow and have a negative effect on the responsiveness of your computer. Once "
@@ -6581,32 +6634,32 @@ msgstr ""
 "väl process startats kan den inte stoppas förrän den är klar. Vill du "
 "fortsätta?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1602
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1660
 msgid "%s has no available formats."
 msgstr "%s har inga tillgängliga format."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1643
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1701
 msgid "Cannot configure"
 msgstr "Kan inte konfigurera"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1644
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1702
 msgid "Cannot configure while there are running jobs."
 msgstr "Kan inte konfigurera när det finns jobb som körs"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1687
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1745
 msgid "No detailed info available"
 msgstr "Ingen detaljinformation tillgänglig"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1688
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1746
 msgid "No detailed information is available for books on the device."
 msgstr ""
 "Ingen detaljerad information finns tillgänglig för böcker på enheten."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1743
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1801
 msgid "Error talking to device"
 msgstr "Misslyckades kommunicera med enheten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1744
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1802
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
@@ -6614,12 +6667,12 @@ msgstr ""
 "Det uppstod ett temporärt fel under kommunikation med enheten. Vänligen "
 "koppla ur och återkoppla enheten och / eller starta om."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1767
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1795
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1825
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1853
 msgid "Conversion Error"
 msgstr "Omvandling misslyckades"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1768
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1826
 msgid ""
 "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
 "first remove the DRM using third party tools."
@@ -6627,23 +6680,23 @@ msgstr ""
 "<p> Kunde inte konvertera:%s <p> Det är en <a href=\"%s\"> DRM </ a> skyddad "
 "bok. Du måste först ta bort DRM mha tredjepartsverktyg."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1781
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1839
 msgid "Recipe Disabled"
 msgstr "Recept inaktiverat"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1796
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1854
 msgid "<b>Failed</b>"
 msgstr "<b>Misslyckades</b>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1824
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1882
 msgid "Invalid library location"
 msgstr "Ogiltig biblioteksplats"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1825
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1883
 msgid "Could not access %s. Using %s as the library."
 msgstr "Kunde inte komma åt %s. Använder %s som biblioteket."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1875
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1933
 msgid ""
 "is the result of the efforts of many volunteers from all over the world. If "
 "you find it useful, please consider donating to support its development."
@@ -6652,11 +6705,11 @@ msgstr ""
 "tycker att det är bra, vänligen överväg att donera till stöd för dess "
 "utveckling."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1900
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1958
 msgid "There are active jobs. Are you sure you want to quit?"
 msgstr "Det finns aktiva jobb. Är du säker på att du vill sluta?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1903
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1961
 msgid ""
 " is communicating with the device!<br>\n"
 "                      Quitting may cause corruption on the device.<br>\n"
@@ -6666,11 +6719,11 @@ msgstr ""
 "                      Avsluta kan orsaka skador på enheten. <br>\n"
 "                      Är du säker på att du vill sluta?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1907
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1965
 msgid "WARNING: Active jobs"
 msgstr "VARNING: Aktiva jobb"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1959
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2017
 msgid ""
 "will keep running in the system tray. To close it, choose <b>Quit</b> in the "
 "context menu of the system tray."
@@ -6678,7 +6731,7 @@ msgstr ""
 "fortsätter att köra i systemfältet. FÖr att stänga det, välj <b> Avsluta </ "
 "b> i snabbmenyn systemfältet."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1978
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2036
 msgid ""
 "<span style=\"color:red; font-weight:bold\">Latest version: <a "
 "href=\"%s\">%s</a></span>"
@@ -6686,11 +6739,11 @@ msgstr ""
 "<span style=\"color:red; font-weight:bold\">Senaste version: <a "
 "href=\"%s\">%s </ a> </ span>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1986
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2044
 msgid "Update available"
 msgstr "Nyare version hittad"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1987
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2045
 msgid ""
 "%s has been updated to version %s. See the <a href=\"http://calibre-"
 "ebook.com/whats-new\">new features</a>. Visit the download page?"
@@ -7861,16 +7914,23 @@ msgid ""
 "    "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:652
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:648
+msgid ""
+"Filter the results by the search query. For the format of the search query, "
+"please see the search-related documentation in the User Manual.\n"
+"Default: no filtering"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:654
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
 msgid "Show detailed output information. Useful for debugging"
 msgstr "Visa detaljerad utdata. Användbart för felsökning"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:690
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:692
 msgid "Error: You must specify a catalog output file"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:705
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:707
 msgid ""
 "%%prog command [options] [arguments]\n"
 "\n"
@@ -7881,36 +7941,41 @@ msgid ""
 "\n"
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
-"%% prog kommando [alternativ] [argument]\n"
+"%%prog kommando [alternativ] [argument]\n"
 "\n"
-"%% PROG är kommandoradsgränssnitt till calibres bokdatabasen.\n"
+"%%prog är kommandoradsgränssnitt till calibres bokdatabasen.\n"
 "\n"
 "kommando är en av:\n"
 "  %s\n"
 "\n"
 "For help on an individual command: %%prog command --help\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1656
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1416
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1429
+msgid "Catalog"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1686
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr "<p> Migrera gamla databasen med e-bokbibliotek i%s <br> <center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1685
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1715
 msgid "Copying <b>%s</b>"
 msgstr "Kopiering <b>%s </ b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1702
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1732
 msgid "Compacting database"
 msgstr "Komprimerande databas"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1795
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1825
 msgid "Checking SQL integrity..."
 msgstr "Kontrollerar SQL integritet ..."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1832
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1862
 msgid "Checking for missing files."
 msgstr "Kontroll av saknade filer."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1854
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1884
 msgid "Checked id"
 msgstr "Kontrollerad id"
 
@@ -8181,38 +8246,42 @@ msgid "English (Australia)"
 msgstr "Engelska (Australien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
+msgid "English (New Zealand)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "English (Canada)"
 msgstr "Engelska (Kanada)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (India)"
 msgstr "Engelska (Indien)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 msgid "English (Thailand)"
 msgstr "Engelska (Thailand)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
 msgid "English (Cyprus)"
 msgstr "Engelska (Cyprus)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
 msgid "English (Pakistan)"
 msgstr "Engelska (Pakistan)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
 msgid "English (Singapore)"
 msgstr "Engelska (Singapore)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 msgid "German (AT)"
 msgstr "Tyska (Österrike)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "Dutch (NL)"
 msgstr "Holländska (Nederländerna)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "Dutch (BE)"
 msgstr "Holländska (Belgien)"
 
