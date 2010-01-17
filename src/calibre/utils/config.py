@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Manage application-wide preferences.
 '''
-import os, re, cPickle, textwrap, traceback, plistlib
+import os, re, cPickle, textwrap, traceback, plistlib, json
 from copy import deepcopy
 from functools import partial
 from optparse import OptionParser as _OptionParser
@@ -564,15 +564,23 @@ class XMLConfig(dict):
     data types.
     '''
 
+    EXTENSION = '.plist'
+
     def __init__(self, rel_path_to_cf_file):
         dict.__init__(self)
         self.file_path = os.path.join(config_dir,
                 *(rel_path_to_cf_file.split('/')))
         self.file_path = os.path.abspath(self.file_path)
-        if not self.file_path.endswith('.plist'):
-            self.file_path += '.plist'
+        if not self.file_path.endswith(self.EXTENSION):
+            self.file_path += self.EXTENSION
 
         self.refresh()
+
+    def raw_to_object(self, raw):
+        return plistlib.readPlistFromString(raw)
+
+    def to_raw(self):
+        return plistlib.writePlistToString(self)
 
     def refresh(self):
         d = {}
@@ -580,7 +588,7 @@ class XMLConfig(dict):
             with ExclusiveFile(self.file_path) as f:
                 raw = f.read()
                 try:
-                    d = plistlib.readPlistFromString(raw) if raw.strip() else {}
+                    d = self.raw_to_object(raw) if raw.strip() else {}
                 except SystemError:
                     pass
                 except:
@@ -618,10 +626,20 @@ class XMLConfig(dict):
             if not os.path.exists(dpath):
                 os.makedirs(dpath, mode=CONFIG_DIR_MODE)
             with ExclusiveFile(self.file_path) as f:
-                raw = plistlib.writePlistToString(self)
+                raw = self.to_raw()
                 f.seek(0)
                 f.truncate()
                 f.write(raw)
+
+class JSONConfig(XMLConfig):
+
+    EXTENSION = '.json'
+
+    def raw_to_object(self, raw):
+        return json.loads(raw.decode('utf-8'))
+
+    def to_raw(self):
+        return json.dumps(self, indent=2)
 
 
 def _prefs():
