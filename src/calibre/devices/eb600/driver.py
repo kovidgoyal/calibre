@@ -14,6 +14,7 @@ Windows PNP strings:
 2W00000&1', 3, u'G:\\')
 
 '''
+import re
 
 from calibre.devices.usbms.driver import USBMS
 
@@ -108,6 +109,7 @@ class POCKETBOOK360(EB600):
 
     OSX_MAIN_MEM   = 'Philips Mass Storge Media'
     OSX_CARD_A_MEM = 'Philips Mass Storge Media'
+    OSX_MAIN_MEM_VOL_PAT = re.compile(r'/Pocket')
 
     @classmethod
     def can_handle(cls, dev, debug=False):

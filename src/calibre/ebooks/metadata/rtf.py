@@ -25,12 +25,14 @@ def get_document_info(stream):
     while not found:
         prefix = block[-6:]
         block = prefix + stream.read(block_size)
+        actual_block_size = len(block) - len(prefix)
         if len(block) == len(prefix):
             break
         idx = block.find(r'{\info')
         if idx >= 0:
             found = True
-            stream.seek(stream.tell() - block_size + idx - len(prefix))
+            pos = stream.tell() - actual_block_size + idx - len(prefix)
+            stream.seek(pos)
         else:
             if block.find(r'\sect') > -1:
                 break
