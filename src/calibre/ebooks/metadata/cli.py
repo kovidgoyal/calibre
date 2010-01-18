@@ -128,6 +128,10 @@ def do_set_metadata(opts, mi, stream, stream_type):
         mi.title_sort = title_sort(opts.title)
     if getattr(opts, 'tags', None) is not None:
         mi.tags = [t.strip() for t in opts.tags.split(',')]
+    if getattr(opts, 'series', None) is not None:
+        mi.series = opts.series.strip()
+    if getattr(opts, 'series_index', None) is not None:
+        mi.series_index = float(opts.series_index.strip())
 
     if getattr(opts, 'cover', None) is not None:
         ext = os.path.splitext(opts.cover)[1].replace('.', '').upper()
