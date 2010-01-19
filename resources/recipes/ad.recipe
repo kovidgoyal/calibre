@@ -1,0 +1,86 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ADRecipe(BasicNewsRecipe):
+    __license__  = 'GPL v3'
+    __author__ = 'kwetal'
+    language = 'nl'
+    country = 'NL'
+    version = 1
+
+    title = u'AD'
+    publisher = u'de Persgroep Publishing Nederland NV'
+    category = u'News, Sports, the Netherlands'
+    description = u'News and Sports from the Netherlands'
+
+    oldest_article = 1.2
+    max_articles_per_feed = 100
+    use_embedded_content = False
+
+    remove_empty_feeds = True
+    no_stylesheets = True
+    remove_javascript = True
+
+    keep_only_tags = []
+    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'art_box2'}))
+    keep_only_tags.append(dict(name = 'p', attrs = {'class': 'gen_footnote3'}))
+
+    remove_tags = []
+    remove_tags.append(dict(name = 'div', attrs = {'class': 'gen_clear'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class': re.compile(r'gen_spacer.*')}))
+
+    remove_attributes = ['style']
+
+    # feeds from http://ad.nl/ad/nl/1401/home/integration/nmc/frameset/ad_footer/rssFeeds.dhtml
+    feeds = []
+    feeds.append((u'Binnenland', u'http://www.ad.nl/nieuws/binnenland/rss.xml'))
+    feeds.append((u'Buitenland', u'http://www.ad.nl/nieuws/buitenland/rss.xml'))
+    feeds.append((u'Bizar', u'http://www.ad.nl/nieuws/bizar/rss.xml'))
+    feeds.append((u'Gezondheid & Wetenschap', u'http://www.ad.nl/nieuws/gezondheidwetenschap/rss.xml'))
+    feeds.append((u'Economie', u'http://www.ad.nl/nieuws/economie/rss.xml'))
+    feeds.append((u'Nederlands Voetbal', u'http://www.ad.nl/sportwereld/nederlandsvoetbal/rss.xml'))
+    feeds.append((u'Buitenlands Voetbal', u'http://www.ad.nl/sportwereld/buitenlandsvoetbal/rss.xml'))
+    feeds.append((u'Champions League/Europa League', u'http://www.ad.nl/sportwereld/championsleagueeuropaleague/rss.xml'))
+    feeds.append((u'Wielrennen', u'http://www.ad.nl/sportwereld/wielrennen/rss.xml'))
+    feeds.append((u'Tennis', u'http://www.ad.nl/sportwereld/tennis/rss.xml'))
+    feeds.append((u'Formule 1', u'http://www.ad.nl/sportwereld/formule1/rss.xml'))
+    feeds.append((u'Meer Sport', u'http://www.ad.nl/sportwereld/meersport/rss.xml'))
+    feeds.append((u'Celebs', u'http://www.ad.nl/showbizz/celebs/rss.xml'))
+    feeds.append((u'Film', u'http://www.ad.nl/showbizz/film/rss.xml'))
+    feeds.append((u'Muziek', u'http://www.ad.nl/showbizz/muziek/rss.xml'))
+    feeds.append((u'TV', u'http://www.ad.nl/showbizz/tv/rss.xml'))
+    feeds.append((u'Kunst & Literatuur', u'http://www.ad.nl/showbizz/kunstenliteratuur/rss.xml'))
+    feeds.append((u'Jouw Wereld', u'http://www.ad.nl/you/rss.xml'))
+    feeds.append((u'Consument', u'http://www.ad.nl/consument/rss.xml'))
+    feeds.append((u'Autowereld', u'http://www.ad.nl/autowereld/rss.xml'))
+    feeds.append((u'Reiswereld', u'http://www.ad.nl/reiswereld/rss.xml'))
+    feeds.append((u'Internet', u'http://www.ad.nl/digitaal/internet/rss.xml'))
+    feeds.append((u'Games', u'http://www.ad.nl/digitaal/games/rss.xml'))
+    feeds.append((u'Multimedia', u'http://www.ad.nl/digitaal/multimedia/rss.xml'))
+    feeds.append((u'Planet Watch', u'http://www.ad.nl/planetwatch/rss.xml'))
+
+    extra_css = '''
+                body {font-family: verdana, arial, helvetica, geneva, sans-serif;}
+                div.captionEmbeddedMasterObject {font-size: x-small; font-style: italic; color: #696969;}
+                .gen_footnote3 {font-size: small; color: #666666; margin-top: 0.6em;}
+                '''
+
+    conversion_options = {'comments': description, 'tags': category, 'language': 'en',
+                          'publisher': publisher}
+
+    def print_version(self, url):
+        parts = url.split('/')
+        print_url = 'http://' + parts[2] + '/' + parts[3] + '/' + parts[4] + '/' + parts[5] + '/' \
+                + parts[10] + '/' + parts[7] + '/print/' + parts[8] + '/' + parts[9] + '/' + parts[13]
+
+        return print_url
+
+    def preprocess_html(self, soup):
+        for br in soup.findAll('br'):
+            prev = br.findPreviousSibling(True)
+            if hasattr(prev, 'name') and prev.name == 'br':
+                next = br.findNextSibling(True)
+                if hasattr(next, 'name') and next.name == 'br':
+                    br.extract()
+
+        return soup
