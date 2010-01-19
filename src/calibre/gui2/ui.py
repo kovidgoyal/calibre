@@ -1361,7 +1361,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def generate_catalog(self):
         rows = self.library_view.selectionModel().selectedRows()
-        if not rows:
+        if not rows or len(rows) < 3:
             rows = xrange(self.library_view.model().rowCount(QModelIndex()))
         ids = map(self.library_view.model().id, rows)
         dbspec = None
