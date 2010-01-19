@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-16 20:54+0000\n"
-"PO-Revision-Date: 2010-01-17 12:57+0000\n"
+"PO-Revision-Date: 2010-01-18 22:23+0000\n"
 "Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-18 04:43+0000\n"
+"X-Launchpad-Export-Date: 2010-01-19 04:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:42
@@ -633,7 +633,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:597
 msgid "Unable to mount main memory (Error code: %d)"
-msgstr "Det går inte att montera primärminne (Felkod:%d)"
+msgstr "Det går inte att montera primärminne (Felkod: %d)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:734
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:736
@@ -1041,7 +1041,7 @@ msgid ""
 "number of chapters were detected."
 msgstr ""
 "Maximalt antal länkar för att infoga i innehållsförteckningen. Satt till 0 "
-"för att avaktivera. Grundinställning är:%default. Länkarna läggs endast  "
+"för att avaktivera. Grundinställning är: %default. Länkarna läggs endast  "
 "till innehållsförteckningen om mindre än tröskelvärdet antal kapitel "
 "upptäckts."
 
@@ -1453,7 +1453,7 @@ msgstr "\tOmvandling till BBeB..."
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:539
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:552
 msgid "Could not parse file: %s"
-msgstr "Kunde inte tolka fil:%s"
+msgstr "Kunde inte tolka fil: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:544
 msgid "%s is an empty file"
@@ -2152,7 +2152,7 @@ msgstr "Bokomslagspapper"
 msgid ""
 "Could not find reasonable point at which to split: %s Sub-tree size: %d KB"
 msgstr ""
-"Kunde inte hitta en rimlig plats för att dela upp: %s  Underträdsstorlek:%d "
+"Kunde inte hitta en rimlig plats för att dela upp: %s  Underträdsstorlek: %d "
 "KB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -2526,6 +2526,8 @@ msgid ""
 "Run the text input through the markdown pre-processor. To learn more about "
 "markdown see"
 msgstr ""
+"Kör textinmatning genom \"markdown\" pre-processor. Om du vill veta mer om "
+"\"markdown\" se"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:35
 msgid "Do not insert a Table of Contents into the output text."
@@ -3564,7 +3566,7 @@ msgstr "Ogiltigt reguljärt uttryck"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:57
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:72
 msgid "Invalid regular expression: %s"
-msgstr "Ogiltigt reguljärt uttryck:%s"
+msgstr "Ogiltigt reguljärt uttryck: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:38
@@ -4808,8 +4810,8 @@ msgid ""
 "below."
 msgstr ""
 "<p> calibre kan hitta metadata om dina böcker från två platser: <b> Google "
-"Books </ b> och <b> isbndb.com </ b>. <p> vill använda isbndb.com måste du "
-"registrera dig för ett <a href=\"http://www.isbndb.com\"> gratis konto </ a> "
+"Books </b> och <b> isbndb.com </b>. <p> vill använda isbndb.com måste du "
+"registrera dig för ett <a href=\"http://www.isbndb.com\"> gratis konto </a> "
 "och skriva in din behörighetskod nedan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:83
@@ -5286,7 +5288,7 @@ msgid ""
 "this query."
 msgstr ""
 "<p> Negera denna matchning. Det vill säga returnera bara resultat som <b> "
-"inte </ b> passar denna fråga."
+"inte </b> passar denna fråga."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:39
 msgid "Negate"
@@ -5326,7 +5328,7 @@ msgid ""
 "interface\">User Manual</a> for more help"
 msgstr ""
 "Se <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-search-"
-"interface\"> Bruksanvisning </ a> för mer hjälp"
+"interface\"> Bruksanvisning </a> för mer hjälp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:45
 msgid "Choose formats"
@@ -5587,8 +5589,8 @@ msgid ""
 "href=\"http://calibre.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
 msgstr ""
 "För hjälp med att skriva avancerade nyhetsrecept besök <a "
-"href=\"http://calibre.kovidgoyal.net/user_manual/news.html\"> User Recept </ "
-"a>"
+"href=\"http://calibre.kovidgoyal.net/user_manual/news.html\"> User Recept "
+"</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:277
 msgid "Recipe source code (python)"
@@ -5632,12 +5634,12 @@ msgstr ""
 "right:0px; -qt-block-indent:0; text-indent:0px;\"> A <a href = "
 "\"http://docs.python.org/lib/re-syntax.html\"> <span style=\" text-"
 "decoration: underline; color:#0000ff;\"> referens </ span> </a > på syntax "
-"för reguljära uttryck finns. </ p>\n"
+"för reguljära uttryck finns. </p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\"> Använd <span style = "
 "\"font-weight: 600;\"> Test </ span> funktionaliten nedan för att testa ditt "
 "vanliga uttryck på ett par exempel på filnamn. Gruppnamnen för de olika "
-"metadata poster dokumenteras i verktygstips. </ P> </ body> </ html>"
+"metadata poster dokumenteras i verktygstips. </p> </body> </html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:114
 msgid "Regular &expression"
@@ -5800,7 +5802,7 @@ msgstr "Format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1103
 msgid "Double click to <b>edit</b> me<br><br>"
-msgstr "Dubbelklicka <b> redigera </ b> me <br> <br>"
+msgstr "Dubbelklicka <b> redigera </b> me <br> <br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:47
 msgid "Configure Viewer"
@@ -5816,7 +5818,7 @@ msgstr "Avstava"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:50
 msgid "<b>Changes will only take effect after a restart.</b>"
-msgstr "<b> Förändringar träder i kraft först efter en omstart. </ b>"
+msgstr "<b> Förändringar träder i kraft först efter en omstart. </b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:70
 msgid " - LRF Viewer"
@@ -5824,7 +5826,7 @@ msgstr " - LRF visare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 msgid "<b>No matches</b> for the search phrase <i>%s</i> were found."
-msgstr "<b> Inga träffar</ b> för sökfrasen <i>%s </ i> hittades."
+msgstr "<b> Inga träffar</b> för sökfrasen <i>%s </i> hittades."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:410
@@ -6255,12 +6257,12 @@ msgstr "Omsta&rt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:222
 msgid "<p>For help see the: <a href=\"%s\">User Manual</a><br>"
-msgstr "<p> För hjälp se: <a href=\"%s\"> Användarhandbok </ a> <br>"
+msgstr "<p> För hjälp se: <a href=\"%s\"> Användarhandbok </a> <br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:224
 msgid "<b>%s</b>: %s by <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
 msgstr ""
-"<b>%s </ b>:%s av <b> Kovid Goyal %%(version)s </ b> <br>%%(device)s </ p>"
+"<b>%s </b>: %s av <b> Kovid Goyal %%(version)s </b> <br>%%(device)s </p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:247
 msgid "Edit metadata individually"
@@ -6415,11 +6417,11 @@ msgstr ""
 "                <li> Koppla ur läsaren. Vänta på att den slutför "
 "regenerering av databasen (dvs. vänta tills den är klar att användas). "
 "Koppla in den igen i. Nu är det bör fungera med %(app)s. Om inte prova med "
-"nästa steg. </ Li>\n"
+"nästa steg. </li>\n"
 "                <li> Avsluta %(app)s. Hitta filen media.xml i läsarens "
 "primärminne. Bort det. Koppla ur läsaren. Vänta på att återskapa filen. "
-"Återanslut den och börja %(app)s. </ li>\n"
-"                </ ol>\n"
+"Återanslut den och börja %(app)s. </li>\n"
+"                </ol>\n"
 "                "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:938
@@ -6499,14 +6501,14 @@ msgstr "Välj format som ska tas bort"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1088
 msgid "Choose formats <b>not</b> to be deleted"
-msgstr "Välj format <b> inte </ b> som ska raderas"
+msgstr "Välj format <b> inte </b> som ska raderas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1124
 msgid ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your computer. Are you sure?"
 msgstr ""
-"De utvalda böckerna <b> tas permanent bort </ b> och filer tas bort från "
+"De utvalda böckerna <b> tas permanent bort </b> och filer tas bort från "
 "datorn. Är du säker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1151
@@ -6680,7 +6682,7 @@ msgid ""
 "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
 "first remove the DRM using third party tools."
 msgstr ""
-"<p> Kunde inte konvertera:%s <p> Det är en <a href=\"%s\"> DRM </ a> skyddad "
+"<p> Kunde inte konvertera: %s <p> Det är en <a href=\"%s\"> DRM </a> skyddad "
 "bok. Du måste först ta bort DRM mha tredjepartsverktyg."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1839
@@ -6731,8 +6733,8 @@ msgid ""
 "will keep running in the system tray. To close it, choose <b>Quit</b> in the "
 "context menu of the system tray."
 msgstr ""
-"fortsätter att köra i systemfältet. FÖr att stänga det, välj <b> Avsluta </ "
-"b> i snabbmenyn systemfältet."
+"fortsätter att köra i systemfältet. FÖr att stänga det, välj <b> Avsluta "
+"</b> i snabbmenyn systemfältet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2036
 msgid ""
@@ -6740,7 +6742,7 @@ msgid ""
 "href=\"%s\">%s</a></span>"
 msgstr ""
 "<span style=\"color:red; font-weight:bold\">Senaste version: <a "
-"href=\"%s\">%s </ a> </ span>"
+"href=\"%s\">%s</a></span>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2044
 msgid "Update available"
@@ -6752,7 +6754,7 @@ msgid ""
 "ebook.com/whats-new\">new features</a>. Visit the download page?"
 msgstr ""
 "%s har uppdaterats till version %s. Se <a href=\"http://calibre-"
-"ebook.com/whats-new\"> för nya funktioner </ a>. Besöka nedladdningssidan?"
+"ebook.com/whats-new\"> för nya funktioner </a>. Besöka nedladdningssidan?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -7085,7 +7087,7 @@ msgstr "DRM fel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:560
 msgid "<p>This book is protected by <a href=\"%s\">DRM</a>"
-msgstr "<p> här boken är skyddat av <a href=\"%s\"> DRM </ a>"
+msgstr "<p> här boken är skyddat av <a href=\"%s\"> DRM </a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:564
 msgid "Could not open ebook"
@@ -7356,7 +7358,7 @@ msgid ""
 "<h2>Congratulations!</h2> You have successfully setup calibre. Press the %s "
 "button to apply your settings."
 msgstr ""
-"<h2> Grattis! </ h2> Du har framgångsrikt installerat calibre. Tryck på %s "
+"<h2> Grattis! </h2> Du har framgångsrikt installerat calibre. Tryck på %s "
 "knappen för att tillämpa inställningarna."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:49
@@ -7364,17 +7366,17 @@ msgid ""
 "<h2>Demo videos</h2>Videos demonstrating the various features of calibre are "
 "available <a href=\"http://calibre-ebook.com/demo\">online</a>."
 msgstr ""
-"<h2> Demostrationsvideoklipp </ h2> Videoklipp som visar de olika "
+"<h2> Demostrationsvideoklipp </h2> Videoklipp som visar de olika "
 "funktionerna i calibre finns <a href=\"http://calibre-ebook.com/demo\"> på "
-"internet</ a>."
+"internet</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:50
 msgid ""
 "<h2>User Manual</h2>A User Manual is also available <a href=\"http://calibre-"
 "ebook.com/user_manual\">online</a>."
 msgstr ""
-"<h2> Bruksanvisning </ h2> En användarmanual finns även <a "
-"href=\"http://calibre-ebook.com/user_manual\"> på internet</ a>."
+"<h2> Bruksanvisning </h2> En användarmanual finns även <a "
+"href=\"http://calibre-ebook.com/user_manual\"> på internet</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:44
 msgid ""
@@ -7386,7 +7388,7 @@ msgid ""
 msgstr ""
 "<p> calibre kan automatiskt skicka böcker via e-post till din Kindle. För "
 "att göra det måste du konfigurera e-post nedan. Det enklaste sättet är att "
-"installera ett gratis <a href=\"http://gmail.com\"> Gmail-konto </ a> och "
+"installera ett gratis <a href=\"http://gmail.com\"> Gmail-konto </a> och "
 "klicka på Använd Gmail knappen nedan. Du måste också registrera din Gmail-"
 "adress i ditt Amazon-konto."
 
@@ -7422,7 +7424,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:32
 msgid "Using: %s:%s@%s:%s and %s encryption"
-msgstr "Använda:%s:%s @%s:%s och %s kryptering."
+msgstr "Använda: %s:%s @%s:%s och %s kryptering."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:37
 msgid "Sending..."
@@ -7484,7 +7486,7 @@ msgstr "E-post&server"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:112
 msgid "calibre can <b>optionally</b> use a server to send mail"
 msgstr ""
-"calibre kan <b> valfritt </ b> använda en server för att skicka e-post"
+"calibre kan <b> valfritt </b> använda en server för att skicka e-post"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:113
 msgid "&Hostname:"
@@ -7555,9 +7557,9 @@ msgid ""
 "directly on the device. To do this you have to turn on the calibre content "
 "server."
 msgstr ""
-"<p> Om du använder <a href=\"http://www.lexcycle.com/download\"> Stanza </ "
-"a> e-boksprogrammet på din iPhone / iTouch, kan du öppna din calibre "
-"boksamling direkt på enheten. För att göra detta måste du slå på calibre "
+"<p> Om du använder <a href=\"http://www.lexcycle.com/download\"> Stanza </a> "
+"e-boksprogrammet på din iPhone / iTouch, kan du öppna din calibre boksamling "
+"direkt på enheten. För att göra detta måste du slå på calibre "
 "innehållsservern."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:45
@@ -7661,7 +7663,7 @@ msgid ""
 msgstr ""
 "De fält som ska visas när böcker listas i databasen. Bör vara en "
 "kommaseparerad lista med fält.\n"
-"Fält:%s\n"
+"Tillgängliga fält: %s\n"
 "Grundinställning: %%default. Den särskilda fältet \"alla\" kan användas för "
 "att välja alla fält. Har endast effekt i textutformat."
 
@@ -7715,7 +7717,8 @@ msgid ""
 "The format in which to output the data. Available choices: %s. Defaults is "
 "text."
 msgstr ""
-"I vilket format för utmatning av data. Tillgängliga val:%s. Standard är text."
+"I vilket format för utmatning av data. Tillgängliga val: %s. Standard är "
+"text."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:234
 msgid "Invalid fields. Available fields:"
@@ -7986,7 +7989,7 @@ msgstr "<p> Migrera gamla databasen med e-bokbibliotek i%s <br> <center>"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1715
 msgid "Copying <b>%s</b>"
-msgstr "Kopiering <b>%s </ b>"
+msgstr "Kopiering <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1732
 msgid "Compacting database"
