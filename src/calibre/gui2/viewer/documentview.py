@@ -10,7 +10,7 @@ from base64 import b64encode
 from PyQt4.Qt import QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
                      QColor, QPoint, QImage, QRegion, QVariant, QIcon, \
-                     QFont, QObject, QApplication, pyqtSignature, QAction
+                     QFont, pyqtSignature, QAction
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
@@ -21,7 +21,7 @@ from calibre.constants import iswindows
 from calibre import prints, guess_type
 from calibre.gui2.viewer.keys import SHORTCUTS
 
-bookmarks = referencing = hyphenation = jquery = jquery_scrollTo = hyphenator = None
+bookmarks = referencing = hyphenation = jquery = jquery_scrollTo = hyphenator = images =None
 
 def load_builtin_fonts():
     base = P('fonts/liberation/*.ttf')
@@ -42,6 +42,8 @@ def config(defaults=None):
               help=_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
     c.add_opt('max_view_width', default=6000,
             help=_('Maximum width of the viewer window, in pixels.'))
+    c.add_opt('fit_images', default=True,
+            help=_('Resize images larger than the viewer window to fit inside it'))
     c.add_opt('hyphenate', default=False, help=_('Hyphenate text'))
     c.add_opt('hyphenate_default_lang', default='en',
             help=_('Default language for hyphenation rules'))
@@ -58,20 +60,6 @@ def config(defaults=None):
     fonts('standard_font', default='serif', help=_('The standard font type'))
 
     return c
-
-class PythonJS(QObject):
-
-    def __init__(self, callback):
-        QObject.__init__(self, QApplication.instance())
-        self.setObjectName("py_bridge")
-        self._callback = callback
-
-    @pyqtSignature("QString")
-    def callback(self, msg):
-        print "callback called"
-        self._callback(msg)
-
-
 
 class ConfigDialog(QDialog, Ui_Dialog):
 
@@ -110,6 +98,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.shortcut_config = ShortcutConfig(shortcuts, parent=self)
         p = self.tabs.widget(1)
         p.layout().addWidget(self.shortcut_config)
+        self.opt_fit_images.setChecked(opts.fit_images)
 
 
     def accept(self, *args):
@@ -122,6 +111,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('standard_font', {0:'serif', 1:'sans', 2:'mono'}[self.standard_font.currentIndex()])
         c.set('user_css', unicode(self.css.toPlainText()))
         c.set('remember_window_size', self.opt_remember_window_size.isChecked())
+        c.set('fit_images', self.opt_fit_images.isChecked())
         c.set('max_view_width', int(self.max_view_width.value()))
         c.set('hyphenate', self.hyphenate.isChecked())
         idx = self.hyphenate_default_lang.currentIndex()
@@ -157,7 +147,6 @@ class Document(QWebPage):
         self.setObjectName("py_bridge")
         self.debug_javascript = False
         self.current_language = None
-        #self.js_bridge = PythonJS(self.js_callback)
 
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
         self.scroll_marks = []
@@ -197,9 +186,14 @@ class Document(QWebPage):
         opts = config().parse()
         self.hyphenate = opts.hyphenate
         self.hyphenate_default_lang = opts.hyphenate_default_lang
+        self.do_fit_images = opts.fit_images
+
+    def fit_images(self):
+        if self.do_fit_images:
+            self.javascript('setup_image_scaling_handlers()')
 
     def load_javascript_libraries(self):
-        global bookmarks, referencing, hyphenation, jquery, jquery_scrollTo, hyphenator
+        global bookmarks, referencing, hyphenation, jquery, jquery_scrollTo, hyphenator, images
         self.mainFrame().addToJavaScriptWindowObject("py_bridge", self)
         if jquery is None:
             jquery = P('content_server/jquery.js', data=True)
@@ -215,6 +209,9 @@ class Document(QWebPage):
         if referencing is None:
             referencing = P('viewer/referencing.js', data=True)
         self.javascript(referencing)
+        if images is None:
+            images = P('viewer/images.js', data=True)
+        self.javascript(images)
         if hyphenation is None:
             hyphenation = P('viewer/hyphenation.js', data=True)
         self.javascript(hyphenation)
@@ -541,6 +538,7 @@ class DocumentView(QWebView):
             return
         self.loading_url = None
         self.document.set_bottom_padding(0)
+        self.document.fit_images()
         self._size_hint = self.document.mainFrame().contentsSize()
         scrolled = False
         if self.to_bottom:

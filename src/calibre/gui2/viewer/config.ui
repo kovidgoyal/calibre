@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>479</width>
-    <height>574</height>
+    <height>606</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Configure Ebook viewer</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../resources/images.qrc">
+   <iconset>
     <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
@@ -164,7 +164,7 @@
               </item>
              </widget>
             </item>
-            <item row="6" column="0" colspan="2">
+            <item row="7" column="0" colspan="2">
              <widget class="QCheckBox" name="opt_remember_window_size">
               <property name="text">
                <string>Remember last used &amp;window size</string>
@@ -215,6 +215,13 @@
               </property>
               <property name="buddy">
                <cstring>hyphenate_default_lang</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0" colspan="2">
+             <widget class="QCheckBox" name="opt_fit_images">
+              <property name="text">
+               <string>&amp;Resize images larger than the viewer window (needs restart)</string>
               </property>
              </widget>
             </item>
