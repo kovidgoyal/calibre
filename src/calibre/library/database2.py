@@ -1651,10 +1651,10 @@ class LibraryDatabase2(LibraryDatabase):
             'isbn', 'uuid', 'pubdate'])
         data = []
         for record in self.data:
+            if record is None: continue
             db_id = record[FIELD_MAP['id']]
             if ids is not None and db_id not in ids:
                 continue
-            if record is None: continue
             x = {}
             for field in FIELDS:
                 x[field] = record[FIELD_MAP[field]]
