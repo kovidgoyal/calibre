@@ -421,16 +421,16 @@ class DirContainer(object):
             return f.read()
 
     def write(self, path, data):
-        path = os.path.join(self.rootdir, path)
+        path = os.path.join(self.rootdir, urlunquote(path))
         dir = os.path.dirname(path)
         if not os.path.isdir(dir):
             os.makedirs(dir)
-        with open(urlunquote(path), 'wb') as f:
+        with open(path, 'wb') as f:
             return f.write(data)
 
     def exists(self, path):
-        path = os.path.join(self.rootdir, path)
-        return os.path.isfile(urlunquote(path))
+        path = os.path.join(self.rootdir, urlunquote(path))
+        return os.path.isfile(path)
 
     def namelist(self):
         names = []

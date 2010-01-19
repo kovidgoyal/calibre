@@ -22,7 +22,7 @@ from calibre import __appname__
 class PRS505(CLI, Device):
 
     name           = 'PRS-300/505 Device Interface'
-    gui_name       = 'SONY Pocket Edition'
+    gui_name       = 'SONY Reader'
     description    = _('Communicate with the Sony PRS-300/505/500 eBook reader.')
     author         = 'Kovid Goyal and John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
@@ -95,7 +95,7 @@ class PRS505(CLI, Device):
                 self._card_b_prefix = None
 
     def get_device_information(self, end_session=True):
-        return (self.__class__.__name__, '', '', '')
+        return (self.gui_name, '', '', '')
 
     def books(self, oncard=None, end_session=True):
         if oncard == 'carda' and not self._card_a_prefix:
@@ -214,7 +214,7 @@ class PRS700(PRS505):
     name           = 'PRS-600/700/900 Device Interface'
     description    = _('Communicate with the Sony PRS-600/700/900 eBook reader.')
     author         = 'Kovid Goyal and John Schember'
-    gui_name       = 'SONY Touch/Daily edition'
+    gui_name       = 'SONY Reader'
     supported_platforms = ['windows', 'osx', 'linux']
 
     BCD          = [0x31a]

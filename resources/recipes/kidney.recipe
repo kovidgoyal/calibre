@@ -1,0 +1,73 @@
+# -*- coding: utf-8 -*-
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+class JASN(BasicNewsRecipe):
+    title          = u'Journal of the American Society of Nephrology'
+    language       = 'en'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 31 #days
+    max_articles_per_feed = 25
+    needs_subscription = True
+
+    INDEX = 'http://jasn.asnjournals.org/current.shtml'
+    no_stylesheets = True
+    remove_tags_before = dict(name='h2')
+    #remove_tags_after  = dict(name='th', attrs={'align':'left'})
+    remove_tags = [
+       dict(name='iframe'),
+       #dict(name='div', attrs={'class':'related-articles'}),
+       dict(name='td', attrs={'id':['jasnFooter']}),
+       dict(name='table', attrs={'id':"jasnNavBar"}),
+       dict(name='table', attrs={'class':'content_box_outer_table'}),
+       dict(name='th', attrs={'align':'left'})
+    ]
+
+
+
+    #TO LOGIN
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        self.kidney_toc_soup = BeautifulSoup(br.open(self.INDEX).read())
+        toc = self.kidney_toc_soup.find(id='tocTable')
+        t = toc.find(text=lambda x: x and '[Full&nbsp;Text]' in x)
+        a = t.findParent('a', href=True)
+        url = a.get('href')
+        if url.startswith('/'):
+            url = 'http://jasn.asnjournals.org'+url
+        br.open(url)
+        br.select_form(name='UserSignIn')
+        br['username'] = self.username
+        br['code'] = self.password
+        response = br.submit()
+        raw = response.read()
+        if 'Sign Out' not in raw:
+            raise ValueError('Failed to log in, is your account expired?')
+        return br
+
+    feeds          = [
+        ('JASN',
+        'http://jasn.asnjournals.org/rss/current.xml'),
+    ]
+
+
+
+    def preprocess_html(self, soup):
+        for a in soup.findAll(text=lambda x: x and '[in this window]' in x):
+            a = a.findParent('a')
+            url = a.get('href', None)
+            if not url:
+                continue
+            if url.startswith('/'):
+                url = 'http://jasn.asnjournals.org/'+url
+                isoup = self.index_to_soup(url)
+                img = isoup.find('img', src=lambda x: x and
+                x.startswith('/content/'))
+            if img is not None:
+                img.extract()
+                table = a.findParent('table')
+                table.replaceWith(img)
+        return soup
+
+
+

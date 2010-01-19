@@ -48,7 +48,7 @@ from calibre.gui2.jobs import JobManager, JobsDialog
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook, \
-    fetch_scheduled_recipe
+    fetch_scheduled_recipe, generate_catalog
 from calibre.gui2.dialogs.config import ConfigDialog
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
@@ -355,6 +355,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         cm = QMenu()
         cm.addAction(_('Convert individually'))
         cm.addAction(_('Bulk convert'))
+        cm.addSeparator()
+        ac = cm.addAction(
+                _('Create catalog of the books in your calibre library'))
+        ac.triggered.connect(self.generate_catalog)
         self.action_convert.setMenu(cm)
         self._convert_single_hook = partial(self.convert_ebook, bulk=False)
         QObject.connect(cm.actions()[0],
@@ -894,6 +898,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             view.resizeRowsToContents()
             view.resize_on_select = not view.isVisible()
         self.sync_news()
+        self.sync_catalogs()
     ############################################################################
 
 
@@ -1339,6 +1344,44 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################################################################
 
+    ############################### Generate catalog ###########################
+
+    def generate_catalog(self):
+        rows = self.library_view.selectionModel().selectedRows()
+        if not rows:
+            rows = xrange(self.library_view.model().rowCount(QModelIndex()))
+        ids = map(self.library_view.model().id, rows)
+        dbspec = None
+        if not ids:
+            return error_dialog(self, _('No books selected'),
+                    _('No books selected to generate catalog for'),
+                    show=True)
+        # calibre.gui2.tools:generate_catalog()
+        ret = generate_catalog(self, dbspec, ids)
+        if ret is None:
+            return
+        func, args, desc, out, sync, title = ret
+        fmt = os.path.splitext(out)[1][1:].upper()
+        job = self.job_manager.run_job(
+                Dispatcher(self.catalog_generated), func, args=args,
+                    description=desc)
+        job.catalog_file_path = out
+        job.catalog_sync, job.catalog_title = sync, title
+        self.status_bar.showMessage(_('Generating %s catalog...')%fmt)
+
+    def catalog_generated(self, job):
+        if job.failed:
+            return self.job_exception(job)
+        id = self.library_view.model().add_catalog(job.catalog_file_path, job.catalog_title)
+        self.library_view.model().reset()
+        if job.catalog_sync:
+            sync = dynamic.get('catalogs_to_be_synced', set([]))
+            sync.add(id)
+            dynamic.set('catalogs_to_be_synced', sync)
+        self.status_bar.showMessage(_('Catalog generated.'), 3000)
+        self.sync_catalogs()
+
+
     ############################### Fetch news #################################
 
     def download_scheduled_recipe(self, arg):
@@ -1397,6 +1440,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if jobs == []: return
         self.queue_convert_jobs(jobs, changed, bad, rows, previous,
                 self.book_auto_converted_news)
+
+    def auto_convert_catalogs(self, book_ids, format):
+        previous = self.library_view.currentIndex()
+        rows = [x.row() for x in \
+                self.library_view.selectionModel().selectedRows()]
+        jobs, changed, bad = convert_single_ebook(self, self.library_view.model().db, book_ids, True, format)
+        if jobs == []: return
+        self.queue_convert_jobs(jobs, changed, bad, rows, previous,
+                self.book_auto_converted_catalogs)
+
+
 
     def get_books_for_conversion(self):
         rows = [r.row() for r in \
@@ -1462,6 +1516,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         temp_files, fmt, book_id = self.conversion_jobs[job]
         self.book_converted(job)
         self.sync_news(send_ids=[book_id], do_auto_convert=False)
+
+    def book_auto_converted_catalogs(self, job):
+        temp_files, fmt, book_id = self.conversion_jobs[job]
+        self.book_converted(job)
+        self.sync_catalogs(send_ids=[book_id], do_auto_convert=False)
 
     def book_converted(self, job):
         temp_files, fmt, book_id = self.conversion_jobs.pop(job)[:3]

@@ -532,6 +532,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         for item in items:
             self.language.addItem(item[1], QVariant(item[0]))
         self.language.blockSignals(False)
+        prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())
 
     def change_language(self, idx):
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())

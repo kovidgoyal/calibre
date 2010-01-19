@@ -2,10 +2,10 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys
+import os, sys, tempfile, zipfile
 
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import numeric_version
+from calibre.ptempfile import PersistentTemporaryFile
 
 class Plugin(object):
     '''
@@ -248,6 +248,14 @@ class CatalogPlugin(Plugin):
     #:                       '%default' + "'"))]
 
     cli_options = []
+    
+    def cleanup(self, path):
+        try:
+            import os, shutil
+            if os.path.exists(path):
+                shutil.rmtree(path)
+        except:
+            pass
 
     def search_sort_db(self, db, opts):
         if opts.search_text:
@@ -276,6 +284,41 @@ class CatalogPlugin(Plugin):
         fields.insert(0,fields.pop(int(fields.index(opts.sort_by))))
         return fields
 
+    def initialize(self):
+        '''
+        If plugin is not a built-in, copy the plugin's .ui and .py files from
+        the zip file to $TMPDIR.
+        Tab will be dynamically generated and added to the Catalog Options dialog in 
+        calibre.gui2.dialogs.catalog.py:Catalog
+        '''
+        import atexit
+        from calibre.customize.builtins import plugins as builtin_plugins
+        
+        if type(self) in builtin_plugins:
+            print "%s: Built-in Catalog plugin, no init necessary" % self.name
+        else:
+            print "%s: User-added plugin" % self.name
+            print " Copying .ui and .py resources from %s to tmpdir" % self.plugin_path
+
+            # Generate a list of resource files to extract from the zipped plugin
+            # Copy to tmpdir/calibre_plugin_resources
+            files_to_copy = ["%s.%s" % (self.name.lower(),ext) for ext in ["ui","py"]]
+            print " files_to_copy: %s" % files_to_copy
+            resources = zipfile.ZipFile(self.plugin_path,'r')
+            temp_resources_path = os.path.join(tempfile.gettempdir(),'calibre_plugin_resources')
+
+            for file in files_to_copy:
+                try:
+                    resources.extract(file, temp_resources_path)
+                    print " %s extracted to %s" % (file, temp_resources_path)
+                except:
+                    print " %s not found in %s" % (file, os.path.basename(self.plugin_path))
+            resources.close()
+            
+            # Register temp_resources_path for deletion when calibre exits
+            atexit.register(self.cleanup, temp_resources_path)
+
+            
     def run(self, path_to_output, opts, db):
         '''
         Run the plugin. Must be implemented in subclasses.

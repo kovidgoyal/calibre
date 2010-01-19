@@ -1407,6 +1407,36 @@ class LibraryDatabase2(LibraryDatabase):
         if notify:
             self.notify('metadata', [id])
 
+    def add_catalog(self, path, title):
+        format = os.path.splitext(path)[1][1:].lower()
+        stream = path if hasattr(path, 'read') else open(path, 'rb')
+        stream.seek(0)
+        matches = self.data.get_matches('title', title)
+        if matches:
+            tag_matches = self.data.get_matches('tags', _('Catalog'))
+            matches = matches.intersection(tag_matches)
+        db_id = None
+        if matches:
+            db_id = list(matches)[0]
+        if db_id is None:
+            obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)',
+                                (title, 'calibre'))
+            db_id = obj.lastrowid
+            self.data.books_added([db_id], self)
+            self.set_path(db_id, index_is_id=True)
+            self.conn.commit()
+            mi = MetaInformation(title, ['calibre'])
+            mi.tags = [_('Catalog')]
+            self.set_metadata(db_id, mi)
+
+        self.add_format(db_id, format, stream, index_is_id=True)
+        if not hasattr(path, 'read'):
+            stream.close()
+        self.conn.commit()
+        self.data.refresh_ids(self, [db_id]) # Needed to update format list and size
+        return db_id
+
+
     def add_news(self, path, arg):
         format = os.path.splitext(path)[1][1:].lower()
         stream = path if hasattr(path, 'read') else open(path, 'rb')

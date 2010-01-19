@@ -1,0 +1,92 @@
+#!/usr/bin/env  python
+__license__     = 'GPL v3'
+__author__      = 'Lorenzo Vigentini'
+__copyright__   = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
+__version__     = 'v1.01'
+__date__        = '14, January 2010'
+__description__ = 'Techworld offers the latest breaking IT industry news, product reviews, enterprise software downloads, how-to articles and expert blogs for technical professionals and enterprise users in the UK'
+
+'''
+http://www.techworld.com/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+
+class techworld(BasicNewsRecipe):
+    __author__     = 'Lorenzo Vigentini'
+    description   = 'Techworld offers the latest breaking IT industry news, product reviews, enterprise software downloads, how-to articles and expert blogs for technical professionals and enterprise users in the UK'
+    cover_url     = 'http://www.techworld.com/graphics/header/site_logo.jpg'
+
+    title          = 'TechWorld'
+    publisher      = 'IDG Communication'
+    category       = 'Apple, Mac, video, computing, product reviews, editing, cameras, production'
+
+    language       = 'en'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article        = 7
+    max_articles_per_feed = 15
+    use_embedded_content  = False
+    recursion             = 10
+
+    remove_javascript     = True
+    no_stylesheets        = True
+
+    temp_files = []
+    articles_are_obfuscated = True
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        br.open(url)
+        response = br.follow_link(url_regex='?getDynamicPage&print$', nr = 0)
+        html = response.read()
+        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+        self.temp_files[-1].write(html)
+        self.temp_files[-1].close()
+        return self.temp_files[-1].name
+
+    keep_only_tags     = [
+                            dict(name='div', attrs={'id':'articleBody'}),
+                            dict(name='h2', attrs={'class':'blogTitle'}),
+                            dict(name='h3', attrs={'class':'blogger'}),
+                        ]
+
+    remove_tags        = [
+                            dict(name='div', attrs={'class':['submissionBar','mpuContainer']}),
+                            dict(name='div', attrs={'id':['breadcrumb','mainContentSidebar','articleIconsList','loginSubscribeBoxout']}),
+                            dict(name='ul', attrs={'class':'articleIconsList'})
+                        ]
+    remove_tags_after   = [
+                            dict(name='div', attrs={'id':'articleFooter'})
+                        ]
+
+    feeds          = [
+                       (u'News', u'http://www.techworld.com/rss/feeds/techworld-news.xml'),
+                       (u'How-Tos', u'http://www.techworld.com/rss/feeds/techworld-how-tos.xml'),
+                       (u'Reviews', u'http://www.techworld.com/rss/feeds/techworld-reviews.xml'),
+                       (u'Features', u'http://www.techworld.com/rss/feeds/techworld-features.xml'),
+                       (u'Storage', u'http://www.techworld.com/rss/feeds/techworld-storage.xml'),
+                       (u'Applications', u'http://www.techworld.com/rss/feeds/techworld-applications.xml'),
+                       (u'Virtualization', u'http://www.techworld.com/rss/feeds/techworld-virtualisation.xml'),
+                       (u'Personal Tech', u'http://www.techworld.com/rss/feeds/techworld-personal-tech.xml'),
+                       (u'Green IT', u'http://www.techworld.com/rss/feeds/techworld-green-it.xml'),
+                       (u'Security', u'http://www.techworld.com/rss/feeds/techworld-security.xml'),
+                       (u'Operating Systems', u'http://www.techworld.com/rss/feeds/techworld-operating-systems.xml'),
+                       (u'Networking', u'http://www.techworld.com/rss/feeds/techworld-networking.xml'),
+                       (u'Mobile and Wireless', u'http://www.techworld.com/rss/feeds/techworld-mobile-wireless.xml'),
+                       (u'Data Centre', u'http://www.techworld.com/rss/feeds/techworld-data-centre.xml'),
+                       (u'SME', u'http://www.techworld.com/rss/feeds/techworld-sme.xml'),
+                       (u'TechWorld Blogs', u'http://blogs.techworld.com/atom.xml')
+                    ]
+
+    extra_css = '''
+                h1 {color:#0066CC;font-family:Arial,Helvetica,sans-serif; font-size:20px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:20px;}
+                h2 {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:16px; }
+                h3 {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:15px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:15px;}
+                h4 {color:#333333; font-family:Arial,Helvetica,sans-serif;font-size:13px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:13px; }
+                h5 {color:#333333; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:11px; text-transform:uppercase;}
+                .newsdate {color:#333333;font-family:Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:italic; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
+                .articleInfo {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:bold; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
+                img {align:left;}
+                '''

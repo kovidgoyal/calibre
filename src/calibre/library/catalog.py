@@ -41,6 +41,8 @@ class CSV_XML(CatalogPlugin):
 
         log = Log()
         self.fmt = path_to_output[path_to_output.rfind('.') + 1:]
+        # Update to .partition
+        self.fmt = path_to_output.rpartition('.')[2]
         if opts.verbose:
             log("%s:run" % self.name)
             log(" path_to_output: %s" % path_to_output)

@@ -1,0 +1,91 @@
+#!/usr/bin/env  python
+__license__     = 'GPL v3'
+__author__      = 'Lorenzo Vigentini'
+__copyright__   = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
+__version__     = 'v1.01'
+__date__        = '14, January 2010'
+__description__ = 'Macworld is a publication of IDG Communication in the UK specifically on the Apple Mac.'
+
+'''
+http://www.macworld.co.uk/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+
+class pcMag(BasicNewsRecipe):
+    __author__    = 'Lorenzo Vigentini'
+    description   = 'Macworld is a publication of IDG Communication in the UK specifically on the Apple Mac.'
+    cover_url     = 'http://media.macworld.co.uk/images/masthead.jpg'
+
+    title          = 'Mac World UK '
+    publisher      = 'IDG Communication'
+    category       = 'Apple, Mac, computing, product reviews, UK'
+
+    language       = 'en_GB'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article        = 15
+    max_articles_per_feed = 25
+    use_embedded_content  = False
+    recursion             = 10
+
+    remove_javascript     = True
+    no_stylesheets        = True
+
+    temp_files = []
+    articles_are_obfuscated = True
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        br.open(url)
+        response = br.follow_link(url_regex='&print$', nr = 0)
+        html = response.read()
+
+        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+        self.temp_files[-1].write(html)
+        self.temp_files[-1].close()
+        return self.temp_files[-1].name
+
+    keep_only_tags     = [
+                            dict(name='div', attrs={'id':'wrapper'})
+                        ]
+
+    remove_tags        = [
+                            dict(name='div', attrs={'class':'bannerContainer'}),
+                            dict(name='p', attrs={'class':'breadcrumbs'}),
+                            dict(name='ul', attrs={'id':'articleIconsList'})
+
+                        ]
+
+    remove_tags_after  = [
+                            dict(name='p', attrs={'id':'articlePageList'}),
+                        ]
+
+    feeds          = [
+                       (u'MacWorld Headlines', u'http://www.macworld.co.uk/rss/macworld.xml'),
+                       (u'Reviews', u'http://www.macworld.co.uk/rss/reviews.xml'),
+                       (u'Masterclass', u'http://www.macworld.co.uk/rss/masterclasses.xml'),
+                       (u'MacWorld Team', u'http://www.macworld.co.uk/rss/blog8.xml'),
+                       (u'Andy Ihnatko', u'http://www.macworld.co.uk/rss/blog7.xml'),
+                       (u'Andy Penfold', u'http://www.macworld.co.uk/rss/blog11.xml'),
+                       (u'Jonny Evans', u'http://www.macworld.co.uk/rss/blog1.xml'),
+                       (u'Karen Haslam', u'http://www.macworld.co.uk/rss/blog4.xml'),
+                       (u'Mark Hattersley', u'http://www.macworld.co.uk/rss/blog2.xml'),
+                       (u'Nick Spence', u'http://www.macworld.co.uk/rss/blog12.xml'),
+                       (u'Simon Iary', u'http://www.macworld.co.uk/rss/blog3.xml')
+                     ]
+
+    extra_css = '''
+                h1 {color:#0066CC;font-family:Arial,Helvetica,sans-serif; font-size:20px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:20px;}
+                h2 {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:16px; }
+                h3 {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:15px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:15px;}
+                h4 {color:#333333; font-family:Arial,Helvetica,sans-serif;font-size:13px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:13px; }
+                h5 {color:#333333; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:11px; text-transform:uppercase;}
+                p.authorCredit {-x-system-font:none;font-family:Arial,sans-serif;font-size:10pt;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant:normal;font-weight:normal;line-height:1.1em;}
+                p.date {font-size:10pt;margin-bottom:0;}
+                img {align:left;}
+                '''
+
+
+

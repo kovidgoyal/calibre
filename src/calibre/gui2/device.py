@@ -676,6 +676,65 @@ class DeviceGUI(object):
             self.status_bar.showMessage(_('Sent news to')+' '+\
                     ', '.join(sent_mails),  3000)
 
+    def sync_catalogs(self, send_ids=None, do_auto_convert=True):
+        if self.device_connected:
+            settings = self.device_manager.device.settings()
+            ids = list(dynamic.get('catalogs_to_be_synced', set([]))) if send_ids is None else send_ids
+            ids = [id for id in ids if self.library_view.model().db.has_id(id)]
+            files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
+                                ids, settings.format_map,
+                                exclude_auto=do_auto_convert)
+            auto = []
+            if do_auto_convert and _auto_ids:
+                for id in _auto_ids:
+                    dbfmts = self.library_view.model().db.formats(id, index_is_id=True)
+                    formats = [] if dbfmts is None else \
+                        [f.lower() for f in dbfmts.split(',')]
+                    if set(formats).intersection(available_input_formats()) \
+                            and set(settings.format_map).intersection(available_output_formats()):
+                        auto.append(id)
+            if auto:
+                format = None
+                for fmt in settings.format_map:
+                    if fmt in list(set(settings.format_map).intersection(set(available_output_formats()))):
+                        format = fmt
+                        break
+                if format is not None:
+                    autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
+                    autos = '\n'.join('%s'%i for i in autos)
+                    if question_dialog(self, _('No suitable formats'),
+                        _('Auto convert the following books before uploading to '
+                            'the device?'), det_msg=autos):
+                        self.auto_convert_catalogs(auto, format)
+            files = [f for f in files if f is not None]
+            if not files:
+                dynamic.set('catalogs_to_be_synced', set([]))
+                return
+            metadata = self.library_view.model().metadata_for(ids)
+            names = []
+            for mi in metadata:
+                prefix = ascii_filename(mi.title)
+                if not isinstance(prefix, unicode):
+                    prefix = prefix.decode(preferred_encoding, 'replace')
+                prefix = ascii_filename(prefix)
+                names.append('%s_%d%s'%(prefix, id,
+                    os.path.splitext(f.name)[1]))
+                if mi.cover and os.access(mi.cover, os.R_OK):
+                    mi.thumbnail = self.cover_to_thumbnail(open(mi.cover,
+                        'rb').read())
+            dynamic.set('catalogs_to_be_synced', set([]))
+            if files:
+                remove = []
+                space = { self.location_view.model().free[0] : None,
+                    self.location_view.model().free[1] : 'carda',
+                    self.location_view.model().free[2] : 'cardb' }
+                on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
+                self.upload_books(files, names, metadata,
+                        on_card=on_card,
+                        memory=[[f.name for f in files], remove])
+                self.status_bar.showMessage(_('Sending catalogs to device.'), 5000)
+
+
 
     def sync_news(self, send_ids=None, do_auto_convert=True):
         if self.device_connected:
