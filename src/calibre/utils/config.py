@@ -524,6 +524,7 @@ class DynamicConfig(dict):
                     pass
                 except:
                     import traceback
+                    print 'Failed to unpickle stored object:'
                     traceback.print_exc()
                     d = {}
         self.clear()
