@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-16 20:54+0000\n"
-"PO-Revision-Date: 2010-01-18 08:11+0000\n"
+"PO-Revision-Date: 2010-01-19 05:26+0000\n"
 "Last-Translator: Øyvind Øritsland <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-19 04:40+0000\n"
+"X-Launchpad-Export-Date: 2010-01-20 04:35+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:42
@@ -3982,7 +3982,7 @@ msgstr "Autokonverter følgende bøker før du laster dem opp til enheten?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:735
 msgid "Sending catalogs to device."
-msgstr ""
+msgstr "Sender kataloger til enheten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:796
 msgid "Sending news to device."
@@ -4046,7 +4046,7 @@ msgstr "Formater"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:68
 msgid "Fit &cover to view"
-msgstr ""
+msgstr "Tilpass &omslag for visning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:69
 msgid "&Previous"
@@ -4058,33 +4058,34 @@ msgstr "&Neste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:24
 msgid "My Books"
-msgstr ""
+msgstr "Mine bøker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:254
 msgid "Generate catalog"
-msgstr ""
+msgstr "Produser katalog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:70
 msgid "Catalog &format:"
-msgstr ""
+msgstr "Katalog &format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:71
 msgid ""
 "Catalog &title (existing catalog with the same title will be replaced):"
 msgstr ""
+"Katalog &tittel (eksisterende kataloger med samme tittel vil bli erstattet):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:72
 msgid "&Send catalog to device automatically"
-msgstr ""
+msgstr "&Send katalog til ehneten automatisk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:73
 msgid "Catalog options"
-msgstr ""
+msgstr "katalogvalg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:74
 msgid "Generate catalog for {0} books"
-msgstr ""
+msgstr "Produser katalog for {0} bøker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:40
 msgid "Choose Format"
@@ -6382,7 +6383,7 @@ msgstr "Samlet konvertering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:360
 msgid "Create catalog of the books in your calibre library"
-msgstr ""
+msgstr "Lag katalog for bøker i ditt calibre-bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:376
 msgid "Run welcome wizard"
@@ -6619,15 +6620,15 @@ msgstr "Klikk vis detaljer knappen for å se hvilke."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1357
 msgid "No books selected to generate catalog for"
-msgstr ""
+msgstr "Ingen bøker ble valgt for å produsere kataloger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1369
 msgid "Generating %s catalog..."
-msgstr ""
+msgstr "Produserer %s katalog..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1380
 msgid "Catalog generated."
-msgstr ""
+msgstr "Katalog produsert."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1393
 msgid "Fetching news from "
@@ -7206,11 +7207,11 @@ msgstr "Skriv ut e-bok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:196
 msgid "Copy Image"
-msgstr ""
+msgstr "Kopier bilde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:197
 msgid "Paste Image"
-msgstr ""
+msgstr "Lim inn bilde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:226
 msgid ""
@@ -7646,6 +7647,13 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Området for utdata for katalogføring av bøker i databasen. Må være en "
+"kommaseparert liste av felt.\n"
+"Tilgjengelige områder: alle, forfattersortering, forfattere, kommentarer, "
+"omslagsbilde, formater, id, isbn, publikasjonsdato, bedømmelse, "
+"serieinndeks, serier, størrelse, tidsmerker, tittel, uuid.\n"
+"Standard: %standard\n"
+"Gjelder: CSV, XML utdataformater"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:34
 msgid ""
@@ -7654,6 +7662,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Utdatafelter som kan sorteres.\n"
+"Tilgjengelige områder: forfattersortering, id, bedømmelse, størrelse, "
+"tidsmerking, tittel.\n"
+"Standard: %standard'\n"
+"Gjelder: CSV, XML utdataformater"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:121
 msgid ""
@@ -7942,6 +7955,14 @@ msgid ""
 "ouput.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog katalog /sti/til/målområde.(csv|epub|mobi|xml ...) [valg]\n"
+"\n"
+"    Eksporter katalog i formatet som er spesifisert ved sti/til/målområde "
+"utvidelse.\n"
+"    Valgmuligheter for hvordan oppføringer blir vist som opprettet "
+"katalogutdata.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:648
 msgid ""
@@ -7949,6 +7970,9 @@ msgid ""
 "please see the search-related documentation in the User Manual.\n"
 "Default: no filtering"
 msgstr ""
+"Filtrer resultatene ved søke-forespørsel. For søke-forespørsel format, "
+"vennligst se i søkerelatert dokumentasjon i brukermanualen.\n"
+"Standard: ingen filtrering"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:654
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
@@ -7957,7 +7981,7 @@ msgstr "Vis detaljert utdatainformasjon. Benyttes for feilsøking"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:692
 msgid "Error: You must specify a catalog output file"
-msgstr ""
+msgstr "Feilmelding: Du må spesifisere en katalog for utdata-fil"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:707
 msgid ""
@@ -7982,7 +8006,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1416
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1429
 msgid "Catalog"
-msgstr ""
+msgstr "Katalog"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1686
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
@@ -8021,6 +8045,8 @@ msgid ""
 "The author sort string. To use only the first letter of the name use "
 "{author_sort[0]}"
 msgstr ""
+"Streng for forfattersortering. For kun å benytte første bokstav i navnet, "
+"bruk  {author_sort[0]}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:28
 msgid "The tags"
@@ -8274,7 +8300,7 @@ msgstr "Engelsk (Australia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
 msgid "English (New Zealand)"
-msgstr ""
+msgstr "Engelsk (New Zealand)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "English (Canada)"
