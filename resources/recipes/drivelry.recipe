@@ -1,0 +1,41 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+class drivelrycom(BasicNewsRecipe):
+    title          = u'drivelry.com'
+    language       = 'en'
+    description    = 'A blog by Mike Abrahams'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 60 #days
+    max_articles_per_feed = 25
+    #encoding = 'latin1'
+
+    remove_stylesheets = True
+    #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
+    remove_tags_after  = dict(name='div', attrs={'id':'bookmark'})
+    remove_tags = [
+       dict(name='iframe'),
+       dict(name='div', attrs={'class':['sidebar']}),
+       dict(name='div', attrs={'id':['bookmark']}),
+       #dict(name='span', attrs={'class':['related_link', 'slideshowcontrols']}),
+       #dict(name='ul', attrs={'class':'articleTools'}),
+    ]
+
+    feeds          = [
+('drivelry.com',
+ 'http://feeds.feedburner.com/drivelry'),
+
+]
+
+    def preprocess_html(self, soup):
+        story = soup.find(name='div', attrs={'id':'main'})
+        #td = heading.findParent(name='td')
+        #td.extract()
+        soup = BeautifulSoup('''
+<html><head><title>t</title></head><body>
+<p>To donate to this blog: <a href="http://www.drivelry.com/thank-you/">click here</a></p>
+</body></html>
+''')
+        body = soup.find(name='body')
+        body.insert(0, story)
+        return soup

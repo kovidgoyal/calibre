@@ -104,6 +104,7 @@ _extra_lang_codes = {
         'en_CY' : _('English (Cyprus)'),
         'en_PK' : _('English (Pakistan)'),
         'en_SG' : _('English (Singapore)'),
+        'en_YE' : _('English (Yemen)'),
         'de_AT' : _('German (AT)'),
         'nl'    : _('Dutch (NL)'),
         'nl_BE' : _('Dutch (BE)'),

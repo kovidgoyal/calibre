@@ -2,10 +2,11 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, tempfile, zipfile
+import atexit, os, shutil, sys, tempfile, zipfile
 
 from calibre.constants import numeric_version
 from calibre.ptempfile import PersistentTemporaryFile
+
 
 class Plugin(object):
     '''
@@ -225,11 +226,13 @@ class MetadataWriterPlugin(Plugin):
 
         '''
         pass
-
+    
 class CatalogPlugin(Plugin):
     '''
     A plugin that implements a catalog generator.
     '''
+
+    resources_path = None
 
     #: Output file type for which this plugin should be run
     #: For example: 'epub' or 'xml'
@@ -249,22 +252,18 @@ class CatalogPlugin(Plugin):
 
     cli_options = []
     
-    def cleanup(self, path):
-        try:
-            import os, shutil
-            if os.path.exists(path):
-                shutil.rmtree(path)
-        except:
-            pass
 
     def search_sort_db(self, db, opts):
-        if opts.search_text:
+
+        # If declared, --ids overrides any declared search criteria
+        if not opts.ids and opts.search_text:
             db.search(opts.search_text)
+
         if opts.sort_by:
             # 2nd arg = ascending
             db.sort(opts.sort_by, True)
-
-        return db.get_data_as_dict()
+        
+        return db.get_data_as_dict(ids=opts.ids)
 
     def get_output_fields(self, opts):
         # Return a list of requested fields, with opts.sort_by first
@@ -280,8 +279,10 @@ class CatalogPlugin(Plugin):
             fields = list(all_fields & requested_fields)
         else:
             fields = list(all_fields)
+
         fields.sort()
-        fields.insert(0,fields.pop(int(fields.index(opts.sort_by))))
+        if opts.sort_by:
+            fields.insert(0,fields.pop(int(fields.index(opts.sort_by))))
         return fields
 
     def initialize(self):
@@ -291,35 +292,27 @@ class CatalogPlugin(Plugin):
         Tab will be dynamically generated and added to the Catalog Options dialog in 
         calibre.gui2.dialogs.catalog.py:Catalog
         '''
-        import atexit
         from calibre.customize.builtins import plugins as builtin_plugins
+        from calibre.customize.ui import config
+        from calibre.ptempfile import PersistentTemporaryDirectory
         
-        if type(self) in builtin_plugins:
-            print "%s: Built-in Catalog plugin, no init necessary" % self.name
-        else:
-            print "%s: User-added plugin" % self.name
-            print " Copying .ui and .py resources from %s to tmpdir" % self.plugin_path
-
-            # Generate a list of resource files to extract from the zipped plugin
-            # Copy to tmpdir/calibre_plugin_resources
+        if not type(self) in builtin_plugins and \
+           not self.name in config['disabled_plugins']:
             files_to_copy = ["%s.%s" % (self.name.lower(),ext) for ext in ["ui","py"]]
-            print " files_to_copy: %s" % files_to_copy
             resources = zipfile.ZipFile(self.plugin_path,'r')
-            temp_resources_path = os.path.join(tempfile.gettempdir(),'calibre_plugin_resources')
-
+                        
+            if self.resources_path is None:
+                self.resources_path = PersistentTemporaryDirectory('_plugin_resources', prefix='')
+                 
             for file in files_to_copy:
                 try:
-                    resources.extract(file, temp_resources_path)
-                    print " %s extracted to %s" % (file, temp_resources_path)
+                    resources.extract(file, self.resources_path)
                 except:
-                    print " %s not found in %s" % (file, os.path.basename(self.plugin_path))
-            resources.close()
+                    print " customize:__init__.initialize(): %s not found in %s" % (file, os.path.basename(self.plugin_path))
+                    continue
+            resources.close()                
             
-            # Register temp_resources_path for deletion when calibre exits
-            atexit.register(self.cleanup, temp_resources_path)
-
-            
-    def run(self, path_to_output, opts, db):
+    def run(self, path_to_output, opts, db, ids):
         '''
         Run the plugin. Must be implemented in subclasses.
         It should generate the catalog in the format specified

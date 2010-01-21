@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 '''The main GUI'''
 
-import os, sys, textwrap, collections, time
+import atexit, os, shutil, sys, tempfile, textwrap, collections, time
 from xml.parsers.expat import ExpatError
 from Queue import Queue, Empty
 from threading import Thread
@@ -31,7 +31,7 @@ from calibre.utils.ipc.server import Server
 from calibre.gui2 import warning_dialog, choose_files, error_dialog, \
                             question_dialog,\
                            pixmap_to_data, choose_dir, \
-                           Dispatcher, \
+                           Dispatcher, gprefs, \
                            available_height, \
                            max_available_height, config, info_dialog, \
                            available_width, GetMetadata
@@ -357,7 +357,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         cm.addAction(_('Bulk convert'))
         cm.addSeparator()
         ac = cm.addAction(
-                _('Create catalog of the books in your calibre library'))
+                _('Create catalog of books in your calibre library'))
         ac.triggered.connect(self.generate_catalog)
         self.action_convert.setMenu(cm)
         self._convert_single_hook = partial(self.convert_ebook, bulk=False)
@@ -518,7 +518,21 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.library_view.model(), SIGNAL('count_changed(int)'),
                      self.tags_view.recount)
         self.connect(self.search, SIGNAL('cleared()'), self.tags_view.clear)
+        if not gprefs.get('quick_start_guide_added', False):
+            from calibre.ebooks.metadata import MetaInformation
+            mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
+            mi.author_sort = 'Schember, John'
+            mi.comments = "A guide to get you up an running with calibre"
+            mi.publisher = 'calibre'
+            self.library_view.model().add_books([P('quick_start.epub')], ['epub'],
+                    [mi])
+            gprefs['quick_start_guide_added'] = True
+            self.library_view.model().books_added(1)
+            if hasattr(self, 'db_images'):
+                self.db_images.reset()
+
         self.library_view.model().count_changed()
+
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
@@ -1008,7 +1022,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             return
         self._add_books(books, to_device)
 
-
     def _add_books(self, paths, to_device, on_card=None):
         if on_card is None:
             on_card = 'carda' if self.stack.currentIndex() == 2 else 'cardb' if self.stack.currentIndex() == 3 else None
@@ -1346,27 +1359,32 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################### Generate catalog ###########################
 
-    def generate_catalog(self):
+    def generate_catalog(self):    
         rows = self.library_view.selectionModel().selectedRows()
-        if not rows:
+        if not rows or len(rows) < 2:
             rows = xrange(self.library_view.model().rowCount(QModelIndex()))
         ids = map(self.library_view.model().id, rows)
+
         dbspec = None
         if not ids:
             return error_dialog(self, _('No books selected'),
                     _('No books selected to generate catalog for'),
                     show=True)
-        # calibre.gui2.tools:generate_catalog()
+
+        # Calling gui2.tools:generate_catalog()
         ret = generate_catalog(self, dbspec, ids)
         if ret is None:
             return
+            
         func, args, desc, out, sync, title = ret
+
         fmt = os.path.splitext(out)[1][1:].upper()
         job = self.job_manager.run_job(
                 Dispatcher(self.catalog_generated), func, args=args,
                     description=desc)
         job.catalog_file_path = out
-        job.catalog_sync, job.catalog_title = sync, title
+        job.fmt = fmt
+        job.catalog_sync, job.catalog_title = sync, title        
         self.status_bar.showMessage(_('Generating %s catalog...')%fmt)
 
     def catalog_generated(self, job):
@@ -1380,8 +1398,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             dynamic.set('catalogs_to_be_synced', sync)
         self.status_bar.showMessage(_('Catalog generated.'), 3000)
         self.sync_catalogs()
-
-
+		if job.fmt in ['CSV','XML']:
+			export_dir = choose_dir(self, 'Export Catalog Directory', 
+										          'Select destination for %s.%s' % (job.catalog_title, job.fmt.lower()))
+			if export_dir:
+				destination = os.path.join(export_dir, '%s.%s' % (job.catalog_title, job.fmt.lower()))
+				shutil.copyfile(job.catalog_file_path, destination)
+				
     ############################### Fetch news #################################
 
     def download_scheduled_recipe(self, arg):

@@ -12,15 +12,18 @@ from PyQt4.Qt import QDialog, QWidget
 
 from calibre.customize.ui import config
 from calibre.gui2.dialogs.catalog_ui import Ui_Dialog
-from calibre.gui2 import dynamic
+from calibre.gui2 import gprefs, dynamic
 from calibre.customize.ui import available_catalog_formats, catalog_plugins
 from calibre.gui2.catalog.catalog_csv_xml import PluginWidget
 
 class Catalog(QDialog, Ui_Dialog):
+    ''' Catalog Dialog builder'''
+    widgets = []
 
     def __init__(self, parent, dbspec, ids):
         import re, cStringIO
         from calibre import prints as info
+        from calibre.gui2 import dynamic
         from PyQt4.uic import compileUi
         
         QDialog.__init__(self, parent)
@@ -42,6 +45,7 @@ class Catalog(QDialog, Ui_Dialog):
         self.fmts = []
         
         from calibre.customize.builtins import plugins as builtin_plugins
+        from calibre.customize import CatalogPlugin
 
         for plugin in catalog_plugins():
             if plugin.name in config['disabled_plugins']:
@@ -49,38 +53,30 @@ class Catalog(QDialog, Ui_Dialog):
                 
             name = plugin.name.lower().replace(' ', '_')
             if type(plugin) in builtin_plugins:
-                info("Adding tab for builtin Catalog plugin %s" % plugin.name)                
+                #info("Adding widget for builtin Catalog plugin %s" % plugin.name)                
                 try:
                     catalog_widget = __import__('calibre.gui2.catalog.'+name,
                             fromlist=[1])
                     pw = catalog_widget.PluginWidget()
-                    pw.initialize()
+                    pw.initialize(name)
                     pw.ICON = I('forward.svg')    
-                    page = self.tabs.addTab(pw,pw.TITLE)
-                    [self.fmts.append([file_type, pw.sync_enabled]) for file_type in plugin.file_types]
-                    info("\tSupported formats: %s" % plugin.file_types)
-                    info("\tsync_enabled: %s" % pw.sync_enabled)
-    
+                    self.widgets.append(pw)
+                    [self.fmts.append([file_type.upper(), pw.sync_enabled,pw]) for file_type in plugin.file_types]                    
                 except ImportError:
                     info("ImportError with %s" % name)
                     continue
             else:
-                # Test to see if .ui and .py files exist in tmpdir/calibre_plugin_resources
-                form = os.path.join(tempfile.gettempdir(),
-                                    'calibre_plugin_resources','%s.ui' % name)
-                klass = os.path.join(tempfile.gettempdir(),
-                                  'calibre_plugin_resources','%s.py' % name)
-                compiled_form = os.path.join(tempfile.gettempdir(),
-                                  'calibre_plugin_resources','%s_ui.py' % name)
-                plugin_resources = os.path.join(tempfile.gettempdir(),'calibre_plugin_resources')        
+                # Load dynamic tab
+                form = os.path.join(plugin.resources_path,'%s.ui' % name)
+                klass = os.path.join(plugin.resources_path,'%s.py' % name)
+                compiled_form = os.path.join(plugin.resources_path,'%s_ui.py' % name)
 
                 if os.path.exists(form) and os.path.exists(klass):
-                    info("Adding tab for user-installed Catalog plugin %s" % plugin.name)
+                    #info("Adding widget for user-installed Catalog plugin %s" % plugin.name)
                     
-                    # Compile the form provided in plugin.zip
-                    if not os.path.exists(compiled_form) or \
-                       os.stat(form).st_mtime > os.stat(compiled_form).st_mtime:
-                        info('\tCompiling form', form)
+                    # Compile the .ui form provided in plugin.zip
+                    if not os.path.exists(compiled_form):
+                        # info('\tCompiling form', form)
                         buf = cStringIO.StringIO()
                         compileUi(form, buf)
                         dat = buf.getvalue()
@@ -88,35 +84,41 @@ class Catalog(QDialog, Ui_Dialog):
                                          re.DOTALL).sub(r'_("\1")', dat)
                         open(compiled_form, 'wb').write(dat)
                     
-                    # Import the Catalog class from the dynamic .py file
+                    # Import the dynamic PluginWidget() from .py file provided in plugin.zip
                     try:
-                        sys.path.insert(0, plugin_resources)
+                        sys.path.insert(0, plugin.resources_path)
                         catalog_widget = __import__(name, fromlist=[1])
-                        dpw = catalog_widget.PluginWidget()
-                        dpw.initialize()
-                        dpw.ICON = I('forward.svg')    
-                        page = self.tabs.addTab(dpw, dpw.TITLE)
-                        [self.fmts.append([file_type, dpw.sync_enabled]) for file_type in plugin.file_types]
-                        info("\tSupported formats: %s" % plugin.file_types)
-                        info("\tsync_enabled: %s" % dpw.sync_enabled)
+                        pw = catalog_widget.PluginWidget()
+                        pw.initialize(name)
+                        pw.ICON = I('forward.svg')    
+                        self.widgets.append(pw)                        
+                        [self.fmts.append([file_type.upper(), pw.sync_enabled,pw]) for file_type in plugin.file_types]
                     except ImportError:
                         info("ImportError with %s" % name)
                         continue
                     finally:
-                        sys.path.remove(plugin_resources)
+                        sys.path.remove(plugin.resources_path)
                         
                 else:
                     info("No dynamic tab resources found for %s" % name)
 
+        self.widgets = sorted(self.widgets, key=lambda x:(x.TITLE, x.TITLE))
+        for pw in self.widgets:
+            page = self.tabs.addTab(pw,pw.TITLE)
+
         # Generate a sorted list of installed catalog formats/sync_enabled pairs
-        # Generate a parallel list of sync_enabled[True|False]ß
-        self.fmts = sorted([x[0].upper() for x in self.fmts])
+        fmts = sorted([x[0] for x in self.fmts])
+
+        self.sync_enabled_formats = []
+        for fmt in self.fmts:
+            if fmt[1]:
+                self.sync_enabled_formats.append(fmt[0])
 
         # Callback when format changes
         self.format.currentIndexChanged.connect(self.format_changed)
 
         # Add the installed catalog format list to the format QComboBox
-        self.format.addItems(self.fmts)
+        self.format.addItems(fmts)
 
         pref = dynamic.get('catalog_preferred_format', 'CSV')
         idx = self.format.findText(pref)
@@ -127,9 +129,8 @@ class Catalog(QDialog, Ui_Dialog):
             self.sync.setChecked(dynamic.get('catalog_sync_to_device', True))
                             
     def format_changed(self, idx):
-        print "format_changed(idx): idx: %d" % idx
         cf = unicode(self.format.currentText())
-        if cf in ('EPUB', 'MOBI'):
+        if cf in self.sync_enabled_formats:
             self.sync.setEnabled(True)
         else:
             self.sync.setDisabled(True)

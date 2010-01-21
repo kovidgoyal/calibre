@@ -4,10 +4,14 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import os
+from optparse import OptionParser
+
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.conversion.plumber import Plumber
-# ?from calibre.library.catalog import Catalog
+from calibre.customize.ui import plugin_for_catalog_format
 from calibre.utils.logging import Log
+from calibre.gui2 import choose_dir, Application
 
 def gui_convert(input, output, recommendations, notification=DummyReporter(),
         abort_after_input_dump=False, log=None):
@@ -21,7 +25,7 @@ def gui_convert(input, output, recommendations, notification=DummyReporter(),
 
     plumber.run()
 
-def gui_catalog(fmt, title, dbspec, ids, out_file_name,
+def gui_catalog(fmt, title, dbspec, ids, out_file_name, fmt_options,
         notification=DummyReporter(), log=None):
     if log is None:
         log = Log()
@@ -33,19 +37,25 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name,
     else: # To be implemented in the future
         pass
     
-    # Implement the interface to the catalog generating code here
-    #db
-    log("gui2.convert.gui_conversion:gui_catalog()")
-    log("fmt: %s" % fmt)
-    log("title: %s" % title)
-    log("dbspec: %s" % dbspec)
-    log("ids: %s" % ids)
-    log("out_file_name: %s" % out_file_name)
-    
-    # This needs to call the .run() method of the plugin associated with fmt
-    # Needs to set up options before the call
-    # catalog = Catalog(out_file_name, options, dbspec)
-    # Can I call library.cli:catalog_option_parser()?
+    # Create a minimal OptionParser that we can append to
+    parser = OptionParser()
+    args = []
+    parser.add_option("--verbose", action="store_true", dest="verbose", default=True)
+    opts, args = parser.parse_args()
+
+    # Populate opts
+    opts.ids = ids
+    opts.search_text = None
+    opts.sort_by = None
+
+    # Extract the option dictionary to comma-separated lists
+    for option in fmt_options:
+        setattr(opts,option, ','.join(fmt_options[option]))
+
+    # Fetch and run the plugin for fmt
+    plugin = plugin_for_catalog_format(fmt)
+    plugin.run(out_file_name, opts, db)
+
     
     
 

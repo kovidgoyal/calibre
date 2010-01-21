@@ -70,11 +70,28 @@ class NYTimes(BasicNewsRecipe):
                 feeds.append((current_section, current_articles))
 
             return feeds
+
     def preprocess_html(self, soup):
         story = soup.find(name='div', attrs={'class':'triline'})
-        #td = heading.findParent(name='td')
-        #td.extract()
+        page2_link = soup.find('p','pagenav')
+        if page2_link:
+            atag = page2_link.find('a',href=True)
+            if atag:
+                page2_url = atag['href']
+                if page2_url.startswith('story'):
+                         page2_url = 'http://www.nationalpost.com/todays-paper/'+page2_url
+                elif page2_url.startswith( '/todays-paper/story.html'):
+                    page2_url = 'http://www.nationalpost.com/'+page2_url
+                page2_soup = self.index_to_soup(page2_url)
+                if page2_soup:
+                    page2_content = page2_soup.find('div','story-content')
+                    if page2_content:
+                        full_story = BeautifulSoup('<div></div>')
+                        full_story.insert(0,story)
+                        full_story.insert(1,page2_content)
+                        story = full_story
         soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
         body = soup.find(name='body')
         body.insert(0, story)
         return soup
+

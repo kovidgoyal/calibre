@@ -169,6 +169,21 @@ class RTFInput(InputFormatPlugin):
         with open('styles.css', 'ab') as f:
             f.write(css)
 
+    def preprocess(self, fname):
+        self.log('\tPreprocessing to convert unicode characters')
+        try:
+            data = open(fname, 'rb').read()
+            from calibre.ebooks.rtf.preprocess import RtfTokenizer, RtfTokenParser
+            tokenizer = RtfTokenizer(data)
+            tokens = RtfTokenParser(tokenizer.tokens)
+            data = tokens.toRTF()
+            fname = 'preprocessed.rtf'
+            with open(fname, 'wb') as f:
+                f.write(data)
+        except:
+            self.log.exception(
+            'Failed to preprocess RTF to convert unicode sequences, ignoring...')
+        return fname
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
@@ -177,8 +192,9 @@ class RTFInput(InputFormatPlugin):
         from calibre.ebooks.rtf2xml.ParseRtf import RtfInvalidCodeException
         self.log = log
         self.log('Converting RTF to XML...')
+        fname = self.preprocess(stream.name)
         try:
-            xml = self.generate_xml(stream.name)
+            xml = self.generate_xml(fname)
         except RtfInvalidCodeException:
             raise ValueError(_('This RTF file has a feature calibre does not '
             'support. Convert it to HTML first and then try it.'))

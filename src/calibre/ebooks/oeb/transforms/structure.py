@@ -90,7 +90,10 @@ class DetectStructure(object):
                     mark = etree.Element(XHTML('div'), style=page_break_after)
                 else: # chapter_mark == 'both':
                     mark = etree.Element(XHTML('hr'), style=page_break_before)
-                elem.addprevious(mark)
+                try:
+                    elem.addprevious(mark)
+                except TypeError:
+                    self.log.exception('Failed to mark chapter')
 
     def create_level_based_toc(self):
         if self.opts.level1_toc is None:

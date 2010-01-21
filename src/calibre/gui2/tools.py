@@ -239,23 +239,35 @@ def fetch_scheduled_recipe(arg):
 def generate_catalog(parent, dbspec, ids):
     from calibre.gui2.dialogs.catalog import Catalog
     
-    # Build the Catalog dialog
+    # Build the Catalog dialog in gui2.dialogs.catalog
     d = Catalog(parent, dbspec, ids)
+
     if d.exec_() != d.Accepted:
         return None
 
     # Create the output file
     out = PersistentTemporaryFile(suffix='_catalog_out.'+d.catalog_format.lower())
 
+    # Retrieve plugin options
+    fmt_options = {}
+    for x in range(d.tabs.count()):
+        if str(d.tabs.tabText(x)).find(str(d.catalog_format)) > -1:
+            for fmt in d.fmts:
+                if fmt[0] == d.catalog_format:
+                    fmt_options = fmt[2].options()
+                    # print "gui2.tools:generate_catalog(): options for %s: %s" % (fmt[0], fmt_options)
+                                        
     args = [
         d.catalog_format,
         d.catalog_title,
         dbspec,
         ids,
         out.name,
+        fmt_options
         ]
     out.close()
 
+    # This calls gui2.convert.gui_conversion:gui_catalog()
     return 'gui_catalog', args, _('Generate catalog'), out.name, d.catalog_sync, \
             d.catalog_title
 
