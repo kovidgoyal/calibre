@@ -215,7 +215,7 @@ class TagsModel(QAbstractItemModel):
             return QModelIndex()
 
         child_item = index.internalPointer()
-        parent_item = child_item.parent
+        parent_item = getattr(child_item, 'parent', None)
 
         if parent_item is self.root_item or parent_item is None:
             return QModelIndex()
