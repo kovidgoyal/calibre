@@ -5,6 +5,7 @@ __docformat__ = 'restructuredtext en'
 
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre import strftime
 
 # http://online.wsj.com/page/us_in_todays_paper.html
 
@@ -66,6 +67,13 @@ class WallStreetJournal(BasicNewsRecipe):
 
         def parse_index(self):
             soup = self.wsj_get_index()
+
+            year = strftime('%Y')
+            for x in soup.findAll('td', attrs={'class':'b14'}):
+                txt = self.tag_to_string(x).strip()
+                if year in txt:
+                    self.timefmt = ' [%s]'%txt
+                    break
 
             left_column = soup.find(
                     text=lambda t: 'begin ITP Left Column' in str(t))
