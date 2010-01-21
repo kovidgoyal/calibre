@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-16 20:54+0000\n"
-"PO-Revision-Date: 2010-01-18 22:23+0000\n"
+"PO-Revision-Date: 2010-01-20 19:08+0000\n"
 "Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-19 04:40+0000\n"
+"X-Launchpad-Export-Date: 2010-01-21 04:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:42
@@ -3122,7 +3122,7 @@ msgstr "&Inaktivera teckenstorleksomskalning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:120
 msgid "Base &font size:"
-msgstr ""
+msgstr "Basteckenstorlek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:123
 msgid "Wizard to help you choose an appropriate font size key"
@@ -6121,7 +6121,7 @@ msgstr "Anpassa genvägar för"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:223
 msgid "Keys"
-msgstr ""
+msgstr "Tangenter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:225
 msgid "Double click to change"

@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-01-16 20:54+0000\n"
-"PO-Revision-Date: 2010-01-18 15:36+0000\n"
-"Last-Translator: ichabod <Unknown>\n"
+"PO-Revision-Date: 2010-01-21 01:41+0000\n"
+"Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-19 04:40+0000\n"
+"X-Launchpad-Export-Date: 2010-01-21 04:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -3756,6 +3756,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:47
 msgid "Do not insert Table of Contents into output text when using markdown"
 msgstr ""
+"Ne pas insérer la Table Des Matières dans le texte de sortie lorsque "
+"markdown est utilisé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:16
 msgid "TXT Output"
@@ -4044,7 +4046,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:735
 msgid "Sending catalogs to device."
-msgstr ""
+msgstr "Envoie les catalogues vers l'appareil."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:796
 msgid "Sending news to device."
@@ -4085,7 +4087,7 @@ msgstr "Utiliser les sous-répertoires"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:81
 msgid "Save &template:"
-msgstr ""
+msgstr "Sauvegarder le modèle:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:110
@@ -4121,33 +4123,34 @@ msgstr "Suiva&nt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:24
 msgid "My Books"
-msgstr ""
+msgstr "Mes Livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:254
 msgid "Generate catalog"
-msgstr ""
+msgstr "Générer le catalogue"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:70
 msgid "Catalog &format:"
-msgstr ""
+msgstr "&Format du catalogue:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:71
 msgid ""
 "Catalog &title (existing catalog with the same title will be replaced):"
 msgstr ""
+"&Titre du catalogue (un catalogue existant avec le même titre sera remplacé):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:72
 msgid "&Send catalog to device automatically"
-msgstr ""
+msgstr "&Envoyer le catalogue automatiquement vers l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:73
 msgid "Catalog options"
-msgstr ""
+msgstr "Options du catalogue"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:74
 msgid "Generate catalog for {0} books"
-msgstr ""
+msgstr "Générer le catalogue pour {0} livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:40
 msgid "Choose Format"
@@ -4176,7 +4179,7 @@ msgstr "&Profil :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:170
 msgid "%(plugin_type)s %(plugins)s"
-msgstr ""
+msgstr "%(plugins)s %(plugin_type)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:171
 msgid "plugins"
@@ -4187,6 +4190,8 @@ msgid ""
 "\n"
 "Customization: "
 msgstr ""
+"\n"
+"Personnalisation: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:196
 msgid "Conversion"
@@ -4480,7 +4485,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:118
 msgid "Sending to &device"
-msgstr ""
+msgstr "Envoi vers l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:501
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:366
@@ -6250,7 +6255,7 @@ msgstr "Personnaliser le raccourci clavier pour"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:223
 msgid "Keys"
-msgstr ""
+msgstr "Clés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:225
 msgid "Double click to change"
@@ -6463,10 +6468,11 @@ msgstr "Supprimer les livres sélectionnés"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:321
 msgid "Remove files of a specific format from selected books.."
 msgstr ""
+"Supprimer les fichiers d'un format spécifique pour les livres sélectionnés..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:323
 msgid "Remove all formats from selected books, except..."
-msgstr ""
+msgstr "Supprimer tous les formats pour les livres sélectionnés, excepté..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:325
 msgid "Remove covers from selected books"
@@ -6482,7 +6488,7 @@ msgstr "Convertir par lot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:360
 msgid "Create catalog of the books in your calibre library"
-msgstr ""
+msgstr "Créer le catalogue des livres dans votre librairie calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:376
 msgid "Run welcome wizard"
@@ -6720,15 +6726,15 @@ msgstr "Cliquer le bouton afficher les détails pour voir lesquels."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1357
 msgid "No books selected to generate catalog for"
-msgstr ""
+msgstr "Aucun livre sélectionné pour générer le catalogue pour"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1369
 msgid "Generating %s catalog..."
-msgstr ""
+msgstr "Génère le catalogue %s..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1380
 msgid "Catalog generated."
-msgstr ""
+msgstr "Catalogue généré."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1393
 msgid "Fetching news from "
@@ -7032,7 +7038,7 @@ msgstr "&Général"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:172
 msgid "Double click to change a keyboard shortcut"
-msgstr ""
+msgstr "Double cliquer pour modifier un raccourci clavier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:173
 msgid "&Keyboard shortcuts"
@@ -7040,7 +7046,7 @@ msgstr "&Raccourcis clavier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
-msgstr ""
+msgstr "Aucun résultat trouvé pour:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:33
 msgid "Options to customize the ebook viewer"
@@ -7102,7 +7108,7 @@ msgstr "Le type de police standard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:404
 msgid "&Lookup in dictionary"
-msgstr ""
+msgstr "Rechercher dans le dictionnaire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
@@ -7180,7 +7186,7 @@ msgstr "Aperçu avant impression"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:271
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
-msgstr ""
+msgstr "Connexion à dict.org pour rechercher: <b>%s</b>&hellip;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:370
 msgid "Choose ebook"
@@ -7262,7 +7268,7 @@ msgstr "Afficheur d'Ebook"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:179
 msgid "Close dictionary"
-msgstr ""
+msgstr "Fermer le dictionnaire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:181
 msgid "toolBar"
@@ -7314,11 +7320,11 @@ msgstr "Imprimer un ebook"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:196
 msgid "Copy Image"
-msgstr ""
+msgstr "Copier l'image"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:197
 msgid "Paste Image"
-msgstr ""
+msgstr "Coller l'image"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:226
 msgid ""
@@ -8078,6 +8084,10 @@ msgid ""
 "please see the search-related documentation in the User Manual.\n"
 "Default: no filtering"
 msgstr ""
+"Filtrer les résultats par la requête de recherche. Pour le format de la "
+"requête de recherche, veuillez consulter la section recherche dans le Manuel "
+"Utilisateur.\n"
+"Par défaut: Pas de filtre"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:654
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
@@ -8086,7 +8096,7 @@ msgstr "Affiche des informations détaillées. Utile pour le débogage"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:692
 msgid "Error: You must specify a catalog output file"
-msgstr ""
+msgstr "Erreur: Vous devez spécifier un fichier de sortie pour le catalogue"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:707
 msgid ""
@@ -8112,7 +8122,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1416
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1429
 msgid "Catalog"
-msgstr ""
+msgstr "Catalogue"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1686
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
@@ -8151,6 +8161,8 @@ msgid ""
 "The author sort string. To use only the first letter of the name use "
 "{author_sort[0]}"
 msgstr ""
+"La chaine de tri pour l'auteur. Pour utiliser seulement la première lettre "
+"du nom utiliser {author_sort[0]}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:28
 msgid "The tags"
@@ -8163,6 +8175,8 @@ msgstr "Les séries"
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:30
 msgid "The series number. To get leading zeros use {series_index:0>3s}"
 msgstr ""
+"Le numéro de séries. Pour obtenir des zéros au début utiliser "
+"{series_index:0>3s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:31
 msgid "The rating"
@@ -8244,6 +8258,10 @@ msgid ""
 "directory with filenames containing title and author. Available controls "
 "are: {%s}"
 msgstr ""
+"Le modèle utilisé pour contrôler la structure du nom de fichier et du "
+"répertoire des fichiers envoyés à l'appareil. Par défaut : \"%s\" "
+"sauvegardera dans un répertoire par auteur avec des noms de fichiers "
+"contenant le titre et l'auteur. Les contrôles disponibles sont : {%s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:76
 msgid ""
@@ -8401,35 +8419,35 @@ msgstr "Anglais"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
 msgid "English (Australia)"
-msgstr ""
+msgstr "Anglais (Australie)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
 msgid "English (New Zealand)"
-msgstr ""
+msgstr "Anglais (Nouvelle-Zélande)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "English (Canada)"
-msgstr ""
+msgstr "Anglais (Canada)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (India)"
-msgstr ""
+msgstr "Anglais (Inde)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 msgid "English (Thailand)"
-msgstr ""
+msgstr "Anglais (Thaïlande)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
 msgid "English (Cyprus)"
-msgstr ""
+msgstr "Anglais (Chypre)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
 msgid "English (Pakistan)"
-msgstr ""
+msgstr "Anglais (Pakistan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
 msgid "English (Singapore)"
-msgstr ""
+msgstr "Anglais (Singapour)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 msgid "German (AT)"
