@@ -350,7 +350,13 @@ class Document(QWebPage):
         return self.mainFrame().contentsSize().width() # offsetWidth gives inaccurate results
 
     def set_bottom_padding(self, amount):
-        self.javascript('$("body").css("padding-bottom", "%dpx")' % amount)
+        padding = '%dpx'%amount
+        try:
+            old_padding = unicode(self.javascript('$("body").css("padding-bottom")').toString())
+        except:
+            old_padding = ''
+        if old_padding != padding:
+            self.javascript('$("body").css("padding-bottom", "%s")' % padding)
 
 
 class EntityDeclarationProcessor(object):
