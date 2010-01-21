@@ -532,7 +532,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             if self.cover_fetcher.exception is not None:
                 err = self.cover_fetcher.exception
                 error_dialog(self, _('Cannot fetch cover'),
-                    _('<b>Could not fetch cover.</b><br/>')+repr(err)).exec_()
+                    _('<b>Could not fetch cover.</b><br/>')+unicode(err)).exec_()
                 return
 
             pix = QPixmap()
