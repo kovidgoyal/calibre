@@ -134,7 +134,10 @@ def metadata_from_filename(name, pat=None):
             mi.authors = aus
             if prefs['swap_author_names'] and mi.authors:
                 def swap(a):
-                    parts = a.split()
+                    if ',' in a:
+                        parts = a.split(',', 1)
+                    else:
+                        parts = a.split(None, 1)
                     if len(parts) > 1:
                         t = parts[-1]
                         parts = parts[:-1]

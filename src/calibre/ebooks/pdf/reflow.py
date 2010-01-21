@@ -20,6 +20,10 @@ class Font(object):
 
 class Column(object):
 
+    # A column contains an element is the element bulges out to
+    # the left or the right by at most HFUZZ*col width.
+    HFUZZ = 0.2
+
     def __init__(self):
         self.left = self.right = self.top = self.bottom = 0
         self.width = self.height = 0
@@ -40,6 +44,10 @@ class Column(object):
     def __iter__(self):
         for x in self.elements:
             yield x
+
+    def contains(self, elem):
+        return elem.left > self.left - self.HFUZZ*self.width and \
+               elem.right < self.right + self.HFUZZ*self.width
 
 class Element(object):
 
@@ -132,6 +140,18 @@ class Interval(object):
     def __hash__(self):
         return hash('(%f,%f)'%self.left, self.right)
 
+class Region(object):
+
+    def __init__(self):
+        self.columns = []
+        self.top = self.bottom = self.left = self.right = self.width = self.height = 0
+
+    def add_columns(self, columns):
+        if not self.columns:
+            for x in sorted(columns, cmp=lambda x,y: cmp(x.left, y.left)):
+                self.columns.append(x)
+        else:
+           pass
 
 class Page(object):
 
@@ -238,11 +258,10 @@ class Page(object):
         return columns
 
     def find_elements_in_row_of(self, x):
-        interval = Interval(x.top - self.YFUZZ * self.average_text_height,
+        interval = Interval(x.top,
                 x.top + self.YFUZZ*(1+self.average_text_height))
         h_interval = Interval(x.left, x.right)
-        m = max(0, x.idx-15)
-        for y in self.elements[m:x.idx+15]:
+        for y in self.elements[x.idx:x.idx+15]:
             if y is not x:
                 y_interval = Interval(y.top, y.bottom)
                 x_interval = Interval(y.left, y.right)

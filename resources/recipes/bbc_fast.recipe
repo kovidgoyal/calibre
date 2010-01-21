@@ -1,0 +1,60 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+news.bbc.co.uk
+'''
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class BBC(BasicNewsRecipe):
+    title                  = 'BBC News (fast)'
+    __author__             = 'Darko Miletic'
+    description            = 'News from UK. A much faster version that does not download pictures'
+    oldest_article         = 2
+    max_articles_per_feed  = 100
+    no_stylesheets         = True
+    #delay                  = 1
+    use_embedded_content   = False
+    encoding               = 'utf8'
+    publisher              = 'BBC'
+    category               = 'news, UK, world'
+    language               = 'en'
+    extra_css              = ' body{ font-family: sans-serif; } .headline{font-size: xx-large; font-weight: bold} .ibox{display: block; margin: 20px 50px; padding: 10px; border: 1px solid } '
+
+    conversion_options = {
+                             'comments'        : description
+                            ,'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                         }
+
+    remove_tags_before = dict(name='div',attrs={'class':'headline'})
+    remove_tags_after  = dict(name='div', attrs={'class':'footer'})
+    remove_tags       = [
+                           dict(name=['object','link','script','iframe'])
+                          ,dict(name='div', attrs={'class':'footer'})
+                        ]
+
+    feeds          = [
+                      ('News Front Page', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml'),
+                      ('Science/Nature', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/science/nature/rss.xml'),
+                      ('Technology', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/technology/rss.xml'),
+                      ('Entertainment', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/entertainment/rss.xml'),
+                      ('Magazine', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/uk_news/magazine/rss.xml'),
+                      ('Business', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/business/rss.xml'),
+                      ('Health', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/health/rss.xml'),
+                      ('Americas', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/americas/rss.xml'),
+                      ('Europe', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/europe/rss.xml'),
+                      ('South Asia', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/south_asia/rss.xml'),
+                      ('UK', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/uk_news/rss.xml'),
+                      ('Asia-Pacific', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/asia-pacific/rss.xml'),
+                      ('Africa', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/africa/rss.xml'),
+                    ]
+
+    def print_version(self, url):
+        emp,sep,rstrip = url.partition('http://')
+        return 'http://newsvote.bbc.co.uk/mpapps/pagetools/print/' + rstrip
+
+    def get_article_url(self, article):
+        return article.get('guid', None)
+

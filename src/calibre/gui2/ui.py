@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 '''The main GUI'''
 
-import os, sys, textwrap, collections, time
+import atexit, os, shutil, sys, tempfile, textwrap, collections, time
 from xml.parsers.expat import ExpatError
 from Queue import Queue, Empty
 from threading import Thread
@@ -357,7 +357,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         cm.addAction(_('Bulk convert'))
         cm.addSeparator()
         ac = cm.addAction(
-                _('Create catalog of the books in your calibre library'))
+                _('Create catalog of books in your calibre library'))
         ac.triggered.connect(self.generate_catalog)
         self.action_convert.setMenu(cm)
         self._convert_single_hook = partial(self.convert_ebook, bulk=False)
@@ -1359,26 +1359,32 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################### Generate catalog ###########################
 
-    def generate_catalog(self):
+    def generate_catalog(self):    
         rows = self.library_view.selectionModel().selectedRows()
-        if not rows:
+        if not rows or len(rows) < 2:
             rows = xrange(self.library_view.model().rowCount(QModelIndex()))
         ids = map(self.library_view.model().id, rows)
+
         dbspec = None
         if not ids:
             return error_dialog(self, _('No books selected'),
                     _('No books selected to generate catalog for'),
                     show=True)
+
+        # Calling gui2.tools:generate_catalog()
         ret = generate_catalog(self, dbspec, ids)
         if ret is None:
             return
+            
         func, args, desc, out, sync, title = ret
+
         fmt = os.path.splitext(out)[1][1:].upper()
         job = self.job_manager.run_job(
                 Dispatcher(self.catalog_generated), func, args=args,
                     description=desc)
         job.catalog_file_path = out
-        job.catalog_sync, job.catalog_title = sync, title
+        job.fmt = fmt
+        job.catalog_sync, job.catalog_title = sync, title        
         self.status_bar.showMessage(_('Generating %s catalog...')%fmt)
 
     def catalog_generated(self, job):
@@ -1392,8 +1398,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             dynamic.set('catalogs_to_be_synced', sync)
         self.status_bar.showMessage(_('Catalog generated.'), 3000)
         self.sync_catalogs()
-
-
+		if job.fmt in ['CSV','XML']:
+			export_dir = choose_dir(self, 'Export Catalog Directory', 
+										          'Select destination for %s.%s' % (job.catalog_title, job.fmt.lower()))
+			if export_dir:
+				destination = os.path.join(export_dir, '%s.%s' % (job.catalog_title, job.fmt.lower()))
+				shutil.copyfile(job.catalog_file_path, destination)
+				
     ############################### Fetch news #################################
 
     def download_scheduled_recipe(self, arg):

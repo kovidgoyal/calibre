@@ -32,7 +32,7 @@ class GlobeAndMail(BasicNewsRecipe):
 		'gallery-controls', 'video', 'galleryLoading','deck','header',
         'toolsBottom'] },
 		{'class':['credit','inline-img-caption','tab-pointer'] },
-		dict(name='div', attrs={'id':'lead-photo'}),
+		dict(name='div', attrs={'id':['lead-photo', 'most-popular-story']}),
 		dict(name='div', attrs={'class':'right'}),
 		dict(name='div', attrs={'id':'footer'}),
 		dict(name='div', attrs={'id':'beta-msg'}),

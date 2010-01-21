@@ -644,6 +644,10 @@ def catalog_option_parser(args):
     output, fmt = validate_command_line(parser, args, log)
 
     # Add options common to all catalog plugins
+    parser.add_option('-i', '--ids', default=None, dest='ids',
+                      help=_("Comma-separated list of database IDs to catalog.\n"
+                      "If declared, --search is ignored.\n"
+                             "Default: all"))
     parser.add_option('-s', '--search', default=None, dest='search_text',
                       help=_("Filter the results by the search query. "
                           "For the format of the search query, please see "
@@ -655,31 +659,6 @@ def catalog_option_parser(args):
 
     # Add options specific to fmt plugin
     plugin = add_plugin_parser_options(fmt, parser, log)
-
-    # Merge options from GUI Preferences
-    '''
-    # Placeholder sample code until we implement GUI preferences
-    from calibre.library.save_to_disk import config
-    c = config()
-    for pref in ['asciiize', 'update_metadata', 'write_opf', 'save_cover']:
-        opt = c.get_option(pref)
-        switch = '--dont-'+pref.replace('_', '-')
-        parser.add_option(switch, default=True, action='store_false',
-                help=opt.help+' '+_('Specifying this switch will turn '
-                    'this behavior off.'), dest=pref)
-
-    for pref in ['timefmt', 'template', 'formats']:
-        opt = c.get_option(pref)
-        switch = '--'+pref
-        parser.add_option(switch, default=opt.default,
-                help=opt.help, dest=pref)
-
-    for pref in ('replace_whitespace', 'to_lowercase'):
-        opt = c.get_option(pref)
-        switch = '--'+pref.replace('_', '-')
-        parser.add_option(switch, default=False, action='store_true',
-                help=opt.help)
-    '''
 
     return parser, plugin, log
 
@@ -693,6 +672,9 @@ def command_catalog(args, dbpath):
         return 1
     if opts.verbose:
         log("library.cli:command_catalog dispatching to plugin %s" % plugin.name)
+    if opts.ids:
+        opts.ids = [int(id) for id in opts.ids.split(',')]    
+
     with plugin:
         plugin.run(args[1], opts, get_db(dbpath, opts))
     return 0

@@ -3,47 +3,139 @@
 __license__   = 'GPL v3'
 
 '''
-online.wsj.com.com
+online.wsj.com
 '''
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+from datetime import timedelta, date
 
 class WSJ(BasicNewsRecipe):
     # formatting adapted from original recipe by Kovid Goyal and Sujata Raman
     title          = u'Wall Street Journal (free)'
     __author__     = 'Nick Redding'
     language = 'en'
-    description = ('All the free content from the Wall Street Journal (business'
-            ', financial and political news)')
+    description = ('All the free content from the Wall Street Journal (business, financial and political news)')
+
     no_stylesheets = True
     timefmt = ' [%b %d]'
-    extra_css   = '''h1{font-size:large; font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif;}
-                    h2{font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif; font-size:small; font-style:italic;}
-                    .subhead{font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif; font-size:small; font-style:italic;}
-                    .insettipUnit {font-family:Arial,Sans-serif;font-size:xx-small;}
-                    .targetCaption{font-size:x-small; font-family:Arial,Helvetica,sans-serif;}
-                    .article{font-family :Arial,Helvetica,sans-serif; font-size:x-small;}
-                    .tagline { ont-size:xx-small;}
-                    .dateStamp {font-family:Arial,Helvetica,sans-serif;}
-                    h3{font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
-                    .byline {font-family:Arial,Helvetica,sans-serif; font-size:xx-small; list-style-type: none;}
+
+    # customization notes: delete sections you are not interested in
+    # set omit_paid_content to False if you want the paid content article snippets
+    # set oldest_article to the maximum number of days back from today to include articles
+    sectionlist = [
+                        ['/home-page','Front Page'],
+                        ['/public/page/news-opinion-commentary.html','Commentary'],
+                        ['/public/page/news-global-world.html','World News'],
+                        ['/public/page/news-world-business.html','US News'],
+                        ['/public/page/news-business-us.html','Business'],
+                        ['/public/page/news-financial-markets-stock.html','Markets'],
+                        ['/public/page/news-tech-technology.html','Technology'],
+                        ['/public/page/news-personal-finance.html','Personal Finnce'],
+                        ['/public/page/news-lifestyle-arts-entertainment.html','Life & Style'],
+                        ['/public/page/news-real-estate-homes.html','Real Estate'],
+                        ['/public/page/news-career-jobs.html','Careers'],
+                        ['/public/page/news-small-business-marketing.html','Small Business']
+                    ]
+    oldest_article = 2
+    omit_paid_content = True
+
+    extra_css   = '''h1{font-size:large; font-family:Times,serif;}
+                    h2{font-family:Times,serif; font-size:small; font-style:italic;}
+                    .subhead{font-family:Times,serif; font-size:small; font-style:italic;}
+                    .insettipUnit {font-family:Times,serif;font-size:xx-small;}
+                    .targetCaption{font-size:x-small; font-family:Times,serif; font-style:italic; margin-top: 0.25em;}
+                    .article{font-family:Times,serif; font-size:x-small;}
+                    .tagline { font-size:xx-small;}
+                    .dateStamp {font-family:Times,serif;}
+                    h3{font-family:Times,serif; font-size:xx-small;}
+                    .byline {font-family:Times,serif; font-size:xx-small; list-style-type: none;}
                     .metadataType-articleCredits {list-style-type: none;}
-                    h6{ font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif; font-size:small;font-style:italic;}
+                    h6{font-family:Times,serif; font-size:small; font-style:italic;}
                     .paperLocation{font-size:xx-small;}'''
 
-    remove_tags_before = dict(name='h1')
-    remove_tags =   [   dict(id=["articleTabs_tab_article", "articleTabs_tab_comments",
-                                 "articleTabs_tab_interactive","articleTabs_tab_video",
-                                 "articleTabs_tab_map","articleTabs_tab_slideshow"]),
-			{'class':['footer_columns','network','insetCol3wide','interactive','video','slideshow','map',
-			'insettip','insetClose','more_in', "insetContent", 'articleTools_bottom', 'aTools', 'tooltip',
-			'adSummary', 'nav-inline','insetFullBracket']},
-                        dict(rel='shortcut icon'),
+
+    remove_tags_before = dict({'class':re.compile('^articleHeadlineBox')})
+    remove_tags =   [   dict({'id':re.compile('^articleTabs_tab_')}),
+                        #dict(id=["articleTabs_tab_article", "articleTabs_tab_comments",
+                        #         "articleTabs_tab_interactive","articleTabs_tab_video",
+                        #         "articleTabs_tab_map","articleTabs_tab_slideshow"]),
+			{'class':  ['footer_columns','network','insetCol3wide','interactive','video','slideshow','map',
+                                    'insettip','insetClose','more_in', "insetContent",
+                        #            'articleTools_bottom','articleTools_bottom mjArticleTools',
+                                    'aTools', 'tooltip',
+                                    'adSummary', 'nav-inline','insetFullBracket']},
+                        dict({'class':re.compile('^articleTools_bottom')}),
+                        dict(rel='shortcut icon')
                     ]
     remove_tags_after = [dict(id="article_story_body"), {'class':"article story"}]
 
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        return br
+
 
     def preprocess_html(self,soup):
+
+        def decode_us_date(datestr):
+            udate = datestr.strip().lower().split()
+            m = ['january','february','march','april','may','june','july','august','september','october','november','december'].index(udate[0])+1
+            d = int(udate[1])
+            y = int(udate[2])
+            return date(y,m,d)
+
+        # check if article is paid content
+        if self.omit_paid_content:
+            divtags = soup.findAll('div','tooltip')
+            if divtags:
+                for divtag in divtags:
+                    if divtag.find(text="Subscriber Content"):
+                        return None
+
+        # check if article is too old
+        datetag = soup.find('li',attrs={'class' : re.compile("^dateStamp")})
+        if datetag:
+            dateline_string = self.tag_to_string(datetag,False)
+            date_items = dateline_string.split(',')
+            datestring = date_items[0]+date_items[1]
+            article_date = decode_us_date(datestring)
+            earliest_date = date.today() - timedelta(days=self.oldest_article)
+            if article_date < earliest_date:
+                self.log("Skipping article dated %s" % datestring)
+                return None
+            datetag.parent.extract()
+
+            # place dateline in article heading
+
+            bylinetag = soup.find('h3','byline')
+            if bylinetag:
+                h3bylinetag = bylinetag
+            else:
+                bylinetag = soup.find('li','byline')
+                if bylinetag:
+                    h3bylinetag = bylinetag.h3
+                    if not h3bylinetag:
+                        h3bylinetag = bylinetag
+                    bylinetag = bylinetag.parent
+            if bylinetag:
+                if h3bylinetag.a:
+                    bylinetext = 'By '+self.tag_to_string(h3bylinetag.a,False)
+                else:
+                    bylinetext = self.tag_to_string(h3bylinetag,False)
+                h3byline = Tag(soup,'h3',[('class','byline')])
+                if bylinetext.isspace() or (bylinetext == ''):
+                    h3byline.insert(0,NavigableString(date_items[0]+','+date_items[1]))
+                else:
+                    h3byline.insert(0,NavigableString(bylinetext+u'\u2014'+date_items[0]+','+date_items[1]))
+                bylinetag.replaceWith(h3byline)
+            else:
+                headlinetag = soup.find('div',attrs={'class' : re.compile("^articleHeadlineBox")})
+                if headlinetag:
+                    dateline = Tag(soup,'h3', [('class','byline')])
+                    dateline.insert(0,NavigableString(date_items[0]+','+date_items[1]))
+                    headlinetag.insert(len(headlinetag),dateline)
+        else: # if no date tag, don't process this page--it's not a news item
+            return None
         # This gets rid of the annoying superfluous bullet symbol preceding columnist bylines
         ultag = soup.find('ul',attrs={'class' : 'cMetadata metadataType-articleCredits'})
         if ultag:
@@ -58,7 +150,7 @@ class WSJ(BasicNewsRecipe):
         key = None
         ans = []
 
-        def parse_index_page(page_name,page_title,omit_paid_content):
+        def parse_index_page(page_name,page_title):
 
             def article_title(tag):
                 atag = tag.find('h2') # title is usually in an h2 tag
@@ -119,7 +211,6 @@ class WSJ(BasicNewsRecipe):
             soup = self.index_to_soup(pageurl)
             # Find each instance of div with class including "headlineSummary"
             for divtag in soup.findAll('div',attrs={'class' : re.compile("^headlineSummary")}):
-
                 # divtag contains all article data as ul's and li's
                 # first, check if there is an h3 tag which provides a section name
                 stag = divtag.find('h3')
@@ -162,7 +253,7 @@ class WSJ(BasicNewsRecipe):
                         # now skip paid subscriber articles if desired
                         subscriber_tag = litag.find(text="Subscriber Content")
                         if subscriber_tag:
-                                if omit_paid_content:
+                                if self.omit_paid_content:
                                     continue
                                 # delete the tip div so it doesn't get in the way
                                 tiptag = litag.find("div", { "class" : "tipTargetBox" })
@@ -185,7 +276,7 @@ class WSJ(BasicNewsRecipe):
                             continue
                         if url.startswith("/article"):
                             url = mainurl+url
-                        if not url.startswith("http"):
+                        if not url.startswith("http://online.wsj.com"):
                             continue
                         if not url.endswith(".html"):
                             continue
@@ -214,48 +305,10 @@ class WSJ(BasicNewsRecipe):
                             articles[page_title] = []
                         articles[page_title].append(dict(title=title,url=url,date=pubdate,description=description,author=author,content=''))
 
-        # customization notes: delete sections you are not interested in
-        # set omit_paid_content to False if you want the paid content article previews
-        sectionlist = ['Front Page','Commentary','World News','US News','Business','Markets',
-                       'Technology','Personal Finance','Life & Style','Real Estate','Careers','Small Business']
-        omit_paid_content = True
 
-        if 'Front Page' in sectionlist:
-            parse_index_page('/home-page','Front Page',omit_paid_content)
-            ans.append('Front Page')
-        if 'Commentary' in sectionlist:
-            parse_index_page('/public/page/news-opinion-commentary.html','Commentary',omit_paid_content)
-            ans.append('Commentary')
-        if 'World News' in sectionlist:
-            parse_index_page('/public/page/news-global-world.html','World News',omit_paid_content)
-            ans.append('World News')
-        if 'US News' in sectionlist:
-            parse_index_page('/public/page/news-world-business.html','US News',omit_paid_content)
-            ans.append('US News')
-        if 'Business' in sectionlist:
-            parse_index_page('/public/page/news-business-us.html','Business',omit_paid_content)
-            ans.append('Business')
-        if 'Markets' in sectionlist:
-            parse_index_page('/public/page/news-financial-markets-stock.html','Markets',omit_paid_content)
-            ans.append('Markets')
-        if 'Technology' in sectionlist:
-            parse_index_page('/public/page/news-tech-technology.html','Technology',omit_paid_content)
-            ans.append('Technology')
-        if 'Personal Finance' in sectionlist:
-            parse_index_page('/public/page/news-personal-finance.html','Personal Finance',omit_paid_content)
-            ans.append('Personal Finance')
-        if 'Life & Style' in sectionlist:
-            parse_index_page('/public/page/news-lifestyle-arts-entertainment.html','Life & Style',omit_paid_content)
-            ans.append('Life & Style')
-        if 'Real Estate' in sectionlist:
-            parse_index_page('/public/page/news-real-estate-homes.html','Real Estate',omit_paid_content)
-            ans.append('Real Estate')
-        if 'Careers' in sectionlist:
-            parse_index_page('/public/page/news-career-jobs.html','Careers',omit_paid_content)
-            ans.append('Careers')
-        if 'Small Business' in sectionlist:
-            parse_index_page('/public/page/news-small-business-marketing.html','Small Business',omit_paid_content)
-            ans.append('Small Business')
+        for page_name,page_title in self.sectionlist:
+            parse_index_page(page_name,page_title)
+            ans.append(page_title)
 
         ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
         return ans

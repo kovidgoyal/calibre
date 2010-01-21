@@ -110,9 +110,9 @@ class CSSSelector(etree.XPath):
 class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
 
-    def __init__(self, tree, path, oeb, profile=PROFILES['PRS505'],
+    def __init__(self, tree, path, oeb, opts, profile=PROFILES['PRS505'],
             extra_css='', user_css=''):
-        self.oeb = oeb
+        self.oeb, self.opts = oeb, opts
         self.profile = profile
         self.logger = oeb.logger
         item = oeb.manifest.hrefs[path]
@@ -249,6 +249,8 @@ class Stylizer(object):
                 style.update(self._normalize_font(prop.cssValue))
             elif name == 'list-style':
                 style.update(self._normalize_list_style(prop.cssValue))
+            elif name == 'text-align':
+                style.update(self._normalize_text_align(prop.cssValue))
             else:
                 style[name] = prop.value
         if 'font-size' in style:
@@ -304,6 +306,19 @@ class Stylizer(object):
                 if key not in style:
                     style[key] = DEFAULTS[key]
 
+        return style
+
+    def _normalize_text_align(self, cssvalue):
+        style = {}
+        text = cssvalue.cssText
+        if text == 'inherit':
+            style['text-align'] = 'inherit'
+        else:
+            if text in ('left', 'justify'):
+                val = 'left' if self.opts.dont_justify else 'justify'
+                style['text-align'] = val
+            else:
+                style['text-align'] = text
         return style
 
     def _normalize_font(self, cssvalue):
@@ -411,6 +426,7 @@ class Style(object):
         return result
 
     def _unit_convert(self, value, base=None, font=None):
+        ' Return value in pts'
         if isinstance(value, (int, long, float)):
             return value
         try:
@@ -446,6 +462,9 @@ class Style(object):
             elif unit == 'cm':
                 result = value * 0.40
         return result
+
+    def pt_to_px(self, value):
+        return (self._profile.dpi / 72.0) * value
 
     @property
     def fontSize(self):

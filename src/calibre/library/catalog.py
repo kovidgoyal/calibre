@@ -40,8 +40,9 @@ class CSV_XML(CatalogPlugin):
         from calibre.utils.logging import Log
 
         log = Log()
-        self.fmt = path_to_output[path_to_output.rfind('.') + 1:]
-        if opts.verbose:
+        self.fmt = path_to_output.rpartition('.')[2]
+        
+        if False and opts.verbose:
             log("%s:run" % self.name)
             log(" path_to_output: %s" % path_to_output)
             log(" Output format: %s" % self.fmt)
@@ -53,7 +54,7 @@ class CSV_XML(CatalogPlugin):
             log(" opts:")
             for key in keys:
                 log("  %s: %s" % (key, opts_dict[key]))
-
+		
         # Get the sorted, filtered database as a dictionary
         data = self.search_sort_db(db, opts)
 

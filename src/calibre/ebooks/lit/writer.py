@@ -134,7 +134,7 @@ def warn(x):
 class ReBinary(object):
     NSRMAP = {'': None, XML_NS: 'xml'}
 
-    def __init__(self, root, item, oeb, map=HTML_MAP):
+    def __init__(self, root, item, oeb, opts, map=HTML_MAP):
         self.item = item
         self.logger = oeb.logger
         self.manifest = oeb.manifest
@@ -143,7 +143,7 @@ class ReBinary(object):
         self.anchors = []
         self.page_breaks = []
         self.is_html  = is_html = map is HTML_MAP
-        self.stylizer = Stylizer(root, item.href, oeb) if is_html else None
+        self.stylizer = Stylizer(root, item.href, oeb, opts) if is_html else None
         self.tree_to_binary(root)
         self.content = self.buf.getvalue()
         self.ahc = self.build_ahc() if is_html else None
@@ -295,9 +295,8 @@ def preserve(function):
     return wrapper
 
 class LitWriter(object):
-    def __init__(self):
-        # Wow, no options
-        pass
+    def __init__(self, opts):
+        self.opts = opts
 
     def _litize_oeb(self):
         oeb = self._oeb
@@ -469,7 +468,7 @@ class LitWriter(object):
             secnum = 0
             if isinstance(data, etree._Element):
                 self._add_folder(name)
-                rebin = ReBinary(data, item, self._oeb, map=HTML_MAP)
+                rebin = ReBinary(data, item, self._oeb, self.opts, map=HTML_MAP)
                 self._add_file(name + '/ahc', rebin.ahc, 0)
                 self._add_file(name + '/aht', rebin.aht, 0)
                 item.page_breaks = rebin.page_breaks
@@ -562,7 +561,7 @@ class LitWriter(object):
         meta.attrib['ms--minimum_level'] = '0'
         meta.attrib['ms--attr5'] = '1'
         meta.attrib['ms--guid'] = '{%s}' % str(uuid.uuid4()).upper()
-        rebin = ReBinary(meta, None, self._oeb, map=OPF_MAP)
+        rebin = ReBinary(meta, None, self._oeb, self.opts, map=OPF_MAP)
         meta = rebin.content
         self._meta = meta
         self._add_file('/meta', meta)
