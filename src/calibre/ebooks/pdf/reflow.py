@@ -140,6 +140,18 @@ class Interval(object):
     def __hash__(self):
         return hash('(%f,%f)'%self.left, self.right)
 
+class Region(object):
+
+    def __init__(self):
+        self.columns = []
+        self.top = self.bottom = self.left = self.right = self.width = self.height = 0
+
+    def add_columns(self, columns):
+        if not self.columns:
+            for x in sorted(columns, cmp=lambda x,y: cmp(x.left, y.left)):
+                self.columns.append(x)
+        else:
+           pass
 
 class Page(object):
 
