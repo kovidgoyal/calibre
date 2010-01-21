@@ -91,6 +91,8 @@ class WallStreetJournal(BasicNewsRecipe):
                     url = url.partition('#')[0]
                     desc = ''
                     d = x.findNextSibling(True)
+                    if d is None:
+                        continue
                     if d.get('class', None) == 'arialResize':
                         desc = self.tag_to_string(d)
                         desc = desc.partition(u'\u2022')[0]
