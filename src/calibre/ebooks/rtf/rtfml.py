@@ -111,12 +111,13 @@ class RTFMLizer(object):
             href = self.oeb_book.guide['titlepage'].href
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
-                stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
+                stylizer = Stylizer(item.data, item.href, self.oeb_book,
+                        self.opts, self.opts.output_profile)
                 output += self.dump_text(item.data.find(XHTML('body')), stylizer)
                 output += '{\\page } '
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to RTF markup...' % item.href)
-            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
+            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             output += self.dump_text(item.data.find(XHTML('body')), stylizer)
         output += self.footer()
         output = self.insert_images(output)

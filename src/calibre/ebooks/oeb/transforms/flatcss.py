@@ -141,7 +141,7 @@ class CSSFlattener(object):
             bs.append('text-align: '+ \
                     ('left' if self.context.dont_justify else 'justify'))
             body.set('style', '; '.join(bs))
-            stylizer = Stylizer(html, item.href, self.oeb, profile,
+            stylizer = Stylizer(html, item.href, self.oeb, self.context, profile,
                     user_css=self.context.extra_css,
                     extra_css=css)
             self.stylizers[item] = stylizer

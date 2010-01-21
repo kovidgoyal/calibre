@@ -32,7 +32,7 @@ class LITOutput(OutputFormatPlugin):
         mangler(oeb, opts)
         rasterizer = SVGRasterizer()
         rasterizer(oeb, opts)
-        lit = LitWriter()
+        lit = LitWriter(self.opts)
         lit(oeb, output_path)
 
 

@@ -44,6 +44,7 @@ class SVGRasterizer(object):
     def __call__(self, oeb, context):
         oeb.logger.info('Rasterizing SVG images...')
         self.oeb = oeb
+        self.opts = context
         self.profile = context.dest
         self.images = {}
         self.dataize_manifest()
@@ -102,7 +103,7 @@ class SVGRasterizer(object):
     def rasterize_spine(self):
         for item in self.oeb.spine:
             html = item.data
-            stylizer = Stylizer(html, item.href, self.oeb, self.profile)
+            stylizer = Stylizer(html, item.href, self.oeb, self.opts, self.profile)
             self.rasterize_item(item, stylizer)
 
     def rasterize_item(self, item, stylizer):
