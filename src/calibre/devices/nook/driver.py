@@ -86,4 +86,5 @@ class NOOK(USBMS):
 
         return drives
 
-
+    def sanitize_path_components(self, components):
+        return [x.replace('#', '_') for x in components]
