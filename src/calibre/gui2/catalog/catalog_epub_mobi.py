@@ -23,10 +23,10 @@ class PluginWidget(QWidget,Ui_Form):
 
     # Output synced to the connected device?
     sync_enabled = True
-    
+
     # Formats supported by this plugin
     formats = set(['epub','mobi'])
-    
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
@@ -34,23 +34,19 @@ class PluginWidget(QWidget,Ui_Form):
     def initialize(self, name):
         self.name = name
         # Restore options from last use here
-        print "gui2.catalog.catalog_epub_mobi:initialize(): Retrieving options"
         for opt in self.OPTION_FIELDS:
-            opt_value = gprefs[self.name + '_' + opt[0]]
-            print "Restoring %s: %s" % (self.name + '_' + opt[0], opt_value)
-            setattr(self,opt[0], unicode(opt_value))
+            opt_value = gprefs.get(self.name + '_' + opt[0], opt[1])
+            getattr(self, opt[0]).setText(opt_value)
 
     def options(self):
-
         # Save/return the current options
-        # getattr() returns text value of QLineEdit control
-        print "gui2.catalog.catalog_epub_mobi:options(): Saving options"
         opts_dict = {}
         for opt in self.OPTION_FIELDS:
-            opt_value = unicode(getattr(self,opt[0]))
-            print "writing %s to gprefs" % opt_value
+            opt_value = unicode(getattr(self, opt[0]).text())
             gprefs.set(self.name + '_' + opt[0], opt_value)
-            opts_dict[opt[0]] = opt_value.split(',')
+            if opt[0] == 'exclude_tags':
+                opt_value = opt_value.split(',')
+            opts_dict[opt[0]] = opt_value
 
         opts_dict['output_profile'] = [load_defaults('page_setup')['output_profile']]
 

@@ -119,6 +119,8 @@
     - title: stuff.co.nz
       author: Krittika Goyal
 
+    - title: Editor and Publisher
+      author: XanthanGum
 
   improved recipes:
     - Physics Today
@@ -127,6 +129,7 @@
     - FTD
     - The National Post
     - Blic
+    - Ars Technica
 
 
 - version: 0.6.34

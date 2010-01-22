@@ -604,7 +604,7 @@ msgstr "Wykrycie dysku %s niemożliwe. Spróbuj ponownie uruchomić komputer."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:429
 msgid "Unable to detect the %s mount point. Try rebooting."
-msgstr "Nie można wykryć % s punkt montowania. Spróbuj zrestartować system."
+msgstr "Nie można wykryć %s punkt montowania. Spróbuj zrestartować system."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:484
 msgid "Unable to detect the %s disk drive."
@@ -718,7 +718,7 @@ msgid ""
 msgstr ""
 "Nie udało się proces komiks: \n"
 "\n"
-"% s"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:278
 msgid ""
