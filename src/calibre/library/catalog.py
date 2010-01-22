@@ -2453,6 +2453,7 @@ class EPUB_MOBI(CatalogPlugin):
             for (i,word) in enumerate(title_words):
                 hit = re.search('[0-9]+',word)
                 if hit :
+                    print "library.catalog:CatalogBuilder.generateSortTitle(): translating '%s'" % word
                     translated.append(EPUB_MOBI.NumberToText(word).text)
                 else:
                     translated.append(word)

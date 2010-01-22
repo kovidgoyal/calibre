@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>20</y>
+     <y>70</y>
      <width>241</width>
      <height>21</height>
     </rect>
@@ -36,7 +36,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>50</y>
+     <y>100</y>
      <width>241</width>
      <height>17</height>
     </rect>
@@ -49,7 +49,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>110</y>
+     <y>160</y>
      <width>171</width>
      <height>17</height>
     </rect>
@@ -62,7 +62,7 @@
    <property name="geometry">
     <rect>
      <x>300</x>
-     <y>20</y>
+     <y>70</y>
      <width>231</width>
      <height>22</height>
     </rect>
@@ -78,7 +78,7 @@
    <property name="geometry">
     <rect>
      <x>300</x>
-     <y>50</y>
+     <y>100</y>
      <width>231</width>
      <height>22</height>
     </rect>
@@ -94,7 +94,7 @@
    <property name="geometry">
     <rect>
      <x>300</x>
-     <y>80</y>
+     <y>130</y>
      <width>231</width>
      <height>22</height>
     </rect>
@@ -110,7 +110,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>80</y>
+     <y>130</y>
      <width>241</width>
      <height>17</height>
     </rect>
@@ -123,7 +123,7 @@
    <property name="geometry">
     <rect>
      <x>300</x>
-     <y>110</y>
+     <y>160</y>
      <width>231</width>
      <height>22</height>
     </rect>
@@ -133,6 +133,29 @@
    </property>
    <property name="text">
     <string>*</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>61</x>
+     <y>20</y>
+     <width>461</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Special Tags for Catalog Creation</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
  </widget>
