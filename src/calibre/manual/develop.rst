@@ -194,7 +194,7 @@ You can insert the following two lines of code to start an interactive python se
 When running from the command line, this will start an interactive python interpreter with access to all
 locally defined variables (variables in the local scope). The interactive prompt even has TAB completion
 for object properties and you can use the various python facilities for introspection, such as
-:function:`dir`, :function:`type`, :function:`repr`, etc.
+:func:`dir`, :func:`type`, :func:`repr`, etc.
 
 Using print statements
 ^^^^^^^^^^^^^^^^^^^^^^^
