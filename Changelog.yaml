@@ -67,6 +67,9 @@
 
     - title: "Fix bug in OEBWriter that could cause writing out of resources in subdirectories with URL unsafe names to fail"
 
+    - title: "E-book viewer: Change highlight color to yellow on all platforms."
+      tickets: [4641]
+
   new recipes:
     - title: Frankfurter Rundschau
       author: Justus Bisser

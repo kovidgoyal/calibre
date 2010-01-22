@@ -2279,6 +2279,8 @@ class EPUB_MOBI(CatalogPlugin):
                 </html>
                 '''
             else:
+                title_border = '' if self.opts.fmt == 'epub' else \
+                        '<div class="hr"><blockquote><hr/></blockquote></div>'
                 header = '''
                 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
                 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata">
@@ -2289,7 +2291,7 @@ class EPUB_MOBI(CatalogPlugin):
                 </head>
                 <body>
                 <p class="title"></p>
-                <div class="hr"><blockquote><hr/></blockquote></div>
+                {0}
                 <p class="author"></p>
                 <p class="tags">&nbsp;</p>
                 <table width="100%" border="0">
@@ -2329,7 +2331,7 @@ class EPUB_MOBI(CatalogPlugin):
                 <!--p class="instructions">&#9654; Press <span style="font-variant:small-caps"><b>back</b></span> to return to list &#9664;</p-->
                 </body>
                 </html>
-                '''
+                '''.format(title_border)
 
             # Insert the supplied title
             soup = BeautifulSoup(header, selfClosingTags=['mbp:pagebreak'])
@@ -2517,6 +2519,7 @@ class EPUB_MOBI(CatalogPlugin):
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
         from calibre.utils.logging import Log
+        self.opts = opts
 
         log = Log()
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
@@ -2549,7 +2552,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         recommendations = []
 
-        if opts.fmt == 'mobi' and opts.output_profile.startswith("kindle"):
+        if opts.fmt == 'mobi' and opts.output_profile and opts.output_profile.startswith("kindle"):
             recommendations.append(('output_profile', opts.output_profile,
                 OptionRecommendation.HIGH))
             recommendations.append(('no_inline_toc', True,
