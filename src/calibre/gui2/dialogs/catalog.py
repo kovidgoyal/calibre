@@ -49,11 +49,12 @@ class Catalog(QDialog, Ui_Dialog):
 
             name = plugin.name.lower().replace(' ', '_')
             if type(plugin) in builtin_plugins:
-                #info("Adding widget for builtin Catalog plugin %s" % plugin.name)
+                info("Adding widget for builtin Catalog plugin %s" % plugin.name)
                 try:
                     catalog_widget = __import__('calibre.gui2.catalog.'+name,
                             fromlist=[1])
                     pw = catalog_widget.PluginWidget()
+                    info("Initializing %s" % name)
                     pw.initialize(name)
                     pw.ICON = I('forward.svg')
                     self.widgets.append(pw)
