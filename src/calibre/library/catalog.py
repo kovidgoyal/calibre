@@ -2510,14 +2510,14 @@ class EPUB_MOBI(CatalogPlugin):
             self.current_step += 1
             self.progressString = description
             self.progressInt = ((self.current_step-1)*100)/self.total_steps
-            self.reporter(self.progressInt, self.progressString)
+            self.reporter(self.progressInt/100., self.progressString)
             return "%d%% %s" % (self.progressInt, self.progressString)
 
         def updateProgressMicroStep(self, description, micro_step_pct):
             step_range = 100/self.total_steps
             self.progressString = description
             self.progressInt = ((self.current_step-1)*100)/self.total_steps + (micro_step_pct*step_range)/100
-            self.reporter(self.progressInt, self.progressString)
+            self.reporter(self.progressInt/100., self.progressString)
             return "%d%% %s" % (self.progressInt, self.progressString)
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
