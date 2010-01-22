@@ -5,6 +5,7 @@ from xml.sax.saxutils import escape
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.customize import CatalogPlugin
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.customize.conversion import OptionRecommendation, DummyReporter
 
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
@@ -44,11 +45,12 @@ class CSV_XML(CatalogPlugin):
                 "Default: '%default'\n"
                 "Applies to: CSV, XML output formats"))]
 
-    def run(self, path_to_output, opts, db):
+    def run(self, path_to_output, opts, db, notification=DummyReporter()):
         from calibre.utils.logging import Log
 
         log = Log()
         self.fmt = path_to_output.rpartition('.')[2]
+        self.notification = notification
 
         if False and opts.verbose:
             log("%s:run" % self.name)
@@ -470,12 +472,6 @@ class EPUB_MOBI(CatalogPlugin):
         # title                 dc:title in OPF metadata, NCX periodical
         # verbosity             level of diagnostic printout
 
-        class DummyReporter(object):
-            def __init__(self):
-                self.cancelRequested = False
-
-            def __call__(self, percent, msg=''):
-                pass
 
         def __init__(self, db, opts, plugin,
                      generateForMobigen=False,
@@ -667,47 +663,47 @@ class EPUB_MOBI(CatalogPlugin):
 
         # Methods
         def buildSources(self):
-            if self.reporter.cancelRequested: return 1
+            if self.reporter.cancel_requested: return 1
             if not self.booksByTitle:
                 self.fetchBooksByTitle()
 
-            if self.reporter.cancelRequested: return 1
+            if self.reporter.cancel_requested: return 1
             self.fetchBooksByAuthor()
 
-            if self.reporter.cancelRequested: return 1
+            if self.reporter.cancel_requested: return 1
             self.generateHTMLDescriptions()
 
-            if self.reporter.cancelRequested: return 1
+            if self.reporter.cancel_requested: return 1
             self.generateHTMLByTitle()
 
-            if self.reporter.cancelRequested: return 1
+            if self.reporter.cancel_requested: return 1
             self.generateHTMLByAuthor()
 
-            if self.reporter.cancelRequested: return 1
+            if self.reporter.cancel_requested: return 1
             self.generateHTMLByTags()
 
-            if self.reporter.cancelRequested: return 1
+            if self.reporter.cancel_requested: return 1
             self.generateThumbnails()
 
-            if self.reporter.cancelRequested: return 1
+            if self.reporter.cancel_requested: return 1
             self.generateOPF()
 
-            if self.reporter.cancelRequested: return 1
+            if self.reporter.cancel_requested: return 1
             self.generateNCXHeader()
 
-            if self.reporter.cancelRequested: return 1
+            if self.reporter.cancel_requested: return 1
             self.generateNCXDescriptions("Descriptions")
 
-            if self.reporter.cancelRequested: return 1
+            if self.reporter.cancel_requested: return 1
             self.generateNCXByTitle("Titles", single_article_per_section=False)
 
-            if self.reporter.cancelRequested: return 1
+            if self.reporter.cancel_requested: return 1
             self.generateNCXByAuthor("Authors", single_article_per_section=False)
 
-            if self.reporter.cancelRequested: return 1
+            if self.reporter.cancel_requested: return 1
             self.generateNCXByTags("Genres")
 
-            if self.reporter.cancelRequested: return 1
+            if self.reporter.cancel_requested: return 1
             self.writeNCX()
 
             return 0
@@ -2523,8 +2519,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.reporter(self.progressInt, self.progressString)
             return "%d%% %s" % (self.progressInt, self.progressString)
 
-    def run(self, path_to_output, opts, db):
-        from calibre.ebooks.conversion.cli import main as ebook_convert
+    def run(self, path_to_output, opts, db, notification=DummyReporter()):
         from calibre.utils.logging import Log
 
         log = Log()
@@ -2551,28 +2546,25 @@ class EPUB_MOBI(CatalogPlugin):
                 log("  %s: %s" % (key, opts_dict[key]))
 
         # Launch the Catalog builder
-        catalog = self.CatalogBuilder(db, opts, self)
+        catalog = self.CatalogBuilder(db, opts, self, notification=notification)
         catalog.createDirectoryStructure()
         catalog.copyResources()
         catalog.buildSources()
 
-        cmd_line_args = ['ebook-convert',
-                          os.path.join(catalog.catalogPath,
-                                      opts.basename + '.opf'),
-                         path_to_output]
+        recommendations = []
 
-        if opts.fmt == 'mobi':
-            # options
-            if opts.output_profile.startswith("kindle"):
-                cmd_line_args.append("--output-profile=%s" % str(opts.output_profile))
-                cmd_line_args.append("--no-inline-toc")
-
-
-        elif opts.fmt == 'epub':
-            pass
+        if opts.fmt == 'mobi' and opts.output_profile.startswith("kindle"):
+            recommendations.append(('output_profile', opts.output_profile,
+                OptionRecommendation.HIGH))
+            recommendations.append(('no_inline_toc', True,
+                OptionRecommendation.HIGH))
 
         # Run ebook-convert
-        ebook_convert(args=cmd_line_args)
+        from calibre.ebooks.conversion.plumber import Plumber
+        plumber = Plumber(os.path.join(catalog.catalogPath,
+                        opts.basename + '.opf'), path_to_output, log, report_progress=notification,
+                        abort_after_input_dump=False)
+        plumber.merge_ui_recommendations(recommendations)
 
+        plumber.run()
 
-        return None

@@ -44,8 +44,7 @@ class PluginWidget(QWidget,Ui_Form):
         for opt in self.OPTION_FIELDS:
             opt_value = unicode(getattr(self, opt[0]).text())
             gprefs.set(self.name + '_' + opt[0], opt_value)
-            if opt[0] == 'exclude_tags':
-                opt_value = opt_value.split(',')
+            opt_value = opt_value.split(',')
             opts_dict[opt[0]] = opt_value
 
         opts_dict['output_profile'] = [load_defaults('page_setup')['output_profile']]

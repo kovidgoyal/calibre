@@ -153,6 +153,21 @@ class Region(object):
         else:
            pass
 
+    def contains(self, columns):
+        if not self.columns:
+            return True
+        if len(columns) != len(self.columns):
+            return False
+        for i in range(len(columns)):
+            c1, c2 = self.columns[i], columns[i]
+            x1 = Interval(c1.left, c1.right)
+            x2 = Interval(c2.left, c2.right)
+            intersection = x1.intersection(x2)
+            base = min(x1.width, x2.width)
+            if intersection.width/base < 0.6:
+                return False
+        return True
+
 class Page(object):
 
     # Fraction of a character width that two strings have to be apart,
