@@ -119,7 +119,11 @@ class Stylizer(object):
         basename = os.path.basename(path)
         cssname = os.path.splitext(basename)[0] + '.css'
         stylesheets = [HTML_CSS_STYLESHEET]
-        head = xpath(tree, '/h:html/h:head')[0]
+        head = xpath(tree, '/h:html/h:head')
+        if head:
+            head = head[0]
+        else:
+            head = []
         parser = cssutils.CSSParser(fetcher=self._fetch_css_file,
                 log=logging.getLogger('calibre.css'))
         self.font_face_rules = []
