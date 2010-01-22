@@ -1092,6 +1092,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.library_view.model().refresh_ids(ids)
         self.library_view.model().current_changed(self.library_view.currentIndex(),
                 self.library_view.currentIndex())
+        if ids:
+            self.tags_view.recount()
 
     def delete_all_but_selected_formats(self, *args):
         ids = self._get_selected_ids()
@@ -1113,6 +1115,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.library_view.model().refresh_ids(ids)
         self.library_view.model().current_changed(self.library_view.currentIndex(),
                 self.library_view.currentIndex())
+        if ids:
+            self.tags_view.recount()
 
 
     def delete_covers(self, *args):
@@ -1399,8 +1403,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.status_bar.showMessage(_('Catalog generated.'), 3000)
         self.sync_catalogs()
 		if job.fmt in ['CSV','XML']:
-			export_dir = choose_dir(self, 'Export Catalog Directory',
-										          'Select destination for %s.%s' % (job.catalog_title, job.fmt.lower()))
+			export_dir = choose_dir(self, _('Export Catalog Directory'),
+                    _('Select destination for %s.%s') % (job.catalog_title, job.fmt.lower()))
 			if export_dir:
 				destination = os.path.join(export_dir, '%s.%s' % (job.catalog_title, job.fmt.lower()))
 				shutil.copyfile(job.catalog_file_path, destination)
