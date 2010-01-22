@@ -8,6 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import os
 import re
 import StringIO
 
@@ -198,14 +199,26 @@ class PML_HTMLizer(object):
     def start_line(self):
         start = u''
 
+        div = []
+        span = []
+        other = []
+
         for key, val in self.state.items():
             if val[0]:
-                if key in self.STATES_VALUE_REQ:
-                    start += self.STATES_TAGS[key][0] % val[1]
-                elif key in self.STATES_VALUE_REQ_2:
-                    start += self.STATES_TAGS[key][0] % (val[1], val[1])
+                if key in self.DIV_STATES:
+                    div.append((key, val[1]))
+                elif key in self.SPAN_STATES:
+                    span.append((key, val[1]))
                 else:
-                    start += self.STATES_TAGS[key][0]
+                    other.append((key, val[1]))
+
+        for key, val in other+div+span:
+            if key in self.STATES_VALUE_REQ:
+                start += self.STATES_TAGS[key][0] % val
+            elif key in self.STATES_VALUE_REQ_2:
+                start += self.STATES_TAGS[key][0] % (val, val)
+            else:
+                start += self.STATES_TAGS[key][0]
 
         return u'<p>%s' % start
 
@@ -518,7 +531,7 @@ class PML_HTMLizer(object):
                     elif c == 'C':
                         line.read(1)
                         id = 'pml_toc-%s' % len(self.toc)
-                        self.toc.add_item(self.file_name, id, self.code_value(line))
+                        self.toc.add_item(os.path.basename(self.file_name), id, self.code_value(line))
                         text = '<span id="%s"></span>' % id
                     elif c == 'n':
                         pass

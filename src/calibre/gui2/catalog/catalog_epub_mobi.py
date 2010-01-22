@@ -9,14 +9,22 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2 import gprefs
 from catalog_epub_mobi_ui import Ui_Form
+from calibre.ebooks.conversion.config import load_defaults
 from PyQt4.Qt import QWidget
 
 class PluginWidget(QWidget,Ui_Form):
 
     TITLE = _('EPUB/MOBI Options')
     HELP  = _('Options specific to')+' EPUB/MOBI '+_('output')
-    # Indicates whether this plugin wants its output synced to the connected device
+    OPTION_FIELDS = [('exclude_genre','\[[\w ]*\]'),
+                     ('exclude_tags','~'),
+                     ('read_tag','+'),
+                     ('note_tag','*')]
+
+    # Output synced to the connected device?
     sync_enabled = True
+    
+    # Formats supported by this plugin
     formats = set(['epub','mobi'])
     
     def __init__(self, parent=None):
@@ -26,20 +34,25 @@ class PluginWidget(QWidget,Ui_Form):
     def initialize(self, name):
         self.name = name
         # Restore options from last use here
-        print "gui2.catalog.catalog_epub_mobi:initialize(): need to restore options"
-        
-    def options(self):
-        OPTION_FIELDS = ['exclude_genre','exclude_tags','read_tag','note_tag','output_profile']
+        print "gui2.catalog.catalog_epub_mobi:initialize(): Retrieving options"
+        for opt in self.OPTION_FIELDS:
+            opt_value = gprefs[self.name + '_' + opt[0]]
+            print "Restoring %s: %s" % (self.name + '_' + opt[0], opt_value)
+            setattr(self,opt[0], unicode(opt_value))
 
-        # Save the current options
-        print "gui2.catalog.catalog_epub_mobi:options(): need to save options"
-        
-        # Return a dictionary with current options
-        print "gui2.catalog.catalog_epub_mobi:options(): need to return options"
-        print "gui2.catalog.catalog_epub_mobi:options(): using hard-coded options"
-        
+    def options(self):
+
+        # Save/return the current options
+        # getattr() returns text value of QLineEdit control
+        print "gui2.catalog.catalog_epub_mobi:options(): Saving options"
         opts_dict = {}
-        for opt in OPTION_FIELDS:
-            opts_dict[opt] = str(getattr(self,opt).text()).split(',')
+        for opt in self.OPTION_FIELDS:
+            opt_value = unicode(getattr(self,opt[0]))
+            print "writing %s to gprefs" % opt_value
+            gprefs.set(self.name + '_' + opt[0], opt_value)
+            opts_dict[opt[0]] = opt_value.split(',')
+
+        opts_dict['output_profile'] = [load_defaults('page_setup')['output_profile']]
+
 
         return opts_dict

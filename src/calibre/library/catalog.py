@@ -267,7 +267,6 @@ class EPUB_MOBI(CatalogPlugin):
                           "Applies to: ePub, MOBI output formats"))
                           ] 
 
-
     class NumberToText(object):
         ''' 
         Converts numbers to text
