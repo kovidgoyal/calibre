@@ -178,6 +178,7 @@ class Document(QWebPage):
 
     def set_user_stylesheet(self):
         raw = config().parse().user_css
+        raw = '::selection {background:#ffff00; color:#000;}\n'+raw
         data = 'data:text/css;charset=utf-8;base64,'
         data += b64encode(raw.encode('utf-8'))
         self.settings().setUserStyleSheetUrl(QUrl(data))
