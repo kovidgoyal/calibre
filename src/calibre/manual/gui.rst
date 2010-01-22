@@ -134,7 +134,7 @@ The :guilabel:`Convert E-books` action has three variations, accessed by the arr
                 
     2. **Bulk convert**: This allows you to specify options only once to convert a number of ebooks in bulk.
     
-    3. **Set conversion defaults**: Allows you to set the default settings for future conversions.
+    3. **Create catalog**: This action allow yous to generate a complete listing with all metadata of the books in your library, in several formats, like XML, CSV, EPUB and MOBI. The catalog will contain all the books showing in the library view currently, so you can use the search features to limit the books to be catalogued. In addition, if you select multiple books using the mouse, only those books will be added to the catalog. If you generate the catalog in an e-book format such as EPUB or MOBI, the next time you connect your e-book reader, the catalog will be automatically sent to the device.
                                             
 .. _view:
 
