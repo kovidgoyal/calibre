@@ -100,8 +100,6 @@ class Catalog(QDialog, Ui_Dialog):
                     info("No dynamic tab resources found for %s" % name)
 
         self.widgets = sorted(self.widgets, cmp=lambda x,y:cmp(x.TITLE, y.TITLE))
-        for pw in self.widgets:
-            self.tabs.addTab(pw, pw.TITLE)
 
         # Generate a sorted list of installed catalog formats/sync_enabled pairs
         fmts = sorted([x[0] for x in self.fmts])
@@ -125,6 +123,19 @@ class Catalog(QDialog, Ui_Dialog):
         if self.sync.isEnabled():
             self.sync.setChecked(dynamic.get('catalog_sync_to_device', True))
 
+        self.format.currentIndexChanged.connect(self.format_changed)
+        self.show_plugin_tab(None)
+
+
+    def show_plugin_tab(self, idx):
+        cf = unicode(self.format.currentText()).lower()
+        while self.tabs.count() > 1:
+            self.tabs.remove(1)
+        for pw in self.widgets:
+            if cf in pw.formats:
+                self.tabs.addTab(pw, pw.TITLE)
+                break
+
     def format_changed(self, idx):
         cf = unicode(self.format.currentText())
         if cf in self.sync_enabled_formats:
@@ -132,6 +143,14 @@ class Catalog(QDialog, Ui_Dialog):
         else:
             self.sync.setDisabled(True)
             self.sync.setChecked(False)
+
+    @property
+    def fmt_options(self):
+        ans = {}
+        if self.tabs.count() > 1:
+            w = self.tabs.widget(1)
+            ans = w.options()
+        return ans
 
     def accept(self):
         self.catalog_format = unicode(self.format.currentText())
