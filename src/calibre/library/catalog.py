@@ -2,6 +2,11 @@ import os
 
 from calibre.customize import CatalogPlugin
 
+FIELDS = ['all', 'author_sort', 'authors', 'comments',
+          'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
+          'series_index', 'series', 'size', 'tags', 'timestamp', 'title',
+          'uuid']
+
 class CSV_XML(CatalogPlugin):
     'CSV/XML catalog generator'
 
@@ -22,11 +27,9 @@ class CSV_XML(CatalogPlugin):
                 dest = 'fields',
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
-                    'Available fields: all, author_sort, authors, comments, '
-                    'cover, formats, id, isbn, pubdate, publisher, rating, '
-                    'series_index, series, size, tags, timestamp, title, uuid.\n'
-                    "Default: '%default'\n"
-                    "Applies to: CSV, XML output formats")),
+                    'Available fields: %s.\n'
+                    "Default: '%%default'\n"
+                    "Applies to: CSV, XML output formats")%', '.join(FIELDS)),
 
             Option('--sort-by',
                 default = 'id',

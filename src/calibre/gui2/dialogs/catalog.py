@@ -17,6 +17,7 @@ from calibre.customize.ui import catalog_plugins
 
 class Catalog(QDialog, Ui_Dialog):
     ''' Catalog Dialog builder'''
+    widgets = []
 
     def __init__(self, parent, dbspec, ids):
         import re, cStringIO
