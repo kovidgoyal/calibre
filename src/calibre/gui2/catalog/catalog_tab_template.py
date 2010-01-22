@@ -16,11 +16,11 @@ class PluginWidget(QWidget,Ui_Form):
     HELP  = _('Options specific to')+' <formats> '+_('output')
     # Indicates whether this plugin wants its output synced to the connected device
     sync_enabled = False
-    
+
     def initialize(self):
         QWidget.__init__(self)
         self.setupUi(self)
-        
+
     def options(self):
         # Return a dictionary with options for this Widget
         return {}

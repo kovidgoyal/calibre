@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 '''The main GUI'''
 
-import atexit, os, shutil, sys, tempfile, textwrap, collections, time
+import os, shutil, sys, textwrap, collections, time
 from xml.parsers.expat import ExpatError
 from Queue import Queue, Empty
 from threading import Thread
@@ -1359,7 +1359,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################### Generate catalog ###########################
 
-    def generate_catalog(self):    
+    def generate_catalog(self):
         rows = self.library_view.selectionModel().selectedRows()
         if not rows or len(rows) < 2:
             rows = xrange(self.library_view.model().rowCount(QModelIndex()))
@@ -1375,7 +1375,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         ret = generate_catalog(self, dbspec, ids)
         if ret is None:
             return
-            
+
         func, args, desc, out, sync, title = ret
 
         fmt = os.path.splitext(out)[1][1:].upper()
@@ -1384,7 +1384,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     description=desc)
         job.catalog_file_path = out
         job.fmt = fmt
-        job.catalog_sync, job.catalog_title = sync, title        
+        job.catalog_sync, job.catalog_title = sync, title
         self.status_bar.showMessage(_('Generating %s catalog...')%fmt)
 
     def catalog_generated(self, job):
@@ -1399,12 +1399,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.status_bar.showMessage(_('Catalog generated.'), 3000)
         self.sync_catalogs()
 		if job.fmt in ['CSV','XML']:
-			export_dir = choose_dir(self, 'Export Catalog Directory', 
+			export_dir = choose_dir(self, 'Export Catalog Directory',
 										          'Select destination for %s.%s' % (job.catalog_title, job.fmt.lower()))
 			if export_dir:
 				destination = os.path.join(export_dir, '%s.%s' % (job.catalog_title, job.fmt.lower()))
 				shutil.copyfile(job.catalog_file_path, destination)
-				
+
     ############################### Fetch news #################################
 
     def download_scheduled_recipe(self, arg):
