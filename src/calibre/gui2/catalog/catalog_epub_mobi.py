@@ -40,8 +40,6 @@ class PluginWidget(QWidget,Ui_Form):
 
     def options(self):
         # Save/return the current options
-        # getattr() returns text value of QLineEdit control
-        print "gui2.catalog.catalog_epub_mobi:options(): Saving options"
         opts_dict = {}
         for opt in self.OPTION_FIELDS:
             opt_value = unicode(getattr(self, opt[0]).text())
