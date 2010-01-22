@@ -42,6 +42,7 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, fmt_options,
     opts, args = parser.parse_args()
 
     # Populate opts
+    opts.catalog_title = title
     opts.ids = ids
     opts.search_text = None
     opts.sort_by = None
