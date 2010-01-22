@@ -129,7 +129,7 @@ class Catalog(QDialog, Ui_Dialog):
     def show_plugin_tab(self, idx):
         cf = unicode(self.format.currentText()).lower()
         while self.tabs.count() > 1:
-            self.tabs.remove(1)
+            self.tabs.removeTab(1)
         for pw in self.widgets:
             if cf in pw.formats:
                 self.tabs.addTab(pw, pw.TITLE)
