@@ -13,7 +13,7 @@ from PyQt4.Qt import QWidget, QListWidgetItem
 
 class PluginWidget(QWidget, Ui_Form):
 
-    TITLE = _('CSV/XML Output')
+    TITLE = _('CSV/XML Options')
     HELP  = _('Options specific to')+' CSV/XML '+_('output')
     sync_enabled = False
     formats = set(['csv', 'xml'])
