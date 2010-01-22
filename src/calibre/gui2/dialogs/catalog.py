@@ -122,7 +122,7 @@ class Catalog(QDialog, Ui_Dialog):
         if self.sync.isEnabled():
             self.sync.setChecked(dynamic.get('catalog_sync_to_device', True))
 
-        self.format.currentIndexChanged.connect(self.format_changed)
+        self.format.currentIndexChanged.connect(self.show_plugin_tab)
         self.show_plugin_tab(None)
 
 
