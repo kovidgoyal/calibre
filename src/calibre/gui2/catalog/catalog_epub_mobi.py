@@ -14,7 +14,7 @@ from PyQt4.Qt import QWidget
 
 class PluginWidget(QWidget,Ui_Form):
 
-    TITLE = _('EPUB/MOBI Options')
+    TITLE = _('E-book Options')
     HELP  = _('Options specific to')+' EPUB/MOBI '+_('output')
     OPTION_FIELDS = [('exclude_genre','\[[\w ]*\]'),
                      ('exclude_tags','~'),

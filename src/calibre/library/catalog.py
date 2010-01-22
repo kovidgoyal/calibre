@@ -230,7 +230,7 @@ class EPUB_MOBI(CatalogPlugin):
     minimum_calibre_version = (0, 6, 34)
     author = 'Greg Riker'
     version = (0, 0, 1)
-    file_types = set(['epub','mobi'])
+    file_types = set(['epub'])
 
     cli_options = [Option('--catalog-title',
                           default = 'My Catalog',
