@@ -7652,7 +7652,7 @@ msgstr ""
 "Tilgjengelige områder: alle, forfattersortering, forfattere, kommentarer, "
 "omslagsbilde, formater, id, isbn, publikasjonsdato, bedømmelse, "
 "serieinndeks, serier, størrelse, tidsmerker, tittel, uuid.\n"
-"Standard: %standard\n"
+"Standard: %default\n"
 "Gjelder: CSV, XML utdataformater"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:34
@@ -7665,7 +7665,7 @@ msgstr ""
 "Utdatafelter som kan sorteres.\n"
 "Tilgjengelige områder: forfattersortering, id, bedømmelse, størrelse, "
 "tidsmerking, tittel.\n"
-"Standard: %standard'\n"
+"Standard: '%default'\n"
 "Gjelder: CSV, XML utdataformater"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:121
