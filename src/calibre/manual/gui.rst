@@ -124,7 +124,7 @@ Convert e-books
 ~~~~~~~~~~~~~~~~~~~~~~
 .. |cei| image:: images/convert_ebooks.png
 
-|cei| Ebooks can be converted from a number of formats into the LRF format (for the SONY Reader). Note that ebooks you purchase will typically have `Digital Rights Management <http://en.wikipedia.org/wiki/Digital_rights_management>`_ *(DRM)*. |app| will not convert these ebooks. For many DRM formats, it is easy to remove the DRM, but as this is illegal, you have to find tools to liberate your books yourself and then use |app| to convert them.
+|cei| Ebooks can be converted from a number of formats into the LRF format (for the SONY Reader). Note that ebooks you purchase will typically have `Digital Rights Management <http://bugs.calibre-ebook.com/wiki/DRM>`_ *(DRM)*. |app| will not convert these ebooks. For many DRM formats, it is easy to remove the DRM, but as this is illegal, you have to find tools to liberate your books yourself and then use |app| to convert them.
 
 For most people, conversion should be a simple 1-click affair. But if you want to learn more about the conversion process, see :ref:`conversion`.
             
