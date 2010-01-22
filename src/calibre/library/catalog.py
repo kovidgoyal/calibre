@@ -2484,16 +2484,10 @@ class EPUB_MOBI(CatalogPlugin):
             for tag in tags:
                 tag = self.convertHTMLEntities(tag)
                 if tag.startswith(opts.note_tag):
-    #                 if opts.verbose:
-    #                     print "%s has a note: %s" % (this_title['title'], tag[1:])
                     this_title['notes'] = tag[1:]
                 elif tag == opts.read_tag:
-    #                 if opts.verbose:
-    #                     print "%s marked as read" % this_title['title']
                     this_title['read'] = True
                 elif re.search(opts.exclude_genre, tag):
-    #                 if opts.verbose:
-    #                     print "'%s' matches exclude_genre regex, skipping" % tag
                     continue
                 else:
                     tag_list.append(tag)

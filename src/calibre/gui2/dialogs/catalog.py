@@ -36,9 +36,6 @@ class Catalog(QDialog, Ui_Dialog):
         self.title.setText(dynamic.get('catalog_last_used_title',
             _('My Books')))
 
-        # GwR *** Add option tabs for built-in formats
-        # This code models #69 in calibre/gui2/dialogs/config/__init__.py
-
         self.fmts, self.widgets = [], []
 
         from calibre.customize.builtins import plugins as builtin_plugins
