@@ -49,7 +49,10 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, fmt_options,
 
     # Extract the option dictionary to comma-separated lists
     for option in fmt_options:
-        setattr(opts,option, ','.join(fmt_options[option]))
+        if isinstance(fmt_options[option],list):
+            setattr(opts,option, ','.join(fmt_options[option]))
+        else:
+            setattr(opts,option, fmt_options[option])
 
     # Fetch and run the plugin for fmt
     plugin = plugin_for_catalog_format(fmt)

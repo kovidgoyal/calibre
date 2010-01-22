@@ -6,7 +6,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag,
 from calibre.customize import CatalogPlugin
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
-
+from calibre import filesystem_encoding
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
@@ -663,47 +663,47 @@ class EPUB_MOBI(CatalogPlugin):
 
         # Methods
         def buildSources(self):
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             if not self.booksByTitle:
                 self.fetchBooksByTitle()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.fetchBooksByAuthor()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLDescriptions()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLByTitle()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLByAuthor()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLByTags()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateThumbnails()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateOPF()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXHeader()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXDescriptions("Descriptions")
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXByTitle("Titles", single_article_per_section=False)
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXByAuthor("Authors", single_article_per_section=False)
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXByTags("Genres")
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.writeNCX()
 
             return 0
@@ -1350,7 +1350,7 @@ class EPUB_MOBI(CatalogPlugin):
             for (i,title) in enumerate(self.booksByTitle):
                 # Update status
                 self.updateProgressMicroStep("generating thumbnails ...",
-                        100*i/len(self.booksByTitle))
+                        i/float(len(self.booksByTitle)))
                 # Check to see if source file exists
                 if 'cover' in title and os.path.isfile(title['cover']):
                     # print "cover found for %s" % title['title']
@@ -2456,42 +2456,38 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateThumbnail(self, title, image_dir, thumb_file):
             import calibre.utils.PythonMagickWand as pw
-            try:
-                img = pw.NewMagickWand()
-                if img < 0:
-                    raise RuntimeError('generate_thumbnail(): Cannot create wand')
-                # Read the cover
-                if not pw.MagickReadImage(img, title['cover']):
-                    print 'Failed to read cover image from: %s' % title['cover']
-                    raise IOError
-                thumb = pw.CloneMagickWand(img)
-                if thumb < 0:
-                    print 'generate_thumbnail(): Cannot clone cover'
-                    raise RuntimeError
-                # img, width, height
-                pw.MagickThumbnailImage(thumb, 75, 100)
-                pw.MagickWriteImage(thumb, os.path.join(image_dir, thumb_file))
-                pw.DestroyMagickWand(thumb)
-            except IOError:
-                print "generate_thumbnail() IOError with %s" % title['title']
-            except RuntimeError:
-                print "generate_thumbnail() RuntimeError with %s" % title['title']
+            with pw.ImageMagick():
+                try:
+                    img = pw.NewMagickWand()
+                    if img < 0:
+                        raise RuntimeError('generate_thumbnail(): Cannot create wand')
+                    # Read the cover
+                    if not pw.MagickReadImage(img,
+                            title['cover'].encode(filesystem_encoding)):
+                        print 'Failed to read cover image from: %s' % title['cover']
+                        raise IOError
+                    thumb = pw.CloneMagickWand(img)
+                    if thumb < 0:
+                        print 'generate_thumbnail(): Cannot clone cover'
+                        raise RuntimeError
+                    # img, width, height
+                    pw.MagickThumbnailImage(thumb, 75, 100)
+                    pw.MagickWriteImage(thumb, os.path.join(image_dir, thumb_file))
+                    pw.DestroyMagickWand(thumb)
+                except IOError:
+                    print "generate_thumbnail() IOError with %s" % title['title']
+                except RuntimeError:
+                    print "generate_thumbnail() RuntimeError with %s" % title['title']
 
         def processSpecialTags(self, tags, this_title, opts):
             tag_list = []
             for tag in tags:
                 tag = self.convertHTMLEntities(tag)
                 if tag.startswith(opts.note_tag):
-    #                 if opts.verbose:
-    #                     print "%s has a note: %s" % (this_title['title'], tag[1:])
                     this_title['notes'] = tag[1:]
                 elif tag == opts.read_tag:
-    #                 if opts.verbose:
-    #                     print "%s marked as read" % this_title['title']
                     this_title['read'] = True
                 elif re.search(opts.exclude_genre, tag):
-    #                 if opts.verbose:
-    #                     print "'%s' matches exclude_genre regex, skipping" % tag
                     continue
                 else:
                     tag_list.append(tag)
