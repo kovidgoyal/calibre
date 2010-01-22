@@ -938,6 +938,8 @@ class EPUB_MOBI(CatalogPlugin):
                     # Insert a spacer to match the author indent
                     fontTag = Tag(soup,"font")
                     fontTag['style'] = 'color:white;font-size:large'
+                    if self.opts.fmt == 'epub':
+                        fontTag['style'] += ';opacity: 0.0'
                     fontTag.insert(0, NavigableString("by "))
                     tagsTag.insert(ttc, fontTag)
                     ttc += 1
@@ -948,6 +950,8 @@ class EPUB_MOBI(CatalogPlugin):
                         aTag.insert(0,escape(NavigableString(tag)))
                         emTag = Tag(soup, "em")
                         emTag.insert(0, aTag)
+                        if ttc < len(title['tags']):
+                            emTag.insert(1, NavigableString(', '))
                         tagsTag.insert(ttc, emTag)
                         ttc += 1
 
