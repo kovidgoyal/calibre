@@ -375,7 +375,10 @@ class EPUB_MOBI(CatalogPlugin):
                 self.text = ''.join(result)
 
             else:
-                number = int(self.number)
+                try:
+                    number = int(self.number)
+                except:
+                    return
 
                 if number > 1000000:
                     self.text = "%d out of range" % number
@@ -2449,7 +2452,6 @@ class EPUB_MOBI(CatalogPlugin):
             for (i,word) in enumerate(title_words):
                 hit = re.search('[0-9]+',word)
                 if hit :
-                    print "library.catalog:CatalogBuilder.generateSortTitle(): translating '%s'" % word
                     translated.append(EPUB_MOBI.NumberToText(word).text)
                 else:
                     translated.append(word)
