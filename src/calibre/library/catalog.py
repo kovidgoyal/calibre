@@ -663,47 +663,47 @@ class EPUB_MOBI(CatalogPlugin):
 
         # Methods
         def buildSources(self):
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             if not self.booksByTitle:
                 self.fetchBooksByTitle()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.fetchBooksByAuthor()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLDescriptions()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLByTitle()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLByAuthor()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLByTags()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateThumbnails()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateOPF()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXHeader()
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXDescriptions("Descriptions")
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXByTitle("Titles", single_article_per_section=False)
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXByAuthor("Authors", single_article_per_section=False)
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXByTags("Genres")
 
-            if self.reporter.cancel_requested: return 1
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.writeNCX()
 
             return 0
@@ -1350,7 +1350,7 @@ class EPUB_MOBI(CatalogPlugin):
             for (i,title) in enumerate(self.booksByTitle):
                 # Update status
                 self.updateProgressMicroStep("generating thumbnails ...",
-                        100*i/len(self.booksByTitle))
+                        i/float(len(self.booksByTitle)))
                 # Check to see if source file exists
                 if 'cover' in title and os.path.isfile(title['cover']):
                     # print "cover found for %s" % title['title']
