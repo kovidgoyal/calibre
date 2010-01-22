@@ -204,4 +204,18 @@ terminal. For example, you can start the GUI from the terminal as::
 
     calibre-debug -g
 
+Executing arbitrary scripts in the calibre python environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The :command:`calibre-debug` command provides a couple of handy switches to execute your own
+code, with access to the calibre modules::
+
+    calibre-debug -c "some python code"
+
+is great for testing a little snippet of code on the command line. It works in the same way as the -c switch to the python interpreter::
+
+    calibre-debug -e myscript.py
+
+can be used to execute your own python script. It works in the same way as passing the script to the python interpreter, except
+that the calibre environment is fully initialized, so you can use all the calibre code in your script.
 
