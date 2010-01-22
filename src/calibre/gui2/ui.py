@@ -1402,7 +1402,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             dynamic.set('catalogs_to_be_synced', sync)
         self.status_bar.showMessage(_('Catalog generated.'), 3000)
         self.sync_catalogs()
-		if job.fmt in ['CSV','XML']:
+		if job.fmt not in ['EPUB','MOBI']:
 			export_dir = choose_dir(self, _('Export Catalog Directory'),
                     _('Select destination for %s.%s') % (job.catalog_title, job.fmt.lower()))
 			if export_dir:

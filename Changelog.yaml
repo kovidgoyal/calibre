@@ -11,9 +11,9 @@
     - title: Catalog generation
       type: major
       description: >
-        "You can now easily generate a catlog of all books in your calibre library by clicking the arrow next to the convert button. The catalog can be in one of several formats: XML, CSV, EPUB and MOBI, with scope for future formats via plugins. If you generate the catalog in an e-book format, it will be automatically sent to your e-book reader the next time you  connect it, allowing you to easily browse your collection on the reader itself."
+        "You can now easily generate a catlog of all books in your calibre library by clicking the arrow next to the convert button. The catalog can be in one of several formats: XML, CSV, EPUB and MOBI, with scope for future formats via plugins. If you generate the catalog in an e-book format, it will be automatically sent to your e-book reader the next time you  connect it, allowing you to easily browse your collection on the reader itself. This feature is in Beta (may have bugs) so feedback is appreciated."
 
-    - title: "RTF Input: Support for unicode characters. Needs testing."
+    - title: "RTF Input: Support for unicode characters."
       type: major
       tickets: [4501]
 
