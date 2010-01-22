@@ -17,7 +17,6 @@ from calibre.customize.ui import catalog_plugins
 
 class Catalog(QDialog, Ui_Dialog):
     ''' Catalog Dialog builder'''
-    widgets = []
 
     def __init__(self, parent, dbspec, ids):
         import re, cStringIO
@@ -40,7 +39,7 @@ class Catalog(QDialog, Ui_Dialog):
         # GwR *** Add option tabs for built-in formats
         # This code models #69 in calibre/gui2/dialogs/config/__init__.py
 
-        self.fmts = []
+        self.fmts, self.widgets = [], []
 
         from calibre.customize.builtins import plugins as builtin_plugins
 
@@ -99,9 +98,9 @@ class Catalog(QDialog, Ui_Dialog):
                 else:
                     info("No dynamic tab resources found for %s" % name)
 
-        self.widgets = sorted(self.widgets, key=lambda x:(x.TITLE, x.TITLE))
+        self.widgets = sorted(self.widgets, cmp=lambda x,y:cmp(x.TITLE, y.TITLE))
         for pw in self.widgets:
-            self.tabs.addTab(pw,pw.TITLE)
+            self.tabs.addTab(pw, pw.TITLE)
 
         # Generate a sorted list of installed catalog formats/sync_enabled pairs
         fmts = sorted([x[0] for x in self.fmts])

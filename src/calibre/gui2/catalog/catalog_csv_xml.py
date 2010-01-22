@@ -11,15 +11,17 @@ from calibre.gui2 import gprefs
 from calibre.gui2.catalog.catalog_csv_xml_ui import Ui_Form
 from PyQt4.Qt import QWidget
 
-class PluginWidget(QWidget,Ui_Form):
+class PluginWidget(QWidget, Ui_Form):
 
     TITLE = _('CSV/XML Output')
     HELP  = _('Options specific to')+' CSV/XML '+_('output')
     sync_enabled = False
 
-    def initialize(self, name):
-        QWidget.__init__(self)
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
         self.setupUi(self)
+
+    def initialize(self, name):
         self.name = name
         # Restore the activated fields from last use
         for x in range(self.db_fields.count()):
