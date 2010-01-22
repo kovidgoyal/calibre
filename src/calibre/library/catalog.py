@@ -1169,7 +1169,7 @@ class EPUB_MOBI(CatalogPlugin):
             book_count = 0
             for book in self.booksByAuthor:
                 book_count += 1
-                if book['author_sort'][0] != current_letter :
+                if book['author_sort'][0].upper() != current_letter :
                     '''
                     # Start a new letter - anchor only, hidden
                     current_letter = book['author_sort'][0].upper()
@@ -1810,14 +1810,12 @@ class EPUB_MOBI(CatalogPlugin):
             self.playOrder += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
-        #    textTag.insert(0, NavigableString('%s (%d)' % (section_title,len(sorted_authors))))
             textTag.insert(0, NavigableString('%s' % tocTitle))
             navLabelTag.insert(0, textTag)
             nptc = 0
             navPointTag.insert(nptc, navLabelTag)
             nptc += 1
             contentTag = Tag(soup,"content")
-    #        contentTag['src'] = "%s#%s" % (HTML_file, file_ID)
             contentTag['src'] = "%s#section_start" % HTML_file
             navPointTag.insert(nptc, contentTag)
             nptc += 1
@@ -2522,7 +2520,7 @@ class EPUB_MOBI(CatalogPlugin):
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
 
         # Add local options
-        opts.creator = "calibre"
+        opts.creator = "Calibre"
         opts.dbs_fname = "CatalogSnapshot.dat"
         opts.descriptionClip = 250
         opts.basename = "Catalog"
