@@ -29,6 +29,7 @@ Sections
 
    gui
    news
+   viewer
    conversion
    metadata
    faq 

@@ -2,6 +2,11 @@ import os
 
 from calibre.customize import CatalogPlugin
 
+FIELDS = ['all', 'author_sort', 'authors', 'comments',
+          'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
+          'series_index', 'series', 'size', 'tags', 'timestamp', 'title',
+          'uuid']
+
 class CSV_XML(CatalogPlugin):
     'CSV/XML catalog generator'
 
@@ -22,11 +27,9 @@ class CSV_XML(CatalogPlugin):
                 dest = 'fields',
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
-                    'Available fields: all, author_sort, authors, comments, '
-                    'cover, formats, id, isbn, pubdate, publisher, rating, '
-                    'series_index, series, size, tags, timestamp, title, uuid.\n'
-                    "Default: '%default'\n"
-                    "Applies to: CSV, XML output formats")),
+                    'Available fields: %s.\n'
+                    "Default: '%%default'\n"
+                    "Applies to: CSV, XML output formats")%', '.join(FIELDS)),
 
             Option('--sort-by',
                 default = 'id',
@@ -41,7 +44,7 @@ class CSV_XML(CatalogPlugin):
 
         log = Log()
         self.fmt = path_to_output.rpartition('.')[2]
-        
+
         if False and opts.verbose:
             log("%s:run" % self.name)
             log(" path_to_output: %s" % path_to_output)
@@ -54,7 +57,7 @@ class CSV_XML(CatalogPlugin):
             log(" opts:")
             for key in keys:
                 log("  %s: %s" % (key, opts_dict[key]))
-		
+
         # Get the sorted, filtered database as a dictionary
         data = self.search_sort_db(db, opts)
 
@@ -69,7 +72,7 @@ class CSV_XML(CatalogPlugin):
             outfile = open(path_to_output, 'w')
 
             # Output the field headers
-            outfile.write('%s\n' % ','.join(fields))
+            outfile.write(u'%s\n' % u','.join(fields))
 
             # Output the entry fields
             for entry in data:
@@ -80,15 +83,15 @@ class CSV_XML(CatalogPlugin):
                         item = ', '.join(item)
                     if x < len(fields) - 1:
                         if item is not None:
-                            outstr += '"%s",' % str(item).replace('"','""')
+                            outstr += u'"%s",' % unicode(item).replace('"','""')
                         else:
                             outstr += '"",'
                     else:
                         if item is not None:
-                            outstr += '"%s"\n' % str(item).replace('"','""')
+                            outstr += u'"%s"\n' % unicode(item).replace('"','""')
                         else:
                             outstr += '""\n'
-                outfile.write(outstr)
+                outfile.write(outstr.encode('utf-8'))
             outfile.close()
 
         elif self.fmt == 'xml':

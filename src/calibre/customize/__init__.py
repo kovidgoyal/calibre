@@ -2,7 +2,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import atexit, os, shutil, sys, tempfile, zipfile
+import os, sys, zipfile
 
 from calibre.constants import numeric_version
 from calibre.ptempfile import PersistentTemporaryFile
@@ -226,7 +226,7 @@ class MetadataWriterPlugin(Plugin):
 
         '''
         pass
-    
+
 class CatalogPlugin(Plugin):
     '''
     A plugin that implements a catalog generator.
@@ -251,7 +251,7 @@ class CatalogPlugin(Plugin):
     #:                       '%default' + "'"))]
 
     cli_options = []
-    
+
 
     def search_sort_db(self, db, opts):
 
@@ -262,7 +262,7 @@ class CatalogPlugin(Plugin):
         if opts.sort_by:
             # 2nd arg = ascending
             db.sort(opts.sort_by, True)
-        
+
         return db.get_data_as_dict(ids=opts.ids)
 
     def get_output_fields(self, opts):
@@ -289,29 +289,29 @@ class CatalogPlugin(Plugin):
         '''
         If plugin is not a built-in, copy the plugin's .ui and .py files from
         the zip file to $TMPDIR.
-        Tab will be dynamically generated and added to the Catalog Options dialog in 
+        Tab will be dynamically generated and added to the Catalog Options dialog in
         calibre.gui2.dialogs.catalog.py:Catalog
         '''
         from calibre.customize.builtins import plugins as builtin_plugins
         from calibre.customize.ui import config
         from calibre.ptempfile import PersistentTemporaryDirectory
-        
+
         if not type(self) in builtin_plugins and \
            not self.name in config['disabled_plugins']:
             files_to_copy = ["%s.%s" % (self.name.lower(),ext) for ext in ["ui","py"]]
             resources = zipfile.ZipFile(self.plugin_path,'r')
-                        
+
             if self.resources_path is None:
                 self.resources_path = PersistentTemporaryDirectory('_plugin_resources', prefix='')
-                 
+
             for file in files_to_copy:
                 try:
                     resources.extract(file, self.resources_path)
                 except:
                     print " customize:__init__.initialize(): %s not found in %s" % (file, os.path.basename(self.plugin_path))
                     continue
-            resources.close()                
-            
+            resources.close()
+
     def run(self, path_to_output, opts, db, ids):
         '''
         Run the plugin. Must be implemented in subclasses.

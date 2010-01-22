@@ -9,32 +9,44 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2 import gprefs
 from calibre.gui2.catalog.catalog_csv_xml_ui import Ui_Form
-from PyQt4.Qt import QDialog, QWidget, SIGNAL
+from PyQt4.Qt import QWidget, QListWidgetItem
 
-class PluginWidget(QWidget,Ui_Form):
+class PluginWidget(QWidget, Ui_Form):
 
-    TITLE = _('CSV/XML Output')
+    TITLE = _('CSV/XML Options')
     HELP  = _('Options specific to')+' CSV/XML '+_('output')
     sync_enabled = False
-    
-    def initialize(self, name):
-        QWidget.__init__(self)
+    formats = set(['csv', 'xml'])
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
         self.setupUi(self)
+        from calibre.library.catalog import FIELDS
+        self.all_fields = []
+        for x in FIELDS:
+            if x != 'all':
+                self.all_fields.append(x)
+                QListWidgetItem(x, self.db_fields)
+
+    def initialize(self, name):
         self.name = name
+        fields = gprefs.get(name+'_db_fields', self.all_fields)
         # Restore the activated fields from last use
-        for x in range(self.db_fields.count()):        
-            pref = '%s_db_fields_%s' % (self.name, self.db_fields.item(x).text())
-            activated = gprefs[pref] if pref in gprefs else False
-            self.db_fields.item(x).setSelected(activated)
+        for x in range(self.db_fields.count()):
+            item = self.db_fields.item(x)
+            item.setSelected(unicode(item.text()) in fields)
 
     def options(self):
         # Save the currently activated fields
+        fields = []
         for x in range(self.db_fields.count()):
-            pref = '%s_db_fields_%s' % (self.name, self.db_fields.item(x).text())
-            gprefs[pref] =  self.db_fields.item(x).isSelected()           
-        
-        # Return a dictionary with current options for this widget 
+            item = self.db_fields.item(x)
+            if item.isSelected():
+                fields.append(unicode(item.text()))
+        gprefs.set(self.name+'_db_fields', fields)
+
+        # Return a dictionary with current options for this widget
         if len(self.db_fields.selectedItems()):
-            return {'fields':[str(item.text()) for item in self.db_fields.selectedItems()]}
+            return {'fields':[unicode(item.text()) for item in self.db_fields.selectedItems()]}
         else:
             return {'fields':['all']}

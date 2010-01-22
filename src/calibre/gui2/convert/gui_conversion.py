@@ -4,14 +4,12 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os
 from optparse import OptionParser
 
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.conversion.plumber import Plumber
 from calibre.customize.ui import plugin_for_catalog_format
 from calibre.utils.logging import Log
-from calibre.gui2 import choose_dir, Application
 
 def gui_convert(input, output, recommendations, notification=DummyReporter(),
         abort_after_input_dump=False, log=None):
@@ -36,7 +34,7 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, fmt_options,
         db = LibraryDatabase2(dbpath)
     else: # To be implemented in the future
         pass
-    
+
     # Create a minimal OptionParser that we can append to
     parser = OptionParser()
     args = []
@@ -56,8 +54,8 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, fmt_options,
     plugin = plugin_for_catalog_format(fmt)
     plugin.run(out_file_name, opts, db)
 
-    
-    
+
+
 
 
 
