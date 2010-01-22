@@ -4,6 +4,140 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.35
+  date: 2010-01-22
+
+  new features:
+    - title: Catalog generation
+      type: major
+      description: >
+        "You can now easily generate a catlog of all books in your calibre library by clicking the arrow next to the convert button. The catalog can be in one of several formats: XML, CSV, EPUB and MOBI, with scope for future formats via plugins. If you generate the catalog in an e-book format, it will be automatically sent to your e-book reader the next time you  connect it, allowing you to easily browse your collection on the reader itself. This feature is in Beta (may have bugs) so feedback is appreciated."
+
+    - title: "RTF Input: Support for unicode characters."
+      type: major
+      tickets: [4501]
+
+    - title: "Add Quick Start Guide by John Schember to calibre library on first run of calibre"
+      type: major
+
+    - title: "Improve handling of justification"
+      description: >
+        "Now calibre will explicitly change the justification of all left aligned paragraphs to justified or vice versa depending on the justification setting. This should make it possible to robustly convert all content to either justified or not. calibre will not touch centered or right aligned content."
+
+    - title: "E-book viewer: Fit images to viewer window (can be turned off via Preferences)"
+
+    - title: "Add section on E-book viewer to User Manual"
+
+    - title: "Development environment: First look for resources in the location pointed to by CALIBRE_DEVELOP_FROM. If not found, use the normal resource location"
+
+    - title: "When reading metadata from filenames, with the Swap author names option checked, improve the logic used to detect author last name."
+      tickets: [4620]
+
+    - title: "News downloads: When getting an article URL from a RSS feed, look first for an original article link. This speeds up the download of news services that use a syndication service like feedburner or pheedo to publish their RSS feeds."
+
+  bug fixes:
+    - "Windows device detection: Don't do expensive polling while waiting for device disconnect. This should fix the problems people have with their floppy drive being activated while an e-book reader is connected"
+
+    - title: "PML Input: Fix creation of metadata Table of Contents"
+      tickets: [5633]
+
+    - title: "Fix Tag browser not updating after using delete specific format actions"
+      tickets: [4632]
+
+    - title: "MOBI Output: Don't die when converting EPUB files with SVG covers"
+
+    - title: "Nook driver: Remove the # character from filenames when sending to device"
+      tickets: [4629]
+
+    - title: "Workaround for bug in QtWebKit on windows that could cause crashes when using the next page button in the e-book viewer for certain files"
+      tickets: [4606]
+
+    - title: "MOBI Input: Rescale img width and height attributes that were specified in em units"
+      tickets: [4608]
+
+    - title: "ebook-meta: Fix setting of series metadata"
+
+    - title: "RTF metadata: Fix reading metadata from very small files"
+
+    - title: "Conversion pipeline: Don't error out if the user sets an invalid chapter detection XPath"
+
+    - title: "Fix main mem and card being swapped in pocketbook detection on OS X"
+
+    - title: "Welcome wizard: Set the language to english if the user doesn't explicitly change the language. This ensures that the language will be english on windows by default"
+
+    - title: "Fix bug in OEBWriter that could cause writing out of resources in subdirectories with URL unsafe names to fail"
+
+    - title: "E-book viewer: Change highlight color to yellow on all platforms."
+      tickets: [4641]
+
+  new recipes:
+    - title: Frankfurter Rundschau
+      author: Justus Bisser
+
+    - title: The Columbia Hournalism Review
+      author: XanthanGum
+
+    - title: Various CanWest Canadian news sources
+      author: Nick Redding
+
+    - title: gigitaljournal.com
+      author: Darko Miletic
+
+    - title: Pajamas Media
+      autor: Krittika Goyal
+
+    - title: Algemeen Dagbla
+      author: kwetal
+
+    - title: "The Reader's Digest"
+      author: BrianG
+
+    - title: The Yemen Times
+      author: kwetal
+
+    - title: The Kitsap Sun
+      author: Darko Miletic
+
+    - title: drivelry.com
+      author: Krittika Goyal
+
+    - title: New recipe for Google Reader that downloads unread articles instead of just starred ones
+      author: rollercoaster
+
+    - title: Le Devoir
+      author: Lorenzo Vigentini
+
+    - title: Joop
+      author: kwetal
+
+    - title: Various computer magazines
+      author: Lorenzo Vigentini
+
+    - title: The Wall Street journal (free parts)
+      author: Nick Redding
+
+    - title: Journal of Nephrology
+      author: Krittika Goyal
+
+    - title: stuff.co.nz
+      author: Krittika Goyal
+
+    - title: Editor and Publisher
+      author: XanthanGum
+
+    - title: The Week (free)
+      author: Darko Miletic
+
+  improved recipes:
+    - Physics Today
+    - Wall Street Journal
+    - American Spectator
+    - FTD
+    - The National Post
+    - Blic
+    - Ars Technica
+
+
 - version: 0.6.34
   date: 2010-01-15
 

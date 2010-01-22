@@ -1,0 +1,67 @@
+__license__   = 'GPL v3'
+__copyright__ = '2009, Justus Bisser <justus.bisser at gmail.com>'
+'''
+fr-online.de
+'''
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Spiegel_ger(BasicNewsRecipe):
+    title                 = 'Frankfurter Rundschau'
+    __author__            = 'Justus Bisser'
+    description           = "Dies ist die Online-Ausgabe der Frankfurter Rundschau. Um die abgerufenen individuell einzustellen bearbeiten sie die Liste im erweiterten Modus. Die Feeds findet man auf http://www.fr-online.de/verlagsservice/fr_newsreader/?em_cnt=574255"
+    publisher             = 'Druck- und Verlagshaus Frankfurt am Main GmbH'
+    category              = 'FR Online, Frankfurter Rundschau, Nachrichten, News,Dienste, RSS, RSS, Feedreader, Newsfeed, iGoogle, Netvibes, Widget'
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    language              = 'de'
+    lang                  = 'de-DE'
+    no_stylesheets        = True
+    use_embedded_content  = False
+    #encoding              = 'cp1252'
+
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : lang
+                        }
+
+    recursions = 0
+    max_articles_per_feed = 100
+    #keep_only_tags = [dict(name='div', attrs={'class':'text'})]
+    #tags_remove = [dict(name='div', attrs={'style':'text-align: left; margin: 4px 0px 0px 4px; width: 200px; float: right;'})]
+    remove_attributes = ['style']
+    feeds = []
+    #remove_tags_before = [dict(name='div', attrs={'style':'padding-left: 0px;'})]
+    #remove_tags_after = [dict(name='div', attrs={'class':'box_head_text'})]
+
+    # enable for all news
+    allNews = 0
+    if allNews:
+        feeds = [(u'Frankfurter Rundschau', u'http://www.fr-online.de/rss/sport/index.xml')]
+    else:
+        #select the feeds you like
+        feeds = [(u'Nachrichten', u'http://www.fr-online.de/rss/politik/index.xml')]
+        feeds.append((u'Kommentare und Analysen', u'http://www.fr-online.de/rss/meinung/index.xml'))
+        feeds.append((u'Dokumentationen', u'http://www.fr-online.de/rss/dokumentation/index.xml'))
+        feeds.append((u'Deutschlandtrend', u'http://www.fr-online.de/rss/deutschlandtrend/index.xml'))
+        feeds.append((u'Wirtschaft', u'http://www.fr-online.de/rss/wirtschaft/index.xml'))
+        feeds.append((u'Sport', u'http://www.fr-online.de/rss/sport/index.xml'))
+        feeds.append((u'Feuilleton', u'http://www.fr-online.de/rss/feuilleton/index.xml'))
+        feeds.append((u'Panorama', u'http://www.fr-online.de/rss/panorama/index.xml'))
+        feeds.append((u'Rhein Main und Hessen', u'http://www.fr-online.de/rss/hessen/index.xml'))
+        feeds.append((u'Fitness und Gesundheit', u'http://www.fr-online.de/rss/fit/index.xml'))
+        feeds.append((u'Multimedia', u'http://www.fr-online.de/rss/multimedia/index.xml'))
+        feeds.append((u'Wissen und Bildung', u'http://www.fr-online.de/rss/wissen/index.xml'))
+
+    def get_article_url(self, article):
+        url = article.link
+        regex = re.compile("0C[0-9]{6,8}0A?")
+
+        liste = regex.findall(url)
+        string = liste.pop(0)
+        string = string[2:len(string)-1]
+        return "http://www.fr-online.de/_em_cms/_globals/print.php?em_cnt=" + string
+

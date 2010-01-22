@@ -36,9 +36,6 @@ class Catalog(QDialog, Ui_Dialog):
         self.title.setText(dynamic.get('catalog_last_used_title',
             _('My Books')))
 
-        # GwR *** Add option tabs for built-in formats
-        # This code models #69 in calibre/gui2/dialogs/config/__init__.py
-
         self.fmts, self.widgets = [], []
 
         from calibre.customize.builtins import plugins as builtin_plugins
@@ -49,11 +46,12 @@ class Catalog(QDialog, Ui_Dialog):
 
             name = plugin.name.lower().replace(' ', '_')
             if type(plugin) in builtin_plugins:
-                #info("Adding widget for builtin Catalog plugin %s" % plugin.name)
+                info("Adding widget for builtin Catalog plugin %s" % plugin.name)
                 try:
                     catalog_widget = __import__('calibre.gui2.catalog.'+name,
                             fromlist=[1])
                     pw = catalog_widget.PluginWidget()
+                    info("Initializing %s" % name)
                     pw.initialize(name)
                     pw.ICON = I('forward.svg')
                     self.widgets.append(pw)
@@ -122,14 +120,14 @@ class Catalog(QDialog, Ui_Dialog):
         if self.sync.isEnabled():
             self.sync.setChecked(dynamic.get('catalog_sync_to_device', True))
 
-        self.format.currentIndexChanged.connect(self.format_changed)
+        self.format.currentIndexChanged.connect(self.show_plugin_tab)
         self.show_plugin_tab(None)
 
 
     def show_plugin_tab(self, idx):
         cf = unicode(self.format.currentText()).lower()
         while self.tabs.count() > 1:
-            self.tabs.remove(1)
+            self.tabs.removeTab(1)
         for pw in self.widgets:
             if cf in pw.formats:
                 self.tabs.addTab(pw, pw.TITLE)

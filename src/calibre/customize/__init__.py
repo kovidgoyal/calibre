@@ -312,7 +312,7 @@ class CatalogPlugin(Plugin):
                     continue
             resources.close()
 
-    def run(self, path_to_output, opts, db, ids):
+    def run(self, path_to_output, opts, db, ids, notification=None):
         '''
         Run the plugin. Must be implemented in subclasses.
         It should generate the catalog in the format specified

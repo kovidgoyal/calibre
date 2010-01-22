@@ -85,6 +85,9 @@ class OptionRecommendation(object):
 
 class DummyReporter(object):
 
+    def __init__(self):
+        self.cancel_requested = False
+
     def __call__(self, percent, msg=''):
         pass
 
