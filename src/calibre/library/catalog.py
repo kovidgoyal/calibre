@@ -917,7 +917,8 @@ class EPUB_MOBI(CatalogPlugin):
                 authorTag = body.find(attrs={'class':'author'})
                 aTag = Tag(soup, "a")
                 aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(title['author']))
-                aTag.insert(0, escape(title['author']))
+                #aTag.insert(0, escape(title['author']))
+                aTag.insert(0, title['author'])
                 authorTag.insert(0, NavigableString("by "))
                 authorTag.insert(1, aTag)
 
