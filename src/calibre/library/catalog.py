@@ -6,7 +6,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag,
 from calibre.customize import CatalogPlugin
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
-
+from calibre import filesystem_encoding
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
@@ -377,7 +377,10 @@ class EPUB_MOBI(CatalogPlugin):
                 self.text = ''.join(result)
 
             else:
-                number = int(self.number)
+                try:
+                    number = int(self.number)
+                except:
+                    return
 
                 if number > 1000000:
                     self.text = "%d out of range" % number
@@ -2453,26 +2456,28 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateThumbnail(self, title, image_dir, thumb_file):
             import calibre.utils.PythonMagickWand as pw
-            try:
-                img = pw.NewMagickWand()
-                if img < 0:
-                    raise RuntimeError('generate_thumbnail(): Cannot create wand')
-                # Read the cover
-                if not pw.MagickReadImage(img, title['cover']):
-                    print 'Failed to read cover image from: %s' % title['cover']
-                    raise IOError
-                thumb = pw.CloneMagickWand(img)
-                if thumb < 0:
-                    print 'generate_thumbnail(): Cannot clone cover'
-                    raise RuntimeError
-                # img, width, height
-                pw.MagickThumbnailImage(thumb, 75, 100)
-                pw.MagickWriteImage(thumb, os.path.join(image_dir, thumb_file))
-                pw.DestroyMagickWand(thumb)
-            except IOError:
-                print "generate_thumbnail() IOError with %s" % title['title']
-            except RuntimeError:
-                print "generate_thumbnail() RuntimeError with %s" % title['title']
+            with pw.ImageMagick():
+                try:
+                    img = pw.NewMagickWand()
+                    if img < 0:
+                        raise RuntimeError('generate_thumbnail(): Cannot create wand')
+                    # Read the cover
+                    if not pw.MagickReadImage(img,
+                            title['cover'].encode(filesystem_encoding)):
+                        print 'Failed to read cover image from: %s' % title['cover']
+                        raise IOError
+                    thumb = pw.CloneMagickWand(img)
+                    if thumb < 0:
+                        print 'generate_thumbnail(): Cannot clone cover'
+                        raise RuntimeError
+                    # img, width, height
+                    pw.MagickThumbnailImage(thumb, 75, 100)
+                    pw.MagickWriteImage(thumb, os.path.join(image_dir, thumb_file))
+                    pw.DestroyMagickWand(thumb)
+                except IOError:
+                    print "generate_thumbnail() IOError with %s" % title['title']
+                except RuntimeError:
+                    print "generate_thumbnail() RuntimeError with %s" % title['title']
 
         def processSpecialTags(self, tags, this_title, opts):
             tag_list = []
