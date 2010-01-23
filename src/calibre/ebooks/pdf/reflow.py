@@ -28,6 +28,7 @@ class Column(object):
         self.left = self.right = self.top = self.bottom = 0
         self.width = self.height = 0
         self.elements = []
+        self.average_line_separation = 0
 
     def add(self, elem):
         if elem in self.elements: return
@@ -49,7 +50,16 @@ class Column(object):
         return elem.left > self.left - self.HFUZZ*self.width and \
                elem.right < self.right + self.HFUZZ*self.width
 
+    def collect_stats(self):
+        if len(self.elements) > 1:
+            gaps = [self.elements[i+1].top - self.elements[i].bottom for i in
+                    range(len(0, len(self.elements)-1))]
+            self.average_line_separation = sum(gaps)/len(gaps)
+
 class Element(object):
+
+    def __init__(self):
+        self.starts_paragraph = False
 
     def __eq__(self, other):
         return self.id == other.id
@@ -60,6 +70,7 @@ class Element(object):
 class Image(Element):
 
     def __init__(self, img, opts, log, idc):
+        Element.__init__(self)
         self.opts, self.log = opts, log
         self.id = idc.next()
         self.top, self.left, self.width, self.height, self.iwidth, self.iheight = \
@@ -71,6 +82,7 @@ class Image(Element):
 class Text(Element):
 
     def __init__(self, text, font_map, opts, log, idc):
+        Element.__init__(self)
         self.id = idc.next()
         self.opts, self.log = opts, log
         self.font_map = font_map
@@ -173,6 +185,12 @@ class Region(object):
     @property
     def is_empty(self):
         return len(self.elements) == 0
+
+    def collect_stats(self):
+        for column in self.column:
+            column.collect_stats()
+        self.average_line_separation = sum([x.average_line_separation for x in
+            self.columns])/float(len(self.columns))
 
 
 class Page(object):
@@ -298,6 +316,11 @@ class Page(object):
                     x_interval.intersection(h_interval).width <= 0:
                     yield y
 
+    def second_pass(self):
+        'Locate paragraph boundaries in each column'
+        for region in self.regions:
+            region.collect_stats()
+
 
 class PDFDocument(object):
 
@@ -327,6 +350,7 @@ class PDFDocument(object):
         for page in self.pages:
             page.document_font_stats = self.font_size_stats
             page.first_pass()
+            page.second_pass()
 
     def collect_font_statistics(self):
         self.font_size_stats = {}
