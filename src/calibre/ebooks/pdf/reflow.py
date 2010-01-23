@@ -146,12 +146,14 @@ class Region(object):
         self.columns = []
         self.top = self.bottom = self.left = self.right = self.width = self.height = 0
 
-    def add_columns(self, columns):
+    def add(self, columns):
         if not self.columns:
             for x in sorted(columns, cmp=lambda x,y: cmp(x.left, y.left)):
                 self.columns.append(x)
         else:
-           pass
+            for i in range(len(columns)):
+                for elem in columns[i]:
+                    self.columns[i].add(elem)
 
     def contains(self, columns):
         if not self.columns:
@@ -167,6 +169,11 @@ class Region(object):
             if intersection.width/base < 0.6:
                 return False
         return True
+
+    @property
+    def is_empty(self):
+        return len(self.elements) == 0
+
 
 class Page(object):
 
@@ -242,19 +249,25 @@ class Page(object):
                 self.texts.remove(match)
 
     def first_pass(self):
+        'Sort page into regions and columns'
         self.regions = []
         if not self.elements:
             return
         for i, x in enumerate(self.elements):
             x.idx = i
-        self.current_region = None
+        current_region = Region()
         processed = set([])
         for x in self.elements:
             if x in processed: continue
             elems = set(self.find_elements_in_row_of(x))
             columns = self.sort_into_columns(x, elems)
             processed.update(elems)
-            columns
+            if not current_region.contains(columns):
+                self.regions.append(self.current_region)
+                current_region = Region()
+            current_region.add(columns)
+        if not self.current_region.is_empty():
+            self.regions.append(current_region)
 
     def sort_into_columns(self, elem, neighbors):
         columns = [Column()]
