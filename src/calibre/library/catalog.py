@@ -243,13 +243,13 @@ class EPUB_MOBI(CatalogPlugin):
                           "Applies to: ePub, MOBI output formats")),
                    Option('--debug-pipeline',
                            default=None,
-                           dest='debug_pipeline',                
+                           dest='debug_pipeline',
                            help=_('Save the output from different stages of the conversion '
                            'pipeline to the specified '
                            'directory. Useful if you are unsure at which stage '
                            'of the conversion process a bug is occurring.\n'
                            'Default: None\n'
-                           'Applies to: ePub, MOBI output formats')),    
+                           'Applies to: ePub, MOBI output formats')),
                    Option('--exclude-genre',
                           default='\[[\w ]*\]',
                           dest='exclude_genre',
@@ -519,159 +519,223 @@ class EPUB_MOBI(CatalogPlugin):
             self.__verbose = opts.verbose
 
         # Accessors
-        def getauthors(self):
-            return self.__authors
-        def setauthors(self, value):
-            self.__authors = value
-        authors = property(getauthors, setauthors)
+        '''
+        @dynamic_property
+        def xxxx(self):
+            def fget(self):
+                return self.__
+            def fset(self, val):
+                self.__ = val
+            return property(fget=fget, fset=fset)
+        '''        
 
-        def getbasename(self):
-            return self.__basename
-        def setbasename(self, value):
-            self.__authors = value
-        basename = property(getbasename, setbasename)
+        @dynamic_property
+        def authors(self):
+            def fget(self):
+                return self.__authors
+            def fset(self, val):
+                self.__authors = val
+            return property(fget=fget, fset=fset)
+        
+        @dynamic_property
+        def basename(self):
+            def fget(self):
+                return self.__basename
+            def fset(self, val):
+                self.__basename = val
+            return property(fget=fget, fset=fset)
 
-        def getbooksByAuthor(self):
-            return self.__booksByAuthor
-        def setbooksByAuthor(self, value):
-            self.__booksByAuthor = value
-        booksByAuthor = property(getbooksByAuthor, setbooksByAuthor)
+        @dynamic_property        
+        def booksByAuthor(self):
+            def fget(self):
+                return self.__booksByAuthor
+            def fset(self, val):
+                self.__booksByAuthor = val
+            return property(fget=fget, fset=fset)
 
-        def getbooksByTitle(self):
-            return self.__booksByTitle
-        def setbooksByTitle(self, value):
-            self.__booksByTitle = value
-        booksByTitle = property(getbooksByTitle, setbooksByTitle)
+        @dynamic_property
+        def booksByTitle(self):
+            def fget(self):
+                return self.__booksByTitle
+            def fset(self, val):
+                self.__booksByTitle = val
+            return property(fget=fget, fset=fset)
 
-        def getcatalogPath(self):
-            return self.__catalogPath
-        def setcatalogPath(self, value):
-            self.__catalogPath = value
-        catalogPath = property(getcatalogPath, setcatalogPath)
+        @dynamic_property
+        def catalogPath(self):
+            def fget(self):
+                return self.__catalogPath
+            def fset(self, val):
+                self.__catalogPath = val
+            return property(fget=fget, fset=fset)
 
-        def getcontentDir(self):
-            return self.__contentDir
-        def setcontentDir(self, value):
-            self.__contentDir = value
-        contentDir = property(getcontentDir, setcontentDir)
+        @dynamic_property
+        def contentDir(self):
+            def fget(self):
+                return self.__contentDir
+            def fset(self, val):
+                self.__contentDir = val
+            return property(fget=fget, fset=fset)
 
-        def getcreator(self):
-            return self.__creator
-        def setcreator(self, value):
-            self.__creator = value
-        creator = property(getcreator, setcreator)
+        @dynamic_property
+        def creator(self):
+            def fget(self):
+                return self.__creator
+            def fset(self, val):
+                self.__creator = val
+            return property(fget=fget, fset=fset)
 
-        def getdatabaseSnapshot(self):
-            return self.__databaseSnapshot
-        def setdatabaseSnapshot(self, value):
-            self.__databaseSnapshot = value
-        databaseSnapshot = property(getdatabaseSnapshot, setdatabaseSnapshot)
+        @dynamic_property
+        def databaseSnapshot(self):
+            def fget(self):
+                return self.__databaseSnapshot
+            def fset(self, val):
+                self.__databaseSnapshot = val
+            return property(fget=fget, fset=fset)
 
-        def getdb(self):
-            return self.__db
-        db = property(getdb)
+        @dynamic_property
+        def db(self):
+            def fget(self):
+                return self.__db
+            return property(fget=fget)
 
-        def getdescriptionClip(self):
-            return self.__descriptionClip
-        def setdescriptionClip(self, value):
-            self.__descriptionClip = value
-        descriptionClip = property(getdescriptionClip, setdescriptionClip)
+        @dynamic_property
+        def descriptionClip(self):
+            def fget(self):
+                return self.__descriptionClip
+            def fset(self, val):
+                self.__descriptionClip = val
+            return property(fget=fget, fset=fset)
 
-        def geterror(self):
-            return self.__error
-        error = property(geterror)
+        @dynamic_property
+        def error(self):
+            def fget(self):
+                return self.__error
+            return property(fget=fget)
 
-        def getgenerateForMobigen(self):
-            return self.__generateForMobigen
-        def setgenerateForMobigen(self, value):
-            self.__generateForMobigen = value
-        generateForMobigen = property(getgenerateForMobigen, setgenerateForMobigen)
+        @dynamic_property
+        def generateForMobigen(self):
+            def fget(self):
+                return self.__generateForMobigen
+            def fset(self, val):
+                self.__generateForMobigen = val
+            return property(fget=fget, fset=fset)
 
-        def getgenres(self):
-            return self.__genres
-        def setgenres(self, value):
-            self.__genres = value
-        genres = property(getgenres, setgenres)
+        @dynamic_property
+        def genres(self):
+            def fget(self):
+                return self.__genres
+            def fset(self, val):
+                self.__genres = val
+            return property(fget=fget, fset=fset)
 
-        def gethtmlFileList(self):
-            return self.__htmlFileList
-        def sethtmlFileList(self, value):
-            self.__htmlFileList = value
-        htmlFileList = property(gethtmlFileList, sethtmlFileList)
+        @dynamic_property
+        def htmlFileList(self):
+            def fget(self):
+                return self.__htmlFileList
+            def fset(self, val):
+                self.__htmlFileList = val
+            return property(fget=fget, fset=fset)
 
-        def getlibraryPath(self):
-            return self.__libraryPath
-        def setlibraryPath(self, value):
-            self.__libraryPath = value
-        libraryPath = property(getlibraryPath, setlibraryPath)
+        @dynamic_property
+        def libraryPath(self):
+            def fget(self):
+                return self.__libraryPath
+            def fset(self, val):
+                self.__libraryPath = val
+            return property(fget=fget, fset=fset)
 
-        def getncxSoup(self):
-            return self.__ncxSoup
-        def setncxSoup(self, value):
-            self.__ncxSoup = value
-        ncxSoup = property(getncxSoup, setncxSoup)
+        @dynamic_property
+        def ncxSoup(self):
+            def fget(self):
+                return self.__ncxSoup
+            def fset(self, val):
+                self.__ncxSoup = val
+            return property(fget=fget, fset=fset)
 
-        def getopts(self):
-            return self.__opts
-        opts = property(getopts)
+        @dynamic_property
+        def opts(self):
+            def fget(self):
+                return self.__opts
+            return property(fget=fget)
 
-        def getplayOrder(self):
-            return self.__playOrder
-        def setplayOrder(self, value):
-            self.__playOrder = value
-        playOrder = property(getplayOrder, setplayOrder)
+        @dynamic_property
+        def playOrder(self):
+            def fget(self):
+                return self.__playOrder
+            def fset(self,val):
+                self.__playOrder = val
+            return property(fget=fget, fset=fset)
 
-        def getplugin(self):
-            return self.__plugin
-        plugin = property(getplugin)
+        @dynamic_property
+        def plugin(self):
+            def fget(self):
+                return self.__plugin
+            return property(fget=fget)
 
-        def getpluginPath(self):
-            return self.__plugin_path
-        def setpluginPath(self, value):
-            self.__plugin_path = value
-        pluginPath = property(getpluginPath, setpluginPath)
+        @dynamic_property
+        def pluginPath(self):
+            def fget(self):
+                return self.__pluginPath
+            def fset(self, val):
+                self.__pluginPath = val
+            return property(fget=fget, fset=fset)
 
-        def getprogressInt(self):
-            return self.__progressInt
-        def setprogressInt(self, value):
-            self.__progressInt = value
-        progressInt = property(getprogressInt, setprogressInt)
+        @dynamic_property
+        def progressInt(self):
+            def fget(self):
+                return self.__progressInt
+            def fset(self, val):
+                self.__progressInt = val
+            return property(fget=fget, fset=fset)
 
-        def getprogressString(self):
-            return self.__progressString
-        def setprogressString(self, value):
-            self.__progressString = value
-        progressString = property(getprogressString, setprogressString)
+        @dynamic_property
+        def progressString(self):
+            def fget(self):
+                return self.__progressString
+            def fset(self, val):
+                self.__progressString = val
+            return property(fget=fget, fset=fset)
 
-        def getreporter(self):
-            return self.__reporter
-        def setreporter(self, value):
-            self.__reporter = value
-        reporter = property(getreporter, setreporter)
+        @dynamic_property
+        def reporter(self):
+            def fget(self):
+                return self.__reporter
+            def fset(self, val):
+                self.__reporter = val
+            return property(fget=fget, fset=fset)
 
-        def getstylesheet(self):
-            return self.__stylesheet
-        def setstylesheet(self, value):
-            self.__stylesheet = value
-        stylesheet = property(getstylesheet, setstylesheet)
+        @dynamic_property
+        def stylesheet(self):
+            def fget(self):
+                return self.__stylesheet
+            def fset(self, val):
+                self.__stylesheet = val
+            return property(fget=fget, fset=fset)
 
-        def getthumbs(self):
-            return self.__thumbs
-        def setthumbs(self, value):
-            self.__thumbs = value
-        thumbs = property(getthumbs, setthumbs)
+        @dynamic_property
+        def thumbs(self):
+            def fget(self):
+                return self.__thumbs
+            def fset(self, val):
+                self.__thumbs = val
+            return property(fget=fget, fset=fset)
 
-        def gettitle(self):
-            return self.__title
-        def settitle(self, value):
-            self.__title = value
-        title = property(gettitle, settitle)
+        @dynamic_property
+        def title(self):
+            def fget(self):
+                return self.__title
+            def fset(self, val):
+                self.__title = val
+            return property(fget=fget, fset=fset)
 
-        def getverbose(self):
-            return self.__verbose
-        def setverbose(self, value):
-            self.__verbose = value
-        verbose = property(getverbose, setverbose)
+        @dynamic_property
+        def verbose(self):
+            def fget(self):
+                return self.__verbose
+            def fset(self, val):
+                self.__verbose = val
+            return property(fget=fget, fset=fset)
 
         # Methods
         def buildSources(self):
@@ -1620,6 +1684,7 @@ class EPUB_MOBI(CatalogPlugin):
             navPointTag['class'] = "periodical"
             navPointTag['id'] = "title"
             navPointTag['playOrder'] = self.playOrder
+            print "generateNCXHeader(periodical): self.playOrder: %d" % self.playOrder
             self.playOrder += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
@@ -1654,6 +1719,7 @@ class EPUB_MOBI(CatalogPlugin):
             navPointTag['class'] = "section"
             navPointTag['id'] = "bytitle-ID"
             navPointTag['playOrder'] = self.playOrder
+            print "generateNCXDescriptions(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)
             self.playOrder += 1
             navLabelTag = Tag(ncx_soup, 'navLabel')
             textTag = Tag(ncx_soup, 'text')
@@ -1673,6 +1739,7 @@ class EPUB_MOBI(CatalogPlugin):
                 navPointVolumeTag['class'] = "article"
                 navPointVolumeTag['id'] = "book%dID" % int(book['id'])
                 navPointVolumeTag['playOrder'] = self.playOrder
+                print "generateNCXDescriptions(article): self.playOrder: %d" % self.playOrder
                 self.playOrder += 1
                 navLabelTag = Tag(ncx_soup, "navLabel")
                 textTag = Tag(ncx_soup, "text")
@@ -1722,6 +1789,7 @@ class EPUB_MOBI(CatalogPlugin):
             navPointTag['class'] = "section"
             navPointTag['id'] = "byalphatitle-ID"
             navPointTag['playOrder'] = self.playOrder
+            print "generateNCXByTitle(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)
             self.playOrder += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
@@ -1787,6 +1855,7 @@ class EPUB_MOBI(CatalogPlugin):
                 if not single_article_per_section:
                     navPointByLetterTag['id'] = "%sTitles-ID" % (title_letters[i].upper())
                 navPointTag['playOrder'] = self.playOrder
+                print "generateNCXByTitle(article '%s'): self.playOrder: %d" % (title_letters[i].upper(), self.playOrder)
                 self.playOrder += 1
                 navLabelTag = Tag(soup, 'navLabel')
                 textTag = Tag(soup, 'text')
@@ -1838,6 +1907,7 @@ class EPUB_MOBI(CatalogPlugin):
                 file_ID = file_ID.replace(" ","")
             navPointTag['id'] = "%s-ID" % file_ID
             navPointTag['playOrder'] = self.playOrder
+            print "generateNCXByAuthor(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)            
             self.playOrder += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
@@ -1904,6 +1974,7 @@ class EPUB_MOBI(CatalogPlugin):
                 navPointByLetterTag['class'] = "article"
                 navPointByLetterTag['id'] = "%sauthors-ID" % (authors[1].upper())
                 navPointTag['playOrder'] = self.playOrder
+                print "generateNCXByAuthor(article '%s'): self.playOrder: %d" % (authors[1].upper(), self.playOrder)
                 self.playOrder += 1
                 navLabelTag = Tag(soup, 'navLabel')
                 textTag = Tag(soup, 'text')
@@ -1953,6 +2024,7 @@ class EPUB_MOBI(CatalogPlugin):
             file_ID = file_ID.replace(" ","")
             navPointTag['id'] = "%s-ID" % file_ID
             navPointTag['playOrder'] = self.playOrder
+            print "generateNCXByTags(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)                        
             self.playOrder += 1
             navLabelTag = Tag(ncx_soup, 'navLabel')
             textTag = Tag(ncx_soup, 'text')
@@ -1974,6 +2046,7 @@ class EPUB_MOBI(CatalogPlugin):
                 navPointVolumeTag['class'] = "article"
                 navPointVolumeTag['id'] = "genre-%s-ID" % genre['tag']
                 navPointVolumeTag['playOrder'] = self.playOrder
+                print "generateNCXByTags(article '%s'): self.playOrder: %d" % (genre['tag'], self.playOrder)
                 self.playOrder += 1
                 navLabelTag = Tag(ncx_soup, "navLabel")
                 textTag = Tag(ncx_soup, "text")
@@ -2563,6 +2636,7 @@ class EPUB_MOBI(CatalogPlugin):
         opts.descriptionClip = 250
         opts.basename = "Catalog"
         opts.plugin_path = self.plugin_path
+        print " - - - - - begin clip here - - - - - "
 
         if opts.verbose:
             opts_dict = vars(opts)
@@ -2588,8 +2662,14 @@ class EPUB_MOBI(CatalogPlugin):
         catalog.createDirectoryStructure()
         catalog.copyResources()
         catalog.buildSources()
+        print " - - - - - end clip here - - - - - "
 
         recommendations = []
+
+        dp = getattr(opts, 'debug_pipeline', None)
+        if dp is not None:
+            recommendations.append(('debug_pipeline', dp,
+                OptionRecommendation.HIGH))
 
         if opts.fmt == 'mobi' and opts.output_profile and opts.output_profile.startswith("kindle"):
             recommendations.append(('output_profile', opts.output_profile,
