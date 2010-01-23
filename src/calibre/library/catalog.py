@@ -241,13 +241,22 @@ class EPUB_MOBI(CatalogPlugin):
                           help = _('Title of generated catalog used as title in metadata.\n'
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
+                   Option('--debug-pipeline',
+                           default=None,
+                           dest='debug_pipeline',                
+                           help=_('Save the output from different stages of the conversion '
+                           'pipeline to the specified '
+                           'directory. Useful if you are unsure at which stage '
+                           'of the conversion process a bug is occurring.\n'
+                           'Default: None\n'
+                           'Applies to: ePub, MOBI output formats')),    
                    Option('--exclude-genre',
                           default='\[[\w ]*\]',
                           dest='exclude_genre',
                           help=_("Regex describing tags to exclude as genres.\n" "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--exclude-tags',
-                          default='~,Catalog',
+                          default=('~,'+_('Catalog')),
                           dest='exclude_tags',
                           help=_("Comma-separated list of tag words indicating book should be excluded from output.  Case-insensitive.\n"
                           "--exclude-tags=skip will match 'skip this book' and 'Skip will like this'.\n"
@@ -2497,6 +2506,7 @@ class EPUB_MOBI(CatalogPlugin):
                     pw.MagickThumbnailImage(thumb, 75, 100)
                     pw.MagickWriteImage(thumb, os.path.join(image_dir, thumb_file))
                     pw.DestroyMagickWand(thumb)
+                    pw.DestroyMagickWand(img)
                 except IOError:
                     print "generate_thumbnail() IOError with %s" % title['title']
                 except RuntimeError:
@@ -2541,10 +2551,7 @@ class EPUB_MOBI(CatalogPlugin):
             return "%.2f%% %s" % (self.progressInt, self.progressString)
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
-        import gc
         from calibre.utils.logging import Log
-
-        gc.set_debug(gc.DEBUG_LEAK)
 
         log = Log()
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
@@ -2562,13 +2569,18 @@ class EPUB_MOBI(CatalogPlugin):
             log("%s:run" % self.name)
             log(" path_to_output: %s" % path_to_output)
             log(" Output format: %s" % self.fmt)
-            log(" Book count: %d" % len(opts_dict['ids']))
+            if opts_dict['ids']:
+                log(" Book count: %d" % len(opts_dict['ids']))
             # Display opts
             keys = opts_dict.keys()
             keys.sort()
             log(" opts:")
             for key in keys:
-                if key == 'ids': continue
+                if key == 'ids':
+                    if opts_dict[key]:
+                        continue
+                    else:
+                        log("  %s: (all)" % key)
                 log("  %s: %s" % (key, opts_dict[key]))
 
         # Launch the Catalog builder
@@ -2593,5 +2605,3 @@ class EPUB_MOBI(CatalogPlugin):
         plumber.merge_ui_recommendations(recommendations)
 
         plumber.run()
-
-        print gc.garbage

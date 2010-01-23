@@ -263,7 +263,7 @@ class CatalogPlugin(Plugin):
         else:
             opts.search_text = 'not tag:'+cat
         '''
-        
+
         db.search(opts.search_text)
 
         if opts.sort_by:
