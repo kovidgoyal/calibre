@@ -255,12 +255,14 @@ class CatalogPlugin(Plugin):
 
     def search_sort_db(self, db, opts):
 
+        '''
         # Don't add Catalogs to the generated Catalogs
         cat = _('Catalog')
         if opts.search_text:
             opts.search_text += ' not tag:'+cat
         else:
             opts.search_text = 'not tag:'+cat
+        '''
 
         db.search(opts.search_text)
 

@@ -247,7 +247,7 @@ class EPUB_MOBI(CatalogPlugin):
                           help=_("Regex describing tags to exclude as genres.\n" "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--exclude-tags',
-                          default='~',
+                          default=('~,'+_('Catalog')),
                           dest='exclude_tags',
                           help=_("Comma-separated list of tag words indicating book should be excluded from output.  Case-insensitive.\n"
                           "--exclude-tags=skip will match 'skip this book' and 'Skip will like this'.\n"
@@ -758,7 +758,10 @@ class EPUB_MOBI(CatalogPlugin):
             if self.opts.ids:
                 self.opts.search_text = search_phrase
             else:
-                self.opts.search_text = self.opts.search_text + " " + search_phrase
+                if self.opts.search_text:
+                    self.opts.search_text += " " + search_phrase
+                else:
+                    self.opts.search_text = search_phrase
 
             # Fetch the database as a dictionary
             data = self.plugin.search_sort_db(self.db, self.opts)
@@ -2495,6 +2498,7 @@ class EPUB_MOBI(CatalogPlugin):
                     pw.MagickThumbnailImage(thumb, 75, 100)
                     pw.MagickWriteImage(thumb, os.path.join(image_dir, thumb_file))
                     pw.DestroyMagickWand(thumb)
+                    pw.DestroyMagickWand(img)
                 except IOError:
                     print "generate_thumbnail() IOError with %s" % title['title']
                 except RuntimeError:
