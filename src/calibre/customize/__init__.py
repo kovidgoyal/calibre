@@ -255,9 +255,13 @@ class CatalogPlugin(Plugin):
 
     def search_sort_db(self, db, opts):
 
-        # If declared, --ids overrides any declared search criteria
-        if not opts.ids and opts.search_text:
-            db.search(opts.search_text)
+        # Don't add Catalogs to the generated Catalogs
+        if opts.search_text:        
+            opts.search_text += ' not tag:Catalog'
+        else:
+            opts.search_text = 'not tag:Catalog'
+            
+        db.search(opts.search_text)
 
         if opts.sort_by:
             # 2nd arg = ascending

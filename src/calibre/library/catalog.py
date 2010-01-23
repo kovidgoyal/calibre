@@ -65,7 +65,10 @@ class CSV_XML(CatalogPlugin):
             for key in keys:
                 log("  %s: %s" % (key, opts_dict[key]))
 
-        # Get the sorted, filtered database as a dictionary
+        # If a list of ids are provided, don't use search_text
+        if opts.ids:
+            opts.search_text = None
+        
         data = self.search_sort_db(db, opts)
 
         if not len(data):
@@ -230,7 +233,7 @@ class EPUB_MOBI(CatalogPlugin):
     minimum_calibre_version = (0, 6, 34)
     author = 'Greg Riker'
     version = (0, 0, 1)
-    file_types = set(['epub'])
+    file_types = set(['epub','mobi'])
 
     cli_options = [Option('--catalog-title',
                           default = 'My Catalog',
@@ -446,8 +449,8 @@ class EPUB_MOBI(CatalogPlugin):
         '''
 
         # Number of discrete steps to catalog creation
-        current_step = 0
-        total_steps = 13
+        current_step = 0.0
+        total_steps = 13.0
 
         # Used to xlate pubdate to friendly format
         MONTHS = ['January', 'February','March','April','May','June',
@@ -498,7 +501,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.__playOrder = 1
             self.__plugin = plugin
             self.__plugin_path = opts.plugin_path
-            self.__progressInt = 0
+            self.__progressInt = 0.0
             self.__progressString = ''
             self.__reporter = notification
             self.__stylesheet = stylesheet
@@ -751,14 +754,11 @@ class EPUB_MOBI(CatalogPlugin):
                 search_terms.append("tag:%s" % tag)
             search_phrase = "not (%s)" % " or ".join(search_terms)
 
-            # Allow for no search_text
-            if self.opts.search_text:
-                self.opts.search_text = self.opts.search_text + " " + search_phrase
-            else:
+            # If a list of ids are provided, don't use search_text
+            if self.opts.ids:
                 self.opts.search_text = search_phrase
-
-            if self.verbose and False:
-                print "self.opts.search_text: %s" % self.opts.search_text
+            else:
+                self.opts.search_text = self.opts.search_text + " " + search_phrase
 
             # Fetch the database as a dictionary
             data = self.plugin.search_sort_db(self.db, self.opts)
@@ -807,7 +807,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Re-sort based on title_sort
             self.booksByTitle = sorted(titles,
-                                 key=lambda x:(x['title_sort'], x['title_sort']))
+                                 key=lambda x:(x['title_sort'].upper(), x['title_sort'].upper()))
 
         def fetchBooksByAuthor(self):
             # Generate a list of titles sorted by author from the database
@@ -815,23 +815,37 @@ class EPUB_MOBI(CatalogPlugin):
             if self.verbose:
                 print self.updateProgressFullStep("fetchBooksByAuthor()")
 
+            # Sort titles based on upper case authors
             self.booksByAuthor = sorted(self.booksByTitle,
-                                 key=lambda x:(x['author_sort'], x['author_sort']))
+                                 key=lambda x:(x['author_sort'].upper(), x['author_sort'].upper()))
 
-            # Search_text already initialized
-            # Get the database sorted by author_sort
-            self.opts.sort_by = 'author_sort'
-            data = self.plugin.search_sort_db(self.db, self.opts)
+            if True:
+                # Build the unique_authors set from existing data
+                authors = [(record['author'], record['author_sort']) for record in self.booksByAuthor]            
+            else:
+                # Search_text already initialized
+                # Get the database sorted by author_sort
+                self.opts.sort_by = 'author_sort'
+                data = self.plugin.search_sort_db(self.db, self.opts)
 
-            # Build the unique_authors set
-            authors = []
-            for record in data:
-                # There may be multiple authors
-                author_list = []
-                for author in record['authors']:
-                    author_list.append(author)
-                authors_concatenated = ", ".join(author_list)
-                authors.append((authors_concatenated, record['author_sort']))
+                # GwR diagnostic: show sorted order
+                print "self.booksByAuthor in sort order:"
+                for book in self.booksByAuthor:
+                    print "%s %s" % (book['author_sort'], book['title'])
+                print "data set in sort order:"
+                for book in data:
+                    print "%s %s" % (book['author_sort'], book['title'])
+
+                # Build the unique_authors set
+                authors = []
+                for record in data:
+                    # There may be multiple authors
+                    author_list = []
+                    for author in record['authors']:
+                        author_list.append(author)
+                    authors_concatenated = ", ".join(author_list)
+                    authors.append((authors_concatenated, record['author_sort']))
+                
 
             # authors[] contains a list of all book authors, with multiple entries for multiple books by author
             # unique_authors : (([0]:friendly  [1]:sort  [2]:book_count))
@@ -860,7 +874,7 @@ class EPUB_MOBI(CatalogPlugin):
                 unique_authors.append((current_author[0], current_author[1],
                                        books_by_current_author))
 
-            if self.verbose and False:
+            if False and self.verbose:
                 print "\nget_books_by_author(): %d unique authors" % len(unique_authors)
                 for author in unique_authors[0:3]:
                     print "%s" % author[0]
@@ -880,7 +894,7 @@ class EPUB_MOBI(CatalogPlugin):
                     print "%3s: %s - %s" % (title['id'], title['title'], title['author'])
 
                 self.updateProgressMicroStep("generating book descriptions ...",
-                        100*title_num/len(self.booksByTitle))
+                        float(title_num*100/len(self.booksByTitle))/100)
 
                 # Generate the header
                 soup = self.generateHTMLDescriptionHeader("%s" % title['title'])
@@ -1059,15 +1073,15 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Loop through the books by title
             for book in self.booksByTitle:
-                if book['title_sort'][0] != current_letter :
+                if book['title_sort'][0].upper() != current_letter :
                     # Start a new letter
-                    current_letter = book['title_sort'][0]
+                    current_letter = book['title_sort'][0].upper()
                     pIndexTag = Tag(soup, "p")
                     pIndexTag['class'] = "letter_index"
                     aTag = Tag(soup, "a")
-                    aTag['name'] = "%stitles" % book['title_sort'][0]
+                    aTag['name'] = "%stitles" % book['title_sort'][0].upper()
                     pIndexTag.insert(0,aTag)
-                    pIndexTag.insert(1,NavigableString(book['title_sort'][0]))
+                    pIndexTag.insert(1,NavigableString(book['title_sort'][0].upper()))
                     divTag.insert(dtc,pIndexTag)
                     dtc += 1
 
@@ -1714,6 +1728,7 @@ class EPUB_MOBI(CatalogPlugin):
             books_by_letter = []
             if single_article_per_section:
                 # Create a single article for all books in this section
+                # THIS CODE NEEDS TO BE REVIEWED FOR .upper()
                 single_list = []
                 for book in self.booksByTitle:
                     single_list.append(book)
@@ -1726,19 +1741,19 @@ class EPUB_MOBI(CatalogPlugin):
 
             else:
                 # Loop over the titles, find start of each letter, add description_preview_count books
-                current_letter = self.booksByTitle[0]['title_sort'][0]
+                current_letter = self.booksByTitle[0]['title_sort'][0].upper()
                 title_letters = [current_letter]
                 current_book_list = []
                 current_book = ""
                 for book in self.booksByTitle:
-                    if book['title_sort'][0] != current_letter:
+                    if book['title_sort'][0].upper() != current_letter:
                         # Save the old list
                         book_list = " &bull; ".join(current_book_list)
                         short_description = self.generateShortDescription(self.formatNCXText(book_list))
                         books_by_letter.append(short_description)
 
                         # Start the new list
-                        current_letter = book['title_sort'][0]
+                        current_letter = book['title_sort'][0].upper()
                         title_letters.append(current_letter)
                         current_book = book['title']
                         current_book_list = [book['title']]
@@ -1827,7 +1842,8 @@ class EPUB_MOBI(CatalogPlugin):
 
             if single_article_per_section:
                 # Create a single article for all authors in this section
-
+                # THIS CODE NEEDS TO BE REVIEWED FOR .upper()
+                
                 # Build a formatted author range for article preview
                 single_list = []
                 for author in self.authors:
@@ -1844,7 +1860,7 @@ class EPUB_MOBI(CatalogPlugin):
                 # Loop over the sorted_authors list, find start of each letter, add description_preview_count artists
                 # sorted_authors[0]:friendly [1]:author_sort [2]:book_count
                 master_author_list = []
-                current_letter = self.authors[0][1][0]
+                current_letter = self.authors[0][1][0].upper()
                 current_author_list = []
                 for author in self.authors:
                     if author[1][0] != current_letter:
@@ -1857,7 +1873,7 @@ class EPUB_MOBI(CatalogPlugin):
                         master_author_list.append((author_list, current_letter))
 
                         # Start the new list
-                        current_letter = author[1][0]
+                        current_letter = author[1][0].upper()
                         current_author_list = [author[0]]
                     else:
                         if len(current_author_list) < self.descriptionClip:
@@ -1875,7 +1891,7 @@ class EPUB_MOBI(CatalogPlugin):
             for authors in master_author_list:
                 navPointByLetterTag = Tag(soup, 'navPoint')
                 navPointByLetterTag['class'] = "article"
-                navPointByLetterTag['id'] = "%sauthors-ID" % (authors[1])
+                navPointByLetterTag['id'] = "%sauthors-ID" % (authors[1].upper())
                 navPointTag['playOrder'] = self.playOrder
                 self.playOrder += 1
                 navLabelTag = Tag(soup, 'navLabel')
@@ -1883,7 +1899,7 @@ class EPUB_MOBI(CatalogPlugin):
                 if single_article_per_section:
                     textTag.insert(0, NavigableString("All books sorted by author"))
                 else:
-                    textTag.insert(0, NavigableString("Authors beginning with '%s'" % (authors[1])))
+                    textTag.insert(0, NavigableString("Authors beginning with '%s'" % (authors[1].upper())))
                 navLabelTag.insert(0, textTag)
                 navPointByLetterTag.insert(0,navLabelTag)
                 contentTag = Tag(soup, 'content')
@@ -1891,7 +1907,7 @@ class EPUB_MOBI(CatalogPlugin):
                 if single_article_per_section:
                     contentTag['src'] = "%s#byauthor" % HTML_file
                 else:
-                    contentTag['src'] = "%s#%sauthors" % (HTML_file, authors[1])
+                    contentTag['src'] = "%s#%sauthors" % (HTML_file, authors[1].upper())
 
                 navPointByLetterTag.insert(1,contentTag)
                 cmTag = Tag(soup, '%s' % 'mbp:meta' if self.generateForMobigen else 'calibre:meta')
@@ -2509,16 +2525,18 @@ class EPUB_MOBI(CatalogPlugin):
 
             self.current_step += 1
             self.progressString = description
-            self.progressInt = ((self.current_step-1)*100)/self.total_steps
+            self.progressInt = float((self.current_step-1)/self.total_steps)
             self.reporter(self.progressInt/100., self.progressString)
-            return "%d%% %s" % (self.progressInt, self.progressString)
+            return "%.2f%% %s" % (self.progressInt, self.progressString)
 
         def updateProgressMicroStep(self, description, micro_step_pct):
             step_range = 100/self.total_steps
             self.progressString = description
-            self.progressInt = ((self.current_step-1)*100)/self.total_steps + (micro_step_pct*step_range)/100
+            coarse_progress = float((self.current_step-1)/self.total_steps)
+            fine_progress = float((micro_step_pct*step_range)/100)
+            self.progressInt = coarse_progress + fine_progress
             self.reporter(self.progressInt/100., self.progressString)
-            return "%d%% %s" % (self.progressInt, self.progressString)
+            return "%.2f%% %s" % (self.progressInt, self.progressString)
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
         from calibre.utils.logging import Log
@@ -2528,23 +2546,24 @@ class EPUB_MOBI(CatalogPlugin):
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
 
         # Add local options
-        opts.creator = "Calibre"
+        opts.creator = "calibre"
         opts.dbs_fname = "CatalogSnapshot.dat"
         opts.descriptionClip = 250
         opts.basename = "Catalog"
         opts.plugin_path = self.plugin_path
 
         if opts.verbose:
+            opts_dict = vars(opts)
             log("%s:run" % self.name)
             log(" path_to_output: %s" % path_to_output)
             log(" Output format: %s" % self.fmt)
-
+            log(" Book count: %d" % len(opts_dict['ids']))
             # Display opts
-            opts_dict = vars(opts)
             keys = opts_dict.keys()
             keys.sort()
             log(" opts:")
             for key in keys:
+                if key == 'ids': continue
                 log("  %s: %s" % (key, opts_dict[key]))
 
         # Launch the Catalog builder
