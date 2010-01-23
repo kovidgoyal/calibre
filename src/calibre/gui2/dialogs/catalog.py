@@ -46,18 +46,16 @@ class Catalog(QDialog, Ui_Dialog):
 
             name = plugin.name.lower().replace(' ', '_')
             if type(plugin) in builtin_plugins:
-                info("Adding widget for builtin Catalog plugin %s" % plugin.name)
                 try:
                     catalog_widget = __import__('calibre.gui2.catalog.'+name,
                             fromlist=[1])
                     pw = catalog_widget.PluginWidget()
-                    info("Initializing %s" % name)
                     pw.initialize(name)
                     pw.ICON = I('forward.svg')
                     self.widgets.append(pw)
                     [self.fmts.append([file_type.upper(), pw.sync_enabled,pw]) for file_type in plugin.file_types]
                 except ImportError:
-                    info("ImportError with %s" % name)
+                    info("ImportError initializing %s" % name)
                     continue
             else:
                 # Load dynamic tab

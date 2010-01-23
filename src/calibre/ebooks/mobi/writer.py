@@ -619,7 +619,6 @@ class MobiWriter(object):
                     self._oeb.log.warning('_generate_indexed_navpoints: Failed to generate index')
                     # Zero out self._HTMLRecords, return False
                     self._HTMLRecords = []
-                    #last_name = None
                     return False
 
             previousOffset = offset
