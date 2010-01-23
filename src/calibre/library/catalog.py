@@ -244,12 +244,12 @@ class EPUB_MOBI(CatalogPlugin):
                    Option('--debug-pipeline',
                            default=None,
                            dest='debug_pipeline',
-                           help=_('Save the output from different stages of the conversion '
-                           'pipeline to the specified '
-                           'directory. Useful if you are unsure at which stage '
-                           'of the conversion process a bug is occurring.\n'
-                           'Default: None\n'
-                           'Applies to: ePub, MOBI output formats')),
+                           help=_("Save the output from different stages of the conversion "
+                           "pipeline to the specified "
+                           "directory. Useful if you are unsure at which stage "
+                           "of the conversion process a bug is occurring.\n"
+                           "Default: '%default'None\n"
+                           "Applies to: ePub, MOBI output formats")),
                    Option('--exclude-genre',
                           default='\[[\w ]*\]',
                           dest='exclude_genre',
@@ -466,7 +466,7 @@ class EPUB_MOBI(CatalogPlugin):
                       'July','August','September','October','November','December']
 
         # Tags starting with these characters will not be included in the genre list
-        REMOVE_TAGS = ['~','+','*','[']
+#        REMOVE_TAGS = ['~','+','*','[']
 
         # Symbols used to show a book's read/unread status
         NOT_READ_SYMBOL = '<font style="color:white">&#x2713;</font>'
@@ -476,7 +476,6 @@ class EPUB_MOBI(CatalogPlugin):
         # creator               dc:creator in OPF metadata
         # dbs_fname             stored catalog snapshot
         # descriptionClip       limits size of NCX descriptions (Kindle only)
-        # generateForMobigen    Modifies OPF/NCX for Mobigen compilation
         # includeSources        Used in processSpecialTags to skip tags like '[SPL]'
         # notification          Used to check for cancel, report progress
         # plugin_path           Plugin zip file (resources)
@@ -484,11 +483,10 @@ class EPUB_MOBI(CatalogPlugin):
         # title                 dc:title in OPF metadata, NCX periodical
         # verbosity             level of diagnostic printout
 
-
         def __init__(self, db, opts, plugin,
-                     generateForMobigen=False,
                      notification=DummyReporter(),
                      stylesheet="content/stylesheet.css"):
+            self.__opts = opts
             self.__authors = None
             self.__basename = opts.basename
             self.__booksByAuthor = None
@@ -501,12 +499,11 @@ class EPUB_MOBI(CatalogPlugin):
             self.__databaseSnapshot = self.fetchDatabaseSnapshot(self.__dbs_fname)
             self.__descriptionClip = opts.descriptionClip
             self.__error = None
-            self.__generateForMobigen = generateForMobigen
             self.__genres = None
             self.__htmlFileList = []
             self.__libraryPath = self.fetchLibraryPath()
+            self.__markerTags = self.getMarkerTags()
             self.__ncxSoup = None
-            self.__opts = opts
             self.__playOrder = 1
             self.__plugin = plugin
             self.__plugin_path = opts.plugin_path
@@ -536,7 +533,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__authors = val
             return property(fget=fget, fset=fset)
-        
         @dynamic_property
         def basename(self):
             def fget(self):
@@ -544,7 +540,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__basename = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property        
         def booksByAuthor(self):
             def fget(self):
@@ -552,7 +547,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__booksByAuthor = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def booksByTitle(self):
             def fget(self):
@@ -560,7 +554,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__booksByTitle = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def catalogPath(self):
             def fget(self):
@@ -568,7 +561,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__catalogPath = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def contentDir(self):
             def fget(self):
@@ -576,7 +568,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__contentDir = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def creator(self):
             def fget(self):
@@ -584,7 +575,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__creator = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def databaseSnapshot(self):
             def fget(self):
@@ -592,13 +582,11 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__databaseSnapshot = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def db(self):
             def fget(self):
                 return self.__db
             return property(fget=fget)
-
         @dynamic_property
         def descriptionClip(self):
             def fget(self):
@@ -606,13 +594,11 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__descriptionClip = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def error(self):
             def fget(self):
                 return self.__error
             return property(fget=fget)
-
         @dynamic_property
         def generateForMobigen(self):
             def fget(self):
@@ -620,7 +606,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__generateForMobigen = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def genres(self):
             def fget(self):
@@ -628,7 +613,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__genres = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def htmlFileList(self):
             def fget(self):
@@ -636,7 +620,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__htmlFileList = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def libraryPath(self):
             def fget(self):
@@ -644,7 +627,13 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__libraryPath = val
             return property(fget=fget, fset=fset)
-
+        @dynamic_property
+        def markerTags(self):
+            def fget(self):
+                return self.__markerTags
+            def fset(self, val):
+                self.__markerTags = val
+            return property(fget=fget, fset=fset)
         @dynamic_property
         def ncxSoup(self):
             def fget(self):
@@ -652,13 +641,11 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__ncxSoup = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def opts(self):
             def fget(self):
                 return self.__opts
             return property(fget=fget)
-
         @dynamic_property
         def playOrder(self):
             def fget(self):
@@ -666,13 +653,11 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self,val):
                 self.__playOrder = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def plugin(self):
             def fget(self):
                 return self.__plugin
             return property(fget=fget)
-
         @dynamic_property
         def pluginPath(self):
             def fget(self):
@@ -680,7 +665,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__pluginPath = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def progressInt(self):
             def fget(self):
@@ -688,7 +672,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__progressInt = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def progressString(self):
             def fget(self):
@@ -696,7 +679,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__progressString = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def reporter(self):
             def fget(self):
@@ -704,7 +686,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__reporter = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def stylesheet(self):
             def fget(self):
@@ -712,7 +693,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__stylesheet = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def thumbs(self):
             def fget(self):
@@ -720,7 +700,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__thumbs = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def title(self):
             def fget(self):
@@ -728,7 +707,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__title = val
             return property(fget=fget, fset=fset)
-
         @dynamic_property
         def verbose(self):
             def fget(self):
@@ -890,7 +868,7 @@ class EPUB_MOBI(CatalogPlugin):
             if self.verbose:
                 print self.updateProgressFullStep("fetchBooksByAuthor()")
 
-            # Sort titles based on upper case authors
+            # Sort titles case-insensitive
             self.booksByAuthor = sorted(self.booksByTitle,
                                  key=lambda x:(x['author_sort'].upper(), x['author_sort'].upper()))
 
@@ -923,7 +901,8 @@ class EPUB_MOBI(CatalogPlugin):
 
 
             # authors[] contains a list of all book authors, with multiple entries for multiple books by author
-            # unique_authors : (([0]:friendly  [1]:sort  [2]:book_count))
+            #                authors[]: (([0]:friendly  [1]:sort))
+            # create unique_authors[] : (([0]:friendly  [1]:sort  [2]:book_count))
             books_by_current_author = 0
             current_author = authors[0]
             multiple_authors = False
@@ -949,14 +928,20 @@ class EPUB_MOBI(CatalogPlugin):
                 unique_authors.append((current_author[0], current_author[1],
                                        books_by_current_author))
 
-            if False and self.verbose:
-                print "\nget_books_by_author(): %d unique authors" % len(unique_authors)
-                for author in unique_authors[0:3]:
-                    print "%s" % author[0]
-                print " ... "
-                for author in unique_authors[-3:]:
-                    print "%s" % author[0]
-
+            if self.verbose:
+                if False:
+                    print "\nget_books_by_author(): %d unique authors" % len(unique_authors)
+                    for author in unique_authors[0:3]:
+                        print "%s" % author[0]
+                    print " ... "
+                    for author in unique_authors[-3:]:
+                        print "%s" % author[0]
+                else:
+                    print "\nget_books_by_author(): %d unique authors" % len(unique_authors)
+                    for author in unique_authors:
+                        print "%-50s %-25s %2d" % (author[0], author[1], author[2])
+                    print
+                    
             self.authors = unique_authors
 
         def generateHTMLDescriptions(self):
@@ -977,23 +962,11 @@ class EPUB_MOBI(CatalogPlugin):
 
                 btc = 0
 
-                # Insert section tag if this is the section start - first article only
-                if not title_num and self.generateForMobigen:
-                    aTag = Tag(soup,'a')
-                    aTag['name'] = 'section_start'
-                    body.insert(btc, aTag)
-                    btc += 1
-
                 # Insert the anchor
                 aTag = Tag(soup, "a")
                 aTag['name'] = "book%d" % int(title['id'])
                 body.insert(btc, aTag)
                 btc += 1
-
-                # Insert section marker if this is the section head - first article only
-                if not title_num and self.generateForMobigen:
-                    body.insert(btc, '<a></a> <a></a> <a></a>')
-                    btc += 1
 
                 # Insert the book title
                 #<p class="title"><a name="<database_id>"></a><em>Book Title</em></p>
@@ -1123,23 +1096,6 @@ class EPUB_MOBI(CatalogPlugin):
             body.insert(btc, aTag)
             btc += 1
 
-            # Insert section marker if this is the section head - first article only
-            if self.generateForMobigen:
-                body.insert(btc, '<a></a> <a></a> <a></a>')
-                btc += 1
-
-            '''
-            # We don't need this because the Kindle shows section titles
-            #<h2><a name="byalphatitle" id="byalphatitle"></a>By Title</h2>
-            h2Tag = Tag(soup, "h2")
-            aTag = Tag(soup, "a")
-            aTag['name'] = "bytitle"
-            h2Tag.insert(0,aTag)
-            h2Tag.insert(1,NavigableString('By Title (%d)' % len(self.booksByTitle)))
-            body.insert(btc,h2Tag)
-            btc += 1
-            '''
-
             # <p class="letter_index">
             # <p class="book_title">
             divTag = Tag(soup, "div")
@@ -1233,24 +1189,6 @@ class EPUB_MOBI(CatalogPlugin):
             aTag['name'] = anchor_name.replace(" ","")
             body.insert(btc, aTag)
             btc += 1
-
-            # Insert section marker if this is the section head - first article only
-            if self.generateForMobigen:
-                body.insert(btc, '<a></a> <a></a> <a></a>')
-                btc += 1
-
-            '''
-            # We don't need this because the kindle inserts section titles
-            #<h2><a name="byalphaauthor" id="byalphaauthor"></a>By Author</h2>
-            h2Tag = Tag(soup, "h2")
-            aTag = Tag(soup, "a")
-            anchor_name = friendly_name.lower()
-            aTag['name'] = anchor_name.replace(" ","")
-            h2Tag.insert(0,aTag)
-            h2Tag.insert(1,NavigableString('%s' % friendly_name))
-            body.insert(btc,h2Tag)
-            btc += 1
-            '''
 
             # <p class="letter_index">
             # <p class="author_index">
@@ -1353,12 +1291,8 @@ class EPUB_MOBI(CatalogPlugin):
             if self.verbose:
                 print self.updateProgressFullStep("generateHTMLByTags()")
 
-            # Fetch the tags using the database interface
-            from calibre.library.database2 import LibraryDatabase2
-            db = LibraryDatabase2(self.libraryPath)
-
             # Filter out REMOVE_TAGS, sort
-            filtered_tags = self.filterDbTags(db.all_tags())
+            filtered_tags = self.filterDbTags(self.db.all_tags())
 
             # Extract books matching filtered_tags
             genre_list = []
@@ -1513,41 +1447,25 @@ class EPUB_MOBI(CatalogPlugin):
             if self.verbose:
                 print self.updateProgressFullStep("generateOPF()")
 
-
-            if self.generateForMobigen:
-                header = '''
-                    <?xml version="1.0" encoding="UTF-8"?>
-                    <package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="MyKindleCatalog">
-                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf" xmlns:mbp="http://www.mobipocket.com" version="2005-1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                            <dc:language>en-US</dc:language>
-                            <dc:rights>Gregory Riker 2009</dc:rights>
-                            <dc:date xsi:type="dcterms:W3CDTF">2009-12-04</dc:date>
-                        </metadata>
-                        <manifest></manifest>
-                        <spine toc="ncx"></spine>
-                        <guide></guide>
-                    </package>
-                    '''
-            else:
-                header = '''
-                    <?xml version="1.0" encoding="UTF-8"?>
-                    <package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="calibre_id">
-                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                            <dc:language>en-US</dc:language>
-                            <meta name="calibre:publication_type" content="periodical:default"/>
-                        </metadata>
-                        <manifest></manifest>
-                        <spine toc="ncx"></spine>
-                        <guide></guide>
-                    </package>
-                    '''
+            header = '''
+                <?xml version="1.0" encoding="UTF-8"?>
+                <package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="calibre_id">
+                    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                        <dc:language>en-US</dc:language>
+                        <meta name="calibre:publication_type" content="periodical:default"/>
+                    </metadata>
+                    <manifest></manifest>
+                    <spine toc="ncx"></spine>
+                    <guide></guide>
+                </package>
+                '''
             # Add the supplied metadata tags
             soup = BeautifulStoneSoup(header, selfClosingTags=['item','itemref', 'reference'])
             metadata = soup.find('metadata')
             mtc = 0
 
             titleTag = Tag(soup, "dc:title")
-            titleTag.insert(0,self.title + ' (M)' if self.generateForMobigen else self.title)
+            titleTag.insert(0,self.title + self.title)
             metadata.insert(mtc, titleTag)
             mtc += 1
 
@@ -1662,21 +1580,12 @@ class EPUB_MOBI(CatalogPlugin):
             if self.verbose:
                 print self.updateProgressFullStep("generateNCXHeader()")
 
-            if self.generateForMobigen:
-                header = '''
-                    <?xml version="1.0" encoding="utf-8"?>
-                    <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/"
-                     xmlns:mbp="http://www.mobipocket.com" version="2005-1" xml:lang="en">
-                '''
-                soup = BeautifulStoneSoup(header, selfClosingTags=['content','mbp:meta-img'])
-
-            else:
-                header = '''
-                    <?xml version="1.0" encoding="utf-8"?>
-                    <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" version="2005-1" xml:lang="en">
-                    </ncx>
-                '''
-                soup = BeautifulStoneSoup(header, selfClosingTags=['content','calibre:meta-img'])
+            header = '''
+                <?xml version="1.0" encoding="utf-8"?>
+                <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" version="2005-1" xml:lang="en">
+                </ncx>
+            '''
+            soup = BeautifulStoneSoup(header, selfClosingTags=['content','calibre:meta-img'])
 
             ncx = soup.find('ncx')
             navMapTag = Tag(soup, 'navMap')
@@ -1684,7 +1593,7 @@ class EPUB_MOBI(CatalogPlugin):
             navPointTag['class'] = "periodical"
             navPointTag['id'] = "title"
             navPointTag['playOrder'] = self.playOrder
-            print "generateNCXHeader(periodical): self.playOrder: %d" % self.playOrder
+            #print "generateNCXHeader(periodical): self.playOrder: %d" % self.playOrder
             self.playOrder += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
@@ -1694,7 +1603,7 @@ class EPUB_MOBI(CatalogPlugin):
             contentTag = Tag(soup, 'content')
             contentTag['src'] = "content/book_%d.html" % int(self.booksByTitle[0]['id'])
             navPointTag.insert(1, contentTag)
-            cmiTag = Tag(soup, '%s' % 'mbp:meta-img' if self.generateForMobigen else 'calibre:meta-img')
+            cmiTag = Tag(soup, '%s' % 'calibre:meta-img')
             cmiTag['name'] = "mastheadImage"
             cmiTag['src'] = "images/mastheadImage.gif"
             navPointTag.insert(2,cmiTag)
@@ -1719,7 +1628,7 @@ class EPUB_MOBI(CatalogPlugin):
             navPointTag['class'] = "section"
             navPointTag['id'] = "bytitle-ID"
             navPointTag['playOrder'] = self.playOrder
-            print "generateNCXDescriptions(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)
+            #print "generateNCXDescriptions(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)
             self.playOrder += 1
             navLabelTag = Tag(ncx_soup, 'navLabel')
             textTag = Tag(ncx_soup, 'text')
@@ -1739,7 +1648,7 @@ class EPUB_MOBI(CatalogPlugin):
                 navPointVolumeTag['class'] = "article"
                 navPointVolumeTag['id'] = "book%dID" % int(book['id'])
                 navPointVolumeTag['playOrder'] = self.playOrder
-                print "generateNCXDescriptions(article): self.playOrder: %d" % self.playOrder
+                #print "generateNCXDescriptions(article): self.playOrder: %d" % self.playOrder
                 self.playOrder += 1
                 navLabelTag = Tag(ncx_soup, "navLabel")
                 textTag = Tag(ncx_soup, "text")
@@ -1751,18 +1660,21 @@ class EPUB_MOBI(CatalogPlugin):
                 contentTag['src'] = "content/book_%d.html#book%d" % (int(book['id']), int(book['id']))
                 navPointVolumeTag.insert(1, contentTag)
 
-                # Build the author tag
-                cmTag = Tag(ncx_soup, '%s' % 'mbp:meta' if self.generateForMobigen else 'calibre:meta')
-                cmTag['name'] = "author"
-                cmTag.insert(0, NavigableString(self.formatNCXText(book['author'])))
-                navPointVolumeTag.insert(2, cmTag)
-
-                # Build the description tag
-                if book['short_description']:
-                    cmTag = Tag(ncx_soup, '%s' % 'mbp:meta' if self.generateForMobigen else 'calibre:meta')
-                    cmTag['name'] = "description"
-                    cmTag.insert(0, NavigableString(self.formatNCXText(book['short_description'])))
-                    navPointVolumeTag.insert(3, cmTag)
+                if self.opts.fmt == 'mobi' and \
+                   self.opts.output_profile and \
+                   self.opts.output_profile.startswith("kindle"):
+                    # Add the author tag
+                    cmTag = Tag(ncx_soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "author"
+                    cmTag.insert(0, NavigableString(self.formatNCXText(book['author'])))
+                    navPointVolumeTag.insert(2, cmTag)
+    
+                    # Add the description tag
+                    if book['short_description']:
+                        cmTag = Tag(ncx_soup, '%s' % 'calibre:meta')
+                        cmTag['name'] = "description"
+                        cmTag.insert(0, NavigableString(self.formatNCXText(book['short_description'])))
+                        navPointVolumeTag.insert(3, cmTag)
 
                 # Add this volume to the section tag
                 navPointTag.insert(nptc, navPointVolumeTag)
@@ -1789,7 +1701,7 @@ class EPUB_MOBI(CatalogPlugin):
             navPointTag['class'] = "section"
             navPointTag['id'] = "byalphatitle-ID"
             navPointTag['playOrder'] = self.playOrder
-            print "generateNCXByTitle(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)
+            #print "generateNCXByTitle(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)
             self.playOrder += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
@@ -1855,7 +1767,7 @@ class EPUB_MOBI(CatalogPlugin):
                 if not single_article_per_section:
                     navPointByLetterTag['id'] = "%sTitles-ID" % (title_letters[i].upper())
                 navPointTag['playOrder'] = self.playOrder
-                print "generateNCXByTitle(article '%s'): self.playOrder: %d" % (title_letters[i].upper(), self.playOrder)
+                #print "generateNCXByTitle(article '%s'): self.playOrder: %d" % (title_letters[i].upper(), self.playOrder)
                 self.playOrder += 1
                 navLabelTag = Tag(soup, 'navLabel')
                 textTag = Tag(soup, 'text')
@@ -1871,13 +1783,18 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     contentTag['src'] = "content/%s.html#%stitles" % (output, title_letters[i].upper())
                 navPointByLetterTag.insert(1,contentTag)
-                cmTag = Tag(soup, '%s' % 'mbp:meta' if self.generateForMobigen else 'calibre:meta')
-                cmTag['name'] = "description"
-                if single_article_per_section:
-                    cmTag.insert(0, NavigableString(self.formatNCXText(books_by_letter[0])))
-                else:
-                    cmTag.insert(0, NavigableString(self.formatNCXText(books)))
-                navPointByLetterTag.insert(2, cmTag)
+
+                if self.opts.fmt == 'mobi' and \
+                   self.opts.output_profile and \
+                   self.opts.output_profile.startswith("kindle"):
+                    cmTag = Tag(soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "description"
+                    if single_article_per_section:
+                        cmTag.insert(0, NavigableString(self.formatNCXText(books_by_letter[0])))
+                    else:
+                        cmTag.insert(0, NavigableString(self.formatNCXText(books)))
+                    navPointByLetterTag.insert(2, cmTag)
+
                 navPointTag.insert(nptc, navPointByLetterTag)
                 nptc += 1
 
@@ -1907,7 +1824,7 @@ class EPUB_MOBI(CatalogPlugin):
                 file_ID = file_ID.replace(" ","")
             navPointTag['id'] = "%s-ID" % file_ID
             navPointTag['playOrder'] = self.playOrder
-            print "generateNCXByAuthor(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)            
+            #print "generateNCXByAuthor(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)            
             self.playOrder += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
@@ -1974,7 +1891,7 @@ class EPUB_MOBI(CatalogPlugin):
                 navPointByLetterTag['class'] = "article"
                 navPointByLetterTag['id'] = "%sauthors-ID" % (authors[1].upper())
                 navPointTag['playOrder'] = self.playOrder
-                print "generateNCXByAuthor(article '%s'): self.playOrder: %d" % (authors[1].upper(), self.playOrder)
+                #print "generateNCXByAuthor(article '%s'): self.playOrder: %d" % (authors[1].upper(), self.playOrder)
                 self.playOrder += 1
                 navLabelTag = Tag(soup, 'navLabel')
                 textTag = Tag(soup, 'text')
@@ -1992,10 +1909,15 @@ class EPUB_MOBI(CatalogPlugin):
                     contentTag['src'] = "%s#%sauthors" % (HTML_file, authors[1].upper())
 
                 navPointByLetterTag.insert(1,contentTag)
-                cmTag = Tag(soup, '%s' % 'mbp:meta' if self.generateForMobigen else 'calibre:meta')
-                cmTag['name'] = "description"
-                cmTag.insert(0, NavigableString(authors[0]))
-                navPointByLetterTag.insert(2, cmTag)
+                
+                if self.opts.fmt == 'mobi' and \
+                   self.opts.output_profile and \
+                   self.opts.output_profile.startswith("kindle"):
+                    cmTag = Tag(soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "description"
+                    cmTag.insert(0, NavigableString(authors[0]))
+                    navPointByLetterTag.insert(2, cmTag)
+
                 navPointTag.insert(nptc, navPointByLetterTag)
                 nptc += 1
 
@@ -2024,7 +1946,7 @@ class EPUB_MOBI(CatalogPlugin):
             file_ID = file_ID.replace(" ","")
             navPointTag['id'] = "%s-ID" % file_ID
             navPointTag['playOrder'] = self.playOrder
-            print "generateNCXByTags(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)                        
+            #print "generateNCXByTags(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)                        
             self.playOrder += 1
             navLabelTag = Tag(ncx_soup, 'navLabel')
             textTag = Tag(ncx_soup, 'text')
@@ -2046,7 +1968,7 @@ class EPUB_MOBI(CatalogPlugin):
                 navPointVolumeTag['class'] = "article"
                 navPointVolumeTag['id'] = "genre-%s-ID" % genre['tag']
                 navPointVolumeTag['playOrder'] = self.playOrder
-                print "generateNCXByTags(article '%s'): self.playOrder: %d" % (genre['tag'], self.playOrder)
+                #print "generateNCXByTags(article '%s'): self.playOrder: %d" % (genre['tag'], self.playOrder)
                 self.playOrder += 1
                 navLabelTag = Tag(ncx_soup, "navLabel")
                 textTag = Tag(ncx_soup, "text")
@@ -2059,40 +1981,43 @@ class EPUB_MOBI(CatalogPlugin):
                 contentTag['src'] = "content/Genre%s.html#Genre%s" % (genre_name, genre_name)
                 navPointVolumeTag.insert(1, contentTag)
 
-                # Build the author tag
-                cmTag = Tag(ncx_soup, '%s' % 'mbp:meta' if self.generateForMobigen else 'calibre:meta')
-                cmTag['name'] = "author"
-                # First - Last author
-
-                if len(genre['titles_spanned']) > 1 :
-                    author_range = "%s - %s" % (genre['titles_spanned'][0][0], genre['titles_spanned'][1][0])
-                else :
-                    author_range = "%s" % (genre['titles_spanned'][0][0])
-
-                cmTag.insert(0, NavigableString(author_range))
-                navPointVolumeTag.insert(2, cmTag)
-
-                # Build the description tag
-                cmTag = Tag(ncx_soup, '%s' % 'mbp:meta' if self.generateForMobigen else 'calibre:meta')
-                cmTag['name'] = "description"
-
-                if False:
-                    # Form 1: Titles spanned
-                    if len(genre['titles_spanned']) > 1:
-                        title_range = "%s -\n%s" % (genre['titles_spanned'][0][1], genre['titles_spanned'][1][1])
+                if self.opts.fmt == 'mobi' and \
+                   self.opts.output_profile and \
+                   self.opts.output_profile.startswith("kindle"):
+                    # Build the author tag
+                    cmTag = Tag(ncx_soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "author"
+                    # First - Last author
+    
+                    if len(genre['titles_spanned']) > 1 :
+                        author_range = "%s - %s" % (genre['titles_spanned'][0][0], genre['titles_spanned'][1][0])
+                    else :
+                        author_range = "%s" % (genre['titles_spanned'][0][0])
+    
+                    cmTag.insert(0, NavigableString(author_range))
+                    navPointVolumeTag.insert(2, cmTag)
+    
+                    # Build the description tag
+                    cmTag = Tag(ncx_soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "description"
+    
+                    if False:
+                        # Form 1: Titles spanned
+                        if len(genre['titles_spanned']) > 1:
+                            title_range = "%s -\n%s" % (genre['titles_spanned'][0][1], genre['titles_spanned'][1][1])
+                        else:
+                            title_range = "%s" % (genre['titles_spanned'][0][1])
+                        cmTag.insert(0, NavigableString(self.formatNCXText(title_range)))
                     else:
-                        title_range = "%s" % (genre['titles_spanned'][0][1])
-                    cmTag.insert(0, NavigableString(self.formatNCXText(title_range)))
-                else:
-                    # Form 2: title &bull; title &bull; title ...
-                    titles = []
-                    for title in genre['books']:
-                        titles.append(title['title'])
-                    titles = sorted(titles, key=lambda x:(self.generateSortTitle(x),self.generateSortTitle(x)))
-                    titles_list = self.generateShortDescription(" &bull; ".join(titles))
-                    cmTag.insert(0, NavigableString(self.formatNCXText(titles_list)))
-
-                navPointVolumeTag.insert(3, cmTag)
+                        # Form 2: title &bull; title &bull; title ...
+                        titles = []
+                        for title in genre['books']:
+                            titles.append(title['title'])
+                        titles = sorted(titles, key=lambda x:(self.generateSortTitle(x),self.generateSortTitle(x)))
+                        titles_list = self.generateShortDescription(" &bull; ".join(titles))
+                        cmTag.insert(0, NavigableString(self.formatNCXText(titles_list)))
+    
+                    navPointVolumeTag.insert(3, cmTag)
 
                 # Add this volume to the section tag
                 navPointTag.insert(nptc, navPointVolumeTag)
@@ -2115,10 +2040,7 @@ class EPUB_MOBI(CatalogPlugin):
             if self.verbose:
                 print self.updateProgressFullStep("writeNCX()")
             outfile = open("%s/%s.ncx" % (self.catalogPath, self.basename), 'w')
-            if self.generateForMobigen:
-                outfile.write(self.ncxSoup.renderContents())
-            else:
-                outfile.write(self.ncxSoup.prettify())
+            outfile.write(self.ncxSoup.prettify())
 
         # Helpers
         def contents(self, element, title, key=None):
@@ -2197,14 +2119,30 @@ class EPUB_MOBI(CatalogPlugin):
             from calibre.utils.config import prefs
             return prefs['library_path']
 
+        def getMarkerTags(self):
+            ''' Return a list of special marker tags to be excluded from genre list '''
+            markerTags = []
+            markerTags.extend(self.opts.exclude_tags.split(','))
+            markerTags.extend(self.opts.note_tag.split(','))
+            markerTags.extend(self.opts.read_tag.split(','))            
+            return markerTags
+
         def filterDbTags(self, tags):
-            # Remove the special marker tags from the list, return sorted list of filtered tags
+            # Remove the special marker tags from the database's tag list, 
+            # return sorted list of tags representing valid genres
 
             filtered_tags = []
             for tag in tags:
                 # Check the leading character
-                if not tag[0] in self.REMOVE_TAGS:
-                    filtered_tags.append(tag)
+                if tag[0] in self.markerTags:
+                    #print "skipping %s" % tag
+                    continue
+                # Check the exclude_genre pattern
+                if re.search(self.opts.exclude_genre, tag):
+                    #print "skipping %s" % tag
+                    continue
+                
+                filtered_tags.append(tag)
 
             filtered_tags.sort()
 
@@ -2256,12 +2194,6 @@ class EPUB_MOBI(CatalogPlugin):
             body.insert(btc,aTag)
             btc += 1
 
-            # Insert section marker if this is the section start - first article only
-            if section_head and self.generateForMobigen:
-                # Insert a Mobigen section marker for Mobigen section
-                body.insert(btc,'<a></a> <a></a> <a></a>')
-                btc += 1
-
             # Insert the genre title
             titleTag = body.find(attrs={'class':'title'})
             titleTag.insert(0,NavigableString('<b><i>%s</i></b>' % escape(genre)))
@@ -2309,11 +2241,6 @@ class EPUB_MOBI(CatalogPlugin):
                 divTag.insert(dtc, pBookTag)
                 dtc += 1
 
-            # If Mobi, append <mbp:pagebreak /> to body
-            if self.generateForMobigen:
-                btc = len(body)
-                body.insert(btc, '<mbp:pagebreak />')
-
             # Write the generated file to contentdir
             outfile = open(outfile, 'w')
             outfile.write(soup.prettify())
@@ -2328,113 +2255,59 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateHTMLDescriptionHeader(self, title):
 
-            if self.generateForMobigen:
-                header = '''
-                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata">
-                <head>
-                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                    <link rel="stylesheet" type="text/css" href="stylesheet.css" media="screen" />
-                <title></title>
-                </head>
-                <body>
-                <p class="title"></p>
-                <div class="hr"><blockquote><hr/></blockquote></div>
-                <p class="author"></p>
-                <p class="tags">&nbsp;</p>
-                <table width="100%" border="0">
-                  <tr>
-                    <td class="thumbnail" rowspan="7"></td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td>Publisher</td>
-                    <td class="publisher"></td>
-                  </tr>
-                  <tr>
-                    <td>Published</td>
-                    <td class="date"></td>
-                  </tr>
-                  <tr>
-                    <td>Rating</td>
-                    <td class="rating"></td>
-                  </tr>
-                  <tr>
-                    <td class="notes_label">Notes</td>
-                    <td class="notes"></td>
-                  </tr>
-                  <tr>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                </table>
-                <blockquote><hr/></blockquote>
-                <p class="description"></p>
-                <!--blockquote><hr/></blockquote-->
-                <!--p class="instructions">&#9654; Press <span style="font-variant:small-caps"><b>back</b></span> to return to list &#9664;</p-->
-                <mbp:pagebreak />
-                </body>
-                </html>
-                '''
-            else:
-                title_border = '' if self.opts.fmt == 'epub' else \
-                        '<div class="hr"><blockquote><hr/></blockquote></div>'
-                header = '''
-                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata">
-                <head>
-                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                    <link rel="stylesheet" type="text/css" href="stylesheet.css" media="screen" />
-                <title></title>
-                </head>
-                <body>
-                <p class="title"></p>
-                {0}
-                <p class="author"></p>
-                <p class="tags">&nbsp;</p>
-                <table width="100%" border="0">
-                  <tr>
-                    <td class="thumbnail" rowspan="7"></td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td>Publisher</td>
-                    <td class="publisher"></td>
-                  </tr>
-                  <tr>
-                    <td>Published</td>
-                    <td class="date"></td>
-                  </tr>
-                  <tr>
-                    <td>Rating</td>
-                    <td class="rating"></td>
-                  </tr>
-                  <tr>
-                    <td class="notes_label">Notes</td>
-                    <td class="notes"></td>
-                  </tr>
-                  <tr>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                </table>
-                <blockquote><hr/></blockquote>
-                <p class="description"></p>
-                <!--blockquote><hr/></blockquote-->
-                <!--p class="instructions">&#9654; Press <span style="font-variant:small-caps"><b>back</b></span> to return to list &#9664;</p-->
-                </body>
-                </html>
-                '''.format(title_border)
+            title_border = '' if self.opts.fmt == 'epub' else \
+                    '<div class="hr"><blockquote><hr/></blockquote></div>'
+            header = '''
+            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata">
+            <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                <link rel="stylesheet" type="text/css" href="stylesheet.css" media="screen" />
+            <title></title>
+            </head>
+            <body>
+            <p class="title"></p>
+            {0}
+            <p class="author"></p>
+            <p class="tags">&nbsp;</p>
+            <table width="100%" border="0">
+              <tr>
+                <td class="thumbnail" rowspan="7"></td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+              </tr>
+              <tr>
+                <td>Publisher</td>
+                <td class="publisher"></td>
+              </tr>
+              <tr>
+                <td>Published</td>
+                <td class="date"></td>
+              </tr>
+              <tr>
+                <td>Rating</td>
+                <td class="rating"></td>
+              </tr>
+              <tr>
+                <td class="notes_label">Notes</td>
+                <td class="notes"></td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+              </tr>
+            </table>
+            <blockquote><hr/></blockquote>
+            <p class="description"></p>
+            <!--blockquote><hr/></blockquote-->
+            <!--p class="instructions">&#9654; Press <span style="font-variant:small-caps"><b>back</b></span> to return to list &#9664;</p-->
+            </body>
+            </html>
+            '''.format(title_border)
 
             # Insert the supplied title
             soup = BeautifulSoup(header, selfClosingTags=['mbp:pagebreak'])
@@ -2443,32 +2316,18 @@ class EPUB_MOBI(CatalogPlugin):
             return soup
 
         def generateHTMLEmptyHeader(self, title):
-            if self.generateForMobigen:
-                header = '''
-                    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-                    <html xmlns="http://www.w3.org/1999/xhtml" xmlns:mbp="http://www.mobipocket.com" version="2005-1">
-                    <head>
-                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                        <link rel="stylesheet" type="text/css" href="stylesheet.css" media="screen" />
-                    <title></title>
-                    </head>
-                    <body>
-                    </body>
-                    </html>
-                    '''
-            else:
-                header = '''
-                    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-                    <html xmlns="http://www.w3.org/1999/xhtml" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata">
-                    <head>
-                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                        <link rel="stylesheet" type="text/css" href="stylesheet.css" media="screen" />
-                    <title></title>
-                    </head>
-                    <body>
-                    </body>
-                    </html>
-                    '''
+            header = '''
+                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata">
+                <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                    <link rel="stylesheet" type="text/css" href="stylesheet.css" media="screen" />
+                <title></title>
+                </head>
+                <body>
+                </body>
+                </html>
+                '''
             # Insert the supplied title
             soup = BeautifulSoup(header)
             titleTag = soup.find('title')
@@ -2476,38 +2335,21 @@ class EPUB_MOBI(CatalogPlugin):
             return soup
 
         def generateHTMLGenreHeader(self, title):
-            if self.generateForMobigen:
-                header = '''
-                    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-                    <html xmlns="http://www.w3.org/1999/xhtml" xmlns:mbp="http://www.mobipocket.com" version="2005-1">
-                    <head>
-                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                        <link rel="stylesheet" type="text/css" href="stylesheet.css" media="screen" />
-                    <title></title>
-                    </head>
-                    <body>
-                        <p class="title"></p>
-                        <div class="hr"><blockquote><hr/></blockquote></div>
-                        <div class="authors"></div>
-                    </body>
-                    </html>
-                    '''
-            else:
-                header = '''
-                    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-                    <html xmlns="http://www.w3.org/1999/xhtml" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata">
-                    <head>
-                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                        <link rel="stylesheet" type="text/css" href="stylesheet.css" media="screen" />
-                    <title></title>
-                    </head>
-                    <body>
-                        <p class="title"></p>
-                        <div class="hr"><blockquote><hr/></blockquote></div>
-                        <div class="authors"></div>
-                    </body>
-                    </html>
-                    '''
+            header = '''
+                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata">
+                <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                    <link rel="stylesheet" type="text/css" href="stylesheet.css" media="screen" />
+                <title></title>
+                </head>
+                <body>
+                    <p class="title"></p>
+                    <div class="hr"><blockquote><hr/></blockquote></div>
+                    <div class="authors"></div>
+                </body>
+                </html>
+                '''
             # Insert the supplied title
             soup = BeautifulSoup(header)
             titleTag = soup.find('title')
