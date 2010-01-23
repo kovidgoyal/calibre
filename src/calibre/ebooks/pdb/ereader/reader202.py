@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Read content from ereader pdb file with a 202 byte header created by Makebook.
+Read content from ereader pdb file with a 116 and 202 byte header created by Makebook.
 '''
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -44,7 +44,7 @@ class Reader202(FormatReader):
 
         self.header_record = HeaderRecord(self.section_data(0))
 
-        if self.header_record.version != 4:
+        if self.header_record.version not in (2, 4):
             raise EreaderError('Unknown book version %i.' % self.header_record.version)
 
         from calibre.ebooks.metadata.pdb import get_metadata
