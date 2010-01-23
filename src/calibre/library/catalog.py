@@ -758,7 +758,10 @@ class EPUB_MOBI(CatalogPlugin):
             if self.opts.ids:
                 self.opts.search_text = search_phrase
             else:
-                self.opts.search_text = self.opts.search_text + " " + search_phrase
+                if self.opts.search_text:
+                    self.opts.search_text += " " + search_phrase
+                else:
+                    self.opts.search_text = search_phrase
 
             # Fetch the database as a dictionary
             data = self.plugin.search_sort_db(self.db, self.opts)
