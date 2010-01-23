@@ -192,6 +192,16 @@ class Region(object):
         self.average_line_separation = sum([x.average_line_separation for x in
             self.columns])/float(len(self.columns))
 
+    def __iter__(self):
+        for x in self.columns:
+            yield x
+
+    def detect_paragraphs(self):
+        first = True
+        for col in self:
+            col.detect_paragraphs(self.average_line_separation, first)
+            first = False
+
 
 class Page(object):
 
@@ -203,6 +213,8 @@ class Page(object):
     # for them to be considered to be part of the same text fragment
     LINE_FACTOR = 0.4
 
+    # Multiplies the average line height when determining row height
+    # of a particular element to detect columns.
     YFUZZ = 1.5
 
 
@@ -305,7 +317,7 @@ class Page(object):
 
     def find_elements_in_row_of(self, x):
         interval = Interval(x.top,
-                x.top + self.YFUZZ*(1+self.average_text_height))
+                x.top + self.YFUZZ*(self.average_text_height))
         h_interval = Interval(x.left, x.right)
         for y in self.elements[x.idx:x.idx+15]:
             if y is not x:
@@ -320,6 +332,7 @@ class Page(object):
         'Locate paragraph boundaries in each column'
         for region in self.regions:
             region.collect_stats()
+            region.detect_paragraphs()
 
 
 class PDFDocument(object):
