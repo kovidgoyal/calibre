@@ -241,6 +241,15 @@ class EPUB_MOBI(CatalogPlugin):
                           help = _('Title of generated catalog used as title in metadata.\n'
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
+                   Option('--debug-pipeline',
+                           default=None,
+                           dest='debug_pipeline',
+                           help=_('Save the output from different stages of the conversion '
+                           'pipeline to the specified '
+                           'directory. Useful if you are unsure at which stage '
+                           'of the conversion process a bug is occurring.\n'
+                           'Default: None\n'
+                           'Applies to: ePub, MOBI output formats')),
                    Option('--exclude-genre',
                           default='\[[\w ]*\]',
                           dest='exclude_genre',
@@ -729,7 +738,6 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     shutil.copy(os.path.join(catalog_resources,file[1]),
                                     os.path.join(self.catalogPath, file[0]))
-
 
         def fetchBooksByTitle(self):
 
@@ -2544,10 +2552,10 @@ class EPUB_MOBI(CatalogPlugin):
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
         from calibre.utils.logging import Log
-        self.opts = opts
 
         log = Log()
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
+        self.opts = opts
 
         # Add local options
         opts.creator = "calibre"
@@ -2561,13 +2569,18 @@ class EPUB_MOBI(CatalogPlugin):
             log("%s:run" % self.name)
             log(" path_to_output: %s" % path_to_output)
             log(" Output format: %s" % self.fmt)
-            log(" Book count: %d" % len(opts_dict['ids']))
+            if opts_dict['ids']:
+                log(" Book count: %d" % len(opts_dict['ids']))
             # Display opts
             keys = opts_dict.keys()
             keys.sort()
             log(" opts:")
             for key in keys:
-                if key == 'ids': continue
+                if key == 'ids':
+                    if opts_dict[key]:
+                        continue
+                    else:
+                        log("  %s: (all)" % key)
                 log("  %s: %s" % (key, opts_dict[key]))
 
         # Launch the Catalog builder
@@ -2577,6 +2590,11 @@ class EPUB_MOBI(CatalogPlugin):
         catalog.buildSources()
 
         recommendations = []
+
+        dp = getattr(opts, 'debug_pipeline', None)
+        if dp is not None:
+            recommendations.append(('debug_pipeline', dp,
+                OptionRecommendation.HIGH))
 
         if opts.fmt == 'mobi' and opts.output_profile and opts.output_profile.startswith("kindle"):
             recommendations.append(('output_profile', opts.output_profile,
@@ -2592,4 +2610,3 @@ class EPUB_MOBI(CatalogPlugin):
         plumber.merge_ui_recommendations(recommendations)
 
         plumber.run()
-
