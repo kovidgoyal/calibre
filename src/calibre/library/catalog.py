@@ -68,7 +68,7 @@ class CSV_XML(CatalogPlugin):
         # If a list of ids are provided, don't use search_text
         if opts.ids:
             opts.search_text = None
-        
+
         data = self.search_sort_db(db, opts)
 
         if not len(data):
@@ -824,7 +824,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             if True:
                 # Build the unique_authors set from existing data
-                authors = [(record['author'], record['author_sort']) for record in self.booksByAuthor]            
+                authors = [(record['author'], record['author_sort']) for record in self.booksByAuthor]
             else:
                 # Search_text already initialized
                 # Get the database sorted by author_sort
@@ -848,7 +848,7 @@ class EPUB_MOBI(CatalogPlugin):
                         author_list.append(author)
                     authors_concatenated = ", ".join(author_list)
                     authors.append((authors_concatenated, record['author_sort']))
-                
+
 
             # authors[] contains a list of all book authors, with multiple entries for multiple books by author
             # unique_authors : (([0]:friendly  [1]:sort  [2]:book_count))
@@ -1846,7 +1846,7 @@ class EPUB_MOBI(CatalogPlugin):
             if single_article_per_section:
                 # Create a single article for all authors in this section
                 # THIS CODE NEEDS TO BE REVIEWED FOR .upper()
-                
+
                 # Build a formatted author range for article preview
                 single_list = []
                 for author in self.authors:

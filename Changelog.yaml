@@ -36,7 +36,7 @@
     - title: "News downloads: When getting an article URL from a RSS feed, look first for an original article link. This speeds up the download of news services that use a syndication service like feedburner or pheedo to publish their RSS feeds."
 
   bug fixes:
-    - "Windows device detection: Don't do expensive polling while waiting for device disconnect. This should fix the problems people have with their floppy drive being activated while an e-book reader is connected"
+    - title: "Windows device detection: Don't do expensive polling while waiting for device disconnect. This should fix the problems people have with their floppy drive being activated while an e-book reader is connected"
 
     - title: "PML Input: Fix creation of metadata Table of Contents"
       tickets: [5633]
@@ -84,7 +84,7 @@
       author: Darko Miletic
 
     - title: Pajamas Media
-      autor: Krittika Goyal
+      author: Krittika Goyal
 
     - title: Algemeen Dagbla
       author: kwetal
