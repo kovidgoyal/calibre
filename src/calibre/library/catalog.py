@@ -247,7 +247,7 @@ class EPUB_MOBI(CatalogPlugin):
                           help=_("Regex describing tags to exclude as genres.\n" "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--exclude-tags',
-                          default='~',
+                          default='~,Catalog',
                           dest='exclude_tags',
                           help=_("Comma-separated list of tag words indicating book should be excluded from output.  Case-insensitive.\n"
                           "--exclude-tags=skip will match 'skip this book' and 'Skip will like this'.\n"
