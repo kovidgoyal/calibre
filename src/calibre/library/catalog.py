@@ -730,7 +730,6 @@ class EPUB_MOBI(CatalogPlugin):
                     shutil.copy(os.path.join(catalog_resources,file[1]),
                                     os.path.join(self.catalogPath, file[0]))
 
-
         def fetchBooksByTitle(self):
 
             if self.verbose:
@@ -2542,11 +2541,14 @@ class EPUB_MOBI(CatalogPlugin):
             return "%.2f%% %s" % (self.progressInt, self.progressString)
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
+        import gc
         from calibre.utils.logging import Log
-        self.opts = opts
+
+        gc.set_debug(gc.DEBUG_LEAK)
 
         log = Log()
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
+        self.opts = opts
 
         # Add local options
         opts.creator = "calibre"
@@ -2592,3 +2594,4 @@ class EPUB_MOBI(CatalogPlugin):
 
         plumber.run()
 
+        print gc.garbage
