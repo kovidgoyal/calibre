@@ -1,4 +1,4 @@
-import pickle, os, re, shutil, htmlentitydefs
+import os, re, shutil, htmlentitydefs
 
 from xml.sax.saxutils import escape
 
@@ -412,11 +412,11 @@ class EPUB_MOBI(CatalogPlugin):
                     # Convert the upper 3 numbers - thousandsNumber
                     if thousandsNumber:
                         if number > 1099 and number < 2000:
-                            resultString = '%s %s' % (self.lessThanTwenty[number/100], 
+                            resultString = '%s %s' % (self.lessThanTwenty[number/100],
                                                      self.stringFromInt(number % 100))
                             self.text = resultString.strip().capitalize()
                             return
-                        else:  
+                        else:
                             thousandsString = self.stringFromInt(thousandsNumber)
 
                     # Concatenate the strings
@@ -509,10 +509,10 @@ class EPUB_MOBI(CatalogPlugin):
             self.__thumbs = None
             self.__title = opts.catalog_title
             self.__verbose = opts.verbose
-            
+
             if self.verbose:
                 print "CatalogBuilder(): Generating %s for %s" % (self.opts.fmt, self.opts.output_profile)
-            
+
         # Accessors
         '''
         @dynamic_property
@@ -522,7 +522,7 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__ = val
             return property(fget=fget, fset=fset)
-        '''        
+        '''
 
         @dynamic_property
         def authors(self):
@@ -538,7 +538,7 @@ class EPUB_MOBI(CatalogPlugin):
             def fset(self, val):
                 self.__basename = val
             return property(fget=fget, fset=fset)
-        @dynamic_property        
+        @dynamic_property
         def booksByAuthor(self):
             def fget(self):
                 return self.__booksByAuthor
@@ -878,7 +878,7 @@ class EPUB_MOBI(CatalogPlugin):
             if self.verbose:
                 print "fetchBooksByTitle(): %d books" % len(self.booksByTitle)
                 for title in self.booksByTitle:
-                    print (u" %-50s %-25s" % (title['title'][0:45], title['title_sort'][0:20])).encode('utf-8')                    
+                    print (u" %-50s %-25s" % (title['title'][0:45], title['title_sort'][0:20])).encode('utf-8')
                 print
 
         def fetchBooksByAuthor(self):
@@ -927,10 +927,10 @@ class EPUB_MOBI(CatalogPlugin):
             if self.verbose:
                 print "\nfetchBooksByauthor(): %d unique authors" % len(unique_authors)
                 for author in unique_authors:
-                    print (u" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],  
-                       author[2])).encode('utf-8')                    
+                    print (u" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],
+                       author[2])).encode('utf-8')
                 print
-                    
+
             self.authors = unique_authors
 
         def generateHTMLDescriptions(self):
@@ -1676,7 +1676,7 @@ class EPUB_MOBI(CatalogPlugin):
                     cmTag['name'] = "author"
                     cmTag.insert(0, NavigableString(self.formatNCXText(book['author'])))
                     navPointVolumeTag.insert(2, cmTag)
-    
+
                     # Add the description tag
                     if book['short_description']:
                         cmTag = Tag(ncx_soup, '%s' % 'calibre:meta')
@@ -1816,7 +1816,7 @@ class EPUB_MOBI(CatalogPlugin):
             nptc += 1
 
             # Create an NCX article entry for each populated author index letter
-            # Loop over the sorted_authors list, find start of each letter, 
+            # Loop over the sorted_authors list, find start of each letter,
             # add description_preview_count artists
             # self.authors[0]:friendly [1]:author_sort [2]:book_count
             master_author_list = []
@@ -1868,7 +1868,7 @@ class EPUB_MOBI(CatalogPlugin):
                 contentTag['src'] = "%s#%sauthors" % (HTML_file, authors_by_letter[1])
 
                 navPointByLetterTag.insert(1,contentTag)
-                
+
                 if self.generateForKindle:
                     cmTag = Tag(soup, '%s' % 'calibre:meta')
                     cmTag['name'] = "description"
@@ -1903,7 +1903,7 @@ class EPUB_MOBI(CatalogPlugin):
             file_ID = file_ID.replace(" ","")
             navPointTag['id'] = "%s-ID" % file_ID
             navPointTag['playOrder'] = self.playOrder
-            #print "generateNCXByTags(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)                        
+            #print "generateNCXByTags(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)
             self.playOrder += 1
             navLabelTag = Tag(ncx_soup, 'navLabel')
             textTag = Tag(ncx_soup, 'text')
@@ -1943,19 +1943,19 @@ class EPUB_MOBI(CatalogPlugin):
                     cmTag = Tag(ncx_soup, '%s' % 'calibre:meta')
                     cmTag['name'] = "author"
                     # First - Last author
-    
+
                     if len(genre['titles_spanned']) > 1 :
                         author_range = "%s - %s" % (genre['titles_spanned'][0][0], genre['titles_spanned'][1][0])
                     else :
                         author_range = "%s" % (genre['titles_spanned'][0][0])
-    
+
                     cmTag.insert(0, NavigableString(author_range))
                     navPointVolumeTag.insert(2, cmTag)
-    
+
                     # Build the description tag
                     cmTag = Tag(ncx_soup, '%s' % 'calibre:meta')
                     cmTag['name'] = "description"
-    
+
                     if False:
                         # Form 1: Titles spanned
                         if len(genre['titles_spanned']) > 1:
@@ -1971,7 +1971,7 @@ class EPUB_MOBI(CatalogPlugin):
                         titles = sorted(titles, key=lambda x:(self.generateSortTitle(x),self.generateSortTitle(x)))
                         titles_list = self.generateShortDescription(" &bull; ".join(titles))
                         cmTag.insert(0, NavigableString(self.formatNCXText(titles_list)))
-    
+
                     navPointVolumeTag.insert(3, cmTag)
 
                 # Add this volume to the section tag
@@ -2065,11 +2065,11 @@ class EPUB_MOBI(CatalogPlugin):
             markerTags = []
             markerTags.extend(self.opts.exclude_tags.split(','))
             markerTags.extend(self.opts.note_tag.split(','))
-            markerTags.extend(self.opts.read_tag.split(','))            
+            markerTags.extend(self.opts.read_tag.split(','))
             return markerTags
 
         def filterDbTags(self, tags):
-            # Remove the special marker tags from the database's tag list, 
+            # Remove the special marker tags from the database's tag list,
             # return sorted list of tags representing valid genres
 
             filtered_tags = []
@@ -2082,7 +2082,7 @@ class EPUB_MOBI(CatalogPlugin):
                 if re.search(self.opts.exclude_genre, tag):
                     #print "skipping %s" % tag
                     continue
-                
+
                 filtered_tags.append(tag)
 
             filtered_tags.sort()

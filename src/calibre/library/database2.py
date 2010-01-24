@@ -1415,9 +1415,10 @@ class LibraryDatabase2(LibraryDatabase):
         if matches:
             tag_matches = self.data.get_matches('tags', _('Catalog'))
             matches = matches.intersection(tag_matches)
-        db_id = None
+        db_id, existing = None, False
         if matches:
             db_id = list(matches)[0]
+            existing = True
         if db_id is None:
             obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)',
                                 (title, 'calibre'))
@@ -1433,6 +1434,10 @@ class LibraryDatabase2(LibraryDatabase):
         if not hasattr(path, 'read'):
             stream.close()
         self.conn.commit()
+        if existing:
+            t = datetime.utcnow()
+            self.set_timestamp(db_id, t, notify=False)
+            self.set_pubdate(db_id, t, notify=False)
         self.data.refresh_ids(self, [db_id]) # Needed to update format list and size
         return db_id
 
