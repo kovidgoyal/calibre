@@ -20,7 +20,7 @@ class Reader(FormatReader):
 
         if record0_size == 132:
             self.reader = Reader132(header, stream, log, options)
-        elif record0_size == 202:
+        elif record0_size in (116, 202):
             self.reader = Reader202(header, stream, log, options)
         else:
             raise EreaderError('Size mismatch. eReader header record size %s KB is not supported.' % record0_size)
