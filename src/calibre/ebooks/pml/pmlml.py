@@ -138,7 +138,7 @@ class PMLMLizer(object):
         text = [u'']
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to PML markup...' % item.href)
-            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
+            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             text.append(self.add_page_anchor(item))
             text += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
         return ''.join(text)
