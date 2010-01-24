@@ -236,7 +236,7 @@ class EPUB_MOBI(CatalogPlugin):
     file_types = set(['epub','mobi'])
 
     cli_options = [Option('--catalog-title',
-                          default = 'My Catalog',
+                          default = 'My Books',
                           dest = 'catalog_title',
                           help = _('Title of generated catalog used as title in metadata.\n'
                           "Default: '%default'\n"
@@ -411,7 +411,13 @@ class EPUB_MOBI(CatalogPlugin):
 
                     # Convert the upper 3 numbers - thousandsNumber
                     if thousandsNumber:
-                        thousandsString = self.stringFromInt(thousandsNumber)
+                        if number > 1099 and number < 2000:
+                            resultString = '%s %s' % (self.lessThanTwenty[number/100], 
+                                                     self.stringFromInt(number % 100))
+                            self.text = resultString.strip().capitalize()
+                            return
+                        else:  
+                            thousandsString = self.stringFromInt(thousandsNumber)
 
                     # Concatenate the strings
                     if thousandsNumber and not hundredsNumber:
@@ -434,6 +440,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         Implementation notes
         - 'Marker tags' in a book's metadata are used to flag special conditions:
+                    (Defaults)
                     '~' : Do not catalog this book
                     '+' : Mark this book as read (check mark) in lists
                     '*' : Display trailing text as 'Note: <text>' in top frame next to cover
@@ -444,16 +451,10 @@ class EPUB_MOBI(CatalogPlugin):
             catalog.createDirectoryStructure()
             catalog.copyResources()
             catalog.buildSources()
-            # At this point, catalog.catalogPath ($tmpdir/calibre_kindle_catalog) contains Catalog.opf
-            # and all source files necessary to build the catalog
-
-            # After successful compilation, call catalog.cleanUp() to remove generated source files
-            catalog.cleanUp()
 
         - To do:
     ***     generateThumbnails() creates a default book image from book.svg, but the background
-            is black instead of white.  This needs to be fixed (approx line #884)
-
+            is black instead of white.  This needs to be fixed (approx line #1418)
 
         '''
 
@@ -465,16 +466,9 @@ class EPUB_MOBI(CatalogPlugin):
         MONTHS = ['January', 'February','March','April','May','June',
                       'July','August','September','October','November','December']
 
-        # Tags starting with these characters will not be included in the genre list
-#        REMOVE_TAGS = ['~','+','*','[']
-
-        # Symbols used to show a book's read/unread status
-        NOT_READ_SYMBOL = '<font style="color:white">&#x2713;</font>'
-        READ_SYMBOL     = '<font style="color:black">&#x2713;</font>'
 
         # basename              output file basename
         # creator               dc:creator in OPF metadata
-        # dbs_fname             stored catalog snapshot
         # descriptionClip       limits size of NCX descriptions (Kindle only)
         # includeSources        Used in processSpecialTags to skip tags like '[SPL]'
         # notification          Used to check for cancel, report progress
@@ -495,10 +489,11 @@ class EPUB_MOBI(CatalogPlugin):
             self.__contentDir = os.path.join(self.catalogPath, "content")
             self.__creator = opts.creator
             self.__db = db
-            self.__dbs_fname = opts.dbs_fname
-            self.__databaseSnapshot = self.fetchDatabaseSnapshot(self.__dbs_fname)
             self.__descriptionClip = opts.descriptionClip
             self.__error = None
+            self.__generateForKindle = True if (self.opts.fmt == 'mobi' and \
+                                       self.opts.output_profile and \
+                                       self.opts.output_profile.startswith("kindle")) else False
             self.__genres = None
             self.__htmlFileList = []
             self.__libraryPath = self.fetchLibraryPath()
@@ -514,7 +509,10 @@ class EPUB_MOBI(CatalogPlugin):
             self.__thumbs = None
             self.__title = opts.catalog_title
             self.__verbose = opts.verbose
-
+            
+            if self.verbose:
+                print "CatalogBuilder(): Generating %s for %s" % (self.opts.fmt, self.opts.output_profile)
+            
         # Accessors
         '''
         @dynamic_property
@@ -576,13 +574,6 @@ class EPUB_MOBI(CatalogPlugin):
                 self.__creator = val
             return property(fget=fget, fset=fset)
         @dynamic_property
-        def databaseSnapshot(self):
-            def fget(self):
-                return self.__databaseSnapshot
-            def fset(self, val):
-                self.__databaseSnapshot = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
         def db(self):
             def fget(self):
                 return self.__db
@@ -600,11 +591,11 @@ class EPUB_MOBI(CatalogPlugin):
                 return self.__error
             return property(fget=fget)
         @dynamic_property
-        def generateForMobigen(self):
+        def generateForKindle(self):
             def fget(self):
-                return self.__generateForMobigen
+                return self.__generateForKindle
             def fset(self, val):
-                self.__generateForMobigen = val
+                self.__generateForKindle = val
             return property(fget=fget, fset=fset)
         @dynamic_property
         def genres(self):
@@ -715,6 +706,29 @@ class EPUB_MOBI(CatalogPlugin):
                 self.__verbose = val
             return property(fget=fget, fset=fset)
 
+        @dynamic_property
+        def READ_SYMBOL(self):
+            def fget(self):
+                return '<font style="color:black">&#x2713;</font>' if self.generateForKindle else \
+                       '<font style="color:black">%s</font>' % self.opts.read_tag
+            return property(fget=fget)
+        @dynamic_property
+        def NOT_READ_SYMBOL(self):
+            def fget(self):
+                return '<font style="color:white">&#x2713;</font>' if self.generateForKindle else \
+                       '<font style="color:white">%s</font>' % self.opts.read_tag
+            return property(fget=fget)
+        @dynamic_property
+        def FULL_RATING_SYMBOL(self):
+            def fget(self):
+                return "&#9733;" if self.generateForKindle else "*"
+            return property(fget=fget)
+        @dynamic_property
+        def EMPTY_RATING_SYMBOL(self):
+            def fget(self):
+                return "&#9734;" if self.generateForKindle else ' '
+            return property(fget=fget)
+
         # Methods
         def buildSources(self):
             if getattr(self.reporter, 'cancel_requested', False): return 1
@@ -749,10 +763,10 @@ class EPUB_MOBI(CatalogPlugin):
             self.generateNCXDescriptions("Descriptions")
 
             if getattr(self.reporter, 'cancel_requested', False): return 1
-            self.generateNCXByTitle("Titles", single_article_per_section=False)
+            self.generateNCXByTitle("Titles")
 
             if getattr(self.reporter, 'cancel_requested', False): return 1
-            self.generateNCXByAuthor("Authors", single_article_per_section=False)
+            self.generateNCXByAuthor("Authors")
 
             if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXByTags("Genres")
@@ -861,6 +875,11 @@ class EPUB_MOBI(CatalogPlugin):
             # Re-sort based on title_sort
             self.booksByTitle = sorted(titles,
                                  key=lambda x:(x['title_sort'].upper(), x['title_sort'].upper()))
+            if self.verbose:
+                print "fetchBooksByTitle(): %d books" % len(self.booksByTitle)
+                for title in self.booksByTitle:
+                    print (u" %-50s %-25s" % (title['title'][0:45], title['title_sort'][0:20])).encode('utf-8')                    
+                print
 
         def fetchBooksByAuthor(self):
             # Generate a list of titles sorted by author from the database
@@ -872,75 +891,45 @@ class EPUB_MOBI(CatalogPlugin):
             self.booksByAuthor = sorted(self.booksByTitle,
                                  key=lambda x:(x['author_sort'].upper(), x['author_sort'].upper()))
 
-            if True:
-                # Build the unique_authors set from existing data
-                authors = [(record['author'], record['author_sort']) for record in self.booksByAuthor]
-            else:
-                # Search_text already initialized
-                # Get the database sorted by author_sort
-                self.opts.sort_by = 'author_sort'
-                data = self.plugin.search_sort_db(self.db, self.opts)
-
-                # GwR diagnostic: show sorted order
-                print "self.booksByAuthor in sort order:"
-                for book in self.booksByAuthor:
-                    print "%s %s" % (book['author_sort'], book['title'])
-                print "data set in sort order:"
-                for book in data:
-                    print "%s %s" % (book['author_sort'], book['title'])
-
-                # Build the unique_authors set
-                authors = []
-                for record in data:
-                    # There may be multiple authors
-                    author_list = []
-                    for author in record['authors']:
-                        author_list.append(author)
-                    authors_concatenated = ", ".join(author_list)
-                    authors.append((authors_concatenated, record['author_sort']))
-
+            # Build the unique_authors set from existing data
+            authors = [(record['author'], record['author_sort']) for record in self.booksByAuthor]
 
             # authors[] contains a list of all book authors, with multiple entries for multiple books by author
-            #                authors[]: (([0]:friendly  [1]:sort))
-            # create unique_authors[] : (([0]:friendly  [1]:sort  [2]:book_count))
+            #        authors[]: (([0]:friendly  [1]:sort))
+            # unique_authors[]: (([0]:friendly  [1]:sort  [2]:book_count))
             books_by_current_author = 0
             current_author = authors[0]
             multiple_authors = False
             unique_authors = []
             for (i,author) in enumerate(authors):
                 if author != current_author:
+                    # Note that current_author and author are tuples: (friendly, sort)
                     multiple_authors = True
 
                 if author != current_author and i:
-                    unique_authors.append((current_author[0], current_author[1],
+                    # New author, save the previous author/sort/count
+                    unique_authors.append((current_author[0], current_author[1].title(),
                                            books_by_current_author))
                     current_author = author
                     books_by_current_author = 1
                 elif i==0 and len(authors) == 1:
                     # Allow for single-book lists
-                    unique_authors.append((current_author[0], current_author[1],
+                    unique_authors.append((current_author[0], current_author[1].title(),
                                            books_by_current_author))
                 else:
                     books_by_current_author += 1
 
             # Allow for single-author dataset
             if not multiple_authors:
-                unique_authors.append((current_author[0], current_author[1],
+                unique_authors.append((current_author[0], current_author[1].title(),
                                        books_by_current_author))
 
             if self.verbose:
-                if False:
-                    print "\nget_books_by_author(): %d unique authors" % len(unique_authors)
-                    for author in unique_authors[0:3]:
-                        print "%s" % author[0]
-                    print " ... "
-                    for author in unique_authors[-3:]:
-                        print "%s" % author[0]
-                else:
-                    print "\nget_books_by_author(): %d unique authors" % len(unique_authors)
-                    for author in unique_authors:
-                        print "%-50s %-25s %2d" % (author[0], author[1], author[2])
-                    print
+                print "\nfetchBooksByauthor(): %d unique authors" % len(unique_authors)
+                for author in unique_authors:
+                    print (u" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],  
+                       author[2])).encode('utf-8')                    
+                print
                     
             self.authors = unique_authors
 
@@ -1045,11 +1034,8 @@ class EPUB_MOBI(CatalogPlugin):
                 # Insert the rating
                 # Render different ratings chars for epub/mobi
                 stars = int(title['rating']) / 2
-                star_char = "&#9733;" if self.opts.fmt == 'mobi' else "*"
-                star_string = star_char * stars
-
-                empty_star_char = "&#9734;" if self.opts.fmt == 'mobi' else ' '
-                empty_stars = empty_star_char * (5 - stars)
+                star_string = self.FULL_RATING_SYMBOL * stars
+                empty_stars = self.EMPTY_RATING_SYMBOL * (5 - stars)
 
                 ratingTag = body.find(attrs={'class':'rating'})
                 ratingTag.insert(0,NavigableString('%s%s <br/>' % (star_string,empty_stars)))
@@ -1095,6 +1081,18 @@ class EPUB_MOBI(CatalogPlugin):
             aTag['name'] = "bytitle"
             body.insert(btc, aTag)
             btc += 1
+
+            '''
+            # We don't need this because the Kindle shows section titles
+            #<h2><a name="byalphatitle" id="byalphatitle"></a>By Title</h2>
+            h2Tag = Tag(soup, "h2")
+            aTag = Tag(soup, "a")
+            aTag['name'] = "bytitle"
+            h2Tag.insert(0,aTag)
+            h2Tag.insert(1,NavigableString('By Title (%d)' % len(self.booksByTitle)))
+            body.insert(btc,h2Tag)
+            btc += 1
+            '''
 
             # <p class="letter_index">
             # <p class="book_title">
@@ -1189,6 +1187,18 @@ class EPUB_MOBI(CatalogPlugin):
             aTag['name'] = anchor_name.replace(" ","")
             body.insert(btc, aTag)
             btc += 1
+            '''
+            # We don't need this because the kindle inserts section titles
+            #<h2><a name="byalphaauthor" id="byalphaauthor"></a>By Author</h2>
+            h2Tag = Tag(soup, "h2")
+            aTag = Tag(soup, "a")
+            anchor_name = friendly_name.lower()
+            aTag['name'] = anchor_name.replace(" ","")
+            h2Tag.insert(0,aTag)
+            h2Tag.insert(1,NavigableString('%s' % friendly_name))
+            body.insert(btc,h2Tag)
+            btc += 1
+            '''
 
             # <p class="letter_index">
             # <p class="author_index">
@@ -1465,7 +1475,7 @@ class EPUB_MOBI(CatalogPlugin):
             mtc = 0
 
             titleTag = Tag(soup, "dc:title")
-            titleTag.insert(0,self.title + self.title)
+            titleTag.insert(0,self.title)
             metadata.insert(mtc, titleTag)
             mtc += 1
 
@@ -1660,9 +1670,7 @@ class EPUB_MOBI(CatalogPlugin):
                 contentTag['src'] = "content/book_%d.html#book%d" % (int(book['id']), int(book['id']))
                 navPointVolumeTag.insert(1, contentTag)
 
-                if self.opts.fmt == 'mobi' and \
-                   self.opts.output_profile and \
-                   self.opts.output_profile.startswith("kindle"):
+                if self.generateForKindle:
                     # Add the author tag
                     cmTag = Tag(ncx_soup, '%s' % 'calibre:meta')
                     cmTag['name'] = "author"
@@ -1686,7 +1694,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             self.ncxSoup = ncx_soup
 
-        def generateNCXByTitle(self, tocTitle, single_article_per_section=True):
+        def generateNCXByTitle(self, tocTitle):
 
             if self.verbose:
                 print self.updateProgressFullStep("generateNCXByTitle()")
@@ -1705,7 +1713,6 @@ class EPUB_MOBI(CatalogPlugin):
             self.playOrder += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
-        #    textTag.insert(0, NavigableString("By Title (%d)" % len(sorted_titles)))
             textTag.insert(0, NavigableString(tocTitle))
             navLabelTag.insert(0, textTag)
             nptc = 0
@@ -1717,82 +1724,56 @@ class EPUB_MOBI(CatalogPlugin):
             nptc += 1
 
             books_by_letter = []
-            if single_article_per_section:
-                # Create a single article for all books in this section
-                # THIS CODE NEEDS TO BE REVIEWED FOR .upper()
-                single_list = []
-                for book in self.booksByTitle:
-                    single_list.append(book)
-                if len(single_list) > 1:
-                    short_description = '%s -\n%s' % (single_list[0]['title'], single_list[-1]['title'])
+
+            # Loop over the titles, find start of each letter, add description_preview_count books
+            current_letter = self.booksByTitle[0]['title_sort'][0].upper()
+            title_letters = [current_letter]
+            current_book_list = []
+            current_book = ""
+            for book in self.booksByTitle:
+                if book['title_sort'][0].upper() != current_letter:
+                    # Save the old list
+                    book_list = " &bull; ".join(current_book_list)
+                    short_description = self.generateShortDescription(self.formatNCXText(book_list))
+                    books_by_letter.append(short_description)
+
+                    # Start the new list
+                    current_letter = book['title_sort'][0].upper()
+                    title_letters.append(current_letter)
+                    current_book = book['title']
+                    current_book_list = [book['title']]
                 else:
-                    short_description = '%s' % (single_list[0]['title'])
-
-                books_by_letter.append(short_description)
-
-            else:
-                # Loop over the titles, find start of each letter, add description_preview_count books
-                current_letter = self.booksByTitle[0]['title_sort'][0].upper()
-                title_letters = [current_letter]
-                current_book_list = []
-                current_book = ""
-                for book in self.booksByTitle:
-                    if book['title_sort'][0].upper() != current_letter:
-                        # Save the old list
-                        book_list = " &bull; ".join(current_book_list)
-                        short_description = self.generateShortDescription(self.formatNCXText(book_list))
-                        books_by_letter.append(short_description)
-
-                        # Start the new list
-                        current_letter = book['title_sort'][0].upper()
-                        title_letters.append(current_letter)
+                    if len(current_book_list) < self.descriptionClip and \
+                       book['title'] != current_book :
                         current_book = book['title']
-                        current_book_list = [book['title']]
-                    else:
-                        if len(current_book_list) < self.descriptionClip and \
-                           book['title'] != current_book :
-                            current_book = book['title']
-                            current_book_list.append(book['title'])
+                        current_book_list.append(book['title'])
 
-                # Add the last book list
-                book_list = " &bull; ".join(current_book_list)
-                short_description = self.generateShortDescription(self.formatNCXText(book_list))
-                books_by_letter.append(short_description)
+            # Add the last book list
+            book_list = " &bull; ".join(current_book_list)
+            short_description = self.generateShortDescription(self.formatNCXText(book_list))
+            books_by_letter.append(short_description)
 
 
             # Add *article* entries for each populated title letter
             for (i,books) in enumerate(books_by_letter):
                 navPointByLetterTag = Tag(soup, 'navPoint')
                 navPointByLetterTag['class'] = "article"
-                if not single_article_per_section:
-                    navPointByLetterTag['id'] = "%sTitles-ID" % (title_letters[i].upper())
+                navPointByLetterTag['id'] = "%sTitles-ID" % (title_letters[i].upper())
                 navPointTag['playOrder'] = self.playOrder
-                #print "generateNCXByTitle(article '%s'): self.playOrder: %d" % (title_letters[i].upper(), self.playOrder)
                 self.playOrder += 1
                 navLabelTag = Tag(soup, 'navLabel')
                 textTag = Tag(soup, 'text')
-                if single_article_per_section:
-                    textTag.insert(0, NavigableString("All books sorted by title"))
-                else:
-                    textTag.insert(0, NavigableString("Books beginning with '%s'" % (title_letters[i].upper())))
+                textTag.insert(0, NavigableString("Books beginning with '%s'" % (title_letters[i].upper())))
                 navLabelTag.insert(0, textTag)
                 navPointByLetterTag.insert(0,navLabelTag)
                 contentTag = Tag(soup, 'content')
-                if single_article_per_section:
-                    contentTag['src'] = "content/%s.html#bytitle" % (output)
-                else:
-                    contentTag['src'] = "content/%s.html#%stitles" % (output, title_letters[i].upper())
+                contentTag['src'] = "content/%s.html#%stitles" % (output, title_letters[i].upper())
                 navPointByLetterTag.insert(1,contentTag)
 
-                if self.opts.fmt == 'mobi' and \
-                   self.opts.output_profile and \
-                   self.opts.output_profile.startswith("kindle"):
+                if self.generateForKindle:
                     cmTag = Tag(soup, '%s' % 'calibre:meta')
                     cmTag['name'] = "description"
-                    if single_article_per_section:
-                        cmTag.insert(0, NavigableString(self.formatNCXText(books_by_letter[0])))
-                    else:
-                        cmTag.insert(0, NavigableString(self.formatNCXText(books)))
+                    cmTag.insert(0, NavigableString(self.formatNCXText(books)))
                     navPointByLetterTag.insert(2, cmTag)
 
                 navPointTag.insert(nptc, navPointByLetterTag)
@@ -1804,7 +1785,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             self.ncxSoup = soup
 
-        def generateNCXByAuthor(self, tocTitle, single_article_per_section=True):
+        def generateNCXByAuthor(self, tocTitle):
 
             if self.verbose:
                 print self.updateProgressFullStep("generateNCXByAuthor()")
@@ -1817,14 +1798,10 @@ class EPUB_MOBI(CatalogPlugin):
             # --- Construct the 'Books By Author' *section* ---
             navPointTag = Tag(soup, 'navPoint')
             navPointTag['class'] = "section"
-            if single_article_per_section:
-                file_ID = "byauthor"
-            else:
-                file_ID = "%s" % tocTitle.lower()
-                file_ID = file_ID.replace(" ","")
+            file_ID = "%s" % tocTitle.lower()
+            file_ID = file_ID.replace(" ","")
             navPointTag['id'] = "%s-ID" % file_ID
             navPointTag['playOrder'] = self.playOrder
-            #print "generateNCXByAuthor(section '%s'): self.playOrder: %d" % (tocTitle, self.playOrder)            
             self.playOrder += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
@@ -1838,84 +1815,64 @@ class EPUB_MOBI(CatalogPlugin):
             navPointTag.insert(nptc, contentTag)
             nptc += 1
 
-            if single_article_per_section:
-                # Create a single article for all authors in this section
-                # THIS CODE NEEDS TO BE REVIEWED FOR .upper()
+            # Create an NCX article entry for each populated author index letter
+            # Loop over the sorted_authors list, find start of each letter, 
+            # add description_preview_count artists
+            # self.authors[0]:friendly [1]:author_sort [2]:book_count
+            master_author_list = []
+            # self.authors[0][1][0] = Initial letter of author_sort[0]
+            current_letter = self.authors[0][1][0]
+            current_author_list = []
+            for author in self.authors:
+                if author[1][0] != current_letter:
+                    # Save the old list
+                    author_list = " &bull; ".join(current_author_list)
+                    if len(current_author_list) == self.descriptionClip:
+                        author_list += " &hellip;"
 
-                # Build a formatted author range for article preview
-                single_list = []
-                for author in self.authors:
-                    single_list.append(author[0])
+                    author_list = self.formatNCXText(author_list)
+                    if self.verbose:
+                        print " adding '%s' to master_author_list" % current_letter
+                    master_author_list.append((author_list, current_letter))
 
-                if len(single_list) > 1:
-                    author_list = '%s -\n%s' % (single_list[0], single_list[-1])
+                    # Start the new list
+                    current_letter = author[1][0]
+                    current_author_list = [author[0]]
                 else:
-                    author_list = '%s' % (single_list[0])
-                master_author_list=[(author_list, self.authors[0][1][0])]
+                    if len(current_author_list) < self.descriptionClip:
+                        current_author_list.append(author[0])
 
-            else:
-                # Create an article for each populated author index letter
-                # Loop over the sorted_authors list, find start of each letter, add description_preview_count artists
-                # sorted_authors[0]:friendly [1]:author_sort [2]:book_count
-                master_author_list = []
-                current_letter = self.authors[0][1][0].upper()
-                current_author_list = []
-                for author in self.authors:
-                    if author[1][0] != current_letter:
-                        # Save the old list
-                        author_list = " &bull; ".join(current_author_list)
-                        if len(current_author_list) == self.descriptionClip:
-                            author_list += " &hellip;"
-
-                        author_list = self.formatNCXText(author_list)
-                        master_author_list.append((author_list, current_letter))
-
-                        # Start the new list
-                        current_letter = author[1][0].upper()
-                        current_author_list = [author[0]]
-                    else:
-                        if len(current_author_list) < self.descriptionClip:
-                            current_author_list.append(author[0])
-
-                # Add the last author list
-                author_list = " &bull; ".join(current_author_list)
-                if len(current_author_list) == self.descriptionClip:
-                    author_list += " &hellip;"
-                author_list = self.formatNCXText(author_list)
-                master_author_list.append((author_list, current_letter))
+            # Add the last author list
+            author_list = " &bull; ".join(current_author_list)
+            if len(current_author_list) == self.descriptionClip:
+                author_list += " &hellip;"
+            author_list = self.formatNCXText(author_list)
+            if self.verbose:
+                print " adding '%s' to master_author_list" % current_letter
+            master_author_list.append((author_list, current_letter))
 
             # Add *article* entries for each populated author initial letter
-            # master_author_list[0] = friendly, [1] = sort letter
-            for authors in master_author_list:
+            # master_author_list{}: [0]:author list [1]:Initial letter
+            for authors_by_letter in master_author_list:
                 navPointByLetterTag = Tag(soup, 'navPoint')
                 navPointByLetterTag['class'] = "article"
-                navPointByLetterTag['id'] = "%sauthors-ID" % (authors[1].upper())
+                navPointByLetterTag['id'] = "%sauthors-ID" % (authors_by_letter[1])
                 navPointTag['playOrder'] = self.playOrder
-                #print "generateNCXByAuthor(article '%s'): self.playOrder: %d" % (authors[1].upper(), self.playOrder)
                 self.playOrder += 1
                 navLabelTag = Tag(soup, 'navLabel')
                 textTag = Tag(soup, 'text')
-                if single_article_per_section:
-                    textTag.insert(0, NavigableString("All books sorted by author"))
-                else:
-                    textTag.insert(0, NavigableString("Authors beginning with '%s'" % (authors[1].upper())))
+                textTag.insert(0, NavigableString("Authors beginning with '%s'" % (authors_by_letter[1])))
                 navLabelTag.insert(0, textTag)
                 navPointByLetterTag.insert(0,navLabelTag)
                 contentTag = Tag(soup, 'content')
-
-                if single_article_per_section:
-                    contentTag['src'] = "%s#byauthor" % HTML_file
-                else:
-                    contentTag['src'] = "%s#%sauthors" % (HTML_file, authors[1].upper())
+                contentTag['src'] = "%s#%sauthors" % (HTML_file, authors_by_letter[1])
 
                 navPointByLetterTag.insert(1,contentTag)
                 
-                if self.opts.fmt == 'mobi' and \
-                   self.opts.output_profile and \
-                   self.opts.output_profile.startswith("kindle"):
+                if self.generateForKindle:
                     cmTag = Tag(soup, '%s' % 'calibre:meta')
                     cmTag['name'] = "description"
-                    cmTag.insert(0, NavigableString(authors[0]))
+                    cmTag.insert(0, NavigableString(authors_by_letter[0]))
                     navPointByLetterTag.insert(2, cmTag)
 
                 navPointTag.insert(nptc, navPointByLetterTag)
@@ -1981,9 +1938,7 @@ class EPUB_MOBI(CatalogPlugin):
                 contentTag['src'] = "content/Genre%s.html#Genre%s" % (genre_name, genre_name)
                 navPointVolumeTag.insert(1, contentTag)
 
-                if self.opts.fmt == 'mobi' and \
-                   self.opts.output_profile and \
-                   self.opts.output_profile.startswith("kindle"):
+                if self.generateForKindle:
                     # Build the author tag
                     cmTag = Tag(ncx_soup, '%s' % 'calibre:meta')
                     cmTag['name'] = "author"
@@ -2028,12 +1983,6 @@ class EPUB_MOBI(CatalogPlugin):
             btc += 1
 
             self.ncxSoup = ncx_soup
-
-        def writeDatabaseSnapshot(self):
-            # Pickle the current databaseSnapshot
-            pickleFile = open(os.path.join(self.fetchLibraryPath(),self.__dbs_fname),'w')
-            pickle.dump(self.databaseSnapshot,pickleFile)
-            pickleFile.close()
 
         def writeNCX(self):
 
@@ -2105,14 +2054,6 @@ class EPUB_MOBI(CatalogPlugin):
             if not os.path.isdir(images_path):
                 #if self.verbose: print " creating %s" % images_path
                 os.makedirs(images_path)
-
-        def fetchDatabaseSnapshot(self,filename):
-            # Return the current database snapshot
-            fs = os.path.join(self.fetchLibraryPath(),filename)
-            if os.path.exists(fs):
-                return pickle.load(open(fs))
-            else:
-                return {}
 
         def fetchLibraryPath(self):
             # Return a path to the current library
@@ -2474,11 +2415,9 @@ class EPUB_MOBI(CatalogPlugin):
 
         # Add local options
         opts.creator = "calibre"
-        opts.dbs_fname = "CatalogSnapshot.dat"
         opts.descriptionClip = 250
         opts.basename = "Catalog"
         opts.plugin_path = self.plugin_path
-        print " - - - - - begin clip here - - - - - "
 
         if opts.verbose:
             opts_dict = vars(opts)
@@ -2504,7 +2443,6 @@ class EPUB_MOBI(CatalogPlugin):
         catalog.createDirectoryStructure()
         catalog.copyResources()
         catalog.buildSources()
-        print " - - - - - end clip here - - - - - "
 
         recommendations = []
 
