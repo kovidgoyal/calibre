@@ -18,38 +18,11 @@ class Font(object):
         self.color = spec.get('color')
         self.family = spec.get('family')
 
-class Column(object):
-
-    # A column contains an element is the element bulges out to
-    # the left or the right by at most HFUZZ*col width.
-    HFUZZ = 0.2
+class Element(object):
 
     def __init__(self):
-        self.left = self.right = self.top = self.bottom = 0
-        self.width = self.height = 0
-        self.elements = []
-
-    def add(self, elem):
-        if elem in self.elements: return
-        self.elements.append(elem)
-        self.elements.sort(cmp=lambda x,y:cmp(x.bottom,y.bottom))
-        self.top = self.elements[0].top
-        self.bottom = self.elements[-1].bottom
-        self.left, self.right = sys.maxint, 0
-        for x in self:
-            self.left = min(self.left, x.left)
-            self.right = max(self.right, x.right)
-        self.width, self.height = self.right-self.left, self.bottom-self.top
-
-    def __iter__(self):
-        for x in self.elements:
-            yield x
-
-    def contains(self, elem):
-        return elem.left > self.left - self.HFUZZ*self.width and \
-               elem.right < self.right + self.HFUZZ*self.width
-
-class Element(object):
+        self.starts_block = None
+        self.block_style = None
 
     def __eq__(self, other):
         return self.id == other.id
@@ -60,6 +33,7 @@ class Element(object):
 class Image(Element):
 
     def __init__(self, img, opts, log, idc):
+        Element.__init__(self)
         self.opts, self.log = opts, log
         self.id = idc.next()
         self.top, self.left, self.width, self.height, self.iwidth, self.iheight = \
@@ -71,6 +45,7 @@ class Image(Element):
 class Text(Element):
 
     def __init__(self, text, font_map, opts, log, idc):
+        Element.__init__(self)
         self.id = idc.next()
         self.opts, self.log = opts, log
         self.font_map = font_map
@@ -140,20 +115,78 @@ class Interval(object):
     def __hash__(self):
         return hash('(%f,%f)'%self.left, self.right)
 
+class Column(object):
+
+    # A column contains an element is the element bulges out to
+    # the left or the right by at most HFUZZ*col width.
+    HFUZZ = 0.2
+
+
+    def __init__(self):
+        self.left = self.right = self.top = self.bottom = 0
+        self.width = self.height = 0
+        self.elements = []
+        self.average_line_separation = 0
+
+    def add(self, elem):
+        if elem in self.elements: return
+        self.elements.append(elem)
+        self.elements.sort(cmp=lambda x,y:cmp(x.bottom,y.bottom))
+        self.top = self.elements[0].top
+        self.bottom = self.elements[-1].bottom
+        self.left, self.right = sys.maxint, 0
+        for x in self:
+            self.left = min(self.left, x.left)
+            self.right = max(self.right, x.right)
+        self.width, self.height = self.right-self.left, self.bottom-self.top
+
+    def __iter__(self):
+        for x in self.elements:
+            yield x
+
+    def contains(self, elem):
+        return elem.left > self.left - self.HFUZZ*self.width and \
+               elem.right < self.right + self.HFUZZ*self.width
+
+    def collect_stats(self):
+        if len(self.elements) > 1:
+            gaps = [self.elements[i+1].top - self.elements[i].bottom for i in
+                    range(len(0, len(self.elements)-1))]
+            self.average_line_separation = sum(gaps)/len(gaps)
+        for i, elem in enumerate(self.elements):
+            left_margin = elem.left - self.left
+            elem.indent_fraction = left_margin/self.width
+            elem.width_fraction = elem.width/self.width
+            if i == 0:
+                elem.top_gap = None
+            else:
+                elem.top_gap = self.elements[i-1].bottom - elem.top
+
+    def previous_element(self, idx):
+        if idx == 0:
+            return None
+        return self.elements[idx-1]
+
+
+
+
 class Region(object):
 
     def __init__(self):
         self.columns = []
         self.top = self.bottom = self.left = self.right = self.width = self.height = 0
 
-    def add_columns(self, columns):
+    def add(self, columns):
         if not self.columns:
             for x in sorted(columns, cmp=lambda x,y: cmp(x.left, y.left)):
                 self.columns.append(x)
         else:
-           pass
+            for i in range(len(columns)):
+                for elem in columns[i]:
+                    self.columns[i].add(elem)
 
     def contains(self, columns):
+        # TODO: handle unbalanced columns
         if not self.columns:
             return True
         if len(columns) != len(self.columns):
@@ -168,6 +201,26 @@ class Region(object):
                 return False
         return True
 
+    @property
+    def is_empty(self):
+        return len(self.elements) == 0
+
+    def collect_stats(self):
+        for column in self.columns:
+            column.collect_stats()
+        self.average_line_separation = sum([x.average_line_separation for x in
+            self.columns])/float(len(self.columns))
+
+    def __iter__(self):
+        for x in self.columns:
+            yield x
+
+    def linearize(self):
+        self.elements = []
+        for x in self.columns:
+            self.elements.extend(x)
+
+
 class Page(object):
 
     # Fraction of a character width that two strings have to be apart,
@@ -178,6 +231,8 @@ class Page(object):
     # for them to be considered to be part of the same text fragment
     LINE_FACTOR = 0.4
 
+    # Multiplies the average line height when determining row height
+    # of a particular element to detect columns.
     YFUZZ = 1.5
 
 
@@ -242,19 +297,25 @@ class Page(object):
                 self.texts.remove(match)
 
     def first_pass(self):
+        'Sort page into regions and columns'
         self.regions = []
         if not self.elements:
             return
         for i, x in enumerate(self.elements):
             x.idx = i
-        self.current_region = None
+        current_region = Region()
         processed = set([])
         for x in self.elements:
             if x in processed: continue
             elems = set(self.find_elements_in_row_of(x))
             columns = self.sort_into_columns(x, elems)
             processed.update(elems)
-            columns
+            if not current_region.contains(columns):
+                self.regions.append(self.current_region)
+                current_region = Region()
+            current_region.add(columns)
+        if not self.current_region.is_empty():
+            self.regions.append(current_region)
 
     def sort_into_columns(self, elem, neighbors):
         columns = [Column()]
@@ -274,7 +335,7 @@ class Page(object):
 
     def find_elements_in_row_of(self, x):
         interval = Interval(x.top,
-                x.top + self.YFUZZ*(1+self.average_text_height))
+                x.top + self.YFUZZ*(self.average_text_height))
         h_interval = Interval(x.left, x.right)
         for y in self.elements[x.idx:x.idx+15]:
             if y is not x:
@@ -284,6 +345,12 @@ class Page(object):
                     0.5*self.average_text_height and \
                     x_interval.intersection(h_interval).width <= 0:
                     yield y
+
+    def second_pass(self):
+        'Locate paragraph boundaries in each column'
+        for region in self.regions:
+            region.collect_stats()
+            region.linearize()
 
 
 class PDFDocument(object):
@@ -314,6 +381,7 @@ class PDFDocument(object):
         for page in self.pages:
             page.document_font_stats = self.font_size_stats
             page.first_pass()
+            page.second_pass()
 
     def collect_font_statistics(self):
         self.font_size_stats = {}

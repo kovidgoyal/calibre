@@ -522,7 +522,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             from calibre.ebooks.metadata import MetaInformation
             mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
             mi.author_sort = 'Schember, John'
-            mi.comments = "A guide to get you up an running with calibre"
+            mi.comments = "A guide to get you up and running with calibre"
             mi.publisher = 'calibre'
             self.library_view.model().add_books([P('quick_start.epub')], ['epub'],
                     [mi])

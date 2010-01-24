@@ -112,6 +112,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
         format_args['title'] = mi.title
     if mi.authors:
         format_args['authors'] = mi.format_authors()
+        format_args['author'] = format_args['authors']
     if mi.author_sort:
         format_args['author_sort'] = mi.author_sort
     if mi.tags:
