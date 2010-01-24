@@ -1410,7 +1410,6 @@ class EPUB_MOBI(CatalogPlugin):
                     else:
                         #if verbose: print "generating new thumbnail for %s" % title['title']
                         self.generateThumbnail(title, image_dir, thumb_file)
-
                 else:
                     # Use default cover
                     if self.verbose: print "no cover available for %s, will use default" % \
