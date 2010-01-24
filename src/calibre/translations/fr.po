@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-01-23 00:18+0000\n"
-"PO-Revision-Date: 2010-01-22 18:22+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-01-23 06:39+0000\n"
+"Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-23 04:42+0000\n"
+"X-Launchpad-Export-Date: 2010-01-24 04:49+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -2818,7 +2818,7 @@ msgstr "Sauvegardé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
-msgstr ""
+msgstr "Options CSV/XML"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:18
@@ -2885,23 +2885,23 @@ msgstr "Formulaire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:37
 msgid "Fields to include in output:"
-msgstr ""
+msgstr "Champs à inclure en sortie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:17
 msgid "E-book Options"
-msgstr ""
+msgstr "Options E-book"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:52
 msgid "Tags to exclude as genres (regex):"
-msgstr ""
+msgstr "Etiquettes pour exclure les genres (regex):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:53
 msgid "'Don't include this book' tag:"
-msgstr ""
+msgstr "Etiquette 'Ne pas inclure ce livre':"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:54
 msgid "'Mark this book as read' tag:"
-msgstr ""
+msgstr "Etiquette 'Marquer ce livre comme lu':"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:55
 msgid "Additional note tag prefix:"
@@ -6501,7 +6501,7 @@ msgstr "Convertir par lot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:360
 msgid "Create catalog of books in your calibre library"
-msgstr ""
+msgstr "Créer le catalogue des livres dans votre librairie calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:376
 msgid "Run welcome wizard"
@@ -6528,7 +6528,7 @@ msgstr "Choisir un emplacement pour votre librairie d'ebook"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:523
 msgid "Calibre Quick Start Guide"
-msgstr ""
+msgstr "Guide De Démarrage Rapide Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:703
 msgid "Browse by covers"
@@ -6755,11 +6755,11 @@ msgstr "Catalogue généré."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1406
 msgid "Export Catalog Directory"
-msgstr ""
+msgstr "Répertoire d'export du catalogue"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1407
 msgid "Select destination for %s.%s"
-msgstr ""
+msgstr "Sélectionner la destination pour %s.%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1421
 msgid "Fetching news from "

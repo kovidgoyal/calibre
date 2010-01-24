@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-23 00:18+0000\n"
-"PO-Revision-Date: 2010-01-22 18:21+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-01-23 06:54+0000\n"
+"Last-Translator: Marc van den Dikkenberg <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-23 04:42+0000\n"
+"X-Launchpad-Export-Date: 2010-01-24 04:49+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:340
@@ -2796,7 +2796,7 @@ msgstr "Opgeslagen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
-msgstr ""
+msgstr "CSV/XML Opties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:18
@@ -2863,31 +2863,31 @@ msgstr "Formulier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:37
 msgid "Fields to include in output:"
-msgstr ""
+msgstr "Velden te gebruiken in uitvoer:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:17
 msgid "E-book Options"
-msgstr ""
+msgstr "E-Boek Opties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:52
 msgid "Tags to exclude as genres (regex):"
-msgstr ""
+msgstr "Labels te vermeiden als genres (reguliere expressie):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:53
 msgid "'Don't include this book' tag:"
-msgstr ""
+msgstr "'Gebruik dit boek niet' label:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:54
 msgid "'Mark this book as read' tag:"
-msgstr ""
+msgstr "'Markeer dit boek als gelezen' label:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:55
 msgid "Additional note tag prefix:"
-msgstr ""
+msgstr "Overige notities label prefix:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:28
 msgid "Tab template for catalog.ui"
-msgstr ""
+msgstr "Tab sjabloon voor catalog.ui"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:36
 msgid ""
@@ -4037,7 +4037,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:735
 msgid "Sending catalogs to device."
-msgstr ""
+msgstr "Verstuur catalogus naar apparaat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:796
 msgid "Sending news to device."
@@ -4113,33 +4113,35 @@ msgstr "&Volgende"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:37
 msgid "My Books"
-msgstr ""
+msgstr "Mijn Boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:67
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:262
 msgid "Generate catalog"
-msgstr ""
+msgstr "Genereer Catalogus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:68
 msgid "Catalog &format:"
-msgstr ""
+msgstr "Catalogic &formaat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:69
 msgid ""
 "Catalog &title (existing catalog with the same title will be replaced):"
 msgstr ""
+"Catalogus &titel (bestaande catalogus met dezelfde titel zal worden "
+"vervangen):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:70
 msgid "&Send catalog to device automatically"
-msgstr ""
+msgstr "&Verstuur catalogus automatisch naar apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:71
 msgid "Catalog options"
-msgstr ""
+msgstr "Catalogus opties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:72
 msgid "Generate catalog for {0} books"
-msgstr ""
+msgstr "Genereer catalogus voor {0} boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:40
 msgid "Choose Format"
@@ -6458,7 +6460,7 @@ msgstr "Converteer Groep"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:360
 msgid "Create catalog of books in your calibre library"
-msgstr ""
+msgstr "Maak catalogus van boeken in je calibre bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:376
 msgid "Run welcome wizard"
@@ -6485,7 +6487,7 @@ msgstr "Kies een locatie voor de eboek  bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:523
 msgid "Calibre Quick Start Guide"
-msgstr ""
+msgstr "Calibre snelstart handboek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:703
 msgid "Browse by covers"
@@ -6700,23 +6702,23 @@ msgstr "Klik de 'laat details zien' knop om te zien welke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1375
 msgid "No books selected to generate catalog for"
-msgstr ""
+msgstr "Geen boeken geselecteerd voor catalogus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1392
 msgid "Generating %s catalog..."
-msgstr ""
+msgstr "Genereren %s catalogus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1403
 msgid "Catalog generated."
-msgstr ""
+msgstr "Catalogus aangemaakt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1406
 msgid "Export Catalog Directory"
-msgstr ""
+msgstr "Exporteer Catalogus Folder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1407
 msgid "Select destination for %s.%s"
-msgstr ""
+msgstr "Selecteer uitvoer voor %s.%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1421
 msgid "Fetching news from "
@@ -7010,6 +7012,7 @@ msgstr "Standaard &taal voor regelafbreking"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:173
 msgid "&Resize images larger than the viewer window (needs restart)"
 msgstr ""
+"He&rschaal afbeeldingen groter dan het viewer scherm (herstart benodigd)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:174
 msgid "&User stylesheet"
@@ -7055,7 +7058,7 @@ msgstr "Maximale breedte van het viewer venster, in pixels."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:46
 msgid "Resize images larger than the viewer window to fit inside it"
-msgstr ""
+msgstr "Herschaal afbeeldingen groter van viewer scherm zodat deze passen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:47
 msgid "Hyphenate text"
@@ -7745,6 +7748,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"De velden voor de uitvoer van catalogus van boeken in de database. komma-"
+"gescheiden lijst met velden.\n"
+"Beschikbare velden: %s\n"
+"Standaard: '%%default'\n"
+"Betrekking tot: CSV, XML uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:43
 msgid ""
@@ -7764,6 +7772,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Titel van gegenereerde catalogus gebruikt als titel in metadata.\n"
+"Standaard: '%default'\n"
+"Betrekking tot: ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:244
 msgid ""
@@ -7771,6 +7782,10 @@ msgid ""
 "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Reguliere Expressie die de labels beschijft die worden uitgesloten als "
+"genres.\n"
+"Standaard: '%default'  uitgezonderd labels in haken, b.v. '[<label>]'\n"
+"Betrekking tot: ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:249
 msgid ""
@@ -7780,13 +7795,18 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Komma-gescheiden lijst van label woorden die aangeeft dat boek niet moet "
+"worden toegevoegd aan de uitvoer. Niet hoofdletter-gevoelig.\n"
+"--exclude-tags=skip will match 'skip this book' and 'Skip will like this'\n"
+"Standaard: '%default'\n"
+"Betrekking tot: ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:256
 msgid ""
 "Tag indicating book has been read.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
-msgstr ""
+msgstr "Label geeft aan dat boek gelezen is."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:261
 msgid ""
@@ -7794,6 +7814,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Label prefix voor gebruiker notities, bv. '*Misschien vindt Jeff dit een "
+"leuk boek'\n"
+"Standaard: '%standaard'\n"
+"Betrekking tot: ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:267
 msgid ""
@@ -7804,6 +7828,12 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Specifieer het uitvoer profiel. In sommige gevallen is een uitvoer profiel "
+"noodzakelijk om de catalogus te optimalizeren voor het apparaat. "
+"Bijvoorbeeld, 'kindle' of 'kindle_dx' maakt een gestructureerde "
+"inhoudsopgave aan met secties en artikelen.\n"
+"Standaard: '%default'\n"
+"Betrekking tot: ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:121
 msgid ""
@@ -8118,6 +8148,9 @@ msgid ""
 "If declared, --search is ignored.\n"
 "Default: all"
 msgstr ""
+"Komma-gescheiden lijst met database ID's om te catalogiseren.\n"
+"Indien gebruikt, dan zal --search worden genegeerd.\n"
+"Standaard: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:652
 msgid ""
@@ -8125,6 +8158,9 @@ msgid ""
 "please see the search-related documentation in the User Manual.\n"
 "Default: no filtering"
 msgstr ""
+"Filter de resultaten bij de zoekopdracht. voor het formaat van de "
+"zoekopdracht,  zie de zoek functionaliteit in de gebruikers handleiding.\n"
+"Standaard: Geen filter"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:658
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
@@ -8160,7 +8196,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1416
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1429
 msgid "Catalog"
-msgstr ""
+msgstr "Catalogus"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1691
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
@@ -8458,7 +8494,7 @@ msgstr "Engels (Australië)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
 msgid "English (New Zealand)"
-msgstr ""
+msgstr "Engels (Nieuw Zeeland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "English (Canada)"
@@ -8486,7 +8522,7 @@ msgstr "Engels (Singapore)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 msgid "English (Yemen)"
-msgstr ""
+msgstr "Engels (Jemen)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "German (AT)"
