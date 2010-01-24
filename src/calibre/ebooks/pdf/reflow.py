@@ -40,6 +40,8 @@ class Image(Element):
           map(float, map(img.get, ('top', 'left', 'rwidth', 'rheight', 'iwidth',
               'iheight')))
         self.src = img.get('src')
+        self.bottom = self.top + self.height
+        self.right = self.left + self.width
 
 
 class Text(Element):
@@ -151,7 +153,7 @@ class Column(object):
     def collect_stats(self):
         if len(self.elements) > 1:
             gaps = [self.elements[i+1].top - self.elements[i].bottom for i in
-                    range(len(0, len(self.elements)-1))]
+                    range(0, len(self.elements)-1)]
             self.average_line_separation = sum(gaps)/len(gaps)
         for i, elem in enumerate(self.elements):
             left_margin = elem.left - self.left
@@ -203,7 +205,7 @@ class Region(object):
 
     @property
     def is_empty(self):
-        return len(self.elements) == 0
+        return len(self.columns) == 0
 
     def collect_stats(self):
         for column in self.columns:
@@ -311,10 +313,10 @@ class Page(object):
             columns = self.sort_into_columns(x, elems)
             processed.update(elems)
             if not current_region.contains(columns):
-                self.regions.append(self.current_region)
+                self.regions.append(current_region)
                 current_region = Region()
             current_region.add(columns)
-        if not self.current_region.is_empty():
+        if not current_region.is_empty:
             self.regions.append(current_region)
 
     def sort_into_columns(self, elem, neighbors):
