@@ -10,11 +10,18 @@ from calibre import strftime
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
+def decode(self, src):
+    enc = 'utf-8'
+    if 'iso-8859-1' in src:
+        enc = 'cp1252'
+    return src.decode(enc, 'ignore')
+
 class NYTimes(BasicNewsRecipe):
 
     title       = 'The New York Times (subscription)'
     __author__  = 'Kovid Goyal'
     language = 'en'
+    requires_version = (0, 6, 36)
 
     description = 'Daily news from the New York Times (subscription version)'
     timefmt  = ' [%a, %b %d, %Y]'
@@ -27,7 +34,7 @@ class NYTimes(BasicNewsRecipe):
                        'side_tool', 'side_index',
                        'relatedArticles', 'relatedTopics', 'adxSponLink']),
                    dict(name=['script', 'noscript', 'style'])]
-    #encoding = 'cp1252'
+    encoding = decode
     no_stylesheets = True
     extra_css = 'h1 {font: sans-serif large;}\n.byline {font:monospace;}'
 

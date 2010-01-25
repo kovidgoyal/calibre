@@ -111,7 +111,9 @@ class BasicNewsRecipe(Recipe):
 
     #: Specify an override encoding for sites that have an incorrect
     #: charset specification. The most common being specifying ``latin1`` and
-    #: using ``cp1252``. If None, try to detect the encoding.
+    #: using ``cp1252``. If None, try to detect the encoding. If it is a
+    #: callable, the callable is called with two arguments: The recipe object
+    #: and the source to be decoded. It must return the decoded source.
     encoding               = None
 
     #: Normally we try to guess if a feed has full articles embedded in it
