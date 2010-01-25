@@ -3,15 +3,11 @@ import os, re, shutil, htmlentitydefs
 from collections import namedtuple
 from xml.sax.saxutils import escape
 
-from PyQt4.Qt import *
-
 from calibre import filesystem_encoding
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.customize.conversion import OptionRecommendation, DummyReporter
-from calibre import filesystem_encoding, prints
 from calibre.utils.logging import Log
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
@@ -512,7 +508,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.__verbose = opts.verbose
 
             self.opts.log.info("CatalogBuilder(): Generating %s %s"% \
-                                (self.opts.fmt, 
+                                (self.opts.fmt,
                                  "for %s" % self.opts.output_profile if self.opts.output_profile \
                                   else ''))
         # Accessors
@@ -912,7 +908,7 @@ class EPUB_MOBI(CatalogPlugin):
                     if author[0] == current_author[0]:
                         self.opts.log.warn("Warning: multiple entries for Author '%s' with differing Author Sort metadata:" % author[0])
                         self.opts.log.warn(" '%s' != '%s'" % (author[1], current_author[1]))
-                    
+
                     # New author, save the previous author/sort/count
                     unique_authors.append((current_author[0], current_author[1].title(),
                                            books_by_current_author))
@@ -933,8 +929,8 @@ class EPUB_MOBI(CatalogPlugin):
             if False and self.verbose:
                 self.opts.log.info("\nfetchBooksByauthor(): %d unique authors" % len(unique_authors))
                 for author in unique_authors:
-                    self.opts.log.info((u" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],  
-                       author[2])).encode('utf-8'))               
+                    self.opts.log.info((u" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],
+                       author[2])).encode('utf-8'))
             self.authors = unique_authors
 
         def generateHTMLDescriptions(self):
@@ -977,7 +973,7 @@ class EPUB_MOBI(CatalogPlugin):
                 authorTag.insert(1, aTag)
 
                 '''
-                # Insert the unlinked genres.  
+                # Insert the unlinked genres.
                 if 'tags' in title:
                     tagsTag = body.find(attrs={'class':'tags'})
                     emTag = Tag(soup,"em")
@@ -1404,7 +1400,7 @@ class EPUB_MOBI(CatalogPlugin):
                         self.generateThumbnail(title, image_dir, thumb_file)
                 else:
                     # Use default cover
-                    if self.verbose: 
+                    if self.verbose:
                         self.opts.log.warn(" using default cover for '%s'" % \
                         (title['title']))
                     # Check to make sure default is current
@@ -2282,8 +2278,6 @@ class EPUB_MOBI(CatalogPlugin):
             # The 21-Day Consciousness Cleanse
 
             title_words = title.split(' ')
-            if title_words[0].lower() in ['the','a','an']:
-                stop_word = title_words.pop(0)
 
             # Scan for numbers in each word clump
             translated = []
