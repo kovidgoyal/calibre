@@ -6,7 +6,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag,
 from calibre.customize import CatalogPlugin
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
-from calibre import filesystem_encoding
+from calibre import filesystem_encoding, prints
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
@@ -511,7 +511,8 @@ class EPUB_MOBI(CatalogPlugin):
             self.__verbose = opts.verbose
 
             if self.verbose:
-                print "CatalogBuilder(): Generating %s for %s" % (self.opts.fmt, self.opts.output_profile)
+                prints( "CatalogBuilder(): Generating %s for %s" %
+                        (self.opts.fmt, self.opts.output_profile))
 
         # Accessors
         '''
@@ -800,7 +801,7 @@ class EPUB_MOBI(CatalogPlugin):
         def fetchBooksByTitle(self):
 
             if self.verbose:
-                print self.updateProgressFullStep("fetchBooksByTitle()")
+                prints( self.updateProgressFullStep("fetchBooksByTitle()"))
 
             # Get the database as a dictionary
             # Sort by title
@@ -878,16 +879,17 @@ class EPUB_MOBI(CatalogPlugin):
             self.booksByTitle = sorted(titles,
                                  key=lambda x:(x['title_sort'].upper(), x['title_sort'].upper()))
             if self.verbose:
-                print "fetchBooksByTitle(): %d books" % len(self.booksByTitle)
+                prints( "fetchBooksByTitle(): %d books" %
+                        len(self.booksByTitle))
                 for title in self.booksByTitle:
-                    print (u" %-50s %-25s" % (title['title'][0:45], title['title_sort'][0:20])).encode('utf-8')
+                    prints (u" %-50s %-25s" % (title['title'][0:45], title['title_sort'][0:20]))
                 print
 
         def fetchBooksByAuthor(self):
             # Generate a list of titles sorted by author from the database
 
             if self.verbose:
-                print self.updateProgressFullStep("fetchBooksByAuthor()")
+                prints( self.updateProgressFullStep("fetchBooksByAuthor()"))
 
             # Sort titles case-insensitive
             self.booksByAuthor = sorted(self.booksByTitle,
@@ -927,10 +929,11 @@ class EPUB_MOBI(CatalogPlugin):
                                        books_by_current_author))
 
             if self.verbose:
-                print "\nfetchBooksByauthor(): %d unique authors" % len(unique_authors)
+                prints( "\nfetchBooksByauthor(): %d unique authors" %
+                        len(unique_authors))
                 for author in unique_authors:
-                    print (u" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],
-                       author[2])).encode('utf-8')
+                    prints (u" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],
+                       author[2]))
                 print
 
             self.authors = unique_authors
@@ -938,11 +941,13 @@ class EPUB_MOBI(CatalogPlugin):
         def generateHTMLDescriptions(self):
             # Write each title to a separate HTML file in contentdir
             if self.verbose:
-                print self.updateProgressFullStep("generateHTMLDescriptions()")
+                prints(
+                        self.updateProgressFullStep("generateHTMLDescriptions()"))
 
             for (title_num, title) in enumerate(self.booksByTitle):
                 if False:
-                    print "%3s: %s - %s" % (title['id'], title['title'], title['author'])
+                    prints( u"%3s: %s - %s" % (title['id'], title['title'],
+                        title['author']))
 
                 self.updateProgressMicroStep("generating book descriptions ...",
                         float(title_num*100/len(self.booksByTitle))/100)
@@ -1066,7 +1071,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Write books by title A-Z to HTML file
 
             if self.verbose:
-                print self.updateProgressFullStep("generateHTMLByTitle()")
+                prints( self.updateProgressFullStep("generateHTMLByTitle()"))
 
             soup = self.generateHTMLEmptyHeader("Books By Alpha Title")
             body = soup.find('body')
@@ -1169,7 +1174,7 @@ class EPUB_MOBI(CatalogPlugin):
         def generateHTMLByAuthor(self):
             # Write books by author A-Z
             if self.verbose:
-                print self.updateProgressFullStep("generateHTMLByAuthor()")
+                prints( self.updateProgressFullStep("generateHTMLByAuthor()"))
             friendly_name = "By Author"
 
             soup = self.generateHTMLEmptyHeader(friendly_name)
@@ -1301,7 +1306,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Note that special tags - ~+*[] -  have already been filtered from books[]
 
             if self.verbose:
-                print self.updateProgressFullStep("generateHTMLByTags()")
+                prints( self.updateProgressFullStep("generateHTMLByTags()"))
 
             # Filter out REMOVE_TAGS, sort
             filtered_tags = self.filterDbTags(self.db.all_tags())
@@ -1309,13 +1314,13 @@ class EPUB_MOBI(CatalogPlugin):
             # Extract books matching filtered_tags
             genre_list = []
             for tag in filtered_tags:
-                if False : print "searching for %s" % tag
+                if False : prints( u"searching for %s" % tag)
                 tag_list = {}
                 tag_list['tag'] = tag
                 tag_list['books'] = []
                 for book in self.booksByAuthor:
                     if 'tags' in book and tag in book['tags']:
-                        if False: print "\t %s" % (book['title'])
+                        if False: prints (u"\t %s" % (book['title']))
                         this_book = {}
                         this_book['author'] = book['author']
                         this_book['title'] = book['title']
@@ -1332,7 +1337,7 @@ class EPUB_MOBI(CatalogPlugin):
             # genre_list = [ [tag_list], [tag_list] ...]
             master_genre_list = []
             for (index, genre) in enumerate(genre_list):
-                if False : print "genre: %s" % genre['tag']
+                if False : prints( u"genre: %s" % genre['tag'])
 
                 # Create sorted_authors[0] = friendly, [1] = author_sort for NCX creation
                 authors = []
@@ -1381,7 +1386,7 @@ class EPUB_MOBI(CatalogPlugin):
             # If a cover doesn't exist, use default
             # Return list of active thumbs
             if self.verbose:
-                print self.updateProgressFullStep("generateThumbnails()")
+                prints( self.updateProgressFullStep("generateThumbnails()"))
 
             thumbs = ['thumbnail_default.jpg']
 
@@ -1414,8 +1419,8 @@ class EPUB_MOBI(CatalogPlugin):
                         self.generateThumbnail(title, image_dir, thumb_file)
                 else:
                     # Use default cover
-                    if self.verbose: print "no cover available for %s, will use default" % \
-                        (title['title'])
+                    if self.verbose: prints( u"no cover available for %s, will use default" % \
+                        (title['title']))
                     # Check to make sure default is current
                     # Check to see if thumbnail exists
                     thumb_fp = "%s/thumbnail_default.jpg" % (image_dir)
@@ -1423,16 +1428,21 @@ class EPUB_MOBI(CatalogPlugin):
 
                     # Init Qt for image conversion
                     from calibre.gui2 import is_ok_to_use_qt
-                    is_ok_to_use_qt()
-                    from PyQt4.QtGui import QImage
+                    if is_ok_to_use_qt():
+                        from PyQt4.Qt import QImage, QColor, QPainter, Qt
 
-                    # I() fetches path to resource, e.g. I('book.svg') returns:
-                    # /Applications/calibre.app/Contents/Resources/resources/images/book.svg
-                    # Convert .svg to .jpg
-                    default_cover = I('book.svg')
-                    cover_img = QImage()
-                    cover_img.load(default_cover)
-                    cover_img.save(cover, "PNG", -1)
+                        # Convert .svg to .jpg
+                        cover_img = QImage(I('book.svg'))
+                        i = QImage(cover_img.size(),
+                                QImage.Format_ARGB32_Premultiplied)
+                        i.fill(QColor(Qt.white).rgb())
+                        p = QPainter(i)
+                        p.drawImage(0, 0, cover_img)
+                        p.end()
+                        i.save(cover)
+                    else:
+                        if not os.path.exists(cover):
+                            shutil.copyfile(I('library.png'), cover)
 
                     if os.path.isfile(thumb_fp):
                         # Check to see if default cover is newer than thumbnail
@@ -1441,12 +1451,14 @@ class EPUB_MOBI(CatalogPlugin):
                         cover_timestamp = os.path.getmtime(cover)
                         thumb_timestamp = os.path.getmtime(thumb_fp)
                         if thumb_timestamp < cover_timestamp:
-                            if self.verbose: print "updating thumbnail_default for %s" % title['title']
+                            if self.verbose:
+                                prints( u"updating thumbnail_default for %s" % title['title'])
                             #title['cover'] = "%s/DefaultCover.jpg" % self.catalogPath
                             title['cover'] = cover
                             self.generateThumbnail(title, image_dir, "thumbnail_default.jpg")
                     else:
-                        if self.verbose: print "generating new thumbnail_default.jpg"
+                        if self.verbose:
+                            prints( "generating new thumbnail_default.jpg")
                         #title['cover'] = "%s/DefaultCover.jpg" % self.catalogPath
                         title['cover'] = cover
                         self.generateThumbnail(title, image_dir, "thumbnail_default.jpg")
@@ -1456,7 +1468,7 @@ class EPUB_MOBI(CatalogPlugin):
         def generateOPF(self):
 
             if self.verbose:
-                print self.updateProgressFullStep("generateOPF()")
+                prints( self.updateProgressFullStep("generateOPF()"))
 
             header = '''
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -1589,7 +1601,7 @@ class EPUB_MOBI(CatalogPlugin):
         def generateNCXHeader(self):
 
             if self.verbose:
-                print self.updateProgressFullStep("generateNCXHeader()")
+                prints( self.updateProgressFullStep("generateNCXHeader()"))
 
             header = '''
                 <?xml version="1.0" encoding="utf-8"?>
@@ -1627,7 +1639,7 @@ class EPUB_MOBI(CatalogPlugin):
         def generateNCXDescriptions(self, tocTitle):
 
             if self.verbose:
-                print self.updateProgressFullStep("generateNCXDescription()")
+                prints( self.updateProgressFullStep("generateNCXDescription()"))
 
             # --- Construct the 'Books by Title' section ---
             ncx_soup = self.ncxSoup
@@ -1698,7 +1710,7 @@ class EPUB_MOBI(CatalogPlugin):
         def generateNCXByTitle(self, tocTitle):
 
             if self.verbose:
-                print self.updateProgressFullStep("generateNCXByTitle()")
+                prints( self.updateProgressFullStep("generateNCXByTitle()"))
 
             soup = self.ncxSoup
             output = "ByAlphaTitle"
@@ -1789,7 +1801,7 @@ class EPUB_MOBI(CatalogPlugin):
         def generateNCXByAuthor(self, tocTitle):
 
             if self.verbose:
-                print self.updateProgressFullStep("generateNCXByAuthor()")
+                prints( self.updateProgressFullStep("generateNCXByAuthor()"))
 
             soup = self.ncxSoup
             HTML_file = "content/ByAlphaAuthor.html"
@@ -1833,7 +1845,8 @@ class EPUB_MOBI(CatalogPlugin):
 
                     author_list = self.formatNCXText(author_list)
                     if self.verbose:
-                        print " adding '%s' to master_author_list" % current_letter
+                        prints( u" adding '%s' to master_author_list" %
+                                current_letter)
                     master_author_list.append((author_list, current_letter))
 
                     # Start the new list
@@ -1849,7 +1862,7 @@ class EPUB_MOBI(CatalogPlugin):
                 author_list += " &hellip;"
             author_list = self.formatNCXText(author_list)
             if self.verbose:
-                print " adding '%s' to master_author_list" % current_letter
+                prints( u" adding '%s' to master_author_list" % current_letter)
             master_author_list.append((author_list, current_letter))
 
             # Add *article* entries for each populated author initial letter
@@ -1891,7 +1904,7 @@ class EPUB_MOBI(CatalogPlugin):
             # 'tag', 'file', 'authors'
 
             if self.verbose:
-                print self.updateProgressFullStep("generateNCXByTags()")
+                prints( self.updateProgressFullStep("generateNCXByTags()"))
 
             ncx_soup = self.ncxSoup
             body = ncx_soup.find("navPoint")
@@ -1988,7 +2001,7 @@ class EPUB_MOBI(CatalogPlugin):
         def writeNCX(self):
 
             if self.verbose:
-                print self.updateProgressFullStep("writeNCX()")
+                prints( self.updateProgressFullStep("writeNCX()"))
             outfile = open("%s/%s.ncx" % (self.catalogPath, self.basename), 'w')
             outfile.write(self.ncxSoup.prettify())
 
@@ -2352,11 +2365,12 @@ class EPUB_MOBI(CatalogPlugin):
                 # Read the cover
                 if not pw.MagickReadImage(img,
                         title['cover'].encode(filesystem_encoding)):
-                    print 'Failed to read cover image from: %s' % title['cover']
+                    prints( u'Failed to read cover image from: %s' %
+                            title['cover'])
                     raise IOError
                 thumb = pw.CloneMagickWand(img)
                 if thumb < 0:
-                    print 'generate_thumbnail(): Cannot clone cover'
+                    prints( 'generate_thumbnail(): Cannot clone cover')
                     raise RuntimeError
                 # img, width, height
                 pw.MagickThumbnailImage(thumb, 75, 100)
@@ -2364,9 +2378,11 @@ class EPUB_MOBI(CatalogPlugin):
                 pw.DestroyMagickWand(thumb)
                 pw.DestroyMagickWand(img)
             except IOError:
-                print "generate_thumbnail() IOError with %s" % title['title']
+                prints( u"generate_thumbnail() IOError with %s" %
+                        title['title'])
             except RuntimeError:
-                print "generate_thumbnail() RuntimeError with %s" % title['title']
+                prints( u"generate_thumbnail() RuntimeError with %s" %
+                        title['title'])
 
         def processSpecialTags(self, tags, this_title, opts):
             tag_list = []
@@ -2387,7 +2403,7 @@ class EPUB_MOBI(CatalogPlugin):
                 self.error = error
 
             def logerror(self):
-                print '%s not implemented' % self.error
+                prints( u'%s not implemented' % self.error)
 
         def updateProgressFullStep(self, description):
 
@@ -2395,7 +2411,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.progressString = description
             self.progressInt = float((self.current_step-1)/self.total_steps)
             self.reporter(self.progressInt/100., self.progressString)
-            return "%.2f%% %s" % (self.progressInt, self.progressString)
+            return u"%.2f%% %s" % (self.progressInt, self.progressString)
 
         def updateProgressMicroStep(self, description, micro_step_pct):
             step_range = 100/self.total_steps
@@ -2404,7 +2420,7 @@ class EPUB_MOBI(CatalogPlugin):
             fine_progress = float((micro_step_pct*step_range)/100)
             self.progressInt = coarse_progress + fine_progress
             self.reporter(self.progressInt/100., self.progressString)
-            return "%.2f%% %s" % (self.progressInt, self.progressString)
+            return u"%.2f%% %s" % (self.progressInt, self.progressString)
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
         from calibre.utils.logging import Log
