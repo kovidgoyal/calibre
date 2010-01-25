@@ -60,7 +60,7 @@ class ArsTechnica2(BasicNewsRecipe):
                   nurl = 'http://arstechnica.com' + atag['href']
                   rawc = self.index_to_soup(nurl,True)
                   soup2 = BeautifulSoup(rawc, fromEncoding=self.encoding)
- 
+
                   readmoretag = soup2.find('div', attrs={'class':'read-more-link'})
                   if readmoretag:
                      readmoretag.extract()
@@ -89,8 +89,4 @@ class ArsTechnica2(BasicNewsRecipe):
         self.append_page(soup, soup.body, 3)
 
         return soup
-
-    def get_article_url(self, article):
-        return article.get('feedburner_origlink',  None).rpartition('?')[0]
-
 

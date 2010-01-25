@@ -10,6 +10,8 @@ from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.customize.conversion import OptionRecommendation, DummyReporter
+from calibre import filesystem_encoding, prints
 from calibre.utils.logging import Log
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
@@ -464,7 +466,8 @@ class EPUB_MOBI(CatalogPlugin):
         # Used to xlate pubdate to friendly format
         MONTHS = ['January', 'February','March','April','May','June',
                       'July','August','September','October','November','December']
-
+        THUMB_WIDTH = 75
+        THUMB_HEIGHT = 100
 
         # basename              output file basename
         # creator               dc:creator in OPF metadata
@@ -974,7 +977,7 @@ class EPUB_MOBI(CatalogPlugin):
                 authorTag.insert(1, aTag)
 
                 '''
-                # Insert the unlinked tags.  Tags are not linked, just informative
+                # Insert the unlinked genres.  
                 if 'tags' in title:
                     tagsTag = body.find(attrs={'class':'tags'})
                     emTag = Tag(soup,"em")
@@ -982,7 +985,7 @@ class EPUB_MOBI(CatalogPlugin):
                     tagsTag.insert(0,emTag)
 
                 '''
-                # Insert tags with links to genre sections
+                # Insert linked genres
                 if 'tags' in title:
                     tagsTag = body.find(attrs={'class':'tags'})
                     ttc = 0
@@ -1014,6 +1017,7 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     imgTag['src']  = "../images/thumbnail_default.jpg"
                 imgTag['alt'] = "cover"
+                imgTag['style'] = 'width: %dpx; height:%dpx;' % (self.THUMB_WIDTH, self.THUMB_HEIGHT)
                 thumbnailTag = body.find(attrs={'class':'thumbnail'})
                 thumbnailTag.insert(0,imgTag)
 
@@ -1022,14 +1026,14 @@ class EPUB_MOBI(CatalogPlugin):
                 if 'publisher' in title:
                     publisherTag.insert(0,NavigableString(title['publisher'] + '<br/>' ))
                 else:
-                    publisherTag.insert(0,NavigableString('(unknown)<br/>'))
+                    publisherTag.insert(0,NavigableString('<br/>'))
 
                 # Insert the publication date
                 pubdateTag = body.find(attrs={'class':'date'})
                 if title['date'] is not None:
                     pubdateTag.insert(0,NavigableString(title['date'] + '<br/>'))
                 else:
-                    pubdateTag.insert(0,NavigableString('(unknown)<br/>'))
+                    pubdateTag.insert(0,NavigableString('<br/>'))
 
                 # Insert the rating
                 # Render different ratings chars for epub/mobi
@@ -1144,7 +1148,7 @@ class EPUB_MOBI(CatalogPlugin):
                 emTag = Tag(soup, "em")
                 aTag = Tag(soup, "a")
                 aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(book['author']))
-                aTag.insert(0, escape(book['author']))
+                aTag.insert(0, NavigableString(book['author']))
                 emTag.insert(0,aTag)
                 pBookTag.insert(ptc, emTag)
                 ptc += 1
@@ -1326,7 +1330,6 @@ class EPUB_MOBI(CatalogPlugin):
             # genre_list = [ [tag_list], [tag_list] ...]
             master_genre_list = []
             for (index, genre) in enumerate(genre_list):
-
                 # Create sorted_authors[0] = friendly, [1] = author_sort for NCX creation
                 authors = []
                 for book in genre['books']:
@@ -1372,7 +1375,6 @@ class EPUB_MOBI(CatalogPlugin):
             # Generate a thumbnail per cover.  If a current thumbnail exists, skip
             # If a cover doesn't exist, use default
             # Return list of active thumbs
-            self.opts.log.info(self.updateProgressFullStep("generateThumbnails()"))
 
             thumbs = ['thumbnail_default.jpg']
 
@@ -1413,37 +1415,40 @@ class EPUB_MOBI(CatalogPlugin):
                     # Init Qt for image conversion
                     from calibre.gui2 import is_ok_to_use_qt
                     if is_ok_to_use_qt():
-                        # Render default book image against white bg
-                        i = QImage(I('book.svg'))
-                        i2 = QImage(i.size(),QImage.Format_ARGB32_Premultiplied )
-                        i2.fill(QColor(Qt.white).rgb())
-                        p = QPainter()
-                        p.begin(i2)
-                        p.drawImage(0, 0, i)
+                        from PyQt4.Qt import QImage, QColor, QPainter, Qt
+
+                        # Convert .svg to .jpg
+                        cover_img = QImage(I('book.svg'))
+                        i = QImage(cover_img.size(),
+                                QImage.Format_ARGB32_Premultiplied)
+                        i.fill(QColor(Qt.white).rgb())
+                        p = QPainter(i)
+                        p.drawImage(0, 0, cover_img)
                         p.end()
-                        i2.save(cover, "PNG", -1)
-    
-                        if os.path.isfile(thumb_fp):
-                            # Check to see if default cover is newer than thumbnail
-                            # os.path.getmtime() = modified time
-                            # os.path.ctime() = creation time
-                            cover_timestamp = os.path.getmtime(cover)
-                            thumb_timestamp = os.path.getmtime(thumb_fp)
-                            if thumb_timestamp < cover_timestamp:
-                                if self.verbose: 
-                                    self.opts.log.info("updating thumbnail_default for %s" % title['title'])
-                                #title['cover'] = "%s/DefaultCover.jpg" % self.catalogPath
-                                title['cover'] = cover
-                                self.generateThumbnail(title, image_dir, "thumbnail_default.jpg")
-                        else:
-                            if self.verbose: 
-                                self.opts.log.info(" generating default cover thumbnail")
+                        i.save(cover)
+                    else:
+                        if not os.path.exists(cover):
+                            shutil.copyfile(I('library.png'), cover)
+
+                    if os.path.isfile(thumb_fp):
+                        # Check to see if default cover is newer than thumbnail
+                        # os.path.getmtime() = modified time
+                        # os.path.ctime() = creation time
+                        cover_timestamp = os.path.getmtime(cover)
+                        thumb_timestamp = os.path.getmtime(thumb_fp)
+                        if thumb_timestamp < cover_timestamp:
+                            if self.verbose:
+                                self.opts.log.warn("updating thumbnail_default for %s" % title['title'])
                             #title['cover'] = "%s/DefaultCover.jpg" % self.catalogPath
                             title['cover'] = cover
                             self.generateThumbnail(title, image_dir, "thumbnail_default.jpg")
                     else:
-                        self.opts.log.error("Not OK to use PyQt, can't create default thumbnail")
-                        
+                        if self.verbose:
+                            self.opts.log.warn(" generating new thumbnail_default.jpg")
+                        #title['cover'] = "%s/DefaultCover.jpg" % self.catalogPath
+                        title['cover'] = cover
+                        self.generateThumbnail(title, image_dir, "thumbnail_default.jpg")
+
             self.thumbs = thumbs
 
         def generateOPF(self):
@@ -2031,6 +2036,8 @@ class EPUB_MOBI(CatalogPlugin):
                     continue
                 if re.search(self.opts.exclude_genre, tag):
                     continue
+                if tag == ' ':
+                    continue
 
                 filtered_tags.append(tag)
 
@@ -2305,7 +2312,7 @@ class EPUB_MOBI(CatalogPlugin):
                     self.opts.log.error('generateThumbnail(): Cannot clone cover')
                     raise RuntimeError
                 # img, width, height
-                pw.MagickThumbnailImage(thumb, 75, 100)
+                pw.MagickThumbnailImage(thumb, self.THUMB_WIDTH, self.THUMB_HEIGHT)
                 pw.MagickWriteImage(thumb, os.path.join(image_dir, thumb_file))
                 pw.DestroyMagickWand(thumb)
                 pw.DestroyMagickWand(img)
@@ -2341,7 +2348,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.progressString = description
             self.progressInt = float((self.current_step-1)/self.total_steps)
             self.reporter(self.progressInt/100., self.progressString)
-            return "%.2f%% %s" % (self.progressInt, self.progressString)
+            return u"%.2f%% %s" % (self.progressInt, self.progressString)
 
         def updateProgressMicroStep(self, description, micro_step_pct):
             step_range = 100/self.total_steps
@@ -2350,7 +2357,7 @@ class EPUB_MOBI(CatalogPlugin):
             fine_progress = float((micro_step_pct*step_range)/100)
             self.progressInt = coarse_progress + fine_progress
             self.reporter(self.progressInt/100., self.progressString)
-            return "%.2f%% %s" % (self.progressInt, self.progressString)
+            return u"%.2f%% %s" % (self.progressInt, self.progressString)
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
 

@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from calibre.constants import islinux
+from calibre.constants import islinux, isosx
 
 class Notifier(object):
 
@@ -88,6 +88,37 @@ class QtNotifier(Notifier):
             self.systray.showMessage(summary, body, self.systray.Information,
                     timeout)
 
+class GrowlNotifier(Notifier):
+
+    notification_type = 'All notifications'
+
+    def __init__(self):
+        try:
+            import Growl
+            self.icon = Growl.Image.imageFromPath(I('notify.png'))
+            self.growl = Growl.GrowlNotifier(applicationName='calibre',
+                    applicationIcon=self.icon, notifications=[self.notification_type])
+            self.growl.register()
+            self.ok = True
+        except:
+            self.ok = False
+
+    def encode(self, msg):
+        if isinstance(msg, unicode):
+            msg = msg.encode('utf-8')
+        return msg
+
+    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
+        timeout, body, summary = self.get_msg_parms(timeout, body, summary)
+        if self.ok:
+            try:
+                self.growl.notify(self.notification_type, self.encode(summary),
+                        self.encode(body))
+            except:
+                import traceback
+                traceback.print_exc()
+
+
 def get_notifier(systray=None):
     ans = None
     if islinux:
@@ -96,6 +127,10 @@ def get_notifier(systray=None):
             ans = FDONotifier()
             if not ans.ok:
                 ans = None
+    if isosx:
+        ans = GrowlNotifier()
+        if not ans.ok:
+            ans = None
     if ans is None:
         ans = QtNotifier(systray)
         if not ans.ok:

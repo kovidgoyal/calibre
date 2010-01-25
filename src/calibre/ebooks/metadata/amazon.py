@@ -63,6 +63,7 @@ def get_social_metadata(title, authors, publisher, isbn):
             mi.tags = []
             for x in tags:
                 mi.tags.extend([y.strip() for y in x.split('/')])
+            mi.tags = [x.replace(',', ';') for x in mi.tags]
         comments = root.find('.//%s/%s'%(AWS('EditorialReview'),
             AWS('Content')))
         if comments is not None:

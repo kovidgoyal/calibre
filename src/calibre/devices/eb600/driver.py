@@ -173,3 +173,14 @@ class DBOOK(EB600):
     VENDOR_NAME = 'INFINITY'
     WINDOWS_MAIN_MEM = 'AIRIS_DBOOK'
     WINDOWS_CARD_A_MEM = 'AIRIS_DBOOK'
+
+class INVESBOOK(EB600):
+
+    name = 'Inves Book Device Interface'
+    gui_name = 'Inves Book 600'
+
+    FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'html', 'pdf', 'rtf', 'txt']
+
+    VENDOR_NAME = 'INVES_E6'
+    WINDOWS_MAIN_MEM = '00INVES_E600'
+    WINDOWS_CARD_A_MEM = '00INVES_E600'
