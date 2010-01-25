@@ -58,7 +58,7 @@ class JASN(BasicNewsRecipe):
     # To parse artice toc
     def parse_index(self):
             parse_soup = self.jasn_get_index()
-            
+
             div = parse_soup.find(id='tocBody')
 
             current_section = None
@@ -91,7 +91,7 @@ class JASN(BasicNewsRecipe):
                 feeds.append((current_section, current_articles))
 
             return feeds
-            
+
 
 
     def preprocess_html(self, soup):
@@ -112,4 +112,5 @@ class JASN(BasicNewsRecipe):
         return soup
 
 
-    
+
+
