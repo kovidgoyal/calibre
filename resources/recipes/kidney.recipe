@@ -15,13 +15,13 @@ class JASN(BasicNewsRecipe):
     remove_tags_before = dict(name='h2')
     #remove_tags_after  = dict(name='th', attrs={'align':'left'})
     remove_tags = [
-       dict(name='iframe'),
+        dict(name='iframe'),
        #dict(name='div', attrs={'class':'related-articles'}),
-       dict(name='td', attrs={'id':['jasnFooter']}),
-       dict(name='table', attrs={'id':"jasnNavBar"}),
-       dict(name='table', attrs={'class':'content_box_outer_table'}),
-       dict(name='th', attrs={'align':'left'})
-    ]
+        dict(name='td', attrs={'id':['jasnFooter']}),
+        dict(name='table', attrs={'id':"jasnNavBar"}),
+        dict(name='table', attrs={'class':'content_box_outer_table'}),
+        dict(name='th', attrs={'align':'left'})
+       ]
 
 
 
@@ -45,11 +45,53 @@ class JASN(BasicNewsRecipe):
             raise ValueError('Failed to log in, is your account expired?')
         return br
 
-    feeds          = [
-        ('JASN',
-        'http://jasn.asnjournals.org/rss/current.xml'),
-    ]
+    #feeds          = [
+        #('JASN',
+        #'http://jasn.asnjournals.org/rss/current.xml'),
+    #]
 
+
+    #TO GET ARTICLE TOC
+    def jasn_get_index(self):
+        return self.index_to_soup('http://jasn.asnjournals.org/current.shtml')
+
+    # To parse artice toc
+    def parse_index(self):
+            parse_soup = self.jasn_get_index()
+            
+            div = parse_soup.find(id='tocBody')
+
+            current_section = None
+            current_articles = []
+            feeds = []
+            for x in div.findAll(True):
+                if x.name == 'h2':
+                    # Section heading found
+                    if current_articles and current_section:
+                        feeds.append((current_section, current_articles))
+                    current_section = self.tag_to_string(x)
+                    current_articles = []
+                    self.log('\tFound section:', current_section)
+                if current_section is not None and x.name == 'strong':
+                    title = self.tag_to_string(x)
+                    a = x.parent.parent.find('a', href=lambda x: x and '/full/' in x)
+                    if a is None:
+                        continue
+                    url = a.get('href', False)
+                    if not url or not title:
+                        continue
+                    if url.startswith('/'):
+                        url = 'http://jasn.asnjournals.org'+url
+                    self.log('\t\tFound article:', title)
+                    self.log('\t\t\t', url)
+                    current_articles.append({'title': title, 'url':url,
+                        'description':'', 'date':''})
+
+            if current_articles and current_section:
+                feeds.append((current_section, current_articles))
+
+            return feeds
+            
 
 
     def preprocess_html(self, soup):
@@ -59,7 +101,7 @@ class JASN(BasicNewsRecipe):
             if not url:
                 continue
             if url.startswith('/'):
-                url = 'http://jasn.asnjournals.org/'+url
+                url = 'http://jasn.asnjournals.org'+url
                 isoup = self.index_to_soup(url)
                 img = isoup.find('img', src=lambda x: x and
                 x.startswith('/content/'))
@@ -70,4 +112,4 @@ class JASN(BasicNewsRecipe):
         return soup
 
 
-
+    
