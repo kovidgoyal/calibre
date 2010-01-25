@@ -143,7 +143,7 @@ class ResultList(list):
         except:
             report(verbose)
             tags = []
-        return tags
+        return [x.replace(',', ';') for x in tags]
 
     def get_publisher(self, entry, verbose):
         try:
