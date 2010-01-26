@@ -85,10 +85,18 @@ class QtNotifier(Notifier):
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
         if self.systray is not None:
-            if isosx and isinstance(body, unicode):
-                body = body.encode('utf-8')
-            self.systray.showMessage(summary, body, self.systray.Information,
-                    timeout)
+            hide = False
+            try:
+                if not isinstance(body, unicode):
+                    body = body.decode('utf-8')
+                if isosx and not self.systray.isVisible():
+                    self.systray.show()
+                    hide = True
+                self.systray.showMessage(summary, body, self.systray.Information,
+                        timeout)
+            finally:
+                if hide:
+                    self.systray.hide()
 
 class GrowlNotifier(Notifier):
 
