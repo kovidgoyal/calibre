@@ -338,7 +338,7 @@ class EPUB_MOBI(CatalogPlugin):
             elif hundredsComponent and tensComponent:
                 result = hundredsComponentString + " " + tensComponentString
             else:
-                prints(" NumberToText.stringFromInt(): empty result translating %d" % intToTranslate)                
+                prints(" NumberToText.stringFromInt(): empty result translating %d" % intToTranslate)
             return result
 
         def numberTranslate(self):
@@ -1879,7 +1879,7 @@ class EPUB_MOBI(CatalogPlugin):
             # 'tag', 'file', 'authors'
 
             self.opts.log.info(self.updateProgressFullStep("generateNCXByTags()"))
-            
+
             if not len(self.genres):
                 self.opts.log.warn(" No genres found in tags.\n"
                                    " No Genre section added to Catalog")
@@ -2296,18 +2296,21 @@ class EPUB_MOBI(CatalogPlugin):
             # Convert the actual title to a string suitable for sorting.
             # Convert numbers to strings, ignore leading stop words
             # The 21-Day Consciousness Cleanse
+            # Scan for numbers in each word clump.
+            from calibre.ebooks.metadata import title_sort
 
-            title_words = title.split(' ')
-
-            # Scan for numbers in each word clump
+            title_words = title_sort(title).split()
             translated = []
+
             for (i,word) in enumerate(title_words):
-                hit = re.search('[0-9]+',word)
-                if hit :
+                # Initial numbers translated to text equivalent
+                if i==0 and re.search('[0-9]+',word):
                     translated.append(EPUB_MOBI.NumberToText(word).text)
                 else:
+                    if re.search('[0-9]+',word):
+                        # Coerce standard-width strings for numbers
+                        word = '%03d' % int(re.sub('\D','',word))
                     translated.append(word)
-
             return ' '.join(translated)
 
         def generateThumbnail(self, title, image_dir, thumb_file):
