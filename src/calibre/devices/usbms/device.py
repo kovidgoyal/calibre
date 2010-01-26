@@ -808,6 +808,8 @@ class Device(DeviceConfig, DevicePlugin):
         ext = os.path.splitext(fname)[1]
 
         from calibre.library.save_to_disk import get_components
+        if not isinstance(template, unicode):
+            template = template.decode('utf-8')
         extra_components = get_components(template, mdata, fname)
         if not extra_components:
             extra_components.append(sanitize(self.filename_callback(fname,
