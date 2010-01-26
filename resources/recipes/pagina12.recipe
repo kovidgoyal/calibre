@@ -1,10 +1,12 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 pagina12.com.ar
 '''
 
+import time
+from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Pagina12(BasicNewsRecipe):
@@ -19,6 +21,8 @@ class Pagina12(BasicNewsRecipe):
     encoding              = 'cp1252'
     use_embedded_content  = False
     language              = 'es'
+    remove_empty_feeds    = True
+    extra_css             = ' body{font-family: sans-serif} '
 
     conversion_options = {
                           'comment'   : description
@@ -28,7 +32,7 @@ class Pagina12(BasicNewsRecipe):
                         }
 
     remove_tags = [dict(name='div', attrs={'id':['volver','logo','logo_suple','fin','permalink']})]
-
+    
 
     feeds = [
               (u'Edicion impresa', u'http://www.pagina12.com.ar/diario/rss/principal.xml'   )
@@ -47,3 +51,8 @@ class Pagina12(BasicNewsRecipe):
     def print_version(self, url):
         return url.replace('http://www.pagina12.com.ar/','http://www.pagina12.com.ar/imprimir/')
 
+    def get_cover_url(self):
+        imgnames = ['tapan.jpg','tapagn.jpg','tapan_gr.jpg','tapagn.jpg','tapagn.jpg','tapan.jpg','tapagn.jpg']
+        weekday = time.localtime().tm_wday
+        return strftime('http://www.pagina12.com.ar/fotos/%Y%m%d/diario/') + imgnames[weekday]
+        
