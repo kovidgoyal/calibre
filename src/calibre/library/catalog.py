@@ -3,7 +3,7 @@ import os, re, shutil, htmlentitydefs
 from collections import namedtuple
 from xml.sax.saxutils import escape
 
-from calibre import filesystem_encoding
+from calibre import filesystem_encoding, prints
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
@@ -330,13 +330,14 @@ class EPUB_MOBI(CatalogPlugin):
                     tensComponentString = "%s" % tensPart
 
             # Concatenate the results
+            result = ''
             if hundredsComponent and not tensComponent:
                 result = hundredsComponentString
             if not hundredsComponent and tensComponent:
                 result = tensComponentString
             if hundredsComponent and tensComponent:
                 result = hundredsComponentString + " " + tensComponentString
-
+            
             return result
 
         def numberTranslate(self):
@@ -837,7 +838,8 @@ class EPUB_MOBI(CatalogPlugin):
                 title = this_title['title'] = self.convertHTMLEntities(record['title'])
                 this_title['title_sort'] = self.generateSortTitle(title)
                 this_title['author'] = " &amp; ".join(record['authors'])
-                this_title['author_sort'] = record['author_sort']
+                this_title['author_sort'] = record['author_sort'] if len(record['author_sort']) \
+                                                                  else this_title['author']
                 this_title['id'] = record['id']
                 if record['publisher']:
                     this_title['publisher'] = re.sub('&', '&amp;', record['publisher'])
@@ -920,13 +922,13 @@ class EPUB_MOBI(CatalogPlugin):
                                            books_by_current_author))
                 else:
                     books_by_current_author += 1
+            else:
+                # Add final author to list or single-author dataset
+                if (current_author == author and len(authors) > 1) or not multiple_authors:
+                    unique_authors.append((current_author[0], current_author[1].title(),
+                                           books_by_current_author))
 
-            # Allow for single-author dataset
-            if not multiple_authors:
-                unique_authors.append((current_author[0], current_author[1].title(),
-                                       books_by_current_author))
-
-            if False and self.verbose:
+            if self.verbose:
                 self.opts.log.info("\nfetchBooksByauthor(): %d unique authors" % len(unique_authors))
                 for author in unique_authors:
                     self.opts.log.info((u" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],
@@ -1876,6 +1878,11 @@ class EPUB_MOBI(CatalogPlugin):
             # 'tag', 'file', 'authors'
 
             self.opts.log.info(self.updateProgressFullStep("generateNCXByTags()"))
+            
+            if not len(self.genres):
+                self.opts.log.warn(" No genres found in tags.\n"
+                                   " No Genre section added to Catalog")
+                return
 
             ncx_soup = self.ncxSoup
             body = ncx_soup.find("navPoint")
@@ -2048,6 +2055,10 @@ class EPUB_MOBI(CatalogPlugin):
                         filtered_tags.insert(1, (filtered_tags.pop(i)))
                     else:
                         continue
+            if self.verbose:
+                self.opts.log.info(' %d Genre tags in database (exclude_genre: %s):' % \
+                                     (len(filtered_tags), self.opts.exclude_genre))
+                self.opts.log.info(' %s' % ', '.join(filtered_tags))
 
             return filtered_tags
 
