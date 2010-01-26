@@ -840,7 +840,7 @@ class EPUB_MOBI(CatalogPlugin):
                 this_title['title_sort'] = self.generateSortTitle(title)
                 this_title['author'] = " &amp; ".join(record['authors'])
                 this_title['author_sort'] = record['author_sort'] if len(record['author_sort']) \
-                                                                  else this_title['author']
+                     else self.author_to_author_sort(this_title['author'])
                 this_title['id'] = record['id']
                 if record['publisher']:
                     this_title['publisher'] = re.sub('&', '&amp;', record['publisher'])
@@ -1983,6 +1983,14 @@ class EPUB_MOBI(CatalogPlugin):
             outfile.write(self.ncxSoup.prettify())
 
         # Helpers
+        def author_to_author_sort(self, author):
+            tokens = author.split()
+            tokens = tokens[-1:] + tokens[:-1]
+            if len(tokens) > 1:
+                tokens[0] += ','
+            return ' '.join(tokens)
+
+
         def convertHTMLEntities(self, s):
             matches = re.findall("&#\d+;", s)
             if len(matches) > 0:
