@@ -333,11 +333,12 @@ class EPUB_MOBI(CatalogPlugin):
             result = ''
             if hundredsComponent and not tensComponent:
                 result = hundredsComponentString
-            if not hundredsComponent and tensComponent:
+            elif not hundredsComponent and tensComponent:
                 result = tensComponentString
-            if hundredsComponent and tensComponent:
+            elif hundredsComponent and tensComponent:
                 result = hundredsComponentString + " " + tensComponentString
-            
+            else:
+                prints(" NumberToText.stringFromInt(): empty result translating %d" % intToTranslate)                
             return result
 
         def numberTranslate(self):
@@ -928,7 +929,7 @@ class EPUB_MOBI(CatalogPlugin):
                     unique_authors.append((current_author[0], current_author[1].title(),
                                            books_by_current_author))
 
-            if self.verbose:
+            if False and self.verbose:
                 self.opts.log.info("\nfetchBooksByauthor(): %d unique authors" % len(unique_authors))
                 for author in unique_authors:
                     self.opts.log.info((u" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],
