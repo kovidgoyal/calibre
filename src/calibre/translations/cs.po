@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-01-25 00:45+0000\n"
+"POT-Creation-Date: 2010-01-25 18:58+0000\n"
 "PO-Revision-Date: 2010-01-25 02:27+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-25 04:46+0000\n"
+"X-Launchpad-Export-Date: 2010-01-26 04:49+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1753,7 +1753,7 @@ msgstr "Publikováno"
 msgid "Rights"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:77
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:78
 msgid "EDITORIAL REVIEW"
 msgstr ""
 
@@ -2645,11 +2645,11 @@ msgid "Fields to include in output:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:17
-msgid "E-book Options"
+msgid "E-book options"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:20
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:259
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:256
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1416
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1430
 msgid "Catalog"
@@ -7281,14 +7281,14 @@ msgid ""
 "Applies to: CSV, XML output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:241
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:238
 msgid ""
 "Title of generated catalog used as title in metadata.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:247
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:244
 msgid ""
 "Save the output from different stages of the conversion pipeline to the "
 "specified directory. Useful if you are unsure at which stage of the "
@@ -7297,14 +7297,14 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:256
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:253
 msgid ""
 "Regex describing tags to exclude as genres.\n"
 "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:261
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:258
 msgid ""
 "Comma-separated list of tag words indicating book should be excluded from "
 "output.  Case-insensitive.\n"
@@ -7313,21 +7313,21 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:268
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:265
 msgid ""
 "Tag indicating book has been read.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:273
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:270
 msgid ""
 "Tag prefix for user notes, e.g. '*Jeff might enjoy reading this'.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:279
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:276
 msgid ""
 "Specifies the output profile.  In some cases, an output profile is required "
 "to optimize the catalog for the device.  For example, 'kindle' or "
@@ -7578,7 +7578,7 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:658
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:484
 msgid "Show detailed output information. Useful for debugging"
 msgstr ""
 "Zobrazit podrobné výstupní informace. Užitečné pro hledání chyb v programu"
@@ -7961,75 +7961,75 @@ msgstr ""
 msgid "Unknown News Source"
 msgstr "Neznámý zdroj zpráv"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:528
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:533
 msgid "The \"%s\" recipe needs a username and password."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:614
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:619
 msgid "Download finished"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:616
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:621
 msgid "Failed to download the following articles:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:622
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:627
 msgid "Failed to download parts of the following articles:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:624
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:629
 msgid " from "
 msgstr " od "
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:626
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:631
 msgid "\tFailed links:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:707
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:712
 msgid "Could not fetch article. Run with -vv to see the reason"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:728
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:733
 msgid "Fetching feeds..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:733
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:738
 msgid "Got feeds from index page"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:739
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:744
 msgid "Trying to download cover..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:797
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:802
 msgid "Starting download [%d thread(s)]..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:813
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:818
 msgid "Feeds downloaded to %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:823
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:828
 msgid "Could not download cover: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:835
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:840
 msgid "Downloading cover from %s"
 msgstr "Stahování obálky z %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:978
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:983
 msgid "Untitled Article"
 msgstr "Nepojmenovaný článek"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1049
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1054
 msgid "Article downloaded: %s"
 msgstr "Článek stažen: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1060
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1065
 msgid "Article download failed: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1077
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1082
 msgid "Fetching feed"
 msgstr ""
 
@@ -8048,7 +8048,7 @@ msgstr "Naplánováno"
 msgid "Custom"
 msgstr "uživatelský"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:459
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:461
 msgid ""
 "%prog URL\n"
 "\n"
@@ -8058,18 +8058,18 @@ msgstr ""
 "\n"
 "Kde URL je například http://google.com"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:462
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:464
 msgid "Base directory into which URL is saved. Default is %default"
 msgstr ""
 "Základní adresář, do kterého bude URL uloženo. Standardně je to %default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:465
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:467
 msgid ""
 "Timeout in seconds to wait for a response from the server. Default: %default "
 "s"
 msgstr "Časový limit čekání na odezvu ze serveru. Standardně: %default s"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:468
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:470
 msgid ""
 "Maximum number of levels to recurse i.e. depth of links to follow. Default "
 "%default"
@@ -8077,7 +8077,7 @@ msgstr ""
 "Maximání hloubka rekurze, t.j. počet úrovní odkazů, které se mají procházet. "
 "Standardně %default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:471
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:473
 msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
@@ -8085,13 +8085,13 @@ msgstr ""
 "Maximální počet stahovaných souborů. Tato hodnota se vztahuje na soubory v "
 "<a href> tagách. Standardně %default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:473
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:475
 msgid ""
 "Minimum interval in seconds between consecutive fetches. Default is %default "
 "s"
 msgstr "Minimální interval stahování v sekundách. Standatně %default s"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:475
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:477
 msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
@@ -8099,7 +8099,7 @@ msgstr ""
 "Kódování znaků použité na webových stránkách, které chcete stáhnout. "
 "Vevýchozím nastavení se program pokusí rozeznat kódování automaticky."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:477
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
 msgid ""
 "Only links that match this regular expression will be followed. This option "
 "can be specified multiple times, in which case as long as a link matches any "
@@ -8110,7 +8110,7 @@ msgstr ""
 "se shodují minimálně s jedním výrazem. Standardně budou následovány všechny "
 "odkazy."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:481
 msgid ""
 "Any link that matches this regular expression will be ignored. This option "
 "can be specified multiple times, in which case as long as any regexp matches "
@@ -8124,7 +8124,7 @@ msgstr ""
 "odkazy. V případě, že jsou použity obě mořnosti, --filter-regexp i --match-"
 "regexp bude --filter-regexp aplikován jako první."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:481
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:483
 msgid "Do not download CSS stylesheets."
 msgstr "Nestahovat kaskádové styly."
 

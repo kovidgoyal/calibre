@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-01-25 00:45+0000\n"
+"POT-Creation-Date: 2010-01-25 18:58+0000\n"
 "PO-Revision-Date: 2010-01-25 02:27+0000\n"
 "Last-Translator: Miro Glavić <glavicmiro@gmail.com>\n"
 "Language-Team: Croatian <hr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-25 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-01-26 04:50+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1795,7 +1795,7 @@ msgstr "Objavljeno"
 msgid "Rights"
 msgstr "Prava"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:77
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:78
 msgid "EDITORIAL REVIEW"
 msgstr "UREDNIČKI OSVRT"
 
@@ -2811,11 +2811,11 @@ msgid "Fields to include in output:"
 msgstr "Polja koja uključiti u izlazu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:17
-msgid "E-book Options"
+msgid "E-book options"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:20
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:259
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:256
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1416
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1430
 msgid "Catalog"
@@ -7639,14 +7639,14 @@ msgid ""
 "Applies to: CSV, XML output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:241
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:238
 msgid ""
 "Title of generated catalog used as title in metadata.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:247
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:244
 msgid ""
 "Save the output from different stages of the conversion pipeline to the "
 "specified directory. Useful if you are unsure at which stage of the "
@@ -7655,14 +7655,14 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:256
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:253
 msgid ""
 "Regex describing tags to exclude as genres.\n"
 "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:261
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:258
 msgid ""
 "Comma-separated list of tag words indicating book should be excluded from "
 "output.  Case-insensitive.\n"
@@ -7671,21 +7671,21 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:268
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:265
 msgid ""
 "Tag indicating book has been read.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:273
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:270
 msgid ""
 "Tag prefix for user notes, e.g. '*Jeff might enjoy reading this'.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:279
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:276
 msgid ""
 "Specifies the output profile.  In some cases, an output profile is required "
 "to optimize the catalog for the device.  For example, 'kindle' or "
@@ -8003,7 +8003,7 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:658
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:484
 msgid "Show detailed output information. Useful for debugging"
 msgstr "Prikaži detaljne izlazne podatke. Korisno kod otkrivanja grešaka."
 
@@ -8421,75 +8421,75 @@ msgstr ""
 msgid "Unknown News Source"
 msgstr "Nepoznat Izvor Vijesti"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:528
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:533
 msgid "The \"%s\" recipe needs a username and password."
 msgstr "\"%s\" recept treba korisničko ime i lozinku."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:614
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:619
 msgid "Download finished"
 msgstr "Skidanje završeno"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:616
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:621
 msgid "Failed to download the following articles:"
 msgstr "Neuspjelo skidanje slijedećih artikala:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:622
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:627
 msgid "Failed to download parts of the following articles:"
 msgstr "Neuspjelo skidanje dijelova slijedećih artikala:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:624
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:629
 msgid " from "
 msgstr " od "
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:626
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:631
 msgid "\tFailed links:"
 msgstr "\tNeuspjele veze:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:707
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:712
 msgid "Could not fetch article. Run with -vv to see the reason"
 msgstr "Nije moguće ugrabiti članak. Pokrenite s -w da vidite razlog."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:728
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:733
 msgid "Fetching feeds..."
 msgstr "Hvatanje dotoka..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:733
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:738
 msgid "Got feeds from index page"
 msgstr "Dobijeni dotoci sa indeks stranice"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:739
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:744
 msgid "Trying to download cover..."
 msgstr "Pokušaj skidanja omota..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:797
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:802
 msgid "Starting download [%d thread(s)]..."
 msgstr "Početak skidanja [%d thread(s)]..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:813
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:818
 msgid "Feeds downloaded to %s"
 msgstr "Dotoci skinuti na %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:823
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:828
 msgid "Could not download cover: %s"
 msgstr "Nemoguće skinuti omot: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:835
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:840
 msgid "Downloading cover from %s"
 msgstr "Skidanje omota sa %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:978
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:983
 msgid "Untitled Article"
 msgstr "Artikal bez naslova"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1049
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1054
 msgid "Article downloaded: %s"
 msgstr "Skinuti artikli: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1060
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1065
 msgid "Article download failed: %s"
 msgstr "Neuspjelo skidanje artikla: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1077
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1082
 msgid "Fetching feed"
 msgstr "Grabljenje dotoka"
 
@@ -8508,7 +8508,7 @@ msgstr "Rasporedjeno"
 msgid "Custom"
 msgstr "Prilagođeni"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:459
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:461
 msgid ""
 "%prog URL\n"
 "\n"
@@ -8518,11 +8518,11 @@ msgstr ""
 "\n"
 "Gdje URL je na primjer http://google.com"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:462
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:464
 msgid "Base directory into which URL is saved. Default is %default"
 msgstr "Osnovni direktorij u koji je URL pohranjen. Standardan je %default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:465
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:467
 msgid ""
 "Timeout in seconds to wait for a response from the server. Default: %default "
 "s"
@@ -8530,7 +8530,7 @@ msgstr ""
 "Zastoj u sekundama za čekanje na odgovor od poslužitelja. Standardno: "
 "%default s"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:468
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:470
 msgid ""
 "Maximum number of levels to recurse i.e. depth of links to follow. Default "
 "%default"
@@ -8538,7 +8538,7 @@ msgstr ""
 "Makismalan broj razina za suvrat, kao dubina veze za slijediti. Standardno "
 "%default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:471
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:473
 msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
@@ -8546,7 +8546,7 @@ msgstr ""
 "Maksimalan broj datoteka za skinuti. Ovo se samo odnosi na datoteke sa <a "
 "href> tagovima. Standardno je %default."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:473
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:475
 msgid ""
 "Minimum interval in seconds between consecutive fetches. Default is %default "
 "s"
@@ -8554,7 +8554,7 @@ msgstr ""
 "Minimalan razmak u sekundama između uzastopnih hvatanja. Standardan je "
 "%default s"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:475
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:477
 msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
@@ -8562,7 +8562,7 @@ msgstr ""
 "Šifriranje stranica koje pokušavate skinuti. Normalno je da probate "
 "odgonetnuti šifru."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:477
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
 msgid ""
 "Only links that match this regular expression will be followed. This option "
 "can be specified multiple times, in which case as long as a link matches any "
@@ -8572,7 +8572,7 @@ msgstr ""
 "može biti specificirana bezbroj puta, u kojem slučaju ako veza odgovara bilo "
 "kojem regexp, biće praćena. Standardno su sve veze praćene."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:481
 msgid ""
 "Any link that matches this regular expression will be ignored. This option "
 "can be specified multiple times, in which case as long as any regexp matches "
@@ -8586,7 +8586,7 @@ msgstr ""
 "ignorirana. Ako su oba --filter-regexp i --match-regexp specificirana, onda "
 "je --filter-regexp primijenjen prvi."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:481
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:483
 msgid "Do not download CSS stylesheets."
 msgstr "Ne skidaj CSS liste postavki"
 
