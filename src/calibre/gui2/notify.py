@@ -85,6 +85,8 @@ class QtNotifier(Notifier):
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
         if self.systray is not None:
+            if isosx and isinstance(body, unicode):
+                body = body.encode('utf-8')
             self.systray.showMessage(summary, body, self.systray.Information,
                     timeout)
 
@@ -127,10 +129,10 @@ def get_notifier(systray=None):
             ans = FDONotifier()
             if not ans.ok:
                 ans = None
-    if isosx:
-        ans = GrowlNotifier()
-        if not ans.ok:
-            ans = None
+    #if isosx:
+    #    ans = GrowlNotifier()
+    #    if not ans.ok:
+    #        ans = None
     if ans is None:
         ans = QtNotifier(systray)
         if not ans.ok:
