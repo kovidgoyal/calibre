@@ -32,7 +32,7 @@ class Pagina12(BasicNewsRecipe):
                         }
 
     remove_tags = [dict(name='div', attrs={'id':['volver','logo','logo_suple','fin','permalink']})]
-    
+
 
     feeds = [
               (u'Edicion impresa', u'http://www.pagina12.com.ar/diario/rss/principal.xml'   )
@@ -55,4 +55,4 @@ class Pagina12(BasicNewsRecipe):
         imgnames = ['tapan.jpg','tapagn.jpg','tapan_gr.jpg','tapagn.jpg','tapagn.jpg','tapan.jpg','tapagn.jpg']
         weekday = time.localtime().tm_wday
         return strftime('http://www.pagina12.com.ar/fotos/%Y%m%d/diario/') + imgnames[weekday]
-        
+
