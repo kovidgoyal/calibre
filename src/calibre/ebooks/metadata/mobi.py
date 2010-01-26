@@ -217,7 +217,7 @@ class MetadataUpdater(object):
         pad = '\0' * (4 - trail) # Always pad w/ at least 1 byte
         new_record0.write(pad)
 
-        self.hexdump(new_record0.getvalue())
+        #self.hexdump(new_record0.getvalue())
 
         # Rebuild the stream, update the pdbrecords pointers
         self.patchSection(0,new_record0.getvalue())
