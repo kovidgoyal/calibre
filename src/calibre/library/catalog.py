@@ -2297,23 +2297,20 @@ class EPUB_MOBI(CatalogPlugin):
             # Convert numbers to strings, ignore leading stop words
             # The 21-Day Consciousness Cleanse
             # Scan for numbers in each word clump.
+            from calibre.ebooks.metadata import title_sort
 
-            title_words = title.split()
-            stop_words = ['a','an','the']
+            title_words = title_sort(title).split()
             translated = []
 
-            # Remove the stop words
-            # GwR *** conform this with KG's stop word list
-            while title_words[0].lower() in stop_words:
-                stop_word = title_words.pop(0)
-
             for (i,word) in enumerate(title_words):
-                # Don't translate numeric content after first title word
+                # Initial numbers translated to text equivalent
                 if i==0 and re.search('[0-9]+',word):
                     translated.append(EPUB_MOBI.NumberToText(word).text)
                 else:
+                    if re.search('[0-9]+',word):
+                        # Coerce standard-width strings for numbers
+                        word = '%03d' % int(re.sub('\D','',word))
                     translated.append(word)
-
             return ' '.join(translated)
 
         def generateThumbnail(self, title, image_dir, thumb_file):
