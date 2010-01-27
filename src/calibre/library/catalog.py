@@ -305,6 +305,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def __init__(self, number):
             self.number = number
+            self.number_as_float = 0.0
             self.text = ''
             self.numberTranslate()
 
@@ -361,13 +362,20 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Test for time
             if re.search(':',self.number):
+                self.number_as_float = re.sub(':','.',self.number)
                 time_strings = self.number.split(":")
                 hours = EPUB_MOBI.NumberToText(time_strings[0]).text
                 minutes = EPUB_MOBI.NumberToText(time_strings[1]).text
                 self.text = '%s-%s' % (hours.capitalize(), minutes)
 
+            # Test for %
+            elif re.search('%', self.number):
+                self.number_as_float = self.number.split('%')[0]
+                self.text = EPUB_MOBI.NumberToText(self.number.replace('%',' percent')).text
+
             # Test for decimal
             elif re.search('\.',self.number):
+                self.number_as_float = self.number
                 decimal_strings = self.number.split(".")
                 left = EPUB_MOBI.NumberToText(decimal_strings[0]).text
                 right = EPUB_MOBI.NumberToText(decimal_strings[1]).text
@@ -375,6 +383,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Test for hypenated
             elif re.search('-', self.number):
+                self.number_as_float = self.number.split('-')[0]
                 strings = self.number.split('-')
                 if re.search('[0-9]+', strings[0]):
                     left = EPUB_MOBI.NumberToText(strings[0]).text
@@ -386,6 +395,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Test for comma
             elif re.search(',', self.number):
+                self.number_as_float = re.sub(',','',self.number)
                 self.text = EPUB_MOBI.NumberToText(self.number.replace(',','')).text
 
             # Test for hybrid e.g., 'K2'
@@ -400,6 +410,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             else:
                 try:
+                    self.float_as_number = float(self.number)
                     number = int(self.number)
                 except:
                     return
@@ -2305,7 +2316,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Ignore leading stop words
             # Optionally convert leading numbers to strings
             from calibre.ebooks.metadata import title_sort
-
+            # Strip stop words
             title_words = title_sort(title).split()
             translated = []
 
@@ -2315,9 +2326,19 @@ class EPUB_MOBI(CatalogPlugin):
                     if self.opts.numbers_as_text and re.search('[0-9]+',word):
                         translated.append(EPUB_MOBI.NumberToText(word).text.capitalize())
                     else:
+                        if re.search('-',word):
+                            # Split hyphenated words for sorting
+                            tokens = word.split('-')
+                            title_words[0] = tokens[0]
+                            title_words.insert(1,tokens[1])
                         if re.search('[0-9]+',word):
                             # Coerce standard-width strings for numbers for value sorting
-                            word = '%10.2f' % float(re.sub('[^\d\.]','',word))
+                            # Any non-digit is interpreted as a decimal point
+                            # word = '%10.2f' % float(re.sub('[^\d\.]','',word))
+                            try:
+                                word = '%10.2f' % float(re.sub('[^\d\.]','.',word))
+                            except:
+                                word = '%10.2f' % float(EPUB_MOBI.NumberToText(word).number_as_float)
                         translated.append(word)
                 else:
                     if re.search('[0-9]+',word):
