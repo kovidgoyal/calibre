@@ -18,8 +18,9 @@ class PluginWidget(QWidget,Ui_Form):
     HELP  = _('Options specific to')+' EPUB/MOBI '+_('output')
     OPTION_FIELDS = [('exclude_genre','\[[\w ]*\]'),
                      ('exclude_tags','~,'+_('Catalog')),
-                     ('read_tag','+'),
-                     ('note_tag','*')]
+                     ('note_tag','*'),
+                     ('numbers_as_text', False),
+                     ('read_tag','+')]
 
     # Output synced to the connected device?
     sync_enabled = True
@@ -33,21 +34,30 @@ class PluginWidget(QWidget,Ui_Form):
 
     def initialize(self, name):
         self.name = name
-        # Restore options from last use here
+        # Update dialog fields from stored options
         for opt in self.OPTION_FIELDS:
             opt_value = gprefs.get(self.name + '_' + opt[0], opt[1])
-            getattr(self, opt[0]).setText(opt_value)
+            if opt[0] == 'numbers_as_text':
+                getattr(self, opt[0]).setChecked(opt_value)
+            else:
+                getattr(self, opt[0]).setText(opt_value)
 
     def options(self):
         # Save/return the current options
+        # exclude_genre stores literally
+        # numbers_as_text stores as True/False
+        # others store as lists
         opts_dict = {}
         for opt in self.OPTION_FIELDS:
-            opt_value = unicode(getattr(self, opt[0]).text())
+            if opt[0] == 'numbers_as_text':
+                opt_value = getattr(self,opt[0]).isChecked()
+            else:
+                opt_value = unicode(getattr(self, opt[0]).text())
             gprefs.set(self.name + '_' + opt[0], opt_value)
-            if opt[0] != 'exclude_genre':
+            if opt[0] == 'exclude_genre' or 'numbers_as_text':
+                opts_dict[opt[0]] = opt_value
+            else:
                 opt_value = opt_value.split(',')
-            opts_dict[opt[0]] = opt_value
-
         opts_dict['output_profile'] = [load_defaults('page_setup')['output_profile']]
 
 

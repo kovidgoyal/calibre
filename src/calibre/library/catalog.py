@@ -87,7 +87,12 @@ class CSV_XML(CatalogPlugin):
                 outstr = ''
                 for (x, field) in enumerate(fields):
                     item = entry[field]
-                    if field in ['authors','tags','formats']:
+                    if field == 'formats':
+                        fmt_list = []
+                        for format in item:
+                            fmt_list.append(format.partition('.')[2])
+                        item = ', '.join(fmt_list)
+                    elif field in ['authors','tags']:
                         item = ', '.join(item)
                     if x < len(fields) - 1:
                         if item is not None:
@@ -259,15 +264,16 @@ class EPUB_MOBI(CatalogPlugin):
                           "--exclude-tags=skip will match 'skip this book' and 'Skip will like this'.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
-                   Option('--read-tag',
-                          default='+',
-                          dest='read_tag',
-                          help=_("Tag indicating book has been read.\n" "Default: '%default'\n"
-                          "Applies to: ePub, MOBI output formats")),
                    Option('--note-tag',
                           default='*',
                           dest='note_tag',
                           help=_("Tag prefix for user notes, e.g. '*Jeff might enjoy reading this'.\n"
+                          "Default: '%default'\n"
+                          "Applies to: ePub, MOBI output formats")),
+                   Option('--numbers-as-text',
+                          default=False,
+                          dest='numbers_as_text',
+                          help=_("Sort titles with leading numbers as text, e.g.,\n'2001: A Space Odyssey' sorts as \n'Two Thousand One: A Space Odyssey'.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--output-profile',
@@ -275,7 +281,12 @@ class EPUB_MOBI(CatalogPlugin):
                           dest='output_profile',
                           help=_("Specifies the output profile.  In some cases, an output profile is required to optimize the catalog for the device.  For example, 'kindle' or 'kindle_dx' creates a structured Table of Contents with Sections and Articles.\n"
                           "Default: '%default'\n"
-                          "Applies to: ePub, MOBI output formats"))
+                          "Applies to: ePub, MOBI output formats")),
+                   Option('--read-tag',
+                          default='+',
+                          dest='read_tag',
+                          help=_("Tag indicating book has been read.\n" "Default: '%default'\n"
+                          "Applies to: ePub, MOBI output formats")),
                           ]
 
     class NumberToText(object):
@@ -798,7 +809,6 @@ class EPUB_MOBI(CatalogPlugin):
                                     os.path.join(self.catalogPath, file[0]))
 
         def fetchBooksByTitle(self):
-
             self.opts.log.info(self.updateProgressFullStep("fetchBooksByTitle()"))
 
             # Get the database as a dictionary
@@ -1104,15 +1114,15 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Loop through the books by title
             for book in self.booksByTitle:
-                if book['title_sort'][0].upper() != current_letter :
+                if self.letter_or_symbol(book['title_sort'][0]) != current_letter :
                     # Start a new letter
-                    current_letter = book['title_sort'][0].upper()
+                    current_letter = self.letter_or_symbol(book['title_sort'][0])
                     pIndexTag = Tag(soup, "p")
                     pIndexTag['class'] = "letter_index"
                     aTag = Tag(soup, "a")
-                    aTag['name'] = "%stitles" % book['title_sort'][0].upper()
+                    aTag['name'] = "%s" % self.letter_or_symbol(book['title_sort'][0])
                     pIndexTag.insert(0,aTag)
-                    pIndexTag.insert(1,NavigableString(book['title_sort'][0].upper()))
+                    pIndexTag.insert(1,NavigableString(self.letter_or_symbol(book['title_sort'][0])))
                     divTag.insert(dtc,pIndexTag)
                     dtc += 1
 
@@ -1716,19 +1726,19 @@ class EPUB_MOBI(CatalogPlugin):
             books_by_letter = []
 
             # Loop over the titles, find start of each letter, add description_preview_count books
-            current_letter = self.booksByTitle[0]['title_sort'][0].upper()
+            current_letter = self.letter_or_symbol(self.booksByTitle[0]['title_sort'][0])
             title_letters = [current_letter]
             current_book_list = []
             current_book = ""
             for book in self.booksByTitle:
-                if book['title_sort'][0].upper() != current_letter:
+                if self.letter_or_symbol(book['title_sort'][0]) != current_letter:
                     # Save the old list
                     book_list = " &bull; ".join(current_book_list)
                     short_description = self.generateShortDescription(self.formatNCXText(book_list))
                     books_by_letter.append(short_description)
 
                     # Start the new list
-                    current_letter = book['title_sort'][0].upper()
+                    current_letter = self.letter_or_symbol(book['title_sort'][0])
                     title_letters.append(current_letter)
                     current_book = book['title']
                     current_book_list = [book['title']]
@@ -1743,7 +1753,6 @@ class EPUB_MOBI(CatalogPlugin):
             short_description = self.generateShortDescription(self.formatNCXText(book_list))
             books_by_letter.append(short_description)
 
-
             # Add *article* entries for each populated title letter
             for (i,books) in enumerate(books_by_letter):
                 navPointByLetterTag = Tag(soup, 'navPoint')
@@ -1753,11 +1762,11 @@ class EPUB_MOBI(CatalogPlugin):
                 self.playOrder += 1
                 navLabelTag = Tag(soup, 'navLabel')
                 textTag = Tag(soup, 'text')
-                textTag.insert(0, NavigableString("Books beginning with '%s'" % (title_letters[i].upper())))
+                textTag.insert(0, NavigableString("Titles beginning with %s" % (title_letters[i])))
                 navLabelTag.insert(0, textTag)
                 navPointByLetterTag.insert(0,navLabelTag)
                 contentTag = Tag(soup, 'content')
-                contentTag['src'] = "content/%s.html#%stitles" % (output, title_letters[i].upper())
+                contentTag['src'] = "content/%s.html#%s" % (output, title_letters[i])
                 navPointByLetterTag.insert(1,contentTag)
 
                 if self.generateForKindle:
@@ -1989,7 +1998,6 @@ class EPUB_MOBI(CatalogPlugin):
             if len(tokens) > 1:
                 tokens[0] += ','
             return ' '.join(tokens)
-
 
         def convertHTMLEntities(self, s):
             matches = re.findall("&#\d+;", s)
@@ -2294,22 +2302,24 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateSortTitle(self, title):
             # Convert the actual title to a string suitable for sorting.
-            # Convert numbers to strings, ignore leading stop words
-            # The 21-Day Consciousness Cleanse
-            # Scan for numbers in each word clump.
+            # Ignore leading stop words
+            # Optionally convert leading numbers to strings
             from calibre.ebooks.metadata import title_sort
 
             title_words = title_sort(title).split()
             translated = []
 
             for (i,word) in enumerate(title_words):
-                # Initial numbers translated to text equivalent
-                if i==0 and re.search('[0-9]+',word):
-                    translated.append(EPUB_MOBI.NumberToText(word).text)
+                # Leading numbers optionally translated to text equivalent
+                if i==0:
+                    if self.opts.numbers_as_text and re.search('[0-9]+',word):
+                        translated.append(EPUB_MOBI.NumberToText(word).text.capitalize())
+                    else:
+                        translated.append(word.capitalize())
                 else:
                     if re.search('[0-9]+',word):
                         # Coerce standard-width strings for numbers
-                        word = '%03d' % int(re.sub('\D','',word))
+                        word = '%10.2f' % float(re.sub('[^\d\.]','',word))
                     translated.append(word)
             return ' '.join(translated)
 
@@ -2337,6 +2347,12 @@ class EPUB_MOBI(CatalogPlugin):
                 self.opts.log.error("generateThumbnail(): IOError with %s" % title['title'])
             except RuntimeError:
                 self.opts.log.error("generateThumbnail(): RuntimeError with %s" % title['title'])
+
+        def letter_or_symbol(self,char):
+            if not re.search('[a-zA-Z]',char):
+                return 'Symbols'
+            else:
+                return char
 
         def processSpecialTags(self, tags, this_title, opts):
             tag_list = []
