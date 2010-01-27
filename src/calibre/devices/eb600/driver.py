@@ -154,7 +154,7 @@ class ECLICTO(EB600):
     name = 'eClicto Device Interface'
     gui_name = 'eClicto'
 
-    FORMATS = ['epub', 'pdf', 'txt']
+    FORMATS = ['epub', 'pdf', 'htm', 'html', 'txt']
 
     VENDOR_NAME = 'ECLICTO'
     WINDOWS_MAIN_MEM = 'EBOOK'

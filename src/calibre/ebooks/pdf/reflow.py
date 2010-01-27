@@ -170,6 +170,10 @@ class Column(object):
         return self.elements[idx-1]
 
 
+class Box(list):
+
+    def __init__(self, type='p'):
+        self.type = type
 
 
 class Region(object):
@@ -221,6 +225,10 @@ class Region(object):
         self.elements = []
         for x in self.columns:
             self.elements.extend(x)
+
+        # Find block quotes
+        indented = [i for (i, x) in enumerate(self.elements) if x.indent_fraction >= 0.2]
+
 
 
 class Page(object):

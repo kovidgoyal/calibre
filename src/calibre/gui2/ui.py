@@ -357,7 +357,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         cm.addAction(_('Bulk convert'))
         cm.addSeparator()
         ac = cm.addAction(
-                _('Create catalog'))
+                _('Create catalog of books in your calibre library'))
         ac.triggered.connect(self.generate_catalog)
         self.action_convert.setMenu(cm)
         self._convert_single_hook = partial(self.convert_ebook, bulk=False)
