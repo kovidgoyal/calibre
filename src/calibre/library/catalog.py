@@ -2315,7 +2315,10 @@ class EPUB_MOBI(CatalogPlugin):
                     if self.opts.numbers_as_text and re.search('[0-9]+',word):
                         translated.append(EPUB_MOBI.NumberToText(word).text.capitalize())
                     else:
-                        translated.append(word.capitalize())
+                        if re.search('[0-9]+',word):
+                            # Coerce standard-width strings for numbers for value sorting
+                            word = '%10.2f' % float(re.sub('[^\d\.]','',word))
+                        translated.append(word)
                 else:
                     if re.search('[0-9]+',word):
                         # Coerce standard-width strings for numbers
