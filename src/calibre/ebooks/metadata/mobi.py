@@ -91,6 +91,10 @@ class MetadataUpdater(object):
         self.stream = stream
         data = self.data = StreamSlicer(stream)
         self.type = data[60:68]
+
+        if self.type != "BOOKMOBI":
+            return
+
         self.nrecs, = unpack('>H', data[76:78])
         record0 = self.record0 = self.record(0)
         self.encryption_type, = unpack('>H', record0[12:14])
@@ -271,6 +275,11 @@ class MetadataUpdater(object):
         return StreamSlicer(self.stream, start, stop)
 
     def update(self, mi):
+        print "self.type: %s" % self.type
+        if self.type != "BOOKMOBI":
+                raise MobiError("Setting metadata only supported for MOBI files of type 'BOOK'.\n"
+                                "\tThis is a '%s' file of type '%s'" % (self.type[0:4], self.type[4:8]))
+
         recs = []
         try:
              from calibre.ebooks.conversion.config import load_defaults
