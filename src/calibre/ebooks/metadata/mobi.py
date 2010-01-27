@@ -275,7 +275,6 @@ class MetadataUpdater(object):
         return StreamSlicer(self.stream, start, stop)
 
     def update(self, mi):
-        #print "self.type: %s" % self.type
         if self.type != "BOOKMOBI":
                 raise MobiError("Setting metadata only supported for MOBI files of type 'BOOK'.\n"
                                 "\tThis is a '%s' file of type '%s'" % (self.type[0:4], self.type[4:8]))
