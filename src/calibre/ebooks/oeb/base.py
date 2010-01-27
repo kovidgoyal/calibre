@@ -760,6 +760,8 @@ class Manifest(object):
 
         def _parse_xml(self, data):
             data = xml_to_unicode(data, strip_encoding_pats=True)[0]
+            if not data:
+                return None
             parser = etree.XMLParser(recover=True)
             try:
                 return etree.fromstring(data, parser=parser)
