@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 nytimes.com
 '''
-import string, re
+import string, re, time
 from calibre import strftime
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
@@ -31,7 +31,8 @@ class NYTimes(BasicNewsRecipe):
     remove_tags = [dict(attrs={'class':['articleTools', 'post-tools', 'side_tool', 'nextArticleLink clearfix']}),
                    dict(id=['footer', 'toolsRight', 'articleInline',
                        'navigation', 'archive', 'side_search', 'blog_sidebar',
-                       'side_tool', 'side_index',
+                       'side_tool', 'side_index', 'login', 'businessSearchBar',
+                       'adxLeaderboard',
                        'relatedArticles', 'relatedTopics', 'adxSponLink']),
                    dict(name=['script', 'noscript', 'style'])]
     encoding = decode
@@ -51,11 +52,39 @@ class NYTimes(BasicNewsRecipe):
             #open('/t/log.html', 'wb').write(raw)
         return br
 
+    def get_masthead_url(self):
+        masthead = 'http://graphics8.nytimes.com/images/misc/nytlogo379x64.gif'
+        br = BasicNewsRecipe.get_browser()
+        try:
+            br.open(masthead)
+        except:
+            self.log("\nCover unavailable")
+            masthead = None
+        return masthead
+
+
+    def get_cover_url(self):
+        cover = None
+        st = time.localtime()
+        year = str(st.tm_year)
+        month = "%.2d" % st.tm_mon
+        day = "%.2d" % st.tm_mday
+        cover = 'http://graphics8.nytimes.com/images/' + year + '/' +  month +'/' + day +'/nytfrontpage/scan.jpg'
+        br = BasicNewsRecipe.get_browser()
+        try:
+            br.open(cover)
+        except:
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
+
     def short_title(self):
         return 'NY Times'
 
     def parse_index(self):
+        self.encoding = 'cp1252'
         soup = self.index_to_soup('http://www.nytimes.com/pages/todayspaper/index.html')
+        self.encoding = decode
 
         def feed_title(div):
             return ''.join(div.findAll(text=True, recursive=False)).strip()

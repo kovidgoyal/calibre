@@ -79,13 +79,30 @@ class NYTimes(BasicNewsRecipe):
                  .authorId      {text-align:    left;       \
                                  font-style:    italic;}\n  '
 
-#     def get_cover_url(self):
-#        st = time.localtime()
-#        year = str(st.tm_year)
-#        month = "%.2d" % st.tm_mon
-#        day = "%.2d" % st.tm_mday
-#        cover = 'http://graphics8.nytimes.com/images/' + year + '/' +  month +'/' + day +'/nytfrontpage/' + 'scan.jpg'
-#        return cover
+    def get_cover_url(self):
+        cover = None
+        st = time.localtime()
+        year = str(st.tm_year)
+        month = "%.2d" % st.tm_mon
+        day = "%.2d" % st.tm_mday
+        cover = 'http://graphics8.nytimes.com/images/' + year + '/' +  month +'/' + day +'/nytfrontpage/scan.jpg'
+        br = BasicNewsRecipe.get_browser()
+        try:
+            br.open(cover)
+        except:
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
+
+    def get_masthead_url(self):
+        masthead = 'http://graphics8.nytimes.com/images/misc/nytlogo379x64.gif'
+        br = BasicNewsRecipe.get_browser()
+        try:
+            br.open(masthead)
+        except:
+            self.log("\nCover unavailable")
+            masthead = None
+        return masthead
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
