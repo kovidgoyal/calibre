@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+import time
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
@@ -8,6 +11,7 @@ class JASN(BasicNewsRecipe):
     __author__     = 'Krittika Goyal'
     oldest_article = 31 #days
     max_articles_per_feed = 25
+    delay = 5
     needs_subscription = True
 
     INDEX = 'http://jasn.asnjournals.org/current.shtml'
@@ -102,9 +106,17 @@ class JASN(BasicNewsRecipe):
                 continue
             if url.startswith('/'):
                 url = 'http://jasn.asnjournals.org'+url
-                isoup = self.index_to_soup(url)
-                img = isoup.find('img', src=lambda x: x and
-                x.startswith('/content/'))
+                img = isoup = None
+                try:
+                    isoup = self.index_to_soup(url)
+                except:
+                    time.sleep(5)
+                    try:
+                        isoup = self.index_to_soup(url)
+                    except:
+                        continue
+                img = isoup.find('img', src=lambda x: x and x.startswith('/content/'))
+
             if img is not None:
                 img.extract()
                 table = a.findParent('table')

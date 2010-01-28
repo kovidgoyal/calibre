@@ -909,9 +909,15 @@ class Manifest(object):
                         'content': '%s; charset=utf-8' % XHTML_NS})
             # Ensure has a <body/>
             if not xpath(data, '/h:html/h:body'):
-                self.oeb.logger.warn(
-                    'File %r missing <body/> element' % self.href)
-                etree.SubElement(data, XHTML('body'))
+                body = xpath(data, '//h:body')
+                if body:
+                    body = body[0]
+                    body.getparent().remove(body)
+                    data.append(body)
+                else:
+                    self.oeb.logger.warn(
+                        'File %r missing <body/> element' % self.href)
+                    etree.SubElement(data, XHTML('body'))
 
             # Remove microsoft office markup
             r = [x for x in data.iterdescendants(etree.Element) if 'microsoft-com' in x.tag]

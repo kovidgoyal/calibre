@@ -43,6 +43,10 @@ class Image(Element):
         self.bottom = self.top + self.height
         self.right = self.left + self.width
 
+    def to_html(self):
+        return '<img src="%s" width="%dpx" height="%dpx"/>' % \
+                (self.src, int(self.width), int(self.height))
+
 
 class Text(Element):
 
@@ -66,8 +70,6 @@ class Text(Element):
         self.raw = text.text if text.text else u''
         for x in text.iterchildren():
             self.raw += etree.tostring(x, method='xml', encoding=unicode)
-            if x.tail:
-                self.raw += x.tail
         self.average_character_width = self.width/len(self.text_as_string)
 
     def coalesce(self, other, page_number):
@@ -85,6 +87,9 @@ class Text(Element):
         self.raw += other.raw
         self.average_character_width = (self.average_character_width +
                 other.average_character_width)/2.0
+
+    def to_html(self):
+        return self.raw
 
 class FontSizeStats(dict):
 
@@ -107,6 +112,11 @@ class Interval(object):
         left = max(self.left, other.left)
         right = min(self.right, other.right)
         return Interval(left, right)
+
+    def centered_in(self, parent):
+        left = abs(self.left - parent.left)
+        right = abs(self.right - parent.right)
+        return abs(left-right) < 3
 
     def __nonzero__(self):
         return self.width > 0
@@ -146,6 +156,9 @@ class Column(object):
         for x in self.elements:
             yield x
 
+    def __len__(self):
+        return len(self.elements)
+
     def contains(self, elem):
         return elem.left > self.left - self.HFUZZ*self.width and \
                elem.right < self.right + self.HFUZZ*self.width
@@ -160,9 +173,10 @@ class Column(object):
             elem.indent_fraction = left_margin/self.width
             elem.width_fraction = elem.width/self.width
             if i == 0:
-                elem.top_gap = None
+                elem.top_gap_ratio = None
             else:
-                elem.top_gap = self.elements[i-1].bottom - elem.top
+                elem.top_gap_ratio = (self.elements[i-1].bottom -
+                        elem.top)/self.average_line_separation
 
     def previous_element(self, idx):
         if idx == 0:
@@ -173,12 +187,42 @@ class Column(object):
 class Box(list):
 
     def __init__(self, type='p'):
-        self.type = type
+        self.tag = type
+
+    def to_html(self):
+        ans = ['<%s>'%self.tag]
+        for elem in self:
+            if isinstance(elem, int):
+                ans.append('<a name="page_%d"/>'%elem)
+            else:
+                ans.append(elem.to_html()+' ')
+        ans.append('</%s>'%self.tag)
+        return ans
+
+class ImageBox(Box):
+
+    def __init__(self, img):
+        Box.__init__(self)
+        self.img = img
+
+    def to_html(self):
+        ans = ['<div style="text-align:center">']
+        ans.append(self.img.to_html())
+        if len(self) > 0:
+            ans.append('<br/>')
+            for elem in self:
+                if isinstance(elem, int):
+                    ans.append('<a name="page_%d"/>'%elem)
+                else:
+                    ans.append(elem.to_html()+' ')
+        ans.append('</div>')
+        return ans
 
 
 class Region(object):
 
-    def __init__(self):
+    def __init__(self, opts, log):
+        self.opts, self.log = opts, log
         self.columns = []
         self.top = self.bottom = self.left = self.right = self.width = self.height = 0
 
@@ -211,6 +255,40 @@ class Region(object):
     def is_empty(self):
         return len(self.columns) == 0
 
+    @property
+    def is_small(self):
+        max_lines = 0
+        for c in self.columns:
+            max_lines = max(max_lines, len(c))
+        return max_lines > 2
+
+    def absorb(self, singleton):
+
+        def most_suitable_column(elem):
+            mc, mw = None, 0
+            for c in self.columns:
+                i = Interval(c.left, c.right)
+                e = Interval(elem.left, elem.right)
+                w = i.intersection(e).width
+                if w > mw:
+                    mc, mw = c, w
+            if mc is None:
+                self.log.warn('No suitable column for singleton',
+                        elem.to_html())
+                mc = self.columns[0]
+            return mc
+
+        print
+        for c in singleton.columns:
+            for elem in c:
+                col = most_suitable_column(elem)
+                if self.opts.verbose > 3:
+                    idx = self.columns.index(col)
+                    self.log.debug(u'Absorbing singleton %s into column'%elem.to_html(),
+                            idx)
+                col.add(elem)
+
+
     def collect_stats(self):
         for column in self.columns:
             column.collect_stats()
@@ -225,9 +303,30 @@ class Region(object):
         self.elements = []
         for x in self.columns:
             self.elements.extend(x)
-
-        # Find block quotes
-        indented = [i for (i, x) in enumerate(self.elements) if x.indent_fraction >= 0.2]
+        self.boxes = [Box()]
+        for i, elem in enumerate(self.elements):
+            if isinstance(elem, Image):
+                self.boxes.append(ImageBox(elem))
+                img = Interval(elem.left, elem.right)
+                for j in range(i+1, len(self.elements)):
+                    t = self.elements[j]
+                    if not isinstance(t, Text):
+                        break
+                    ti = Interval(t.left, t.right)
+                    if not ti.centered_in(img):
+                        break
+                    self.boxes[-1].append(t)
+                self.boxes.append(Box())
+            else:
+                is_indented = False
+                if i+1 < len(self.elements):
+                    indent_diff = elem.indent_fraction - \
+                        self.elements[i+1].indent_fraction
+                    if indent_diff > 0.05:
+                        is_indented = True
+                if elem.top_gap_ratio > 1.2 or is_indented:
+                    self.boxes.append(Box())
+                self.boxes[-1].append(elem)
 
 
 
@@ -313,7 +412,7 @@ class Page(object):
             return
         for i, x in enumerate(self.elements):
             x.idx = i
-        current_region = Region()
+        current_region = Region(self.opts, self.log)
         processed = set([])
         for x in self.elements:
             if x in processed: continue
@@ -322,12 +421,42 @@ class Page(object):
             processed.update(elems)
             if not current_region.contains(columns):
                 self.regions.append(current_region)
-                current_region = Region()
+                current_region = Region(self.opts, self.log)
             current_region.add(columns)
         if not current_region.is_empty:
             self.regions.append(current_region)
 
+        self.coalesce_regions()
+
+    def coalesce_regions(self):
+        # find contiguous sets of small regions
+        # absorb into a neighboring region (prefer the one with number of cols
+        # closer to the avg number of cols in the set, if equal use large
+        # region)
+        # merge contiguous regions that can contain each other
+        absorbed = set([])
+        found = True
+        while found:
+            found = False
+            for i, region in enumerate(self.regions):
+                if region.is_small:
+                    found = True
+                    regions = []
+                    for j in range(i+1, len(self.regions)):
+                        if self.regions[j].is_small:
+                            regions.append(self.regions[j])
+                        else:
+                            break
+                    prev = None if i == 0 else i-1
+                    next = j if self.regions[j] not in regions else None
+
+
+
     def sort_into_columns(self, elem, neighbors):
+        neighbors.add(elem)
+        neighbors = sorted(neighbors, cmp=lambda x,y:cmp(x.left, y.left))
+        if self.opts.verbose > 3:
+            self.log.debug('Neighbors:', [x.to_html() for x in neighbors])
         columns = [Column()]
         columns[0].add(elem)
         for x in neighbors:
@@ -393,6 +522,9 @@ class PDFDocument(object):
             page.first_pass()
             page.second_pass()
 
+        self.linearize()
+        self.render()
+
     def collect_font_statistics(self):
         self.font_size_stats = {}
         for p in self.pages:
@@ -403,6 +535,44 @@ class PDFDocument(object):
                 self.font_size_stats[sz] += chars
 
         self.font_size_stats = FontSizeStats(self.font_size_stats)
+
+    def linearize(self):
+        self.elements = []
+        last_region = last_block = None
+        for page in self.pages:
+            page_number_inserted = False
+            for region in page.regions:
+                merge_first_block = last_region is not None and \
+                    len(last_region.columns) == len(region.columns) and \
+                    not hasattr(last_block, 'img')
+                for i, block in enumerate(region.boxes):
+                    if merge_first_block:
+                        merge_first_block = False
+                        if not page_number_inserted:
+                            last_block.append(page.number)
+                            page_number_inserted = True
+                        for elem in block:
+                            last_block.append(elem)
+                    else:
+                        if not page_number_inserted:
+                            block.insert(0, page.number)
+                            page_number_inserted = True
+                        self.elements.append(block)
+                    last_block = block
+                last_region = region
+
+
+    def render(self):
+        html = ['<?xml version="1.0" encoding="UTF-8"?>',
+                '<html xmlns="http://www.w3.org/1999/xhtml">', '<head>',
+                '<title>PDF Reflow conversion</title>', '</head>', '<body>',
+                '<div>']
+        for elem in self.elements:
+            html.extend(elem.to_html())
+        html += ['</body>', '</html>']
+        with open('index.html', 'wb') as f:
+            f.write((u'\n'.join(html)).encode('utf-8'))
+
 
 
 

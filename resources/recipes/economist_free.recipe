@@ -53,6 +53,8 @@ class Economist(BasicNewsRecipe):
             self.feed_dict.items()])
 
     def eco_sort_sections(self, feeds):
+        if not feeds:
+            raise ValueError('No new articles found')
         order = {
             'The World This Week': 1,
             'Leaders': 2,
