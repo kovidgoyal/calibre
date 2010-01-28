@@ -994,6 +994,14 @@ class BasicNewsRecipe(Recipe):
         mi.pubdate = datetime.now()
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
+
+        # Add mastheadImage entry to <guide> section
+        from calibre.ebooks.metadata.opf2 import Guide
+        mi.guide = Guide()
+        ref = Guide.Reference('mastheadImage.jpg', os.getcwdu())
+        ref.type = 'masthead'
+        ref.title = 'Masthead Image'
+        mi.guide.append(ref)
         opf = OPFCreator(dir, mi)
 
         manifest = [os.path.join(dir, 'feed_%d'%i) for i in range(len(feeds))]
