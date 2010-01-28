@@ -428,7 +428,9 @@ class BasicNewsRecipe(Recipe):
             else:
                 _raw = _raw.decode(self.encoding, 'replace')
         massage = list(BeautifulSoup.MARKUP_MASSAGE)
-        massage.append((re.compile(r'&(\S+?);'), lambda match: entity_to_unicode(match, encoding=self.encoding)))
+        enc = 'cp1252' if callable(self.encoding) or self.encoding is None else self.encoding
+        massage.append((re.compile(r'&(\S+?);'), lambda match:
+            entity_to_unicode(match, encoding=enc)))
         return BeautifulSoup(_raw, markupMassage=massage)
 
 
@@ -859,8 +861,6 @@ class BasicNewsRecipe(Recipe):
             self.log.exception('Failed to download cover')
             self.cover_path = None
 
-
-
     def default_cover(self, cover_file):
         '''
         Create a generic cover for recipes that dont have a cover
@@ -923,6 +923,70 @@ class BasicNewsRecipe(Recipe):
             cover_file.write(renderer.data)
             cover_file.flush()
         return True
+
+    def get_masthead_title(self):
+        'Override in subclass to use something other than the recipe title'
+        return self.title
+
+    def default_masthead_image(self, out_path):
+        try:
+            from PIL import Image, ImageDraw, ImageFont
+            Image, ImageDraw, ImageFont
+        except ImportError:
+            import Image, ImageDraw, ImageFont
+
+
+        img = Image.new('RGB', (600, 100), 'white')
+        draw = ImageDraw.Draw(img)
+        font = ImageFont.truetype(P('fonts/liberation/LiberationSerif-Bold.ttf'), 48)
+        text = self.get_masthead_title().encode('utf-8')
+        width, height = draw.textsize(text, font=font)
+        left = max(int((600 - width)/2.), 0)
+        top = max(int((100 - height)/2.), 0)
+        draw.text((left, top), text, fill=(0,0,0), font=font)
+        img.save(open(out_path, 'wb'), 'JPEG')
+
+    def prepare_masthead_image(self, path_to_image, out_path):
+        import calibre.utils.PythonMagickWand as pw
+        from ctypes import byref
+        from calibre import fit_image
+
+        with pw.ImageMagick():
+            img = pw.NewMagickWand()
+            img2 = pw.NewMagickWand()
+            frame = pw.NewMagickWand()
+            p = pw.NewPixelWand()
+            if img < 0 or img2 < 0 or p < 0 or frame < 0:
+                raise RuntimeError('Out of memory')
+            if not pw.MagickReadImage(img, path_to_image):
+                severity = pw.ExceptionType(0)
+                msg = pw.MagickGetException(img, byref(severity))
+                raise IOError('Failed to read image from: %s: %s'
+                        %(path_to_image, msg))
+            pw.PixelSetColor(p, 'white')
+            width, height = pw.MagickGetImageWidth(img),pw.MagickGetImageHeight(img)[1:]
+            scaled, nwidth, nheight = fit_image(width, height, 600, 100)
+            if not pw.MagickNewImage(img2, width, height, p):
+                raise RuntimeError('Out of memory')
+            if not pw.MagickNewImage(frame, 600, 100, p):
+                raise RuntimeError('Out of memory')
+            if not pw.MagickCompositeImage(img2, img, pw.OverCompositeOp, 0, 0):
+                raise RuntimeError('Out of memory')
+            if scaled:
+                if not pw.MagickResizeImage(img2, nwidth, nheight, pw.LanczosFilter,
+                        0.5):
+                    raise RuntimeError('Out of memory')
+            left = int((600 - nwidth)/2.0)
+            top = int((100 - nheight)/2.0)
+            if not pw.MagickCompositeImage(frame, img2, pw.OverCompositeOp,
+                    left, top):
+                raise RuntimeError('Out of memory')
+            if not pw.MagickWriteImage(frame, out_path):
+                raise RuntimeError('Failed to save image to %s'%out_path)
+
+            pw.DestroyPixelWand(p)
+            for x in (img, img2, frame):
+                pw.DestroyMagickWand(x)
 
 
     def create_opf(self, feeds, dir=None):
