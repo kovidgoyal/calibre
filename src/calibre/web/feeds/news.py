@@ -111,9 +111,7 @@ class BasicNewsRecipe(Recipe):
 
     #: Specify an override encoding for sites that have an incorrect
     #: charset specification. The most common being specifying ``latin1`` and
-    #: using ``cp1252``. If None, try to detect the encoding. If it is a
-    #: callable, the callable is called with two arguments: The recipe object
-    #: and the source to be decoded. It must return the decoded source.
+    #: using ``cp1252``. If None, try to detect the encoding.
     encoding               = None
 
     #: Normally we try to guess if a feed has full articles embedded in it
@@ -294,6 +292,17 @@ class BasicNewsRecipe(Recipe):
         '''
         return getattr(self, 'cover_url', None)
 
+    def get_masthead_url(self):
+        '''
+        Return a :term:`URL` to the masthead image for this issue or `None`.
+        By default it returns the value of the member `self.masthead_url` which
+        is normally `None`. If you want your recipe to download a masthead for the e-book
+        override this method in your subclass, or set the member variable `self.masthead_url`
+        before this method is called.
+        Masthead images are used in Kindle MOBI files.
+        '''
+        return getattr(self, 'masthead_url', None)
+
     def get_feeds(self):
         '''
         Return a list of :term:`RSS` feeds to fetch for this profile. Each element of the list
@@ -423,10 +432,7 @@ class BasicNewsRecipe(Recipe):
         if raw:
             return _raw
         if not isinstance(_raw, unicode) and self.encoding:
-            if callable(self.encoding):
-                _raw = self.encoding(_raw)
-            else:
-                _raw = _raw.decode(self.encoding, 'replace')
+            _raw = _raw.decode(self.encoding, 'replace')
         massage = list(BeautifulSoup.MARKUP_MASSAGE)
         massage.append((re.compile(r'&(\S+?);'), lambda match: entity_to_unicode(match, encoding=self.encoding)))
         return BeautifulSoup(_raw, markupMassage=massage)
@@ -743,6 +749,9 @@ class BasicNewsRecipe(Recipe):
 
         self.report_progress(0, _('Trying to download cover...'))
         self.download_cover()
+        self.report_progress(0, _('Trying to download masthead...'))
+        self.download_masthead()
+
         if self.test:
             feeds = feeds[:2]
         self.has_single_feed = len(feeds) == 1
@@ -859,7 +868,50 @@ class BasicNewsRecipe(Recipe):
             self.log.exception('Failed to download cover')
             self.cover_path = None
 
+    def convert_image(self, name):
+        image_ext = name.rpartition('.')[2].lower()
+        if image_ext in ['jpg','jpeg']:
+            return name
+        import calibre.utils.PythonMagickWand as p
+        img = p.NewMagickWand()
+        if img < 0:
+            raise RuntimeError('Cannot create wand.')
+        if not p.MagickReadImage(img, name):
+            self.log.warn('Failed to read image:', name)
+        name = name.replace('.%s' % image_ext, '.jpg')
+        p.MagickWriteImage(img, name)
+        return name
 
+    def _download_masthead(self):
+        self.masthead_path = None
+        try:
+            mu = self.get_masthead_url()
+        except Exception, err:
+            mu = None
+            self.log.error(_('Could not download masthead: %s')%str(err))
+            self.log.debug(traceback.format_exc())
+        if mu is not None:
+            ext = mu.rpartition('.')[-1]
+            if '?' in ext:
+                ext = ''
+            ext = ext.lower() if ext else 'jpg'
+            mpath = os.path.join(self.output_dir, 'mastheadImage.'+ext)
+            if os.access(mu, os.R_OK):
+                with open(mpath, 'wb') as mfile:
+                    mfile.write(open(mu, 'rb').read())
+            else:
+                self.report_progress(1, _('Downloading masthead from %s')%mu)
+                with nested(open(mpath, 'wb'), closing(self.browser.open(mu))) as (mfile, r):
+                    mfile.write(r.read())
+            self.masthead_path = self.convert_image(mpath)
+
+
+    def download_masthead(self):
+        try:
+            self._download_masthead()
+        except:
+            self.log.exception('Failed to download masthead')
+            self.masthead_path = None
 
     def default_cover(self, cover_file):
         '''
@@ -944,6 +996,8 @@ class BasicNewsRecipe(Recipe):
         manifest = [os.path.join(dir, 'feed_%d'%i) for i in range(len(feeds))]
         manifest.append(os.path.join(dir, 'index.html'))
         manifest.append(os.path.join(dir, 'index.ncx'))
+
+        # Get cover
         cpath = getattr(self, 'cover_path', None)
         if cpath is None:
             pf = open(os.path.join(dir, 'cover.jpg'), 'wb')
@@ -952,10 +1006,21 @@ class BasicNewsRecipe(Recipe):
         if cpath is not None and os.access(cpath, os.R_OK):
             opf.cover = cpath
             manifest.append(cpath)
+
+        # Get masthead
+        mpath = getattr(self, 'masthead_path', None)
+        print "\ncreate_opf(): masthead: %s\n" % mpath
+        if mpath is not None and os.access(mpath, os.R_OK):
+            manifest.append(mpath)
+            opf.manifest = mpath
+
         opf.create_manifest_from_files_in(manifest)
         for mani in opf.manifest:
             if mani.path.endswith('.ncx'):
                 mani.id = 'ncx'
+            if mani.path.endswith('mastheadImage.jpg'):
+                mani.id = 'masthead-image'
+
 
         entries = ['index.html']
         toc = TOC(base_path=dir)

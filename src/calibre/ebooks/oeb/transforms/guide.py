@@ -32,6 +32,11 @@ class Clean(object):
                 ref.type = 'cover'
                 self.oeb.guide.refs['cover'] = ref
 
+        # Check for masthead in OPF, add to guide if present
+        for item in oeb.manifest.items:
+            if item.id == 'masthead-image':
+                self.oeb.guide.add('masthead', 'Masthead Image', item.href)
+
         for x in list(self.oeb.guide):
             href = urldefrag(self.oeb.guide[x].href)[0]
             if x.lower() not in ('cover', 'titlepage', 'masthead', 'toc',

@@ -1773,7 +1773,8 @@ class EPUB_MOBI(CatalogPlugin):
                 self.playOrder += 1
                 navLabelTag = Tag(soup, 'navLabel')
                 textTag = Tag(soup, 'text')
-                textTag.insert(0, NavigableString("Titles beginning with %s" % (title_letters[i])))
+                textTag.insert(0, NavigableString("Titles beginning with %s" % \
+                    (title_letters[i] if len(title_letters[i])>1 else "'" + title_letters[i] + "'")))
                 navLabelTag.insert(0, textTag)
                 navPointByLetterTag.insert(0,navLabelTag)
                 contentTag = Tag(soup, 'content')
