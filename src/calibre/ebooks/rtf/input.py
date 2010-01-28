@@ -195,9 +195,9 @@ class RTFInput(InputFormatPlugin):
         fname = self.preprocess(stream.name)
         try:
             xml = self.generate_xml(fname)
-        except RtfInvalidCodeException:
+        except RtfInvalidCodeException, e:
             raise ValueError(_('This RTF file has a feature calibre does not '
-            'support. Convert it to HTML first and then try it.'))
+            'support. Convert it to HTML first and then try it.\n%s')%e)
         d = glob.glob(os.path.join('*_rtf_pict_dir', 'picts.rtf'))
         if d:
             imap = {}

@@ -26,6 +26,11 @@ class LITInput(InputFormatPlugin):
         for item in oeb.spine:
             root = item.data
             if not hasattr(root, 'xpath'): continue
+            for bad in ('metadata', 'guide'):
+                metadata = XPath('//h:'+bad)(root)
+                if metadata:
+                    for x in metadata:
+                        x.getparent().remove(x)
             body = XPath('//h:body')(root)
             if body:
                 body = body[0]
