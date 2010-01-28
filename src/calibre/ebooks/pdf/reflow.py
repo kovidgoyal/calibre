@@ -40,6 +40,8 @@ class Image(Element):
           map(float, map(img.get, ('top', 'left', 'rwidth', 'rheight', 'iwidth',
               'iheight')))
         self.src = img.get('src')
+        self.bottom = self.top + self.height
+        self.right = self.left + self.width
 
 
 class Text(Element):
@@ -151,16 +153,17 @@ class Column(object):
     def collect_stats(self):
         if len(self.elements) > 1:
             gaps = [self.elements[i+1].top - self.elements[i].bottom for i in
-                    range(len(0, len(self.elements)-1))]
+                    range(0, len(self.elements)-1)]
             self.average_line_separation = sum(gaps)/len(gaps)
         for i, elem in enumerate(self.elements):
             left_margin = elem.left - self.left
             elem.indent_fraction = left_margin/self.width
             elem.width_fraction = elem.width/self.width
             if i == 0:
-                elem.top_gap = None
+                elem.top_gap_ratio = None
             else:
-                elem.top_gap = self.elements[i-1].bottom - elem.top
+                elem.top_gap_ratio = (self.elements[i-1].bottom -
+                        elem.top)/self.average_line_separation
 
     def previous_element(self, idx):
         if idx == 0:
@@ -168,7 +171,16 @@ class Column(object):
         return self.elements[idx-1]
 
 
+class Box(list):
 
+    def __init__(self, type='p'):
+        self.type = type
+
+class ImageBox(Box):
+
+    def __init__(self, img):
+        Box.__init__(self, type='img')
+        self.img = img
 
 class Region(object):
 
@@ -203,7 +215,7 @@ class Region(object):
 
     @property
     def is_empty(self):
-        return len(self.elements) == 0
+        return len(self.columns) == 0
 
     def collect_stats(self):
         for column in self.columns:
@@ -219,6 +231,32 @@ class Region(object):
         self.elements = []
         for x in self.columns:
             self.elements.extend(x)
+
+        self.boxes = [Box()]
+        for i, elem in enumerate(self.elements):
+            if isinstance(elem, Image):
+                self.boxes.append(ImageBox(elem))
+                img = Interval(elem.left, elem.right)
+                for j in range(i+1, len(self.elements)):
+                    t = self.elements[j]
+                    if not isinstance(t, Text):
+                        break
+                    ti = Interval(t.left, t.right)
+                    if not ti.centered_in(img):
+                        break
+                    self.boxes[-1].append(t)
+                self.boxes.append(Box())
+            else:
+                is_indented = False
+                if i+1 < len(self.elements):
+                    indent_diff = elem.indent_fraction - \
+                        self.elements[i+1].indent_fraction
+                    if indent_diff > 0.05:
+                        is_indented = True
+                if elem.top_gap_ratio > 1.2 or is_indented:
+                    self.boxes.append(Box())
+                self.boxes[-1].append(elem)
+
 
 
 class Page(object):
@@ -311,10 +349,10 @@ class Page(object):
             columns = self.sort_into_columns(x, elems)
             processed.update(elems)
             if not current_region.contains(columns):
-                self.regions.append(self.current_region)
+                self.regions.append(current_region)
                 current_region = Region()
             current_region.add(columns)
-        if not self.current_region.is_empty():
+        if not current_region.is_empty:
             self.regions.append(current_region)
 
     def sort_into_columns(self, elem, neighbors):

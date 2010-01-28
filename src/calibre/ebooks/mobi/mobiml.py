@@ -164,6 +164,8 @@ class MobiMLizer(object):
             parent = bstate.nested[-1] if bstate.nested else bstate.body
             indent = istate.indent
             left = istate.left
+            if isinstance(indent, basestring):
+                indent = 0
             if indent < 0 and abs(indent) < left:
                 left += indent
                 indent = 0

@@ -112,6 +112,9 @@ class LinuxFreeze(Command):
 
         includes += ['calibre.gui2.convert.'+x.split('/')[-1].rpartition('.')[0] for x in \
                 glob.glob('src/calibre/gui2/convert/*.py')]
+        includes += ['calibre.gui2.catalog.'+x.split('/')[-1].rpartition('.')[0] for x in \
+                glob.glob('src/calibre/gui2/catalog/*.py')]
+
 
         LOADER = '/tmp/loader.py'
         open(LOADER, 'wb').write('# This script is never actually used.\nimport sys')

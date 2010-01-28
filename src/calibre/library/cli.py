@@ -670,8 +670,6 @@ def command_catalog(args, dbpath):
         print
         print >>sys.stderr, _('Error: You must specify a catalog output file')
         return 1
-    if opts.verbose:
-        log("library.cli:command_catalog dispatching to plugin %s" % plugin.name)
     if opts.ids:
         opts.ids = [int(id) for id in opts.ids.split(',')]
 

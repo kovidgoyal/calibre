@@ -4,6 +4,70 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.36
+  date: 2010-01-25
+
+  new features:
+    - title: Catalog generation in MOBI format
+
+    - title: "Driver for Inves Book 600"
+
+    - title: "Show notifications on OS X even when systray icon is disabled. "
+
+  bug fixes:
+    - title: Fix memory leak in catalog generation
+
+    - title: Fix regression that broke PML output
+
+    - title: Fix bug in MOBI Input
+      tickets: [4643]
+
+    - title: "Replace commas with semi-colons in download tags"
+      tickets: [4650]
+
+    - title: Fix catalog output format dropdown empty in linux
+      tickets: [4656]
+
+    - title: "Fix display of non-English characters in OS X notifications"
+      tickets: [4654]
+
+    - title: Add .cbc to list of book formats
+      tickets: [4662]
+
+    - title: "Content server: Mobile page breaks if library contains empty books. Now fixed."
+
+    - title: "Support old 212 byte header PDB files"
+      tickets: [4646]
+
+    - title: "Fix regression that caused wrong error message to be displayed when device is out of space"
+
+
+  new recipes:
+    - title: Harvard Business Review Blogs
+      author: Brian_G
+
+    - title: Neowin
+      author: Darko Miletic
+
+    - title: Greensboro News and Record
+      author: Walt Anthony
+
+    - title: Hot Air
+      author: Walt Anthony
+
+    - title: ionline
+      author: Darko Miletic
+
+    - title: The National Review Online
+      author: Walt Anthony
+
+  improved recipes:
+    - Ars Technica
+    - Sports Illustrated
+    - Common Dreams
+    - Wired Magazine
+
+
 - version: 0.6.35
   date: 2010-01-22
 

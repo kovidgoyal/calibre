@@ -340,6 +340,9 @@ class ComicInput(InputFormatPlugin):
                         %stream.name)
             for line in open('comics.txt',
                     'rb').read().decode('utf-8').splitlines():
+                line = line.strip()
+                if not line:
+                    continue
                 fname, title = line.partition(':')[0], line.partition(':')[-1]
                 fname = os.path.join(tdir, *fname.split('/'))
                 if not title:
