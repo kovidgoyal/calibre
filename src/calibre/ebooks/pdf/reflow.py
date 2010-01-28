@@ -160,9 +160,10 @@ class Column(object):
             elem.indent_fraction = left_margin/self.width
             elem.width_fraction = elem.width/self.width
             if i == 0:
-                elem.top_gap = None
+                elem.top_gap_ratio = None
             else:
-                elem.top_gap = self.elements[i-1].bottom - elem.top
+                elem.top_gap_ratio = (self.elements[i-1].bottom -
+                        elem.top)/self.average_line_separation
 
     def previous_element(self, idx):
         if idx == 0:
@@ -175,6 +176,11 @@ class Box(list):
     def __init__(self, type='p'):
         self.type = type
 
+class ImageBox(Box):
+
+    def __init__(self, img):
+        Box.__init__(self, type='img')
+        self.img = img
 
 class Region(object):
 
@@ -226,8 +232,30 @@ class Region(object):
         for x in self.columns:
             self.elements.extend(x)
 
-        # Find block quotes
-        indented = [i for (i, x) in enumerate(self.elements) if x.indent_fraction >= 0.2]
+        self.boxes = [Box()]
+        for i, elem in enumerate(self.elements):
+            if isinstance(elem, Image):
+                self.boxes.append(ImageBox(elem))
+                img = Interval(elem.left, elem.right)
+                for j in range(i+1, len(self.elements)):
+                    t = self.elements[j]
+                    if not isinstance(t, Text):
+                        break
+                    ti = Interval(t.left, t.right)
+                    if not ti.centered_in(img):
+                        break
+                    self.boxes[-1].append(t)
+                self.boxes.append(Box())
+            else:
+                is_indented = False
+                if i+1 < len(self.elements):
+                    indent_diff = elem.indent_fraction - \
+                        self.elements[i+1].indent_fraction
+                    if indent_diff > 0.05:
+                        is_indented = True
+                if elem.top_gap_ratio > 1.2 or is_indented:
+                    self.boxes.append(Box())
+                self.boxes[-1].append(elem)
 
 
 
