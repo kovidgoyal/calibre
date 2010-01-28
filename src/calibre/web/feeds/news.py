@@ -872,6 +872,8 @@ class BasicNewsRecipe(Recipe):
         image_ext = name.rpartition('.')[2].lower()
         if image_ext in ['jpg','jpeg']:
             return name
+        if image_ext not in ['gif']:
+            raise RuntimeError("web.feeds.news:BasicNewsRecipe.convert_image(): '%s' is not a supported mastheadImage format" % image_ext)
         import calibre.utils.PythonMagickWand as p
         img = p.NewMagickWand()
         if img < 0:
@@ -880,6 +882,7 @@ class BasicNewsRecipe(Recipe):
             self.log.warn('Failed to read image:', name)
         name = name.replace('.%s' % image_ext, '.jpg')
         p.MagickWriteImage(img, name)
+        p.DestroyMagickWand(img)
         return name
 
     def _download_masthead(self):
