@@ -37,7 +37,7 @@ class SaveTemplate(QWidget, Ui_Form):
         tmpl = preprocess_template(self.opt_template.text())
         fa = {}
         for x in FORMAT_ARG_DESCS.keys():
-            fa[x]=''
+            fa[x]='random long string'
         try:
             tmpl.format(**fa)
         except Exception, err:
