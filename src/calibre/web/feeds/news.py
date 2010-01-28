@@ -428,7 +428,9 @@ class BasicNewsRecipe(Recipe):
             else:
                 _raw = _raw.decode(self.encoding, 'replace')
         massage = list(BeautifulSoup.MARKUP_MASSAGE)
-        massage.append((re.compile(r'&(\S+?);'), lambda match: entity_to_unicode(match, encoding=self.encoding)))
+        enc = 'cp1252' if callable(self.encoding) or self.encoding is None else self.encoding
+        massage.append((re.compile(r'&(\S+?);'), lambda match:
+            entity_to_unicode(match, encoding=enc)))
         return BeautifulSoup(_raw, markupMassage=massage)
 
 
