@@ -2134,7 +2134,6 @@ class EPUB_MOBI(CatalogPlugin):
             # Add this section to the body
             body.insert(btc, navPointTag)
             btc += 1
-            print soup.prettify()
             self.ncxSoup = soup
 
         def generateNCXByTags(self, tocTitle):

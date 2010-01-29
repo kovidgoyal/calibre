@@ -34,7 +34,7 @@ p.description {
 p.date_index {
 	font-size:x-large;
 	text-align:center;
-	font-style:bold;
+	font-weight:bold;
 	margin-top:1em;
 	margin-bottom:0px;
 	}
