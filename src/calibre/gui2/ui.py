@@ -987,10 +987,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.cover_cache.refresh([cid])
             self.library_view.model().current_changed(current_idx, current_idx)
 
-    def add_filesystem_book(self, path):
+    def add_filesystem_book(self, path, allow_device=True):
         if os.access(path, os.R_OK):
             books = [os.path.abspath(path)]
-            to_device = self.stack.currentIndex() != 0
+            to_device = allow_device and self.stack.currentIndex() != 0
             self._add_books(books, to_device)
             if to_device:
                 self.status_bar.showMessage(\

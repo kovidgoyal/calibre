@@ -355,6 +355,7 @@ class Py2App(object):
 
     @flush
     def create_plist(self):
+        from calibre.ebooks import BOOK_EXTENSIONS
         env = dict(**ENV)
         env['CALIBRE_LAUNCHED_FROM_BUNDLE']='1';
 
@@ -367,10 +368,11 @@ class Py2App(object):
                 CFBundlePackageType='APPL',
                 CFBundleSignature='????',
                 CFBundleExecutable='calibre',
+                CFBundleTypeExtensions=list(BOOK_EXTENSIONS),
                 LSMinimumSystemVersion='10.4.2',
                 LSRequiresNativeExecution=True,
                 NSAppleScriptEnabled=False,
-                NSHumanReadableCopyright='Copyright 2008, Kovid Goyal',
+                NSHumanReadableCopyright='Copyright 2010, Kovid Goyal',
                 CFBundleGetInfoString=('calibre, an E-book management '
                 'application. Visit http://calibre-ebook.com for details.'),
                 CFBundleIconFile='library.icns',
@@ -594,6 +596,7 @@ class Py2App(object):
             if x == 'Info.plist':
                 plist = plistlib.readPlist(join(self.contents_dir, x))
                 plist['LSUIElement'] = '1'
+                plist.pop('CFBundleTypeExtensions')
                 plistlib.writePlist(plist, join(cc_dir, x))
             else:
                 os.symlink(join('../..', x),
