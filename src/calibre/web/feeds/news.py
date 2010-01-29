@@ -558,8 +558,6 @@ class BasicNewsRecipe(Recipe):
             '--max-recursions', str(self.recursions),
             '--delay', str(self.delay),
             ]
-        if self.encoding is not None:
-            web2disk_cmdline.extend(['--encoding', self.encoding])
 
         if self.verbose:
             web2disk_cmdline.append('--verbose')
@@ -578,6 +576,7 @@ class BasicNewsRecipe(Recipe):
                       'preprocess_html', 'remove_tags_after', 'remove_tags_before'):
             setattr(self.web2disk_options, extra, getattr(self, extra))
         self.web2disk_options.postprocess_html = self._postprocess_html
+        self.web2disk_options.encoding = self.encoding
 
         if self.delay > 0:
             self.simultaneous_downloads = 1

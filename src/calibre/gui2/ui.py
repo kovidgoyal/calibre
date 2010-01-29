@@ -1048,6 +1048,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if self._adder.critical:
             det_msg = []
             for name, log in self._adder.critical.items():
+                if isinstance(name, str):
+                    name = name.decode(filesystem_encoding, 'replace')
                 det_msg.append(name+'\n'+log)
             warning_dialog(self, _('Failed to read metadata'),
                     _('Failed to read metadata from the following')+':',
