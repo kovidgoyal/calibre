@@ -486,7 +486,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         # Number of discrete steps to catalog creation
         current_step = 0.0
-        total_steps = 13.0
+        total_steps = 14.0
 
         # Used to xlate pubdate to friendly format
         MONTHS = ['','January', 'February','March','April','May','June',
@@ -804,7 +804,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.generateNCXByDateAdded("Recently Added")
 
             if getattr(self.reporter, 'cancel_requested', False): return 1
-            self.generateNCXByTags("Genres")
+            self.generateNCXByGenre("Genres")
 
             if getattr(self.reporter, 'cancel_requested', False): return 1
             self.writeNCX()
@@ -1336,7 +1336,6 @@ class EPUB_MOBI(CatalogPlugin):
                                         key=lambda x:(x['title_sort'], x['title_sort']))
                     this_months_list = sorted(this_months_list,
                                         key=lambda x:(x['author_sort'], x['author_sort']))
-                    print "Books added in %s %s" % (self.MONTHS[current_date.month], current_date.year)
 
                     # Create a new month anchor
                     pIndexTag = Tag(soup, "p")
@@ -1344,19 +1343,16 @@ class EPUB_MOBI(CatalogPlugin):
                     aTag = Tag(soup, "a")
                     aTag['name'] = "%s-%s" % (current_date.year, current_date.month)
                     pIndexTag.insert(0,aTag)
-                    pIndexTag.insert(1,NavigableString('Books added in %s %s' % \
+                    pIndexTag.insert(1,NavigableString('%s %s' % \
                         (self.MONTHS[current_date.month],current_date.year)))
                     divTag.insert(dtc,pIndexTag)
                     dtc += 1
                     current_author = None
 
-                    for purchase in this_months_list:
-                        print " %-40s \t %-20s \t %s" % (purchase['title'], purchase['author'], purchase['timestamp'])
-
-
-                        if purchase['author'] != current_author:
+                    for new_entry in this_months_list:
+                        if new_entry['author'] != current_author:
                             # Start a new author
-                            current_author = purchase['author']
+                            current_author = new_entry['author']
                             pAuthorTag = Tag(soup, "p")
                             pAuthorTag['class'] = "author_index"
                             emTag = Tag(soup, "em")
@@ -1373,7 +1369,7 @@ class EPUB_MOBI(CatalogPlugin):
                         ptc = 0
 
                         # Prefix book with read/unread symbol
-                        if purchase['read']:
+                        if new_entry['read']:
                             # check mark
                             pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
                             pBookTag['class'] = "read_book"
@@ -1385,8 +1381,8 @@ class EPUB_MOBI(CatalogPlugin):
                             ptc += 1
 
                         aTag = Tag(soup, "a")
-                        aTag['href'] = "book_%d.html" % (int(float(purchase['id'])))
-                        aTag.insert(0,escape(purchase['title']))
+                        aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
+                        aTag.insert(0,escape(new_entry['title']))
                         pBookTag.insert(ptc, aTag)
                         ptc += 1
 
@@ -1855,8 +1851,12 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = ncx_soup
 
         def generateNCXByTitle(self, tocTitle):
-
             self.opts.log.info(self.updateProgressFullStep("generateNCXByTitle()"))
+
+            def add_to_books_by_letter(current_book_list):
+                current_book_list = " &bull; ".join(current_book_list)
+                current_book_list = self.generateShortDescription(self.formatNCXText(current_book_list))
+                books_by_letter.append(current_book_list)
 
             soup = self.ncxSoup
             output = "ByAlphaTitle"
@@ -1891,9 +1891,7 @@ class EPUB_MOBI(CatalogPlugin):
             for book in self.booksByTitle:
                 if self.letter_or_symbol(book['title_sort'][0]) != current_letter:
                     # Save the old list
-                    book_list = " &bull; ".join(current_book_list)
-                    short_description = self.generateShortDescription(self.formatNCXText(book_list))
-                    books_by_letter.append(short_description)
+                    add_to_books_by_letter(current_book_list)
 
                     # Start the new list
                     current_letter = self.letter_or_symbol(book['title_sort'][0])
@@ -1907,9 +1905,7 @@ class EPUB_MOBI(CatalogPlugin):
                         current_book_list.append(book['title'])
 
             # Add the last book list
-            book_list = " &bull; ".join(current_book_list)
-            short_description = self.generateShortDescription(self.formatNCXText(book_list))
-            books_by_letter.append(short_description)
+            add_to_books_by_letter(current_book_list)
 
             # Add *article* entries for each populated title letter
             for (i,books) in enumerate(books_by_letter):
@@ -1944,8 +1940,12 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = soup
 
         def generateNCXByAuthor(self, tocTitle):
-
             self.opts.log.info(self.updateProgressFullStep("generateNCXByAuthor()"))
+
+            def add_to_author_list(current_author_list, current_letter):
+                current_author_list = " &bull; ".join(current_author_list)
+                current_author_list = self.generateShortDescription(self.formatNCXText(current_author_list))
+                master_author_list.append((current_author_list, current_letter))
 
             soup = self.ncxSoup
             HTML_file = "content/ByAlphaAuthor.html"
@@ -1983,14 +1983,7 @@ class EPUB_MOBI(CatalogPlugin):
             for author in self.authors:
                 if author[1][0] != current_letter:
                     # Save the old list
-                    author_list = " &bull; ".join(current_author_list)
-                    if len(current_author_list) == self.descriptionClip:
-                        author_list += " &hellip;"
-
-                    author_list = self.formatNCXText(author_list)
-                    if False and self.verbose:
-                        self.opts.log.info(" adding '%s' to master_author_list" % current_letter)
-                    master_author_list.append((author_list, current_letter))
+                    add_to_author_list(current_author_list, current_letter)
 
                     # Start the new list
                     current_letter = author[1][0]
@@ -2000,13 +1993,7 @@ class EPUB_MOBI(CatalogPlugin):
                         current_author_list.append(author[0])
 
             # Add the last author list
-            author_list = " &bull; ".join(current_author_list)
-            if len(current_author_list) == self.descriptionClip:
-                author_list += " &hellip;"
-            author_list = self.formatNCXText(author_list)
-            if False and self.verbose:
-                self.opts.log.info(" adding '%s' to master_author_list" % current_letter)
-            master_author_list.append((author_list, current_letter))
+            add_to_author_list(current_author_list, current_letter)
 
             # Add *article* entries for each populated author initial letter
             # master_author_list{}: [0]:author list [1]:Initial letter
@@ -2042,8 +2029,12 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = soup
 
         def generateNCXByDateAdded(self, tocTitle):
-
             self.opts.log.info(self.updateProgressFullStep("generateNCXByDateAdded()"))
+
+            def add_to_master_month_list(current_titles_list):
+                current_titles_list = " &bull; ".join(current_titles_list)
+                current_titles_list = self.generateShortDescription(self.formatNCXText(current_titles_list))
+                master_month_list.append((current_titles_list, current_date))
 
             soup = self.ncxSoup
             HTML_file = "content/ByDateAdded.html"
@@ -2083,31 +2074,23 @@ class EPUB_MOBI(CatalogPlugin):
                 if book['timestamp'].month != current_date.month or \
                    book['timestamp'].year != current_date.year:
                     # Save the old lists
-                    current_titles_list = " &bull; ".join(current_titles_list)
-                    if len(current_titles_list) == self.descriptionClip:
-                        title_list += " &hellip;"
-
-                    current_titles_list = self.formatNCXText(current_titles_list)
-                    master_month_list.append((current_titles_list, current_date))
+                    add_to_master_month_list(current_titles_list)
 
                     # Start the new list
                     current_date = book['timestamp'].date()
                     current_titles_list = [book['title']]
                 else:
-                    if len(current_titles_list) < self.descriptionClip:
-                        current_titles_list.append(book['title'])
+                    current_titles_list.append(book['title'])
 
-            # Add the last author list
-            current_titles_list = " &bull; ".join(current_titles_list)
-            master_month_list.append((current_titles_list, current_date))
+            # Add the last month list
+            add_to_master_month_list(current_titles_list)
 
-            # Add *article* entries for each populated author initial letter
+            # Add *article* entries for each populated month
             # master_months_list{}: [0]:titles list [1]:date
             for books_by_month in master_month_list:
-                print "titles:%s \ndate:%s" % books_by_month
-                navPointByLetterTag = Tag(soup, 'navPoint')
-                navPointByLetterTag['class'] = "article"
-                navPointByLetterTag['id'] = "%s-%s-ID" % (books_by_month[1].year,books_by_month[1].month )
+                navPointByMonthTag = Tag(soup, 'navPoint')
+                navPointByMonthTag['class'] = "article"
+                navPointByMonthTag['id'] = "%s-%s-ID" % (books_by_month[1].year,books_by_month[1].month )
                 navPointTag['playOrder'] = self.playOrder
                 self.playOrder += 1
                 navLabelTag = Tag(soup, 'navLabel')
@@ -2115,20 +2098,20 @@ class EPUB_MOBI(CatalogPlugin):
                 textTag.insert(0, NavigableString("Books added in %s %s" % \
                     (self.MONTHS[books_by_month[1].month], books_by_month[1].year)))
                 navLabelTag.insert(0, textTag)
-                navPointByLetterTag.insert(0,navLabelTag)
+                navPointByMonthTag.insert(0,navLabelTag)
                 contentTag = Tag(soup, 'content')
                 contentTag['src'] = "%s#%s-%s" % (HTML_file,
                     books_by_month[1].year,books_by_month[1].month)
 
-                navPointByLetterTag.insert(1,contentTag)
+                navPointByMonthTag.insert(1,contentTag)
 
                 if self.generateForKindle:
                     cmTag = Tag(soup, '%s' % 'calibre:meta')
                     cmTag['name'] = "description"
                     cmTag.insert(0, NavigableString(books_by_month[0]))
-                    navPointByLetterTag.insert(2, cmTag)
+                    navPointByMonthTag.insert(2, cmTag)
 
-                navPointTag.insert(nptc, navPointByLetterTag)
+                navPointTag.insert(nptc, navPointByMonthTag)
                 nptc += 1
 
             # Add this section to the body
@@ -2136,12 +2119,15 @@ class EPUB_MOBI(CatalogPlugin):
             btc += 1
             self.ncxSoup = soup
 
-        def generateNCXByTags(self, tocTitle):
+        def generateNCXByGenre(self, tocTitle):
             # Create an NCX section for 'By Genre'
             # Add each genre as an article
             # 'tag', 'file', 'authors'
 
-            self.opts.log.info(self.updateProgressFullStep("generateNCXByTags()"))
+            self.opts.log.info(self.updateProgressFullStep("generateNCXByGenre()"))
+
+
+
 
             if not len(self.genres):
                 self.opts.log.warn(" No genres found in tags.\n"
@@ -2239,7 +2225,6 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = ncx_soup
 
         def writeNCX(self):
-
             self.opts.log.info(self.updateProgressFullStep("writeNCX()"))
 
             outfile = open("%s/%s.ncx" % (self.catalogPath, self.basename), 'w')
@@ -2533,7 +2518,6 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateShortDescription(self, description):
             # Truncate the description to description_clip, on word boundaries if necessary
-
             if not description:
                 return None
 
@@ -2545,7 +2529,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Start adding words until we reach description_clip
             short_description = ""
-            words = description.split(" ")
+            words = description.split()
             for word in words:
                 short_description += word + " "
                 if len(short_description) > self.descriptionClip:
@@ -2667,7 +2651,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         # Add local options
         opts.creator = "calibre"
-        opts.descriptionClip = 250
+        opts.descriptionClip = 380 if self.opts.output_profile.endswith('dx') else 90
         opts.basename = "Catalog"
         opts.plugin_path = self.plugin_path
 
