@@ -171,10 +171,26 @@ class PML_HTMLizer(object):
         # &. It will display as &amp;
         pml = pml.replace('&', '&amp;')
 
+        pml = re.sub(r'(?<=\\x)(?P<text>.*?)(?=\\x)', lambda match: '="%s"%s' % (self.strip_pml(match.group('text')), match.group('text')), pml)
+        pml = re.sub(r'(?<=\\X[0-4])(?P<text>.*?)(?=\\X[0-4])', lambda match: '="%s"%s' % (self.strip_pml(match.group('text')), match.group('text')), pml)
+
         pml = re.sub(r'\\a(?P<num>\d{3})', lambda match: '&#%s;' % match.group('num'), pml)
         pml = re.sub(r'\\U(?P<num>[0-9a-f]{4})', lambda match: '%s' % my_unichr(int(match.group('num'), 16)), pml)
 
         pml = prepare_string_for_xml(pml)
+
+        return pml
+
+    def strip_pml(self, pml):
+        pml = re.sub(r'\\.\d=""', '', pml)
+        pml = re.sub(r'\\.=""', '', pml)
+        pml = re.sub(r'\\.\d', '', pml)
+        pml = re.sub(r'\\.', '', pml)
+        pml = re.sub(r'\\a\d\d\d', '', pml)
+        pml = re.sub(r'\\U\d\d\d\d', '', pml)
+        pml.replace('\r\n', ' ')
+        pml.replace('\n', ' ')
+        pml.replace('\r', ' ')
 
         return pml
 
@@ -503,9 +519,9 @@ class PML_HTMLizer(object):
                 if c == '\\':
                     c = line.read(1)
 
-                    if c in 'xqcrtTiIuobBlk':
+                    if c in 'qcrtTiIuobBlk':
                         text = self.process_code(c, line)
-                    elif c in 'FSX':
+                    elif c in 'FS':
                         l = line.read(1)
                         if '%s%s' % (c, l) == 'Fn':
                             text = self.process_code('Fn', line, 'fn')
@@ -515,8 +531,24 @@ class PML_HTMLizer(object):
                             text = self.process_code('SB', line)
                         elif '%s%s' % (c, l) == 'Sd':
                             text = self.process_code('Sd', line, 'sb')
+                    elif c in 'xXC':
+                        # The PML was modified eariler so x and X put the text
+                        # inside of ="" so we don't have do special processing
+                        # for C.
+                        t = ''
+                        if c in 'XC':
+                            level = line.read(1)
+                        id = 'pml_toc-%s' % len(self.toc)
+                        value = self.code_value(line)
+                        if c == 'x':
+                            t = self.process_code(c, line)
+                        elif c == 'X':
+                            t = self.process_code('%s%s' % (c, level), line)
+                        if not value or value == '':
+                            text = t
                         else:
-                            text = self.process_code('%s%s' % (c, l), line)
+                            self.toc.add_item(os.path.basename(self.file_name), id, value)
+                            text = '<span id="%s"></span>%s' % (id, t)
                     elif c == 'm':
                         empty = False
                         src = self.code_value(line)
@@ -528,11 +560,6 @@ class PML_HTMLizer(object):
                     elif c == 'p':
                         empty = False
                         text = '<br /><br style="page-break-after: always;" />'
-                    elif c == 'C':
-                        line.read(1)
-                        id = 'pml_toc-%s' % len(self.toc)
-                        self.toc.add_item(os.path.basename(self.file_name), id, self.code_value(line))
-                        text = '<span id="%s"></span>' % id
                     elif c == 'n':
                         pass
                     elif c == 'w':

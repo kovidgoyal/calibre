@@ -256,11 +256,16 @@ class Region(object):
         return len(self.columns) == 0
 
     @property
-    def is_small(self):
+    def line_count(self):
         max_lines = 0
         for c in self.columns:
             max_lines = max(max_lines, len(c))
-        return max_lines > 2
+        return max_lines
+
+
+    @property
+    def is_small(self):
+        return self.line_count < 3
 
     def absorb(self, singleton):
 
@@ -431,7 +436,7 @@ class Page(object):
     def coalesce_regions(self):
         # find contiguous sets of small regions
         # absorb into a neighboring region (prefer the one with number of cols
-        # closer to the avg number of cols in the set, if equal use large
+        # closer to the avg number of cols in the set, if equal use larger
         # region)
         # merge contiguous regions that can contain each other
         absorbed = set([])
