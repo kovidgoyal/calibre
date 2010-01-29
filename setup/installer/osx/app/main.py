@@ -266,6 +266,7 @@ class Py2App(object):
     def get_local_dependencies(self, path_to_lib):
         for x in self.get_dependencies(path_to_lib):
             for y in (SW+'/lib/', '/usr/local/lib/', SW+'/qt/lib/',
+                    '/opt/local/lib/',
                     '/Library/Frameworks/Python.framework/', SW+'/freetype/lib/'):
                 if x.startswith(y):
                     if y == '/Library/Frameworks/Python.framework/':
@@ -338,8 +339,8 @@ class Py2App(object):
         c = join(self.build_dir, 'Contents')
         for x in ('Frameworks', 'MacOS', 'Resources'):
             os.makedirs(join(c, x))
-        x = 'library.icns'
-        shutil.copyfile(join('icons', x), join(self.resources_dir, x))
+        for x in ('library.icns', 'book.icns'):
+            shutil.copyfile(join('icons', x), join(self.resources_dir, x))
 
     @flush
     def add_calibre_plugins(self):
@@ -358,6 +359,10 @@ class Py2App(object):
         from calibre.ebooks import BOOK_EXTENSIONS
         env = dict(**ENV)
         env['CALIBRE_LAUNCHED_FROM_BUNDLE']='1';
+        docs = [{'CFBundleTypeName':'E-book',
+            'CFBundleTypeExtensions':list(BOOK_EXTENSIONS),
+            'CFBundleTypeRole':'Viewer',
+            }]
 
         pl = dict(
                 CFBundleDevelopmentRegion='English',
@@ -368,7 +373,7 @@ class Py2App(object):
                 CFBundlePackageType='APPL',
                 CFBundleSignature='????',
                 CFBundleExecutable='calibre',
-                CFBundleTypeExtensions=list(BOOK_EXTENSIONS),
+                CFBundleDocumentTypes=docs,
                 LSMinimumSystemVersion='10.4.2',
                 LSRequiresNativeExecution=True,
                 NSAppleScriptEnabled=False,
@@ -596,7 +601,7 @@ class Py2App(object):
             if x == 'Info.plist':
                 plist = plistlib.readPlist(join(self.contents_dir, x))
                 plist['LSUIElement'] = '1'
-                plist.pop('CFBundleTypeExtensions')
+                plist.pop('CFBundleDocumentTypes')
                 plistlib.writePlist(plist, join(cc_dir, x))
             else:
                 os.symlink(join('../..', x),
