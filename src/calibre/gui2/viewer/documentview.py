@@ -514,7 +514,7 @@ class DocumentView(QWebView):
             mt = guess_type(path)[0]
         html = open(path, 'rb').read().decode(path.encoding, 'replace')
         html = EntityDeclarationProcessor(html).processed_html
-        has_svg = re.search(r'<\S*svg', html) is not None
+        has_svg = re.search(r'<[:a-z]*svg', html) is not None
 
         if 'xhtml' in mt:
             html = self.self_closing_pat.sub(self.self_closing_sub, html)
@@ -522,6 +522,7 @@ class DocumentView(QWebView):
             self.manager.load_started()
         self.loading_url = QUrl.fromLocalFile(path)
         if has_svg:
+            prints('Rendering as XHTML...')
             self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
         else:
             self.setHtml(html, self.loading_url)
