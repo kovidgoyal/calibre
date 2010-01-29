@@ -502,7 +502,7 @@ class EPUB_MOBI(CatalogPlugin):
         # verbosity             level of diagnostic printout
 
         def __init__(self, db, opts, plugin,
-                     notification=DummyReporter(),
+                     report_progress=DummyReporter(),
                      stylesheet="content/stylesheet.css"):
             self.__opts = opts
             self.__authors = None
@@ -527,16 +527,12 @@ class EPUB_MOBI(CatalogPlugin):
             self.__plugin_path = opts.plugin_path
             self.__progressInt = 0.0
             self.__progressString = ''
-            self.__reporter = notification
+            self.__reporter = report_progress
             self.__stylesheet = stylesheet
             self.__thumbs = None
             self.__title = opts.catalog_title
             self.__verbose = opts.verbose
 
-            self.opts.log.info("CatalogBuilder(): Generating %s %s"% \
-                                (self.opts.fmt,
-                                 "for %s" % self.opts.output_profile if self.opts.output_profile \
-                                  else ''))
         # Accessors
         '''
         @dynamic_property
@@ -755,58 +751,26 @@ class EPUB_MOBI(CatalogPlugin):
 
         # Methods
         def buildSources(self):
-            if getattr(self.reporter, 'cancel_requested', False): return 1
-            if not self.booksByTitle:
-                self.fetchBooksByTitle()
-
-            if getattr(self.reporter, 'cancel_requested', False): return 1
+            self.fetchBooksByTitle()
             self.fetchBooksByAuthor()
-
-            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLDescriptions()
-
-            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLByAuthor()
-
-            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLByTitle()
-
-            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLByDateAdded()
-
-            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLByTags()
 
-            if getattr(self.reporter, 'cancel_requested', False): return 1
             from calibre.utils.PythonMagickWand import ImageMagick
             with ImageMagick():
                 self.generateThumbnails()
 
-            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateOPF()
-
-            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXHeader()
-
-            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXDescriptions("Descriptions")
-
-            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXByAuthor("Authors")
-
-            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXByTitle("Titles")
-
-            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXByDateAdded("Recently Added")
-
-            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXByGenre("Genres")
-
-            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.writeNCX()
-
-            return 0
 
         def cleanUp(self):
             pass
@@ -828,7 +792,7 @@ class EPUB_MOBI(CatalogPlugin):
                                     os.path.join(self.catalogPath, file[0]))
 
         def fetchBooksByTitle(self):
-            self.opts.log.info(self.updateProgressFullStep("fetchBooksByTitle()"))
+            self.updateProgressFullStep("Fetching database")
 
             # Get the database as a dictionary
             # Sort by title
@@ -875,7 +839,7 @@ class EPUB_MOBI(CatalogPlugin):
                     this_title['publisher'] = re.sub('&', '&amp;', record['publisher'])
 
                 this_title['rating'] = record['rating'] if record['rating'] else 0
-                this_title['date'] = strftime(u'%b %Y', record['pubdate'].timetuple())
+                this_title['date'] = strftime(u'%B %Y', record['pubdate'].timetuple())
                 this_title['timestamp'] = record['timestamp']
                 if record['comments']:
                     this_title['description'] = re.sub('&', '&amp;', record['comments'])
@@ -912,7 +876,7 @@ class EPUB_MOBI(CatalogPlugin):
         def fetchBooksByAuthor(self):
             # Generate a list of titles sorted by author from the database
 
-            self.opts.log.info(self.updateProgressFullStep("fetchBooksByAuthor()"))
+            self.updateProgressFullStep("Sorting database by author")
 
             # Sort titles case-insensitive
             self.booksByAuthor = sorted(self.booksByTitle,
@@ -965,14 +929,15 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateHTMLDescriptions(self):
             # Write each title to a separate HTML file in contentdir
-            self.opts.log.info(self.updateProgressFullStep("generateHTMLDescriptions()"))
+            self.updateProgressFullStep("Description")
 
             for (title_num, title) in enumerate(self.booksByTitle):
                 if False:
                     self.opts.log.info("%3s: %s - %s" % (title['id'], title['title'], title['author']))
 
-                self.updateProgressMicroStep("generating book descriptions ...",
-                        float(title_num*100/len(self.booksByTitle))/100)
+                self.updateProgressMicroStep("Description %d of %d" % \
+                                             (title_num, len(self.booksByTitle)),
+                                             float(title_num*100/len(self.booksByTitle))/100)
 
                 # Generate the header
                 soup = self.generateHTMLDescriptionHeader("%s" % title['title'])
@@ -1093,7 +1058,7 @@ class EPUB_MOBI(CatalogPlugin):
         def generateHTMLByTitle(self):
             # Write books by title A-Z to HTML file
 
-            self.opts.log.info(self.updateProgressFullStep("generateHTMLByTitle()"))
+            self.updateProgressFullStep("Books by Title")
 
             soup = self.generateHTMLEmptyHeader("Books By Alpha Title")
             body = soup.find('body')
@@ -1195,7 +1160,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateHTMLByAuthor(self):
             # Write books by author A-Z
-            self.opts.log.info(self.updateProgressFullStep("generateHTMLByAuthor()"))
+            self.updateProgressFullStep("Books by Author")
 
             friendly_name = "By Author"
 
@@ -1324,10 +1289,12 @@ class EPUB_MOBI(CatalogPlugin):
             self.htmlFileList.append("content/ByAlphaAuthor.html")
 
         def generateHTMLByDateAdded(self):
+            # Write books by reverse chronological order
+            self.updateProgressFullStep("Recently Added")
 
             def add_books_to_HTML(this_months_list, dtc):
                 if len(this_months_list):
-                    date_string = strftime(u'%b %Y', current_date.timetuple())
+                    date_string = strftime(u'%B %Y', current_date.timetuple())
                     this_months_list = sorted(this_months_list,
                                         key=lambda x:(x['title_sort'], x['title_sort']))
                     this_months_list = sorted(this_months_list,
@@ -1338,8 +1305,7 @@ class EPUB_MOBI(CatalogPlugin):
                     aTag = Tag(soup, "a")
                     aTag['name'] = "%s-%s" % (current_date.year, current_date.month)
                     pIndexTag.insert(0,aTag)
-                    pIndexTag.insert(1,NavigableString('%s %s' % \
-                        (self.MONTHS[current_date.month],current_date.year)))
+                    pIndexTag.insert(1,NavigableString(date_string))
                     divTag.insert(dtc,pIndexTag)
                     dtc += 1
                     current_author = None
@@ -1385,8 +1351,6 @@ class EPUB_MOBI(CatalogPlugin):
                         dtc += 1
                 return dtc
 
-            # Write books by reverse chronological order
-            self.opts.log.info(self.updateProgressFullStep("generateHTMLByDateAdded()"))
 
             # Sort titles case-insensitive
             self.booksByDate = sorted(self.booksByTitle,
@@ -1458,7 +1422,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Generate individual HTML files for each tag, e.g. Fiction, Nonfiction ...
             # Note that special tags - ~+*[] -  have already been filtered from books[]
 
-            self.opts.log.info(self.updateProgressFullStep("generateHTMLByTags()"))
+            self.updateProgressFullStep("Generating Genres")
 
             # Filter out REMOVE_TAGS, sort
             filtered_tags = self.filterDbTags(self.db.all_tags())
@@ -1539,7 +1503,8 @@ class EPUB_MOBI(CatalogPlugin):
 
             for (i,title) in enumerate(self.booksByTitle):
                 # Update status
-                self.updateProgressMicroStep("generating thumbnails ...",
+                self.updateProgressMicroStep("Thumbnail %d of %d" % \
+                    (i,len(self.booksByTitle)),
                         i/float(len(self.booksByTitle)))
                 # Check to see if source file exists
                 if 'cover' in title and os.path.isfile(title['cover']):
@@ -1561,7 +1526,7 @@ class EPUB_MOBI(CatalogPlugin):
                         self.generateThumbnail(title, image_dir, thumb_file)
                 else:
                     # Use default cover
-                    if self.verbose:
+                    if False and self.verbose:
                         self.opts.log.warn(" using default cover for '%s'" % \
                         (title['title']))
                     # Check to make sure default is current
@@ -1594,13 +1559,13 @@ class EPUB_MOBI(CatalogPlugin):
                         cover_timestamp = os.path.getmtime(cover)
                         thumb_timestamp = os.path.getmtime(thumb_fp)
                         if thumb_timestamp < cover_timestamp:
-                            if self.verbose:
+                            if False and self.verbose:
                                 self.opts.log.warn("updating thumbnail_default for %s" % title['title'])
                             #title['cover'] = "%s/DefaultCover.jpg" % self.catalogPath
                             title['cover'] = cover
                             self.generateThumbnail(title, image_dir, "thumbnail_default.jpg")
                     else:
-                        if self.verbose:
+                        if False and self.verbose:
                             self.opts.log.warn(" generating new thumbnail_default.jpg")
                         #title['cover'] = "%s/DefaultCover.jpg" % self.catalogPath
                         title['cover'] = cover
@@ -1610,7 +1575,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateOPF(self):
 
-            self.opts.log.info(self.updateProgressFullStep("generateOPF()"))
+            self.updateProgressFullStep("Generating OPF")
 
             header = '''
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -1742,7 +1707,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateNCXHeader(self):
 
-            self.opts.log.info(self.updateProgressFullStep("generateNCXHeader()"))
+            self.updateProgressFullStep("NCX header")
 
             header = '''
                 <?xml version="1.0" encoding="utf-8"?>
@@ -1778,7 +1743,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateNCXDescriptions(self, tocTitle):
 
-            self.opts.log.info(self.updateProgressFullStep("generateNCXDescriptions()"))
+            self.updateProgressFullStep("NCX descriptions")
 
             # --- Construct the 'Books by Title' section ---
             ncx_soup = self.ncxSoup
@@ -1845,7 +1810,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = ncx_soup
 
         def generateNCXByTitle(self, tocTitle):
-            self.opts.log.info(self.updateProgressFullStep("generateNCXByTitle()"))
+            self.updateProgressFullStep("NCX Titles")
 
             def add_to_books_by_letter(current_book_list):
                 current_book_list = " &bull; ".join(current_book_list)
@@ -1934,7 +1899,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = soup
 
         def generateNCXByAuthor(self, tocTitle):
-            self.opts.log.info(self.updateProgressFullStep("generateNCXByAuthor()"))
+            self.updateProgressFullStep("NCX Authors")
 
             def add_to_author_list(current_author_list, current_letter):
                 current_author_list = " &bull; ".join(current_author_list)
@@ -2023,7 +1988,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = soup
 
         def generateNCXByDateAdded(self, tocTitle):
-            self.opts.log.info(self.updateProgressFullStep("generateNCXByDateAdded()"))
+            self.updateProgressFullStep("NCX Recently Added")
 
             def add_to_master_month_list(current_titles_list):
                 current_titles_list = " &bull; ".join(current_titles_list)
@@ -2081,7 +2046,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Add *article* entries for each populated month
             # master_months_list{}: [0]:titles list [1]:date
             for books_by_month in master_month_list:
-                datestr = strftime(u'%b %Y', books_by_month[1].timetuple())
+                datestr = strftime(u'%B %Y', books_by_month[1].timetuple())
                 navPointByMonthTag = Tag(soup, 'navPoint')
                 navPointByMonthTag['class'] = "article"
                 navPointByMonthTag['id'] = "%s-%s-ID" % (books_by_month[1].year,books_by_month[1].month )
@@ -2089,7 +2054,7 @@ class EPUB_MOBI(CatalogPlugin):
                 self.playOrder += 1
                 navLabelTag = Tag(soup, 'navLabel')
                 textTag = Tag(soup, 'text')
-                textTag.insert(0, NavigableString("Books added in " + datestr))
+                textTag.insert(0, NavigableString(datestr))
                 navLabelTag.insert(0, textTag)
                 navPointByMonthTag.insert(0,navLabelTag)
                 contentTag = Tag(soup, 'content')
@@ -2117,7 +2082,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Add each genre as an article
             # 'tag', 'file', 'authors'
 
-            self.opts.log.info(self.updateProgressFullStep("generateNCXByGenre()"))
+            self.updateProgressFullStep("NCX by Genre")
 
 
 
@@ -2218,7 +2183,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = ncx_soup
 
         def writeNCX(self):
-            self.opts.log.info(self.updateProgressFullStep("writeNCX()"))
+            self.updateProgressFullStep("Writing NCX")
 
             outfile = open("%s/%s.ncx" % (self.catalogPath, self.basename), 'w')
             outfile.write(self.ncxSoup.prettify())
@@ -2305,7 +2270,7 @@ class EPUB_MOBI(CatalogPlugin):
                     else:
                         continue
             if self.verbose:
-                self.opts.log.info(' %d Genre tags in database (exclude_genre: %s):' % \
+                self.opts.log.info(' %d Genre tags (exclude_genre: %s):' % \
                                      (len(filtered_tags), self.opts.exclude_genre))
                 self.opts.log.info(' %s' % ', '.join(filtered_tags))
 
@@ -2620,12 +2585,10 @@ class EPUB_MOBI(CatalogPlugin):
                 self.opts.log.info('%s not implemented' % self.error)
 
         def updateProgressFullStep(self, description):
-
             self.current_step += 1
             self.progressString = description
             self.progressInt = float((self.current_step-1)/self.total_steps)
-            self.reporter(self.progressInt/100., self.progressString)
-            return u"%.2f%% %s" % (self.progressInt, self.progressString)
+            self.reporter(self.progressInt, self.progressString)
 
         def updateProgressMicroStep(self, description, micro_step_pct):
             step_range = 100/self.total_steps
@@ -2633,11 +2596,9 @@ class EPUB_MOBI(CatalogPlugin):
             coarse_progress = float((self.current_step-1)/self.total_steps)
             fine_progress = float((micro_step_pct*step_range)/100)
             self.progressInt = coarse_progress + fine_progress
-            self.reporter(self.progressInt/100., self.progressString)
-            return u"%.2f%% %s" % (self.progressInt, self.progressString)
+            self.reporter(self.progressInt, self.progressString)
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
-
         opts.log = log = Log()
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
         self.opts = opts
@@ -2650,28 +2611,27 @@ class EPUB_MOBI(CatalogPlugin):
 
         if opts.verbose:
             opts_dict = vars(opts)
-            log("%s:run" % self.name)
-            log(" path_to_output: %s" % path_to_output)
-            log(" Output format: %s" % self.fmt)
+            log("%s(): Generating %s for %s" % (self.name,self.fmt,opts.output_profile))
             if opts_dict['ids']:
                 log(" Book count: %d" % len(opts_dict['ids']))
             # Display opts
             keys = opts_dict.keys()
             keys.sort()
             log(" opts:")
+
             for key in keys:
-                if key == 'ids':
-                    if opts_dict[key]:
-                        continue
-                    else:
-                        log("  %s: (all)" % key)
-                log("  %s: %s" % (key, opts_dict[key]))
+                if key in ['catalog_title','exclude_genre','exclude_tags','note_tag',
+                           'numbers_as_text','read_tag','search_text','sort_by']:
+                    log("  %s: %s" % (key, opts_dict[key]))
 
         # Launch the Catalog builder
-        catalog = self.CatalogBuilder(db, opts, self, notification=notification)
+        catalog = self.CatalogBuilder(db, opts, self, report_progress=notification)
         catalog.createDirectoryStructure()
         catalog.copyResources()
         catalog.buildSources()
+
+        if opts.verbose:
+            log.info("Catalog source generation complete")
 
         recommendations = []
 
