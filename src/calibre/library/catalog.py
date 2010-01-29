@@ -4,7 +4,7 @@ from collections import namedtuple
 from datetime import date
 from xml.sax.saxutils import escape
 
-from calibre import filesystem_encoding, prints
+from calibre import filesystem_encoding, prints, strftime
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
@@ -97,7 +97,7 @@ class CSV_XML(CatalogPlugin):
                         item = ', '.join(item)
                     elif field == 'isbn':
                         # Could be 9, 10 or 13 digits
-                        field = '%s' % re.sub('[\D]','',field)
+                        field = u'%s' % re.sub(r'[\D]','',field)
 
                     if x < len(fields) - 1:
                         if item is not None:
@@ -488,9 +488,6 @@ class EPUB_MOBI(CatalogPlugin):
         current_step = 0.0
         total_steps = 14.0
 
-        # Used to xlate pubdate to friendly format
-        MONTHS = ['','January', 'February','March','April','May','June',
-                      'July','August','September','October','November','December']
         THUMB_WIDTH = 75
         THUMB_HEIGHT = 100
 
@@ -878,9 +875,7 @@ class EPUB_MOBI(CatalogPlugin):
                     this_title['publisher'] = re.sub('&', '&amp;', record['publisher'])
 
                 this_title['rating'] = record['rating'] if record['rating'] else 0
-                # <pubdate>2009-11-05 09:29:37</pubdate>
-                date_strings = str(record['pubdate']).split("-")
-                this_title['date'] = '%s %s' % (self.MONTHS[int(date_strings[1])], date_strings[0])
+                this_title['date'] = strftime(u'%b %Y', record['pubdate'].timetuple())
                 this_title['timestamp'] = record['timestamp']
                 if record['comments']:
                     this_title['description'] = re.sub('&', '&amp;', record['comments'])
@@ -1332,11 +1327,11 @@ class EPUB_MOBI(CatalogPlugin):
 
             def add_books_to_HTML(this_months_list, dtc):
                 if len(this_months_list):
+                    date_string = strftime(u'%b %Y', current_date.timetuple())
                     this_months_list = sorted(this_months_list,
                                         key=lambda x:(x['title_sort'], x['title_sort']))
                     this_months_list = sorted(this_months_list,
                                         key=lambda x:(x['author_sort'], x['author_sort']))
-
                     # Create a new month anchor
                     pIndexTag = Tag(soup, "p")
                     pIndexTag['class'] = "date_index"
@@ -1435,7 +1430,6 @@ class EPUB_MOBI(CatalogPlugin):
             dtc = 0
 
             current_date = date.fromordinal(1)
-            current_author = None
 
             # Loop through books by date
             this_months_list = []
@@ -2066,7 +2060,6 @@ class EPUB_MOBI(CatalogPlugin):
             # add description_preview_count titles
             # self.authors[0]:friendly [1]:author_sort [2]:book_count
             current_titles_list = []
-            current_author_list = []
             master_month_list = []
             current_date = self.booksByDate[0]['timestamp']
 
@@ -2088,6 +2081,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Add *article* entries for each populated month
             # master_months_list{}: [0]:titles list [1]:date
             for books_by_month in master_month_list:
+                datestr = strftime(u'%b %Y', books_by_month[1].timetuple())
                 navPointByMonthTag = Tag(soup, 'navPoint')
                 navPointByMonthTag['class'] = "article"
                 navPointByMonthTag['id'] = "%s-%s-ID" % (books_by_month[1].year,books_by_month[1].month )
@@ -2095,8 +2089,7 @@ class EPUB_MOBI(CatalogPlugin):
                 self.playOrder += 1
                 navLabelTag = Tag(soup, 'navLabel')
                 textTag = Tag(soup, 'text')
-                textTag.insert(0, NavigableString("Books added in %s %s" % \
-                    (self.MONTHS[books_by_month[1].month], books_by_month[1].year)))
+                textTag.insert(0, NavigableString("Books added in " + datestr))
                 navLabelTag.insert(0, textTag)
                 navPointByMonthTag.insert(0,navLabelTag)
                 contentTag = Tag(soup, 'content')

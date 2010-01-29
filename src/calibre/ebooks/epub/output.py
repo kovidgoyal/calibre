@@ -269,7 +269,7 @@ class EPUBOutput(OutputFormatPlugin):
                 bad = []
                 for x in XPath('//h:img')(body):
                     src = x.get('src', '').strip()
-                    if src in ('', '#'):
+                    if src in ('', '#') or src.startswith('http:'):
                         bad.append(x)
                 for img in bad:
                     img.getparent().remove(img)

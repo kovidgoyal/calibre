@@ -84,6 +84,7 @@ if not _run_once:
         return res
 
     os.path.abspath = my_abspath
+
     _join = os.path.join
     def my_join(a, *p):
         encoding=sys.getfilesystemencoding()

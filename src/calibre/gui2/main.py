@@ -2,6 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, os, time, socket, traceback
+from functools import partial
 
 from PyQt4.Qt import QCoreApplication, QIcon, QMessageBox
 
@@ -52,10 +53,12 @@ def run_gui(opts, args, actions, listener, app):
         wizard().exec_()
         dynamic.set('welcome_wizard_was_run', True)
     main = Main(listener, opts, actions)
+    add_filesystem_book = partial(main.add_filesystem_book, allow_device=False)
     sys.excepthook = main.unhandled_exception
     if len(args) > 1:
         args[1] = os.path.abspath(args[1])
-        main.add_filesystem_book(args[1])
+        add_filesystem_book(args[1])
+    app.file_event_hook = add_filesystem_book
     ret = app.exec_()
     if getattr(main, 'run_wizard_b4_shutdown', False):
         from calibre.gui2.wizard import wizard

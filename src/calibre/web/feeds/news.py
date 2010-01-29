@@ -558,8 +558,6 @@ class BasicNewsRecipe(Recipe):
             '--max-recursions', str(self.recursions),
             '--delay', str(self.delay),
             ]
-        if self.encoding is not None:
-            web2disk_cmdline.extend(['--encoding', self.encoding])
 
         if self.verbose:
             web2disk_cmdline.append('--verbose')
@@ -578,6 +576,7 @@ class BasicNewsRecipe(Recipe):
                       'preprocess_html', 'remove_tags_after', 'remove_tags_before'):
             setattr(self.web2disk_options, extra, getattr(self, extra))
         self.web2disk_options.postprocess_html = self._postprocess_html
+        self.web2disk_options.encoding = self.encoding
 
         if self.delay > 0:
             self.simultaneous_downloads = 1
@@ -761,6 +760,7 @@ class BasicNewsRecipe(Recipe):
         self.report_progress(0, _('Trying to download cover...'))
         self.download_cover()
         self.report_progress(0, _('Generating masthead...'))
+        self.masthead_path = None
         try:
             murl = self.get_masthead_url()
         except:
@@ -768,7 +768,7 @@ class BasicNewsRecipe(Recipe):
             murl = None
         if murl is not None:
             self.download_masthead(murl)
-        else:
+        if self.masthead_path is None:
             self.masthead_path = os.path.join(self.output_dir, 'mastheadImage.jpg')
             self.default_masthead_image(self.masthead_path)
 
@@ -894,7 +894,7 @@ class BasicNewsRecipe(Recipe):
             ext = ''
         ext = ext.lower() if ext else 'jpg'
         mpath = os.path.join(self.output_dir, 'masthead_source.'+ext)
-        self.masthead_path = os.path.join(self.output_dir, 'mastheadImage.jpg')
+        outfile = os.path.join(self.output_dir, 'mastheadImage.jpg')
         if os.access(mu, os.R_OK):
             with open(mpath, 'wb') as mfile:
                 mfile.write(open(mu, 'rb').read())
@@ -902,20 +902,17 @@ class BasicNewsRecipe(Recipe):
             with nested(open(mpath, 'wb'), closing(self.browser.open(mu))) as (mfile, r):
                 mfile.write(r.read())
             self.report_progress(1, _('Masthead image downloaded'))
-        self.prepare_masthead_image(mpath, self.masthead_path)
+        self.prepare_masthead_image(mpath, outfile)
+        self.masthead_path = outfile
         if os.path.exists(mpath):
             os.remove(mpath)
 
 
     def download_masthead(self, url):
-        br = BasicNewsRecipe.get_browser()
         try:
-            br.open(url)
             self._download_masthead(url)
         except:
             self.log.exception("Failed to download supplied masthead_url, synthesizing")
-            self.masthead_path = os.path.join(self.output_dir, 'mastheadImage.jpg')
-            self.default_masthead_image(self.masthead_path)
 
     def default_cover(self, cover_file):
         '''

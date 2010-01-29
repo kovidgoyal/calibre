@@ -3,7 +3,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import os
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
-                         QByteArray, QTranslator, QCoreApplication, QThread
+                         QByteArray, QTranslator, QCoreApplication, QThread, \
+                         QEvent
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView, QApplication, QDialog, QPushButton
 
@@ -524,6 +525,7 @@ class Application(QApplication):
     def __init__(self, args):
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         QApplication.__init__(self, qargs)
+        self.file_event_hook = None
         global gui_thread, qt_app
         gui_thread = QThread.currentThread()
         self._translator = None
@@ -548,6 +550,15 @@ class Application(QApplication):
         self._translator = QTranslator(self)
         if set_qt_translator(self._translator):
             self.installTranslator(self._translator)
+
+    def event(self, e):
+        if callable(self.file_event_hook) and e.type() == QEvent.FileOpen:
+            path = unicode(e.file())
+            if os.access(path, os.R_OK):
+                self.file_event_hook(path)
+            return True
+        else:
+            return QApplication.event(self, e)
 
 _store_app = None
 
