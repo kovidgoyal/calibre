@@ -274,6 +274,10 @@ class BasicNewsRecipe(Recipe):
             }
     '''
 
+    #: By default, calibre will use a default image for the masthead (Kindle only).
+    #: Override this in your recipe to provide a url to use as a masthead.
+    masthead_url = None
+
     #: Set to a non empty string to disable this recipe
     #: The string will be used as the disabled message
     recipe_disabled = None
@@ -293,6 +297,17 @@ class BasicNewsRecipe(Recipe):
         before this method is called.
         '''
         return getattr(self, 'cover_url', None)
+
+    def get_masthead_url(self):
+        '''
+        Return a :term:`URL` to the masthead image for this issue or `None`.
+        By default it returns the value of the member `self.masthead_url` which
+        is normally `None`. If you want your recipe to download a masthead for the e-book
+        override this method in your subclass, or set the member variable `self.masthead_url`
+        before this method is called.
+        Masthead images are used in Kindle MOBI files.
+        '''
+        return getattr(self, 'masthead_url', None)
 
     def get_feeds(self):
         '''
@@ -745,6 +760,18 @@ class BasicNewsRecipe(Recipe):
 
         self.report_progress(0, _('Trying to download cover...'))
         self.download_cover()
+        self.report_progress(0, _('Generating masthead...'))
+        try:
+            murl = self.get_masthead_url()
+        except:
+            self.log.exception('Failed to get masthead url')
+            murl = None
+        if murl is not None:
+            self.download_masthead(murl)
+        else:
+            self.masthead_path = os.path.join(self.output_dir, 'mastheadImage.jpg')
+            self.default_masthead_image(self.masthead_path)
+
         if self.test:
             feeds = feeds[:2]
         self.has_single_feed = len(feeds) == 1
@@ -861,6 +888,33 @@ class BasicNewsRecipe(Recipe):
             self.log.exception('Failed to download cover')
             self.cover_path = None
 
+    def _download_masthead(self, mu):
+        ext = mu.rpartition('.')[-1]
+        if '?' in ext:
+            ext = ''
+        ext = ext.lower() if ext else 'jpg'
+        mpath = os.path.join(self.output_dir, 'masthead_source.'+ext)
+        outfile = os.path.join(self.output_dir, 'mastheadImage.jpg')
+        if os.access(mu, os.R_OK):
+            with open(mpath, 'wb') as mfile:
+                mfile.write(open(mu, 'rb').read())
+        else:
+            with nested(open(mpath, 'wb'), closing(self.browser.open(mu))) as (mfile, r):
+                mfile.write(r.read())
+            self.report_progress(1, _('Masthead image downloaded'))
+        self.prepare_masthead_image(mpath, outfile)
+        self.masthead_path = outfile
+        if os.path.exists(mpath):
+            os.remove(mpath)
+
+
+    def download_masthead(self, url):
+        try:
+            self._download_masthead(url)
+        except:
+            self.log.exception('Failed to download masthead')
+
+
     def default_cover(self, cover_file):
         '''
         Create a generic cover for recipes that dont have a cover
@@ -964,7 +1018,7 @@ class BasicNewsRecipe(Recipe):
                 raise IOError('Failed to read image from: %s: %s'
                         %(path_to_image, msg))
             pw.PixelSetColor(p, 'white')
-            width, height = pw.MagickGetImageWidth(img),pw.MagickGetImageHeight(img)[1:]
+            width, height = pw.MagickGetImageWidth(img),pw.MagickGetImageHeight(img)
             scaled, nwidth, nheight = fit_image(width, height, 600, 100)
             if not pw.MagickNewImage(img2, width, height, p):
                 raise RuntimeError('Out of memory')
@@ -988,7 +1042,6 @@ class BasicNewsRecipe(Recipe):
             for x in (img, img2, frame):
                 pw.DestroyMagickWand(x)
 
-
     def create_opf(self, feeds, dir=None):
         if dir is None:
             dir = self.output_dir
@@ -1003,11 +1056,22 @@ class BasicNewsRecipe(Recipe):
         mi.pubdate = datetime.now()
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
+
         opf = OPFCreator(dir, mi)
+        # Add mastheadImage entry to <guide> section
+        mp = getattr(self, 'masthead_path', None)
+        if mp is not None:
+            from calibre.ebooks.metadata.opf2 import Guide
+            ref = Guide.Reference(os.path.basename(self.masthead_path), os.getcwdu())
+            ref.type = 'masthead'
+            ref.title = 'Masthead Image'
+            opf.guide.append(ref)
 
         manifest = [os.path.join(dir, 'feed_%d'%i) for i in range(len(feeds))]
         manifest.append(os.path.join(dir, 'index.html'))
         manifest.append(os.path.join(dir, 'index.ncx'))
+
+        # Get cover
         cpath = getattr(self, 'cover_path', None)
         if cpath is None:
             pf = open(os.path.join(dir, 'cover.jpg'), 'wb')
@@ -1016,10 +1080,18 @@ class BasicNewsRecipe(Recipe):
         if cpath is not None and os.access(cpath, os.R_OK):
             opf.cover = cpath
             manifest.append(cpath)
+
+        # Get masthead
+        mpath = getattr(self, 'masthead_path', None)
+        if mpath is not None and os.access(mpath, os.R_OK):
+            manifest.append(mpath)
+
         opf.create_manifest_from_files_in(manifest)
         for mani in opf.manifest:
             if mani.path.endswith('.ncx'):
                 mani.id = 'ncx'
+            if mani.path.endswith('mastheadImage.jpg'):
+                mani.id = 'masthead-image'
 
         entries = ['index.html']
         toc = TOC(base_path=dir)
