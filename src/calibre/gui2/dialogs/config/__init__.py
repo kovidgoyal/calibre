@@ -458,6 +458,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.connect(self.button_open_config_dir, SIGNAL('clicked()'),
                 self.open_config_dir)
         self.opt_get_social_metadata.setChecked(config['get_social_metadata'])
+        self.opt_overwrite_author_title_metadata.setChecked(config['overwrite_author_title_metadata'])
         self.opt_enforce_cpu_limit.setChecked(config['enforce_cpu_limit'])
         self.device_detection_button.clicked.connect(self.debug_device_detection)
 
@@ -751,6 +752,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['upload_news_to_device'] = self.sync_news.isChecked()
         config['search_as_you_type'] = self.search_as_you_type.isChecked()
         config['get_social_metadata'] = self.opt_get_social_metadata.isChecked()
+        config['overwrite_author_title_metadata'] = self.opt_overwrite_author_title_metadata.isChecked()
         config['enforce_cpu_limit'] = bool(self.opt_enforce_cpu_limit.isChecked())
         fmts = []
         for i in range(self.viewer.count()):

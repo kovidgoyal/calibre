@@ -89,6 +89,8 @@ def _config():
             help=_('Maximum number of waiting worker processes'))
     c.add_opt('get_social_metadata', default=True,
             help=_('Download social metadata (tags/rating/etc.)'))
+    c.add_opt('overwrite_author_title_metadata', default=True,
+            help=_('Overwrite author and title with new metadata'))
     c.add_opt('enforce_cpu_limit', default=True,
             help=_('Limit max simultaneous jobs to number of CPUs'))
 

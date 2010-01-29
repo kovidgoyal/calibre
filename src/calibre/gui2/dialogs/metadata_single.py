@@ -574,9 +574,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                                        det_msg=det, show=True)
                         else:
                             book.tags = []
-                        self.title.setText(book.title)
-                        self.authors.setText(authors_to_string(book.authors))
-                        if book.author_sort: self.author_sort.setText(book.author_sort)
+                        if d.opt_overwrite_author_title_metadata.isChecked():
+                            self.title.setText(book.title)
+                            self.authors.setText(authors_to_string(book.authors))
+                            if book.author_sort: self.author_sort.setText(book.author_sort)
                         if book.publisher: self.publisher.setEditText(book.publisher)
                         if book.isbn: self.isbn.setText(book.isbn)
                         if book.pubdate:

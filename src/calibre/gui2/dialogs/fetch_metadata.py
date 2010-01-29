@@ -119,6 +119,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.matches.setMouseTracking(True)
         self.fetch_metadata()
         self.opt_get_social_metadata.setChecked(config['get_social_metadata'])
+        self.opt_overwrite_author_title_metadata.setChecked(config['overwrite_author_title_metadata'])
 
 
     def show_summary(self, current, *args):
