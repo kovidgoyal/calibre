@@ -51,18 +51,23 @@ class CSV_XML(CatalogPlugin):
         self.fmt = path_to_output.rpartition('.')[2]
         self.notification = notification
 
-        if False and opts.verbose:
-            log("%s:run" % self.name)
-            log(" path_to_output: %s" % path_to_output)
-            log(" Output format: %s" % self.fmt)
-
-            # Display opts
+        if opts.verbose:
             opts_dict = vars(opts)
-            keys = opts_dict.keys()
-            keys.sort()
-            log(" opts:")
-            for key in keys:
-                log("  %s: %s" % (key, opts_dict[key]))
+            log("%s(): Generating %s" % (self.name,self.fmt))
+            if opts_dict['search_text']:
+                log(" --search='%s'" % opts_dict['search_text'])
+
+            if opts_dict['ids']:
+                log(" Book count: %d" % len(opts_dict['ids']))
+                if opts_dict['search_text']:
+                    log(" (--search ignored when a subset of the database is specified)")
+
+            if opts_dict['fields']:
+                if opts_dict['fields'] == 'all':
+                    log(" Fields: %s" % ', '.join(FIELDS[1:]))
+                else:
+                    log(" Fields: %s" % opts_dict['fields'])
+
 
         # If a list of ids are provided, don't use search_text
         if opts.ids:

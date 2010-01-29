@@ -288,7 +288,7 @@ class CatalogPlugin(Plugin):
             fields = list(all_fields)
 
         fields.sort()
-        if opts.sort_by:
+        if opts.sort_by and opts.sort_by in fields:
             fields.insert(0,fields.pop(int(fields.index(opts.sort_by))))
         return fields
 
