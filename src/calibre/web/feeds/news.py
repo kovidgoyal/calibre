@@ -760,6 +760,7 @@ class BasicNewsRecipe(Recipe):
         self.report_progress(0, _('Trying to download cover...'))
         self.download_cover()
         self.report_progress(0, _('Generating masthead...'))
+        self.masthead_path = None
         try:
             murl = self.get_masthead_url()
         except:
@@ -767,7 +768,7 @@ class BasicNewsRecipe(Recipe):
             murl = None
         if murl is not None:
             self.download_masthead(murl)
-        else:
+        if self.masthead_path is None:
             self.masthead_path = os.path.join(self.output_dir, 'mastheadImage.jpg')
             self.default_masthead_image(self.masthead_path)
 
@@ -911,8 +912,7 @@ class BasicNewsRecipe(Recipe):
         try:
             self._download_masthead(url)
         except:
-            self.log.exception('Failed to download masthead')
-
+            self.log.exception("Failed to download supplied masthead_url, synthesizing")
 
     def default_cover(self, cover_file):
         '''
@@ -981,6 +981,9 @@ class BasicNewsRecipe(Recipe):
         'Override in subclass to use something other than the recipe title'
         return self.title
 
+    MI_WIDTH = 600
+    MI_HEIGHT = 60
+
     def default_masthead_image(self, out_path):
         try:
             from PIL import Image, ImageDraw, ImageFont
@@ -988,14 +991,13 @@ class BasicNewsRecipe(Recipe):
         except ImportError:
             import Image, ImageDraw, ImageFont
 
-
-        img = Image.new('RGB', (600, 100), 'white')
+        img = Image.new('RGB', (self.MI_WIDTH, self.MI_HEIGHT), 'white')
         draw = ImageDraw.Draw(img)
         font = ImageFont.truetype(P('fonts/liberation/LiberationSerif-Bold.ttf'), 48)
         text = self.get_masthead_title().encode('utf-8')
         width, height = draw.textsize(text, font=font)
-        left = max(int((600 - width)/2.), 0)
-        top = max(int((100 - height)/2.), 0)
+        left = max(int((self.MI_WIDTH - width)/2.), 0)
+        top = max(int((self.MI_HEIGHT - height)/2.), 0)
         draw.text((left, top), text, fill=(0,0,0), font=font)
         img.save(open(out_path, 'wb'), 'JPEG')
 
@@ -1018,10 +1020,10 @@ class BasicNewsRecipe(Recipe):
                         %(path_to_image, msg))
             pw.PixelSetColor(p, 'white')
             width, height = pw.MagickGetImageWidth(img),pw.MagickGetImageHeight(img)
-            scaled, nwidth, nheight = fit_image(width, height, 600, 100)
+            scaled, nwidth, nheight = fit_image(width, height, self.MI_WIDTH, self.MI_HEIGHT)
             if not pw.MagickNewImage(img2, width, height, p):
                 raise RuntimeError('Out of memory')
-            if not pw.MagickNewImage(frame, 600, 100, p):
+            if not pw.MagickNewImage(frame,  self.MI_WIDTH, self.MI_HEIGHT, p):
                 raise RuntimeError('Out of memory')
             if not pw.MagickCompositeImage(img2, img, pw.OverCompositeOp, 0, 0):
                 raise RuntimeError('Out of memory')
@@ -1029,8 +1031,8 @@ class BasicNewsRecipe(Recipe):
                 if not pw.MagickResizeImage(img2, nwidth, nheight, pw.LanczosFilter,
                         0.5):
                     raise RuntimeError('Out of memory')
-            left = int((600 - nwidth)/2.0)
-            top = int((100 - nheight)/2.0)
+            left = int((self.MI_WIDTH - nwidth)/2.0)
+            top = int((self.MI_HEIGHT - nheight)/2.0)
             if not pw.MagickCompositeImage(frame, img2, pw.OverCompositeOp,
                     left, top):
                 raise RuntimeError('Out of memory')

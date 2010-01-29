@@ -1,9 +1,10 @@
 import os, re, shutil, htmlentitydefs
 
 from collections import namedtuple
+from datetime import date
 from xml.sax.saxutils import escape
 
-from calibre import filesystem_encoding, prints
+from calibre import filesystem_encoding, prints, strftime
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
@@ -94,6 +95,10 @@ class CSV_XML(CatalogPlugin):
                         item = ', '.join(fmt_list)
                     elif field in ['authors','tags']:
                         item = ', '.join(item)
+                    elif field == 'isbn':
+                        # Could be 9, 10 or 13 digits
+                        field = u'%s' % re.sub(r'[\D]','',field)
+
                     if x < len(fields) - 1:
                         if item is not None:
                             outstr += u'"%s",' % unicode(item).replace('"','""')
@@ -483,9 +488,6 @@ class EPUB_MOBI(CatalogPlugin):
         current_step = 0.0
         total_steps = 13.0
 
-        # Used to xlate pubdate to friendly format
-        MONTHS = ['January', 'February','March','April','May','June',
-                      'July','August','September','October','November','December']
         THUMB_WIDTH = 75
         THUMB_HEIGHT = 100
 
@@ -764,10 +766,13 @@ class EPUB_MOBI(CatalogPlugin):
             self.generateHTMLDescriptions()
 
             if getattr(self.reporter, 'cancel_requested', False): return 1
+            self.generateHTMLByAuthor()
+
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLByTitle()
 
             if getattr(self.reporter, 'cancel_requested', False): return 1
-            self.generateHTMLByAuthor()
+            self.generateHTMLByDateAdded()
 
             if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateHTMLByTags()
@@ -787,10 +792,13 @@ class EPUB_MOBI(CatalogPlugin):
             self.generateNCXDescriptions("Descriptions")
 
             if getattr(self.reporter, 'cancel_requested', False): return 1
+            self.generateNCXByAuthor("Authors")
+
+            if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXByTitle("Titles")
 
             if getattr(self.reporter, 'cancel_requested', False): return 1
-            self.generateNCXByAuthor("Authors")
+            self.generateNCXByDateAdded("Recently Added")
 
             if getattr(self.reporter, 'cancel_requested', False): return 1
             self.generateNCXByTags("Genres")
@@ -867,10 +875,8 @@ class EPUB_MOBI(CatalogPlugin):
                     this_title['publisher'] = re.sub('&', '&amp;', record['publisher'])
 
                 this_title['rating'] = record['rating'] if record['rating'] else 0
-                # <pubdate>2009-11-05 09:29:37</pubdate>
-                date_strings = str(record['pubdate']).split("-")
-                this_title['date'] = '%s %s' % (self.MONTHS[int(date_strings[1])-1], date_strings[0])
-
+                this_title['date'] = strftime(u'%b %Y', record['pubdate'].timetuple())
+                this_title['timestamp'] = record['timestamp']
                 if record['comments']:
                     this_title['description'] = re.sub('&', '&amp;', record['comments'])
                     this_title['short_description'] = self.generateShortDescription(this_title['description'])
@@ -1316,6 +1322,142 @@ class EPUB_MOBI(CatalogPlugin):
             outfile.write(soup.prettify())
             outfile.close()
             self.htmlFileList.append("content/ByAlphaAuthor.html")
+
+        def generateHTMLByDateAdded(self):
+
+            def add_books_to_HTML(this_months_list, dtc):
+                if len(this_months_list):
+                    date_string = strftime(u'%b %Y', current_date.timetuple())
+                    this_months_list = sorted(this_months_list,
+                                        key=lambda x:(x['title_sort'], x['title_sort']))
+                    this_months_list = sorted(this_months_list,
+                                        key=lambda x:(x['author_sort'], x['author_sort']))
+                    prints("Books added in", date_string)
+
+                    # Create a new month anchor
+                    pIndexTag = Tag(soup, "p")
+                    pIndexTag['class'] = "date_index"
+                    aTag = Tag(soup, "a")
+                    aTag['name'] = "%s-%s" % (current_date.year, current_date.month)
+                    pIndexTag.insert(0,aTag)
+                    pIndexTag.insert(1,NavigableString('Books added in '+date_string))
+                    divTag.insert(dtc,pIndexTag)
+                    dtc += 1
+                    current_author = None
+
+                    for purchase in this_months_list:
+                        prints(u" %-40s \t %-20s \t %s" % (purchase['title'],
+                            purchase['author'], purchase['timestamp']))
+
+
+                        if purchase['author'] != current_author:
+                            # Start a new author
+                            current_author = purchase['author']
+                            pAuthorTag = Tag(soup, "p")
+                            pAuthorTag['class'] = "author_index"
+                            emTag = Tag(soup, "em")
+                            aTag = Tag(soup, "a")
+                            aTag['name'] = "%s" % self.generateAuthorAnchor(current_author)
+                            aTag.insert(0,NavigableString(current_author))
+                            emTag.insert(0,aTag)
+                            pAuthorTag.insert(0,emTag)
+                            divTag.insert(dtc,pAuthorTag)
+                            dtc += 1
+
+                        # Add books
+                        pBookTag = Tag(soup, "p")
+                        ptc = 0
+
+                        # Prefix book with read/unread symbol
+                        if purchase['read']:
+                            # check mark
+                            pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                            pBookTag['class'] = "read_book"
+                            ptc += 1
+                        else:
+                            # hidden check mark
+                            pBookTag['class'] = "unread_book"
+                            pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
+                            ptc += 1
+
+                        aTag = Tag(soup, "a")
+                        aTag['href'] = "book_%d.html" % (int(float(purchase['id'])))
+                        aTag.insert(0,escape(purchase['title']))
+                        pBookTag.insert(ptc, aTag)
+                        ptc += 1
+
+                        divTag.insert(dtc, pBookTag)
+                        dtc += 1
+                return dtc
+
+            # Write books by reverse chronological order
+            self.opts.log.info(self.updateProgressFullStep("generateHTMLByDateAdded()"))
+
+            # Sort titles case-insensitive
+            self.booksByDate = sorted(self.booksByTitle,
+                                 key=lambda x:(x['timestamp'], x['timestamp']),reverse=True)
+
+            friendly_name = "Recently Added"
+
+            soup = self.generateHTMLEmptyHeader(friendly_name)
+            body = soup.find('body')
+
+            btc = 0
+
+            # Insert section tag
+            aTag = Tag(soup,'a')
+            aTag['name'] = 'section_start'
+            body.insert(btc, aTag)
+            btc += 1
+
+            # Insert the anchor
+            aTag = Tag(soup, "a")
+            anchor_name = friendly_name.lower()
+            aTag['name'] = anchor_name.replace(" ","")
+            body.insert(btc, aTag)
+            btc += 1
+            '''
+            # We don't need this because the kindle inserts section titles
+            #<h2><a name="byalphaauthor" id="byalphaauthor"></a>By Author</h2>
+            h2Tag = Tag(soup, "h2")
+            aTag = Tag(soup, "a")
+            anchor_name = friendly_name.lower()
+            aTag['name'] = anchor_name.replace(" ","")
+            h2Tag.insert(0,aTag)
+            h2Tag.insert(1,NavigableString('%s' % friendly_name))
+            body.insert(btc,h2Tag)
+            btc += 1
+            '''
+
+            # <p class="letter_index">
+            # <p class="author_index">
+            divTag = Tag(soup, "div")
+            dtc = 0
+
+            current_date = date.fromordinal(1)
+
+            # Loop through books by date
+            this_months_list = []
+            for book in self.booksByDate:
+                if book['timestamp'].month != current_date.month or \
+                   book['timestamp'].year != current_date.year:
+                    dtc = add_books_to_HTML(this_months_list, dtc)
+                    this_months_list = []
+                    current_date = book['timestamp'].date()
+                this_months_list.append(book)
+
+            # Add the last month's list
+            add_books_to_HTML(this_months_list, dtc)
+
+            # Add the divTag to the body
+            body.insert(btc, divTag)
+
+            # Write the generated file to contentdir
+            outfile_spec = "%s/ByDateAdded.html" % (self.contentDir)
+            outfile = open(outfile_spec, 'w')
+            outfile.write(soup.prettify())
+            outfile.close()
+            self.htmlFileList.append("content/ByDateAdded.html")
 
         def generateHTMLByTags(self):
             # Generate individual HTML files for each tag, e.g. Fiction, Nonfiction ...
@@ -1892,6 +2034,97 @@ class EPUB_MOBI(CatalogPlugin):
             body.insert(btc, navPointTag)
             btc += 1
 
+            self.ncxSoup = soup
+
+        def generateNCXByDateAdded(self, tocTitle):
+
+            self.opts.log.info(self.updateProgressFullStep("generateNCXByDateAdded()"))
+
+            soup = self.ncxSoup
+            HTML_file = "content/ByDateAdded.html"
+            body = soup.find("navPoint")
+            btc = len(body.contents)
+
+            # --- Construct the 'Recently Added' *section* ---
+            navPointTag = Tag(soup, 'navPoint')
+            navPointTag['class'] = "section"
+            file_ID = "%s" % tocTitle.lower()
+            file_ID = file_ID.replace(" ","")
+            navPointTag['id'] = "%s-ID" % file_ID
+            navPointTag['playOrder'] = self.playOrder
+            self.playOrder += 1
+            navLabelTag = Tag(soup, 'navLabel')
+            textTag = Tag(soup, 'text')
+            textTag.insert(0, NavigableString('%s' % tocTitle))
+            navLabelTag.insert(0, textTag)
+            nptc = 0
+            navPointTag.insert(nptc, navLabelTag)
+            nptc += 1
+            contentTag = Tag(soup,"content")
+            contentTag['src'] = "%s#section_start" % HTML_file
+            navPointTag.insert(nptc, contentTag)
+            nptc += 1
+
+            # Create an NCX article entry for each populated month
+            # Loop over the booksByDate list, find start of each month,
+            # add description_preview_count titles
+            # self.authors[0]:friendly [1]:author_sort [2]:book_count
+            current_titles_list = []
+            master_month_list = []
+            current_date = self.booksByDate[0]['timestamp']
+
+            for book in self.booksByDate:
+                if book['timestamp'].month != current_date.month or \
+                   book['timestamp'].year != current_date.year:
+                    # Save the old lists
+                    current_titles_list = " &bull; ".join(current_titles_list)
+
+                    current_titles_list = self.formatNCXText(current_titles_list)
+                    master_month_list.append((current_titles_list, current_date))
+
+                    # Start the new list
+                    current_date = book['timestamp'].date()
+                    current_titles_list = [book['title']]
+                else:
+                    if len(current_titles_list) < self.descriptionClip:
+                        current_titles_list.append(book['title'])
+
+            # Add the last author list
+            current_titles_list = " &bull; ".join(current_titles_list)
+            master_month_list.append((current_titles_list, current_date))
+
+            # Add *article* entries for each populated author initial letter
+            # master_months_list{}: [0]:titles list [1]:date
+            for books_by_month in master_month_list:
+                datestr = strftime(u'%b %Y', books_by_month[1].timetuple())
+                navPointByLetterTag = Tag(soup, 'navPoint')
+                navPointByLetterTag['class'] = "article"
+                navPointByLetterTag['id'] = "%s-%s-ID" % (books_by_month[1].year,books_by_month[1].month )
+                navPointTag['playOrder'] = self.playOrder
+                self.playOrder += 1
+                navLabelTag = Tag(soup, 'navLabel')
+                textTag = Tag(soup, 'text')
+                textTag.insert(0, NavigableString("Books added in " + datestr))
+                navLabelTag.insert(0, textTag)
+                navPointByLetterTag.insert(0,navLabelTag)
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "%s#%s-%s" % (HTML_file,
+                    books_by_month[1].year,books_by_month[1].month)
+
+                navPointByLetterTag.insert(1,contentTag)
+
+                if self.generateForKindle:
+                    cmTag = Tag(soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "description"
+                    cmTag.insert(0, NavigableString(books_by_month[0]))
+                    navPointByLetterTag.insert(2, cmTag)
+
+                navPointTag.insert(nptc, navPointByLetterTag)
+                nptc += 1
+
+            # Add this section to the body
+            body.insert(btc, navPointTag)
+            btc += 1
             self.ncxSoup = soup
 
         def generateNCXByTags(self, tocTitle):
