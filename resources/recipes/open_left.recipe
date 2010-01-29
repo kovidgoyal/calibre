@@ -1,0 +1,22 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class OpenLeft(BasicNewsRecipe):
+    # Information about the recipe
+
+    title              = 'Open Left'
+    description        = 'Progressive American commentary on current events'
+    category           = 'news, commentary'
+    language           = 'en'
+    __author__         = 'Xanthan Gum'
+
+    # Fetch no article older than seven days
+
+    oldest_article = 7
+
+    # Fetch no more than 100 articles
+
+    max_articles_per_feed = 100
+
+    # Fetch the articles from the RSS feed
+
+    feeds          = [(u'Articles', u'http://www.openleft.com/rss/rss2.xml')]
