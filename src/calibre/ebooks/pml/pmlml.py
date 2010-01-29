@@ -233,7 +233,7 @@ class PMLMLizer(object):
                 w += '="50%"'
             text.append(w)
         toc_id = elem.attrib.get('id', None)
-        if toc_id:
+        if toc_id and tag  not in ('h1', 'h2','h3','h4','h5','h6',):
             if self.toc.get(page.href, None):
                 toc_title = self.toc[page.href].get(toc_id, None)
                 if toc_title:
