@@ -514,7 +514,7 @@ class DocumentView(QWebView):
             mt = guess_type(path)[0]
         html = open(path, 'rb').read().decode(path.encoding, 'replace')
         html = EntityDeclarationProcessor(html).processed_html
-        has_svg = re.search(r'<[:a-z]*svg', html) is not None
+        has_svg = re.search(r'<[:a-zA-Z]*svg', html) is not None
 
         if 'xhtml' in mt:
             html = self.self_closing_pat.sub(self.self_closing_sub, html)
