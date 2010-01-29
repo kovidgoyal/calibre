@@ -34,6 +34,6 @@ function extract_svged_images() {
 }
 
 $(document).ready(function() {
-   extract_svged_images();
+   //extract_svged_images();
 });
 

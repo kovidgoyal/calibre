@@ -10,7 +10,7 @@ from base64 import b64encode
 from PyQt4.Qt import QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
                      QColor, QPoint, QImage, QRegion, QVariant, QIcon, \
-                     QFont, pyqtSignature, QAction
+                     QFont, pyqtSignature, QAction, QByteArray
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
@@ -514,14 +514,17 @@ class DocumentView(QWebView):
             mt = guess_type(path)[0]
         html = open(path, 'rb').read().decode(path.encoding, 'replace')
         html = EntityDeclarationProcessor(html).processed_html
+        has_svg = re.search(r'<\S*svg', html) is not None
+
         if 'xhtml' in mt:
             html = self.self_closing_pat.sub(self.self_closing_sub, html)
         if self.manager is not None:
             self.manager.load_started()
         self.loading_url = QUrl.fromLocalFile(path)
-        #self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
-        #open('/tmp/t.html', 'wb').write(html.encode(path.encoding))
-        self.setHtml(html, self.loading_url)
+        if has_svg:
+            self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
+        else:
+            self.setHtml(html, self.loading_url)
         self.turn_off_internal_scrollbars()
 
     def initialize_scrollbar(self):
