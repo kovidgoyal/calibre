@@ -2512,6 +2512,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             for (i,word) in enumerate(title_words):
                 # Leading numbers optionally translated to text equivalent
+                # Capitalize leading sort word
                 if i==0:
                     if self.opts.numbers_as_text and re.search('[0-9]+',word):
                         translated.append(EPUB_MOBI.NumberToText(word).text.capitalize())
@@ -2529,7 +2530,7 @@ class EPUB_MOBI(CatalogPlugin):
                                 word = '%10.2f' % float(re.sub('[^\d\.]','.',word))
                             except:
                                 word = '%10.2f' % float(EPUB_MOBI.NumberToText(word).number_as_float)
-                        translated.append(word)
+                        translated.append(word.capitalize())
                 else:
                     if re.search('[0-9]+',word):
                         # Coerce standard-width strings for numbers
