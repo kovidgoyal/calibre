@@ -1,46 +1,42 @@
-#!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
-nin.co.rs
+www.nin.co.rs
 '''
 
 import re, urllib
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class Nin(BasicNewsRecipe):
     title                  = 'NIN online'
     __author__             = 'Darko Miletic'
-    description            = 'Nedeljne informativne novine'
-    publisher              = 'NIN D.O.O.'
+    description            = 'Nedeljne Informativne Novine'
+    publisher              = 'NIN d.o.o.'
     category               = 'news, politics, Serbia'
     no_stylesheets         = True
     oldest_article         = 15
-    simultaneous_downloads = 1
-    delay                  = 1
     encoding               = 'utf-8'
     needs_subscription     = True
+    remove_empty_feeds     = True
     PREFIX                 = 'http://www.nin.co.rs'
     INDEX                  = PREFIX + '/?change_lang=ls'
     LOGIN                  = PREFIX + '/?logout=true'
     use_embedded_content   = False
     language               = 'sr'
-    lang                   = 'sr-Latn-RS'
-    direction              = 'ltr'
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif} .artTitle{font-size: x-large; font-weight: bold} .columnhead{font-size: small; font-weight: bold}'
+    extra_css = ' @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: Verdana, Lucida, sans1, sans-serif} .article_description{font-family: Verdana, Lucida, sans1, sans-serif} .artTitle{font-size: x-large; font-weight: bold; color: #900} .izjava{font-size: x-large; font-weight: bold} .columnhead{font-size: small; font-weight: bold;} img{margin-top:0.5em; margin-bottom: 0.7em} b{margin-top: 1em} '
 
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
                         , 'publisher'        : publisher
                         , 'language'         : language
-                        , 'pretty_print'     : True
+                        , 'linearize_tables' : True
                         }
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    remove_attributes = ['height','width']
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -65,34 +61,18 @@ class Nin(BasicNewsRecipe):
            cover_url = self.PREFIX + link_item['src']
         return cover_url
 
-    def preprocess_html(self, soup):
-        soup.html['lang'] = self.lang
-        soup.html['dir' ] = self.direction
-        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
-        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
-        soup.head.insert(0,mlang)
-        soup.head.insert(1,mcharset)
-        attribs = [  'style','font','valign'
-                    ,'colspan','width','height'
-                    ,'rowspan','summary','align'
-                    ,'cellspacing','cellpadding'
-                    ,'frames','rules','border'
-                  ]
-        for item in soup.body.findAll(name=['table','td','tr','th','caption','thead','tfoot','tbody','colgroup','col']):
-            item.name = 'div'
-            for attrib in attribs:
-                if item.has_key(attrib):
-                   del item[attrib]
-        return soup
-
     def parse_index(self):
         articles = []
+        count = 0
         soup = self.index_to_soup(self.PREFIX)
         for item in soup.findAll('a',attrs={'class':'lmeninavFont'}):
+            count = count +1
+            if self.test and count > 2:
+               return articles
             section  = self.tag_to_string(item)
             feedlink = self.PREFIX + item['href']
             feedpage = self.index_to_soup(feedlink)
-            self.report_progress(0, _('Fetching feed')+' %s...'%(section))            
+            self.report_progress(0, _('Fetching feed')+' %s...'%(section))
             inarts   = []
             for art in feedpage.findAll('span',attrs={'class':'artTitle'}):
                 alink = art.parent
@@ -110,3 +90,4 @@ class Nin(BasicNewsRecipe):
                                 })
             articles.append((section,inarts))
         return articles
+
