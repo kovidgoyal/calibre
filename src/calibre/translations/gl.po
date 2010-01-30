@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-25 18:58+0000\n"
-"PO-Revision-Date: 2010-01-25 18:20+0000\n"
-"Last-Translator: Fidelinho <fidel.vales@gmail.com>\n"
+"PO-Revision-Date: 2010-01-29 17:58+0000\n"
+"Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>\n"
 "Language-Team: Galician <gl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-26 04:50+0000\n"
+"X-Launchpad-Export-Date: 2010-01-30 04:38+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -144,11 +144,11 @@ msgstr "Descoñecido"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:64
 msgid "Base"
-msgstr "Patrón"
+msgstr "Base"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:150
 msgid "File type"
-msgstr "Tipo de arquivo"
+msgstr "Tipo de ficheiro"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:184
 msgid "Metadata reader"
@@ -169,8 +169,8 @@ msgid ""
 "library."
 msgstr ""
 "Segue todas as ligazóns locais nun ficheiro HTML e crea un ficheiro ZIP con "
-"todos os ficheiros ligados. Este complemento execútase cada vez que se "
-"engade un ficheiro HTML á biblioteca."
+"todos os ficheiros ligados. Este engadido execútase cada vez que se engade "
+"un ficheiro HTML á biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:49
 msgid ""
@@ -233,7 +233,7 @@ msgstr "Define os metadatos desde os ficheiros %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr "Orixe da conversión"
+msgstr "Entrada da conversión"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:125
 msgid ""
@@ -242,10 +242,10 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
-"Especificar a codificación de caracteres do documento orixe. Se se establece "
-"esta opción superporase a calquera codificación declarada no propio "
-"documento. En particular é útil para documentos sen codificación declarada "
-"ou con erros na declaración de codificación."
+"Especificar a codificación de caracteres do documento de entrada. Se se "
+"establece esta opción sobreporase a calquera codificación declarada no "
+"propio documento. En particular é útil para documentos sen codificación "
+"declarada ou con erros na declaración de codificación."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:228
 msgid "Conversion Output"
