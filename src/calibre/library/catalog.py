@@ -797,10 +797,11 @@ class EPUB_MOBI(CatalogPlugin):
                                     os.path.join(self.catalogPath, file[0]))
 
             # Create the custom masthead image overwriting default
-            try:
+
+            if True: #try:
                 self.generate_masthead_image(os.path.join(self.catalogPath, 'images/mastheadImage.gif'))
-            except:
-                pass
+#             except:
+#                 pass
 
         def fetchBooksByTitle(self):
             self.updateProgressFullStep("Fetching database")
@@ -1586,7 +1587,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateOPF(self):
 
-            self.updateProgressFullStep("Saving OPF")
+            self.updateProgressFullStep("Generating OPF")
 
             header = '''
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -2512,6 +2513,16 @@ class EPUB_MOBI(CatalogPlugin):
             return soup
 
         def generate_masthead_image(self, out_path):
+            from calibre.ebooks.conversion.config import load_defaults
+            recs = load_defaults('mobi_output')
+            font_path = recs.get('masthead_font')
+            default_font = P('fonts/liberation/LiberationSerif-Bold.ttf')
+            if not font_path or not os.access(font_path, os.R_OK):
+                font_path = default_font
+            else:
+                if self.opts.verbose:
+                    self.opts.log("     Rendering catalog masthead with user-specifed font '%s'" % font_path)
+
             MI_WIDTH = 600
             MI_HEIGHT = 60
 
@@ -2523,7 +2534,11 @@ class EPUB_MOBI(CatalogPlugin):
 
             img = Image.new('RGB', (MI_WIDTH, MI_HEIGHT), 'white')
             draw = ImageDraw.Draw(img)
-            font = ImageFont.truetype(P('fonts/liberation/LiberationSerif-Bold.ttf'), 48)
+            try:
+                font = ImageFont.truetype(font_path, 48)
+            except:
+                self.opts.log.error("     Failed to load user-specifed font '%s'" % font_path)
+                font = ImageFont.truetype(default_font, 48)
             text = self.title.encode('utf-8')
             width, height = draw.textsize(text, font=font)
             left = max(int((MI_WIDTH - width)/2.), 0)

@@ -989,6 +989,13 @@ class BasicNewsRecipe(Recipe):
     MI_HEIGHT = 60
 
     def default_masthead_image(self, out_path):
+        from calibre.ebooks.conversion.config import load_defaults
+        recs = load_defaults('mobi_output')
+        font_path = recs.get('masthead_font')
+        default-font = P('fonts/liberation/LiberationSerif-Bold.ttf')
+        if not font_path or not os.access(font_path, os.R_OK):
+            font_path = default_font
+
         try:
             from PIL import Image, ImageDraw, ImageFont
             Image, ImageDraw, ImageFont
@@ -997,7 +1004,10 @@ class BasicNewsRecipe(Recipe):
 
         img = Image.new('RGB', (self.MI_WIDTH, self.MI_HEIGHT), 'white')
         draw = ImageDraw.Draw(img)
-        font = ImageFont.truetype(P('fonts/liberation/LiberationSerif-Bold.ttf'), 48)
+        try:
+            font = ImageFont.truetype(font_path, 48)
+        except:
+            font = ImageFont.truetype(default_font, 48)
         text = self.get_masthead_title().encode('utf-8')
         width, height = draw.textsize(text, font=font)
         left = max(int((self.MI_WIDTH - width)/2.), 0)
