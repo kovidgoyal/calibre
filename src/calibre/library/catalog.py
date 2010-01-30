@@ -940,7 +940,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateHTMLDescriptions(self):
             # Write each title to a separate HTML file in contentdir
-            self.updateProgressFullStep("Description")
+            self.updateProgressFullStep("Generating 'Descriptions'")
 
             for (title_num, title) in enumerate(self.booksByTitle):
                 if False:
@@ -1069,7 +1069,7 @@ class EPUB_MOBI(CatalogPlugin):
         def generateHTMLByTitle(self):
             # Write books by title A-Z to HTML file
 
-            self.updateProgressFullStep("Books by Title")
+            self.updateProgressFullStep("Generating 'Titles'")
 
             soup = self.generateHTMLEmptyHeader("Books By Alpha Title")
             body = soup.find('body')
@@ -1171,7 +1171,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateHTMLByAuthor(self):
             # Write books by author A-Z
-            self.updateProgressFullStep("Books by Author")
+            self.updateProgressFullStep("Generating 'Authors'")
 
             friendly_name = "By Author"
 
@@ -1301,7 +1301,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateHTMLByDateAdded(self):
             # Write books by reverse chronological order
-            self.updateProgressFullStep("Recently Added")
+            self.updateProgressFullStep("Generating 'Recently Added'")
 
             def add_books_to_HTML(this_months_list, dtc):
                 if len(this_months_list):
@@ -1718,7 +1718,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateNCXHeader(self):
 
-            self.updateProgressFullStep("NCX header")
+            self.updateProgressFullStep("Generating NCX header")
 
             header = '''
                 <?xml version="1.0" encoding="utf-8"?>
@@ -1754,7 +1754,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateNCXDescriptions(self, tocTitle):
 
-            self.updateProgressFullStep("NCX descriptions")
+            self.updateProgressFullStep("Generating NCX for 'Descriptions'")
 
             # --- Construct the 'Books by Title' section ---
             ncx_soup = self.ncxSoup
@@ -1825,7 +1825,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = ncx_soup
 
         def generateNCXByTitle(self, tocTitle):
-            self.updateProgressFullStep("NCX Titles")
+            self.updateProgressFullStep("Generating NCX for 'Titles'")
 
             def add_to_books_by_letter(current_book_list):
                 current_book_list = " &bull; ".join(current_book_list)
@@ -1914,7 +1914,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = soup
 
         def generateNCXByAuthor(self, tocTitle):
-            self.updateProgressFullStep("NCX Authors")
+            self.updateProgressFullStep("Generating NCX for 'Authors'")
 
             def add_to_author_list(current_author_list, current_letter):
                 current_author_list = " &bull; ".join(current_author_list)
@@ -2003,7 +2003,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = soup
 
         def generateNCXByDateAdded(self, tocTitle):
-            self.updateProgressFullStep("NCX Recently Added")
+            self.updateProgressFullStep("Generating NCX for 'Recently Added'")
 
             def add_to_master_month_list(current_titles_list):
                 book_count = len(current_titles_list)
@@ -2105,7 +2105,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Add each genre as an article
             # 'tag', 'file', 'authors'
 
-            self.updateProgressFullStep("NCX by Genre")
+            self.updateProgressFullStep("Generating NCX for Genres")
 
 
 
@@ -2270,6 +2270,13 @@ class EPUB_MOBI(CatalogPlugin):
             # Remove the special marker tags from the database's tag list,
             # return sorted list of tags representing valid genres
 
+            def next_tag(tags):
+                for (i, tag) in enumerate(tags):
+                    if i < len(tags) - 1:
+                        yield tag + ", "
+                    else:
+                        yield tag
+
             filtered_tags = []
             for tag in tags:
                 if tag[0] in self.markerTags:
@@ -2293,9 +2300,16 @@ class EPUB_MOBI(CatalogPlugin):
                     else:
                         continue
             if self.verbose:
-                self.opts.log.info(u' %d Genre tags in database (exclude_genre: %s):' % \
+                self.opts.log.info(u'     %d Genre tags in database (exclude_genre: %s):' % \
                                      (len(filtered_tags), self.opts.exclude_genre))
-                self.opts.log.info(u' %s' % ', '.join(filtered_tags))
+                out_buf = ''
+
+                for tag in next_tag(filtered_tags):
+                    out_buf += tag
+                    if len(out_buf) > 72:
+                        self.opts.log(u'      %s' % out_buf.rstrip())
+                        out_buf = ''
+                self.opts.log(u'      %s' % out_buf)
 
             return filtered_tags
 
@@ -2633,6 +2647,8 @@ class EPUB_MOBI(CatalogPlugin):
             self.progressString = description
             self.progressInt = float((self.current_step-1)/self.total_steps)
             self.reporter(self.progressInt, self.progressString)
+            if self.opts.cli_environment:
+                self.opts.log(u"%3.0f%% %s" % (self.progressInt*100, self.progressString))
 
         def updateProgressMicroStep(self, description, micro_step_pct):
             step_range = 100/self.total_steps
@@ -2655,12 +2671,13 @@ class EPUB_MOBI(CatalogPlugin):
         opts.descriptionClip = 380 if op.endswith('dx') or 'kindle' not in op else 90
         opts.basename = "Catalog"
         opts.plugin_path = self.plugin_path
+        opts.cli_environment = getattr(opts,'sync',True)
 
         if opts.verbose:
             opts_dict = vars(opts)
-            gui = True if 'sync' in opts_dict else False
-            log("%s(): Generating %s for %s in %s environment" % \
-                (self.name,self.fmt,opts.output_profile, 'GUI' if gui else 'CLI'))
+            log("%s(): Generating %s for %s in %s environment" %
+                (self.name,self.fmt,opts.output_profile,
+                 'CLI' if opts.cli_environment else 'GUI'))
             if opts_dict['ids']:
                 log(" Book count: %d" % len(opts_dict['ids']))
             # Display opts
@@ -2674,13 +2691,14 @@ class EPUB_MOBI(CatalogPlugin):
                     log("  %s: %s" % (key, opts_dict[key]))
 
         # Launch the Catalog builder
+        if opts.verbose:
+            log.info("Begin generating catalog source")
         catalog = self.CatalogBuilder(db, opts, self, report_progress=notification)
         catalog.createDirectoryStructure()
         catalog.copyResources()
         catalog.buildSources()
-
         if opts.verbose:
-            log.info("Catalog source generation complete")
+            log.info("Finished generating catalog source\n")
 
         recommendations = []
 
