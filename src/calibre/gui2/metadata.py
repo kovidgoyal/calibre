@@ -12,6 +12,7 @@ from Queue import Queue, Empty
 
 
 from calibre.ebooks.metadata.fetch import search, get_social_metadata
+from calibre.gui2 import config
 from calibre.ebooks.metadata.library_thing import cover_from_isbn
 from calibre.customize.ui import get_isbndb_key
 
@@ -98,6 +99,10 @@ class DownloadMetadata(Thread):
                     self.fetched_metadata[id] = fmi
                     if fmi.isbn and self.get_covers:
                         self.worker.jobs.put(fmi.isbn)
+                    if (not config['overwrite_author_title_metadata']):
+                        fmi.authors = mi.authors
+                        fmi.author_sort = mi.author_sort
+                        fmi.title = mi.title
                     mi.smart_update(fmi)
                     if mi.isbn and self.get_social_metadata:
                         self.social_metadata_exceptions = get_social_metadata(mi)

@@ -8,7 +8,7 @@ p.title  {
 	font-size:xx-large;
     border-bottom: solid black 4px;
 	}
-	
+
 p.author {
 	margin-top:0em;
 	margin-bottom:0em;
@@ -31,25 +31,34 @@ p.description {
 	margin-top: 0em;
 	}
 
+p.date_index {
+	font-size:x-large;
+	text-align:center;
+	font-weight:bold;
+	margin-top:1em;
+	margin-bottom:0px;
+	}
+
 p.letter_index {
 	font-size:x-large;
-	text-align:left;
-	margin-top:0px;
-	margin-bottom:0px;	
+	text-align:center;
+	font-weight:bold;
+	margin-top:1em;
+	margin-bottom:0px;
 	}
 
 p.author_index {
 	font-size:large;
 	text-align:left;
 	margin-top:0px;
-	margin-bottom:0px;	
+	margin-bottom:0px;
 	text-indent: 0em;
 	}
 
 p.read_book {
 	text-align:left;
 	margin-top:0px;
-	margin-bottom:0px;	
+	margin-bottom:0px;
 	margin-left:2em;
 	text-indent:-2em;
 	}
@@ -57,8 +66,8 @@ p.read_book {
 p.unread_book {
 	text-align:left;
 	margin-top:0px;
-	margin-bottom:0px;	
+	margin-bottom:0px;
 	margin-left:2em;
 	text-indent:-2em;
 	}
-	
+

@@ -96,11 +96,20 @@
           <property name="buttonSymbols">
            <enum>QAbstractSpinBox::PlusMinus</enum>
           </property>
+          <property name="specialValueText">
+           <string>No change</string>
+          </property>
           <property name="suffix">
            <string> stars</string>
           </property>
+          <property name="minimum">
+           <number>-1</number>
+          </property>
           <property name="maximum">
            <number>5</number>
+          </property>
+          <property name="value">
+           <number>-1</number>
           </property>
          </widget>
         </item>

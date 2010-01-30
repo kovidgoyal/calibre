@@ -254,11 +254,13 @@ def generate_catalog(parent, dbspec, ids):
         dbspec,
         ids,
         out.name,
+        d.catalog_sync,
         d.fmt_options
         ]
     out.close()
 
-    # This calls gui2.convert.gui_conversion:gui_catalog()
+    # This returns to gui2.ui:generate_catalog()
+    # Which then calls gui2.convert.gui_conversion:gui_catalog()
     return 'gui_catalog', args, _('Generate catalog'), out.name, d.catalog_sync, \
             d.catalog_title
 

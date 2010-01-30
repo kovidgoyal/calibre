@@ -50,7 +50,7 @@ class MOBIOutput(OutputFormatPlugin):
     def check_for_masthead(self):
         found = 'masthead' in self.oeb.guide
         if not found:
-            self.oeb.log.debug('No masthead found, generating default one...')
+            self.oeb.log.debug('No masthead found in manifest, generating default mastheadImage...')
             try:
                 from PIL import Image as PILImage
                 PILImage
@@ -65,6 +65,9 @@ class MOBIOutput(OutputFormatPlugin):
             id, href = self.oeb.manifest.generate('masthead', 'masthead')
             self.oeb.manifest.add(id, href, 'image/gif', data=raw)
             self.oeb.guide.add('masthead', 'Masthead Image', href)
+        else:
+            self.oeb.log.debug('Using mastheadImage supplied in manifest...')
+
 
     def dump_toc(self, toc) :
         self.log( "\n         >>> TOC contents <<<")

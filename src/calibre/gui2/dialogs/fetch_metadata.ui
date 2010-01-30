@@ -117,6 +117,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="opt_overwrite_author_title_metadata">
+     <property name="text">
+      <string>Overwrite &amp;author/title with author/title of selected book</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
