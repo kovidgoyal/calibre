@@ -23,7 +23,7 @@ def gui_convert(input, output, recommendations, notification=DummyReporter(),
 
     plumber.run()
 
-def gui_catalog(fmt, title, dbspec, ids, out_file_name, fmt_options,
+def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options,
         notification=DummyReporter(), log=None):
     if log is None:
         log = Log()
@@ -46,6 +46,7 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, fmt_options,
     opts.ids = ids
     opts.search_text = None
     opts.sort_by = None
+    opts.sync = sync
 
     # Extract the option dictionary to comma-separated lists
     for option in fmt_options:
