@@ -887,7 +887,7 @@ class EPUB_MOBI(CatalogPlugin):
         def fetchBooksByAuthor(self):
             # Generate a list of titles sorted by author from the database
 
-            self.updateProgressFullStep("Sorting database by author")
+            self.updateProgressFullStep("Sorting database")
 
             # Sort titles case-insensitive
             self.booksByAuthor = sorted(self.booksByTitle,
@@ -940,7 +940,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateHTMLDescriptions(self):
             # Write each title to a separate HTML file in contentdir
-            self.updateProgressFullStep("Generating 'Descriptions'")
+            self.updateProgressFullStep("'Descriptions'")
 
             for (title_num, title) in enumerate(self.booksByTitle):
                 if False:
@@ -1069,7 +1069,7 @@ class EPUB_MOBI(CatalogPlugin):
         def generateHTMLByTitle(self):
             # Write books by title A-Z to HTML file
 
-            self.updateProgressFullStep("Generating 'Titles'")
+            self.updateProgressFullStep("'Titles'")
 
             soup = self.generateHTMLEmptyHeader("Books By Alpha Title")
             body = soup.find('body')
@@ -1171,7 +1171,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateHTMLByAuthor(self):
             # Write books by author A-Z
-            self.updateProgressFullStep("Generating 'Authors'")
+            self.updateProgressFullStep("'Authors'")
 
             friendly_name = "By Author"
 
@@ -1301,7 +1301,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateHTMLByDateAdded(self):
             # Write books by reverse chronological order
-            self.updateProgressFullStep("Generating 'Recently Added'")
+            self.updateProgressFullStep("'Recently Added'")
 
             def add_books_to_HTML(this_months_list, dtc):
                 if len(this_months_list):
@@ -1433,7 +1433,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Generate individual HTML files for each tag, e.g. Fiction, Nonfiction ...
             # Note that special tags - ~+*[] -  have already been filtered from books[]
 
-            self.updateProgressFullStep("Generating Genres")
+            self.updateProgressFullStep("'Genres'")
 
             # Filter out REMOVE_TAGS, sort
             filtered_tags = self.filterDbTags(self.db.all_tags())
@@ -1586,7 +1586,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateOPF(self):
 
-            self.updateProgressFullStep("Generating OPF")
+            self.updateProgressFullStep("Saving OPF")
 
             header = '''
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -1718,7 +1718,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateNCXHeader(self):
 
-            self.updateProgressFullStep("Generating NCX header")
+            self.updateProgressFullStep("NCX header")
 
             header = '''
                 <?xml version="1.0" encoding="utf-8"?>
@@ -1754,7 +1754,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateNCXDescriptions(self, tocTitle):
 
-            self.updateProgressFullStep("Generating NCX for 'Descriptions'")
+            self.updateProgressFullStep("NCX 'Descriptions'")
 
             # --- Construct the 'Books by Title' section ---
             ncx_soup = self.ncxSoup
@@ -1825,7 +1825,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = ncx_soup
 
         def generateNCXByTitle(self, tocTitle):
-            self.updateProgressFullStep("Generating NCX for 'Titles'")
+            self.updateProgressFullStep("NCX 'Titles'")
 
             def add_to_books_by_letter(current_book_list):
                 current_book_list = " &bull; ".join(current_book_list)
@@ -1914,7 +1914,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = soup
 
         def generateNCXByAuthor(self, tocTitle):
-            self.updateProgressFullStep("Generating NCX for 'Authors'")
+            self.updateProgressFullStep("NCX 'Authors'")
 
             def add_to_author_list(current_author_list, current_letter):
                 current_author_list = " &bull; ".join(current_author_list)
@@ -2003,7 +2003,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = soup
 
         def generateNCXByDateAdded(self, tocTitle):
-            self.updateProgressFullStep("Generating NCX for 'Recently Added'")
+            self.updateProgressFullStep("NCX 'Recently Added'")
 
             def add_to_master_month_list(current_titles_list):
                 book_count = len(current_titles_list)
@@ -2105,7 +2105,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Add each genre as an article
             # 'tag', 'file', 'authors'
 
-            self.updateProgressFullStep("Generating NCX for Genres")
+            self.updateProgressFullStep("NCX 'Genres'")
 
 
 
@@ -2206,7 +2206,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = ncx_soup
 
         def writeNCX(self):
-            self.updateProgressFullStep("Writing NCX")
+            self.updateProgressFullStep("Saving NCX")
 
             outfile = open("%s/%s.ncx" % (self.catalogPath, self.basename), 'w')
             outfile.write(self.ncxSoup.prettify())
