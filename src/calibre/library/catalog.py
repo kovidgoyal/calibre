@@ -797,11 +797,13 @@ class EPUB_MOBI(CatalogPlugin):
                                     os.path.join(self.catalogPath, file[0]))
 
             # Create the custom masthead image overwriting default
-
-            if True: #try:
-                self.generate_masthead_image(os.path.join(self.catalogPath, 'images/mastheadImage.gif'))
-#             except:
-#                 pass
+            # If failure, default mastheadImage.gif should still be in place
+            if self.generateForKindle:
+                try:
+                    self.generate_masthead_image(os.path.join(self.catalogPath,
+                                                 'images/mastheadImage.gif'))
+                except:
+                    pass
 
         def fetchBooksByTitle(self):
             self.updateProgressFullStep("Fetching database")
@@ -2521,7 +2523,8 @@ class EPUB_MOBI(CatalogPlugin):
                 font_path = default_font
             else:
                 if self.opts.verbose:
-                    self.opts.log("     Rendering catalog masthead with user-specifed font '%s'" % font_path)
+                    self.opts.log("     Rendering catalog masthead with user-specifed font:")
+                    self.opts.log("     '%s'" % font_path)
 
             MI_WIDTH = 600
             MI_HEIGHT = 60
@@ -2686,7 +2689,7 @@ class EPUB_MOBI(CatalogPlugin):
         opts.descriptionClip = 380 if op.endswith('dx') or 'kindle' not in op else 90
         opts.basename = "Catalog"
         opts.plugin_path = self.plugin_path
-        opts.cli_environment = getattr(opts,'sync',True)
+        opts.cli_environment = not hasattr(opts,'sync')
 
         if opts.verbose:
             opts_dict = vars(opts)
