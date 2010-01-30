@@ -770,7 +770,11 @@ class BasicNewsRecipe(Recipe):
             self.download_masthead(murl)
         if self.masthead_path is None:
             self.masthead_path = os.path.join(self.output_dir, 'mastheadImage.jpg')
-            self.default_masthead_image(self.masthead_path)
+            try:
+                self.default_masthead_image(self.masthead_path)
+            except:
+                self.log.exception('Failed to generate default masthead image')
+                self.masthead_path = None
 
         if self.test:
             feeds = feeds[:2]
@@ -1061,7 +1065,7 @@ class BasicNewsRecipe(Recipe):
         opf = OPFCreator(dir, mi)
         # Add mastheadImage entry to <guide> section
         mp = getattr(self, 'masthead_path', None)
-        if mp is not None:
+        if mp is not None and os.access(mp, os.R_OK):
             from calibre.ebooks.metadata.opf2 import Guide
             ref = Guide.Reference(os.path.basename(self.masthead_path), os.getcwdu())
             ref.type = 'masthead'

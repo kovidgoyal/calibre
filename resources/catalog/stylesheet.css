@@ -33,7 +33,7 @@ p.description {
 
 p.date_index {
 	font-size:x-large;
-	text-align:right;
+	text-align:center;
 	font-weight:bold;
 	margin-top:1em;
 	margin-bottom:0px;
@@ -41,8 +41,9 @@ p.date_index {
 
 p.letter_index {
 	font-size:x-large;
-	text-align:left;
-	margin-top:0px;
+	text-align:center;
+	font-weight:bold;
+	margin-top:1em;
 	margin-bottom:0px;
 	}
 

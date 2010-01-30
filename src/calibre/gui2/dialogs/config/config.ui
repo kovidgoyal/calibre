@@ -172,6 +172,13 @@
               </widget>
              </item>
              <item>
+              <widget class="QCheckBox" name="opt_overwrite_author_title_metadata">
+               <property name="text">
+                <string>Overwrite &amp; author/title by default when fetching metadata</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <layout class="QGridLayout" name="gridLayout_2">
                <item row="1" column="0">
                 <widget class="QLabel" name="label_2">

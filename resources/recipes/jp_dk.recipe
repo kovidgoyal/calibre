@@ -1,0 +1,50 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+jp.dk
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class JP_dk(BasicNewsRecipe):
+    title                 = 'Jyllands-Posten'
+    __author__            = 'Darko Miletic'
+    description           = 'News from Denmark'
+    publisher             = 'jp.dk'
+    category              = 'news, politics, Denmark'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'cp1252'
+    language              = 'da'
+
+    extra_css = ' body{font-family: Arial,Verdana,Helvetica,Geneva,sans-serif } h1{font-family: Times,Georgia,Verdana,serif } '
+
+    conversion_options = {
+                          'comment'  : description
+                        , 'tags'     : category
+                        , 'publisher': publisher
+                        , 'language' : language
+                        }
+
+    feeds              = [
+                            (u'Tophistorier', u'http://www.jp.dk/rss/topnyheder.jsp')
+                           ,(u'Seneste nyt' , u'http://jp.dk/index.jsp?service=rssfeed&submode=seneste')
+                           ,(u'Indland'     , u'http://www.jp.dk/rss/indland.jsp')
+                           ,(u'Udland'      , u'http://www.jp.dk/rss/udland.jsp')
+                           ,(u'Ny viden'    , u'http://www.jp.dk/rss/nyviden.jsp')
+                           ,(u'Timeout'     , u'http://www.jp.dk/rss/timeout.jsp')
+                           ,(u'Kultur'      , u'http://www.jp.dk/rss/kultur.jsp')
+                           ,(u'Sport'       , u'http://www.jp.dk/rss/sport.jsp')
+                          ]
+
+    remove_tags        = [
+                            dict(name=['object','link'])
+                           ,dict(name='p',attrs={'class':'artByline'})
+                         ]
+
+    def print_version(self, url):
+        return url + '?service=printversion'
+

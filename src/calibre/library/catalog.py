@@ -796,6 +796,12 @@ class EPUB_MOBI(CatalogPlugin):
                     shutil.copy(os.path.join(catalog_resources,file[1]),
                                     os.path.join(self.catalogPath, file[0]))
 
+            # Create the custom masthead image overwriting default
+            try:
+                self.generate_masthead_image(os.path.join(self.catalogPath, 'images/mastheadImage.gif'))
+            except:
+                pass
+
         def fetchBooksByTitle(self):
             self.updateProgressFullStep("Fetching database")
 
@@ -1794,7 +1800,11 @@ class EPUB_MOBI(CatalogPlugin):
                     # Add the author tag
                     cmTag = Tag(ncx_soup, '%s' % 'calibre:meta')
                     cmTag['name'] = "author"
-                    cmTag.insert(0, NavigableString(self.formatNCXText(book['author'])))
+                    navStr = '%s | %s' % (self.formatNCXText(book['author']),
+                          book['date'].split()[1])
+                    if 'tags' in book:
+                        navStr += ' | %s' % self.formatNCXText(' &middot; '.join(sorted(book['tags'])))
+                    cmTag.insert(0, NavigableString(navStr))
                     navPointVolumeTag.insert(2, cmTag)
 
                     # Add the description tag
@@ -1996,9 +2006,10 @@ class EPUB_MOBI(CatalogPlugin):
             self.updateProgressFullStep("NCX Recently Added")
 
             def add_to_master_month_list(current_titles_list):
+                book_count = len(current_titles_list)
                 current_titles_list = " &bull; ".join(current_titles_list)
                 current_titles_list = self.generateShortDescription(self.formatNCXText(current_titles_list))
-                master_month_list.append((current_titles_list, current_date))
+                master_month_list.append((current_titles_list, current_date, book_count))
 
             soup = self.ncxSoup
             HTML_file = "content/ByDateAdded.html"
@@ -2028,7 +2039,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Create an NCX article entry for each populated month
             # Loop over the booksByDate list, find start of each month,
             # add description_preview_count titles
-            # self.authors[0]:friendly [1]:author_sort [2]:book_count
+            # master_month_list(list,date,count)
             current_titles_list = []
             master_month_list = []
             current_date = self.booksByDate[0]['timestamp']
@@ -2073,6 +2084,13 @@ class EPUB_MOBI(CatalogPlugin):
                     cmTag['name'] = "description"
                     cmTag.insert(0, NavigableString(books_by_month[0]))
                     navPointByMonthTag.insert(2, cmTag)
+
+                    cmTag = Tag(soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "author"
+                    navStr = '%d titles' % books_by_month[2] if books_by_month[2] > 1 else \
+                             '%d title' % books_by_month[2]
+                    cmTag.insert(0, NavigableString(navStr))
+                    navPointByMonthTag.insert(3, cmTag)
 
                 navPointTag.insert(nptc, navPointByMonthTag)
                 nptc += 1
@@ -2172,7 +2190,7 @@ class EPUB_MOBI(CatalogPlugin):
                         for title in genre['books']:
                             titles.append(title['title'])
                         titles = sorted(titles, key=lambda x:(self.generateSortTitle(x),self.generateSortTitle(x)))
-                        titles_list = self.generateShortDescription(" &bull; ".join(titles))
+                        titles_list = self.generateShortDescription(u" &bull; ".join(titles))
                         cmTag.insert(0, NavigableString(self.formatNCXText(titles_list)))
 
                     navPointVolumeTag.insert(3, cmTag)
@@ -2275,9 +2293,9 @@ class EPUB_MOBI(CatalogPlugin):
                     else:
                         continue
             if self.verbose:
-                self.opts.log.info(' %d Genre tags (exclude_genre: %s):' % \
+                self.opts.log.info(u' %d Genre tags in database (exclude_genre: %s):' % \
                                      (len(filtered_tags), self.opts.exclude_genre))
-                self.opts.log.info(' %s' % ', '.join(filtered_tags))
+                self.opts.log.info(u' %s' % ', '.join(filtered_tags))
 
             return filtered_tags
 
@@ -2479,6 +2497,26 @@ class EPUB_MOBI(CatalogPlugin):
             titleTag.insert(0,escape(NavigableString(title)))
             return soup
 
+        def generate_masthead_image(self, out_path):
+            MI_WIDTH = 600
+            MI_HEIGHT = 60
+
+            try:
+                from PIL import Image, ImageDraw, ImageFont
+                Image, ImageDraw, ImageFont
+            except ImportError:
+                import Image, ImageDraw, ImageFont
+
+            img = Image.new('RGB', (MI_WIDTH, MI_HEIGHT), 'white')
+            draw = ImageDraw.Draw(img)
+            font = ImageFont.truetype(P('fonts/liberation/LiberationSerif-Bold.ttf'), 48)
+            text = self.title.encode('utf-8')
+            width, height = draw.textsize(text, font=font)
+            left = max(int((MI_WIDTH - width)/2.), 0)
+            top = max(int((MI_HEIGHT - height)/2.), 0)
+            draw.text((left, top), text, fill=(0,0,0), font=font)
+            img.save(open(out_path, 'wb'), 'GIF')
+
         def generateShortDescription(self, description):
             # Truncate the description to description_clip, on word boundaries if necessary
             if not description:
@@ -2611,13 +2649,18 @@ class EPUB_MOBI(CatalogPlugin):
 
         # Add local options
         opts.creator = "calibre"
-        opts.descriptionClip = 380 if self.opts.output_profile.endswith('dx') else 90
+        op = self.opts.output_profile
+        if op is None:
+            op = 'default'
+        opts.descriptionClip = 380 if op.endswith('dx') or 'kindle' not in op else 90
         opts.basename = "Catalog"
         opts.plugin_path = self.plugin_path
 
         if opts.verbose:
             opts_dict = vars(opts)
-            log("%s(): Generating %s for %s" % (self.name,self.fmt,opts.output_profile))
+            gui = True if 'sync' in opts_dict else False
+            log("%s(): Generating %s for %s in %s environment" % \
+                (self.name,self.fmt,opts.output_profile, 'GUI' if gui else 'CLI'))
             if opts_dict['ids']:
                 log(" Book count: %d" % len(opts_dict['ids']))
             # Display opts
@@ -2627,7 +2670,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             for key in keys:
                 if key in ['catalog_title','exclude_genre','exclude_tags','note_tag',
-                           'numbers_as_text','read_tag','search_text','sort_by']:
+                           'numbers_as_text','read_tag','search_text','sort_by','sync']:
                     log("  %s: %s" % (key, opts_dict[key]))
 
         # Launch the Catalog builder

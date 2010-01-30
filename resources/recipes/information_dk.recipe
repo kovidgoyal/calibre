@@ -1,0 +1,50 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+information.dk
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Information_dk(BasicNewsRecipe):
+    title                 = 'Information - Denmark'
+    __author__            = 'Darko Miletic'
+    description           = 'News from Denmark'
+    publisher             = 'information.dk'
+    category              = 'news, politics, Denmark'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    remove_empty_feeds    = True
+    use_embedded_content  = False
+    encoding              = 'utf8'
+    language              = 'da'
+
+    conversion_options = {
+                          'comment'  : description
+                        , 'tags'     : category
+                        , 'publisher': publisher
+                        , 'language' : language
+                        }
+
+    feeds              = [
+                            (u'Nyheder fra'               , u'http://www.information.dk/feed')
+                           ,(u'Bedst lige nu'             , u'http://www.information.dk/bedstligenu/feed')
+                           ,(u'Politik og internationalt' , u'http://www.information.dk/politik/feed')
+                           ,(u'Kunst og kultur'           , u'http://www.information.dk/kultur/feed')
+                           ,(u'Moderne Tider'             , u'http://www.information.dk/modernetider/feed')
+                           ,(u'Klima'                     , u'http://www.information.dk/klima/feed')
+                           ,(u'Opinion'                   , u'http://www.information.dk/opinion/feed')
+                           ,(u'Literatur'                 , u'http://www.information.dk/litteratur/feed')
+                           ,(u'Film'                      , u'http://www.information.dk/film/feed')
+                           ,(u'Kunst'                     , u'http://www.information.dk/kunst/feed')
+                          ]
+
+    remove_tags_before = dict(name='h1',attrs={'class':'print-title'})
+    remove_tags_after  = dict(name='div',attrs={'class':'print-footer'})
+    remove_tags        = [dict(name=['object','link'])]
+
+    def print_version(self, url):
+        return url.replace('information.dk/','information.dk/print/')
+
