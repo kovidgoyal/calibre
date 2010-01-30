@@ -72,8 +72,9 @@ class Nin(BasicNewsRecipe):
             section  = self.tag_to_string(item)
             feedlink = self.PREFIX + item['href']
             feedpage = self.index_to_soup(feedlink)
-            self.report_progress(0, _('Fetching feed')+' %s...'%(section))
+            self.report_progress(0, _('Fetching feed')+' %s...'%(section))            
             inarts   = []
+            count2 = 0
             for art in feedpage.findAll('span',attrs={'class':'artTitle'}):
                 alink = art.parent
                 url   = self.PREFIX + alink['href']
