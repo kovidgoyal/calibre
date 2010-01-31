@@ -11,7 +11,7 @@ class IrishTimes(BasicNewsRecipe):
     title          = u'The Irish Times'
     __author__     = "Derry FitzGerald, Ray Kinsella and David O'Callaghan"
     language = 'en'
-    timefmt = ' (%A, %B %e, %Y)'
+    timefmt = ' (%A, %B %d, %Y)'
 
 
     oldest_article = 3
