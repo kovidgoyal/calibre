@@ -4,7 +4,7 @@ from collections import namedtuple
 from datetime import date
 from xml.sax.saxutils import escape
 
-from calibre import filesystem_encoding, prints, strftime
+from calibre import filesystem_encoding, prints, prepare_string_for_xml, strftime
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
@@ -524,6 +524,7 @@ class EPUB_MOBI(CatalogPlugin):
                                        self.opts.output_profile and \
                                        self.opts.output_profile.startswith("kindle")) else False
             self.__genres = None
+            self.__genre_tags_dict = None
             self.__htmlFileList = []
             self.__markerTags = self.getMarkerTags()
             self.__ncxSoup = None
@@ -628,6 +629,13 @@ class EPUB_MOBI(CatalogPlugin):
                 return self.__genres
             def fset(self, val):
                 self.__genres = val
+            return property(fget=fget, fset=fset)
+        @dynamic_property
+        def genre_tags_dict(self):
+            def fget(self):
+                return self.__genre_tags_dict
+            def fset(self, val):
+                self.__genre_tags_dict = val
             return property(fget=fget, fset=fset)
         @dynamic_property
         def htmlFileList(self):
@@ -797,10 +805,13 @@ class EPUB_MOBI(CatalogPlugin):
                                     os.path.join(self.catalogPath, file[0]))
 
             # Create the custom masthead image overwriting default
-            try:
-                self.generate_masthead_image(os.path.join(self.catalogPath, 'images/mastheadImage.gif'))
-            except:
-                pass
+            # If failure, default mastheadImage.gif should still be in place
+            if self.generateForKindle:
+                try:
+                    self.generate_masthead_image(os.path.join(self.catalogPath,
+                                                 'images/mastheadImage.gif'))
+                except:
+                    pass
 
         def fetchBooksByTitle(self):
             self.updateProgressFullStep("Fetching database")
@@ -853,7 +864,11 @@ class EPUB_MOBI(CatalogPlugin):
                 this_title['date'] = strftime(u'%B %Y', record['pubdate'].timetuple())
                 this_title['timestamp'] = record['timestamp']
                 if record['comments']:
-                    this_title['description'] = re.sub('&', '&amp;', record['comments'])
+                    #this_title['description'] = re.sub('&', '&amp;', record['comments'])
+                    if re.search('<(?P<tag>.+)>.+</(?P=tag)>|<!--.+-->|<.+/>',record['comments']):
+                        self.opts.log("     %d: %s (%s) contains suspect metadata" % \
+                                      (this_title['id'], this_title['title'],this_title['author']))
+                    this_title['description'] = prepare_string_for_xml(record['comments'])
                     this_title['short_description'] = self.generateShortDescription(this_title['description'])
                 else:
                     this_title['description'] = None
@@ -1003,7 +1018,8 @@ class EPUB_MOBI(CatalogPlugin):
 
                     for tag in title['tags']:
                         aTag = Tag(soup,'a')
-                        aTag['href'] = "Genre%s.html" % re.sub("\W","",self.convertHTMLEntities(tag))
+                        #print "aTag: %s" % "Genre_%s.html" % re.sub("\W","",tag.lower())
+                        aTag['href'] = "Genre_%s.html" % re.sub("\W","",tag.lower())
                         aTag.insert(0,escape(NavigableString(tag)))
                         emTag = Tag(soup, "em")
                         emTag.insert(0, aTag)
@@ -1435,17 +1451,22 @@ class EPUB_MOBI(CatalogPlugin):
 
             self.updateProgressFullStep("'Genres'")
 
-            # Filter out REMOVE_TAGS, sort
-            filtered_tags = self.filterDbTags(self.db.all_tags())
+            # filtered_tags = {friendly:normalized, }
+            self.genre_tags_dict = self.filterDbTags(self.db.all_tags())
 
             # Extract books matching filtered_tags
             genre_list = []
-            for tag in filtered_tags:
+            for friendly_tag in self.genre_tags_dict:
+                #print "\ngenerateHTMLByTags(): looking for books with friendly_tag '%s'" % friendly_tag
+                # tag_list => {'tag': '<normalized_genre_tag>', 'books':[{}, {}, {}]}
                 tag_list = {}
-                tag_list['tag'] = tag
+                tag_list['tag'] = self.genre_tags_dict[friendly_tag]
                 tag_list['books'] = []
                 for book in self.booksByAuthor:
-                    if 'tags' in book and tag in book['tags']:
+                    # Scan each book for tag matching friendly_tag
+                    #if 'tags' in book: print "  evaluating %s with tags: %s" % (book['title'], book['tags'])
+                    if 'tags' in book and friendly_tag in book['tags']:
+                        #print "   adding '%s'" % (book['title'])
                         this_book = {}
                         this_book['author'] = book['author']
                         this_book['title'] = book['title']
@@ -1455,8 +1476,36 @@ class EPUB_MOBI(CatalogPlugin):
                         tag_list['books'].append(this_book)
 
                 if len(tag_list['books']):
-                    # Possible to have an empty tag list if the books were excluded
-                    genre_list.append(tag_list)
+                    genre_exists = False
+                    book_not_in_genre = True
+                    if not genre_list:
+                        #print "   genre_list empty, adding '%s'" % tag_list['tag']
+                        genre_list.append(tag_list)
+                    else:
+                        # Check for existing_genre
+                        for genre in genre_list:
+                            if genre['tag'] == tag_list['tag']:
+                                genre_exists = True
+                                # Check to see if the book is already in this list
+                                for existing_book in genre['books']:
+                                    if this_book['title'] == existing_book['title']:
+                                        #print "%s already in %s" % (this_book['title'], genre)
+                                        book_not_in_genre = False
+                                        break
+                                break
+
+                        if genre_exists:
+                            if book_not_in_genre:
+                                #print "    adding %s to existing genre '%s'" % (this_book['title'],genre['tag'])
+                                genre['books'].append(this_book)
+                        else:
+                            #print "   appending genre '%s'" % tag_list['tag']
+                            genre_list.append(tag_list)
+
+            if self.opts.verbose:
+                self.opts.log.info("     Genre summary: %d active genres" % len(genre_list))
+                for genre in genre_list:
+                    self.opts.log.info("      %s: %d titles" % (genre['tag'], len(genre['books'])))
 
             # Write the results
             # genre_list = [ [tag_list], [tag_list] ...]
@@ -1489,12 +1538,11 @@ class EPUB_MOBI(CatalogPlugin):
                     if not author in unique_authors:
                         unique_authors.append(author)
                 '''
-
                 # Write the genre book list as an article
                 titles_spanned = self.generateHTMLByGenre(genre['tag'], True if index==0 else False, genre['books'],
-                                    "%s/Genre%s.html" % (self.contentDir, re.sub("\W","", self.convertHTMLEntities(genre['tag']))))
+                                    "%s/Genre_%s.html" % (self.contentDir, genre['tag']))
 
-                tag_file = "content/Genre%s.html" % (re.sub("\W","", self.convertHTMLEntities(genre['tag'])))
+                tag_file = "content/Genre_%s.html" % genre['tag']
                 master_genre_list.append({'tag':genre['tag'],
                                           'file':tag_file,
                                           'authors':unique_authors,
@@ -1586,7 +1634,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         def generateOPF(self):
 
-            self.updateProgressFullStep("Saving OPF")
+            self.updateProgressFullStep("Generating OPF")
 
             header = '''
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -2107,9 +2155,6 @@ class EPUB_MOBI(CatalogPlugin):
 
             self.updateProgressFullStep("NCX 'Genres'")
 
-
-
-
             if not len(self.genres):
                 self.opts.log.warn(" No genres found in tags.\n"
                                    " No Genre section added to Catalog")
@@ -2136,13 +2181,12 @@ class EPUB_MOBI(CatalogPlugin):
             navPointTag.insert(nptc, navLabelTag)
             nptc += 1
             contentTag = Tag(ncx_soup,"content")
-            contentTag['src'] = "content/Genre%s.html#section_start" % (re.sub("\W","", self.convertHTMLEntities(self.genres[0]['tag'])))
+            contentTag['src'] = "content/Genre_%s.html#section_start" % self.genres[0]['tag']
             navPointTag.insert(nptc, contentTag)
             nptc += 1
 
             for genre in self.genres:
                 # Add an article for each genre
-
                 navPointVolumeTag = Tag(ncx_soup, 'navPoint')
                 navPointVolumeTag['class'] = "article"
                 navPointVolumeTag['id'] = "genre-%s-ID" % genre['tag']
@@ -2150,13 +2194,18 @@ class EPUB_MOBI(CatalogPlugin):
                 self.playOrder += 1
                 navLabelTag = Tag(ncx_soup, "navLabel")
                 textTag = Tag(ncx_soup, "text")
-                textTag.insert(0, self.formatNCXText(NavigableString(genre['tag'])))
+
+                # GwR *** Can this be optimized?
+                normalized_tag = None
+                for genre_tag in self.genre_tags_dict:
+                    if self.genre_tags_dict[genre_tag] == genre['tag']:
+                        normalized_tag = self.genre_tags_dict[genre_tag]
+                        break
+                textTag.insert(0, self.formatNCXText(NavigableString(genre_tag)))
                 navLabelTag.insert(0,textTag)
                 navPointVolumeTag.insert(0,navLabelTag)
-
                 contentTag = Tag(ncx_soup, "content")
-                genre_name = re.sub("\W","", self.convertHTMLEntities(genre['tag']))
-                contentTag['src'] = "content/Genre%s.html#Genre%s" % (genre_name, genre_name)
+                contentTag['src'] = "content/Genre_%s.html#Genre_%s" % (normalized_tag, normalized_tag)
                 navPointVolumeTag.insert(1, contentTag)
 
                 if self.generateForKindle:
@@ -2268,16 +2317,10 @@ class EPUB_MOBI(CatalogPlugin):
 
         def filterDbTags(self, tags):
             # Remove the special marker tags from the database's tag list,
-            # return sorted list of tags representing valid genres
+            # return sorted list of normalized genre tags
 
-            def next_tag(tags):
-                for (i, tag) in enumerate(tags):
-                    if i < len(tags) - 1:
-                        yield tag + ", "
-                    else:
-                        yield tag
-
-            filtered_tags = []
+            normalized_tags = []
+            friendly_tags = []
             for tag in tags:
                 if tag[0] in self.markerTags:
                     continue
@@ -2286,32 +2329,39 @@ class EPUB_MOBI(CatalogPlugin):
                 if tag == ' ':
                     continue
 
-                filtered_tags.append(tag)
+                normalized_tags.append(re.sub('\W','',tag).lower())
+                friendly_tags.append(tag)
 
-            filtered_tags.sort()
 
-            # Enable this code to force certain tags to the front of the genre list
-            if False:
-                for (i, tag) in enumerate(filtered_tags):
-                    if tag == 'Fiction':
-                        filtered_tags.insert(0, (filtered_tags.pop(i)))
-                    elif tag == 'Nonfiction':
-                        filtered_tags.insert(1, (filtered_tags.pop(i)))
-                    else:
-                        continue
+            genre_tags_dict = dict(zip(friendly_tags,normalized_tags))
+
+            # Test for multiple genres resolving to same normalized form
+            normalized_set = set(normalized_tags)
+            for normalized in normalized_set:
+                if normalized_tags.count(normalized) > 1:
+                    self.opts.log.warn("      Warning: multiple tags resolving to genre '%s':" % normalized)
+                    for key in genre_tags_dict:
+                        if genre_tags_dict[key] == normalized:
+                            self.opts.log.warn("       %s" % key)
             if self.verbose:
-                self.opts.log.info(u'     %d Genre tags in database (exclude_genre: %s):' % \
-                                     (len(filtered_tags), self.opts.exclude_genre))
-                out_buf = ''
+                def next_tag(tags):
+                    for (i, tag) in enumerate(tags):
+                        if i < len(tags) - 1:
+                            yield tag + ", "
+                        else:
+                            yield tag
 
-                for tag in next_tag(filtered_tags):
-                    out_buf += tag
-                    if len(out_buf) > 72:
-                        self.opts.log(u'      %s' % out_buf.rstrip())
-                        out_buf = ''
-                self.opts.log(u'      %s' % out_buf)
+                self.opts.log.info(u'     %d total genre tags in database (exclude_genre: %s):' % \
+                                     (len(genre_tags_dict), self.opts.exclude_genre))
 
-            return filtered_tags
+                # Display friendly/normalized genres
+                # friendly => normalized
+                sorted_tags = ['%s => %s' % (key, genre_tags_dict[key]) for key in sorted(genre_tags_dict.keys())]
+
+                for tag in next_tag(sorted_tags):
+                    self.opts.log(u'      %s' % tag)
+
+            return genre_tags_dict
 
         def formatNCXText(self, description):
             # Kindle TOC descriptions won't render certain characters
@@ -2343,15 +2393,23 @@ class EPUB_MOBI(CatalogPlugin):
                 body.insert(btc, aTag)
                 btc += 1
 
-            # Insert the anchor with spaces stripped
+            # Create an anchor from the tag
             aTag = Tag(soup, 'a')
-            aTag['name'] = "Genre%s" % re.sub("\W","", genre)
+            #aTag['name'] = "Genre%s" % re.sub("\W","", genre)
+            aTag['name'] = "Genre_%s" % genre
             body.insert(btc,aTag)
             btc += 1
 
-            # Insert the genre title
+            # Insert the genre title using the friendly name
+            # GwR *** optimize
+            for genre_tag in self.genre_tags_dict:
+                if self.genre_tags_dict[genre_tag] == genre:
+                    friendly_tag = genre_tag
+                    break
+
+
             titleTag = body.find(attrs={'class':'title'})
-            titleTag.insert(0,NavigableString('<b><i>%s</i></b>' % escape(genre)))
+            titleTag.insert(0,NavigableString('<b><i>%s</i></b>' % escape(friendly_tag)))
 
             # Insert the books by author list
             divTag = body.find(attrs={'class':'authors'})
@@ -2512,6 +2570,8 @@ class EPUB_MOBI(CatalogPlugin):
             return soup
 
         def generate_masthead_image(self, out_path):
+            font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
+
             MI_WIDTH = 600
             MI_HEIGHT = 60
 
@@ -2523,7 +2583,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             img = Image.new('RGB', (MI_WIDTH, MI_HEIGHT), 'white')
             draw = ImageDraw.Draw(img)
-            font = ImageFont.truetype(P('fonts/liberation/LiberationSerif-Bold.ttf'), 48)
+            font = ImageFont.truetype(font_path, 48)
             text = self.title.encode('utf-8')
             width, height = draw.textsize(text, font=font)
             left = max(int((MI_WIDTH - width)/2.), 0)
@@ -2671,7 +2731,7 @@ class EPUB_MOBI(CatalogPlugin):
         opts.descriptionClip = 380 if op.endswith('dx') or 'kindle' not in op else 90
         opts.basename = "Catalog"
         opts.plugin_path = self.plugin_path
-        opts.cli_environment = getattr(opts,'sync',True)
+        opts.cli_environment = not hasattr(opts,'sync')
 
         if opts.verbose:
             opts_dict = vars(opts)
