@@ -5176,7 +5176,7 @@ msgstr "Uitegeve&n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:381
 msgid "dd MMM yyyy"
-msgstr "dd MMM jjjj"
+msgstr "dd MMM yyyy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:382
 msgid "&Date:"
