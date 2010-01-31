@@ -4,6 +4,101 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.37
+  date: 2010-01-31
+
+  new features:
+    - title: "E-book viewer: Add support for viewing SVG images"
+      type: major
+
+    - title: "Add category of Recently added books when generating catalog in e-book format"
+
+    - title: "OS X: Allow adding of books to calibre via drag and drop on the calibre dock icon"
+
+    - title: "Add support for masthead images when downloading news for the Kindle"
+
+    - title: "MOBI metadata: Allow setting of metadata in old PRC files without EXTH headers as well"
+
+  bug fixes:
+    - title: Changing the date in Dutch
+      tickets: [4732]
+
+    - title: "Fix regression that broke sending files to unupdated PRS 500s"
+
+    - title: "MOBI Input: Ignore width and height percentage measures for <img> tags."
+      tickets: [4726]
+
+    - title: "EPUB Output: Remove <img> tags that point to the internet for their images as this causes the ever delicate ADE to crash."
+      tickets: [4692]
+
+    - title: "Comic Input: Handle UTF-8 BOM when converting a cbc file"
+      tickets: [4683]
+
+    - title: "Allow rating to be cleared via the Bulk metadata edit dialog"
+      tickets: [4693]
+
+    - title: "Add workaround for broken linux systems with multiply encoded file names"
+      tickets: [4721]
+
+    - title: Fix bug preventing the the use of indices when setting save to disk templates
+      tickets: [4710]
+
+    - title: "Linux device mounting. Use filetype of auto to allow non vfat filesystems to be mounted"
+      tickets: [4707]
+
+    - title: "Catalog generation: Make sorting of numbers in title as text optional"
+
+    - title: "Fix error while sending book with non-ascii character in title/author to device on linux"
+      tickets: [4690]
+
+  new recipes:
+    - title: Kamera Bild
+      author: Darko Miletic
+
+    - title: The Online Photographer
+      author: Darko Miletic
+
+    - title: The Luminous Landscape
+      author: Darko Miletic
+
+    - title: Slovo
+      author: Abelturd
+
+    - title: Various Danish newspapers
+      author: Darko Miletic
+
+    - title: Heraldo de Aragon
+      author: Lorenzo Vigentini
+
+    - title: Orange County Register
+      author: Lorenzi Vigentini
+
+    - title: Open Left
+      author: Xanthan Gum
+
+    - title: Michelle Malkin
+      author: Walt Anthony
+
+    - title: The Metro Montreal
+      author: Jerry Clapperton
+
+    - title: The Gazette
+      author: Jerry Clapperton
+
+    - title: Macleans Magazine
+      author:  Nick Redding
+
+    - title: NY Time Sunday Book Review
+      author: Krittika Goyal
+
+
+  improved recipes:
+    - The Irish Times
+    - Washington Post
+    - NIN
+    - The Discover Magazine
+    - Pagina 12
+
 - version: 0.6.36
   date: 2010-01-25
 
