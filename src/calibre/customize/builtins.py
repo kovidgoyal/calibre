@@ -382,6 +382,7 @@ from calibre.ebooks.rtf.input import RTFInput
 from calibre.ebooks.tcr.input import TCRInput
 from calibre.ebooks.txt.input import TXTInput
 from calibre.ebooks.lrf.input import LRFInput
+from calibre.ebooks.chm.input import CHMInput # XXMODIFIED
 
 from calibre.ebooks.epub.output import EPUBOutput
 from calibre.ebooks.fb2.output import FB2Output
@@ -440,6 +441,7 @@ plugins += [
     TCRInput,
     TXTInput,
     LRFInput,
+    CHMInput, # XXMODIFIED
 ]
 plugins += [
     EPUBOutput,

@@ -1634,13 +1634,15 @@ class LibraryDatabase2(LibraryDatabase):
         for i in iter(self):
             yield i[x]
 
-    def get_data_as_dict(self, prefix=None, authors_as_string=False):
+    def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None):
         '''
         Return all metadata stored in the database as a dict. Includes paths to
         the cover and each format.
 
         :param prefix: The prefix for all paths. By default, the prefix is the absolute path
         to the library folder.
+        :param ids: Set of ids to return the data for. If None return data for
+        all entries in database.
         '''
         if prefix is None:
             prefix = self.library_path
@@ -1650,11 +1652,14 @@ class LibraryDatabase2(LibraryDatabase):
         data = []
         for record in self.data:
             if record is None: continue
+            db_id = record[FIELD_MAP['id']]
+            if ids is not None and db_id not in ids:
+                continue
             x = {}
             for field in FIELDS:
                 x[field] = record[FIELD_MAP[field]]
             data.append(x)
-            x['id'] = record[FIELD_MAP['id']]
+            x['id'] = db_id
             x['formats'] = []
             if not x['authors']:
                 x['authors'] = _('Unknown')

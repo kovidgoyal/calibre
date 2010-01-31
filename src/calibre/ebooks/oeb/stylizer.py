@@ -411,6 +411,7 @@ class Style(object):
         return result
 
     def _unit_convert(self, value, base=None, font=None):
+        ' Return value in pts'
         if isinstance(value, (int, long, float)):
             return value
         try:
@@ -446,6 +447,9 @@ class Style(object):
             elif unit == 'cm':
                 result = value * 0.40
         return result
+
+    def pt_to_px(self, value):
+        return (self._profile.dpi / 72.0) * value
 
     @property
     def fontSize(self):
