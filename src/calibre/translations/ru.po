@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-01-25 18:58+0000\n"
-"PO-Revision-Date: 2010-01-28 23:50+0000\n"
-"Last-Translator: Serge Kopalkin <Unknown>\n"
+"PO-Revision-Date: 2010-01-31 04:16+0000\n"
+"Last-Translator: cyberbob <ribalkin@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-30 04:38+0000\n"
+"X-Launchpad-Export-Date: 2010-01-31 04:51+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -482,19 +482,19 @@ msgstr "Соединяться с ESlick."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
-msgstr ""
+msgstr "Соединяться с Hanlin V3"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:95
 msgid "Communicate with Hanlin V5 eBook readers."
-msgstr ""
+msgstr "Соединяться с Hanlin V5"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:113
 msgid "Communicate with the BOOX eBook reader."
-msgstr ""
+msgstr "Соединяться с BOOX"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:17
 msgid "Communicate with the Hanvon N520 eBook reader."
-msgstr ""
+msgstr "Communicate with the Hanvon N520"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -603,7 +603,7 @@ msgstr "Отправляю метаданные на устройство..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:215
 msgid "Communicate with the Sony PRS-600/700/900 eBook reader."
-msgstr ""
+msgstr "Соединяться с Sony PRS-600/700/900"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:250
 msgid "Unable to detect the %s disk drive. Try rebooting."
