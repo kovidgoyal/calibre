@@ -653,8 +653,11 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             d = d + self.local_timezone_offset
             self.db.set_timestamp(self.id, d)
 
-            if self.cover_changed and self.cover_data is not None:
-                self.db.set_cover(self.id, self.cover_data)
+            if self.cover_changed:
+                if self.cover_data is not None:
+                    self.db.set_cover(self.id, self.cover_data)
+                else:
+                    self.db.remove_cover(self.id)
         except IOError, err:
             if err.errno == 13: # Permission denied
                 fname = err.filename if err.filename else 'file'

@@ -51,6 +51,9 @@
     - title: "Fix error while sending book with non-ascii character in title/author to device on linux"
       tickets: [4690]
 
+    - title: "Fix reset cover in edit meta information dialog does not actually remove cover"
+      tickets: [4731]
+
   new recipes:
     - title: Kamera Bild
       author: Darko Miletic
