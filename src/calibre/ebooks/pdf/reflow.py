@@ -439,7 +439,7 @@ class Page(object):
         # closer to the avg number of cols in the set, if equal use larger
         # region)
         # merge contiguous regions that can contain each other
-        absorbed = set([])
+        '''absorbed = set([])
         found = True
         while found:
             found = False
@@ -454,6 +454,8 @@ class Page(object):
                             break
                     prev = None if i == 0 else i-1
                     next = j if self.regions[j] not in regions else None
+        '''
+        pass
 
 
 
