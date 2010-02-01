@@ -990,11 +990,24 @@ class BasicNewsRecipe(Recipe):
 
     def default_masthead_image(self, out_path):
         from calibre.ebooks.conversion.config import load_defaults
+        from calibre.utils.fonts import fontconfig
+        font_path = default_font = P('fonts/liberation/LiberationSerif-Bold.ttf')
         recs = load_defaults('mobi_output')
-        font_path = recs.get('masthead_font')
-        default_font = P('fonts/liberation/LiberationSerif-Bold.ttf')
-        if not font_path or not os.access(font_path, os.R_OK):
+        masthead_font_family = recs.get('masthead_font')
+
+        if masthead_font_family != 'Default':
+            masthead_font = fontconfig.files_for_family(masthead_font_family)
+            # Assume 'normal' always in dict, else use default
+            # {'normal': (path_to_font, friendly name)}
+            if 'normal' in masthead_font:
+                font_path = masthead_font['normal'][0]
+
+        if not os.access(font_path, os.R_OK):
             font_path = default_font
+        else:
+            if False and self.opts.verbose:
+                self.opts.log("     Rendering catalog masthead with user-specifed font:")
+                self.opts.log("     '%s'" % font_path)
 
         try:
             from PIL import Image, ImageDraw, ImageFont

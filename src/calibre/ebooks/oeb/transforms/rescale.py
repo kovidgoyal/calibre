@@ -35,7 +35,10 @@ class RescaleImages(object):
                 if not raw: continue
                 if qt:
                     img = QImage(10, 10, QImage.Format_ARGB32_Premultiplied)
-                    if not img.loadFromData(raw): continue
+                    try:
+                        if not img.loadFromData(raw): continue
+                    except:
+                        continue
                     width, height = img.width(), img.height()
                 else:
                     f = cStringIO.StringIO(raw)
