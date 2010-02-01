@@ -1,0 +1,89 @@
+#!/usr/bin/env  python
+__license__     = 'GPL v3'
+__author__      = 'Lorenzo Vigentini'
+__copyright__   = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
+__version__     = 'v1.01'
+__date__        = '10, January 2010'
+__description__ = 'Monthly Italian edition of Scientific American'
+
+'''
+http://lescienze.espresso.repubblica.it/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class leScienze(BasicNewsRecipe):
+    author        = 'Lorenzo Vigentini'
+    description   = 'Monthly Italian edition of Scientific American'
+
+    cover_url      = 'http://lescienze.espresso.repubblica.it/images/logo_lescienze.gif'
+    title          = 'le Scienze'
+    publisher      = 'Gruppo editoriale lEspresso'
+    category       = 'Science, general interest'
+
+    language       = 'it'
+    encoding       = 'cp1252'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article        = 31
+    max_articles_per_feed = 20
+    use_embedded_content  = False
+    recursion             = 10
+
+    remove_javascript     = True
+    no_stylesheets        = True
+
+
+    keep_only_tags     = [
+                            dict(name='div', attrs={'class':'bigbox'})
+                        ]
+
+    remove_tags        = [
+                            dict(name='span',attrs={'class':'linkindice'}),
+                            dict(name='div',attrs={'class':'box-commenti'}),
+                            dict(name='div',attrs={'id':['rssdiv','blocco']})
+                         ]
+    remove_tags_after = [dict(name='div',attrs={'class':'box-commenti'})]
+
+    feeds          = [
+                       (u'Antropologia', u'http://data.kataweb.it/rss/scienze/antropologia'),
+                       (u'Archeologia', u'http://data.kataweb.it/rss/scienze/archeologia'),
+                       (u'Arte e Musica', u'http://data.kataweb.it/rss/scienze/arte_e_musica'),
+                       (u'Astrofisica', u'http://data.kataweb.it/rss/scienze/astrofisica'),
+                       (u'Astronautica', u'http://data.kataweb.it/rss/scienze/astronautica'),
+                       (u'Astronomia', u'http://data.kataweb.it/rss/scienze/astronomia_e_cosmologia'),
+                       (u'Biologia', u'http://data.kataweb.it/rss/scienze/biologia'),
+                       (u'Chimica', u'http://data.kataweb.it/rss/scienze/chimica'),
+                       (u'Ecologia & ambiente', u'http://data.kataweb.it/rss/scienze/ecologia_e_ambiente'),
+                       (u'Economia', u'http://data.kataweb.it/rss/scienze/Economia'),
+                       (u'Fisica', u'http://data.kataweb.it/rss/scienze/Fisica'),
+                       (u'Informatica', u'http://data.kataweb.it/rss/scienze/informatica_e_telecomunicazioni'),
+                       (u'Ingegneria', u'http://data.kataweb.it/rss/scienze/ingegneria_e_tecnologia'),
+                       (u'Matematica', u'http://data.kataweb.it/rss/scienze/Matematica'),
+                       (u'Medicina', u'http://data.kataweb.it/rss/scienze/Medicina'),
+                       (u'Paleontologia', u'http://data.kataweb.it/rss/scienze/Paleontologia'),
+                       (u'Recensioni', u'http://data.kataweb.it/rss/scienze/Recensioni'),
+                       (u'Psicologia', u'http://data.kataweb.it/rss/scienze/psicologie_e_scienze_cognitive'),
+                       (u'Scienze della Terra', u'http://data.kataweb.it/rss/scienze/scienze_della_terra'),
+                       (u'Scienze dello spazio', u'http://data.kataweb.it/rss/scienze/scienze_dello_spazio'),
+                       (u'Scienze naturali', u'http://data.kataweb.it/rss/scienze/scienze_naturali'),
+                       (u'Scienze sociali', u'http://data.kataweb.it/rss/scienze/scienze_sociali'),
+                       (u'Statistica', u'http://data.kataweb.it/rss/scienze/statistica'),
+                       (u'Storia della scienza', u'http://data.kataweb.it/rss/scienze/storia_della_scienza')
+                     ]
+
+    extra_css = '''
+                h1 {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:20px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:18px;}
+                h2 {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:18px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:16px; }
+                h3 {color:#333333;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px;}
+                h4 {color:#333333; font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; }
+                h5 {color:#333333; font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:12px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; text-transform:uppercase;}
+                .occhiello {color:#666666;display:block;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:13px;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant:normal;font-weight:bold;line-height:15px;}
+                .titolo {font-weight:bold;}
+                .label {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:12px;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant:normal;font-weight:bold;height:15px;line-height:15px;text-transform:uppercase;}
+                .firma {color:#333333;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:12px; font-size-adjust:none; font-stretch:normal; font-style:italic; font-variant:normal; font-weight:bold; line-height:15px; text-decoration:none;}
+                .testo {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:10px;}
+                '''
+
+
+
