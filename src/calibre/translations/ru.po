@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-01-25 18:58+0000\n"
-"PO-Revision-Date: 2010-01-31 04:16+0000\n"
-"Last-Translator: cyberbob <ribalkin@gmail.com>\n"
+"PO-Revision-Date: 2010-02-01 03:56+0000\n"
+"Last-Translator: Boris Rybalkin <ribalkin@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-31 04:51+0000\n"
+"X-Launchpad-Export-Date: 2010-02-01 04:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -581,6 +581,8 @@ msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device. Possibilities include: "
 msgstr ""
+"Разделенный запятыми список полей метаданных преобразовать в коллекции на "
+"устройстве. Возможности включают: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:139
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:141
@@ -1437,6 +1439,8 @@ msgid ""
 "Average line length for line breaking if the HTML is from a previous partial "
 "conversion of a PDF file. Default is %default which disables this."
 msgstr ""
+"Средняя длина строки для переноса строк, если HTML из предыдущей частичной "
+"конвертации PDF файла. Значение по умолчанию %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -1854,20 +1858,24 @@ msgid ""
 "The version of the title to be used for sorting. If unspecified, and the "
 "title is specified, it will be auto-generated from the title."
 msgstr ""
+"Версия заголовка для сортировки. Если не указан, а заголовок указан, будет "
+"авто-сгенерирован из заголовока."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:47
 msgid ""
 "String to be used when sorting by author. If unspecified, and the author(s) "
 "are specified, it will be auto-generated from the author(s)."
 msgstr ""
+"Срока для сортировки по автору. Если не указана, а авторы указаны, будет "
+"авто-сгенерирована из списка авторов."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:57
 msgid "Set the book category."
-msgstr ""
+msgstr "Установить категорию книги"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Get the cover from the ebook and save it at as the specified file."
-msgstr ""
+msgstr "Получить обложку из книги и сохранить её в указанном файле."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid ""
@@ -1900,7 +1908,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:192
 msgid "OPF created in"
-msgstr ""
+msgstr "OPF создан в"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:198
 msgid "Cover saved to"
@@ -1916,7 +1924,7 @@ msgstr "Загрузка метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:111
 msgid "ratings"
-msgstr ""
+msgstr "рейтинги"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:111
 msgid "tags"
@@ -1924,7 +1932,7 @@ msgstr "теги"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:112
 msgid "description/reviews"
-msgstr ""
+msgstr "описание/обзоры"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:113
 msgid "Download %s from %s"
@@ -1963,6 +1971,16 @@ msgid ""
 "isbndb.com.\n"
 "\n"
 msgstr ""
+"\n"
+"%prog [опции] ключ\n"
+"\n"
+"Получить метаданные для книг с isndb.com. Вы можете указать либо\n"
+"ISBN номер или название и автора. Вы можете получить более одной книги,\n"
+"если вы указываете название и автора.\n"
+"\n"
+"Ключ это ключ учетной записи (account key), сгенерированный при бесплатной "
+"регистрации на isbndb.com.\n"
+"\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:105
 msgid "The ISBN ID of the book you want metadata for."
@@ -2120,7 +2138,7 @@ msgstr "%s формат книг не поддерживается"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."
-msgstr ""
+msgstr "Варианты создания HTML содержания"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:108
 msgid "Book Jacket"
@@ -2138,16 +2156,18 @@ msgstr "Безымянный"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:32
 msgid "OPF/NCX/etc. generation options."
-msgstr ""
+msgstr "Варианты создания OPF/NCX/др."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:35
 msgid "OPF version to generate. Default is %default."
-msgstr ""
+msgstr "OPF вариант для создания. По умолчанию %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:37
 msgid ""
 "Generate an Adobe \"page-map\" file if pagination information is available."
 msgstr ""
+"Создать Adobe \"page-map\" файл если доступна информация о разбиении на "
+"страницы."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:126
 msgid "Footnotes"
@@ -2164,6 +2184,8 @@ msgid ""
 "Normally calibre treats blank lines as paragraph markers. With this option "
 "it will assume that every line represents a paragraph instead."
 msgstr ""
+"Обычно calible воспринимает пустые строки как разделители абзацев. С этой "
+"установкой каждый перенос будет воспринят как новый абзац."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:27
@@ -2184,10 +2206,12 @@ msgid ""
 "Specify the character encoding of the output document. The default is "
 "cp1252. Note: This option is not honored by all formats."
 msgstr ""
+"Укажите кодировку исходящего документа. Кодировка по умолчанию cp1252. "
+"Примечание: Этот параметр учитывается не всеми форматами."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:24
 msgid "Do not extract images from the document"
-msgstr ""
+msgstr "Не извлекать изображения из документа"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:26
 msgid ""
@@ -2198,7 +2222,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."
-msgstr ""
+msgstr "Использовать новый PDF конвертер."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/cli.py:31
 msgid ""
@@ -2211,6 +2235,14 @@ msgid ""
 "\n"
 "Manipulate a PDF.\n"
 msgstr ""
+"команда ...\n"
+"\n"
+"доступные команды:\n"
+"[%%commands]\n"
+"\n"
+"Используйте %prog команда --help для получения помощи по конкретной команде\n"
+"\n"
+"Управление PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:29
 msgid ""
@@ -2218,6 +2250,9 @@ msgid ""
 "\n"
 "Crop a PDF file.\n"
 msgstr ""
+"[опции] файл.pdf\n"
+"\n"
+"Обрезать PDF файл.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:38
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:32
@@ -2234,25 +2269,28 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:41
 msgid "Number of pixels to crop from the left most x (default is %s)"
-msgstr ""
+msgstr "Количество точек для обрезания от самой левой x (по умолчанию: %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:44
 msgid "Number of pixels to crop from the left most y (default is %s)"
-msgstr ""
+msgstr "Количество точек для обрезания от самой левой y (по умолчанию: %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:47
 msgid "Number of pixels to crop from the right most x (default is %s)"
-msgstr ""
+msgstr "Количество точек для обрезания от самой правой x (по умолчанию: %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:50
 msgid "Number of pixels to crop from the right most y (default is %s)"
-msgstr ""
+msgstr "Количество точек для обрезания от самой правой y (по умолчанию: %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:53
 msgid ""
 "A file generated by ghostscript which allows each page to be individually "
 "cropped `gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox file.pdf 2> bounding`"
 msgstr ""
+"Файл, созданный с помощью ghostscript, который позволит уникально обрезать "
+"каждую страницу `gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox file.pdf 2> "
+"bounding`"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 msgid "Crop Options:"
@@ -2274,10 +2312,13 @@ msgid ""
 "\n"
 "Decrypt a PDF.\n"
 msgstr ""
+"[опции] файл.pdf пароль\n"
+"\n"
+"Дешифровать PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
 msgid "Decrypt Options:"
-msgstr ""
+msgstr "Параметры дешифрования:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:25
 msgid ""
@@ -2285,10 +2326,13 @@ msgid ""
 "\n"
 "Encrypt a PDF.\n"
 msgstr ""
+"[опции] файл.pdf пароль\n"
+"\n"
+"Шифровать PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:54
 msgid "Encrypt Options:"
-msgstr ""
+msgstr "Параметры шифрования:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:21
 msgid ""
@@ -2296,6 +2340,9 @@ msgid ""
 "\n"
 "Get info about a PDF.\n"
 msgstr ""
+"файл.pdf ...\n"
+"\n"
+"Получить информацию о PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:46
 msgid "Author"
@@ -2329,6 +2376,11 @@ msgid ""
 "\n"
 "Merges individual PDFs.\n"
 msgstr ""
+"[опции] файл1.pdf файл2.pdf ...\n"
+"\n"
+"Метаданные первого указанного файла будут использованы.\n"
+"\n"
+"Объединение отдельных PDF файлов.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:56
 msgid "Merge Options:"
@@ -2351,6 +2403,9 @@ msgid ""
 "\n"
 "Rotate pages of a PDF clockwise.\n"
 msgstr ""
+"файл.pdf градус\n"
+"\n"
+"Повернуть по часовой стрелке страницы PDF файла.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 msgid "Rotate Options:"
@@ -2370,6 +2425,17 @@ msgid ""
 "\n"
 "Split a PDF.\n"
 msgstr ""
+"\n"
+"%prog %%name [опции] файл.pdf страница_по_которой_разбить ...\n"
+"%prog %%name [опции] файл.pdf диапазон_страниц_по_которым_разбить ...\n"
+"\t\n"
+"Пример:\n"
+"\t\n"
+"%prog %%name файл.pdf 6\n"
+"%prog %%name файл.pdf 6-12\n"
+"%prog %%name файл.pdf 6-12 8 10 9-20\n"
+"\n"
+"Разбить PDF файл.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Split Options:"
@@ -2380,6 +2446,8 @@ msgid ""
 "The unit of measure. Default is inch. Choices are %s Note: This does not "
 "override the unit for margins!"
 msgstr ""
+"Единица измерения. По умолчанию дюйм. Варианты: %s Примечание: Данная "
+"установка не переопределит единицу измерения для полей!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:36
 msgid ""
@@ -2394,6 +2462,9 @@ msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
 msgstr ""
+"Произвольный размер документа. Используйте следующую форму, например: "
+"`123x321` для указания ширины и высоты. Данная установка переопределяет "
+"любой определенный формат бумаги."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:45
 msgid "The orientation of the page. Default is portrait. Choices are %s"
@@ -2406,18 +2477,20 @@ msgstr "Не могу найти pdftohtml, проверьте наличе по
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/output.py:33
 msgid ""
 "Specify the character encoding of the output document. The default is cp1252."
-msgstr ""
+msgstr "Укажите кодировку для создаваемого документа.  По умолчанию cp1252."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:199
 msgid ""
 "This RTF file has a feature calibre does not support. Convert it to HTML "
 "first and then try it."
 msgstr ""
+"RTF файл имеет функциональность которую calibre не поддерживает. "
+"Сконвертируйте сначала в HTML, а затем попробуйте еще раз."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8."
-msgstr ""
+msgstr "Укажите кодировку для создаваемого документа.  По умолчанию utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
@@ -2425,6 +2498,8 @@ msgid ""
 "compression but the fastest and 10 being the highest compression but the "
 "slowest."
 msgstr ""
+"Укажите степень сжатия. По шкале от 1 до 10, где 1 это минимальное сжатие на "
+"высокой скорости, а 10 это максимальное сжатие на низкой скорости."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:32
 msgid ""
@@ -2434,7 +2509,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:35
 msgid "Do not insert a Table of Contents into the output text."
-msgstr ""
+msgstr "Не вставлять Содержимое в резултирующий текст."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
 msgid ""
@@ -2442,12 +2517,17 @@ msgid ""
 "for compatibility with Mac OS 9 and earlier. For Mac OS X use 'unix'. "
 "'system' will default to the newline type used by this OS."
 msgstr ""
+"Тип переноса строк. Варианты: %s. По умолчанию 'system'. Используйте "
+"'old_mac' для совместимости с Mac OS 9 и раньше. Для Mac OS X используйте "
+"'unix'. 'system' будет использовать тип переноса по умолчанию для этой ОС."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:30
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8. "
 "Note: This option is not honored by all formats."
 msgstr ""
+"Укажите кодировку для результирующего документа. По умолчанию utf-8. "
+"Примечание: Это параметр учитывают не все форматы."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:38
 msgid ""
@@ -2555,7 +2635,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:90
 msgid "Download social metadata (tags/rating/etc.)"
-msgstr ""
+msgstr "Скачать социальные метаданные (тэги/рейтинги/и т.д.)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:92
 msgid "Limit max simultaneous jobs to number of CPUs"
@@ -2590,15 +2670,15 @@ msgstr "Добавление..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:176
 msgid "Searching in all sub-directories..."
-msgstr ""
+msgstr "Ищем во всех под-каталогах ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:189
 msgid "Path error"
-msgstr ""
+msgstr "Ошибка пути"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:190
 msgid "The specified directory could not be processed."
-msgstr ""
+msgstr "Специальных каталог не может быть обработан."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:194
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:495
@@ -2615,13 +2695,15 @@ msgstr "Добавлена"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:274
 msgid "Adding failed"
-msgstr ""
+msgstr "Ошибка при добавлении"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:275
 msgid ""
 "The add books process seems to have hung. Try restarting calibre and adding "
 "the books in smaller increments, until you find the problem book."
 msgstr ""
+"Добавление книг видимо зависло. Попробуйте перезапустить calibre и добавить "
+"книги меньшими порциями до тех пор пока не найдете проблемную книгу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:287
 msgid "Duplicates found!"
@@ -2632,10 +2714,11 @@ msgid ""
 "Books with the same title as the following already exist in the database. "
 "Add them anyway?"
 msgstr ""
+"Книги со следующими названиями уже имеются в базе. Все равно добавить их?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:291
 msgid "Adding duplicates..."
-msgstr ""
+msgstr "Добавляем дубликаты ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:352
 msgid "Saving..."
@@ -2647,7 +2730,7 @@ msgstr "Сохранено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
-msgstr ""
+msgstr "CVS/XML Параметры"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:18
@@ -2665,7 +2748,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:17
 msgid "Options specific to"
-msgstr ""
+msgstr "Параметры относящиеся к"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:18
@@ -2714,11 +2797,11 @@ msgstr "Форма"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:37
 msgid "Fields to include in output:"
-msgstr ""
+msgstr "Поля для добавления к результату:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:17
 msgid "E-book options"
-msgstr ""
+msgstr "Параметры книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:20
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:256
@@ -2729,7 +2812,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:52
 msgid "Tags to exclude as genres (regex):"
-msgstr ""
+msgstr "Тэги для исключения жанров (регулярное выражение):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:53
 msgid "'Don't include this book' tag:"
@@ -2753,15 +2836,18 @@ msgid ""
 "in a previous conversion (if they exist) instead of using the defaults "
 "specified in the Preferences"
 msgstr ""
+"Для настроек, которые не могут быть указаны в этом диалоге, использовать "
+"сохраненные во время предыдущей конвертиции (если таковые есть) вместо "
+"значений по умолчанию указанных в основном окне настроек."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:67
 msgid "Bulk Convert"
-msgstr ""
+msgstr "Массовое конвертирование"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:185
 msgid "Options specific to the output format."
-msgstr ""
+msgstr "Параметры для определенного формата вывода."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:15
 msgid "Comic Input"
@@ -2773,7 +2859,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:13
 msgid "input"
-msgstr ""
+msgstr "ввод"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:94
@@ -2827,7 +2913,7 @@ msgstr "Конт&раст"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:95
 msgid "&Disable comic processing"
-msgstr ""
+msgstr "Отключить обработку комиксов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:111
@@ -2862,6 +2948,11 @@ msgid ""
 "understanding the conversion process and figuring out the correct values for "
 "conversion parameters like Table of Contents and Chapter Detection."
 msgstr ""
+"Выберите каталог для сохранения отладочной информации. Если вы укажете "
+"каталог, calibre будет сохранять туда большой объем информации для отладки. "
+"Она может быть использована для понимания процесса конвертации и для подбора "
+"подходящих значений параметров конвертирования, например таких как "
+"Содержание и Распознавание Глав."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:53
@@ -2906,10 +2997,13 @@ msgid ""
 "of the conversion process. This HTML can sometimes serve as a good starting "
 "point for hand editing a conversion."
 msgstr ""
+"Процесс отладки сохраняет промежуточный HTML созданный на различных стадиях "
+"процесса конвертации. Этот HTML иногда может быть использован как хороший "
+"материал для ручного редактирования конвертации."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
-msgstr ""
+msgstr "EPUB Вывод"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:42
 msgid "Do not &split on page breaks"
@@ -2925,15 +3019,15 @@ msgstr " кб"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:45
 msgid "No default &cover"
-msgstr ""
+msgstr "Без &обложки по умолчанию"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
-msgstr ""
+msgstr "FB2 Ввод"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:29
 msgid "Do not insert a &Table of Contents at the beginning of the book."
-msgstr ""
+msgstr "Не вставлять &Содержание в начало книги."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:14
 msgid "FB2 Output"
@@ -2948,7 +3042,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:99
 msgid "Font rescaling wizard"
-msgstr ""
+msgstr "Мастер масштабирования шрифта"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:100
 msgid ""
@@ -2997,7 +3091,7 @@ msgstr " тчк."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:107
 msgid "Use &default values"
-msgstr ""
+msgstr "Использовать &значения по умолчанию"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
 msgid "&Input document"
@@ -3021,11 +3115,11 @@ msgstr "Вид и функции"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:18
 msgid "Control the look and feel of the output"
-msgstr ""
+msgstr "Изменить внешний вид документа"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:119
 msgid "&Disable font size rescaling"
-msgstr ""
+msgstr "&Отключить масштабирование шрифта"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:120
 msgid "Base &font size:"

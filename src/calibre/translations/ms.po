@@ -1,20 +1,20 @@
-# Traditional Chinese translation for calibre
-# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
+# Malay translation for calibre
+# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
 # This file is distributed under the same license as the calibre package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-25 18:58+0000\n"
-"PO-Revision-Date: 2010-01-31 21:45+0000\n"
-"Last-Translator: Chien Cheng Wei <e.cwchien@gmail.com>\n"
-"Language-Team: Traditional Chinese <zh_TW@li.org>\n"
+"PO-Revision-Date: 2010-01-31 12:05+0000\n"
+"Last-Translator: abuyop <Unknown>\n"
+"Language-Team: Malay <ms@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-01 04:45+0000\n"
+"X-Launchpad-Export-Date: 2010-02-01 04:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -140,23 +140,23 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:49
 msgid "Unknown"
-msgstr "未知"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:64
 msgid "Base"
-msgstr "基本"
+msgstr "Asas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:150
 msgid "File type"
-msgstr "檔案類型"
+msgstr "Jenis fail"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:184
 msgid "Metadata reader"
-msgstr "元數據讀取器"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:215
 msgid "Metadata writer"
-msgstr ""
+msgstr "Penulis metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:241
 msgid "Catalog generator"
@@ -184,7 +184,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:87
 msgid "Extract cover from comic files"
-msgstr "從漫畫檔中擷取封面"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:108
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:120
@@ -204,7 +204,7 @@ msgstr "從漫畫檔中擷取封面"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:277
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:287
 msgid "Read metadata from %s files"
-msgstr "從 %s 文件中讀取詮釋資料"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:246
 msgid "Read metadata from ebooks in RAR archives"
@@ -212,7 +212,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:298
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "從用ZIP格式壓縮的電子書檔案中讀取詮釋資料"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:309
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:319
@@ -220,15 +220,15 @@ msgstr "從用ZIP格式壓縮的電子書檔案中讀取詮釋資料"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:351
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:362
 msgid "Set metadata in %s files"
-msgstr "在%s檔案中設定詮釋資料"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:340
 msgid "Set metadata from %s files"
-msgstr "從%s檔案中設定詮釋資料"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr "轉換輸入"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:125
 msgid ""
@@ -240,23 +240,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:228
 msgid "Conversion Output"
-msgstr "轉換輸出"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:242
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
-msgstr "如果開啟本選項，輸出的外掛程式將儘可能使用人類可讀的輸出內容。對於一些輸出的外掛程式本選項可能不起作用。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:44
 msgid "Input profile"
-msgstr "輸入設定檔案資料"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:48
 msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
-msgstr "如果您不瞭解輸入文件的詳情請使用本預設的配置文件。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:56
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:235
@@ -276,101 +276,101 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:85
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:287
 msgid "This profile is intended for the Microsoft Reader."
-msgstr "這個配置文件適用於 Microsoft Reader。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:96
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:298
 msgid "This profile is intended for the Mobipocket books."
-msgstr "這個配置文件適用於Mobipocket 書籍"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:109
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:311
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr "這個配置文件適用於翰林 V3 和類似設備"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:121
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:323
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr "這個配置文件適用於翰林 V5 和類似設備"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:131
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:331
 msgid "This profile is intended for the Cybook G3."
-msgstr "這個配置文件適用於Cybook G3設備"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:144
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:344
 msgid "This profile is intended for the Cybook Opus."
-msgstr "這個配置文件適用於Cybook Opus設備"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:156
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:355
 msgid "This profile is intended for the Amazon Kindle."
-msgstr "這個設定檔適用於 Amazon Kindle電子書。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:168
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:388
 msgid "This profile is intended for the Irex Illiad."
-msgstr "這個設定檔適用於Irex Illiad。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:180
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:401
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr "這個設定檔適用於IRex Digital Reader 1000 電子書"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:194
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:415
 msgid "This profile is intended for the B&N Nook."
-msgstr "這個設定檔適用於邦諾電子書"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:213
 msgid "Output profile"
-msgstr "輸出設定檔"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:217
 msgid ""
 "This profile tries to provide sane defaults and is useful if you want to "
 "produce a document intended to be read at a computer or on a range of "
 "devices."
-msgstr "若您希望在電腦和設備上閱讀文檔，請使用這個預設的設定檔"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:248
 msgid "This profile is intended for the SONY PRS-300."
-msgstr "這個設定檔適用於SONY 的PRS-300電子書"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:266
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr "這個設定檔適用於JetBook出的5 英吋電子書"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:275
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
-msgstr "這個設定檔適用SONY PRS 系列，如 500/505/700 型號等，使用橫向頁面，主要適用於漫畫。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:372
 msgid "This profile is intended for the Amazon Kindle DX."
-msgstr "這個設定檔適用於Amazon Kindle DX"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
-msgstr "已安裝的外掛程式"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
-msgstr "檔案類型外掛程式對應"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:33
 msgid "Local plugin customization"
-msgstr "本地外掛程式自訂設置"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Disabled plugins"
-msgstr "已關閉的外掛程式"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:77
 msgid "No valid plugin found in "
-msgstr "沒有在 中找到合適的外掛程式 "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:263
 msgid "Initialization of plugin %s failed with traceback:"
@@ -390,7 +390,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:426
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
-msgstr "依名稱移除一個自訂的外掛程式。對內建外掛程式無效"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:428
 msgid ""
@@ -400,19 +400,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:430
 msgid "List all installed plugins"
-msgstr "列出所有已安裝的外掛程式"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:432
 msgid "Enable the named plugin"
-msgstr "開啟已經命名的外掛程式"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:434
 msgid "Disable the named plugin"
-msgstr "關閉已經命名的外掛程式"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
-msgstr "和Android 為OS的電話交換資料"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:26
 msgid ""
@@ -426,7 +426,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
-msgstr "和黑莓機的電話交換資料"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
@@ -444,15 +444,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr "與 ESlick eBook reader 通訊。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
-msgstr "與翰林V3電子書通訊。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:95
 msgid "Communicate with Hanlin V5 eBook readers."
-msgstr "與翰林V5電子書通訊。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:113
 msgid "Communicate with the BOOX eBook reader."
@@ -474,11 +474,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:22
 msgid "Device Interface"
-msgstr "裝置介面"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
-msgstr "與 IRex Digital Reader 1000 eBook reader 通訊。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/iriver/driver.py:15
 msgid "Communicate with the Iriver Story reader."
@@ -490,7 +490,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:22
 msgid "Communicate with the Kindle eBook reader."
-msgstr "與 Kindle eBook reader 通訊。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:67
 msgid "Communicate with the Kindle 2 eBook reader."
@@ -536,7 +536,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:90
 msgid "Getting list of books on device..."
-msgstr "從裝置中取得書籍列表"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
 msgid "Communicate with the Sony PRS-300/505/500 eBook reader."
@@ -553,14 +553,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:116
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:118
 msgid "Transferring books to device..."
-msgstr "正在傳送書籍到裝置中..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:174
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:181
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:145
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:162
 msgid "Removing books from device..."
-msgstr "正在從裝置中移除書籍..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:209
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:177
@@ -595,7 +595,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:597
 msgid "Unable to mount main memory (Error code: %d)"
-msgstr "無法裝載主記憶器（錯誤代碼：%d）"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:734
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:736
@@ -608,12 +608,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:771
 msgid "There is insufficient free space in main memory"
-msgstr "主記憶體可用空間不足"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:773
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:775
 msgid "There is insufficient free space on the storage card"
-msgstr "記憶卡可用空間不足"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:799
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:822
@@ -623,15 +623,15 @@ msgstr "記憶卡可用空間不足"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1072
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1452
 msgid "News"
-msgstr "新聞"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:12
 msgid "Configure Device"
-msgstr "裝置設定"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:28
 msgid "settings for device drivers"
-msgstr "裝置驅動程式設定"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:30
 msgid "Ordered list of formats the device will accept"
@@ -661,7 +661,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:37
 msgid "Get device information..."
-msgstr "取得裝置資訊..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:133
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:141
@@ -687,9 +687,6 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"处理漫画失败：\n"
-"\n"
-"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:278
 msgid ""
@@ -705,7 +702,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:285
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
-msgstr "維持圖片長寬比。 預設為填滿至螢幕大小。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:287
 msgid "Disable sharpening."
@@ -750,16 +747,16 @@ msgid ""
 "The format that images in the created ebook are converted to. You can "
 "experiment to see which format gives you optimal size and look on your "
 "device."
-msgstr "转换的电子书中所含图像格式。您可以试验几种格式，看哪种格式的大小和效果最适合您的设备。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:312
 msgid "Apply no processing to the image"
-msgstr "不对图片进行处理"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:441
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:452
 msgid "Page"
-msgstr "頁"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:19
 msgid ""
@@ -789,7 +786,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:97
 msgid "INPUT OPTIONS"
-msgstr "輸入選項"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:98
 msgid "Options to control the processing of the input %s file"
@@ -797,7 +794,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:104
 msgid "OUTPUT OPTIONS"
-msgstr "輸出選項"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:105
 msgid "Options to control the processing of the output %s"
@@ -832,7 +829,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:252
 msgid "Output saved to"
-msgstr "將輸出儲存到"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:92
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
@@ -880,13 +877,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:152
 msgid "Disable all rescaling of font sizes."
-msgstr "关闭字体缩放功能。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:159
 msgid ""
 "The line height in pts. Controls spacing between consecutive lines of text. "
 "By default no line height manipulation is performed."
-msgstr "行高(pts)。控制連續行之間的空隙大小，預設情況下程式不調整行高大小。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:167
 msgid ""
@@ -926,7 +923,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:210
 msgid "Don't add auto-detected chapters to the Table of Contents."
-msgstr "不將自動偵測到的章節增加到文件目錄。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:217
 msgid ""
@@ -980,29 +977,29 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:282
 msgid ""
 "Set the top margin in pts. Default is %default. Note: 72 pts equals 1 inch"
-msgstr "設置上邊距(pts)。預設值為 %default。注意：72 pts 等於 1 英吋"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:287
 msgid ""
 "Set the bottom margin in pts. Default is %default. Note: 72 pts equals 1 inch"
-msgstr "設置下邊距(pts)。預設值為 %default。注意：72 pts 等於 1 英吋"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:292
 msgid ""
 "Set the left margin in pts. Default is %default. Note: 72 pts equals 1 inch"
-msgstr "設置左邊距(pts)。預設值為 %default。注意：72 pts 等於 1 英吋"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:297
 msgid ""
 "Set the right margin in pts. Default is %default. Note: 72 pts equals 1 inch"
-msgstr "設置右邊距(pts)。預設值為 %default。注意：72 pts 等於 1 英吋"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:302
 msgid ""
 "Do not force text to be justified in output. Whether text is actually "
 "displayed justified or not depends on whether the ebook format and reading "
 "device support justification."
-msgstr "不在输出中进行文字两端对齐. 无论文字是否已经两端对齐和书籍格式及阅读设备是否支持两端对齐."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:309
 msgid ""
@@ -1022,13 +1019,13 @@ msgstr ""
 msgid ""
 "Use the cover detected from the source file in preference to the specified "
 "cover."
-msgstr "使用從來源檔案中檢測到的封面文件."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:329
 msgid ""
 "Insert a blank line between paragraphs. Will not work if the source file "
 "does not use paragraphs (<p> or <div> tags)."
-msgstr "在章節之間插入空行. 如果來源檔案不使用章節標記 (<p> 或 <div> 標記) 本選項將不起作用。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:336
 msgid ""
@@ -1079,15 +1076,11 @@ msgid ""
 "by Chinese and Japanese for instance) the representation used by the largest "
 "number of people will be used (Chinese in the previous example)."
 msgstr ""
-"将unicode字符转换为ASCII字符. 请谨慎使用本功能, 因为unicode字符将被ASCII字符所替换. 例如程序将用\"Mikhail "
-"Gorbachiov\"替换 \"%s\" . 同时请注意, 如果被替换的unicode字符同时有多个相同的ASCII编码 "
-"(例如中文和日文所包含的相同汉字字符), 程序将使用多数用户使用的ASCII编码来进行替换 "
-"(在上面的例子中中文汉字ASCII字符将被使用而非日文汉字字符)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:409
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:37
 msgid "Set the title."
-msgstr "设置标题。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:413
 msgid "Set the authors. Multiple authors should be separated by ampersands."
@@ -1099,22 +1092,22 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:422
 msgid "String to be used when sorting by author. "
-msgstr "當以作者來排序會用這個字串來排序. "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:426
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:51
 msgid "Set the cover to the specified file."
-msgstr "指定檔案來作為封面."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:430
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:53
 msgid "Set the ebook description."
-msgstr "設定電子書籍描述。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:434
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:55
 msgid "Set the ebook publisher."
-msgstr "設定電子書籍出版商。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:438
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:59
@@ -1153,7 +1146,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:562
 msgid "Could not find an ebook inside the archive"
-msgstr "无法在压缩文件中找到电子书籍"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:620
 msgid "Values of series index and rating must be numbers. Ignoring"
@@ -1161,21 +1154,21 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:740
 msgid "Converting input to HTML..."
-msgstr "將輸入轉換為HTML格式..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:763
 msgid "Running transforms on ebook..."
-msgstr "正在对电子书籍进行转换..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:850
 msgid "Creating"
-msgstr "建立中"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:57
 msgid ""
 "Extract the contents of the generated EPUB file to the specified directory. "
 "The contents of the directory are first deleted, so be careful."
-msgstr "將產生EPUB文件的內容解壓縮到指定文件夾. 請注意該文件夾會先被清空."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:63
 msgid ""
@@ -1198,18 +1191,18 @@ msgid ""
 "Normally, if the input file has no cover and you don't specify one, a "
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
-msgstr "正常情況下，如果輸入檔案沒有封面，您也未指定，會產生一個帶有標題、作者等信息的預設封面。選定此選項可以禁止生成預設封面。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/pmlml.py:129
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:77
 msgid "Table of Contents:"
-msgstr "目录："
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:32
 msgid "Do not insert a Table of Contents at the beginning of the book."
-msgstr "不要在書籍開始的地方插入目錄."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:32
@@ -1217,7 +1210,7 @@ msgstr "不要在書籍開始的地方插入目錄."
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:35
 msgid "Add Table of Contents to beginning of the book."
-msgstr "在書籍開使的地方添加目錄。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:243
 msgid ""
@@ -1248,7 +1241,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
-msgstr "從EPUB文件建立LIT文件..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:320
 msgid "\tBook Designer file detected."
@@ -1256,23 +1249,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:322
 msgid "\tParsing HTML..."
-msgstr "\t正在分析處理 HTML..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:345
 msgid "\tBaen file detected. Re-parsing..."
-msgstr "\t检测到Baen文件. 重新分析处理中..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:361
 msgid "Written preprocessed HTML to "
-msgstr "输出预处理 HTML 文件到 "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:379
 msgid "Processing %s"
-msgstr "正在处理 %s"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:393
 msgid "\tConverting to BBeB..."
-msgstr "\t正在转换为 BBeB 格式..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:539
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:552
@@ -1293,7 +1286,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:957
 msgid "Unable to process image %s. Error: %s"
-msgstr "无法处理图片 %s. 错误: %s"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1002
 msgid "Unable to process interlaced PNG %s"
@@ -1304,21 +1297,17 @@ msgid ""
 "Could not process image: %s\n"
 "%s"
 msgstr ""
-"无法处理图片: %s\n"
-"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1772
 msgid ""
 "An error occurred while processing a table: %s. Ignoring table markup."
-msgstr "处理以下表格时发生错误: %s. 忽略该表格样式."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1774
 msgid ""
 "Bad table:\n"
 "%s"
 msgstr ""
-"错误表格：\n"
-"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1796
 msgid "Table has cell that is too large"
@@ -1326,15 +1315,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1862
 msgid "Could not read cover image: %s"
-msgstr "无法读取封面图片: %s"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1865
 msgid "Cannot read from: %s"
-msgstr "無法從%s讀取"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1994
 msgid "Failed to process opf file"
-msgstr "处理 opf 文件失败"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:136
 msgid ""
@@ -1344,27 +1333,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:137
 msgid "Output LRS file"
-msgstr "输出 LRS 文件"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:139
 msgid "Do not save embedded image and font files to disk"
-msgstr "不要儲存內嵌圖片和字體"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:158
 msgid "Parsing LRF..."
-msgstr "分析 LRF 文件中..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:161
 msgid "Creating XML..."
-msgstr "建立 XML 文件中..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:163
 msgid "LRS written to "
-msgstr "输出 LRS 文件到 "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:267
 msgid "Could not read from thumbnail file:"
-msgstr "無法讀取預覽檔案:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:287
 msgid ""
@@ -1404,23 +1393,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
 msgid "Set sort key for the title"
-msgstr "設定以標題排序的關鍵字"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
 msgid "Set the author"
-msgstr "設定本書作者"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 msgid "Set sort key for the author"
-msgstr "設定以作者排序的關鍵字"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:597
 msgid "The category this book belongs to. E.g.: History"
-msgstr "這本電子書籍的類型為. 例如: 歷史"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:600
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr "指定一個圖片為這本電子書的預覽圖片"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:603
 msgid ""
@@ -1429,23 +1418,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
 msgid "Extract thumbnail from LRF file"
-msgstr "從LRF文件中解出預覽"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:608
 msgid "Set the publisher"
-msgstr "設定出版商"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:609
 msgid "Set the book classification"
-msgstr "設定書籍的類別"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:610
 msgid "Set the book creator"
-msgstr "設定書籍的建立者"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:611
 msgid "Set the book producer"
-msgstr "設定書籍的出版商"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:613
 msgid ""
@@ -1511,7 +1500,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:152
 msgid "Comic"
-msgstr "漫画"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:358
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:45
@@ -1522,7 +1511,7 @@ msgstr "漫画"
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:399
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1111
 msgid "Title"
-msgstr "标题"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:359
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:57
@@ -1530,18 +1519,18 @@ msgstr "标题"
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:404
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1112
 msgid "Author(s)"
-msgstr "作者"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:360
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:169
 msgid "Publisher"
-msgstr "出版社"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:361
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:49
 msgid "Producer"
-msgstr "製作人"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:362
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:183
@@ -1550,7 +1539,7 @@ msgstr "製作人"
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:360
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:94
 msgid "Comments"
-msgstr "评论"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:370
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:170
@@ -1560,7 +1549,7 @@ msgstr "评论"
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Tags"
-msgstr "标签"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:372
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:171
@@ -1568,26 +1557,26 @@ msgstr "标签"
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Series"
-msgstr "系列"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:373
 msgid "Language"
-msgstr "語言"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:375
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1054
 msgid "Timestamp"
-msgstr "時間戳記"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:377
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:167
 msgid "Published"
-msgstr "已發佈"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:379
 msgid "Rights"
-msgstr "所有權"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:78
 msgid "EDITORIAL REVIEW"
@@ -1595,7 +1584,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:19
 msgid "options"
-msgstr "选项"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:20
 msgid ""
@@ -1615,7 +1604,7 @@ msgstr ""
 msgid ""
 "Set the authors. Multiple authors should be separated by the & character. "
 "Author names should be in the order Firstname Lastname."
-msgstr "设置作者. 请用 & 字符隔开多个作者. 作者的名字按一下顺序书写 名字 姓氏."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:43
 msgid ""
@@ -1635,7 +1624,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Get the cover from the ebook and save it at as the specified file."
-msgstr "获取书籍的封面并将其保存."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid ""
@@ -1652,43 +1641,43 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:85
 msgid "Set the BookID in LRF files"
-msgstr "设置 LRF 文件的 BookID"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:148
 msgid "No file specified"
-msgstr "未指定檔案"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:163
 msgid "Original metadata"
-msgstr "原始的元数据"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:180
 msgid "Changed metadata"
-msgstr "变更的元数据"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:192
 msgid "OPF created in"
-msgstr "OPF 文件创建在"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:198
 msgid "Cover saved to"
-msgstr "儲存封面到"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:200
 msgid "No cover found"
-msgstr "找不到封面"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:34
 msgid "Metadata download"
-msgstr "元数据下载"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:111
 msgid "ratings"
-msgstr "評分"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:111
 msgid "tags"
-msgstr "標簽"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:112
 msgid "description/reviews"
@@ -1700,11 +1689,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:137
 msgid "Downloads metadata from Google Books"
-msgstr "从谷歌图书下载元数据"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:153
 msgid "Downloads metadata from isbndb.com"
-msgstr "从 isbndb.com 下载元数据"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:181
 msgid ""
@@ -1754,11 +1743,11 @@ msgstr ""
 msgid ""
 "Could not fetch cover as server is experiencing high load. Please try again "
 "later."
-msgstr "由于服务器繁忙无法获得封面。请稍后重试。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:61
 msgid " not found."
-msgstr " 无法找到。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:64
 msgid "LibraryThing.com server error. Try again later."
