@@ -765,6 +765,8 @@ class EPUB_MOBI(CatalogPlugin):
         # Methods
         def buildSources(self):
             self.fetchBooksByTitle()
+            if not self.booksByTitle:
+                return False
             self.fetchBooksByAuthor()
             self.generateHTMLDescriptions()
             self.generateHTMLByAuthor()
@@ -784,6 +786,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.generateNCXByDateAdded("Recently Added")
             self.generateNCXByGenre("Genres")
             self.writeNCX()
+            return True
 
         def cleanUp(self):
             pass
@@ -1448,6 +1451,7 @@ class EPUB_MOBI(CatalogPlugin):
         def generateHTMLByTags(self):
             # Generate individual HTML files for each tag, e.g. Fiction, Nonfiction ...
             # Note that special tags - ~+*[] -  have already been filtered from books[]
+            # There may be synonomous tags
 
             self.updateProgressFullStep("'Genres'")
 
@@ -1456,99 +1460,100 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Extract books matching filtered_tags
             genre_list = []
-            for friendly_tag in self.genre_tags_dict:
+            for friendly_tag in sorted(self.genre_tags_dict):
                 #print "\ngenerateHTMLByTags(): looking for books with friendly_tag '%s'" % friendly_tag
-                # tag_list => {'tag': '<normalized_genre_tag>', 'books':[{}, {}, {}]}
+                # tag_list => { normalized_genre_tag : [{book},{},{}],
+                #               normalized_genre_tag : [{book},{},{}] }
+
                 tag_list = {}
-                tag_list['tag'] = self.genre_tags_dict[friendly_tag]
-                tag_list['books'] = []
                 for book in self.booksByAuthor:
                     # Scan each book for tag matching friendly_tag
-                    #if 'tags' in book: print "  evaluating %s with tags: %s" % (book['title'], book['tags'])
                     if 'tags' in book and friendly_tag in book['tags']:
-                        #print "   adding '%s'" % (book['title'])
                         this_book = {}
                         this_book['author'] = book['author']
                         this_book['title'] = book['title']
                         this_book['author_sort'] = book['author_sort']
                         this_book['read'] = book['read']
                         this_book['id'] = book['id']
-                        tag_list['books'].append(this_book)
-
-                if len(tag_list['books']):
-                    genre_exists = False
-                    book_not_in_genre = True
-                    if not genre_list:
-                        #print "   genre_list empty, adding '%s'" % tag_list['tag']
-                        genre_list.append(tag_list)
-                    else:
-                        # Check for existing_genre
-                        for genre in genre_list:
-                            if genre['tag'] == tag_list['tag']:
-                                genre_exists = True
-                                # Check to see if the book is already in this list
-                                for existing_book in genre['books']:
-                                    if this_book['title'] == existing_book['title']:
-                                        #print "%s already in %s" % (this_book['title'], genre)
-                                        book_not_in_genre = False
-                                        break
-                                break
-
-                        if genre_exists:
-                            if book_not_in_genre:
-                                #print "    adding %s to existing genre '%s'" % (this_book['title'],genre['tag'])
-                                genre['books'].append(this_book)
+                        normalized_tag = self.genre_tags_dict[friendly_tag]
+                        genre_tag_list = [key for genre in genre_list for key in genre]
+                        if normalized_tag in genre_tag_list:
+                            for existing_genre in genre_list:
+                                for key in existing_genre:
+                                    new_book = None
+                                    if key == normalized_tag:
+                                        for book in existing_genre[key]:
+                                            if book['title'] == this_book['title']:
+                                                new_book = False
+                                                break
+                                        else:
+                                            new_book = True
+                                    if new_book:
+                                        existing_genre[key].append(this_book)
                         else:
-                            #print "   appending genre '%s'" % tag_list['tag']
+                            tag_list[normalized_tag] = [this_book]
                             genre_list.append(tag_list)
 
             if self.opts.verbose:
-                self.opts.log.info("     Genre summary: %d active genres" % len(genre_list))
+                self.opts.log.info("     Genre summary: %d active genre tags used in generating catalog with %d titles" %
+                                    (len(genre_list), len(self.booksByTitle)))
+
                 for genre in genre_list:
-                    self.opts.log.info("      %s: %d titles" % (genre['tag'], len(genre['books'])))
+                    for key in genre:
+                        self.opts.log.info("      %s: %d titles" % (key, len(genre[key])))
 
             # Write the results
-            # genre_list = [ [tag_list], [tag_list] ...]
+            # genre_list = [ {friendly_tag:[{book},{book}]}, {friendly_tag:[{book},{book}]}, ...]
             master_genre_list = []
-            for (index, genre) in enumerate(genre_list):
-                # Create sorted_authors[0] = friendly, [1] = author_sort for NCX creation
-                authors = []
-                for book in genre['books']:
-                    authors.append((book['author'],book['author_sort']))
+            for genre_tag_set in genre_list:
+                for (index, genre) in enumerate(genre_tag_set):
+                    #print "genre: %s  \t  genre_tag_set[genre]: %s" % (genre, genre_tag_set[genre])
 
-                # authors[] contains a list of all book authors, with multiple entries for multiple books by author
-                # Create unique_authors with a count of books per author as the third tuple element
-                books_by_current_author = 1
-                current_author = authors[0]
-                unique_authors = []
-                for (i,author) in enumerate(authors):
-                    if author != current_author and i:
-                        unique_authors.append((current_author[0], current_author[1], books_by_current_author))
-                        current_author = author
-                        books_by_current_author = 1
-                    elif i==0 and len(authors) == 1:
-                        # Allow for single-book lists
-                        unique_authors.append((current_author[0], current_author[1], books_by_current_author))
-                    else:
-                        books_by_current_author += 1
-                '''
-                # Extract the unique entries
-                unique_authors = []
-                for author in authors:
-                    if not author in unique_authors:
-                        unique_authors.append(author)
-                '''
-                # Write the genre book list as an article
-                titles_spanned = self.generateHTMLByGenre(genre['tag'], True if index==0 else False, genre['books'],
-                                    "%s/Genre_%s.html" % (self.contentDir, genre['tag']))
+                    # Create sorted_authors[0] = friendly, [1] = author_sort for NCX creation
+                    authors = []
+                    for book in genre_tag_set[genre]:
+                        authors.append((book['author'],book['author_sort']))
 
-                tag_file = "content/Genre_%s.html" % genre['tag']
-                master_genre_list.append({'tag':genre['tag'],
-                                          'file':tag_file,
-                                          'authors':unique_authors,
-                                          'books':genre['books'],
-                                          'titles_spanned':titles_spanned})
+                    # authors[] contains a list of all book authors, with multiple entries for multiple books by author
+                    # Create unique_authors with a count of books per author as the third tuple element
+                    books_by_current_author = 1
+                    current_author = authors[0]
+                    unique_authors = []
+                    for (i,author) in enumerate(authors):
+                        if author != current_author and i:
+                            unique_authors.append((current_author[0], current_author[1], books_by_current_author))
+                            current_author = author
+                            books_by_current_author = 1
+                        elif i==0 and len(authors) == 1:
+                            # Allow for single-book lists
+                            unique_authors.append((current_author[0], current_author[1], books_by_current_author))
+                        else:
+                            books_by_current_author += 1
+                    '''
+                    # Extract the unique entries
+                    unique_authors = []
+                    for author in authors:
+                        if not author in unique_authors:
+                            unique_authors.append(author)
+                    '''
+                    # Write the genre book list as an article
+                    titles_spanned = self.generateHTMLByGenre(genre, True if index==0 else False,
+                                          genre_tag_set[genre],
+                                          "%s/Genre_%s.html" % (self.contentDir,
+                                                                genre))
 
+                    tag_file = "content/Genre_%s.html" % genre
+                    master_genre_list.append({'tag':genre,
+                                              'file':tag_file,
+                                              'authors':unique_authors,
+                                              'books':genre_tag_set[genre],
+                                              'titles_spanned':titles_spanned})
+
+            if False and self.opts.verbose:
+                for genre in master_genre_list:
+                    print "genre['tag']: %s" % genre['tag']
+                    for book in genre['books']:
+                        print book['title']
             self.genres = master_genre_list
 
         def generateThumbnails(self):
@@ -2351,7 +2356,7 @@ class EPUB_MOBI(CatalogPlugin):
                         else:
                             yield tag
 
-                self.opts.log.info(u'     %d total genre tags in database (exclude_genre: %s):' % \
+                self.opts.log.info(u'     %d available genre tags in database (exclude_genre: %s):' % \
                                      (len(genre_tags_dict), self.opts.exclude_genre))
 
                 # Display friendly/normalized genres
@@ -2395,19 +2400,15 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Create an anchor from the tag
             aTag = Tag(soup, 'a')
-            #aTag['name'] = "Genre%s" % re.sub("\W","", genre)
             aTag['name'] = "Genre_%s" % genre
             body.insert(btc,aTag)
             btc += 1
 
-            # Insert the genre title using the friendly name
+            # Find the first instance of friendly_tag matching genre
             # GwR *** optimize
-            for genre_tag in self.genre_tags_dict:
-                if self.genre_tags_dict[genre_tag] == genre:
-                    friendly_tag = genre_tag
+            for friendly_tag in self.genre_tags_dict:
+                if self.genre_tags_dict[friendly_tag] == genre:
                     break
-
-
             titleTag = body.find(attrs={'class':'title'})
             titleTag.insert(0,NavigableString('<b><i>%s</i></b>' % escape(friendly_tag)))
 
@@ -2735,8 +2736,8 @@ class EPUB_MOBI(CatalogPlugin):
 
         if opts.verbose:
             opts_dict = vars(opts)
-            log("%s(): Generating %s for %s in %s environment" %
-                (self.name,self.fmt,opts.output_profile,
+            log(u"%s(): Generating %s %sin %s environment" %
+                (self.name,self.fmt,'for %s ' % opts.output_profile if opts.output_profile else '',
                  'CLI' if opts.cli_environment else 'GUI'))
             if opts_dict['ids']:
                 log(" Book count: %d" % len(opts_dict['ids']))
@@ -2752,32 +2753,39 @@ class EPUB_MOBI(CatalogPlugin):
 
         # Launch the Catalog builder
         if opts.verbose:
-            log.info("Begin generating catalog source")
+            log.info("Begin catalog source generation")
         catalog = self.CatalogBuilder(db, opts, self, report_progress=notification)
         catalog.createDirectoryStructure()
         catalog.copyResources()
-        catalog.buildSources()
+        catalog_source_built = catalog.buildSources()
         if opts.verbose:
-            log.info("Finished generating catalog source\n")
+            if catalog_source_built:
+                log.info("Finished catalog source generation\n")
+            else:
+                log.warn("No database hits with supplied criteria")
 
-        recommendations = []
+        if catalog_source_built:
+            recommendations = []
 
-        dp = getattr(opts, 'debug_pipeline', None)
-        if dp is not None:
-            recommendations.append(('debug_pipeline', dp,
-                OptionRecommendation.HIGH))
+            dp = getattr(opts, 'debug_pipeline', None)
+            if dp is not None:
+                recommendations.append(('debug_pipeline', dp,
+                    OptionRecommendation.HIGH))
 
-        if opts.fmt == 'mobi' and opts.output_profile and opts.output_profile.startswith("kindle"):
-            recommendations.append(('output_profile', opts.output_profile,
-                OptionRecommendation.HIGH))
-            recommendations.append(('no_inline_toc', True,
-                OptionRecommendation.HIGH))
+            if opts.fmt == 'mobi' and opts.output_profile and opts.output_profile.startswith("kindle"):
+                recommendations.append(('output_profile', opts.output_profile,
+                    OptionRecommendation.HIGH))
+                recommendations.append(('no_inline_toc', True,
+                    OptionRecommendation.HIGH))
 
-        # Run ebook-convert
-        from calibre.ebooks.conversion.plumber import Plumber
-        plumber = Plumber(os.path.join(catalog.catalogPath,
-                        opts.basename + '.opf'), path_to_output, log, report_progress=notification,
-                        abort_after_input_dump=False)
-        plumber.merge_ui_recommendations(recommendations)
+            # Run ebook-convert
+            from calibre.ebooks.conversion.plumber import Plumber
+            plumber = Plumber(os.path.join(catalog.catalogPath,
+                            opts.basename + '.opf'), path_to_output, log, report_progress=notification,
+                            abort_after_input_dump=False)
+            plumber.merge_ui_recommendations(recommendations)
 
-        plumber.run()
+            plumber.run()
+            return 0
+        else:
+            return 1
