@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-01-25 00:45+0000\n"
-"PO-Revision-Date: 2010-01-25 02:46+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2010-01-25 18:58+0000\n"
+"PO-Revision-Date: 2010-01-27 02:48+0000\n"
+"Last-Translator: alcik <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-25 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-01-28 04:34+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -160,7 +160,7 @@ msgstr "Zapisywacz metadanych"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:241
 msgid "Catalog generator"
-msgstr "Generator katalogowy"
+msgstr "Generator katalogów"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:14
 msgid ""
@@ -186,9 +186,9 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
-"Tworzenie archiwum PMLZ zawierającą plik PML i wszystkie obrazy w "
-"pmlname_img lub images. Plugin ten jest uruchamiany przy każdym dodaniu PML "
-"pliku do biblioteki."
+"Stwórz archiwum PMLZ zawierające plik PML i wszystkie obrazy z katalogu "
+"pmlname_img lub images. Plugin ten jest uruchamiany przy każdym dodaniu "
+"pliku PML do biblioteki."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:87
 msgid "Extract cover from comic files"
@@ -245,6 +245,10 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
+"Określ kodowanie znaków dokumentu wejściowego. Jeśli ta opcja zostanie "
+"wybrana, zastąpi dowolne kodowanie zadeklarowane przez sam dokument. "
+"Szczególnie przydatne w przypadku dokumentów, które nie deklarują kodowania "
+"lub które mają błędne deklaracje kodowania."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:228
 msgid "Conversion Output"
@@ -677,7 +681,7 @@ msgstr "Odczytaj dane meta z książek na urządzeniu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:36
 msgid "Template to control how books are saved"
-msgstr ""
+msgstr "Szablon do kontrolowania sposobu, w jaki książki są zapisywane"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:80
@@ -1115,6 +1119,8 @@ msgid ""
 "Insert the book metadata at the start of the book. This is useful if your "
 "ebook reader does not support displaying/searching metadata directly."
 msgstr ""
+"Wstaw metadane książki na początku książki. Jest to przydatne, jeśli czytnik "
+"ebook nie obsługuje wyświetlania / wyszukiwanie metadanych bezpośrednio."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:352
 msgid ""
@@ -1681,7 +1687,7 @@ msgstr "Opublikowana"
 msgid "Rights"
 msgstr "Uprawnienia"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:77
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:78
 msgid "EDITORIAL REVIEW"
 msgstr ""
 
@@ -2573,11 +2579,11 @@ msgid "Fields to include in output:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:17
-msgid "E-book Options"
+msgid "E-book options"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:20
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:259
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:256
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1416
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1430
 msgid "Catalog"
@@ -3700,7 +3706,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:735
 msgid "Sending catalogs to device."
-msgstr ""
+msgstr "Trwa wysyłanie katalogów do urządzenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:796
 msgid "Sending news to device."
@@ -3777,28 +3783,29 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:67
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:262
 msgid "Generate catalog"
-msgstr ""
+msgstr "Wygeneruj katalog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:68
 msgid "Catalog &format:"
-msgstr ""
+msgstr "&Format katalogu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:69
 msgid ""
 "Catalog &title (existing catalog with the same title will be replaced):"
 msgstr ""
+"&Tytuł katalogu (istniejący katalog o tej samej nazwie zostanie nadpisany):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:70
 msgid "&Send catalog to device automatically"
-msgstr ""
+msgstr "Automatycznie wyślij katalog do urządzenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:71
 msgid "Catalog options"
-msgstr ""
+msgstr "Opcje katalogu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:72
 msgid "Generate catalog for {0} books"
-msgstr ""
+msgstr "Wygeneruj katalog dla {0} książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:40
 msgid "Choose Format"
@@ -6018,7 +6025,7 @@ msgstr "Masowa konwersja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:360
 msgid "Create catalog of books in your calibre library"
-msgstr ""
+msgstr "Stwórz katalog książek w Twojej bibliotece calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:376
 msgid "Run welcome wizard"
@@ -6146,7 +6153,7 @@ msgstr "Nie można było odczytać metadanych z nastepujących"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1072
 msgid "Cannot delete"
-msgstr ""
+msgstr "Usunięcie niemożliwe."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1075
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1631
@@ -7239,14 +7246,14 @@ msgid ""
 "Applies to: CSV, XML output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:241
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:238
 msgid ""
 "Title of generated catalog used as title in metadata.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:247
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:244
 msgid ""
 "Save the output from different stages of the conversion pipeline to the "
 "specified directory. Useful if you are unsure at which stage of the "
@@ -7255,14 +7262,14 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:256
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:253
 msgid ""
 "Regex describing tags to exclude as genres.\n"
 "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:261
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:258
 msgid ""
 "Comma-separated list of tag words indicating book should be excluded from "
 "output.  Case-insensitive.\n"
@@ -7271,21 +7278,21 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:268
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:265
 msgid ""
 "Tag indicating book has been read.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:273
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:270
 msgid ""
 "Tag prefix for user notes, e.g. '*Jeff might enjoy reading this'.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:279
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:276
 msgid ""
 "Specifies the output profile.  In some cases, an output profile is required "
 "to optimize the catalog for the device.  For example, 'kindle' or "
@@ -7538,14 +7545,14 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:658
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:484
 msgid "Show detailed output information. Useful for debugging"
 msgstr ""
 "Pokazuj szczegółowową informację wyjściową. Przydatne przy debugowaniu."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:671
 msgid "Error: You must specify a catalog output file"
-msgstr ""
+msgstr "Błąd: musisz podać plik wyjściowy katalogu"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:689
 msgid ""
@@ -7936,75 +7943,75 @@ msgstr ""
 msgid "Unknown News Source"
 msgstr "Nieznane źródło informacji"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:528
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:533
 msgid "The \"%s\" recipe needs a username and password."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:614
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:619
 msgid "Download finished"
 msgstr "Pobranie zakończone"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:616
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:621
 msgid "Failed to download the following articles:"
 msgstr "Nie udało się pobrać następujących artykułów:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:622
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:627
 msgid "Failed to download parts of the following articles:"
 msgstr "Nie udało się pobrać części następujących artykułów:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:624
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:629
 msgid " from "
 msgstr " z "
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:626
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:631
 msgid "\tFailed links:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:707
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:712
 msgid "Could not fetch article. Run with -vv to see the reason"
-msgstr ""
+msgstr "Nie udało się pobrać artykułu. Użyj -vv, by zobaczyć przyczynę"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:728
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:733
 msgid "Fetching feeds..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:733
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:738
 msgid "Got feeds from index page"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:739
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:744
 msgid "Trying to download cover..."
 msgstr "Próbuję pobrać okładkę..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:797
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:802
 msgid "Starting download [%d thread(s)]..."
 msgstr "Rozpoczynam pobieranie [%d wątek(ków)]..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:813
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:818
 msgid "Feeds downloaded to %s"
 msgstr "Źródła pobrano do %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:823
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:828
 msgid "Could not download cover: %s"
 msgstr "Nie można pobrać okładki: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:835
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:840
 msgid "Downloading cover from %s"
 msgstr "Pobieranie okładki z %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:978
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:983
 msgid "Untitled Article"
 msgstr "Artykuł bez tytułu"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1049
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1054
 msgid "Article downloaded: %s"
 msgstr "Artykuł pobrany: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1060
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1065
 msgid "Article download failed: %s"
 msgstr "Pobieranie artykułu nie powiodło się: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1077
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1082
 msgid "Fetching feed"
 msgstr ""
 
@@ -8023,7 +8030,7 @@ msgstr "Zaplanowano"
 msgid "Custom"
 msgstr "Dostosuj"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:459
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:461
 msgid ""
 "%prog URL\n"
 "\n"
@@ -8033,23 +8040,23 @@ msgstr ""
 "\n"
 "Gdzie URL to na przykład http://google.com"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:462
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:464
 msgid "Base directory into which URL is saved. Default is %default"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:465
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:467
 msgid ""
 "Timeout in seconds to wait for a response from the server. Default: %default "
 "s"
 msgstr "Czas oczekiwania na odpowiedź serwera. Domyślnie: %default sek."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:468
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:470
 msgid ""
 "Maximum number of levels to recurse i.e. depth of links to follow. Default "
 "%default"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:471
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:473
 msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
@@ -8057,7 +8064,7 @@ msgstr ""
 "Maksymalna liczba plików do pobrania. Stosowane jedynie do plików z etykiet "
 "<a href>. Wartość domyślna: %default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:473
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:475
 msgid ""
 "Minimum interval in seconds between consecutive fetches. Default is %default "
 "s"
@@ -8065,20 +8072,20 @@ msgstr ""
 "Minimalny odstęp w sekundach pomiędzy kolejnymi pobraniami. Domyślnie to "
 "%default s"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:475
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:477
 msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:477
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
 msgid ""
 "Only links that match this regular expression will be followed. This option "
 "can be specified multiple times, in which case as long as a link matches any "
 "one regexp, it will be followed. By default all links are followed."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:481
 msgid ""
 "Any link that matches this regular expression will be ignored. This option "
 "can be specified multiple times, in which case as long as any regexp matches "
@@ -8087,7 +8094,7 @@ msgid ""
 "applied first."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:481
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:483
 msgid "Do not download CSS stylesheets."
 msgstr "Nie pobieraj arkuszy styli CSS."
 

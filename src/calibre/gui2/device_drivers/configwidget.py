@@ -38,7 +38,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             self.opt_read_metadata.setChecked(self.settings.read_metadata)
         else:
             self.opt_read_metadata.hide()
-        if extra_customization_message:
+        if extra_customization_message and settings.extra_customization:
             self.extra_customization_label.setText(extra_customization_message)
             self.opt_extra_customization.setText(settings.extra_customization)
         else:
