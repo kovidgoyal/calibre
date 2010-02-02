@@ -42,7 +42,7 @@ class Writer(FormatWriter):
         pml = unicode(pmlmlizer.extract_content(oeb_book, self.opts)).encode('cp1252', 'replace')
 
         text, text_sizes = self._text(pml)
-        chapter_index = self._index_item(r'(?s)\\C(?P<val>[0-4)="(?P<text>.+?)"', pml)
+        chapter_index = self._index_item(r'(?s)\\C(?P<val>[0-4])="(?P<text>.+?)"', pml)
         chapter_index += self.index_item(r'(?s)\\X(?P<val>[0-4])(?P<text>.+?)\\X[0-4]', pml)
         chapter_index += self.index_item(r'(?s)\\x(?P<text>.+?)\\x', pml)
         link_index = self._index_item(r'(?s)\\Q="(?P<text>.+?)"', pml)
