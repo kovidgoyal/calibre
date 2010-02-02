@@ -761,14 +761,19 @@ class BasicNewsRecipe(Recipe):
         self.download_cover()
         self.report_progress(0, _('Generating masthead...'))
         self.masthead_path = None
+
         try:
             murl = self.get_masthead_url()
         except:
             self.log.exception('Failed to get masthead url')
             murl = None
+
         if murl is not None:
+            # Try downloading the user-supplied masthead_url
+            # Failure sets self.masthead_path to None
             self.download_masthead(murl)
         if self.masthead_path is None:
+            self.log.info("Synthesizing mastheadImage")
             self.masthead_path = os.path.join(self.output_dir, 'mastheadImage.jpg')
             try:
                 self.default_masthead_image(self.masthead_path)
@@ -916,7 +921,7 @@ class BasicNewsRecipe(Recipe):
         try:
             self._download_masthead(url)
         except:
-            self.log.exception("Failed to download supplied masthead_url, synthesizing")
+            self.log.exception("Failed to download supplied masthead_url")
 
     def default_cover(self, cover_file):
         '''
