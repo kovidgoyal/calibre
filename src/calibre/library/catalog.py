@@ -403,10 +403,15 @@ class EPUB_MOBI(CatalogPlugin):
                     right = EPUB_MOBI.NumberToText(strings[1]).text
                 self.text = '%s-%s' % (left, right)
 
+            # Test for $xx,xxx
+            elif re.search('[$,]', self.number):
+                self.number_as_float = re.sub('[$,]','',self.number)
+                self.text = EPUB_MOBI.NumberToText(self.number_as_float).text
+
             # Test for comma
             elif re.search(',', self.number):
                 self.number_as_float = re.sub(',','',self.number)
-                self.text = EPUB_MOBI.NumberToText(self.number.replace(',','')).text
+                self.text = EPUB_MOBI.NumberToText(self.number_as_float).text
 
             # Test for hybrid e.g., 'K2'
             elif re.search('[\D]+', self.number):
@@ -482,11 +487,6 @@ class EPUB_MOBI(CatalogPlugin):
             catalog.createDirectoryStructure()
             catalog.copyResources()
             catalog.buildSources()
-
-        - To do:
-    ***     generateThumbnails() creates a default book image from book.svg, but the background
-            is black instead of white.  This needs to be fixed (approx line #1418)
-
         '''
 
         # Number of discrete steps to catalog creation
@@ -811,7 +811,7 @@ class EPUB_MOBI(CatalogPlugin):
             # If failure, default mastheadImage.gif should still be in place
             if self.generateForKindle:
                 try:
-                    self.generate_masthead_image(os.path.join(self.catalogPath,
+                    self.generateMastheadImage(os.path.join(self.catalogPath,
                                                  'images/mastheadImage.gif'))
                 except:
                     pass
@@ -831,11 +831,14 @@ class EPUB_MOBI(CatalogPlugin):
             # Merge opts.exclude_tag with opts.search_text
 
             # What if no exclude tags?
-            exclude_tags = self.opts.exclude_tags.split(',')
-            search_terms = []
-            for tag in exclude_tags:
-                search_terms.append("tag:%s" % tag)
-            search_phrase = "not (%s)" % " or ".join(search_terms)
+            empty_exclude_tags = False if len(self.opts.exclude_tags) else True
+            search_phrase = ''
+            if not empty_exclude_tags:
+                exclude_tags = self.opts.exclude_tags.split(',')
+                search_terms = []
+                for tag in exclude_tags:
+                    search_terms.append("tag:%s" % tag)
+                search_phrase = "not (%s)" % " or ".join(search_terms)
 
             # If a list of ids are provided, don't use search_text
             if self.opts.ids:
@@ -846,6 +849,7 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     self.opts.search_text = search_phrase
 
+            #print "fetchBooksByTitle(): opts.search_text: %s" % self.opts.search_text
             # Fetch the database as a dictionary
             data = self.plugin.search_sort_db(self.db, self.opts)
 
@@ -1455,7 +1459,6 @@ class EPUB_MOBI(CatalogPlugin):
 
             self.updateProgressFullStep("'Genres'")
 
-            # filtered_tags = {friendly:normalized, }
             self.genre_tags_dict = self.filterDbTags(self.db.all_tags())
 
             # Extract books matching filtered_tags
@@ -2202,11 +2205,11 @@ class EPUB_MOBI(CatalogPlugin):
 
                 # GwR *** Can this be optimized?
                 normalized_tag = None
-                for genre_tag in self.genre_tags_dict:
-                    if self.genre_tags_dict[genre_tag] == genre['tag']:
-                        normalized_tag = self.genre_tags_dict[genre_tag]
+                for friendly_tag in self.genre_tags_dict:
+                    if self.genre_tags_dict[friendly_tag] == genre['tag']:
+                        normalized_tag = self.genre_tags_dict[friendly_tag]
                         break
-                textTag.insert(0, self.formatNCXText(NavigableString(genre_tag)))
+                textTag.insert(0, self.formatNCXText(NavigableString(friendly_tag)))
                 navLabelTag.insert(0,textTag)
                 navPointVolumeTag.insert(0,navLabelTag)
                 contentTag = Tag(ncx_soup, "content")
@@ -2312,14 +2315,6 @@ class EPUB_MOBI(CatalogPlugin):
             if not os.path.isdir(images_path):
                 os.makedirs(images_path)
 
-        def getMarkerTags(self):
-            ''' Return a list of special marker tags to be excluded from genre list '''
-            markerTags = []
-            markerTags.extend(self.opts.exclude_tags.split(','))
-            markerTags.extend(self.opts.note_tag.split(','))
-            markerTags.extend(self.opts.read_tag.split(','))
-            return markerTags
-
         def filterDbTags(self, tags):
             # Remove the special marker tags from the database's tag list,
             # return sorted list of normalized genre tags
@@ -2336,7 +2331,6 @@ class EPUB_MOBI(CatalogPlugin):
 
                 normalized_tags.append(re.sub('\W','',tag).lower())
                 friendly_tags.append(tag)
-
 
             genre_tags_dict = dict(zip(friendly_tags,normalized_tags))
 
@@ -2405,10 +2399,10 @@ class EPUB_MOBI(CatalogPlugin):
             btc += 1
 
             # Find the first instance of friendly_tag matching genre
-            # GwR *** optimize
             for friendly_tag in self.genre_tags_dict:
                 if self.genre_tags_dict[friendly_tag] == genre:
                     break
+
             titleTag = body.find(attrs={'class':'title'})
             titleTag.insert(0,NavigableString('<b><i>%s</i></b>' % escape(friendly_tag)))
 
@@ -2570,8 +2564,22 @@ class EPUB_MOBI(CatalogPlugin):
             titleTag.insert(0,escape(NavigableString(title)))
             return soup
 
-        def generate_masthead_image(self, out_path):
-            font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
+        def generateMastheadImage(self, out_path):
+            from calibre.ebooks.conversion.config import load_defaults
+            from calibre.utils.fonts import fontconfig
+            font_path = default_font = P('fonts/liberation/LiberationSerif-Bold.ttf')
+            recs = load_defaults('mobi_output')
+            masthead_font_family = recs.get('masthead_font', 'Default')
+
+            if masthead_font_family != 'Default':
+                masthead_font = fontconfig.files_for_family(masthead_font_family)
+                # Assume 'normal' always in dict, else use default
+                # {'normal': (path_to_font, friendly name)}
+                if 'normal' in masthead_font:
+                    font_path = masthead_font['normal'][0]
+
+            if not font_path or not os.access(font_path, os.R_OK):
+                font_path = default_font
 
             MI_WIDTH = 600
             MI_HEIGHT = 60
@@ -2584,7 +2592,11 @@ class EPUB_MOBI(CatalogPlugin):
 
             img = Image.new('RGB', (MI_WIDTH, MI_HEIGHT), 'white')
             draw = ImageDraw.Draw(img)
-            font = ImageFont.truetype(font_path, 48)
+            try:
+                font = ImageFont.truetype(font_path, 48)
+            except:
+                self.opts.log.error("     Failed to load user-specifed font '%s'" % font_path)
+                font = ImageFont.truetype(default_font, 48)
             text = self.title.encode('utf-8')
             width, height = draw.textsize(text, font=font)
             left = max(int((MI_WIDTH - width)/2.), 0)
@@ -2681,6 +2693,14 @@ class EPUB_MOBI(CatalogPlugin):
                 return 'Symbols'
             else:
                 return char
+
+        def getMarkerTags(self):
+            ''' Return a list of special marker tags to be excluded from genre list '''
+            markerTags = []
+            markerTags.extend(self.opts.exclude_tags.split(','))
+            markerTags.extend(self.opts.note_tag.split(','))
+            markerTags.extend(self.opts.read_tag.split(','))
+            return markerTags
 
         def processSpecialTags(self, tags, this_title, opts):
             tag_list = []
