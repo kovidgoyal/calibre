@@ -7,7 +7,7 @@ from xml.sax.saxutils import escape
 from calibre import filesystem_encoding, prints, prepare_string_for_xml, strftime
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString, CData
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.logging import Log
 
@@ -274,6 +274,18 @@ class EPUB_MOBI(CatalogPlugin):
                           "--exclude-tags=skip will match 'skip this book' and 'Skip will like this'.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
+                   Option('--generate-titles',
+                          default=True,
+                          dest='generate_titles',
+                          help=_("Include 'Titles' section in catalog.\n"
+                          "Default: '%default'\n"
+                          "Applies to: ePub, MOBI output formats")),
+                   Option('--generate-recently-added',
+                          default=True,
+                          dest='generate_recently_added',
+                          help=_("Include 'Recently Added' section in catalog.\n"
+                          "Default: '%default'\n"
+                          "Applies to: ePub, MOBI output formats")),
                    Option('--note-tag',
                           default='*',
                           dest='note_tag',
@@ -523,8 +535,8 @@ class EPUB_MOBI(CatalogPlugin):
         '''
 
         # Number of discrete steps to catalog creation
-        current_step = 0.0
-        total_steps = 14.0
+#         current_step = 0.0
+#         total_steps = 10.0
 
         THUMB_WIDTH = 75
         THUMB_HEIGHT = 100
@@ -549,6 +561,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.__booksByTitle = None
             self.__catalogPath = PersistentTemporaryDirectory("_epub_mobi_catalog", prefix='')
             self.__contentDir = os.path.join(self.catalogPath, "content")
+            self.__currentStep = 0.0
             self.__creator = opts.creator
             self.__db = db
             self.__descriptionClip = opts.descriptionClip
@@ -570,7 +583,14 @@ class EPUB_MOBI(CatalogPlugin):
             self.__stylesheet = stylesheet
             self.__thumbs = None
             self.__title = opts.catalog_title
+            self.__totalSteps = 10.0
             self.__verbose = opts.verbose
+
+            # Tweak build steps based on optional sections
+            if self.opts.generate_titles:
+                self.__totalSteps += 2
+            if self.opts.generate_recently_added:
+                self.__totalSteps += 2
 
         # Accessors
         '''
@@ -624,6 +644,13 @@ class EPUB_MOBI(CatalogPlugin):
                 return self.__contentDir
             def fset(self, val):
                 self.__contentDir = val
+            return property(fget=fget, fset=fset)
+        @dynamic_property
+        def currentStep(self):
+            def fget(self):
+                return self.__currentStep
+            def fset(self, val):
+                self.__currentStep = val
             return property(fget=fget, fset=fset)
         @dynamic_property
         def creator(self):
@@ -765,6 +792,11 @@ class EPUB_MOBI(CatalogPlugin):
                 self.__title = val
             return property(fget=fget, fset=fset)
         @dynamic_property
+        def totalSteps(self):
+            def fget(self):
+                return self.__totalSteps
+            return property(fget=fget)
+        @dynamic_property
         def verbose(self):
             def fget(self):
                 return self.__verbose
@@ -803,8 +835,10 @@ class EPUB_MOBI(CatalogPlugin):
             self.fetchBooksByAuthor()
             self.generateHTMLDescriptions()
             self.generateHTMLByAuthor()
-            self.generateHTMLByTitle()
-            self.generateHTMLByDateAdded()
+            if self.opts.generate_titles:
+                self.generateHTMLByTitle()
+            if self.opts.generate_recently_added:
+                self.generateHTMLByDateAdded()
             self.generateHTMLByTags()
 
             from calibre.utils.PythonMagickWand import ImageMagick
@@ -815,8 +849,10 @@ class EPUB_MOBI(CatalogPlugin):
             self.generateNCXHeader()
             self.generateNCXDescriptions("Descriptions")
             self.generateNCXByAuthor("Authors")
-            self.generateNCXByTitle("Titles")
-            self.generateNCXByDateAdded("Recently Added")
+            if self.opts.generate_titles:
+                self.generateNCXByTitle("Titles")
+            if self.opts.generate_recently_added:
+                self.generateNCXByDateAdded("Recently Added")
             self.generateNCXByGenre("Genres")
             self.writeNCX()
             return True
@@ -907,16 +943,14 @@ class EPUB_MOBI(CatalogPlugin):
                 this_title['date'] = strftime(u'%B %Y', record['pubdate'].timetuple())
                 this_title['timestamp'] = record['timestamp']
                 if record['comments']:
-                    #this_title['description'] = re.sub('&', '&amp;', record['comments'])
-                    has_xml = re.search('<(?P<tag>.+)>.+</(?P=tag)>|<!--.+-->|<.+/>',record['comments'])
-                    if has_xml and not re.search('<br', record['comments']):
-                        self.opts.log.warning("     %d: %s (%s) contains suspect markup" % \
-                                      (this_title['id'], this_title['title'],this_title['author']))
-                        this_title['description'] = prepare_string_for_xml(record['comments'])
-                    else:
-                        # If <br/> present, take a chance that the markup is valid
-                        this_title['description'] = record['comments']
-                    this_title['short_description'] = self.generateShortDescription(this_title['description'])
+                    this_title['description'] = self.markdownComments(record['comments'])
+                    paras = BeautifulSoup(this_title['description']).findAll('p')
+                    tokens = []
+                    for p in paras:
+                        for token in p.contents:
+                            if token.string is not None:
+                                tokens.append(token.string)
+                    this_title['short_description'] = self.generateShortDescription(' '.join(tokens))
                 else:
                     this_title['description'] = None
                     this_title['short_description'] = None
@@ -2552,9 +2586,7 @@ class EPUB_MOBI(CatalogPlugin):
               </tr>
             </table>
             <blockquote><hr/></blockquote>
-            <p class="description"></p>
-            <!--blockquote><hr/></blockquote-->
-            <!--p class="instructions">&#9654; Press <span style="font-variant:small-caps"><b>back</b></span> to return to list &#9664;</p-->
+            <div class="description"></div>
             </body>
             </html>
             '''.format(title_border)
@@ -2733,12 +2765,6 @@ class EPUB_MOBI(CatalogPlugin):
             except RuntimeError:
                 self.opts.log.error("generateThumbnail(): RuntimeError with %s" % title['title'])
 
-        def letter_or_symbol(self,char):
-            if not re.search('[a-zA-Z]',char):
-                return 'Symbols'
-            else:
-                return char
-
         def getMarkerTags(self):
             ''' Return a list of special marker tags to be excluded from genre list '''
             markerTags = []
@@ -2746,6 +2772,33 @@ class EPUB_MOBI(CatalogPlugin):
             markerTags.extend(self.opts.note_tag.split(','))
             markerTags.extend(self.opts.read_tag.split(','))
             return markerTags
+
+        def letter_or_symbol(self,char):
+            if not re.search('[a-zA-Z]',char):
+                return 'Symbols'
+            else:
+                return char
+
+        def markdownComments(self, comments):
+            ''' Convert random comment text to normalized, xml-legal block of <p>s'''
+            # reformat illegal xml
+            desc = prepare_string_for_xml(comments)
+
+            # normalize <br/> tags
+            desc = re.sub(r'&lt;br[/]{0,1}&gt;', '<br/>', desc)
+
+            # tokenize double line breaks
+            desc = comments.replace('\r', '')
+            tokens = comments.split('\n\n')
+
+            soup = BeautifulSoup()
+            ptc = 0
+            for token in tokens:
+                pTag = Tag(soup, 'p')
+                pTag.insert(0,token)
+                soup.insert(ptc, pTag)
+                ptc += 1
+            return soup.renderContents()
 
         def processSpecialTags(self, tags, this_title, opts):
             tag_list = []
@@ -2761,28 +2814,28 @@ class EPUB_MOBI(CatalogPlugin):
                     tag_list.append(tag)
             return tag_list
 
+        def updateProgressFullStep(self, description):
+            self.currentStep += 1
+            self.progressString = description
+            self.progressInt = float((self.currentStep-1)/self.totalSteps)
+            self.reporter(self.progressInt, self.progressString)
+            if self.opts.cli_environment:
+                self.opts.log(u"%3.0f%% %s" % (self.progressInt*100, self.progressString))
+
+        def updateProgressMicroStep(self, description, micro_step_pct):
+            step_range = 100/self.totalSteps
+            self.progressString = description
+            coarse_progress = float((self.currentStep-1)/self.totalSteps)
+            fine_progress = float((micro_step_pct*step_range)/100)
+            self.progressInt = coarse_progress + fine_progress
+            self.reporter(self.progressInt, self.progressString)
+
         class NotImplementedError:
             def __init__(self, error):
                 self.error = error
 
             def logerror(self):
                 self.opts.log.info('%s not implemented' % self.error)
-
-        def updateProgressFullStep(self, description):
-            self.current_step += 1
-            self.progressString = description
-            self.progressInt = float((self.current_step-1)/self.total_steps)
-            self.reporter(self.progressInt, self.progressString)
-            if self.opts.cli_environment:
-                self.opts.log(u"%3.0f%% %s" % (self.progressInt*100, self.progressString))
-
-        def updateProgressMicroStep(self, description, micro_step_pct):
-            step_range = 100/self.total_steps
-            self.progressString = description
-            coarse_progress = float((self.current_step-1)/self.total_steps)
-            fine_progress = float((micro_step_pct*step_range)/100)
-            self.progressInt = coarse_progress + fine_progress
-            self.reporter(self.progressInt, self.progressString)
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
         opts.log = log = Log()
@@ -2812,14 +2865,15 @@ class EPUB_MOBI(CatalogPlugin):
             log(" opts:")
 
             for key in keys:
-                if key in ['catalog_title','exclude_genre','exclude_tags','note_tag',
-                           'numbers_as_text','read_tag','search_text','sort_by','sync']:
+                if key in ['catalog_title','exclude_genre','exclude_tags','generate_titles',
+                           'generate_recently_added','note_tag','numbers_as_text','read_tag',
+                           'search_text','sort_by','sync']:
                     log("  %s: %s" % (key, opts_dict[key]))
 
         # Launch the Catalog builder
+        catalog = self.CatalogBuilder(db, opts, self, report_progress=notification)
         if opts.verbose:
             log.info("Begin catalog source generation")
-        catalog = self.CatalogBuilder(db, opts, self, report_progress=notification)
         catalog.createDirectoryStructure()
         catalog.copyResources()
         catalog_source_built = catalog.buildSources()
