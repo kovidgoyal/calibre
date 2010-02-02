@@ -306,17 +306,19 @@ class EPUB_MOBI(CatalogPlugin):
         456     => four hundred fifty-six
         4:56    => four fifty-six
         '''
-
+        ORDINALS = ['zeroth','first','second','third','fourth','fifth','sixth','seventh','eighth','ninth']
         lessThanTwenty = ["<zero>","one","two","three","four","five","six","seven","eight","nine",
                           "ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen",
                           "eighteen","nineteen"]
         tens = ["<zero>","<tens>","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"]
         hundreds = ["<zero>","one","two","three","four","five","six","seven","eight","nine"]
 
-        def __init__(self, number):
+        def __init__(self, number, verbose=False):
             self.number = number
             self.number_as_float = 0.0
             self.text = ''
+            self.verbose = verbose
+            self.log = Log()
             self.numberTranslate()
 
         def stringFromInt(self, intToTranslate):
@@ -324,7 +326,6 @@ class EPUB_MOBI(CatalogPlugin):
             # intToTranslate is a three-digit number
 
             tensComponentString = ""
-
             hundredsComponent = intToTranslate - (intToTranslate % 100)
             tensComponent = intToTranslate % 100
 
@@ -336,8 +337,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Build the tens component
             if tensComponent < 20:
-                if tensComponent > 0:
-                    tensComponentString = self.lessThanTwenty[tensComponent]
+                tensComponentString = self.lessThanTwenty[tensComponent]
             else:
                 tensPart = ""
                 onesPart = ""
@@ -369,9 +369,27 @@ class EPUB_MOBI(CatalogPlugin):
             hundredsString = ""
             thousandsString = ""
             resultString = ""
+            self.suffix = ''
+
+            if self.verbose: self.log("numberTranslate(): %s" % self.number)
+
+            # Special case ordinals
+            if re.search('[st|nd|rd|th]',self.number):
+                self.number = re.sub(',','',self.number)
+                ordinal_suffix = re.search('[\D]', self.number)
+                ordinal_number = re.sub('\D','',re.sub(',','',self.number))
+                if self.verbose: self.log("Ordinal: %s" % ordinal_number)
+                self.number_as_float = ordinal_number
+                self.suffix = self.number[ordinal_suffix.start():]
+                if int(ordinal_number) > 9:
+                    # Some typos (e.g., 'twentyth'), acceptable
+                    self.text = '%s' % (EPUB_MOBI.NumberToText(ordinal_number).text)
+                else:
+                    self.text = '%s' % (self.ORDINALS[int(ordinal_number)])
 
             # Test for time
-            if re.search(':',self.number):
+            elif re.search(':',self.number):
+                if self.verbose: self.log("Time: %s" % self.number)
                 self.number_as_float = re.sub(':','.',self.number)
                 time_strings = self.number.split(":")
                 hours = EPUB_MOBI.NumberToText(time_strings[0]).text
@@ -380,11 +398,13 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Test for %
             elif re.search('%', self.number):
+                if self.verbose: self.log("Percent: %s" % self.number)
                 self.number_as_float = self.number.split('%')[0]
                 self.text = EPUB_MOBI.NumberToText(self.number.replace('%',' percent')).text
 
             # Test for decimal
             elif re.search('\.',self.number):
+                if self.verbose: self.log("Decimal: %s" % self.number)
                 self.number_as_float = self.number
                 decimal_strings = self.number.split(".")
                 left = EPUB_MOBI.NumberToText(decimal_strings[0]).text
@@ -393,6 +413,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Test for hypenated
             elif re.search('-', self.number):
+                if self.verbose: self.log("Hyphenated: %s" % self.number)
                 self.number_as_float = self.number.split('-')[0]
                 strings = self.number.split('-')
                 if re.search('[0-9]+', strings[0]):
@@ -403,49 +424,54 @@ class EPUB_MOBI(CatalogPlugin):
                     right = EPUB_MOBI.NumberToText(strings[1]).text
                 self.text = '%s-%s' % (left, right)
 
-            # Test for $xx,xxx
-            elif re.search('[$,]', self.number):
-                self.number_as_float = re.sub('[$,]','',self.number)
-                self.text = EPUB_MOBI.NumberToText(self.number_as_float).text
-
-            # Test for comma
-            elif re.search(',', self.number):
+            # Test for only commas and numbers
+            elif re.search(',', self.number) and not re.search('[^0-9,]',self.number):
+                if self.verbose: self.log("Comma(s): %s" % self.number)
                 self.number_as_float = re.sub(',','',self.number)
                 self.text = EPUB_MOBI.NumberToText(self.number_as_float).text
 
-            # Test for hybrid e.g., 'K2'
+            # Test for hybrid e.g., 'K2, 2nd, 10@10'
             elif re.search('[\D]+', self.number):
-                result = []
-                for char in self.number:
-                    if re.search('[\d]+', char):
-                        result.append(EPUB_MOBI.NumberToText(char).text)
-                    else:
-                        result.append(char)
-                self.text = ''.join(result)
+                if self.verbose: self.log("Hybrid: %s" % self.number)
+                # Split the token into number/text
+                number_position = re.search('\d',self.number).start()
+                text_position = re.search('\D',self.number).start()
+                if number_position < text_position:
+                    number = self.number[:text_position]
+                    text = self.number[text_position:]
+                    self.text = '%s%s' % (EPUB_MOBI.NumberToText(number).text,text)
+                else:
+                    text = self.number[:number_position]
+                    number = self.number[number_position:]
+                    self.text = '%s%s' % (text, EPUB_MOBI.NumberToText(number).text)
 
             else:
+                if self.verbose: self.log("Clean: %s" % self.number)
                 try:
                     self.float_as_number = float(self.number)
                     number = int(self.number)
                 except:
                     return
 
-                if number > 1000000:
+                if number > 10**9:
                     self.text = "%d out of range" % number
                     return
 
-                if number == 1000000:
-                    self.text = "one million"
+                if number == 10**9:
+                    self.text = "one billion"
                 else :
-                    # Strip out the three-digit number groups
-                    thousandsNumber = number/1000
-                    hundredsNumber = number - (thousandsNumber * 1000)
+                    # Isolate the three-digit number groups
+                    millionsNumber  = number/10**6
+                    thousandsNumber = (number - (millionsNumber * 10**6))/10**3
+                    hundredsNumber  = number - (millionsNumber * 10**6) - (thousandsNumber * 10**3)
+                    if self.verbose:
+                        print "Converting %s %s %s" % (millionsNumber, thousandsNumber, hundredsNumber)
 
-                    # Convert the lower 3 numbers - hundredsNumber
+                    # Convert hundredsNumber
                     if hundredsNumber :
                         hundredsString = self.stringFromInt(hundredsNumber)
 
-                    # Convert the upper 3 numbers - thousandsNumber
+                    # Convert thousandsNumber
                     if thousandsNumber:
                         if number > 1099 and number < 2000:
                             resultString = '%s %s' % (self.lessThanTwenty[number/100],
@@ -455,19 +481,26 @@ class EPUB_MOBI(CatalogPlugin):
                         else:
                             thousandsString = self.stringFromInt(thousandsNumber)
 
+                    # Convert millionsNumber
+                    if millionsNumber:
+                        millionsString = self.stringFromInt(millionsNumber)
+
                     # Concatenate the strings
-                    if thousandsNumber and not hundredsNumber:
-                        resultString = "%s thousand" % thousandsString
+                    resultString = ''
+                    if millionsNumber:
+                        resultString += "%s million " % millionsString
 
-                    if thousandsNumber and hundredsNumber:
-                        resultString = "%s thousand %s" % (thousandsString, hundredsString)
+                    if thousandsNumber:
+                        resultString += "%s thousand " % thousandsString
 
-                    if not thousandsNumber and hundredsNumber:
-                        resultString = "%s" % hundredsString
+                    if hundredsNumber:
+                        resultString += "%s" % hundredsString
 
-                    if not thousandsNumber and not hundredsNumber:
+                    if not millionsNumber and not thousandsNumber and not hundredsNumber:
                         resultString = "zero"
 
+                    if self.verbose:
+                        self.log(u'resultString: %s' % resultString)
                     self.text = resultString.strip().capitalize()
 
     class CatalogBuilder(object):
@@ -860,7 +893,10 @@ class EPUB_MOBI(CatalogPlugin):
 
                 title = this_title['title'] = self.convertHTMLEntities(record['title'])
                 this_title['title_sort'] = self.generateSortTitle(title)
-                this_title['author'] = " &amp; ".join(record['authors'])
+                if 'authors' in record and len(record['authors']):
+                    this_title['author'] = " &amp; ".join(record['authors'])
+                else:
+                    this_title['author'] = 'Unknown'
                 this_title['author_sort'] = record['author_sort'] if len(record['author_sort']) \
                      else self.author_to_author_sort(this_title['author'])
                 this_title['id'] = record['id']
@@ -872,10 +908,14 @@ class EPUB_MOBI(CatalogPlugin):
                 this_title['timestamp'] = record['timestamp']
                 if record['comments']:
                     #this_title['description'] = re.sub('&', '&amp;', record['comments'])
-                    if re.search('<(?P<tag>.+)>.+</(?P=tag)>|<!--.+-->|<.+/>',record['comments']):
-                        self.opts.log("     %d: %s (%s) contains suspect metadata" % \
+                    has_xml = re.search('<(?P<tag>.+)>.+</(?P=tag)>|<!--.+-->|<.+/>',record['comments'])
+                    if has_xml and not re.search('<br', record['comments']):
+                        self.opts.log.warning("     %d: %s (%s) contains suspect markup" % \
                                       (this_title['id'], this_title['title'],this_title['author']))
-                    this_title['description'] = prepare_string_for_xml(record['comments'])
+                        this_title['description'] = prepare_string_for_xml(record['comments'])
+                    else:
+                        # If <br/> present, take a chance that the markup is valid
+                        this_title['description'] = record['comments']
                     this_title['short_description'] = self.generateShortDescription(this_title['description'])
                 else:
                     this_title['description'] = None
@@ -903,8 +943,10 @@ class EPUB_MOBI(CatalogPlugin):
                                  key=lambda x:(x['title_sort'].upper(), x['title_sort'].upper()))
             if False and self.verbose:
                 self.opts.log.info("fetchBooksByTitle(): %d books" % len(self.booksByTitle))
+                self.opts.log.info(" %-40s %-40s" % ('title', 'title_sort'))
                 for title in self.booksByTitle:
-                    self.opts.log.info((u" %-50s %-25s" % (title['title'][0:45], title['title_sort'][0:20])).encode('utf-8'))
+                    self.opts.log.info((u" %-40s %-40s" % (title['title'][0:40],
+                                                           title['title_sort'][0:40])).encode('utf-8'))
 
         def fetchBooksByAuthor(self):
             # Generate a list of titles sorted by author from the database
@@ -2643,27 +2685,26 @@ class EPUB_MOBI(CatalogPlugin):
                 # Leading numbers optionally translated to text equivalent
                 # Capitalize leading sort word
                 if i==0:
-                    if self.opts.numbers_as_text and re.search('[0-9]+',word):
+                    if self.opts.numbers_as_text and re.match('[0-9]+',word[0]):
                         translated.append(EPUB_MOBI.NumberToText(word).text.capitalize())
                     else:
-                        if re.search('-',word):
-                            # Split hyphenated words for sorting
-                            tokens = word.split('-')
-                            title_words[0] = tokens[0]
-                            title_words.insert(1,tokens[1])
-                        if re.search('[0-9]+',word):
-                            # Coerce standard-width strings for numbers for value sorting
-                            # Any non-digit is interpreted as a decimal point
-                            # word = '%10.2f' % float(re.sub('[^\d\.]','',word))
-                            try:
-                                word = '%10.2f' % float(re.sub('[^\d\.]','.',word))
-                            except:
-                                word = '%10.2f' % float(EPUB_MOBI.NumberToText(word).number_as_float)
+                        if re.match('[0-9]+',word[0]):
+                            word =  word.replace(',','')
+                            suffix = re.search('[\D]', word)
+                            if suffix:
+                                word = '%10.0f%s' % (float(word[:suffix.start()]),word[suffix.start():])
+                            else:
+                                word = '%10.0f' % (float(word))
                         translated.append(word.capitalize())
+
                 else:
-                    if re.search('[0-9]+',word):
-                        # Coerce standard-width strings for numbers
-                        word = '%10.2f' % float(re.sub('[^\d\.]','',word))
+                    if re.search('[0-9]+',word[0]):
+                        word =  word.replace(',','')
+                        suffix = re.search('[\D]', word)
+                        if suffix:
+                            word = '%10.0f%s' % (float(word[:suffix.start()]),word[suffix.start():])
+                        else:
+                            word = '%10.0f' % (float(word))
                     translated.append(word)
             return ' '.join(translated)
 
