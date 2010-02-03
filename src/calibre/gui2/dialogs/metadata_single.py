@@ -594,10 +594,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                             self.rating.setValue(int(book.rating))
                         if book.tags:
                             self.tags.setText(', '.join(book.tags))
-                        print 'setting series'
-                        print book.series 
                         if book.series is not None:
-                            if self.series is not None:
+                            if self.series.text() is None or self.series.text() == '':
                                self.series.setText(book.series)
                                if book.series_index is not None:
                                   self.series_index.setValue(book.series_index)          
