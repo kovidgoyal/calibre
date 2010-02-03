@@ -262,7 +262,6 @@ class Region(object):
             max_lines = max(max_lines, len(c))
         return max_lines
 
-
     @property
     def is_small(self):
         return self.line_count < 3
@@ -438,9 +437,8 @@ class Page(object):
         # absorb into a neighboring region (prefer the one with number of cols
         # closer to the avg number of cols in the set, if equal use larger
         # region)
-        # merge contiguous regions that can contain each other
-        '''absorbed = set([])
         found = True
+        absorbed = set([])
         while found:
             found = False
             for i, region in enumerate(self.regions):
@@ -452,10 +450,33 @@ class Page(object):
                             regions.append(self.regions[j])
                         else:
                             break
-                    prev = None if i == 0 else i-1
-                    next = j if self.regions[j] not in regions else None
-        '''
-        pass
+                    prev_region = None if i == 0 else i-1
+                    next_region = j if self.regions[j] not in regions else None
+                    if prev_region is None and next_region is not None:
+                        absorb_into = next_region
+                    elif next_region is None and prev_region is not None:
+                        absorb_into = prev_region
+                    elif prev_region is None and next_region is None:
+                        if len(regions) > 1:
+                            absorb_into = regions[0]
+                            regions = regions[1:]
+                        else:
+                            absorb_into = None
+                    else:
+                        absorb_into = prev_region
+                        if next_region.line_count >= prev_region.line_count:
+                            avg_column_count = sum([len(r.columns) for r in
+                                regions])/float(len(regions))
+                            if next_region.line_count > prev_region.line_count \
+                               or abs(avg_column_count - len(prev_region.columns)) \
+                               > abs(avg_column_count - len(next_region.columns)):
+                                   absorb_into = next_region
+                    if absorb_into is not None:
+                        absorb_into.absorb_region(regions)
+                        absorbed.update(regions)
+                    i = j
+        for region in absorbed:
+            self.regions.remove(region)
 
 
 
