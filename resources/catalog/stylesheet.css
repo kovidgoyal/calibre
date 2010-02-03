@@ -17,6 +17,14 @@ p.author {
 	font-size:large;
   	}
 
+p.series {
+	margin-top:0em;
+	margin-bottom:0em;
+	text-align: left;
+	text-indent: 1em;
+	font-size:small;
+	}
+
 p.tags {
 	margin-top:0em;
 	margin-bottom:0em;
@@ -27,7 +35,7 @@ p.tags {
 
 p.description {
 	text-align:left;
-	font-style:italic;
+	font-style:normal;
 	margin-top: 0em;
 	}
 
