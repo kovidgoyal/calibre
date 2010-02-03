@@ -117,9 +117,12 @@ def prints(*args, **kwargs):
             try:
                 arg = arg.encode(enc)
             except UnicodeEncodeError:
-                if not safe_encode:
-                    raise
-                arg = repr(arg)
+                try:
+                    arg = arg.encode('utf-8')
+                except:
+                    if not safe_encode:
+                        raise
+                    arg = repr(arg)
         if not isinstance(arg, str):
             try:
                 arg = str(arg)
@@ -129,9 +132,12 @@ def prints(*args, **kwargs):
                 try:
                     arg = arg.encode(enc)
                 except UnicodeEncodeError:
-                    if not safe_encode:
-                        raise
-                    arg = repr(arg)
+                    try:
+                        arg = arg.encode('utf-8')
+                    except:
+                        if not safe_encode:
+                            raise
+                        arg = repr(arg)
 
         file.write(arg)
         if i != len(args)-1:

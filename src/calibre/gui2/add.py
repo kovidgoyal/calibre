@@ -12,7 +12,7 @@ from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2 import question_dialog, error_dialog, info_dialog
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata import MetaInformation
-from calibre.constants import preferred_encoding
+from calibre.constants import preferred_encoding, filesystem_encoding
 
 class DuplicatesAdder(QThread):
 
@@ -43,24 +43,34 @@ class RecursiveFind(QThread):
         self.single_book_per_directory = single
         self.canceled = False
 
+    def walk(self, root):
+        self.books = []
+        for dirpath in os.walk(root):
+            if self.canceled:
+                return
+            self.emit(SIGNAL('update(PyQt_PyObject)'),
+                        _('Searching in')+' '+dirpath[0])
+            self.books += list(self.db.find_books_in_directory(dirpath[0],
+                                            self.single_book_per_directory))
+
     def run(self):
         root = os.path.abspath(self.path)
-        self.books = []
         try:
-            for dirpath in os.walk(root):
-                if self.canceled:
-                    return
-                self.emit(SIGNAL('update(PyQt_PyObject)'),
-                            _('Searching in')+' '+dirpath[0])
-                self.books += list(self.db.find_books_in_directory(dirpath[0],
-                                                self.single_book_per_directory))
-        except Exception, err:
+            self.walk(root)
+        except:
             try:
-                msg = unicode(err)
-            except:
-                msg = repr(err)
-            self.emit(SIGNAL('found(PyQt_PyObject)'), msg)
-            return
+                if isinstance(root, unicode):
+                    root = root.encode(filesystem_encoding)
+                self.walk(root)
+            except Exception, err:
+                import traceback
+                traceback.print_exc()
+                try:
+                    msg = unicode(err)
+                except:
+                    msg = repr(err)
+                self.emit(SIGNAL('found(PyQt_PyObject)'), msg)
+                return
 
         self.books = [formats for formats in self.books if formats]
 

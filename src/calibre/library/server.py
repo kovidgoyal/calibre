@@ -714,6 +714,10 @@ class LibraryServer(object):
 
         book, books = MarkupTemplate(self.MOBILE_BOOK), []
         for record in items[(start-1):(start-1)+num]:
+            if record[13] is None:
+                record[13] = ''
+            if record[6] is None:
+                record[6] = 0
             aus = record[2] if record[2] else __builtin__._('Unknown')
             authors = '|'.join([i.replace('|', ',') for i in aus.split(',')])
             record[10] = fmt_sidx(float(record[10]))

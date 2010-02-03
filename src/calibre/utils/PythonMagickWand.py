@@ -122,6 +122,21 @@ class ImageMagick(object):
     def __exit__(self, *args):
         finalize()
 
+def remove_transparency(wand, background_color='white'):
+    '''
+    Converts transparent pixels to the specified background color.
+    Returns a new magick wand with the opaque image.
+    '''
+    nw = NewMagickWand()
+    pw = NewPixelWand()
+    if nw < 0 or pw < 0:
+        raise RuntimeError('Out of memory')
+    PixelSetColor(pw, background_color)
+    MagickNewImage(nw, MagickGetImageWidth(wand), MagickGetImageHeight(wand),
+            pw)
+    MagickCompositeImage(nw, wand, OverCompositeOp, 0, 0)
+    DestroyPixelWand(pw)
+    return nw
 
 class MetricType(ctypes.c_int): pass
 UndefinedMetric = MetricType(0)
@@ -729,6 +744,32 @@ class ExceptionInfo(ctypes.c_void_p): pass
 class MagickStatusType(ctypes.c_void_p): pass
 class MagickInfo(ctypes.c_void_p): pass
 class MagickWand(ctypes.c_void_p): pass
+
+# NewPixelWand
+try:
+    _magick.NewPixelWand.restype = PixelWand
+except:
+    pass
+else:
+    NewPixelWand = _magick.NewPixelWand
+
+# MagickSetImageOpacity
+try:
+    _magick.MagickSetImageOpacity.argtypes = (MagickWand, ctypes.c_double)
+    _magick.restype = MagickBooleanType
+except:
+    pass
+else:
+    MagickSetImageOpacity = _magick.MagickSetImageOpacity
+
+# MagickMergeImageLayers
+try:
+    _magick.MagickMergeImageLayers.argtypes = (MagickWand, ImageLayerMethod)
+    _magick.MagickMergeImageLayers.restype = MagickWand
+except:
+    pass
+else:
+    MagickMergeImageLayers = _magick.MagickMergeImageLayers
 
 #   MagickSetLastIterator
 try:

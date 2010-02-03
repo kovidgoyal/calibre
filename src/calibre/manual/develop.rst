@@ -194,7 +194,7 @@ You can insert the following two lines of code to start an interactive python se
 When running from the command line, this will start an interactive python interpreter with access to all
 locally defined variables (variables in the local scope). The interactive prompt even has TAB completion
 for object properties and you can use the various python facilities for introspection, such as
-:function:`dir`, :function:`type`, :function:`repr`, etc.
+:func:`dir`, :func:`type`, :func:`repr`, etc.
 
 Using print statements
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -204,4 +204,18 @@ terminal. For example, you can start the GUI from the terminal as::
 
     calibre-debug -g
 
+Executing arbitrary scripts in the calibre python environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The :command:`calibre-debug` command provides a couple of handy switches to execute your own
+code, with access to the calibre modules::
+
+    calibre-debug -c "some python code"
+
+is great for testing a little snippet of code on the command line. It works in the same way as the -c switch to the python interpreter::
+
+    calibre-debug -e myscript.py
+
+can be used to execute your own python script. It works in the same way as passing the script to the python interpreter, except
+that the calibre environment is fully initialized, so you can use all the calibre code in your script.
 

@@ -782,6 +782,13 @@ class Device(DeviceConfig, DevicePlugin):
         '''
         return default
 
+    def sanitize_path_components(self, components):
+        '''
+        Perform any device specific sanitization on the path components
+        for files to be uploaded to the device
+        '''
+        return components
+
     def create_upload_path(self, path, mdata, fname):
         path = os.path.abspath(path)
         extra_components = []
@@ -801,6 +808,8 @@ class Device(DeviceConfig, DevicePlugin):
         ext = os.path.splitext(fname)[1]
 
         from calibre.library.save_to_disk import get_components
+        if not isinstance(template, unicode):
+            template = template.decode('utf-8')
         extra_components = get_components(template, mdata, fname)
         if not extra_components:
             extra_components.append(sanitize(self.filename_callback(fname,
@@ -834,6 +843,7 @@ class Device(DeviceConfig, DevicePlugin):
 
         extra_components = list(map(remove_trailing_periods, extra_components))
         components = shorten_components_to(250 - len(path), extra_components)
+        components = self.sanitize_path_components(components)
         filepath = os.path.join(path, *components)
         filedir = os.path.dirname(filepath)
 

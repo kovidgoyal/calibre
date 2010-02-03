@@ -1,0 +1,49 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Walt Anthony <workshop.northpole at gmail.com>'
+'''
+www.michellemalkin.com
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class MichelleMalkin(BasicNewsRecipe):
+    title          = u'Michelle Malkin'
+    description    = "Michelle Malkin's take on events, a mother, wife, blogger, conservative syndicated columnist, author, and Fox News Channel contributor."
+    __author__     = 'Walt Anthony'
+    publisher             = 'Michelle Malkin LLC'
+    category              = 'news, politics, USA'
+    oldest_article        = 7 #days
+    max_articles_per_feed = 50
+    summary_length        = 150
+    language              = 'en'
+
+    remove_javascript     = True
+    no_stylesheets        = True
+
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        , 'linearize_tables' : True
+                        }
+
+
+    keep_only_tags = [
+      dict(name='div', attrs={'class':'article'})
+    ]
+
+    remove_tags  = [
+       dict(name=['iframe', 'embed', 'object']),
+       dict(name='div', attrs={'id':['comments', 'commentForm']}),
+       dict(name='div', attrs={'class':['postCategories', 'comments', 'blogInfo', 'postInfo']})
+
+    ]
+
+
+    feeds = [(u'http://feeds.feedburner.com/michellemalkin/posts')]
+
+
+
+    def print_version(self, url):
+        return url + '?print=1'

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Based on ideas from comiclrf created by FangornUK.
 '''
 
-import os, shutil, traceback, textwrap, time
+import os, shutil, traceback, textwrap, time, codecs
 from ctypes import byref
 from Queue import Empty
 
@@ -338,8 +338,12 @@ class ComicInput(InputFormatPlugin):
             if not os.path.exists('comics.txt'):
                 raise ValueError('%s is not a valid comic collection'
                         %stream.name)
-            for line in open('comics.txt',
-                    'rb').read().decode('utf-8').splitlines():
+            raw = open('comics.txt', 'rb').read().decode('utf-8')
+            raw.lstrip(unicode(codecs.BOM_UTF8, "utf8" ))
+            for line in raw.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
                 fname, title = line.partition(':')[0], line.partition(':')[-1]
                 fname = os.path.join(tdir, *fname.split('/'))
                 if not title:

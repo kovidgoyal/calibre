@@ -2,17 +2,37 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class CommonDreams(BasicNewsRecipe):
+    # Identify the recipe
+    
     title          = u'Common Dreams'
     description    = u'Progressive news and views'
     __author__     = u'XanthanGum'
     language = 'en'
+    
+    # Format the text
+    
+    extra_css = '''
+                 body{font-family:verdana,arial,helvetica,geneva,sans-serif ;}
+                 h1{font-size: xx-large;}
+                 h2{font-size: large;}
+                '''
 
+    # Pick no article older than seven days and limit the number of articles per feed to 100
+    
     oldest_article = 7
     max_articles_per_feed = 100
     
-    feeds          = [
-                       (u'Common Dreams Headlines', 
-                       u'http://www.commondreams.org/feed/headlines_rss'), 
-                       (u'Common Dreams Views', u'http://www.commondreams.org/feed/views_rss'), 
-                       (u'Common Dreams Newswire', u'http://www.commondreams.org/feed/newswire_rss')
-                       ]
+    # Remove everything before the article
+    
+    remove_tags_before = dict(name = 'div', attrs = {'id':'node-header'})
+    
+    # Remove everything after the article
+    
+    remove_tags_after = dict(name = 'div', attrs = {'class':'copyright-info'})
+    
+    # Identify the news feeds
+    
+    feeds = [(u'Headlines', u'http://www.commondreams.org/feed/headlines_rss'),
+             (u'Further News Articles', u'http://www.commondreams.org/feed/further_rss'), 
+             (u'Views', u'http://www.commondreams.org/feed/views_rss'), 
+             (u'Progressive Newswire', u'http://www.commondreams.org/feed/newswire_rss')]

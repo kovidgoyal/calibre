@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 '''The main GUI'''
 
-import os, sys, textwrap, collections, time
+import os, shutil, sys, textwrap, collections, time
 from xml.parsers.expat import ExpatError
 from Queue import Queue, Empty
 from threading import Thread
@@ -357,7 +357,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         cm.addAction(_('Bulk convert'))
         cm.addSeparator()
         ac = cm.addAction(
-                _('Create catalog of the books in your calibre library'))
+                _('Create catalog of books in your calibre library'))
         ac.triggered.connect(self.generate_catalog)
         self.action_convert.setMenu(cm)
         self._convert_single_hook = partial(self.convert_ebook, bulk=False)
@@ -522,7 +522,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             from calibre.ebooks.metadata import MetaInformation
             mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
             mi.author_sort = 'Schember, John'
-            mi.comments = "A guide to get you up an running with calibre"
+            mi.comments = "A guide to get you up and running with calibre"
             mi.publisher = 'calibre'
             self.library_view.model().add_books([P('quick_start.epub')], ['epub'],
                     [mi])
@@ -987,10 +987,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.cover_cache.refresh([cid])
             self.library_view.model().current_changed(current_idx, current_idx)
 
-    def add_filesystem_book(self, path):
+    def add_filesystem_book(self, path, allow_device=True):
         if os.access(path, os.R_OK):
             books = [os.path.abspath(path)]
-            to_device = self.stack.currentIndex() != 0
+            to_device = allow_device and self.stack.currentIndex() != 0
             self._add_books(books, to_device)
             if to_device:
                 self.status_bar.showMessage(\
@@ -1048,6 +1048,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if self._adder.critical:
             det_msg = []
             for name, log in self._adder.critical.items():
+                if isinstance(name, str):
+                    name = name.decode(filesystem_encoding, 'replace')
                 det_msg.append(name+'\n'+log)
             warning_dialog(self, _('Failed to read metadata'),
                     _('Failed to read metadata from the following')+':',
@@ -1092,6 +1094,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.library_view.model().refresh_ids(ids)
         self.library_view.model().current_changed(self.library_view.currentIndex(),
                 self.library_view.currentIndex())
+        if ids:
+            self.tags_view.recount()
 
     def delete_all_but_selected_formats(self, *args):
         ids = self._get_selected_ids()
@@ -1113,6 +1117,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.library_view.model().refresh_ids(ids)
         self.library_view.model().current_changed(self.library_view.currentIndex(),
                 self.library_view.currentIndex())
+        if ids:
+            self.tags_view.recount()
 
 
     def delete_covers(self, *args):
@@ -1361,23 +1367,29 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def generate_catalog(self):
         rows = self.library_view.selectionModel().selectedRows()
-        if not rows:
+        if not rows or len(rows) < 2:
             rows = xrange(self.library_view.model().rowCount(QModelIndex()))
         ids = map(self.library_view.model().id, rows)
+
         dbspec = None
         if not ids:
             return error_dialog(self, _('No books selected'),
                     _('No books selected to generate catalog for'),
                     show=True)
+
+        # Calling gui2.tools:generate_catalog()
         ret = generate_catalog(self, dbspec, ids)
         if ret is None:
             return
+
         func, args, desc, out, sync, title = ret
+
         fmt = os.path.splitext(out)[1][1:].upper()
         job = self.job_manager.run_job(
                 Dispatcher(self.catalog_generated), func, args=args,
                     description=desc)
         job.catalog_file_path = out
+        job.fmt = fmt
         job.catalog_sync, job.catalog_title = sync, title
         self.status_bar.showMessage(_('Generating %s catalog...')%fmt)
 
@@ -1392,7 +1404,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             dynamic.set('catalogs_to_be_synced', sync)
         self.status_bar.showMessage(_('Catalog generated.'), 3000)
         self.sync_catalogs()
-
+		if job.fmt not in ['EPUB','MOBI']:
+			export_dir = choose_dir(self, _('Export Catalog Directory'),
+                    _('Select destination for %s.%s') % (job.catalog_title, job.fmt.lower()))
+			if export_dir:
+				destination = os.path.join(export_dir, '%s.%s' % (job.catalog_title, job.fmt.lower()))
+				shutil.copyfile(job.catalog_file_path, destination)
 
     ############################### Fetch news #################################
 

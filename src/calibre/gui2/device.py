@@ -932,7 +932,7 @@ class DeviceGUI(object):
             if isinstance(job.exception, FreeSpaceError):
                 where = 'in main memory.' if 'memory' in str(job.exception) \
                         else 'on the storage card.'
-                titles = '\n'.join(['<li>'+mi['title']+'</li>' \
+                titles = '\n'.join(['<li>'+mi.title+'</li>' \
                                     for mi in metadata])
                 d = error_dialog(self, _('No space on device'),
                                  _('<p>Cannot upload books to device there '

@@ -404,7 +404,7 @@ from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
-                POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK
+                POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000
 from calibre.devices.jetbook.driver import JETBOOK
@@ -421,8 +421,8 @@ from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import N516
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
-from calibre.library.catalog import CSV_XML
-plugins = [HTML2ZIP, PML2PMLZ, GoogleBooks, ISBNDB, Amazon, CSV_XML]
+from calibre.library.catalog import CSV_XML, EPUB_MOBI
+plugins = [HTML2ZIP, PML2PMLZ, GoogleBooks, ISBNDB, Amazon, CSV_XML, EPUB_MOBI]
 plugins += [
     ComicInput,
     EPUBInput,
@@ -485,6 +485,7 @@ plugins += [
     ITALICA,
     ECLICTO,
     DBOOK,
+    INVESBOOK,
     BOOX,
     EB600,
     README,

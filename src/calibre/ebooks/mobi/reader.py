@@ -563,6 +563,18 @@ class MobiReader(object):
                     recindex = attrib.pop(attr, None) or recindex
                 if recindex is not None:
                     attrib['src'] = 'images/%s.jpg' % recindex
+                for attr in ('width', 'height'):
+                    if attr in attrib:
+                        val = attrib[attr]
+                        if val.lower().endswith('em'):
+                            try:
+                                nval = float(val[:-2])
+                                nval *= 16 * (168.451/72) # Assume this was set using the Kindle profile
+                                attrib[attr] = "%dpx"%int(nval)
+                            except:
+                                del attrib[attr]
+                        elif val.lower().endswith('%'):
+                            del attrib[attr]
             elif tag.tag == 'pre':
                 if not tag.text:
                     tag.tag = 'div'

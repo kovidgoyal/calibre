@@ -1,0 +1,55 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+politiken.dk
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Politiken_dk(BasicNewsRecipe):
+    title                 = 'Politiken.dk'
+    __author__            = 'Darko Miletic'
+    description           = 'News from Denmark'
+    publisher             = 'politiken.dk'
+    category              = 'news, politics, Denmark'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    remove_empty_feeds    = True
+    use_embedded_content  = False
+    encoding              = 'cp1252'
+    language              = 'da'
+
+    extra_css = ' body{font-family: Arial,Helvetica,sans-serif } h1{font-family: Georgia,"Times New Roman",Times,serif } '
+
+    conversion_options = {
+                          'comment'  : description
+                        , 'tags'     : category
+                        , 'publisher': publisher
+                        , 'language' : language
+                        }
+
+    feeds              = [
+                            (u'Tophistorier'   , u'http://politiken.dk/rss/tophistorier.rss')
+                           ,(u'Seneste nyt'    , u'http://politiken.dk/rss/senestenyt.rss')
+                           ,(u'Mest laeste'    , u'http://politiken.dk/rss/mestlaeste.rss')
+                           ,(u'Danmark'        , u'http://politiken.dk/rss/indland.rss')
+                           ,(u'Politik'        , u'http://politiken.dk/rss/politik.rss')
+                           ,(u'Klima'          , u'http://politiken.dk/rss/klima.rss')
+                           ,(u'Internationalt' , u'http://politiken.dk/rss/udland.rss')
+                           ,(u'Erhverv'        , u'http://politiken.dk/rss/erhverv.rss')
+                           ,(u'Kultur'         , u'http://politiken.dk/rss/kultur.rss')
+                           ,(u'Sport'          , u'http://politiken.dk/rss/sport.rss')
+                           ,(u'Uddannelse'     , u'http://politiken.dk/rss/uddannelse.rss')
+                           ,(u'Videnskab'      , u'http://politiken.dk/rss/videnskab.rss')
+                          ]
+    remove_tags_before = dict(name='h1')
+    remove_tags        = [
+                            dict(name=['object','link'])
+                           ,dict(name='div',attrs={'class':'footer'})
+                         ]
+
+    def print_version(self, url):
+        return url + '?service=print'
+

@@ -532,7 +532,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             if self.cover_fetcher.exception is not None:
                 err = self.cover_fetcher.exception
                 error_dialog(self, _('Cannot fetch cover'),
-                    _('<b>Could not fetch cover.</b><br/>')+repr(err)).exec_()
+                    _('<b>Could not fetch cover.</b><br/>')+unicode(err)).exec_()
                 return
 
             pix = QPixmap()
@@ -574,9 +574,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                                        det_msg=det, show=True)
                         else:
                             book.tags = []
-                        self.title.setText(book.title)
-                        self.authors.setText(authors_to_string(book.authors))
-                        if book.author_sort: self.author_sort.setText(book.author_sort)
+                        if d.opt_overwrite_author_title_metadata.isChecked():
+                            self.title.setText(book.title)
+                            self.authors.setText(authors_to_string(book.authors))
+                            if book.author_sort: self.author_sort.setText(book.author_sort)
                         if book.publisher: self.publisher.setEditText(book.publisher)
                         if book.isbn: self.isbn.setText(book.isbn)
                         if book.pubdate:
@@ -593,6 +594,13 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                             self.rating.setValue(int(book.rating))
                         if book.tags:
                             self.tags.setText(', '.join(book.tags))
+                        print 'setting series'
+                        print book.series 
+                        if book.series is not None:
+                            if self.series is not None:
+                               self.series.setText(book.series)
+                               if book.series_index is not None:
+                                  self.series_index.setValue(book.series_index)          
         else:
             error_dialog(self, _('Cannot fetch metadata'),
                          _('You must specify at least one of ISBN, Title, '
@@ -652,8 +660,11 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             d = d + self.local_timezone_offset
             self.db.set_timestamp(self.id, d)
 
-            if self.cover_changed and self.cover_data is not None:
-                self.db.set_cover(self.id, self.cover_data)
+            if self.cover_changed:
+                if self.cover_data is not None:
+                    self.db.set_cover(self.id, self.cover_data)
+                else:
+                    self.db.remove_cover(self.id)
         except IOError, err:
             if err.errno == 13: # Permission denied
                 fname = err.filename if err.filename else 'file'

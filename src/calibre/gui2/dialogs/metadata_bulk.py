@@ -20,10 +20,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.db = db
         self.ids = [ db.id(r) for r in rows]
         self.write_series = False
-        self.write_rating = False
         self.changed = False
         QObject.connect(self.button_box, SIGNAL("accepted()"), self.sync)
-        QObject.connect(self.rating, SIGNAL('valueChanged(int)'), self.rating_changed)
 
         self.tags.update_tags_cache(self.db.all_tags())
         self.remove_tags.update_tags_cache(self.db.all_tags())
@@ -99,7 +97,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             aus = unicode(self.author_sort.text())
             if aus and self.author_sort.isEnabled():
                 self.db.set_author_sort(id, aus, notify=False)
-            if self.write_rating:
+            if self.rating.value() != -1:
                 self.db.set_rating(id, 2*self.rating.value(), notify=False)
             pub = unicode(self.publisher.text())
             if pub:
@@ -134,5 +132,3 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def series_changed(self):
         self.write_series = True
 
-    def rating_changed(self):
-        self.write_rating = True

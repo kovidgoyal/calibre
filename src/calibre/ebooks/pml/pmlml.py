@@ -113,7 +113,8 @@ class PMLMLizer(object):
             href = self.oeb_book.guide['titlepage'].href
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
-                stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
+                stylizer = Stylizer(item.data, item.href, self.oeb_book,
+                        self.opts, self.opts.output_profile)
                 output += ''.join(self.dump_text(item.data.find(XHTML('body')), stylizer, item))
         return output
 
@@ -137,7 +138,7 @@ class PMLMLizer(object):
         text = [u'']
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to PML markup...' % item.href)
-            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
+            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             text.append(self.add_page_anchor(item))
             text += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
         return ''.join(text)
@@ -232,7 +233,7 @@ class PMLMLizer(object):
                 w += '="50%"'
             text.append(w)
         toc_id = elem.attrib.get('id', None)
-        if toc_id:
+        if toc_id and tag  not in ('h1', 'h2','h3','h4','h5','h6',):
             if self.toc.get(page.href, None):
                 toc_title = self.toc[page.href].get(toc_id, None)
                 if toc_title:
