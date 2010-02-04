@@ -1009,7 +1009,7 @@ class EPUB_MOBI(CatalogPlugin):
                     elif x['series'] < y['series']:
                         return -1
                     elif not x['series'] and not y['series']:
-                        if x['title'] > y['title']:
+                        if self.generateSortTitle(x['title']) > self.generateSortTitle(y['title']):
                             return 1
                         else:
                             return -1
