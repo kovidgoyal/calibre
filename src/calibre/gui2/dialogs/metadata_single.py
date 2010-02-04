@@ -598,7 +598,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                             if self.series.text() is None or self.series.text() == '':
                                self.series.setText(book.series)
                                if book.series_index is not None:
-                                  self.series_index.setValue(book.series_index)          
+                                  self.series_index.setValue(book.series_index)
         else:
             error_dialog(self, _('Cannot fetch metadata'),
                          _('You must specify at least one of ISBN, Title, '
