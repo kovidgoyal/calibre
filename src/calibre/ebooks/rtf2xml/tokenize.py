@@ -72,7 +72,7 @@ class Tokenize:
         return line
     def __compile_expressions(self):
         self.__ms_hex_exp = re.compile(r"\\\'(..)")
-        self.__utf_exp = re.compile(r"\\u(-?\d{3,6}) {0,1}")
+        self.__utf_exp = re.compile(r"\\u(-?\d{3,6})")
         self.__splitexp = re.compile(r"(\\[\\{}]|{|}|\\[^\s\\{}&]+(?:\s)?)")
         self.__par_exp = re.compile(r'\\$')
         self.__mixed_exp = re.compile(r"(\\[a-zA-Z]+\d+)(\D+)")
