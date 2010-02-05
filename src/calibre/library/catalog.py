@@ -1119,12 +1119,14 @@ class EPUB_MOBI(CatalogPlugin):
                 #<p class="title"><a name="<database_id>"></a><em>Book Title</em></p>
                 emTag = Tag(soup, "em")
                 if title['series']:
-                    # Insert br at colon
+                    # title<br />series series_index
                     brTag = Tag(soup,'br')
                     title_tokens = title['title'].split(': ')
-                    emTag.insert(0, title_tokens[0] + ':')
+                    emTag.insert(0, NavigableString(title_tokens[1]))
                     emTag.insert(1, brTag)
-                    emTag.insert(2, title_tokens[1])
+                    smallTag = Tag(soup,'small')
+                    smallTag.insert(0,NavigableString(title_tokens[0]))
+                    emTag.insert(2, smallTag)
                 else:
                     emTag.insert(0, NavigableString(escape(title['title'])))
                 titleTag = body.find(attrs={'class':'title'})
@@ -1202,7 +1204,12 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     imgTag['src']  = "../images/thumbnail_default.jpg"
                 imgTag['alt'] = "cover"
-                imgTag['style'] = 'width: %dpx; height:%dpx;' % (self.THUMB_WIDTH, self.THUMB_HEIGHT)
+
+                # Tweak image size if we're building for Sony, not sure why this is needed
+                if self.opts.fmt == 'epub' and self.opts.output_profile.startswith("sony"):
+                    imgTag['style'] = 'width: %dpx; height:%dpx;' % (self.THUMB_WIDTH * 2, self.THUMB_HEIGHT * 2)
+                else:
+                    imgTag['style'] = 'width: %dpx; height:%dpx;' % (self.THUMB_WIDTH, self.THUMB_HEIGHT)
                 thumbnailTag = body.find(attrs={'class':'thumbnail'})
                 thumbnailTag.insert(0,imgTag)
 
@@ -1697,7 +1704,9 @@ class EPUB_MOBI(CatalogPlugin):
 
                 for genre in genre_list:
                     for key in genre:
-                        self.opts.log.info("      %s: %d titles" % (key, len(genre[key])))
+                        self.opts.log.info("      %s: %d %s" % (self.getFriendlyGenreTag(key),
+                                           len(genre[key]),
+                                           'titles' if len(genre[key]) > 1 else 'title'))
 
             # Write the results
             # genre_list = [ {friendly_tag:[{book},{book}]}, {friendly_tag:[{book},{book}]}, ...]
@@ -2042,7 +2051,11 @@ class EPUB_MOBI(CatalogPlugin):
                 self.playOrder += 1
                 navLabelTag = Tag(ncx_soup, "navLabel")
                 textTag = Tag(ncx_soup, "text")
-                textTag.insert(0, NavigableString(self.formatNCXText(book['title'])))
+                if book['series']:
+                    tokens = book['title'].split(': ')
+                    textTag.insert(0, NavigableString(self.formatNCXText('%s (%s)' % (tokens[1], tokens[0]))))
+                else:
+                    textTag.insert(0, NavigableString(self.formatNCXText(book['title'])))
                 navLabelTag.insert(0,textTag)
                 navPointVolumeTag.insert(0,navLabelTag)
 
@@ -2548,15 +2561,25 @@ class EPUB_MOBI(CatalogPlugin):
                         else:
                             yield tag
 
-                self.opts.log.info(u'     %d available genre tags in database (exclude_genre: %s):' % \
+                self.opts.log.info(u'     %d genre tags in database (excluding genres matching %s):' % \
                                      (len(genre_tags_dict), self.opts.exclude_genre))
 
                 # Display friendly/normalized genres
                 # friendly => normalized
-                sorted_tags = ['%s => %s' % (key, genre_tags_dict[key]) for key in sorted(genre_tags_dict.keys())]
-
-                for tag in next_tag(sorted_tags):
-                    self.opts.log(u'      %s' % tag)
+                if False:
+                    sorted_tags = ['%s => %s' % (key, genre_tags_dict[key]) for key in sorted(genre_tags_dict.keys())]
+                    for tag in next_tag(sorted_tags):
+                        self.opts.log(u'      %s' % tag)
+                else:
+                    sorted_tags = ['%s' % (key) for key in sorted(genre_tags_dict.keys())]
+                    out_str = ''
+                    line_break = 70
+                    for tag in next_tag(sorted_tags):
+                        out_str += tag
+                        if len(out_str) >= line_break:
+                            self.opts.log.info('      %s' % out_str)
+                            out_str = ''
+                    self.opts.log.info('      %s' % out_str)
 
             return genre_tags_dict
 
@@ -2596,13 +2619,8 @@ class EPUB_MOBI(CatalogPlugin):
             body.insert(btc,aTag)
             btc += 1
 
-            # Find the first instance of friendly_tag matching genre
-            for friendly_tag in self.genre_tags_dict:
-                if self.genre_tags_dict[friendly_tag] == genre:
-                    break
-
             titleTag = body.find(attrs={'class':'title'})
-            titleTag.insert(0,NavigableString('<b><i>%s</i></b>' % escape(friendly_tag)))
+            titleTag.insert(0,NavigableString('<b><i>%s</i></b>' % escape(self.getFriendlyGenreTag(genre))))
 
             # Insert the books by author list
             divTag = body.find(attrs={'class':'authors'})
@@ -2927,6 +2945,12 @@ class EPUB_MOBI(CatalogPlugin):
             else:
                 return char
 
+        def getFriendlyGenreTag(self, genre):
+            # Find the first instance of friendly_tag matching genre
+            for friendly_tag in self.genre_tags_dict:
+                if self.genre_tags_dict[friendly_tag] == genre:
+                    return friendly_tag
+
         def markdownComments(self, comments):
             '''
             Convert random comment text to normalized, xml-legal block of <p>s
@@ -3076,7 +3100,7 @@ class EPUB_MOBI(CatalogPlugin):
         opts.basename = "Catalog"
         opts.plugin_path = self.plugin_path
         opts.cli_environment = not hasattr(opts,'sync')
-        # GwR *** hardwired for the moment
+        # GwR *** hardwired to sort by author, could be an option if passed in opts
         opts.sort_descriptions_by_author = True
 
         if opts.verbose:
@@ -3086,6 +3110,15 @@ class EPUB_MOBI(CatalogPlugin):
                  'CLI' if opts.cli_environment else 'GUI'))
             if opts_dict['ids']:
                 log(" Book count: %d" % len(opts_dict['ids']))
+
+            sections_list = ['Descriptions','Authors']
+            if opts.generate_titles:
+                sections_list.append('Titles')
+            if opts.generate_recently_added:
+                sections_list.append('Recently Added')
+            if not opts.exclude_genre.strip() == '.':
+                sections_list.append('Genres')
+            log(u"Creating Sections for %s" % ', '.join(sections_list))
 
             # If exclude_genre is blank, assume user wants all genre tags included
             if opts.exclude_genre.strip() == '':
@@ -3098,8 +3131,8 @@ class EPUB_MOBI(CatalogPlugin):
             log(" opts:")
 
             for key in keys:
-                if key in ['catalog_title','exclude_genre','exclude_tags','generate_titles',
-                           'generate_recently_added','note_tag','numbers_as_text','read_tag',
+                if key in ['catalog_title','exclude_genre','exclude_tags',
+                           'note_tag','numbers_as_text','read_tag',
                            'search_text','sort_by','sort_descriptions_by_author','sync']:
                     log("  %s: %s" % (key, opts_dict[key]))
 
