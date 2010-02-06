@@ -16,7 +16,7 @@ class Metro_Montreal(BasicNewsRecipe):
     extra_css             = '.headline {font-size: x-large;} \n .fact {padding-top: 10pt}'
 
     remove_tags = [dict(attrs={'id':'buttons'})]
-    
+
     feeds = [
              (u"L'info", u'http://journalmetro.com/linfo/rss'),
              (u'Monde', u'http://journalmetro.com/monde/rss'),
