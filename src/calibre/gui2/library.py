@@ -910,7 +910,6 @@ class OnDeviceSearch(SearchQueryParser):
                 except ValueError: # Unicode errors
                     import traceback
                     traceback.print_exc()
-                    pass
         return matches
 
 
