@@ -1394,6 +1394,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.status_bar.showMessage(_('Generating %s catalog...')%fmt)
 
     def catalog_generated(self, job):
+		if job.result:
+			# Search terms nulled catalog results
+            return error_dialog(self, _('No books found'),
+                    _("No books to catalog\nCheck exclude tags"),
+                    show=True)
         if job.failed:
             return self.job_exception(job)
         id = self.library_view.model().add_catalog(job.catalog_file_path, job.catalog_title)

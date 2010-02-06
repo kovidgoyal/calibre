@@ -17,14 +17,6 @@ p.author {
 	font-size:large;
   	}
 
-p.series {
-	margin-top:0em;
-	margin-bottom:0em;
-	text-align: left;
-	text-indent: 1em;
-	font-size:small;
-	}
-
 p.tags {
 	margin-top:0em;
 	margin-bottom:0em;
@@ -61,6 +53,14 @@ p.author_index {
 	margin-top:0px;
 	margin-bottom:0px;
 	text-indent: 0em;
+	}
+
+p.series {
+	text-align: left;
+	margin-top:0px;
+	margin-bottom:0px;
+	margin-left:2em;
+	text-indent:-2em;
 	}
 
 p.read_book {

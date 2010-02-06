@@ -80,7 +80,7 @@
     <widget class="QLabel" name="label_6">
      <property name="text">
       <string>Regex tips:
-- The default regex - \[[\w]*\] - excludes genre tags of the form [tag], e.g., [Amazon Freebie]
+- The default regex - \[[\w ]*\] - excludes genre tags of the form [tag], e.g., [Amazon Freebie]
 - A regex pattern of a single dot excludes all genre tags, generating no Genre Section</string>
      </property>
      <property name="wordWrap">

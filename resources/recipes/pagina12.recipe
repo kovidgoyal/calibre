@@ -1,14 +1,12 @@
-
 __license__   = 'GPL v3'
 __copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 pagina12.com.ar
 '''
 
-import re, time
-from calibre import strftime
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class Pagina12(BasicNewsRecipe):
     title                 = 'Pagina - 12'
@@ -34,7 +32,7 @@ class Pagina12(BasicNewsRecipe):
                         }
 
     remove_tags = [dict(name='div', attrs={'id':['volver','logo','logo_suple','fin','permalink']})]
-    
+
 
     feeds = [
               (u'Edicion impresa', u'http://www.pagina12.com.ar/diario/rss/principal.xml'   )
@@ -61,4 +59,4 @@ class Pagina12(BasicNewsRecipe):
            if image['alt'].startswith('Tapa de la fecha'):
               return image['src']
         return None
-        
+

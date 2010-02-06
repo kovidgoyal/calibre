@@ -57,7 +57,8 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options,
             setattr(opts,option, fmt_options[option])
 
     # Fetch and run the plugin for fmt
+    # Returns 0 if successful, 1 if no catalog built
     plugin = plugin_for_catalog_format(fmt)
-    plugin.run(out_file_name, opts, db, notification=notification)
+    return plugin.run(out_file_name, opts, db, notification=notification)
 
 
