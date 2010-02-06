@@ -903,9 +903,14 @@ class OnDeviceSearch(SearchQueryParser):
             locations[i] = q[v]
         for i, r in enumerate(self.model.db):
             for loc in locations:
-                if query in loc(r):
-                    matches.add(i)
-                    break
+                try:
+                    if query in loc(r):
+                        matches.add(i)
+                        break
+                except ValueError: # Unicode errors
+                    import traceback
+                    traceback.print_exc()
+                    pass
         return matches
 
 
