@@ -1138,7 +1138,12 @@ class EPUB_MOBI(CatalogPlugin):
                 aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(title['author']))
                 #aTag.insert(0, escape(title['author']))
                 aTag.insert(0, title['author'])
-                authorTag.insert(0, NavigableString("by "))
+
+                # Insert READ_SYMBOL
+                if title['read']:
+                    authorTag.insert(0, NavigableString(self.READ_SYMBOL + "by "))
+                else:
+                    authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + "by "))
                 authorTag.insert(1, aTag)
 
                 '''
@@ -3053,7 +3058,7 @@ class EPUB_MOBI(CatalogPlugin):
             for tag in tags:
                 tag = self.convertHTMLEntities(tag)
                 if tag.startswith(opts.note_tag):
-                    this_title['notes'] = tag[1:]
+                    this_title['notes'] = tag[len(self.opts.note_tag):]
                 elif tag == opts.read_tag:
                     this_title['read'] = True
                 elif re.search(opts.exclude_genre, tag):
