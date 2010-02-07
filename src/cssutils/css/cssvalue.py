@@ -5,10 +5,10 @@
 - CSSValueList implements DOM Level 2 CSS CSSValueList
 
 """
-__all__ = ['CSSValue', 'CSSPrimitiveValue', 'CSSValueList', 
+__all__ = ['CSSValue', 'CSSPrimitiveValue', 'CSSValueList',
            'CSSVariable', 'RGBColor']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssvalue.py 1864 2009-10-11 15:11:39Z cthedot $'
+__version__ = '$Id: cssvalue.py 1909 2010-01-04 19:28:52Z cthedot $'
 
 from cssutils.prodparser import *
 import cssutils
@@ -152,21 +152,21 @@ class CSSValue(cssutils.util._NewBase):
                       )
         )
         operator = Choice(PreDef.S(),
-                          PreDef.char('comma', ',', 
+                          PreDef.char('comma', ',',
                                       toSeq=lambda t, tokens: ('operator', t[1])),
-                          PreDef.char('slash', '/', 
+                          PreDef.char('slash', '/',
                                       toSeq=lambda t, tokens: ('operator', t[1])),
                           optional=True)
         # CSSValue PRODUCTIONS
         valueprods = Sequence(term,
                               # TODO: only when setting via other class
-                              PreDef.char('END', ';', 
-                                          stopAndKeep=True, 
+                              PreDef.char('END', ';',
+                                          stopAndKeep=True,
                                           optional=True),
                               Sequence(operator, # mayEnd this Sequence if whitespace
                                        term,
-                                       PreDef.char('END', ';', 
-                                                   stopAndKeep=True, 
+                                       PreDef.char('END', ';',
+                                                   stopAndKeep=True,
                                                    optional=True),
                                        minmax=lambda: (0, None))) 
         # parse
@@ -861,25 +861,34 @@ class CSSFunction(CSSPrimitiveValue):
     def _productiondefinition(self):
         """Return defintion used for parsing."""
         types = self._prods # rename!
-        valueProd = Prod(name='PrimitiveValue',
-                         match=lambda t, v: t in (types.DIMENSION,
-                                                  types.IDENT,
-                                                  types.NUMBER,
-                                                  types.PERCENTAGE,
-                                                  types.STRING),
-                         toSeq=lambda t, tokens: (t[0], CSSPrimitiveValue(t[1])))
+        valueOrFunc = Choice(Prod(name='PrimitiveValue',
+                                  match=lambda t, v: t in (types.DIMENSION,
+                                                           types.IDENT,
+                                                           types.NUMBER,
+                                                           types.PERCENTAGE,
+                                                           types.STRING),
+                                  toSeq=lambda t, tokens: (t[0], CSSPrimitiveValue(t[1]))
+                                  ),
+                             # FUNC is actually not in spec but used in e.g. Prince
+                             PreDef.function(toSeq=lambda t, 
+                                                          tokens: ('FUNCTION',
+                                                                   CSSFunction(
+                                                                   cssutils.helper.pushtoken(t, tokens))
+                                                                   )
+                                                          )
+                             )
                 
         funcProds = Sequence(Prod(name='FUNC',
                                   match=lambda t, v: t == types.FUNCTION,
                                   toSeq=lambda t, tokens: (t[0], cssutils.helper.normalize(t[1]))),
                              Choice(Sequence(PreDef.unary(),
-                                             valueProd,
+                                             valueOrFunc,
                                              # more values starting with Comma
                                              # should use store where colorType is saved to 
                                              # define min and may, closure?
                                              Sequence(PreDef.comma(),
                                                       PreDef.unary(),
-                                                      valueProd,
+                                                      valueOrFunc,
                                                       minmax=lambda: (0, 3)),
                                              PreDef.funcEnd(stop=True)),
                                     PreDef.funcEnd(stop=True))

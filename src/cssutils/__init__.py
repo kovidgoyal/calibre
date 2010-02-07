@@ -88,11 +88,11 @@ Usage may be::
 __all__ = ['css', 'stylesheets', 'CSSParser', 'CSSSerializer']
 __docformat__ = 'restructuredtext'
 __author__ = 'Christof Hoeke with contributions by Walter Doerwald'
-__date__ = '$LastChangedDate:: 2009-11-26 16:31:32 -0700 #$:'
+__date__ = '$LastChangedDate:: 2009-12-30 14:26:29 -0700 #$:'
 
-VERSION = '0.9.7a1'
+VERSION = '0.9.7a2'
 
-__version__ = '%s $Id: __init__.py 1892 2009-11-26 23:31:32Z cthedot $' % VERSION
+__version__ = '%s $Id: __init__.py 1902 2009-12-30 21:26:29Z cthedot $' % VERSION
 
 import codec
 import os.path
