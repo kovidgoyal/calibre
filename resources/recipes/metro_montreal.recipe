@@ -4,7 +4,7 @@ class Metro_Montreal(BasicNewsRecipe):
 
     title          = u'M\xe9tro Montr\xe9al'
     __author__     = 'Jerry Clapperton'
-    description    = 'Le quotidien le plus branché sur le monde'
+    description    = 'Le quotidien le plus branch\xe9 sur le monde'
     language       = 'fr'
 
     oldest_article        = 7
