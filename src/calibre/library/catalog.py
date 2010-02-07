@@ -1211,10 +1211,8 @@ class EPUB_MOBI(CatalogPlugin):
                     imgTag['src']  = "../images/thumbnail_default.jpg"
                 imgTag['alt'] = "cover"
 
-                # Tweak image size if we're building for Sony, not sure why this is needed
-                if self.opts.fmt == 'epub' and self.opts.output_profile.startswith("sony"):
-                    imgTag['style'] = 'width: %dpx; height:%dpx;' % (self.THUMB_WIDTH * 2, self.THUMB_HEIGHT * 2)
-                else:
+                # Tweak image size if we're building EPUB, not sure why this is needed
+                if self.opts.fmt == 'mobi':
                     imgTag['style'] = 'width: %dpx; height:%dpx;' % (self.THUMB_WIDTH, self.THUMB_HEIGHT)
                 thumbnailTag = body.find(attrs={'class':'thumbnail'})
                 thumbnailTag.insert(0,imgTag)
@@ -2928,7 +2926,8 @@ class EPUB_MOBI(CatalogPlugin):
                     self.opts.log.error('generateThumbnail(): Cannot clone cover')
                     raise RuntimeError
                 # img, width, height
-                pw.MagickThumbnailImage(thumb, self.THUMB_WIDTH, self.THUMB_HEIGHT)
+                factor = 2 if self.opts.fmt == 'epub' else 1
+                pw.MagickThumbnailImage(thumb, factor*self.THUMB_WIDTH, factor*self.THUMB_HEIGHT)
                 pw.MagickWriteImage(thumb, os.path.join(image_dir, thumb_file))
                 pw.DestroyMagickWand(thumb)
                 pw.DestroyMagickWand(img)
