@@ -15,7 +15,7 @@ class Rsync(Command):
 
     description = 'Sync source tree from development machine'
 
-    SYNC_CMD = ('rsync -avz --exclude src/calibre/plugins '
+    SYNC_CMD = ('rsync -avz --del --exclude src/calibre/plugins '
                '--exclude src/calibre/manual --exclude src/calibre/trac '
                '--exclude .bzr --exclude .build --exclude .svn --exclude build --exclude dist '
                '--exclude "*.pyc" --exclude "*.pyo" --exclude "*.swp" --exclude "*.swo" '
