@@ -18,7 +18,8 @@ class HBR(BasicNewsRecipe):
     remove_tags = [dict(id=['mastheadContainer', 'magazineHeadline',
         'articleToolbarTopRD', 'pageRightSubColumn', 'pageRightColumn',
         'todayOnHBRListWidget', 'mostWidget', 'keepUpWithHBR',
-        'mailingListTout', 'partnerCenter', 'pageFooter']),
+        'mailingListTout', 'partnerCenter', 'pageFooter',
+        'articleToolbarTop', 'articleToolbarBottom', 'articleToolbarRD']),
         dict(name='iframe')]
     extra_css = '''
                 a {font-family:Georgia,"Times New Roman",Times,serif; font-style:italic; color:#000000; }

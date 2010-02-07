@@ -215,7 +215,7 @@ class WSJ(BasicNewsRecipe):
                 # first, check if there is an h3 tag which provides a section name
                 stag = divtag.find('h3')
                 if stag:
-                    if stag.parent['class'] == 'dynamic':
+                    if stag.parent.get('class', '') == 'dynamic':
                         # a carousel of articles is too complex to extract a section name
                         # for each article, so we'll just call the section "Carousel"
                         section_name = 'Carousel'

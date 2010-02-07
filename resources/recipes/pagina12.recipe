@@ -1,13 +1,12 @@
-
 __license__   = 'GPL v3'
 __copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 pagina12.com.ar
 '''
 
-import time
-from calibre import strftime
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class Pagina12(BasicNewsRecipe):
     title                 = 'Pagina - 12'
@@ -22,7 +21,8 @@ class Pagina12(BasicNewsRecipe):
     use_embedded_content  = False
     language              = 'es'
     remove_empty_feeds    = True
-    extra_css             = ' body{font-family: sans-serif} '
+    masthead_url          = 'http://www.pagina12.com.ar/commons/imgs/logo-home.gif'
+    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } h2{color: #028CCD} img{margin-bottom: 0.4em} .epigrafe{font-size: x-small; background-color: #EBEAE5; color: #565144 } .intro{font-size: 1.1em} '
 
     conversion_options = {
                           'comment'   : description
@@ -52,7 +52,11 @@ class Pagina12(BasicNewsRecipe):
         return url.replace('http://www.pagina12.com.ar/','http://www.pagina12.com.ar/imprimir/')
 
     def get_cover_url(self):
-        imgnames = ['tapan.jpg','tapagn.jpg','tapan_gr.jpg','tapagn.jpg','tapagn.jpg','tapan.jpg','tapagn.jpg']
-        weekday = time.localtime().tm_wday
-        return strftime('http://www.pagina12.com.ar/fotos/%Y%m%d/diario/') + imgnames[weekday]
+        rawc = self.index_to_soup('http://www.pagina12.com.ar/diario/principal/diario/index.html',True)
+        rawc2 = re.sub(r'PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN','PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"',rawc)
+        soup = BeautifulSoup(rawc2,fromEncoding=self.encoding,smartQuotesTo=None)
+        for image in soup.findAll('img',alt=True):
+           if image['alt'].startswith('Tapa de la fecha'):
+              return image['src']
+        return None
 

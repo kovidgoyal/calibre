@@ -9,6 +9,7 @@ class The_New_Republic(BasicNewsRecipe):
 
     oldest_article = 7
     max_articles_per_feed = 100
+    no_stylesheets = True
 
     remove_tags = [
             dict(name='div', attrs={'class':['print-logo', 'print-site_name', 'img-left', 'print-source_url']}),
@@ -21,14 +22,15 @@ class The_New_Republic(BasicNewsRecipe):
         ('Economy', 'http://www.tnr.com/rss/articles/Economy'),
         ('Environment and Energy', 'http://www.tnr.com/rss/articles/Environment-%2526-Energy'),
         ('Health Care', 'http://www.tnr.com/rss/articles/Health-Care'),
-        ('Urban Policy', 'http://www.tnr.com/rss/articles/Urban-Policy'),
+        ('Metro Policy', 'http://www.tnr.com/rss/articles/Metro-Policy'),
         ('World', 'http://www.tnr.com/rss/articles/World'),
         ('Film', 'http://www.tnr.com/rss/articles/Film'),
         ('Books', 'http://www.tnr.com/rss/articles/books'),
+        ('The Book', 'http://www.tnr.com/rss/book'),
+        ('Jonathan Chait', 'http://www.tnr.com/rss/blogs/Jonathan-Chait'),
         ('The Plank', 'http://www.tnr.com/rss/blogs/The-Plank'),
         ('The Treatment', 'http://www.tnr.com/rss/blogs/The-Treatment'),
         ('The Spine', 'http://www.tnr.com/rss/blogs/The-Spine'),
-        ('The Stash', 'http://www.tnr.com/rss/blogs/The-Stash'),
         ('The Vine', 'http://www.tnr.com/rss/blogs/The-Vine'),
         ('The Avenue', 'http://www.tnr.com/rss/blogs/The-Avenue'),
         ('William Galston', 'http://www.tnr.com/rss/blogs/William-Galston'),
@@ -40,3 +42,4 @@ class The_New_Republic(BasicNewsRecipe):
 
     def print_version(self, url):
         return url.replace('http://www.tnr.com/', 'http://www.tnr.com/print/')
+

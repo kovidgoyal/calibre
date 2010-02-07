@@ -48,7 +48,9 @@ class Resources(Command):
         dest = self.j(self.RESOURCES, 'builtin_recipes.xml')
         if self.newer(dest, files):
             self.info('\tCreating builtin_recipes.xml')
-            open(dest, 'wb').write(serialize_builtin_recipes())
+            xml = serialize_builtin_recipes()
+            with open(dest, 'wb') as f:
+                f.write(xml)
 
         dest = self.j(self.RESOURCES, 'ebook-convert-complete.pickle')
         files = []

@@ -149,7 +149,7 @@ class DeviceManager(Thread):
                     possibly_connected_devices.append((device, detected_device))
             if possibly_connected_devices:
                 if not self.do_connect(possibly_connected_devices):
-                    print 'Connect to device failed, retying in 5 seconds...'
+                    print 'Connect to device failed, retrying in 5 seconds...'
                     time.sleep(5)
                     if not self.do_connect(possibly_connected_devices):
                         print 'Device connect failed again, giving up'

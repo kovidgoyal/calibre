@@ -615,10 +615,12 @@ class BasicNewsRecipe(Recipe):
                 del o['onload']
 
         for script in list(soup.findAll('noscript')):
-                script.extract()
+            script.extract()
         for attr in self.remove_attributes:
             for x in soup.findAll(attrs={attr:True}):
                 del x[attr]
+        for base in list(soup.findAll('base')):
+            base.extract()
         return self.postprocess_html(soup, first_fetch)
 
 
