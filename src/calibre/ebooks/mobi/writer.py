@@ -610,12 +610,21 @@ class MobiWriter(object):
             if (i>firstSequentialNode) and self._ctoc_map[i-1]['klass'] != 'section':
                 if offset != previousOffset + previousLength :
                     self._oeb.log.warning("*** TOC discontinuity: nodes are not sequential ***")
-                    self._oeb.log.warning(" node %03d: '%s' offset: 0x%X length: 0x%X" % \
+                    self._oeb.log.info(" node %03d: '%s' offset: 0x%X length: 0x%X" % \
                         (i-1, entries[i-1].title, previousOffset, previousLength) )
                     self._oeb.log.warning(" node %03d: '%s' offset: 0x%X != 0x%06X" % \
                         (i, child.title, offset, previousOffset + previousLength) )
-                    self._oeb.log.warning("\tnode data %03d: %s" % (i-1, self._ctoc_map[i-1]) )
-                    self._oeb.log.warning("\tnode data %03d: %s" % (i, self._ctoc_map[i]) )
+                    # self._oeb.log.warning("\tnode data %03d: %s" % (i-1, self._ctoc_map[i-1]) )
+                    # self._oeb.log.warning("\tnode data %03d: %s" % (i, self._ctoc_map[i]) )
+                    # Dump the offending entry
+                    self._oeb.log.info("...")
+                    for z in range(i-6 if i-6 > 0 else 0, i+6 if i+6 < len(entries) else len(entries)):
+                        if z == i:
+                            self._oeb.log.warning("child %03d: %s" % (z, entries[z]))
+                        else:
+                            self._oeb.log.info("child %03d: %s" % (z, entries[z]))
+                    self._oeb.log.info("...")
+
                     self._oeb.log.warning('_generate_indexed_navpoints: Failed to generate index')
                     # Zero out self._HTMLRecords, return False
                     self._HTMLRecords = []

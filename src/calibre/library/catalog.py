@@ -941,7 +941,7 @@ class EPUB_MOBI(CatalogPlugin):
                     this_title['author'] = " &amp; ".join(record['authors'])
                 else:
                     this_title['author'] = 'Unknown'
-                this_title['author_sort'] = record['author_sort'] if len(record['author_sort']) \
+                this_title['author_sort'] = record['author_sort'].capitalize() if len(record['author_sort']) \
                      else self.author_to_author_sort(this_title['author'])
                 this_title['id'] = record['id']
                 if record['publisher']:
@@ -1089,6 +1089,7 @@ class EPUB_MOBI(CatalogPlugin):
                 for author in unique_authors:
                     self.opts.log.info((u" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],
                        author[2])).encode('utf-8'))
+
             self.authors = unique_authors
 
         def generateHTMLDescriptions(self):
@@ -2490,7 +2491,7 @@ class EPUB_MOBI(CatalogPlugin):
             tokens = tokens[-1:] + tokens[:-1]
             if len(tokens) > 1:
                 tokens[0] += ','
-            return ' '.join(tokens)
+            return ' '.join(tokens).capitalize()
 
         def convertHTMLEntities(self, s):
             matches = re.findall("&#\d+;", s)
@@ -3100,6 +3101,7 @@ class EPUB_MOBI(CatalogPlugin):
         op = self.opts.output_profile
         if op is None:
             op = 'default'
+        self.opts.output_profile = op
         opts.descriptionClip = 380 if op.endswith('dx') or 'kindle' not in op else 90
         opts.basename = "Catalog"
         opts.plugin_path = self.plugin_path
