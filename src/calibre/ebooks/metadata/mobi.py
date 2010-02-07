@@ -181,11 +181,11 @@ class MetadataUpdater(object):
         off = self.pdbrecords[section][0]
         self.patch(off, new)
 
-    def create_exth(self, exth=None):
+    def create_exth(self, new_title=None, exth=None):
         # Add an EXTH block to record 0, rewrite the stream
         # self.hexdump(self.record0)
 
-        # Fetch the title
+        # Fetch the existing title
         title_offset, = struct.unpack('>L', self.record0[0x54:0x58])
         title_length, = struct.unpack('>L', self.record0[0x58:0x5c])
         title_in_file, = struct.unpack('%ds' % (title_length), self.record0[title_offset:title_offset + title_length])
@@ -207,14 +207,21 @@ class MetadataUpdater(object):
             exth = ['EXTH', pack('>II', 12, 0), pad]
             exth = ''.join(exth)
 
-        # Update title_offset
+        # Update title_offset, title_len if new_title
         self.record0[0x54:0x58] = pack('>L', 0x10 + mobi_header_length + len(exth))
+        if new_title:
+            self.record0[0x58:0x5c] = pack('>L', len(new_title))
 
         # Create an updated Record0
         new_record0 = StringIO()
         new_record0.write(self.record0[:0x10 + mobi_header_length])
         new_record0.write(exth)
-        new_record0.write(title_in_file)
+        if new_title:
+            #new_record0.write(new_title.encode(self.codec, 'replace'))
+            new_title = (new_title or _('Unknown')).encode(self.codec, 'replace')
+            new_record0.write(new_title)
+        else:
+            new_record0.write(title_in_file)
 
         # Pad to a 4-byte boundary
         trail = len(new_record0.getvalue()) % 4
@@ -332,7 +339,7 @@ class MetadataUpdater(object):
             raise MobiError('No existing EXTH record. Cannot update metadata.')
 
         self.record0[92:96] = iana2mobi(mi.language)
-        self.create_exth(exth)
+        self.create_exth(exth=exth, new_title=mi.title)
 
         # Fetch updated timestamp, cover_record, thumbnail_record
         self.fetchEXTHFields()
