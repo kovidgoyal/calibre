@@ -43,8 +43,8 @@ class Writer(FormatWriter):
 
         text, text_sizes = self._text(pml)
         chapter_index = self._index_item(r'(?s)\\C(?P<val>[0-4])="(?P<text>.+?)"', pml)
-        chapter_index += self.index_item(r'(?s)\\X(?P<val>[0-4])(?P<text>.+?)\\X[0-4]', pml)
-        chapter_index += self.index_item(r'(?s)\\x(?P<text>.+?)\\x', pml)
+        chapter_index += self._index_item(r'(?s)\\X(?P<val>[0-4])(?P<text>.+?)\\X[0-4]', pml)
+        chapter_index += self._index_item(r'(?s)\\x(?P<text>.+?)\\x', pml)
         link_index = self._index_item(r'(?s)\\Q="(?P<text>.+?)"', pml)
         images = self._images(oeb_book.manifest, pmlmlizer.image_hrefs)
         metadata = [self._metadata(metadata)]
