@@ -305,8 +305,6 @@ class RecursiveFetcher(object):
             iurl = tag['src']
             if callable(self.image_url_processor):
                 iurl = self.image_url_processor(baseurl, iurl)
-            ext  = os.path.splitext(iurl)[1]
-            ext  = ext[:5]
             if not urlparse.urlsplit(iurl).scheme:
                 iurl = urlparse.urljoin(baseurl, iurl, False)
             with self.imagemap_lock:
@@ -319,7 +317,7 @@ class RecursiveFetcher(object):
                 self.log.exception('Could not fetch image %s'% iurl)
                 continue
             c += 1
-            fname = ascii_filename('img'+str(c)+ext)
+            fname = ascii_filename('img'+str(c))
             if isinstance(fname, unicode):
                 fname = fname.encode('ascii', 'replace')
             imgpath = os.path.join(diskpath, fname+'.jpg')
