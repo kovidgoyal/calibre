@@ -1,7 +1,5 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 lanacion.com.ar
 '''
@@ -12,28 +10,34 @@ class Lanacion(BasicNewsRecipe):
     title                 = 'La Nacion'
     __author__            = 'Darko Miletic'
     description           = 'Noticias de Argentina y el resto del mundo'
-    publisher             = 'La Nacion'
+    publisher             = 'La Nacion S.A.'
     category              = 'news, politics, Argentina'
     oldest_article        = 2
     max_articles_per_feed = 100
     use_embedded_content  = False
-    remove_javascript     = True
     no_stylesheets        = True
+    language              = 'es'
+    encoding              = 'cp1252'
+    masthead_url          = 'http://www.lanacion.com.ar/imgs/layout/logos/ln341x47.gif'
+    extra_css             = ' h1{font-family: Georgia,serif} body{font-family: Arial,sans-serif} img{margin-top: 0.5em; margin-bottom: 0.2em} .notaEpigrafe{font-size: x-small} '
 
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
 
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+    conversion_options = {
+                          'comment'  : description
+                        , 'tags'     : category
+                        , 'publisher': publisher
+                        , 'language' : language
+                        }
 
     keep_only_tags = [dict(name='div', attrs={'class':'nota floatFix'})]
     remove_tags = [
                      dict(name='div' , attrs={'class':'notaComentario floatFix noprint' })
                     ,dict(name='ul'  , attrs={'class':'cajaHerramientas cajaTop noprint'})
                     ,dict(name='div' , attrs={'class':'cajaHerramientas noprint'        })
+                    ,dict(attrs={'class':['titulosMultimedia','derecha','techo color']})
+                    ,dict(name=['iframe','embed','object'])
                   ]
+    remove_attributes = ['height','width']
 
     feeds          = [
                          (u'Ultimas noticias'     , u'http://www.lanacion.com.ar/herramientas/rss/index.asp?origen=2'         )
@@ -51,10 +55,4 @@ class Lanacion(BasicNewsRecipe):
                      ]
 
     def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="Content-Language" content="es-AR"/>'
-        soup.head.insert(0,mtag)
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
-
-    language = 'es'
+        return self.adeify_images(soup)
