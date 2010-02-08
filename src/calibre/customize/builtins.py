@@ -407,7 +407,7 @@ from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK, \
                 BOOQ
 from calibre.devices.iliad.driver import ILIAD
-from calibre.devices.irexdr.driver import IREXDR1000
+from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.nook.driver import NOOK
@@ -465,6 +465,7 @@ plugins += [
     CYBOOK,
     ILIAD,
     IREXDR1000,
+    IREXDR800,
     JETBOOK,
     SHINEBOOK,
     POCKETBOOK360,
