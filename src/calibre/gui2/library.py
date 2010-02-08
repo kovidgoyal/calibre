@@ -97,7 +97,10 @@ class DateDelegate(QStyledItemDelegate):
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat(unicode(qde.displayFormat()).replace('yy', 'yyyy'))
+        stdformat = unicode(qde.displayFormat())
+        if 'yyyy' not in stdformat:
+            stdformat = stdformat.replace('yy', 'yyyy')
+        qde.setDisplayFormat(stdformat)
         qde.setMinimumDate(QDate(101,1,1))
         qde.setCalendarPopup(True)
         return qde

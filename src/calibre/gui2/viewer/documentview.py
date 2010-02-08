@@ -331,7 +331,6 @@ class Document(QWebPage):
         elem = self.find_bookmark_element()
 
         if elem is None or self.element_ypos(elem) < 100:
-            print elem, self.element_ypos(elem)
             bm = 'body|%f'%(float(self.ypos)/(self.height*0.7))
         else:
             bm = unicode(elem.evaluateJavaScript(
