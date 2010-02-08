@@ -280,8 +280,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def restore_state(self):
         state = dynamic.get('viewer_toolbar_state', None)
         if state is not None:
-            state = QByteArray(state)
-            self.restoreState(state, self.STATE_VERSION)
+            try:
+                state = QByteArray(state)
+                self.restoreState(state, self.STATE_VERSION)
+            except:
+                pass
 
 
     def lookup(self, word):
