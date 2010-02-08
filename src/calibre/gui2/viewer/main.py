@@ -5,7 +5,7 @@ import traceback, os, sys, functools, collections, re
 from functools import partial
 from threading import Thread
 
-from PyQt4.Qt import QApplication, Qt, QIcon, QTimer, SIGNAL, \
+from PyQt4.Qt import QApplication, Qt, QIcon, QTimer, SIGNAL, QByteArray, \
                      QDesktopServices, QDoubleSpinBox, QLabel, QTextBrowser, \
                      QPainter, QBrush, QColor, QStandardItemModel, QPalette, \
                      QStandardItem, QUrl, QRegExpValidator, QRegExp, QLineEdit, \
@@ -161,6 +161,8 @@ class HelpfulLineEdit(QLineEdit):
 
 class EbookViewer(MainWindow, Ui_EbookViewer):
 
+    STATE_VERSION = 1
+
     def __init__(self, pathtoebook=None, debug_javascript=False):
         MainWindow.__init__(self, None)
         self.setupUi(self)
@@ -265,6 +267,22 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         ca = self.view.copy_action
         ca.setShortcut(QKeySequence.Copy)
         self.addAction(ca)
+        self.restore_state()
+
+    def closeEvent(self, e):
+        self.save_state()
+        return MainWindow.closeEvent(self, e)
+
+    def save_state(self):
+        state = str(self.saveState(self.STATE_VERSION))
+        dynamic['viewer_toolbar_state'] = state
+
+    def restore_state(self):
+        state = dynamic.get('viewer_toolbar_state', None)
+        if state is not None:
+            state = QByteArray(state)
+            self.restoreState(state, self.STATE_VERSION)
+
 
     def lookup(self, word):
         self.dictionary_view.setHtml('<html><body><p>'+ \
