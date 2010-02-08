@@ -404,7 +404,8 @@ from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
-                POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK
+                POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK, \
+                BOOQ
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000
 from calibre.devices.jetbook.driver import JETBOOK
@@ -487,6 +488,7 @@ plugins += [
     DBOOK,
     INVESBOOK,
     BOOX,
+    BOOQ,
     EB600,
     README,
     N516,
