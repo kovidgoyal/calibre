@@ -5,7 +5,7 @@ __docformat__ = 'restructuredtext en'
 
 '''
 '''
-import os, math, re, glob
+import os, math, re, glob, sys
 from base64 import b64encode
 from PyQt4.Qt import QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
@@ -295,8 +295,50 @@ class Document(QWebPage):
             if r > 0:
                 self.javascript('document.body.style.paddingBottom = "%dpx"'%r)
 
+    def element_ypos(self, elem):
+        ans, ok = elem.evaluateJavaScript('$(this).offset().top').toInt()
+        if not ok:
+            raise ValueError('No ypos found')
+        return ans
+
+    def elem_outer_xml(self, elem):
+        return unicode(elem.toOuterXml())
+
+    def find_bookmark_element(self):
+        mf = self.mainFrame()
+        doc_pos = self.ypos
+        min_delta, min_elem = sys.maxint, None
+        for y in range(10, -500, -10):
+            for x in range(-50, 500, 10):
+                pos = QPoint(x, y)
+                result = mf.hitTestContent(pos)
+                if result.isNull(): continue
+                elem = result.enclosingBlockElement()
+                if elem.isNull(): continue
+                try:
+                    ypos = self.element_ypos(elem)
+                except:
+                    continue
+                delta = abs(ypos - doc_pos)
+                if delta < 25:
+                    return elem
+                if delta < min_delta:
+                    min_elem, min_delta = elem, delta
+        return min_elem
+
+
     def bookmark(self):
-        return self.javascript('calculate_bookmark(%d)'%(self.ypos+25), 'string')
+        elem = self.find_bookmark_element()
+
+        if elem is None or self.element_ypos(elem) < 100:
+            print elem, self.element_ypos(elem)
+            bm = 'body|%f'%(float(self.ypos)/(self.height*0.7))
+        else:
+            bm = unicode(elem.evaluateJavaScript(
+                'calculate_bookmark(%d, this)'%self.ypos).toString())
+            if not bm:
+                bm = 'body|%f'%(float(self.ypos)/(self.height*0.7))
+        return bm
 
     @property
     def at_bottom(self):
