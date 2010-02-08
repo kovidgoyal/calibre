@@ -39,10 +39,11 @@ class IREXDR1000(USBMS):
 
 class IREXDR800(IREXDR1000):
     name           = 'IRex Digital Reader 800 Device Interface'
-    description    = _('Communicate with the IRex Digital Reader 800 eBook ' \
-        'reader.')
+    description    = _('Communicate with the IRex Digital Reader 800')
     PRODUCT_ID = [0x002]
     WINDOWS_MAIN_MEM = 'DR800'
+    FORMATS     = ['epub', 'html', 'pdf', 'txt']
 
     EBOOK_DIR_MAIN = 'Books'
+    DELETE_EXTS = []
 
