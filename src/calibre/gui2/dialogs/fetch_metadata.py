@@ -119,6 +119,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.matches.setMouseTracking(True)
         self.fetch_metadata()
         self.opt_get_social_metadata.setChecked(config['get_social_metadata'])
+        self.opt_overwrite_author_title_metadata.setChecked(config['overwrite_author_title_metadata'])
 
 
     def show_summary(self, current, *args):
@@ -149,7 +150,8 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.fetcher.start()
         self.pi.start(_('Finding metadata...'))
         self._hangcheck = QTimer(self)
-        self.connect(self._hangcheck, SIGNAL('timeout()'), self.hangcheck)
+        self.connect(self._hangcheck, SIGNAL('timeout()'), self.hangcheck,
+                Qt.QueuedConnection)
         self.start_time = time.time()
         self._hangcheck.start(100)
 

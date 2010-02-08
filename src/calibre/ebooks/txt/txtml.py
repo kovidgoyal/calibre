@@ -54,7 +54,7 @@ class TXTMLizer(object):
         output.append(self.get_toc())
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to TXT...' % item.href)
-            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
+            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             content = unicode(etree.tostring(item.data.find(XHTML('body')), encoding=unicode))
             content = self.remove_newlines(content)
             output += self.dump_text(etree.fromstring(content), stylizer)

@@ -92,6 +92,7 @@ class MobiMLizer(object):
     def __call__(self, oeb, context):
         oeb.logger.info('Converting XHTML to Mobipocket markup...')
         self.oeb = oeb
+        self.opts = context
         self.profile = profile = context.dest
         self.fnums = fnums = dict((v, k) for k, v in profile.fnums.items())
         self.fmap = KeyMapper(profile.fbase, profile.fbase, fnums.keys())
@@ -114,7 +115,7 @@ class MobiMLizer(object):
     def mobimlize_spine(self):
         'Iterate over the spine and convert it to MOBIML'
         for item in self.oeb.spine:
-            stylizer = Stylizer(item.data, item.href, self.oeb, self.profile)
+            stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, self.profile)
             body = item.data.find(XHTML('body'))
             nroot = etree.Element(XHTML('html'), nsmap=MOBI_NSMAP)
             nbody = etree.SubElement(nroot, XHTML('body'))
@@ -163,6 +164,8 @@ class MobiMLizer(object):
             parent = bstate.nested[-1] if bstate.nested else bstate.body
             indent = istate.indent
             left = istate.left
+            if isinstance(indent, basestring):
+                indent = 0
             if indent < 0 and abs(indent) < left:
                 left += indent
                 indent = 0

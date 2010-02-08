@@ -66,7 +66,7 @@ class RecipeInput(InputFormatPlugin):
                 if recipe.requires_version > numeric_version:
                     log.warn(
                     'Downloaded recipe needs calibre version at least: %s' % \
-                    recipe.requires_version)
+                    ('.'.join(recipe.requires_version)))
                     builtin = True
             except:
                 log.exception('Failed to compile downloaded recipe. Falling '

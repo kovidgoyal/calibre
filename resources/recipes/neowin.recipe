@@ -1,0 +1,40 @@
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Neowin(BasicNewsRecipe):
+    title                 = u'Neowin.net'
+    oldest_article        = 5
+    language              = 'en'
+    description           = 'News from IT'
+    publisher             = 'Neowin'
+    category              = 'news, IT, Microsoft, Apple, hardware, software, games'
+    __author__            = 'Darko Miletic'
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    encoding              = 'utf8'
+
+    conversion_options = {
+                             'tags'      : category
+                            ,'language'  : language
+                            ,'comments'  : description
+                            ,'publisher' : publisher
+                         }
+
+    keep_only_tags     = [dict(name='div', attrs={'id':'article'})]
+    remove_tags_after = dict(name='div', attrs={'id':'tag-bar'})
+
+    remove_tags        = [
+                            dict(name=['base','object','link','iframe'])
+                           ,dict(name='div', attrs={'id':'tag-bar'})
+                         ]
+
+    feeds          = [
+                        (u'Software' , u'http://www.neowin.net/news/rss/software' )
+                       ,(u'Gaming'   , u'http://www.neowin.net/news/rss/gaming'   )
+                       ,(u'Microsoft', u'http://www.neowin.net/news/rss/microsoft')
+                       ,(u'Apple'    , u'http://www.neowin.net/news/rss/apple'    )
+                       ,(u'Editorial', u'http://www.neowin.net/news/rss/editorial')
+                     ]
+    def image_url_processor(cls, baseurl, url):
+        return url
+

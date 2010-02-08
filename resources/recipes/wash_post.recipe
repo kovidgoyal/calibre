@@ -46,3 +46,10 @@ class WashingtonPost(BasicNewsRecipe):
             div['style'] = ''
         return soup
 
+    def preprocess_html(self, soup):
+        for tag in soup.findAll('font'):
+            if tag.has_key('size'):
+                if tag['size'] == '+2':
+                    if tag.b:
+                        return soup
+        return None

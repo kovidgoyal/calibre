@@ -268,7 +268,8 @@ class EPUBOutput(OutputFormatPlugin):
                 # remove <img> tags with empty src elements
                 bad = []
                 for x in XPath('//h:img')(body):
-                    if not x.get('src', '').strip():
+                    src = x.get('src', '').strip()
+                    if src in ('', '#') or src.startswith('http:'):
                         bad.append(x)
                 for img in bad:
                     img.getparent().remove(img)

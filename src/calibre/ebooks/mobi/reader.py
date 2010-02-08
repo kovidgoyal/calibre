@@ -573,6 +573,8 @@ class MobiReader(object):
                                 attrib[attr] = "%dpx"%int(nval)
                             except:
                                 del attrib[attr]
+                        elif val.lower().endswith('%'):
+                            del attrib[attr]
             elif tag.tag == 'pre':
                 if not tag.text:
                     tag.tag = 'div'

@@ -29,13 +29,14 @@ class CaseMangler(object):
     @classmethod
     def generate(cls, opts):
         return cls()
-    
+
     def __call__(self, oeb, context):
         oeb.logger.info('Applying case-transforming CSS...')
         self.oeb = oeb
+        self.opts = context
         self.profile = context.source
         self.mangle_spine()
-    
+
     def mangle_spine(self):
         id, href = self.oeb.manifest.generate('manglecase', 'manglecase.css')
         self.oeb.manifest.add(id, href, CSS_MIME, data=CASE_MANGLER_CSS)
@@ -44,9 +45,9 @@ class CaseMangler(object):
             relhref = item.relhref(href)
             etree.SubElement(html.find(XHTML('head')), XHTML('link'),
                              rel='stylesheet', href=relhref, type=CSS_MIME)
-            stylizer = Stylizer(html, item.href, self.oeb, self.profile)
+            stylizer = Stylizer(html, item.href, self.oeb, self.opts, self.profile)
             self.mangle_elem(html.find(XHTML('body')), stylizer)
-    
+
     def text_transform(self, transform, text):
         if transform == 'capitalize':
             return text.title()
@@ -55,7 +56,7 @@ class CaseMangler(object):
         elif transform == 'lowercase':
             return text.lower()
         return text
-    
+
     def split_text(self, text):
         results = ['']
         isupper = text[0].isupper()
@@ -66,7 +67,7 @@ class CaseMangler(object):
                 isupper = not isupper
                 results.append(char)
         return results
-    
+
     def smallcaps_elem(self, elem, attr):
         texts = self.split_text(getattr(elem, attr))
         setattr(elem, attr, None)
@@ -90,7 +91,7 @@ class CaseMangler(object):
                     last.tail = tail
                     child.tail = None
                 last = child
-    
+
     def mangle_elem(self, elem, stylizer):
         if not isinstance(elem.tag, basestring) or \
            namespace(elem.tag) != XHTML_NS:

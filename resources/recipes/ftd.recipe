@@ -9,20 +9,21 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class FTDe(BasicNewsRecipe):
-    
+
     title = 'FTD'
     description = 'Financial Times Deutschland'
     __author__ = 'Oliver Niesner'
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'
-    language = _('German')
+    language = 'de'
     max_articles_per_feed = 40
     no_stylesheets = True
-    
+
     remove_tags = [dict(id='navi_top'),
 		   dict(id='topbanner'),
 		   dict(id='seitenkopf'),
 		   dict(id='BoxA-0-0-0'),
+		   #dict(id='BoxA-2-0-0'),
 		   dict(id='footer'),
 		   dict(id='rating_open'),
 		   dict(id='ADS_Top'),
@@ -59,6 +60,7 @@ class FTDe(BasicNewsRecipe):
 		   dict(name='div', attrs={'class':'relatedhalb'}),
 		   dict(name='div', attrs={'class':'box boxListScrollOutline'}),
 		   dict(name='div', attrs={'class':'box boxPhotoshow boxImgWide'}),
+		   dict(name='div', attrs={'class':'box boxTeaser boxPhotoshow boxImgWide'}),
 		   dict(name='div', attrs={'class':'box boxTeaser'}),
 		   dict(name='div', attrs={'class':'tagCloud'}),
 		   dict(name='div', attrs={'class':'pollView'}),
@@ -81,8 +83,8 @@ class FTDe(BasicNewsRecipe):
 		   dict(name='div', attrs={'class':'articleOptionFootFrame'}),
 		   dict(name='div', attrs={'class':'artikelsplitfaq'})]
     #remove_tags_after = [dict(name='a', attrs={'class':'more'})]
-    
-    feeds =  [ ('Finanzen', 'http://www.ftd.de/rss2/finanzen/maerkte'), 
+
+    feeds =  [ ('Finanzen', 'http://www.ftd.de/rss2/finanzen/maerkte'),
 	       ('Meinungshungrige', 'http://www.ftd.de/rss2/meinungshungrige'),
 	       ('Unternehmen', 'http://www.ftd.de/rss2/unternehmen'),
 	       ('Politik', 'http://www.ftd.de/rss2/politik'),
@@ -93,8 +95,8 @@ class FTDe(BasicNewsRecipe):
 	       ('Auto', 'http://www.ftd.de/rss2/auto'),
 	       ('Lifestyle', 'http://www.ftd.de/rss2/lifestyle')
 
-	     ] 
-    
+	     ]
+
 
     def print_version(self, url):
         return url.replace('.html', '.html?mode=print')

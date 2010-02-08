@@ -98,6 +98,9 @@ class Barrons(BasicNewsRecipe):
                 ('Funds/Q&A', 'http://online.barrons.com/xml/rss/3_7519.xml'),
                 ]
 
+        def get_article_url(self, article):
+            return article.get('link', None)
+
 
         def get_cover_url(self):
             cover_url = None

@@ -71,7 +71,7 @@ int do_mount(const char *dev, const char *mp) {
 #ifdef __NetBSD__
     execlp("mount_msdos", "mount_msdos", "-u", uids, "-g", gids, "-o", options, dev, mp, NULL);
 #else
-    execlp("mount", "mount", "-t", "vfat", "-o", options, dev, mp, NULL);
+    execlp("mount", "mount", "-t", "auto", "-o", options, dev, mp, NULL);
 #endif
     errsv = errno;
     fprintf(stderr, "Failed to mount with error: %s\n", strerror(errsv));

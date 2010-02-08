@@ -274,7 +274,7 @@ class BookList(_BookList):
             node.setAttribute(attr, attrs[attr])
         try:
             w, h, data = mi.thumbnail
-        except TypeError:
+        except:
             w, h, data = None, None, None
 
         if data:

@@ -12,7 +12,7 @@ from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2 import question_dialog, error_dialog, info_dialog
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata import MetaInformation
-from calibre.constants import preferred_encoding
+from calibre.constants import preferred_encoding, filesystem_encoding
 
 class DuplicatesAdder(QThread):
 
@@ -46,6 +46,8 @@ class RecursiveFind(QThread):
     def run(self):
         root = os.path.abspath(self.path)
         self.books = []
+        if isinstance(root, unicode):
+            root = root.encode(filesystem_encoding)
         try:
             for dirpath in os.walk(root):
                 if self.canceled:
@@ -55,6 +57,8 @@ class RecursiveFind(QThread):
                 self.books += list(self.db.find_books_in_directory(dirpath[0],
                                                 self.single_book_per_directory))
         except Exception, err:
+            import traceback
+            traceback.print_exc()
             try:
                 msg = unicode(err)
             except:

@@ -80,6 +80,17 @@ class PML2PMLZ(FileTypePlugin):
         return of.name
 
 
+# CHM MODIFIED
+class CHMMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read CHM metadata'
+    file_types  = set(['chm'])
+    description = _('Read metadata from %s files') % 'CHM'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.chm import get_metadata
+        return get_metadata(stream)
+
 class ComicMetadataReader(MetadataReaderPlugin):
 
     name = 'Read comic metadata'
@@ -382,7 +393,7 @@ from calibre.ebooks.rtf.input import RTFInput
 from calibre.ebooks.tcr.input import TCRInput
 from calibre.ebooks.txt.input import TXTInput
 from calibre.ebooks.lrf.input import LRFInput
-from calibre.ebooks.chm.input import CHMInput # XXMODIFIED
+from calibre.ebooks.chm.input import CHMInput # CHM MODIFIED
 
 from calibre.ebooks.epub.output import EPUBOutput
 from calibre.ebooks.fb2.output import FB2Output
@@ -405,7 +416,7 @@ from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
-                POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK
+                POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000
 from calibre.devices.jetbook.driver import JETBOOK
@@ -422,8 +433,8 @@ from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import N516
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
-from calibre.library.catalog import CSV_XML
-plugins = [HTML2ZIP, PML2PMLZ, GoogleBooks, ISBNDB, Amazon, CSV_XML]
+from calibre.library.catalog import CSV_XML, EPUB_MOBI
+plugins = [HTML2ZIP, PML2PMLZ, GoogleBooks, ISBNDB, Amazon, CSV_XML, EPUB_MOBI]
 plugins += [
     ComicInput,
     EPUBInput,
@@ -441,7 +452,7 @@ plugins += [
     TCRInput,
     TXTInput,
     LRFInput,
-    CHMInput, # XXMODIFIED
+    CHMInput, # CHM MODIFIED
 ]
 plugins += [
     EPUBOutput,
@@ -487,6 +498,7 @@ plugins += [
     ITALICA,
     ECLICTO,
     DBOOK,
+    INVESBOOK,
     BOOX,
     EB600,
     README,

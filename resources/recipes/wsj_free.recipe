@@ -8,7 +8,7 @@ online.wsj.com
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
-from datetime import timedelta, datetime, date
+from datetime import timedelta, date
 
 class WSJ(BasicNewsRecipe):
     # formatting adapted from original recipe by Kovid Goyal and Sujata Raman
@@ -74,16 +74,33 @@ class WSJ(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser()
         return br
 
+
     def preprocess_html(self,soup):
+
+        def decode_us_date(datestr):
+            udate = datestr.strip().lower().split()
+            m = ['january','february','march','april','may','june','july','august','september','october','november','december'].index(udate[0])+1
+            d = int(udate[1])
+            y = int(udate[2])
+            return date(y,m,d)
+
+        # check if article is paid content
+        if self.omit_paid_content:
+            divtags = soup.findAll('div','tooltip')
+            if divtags:
+                for divtag in divtags:
+                    if divtag.find(text="Subscriber Content"):
+                        return None
+
         # check if article is too old
         datetag = soup.find('li',attrs={'class' : re.compile("^dateStamp")})
         if datetag:
             dateline_string = self.tag_to_string(datetag,False)
             date_items = dateline_string.split(',')
             datestring = date_items[0]+date_items[1]
-            article_date = datetime.strptime(datestring.title(),"%B %d %Y")
+            article_date = decode_us_date(datestring)
             earliest_date = date.today() - timedelta(days=self.oldest_article)
-            if article_date.date() < earliest_date:
+            if article_date < earliest_date:
                 self.log("Skipping article dated %s" % datestring)
                 return None
             datetag.parent.extract()

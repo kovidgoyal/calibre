@@ -403,7 +403,9 @@ class RecursiveFetcher(object):
                     if len(dsrc) == 0 or \
                        len(re.compile('<!--.*?-->', re.DOTALL).sub('', dsrc).strip()) == 0:
                         raise ValueError('No content at URL %s'%iurl)
-                    if self.encoding is not None:
+                    if callable(self.encoding):
+                        dsrc = self.encoding(dsrc)
+                    elif self.encoding is not None:
                         dsrc = dsrc.decode(self.encoding, 'replace')
                     else:
                         dsrc = xml_to_unicode(dsrc, self.verbose)[0]
