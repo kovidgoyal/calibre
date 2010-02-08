@@ -174,7 +174,7 @@
              <item>
               <widget class="QCheckBox" name="opt_overwrite_author_title_metadata">
                <property name="text">
-                <string>Overwrite &amp; author/title by default when fetching metadata</string>
+                <string>Overwrite author &amp; title by default when fetching metadata</string>
                </property>
               </widget>
              </item>

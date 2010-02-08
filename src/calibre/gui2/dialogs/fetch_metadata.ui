@@ -119,7 +119,7 @@
    <item>
     <widget class="QCheckBox" name="opt_overwrite_author_title_metadata">
      <property name="text">
-      <string>Overwrite &amp;author/title with author/title of selected book</string>
+      <string>Overwrite author &amp; title with author &amp; title of selected book</string>
      </property>
     </widget>
    </item>
