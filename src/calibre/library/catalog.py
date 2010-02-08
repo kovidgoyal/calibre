@@ -546,7 +546,6 @@ class EPUB_MOBI(CatalogPlugin):
         # descriptionClip       limits size of NCX descriptions (Kindle only)
         # includeSources        Used in processSpecialTags to skip tags like '[SPL]'
         # notification          Used to check for cancel, report progress
-        # plugin_path           Plugin zip file (resources)
         # stylesheet            CSS stylesheet
         # title                 dc:title in OPF metadata, NCX periodical
         # verbosity             level of diagnostic printout
@@ -576,7 +575,6 @@ class EPUB_MOBI(CatalogPlugin):
             self.__ncxSoup = None
             self.__playOrder = 1
             self.__plugin = plugin
-            self.__plugin_path = opts.plugin_path
             self.__progressInt = 0.0
             self.__progressString = ''
             self.__reporter = report_progress
@@ -742,13 +740,6 @@ class EPUB_MOBI(CatalogPlugin):
             def fget(self):
                 return self.__plugin
             return property(fget=fget)
-        @dynamic_property
-        def pluginPath(self):
-            def fget(self):
-                return self.__pluginPath
-            def fset(self, val):
-                self.__pluginPath = val
-            return property(fget=fget, fset=fset)
         @dynamic_property
         def progressInt(self):
             def fget(self):
@@ -1210,6 +1201,7 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     imgTag['src']  = "../images/thumbnail_default.jpg"
                 imgTag['alt'] = "cover"
+
 
                 # Tweak image size if we're building EPUB, not sure why this is needed
                 if self.opts.fmt == 'mobi':
@@ -3103,7 +3095,6 @@ class EPUB_MOBI(CatalogPlugin):
         self.opts.output_profile = op
         opts.descriptionClip = 380 if op.endswith('dx') or 'kindle' not in op else 90
         opts.basename = "Catalog"
-        opts.plugin_path = self.plugin_path
         opts.cli_environment = not hasattr(opts,'sync')
         # GwR *** hardwired to sort by author, could be an option if passed in opts
         opts.sort_descriptions_by_author = True
