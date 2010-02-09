@@ -1120,7 +1120,8 @@ class LibraryDatabase2(LibraryDatabase):
         elif column == 'rating':
             self.set_rating(id, val, notify=False)
         elif column == 'tags':
-            self.set_tags(id, val.split(','), append=False, notify=False)
+            self.set_tags(id, [x.strip() for x in val.split(',') if x.strip()],
+                    append=False, notify=False)
         self.data.refresh_ids(self, [id])
         self.set_path(id, True)
         self.notify('metadata', [id])
@@ -1274,6 +1275,10 @@ class LibraryDatabase2(LibraryDatabase):
             self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
             self.conn.execute('DELETE FROM tags WHERE (SELECT COUNT(id) FROM books_tags_link WHERE tag=tags.id) < 1')
         otags = self.get_tags(id)
+        tags = [x.strip() for x in tags if x.strip()]
+        tags = [x.decode(preferred_encoding, 'replace') if not isinstance(x,
+            unicode) else x for x in tags]
+        tags = [u' '.join(x.split()) for x in tags]
         for tag in (set(tags)-otags):
             tag = tag.strip()
             if not tag:
@@ -1344,6 +1349,8 @@ class LibraryDatabase2(LibraryDatabase):
         if series:
             if not isinstance(series, unicode):
                 series = series.decode(preferred_encoding, 'replace')
+            series = series.strip()
+            series = u' '.join(series.split())
             s = self.conn.get('SELECT id from series WHERE name=?', (series,), all=False)
             if s:
                 aid = s

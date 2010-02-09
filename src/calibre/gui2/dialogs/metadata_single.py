@@ -645,8 +645,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text())), notify=False)
             self.db.set_rating(self.id, 2*self.rating.value(), notify=False)
             self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.currentText()), notify=False)
-            self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','), notify=False)
-            self.db.set_series(self.id, qstring_to_unicode(self.series.currentText()), notify=False)
+            self.db.set_tags(self.id, [x.strip() for x in
+                unicode(self.tags.text()).split(',')], notify=False)
+            self.db.set_series(self.id,
+                    unicode(self.series.currentText()).strip(), notify=False)
             self.db.set_series_index(self.id, self.series_index.value(), notify=False)
             self.db.set_comment(self.id, qstring_to_unicode(self.comments.toPlainText()), notify=False)
             d = self.pubdate.date()
