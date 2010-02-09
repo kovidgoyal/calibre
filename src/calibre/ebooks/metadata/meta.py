@@ -65,6 +65,10 @@ def _metadata_from_formats(formats):
 
     return mi
 
+def is_recipe(filename):
+    return filename.startswith('calibre') and \
+        filename.rpartition('.')[0].endswith('_recipe_out')
+
 def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     if stream_type: stream_type = stream_type.lower()
     if stream_type in ('html', 'html', 'xhtml', 'xhtm', 'xml'):
@@ -84,11 +88,10 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
         return opf
 
     mi = MetaInformation(None, None)
-    if prefs['read_file_metadata']:
-        mi = get_file_type_metadata(stream, stream_type)
-
     name = os.path.basename(getattr(stream, 'name', ''))
     base = metadata_from_filename(name)
+    if is_recipe(name) or prefs['read_file_metadata']:
+        mi = get_file_type_metadata(stream, stream_type)
     if base.title == os.path.splitext(name)[0] and base.authors is None:
         # Assume that there was no metadata in the file and the user set pattern
         # to match meta info from the file name did not match.
