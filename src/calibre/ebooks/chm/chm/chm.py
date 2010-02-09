@@ -243,9 +243,7 @@ class CHMFile:
         from LoadCHM.
         '''
 
-        #extra.is_searchable crashed...
-        #self.searchable = extra.is_searchable (self.file)
-        self.searchable = False
+        self.searchable = extra.is_searchable (self.file)
         self.lcid = None
         
         result, ui = chmlib.chm_resolve_object(self.file, '/#SYSTEM')
@@ -369,8 +367,7 @@ class CHMFile:
         The UnitInfo is used to retrieve the document contents
         '''
         if self.file:
-            #path = os.path.abspath(document)
-            path = document
+            path = os.path.abspath(document)
             return chmlib.chm_resolve_object(self.file, path)
         else:
             return (1, None)
