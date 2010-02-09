@@ -1,0 +1,45 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+radikal.com.tr
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Radikal_tr(BasicNewsRecipe):
+    title                 = 'Radikal - Turkey'
+    __author__            = 'Darko Miletic'
+    description           = 'News from Turkey'
+    publisher             = 'radikal'
+    category              = 'news, politics, Turkey'
+    oldest_article        = 2
+    max_articles_per_feed = 150
+    no_stylesheets        = True
+    encoding              = 'cp1254'
+    use_embedded_content  = False
+    masthead_url          = 'http://www.radikal.com.tr/D/i/1/V2/radikal_logo.jpg'
+    language              = 'tr'
+    extra_css             = ' @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} .article_description,body{font-family: Arial,Verdana,Helvetica,sans1,sans-serif } '
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [dict(name=['embed','iframe','object','link','base'])]
+    remove_tags_before = dict(name='h1')
+    remove_tags_after = dict(attrs={'id':'haberDetayYazi'})
+
+
+    feeds = [(u'Yazarlar', u'http://www.radikal.com.tr/d/rss/RssYazarlar.xml')]
+
+    def print_version(self, url):
+        articleid = url.rpartition('ArticleID=')[2]
+        return 'http://www.radikal.com.tr/Default.aspx?aType=HaberYazdir&ArticleID=' + articleid
+
+    def preprocess_html(self, soup):
+        return self.adeify_images(soup)
+
