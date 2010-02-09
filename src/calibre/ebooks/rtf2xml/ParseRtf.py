@@ -27,7 +27,7 @@ from calibre.ebooks.rtf2xml import headings_to_sections, \
     paragraph_def, convert_to_tags, output, copy, \
     list_numbers, info, pict, table_info, fonts, paragraphs, \
     body_styles, preamble_rest, group_styles, \
-    inline, correct_unicode
+    inline
 from calibre.ebooks.rtf2xml.old_rtf import OldRtf
 
 """
@@ -256,15 +256,6 @@ class ParseRtf:
            )
         pict_obj.process_pict()
         self.__bracket_match('pict_data_info')
-        correct_uni_obj = correct_unicode.CorrectUnicode(
-            in_file = self.__temp_file,
-            bug_handler = RtfInvalidCodeException,
-            copy = self.__copy,
-            run_level = self.__run_level,
-            exception_handler = InvalidRtfException,
-           )
-        correct_uni_obj.correct_unicode()
-        self.__bracket_match('correct_unicode_info')
         combine_obj = combine_borders.CombineBorders(
             in_file = self.__temp_file,
             bug_handler = RtfInvalidCodeException,
