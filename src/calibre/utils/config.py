@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Manage application-wide preferences.
 '''
-import os, re, cPickle, textwrap, traceback, plistlib, json
+import os, re, cPickle, textwrap, traceback, plistlib, json, shutil
 from copy import deepcopy
 from functools import partial
 from optparse import OptionParser as _OptionParser
@@ -675,6 +675,24 @@ def _prefs():
     return c
 
 prefs = ConfigProxy(_prefs())
+
+# Read tweaks
+def read_tweaks():
+    tweaks_file = os.path.join(config_dir, 'tweaks.py')
+    if not os.path.exists(tweaks_file):
+        shutil.copyfile(P('default_tweaks.py'), tweaks_file)
+    l, g = {}, {}
+    try:
+        exec open(tweaks_file, 'rb') in g, l
+    except:
+        print 'Failed to load custom tweaks file'
+        traceback.print_exc()
+    dl, dg = {}, {}
+    exec P('default_tweaks.py', data=True) in dg, dl
+    dl.update(l)
+    return dl
+
+tweaks = read_tweaks()
 
 def migrate():
     if hasattr(os, 'geteuid') and os.geteuid() == 0:

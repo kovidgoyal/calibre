@@ -24,6 +24,7 @@ from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.ebooks.metadata import string_to_authors, fmt_sidx
+from calibre.utils.config import tweaks
 
 class LibraryDelegate(QItemDelegate):
     COLOR    = QColor("blue")
@@ -660,9 +661,10 @@ class BooksModel(QAbstractTableModel):
                     self.db.set_series_index(id, float(match.group(1)))
                     val = pat.sub('', val).strip()
                 elif val:
-                    ni = self.db.get_next_series_num_for(val)
-                    if ni != 1:
-                        self.db.set_series_index(id, ni)
+                    if tweaks['series_index_auto_increment'] == 'next':
+                        ni = self.db.get_next_series_num_for(val)
+                        if ni != 1:
+                            self.db.set_series_index(id, ni)
                 if val:
                     self.db.set_series(id, val)
             elif column == 'timestamp':

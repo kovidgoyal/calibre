@@ -28,7 +28,7 @@ from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors, \
 from calibre.ebooks.metadata.library_thing import cover_from_isbn
 from calibre import islinux
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
 from calibre.gui2.dialogs.config.social import SocialMetadata
 
@@ -399,6 +399,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             if not pm.isNull():
                 self.cover.setPixmap(pm)
             self.cover_data = cover
+        self.original_series_name = unicode(self.series.text()).strip()
 
     def validate_isbn(self, isbn):
         isbn = unicode(isbn).strip()
@@ -610,10 +611,13 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def increment_series_index(self):
         if self.db is not None:
             try:
-                series = unicode(self.series.text())
-                if series:
-                    ns = self.db.get_next_series_num_for(series)
+                series = unicode(self.series.text()).strip()
+                if series and series != self.original_series_name:
+                    ns = 1
+                    if tweaks['series_index_auto_increment'] == 'next':
+                        ns = self.db.get_next_series_num_for(series)
                     self.series_index.setValue(ns)
+                    self.original_series_name = series
             except:
                 traceback.print_exc()
 
