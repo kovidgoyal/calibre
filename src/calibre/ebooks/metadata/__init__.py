@@ -10,8 +10,9 @@ import os, mimetypes, sys, re
 from urllib import unquote, quote
 from urlparse import urlparse
 
-
 from calibre import relpath
+
+from calibre.utils.config import tweaks
 
 _author_pat = re.compile(',?\s+(and|with)\s+', re.IGNORECASE)
 def string_to_authors(raw):
@@ -27,6 +28,9 @@ def authors_to_string(authors):
         return ''
 
 def author_to_author_sort(author):
+    method = tweaks['author_sort_copy_method']
+    if method == 'copy' or (method == 'comma' and author.count(',') > 0):
+        return author
     tokens = author.split()
     tokens = tokens[-1:] + tokens[:-1]
     if len(tokens) > 1:
