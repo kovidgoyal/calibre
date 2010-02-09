@@ -244,11 +244,23 @@ class CHMInput(InputFormatPlugin):
         odi = options.debug_pipeline
         options.debug_pipeline = None
         # try a custom conversion:
-        oeb = self._create_oebbook(mainpath, tdir, options, log, metadata)
+        #oeb = self._create_oebbook(mainpath, tdir, options, log, metadata)
+        # try using html converter:
+        htmlpath = self._create_html_root(mainpath, log)
+        oeb = self._create_oebbook_html(htmlpath, tdir, options, log, metadata)
         options.debug_pipeline = odi
         #log.debug('DEBUG: Not removing tempdir %s' % tdir)
         shutil.rmtree(tdir)
         return oeb
+
+    def _create_oebbook_html(self, htmlpath, basedir, opts, log, mi):
+        # use HTMLInput plugin to generate book
+        from calibre.ebooks.html.input import HTMLInput
+        opts.breadth_first = True
+        htmlinput = HTMLInput(None)
+        oeb = htmlinput.create_oebbook(htmlpath, basedir, opts, log, mi)
+        return oeb
+        
 
     def _create_oebbook(self, hhcpath, basedir, opts, log, mi):
         from calibre.ebooks.conversion.plumber import create_oebbook
@@ -311,13 +323,43 @@ class CHMInput(InputFormatPlugin):
             oeb.container = DirContainer(htmlpath, oeb.log)
         return oeb
 
+    def _create_html_root(self, hhcpath, log):
+        hhcdata = self._read_file(hhcpath)
+        hhcroot = html.fromstring(hhcdata)
+        chapters = self._process_nodes(hhcroot)
+        #print "============================="
+        #print "Printing hhcroot"
+        #print etree.tostring(hhcroot, pretty_print=True)
+        #print "============================="
+        log.debug('Found %d section nodes' % len(chapters))
+        htmlpath = os.path.splitext(hhcpath)[0] + ".html"
+        f = open(htmlpath, 'wb')
+        f.write("<HTML><HEAD></HEAD><BODY>\r\n")
+
+        if chapters:
+            path0 = chapters[0][1]
+            subpath = os.path.dirname(path0)
+
+            for chapter in chapters:
+                title = chapter[0]
+                rsrcname = os.path.basename(chapter[1])
+                rsrcpath = os.path.join(subpath, rsrcname)
+                # title should already be url encoded
+                url = "<br /><a href=" + rsrcpath + ">" + title + " </a>\r\n"
+                f.write(url)
+
+        f.write("</BODY></HTML>")
+        f.close()
+        return htmlpath
+
+
     def _read_file(self, name):
         f = open(name, 'rb')
         data = f.read()
         f.close()
         return data
 
-    def _visit_node(self, node, chapters):
+    def _visit_node(self, node, chapters, depth):
         # check that node is a normal node (not a comment, DOCTYPE, etc.)
         # (normal nodes have string tags)
         if isinstance(node.tag, basestring):
@@ -328,13 +370,18 @@ class CHMInput(InputFormatPlugin):
                     if match_string(child.tag,'param') and match_string(child.attrib['name'],'local'):
                         chapter_path = child.attrib['value']
                 if chapter_title is not None and chapter_path is not None:
-                    chapter = [chapter_title, chapter_path]
+                    chapter = [chapter_title, chapter_path, depth]
                     chapters.append(chapter)
+            if node.tag=="UL":
+                depth = depth + 1
+            if node.tag=="/UL":
+                depth = depth - 1
 
     def _process_nodes(self, root):
         chapters = []
+        depth = 0
         for node in root.iter():
-            self._visit_node(node, chapters)
+            self._visit_node(node, chapters, depth)
         return chapters
 
     def _add_item(self, oeb, title, path):
