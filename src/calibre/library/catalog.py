@@ -538,9 +538,6 @@ class EPUB_MOBI(CatalogPlugin):
 #         current_step = 0.0
 #         total_steps = 10.0
 
-        THUMB_WIDTH = 75
-        THUMB_HEIGHT = 100
-
         # basename              output file basename
         # creator               dc:creator in OPF metadata
         # descriptionClip       limits size of NCX descriptions (Kindle only)
@@ -580,8 +577,10 @@ class EPUB_MOBI(CatalogPlugin):
             self.__reporter = report_progress
             self.__stylesheet = stylesheet
             self.__thumbs = None
+            self.__thumbWidth = 0
+            self.__thumbHeight = 0
             self.__title = opts.catalog_title
-            self.__totalSteps = 10.0
+            self.__totalSteps = 11.0
             self.__verbose = opts.verbose
 
             # Tweak build steps based on optional sections
@@ -774,6 +773,18 @@ class EPUB_MOBI(CatalogPlugin):
                 return self.__thumbs
             def fset(self, val):
                 self.__thumbs = val
+            return property(fget=fget, fset=fset)
+        def thumbWidth(self):
+            def fget(self):
+                return self.__thumbWidth
+            def fset(self, val):
+                self.__thumbWidth = val
+            return property(fget=fget, fset=fset)
+        def thumbHeight(self):
+            def fget(self):
+                return self.__thumbHeight
+            def fset(self, val):
+                self.__thumbHeight = val
             return property(fget=fget, fset=fset)
         @dynamic_property
         def title(self):
@@ -1204,8 +1215,8 @@ class EPUB_MOBI(CatalogPlugin):
 
 
                 # Tweak image size if we're building EPUB, not sure why this is needed
-                if self.opts.fmt == 'mobi':
-                    imgTag['style'] = 'width: %dpx; height:%dpx;' % (self.THUMB_WIDTH, self.THUMB_HEIGHT)
+#                 if self.opts.fmt == 'mobi':
+#                     imgTag['style'] = 'width: %dpx; height:%dpx;' % (self.thumbWidth, self.thumbHeight)
                 thumbnailTag = body.find(attrs={'class':'thumbnail'})
                 thumbnailTag.insert(0,imgTag)
 
@@ -1763,9 +1774,10 @@ class EPUB_MOBI(CatalogPlugin):
             # If a cover doesn't exist, use default
             # Return list of active thumbs
 
+            self.updateProgressFullStep("'Thumbnails'")
             thumbs = ['thumbnail_default.jpg']
-
             image_dir = "%s/images" % self.catalogPath
+            self.calculateThumbnailSize()
 
             for (i,title) in enumerate(self.booksByTitle):
                 # Update status
@@ -2483,6 +2495,23 @@ class EPUB_MOBI(CatalogPlugin):
                 tokens[0] += ','
             return ' '.join(tokens).capitalize()
 
+        def calculateThumbnailSize(self):
+            ''' Calculate thumbnail dimensions based on device DPI.  Scale Kindle by 50% '''
+            from calibre.customize.ui import output_profiles
+            for x in output_profiles():
+                if x.short_name == self.opts.output_profile:
+                    # 1" width
+                    self.thumbWidth = int(x.dpi * 1)
+                    self.thumbHeight = int(self.thumbWidth * 1.34)
+                    if 'kindle' in x.short_name:
+                        # Kindle DPI appears to be off by a factor of 2
+                        self.thumbWidth /= 2
+                        self.thumbHeight /= 2
+                    break
+            if self.opts.verbose:
+                self.opts.log("      DPI = %d; thumbnail dimensions: %d x %d" % \
+                              (x.dpi, self.thumbWidth, self.thumbHeight))
+
         def convertHTMLEntities(self, s):
             matches = re.findall("&#\d+;", s)
             if len(matches) > 0:
@@ -2918,8 +2947,7 @@ class EPUB_MOBI(CatalogPlugin):
                     self.opts.log.error('generateThumbnail(): Cannot clone cover')
                     raise RuntimeError
                 # img, width, height
-                factor = 2 if self.opts.fmt == 'epub' else 1
-                pw.MagickThumbnailImage(thumb, factor*self.THUMB_WIDTH, factor*self.THUMB_HEIGHT)
+                pw.MagickThumbnailImage(thumb, self.thumbWidth, self.thumbHeight)
                 pw.MagickWriteImage(thumb, os.path.join(image_dir, thumb_file))
                 pw.DestroyMagickWand(thumb)
                 pw.DestroyMagickWand(img)
@@ -3093,6 +3121,7 @@ class EPUB_MOBI(CatalogPlugin):
         if op is None:
             op = 'default'
         self.opts.output_profile = op
+
         opts.descriptionClip = 380 if op.endswith('dx') or 'kindle' not in op else 90
         opts.basename = "Catalog"
         opts.cli_environment = not hasattr(opts,'sync')
