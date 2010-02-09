@@ -408,7 +408,10 @@ class HTMLInput(InputFormatPlugin):
             return link_
         if base and not os.path.isabs(link):
             link = os.path.join(base, link)
-        link = os.path.abspath(link)
+        try:
+            link = os.path.abspath(link)
+        except:
+            return link_
         if not os.access(link, os.R_OK):
             return link_
         if os.path.isdir(link):
