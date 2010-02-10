@@ -303,6 +303,22 @@ class Region(object):
         for x in self.columns:
             yield x
 
+    def absorb_regions(self, regions, at):
+        for region in regions:
+            self.absorb_region(region, at)
+
+    def absorb_region(self, region, at):
+        src_iter = lambda x:x if at == 'bottom' else reversed
+        if len(region.columns) == len(self.columns):
+            for src, dest in zip(region.columns, self.columns):
+                for elem in src_iter(src):
+                    if at == 'bottom':
+                        dest.append(elem)
+                    else:
+                        dest.insert(0, elem)
+        else:
+            pass
+
     def linearize(self):
         self.elements = []
         for x in self.columns:
@@ -444,7 +460,7 @@ class Page(object):
             for i, region in enumerate(self.regions):
                 if region.is_small:
                     found = True
-                    regions = []
+                    regions = [region]
                     for j in range(i+1, len(self.regions)):
                         if self.regions[j].is_small:
                             regions.append(self.regions[j])
@@ -452,8 +468,10 @@ class Page(object):
                             break
                     prev_region = None if i == 0 else i-1
                     next_region = j if self.regions[j] not in regions else None
+                    absorb_at = 'bottom'
                     if prev_region is None and next_region is not None:
                         absorb_into = next_region
+                        absorb_at = 'top'
                     elif next_region is None and prev_region is not None:
                         absorb_into = prev_region
                     elif prev_region is None and next_region is None:
@@ -471,8 +489,9 @@ class Page(object):
                                or abs(avg_column_count - len(prev_region.columns)) \
                                > abs(avg_column_count - len(next_region.columns)):
                                    absorb_into = next_region
+                                   absorb_at = 'top'
                     if absorb_into is not None:
-                        absorb_into.absorb_region(regions)
+                        absorb_into.absorb_regions(regions, absorb_at)
                         absorbed.update(regions)
                     i = j
         for region in absorbed:

@@ -16,3 +16,12 @@ defaults.
 # next - Next available number
 # const - Assign the number 1 always
 series_index_auto_increment = 'next'
+
+
+
+# The algorithm used to copy author to author_sort
+# Possible values are:
+#  invert: use "fn ln" -> "ln, fn" (the original algorithm)
+#  copy  : copy author to author_sort without modification
+#  comma : use 'copy' if there is a ',' in the name, otherwise use 'invert'
+author_sort_copy_method = 'invert'

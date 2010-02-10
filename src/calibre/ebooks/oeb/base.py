@@ -16,9 +16,10 @@ from urllib import unquote as urlunquote
 from urlparse import urljoin
 
 from lxml import etree, html
+from cssutils import CSSParser
 
 import calibre
-from cssutils import CSSParser
+from calibre.constants import filesystem_encoding
 from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
@@ -434,10 +435,18 @@ class DirContainer(object):
 
     def namelist(self):
         names = []
-        for root, dirs, files in os.walk(self.rootdir):
+        base = self.rootdir
+        if isinstance(base, unicode):
+            base = base.encode(filesystem_encoding)
+        for root, dirs, files in os.walk(base):
             for fname in files:
                 fname = os.path.join(root, fname)
                 fname = fname.replace('\\', '/')
+                if not isinstance(fname, unicode):
+                    try:
+                        fname = fname.decode(filesystem_encoding)
+                    except:
+                        continue
                 names.append(fname)
         return names
 

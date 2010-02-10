@@ -945,7 +945,7 @@ class EPUB_MOBI(CatalogPlugin):
                     this_title['author'] = " &amp; ".join(record['authors'])
                 else:
                     this_title['author'] = 'Unknown'
-                this_title['author_sort'] = record['author_sort'].capitalize() if len(record['author_sort']) \
+                this_title['author_sort'] = record['author_sort'].title() if len(record['author_sort'].strip()) \
                      else self.author_to_author_sort(this_title['author'])
                 this_title['id'] = record['id']
                 if record['publisher']:
@@ -3178,7 +3178,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         if catalog_source_built:
             recommendations = []
-            recommendations.append(('cover', I('catalog.svg'), OptionRecommendation.HIGH))
+            # recommendations.append(('cover', I('catalog.svg'), OptionRecommendation.HIGH))
 
             dp = getattr(opts, 'debug_pipeline', None)
             if dp is not None:
