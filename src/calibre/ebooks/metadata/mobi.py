@@ -134,11 +134,13 @@ class MetadataUpdater(object):
             if id == 106:
                 self.timestamp = content
             elif id == 201:
-                rindex, = self.cover_rindex, = unpack('>I', content)
-                self.cover_record = self.record(rindex + image_base)
+                rindex, = self.cover_rindex, = unpack('>i', content)
+                if rindex > 0 :
+                    self.cover_record = self.record(rindex + image_base)
             elif id == 202:
-                rindex, = self.thumbnail_rindex, = unpack('>I', content)
-                self.thumbnail_record = self.record(rindex + image_base)
+                rindex, = self.thumbnail_rindex, = unpack('>i', content)
+                if rindex > 0 :
+                    self.thumbnail_record = self.record(rindex + image_base)
 
     def patch(self, off, new_record0):
         # Save the current size of each record

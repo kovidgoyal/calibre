@@ -583,7 +583,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.__totalSteps = 11.0
             self.__verbose = opts.verbose
 
-            # Tweak build steps based on optional sections
+            # Tweak build steps based on optional sections.  1 call for HTML, 1 for NCX
             if self.opts.generate_titles:
                 self.__totalSteps += 2
             if self.opts.generate_recently_added:
@@ -831,8 +831,9 @@ class EPUB_MOBI(CatalogPlugin):
 
         # Methods
         def buildSources(self):
-            self.fetchBooksByTitle()
-            if not self.booksByTitle:
+            if self.booksByTitle is None:
+                self.fetchBooksByTitle()
+            if self.booksByTitle is None:
                 return False
             self.fetchBooksByAuthor()
             self.generateHTMLDescriptions()
@@ -888,6 +889,7 @@ class EPUB_MOBI(CatalogPlugin):
                     pass
 
         def fetchBooksByTitle(self):
+
             self.updateProgressFullStep("Fetching database")
 
             # Get the database as a dictionary
@@ -939,11 +941,11 @@ class EPUB_MOBI(CatalogPlugin):
                     this_title['series_index'] = 0.0
 
                 this_title['title_sort'] = self.generateSortTitle(this_title['title'])
-                if 'authors' in record and len(record['authors']):
+                if 'authors' in record and record['authors'] is not None:
                     this_title['author'] = " &amp; ".join(record['authors'])
                 else:
                     this_title['author'] = 'Unknown'
-                this_title['author_sort'] = record['author_sort'].capitalize() if len(record['author_sort']) \
+                this_title['author_sort'] = record['author_sort'].title() if len(record['author_sort'].strip()) \
                      else self.author_to_author_sort(this_title['author'])
                 this_title['id'] = record['id']
                 if record['publisher']:
@@ -1213,10 +1215,11 @@ class EPUB_MOBI(CatalogPlugin):
                     imgTag['src']  = "../images/thumbnail_default.jpg"
                 imgTag['alt'] = "cover"
 
+                '''
+                if self.opts.fmt == 'mobi':
+                    imgTag['style'] = 'width: %dpx; height:%dpx;' % (self.thumbWidth, self.thumbHeight)
+                '''
 
-                # Tweak image size if we're building EPUB, not sure why this is needed
-#                 if self.opts.fmt == 'mobi':
-#                     imgTag['style'] = 'width: %dpx; height:%dpx;' % (self.thumbWidth, self.thumbHeight)
                 thumbnailTag = body.find(attrs={'class':'thumbnail'})
                 thumbnailTag.insert(0,imgTag)
 
@@ -1777,8 +1780,6 @@ class EPUB_MOBI(CatalogPlugin):
             self.updateProgressFullStep("'Thumbnails'")
             thumbs = ['thumbnail_default.jpg']
             image_dir = "%s/images" % self.catalogPath
-            self.calculateThumbnailSize()
-
             for (i,title) in enumerate(self.booksByTitle):
                 # Update status
                 self.updateProgressMicroStep("Thumbnail %d of %d" % \
@@ -2500,16 +2501,16 @@ class EPUB_MOBI(CatalogPlugin):
             from calibre.customize.ui import output_profiles
             for x in output_profiles():
                 if x.short_name == self.opts.output_profile:
-                    # 1" width
-                    self.thumbWidth = int(x.dpi * 1)
-                    self.thumbHeight = int(self.thumbWidth * 1.34)
-                    if 'kindle' in x.short_name:
+                    # .9" width  aspect ratio: 3:4
+                    self.thumbWidth = int(x.dpi * .9)
+                    self.thumbHeight = int(self.thumbWidth * 1.33)
+                    if 'kindle' in x.short_name and self.opts.fmt == 'mobi':
                         # Kindle DPI appears to be off by a factor of 2
-                        self.thumbWidth /= 2
-                        self.thumbHeight /= 2
+                        self.thumbWidth = int(self.thumbWidth/2)
+                        self.thumbHeight = int(self.thumbHeight/2)
                     break
-            if self.opts.verbose:
-                self.opts.log("      DPI = %d; thumbnail dimensions: %d x %d" % \
+            if self.verbose:
+                self.opts.log("     DPI = %d; thumbnail dimensions: %d x %d" % \
                               (x.dpi, self.thumbWidth, self.thumbHeight))
 
         def convertHTMLEntities(self, s):
@@ -3167,6 +3168,7 @@ class EPUB_MOBI(CatalogPlugin):
             log.info("Begin catalog source generation")
         catalog.createDirectoryStructure()
         catalog.copyResources()
+        catalog.calculateThumbnailSize()
         catalog_source_built = catalog.buildSources()
         if opts.verbose:
             if catalog_source_built:
@@ -3176,6 +3178,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         if catalog_source_built:
             recommendations = []
+            # recommendations.append(('cover', I('catalog.svg'), OptionRecommendation.HIGH))
 
             dp = getattr(opts, 'debug_pipeline', None)
             if dp is not None:
