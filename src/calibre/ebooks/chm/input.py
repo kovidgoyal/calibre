@@ -13,8 +13,8 @@ from pprint import PrettyPrinter
 
 from BeautifulSoup import BeautifulSoup
 from lxml import html, etree
-from calibre.ebooks.chm.chm.chm import CHMFile
-from calibre.ebooks.chm.chm.chmlib import (
+from pychm.chm import CHMFile
+from pychm.chmlib import (
   CHM_RESOLVE_SUCCESS, CHM_ENUMERATE_NORMAL,
   chm_enumerate, chm_retrieve_object,
 )
