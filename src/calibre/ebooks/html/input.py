@@ -111,7 +111,7 @@ class HTMLFile(object):
                 raise IOError(msg)
             raise IgnoreFile(msg, err.errno)
 
-        self.is_binary = not bool(self.HTML_PAT.search(src[:4096]))
+        self.is_binary = level > 0 and not bool(self.HTML_PAT.search(src[:4096]))
         if not self.is_binary:
             if encoding is None:
                 encoding = xml_to_unicode(src[:4096], verbose=verbose)[-1]

@@ -851,8 +851,10 @@ class Manifest(object):
                     self.oeb.log.warn('File %r appears to be a HTML fragment'%self.href)
                     nroot = etree.fromstring('<html><body/></html>')
                     parent = nroot[0]
-                for child in list(data):
-                    child.getparent().remove(child)
+                for child in list(data.iter()):
+                    oparent = child.getparent()
+                    if oparent is not None:
+                        oparent.remove(child)
                     parent.append(child)
                 data = nroot
 
