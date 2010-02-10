@@ -222,7 +222,8 @@ def _EndRecData(fpin):
         endrec = list(struct.unpack(structEndArchive, recData))
         comment = data[start+sizeEndCentDir:]
         # check that comment length is correct
-        if endrec[_ECD_COMMENT_SIZE] == len(comment):
+        # Kovid: Added == 0 check as some zip files apparently dont set this
+        if endrec[_ECD_COMMENT_SIZE] == 0 or endrec[_ECD_COMMENT_SIZE] == len(comment):
             # Append the archive comment and start offset
             endrec.append(comment)
             endrec.append(maxCommentStart + start)
