@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-02-01 07:47+0000\n"
-"PO-Revision-Date: 2010-02-05 12:50+0000\n"
-"Last-Translator: Muszela Balázs <Unknown>\n"
+"POT-Creation-Date: 2010-02-10 04:36+0000\n"
+"PO-Revision-Date: 2010-02-09 05:47+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-06 04:52+0000\n"
+"X-Launchpad-Export-Date: 2010-02-10 04:42+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -38,18 +38,19 @@ msgstr "Semmit nem csinál"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1894
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1896
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:24
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:225
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:256
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:259
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:359
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:229
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:260
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:263
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:363
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:35
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:60
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:46
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:62
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:64
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:104
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:106
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:107
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:109
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:221
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:329
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:444
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:894
@@ -68,9 +69,9 @@ msgstr "Semmit nem csinál"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:799
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:51
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:898
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:903
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:969
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:907
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:912
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:978
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:137
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:139
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:105
@@ -100,8 +101,8 @@ msgstr "Semmit nem csinál"
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:235
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:276
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:283
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:125
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:138
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/__init__.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:107
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:132
@@ -113,22 +114,22 @@ msgstr "Semmit nem csinál"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:144
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:454
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:455
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:170
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:402
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:424
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:919
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1045
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:183
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:406
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:428
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:928
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1054
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:185
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:281
 #: /home/kovid/work/calibre/src/calibre/library/database.py:913
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:703
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:715
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1143
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1180
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1552
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1554
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1670
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1144
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1181
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1559
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1561
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1677
 #: /home/kovid/work/calibre/src/calibre/library/server.py:645
 #: /home/kovid/work/calibre/src/calibre/library/server.py:721
 #: /home/kovid/work/calibre/src/calibre/library/server.py:768
@@ -508,6 +509,10 @@ msgstr "Eszköz illesztés"
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
 msgstr "Kapcsolódás IRex Digital Reader 1000 olvasóhoz."
 
+#: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:42
+msgid "Communicate with the IRex Digital Reader 800"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/devices/iriver/driver.py:15
 msgid "Communicate with the Iriver Story reader."
 msgstr "Kapcsolódás iRiver Story olvasóhoz"
@@ -652,7 +657,7 @@ msgstr "Nincs elég hely a memóriakártyán."
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1068
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1072
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1452
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1459
 msgid "News"
 msgstr "Hírek (RSS)"
 
@@ -1713,79 +1718,79 @@ msgstr "A dokumentumhoz csatolandó monospace betűkészlet"
 msgid "Comic"
 msgstr "Képregény"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:358
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:362
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:45
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:56
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:163
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:399
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1111
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:167
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:403
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1120
 msgid "Title"
 msgstr "Cím"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:359
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:363
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:57
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:164
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:404
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1112
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:168
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:408
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1121
 msgid "Author(s)"
 msgstr "Szerző(k)"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:360
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:364
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:59
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:169
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:173
 msgid "Publisher"
 msgstr "Kiadó"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:361
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:365
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:49
 msgid "Producer"
 msgstr "Producer"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:362
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:366
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:67
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:360
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:364
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:94
 msgid "Comments"
 msgstr "Megjegyzés"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:370
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:170
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:349
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1055
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1115
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:374
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:353
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1064
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1124
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Tags"
 msgstr "Címkék"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:372
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:171
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:365
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:376
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:369
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Series"
 msgstr "Sorozatok"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:373
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:377
 msgid "Language"
 msgstr "Nyelv"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:375
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1054
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:379
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1063
 msgid "Timestamp"
 msgstr "Dátum"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:377
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:381
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:61
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:167
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:171
 msgid "Published"
 msgstr "Kiadás ideje"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:379
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:383
 msgid "Rights"
 msgstr "Jogok"
 
@@ -2010,7 +2015,7 @@ msgstr ""
 "Töltse le a könyv ISBN által megadott borítóját a LibraryThing.com-ról\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1083
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1336
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1345
 msgid "Cover"
 msgstr "Borító"
 
@@ -2044,70 +2049,70 @@ msgstr "A fájltartalom tömörítésének tiltása."
 msgid "All articles"
 msgstr "Minden cikk"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1337
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1346
 msgid "Title Page"
 msgstr "Címlap"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1338
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1347
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:188
 msgid "Table of Contents"
 msgstr "Tartalomjegyzék"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1339
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1348
 msgid "Index"
 msgstr "Index"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1340
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1349
 msgid "Glossary"
 msgstr "Szószedet"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1341
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1350
 msgid "Acknowledgements"
 msgstr "Köszönetnyilvánítás"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1342
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1351
 msgid "Bibliography"
 msgstr "Irodalomjegyzék"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1343
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1352
 msgid "Colophon"
 msgstr "Záradék"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1344
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1353
 msgid "Copyright"
 msgstr "Szerzői jog"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1345
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1354
 msgid "Dedication"
 msgstr "Ajánlás"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1346
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1355
 msgid "Epigraph"
 msgstr "Mottó"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1347
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1356
 msgid "Foreword"
 msgstr "Előszó"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1348
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1357
 msgid "List of Illustrations"
 msgstr "Illusztrációk listája"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1349
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1358
 msgid "List of Tables"
 msgstr "Táblázatok listája"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1350
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1359
 msgid "Notes"
 msgstr "Megjegyzések"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1351
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1360
 msgid "Preface"
 msgstr "Előszó (szerk.)"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1352
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1361
 msgid "Main Text"
 msgstr "Fő szöveg"
 
@@ -2661,44 +2666,45 @@ msgstr "Másolás a vágólapra"
 msgid "Choose Files"
 msgstr "Válasszon a fájlok közül"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:56
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:52
 msgid "Searching in"
 msgstr "Keresés a következőben:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:167
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:173
 msgid "Adding..."
 msgstr "Hozzáadás..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:180
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:186
 msgid "Searching in all sub-directories..."
 msgstr "Keresés minden almappában..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:193
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:199
 msgid "Path error"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:194
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:200
 msgid "The specified directory could not be processed."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:198
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:495
 msgid "No books"
 msgstr "Nincsenek könyvek"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:199
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:205
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1399
 msgid "No books found"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:265
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:271
 msgid "Added"
 msgstr "Hozzáadva"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:278
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:284
 msgid "Adding failed"
 msgstr "A hozzáadás nem sikerült"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:279
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:285
 msgid ""
 "The add books process seems to have hung. Try restarting calibre and adding "
 "the books in smaller increments, until you find the problem book."
@@ -2706,26 +2712,26 @@ msgstr ""
 "Probléma történt a könyvek hozzáadása közben. Indítsa újra a calibre-t és "
 "válasszon ki kevesebbet, amíg meg nem találja a problémát okozó könyvet."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:291
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:297
 msgid "Duplicates found!"
 msgstr "Már létezik egy ilyen példány!"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:292
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:298
 msgid ""
 "Books with the same title as the following already exist in the database. "
 "Add them anyway?"
 msgstr ""
 "Ugyanezzel a címmel már létezik egy könyv az adatbázisban. Mégis hozzáadja?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:295
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:301
 msgid "Adding duplicates..."
 msgstr "Duplikációk hozzáadása..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:356
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:362
 msgid "Saving..."
 msgstr "Mentés..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:409
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:415
 msgid "Saved"
 msgstr "Elmentve"
 
@@ -2740,7 +2746,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:20
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:16
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:13
@@ -2756,7 +2762,7 @@ msgstr "Beállítás:"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:20
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:16
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output.py:18
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:15
@@ -2765,7 +2771,7 @@ msgid "output"
 msgstr "kimenet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:36
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:67
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:49
@@ -2775,7 +2781,7 @@ msgstr "kimenet"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:118
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:165
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:44
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:57
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:35
@@ -2806,42 +2812,46 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:20
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:271
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1416
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1430
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1423
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1437
 msgid "Catalog"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:68
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:65
 msgid "'Don't include this book' tag:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:69
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:66
 msgid "'Mark this book as read' tag:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:70
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:67
 msgid "Additional note tag prefix:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:71
-msgid "Sort numbers as text"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:72
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:68
 msgid "Regex pattern describing tags to exclude as genres:"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:69
+msgid ""
+"Regex tips:\n"
+"- The default regex - \\[[\\w ]*\\] - excludes genre tags of the form [tag], "
+"e.g., [Amazon Freebie]\n"
+"- A regex pattern of a single dot excludes all genre tags, generating no "
+"Genre Section"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:72
+msgid "Include 'Titles' Section"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:73
-msgid "Special marker tags for catalog generation"
+msgid "Include 'Recently Added' Section"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:74
-msgid ""
-"Regex tips:\n"
-"- The default regex of '\\[[\\w]*\\]' ignores tags of the form '[tag]', "
-"e.g., '[Amazon Freebie]'\n"
-"- A regex of '.' ignores all tags, generating no genre categories in the "
-"catalog"
+msgid "Sort numbers as text"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:28
@@ -3374,29 +3384,41 @@ msgstr "Ismert sotozatok listája. Hozzáadhat újakat is."
 msgid "Book "
 msgstr "Könyv "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:15
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:20
 msgid "MOBI Output"
 msgstr "MOBI kimenet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:45
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:42
+msgid "Default"
+msgstr "Alapértelmezett"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:58
 msgid "&Title for Table of Contents:"
 msgstr "A Tartalomjegyzék címe:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:46
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:59
 msgid "Rescale images for &Palm devices"
 msgstr "Képek újraméretezése Palm eszközökhöz"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:47
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:60
 msgid "Use author &sort for author"
 msgstr "A szerző-rendezési forma használata szerzőként"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:48
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:61
 msgid "Disable compression of the file contents"
 msgstr "A fájltartalom tömörítésének tiltása"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:49
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:62
 msgid "Do not add Table of Contents to book"
 msgstr "Ne adjon Tartalomjegyzéket a könyvhöz"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:63
+msgid "Kindle options"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:64
+msgid "Masthead font:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -3485,7 +3507,7 @@ msgid "RB Output"
 msgstr "RB kimenet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:77
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1639
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1644
 msgid "Choose the format to view"
 msgstr "Válassza ki a kívánt formátumot olvasásra"
 
@@ -4010,8 +4032,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:111
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:356
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1050
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:360
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1059
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:92
 msgid "Path"
 msgstr "Elérési út"
@@ -4021,7 +4043,7 @@ msgstr "Elérési út"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:117
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:216
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:355
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:359
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Formats"
@@ -4427,7 +4449,7 @@ msgid "Download &social metadata (tags/ratings/etc.) by default"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:510
-msgid "Overwrite & author/title by default when fetching metadata"
+msgid "&Overwrite author and title by default when fetching metadata"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:511
@@ -4850,7 +4872,7 @@ msgstr ""
 "könyvhöz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:91
-msgid "Overwrite &author/title with author/title of selected book"
+msgid "Overwrite author and title with author and title of selected book"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/job_view_ui.py:37
@@ -4998,71 +5020,71 @@ msgstr "A %s formátumban lévő borító érvénytelen"
 msgid "Abort the editing of all remaining books"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:407
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:412
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:408
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:413
 msgid "This ISBN number is valid"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:415
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:416
 msgid "This ISBN number is invalid"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:511
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:512
 msgid "Downloading cover..."
 msgstr "Borító letöltése..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:523
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:528
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:534
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:524
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:535
 msgid "Cannot fetch cover"
 msgstr "Nem lehet letölteni a borítót"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:524
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:536
 msgid "<b>Could not fetch cover.</b><br/>"
 msgstr "<b>Nem lehet letölteni a borítót.</b><br/>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:526
 msgid "The download timed out."
 msgstr "Időtúllépés letöltés közben"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:530
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr ""
 "Nem található borító ehhez a könyvhöz. Próbálja meg először az ISBN-t "
 "meghatározni."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:541
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:542
 msgid "Bad cover"
 msgstr "Hibás borító"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:542
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:543
 msgid "The cover is not a valid picture"
 msgstr "A borító nem érvényes képfájl"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:572
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:573
 msgid "There were errors"
 msgstr "Hibák történtek"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:573
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:574
 msgid "There were errors downloading social metadata"
 msgstr "Hiba történt a közösségi metaadatok letöltése közben"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:598
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:604
 msgid "Cannot fetch metadata"
 msgstr "Metadatok nem letölthetőek"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:599
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:605
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
 msgstr ""
 "Legalább az egyik adatot meg kell adnia a következők közül: ISBN, könyv "
 "címe, szerző vagy kiadó"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:664
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:675
 msgid "Permission denied"
 msgstr "Hozzáférés megtagadva"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:665
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:676
 msgid "Could not open %s. Is it being used by another program?"
 msgstr "Nem lehet megnyitni: %s. Esetleg másik program használja?"
 
@@ -5755,23 +5777,23 @@ msgstr "Nem elérhető"
 msgid " - Jobs"
 msgstr " - Műveletek"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:165
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1113
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:169
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1122
 msgid "Size (MB)"
 msgstr "Méret (MB)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:166
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1114
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:170
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1123
 msgid "Date"
 msgstr "Dátum"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:168
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:172
 msgid "Rating"
 msgstr "Értékelés"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:348
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:354
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:359
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:352
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:358
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:363
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:77
@@ -5779,15 +5801,15 @@ msgstr "Értékelés"
 msgid "None"
 msgstr "Nincs"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:365
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:369
 msgid "Book <font face=\"serif\">%s</font> of %s."
 msgstr "%s. rész - %s sorozat"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:877
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:882
 msgid "Not allowed"
 msgstr "Nem engedélyezett"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:878
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:883
 msgid ""
 "Dropping onto a device is not supported. First add the book to the calibre "
 "library."
@@ -5795,11 +5817,11 @@ msgstr ""
 "Az eszközre húzás nem támogatott. Először adja hozzá a könyvet a calibre "
 "adatbázishoz."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1049
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1058
 msgid "Format"
 msgstr "Formátum"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1103
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1112
 msgid "Double click to <b>edit</b> me<br><br>"
 msgstr "Duplakattintás a <b>szerkesztéshez</b><br><br>"
 
@@ -5828,7 +5850,7 @@ msgid "<b>No matches</b> for the search phrase <i>%s</i> were found."
 msgstr "<b>Nincs találat</b> a keresett kifejezésre: <i>%s</i>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:410
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:431
 msgid "No matches found"
 msgstr "Nincs találat"
 
@@ -6318,7 +6340,7 @@ msgid "Save to disk in a single directory"
 msgstr "Mentés lemezre egy mappába"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:306
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1747
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1752
 msgid "Save only %s format to disk"
 msgstr "Csak a(z) %s formátum mentése a lemezre"
 
@@ -6373,7 +6395,7 @@ msgid "Calibre Library"
 msgstr "Calibre Library"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:485
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1903
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1908
 msgid "Choose a location for your ebook library."
 msgstr "Válasszon elérési utat az adatbázisod számára"
 
@@ -6496,8 +6518,8 @@ msgid "Cannot delete"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1077
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1633
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1652
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1638
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1657
 msgid "No book selected"
 msgstr "Nincs könyv kiválasztva"
 
@@ -6530,7 +6552,7 @@ msgstr "Nem lehet letölteni a metaadatokat"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1292
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1317
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1376
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1489
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1494
 msgid "No books selected"
 msgstr "Nincs könyv kiválasztva."
 
@@ -6600,48 +6622,54 @@ msgstr ""
 msgid "Generating %s catalog..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1405
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1400
+msgid ""
+"No books to catalog\n"
+"Check exclude tags"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1410
 msgid "Catalog generated."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1408
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1413
 msgid "Export Catalog Directory"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1409
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1414
 msgid "Select destination for %s.%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1423
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1428
 msgid "Fetching news from "
 msgstr "Hírek letöltése: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1437
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1442
 msgid " fetched."
 msgstr " letöltve"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1488
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1493
 msgid "Cannot convert"
 msgstr "Nem lehet konvertálni"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1517
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1522
 msgid "Starting conversion of %d book(s)"
 msgstr "%d könyv konvertálása"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1633
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1689
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1638
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1694
 msgid "Cannot view"
 msgstr "Nem lehet a könyvet olvasni"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1651
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1656
 msgid "Cannot open folder"
 msgstr "A mappát nem lehet megnyitni"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1673
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1678
 msgid "Multiple Books Selected"
 msgstr "Több könyv is ki van választva"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1674
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1679
 msgid ""
 "You are attempting to open %d books. Opening too many books at once can be "
 "slow and have a negative effect on the responsiveness of your computer. Once "
@@ -6652,31 +6680,31 @@ msgstr ""
 "lelassíthatja a gépedet. Ha a művelet elindult, már nem lehet leállítani. "
 "Biztosan folytatja?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1690
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1695
 msgid "%s has no available formats."
 msgstr "Nincs elérhető formátum a következőhöz: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1731
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1736
 msgid "Cannot configure"
 msgstr "Beállítás nem lehetséges"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1732
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1737
 msgid "Cannot configure while there are running jobs."
 msgstr "Művelet végrehajtása közben nem lehet a beállításokat változtatni"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1775
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1780
 msgid "No detailed info available"
 msgstr "Nincs részletes információ"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1776
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1781
 msgid "No detailed information is available for books on the device."
 msgstr "A könyvekhez nincsenek részletes információk az eszközön."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1831
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1836
 msgid "Error talking to device"
 msgstr "Hiba a kapcsolatban"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1832
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1837
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
@@ -6684,12 +6712,12 @@ msgstr ""
 "Hiba az eszközkapcsolatban. Válassza le majd csatlakoztassa újra az eszközt "
 "és/vagy indítssa újra az eszközt, esetleg a programot."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1855
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1883
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1860
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1888
 msgid "Conversion Error"
 msgstr "Konvertálási hiba"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1856
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1861
 msgid ""
 "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
 "first remove the DRM using third party tools."
@@ -6699,23 +6727,23 @@ msgstr ""
 "egy külső program segítségével a DRM-et (Digital Rights Management) el kell "
 "távolítania."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1869
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1874
 msgid "Recipe Disabled"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1884
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1889
 msgid "<b>Failed</b>"
 msgstr "<b>Nem sikerült</b>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1912
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1917
 msgid "Invalid library location"
 msgstr "Érvénytelen adatbázis elérési útvonal"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1913
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1918
 msgid "Could not access %s. Using %s as the library."
 msgstr "Nem elérhető: %s. Helyette %s lesz az adatbázis."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1963
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1968
 msgid ""
 "is the result of the efforts of many volunteers from all over the world. If "
 "you find it useful, please consider donating to support its development."
@@ -6723,11 +6751,11 @@ msgstr ""
 "sok önkéntes erőfeszítéseinek eredménye a világ minden tájáról. Ha "
 "hasznosnak találja, kérem, támogassa a fejlesztést."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1988
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1993
 msgid "There are active jobs. Are you sure you want to quit?"
 msgstr "Folyamatban van néhány művelet végrehajtása. Megszakítja?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1991
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1996
 msgid ""
 " is communicating with the device!<br>\n"
 "                      Quitting may cause corruption on the device.<br>\n"
@@ -6737,11 +6765,11 @@ msgstr ""
 "                      A kilépés adatvesztést okozhat az eszközön.<br>\n"
 "                      Biztos, hogy ki akarsz lépni??"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1995
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2000
 msgid "WARNING: Active jobs"
 msgstr "FIGYELEM: Aktív műveletek"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2047
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2052
 msgid ""
 "will keep running in the system tray. To close it, choose <b>Quit</b> in the "
 "context menu of the system tray."
@@ -6749,7 +6777,7 @@ msgstr ""
 "tovább fut a tálcán. A bezáráshoz válassza a <b>Kilépést</b> a tálcaikon "
 "menüjéből."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2066
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2071
 msgid ""
 "<span style=\"color:red; font-weight:bold\">Latest version: <a "
 "href=\"%s\">%s</a></span>"
@@ -6757,11 +6785,11 @@ msgstr ""
 "<span style=\"color:red; font-weight:bold\">Legújabb verzió: <a "
 "href=\"%s\">%s</a></span>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2074
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2079
 msgid "Update available"
 msgstr "Frissítés elérhető"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2075
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2080
 msgid ""
 "%s has been updated to version %s. See the <a href=\"http://calibre-"
 "ebook.com/whats-new\">new features</a>. Visit the download page?"
@@ -6926,7 +6954,7 @@ msgid "Options to customize the ebook viewer"
 msgstr "Ebook olvasó beállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:40
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:648
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:669
 msgid "Remember last used window size"
 msgstr "Az utoljára használt ablakméret megjegyzése"
 
@@ -6983,7 +7011,7 @@ msgstr "Monospace(rögzített szélességű) betűméret pixelben"
 msgid "The standard font type"
 msgstr "Alap betűtípus"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:408
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:449
 msgid "&Lookup in dictionary"
 msgstr ""
 
@@ -7043,93 +7071,93 @@ msgstr "Könyvformátum"
 msgid "Go to..."
 msgstr "Ugrás..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:182
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:184
 msgid "Position in book"
 msgstr "Könyvbéli pozíció"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:188
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:190
 msgid "Go to a reference. To get reference numbers, use the reference mode."
 msgstr ""
 "Ugrás egy referenciára. A referencia számok használatához be kell kapcsolnia "
 "a Referencia Módot"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:197
 msgid "Search for text in book"
 msgstr "Szöveg keresése a könyvben"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:259
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:261
 msgid "Print Preview"
 msgstr "Nyomtatási kép"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:271
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:292
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:370
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:391
 msgid "Choose ebook"
 msgstr "Ebook választás"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:371
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:392
 msgid "Ebooks"
 msgstr "Ebook-ok"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:390
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:411
 msgid "Add bookmark"
 msgstr "Könyvjelző hozzáadása"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:390
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:411
 msgid "Enter title for bookmark:"
 msgstr "Könyvjelző nevének megadása"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:411
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:432
 msgid "No matches found for: %s"
 msgstr "Nincs találat a következőhöz: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:451
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:472
 msgid "Loading flow..."
 msgstr "Folyamatban..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:487
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:508
 msgid "Laying out %s"
 msgstr "%s létrehozása"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:516
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:537
 msgid "Manage Bookmarks"
 msgstr "Könyvjelzők kezelése"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:551
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:572
 msgid "Loading ebook..."
 msgstr "Ebook betöltése..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:559
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:580
 msgid "DRM Error"
 msgstr "DRM hiba"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:560
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:581
 msgid "<p>This book is protected by <a href=\"%s\">DRM</a>"
 msgstr ""
 "<p>Ez a könyv<a href=\"%s\">DRM-es</a>(Digitális Jogvédelemmel ellátva)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:564
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:585
 msgid "Could not open ebook"
 msgstr "Nem lehet megnyitni a könyvet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:638
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:659
 msgid "Options to control the ebook viewer"
 msgstr "Az ebook olvasó program beállításai"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:645
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:666
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr ""
 "Ha be van állítva, akkor az olvasóprogram megpróbál az előtérbe kerülni "
 "induláskor."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:650
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:671
 msgid "Print javascript alert and console messages to the console"
 msgstr "Javascript és konzolüzenetek megjelenítése a konzolon"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:656
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:677
 msgid ""
 "%prog [options] file\n"
 "\n"
@@ -7669,12 +7697,26 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:280
 msgid ""
-"Tag prefix for user notes, e.g. '*Jeff might enjoy reading this'.\n"
+"Include 'Titles' section in catalog.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:286
+msgid ""
+"Include 'Recently Added' section in catalog.\n"
+"Default: '%default'\n"
+"Applies to: ePub, MOBI output formats"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:292
+msgid ""
+"Tag prefix for user notes, e.g. '*Jeff might enjoy reading this'.\n"
+"Default: '%default'\n"
+"Applies to: ePub, MOBI output formats"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:298
 msgid ""
 "Sort titles with leading numbers as text, e.g.,\n"
 "'2001: A Space Odyssey' sorts as \n"
@@ -7683,7 +7725,7 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:292
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:304
 msgid ""
 "Specifies the output profile.  In some cases, an output profile is required "
 "to optimize the catalog for the device.  For example, 'kindle' or "
@@ -7693,7 +7735,7 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:298
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:310
 msgid ""
 "Tag indicating book has been read.\n"
 "Default: '%default'\n"
@@ -7977,7 +8019,7 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:658
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:484
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
 msgid "Show detailed output information. Useful for debugging"
 msgstr ""
 "Részletes kimeneti információk megjelenítése. Hasznos hibakeresésnél."
@@ -7998,27 +8040,27 @@ msgid ""
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1696
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1703
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr "<p>Régi adatbázis áthozatala a jelenlegibe: %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1725
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1732
 msgid "Copying <b>%s</b>"
 msgstr "Másolás: <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1742
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1749
 msgid "Compacting database"
 msgstr "Adatbázis tömörítése"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1835
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1842
 msgid "Checking SQL integrity..."
 msgstr "SQL adatbázis ellenőrzése"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1872
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1879
 msgid "Checking for missing files."
 msgstr "Hiányzó fájlok keresése"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1894
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1901
 msgid "Checked id"
 msgstr "Ellenőrzött ID"
 
@@ -8386,81 +8428,81 @@ msgstr "Ismeretlen Hírforrás"
 msgid "The \"%s\" recipe needs a username and password."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:635
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:637
 msgid "Download finished"
 msgstr "A letöltés befejeződött"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:637
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:639
 msgid "Failed to download the following articles:"
 msgstr "A következő cikkek letöltése nem sikerült:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:643
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:645
 msgid "Failed to download parts of the following articles:"
 msgstr "A következő cikkek részeinek letöltése nem sikerült:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:645
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:647
 msgid " from "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:647
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:649
 msgid "\tFailed links:"
 msgstr "\tHibás linkek:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:728
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:730
 msgid "Could not fetch article. Run with -vv to see the reason"
 msgstr ""
 "Nem lehet a cikket letölteni. Futtassa a -vv paraméterrel a hibaüzenetek "
 "megjelenítéséhez"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:749
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:751
 msgid "Fetching feeds..."
 msgstr "Hírek letöltése..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:754
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:756
 msgid "Got feeds from index page"
 msgstr "Hírek letöltve az index oldalról"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:760
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:762
 msgid "Trying to download cover..."
 msgstr "Borító letöltése..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:762
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:764
 msgid "Generating masthead..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:835
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:842
 msgid "Starting download [%d thread(s)]..."
 msgstr "Letöltés megkezdve [%d szálon]..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:851
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:858
 msgid "Feeds downloaded to %s"
 msgstr "Hírek letöltve: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:861
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:868
 msgid "Could not download cover: %s"
 msgstr "Nem lehet borítót letölteni: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:873
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:880
 msgid "Downloading cover from %s"
 msgstr "Borító letöltése a következő helyről: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:908
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:915
 msgid "Masthead image downloaded"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1124
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1150
 msgid "Untitled Article"
 msgstr "Névtelen Cikk"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1195
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1221
 msgid "Article downloaded: %s"
 msgstr "Cikk letöltve: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1206
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1232
 msgid "Article download failed: %s"
 msgstr "A következő cikk letöltése nem sikerült: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1223
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1249
 msgid "Fetching feed"
 msgstr "Hír letöltése"
 
@@ -8479,7 +8521,7 @@ msgstr "Ütemezett"
 msgid "Custom"
 msgstr "Felhasználói"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:461
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:459
 msgid ""
 "%prog URL\n"
 "\n"
@@ -8488,24 +8530,24 @@ msgstr ""
 "%prog URL\n"
 "URL például a http://google.com"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:464
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:462
 msgid "Base directory into which URL is saved. Default is %default"
 msgstr "Az az alapmappa, ahová az URL mentve lesz. Alapértelmezett: %default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:467
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:465
 msgid ""
 "Timeout in seconds to wait for a response from the server. Default: %default "
 "s"
 msgstr ""
 "Az időtúllépés másodpercben a szerver válaszára várva. Alapérték: %default mp"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:470
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:468
 msgid ""
 "Maximum number of levels to recurse i.e. depth of links to follow. Default "
 "%default"
 msgstr "A követendő linkmélység maximális értéke, Alapértelmezett %default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:473
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:471
 msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
@@ -8513,7 +8555,7 @@ msgstr ""
 "A letöltendő fájlok maximális száma.Ez csak a <a href> HTML tag-ekben lévő "
 "fájlokra érvényes. Alapértelmezett: %default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:475
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:473
 msgid ""
 "Minimum interval in seconds between consecutive fetches. Default is %default "
 "s"
@@ -8521,7 +8563,7 @@ msgstr ""
 "A minimális időköz másodpercben az egymást követő letöltések között. "
 "Alapérték: %default mp."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:477
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:475
 msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
@@ -8529,7 +8571,7 @@ msgstr ""
 "A letölteni kívánt weboldal karakterkódolása. Alapbeállításként automatikus "
 "felismerés."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:477
 msgid ""
 "Only links that match this regular expression will be followed. This option "
 "can be specified multiple times, in which case as long as a link matches any "
@@ -8540,7 +8582,7 @@ msgstr ""
 "bármelyiknek, feldolgozásra kerül. Alapesetben minden link feldolgozásra "
 "kerül."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:481
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
 msgid ""
 "Any link that matches this regular expression will be ignored. This option "
 "can be specified multiple times, in which case as long as any regexp matches "
@@ -8549,7 +8591,7 @@ msgid ""
 "applied first."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:483
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:481
 msgid "Do not download CSS stylesheets."
 msgstr "Ne töltse le a CSS stíluslapokat."
 
@@ -9327,9 +9369,6 @@ msgstr "Ne töltse le a CSS stíluslapokat."
 
 #~ msgid "Dont forget to enter your gmail username and password"
 #~ msgstr "Ne felejtsd el megadni a gmail felhasználónevedet és jelszavadat"
-
-#~ msgid "Default"
-#~ msgstr "Alapértelmezett"
 
 #~ msgid "/Unknown"
 #~ msgstr "/Ismeretlen"
