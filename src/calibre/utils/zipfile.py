@@ -6,6 +6,7 @@ from __future__ import with_statement
 from calibre.ptempfile import TemporaryDirectory
 from calibre import sanitize_file_name
 from calibre.constants import filesystem_encoding
+from calibre.ebooks.chardet import detect
 import struct, os, time, sys, shutil
 import binascii, cStringIO
 
@@ -1032,13 +1033,11 @@ class ZipFile:
 
         targetpath = os.path.normpath(targetpath)
         if not isinstance(targetpath, unicode):
+            encoding = detect(targetpath)['encoding']
             try:
-                targetpath = targetpath.decode('utf-8')
+                targetpath = targetpath.decode(encoding)
             except:
-                try:
-                    targetpath = targetpath.decode('cp437')
-                except:
-                    targetpath = targetpath.decode('utf-8', 'replace')
+                targetpath = targetpath.decode('utf-8', 'replace')
         targetpath = targetpath.encode(filesystem_encoding)
 
         # Create all upper directories if necessary.
