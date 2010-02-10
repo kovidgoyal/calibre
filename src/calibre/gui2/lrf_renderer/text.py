@@ -481,9 +481,10 @@ class Line(QGraphicsItem):
             painter.restore()
         painter.save()
         painter.setPen(QPen(Qt.NoPen))
-        for c in self.children():
-            painter.setBrush(c.brush)
-            painter.drawRect(c.boundingRect())
+        if hasattr(self, 'children'):
+            for c in self.children():
+                painter.setBrush(c.brush)
+                painter.drawRect(c.boundingRect())
         painter.restore()
         painter.save()
         for tok in self.tokens:
