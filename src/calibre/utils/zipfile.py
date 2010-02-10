@@ -5,6 +5,7 @@ a zip archive.
 from __future__ import with_statement
 from calibre.ptempfile import TemporaryDirectory
 from calibre import sanitize_file_name
+from calibre.constants import filesystem_encoding
 import struct, os, time, sys, shutil
 import binascii, cStringIO
 
@@ -1030,6 +1031,15 @@ class ZipFile:
             targetpath = os.path.join(targetpath, member.filename)
 
         targetpath = os.path.normpath(targetpath)
+        if not isinstance(targetpath, unicode):
+            try:
+                targetpath = targetpath.decode('utf-8')
+            except:
+                try:
+                    targetpath = targetpath.decode('cp437')
+                except:
+                    targetpath = targetpath.decode('utf-8', 'replace')
+        targetpath = targetpath.encode(filesystem_encoding)
 
         # Create all upper directories if necessary.
         upperdirs = os.path.dirname(targetpath)

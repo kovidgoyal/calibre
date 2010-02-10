@@ -120,7 +120,10 @@ class EbookIterator(object):
         bad_map = {}
         font_family_pat = re.compile(r'font-family\s*:\s*([^;]+)')
         for csspath in css_files:
-            css = open(csspath, 'rb').read().decode('utf-8', 'replace')
+            try:
+                css = open(csspath, 'rb').read().decode('utf-8', 'replace')
+            except:
+                continue
             for match in re.compile(r'@font-face\s*{([^}]+)}').finditer(css):
                 block  = match.group(1)
                 family = font_family_pat.search(block)
