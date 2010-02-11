@@ -17,8 +17,6 @@ from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.writer import rescale_image, MAX_THUMB_DIMEN
 from calibre.ebooks.mobi.langcodes import iana2mobi
 
-import struct
-
 class StreamSlicer(object):
 
     def __init__(self, stream, start=0, stop=None):
@@ -110,9 +108,9 @@ class MetadataUpdater(object):
         self.original_exth_records = {}
         if not have_exth:
             self.create_exth()
-        else:
-            # Fetch timestamp, cover_record, thumbnail_record
-            self.fetchEXTHFields()
+            self.have_exth = True
+        # Fetch timestamp, cover_record, thumbnail_record
+        self.fetchEXTHFields()
 
     def fetchEXTHFields(self):
         stream = self.stream
@@ -191,9 +189,9 @@ class MetadataUpdater(object):
         # self.hexdump(self.record0)
 
         # Fetch the existing title
-        title_offset, = struct.unpack('>L', self.record0[0x54:0x58])
-        title_length, = struct.unpack('>L', self.record0[0x58:0x5c])
-        title_in_file, = struct.unpack('%ds' % (title_length), self.record0[title_offset:title_offset + title_length])
+        title_offset, = unpack('>L', self.record0[0x54:0x58])
+        title_length, = unpack('>L', self.record0[0x58:0x5c])
+        title_in_file, = unpack('%ds' % (title_length), self.record0[title_offset:title_offset + title_length])
 
         # Adjust length to accommodate PrimaryINDX if necessary
         mobi_header_length, = unpack('>L', self.record0[0x14:0x18])
@@ -256,7 +254,7 @@ class MetadataUpdater(object):
     def get_pdbrecords(self):
         pdbrecords = []
         for i in xrange(self.nrecs):
-            offset, a1,a2,a3,a4 = struct.unpack('>LBBBB', self.data[78+i*8:78+i*8+8])
+            offset, a1,a2,a3,a4 = unpack('>LBBBB', self.data[78+i*8:78+i*8+8])
             flags, val = a1, a2<<16|a3<<8|a4
             pdbrecords.append( [offset, flags, val] )
         return pdbrecords
