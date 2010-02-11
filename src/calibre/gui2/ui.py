@@ -337,7 +337,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(self.view_menu.actions()[0],
                 SIGNAL("triggered(bool)"), self.view_book)
         QObject.connect(self.view_menu.actions()[1],
-                SIGNAL("triggered(bool)"), self.view_specific_format)
+                SIGNAL("triggered(bool)"), self.view_specific_format,
+                Qt.QueuedConnection)
         self.connect(self.action_open_containing_folder,
                 SIGNAL('triggered(bool)'), self.view_folder)
         self.delete_menu.actions()[0].triggered.connect(self.delete_books)
@@ -1642,12 +1643,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         row = rows[0].row()
         formats = self.library_view.model().db.formats(row).upper().split(',')
         d = ChooseFormatDialog(self, _('Choose the format to view'), formats)
-        d.exec_()
-        if d.result() == QDialog.Accepted:
+        if d.exec_() == QDialog.Accepted:
             format = d.format()
             self.view_format(row, format)
-        else:
-            return
 
     def view_folder(self, *args):
         rows = self.current_view().selectionModel().selectedRows()
