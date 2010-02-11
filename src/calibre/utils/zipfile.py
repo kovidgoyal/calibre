@@ -143,7 +143,7 @@ def decode_arcname(name):
             name = name.decode(encoding)
         except:
             name = name.decode('utf-8', 'replace')
-    return sanitize_file_name(name.encode(filesystem_encoding, 'replace'))
+    return name.encode(filesystem_encoding, 'replace')
 
 
 def is_zipfile(filename):
@@ -690,6 +690,7 @@ class ZipFile:
         self.debug = 0  # Level of printing: 0 through 3
         self.NameToInfo = {}    # Find file info given name
         self.filelist = []      # List of ZipInfo instances for archive
+        self.extract_mapping = {}
         self.compression = compression  # Method of compression
         self.mode = key = mode.replace('b', '')[0]
         self.pwd = None
@@ -1054,9 +1055,14 @@ class ZipFile:
 
         if not os.path.exists(targetpath): # Could be a previously automatically created directory
             with closing(self.open(member, pwd=pwd)) as source:
-                with open(targetpath, 'wb') as target:
-                    shutil.copyfileobj(source, target)
-
+                try:
+                    with open(targetpath, 'wb') as target:
+                        shutil.copyfileobj(source, target)
+                except:
+                    targetpath = sanitize_file_name(targetpath)
+                    with open(targetpath, 'wb') as target:
+                        shutil.copyfileobj(source, target)
+        self.extract_mapping[member.filename] = targetpath
         return targetpath
 
     def _writecheck(self, zinfo):
@@ -1337,14 +1343,14 @@ def safe_replace(zipstream, name, datastream):
     names = z.infolist()
     with TemporaryDirectory('_zipfile_replace') as tdir:
         z.extractall(path=tdir)
+        mapping = z.extract_mapping
         path = os.path.join(tdir, *name.split('/'))
         shutil.copyfileobj(datastream, open(path, 'wb'))
         zipstream.seek(0)
         zipstream.truncate()
         with closing(ZipFile(zipstream, 'w')) as z:
             for info in names:
-                fname = decode_arcname(info.filename)
-                current = os.path.join(tdir, *fname.split('/'))
+                current = mapping[info.filename]
                 if os.path.isdir(current):
                     z.writestr(info.filename+'/', '', 0700)
                 else:
