@@ -3,12 +3,14 @@ Read and write ZIP files. Modified by Kovid Goyal to support replacing files in
 a zip archive.
 """
 from __future__ import with_statement
+import struct, os, time, sys, shutil
+import binascii, cStringIO
+from contextlib import closing
+
 from calibre.ptempfile import TemporaryDirectory
 from calibre import sanitize_file_name
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
-import struct, os, time, sys, shutil
-import binascii, cStringIO
 
 try:
     import zlib # We may need its compression method
@@ -133,6 +135,16 @@ _CD64_NUMBER_ENTRIES_THIS_DISK = 6
 _CD64_NUMBER_ENTRIES_TOTAL = 7
 _CD64_DIRECTORY_SIZE = 8
 _CD64_OFFSET_START_CENTDIR = 9
+
+def decode_arcname(name):
+    if not isinstance(name, unicode):
+        encoding = detect(name)['encoding']
+        try:
+            name = name.decode(encoding)
+        except:
+            name = name.decode('utf-8', 'replace')
+    return sanitize_file_name(name.encode(filesystem_encoding, 'replace'))
+
 
 def is_zipfile(filename):
     """Quickly see if file is a ZIP file by checking the magic number."""
@@ -1026,19 +1038,12 @@ class ZipFile:
             targetpath = targetpath[:-1]
 
         # don't include leading "/" from file name if present
-        if os.path.isabs(member.filename):
-            targetpath = os.path.join(targetpath, member.filename[1:])
-        else:
-            targetpath = os.path.join(targetpath, member.filename)
+        fname = decode_arcname(member.filename)
+        if fname.startswith('/'):
+            fname = fname[1:]
+        targetpath = os.path.join(targetpath, fname)
 
         targetpath = os.path.normpath(targetpath)
-        if not isinstance(targetpath, unicode):
-            encoding = detect(targetpath)['encoding']
-            try:
-                targetpath = targetpath.decode(encoding)
-            except:
-                targetpath = targetpath.decode('utf-8', 'replace')
-        targetpath = targetpath.encode(filesystem_encoding)
 
         # Create all upper directories if necessary.
         upperdirs = os.path.dirname(targetpath)
@@ -1047,16 +1052,10 @@ class ZipFile:
         if upperdirs and not os.path.exists(upperdirs):
             os.makedirs(upperdirs)
 
-        source = self.open(member, pwd=pwd)
         if not os.path.exists(targetpath): # Could be a previously automatically created directory
-            try:
-                target = open(targetpath, "wb")
-            except IOError:
-                targetpath = sanitize_file_name(targetpath)
-                target = open(targetpath, "wb")
-            shutil.copyfileobj(source, target)
-            source.close()
-            target.close()
+            with closing(self.open(member, pwd=pwd)) as source:
+                with open(targetpath, 'wb') as target:
+                    shutil.copyfileobj(source, target)
 
         return targetpath
 
@@ -1338,18 +1337,18 @@ def safe_replace(zipstream, name, datastream):
     names = z.infolist()
     with TemporaryDirectory('_zipfile_replace') as tdir:
         z.extractall(path=tdir)
-        zipstream.seek(0)
-        zipstream.truncate()
-        z = ZipFile(zipstream, 'w')
         path = os.path.join(tdir, *name.split('/'))
         shutil.copyfileobj(datastream, open(path, 'wb'))
-        for info in names:
-            current = os.path.join(tdir, *info.filename.split('/'))
-            if os.path.isdir(current):
-                z.writestr(info.filename+'/', '', 0700)
-            else:
-                z.write(current, info.filename, compress_type=info.compress_type)
-        z.close()
+        zipstream.seek(0)
+        zipstream.truncate()
+        with closing(ZipFile(zipstream, 'w')) as z:
+            for info in names:
+                fname = decode_arcname(info.filename)
+                current = os.path.join(tdir, *fname.split('/'))
+                if os.path.isdir(current):
+                    z.writestr(info.filename+'/', '', 0700)
+                else:
+                    z.write(current, info.filename, compress_type=info.compress_type)
 
 class PyZipFile(ZipFile):
     """Class to create ZIP archives with Python library files and packages."""
