@@ -941,12 +941,23 @@ class EPUB_MOBI(CatalogPlugin):
                     this_title['series_index'] = 0.0
 
                 this_title['title_sort'] = self.generateSortTitle(this_title['title'])
-                if 'authors' in record and record['authors'] is not None:
+                if 'authors' in record and record['authors']:
                     this_title['author'] = " &amp; ".join(record['authors'])
                 else:
                     this_title['author'] = 'Unknown'
-                this_title['author_sort'] = record['author_sort'].title() if len(record['author_sort'].strip()) \
+
+                '''
+                this_title['author_sort_original'] =  record['author_sort']
+                author_sort =  record['author_sort'] if len(record['author_sort'].strip()) \
                      else self.author_to_author_sort(this_title['author'])
+                author_sort = author_sort[0].upper() + author_sort[1:]
+                this_title['author_sort'] = author_sort
+                '''
+                if 'author_sort' in record and record['author_sort'].strip():
+                    this_title['author_sort'] = record['author_sort']
+                else:
+                    this_title['author_sort'] = self.author_to_author_sort(this_title['author'])
+
                 this_title['id'] = record['id']
                 if record['publisher']:
                     this_title['publisher'] = re.sub('&', '&amp;', record['publisher'])
@@ -996,37 +1007,6 @@ class EPUB_MOBI(CatalogPlugin):
 
         def fetchBooksByAuthor(self):
             # Generate a list of titles sorted by author from the database
-            def author_compare(x,y):
-                # Return -1 if x<y
-                # Return  0 if x==y
-                # Return  1 if x>y
-                # Different authors - sort by author_sort
-                if x['author_sort'] > y['author_sort']:
-                    return 1
-                elif x['author_sort'] < y['author_sort']:
-                    return -1
-                else:
-                    # Same author
-                    if x['series'] != y['series']:
-                        # Different series
-                        if x['title_sort'].lstrip() > y['title_sort'].lstrip():
-                            return 1
-                        else:
-                            return -1
-                    else:
-                        # Same series
-                        if x['series'] == y['series']:
-                            if float(x['series_index']) > float(y['series_index']):
-                                return 1
-                            elif float(x['series_index']) < float(y['series_index']):
-                                return -1
-                            else:
-                                return 0
-                        else:
-                            if x['series'] > y['series']:
-                                return 1
-                            else:
-                                return -1
 
             self.updateProgressFullStep("Sorting database")
 
@@ -1037,13 +1017,13 @@ class EPUB_MOBI(CatalogPlugin):
             '''
 
             self.booksByAuthor = list(self.booksByTitle)
-            self.booksByAuthor.sort(author_compare)
+            self.booksByAuthor.sort(self.author_compare)
 
             if False and self.verbose:
                 self.opts.log.info("fetchBooksByAuthor(): %d books" % len(self.booksByAuthor))
-                self.opts.log.info(" %-30s %-20s %s" % ('title', 'title_sort','series', 'series_index'))
+                self.opts.log.info(" %-30s %-20s %s" % ('title', 'series', 'series_index'))
                 for title in self.booksByAuthor:
-                    self.opts.log.info((u" %-30s %-20s %-20s%5s " % \
+                    self.opts.log.info((u" %-30s %-20s%5s " % \
                                         (title['title'][:30],
                                          title['series'][:20] if title['series'] else '',
                                          title['series_index'],
@@ -1051,7 +1031,7 @@ class EPUB_MOBI(CatalogPlugin):
                 raise SystemExit
 
             # Build the unique_authors set from existing data
-            authors = [(record['author'], record['author_sort']) for record in self.booksByAuthor]
+            authors = [(record['author'], record['author_sort'].capitalize()) for record in self.booksByAuthor]
 
             # authors[] contains a list of all book authors, with multiple entries for multiple books by author
             #        authors[]: (([0]:friendly  [1]:sort))
@@ -1417,7 +1397,7 @@ class EPUB_MOBI(CatalogPlugin):
             book_count = 0
             for book in self.booksByAuthor:
                 book_count += 1
-                if book['author_sort'][0].upper() != current_letter :
+                if self.letter_or_symbol(book['author_sort'][0].upper()) != current_letter :
                     '''
                     # Start a new letter - anchor only, hidden
                     current_letter = book['author_sort'][0].upper()
@@ -1427,19 +1407,21 @@ class EPUB_MOBI(CatalogPlugin):
                     dtc += 1
                     '''
                     # Start a new letter with Index letter
-                    current_letter = book['author_sort'][0].upper()
+                    current_letter = self.letter_or_symbol(book['author_sort'][0].upper())
                     pIndexTag = Tag(soup, "p")
                     pIndexTag['class'] = "letter_index"
                     aTag = Tag(soup, "a")
-                    aTag['name'] = "%sauthors" % current_letter
+                    aTag['name'] = "%sauthors" % self.letter_or_symbol(current_letter)
                     pIndexTag.insert(0,aTag)
-                    pIndexTag.insert(1,NavigableString(book['author_sort'][0].upper()))
+                    pIndexTag.insert(1,NavigableString(self.letter_or_symbol(book['author_sort'][0].upper())))
                     divTag.insert(dtc,pIndexTag)
                     dtc += 1
 
                 if book['author'] != current_author:
                     # Start a new author
                     current_author = book['author']
+                    non_series_books = 0
+                    current_series = None
                     pAuthorTag = Tag(soup, "p")
                     pAuthorTag['class'] = "author_index"
                     emTag = Tag(soup, "em")
@@ -1449,6 +1431,14 @@ class EPUB_MOBI(CatalogPlugin):
                     emTag.insert(0,aTag)
                     pAuthorTag.insert(0,emTag)
                     divTag.insert(dtc,pAuthorTag)
+                    dtc += 1
+
+                # Insert an <hr /> between non-series and series
+                if not current_series and non_series_books and book['series']:
+                    # Insert an <hr />
+                    hrTag = Tag(soup,'hr')
+                    hrTag['class'] = "series_divider"
+                    divTag.insert(dtc,hrTag)
                     dtc += 1
 
                 # Check for series
@@ -1486,6 +1476,7 @@ class EPUB_MOBI(CatalogPlugin):
                     aTag.insert(0,escape(book['title'][len(book['series'])+1:]))
                 else:
                     aTag.insert(0,escape(book['title']))
+                    non_series_books += 1
                 pBookTag.insert(ptc, aTag)
                 ptc += 1
 
@@ -1522,12 +1513,11 @@ class EPUB_MOBI(CatalogPlugin):
 
             def add_books_to_HTML(this_months_list, dtc):
                 if len(this_months_list):
-                    date_string = strftime(u'%B %Y', current_date.timetuple())
-                    this_months_list = sorted(this_months_list,
-                                        key=lambda x:(x['title_sort'], x['title_sort']))
-                    this_months_list = sorted(this_months_list,
-                                        key=lambda x:(x['author_sort'], x['author_sort']))
+
+                    this_months_list.sort(self.author_compare)
+
                     # Create a new month anchor
+                    date_string = strftime(u'%B %Y', current_date.timetuple())
                     pIndexTag = Tag(soup, "p")
                     pIndexTag['class'] = "date_index"
                     aTag = Tag(soup, "a")
@@ -1543,6 +1533,8 @@ class EPUB_MOBI(CatalogPlugin):
                         if new_entry['author'] != current_author:
                             # Start a new author
                             current_author = new_entry['author']
+                            non_series_books = 0
+                            current_series = None
                             pAuthorTag = Tag(soup, "p")
                             pAuthorTag['class'] = "author_index"
                             emTag = Tag(soup, "em")
@@ -1552,6 +1544,14 @@ class EPUB_MOBI(CatalogPlugin):
                             emTag.insert(0,aTag)
                             pAuthorTag.insert(0,emTag)
                             divTag.insert(dtc,pAuthorTag)
+                            dtc += 1
+
+                        # Insert an <hr /> between non-series and series
+                        if not current_series and non_series_books and new_entry['series']:
+                            # Insert an <hr />
+                            hrTag = Tag(soup,'hr')
+                            hrTag['class'] = "series_divider"
+                            divTag.insert(dtc,hrTag)
                             dtc += 1
 
                         # Check for series
@@ -1588,6 +1588,7 @@ class EPUB_MOBI(CatalogPlugin):
                             aTag.insert(0,escape(new_entry['title'][len(new_entry['series'])+1:]))
                         else:
                             aTag.insert(0,escape(new_entry['title']))
+                            non_series_books += 1
                         pBookTag.insert(ptc, aTag)
                         ptc += 1
 
@@ -1685,7 +1686,7 @@ class EPUB_MOBI(CatalogPlugin):
                         this_book = {}
                         this_book['author'] = book['author']
                         this_book['title'] = book['title']
-                        this_book['author_sort'] = book['author_sort']
+                        this_book['author_sort'] = book['author_sort'].capitalize()
                         this_book['read'] = book['read']
                         this_book['id'] = book['id']
                         this_book['series'] = book['series']
@@ -2228,15 +2229,15 @@ class EPUB_MOBI(CatalogPlugin):
             # self.authors[0]:friendly [1]:author_sort [2]:book_count
             master_author_list = []
             # self.authors[0][1][0] = Initial letter of author_sort[0]
-            current_letter = self.authors[0][1][0]
+            current_letter = self.letter_or_symbol(self.authors[0][1][0])
             current_author_list = []
             for author in self.authors:
-                if author[1][0] != current_letter:
+                if self.letter_or_symbol(author[1][0]) != current_letter:
                     # Save the old list
                     add_to_author_list(current_author_list, current_letter)
 
                     # Start the new list
-                    current_letter = author[1][0]
+                    current_letter = self.letter_or_symbol(author[1][0])
                     current_author_list = [author[0]]
                 else:
                     if len(current_author_list) < self.descriptionClip:
@@ -2496,6 +2497,46 @@ class EPUB_MOBI(CatalogPlugin):
                 tokens[0] += ','
             return ' '.join(tokens).capitalize()
 
+        def author_compare(self,x,y):
+            # Return -1 if x<y
+            # Return  0 if x==y
+            # Return  1 if x>y
+
+            # Different authors - sort by author_sort
+            if x['author_sort'].capitalize() > y['author_sort'].capitalize():
+                return 1
+            elif x['author_sort'].capitalize() < y['author_sort'].capitalize():
+                return -1
+            else:
+                # Same author
+                if x['series'] != y['series']:
+                    # One title is a series, the other is not
+                    if not x['series']:
+                        # Sort regular titles < series titles
+                        return -1
+                    elif not y['series']:
+                        return 1
+
+                    # Different series
+                    if x['title_sort'].lstrip() > y['title_sort'].lstrip():
+                        return 1
+                    else:
+                        return -1
+                else:
+                    # Same series
+                    if x['series'] == y['series']:
+                        if float(x['series_index']) > float(y['series_index']):
+                            return 1
+                        elif float(x['series_index']) < float(y['series_index']):
+                            return -1
+                        else:
+                            return 0
+                    else:
+                        if x['series'] > y['series']:
+                            return 1
+                        else:
+                            return -1
+
         def calculateThumbnailSize(self):
             ''' Calculate thumbnail dimensions based on device DPI.  Scale Kindle by 50% '''
             from calibre.customize.ui import output_profiles
@@ -2658,6 +2699,8 @@ class EPUB_MOBI(CatalogPlugin):
                 if book['author'] != current_author:
                     # Start a new author with link
                     current_author = book['author']
+                    non_series_books = 0
+                    current_series = None
                     pAuthorTag = Tag(soup, "p")
                     pAuthorTag['class'] = "author_index"
                     emTag = Tag(soup, "em")
@@ -2667,6 +2710,14 @@ class EPUB_MOBI(CatalogPlugin):
                     emTag.insert(0,aTag)
                     pAuthorTag.insert(0,emTag)
                     divTag.insert(dtc,pAuthorTag)
+                    dtc += 1
+
+                # Insert an <hr /> between non-series and series
+                if not current_series and non_series_books and book['series']:
+                    # Insert an <hr />
+                    hrTag = Tag(soup,'hr')
+                    hrTag['class'] = "series_divider"
+                    divTag.insert(dtc,hrTag)
                     dtc += 1
 
                 # Check for series
@@ -2703,6 +2754,7 @@ class EPUB_MOBI(CatalogPlugin):
                     aTag.insert(0,escape(book['title'][len(book['series'])+1:]))
                 else:
                     aTag.insert(0,escape(book['title']))
+                    non_series_books += 1
                 pBookTag.insert(ptc, aTag)
                 ptc += 1
 

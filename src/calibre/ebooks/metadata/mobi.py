@@ -105,13 +105,14 @@ class MetadataUpdater(object):
         have_exth = self.have_exth = (flags & 0x40) != 0
         self.cover_record = self.thumbnail_record = None
         self.timestamp = None
-
         self.pdbrecords = self.get_pdbrecords()
+
+        self.original_exth_records = {}
         if not have_exth:
             self.create_exth()
-
-        # Fetch timestamp, cover_record, thumbnail_record
-        self.fetchEXTHFields()
+        else:
+            # Fetch timestamp, cover_record, thumbnail_record
+            self.fetchEXTHFields()
 
     def fetchEXTHFields(self):
         stream = self.stream
@@ -130,6 +131,8 @@ class MetadataUpdater(object):
             id, size = unpack('>II', exth[pos:pos + 8])
             content = exth[pos + 8: pos + size]
             pos += size
+
+            self.original_exth_records[id] = content
 
             if id == 106:
                 self.timestamp = content
@@ -284,6 +287,10 @@ class MetadataUpdater(object):
         return StreamSlicer(self.stream, start, stop)
 
     def update(self, mi):
+        def pop_exth_record(exth_id):
+            if exth_id in self.original_exth_records:
+                self.original_exth_records.pop(exth_id)
+
         if self.type != "BOOKMOBI":
                 raise MobiError("Setting metadata only supported for MOBI files of type 'BOOK'.\n"
                                 "\tThis is a '%s' file of type '%s'" % (self.type[0:4], self.type[4:8]))
@@ -298,34 +305,52 @@ class MetadataUpdater(object):
         if mi.author_sort and pas:
             authors = mi.author_sort
             recs.append((100, authors.encode(self.codec, 'replace')))
+            pop_exth_record(100)
         elif mi.authors:
             authors = '; '.join(mi.authors)
             recs.append((100, authors.encode(self.codec, 'replace')))
+            pop_exth_record(100)
         if mi.publisher:
             recs.append((101, mi.publisher.encode(self.codec, 'replace')))
+            pop_exth_record(101)
         if mi.comments:
             recs.append((103, mi.comments.encode(self.codec, 'replace')))
+            pop_exth_record(103)
         if mi.isbn:
             recs.append((104, mi.isbn.encode(self.codec, 'replace')))
+            pop_exth_record(104)
         if mi.tags:
             subjects = '; '.join(mi.tags)
             recs.append((105, subjects.encode(self.codec, 'replace')))
+            pop_exth_record(105)
         if mi.pubdate:
             recs.append((106, str(mi.pubdate).encode(self.codec, 'replace')))
+            pop_exth_record(106)
         elif mi.timestamp:
             recs.append((106, str(mi.timestamp).encode(self.codec, 'replace')))
+            pop_exth_record(106)
         elif self.timestamp:
             recs.append((106, self.timestamp))
+            pop_exth_record(106)
         else:
             recs.append((106, str(datetime.now()).encode(self.codec, 'replace')))
+            pop_exth_record(106)
         if self.cover_record is not None:
             recs.append((201, pack('>I', self.cover_rindex)))
             recs.append((203, pack('>I', 0)))
+            pop_exth_record(201)
+            pop_exth_record(203)
         if self.thumbnail_record is not None:
             recs.append((202, pack('>I', self.thumbnail_rindex)))
+            pop_exth_record(202)
 
         if getattr(self, 'encryption_type', -1) != 0:
             raise MobiError('Setting metadata in DRMed MOBI files is not supported.')
+
+        # Restore any original EXTH fields that weren't modified/updated
+        for id in sorted(self.original_exth_records):
+            recs.append((id, self.original_exth_records[id]))
+        recs = sorted(recs, key=lambda x:(x[0],x[0]))
 
         exth = StringIO()
         for code, data in recs:
