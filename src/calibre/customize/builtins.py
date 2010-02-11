@@ -7,6 +7,7 @@ import os
 import glob
 from calibre.customize import FileTypePlugin, MetadataReaderPlugin, MetadataWriterPlugin
 from calibre.constants import numeric_version
+from calibre.ebooks.metadata.archive import ArchiveExtract
 
 class HTML2ZIP(FileTypePlugin):
     name = 'HTML to ZIP'
@@ -423,7 +424,7 @@ from calibre.devices.hanvon.driver import N516
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
 from calibre.library.catalog import CSV_XML, EPUB_MOBI
-plugins = [HTML2ZIP, PML2PMLZ, GoogleBooks, ISBNDB, Amazon, CSV_XML, EPUB_MOBI]
+plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon, CSV_XML, EPUB_MOBI]
 plugins += [
     ComicInput,
     EPUBInput,
