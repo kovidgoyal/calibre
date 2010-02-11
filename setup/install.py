@@ -137,7 +137,19 @@ class Develop(Command):
         self.setup_mount_helper()
         self.install_files()
         self.run_postinstall()
+        self.install_env_module()
         self.success()
+
+    def install_env_module(self):
+        import distutils.sysconfig as s
+        libdir = s.get_python_lib(prefix=self.opts.staging_root)
+        if os.path.exists(libdir):
+            path = os.path.join(libdir, 'init_calibre.py')
+            self.info('Installing calibre environment module: '+path)
+            with open(path, 'wb') as f:
+                f.write(HEADER.format(**self.template_args()))
+        else:
+            self.warn('Cannot install calibre environment module to: '+libdir)
 
     def setup_mount_helper(self):
         def warn():
@@ -180,13 +192,20 @@ class Develop(Command):
                     functions[typ]):
                 self.write_template(name, mod, func)
 
+    def template_args(self):
+        return {
+            'path':self.libdir,
+            'resources':self.sharedir,
+            'executables':self.bindir,
+            'extensions':self.j(self.libdir, 'calibre', 'plugins')
+            }
+
     def write_template(self, name, mod, func):
         template = COMPLETE_TEMPLATE if name == 'calibre-complete' else TEMPLATE
-        script = template.format(
-                module=mod, func=func,
-                path=self.libdir, resources=self.sharedir,
-                executables=self.bindir,
-                extensions=self.j(self.libdir, 'calibre', 'plugins'))
+        args = self.template_args()
+        args['module'] = mod
+        args['func'] = func
+        script = template.format(**args)
         path = self.j(self.staging_bindir, name)
         if not os.path.exists(self.staging_bindir):
             os.makedirs(self.staging_bindir)
