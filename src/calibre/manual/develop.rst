@@ -219,3 +219,30 @@ is great for testing a little snippet of code on the command line. It works in t
 can be used to execute your own python script. It works in the same way as passing the script to the python interpreter, except
 that the calibre environment is fully initialized, so you can use all the calibre code in your script.
 
+
+Using calibre in your projects
+----------------------------------------
+
+It is possible to directly use calibre functions/code in your python project. Two ways exist to do this:
+
+Binary install of calibre
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you have a binary install of calibre, you can use the python interpreter bundled with calibre, like this::
+
+    calibre-debug -e /path/to/your/python/script.py
+
+Source install on linux
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In addition to using the above technique, if you do a source install on linux,
+you can also directly import calibre, as follows::
+
+    import init_calibre
+    import calibre
+
+    print calibre.__version__
+
+It is essential that you import the init_calibre module before any other calibre modules/packages as
+it sets up the interpreter to run calibre code.
+

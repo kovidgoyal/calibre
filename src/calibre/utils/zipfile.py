@@ -3,10 +3,14 @@ Read and write ZIP files. Modified by Kovid Goyal to support replacing files in
 a zip archive.
 """
 from __future__ import with_statement
-from calibre.ptempfile import TemporaryDirectory
-from calibre import sanitize_file_name
 import struct, os, time, sys, shutil
 import binascii, cStringIO
+from contextlib import closing
+
+from calibre.ptempfile import TemporaryDirectory
+from calibre import sanitize_file_name
+from calibre.constants import filesystem_encoding
+from calibre.ebooks.chardet import detect
 
 try:
     import zlib # We may need its compression method
@@ -132,6 +136,16 @@ _CD64_NUMBER_ENTRIES_TOTAL = 7
 _CD64_DIRECTORY_SIZE = 8
 _CD64_OFFSET_START_CENTDIR = 9
 
+def decode_arcname(name):
+    if not isinstance(name, unicode):
+        encoding = detect(name)['encoding']
+        try:
+            name = name.decode(encoding)
+        except:
+            name = name.decode('utf-8', 'replace')
+    return name.encode(filesystem_encoding, 'replace')
+
+
 def is_zipfile(filename):
     """Quickly see if file is a ZIP file by checking the magic number."""
     try:
@@ -222,7 +236,8 @@ def _EndRecData(fpin):
         endrec = list(struct.unpack(structEndArchive, recData))
         comment = data[start+sizeEndCentDir:]
         # check that comment length is correct
-        if endrec[_ECD_COMMENT_SIZE] == len(comment):
+        # Kovid: Added == 0 check as some zip files apparently dont set this
+        if endrec[_ECD_COMMENT_SIZE] == 0 or endrec[_ECD_COMMENT_SIZE] == len(comment):
             # Append the archive comment and start offset
             endrec.append(comment)
             endrec.append(maxCommentStart + start)
@@ -675,6 +690,7 @@ class ZipFile:
         self.debug = 0  # Level of printing: 0 through 3
         self.NameToInfo = {}    # Find file info given name
         self.filelist = []      # List of ZipInfo instances for archive
+        self.extract_mapping = {}
         self.compression = compression  # Method of compression
         self.mode = key = mode.replace('b', '')[0]
         self.pwd = None
@@ -1023,10 +1039,10 @@ class ZipFile:
             targetpath = targetpath[:-1]
 
         # don't include leading "/" from file name if present
-        if os.path.isabs(member.filename):
-            targetpath = os.path.join(targetpath, member.filename[1:])
-        else:
-            targetpath = os.path.join(targetpath, member.filename)
+        fname = decode_arcname(member.filename)
+        if fname.startswith('/'):
+            fname = fname[1:]
+        targetpath = os.path.join(targetpath, fname)
 
         targetpath = os.path.normpath(targetpath)
 
@@ -1037,17 +1053,16 @@ class ZipFile:
         if upperdirs and not os.path.exists(upperdirs):
             os.makedirs(upperdirs)
 
-        source = self.open(member, pwd=pwd)
         if not os.path.exists(targetpath): # Could be a previously automatically created directory
-            try:
-                target = open(targetpath, "wb")
-            except IOError:
-                targetpath = sanitize_file_name(targetpath)
-                target = open(targetpath, "wb")
-            shutil.copyfileobj(source, target)
-            source.close()
-            target.close()
-
+            with closing(self.open(member, pwd=pwd)) as source:
+                try:
+                    with open(targetpath, 'wb') as target:
+                        shutil.copyfileobj(source, target)
+                except:
+                    targetpath = sanitize_file_name(targetpath)
+                    with open(targetpath, 'wb') as target:
+                        shutil.copyfileobj(source, target)
+        self.extract_mapping[member.filename] = targetpath
         return targetpath
 
     def _writecheck(self, zinfo):
@@ -1328,18 +1343,18 @@ def safe_replace(zipstream, name, datastream):
     names = z.infolist()
     with TemporaryDirectory('_zipfile_replace') as tdir:
         z.extractall(path=tdir)
-        zipstream.seek(0)
-        zipstream.truncate()
-        z = ZipFile(zipstream, 'w')
+        mapping = z.extract_mapping
         path = os.path.join(tdir, *name.split('/'))
         shutil.copyfileobj(datastream, open(path, 'wb'))
-        for info in names:
-            current = os.path.join(tdir, *info.filename.split('/'))
-            if os.path.isdir(current):
-                z.writestr(info.filename+'/', '', 0700)
-            else:
-                z.write(current, info.filename, compress_type=info.compress_type)
-        z.close()
+        zipstream.seek(0)
+        zipstream.truncate()
+        with closing(ZipFile(zipstream, 'w')) as z:
+            for info in names:
+                current = mapping[info.filename]
+                if os.path.isdir(current):
+                    z.writestr(info.filename+'/', '', 0700)
+                else:
+                    z.write(current, info.filename, compress_type=info.compress_type)
 
 class PyZipFile(ZipFile):
     """Class to create ZIP archives with Python library files and packages."""
