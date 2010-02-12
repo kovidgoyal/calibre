@@ -832,9 +832,8 @@ class EPUB_MOBI(CatalogPlugin):
         # Methods
         def buildSources(self):
             if self.booksByTitle is None:
-                self.fetchBooksByTitle()
-            if not len(self.booksByTitle):
-                return False
+                if not self.fetchBooksByTitle():
+                    return False
             self.fetchBooksByAuthor()
             self.generateHTMLDescriptions()
             self.generateHTMLByAuthor()
@@ -901,16 +900,15 @@ class EPUB_MOBI(CatalogPlugin):
 
             self.opts.sort_by = 'title'
 
-            # Merge opts.exclude_tag with opts.search_text
-
-            # What if no exclude tags?
+            # Merge opts.exclude_tags with opts.search_text
+            # Updated to use exact match syntax
             empty_exclude_tags = False if len(self.opts.exclude_tags) else True
             search_phrase = ''
             if not empty_exclude_tags:
                 exclude_tags = self.opts.exclude_tags.split(',')
                 search_terms = []
                 for tag in exclude_tags:
-                    search_terms.append("tag:%s" % tag)
+                    search_terms.append("tag:=%s" % tag)
                 search_phrase = "not (%s)" % " or ".join(search_terms)
 
             # If a list of ids are provided, don't use search_text
@@ -996,14 +994,18 @@ class EPUB_MOBI(CatalogPlugin):
                 titles.append(this_title)
 
             # Re-sort based on title_sort
-            self.booksByTitle = sorted(titles,
-                                 key=lambda x:(x['title_sort'].upper(), x['title_sort'].upper()))
-            if False and self.verbose:
-                self.opts.log.info("fetchBooksByTitle(): %d books" % len(self.booksByTitle))
-                self.opts.log.info(" %-40s %-40s" % ('title', 'title_sort'))
-                for title in self.booksByTitle:
-                    self.opts.log.info((u" %-40s %-40s" % (title['title'][0:40],
-                                                           title['title_sort'][0:40])).encode('utf-8'))
+            if len(titles):
+                self.booksByTitle = sorted(titles,
+                                     key=lambda x:(x['title_sort'].upper(), x['title_sort'].upper()))
+                if False and self.verbose:
+                    self.opts.log.info("fetchBooksByTitle(): %d books" % len(self.booksByTitle))
+                    self.opts.log.info(" %-40s %-40s" % ('title', 'title_sort'))
+                    for title in self.booksByTitle:
+                        self.opts.log.info((u" %-40s %-40s" % (title['title'][0:40],
+                                                               title['title_sort'][0:40])).encode('utf-8'))
+                return True
+            else:
+                return False
 
         def fetchBooksByAuthor(self):
             # Generate a list of titles sorted by author from the database
