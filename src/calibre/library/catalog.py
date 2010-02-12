@@ -901,14 +901,14 @@ class EPUB_MOBI(CatalogPlugin):
             self.opts.sort_by = 'title'
 
             # Merge opts.exclude_tags with opts.search_text
+            # Updated to use exact match syntax
             empty_exclude_tags = False if len(self.opts.exclude_tags) else True
             search_phrase = ''
             if not empty_exclude_tags:
                 exclude_tags = self.opts.exclude_tags.split(',')
                 search_terms = []
                 for tag in exclude_tags:
-                    search_terms.append("tag:%s" % tag)
-                    #search_terms.append("tag:=%s" % tag)
+                    search_terms.append("tag:=%s" % tag)
                 search_phrase = "not (%s)" % " or ".join(search_terms)
 
             # If a list of ids are provided, don't use search_text
