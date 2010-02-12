@@ -21,7 +21,7 @@ class Variety(BasicNewsRecipe):
     masthead_url           = 'http://a330.g.akamai.net/7/330/23382/20090528190853/www.variety.com/graphics/variety/Variety_logo_green_tm.gif'
     extra_css              = ' body{font-family: Georgia,"Times New Roman",Times,Courier,serif } img{margin-bottom: 1em} '
 
-    conversion_options = {  
+    conversion_options = {
                              'comments'  : description
                             ,'tags'      : category
                             ,'language'  : language
@@ -31,7 +31,7 @@ class Variety(BasicNewsRecipe):
     remove_tags = [dict(name=['object','link','map'])]
 
     keep_only_tags = [dict(name='div', attrs={'id':'article'})]
-                  
+
     feeds = [(u'News & Articles', u'http://feeds.feedburner.com/variety/headlines' )]
 
     def print_version(self, url):
