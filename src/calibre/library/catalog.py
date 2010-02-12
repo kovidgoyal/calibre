@@ -833,7 +833,7 @@ class EPUB_MOBI(CatalogPlugin):
         def buildSources(self):
             if self.booksByTitle is None:
                 self.fetchBooksByTitle()
-            if self.booksByTitle is None:
+            if not len(self.booksByTitle):
                 return False
             self.fetchBooksByAuthor()
             self.generateHTMLDescriptions()
@@ -3241,6 +3241,8 @@ class EPUB_MOBI(CatalogPlugin):
                 recommendations.append(('output_profile', opts.output_profile,
                     OptionRecommendation.HIGH))
                 recommendations.append(('no_inline_toc', True,
+                    OptionRecommendation.HIGH))
+                recommendations.append(('book_producer',opts.output_profile,
                     OptionRecommendation.HIGH))
 
             # Run ebook-convert
