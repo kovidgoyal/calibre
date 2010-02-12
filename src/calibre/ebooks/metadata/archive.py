@@ -6,17 +6,21 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, os
+import os
 from contextlib import closing
 
 from calibre.customize import FileTypePlugin
 
+def is_comic(list_of_names):
+    extensions = set([x.rpartition('.')[-1].lower() for x in list_of_names])
+    return len(extensions) == 1 and iter(extensions).next() in ('jpg', 'jpeg', 'png')
+
 class ArchiveExtract(FileTypePlugin):
     name = 'Archive Extract'
     author = 'Kovid Goyal'
-    description = textwrap.dedent(_('''\
-        Extract common e-book formats from archives (zip/rar) files.
-    '''))
+    description = _('Extract common e-book formats from archives '
+        '(zip/rar) files. Also try to autodetect if they are actually '
+        'cbz/cbr files.')
     file_types = set(['zip', 'rar'])
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
@@ -35,6 +39,13 @@ class ArchiveExtract(FileTypePlugin):
             fnames = zf.namelist()
 
         fnames = [x for x in fnames if '.' in x]
+        if is_comic(fnames):
+            ext = '.cbr' if is_rar else '.cbz'
+            of = self.temporary_file('_archive_extract'+ext)
+            with open(archive, 'rb') as f:
+                of.write(f.read())
+            of.close()
+            return of.name
         if len(fnames) > 1 or not fnames:
             return archive
         fname = fnames[0]
