@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-09 01:54+0000\n"
-"PO-Revision-Date: 2010-02-09 04:35+0000\n"
+"POT-Creation-Date: 2010-02-10 04:36+0000\n"
+"PO-Revision-Date: 2010-02-10 05:19+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-09 05:10+0000\n"
+"X-Launchpad-Export-Date: 2010-02-11 05:01+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -41,18 +41,18 @@ msgstr "Non fa assolutamente niente"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1894
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1896
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:24
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:225
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:256
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:259
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:359
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:229
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:260
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:263
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:363
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:35
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:60
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:46
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:62
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:64
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:104
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:106
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:107
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:109
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:221
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:329
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:444
@@ -72,9 +72,9 @@ msgstr "Non fa assolutamente niente"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:799
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:51
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:898
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:903
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:969
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:907
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:912
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:978
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:137
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:139
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:105
@@ -117,12 +117,12 @@ msgstr "Non fa assolutamente niente"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:144
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:454
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:455
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:170
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:405
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:427
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:926
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1052
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:406
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:428
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:928
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1054
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:185
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:281
 #: /home/kovid/work/calibre/src/calibre/library/database.py:913
@@ -1782,79 +1782,79 @@ msgstr "La famiglia di caratteri a spaziatura fissa da includere"
 msgid "Comic"
 msgstr "Comic"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:358
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:362
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:45
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:56
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:166
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:402
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1118
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:167
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:403
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1120
 msgid "Title"
 msgstr "Titolo"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:359
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:363
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:57
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:167
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:407
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1119
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:168
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:408
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1121
 msgid "Author(s)"
 msgstr "Autore(i)"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:360
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:364
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:59
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:172
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:173
 msgid "Publisher"
 msgstr "Editore"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:361
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:365
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:49
 msgid "Producer"
 msgstr "Produttore"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:362
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:366
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:67
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:363
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:364
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:94
 msgid "Comments"
 msgstr "Commenti"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:370
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:173
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:352
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1062
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1122
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:374
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:353
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1064
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1124
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Tags"
 msgstr "Tag"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:372
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:174
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:368
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:376
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:369
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Series"
 msgstr "Serie"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:373
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:377
 msgid "Language"
 msgstr "Lingua"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:375
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1061
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:379
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1063
 msgid "Timestamp"
 msgstr "Timestamp"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:377
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:381
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:61
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:170
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:171
 msgid "Published"
 msgstr "Pubblicato"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:379
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:383
 msgid "Rights"
 msgstr "Privilegi"
 
@@ -2085,7 +2085,7 @@ msgstr ""
 "LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1083
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1336
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1345
 msgid "Cover"
 msgstr "Copertina"
 
@@ -2119,70 +2119,70 @@ msgstr "Disabilitare la compressione dei file di contenuto"
 msgid "All articles"
 msgstr "Tutti gli articoli"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1337
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1346
 msgid "Title Page"
 msgstr "Pagina iniziale"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1338
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1347
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:188
 msgid "Table of Contents"
 msgstr "Sommario"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1339
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1348
 msgid "Index"
 msgstr "Indice"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1340
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1349
 msgid "Glossary"
 msgstr "Glossario"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1341
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1350
 msgid "Acknowledgements"
 msgstr "Ringraziamenti"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1342
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1351
 msgid "Bibliography"
 msgstr "Bibliografia"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1343
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1352
 msgid "Colophon"
 msgstr "Colophon"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1344
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1353
 msgid "Copyright"
 msgstr "Diritti d'autore"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1345
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1354
 msgid "Dedication"
 msgstr "Dedica"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1346
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1355
 msgid "Epigraph"
 msgstr "Epigrafe"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1347
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1356
 msgid "Foreword"
 msgstr "Premessa"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1348
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1357
 msgid "List of Illustrations"
 msgstr "Indice delle figure"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1349
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1358
 msgid "List of Tables"
 msgstr "Indice delle tabelle"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1350
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1359
 msgid "Notes"
 msgstr "Note"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1351
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1360
 msgid "Preface"
 msgstr "Prefazione"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1352
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1361
 msgid "Main Text"
 msgstr "Corpo del testo"
 
@@ -4178,8 +4178,8 @@ msgstr "Salva &template"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:111
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:359
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1057
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:360
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1059
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:92
 msgid "Path"
 msgstr "Percorso"
@@ -4189,7 +4189,7 @@ msgstr "Percorso"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:117
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:216
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:358
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:359
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Formats"
@@ -5193,70 +5193,70 @@ msgstr "La copertina nel formato %s é invalida."
 msgid "Abort the editing of all remaining books"
 msgstr "Interrompere la modifica di tutti i libri rimanenti"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:407
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:412
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:408
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:413
 msgid "This ISBN number is valid"
 msgstr "Questo  numero ISBN è valido"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:415
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:416
 msgid "This ISBN number is invalid"
 msgstr "Questo  numero ISBN è valido"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:511
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:512
 msgid "Downloading cover..."
 msgstr "Scaricamento della copertina..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:523
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:528
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:534
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:524
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:535
 msgid "Cannot fetch cover"
 msgstr "Impossibile scaricare la copertina"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:524
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:536
 msgid "<b>Could not fetch cover.</b><br/>"
 msgstr "<b>Impossibile scaricare la copertina</b><br/>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:526
 msgid "The download timed out."
 msgstr "Lo scaricamento ha raggiunto il limite di tempo"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:530
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr ""
 "Non é stato possibile trovare  una copertina per questo libro. Si provi a "
 "specificare il codice ISBN."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:541
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:542
 msgid "Bad cover"
 msgstr "Copertina inutilizzabile"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:542
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:543
 msgid "The cover is not a valid picture"
 msgstr "La copertina non é un'immagine accettabile."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:572
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:573
 msgid "There were errors"
 msgstr "Si sono verificati errori"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:573
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:574
 msgid "There were errors downloading social metadata"
 msgstr "Si sono verficiati errori nello scaricamento dei metadati sociali"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:603
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:604
 msgid "Cannot fetch metadata"
 msgstr "Non é possibile scaricare i metadati."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:604
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:605
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
 msgstr ""
 "Dovete specificare alemno uno fra codice ISBN, titolo, autore o editore"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:671
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:675
 msgid "Permission denied"
 msgstr "Permesso negato"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:672
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:676
 msgid "Could not open %s. Is it being used by another program?"
 msgstr ""
 "Non é possibile aprire %s. Potrebbe essere in uso in un altro programma."
@@ -5981,23 +5981,23 @@ msgstr "Non disponibile"
 msgid " - Jobs"
 msgstr " - Lavori"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:168
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1120
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:169
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1122
 msgid "Size (MB)"
 msgstr "Dimensione (MB)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:169
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1121
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:170
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1123
 msgid "Date"
 msgstr "Data"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:171
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:172
 msgid "Rating"
 msgstr "Giudizio"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:351
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:357
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:362
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:352
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:358
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:363
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:77
@@ -6005,15 +6005,15 @@ msgstr "Giudizio"
 msgid "None"
 msgstr "Nessuno"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:368
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:369
 msgid "Book <font face=\"serif\">%s</font> of %s."
 msgstr "Libro <font face=\"serif\">%s</font> di %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:880
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:882
 msgid "Not allowed"
 msgstr "Non permesso"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:881
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:883
 msgid ""
 "Dropping onto a device is not supported. First add the book to the calibre "
 "library."
@@ -6021,11 +6021,11 @@ msgstr ""
 "Copiare direttamente sul dispositivo di lettura non é supportato. Prima é "
 "necessario aggiungere il libro nella libreria di Calibre."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1056
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1058
 msgid "Format"
 msgstr "Formato"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1110
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1112
 msgid "Double click to <b>edit</b> me<br><br>"
 msgstr "Doppio clic per <b>modificarmi</b><br><br>"
 
