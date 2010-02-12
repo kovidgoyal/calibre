@@ -184,6 +184,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pos.setToolTip(_('Position in book'))
         self.pos.setSuffix('/'+_('Unknown')+'     ')
         self.pos.setMinimum(1.)
+        self.pos.setMinimumWidth(150)
         self.tool_bar2.insertWidget(self.action_find_next, self.pos)
         self.reference = HelpfulLineEdit()
         self.reference.setValidator(QRegExpValidator(QRegExp(r'\d+\.\d+'), self.reference))
