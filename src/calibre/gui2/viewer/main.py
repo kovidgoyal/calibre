@@ -196,6 +196,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.search = SearchBox2(self)
         self.search.initialize('viewer_search_history')
         self.search.setToolTip(_('Search for text in book'))
+        self.search.setMinimumWidth(200)
         self.tool_bar2.insertWidget(self.action_find_next, self.search)
         self.view.set_manager(self)
         self.view.document.debug_javascript = debug_javascript
