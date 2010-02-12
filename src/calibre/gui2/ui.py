@@ -669,19 +669,19 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if type == 'series':
             series = idx.model().db.series(row)
             if series:
-                search = ['series:'+series]
+                search = ['series:"'+series+'"']
         elif type == 'publisher':
             publisher = idx.model().db.publisher(row)
             if publisher:
-                search = ['publisher:'+publisher]
+                search = ['publisher:"'+publisher+'"']
         elif type == 'tag':
             tags = idx.model().db.tags(row)
             if tags:
-                search = ['tag:'+t for t in tags.split(',')]
+                search = ['tag:"='+t+'"' for t in tags.split(',')]
         elif type == 'author':
             authors = idx.model().db.authors(row)
             if authors:
-                search = ['author:'+a.strip().replace('|', ',') \
+                search = ['author:"='+a.strip().replace('|', ',')+'"' \
                                 for a in authors.split(',')]
                 join = ' or '
         if search:

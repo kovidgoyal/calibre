@@ -174,6 +174,22 @@ class CoverCache(QThread):
             self.load_queue.appendleft(id)
         self.load_queue_lock.unlock()
 
+### Global utility function for get_match here and in gui2/library.py
+CONTAINS_MATCH = 0
+EQUALS_MATCH   = 1
+REGEXP_MATCH   = 2
+def _match(query, value, matchkind):
+    for t in value:
+        t = t.lower()
+        try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
+            if ((matchkind == EQUALS_MATCH and query == t) or
+                (matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
+                (matchkind == CONTAINS_MATCH and query in t)):
+                    return True
+        except re.error:
+            pass
+    return False
+
 class ResultCache(SearchQueryParser):
 
     '''
@@ -202,10 +218,23 @@ class ResultCache(SearchQueryParser):
         matches = set([])
         if query and query.strip():
             location = location.lower().strip()
-            query = query.lower()
+
+            matchkind = CONTAINS_MATCH
+            if (len(query) > 1):
+                if query.startswith('\\'):
+                    query = query[1:]
+                elif query.startswith('='):
+                    matchkind = EQUALS_MATCH
+                    query = query[1:]
+                elif query.startswith('~'):
+                    matchkind = REGEXP_MATCH
+                    query = query[1:]
+            if matchkind != REGEXP_MATCH: ### leave case in regexps because it can be significant e.g. \S \W \D
+                query = query.lower()
+
             if not isinstance(query, unicode):
                 query = query.decode('utf-8')
-            if location in ('tag', 'author', 'format'):
+            if location in ('tag', 'author', 'format', 'comment'):
                 location += 's'
             all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series', 'formats', 'isbn', 'rating', 'cover')
             MAP = {}
@@ -219,29 +248,41 @@ class ResultCache(SearchQueryParser):
                 rating_query = int(query) * 2
             except:
                 rating_query = None
-            for item in self._data:
-                if item is None: continue
-                for loc in location:
-                    if query == 'false' and not item[loc]:
-                        if isinstance(item[loc], basestring):
-                            if item[loc].strip() != '':
-                                continue
-                        matches.add(item[0])
-                        break
-                    if query == 'true' and item[loc]:
+            for loc in location:
+                if loc == MAP['authors']:
+                    q = query.replace(',', '|');  ### DB stores authors with commas changed to bars, so change query
+                else:
+                    q = query
+
+                for item in self._data:
+                    if item is None: continue
+                    if not item[loc]:
+                        if query == 'false':
+                            if isinstance(item[loc], basestring):
+                                if item[loc].strip() != '':
+                                    continue
+                            matches.add(item[0])
+                            break
+                        continue    ### item is empty. No possible matches below
+
+                    if q == 'true':
                         if isinstance(item[loc], basestring):
                             if item[loc].strip() == '':
                                 continue
                         matches.add(item[0])
-                        break
-                    if rating_query and item[loc] and loc == MAP['rating'] and rating_query == int(item[loc]):
+                        continue
+                    if rating_query and loc == MAP['rating'] and rating_query == int(item[loc]):
                         matches.add(item[0])
-                        break
-                    if item[loc] and loc not in EXCLUDE_FIELDS and query in item[loc].lower():
-                        matches.add(item[0])
-                        break
-
-        return matches
+                        continue
+                    if loc not in EXCLUDE_FIELDS:
+                        if loc == MAP['tags'] or loc == MAP['authors']:
+                            vals = item[loc].split(',') ### check individual tags/authors, not the long string
+                        else:
+                            vals = [item[loc]]          ### make into list to make _match happy
+                        if _match(q, vals, matchkind):
+                            matches.add(item[0])
+                            continue
+            return matches
 
     def remove(self, id):
         self._data[id] = None

@@ -17,7 +17,7 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
 from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.pyparsing import ParseException
-from calibre.library.database2 import FIELD_MAP
+from calibre.library.database2 import FIELD_MAP, _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, \
                          error_dialog
 from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
@@ -893,7 +893,20 @@ class OnDeviceSearch(SearchQueryParser):
 
     def get_matches(self, location, query):
         location = location.lower().strip()
-        query = query.lower().strip()
+
+        matchkind = CONTAINS_MATCH
+        if len(query) > 1:
+            if query.startswith('\\'):
+                query = query[1:]
+            elif query.startswith('='):
+                matchkind = EQUALS_MATCH
+                query = query[1:]
+            elif query.startswith('~'):
+                matchkind = REGEXP_MATCH
+                query = query[1:]
+        if matchkind != REGEXP_MATCH: ### leave case in regexps because it can be significant e.g. \S \W \D
+            query = query.lower()
+
         if location not in ('title', 'author', 'tag', 'all', 'format'):
             return set([])
         matches = set([])
@@ -904,13 +917,24 @@ class OnDeviceSearch(SearchQueryParser):
              'tag':lambda x: ','.join(getattr(x, 'tags')).lower(),
              'format':lambda x: os.path.splitext(x.path)[1].lower()
              }
-        for i, v in enumerate(locations):
-            locations[i] = q[v]
-        for i, r in enumerate(self.model.db):
-            for loc in locations:
+        for index, row in enumerate(self.model.db):
+            for locvalue in locations:
+                accessor = q[locvalue]
                 try:
-                    if query in loc(r):
-                        matches.add(i)
+                    ### Can't separate authors because comma is used for name sep and author sep
+                    ### Exact match might not get what you want. For that reason, turn author
+                    ### exactmatch searches into contains searches.
+                    if locvalue == 'author' and matchkind == EQUALS_MATCH:
+                        m = CONTAINS_MATCH
+                    else:
+                        m = matchkind
+
+                    if locvalue == 'tag':
+                        vals = accessor(row).split(',')
+                    else:
+                        vals = [accessor(row)]
+                    if _match(query, vals, m):
+                        matches.add(index)
                         break
                 except ValueError: # Unicode errors
                     import traceback
