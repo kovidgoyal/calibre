@@ -241,6 +241,7 @@ class ResultCache(SearchQueryParser):
             for x in all:
                 MAP[x] = FIELD_MAP[x]
             EXCLUDE_FIELDS = [MAP['rating'], MAP['cover']]
+            SPLITABLE_FIELDS = [MAP['authors'], MAP['tags'], MAP['formats']]
             location = [location] if location != 'all' else list(MAP.keys())
             for i, loc in enumerate(location):
                 location[i] = MAP[loc]
@@ -275,8 +276,8 @@ class ResultCache(SearchQueryParser):
                         matches.add(item[0])
                         continue
                     if loc not in EXCLUDE_FIELDS:
-                        if loc == MAP['tags'] or loc == MAP['authors']:
-                            vals = item[loc].split(',') ### check individual tags/authors, not the long string
+                        if loc in SPLITABLE_FIELDS:
+                            vals = item[loc].split(',') ### check individual tags/authors/formats, not the long string
                         else:
                             vals = [item[loc]]          ### make into list to make _match happy
                         if _match(q, vals, matchkind):
