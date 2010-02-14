@@ -282,7 +282,6 @@ class Region(object):
                 mc = self.columns[0]
             return mc
 
-        print
         for c in singleton.columns:
             for elem in c:
                 col = most_suitable_column(elem)
@@ -309,15 +308,38 @@ class Region(object):
 
     def absorb_region(self, region, at):
         src_iter = lambda x:x if at == 'bottom' else reversed
-        if len(region.columns) == len(self.columns):
-            for src, dest in zip(region.columns, self.columns):
+        if len(region.columns) <= len(self.columns):
+            for i in range(len(region.columns)):
+                src, dest = region.columns[i], self.columns[i]
                 for elem in src_iter(src):
                     if at == 'bottom':
                         dest.append(elem)
                     else:
                         dest.insert(0, elem)
+
+
         else:
-            pass
+            col_map = {}
+            for i, col in enumerate(region.columns):
+                max_overlap, max_overlap_index = 0, 0
+                for j, dcol in enumerate(self.columns):
+                    sint = Interval(col.left, col.right)
+                    dint = Interval(dcol.left, dcol.right)
+                    width = sint.intersection(dint).width
+                    if width > max_overlap:
+                        max_overlap = width
+                        max_overlap_index = j
+                col_map[i] = max_overlap_index
+            lines = max(map(len, region.columns))
+            for i in range(src_iter(lines)):
+                for j, src in enumerate(region.columns):
+                    dest = self.columns[col_map[j]]
+                    if i < len(src):
+                        if at == 'bottom':
+                            dest.append(src[i])
+                        else:
+                            dest.insert(0, src[i])
+
 
     def linearize(self):
         self.elements = []
