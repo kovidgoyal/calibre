@@ -358,6 +358,8 @@ class Line(QGraphicsItem):
         self.links = collections.deque()
         self.current_link = None
         self.valign = None
+        if not hasattr(self, 'children'):
+            self.children = self.childItems
 
     def start_link(self, refobj, slot):
         self.current_link = [self.current_width, sys.maxint, refobj, slot]
@@ -481,10 +483,9 @@ class Line(QGraphicsItem):
             painter.restore()
         painter.save()
         painter.setPen(QPen(Qt.NoPen))
-        if hasattr(self, 'children'):
-            for c in self.children():
-                painter.setBrush(c.brush)
-                painter.drawRect(c.boundingRect())
+        for c in self.children():
+            painter.setBrush(c.brush)
+            painter.drawRect(c.boundingRect())
         painter.restore()
         painter.save()
         for tok in self.tokens:
