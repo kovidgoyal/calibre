@@ -143,6 +143,14 @@ class Column(object):
     def add(self, elem):
         if elem in self.elements: return
         self.elements.append(elem)
+        self._post_add()
+
+    def prepend(self, elem):
+        if elem in self.elements: return
+        self.elements.insert(0, elem)
+        self._post_add()
+
+    def _post_add(self):
         self.elements.sort(cmp=lambda x,y:cmp(x.bottom,y.bottom))
         self.top = self.elements[0].top
         self.bottom = self.elements[-1].bottom
@@ -307,16 +315,14 @@ class Region(object):
             self.absorb_region(region, at)
 
     def absorb_region(self, region, at):
-        src_iter = lambda x:x if at == 'bottom' else reversed
         if len(region.columns) <= len(self.columns):
             for i in range(len(region.columns)):
                 src, dest = region.columns[i], self.columns[i]
-                for elem in src_iter(src):
-                    if at == 'bottom':
-                        dest.append(elem)
-                    else:
-                        dest.insert(0, elem)
-
+                if at != 'bottom':
+                    src = reversed(list(iter(src)))
+                for elem in src:
+                    func = dest.add if at == 'bottom' else dest.prepend
+                    func(elem)
 
         else:
             col_map = {}
@@ -331,15 +337,16 @@ class Region(object):
                         max_overlap_index = j
                 col_map[i] = max_overlap_index
             lines = max(map(len, region.columns))
-            for i in range(src_iter(lines)):
+            if at == 'bottom':
+                lines = range(lines)
+            else:
+                lines = range(lines-1, -1, -1)
+            for i in lines:
                 for j, src in enumerate(region.columns):
                     dest = self.columns[col_map[j]]
                     if i < len(src):
-                        if at == 'bottom':
-                            dest.append(src[i])
-                        else:
-                            dest.insert(0, src[i])
-
+                        func = dest.add if at == 'bottom' else dest.prepend
+                        func(src.elements[i])
 
     def linearize(self):
         self.elements = []
@@ -480,6 +487,8 @@ class Page(object):
         while found:
             found = False
             for i, region in enumerate(self.regions):
+                if region in absorbed:
+                    continue
                 if region.is_small:
                     found = True
                     regions = [region]
@@ -504,22 +513,23 @@ class Page(object):
                             absorb_into = None
                     else:
                         absorb_into = prev_region
-                        if next_region.line_count >= prev_region.line_count:
+                        if self.regions[next_region].line_count >= \
+                                self.regions[prev_region].line_count:
                             avg_column_count = sum([len(r.columns) for r in
                                 regions])/float(len(regions))
-                            if next_region.line_count > prev_region.line_count \
-                               or abs(avg_column_count - len(prev_region.columns)) \
-                               > abs(avg_column_count - len(next_region.columns)):
+                            if self.regions[next_region].line_count > \
+                                    self.regions[prev_region].line_count \
+                               or abs(avg_column_count -
+                                       len(self.regions[prev_region].columns)) \
+                               > abs(avg_column_count -
+                                       len(self.regions[next_region].columns)):
                                    absorb_into = next_region
                                    absorb_at = 'top'
                     if absorb_into is not None:
-                        absorb_into.absorb_regions(regions, absorb_at)
+                        self.regions[absorb_into].absorb_regions(regions, absorb_at)
                         absorbed.update(regions)
-                    i = j
         for region in absorbed:
             self.regions.remove(region)
-
-
 
     def sort_into_columns(self, elem, neighbors):
         neighbors.add(elem)
@@ -639,8 +649,9 @@ class PDFDocument(object):
         for elem in self.elements:
             html.extend(elem.to_html())
         html += ['</body>', '</html>']
+        raw = (u'\n'.join(html)).replace('</strong><strong>', '')
         with open('index.html', 'wb') as f:
-            f.write((u'\n'.join(html)).encode('utf-8'))
+            f.write(raw.encode('utf-8'))
 
 
 
