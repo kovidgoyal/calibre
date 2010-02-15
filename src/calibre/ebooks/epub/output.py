@@ -258,6 +258,18 @@ class EPUBOutput(OutputFormatPlugin):
         '''
         from calibre.ebooks.oeb.base import XPath, XHTML, OEB_STYLES, barename
 
+        # ADE cries big wet tears when it encounters an invalid fragment
+        # identifier in the NCX toc.
+        frag_pat = re.compile(r'[-A-Za-z0-9_:.]+')
+        for node in self.oeb.toc.iter():
+            href = getattr(node, 'href', None)
+            if hasattr(href, 'partition'):
+                base, _, frag = href.partition('#')
+                if frag and frag_pat.match(frag) is None:
+                    self.log.warn(
+                            'Removing invalid fragment identifier %r from TOC'%frag)
+                    node.href = base
+
         for x in self.oeb.spine:
             root = x.data
             body = XPath('//h:body')(root)
