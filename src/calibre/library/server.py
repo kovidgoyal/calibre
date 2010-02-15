@@ -517,8 +517,8 @@ class LibraryServer(object):
 
     def get_matches(self, location, query):
         base = self.db.data.get_matches(location, query)
-        epub = self.db.data.get_matches('format', 'epub')
-        pdb = self.db.data.get_matches('format', 'pdb')
+        epub = self.db.data.get_matches('format', '=epub')
+        pdb = self.db.data.get_matches('format', '=pdb')
         return base.intersection(epub.union(pdb))
 
     def stanza_sortby_subcategory(self, updated, sortby, offset):
@@ -540,15 +540,15 @@ class LibraryServer(object):
         what, subtitle = sortby[2:], ''
         if sortby == 'byseries':
             data = self.db.all_series()
-            data = [(x[0], x[1], len(self.get_matches('series', x[1]))) for x in data]
+            data = [(x[0], x[1], len(self.get_matches('series', '='+x[1]))) for x in data]
             subtitle = 'Books by series'
         elif sortby == 'byauthor':
             data = self.db.all_authors()
-            data = [(x[0], x[1], len(self.get_matches('authors', x[1]))) for x in data]
+            data = [(x[0], x[1], len(self.get_matches('authors', '='+x[1]))) for x in data]
             subtitle = 'Books by author'
         elif sortby == 'bytag':
             data = self.db.all_tags2()
-            data = [(x[0], x[1], len(self.get_matches('tags', x[1]))) for x in data]
+            data = [(x[0], x[1], len(self.get_matches('tags', '='+x[1]))) for x in data]
             subtitle = 'Books by tag'
         fcmp = author_cmp if sortby == 'byauthor' else cmp
         data = [x for x in data if x[2] > 0]

@@ -283,7 +283,7 @@ class ResultCache(SearchQueryParser):
                         if _match(q, vals, matchkind):
                             matches.add(item[0])
                             continue
-            return matches
+        return matches
 
     def remove(self, id):
         self._data[id] = None
