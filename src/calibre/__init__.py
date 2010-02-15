@@ -378,10 +378,11 @@ def strftime(fmt, t=None):
         t = time.localtime()
     early_year = t[0] < 1900
     if early_year:
+        replacement = 1900 if t[0]%4 == 0 else 1901
         fmt = fmt.replace('%Y', '_early year hack##')
         t = list(t)
         orig_year = t[0]
-        t[0] = 1900
+        t[0] = replacement
     ans = None
     if iswindows:
         if isinstance(fmt, unicode):
