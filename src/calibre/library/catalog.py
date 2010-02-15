@@ -3403,7 +3403,10 @@ class EPUB_MOBI(CatalogPlugin):
         if op is None:
             op = 'default'
         if opts.connected_device['name'] and 'kindle' in opts.connected_device['name'].lower():
-            op = "kindle_dx" if opts.connected_device['serial'][:4] in ['B004','B005'] else 'kindle'
+            if opts.connected_device['serial'] and opts.connected_device['serial'][:4] in ['B004','B005']:
+                op = "kindle_dx"
+            else:
+                op = "kindle"
         opts.descriptionClip = 380 if op.endswith('dx') or 'kindle' not in op else 100
         opts.authorClip = 100 if op.endswith('dx') or 'kindle' not in op else 60
         self.opts.output_profile = op
@@ -3436,9 +3439,14 @@ class EPUB_MOBI(CatalogPlugin):
                 log(" converting empty exclude_genre to '\[^.\]'")
 
             if opts.connected_device['name']:
-                log(" connected_device: '%s' #%s%s " % (opts.connected_device['name'],
-                                                        opts.connected_device['serial'][0:4],
-                                              'x' * (len(opts.connected_device['serial']) - 4)))
+                if opts.connected_device['serial']:
+                    log(" connected_device: '%s' #%s%s " % \
+                        (opts.connected_device['name'],
+                         opts.connected_device['serial'][0:4],
+                         'x' * (len(opts.connected_device['serial']) - 4)))
+                else:
+                    log(" connected_device: '%s'" % opts.connected_device['name'])
+
                 for storage in opts.connected_device['storage']:
                     if storage:
                         log("  mount point: %s" % storage)
