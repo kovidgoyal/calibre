@@ -455,7 +455,8 @@ class OPF(object):
                                     formatter=parse_date)
 
 
-    def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True):
+    def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
+            populate_spine=True):
         if not hasattr(stream, 'read'):
             stream = open(stream, 'rb')
         raw = stream.read()
@@ -478,7 +479,7 @@ class OPF(object):
             self.manifest = Manifest.from_opf_manifest_element(m, basedir)
         self.spine = None
         s = self.spine_path(self.root)
-        if s:
+        if populate_spine and s:
             self.spine = Spine.from_opf_spine_element(s, self.manifest)
         self.guide = None
         guide = self.guide_path(self.root)
@@ -584,6 +585,15 @@ class OPF(object):
             for x in self.itermanifest():
                 if x.get('id', None) == idref:
                     yield x.get('href', '')
+
+    def first_spine_item(self):
+        items = self.iterspine()
+        if not items:
+            return None
+        idref = items[0].get('idref', '')
+        for x in self.itermanifest():
+            if x.get('id', None) == idref:
+                return x.get('href', None)
 
     def create_spine_item(self, idref):
         ans = etree.Element('{%s}itemref'%self.NAMESPACES['opf'], idref=idref)
