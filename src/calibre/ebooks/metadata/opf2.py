@@ -272,6 +272,10 @@ class Spine(ResourceCollection):
             self.id = idfunc(self.path)
             self.idref = None
 
+        def __repr__(self):
+            return 'Spine.Item(path=%r, id=%s, is_linear=%s)' % \
+                    (self.path, self.id, self.is_linear)
+
     @staticmethod
     def from_opf_spine_element(itemrefs, manifest):
         s = Spine(manifest)
@@ -280,7 +284,7 @@ class Spine(ResourceCollection):
             if idref is not None:
                 path = s.manifest.path_for_id(idref)
                 if path:
-                    r = Spine.Item(s.manifest.id_for_path, path, is_path=True)
+                    r = Spine.Item(lambda x:idref, path, is_path=True)
                     r.is_linear = itemref.get('linear', 'yes') == 'yes'
                     r.idref = idref
                     s.append(r)
