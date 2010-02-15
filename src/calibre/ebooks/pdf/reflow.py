@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys
+import sys, os
 
 from lxml import etree
 
@@ -46,6 +46,10 @@ class Image(Element):
     def to_html(self):
         return '<img src="%s" width="%dpx" height="%dpx"/>' % \
                 (self.src, int(self.width), int(self.height))
+
+    def dump(self, f):
+        f.write(self.to_html())
+        f.write('\n')
 
 
 class Text(Element):
@@ -90,6 +94,10 @@ class Text(Element):
 
     def to_html(self):
         return self.raw
+
+    def dump(self, f):
+        f.write(self.to_html().encode('utf-8'))
+        f.write('\n')
 
 class FontSizeStats(dict):
 
@@ -190,6 +198,11 @@ class Column(object):
         if idx == 0:
             return None
         return self.elements[idx-1]
+
+    def dump(self, f, num):
+        f.write('******** Column %d\n\n'%num)
+        for elem in self.elements:
+            elem.dump(f)
 
 
 class Box(list):
@@ -348,6 +361,13 @@ class Region(object):
                         func = dest.add if at == 'bottom' else dest.prepend
                         func(src.elements[i])
 
+    def dump(self, f):
+        f.write('############################################################\n')
+        f.write('########## Region (%d columns) ###############\n'%len(self.columns))
+        f.write('############################################################\n\n')
+        for i, col in enumerate(self.columns):
+            col.dump(f, i)
+
     def linearize(self):
         self.elements = []
         for x in self.columns:
@@ -420,7 +440,8 @@ class Page(object):
                 self.font_size_stats[t.font_size] = 0
             self.font_size_stats[t.font_size] += len(t.text_as_string)
             self.average_text_height += t.height
-        self.average_text_height /= len(self.texts)
+        if len(self.texts):
+            self.average_text_height /= len(self.texts)
 
         self.font_size_stats = FontSizeStats(self.font_size_stats)
 
@@ -475,7 +496,20 @@ class Page(object):
         if not current_region.is_empty:
             self.regions.append(current_region)
 
+        if self.opts.verbose > 2:
+            self.debug_dir = 'page-%d'%self.number
+            os.mkdir(self.debug_dir)
+            self.dump_regions('pre-coalesce')
+
         self.coalesce_regions()
+        self.dump_regions('post-coalesce')
+
+    def dump_regions(self, fname):
+        fname = 'regions-'+fname+'.txt'
+        with open(os.path.join(self.debug_dir, fname), 'wb') as f:
+            f.write('Page #%d\n\n'%self.number)
+            for region in self.regions:
+                region.dump(f)
 
     def coalesce_regions(self):
         # find contiguous sets of small regions
@@ -484,21 +518,25 @@ class Page(object):
         # region)
         found = True
         absorbed = set([])
+        processed = set([])
         while found:
             found = False
             for i, region in enumerate(self.regions):
                 if region in absorbed:
                     continue
-                if region.is_small:
+                if region.is_small and region not in processed:
                     found = True
+                    processed.add(region)
                     regions = [region]
+                    end = i+1
                     for j in range(i+1, len(self.regions)):
+                        end = j
                         if self.regions[j].is_small:
                             regions.append(self.regions[j])
                         else:
                             break
                     prev_region = None if i == 0 else i-1
-                    next_region = j if self.regions[j] not in regions else None
+                    next_region = end if end < len(self.regions) and self.regions[end] not in regions else None
                     absorb_at = 'bottom'
                     if prev_region is None and next_region is not None:
                         absorb_into = next_region
@@ -507,7 +545,7 @@ class Page(object):
                         absorb_into = prev_region
                     elif prev_region is None and next_region is None:
                         if len(regions) > 1:
-                            absorb_into = regions[0]
+                            absorb_into = i
                             regions = regions[1:]
                         else:
                             absorb_into = None
