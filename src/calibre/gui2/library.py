@@ -1,8 +1,7 @@
 from calibre.ebooks.metadata import authors_to_string
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, textwrap, traceback, time, re
-from datetime import timedelta, datetime
+import os, textwrap, traceback, re
 from operator import attrgetter
 
 from math import cos, sin, pi
@@ -25,6 +24,7 @@ from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.ebooks.metadata import string_to_authors, fmt_sidx
 from calibre.utils.config import tweaks
+from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 
 class LibraryDelegate(QItemDelegate):
     COLOR    = QColor("blue")
@@ -567,13 +567,11 @@ class BooksModel(QAbstractTableModel):
         def timestamp(r):
             dt = self.db.data[r][tmdx]
             if dt:
-                dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
                 return QDate(dt.year, dt.month, dt.day)
 
         def pubdate(r):
             dt = self.db.data[r][pddx]
             if dt:
-                dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
                 return QDate(dt.year, dt.month, dt.day)
 
         def rating(r):
@@ -670,13 +668,11 @@ class BooksModel(QAbstractTableModel):
             elif column == 'timestamp':
                 if val.isNull() or not val.isValid():
                     return False
-                dt = datetime(val.year(), val.month(), val.day()) + timedelta(seconds=time.timezone) - timedelta(hours=time.daylight)
-                self.db.set_timestamp(id, dt)
+                self.db.set_timestamp(id, qt_to_dt(val, as_utc=False))
             elif column == 'pubdate':
                 if val.isNull() or not val.isValid():
                     return False
-                dt = datetime(val.year(), val.month(), val.day()) + timedelta(seconds=time.timezone) - timedelta(hours=time.daylight)
-                self.db.set_pubdate(id, dt)
+                self.db.set_pubdate(id, qt_to_dt(val, as_utc=False))
             else:
                 self.db.set(row, column, val)
             self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
@@ -1032,7 +1028,8 @@ class DeviceBooksModel(BooksModel):
         def datecmp(x, y):
             x = self.db[x].datetime
             y = self.db[y].datetime
-            return cmp(datetime(*x[0:6]), datetime(*y[0:6]))
+            return cmp(dt_factory(x, assume_utc=True), dt_factory(y,
+                assume_utc=True))
         def sizecmp(x, y):
             x, y = int(self.db[x].size), int(self.db[y].size)
             return cmp(x, y)
@@ -1081,10 +1078,8 @@ class DeviceBooksModel(BooksModel):
             type = ext[1:].lower()
         data[_('Format')] = type
         data[_('Path')] = item.path
-        dt = item.datetime
-        dt = datetime(*dt[0:6])
-        dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-        data[_('Timestamp')] = strftime('%a %b %d %H:%M:%S %Y', dt.timetuple())
+        dt = dt_factory(item.datetime, assume_utc=True)
+        data[_('Timestamp')] = isoformat(dt, sep=' ', as_utc=False)
         data[_('Tags')] = ', '.join(item.tags)
         self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
 
@@ -1119,8 +1114,7 @@ class DeviceBooksModel(BooksModel):
                 return QVariant(BooksView.human_readable(size))
             elif col == 3:
                 dt = self.db[self.map[row]].datetime
-                dt = datetime(*dt[0:6])
-                dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
+                dt = dt_factory(dt, assume_utc=True, as_utc=False)
                 return QVariant(strftime(BooksView.TIME_FMT, dt.timetuple()))
             elif col == 4:
                 tags = self.db[self.map[row]].tags

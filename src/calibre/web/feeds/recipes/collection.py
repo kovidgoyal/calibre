@@ -8,14 +8,14 @@ __docformat__ = 'restructuredtext en'
 
 import os, calendar
 from threading import RLock
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre import browser
 from calibre.utils.date import parse_date, now as nowf, utcnow, tzlocal, \
-        isoformat
+        isoformat, fromordinal
 
 NS = 'http://calibre-ebook.com/recipe_collection'
 E = ElementMaker(namespace=NS, nsmap={None:NS})
@@ -163,7 +163,7 @@ class SchedulerConfig(object):
                     self.root.remove(x)
                     break
             if last_downloaded is None:
-                last_downloaded = datetime.fromordinal(1)
+                last_downloaded = fromordinal(1)
             sr = E.scheduled_recipe({
                 'id' : recipe.get('id'),
                 'title': recipe.get('title'),

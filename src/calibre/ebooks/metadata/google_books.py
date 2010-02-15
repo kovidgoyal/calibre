@@ -6,14 +6,13 @@ __docformat__ = 'restructuredtext en'
 import sys, textwrap
 from urllib import urlencode
 from functools import partial
-from datetime import datetime
 
 from lxml import etree
 
 from calibre import browser, preferred_encoding
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import OptionParser
-from calibre.utils.date import parse_date
+from calibre.utils.date import parse_date, utcnow
 
 NAMESPACES = {
               'openSearch':'http://a9.com/-/spec/opensearchrss/1.0/',
@@ -156,7 +155,7 @@ class ResultList(list):
         try:
             d = date(entry)
             if d:
-                default = datetime.utcnow().replace(day=15)
+                default = utcnow().replace(day=15)
                 d = parse_date(d[0].text, assume_utc=True, default=default)
             else:
                 d = None

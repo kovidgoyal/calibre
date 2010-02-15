@@ -11,8 +11,8 @@ from datetime import datetime
 from dateutil.parser import parse
 from dateutil.tz import tzlocal, tzutc
 
-_utc_tz = tzutc()
-_local_tz = tzlocal()
+utc_tz = _utc_tz = tzutc()
+local_tz = _local_tz = tzlocal()
 
 def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     '''
@@ -34,17 +34,48 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     dt = parse(date_string, default=default)
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
-    dt = dt.astimezone(_utc_tz if as_utc else _local_tz)
+    return dt.astimezone(_utc_tz if as_utc else _local_tz)
+
+def strptime(val, fmt, assume_utc=False, as_utc=True):
+    dt = datetime.strptime(val, fmt)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
+    return dt.astimezone(_utc_tz if as_utc else _local_tz)
+
+def dt_factory(time_t, assume_utc=False, as_utc=True):
+    dt = datetime(time_t[0:6])
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
+    return dt.astimezone(_utc_tz if as_utc else _local_tz)
+
+def qt_to_dt(qdate_or_qdatetime, as_utc=True):
+    from PyQt4.Qt import Qt
+    o = qdate_or_qdatetime
+    if hasattr(o, 'toUTC'):
+        # QDateTime
+        o = unicode(o.toUTC().toString(Qt.ISODate))
+        return parse_date(o, assume_utc=True, as_utc=as_utc)
+    dt = datetime(o.year(), o.month(), o.day()).replace(tzinfo=_local_tz)
+    return dt.astimezone(_utc_tz if as_utc else _local_tz)
+
+def fromtimestamp(ctime, as_utc=True):
+    dt = datetime.utcfromtimestamp().replace(tzinfo=_utc_tz)
+    if not as_utc:
+        dt = dt.astimezone(_local_tz)
     return dt
 
-def isoformat(date_time, assume_utc=False, as_utc=True):
+def fromordinal(day, as_utc=True):
+    return datetime.fromordinal(day).replace(
+            tzinfo=_utc_tz if as_utc else _local_tz)
+
+def isoformat(date_time, assume_utc=False, as_utc=True, sep='T'):
     if not hasattr(date_time, 'tzinfo'):
         return unicode(date_time.isoformat())
     if date_time.tzinfo is None:
         date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else
                 _local_tz)
     date_time = date_time.astimezone(_utc_tz if as_utc else _local_tz)
-    return unicode(date_time.isoformat())
+    return unicode(date_time.isoformat(sep))
 
 def now():
     return datetime.now().replace(tzinfo=_local_tz)

@@ -11,7 +11,6 @@ import sys, textwrap, operator, os, re, logging, cStringIO
 import __builtin__
 from itertools import repeat
 from logging.handlers import RotatingFileHandler
-from datetime import datetime
 from threading import Thread
 
 import cherrypy
@@ -31,15 +30,16 @@ from calibre.utils.config import config_dir
 from calibre.utils.mdns import publish as publish_zeroconf, \
                                stop_server as stop_zeroconf
 from calibre.ebooks.metadata import fmt_sidx, title_sort
+from calibre.utils.date import now as nowf, fromtimestamp
 
 def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
     if not hasattr(dt, 'timetuple'):
-        dt = datetime.now()
+        dt = nowf()
     dt = dt.timetuple()
     try:
         return _strftime(fmt, dt)
     except:
-        return _strftime(fmt, datetime.now().timetuple())
+        return _strftime(fmt, nowf().timetuple())
 
 def expose(func):
 
@@ -351,7 +351,7 @@ class LibraryServer(object):
                         map(int, self.opts.max_cover.split('x'))
         self.max_stanza_items = opts.max_opds_items
         path = P('content_server')
-        self.build_time = datetime.fromtimestamp(os.stat(path).st_mtime)
+        self.build_time = fromtimestamp(os.stat(path).st_mtime)
         self.default_cover =  open(P('content_server/default_cover.jpg'), 'rb').read()
 
         cherrypy.config.update({
@@ -429,7 +429,7 @@ class LibraryServer(object):
         cherrypy.response.headers['Content-Type'] = 'image/jpeg'
         cherrypy.response.timeout = 3600
         path = getattr(cover, 'name', False)
-        updated = datetime.utcfromtimestamp(os.stat(path).st_mtime) if path and \
+        updated = fromtimestamp(os.stat(path).st_mtime) if path and \
             os.access(path, os.R_OK) else self.build_time
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         try:
@@ -476,7 +476,7 @@ class LibraryServer(object):
         cherrypy.response.timeout = 3600
         path = getattr(fmt, 'name', None)
         if path and os.path.exists(path):
-            updated = datetime.utcfromtimestamp(os.stat(path).st_mtime)
+            updated = fromtimestamp(os.stat(path).st_mtime)
             cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         return fmt.read()
 
@@ -841,7 +841,7 @@ class LibraryServer(object):
         if not os.path.exists(path):
             raise cherrypy.HTTPError(404, '%s not found'%name)
         if self.opts.develop:
-            lm = datetime.fromtimestamp(os.stat(path).st_mtime)
+            lm = fromtimestamp(os.stat(path).st_mtime)
             cherrypy.response.headers['Last-Modified'] = self.last_modified(lm)
         return open(path, 'rb').read()
 

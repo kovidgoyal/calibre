@@ -10,7 +10,6 @@ import os
 import re
 import time
 import traceback
-from datetime import datetime, timedelta
 
 from PyQt4.Qt import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDate, \
     QPixmap, QListWidgetItem, QDialog
@@ -29,6 +28,7 @@ from calibre.ebooks.metadata.library_thing import cover_from_isbn
 from calibre import islinux
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.utils.config import prefs, tweaks
+from calibre.utils.date import qt_to_dt
 from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
 from calibre.gui2.dialogs.config.social import SocialMetadata
 
@@ -354,12 +354,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.comments.setPlainText(comments if comments else '')
         cover = self.db.cover(row)
         pubdate = db.pubdate(self.id, index_is_id=True)
-        self.local_timezone_offset = timedelta(seconds=time.timezone) - timedelta(hours=time.daylight)
-        pubdate = pubdate - self.local_timezone_offset
         self.pubdate.setDate(QDate(pubdate.year, pubdate.month,
             pubdate.day))
         timestamp = db.timestamp(self.id, index_is_id=True)
-        timestamp = timestamp - self.local_timezone_offset
         self.date.setDate(QDate(timestamp.year, timestamp.month,
             timestamp.day))
 
@@ -583,7 +580,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         if book.isbn: self.isbn.setText(book.isbn)
                         if book.pubdate:
                             d = book.pubdate
-                            d = d - self.local_timezone_offset
                             self.pubdate.setDate(QDate(d.year, d.month, d.day))
                         summ = book.comments
                         if summ:
@@ -656,12 +652,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.db.set_series_index(self.id, self.series_index.value(), notify=False)
             self.db.set_comment(self.id, qstring_to_unicode(self.comments.toPlainText()), notify=False)
             d = self.pubdate.date()
-            d = datetime(d.year(), d.month(), d.day())
-            d = d + self.local_timezone_offset
+            d = qt_to_dt(d)
             self.db.set_pubdate(self.id, d)
             d = self.date.date()
-            d = datetime(d.year(), d.month(), d.day())
-            d = d + self.local_timezone_offset
+            d = qt_to_dt(d)
             self.db.set_timestamp(self.id, d)
 
             if self.cover_changed:

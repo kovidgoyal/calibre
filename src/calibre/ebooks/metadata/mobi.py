@@ -11,11 +11,11 @@ __docformat__ = 'restructuredtext en'
 
 from struct import pack, unpack
 from cStringIO import StringIO
-from datetime import datetime
 
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.writer import rescale_image, MAX_THUMB_DIMEN
 from calibre.ebooks.mobi.langcodes import iana2mobi
+from calibre.utils.date import now as nowf
 
 class StreamSlicer(object):
 
@@ -331,7 +331,7 @@ class MetadataUpdater(object):
             recs.append((106, self.timestamp))
             pop_exth_record(106)
         else:
-            recs.append((106, str(datetime.now()).encode(self.codec, 'replace')))
+            recs.append((106, nowf().isoformat().encode(self.codec, 'replace')))
             pop_exth_record(106)
         if self.cover_record is not None:
             recs.append((201, pack('>I', self.cover_rindex)))

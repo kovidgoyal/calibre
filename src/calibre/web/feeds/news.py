@@ -11,7 +11,6 @@ import os, time, traceback, re, urlparse, sys
 from collections import defaultdict
 from functools import partial
 from contextlib import nested, closing
-from datetime import datetime
 
 
 from calibre import browser, __appname__, iswindows, \
@@ -29,7 +28,7 @@ from calibre.web.fetch.simple import RecursiveFetcher
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ptempfile import PersistentTemporaryFile, \
                               PersistentTemporaryDirectory
-
+from calibre.utils.date import now as nowf
 
 class BasicNewsRecipe(Recipe):
     '''
@@ -1080,11 +1079,11 @@ class BasicNewsRecipe(Recipe):
         mi.publisher = __appname__
         mi.author_sort = __appname__
         mi.publication_type = 'periodical:'+self.publication_type
-        mi.timestamp = datetime.now()
+        mi.timestamp = nowf()
         mi.comments = self.description
         if not isinstance(mi.comments, unicode):
             mi.comments = mi.comments.decode('utf-8', 'replace')
-        mi.pubdate = datetime.now()
+        mi.pubdate = nowf()
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
 
