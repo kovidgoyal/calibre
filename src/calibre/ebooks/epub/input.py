@@ -132,6 +132,8 @@ class EPUBInput(InputFormatPlugin):
 
         self.rationalize_cover(opf, log)
 
+        self.optimize_opf_parsing = opf
+
         with open('content.opf', 'wb') as nopf:
             nopf.write(opf.render())
 
