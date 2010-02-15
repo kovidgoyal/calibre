@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-12 23:37+0000\n"
-"PO-Revision-Date: 2010-02-12 23:18+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-02-14 20:40+0000\n"
+"Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-14 04:59+0000\n"
+"X-Launchpad-Export-Date: 2010-02-15 04:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1866,6 +1866,8 @@ msgid ""
 "Extract common e-book formats from archives (zip/rar) files. Also try to "
 "autodetect if they are actually cbz/cbr files."
 msgstr ""
+"Extrahiere bekannte eBook-Formate aus Archivdateien (ZIP/RAR). Versuche "
+"zudem zu erkennen, ob diese Dateien eventuell CBZ/CBR Dateien sind."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:19
 msgid "options"
@@ -3559,7 +3561,7 @@ msgstr "Kindle Optionen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:64
 msgid "Masthead font:"
-msgstr ""
+msgstr "Impressumsschrift:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -5556,24 +5558,29 @@ msgstr "Alle diese &unerwünschten Worte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:120
 msgid "What kind of match to use:"
-msgstr ""
+msgstr "Folgende Übereinstimmung verwenden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:121
 msgid "Contains: the word or phrase matches anywhere in the metadata"
 msgstr ""
+"Enthalten: Word oder Ausdruck stimmt irgendwo in den Metadaten überein"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:122
 msgid "Equals: the word or phrase must match an entire metadata field"
 msgstr ""
+"Übereinstimmend: Word oder Ausdruck muss mit einem ganzen Metadatenfeld "
+"übereinstimmen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:123
 msgid ""
 "Regular expression: the expression must match anywhere in the metadata"
 msgstr ""
+"Regulärer Ausdruck: der Reguläre Ausdruck muss irgendwo in den Metadaten "
+"übereinstimmen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:124
 msgid " "
-msgstr ""
+msgstr " "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:125
 msgid ""
@@ -7961,6 +7968,11 @@ msgid ""
 "Default: '%default'None\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Speichert die Ausgabe der veschiedenen Stufen der Konvertierungspipeline in "
+"das angegebene Verzeichnis. Nützlich, um festzustellen, in welcher Stufe des "
+"Konvertierungsvorgangs Fehler auftreten.\n"
+"Standard: '%default'Nirgends\n"
+"Betrifft: ePub und MOBI Ausgabeformate"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:268
 msgid ""
@@ -7981,11 +7993,12 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Komma-getrennte Liste der Etiketten, die von der Ausgabe auszuschließende "
-"Bücher kennzeichnen. Berücksichtigt keine Groß-/Kleinschreibung.\n"
-"--Ausschluß=überspringen schließt 'Buch überspringen' und ' Überspringen' "
+"Durch Kommata getrennte Liste der Etiketten, die von der Ausgabe "
+"auszuschließende Bücher kennzeichnen. Berücksichtigt keine Groß-"
+"/Kleinschreibung.\n"
+"--exclude-tags=überspringen schließt 'Buch überspringen' und ' Überspringen' "
 "aus.\n"
-"Standard: '%default'\n"
+"Voreinstellung: '%default'\n"
 "Betrifft: ePub und MOBI Ausgabeformate"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:280
@@ -8377,9 +8390,10 @@ msgid ""
 "If declared, --search is ignored.\n"
 "Default: all"
 msgstr ""
-"Komma-getrennte Liste der Datenbank-IDs die zu katalogisieren sind.\n"
-"Wenn angegeben, --wird die Suche ignoriert.\n"
-"Standard: Alle"
+"Durch Kommata getrennte Liste der Datenbank-IDs, die zu katalogisieren "
+"sind.\n"
+"Wenn angegeben, wird --search ignoriert.\n"
+"Voreinstellung: Alle"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:652
 msgid ""
