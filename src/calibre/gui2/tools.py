@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Logic for setting up conversion jobs
 '''
 
-import cPickle
+import cPickle, os
 
 from PyQt4.Qt import QDialog, QProgressDialog, QString, QTimer, SIGNAL
 
@@ -236,7 +236,7 @@ def fetch_scheduled_recipe(arg):
 
     return 'gui_convert', args, _('Fetch news from ')+arg['title'], fmt.upper(), [pt]
 
-def generate_catalog(parent, dbspec, ids):
+def generate_catalog(parent, dbspec, ids, device):
     from calibre.gui2.dialogs.catalog import Catalog
 
     # Build the Catalog dialog in gui2.dialogs.catalog
@@ -248,6 +248,23 @@ def generate_catalog(parent, dbspec, ids):
     # Create the output file
     out = PersistentTemporaryFile(suffix='_catalog_out.'+d.catalog_format.lower())
 
+    # Profile the connected device
+    # Parallel initialization in calibre.library.cli:command_catalog()
+    connected_device = { 'storage':None,'serial':None,'name':None}
+    if device:
+        storage = []
+        if device._main_prefix:
+            storage.append(os.path.join(device._main_prefix, device.EBOOK_DIR_MAIN))
+        if device._card_a_prefix:
+            storage.append(os.path.join(device._card_a_prefix, device.EBOOK_DIR_CARD_A))
+        if device._card_b_prefix:
+            storage.append(os.path.join(device._card_b_prefix, device.EBOOK_DIR_CARD_B))
+        connected_device = {'storage': storage,
+                             'serial': device.detected_device.serial if \
+                                       hasattr(device.detected_device,'serial') else None,
+                               'name': device.gui_name}
+
+    # These args are passed inline to gui2.convert.gui_conversion:gui_catalog
     args = [
         d.catalog_format,
         d.catalog_title,
@@ -255,12 +272,13 @@ def generate_catalog(parent, dbspec, ids):
         ids,
         out.name,
         d.catalog_sync,
-        d.fmt_options
+        d.fmt_options,
+        connected_device
         ]
     out.close()
 
     # This returns to gui2.ui:generate_catalog()
-    # Which then calls gui2.convert.gui_conversion:gui_catalog()
+    # Which then calls gui2.convert.gui_conversion:gui_catalog() with the args inline
     return 'gui_catalog', args, _('Generate catalog'), out.name, d.catalog_sync, \
             d.catalog_title
 

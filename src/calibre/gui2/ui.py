@@ -1379,7 +1379,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     show=True)
 
         # Calling gui2.tools:generate_catalog()
-        ret = generate_catalog(self, dbspec, ids)
+        ret = generate_catalog(self, dbspec, ids, self.device_manager.device)
         if ret is None:
             return
 

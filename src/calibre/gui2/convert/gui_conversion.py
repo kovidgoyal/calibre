@@ -23,7 +23,7 @@ def gui_convert(input, output, recommendations, notification=DummyReporter(),
 
     plumber.run()
 
-def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options,
+def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options, connected_device,
         notification=DummyReporter(), log=None):
     if log is None:
         log = Log()
@@ -44,6 +44,7 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options,
     # Populate opts
     # opts.gui_search_text = something
     opts.catalog_title = title
+    opts.connected_device = connected_device
     opts.ids = ids
     opts.search_text = None
     opts.sort_by = None
