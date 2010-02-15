@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import socket, time
+import socket, time, atexit
 
 _server = None
 
@@ -36,7 +36,14 @@ def start_server():
     global _server
     if _server is None:
         from calibre.utils.Zeroconf import Zeroconf
-        _server = Zeroconf(bindaddress=get_external_ip())
+        try:
+            _server = Zeroconf()
+        except:
+            time.sleep(0.2)
+            _server = Zeroconf()
+
+        atexit.register(stop_server)
+
     return _server
 
 def publish(desc, type, port, properties=None, add_hostname=True):
@@ -70,4 +77,7 @@ def publish(desc, type, port, properties=None, add_hostname=True):
 def stop_server():
     global _server
     if _server is not None:
-        _server.close()
+        try:
+            _server.close()
+        finally:
+            _server = None
