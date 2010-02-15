@@ -12,6 +12,7 @@ from calibre.customize.ui import input_profiles, output_profiles, \
         run_plugins_on_preprocess, run_plugins_on_postprocess
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils.date import parse_date
 from calibre import extract, walk
 
 DEBUG_README=u'''
@@ -65,7 +66,7 @@ class Plumber(object):
     metadata_option_names = [
         'title', 'authors', 'title_sort', 'author_sort', 'cover', 'comments',
         'publisher', 'series', 'series_index', 'rating', 'isbn',
-        'tags', 'book_producer', 'language'
+        'tags', 'book_producer', 'language', 'pubdate', 'timestamp'
         ]
 
     def __init__(self, input, output, log, report_progress=DummyReporter(),
@@ -461,6 +462,14 @@ OptionRecommendation(name='language',
     recommended_value=None, level=OptionRecommendation.LOW,
     help=_('Set the language.')),
 
+OptionRecommendation(name='pubdate',
+    recommended_value=None, level=OptionRecommendation.LOW,
+    help=_('Set the publication date.')),
+
+OptionRecommendation(name='timestamp',
+    recommended_value=None, level=OptionRecommendation.LOW,
+    help=_('Set the book timestamp (used by the date column in calibre).')),
+
 ]
 
         input_fmt = os.path.splitext(self.input)[1]
@@ -619,6 +628,14 @@ OptionRecommendation(name='language',
                     except ValueError:
                         self.log.warn(_('Values of series index and rating must'
                         ' be numbers. Ignoring'), val)
+                        continue
+                elif x in ('timestamp', 'pubdate'):
+                    try:
+                        val = parse_date(val, assume_utc=x=='pubdate')
+                    except:
+                        self.log.exception(_('Failed to parse date/time') + ' ' +
+                                unicode(val))
+                        continue
                 setattr(mi, x, val)
 
 

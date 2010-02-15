@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Scheduler for automated recipe downloads
 '''
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from PyQt4.Qt import QDialog, SIGNAL, Qt, QTime, QObject, QMenu, \
         QAction, QIcon, QMutex, QTimer
@@ -17,6 +17,7 @@ from calibre.gui2.search_box import SearchBox2
 from calibre.gui2 import config as gconf, error_dialog
 from calibre.web.feeds.recipes.model import RecipeModel
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.date import utcnow
 
 class SchedulerDialog(QDialog, Ui_Dialog):
 
@@ -185,7 +186,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
                 self.day.setCurrentIndex(day+1)
                 self.time.setTime(QTime(hour, minute))
 
-            d = datetime.utcnow() - last_downloaded
+            d = utcnow() - last_downloaded
             def hm(x): return (x-x%3600)//3600, (x%3600 - (x%3600)%60)//60
             hours, minutes = hm(d.seconds)
             tm = _('%d days, %d hours and %d minutes ago')%(d.days, hours, minutes)

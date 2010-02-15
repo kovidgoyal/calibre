@@ -12,12 +12,12 @@ from urllib import unquote
 from urlparse import urlparse
 
 from lxml import etree
-from dateutil import parser
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.constants import __appname__, __version__, filesystem_encoding
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from calibre.utils.date import parse_date, isoformat
 
 
 class Resource(object):
@@ -449,9 +449,10 @@ class OPF(object):
     series          = MetadataField('series', is_dc=False)
     series_index    = MetadataField('series_index', is_dc=False, formatter=float, none_is=1)
     rating          = MetadataField('rating', is_dc=False, formatter=int)
-    pubdate         = MetadataField('date', formatter=parser.parse)
+    pubdate         = MetadataField('date', formatter=parse_date)
     publication_type = MetadataField('publication_type', is_dc=False)
-    timestamp       = MetadataField('timestamp', is_dc=False, formatter=parser.parse)
+    timestamp       = MetadataField('timestamp', is_dc=False,
+                                    formatter=parse_date)
 
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True):
@@ -1046,7 +1047,7 @@ def metadata_to_opf(mi, as_string=True):
         factory(DC('creator'), au, mi.author_sort, 'aut')
     factory(DC('contributor'), mi.book_producer, __appname__, 'bkp')
     if hasattr(mi.pubdate, 'isoformat'):
-        factory(DC('date'), mi.pubdate.isoformat())
+        factory(DC('date'), isoformat(mi.pubdate))
     factory(DC('language'), mi.language)
     if mi.category:
         factory(DC('type'), mi.category)
@@ -1069,7 +1070,7 @@ def metadata_to_opf(mi, as_string=True):
     if mi.rating is not None:
         meta('rating', str(mi.rating))
     if hasattr(mi.timestamp, 'isoformat'):
-        meta('timestamp', mi.timestamp.isoformat())
+        meta('timestamp', isoformat(mi.timestamp))
     if mi.publication_type:
         meta('publication_type', mi.publication_type)
 

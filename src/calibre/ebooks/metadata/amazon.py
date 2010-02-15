@@ -10,9 +10,9 @@ import sys, re
 from datetime import datetime
 
 from lxml import etree
-from dateutil import parser
 
 from calibre import browser
+from calibre.utils.date import parse_date
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
 AWS_NS = 'http://webservices.amazon.com/AWSECommerceService/2005-10-05'
@@ -44,9 +44,8 @@ def get_social_metadata(title, authors, publisher, isbn):
         try:
             d = root.findtext('.//'+AWS('PublicationDate'))
             if d:
-                default = datetime.utcnow()
-                default = datetime(default.year, default.month, 15)
-                d = parser.parse(d[0].text, default=default)
+                default = datetime.utcnow().replace(day=15)
+                d = parse_date(d[0].text, assume_utc=True, default=default)
                 mi.pubdate = d
         except:
             pass
