@@ -12,6 +12,10 @@ from dateutil.parser import parse
 from dateutil.tz import tzlocal, tzutc
 
 class SafeLocalTimeZone(tzlocal):
+    '''
+    Assume DST was not in effect for historical dates, if DST
+    data for the local timezone is not present in the operating system.
+    '''
 
     def _isdst(self, dt):
         try:
