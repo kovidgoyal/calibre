@@ -25,7 +25,7 @@ class SueddeutcheZeitung(BasicNewsRecipe):
     LOGIN                  = PREFIX + '/app/lbox/index.html'
     use_embedded_content   = False
     masthead_url           = 'http://pix.sueddeutsche.de/img/g_.gif'
-    language               = 'de_DE'
+    language               = 'de'
     extra_css              = ' body{font-family: Arial,Helvetica,sans-serif} '
 
     conversion_options = {

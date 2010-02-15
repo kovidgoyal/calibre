@@ -184,8 +184,9 @@ class EbookIterator(object):
         if hasattr(self.pathtoopf, 'manifest'):
             self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
 
-
-        self.opf = OPF(self.pathtoopf, os.path.dirname(self.pathtoopf))
+        self.opf = getattr(plumber.input_plugin, 'optimize_opf_parsing', None)
+        if self.opf is None:
+            self.opf = OPF(self.pathtoopf, os.path.dirname(self.pathtoopf))
         self.language = self.opf.language
         if self.language:
             self.language = self.language.lower()

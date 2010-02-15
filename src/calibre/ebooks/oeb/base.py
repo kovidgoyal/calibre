@@ -1578,14 +1578,17 @@ class TOC(object):
             parent = etree.Element(NCX('navMap'))
         for node in self.nodes:
             id = node.id or unicode(uuid.uuid4())
-            attrib = {'id': id, 'playOrder': str(node.play_order)}
+            po = node.play_order
+            if po == 0:
+                po = 1
+            attrib = {'id': id, 'playOrder': str(po)}
             if node.klass:
                 attrib['class'] = node.klass
             point = element(parent, NCX('navPoint'), attrib=attrib)
             label = etree.SubElement(point, NCX('navLabel'))
             title = node.title
             if title:
-                title = re.sub(r'\s', ' ', title)
+                title = re.sub(r'\s+', ' ', title)
             element(label, NCX('text')).text = title
             element(point, NCX('content'), src=urlunquote(node.href))
             node.to_ncx(point)

@@ -8,13 +8,14 @@ __docformat__ = 'restructuredtext en'
 
 import os, calendar
 from threading import RLock
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from lxml import etree
 from lxml.builder import ElementMaker
-from dateutil import parser
 
 from calibre import browser
+from calibre.utils.date import parse_date, now as nowf, utcnow, tzlocal, \
+        isoformat, fromordinal
 
 NS = 'http://calibre-ebook.com/recipe_collection'
 E = ElementMaker(namespace=NS, nsmap={None:NS})
@@ -125,7 +126,12 @@ class SchedulerConfig(object):
         self.lock = RLock()
         if os.access(self.conf_path, os.R_OK):
             with ExclusiveFile(self.conf_path) as f:
-                self.root = etree.fromstring(f.read())
+                try:
+                    self.root = etree.fromstring(f.read())
+                except:
+                    print 'Failed to read recipe scheduler config'
+                    import traceback
+                    traceback.print_exc()
         elif os.path.exists(old_conf_path):
             self.migrate_old_conf(old_conf_path)
 
@@ -151,17 +157,17 @@ class SchedulerConfig(object):
                     ld = x.get('last_downloaded', None)
                     if ld and last_downloaded is None:
                         try:
-                            last_downloaded = parser.parse(ld)
+                            last_downloaded = parse_date(ld)
                         except:
                             pass
                     self.root.remove(x)
                     break
             if last_downloaded is None:
-                last_downloaded = datetime.fromordinal(1)
+                last_downloaded = fromordinal(1)
             sr = E.scheduled_recipe({
                 'id' : recipe.get('id'),
                 'title': recipe.get('title'),
-                'last_downloaded':last_downloaded.isoformat(),
+                'last_downloaded':isoformat(last_downloaded),
                 }, self.serialize_schedule(schedule_type, schedule))
             self.root.append(sr)
             self.write_scheduler_file()
@@ -189,7 +195,7 @@ class SchedulerConfig(object):
 
     def update_last_downloaded(self, recipe_id):
         with self.lock:
-            now = datetime.utcnow()
+            now = utcnow()
             for x in self.iter_recipes():
                 if x.get('id', False) == recipe_id:
                     typ, sch, last_downloaded = self.un_serialize_schedule(x)
@@ -199,7 +205,7 @@ class SchedulerConfig(object):
                         if abs(actual_interval - nominal_interval) < \
                                 timedelta(hours=1):
                             now = last_downloaded + nominal_interval
-                    x.set('last_downloaded', now.isoformat())
+                    x.set('last_downloaded', isoformat(now))
                     break
             self.write_scheduler_file()
 
@@ -243,20 +249,18 @@ class SchedulerConfig(object):
                     sch = float(sch)
                 elif typ == 'day/time':
                     sch = list(map(int, sch.split(':')))
-                return typ, sch, parser.parse(recipe.get('last_downloaded'))
+                return typ, sch, parse_date(recipe.get('last_downloaded'))
 
     def recipe_needs_to_be_downloaded(self, recipe):
         try:
             typ, sch, ld = self.un_serialize_schedule(recipe)
         except:
             return False
-        utcnow = datetime.utcnow()
         if typ == 'interval':
-            return utcnow - ld > timedelta(sch)
+            return utcnow() - ld > timedelta(sch)
         elif typ == 'day/time':
-            now = datetime.now()
-            offset = now - utcnow
-            ld_local = ld + offset
+            now = nowf()
+            ld_local = ld.astimezone(tzlocal())
             day, hour, minute = sch
 
             is_today = day < 0 or day > 6 or \

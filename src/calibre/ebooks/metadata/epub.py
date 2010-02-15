@@ -69,7 +69,7 @@ class OCFReader(OCF):
         self.opf_path = self.container[OPF.MIMETYPE]
         try:
             with closing(self.open(self.opf_path)) as f:
-                self.opf = OPF(f, self.root)
+                self.opf = OPF(f, self.root, populate_spine=False)
         except KeyError:
             raise EPubException("missing OPF package file")
 
@@ -101,10 +101,9 @@ class OCFDirReader(OCFReader):
 def get_cover(opf, opf_path, stream):
     from calibre.ebooks import render_html_svg_workaround
     from calibre.utils.logging import default_log
-    spine = list(opf.spine_items())
-    if not spine:
+    cpage = opf.first_spine_item()
+    if not cpage:
         return
-    cpage = spine[0]
     with TemporaryDirectory('_epub_meta') as tdir:
         with CurrentDir(tdir):
             stream.seek(0)

@@ -9,7 +9,6 @@ The database used to store ebook metadata
 import os, re, sys, shutil, cStringIO, glob, collections, textwrap, \
        itertools, functools, traceback
 from itertools import repeat
-from datetime import datetime
 from math import floor
 
 from PyQt4.QtCore import QThread, QReadWriteLock
@@ -34,6 +33,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
 
 from calibre.utils.filenames import ascii_filename
+from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.ebooks import BOOK_EXTENSIONS
 
 if iswindows:
@@ -241,6 +241,7 @@ class ResultCache(SearchQueryParser):
             for x in all:
                 MAP[x] = FIELD_MAP[x]
             EXCLUDE_FIELDS = [MAP['rating'], MAP['cover']]
+            SPLITABLE_FIELDS = [MAP['authors'], MAP['tags'], MAP['formats']]
             location = [location] if location != 'all' else list(MAP.keys())
             for i, loc in enumerate(location):
                 location[i] = MAP[loc]
@@ -275,14 +276,14 @@ class ResultCache(SearchQueryParser):
                         matches.add(item[0])
                         continue
                     if loc not in EXCLUDE_FIELDS:
-                        if loc == MAP['tags'] or loc == MAP['authors']:
-                            vals = item[loc].split(',') ### check individual tags/authors, not the long string
+                        if loc in SPLITABLE_FIELDS:
+                            vals = item[loc].split(',') ### check individual tags/authors/formats, not the long string
                         else:
                             vals = [item[loc]]          ### make into list to make _match happy
                         if _match(q, vals, matchkind):
                             matches.add(item[0])
                             continue
-            return matches
+        return matches
 
     def remove(self, id):
         self._data[id] = None
@@ -714,12 +715,12 @@ class LibraryDatabase2(LibraryDatabase):
 
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''
-        return datetime.utcfromtimestamp(os.stat(self.dbpath).st_mtime)
+        return utcfromtimestamp(os.stat(self.dbpath).st_mtime)
 
     def check_if_modified(self):
         if self.last_modified() > self.last_update_check:
             self.refresh()
-        self.last_update_check = datetime.utcnow()
+        self.last_update_check = utcnow()
 
     def path(self, index, index_is_id=False):
         'Return the relative path to the directory containing this books files as a unicode string.'
@@ -1122,7 +1123,7 @@ class LibraryDatabase2(LibraryDatabase):
 
     def tags_older_than(self, tag, delta):
         tag = tag.lower().strip()
-        now = datetime.now()
+        now = nowf()
         for r in self.data._data:
             if r is not None:
                 if (now - r[FIELD_MAP['timestamp']]) > delta:
@@ -1483,7 +1484,7 @@ class LibraryDatabase2(LibraryDatabase):
             stream.close()
         self.conn.commit()
         if existing:
-            t = datetime.utcnow()
+            t = utcnow()
             self.set_timestamp(db_id, t, notify=False)
             self.set_pubdate(db_id, t, notify=False)
         self.data.refresh_ids(self, [db_id]) # Needed to update format list and size

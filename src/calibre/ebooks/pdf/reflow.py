@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys
+import sys, os
 
 from lxml import etree
 
@@ -46,6 +46,10 @@ class Image(Element):
     def to_html(self):
         return '<img src="%s" width="%dpx" height="%dpx"/>' % \
                 (self.src, int(self.width), int(self.height))
+
+    def dump(self, f):
+        f.write(self.to_html())
+        f.write('\n')
 
 
 class Text(Element):
@@ -90,6 +94,10 @@ class Text(Element):
 
     def to_html(self):
         return self.raw
+
+    def dump(self, f):
+        f.write(self.to_html().encode('utf-8'))
+        f.write('\n')
 
 class FontSizeStats(dict):
 
@@ -143,6 +151,14 @@ class Column(object):
     def add(self, elem):
         if elem in self.elements: return
         self.elements.append(elem)
+        self._post_add()
+
+    def prepend(self, elem):
+        if elem in self.elements: return
+        self.elements.insert(0, elem)
+        self._post_add()
+
+    def _post_add(self):
         self.elements.sort(cmp=lambda x,y:cmp(x.bottom,y.bottom))
         self.top = self.elements[0].top
         self.bottom = self.elements[-1].bottom
@@ -182,6 +198,11 @@ class Column(object):
         if idx == 0:
             return None
         return self.elements[idx-1]
+
+    def dump(self, f, num):
+        f.write('******** Column %d\n\n'%num)
+        for elem in self.elements:
+            elem.dump(f)
 
 
 class Box(list):
@@ -282,7 +303,6 @@ class Region(object):
                 mc = self.columns[0]
             return mc
 
-        print
         for c in singleton.columns:
             for elem in c:
                 col = most_suitable_column(elem)
@@ -308,16 +328,45 @@ class Region(object):
             self.absorb_region(region, at)
 
     def absorb_region(self, region, at):
-        src_iter = lambda x:x if at == 'bottom' else reversed
-        if len(region.columns) == len(self.columns):
-            for src, dest in zip(region.columns, self.columns):
-                for elem in src_iter(src):
-                    if at == 'bottom':
-                        dest.append(elem)
-                    else:
-                        dest.insert(0, elem)
+        if len(region.columns) <= len(self.columns):
+            for i in range(len(region.columns)):
+                src, dest = region.columns[i], self.columns[i]
+                if at != 'bottom':
+                    src = reversed(list(iter(src)))
+                for elem in src:
+                    func = dest.add if at == 'bottom' else dest.prepend
+                    func(elem)
+
         else:
-            pass
+            col_map = {}
+            for i, col in enumerate(region.columns):
+                max_overlap, max_overlap_index = 0, 0
+                for j, dcol in enumerate(self.columns):
+                    sint = Interval(col.left, col.right)
+                    dint = Interval(dcol.left, dcol.right)
+                    width = sint.intersection(dint).width
+                    if width > max_overlap:
+                        max_overlap = width
+                        max_overlap_index = j
+                col_map[i] = max_overlap_index
+            lines = max(map(len, region.columns))
+            if at == 'bottom':
+                lines = range(lines)
+            else:
+                lines = range(lines-1, -1, -1)
+            for i in lines:
+                for j, src in enumerate(region.columns):
+                    dest = self.columns[col_map[j]]
+                    if i < len(src):
+                        func = dest.add if at == 'bottom' else dest.prepend
+                        func(src.elements[i])
+
+    def dump(self, f):
+        f.write('############################################################\n')
+        f.write('########## Region (%d columns) ###############\n'%len(self.columns))
+        f.write('############################################################\n\n')
+        for i, col in enumerate(self.columns):
+            col.dump(f, i)
 
     def linearize(self):
         self.elements = []
@@ -391,7 +440,8 @@ class Page(object):
                 self.font_size_stats[t.font_size] = 0
             self.font_size_stats[t.font_size] += len(t.text_as_string)
             self.average_text_height += t.height
-        self.average_text_height /= len(self.texts)
+        if len(self.texts):
+            self.average_text_height /= len(self.texts)
 
         self.font_size_stats = FontSizeStats(self.font_size_stats)
 
@@ -446,7 +496,20 @@ class Page(object):
         if not current_region.is_empty:
             self.regions.append(current_region)
 
+        if self.opts.verbose > 2:
+            self.debug_dir = 'page-%d'%self.number
+            os.mkdir(self.debug_dir)
+            self.dump_regions('pre-coalesce')
+
         self.coalesce_regions()
+        self.dump_regions('post-coalesce')
+
+    def dump_regions(self, fname):
+        fname = 'regions-'+fname+'.txt'
+        with open(os.path.join(self.debug_dir, fname), 'wb') as f:
+            f.write('Page #%d\n\n'%self.number)
+            for region in self.regions:
+                region.dump(f)
 
     def coalesce_regions(self):
         # find contiguous sets of small regions
@@ -455,19 +518,25 @@ class Page(object):
         # region)
         found = True
         absorbed = set([])
+        processed = set([])
         while found:
             found = False
             for i, region in enumerate(self.regions):
-                if region.is_small:
+                if region in absorbed:
+                    continue
+                if region.is_small and region not in processed:
                     found = True
+                    processed.add(region)
                     regions = [region]
+                    end = i+1
                     for j in range(i+1, len(self.regions)):
+                        end = j
                         if self.regions[j].is_small:
                             regions.append(self.regions[j])
                         else:
                             break
                     prev_region = None if i == 0 else i-1
-                    next_region = j if self.regions[j] not in regions else None
+                    next_region = end if end < len(self.regions) and self.regions[end] not in regions else None
                     absorb_at = 'bottom'
                     if prev_region is None and next_region is not None:
                         absorb_into = next_region
@@ -476,28 +545,29 @@ class Page(object):
                         absorb_into = prev_region
                     elif prev_region is None and next_region is None:
                         if len(regions) > 1:
-                            absorb_into = regions[0]
+                            absorb_into = i
                             regions = regions[1:]
                         else:
                             absorb_into = None
                     else:
                         absorb_into = prev_region
-                        if next_region.line_count >= prev_region.line_count:
+                        if self.regions[next_region].line_count >= \
+                                self.regions[prev_region].line_count:
                             avg_column_count = sum([len(r.columns) for r in
                                 regions])/float(len(regions))
-                            if next_region.line_count > prev_region.line_count \
-                               or abs(avg_column_count - len(prev_region.columns)) \
-                               > abs(avg_column_count - len(next_region.columns)):
+                            if self.regions[next_region].line_count > \
+                                    self.regions[prev_region].line_count \
+                               or abs(avg_column_count -
+                                       len(self.regions[prev_region].columns)) \
+                               > abs(avg_column_count -
+                                       len(self.regions[next_region].columns)):
                                    absorb_into = next_region
                                    absorb_at = 'top'
                     if absorb_into is not None:
-                        absorb_into.absorb_regions(regions, absorb_at)
+                        self.regions[absorb_into].absorb_regions(regions, absorb_at)
                         absorbed.update(regions)
-                    i = j
         for region in absorbed:
             self.regions.remove(region)
-
-
 
     def sort_into_columns(self, elem, neighbors):
         neighbors.add(elem)
@@ -617,8 +687,9 @@ class PDFDocument(object):
         for elem in self.elements:
             html.extend(elem.to_html())
         html += ['</body>', '</html>']
+        raw = (u'\n'.join(html)).replace('</strong><strong>', '')
         with open('index.html', 'wb') as f:
-            f.write((u'\n'.join(html)).encode('utf-8'))
+            f.write(raw.encode('utf-8'))
 
 
 

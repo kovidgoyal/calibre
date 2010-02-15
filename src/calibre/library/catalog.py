@@ -11,6 +11,7 @@ from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.logging import Log
+from calibre.utils.date import isoformat
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
@@ -103,7 +104,9 @@ class CSV_XML(CatalogPlugin):
                         item = ', '.join(item)
                     elif field == 'isbn':
                         # Could be 9, 10 or 13 digits
-                        field = u'%s' % re.sub(r'[\D]','',field)
+                        item = u'%s' % re.sub(r'[\D]', '', item)
+                    elif field in ['pubdate', 'timestamp']:
+                        item = isoformat(item)
 
                     if x < len(fields) - 1:
                         if item is not None:
@@ -164,12 +167,12 @@ class CSV_XML(CatalogPlugin):
             if 'date' in fields:
                 record_child = etree.SubElement(record, 'date')
                 record_child.set(PY + "if", "record['date']")
-                record_child.text = "${record['date']}"
+                record_child.text = "${record['date'].isoformat()}"
 
             if 'pubdate' in fields:
                 record_child = etree.SubElement(record, 'pubdate')
                 record_child.set(PY + "if", "record['pubdate']")
-                record_child.text = "${record['pubdate']}"
+                record_child.text = "${record['pubdate'].isoformat()}"
 
             if 'size' in fields:
                 record_child = etree.SubElement(record, 'size')
