@@ -11,8 +11,17 @@ from datetime import datetime
 from dateutil.parser import parse
 from dateutil.tz import tzlocal, tzutc
 
+class SafeLocalTimeZone(tzlocal):
+
+    def _isdst(self, dt):
+        try:
+            return tzlocal._isdst(self, dt)
+        except ValueError:
+            pass
+        return False
+
 utc_tz = _utc_tz = tzutc()
-local_tz = _local_tz = tzlocal()
+local_tz = _local_tz = SafeLocalTimeZone()
 
 def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     '''
