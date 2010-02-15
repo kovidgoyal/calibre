@@ -445,6 +445,8 @@ class OPF(object):
     guide_path      = XPath('descendant::*[re:match(name(), "guide", "i")]/*[re:match(name(), "reference", "i")]')
 
     title           = MetadataField('title', formatter=lambda x: re.sub(r'\s+', ' ', x))
+    title_sort      = MetadataField('title_sort', formatter=lambda x:
+                        re.sub(r'\s+', ' ', x), is_dc=False)
     publisher       = MetadataField('publisher')
     language        = MetadataField('language')
     comments        = MetadataField('description')
@@ -687,29 +689,6 @@ class OPF(object):
                     if key.endswith('file-as'):
                         matches[0].attrib.pop(key)
                 matches[0].set('{%s}file-as'%self.NAMESPACES['opf'], unicode(val))
-
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
-    def title_sort(self):
-
-        def fget(self):
-            matches = self.title_path(self.metadata)
-            if matches:
-                for match in matches:
-                    ans = match.get('{%s}file-as'%self.NAMESPACES['opf'], None)
-                    if not ans:
-                        ans = match.get('file-as', None)
-                    if ans:
-                        return ans
-
-        def fset(self, val):
-            matches = self.title_path(self.metadata)
-            if matches:
-                for key in matches[0].attrib:
-                    if key.endswith('file-as'):
-                        matches[0].attrib.pop(key)
-                matches[0].set('file-as', unicode(val))
 
         return property(fget=fget, fset=fset)
 
@@ -1056,7 +1035,7 @@ def metadata_to_opf(mi, as_string=True):
             elem.text = text.strip()
         metadata.append(elem)
 
-    factory(DC('title'), mi.title, mi.title_sort)
+    factory(DC('title'), mi.title)
     for au in mi.authors:
         factory(DC('creator'), au, mi.author_sort, 'aut')
     factory(DC('contributor'), mi.book_producer, __appname__, 'bkp')
@@ -1087,6 +1066,8 @@ def metadata_to_opf(mi, as_string=True):
         meta('timestamp', isoformat(mi.timestamp))
     if mi.publication_type:
         meta('publication_type', mi.publication_type)
+    if mi.title_sort:
+        meta('title_sort', mi.title_sort)
 
     metadata[-1].tail = '\n' +(' '*4)
 
@@ -1103,12 +1084,12 @@ def metadata_to_opf(mi, as_string=True):
 
 
 def test_m2o():
-    from datetime import datetime
+    from calibre.utils.date import now as nowf
     from cStringIO import StringIO
     mi = MetaInformation('test & title', ['a"1', "a'2"])
     mi.title_sort = 'a\'"b'
     mi.author_sort = 'author sort'
-    mi.pubdate = datetime.now()
+    mi.pubdate = nowf()
     mi.language = 'en'
     mi.category = 'test'
     mi.comments = 'what a fun book\n\n'
@@ -1118,7 +1099,7 @@ def test_m2o():
     mi.series = 's"c\'l&<>'
     mi.series_index = 3.34
     mi.rating = 3
-    mi.timestamp = datetime.now()
+    mi.timestamp = nowf()
     mi.publication_type = 'ooooo'
     mi.rights = 'yes'
     mi.cover = 'asd.jpg'
