@@ -252,17 +252,20 @@ def generate_catalog(parent, dbspec, ids, device):
     # Parallel initialization in calibre.library.cli:command_catalog()
     connected_device = { 'storage':None,'serial':None,'name':None}
     if device:
-        storage = []
-        if device._main_prefix:
-            storage.append(os.path.join(device._main_prefix, device.EBOOK_DIR_MAIN))
-        if device._card_a_prefix:
-            storage.append(os.path.join(device._card_a_prefix, device.EBOOK_DIR_CARD_A))
-        if device._card_b_prefix:
-            storage.append(os.path.join(device._card_b_prefix, device.EBOOK_DIR_CARD_B))
-        connected_device = {'storage': storage,
-                             'serial': device.detected_device.serial if \
-                                       hasattr(device.detected_device,'serial') else None,
-                               'name': device.gui_name}
+        try:
+            storage = []
+            if device._main_prefix:
+                storage.append(os.path.join(device._main_prefix, device.EBOOK_DIR_MAIN))
+            if device._card_a_prefix:
+                storage.append(os.path.join(device._card_a_prefix, device.EBOOK_DIR_CARD_A))
+            if device._card_b_prefix:
+                storage.append(os.path.join(device._card_b_prefix, device.EBOOK_DIR_CARD_B))
+            connected_device = {'storage': storage,
+                                'serial': device.detected_device.serial if \
+                                        hasattr(device.detected_device,'serial') else None,
+                                'name': device.gui_name}
+        except:
+            pass
 
     # These args are passed inline to gui2.convert.gui_conversion:gui_catalog
     args = [

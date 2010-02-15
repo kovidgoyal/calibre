@@ -43,7 +43,7 @@ def strptime(val, fmt, assume_utc=False, as_utc=True):
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
 
 def dt_factory(time_t, assume_utc=False, as_utc=True):
-    dt = datetime(time_t[0:6])
+    dt = datetime(*(time_t[0:6]))
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
