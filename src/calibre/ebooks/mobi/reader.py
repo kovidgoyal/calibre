@@ -67,7 +67,10 @@ class EXTHHeader(object):
                 pass
             elif id == 503: # Long title
                 if not title or title == _('Unknown'):
-                    title = content
+                    try:
+                        title = content.decode(codec)
+                    except:
+                        pass
             #else:
             #    print 'unknown record', id, repr(content)
         if title:
