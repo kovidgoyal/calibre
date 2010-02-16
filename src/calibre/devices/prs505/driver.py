@@ -192,17 +192,15 @@ class PRS505(CLI, Device):
         fix_ids(*booklists)
         if not os.path.exists(self._main_prefix):
             os.makedirs(self._main_prefix)
-        f = open(self._main_prefix + self.__class__.MEDIA_XML, 'wb')
-        booklists[0].write(f)
-        f.close()
+        with open(self._main_prefix + self.__class__.MEDIA_XML, 'wb') as f:
+            booklists[0].write(f)
 
         def write_card_prefix(prefix, listid):
             if prefix is not None and hasattr(booklists[listid], 'write'):
                 if not os.path.exists(prefix):
                     os.makedirs(prefix)
-                f = open(prefix + self.__class__.CACHE_XML, 'wb')
-                booklists[listid].write(f)
-                f.close()
+                with open(prefix + self.__class__.CACHE_XML, 'wb') as f:
+                    booklists[listid].write(f)
         write_card_prefix(self._card_a_prefix, 1)
         write_card_prefix(self._card_b_prefix, 2)
 

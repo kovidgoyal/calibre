@@ -1,7 +1,7 @@
 from calibre.ebooks.metadata import authors_to_string
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, textwrap, traceback, re
+import os, textwrap, traceback, re, shutil
 from operator import attrgetter
 
 from math import cos, sin, pi
@@ -469,8 +469,10 @@ class BooksModel(QAbstractTableModel):
                     break
             if format is not None:
                 pt = PersistentTemporaryFile(suffix='.'+format)
-                pt.write(self.db.format(id, format, index_is_id=True))
+                src = self.db.format(id, format, index_is_id=True, as_file=True)
+                shutil.copyfileobj(src, pt)
                 pt.flush()
+                pt.seek(0)
                 if set_metadata:
                     _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
                                   format)
