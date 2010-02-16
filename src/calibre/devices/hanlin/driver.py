@@ -126,3 +126,15 @@ class BOOX(HANLINV3):
 
     EBOOK_DIR_MAIN = 'MyBooks'
     EBOOK_DIR_CARD_A = 'MyBooks'
+
+
+    def windows_sort_drives(self, drives):
+        main = drives.get('main', None)
+        card = drives.get('carda', None)
+        if card and main and card < main:
+            drives['main'] = card
+            drives['carda'] = main
+
+        return drives
+
+
