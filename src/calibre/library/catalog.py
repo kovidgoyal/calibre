@@ -1,4 +1,4 @@
-import datetime, htmlentitydefs, os, re, shutil, time, traceback
+import datetime, htmlentitydefs, os, re, shutil, time
 
 from collections import namedtuple
 from copy import deepcopy
@@ -2205,9 +2205,23 @@ class EPUB_MOBI(CatalogPlugin):
                 textTag = Tag(ncx_soup, "text")
                 if book['series']:
                     tokens = book['title'].split(': ')
-                    textTag.insert(0, NavigableString(self.formatNCXText('%s (%s)' % (tokens[1], tokens[0]), dest='title')))
+                    if self.generateForKindle:
+                        # Don't include Author for Kindle
+                        textTag.insert(0, NavigableString(self.formatNCXText('%s (%s)' % \
+                                                      (tokens[1], tokens[0]), dest='title')))
+                    else:
+                        # Include Author for non-Kindle
+                        textTag.insert(0, NavigableString(self.formatNCXText('%s &middot; %s (%s)' % \
+                                                      (tokens[1], book['author'], tokens[0]), dest='title')))
                 else:
-                    textTag.insert(0, NavigableString(self.formatNCXText(book['title'], dest='title')))
+                    if self.generateForKindle:
+                        # Don't include Author for Kindle
+                        textTag.insert(0, NavigableString(self.formatNCXText('%s' % (book['title']),
+                                                          dest='title')))
+                    else:
+                        # Include Author for non-Kindle
+                        textTag.insert(0, NavigableString(self.formatNCXText('%s &middot; %s' % \
+                                                      (book['title'], book['author']), dest='title')))
                 navLabelTag.insert(0,textTag)
                 navPointVolumeTag.insert(0,navLabelTag)
 
