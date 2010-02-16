@@ -357,6 +357,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.pubdate.setDate(QDate(pubdate.year, pubdate.month,
             pubdate.day))
         timestamp = db.timestamp(self.id, index_is_id=True)
+        self.orig_timestamp = timestamp
         self.date.setDate(QDate(timestamp.year, timestamp.month,
             timestamp.day))
 
@@ -656,7 +657,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.db.set_pubdate(self.id, d)
             d = self.date.date()
             d = qt_to_dt(d)
-            self.db.set_timestamp(self.id, d)
+            if d.date() != self.orig_timestamp.date():
+                self.db.set_timestamp(self.id, d)
 
             if self.cover_changed:
                 if self.cover_data is not None:
