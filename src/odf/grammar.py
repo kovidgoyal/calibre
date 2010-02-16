@@ -4670,6 +4670,7 @@ allowed_attributes = {
 	(NUMBERNS,u'boolean-style'):(
 		(NUMBERNS,u'transliteration-language'),
 		(STYLENS,u'name'),
+		(STYLENS,u'display-name'),
 		(NUMBERNS,u'language'),
 		(NUMBERNS,u'title'),
 		(NUMBERNS,u'country'),
@@ -4681,6 +4682,7 @@ allowed_attributes = {
 	(NUMBERNS,u'currency-style'):(
 		(NUMBERNS,u'transliteration-language'),
 		(STYLENS,u'name'),
+		(STYLENS,u'display-name'),
 		(NUMBERNS,u'language'),
 		(NUMBERNS,u'title'),
 		(NUMBERNS,u'country'),
@@ -4698,6 +4700,7 @@ allowed_attributes = {
 	(NUMBERNS,u'date-style'):(
 		(NUMBERNS,u'transliteration-language'),
 		(STYLENS,u'name'),
+		(STYLENS,u'display-name'),
 		(NUMBERNS,u'language'),
 		(NUMBERNS,u'title'),
 		(NUMBERNS,u'country'),
@@ -4753,6 +4756,7 @@ allowed_attributes = {
 	(NUMBERNS,u'number-style'):(
 		(NUMBERNS,u'transliteration-language'),
 		(STYLENS,u'name'),
+		(STYLENS,u'display-name'),
 		(NUMBERNS,u'language'),
 		(NUMBERNS,u'title'),
 		(NUMBERNS,u'country'),
@@ -4765,6 +4769,7 @@ allowed_attributes = {
 	(NUMBERNS,u'percentage-style'):(
 		(NUMBERNS,u'transliteration-language'),
 		(STYLENS,u'name'),
+		(STYLENS,u'display-name'),
 		(NUMBERNS,u'language'),
 		(NUMBERNS,u'title'),
 		(NUMBERNS,u'country'),
@@ -4794,6 +4799,7 @@ allowed_attributes = {
 	(NUMBERNS,u'text-style'):(
 		(NUMBERNS,u'transliteration-language'),
 		(STYLENS,u'name'),
+		(STYLENS,u'display-name'),
 		(NUMBERNS,u'language'),
 		(NUMBERNS,u'title'),
 		(NUMBERNS,u'country'),
@@ -4806,6 +4812,7 @@ allowed_attributes = {
 		(NUMBERNS,u'transliteration-language'),
 		(NUMBERNS,u'transliteration-format'),
 		(STYLENS,u'name'),
+		(STYLENS,u'display-name'),
 		(NUMBERNS,u'language'),
 		(NUMBERNS,u'title'),
 		(NUMBERNS,u'country'),

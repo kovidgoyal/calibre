@@ -2235,7 +2235,7 @@ class EPUB_MOBI(CatalogPlugin):
                     cmTag['name'] = "author"
                     navStr = '%s | %s' % (self.formatNCXText(book['author'], dest='author'),
                           book['date'].split()[1])
-                    if 'tags' in book:
+                    if 'tags' in book and len(book['tags']):
                         navStr = self.formatNCXText(navStr + ' | ' + ' &middot; '.join(sorted(book['tags'])), dest='author')
                     cmTag.insert(0, NavigableString(navStr))
                     navPointVolumeTag.insert(2, cmTag)
@@ -3298,10 +3298,10 @@ class EPUB_MOBI(CatalogPlugin):
             Deprecated HTML returns as HTML via BeautifulSoup()
 
             '''
-
-            # Explode lost CRs to \n\n
             # Hackish - ignoring sentences ending or beginning in numbers to avoid
             # confusion with decimal points.
+
+            # Explode lost CRs to \n\n
             for lost_cr in re.finditer('([a-z])([\.\?!])([A-Z])',comments):
                 comments = comments.replace(lost_cr.group(),
                                             '%s%s\n\n%s' % (lost_cr.group(1),
@@ -3323,6 +3323,8 @@ class EPUB_MOBI(CatalogPlugin):
             # Convert solo returns to <br />
             comments = re.sub('[\r\n]','<br />', comments)
 
+            # Convert two hypens to emdash
+            comments = re.sub('--','&mdash;',comments)
             soup = BeautifulSoup(comments)
 
             result = BeautifulSoup()
