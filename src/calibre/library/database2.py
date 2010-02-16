@@ -1580,6 +1580,8 @@ class LibraryDatabase2(LibraryDatabase):
             ids.append(id)
             self.set_path(id, True)
             self.conn.commit()
+            if mi.timestamp is None:
+                mi.timestamp = nowf()
             self.set_metadata(id, mi)
             npath = self.run_import_plugins(path, format)
             format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
@@ -1611,6 +1613,8 @@ class LibraryDatabase2(LibraryDatabase):
         id = obj.lastrowid
         self.data.books_added([id], self)
         self.set_path(id, True)
+        if mi.timestamp is None:
+            mi.timestamp = nowf()
         self.set_metadata(id, mi, ignore_errors=True)
         for path in formats:
             ext = os.path.splitext(path)[1][1:].lower()
