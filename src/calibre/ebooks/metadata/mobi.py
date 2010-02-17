@@ -187,6 +187,8 @@ class MetadataUpdater(object):
     def create_exth(self, new_title=None, exth=None):
         # Add an EXTH block to record 0, rewrite the stream
         # self.hexdump(self.record0)
+        if isinstance(new_title, unicode):
+            new_title = new_title.encode(self.codec, 'replace')
 
         # Fetch the existing title
         title_offset, = unpack('>L', self.record0[0x54:0x58])
@@ -219,12 +221,7 @@ class MetadataUpdater(object):
         new_record0 = StringIO()
         new_record0.write(self.record0[:0x10 + mobi_header_length])
         new_record0.write(exth)
-        if new_title:
-            #new_record0.write(new_title.encode(self.codec, 'replace'))
-            new_title = (new_title or _('Unknown')).encode(self.codec, 'replace')
-            new_record0.write(new_title)
-        else:
-            new_record0.write(title_in_file)
+        new_record0.write(new_title if new_title else title_in_file)
 
         # Pad to a 4-byte boundary
         trail = len(new_record0.getvalue()) % 4
