@@ -1751,7 +1751,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             today = datetime.datetime.now()
             date_range_list = []
-            today_time = datetime.datetime(today.year, today.month, today.day)
+            today_time = datetime.datetime(today.year, today.month, today.day, 23, 59, 59)
             books_added_in_date_range = False
             for (i, date) in enumerate(self.DATE_RANGE):
                 date_range_limit = self.DATE_RANGE[i]
@@ -1759,14 +1759,20 @@ class EPUB_MOBI(CatalogPlugin):
                     date_range = '%d to %d days ago' % (self.DATE_RANGE[i-1], self.DATE_RANGE[i])
                 else:
                     date_range = 'Last %d days' % (self.DATE_RANGE[i])
+
                 for book in self.booksByDateRange:
-                    book_time = datetime.datetime(book['timestamp'].year, book['timestamp'].month, book['timestamp'].day)
-                    if (today_time-book_time).days <= date_range_limit:
-                        #print "generateHTMLByDateAdded: %s added %d days ago" % (book['title'], (today_time-book_time).days)
+                    book_time = datetime.datetime(book['timestamp'].year,
+                                                  book['timestamp'].month,
+                                                  book['timestamp'].day,
+                                                  book['timestamp'].hour,
+                                                  book['timestamp'].minute)
+                    delta = today_time-book_time
+                    if delta.days <= date_range_limit:
                         date_range_list.append(book)
                         books_added_in_date_range = True
                     else:
                         break
+
                 dtc = add_books_to_HTML_by_date_range(date_range_list, date_range, dtc)
                 date_range_list = [book]
 
