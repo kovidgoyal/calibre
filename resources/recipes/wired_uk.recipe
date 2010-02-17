@@ -59,13 +59,13 @@ class Wired_UK(BasicNewsRecipe):
                                  ,'url'        :url
                                  ,'description':description
                                 })
-        totalfeeds.append(('Articles',mfeed))
+        totalfeeds.append(('Articles', mfeed))
         return totalfeeds
 
     def get_cover_url(self):
         cover_url = None
         soup = self.index_to_soup(self.index)
-        cover_item = soup.find('span',attrs={'class':'cover'})
+        cover_item = soup.find('span', attrs={'class':'cover'})
         if cover_item:
            cover_url = cover_item.img['src']
         return cover_url
