@@ -1,4 +1,4 @@
-import datetime, htmlentitydefs, os, re, shutil, time
+import datetime, htmlentitydefs, os, re, shutil
 
 from collections import namedtuple
 from copy import deepcopy
