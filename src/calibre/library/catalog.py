@@ -3444,52 +3444,55 @@ class EPUB_MOBI(CatalogPlugin):
 
         opts.basename = "Catalog"
         opts.cli_environment = not hasattr(opts,'sync')
-        # GwR *** hardwired to sort by author, could be an option if passed in opts
         opts.sort_descriptions_by_author = True
+
+        build_log = []
 
         # If exclude_genre is blank, assume user wants all genre tags included
         if opts.exclude_genre.strip() == '':
             opts.exclude_genre = '\[^.\]'
-            log(" converting empty exclude_genre to '\[^.\]'")
+            build_log.append(" converting empty exclude_genre to '\[^.\]'")
 
         if opts.connected_device['name']:
             if opts.connected_device['serial']:
-                log(" connected_device: '%s' #%s%s " % \
+                build_log.append(" connected_device: '%s' #%s%s " % \
                     (opts.connected_device['name'],
                      opts.connected_device['serial'][0:4],
                      'x' * (len(opts.connected_device['serial']) - 4)))
             else:
-                log(" connected_device: '%s'" % opts.connected_device['name'])
+                build_log.append(" connected_device: '%s'" % opts.connected_device['name'])
                 for storage in opts.connected_device['storage']:
                     if storage:
-                        log("  mount point: %s" % storage)
+                        build_log.append("  mount point: %s" % storage)
+
+        opts_dict = vars(opts)
+        build_log.append(u"%s(): Generating %s %sin %s environment" %
+            (self.name,self.fmt,'for %s ' % opts.output_profile if opts.output_profile else '',
+             'CLI' if opts.cli_environment else 'GUI'))
+        if opts_dict['ids']:
+            build_log.append(" Book count: %d" % len(opts_dict['ids']))
+
+        sections_list = ['Descriptions','Authors']
+        if opts.generate_titles:
+            sections_list.append('Titles')
+        if opts.generate_recently_added:
+            sections_list.append('Recently Added')
+        if not opts.exclude_genre.strip() == '.':
+            sections_list.append('Genres')
+        build_log.append(u"Creating Sections for %s" % ', '.join(sections_list))
+
+        # Display opts
+        keys = opts_dict.keys()
+        keys.sort()
+        build_log.append(" opts:")
+        for key in keys:
+            if key in ['catalog_title','authorClip','descriptionClip','exclude_genre','exclude_tags',
+                       'note_tag','numbers_as_text','read_tag',
+                       'search_text','sort_by','sort_descriptions_by_author','sync']:
+                build_log.append("  %s: %s" % (key, opts_dict[key]))
 
         if opts.verbose:
-            opts_dict = vars(opts)
-            log(u"%s(): Generating %s %sin %s environment" %
-                (self.name,self.fmt,'for %s ' % opts.output_profile if opts.output_profile else '',
-                 'CLI' if opts.cli_environment else 'GUI'))
-            if opts_dict['ids']:
-                log(" Book count: %d" % len(opts_dict['ids']))
-
-            sections_list = ['Descriptions','Authors']
-            if opts.generate_titles:
-                sections_list.append('Titles')
-            if opts.generate_recently_added:
-                sections_list.append('Recently Added')
-            if not opts.exclude_genre.strip() == '.':
-                sections_list.append('Genres')
-            log(u"Creating Sections for %s" % ', '.join(sections_list))
-
-            # Display opts
-            keys = opts_dict.keys()
-            keys.sort()
-            log(" opts:")
-            for key in keys:
-                if key in ['catalog_title','authorClip','descriptionClip','exclude_genre','exclude_tags',
-                           'note_tag','numbers_as_text','read_tag',
-                           'search_text','sort_by','sort_descriptions_by_author','sync']:
-                    log("  %s: %s" % (key, opts_dict[key]))
+            log('\n'.join(line for line in build_log))
 
         self.opts = opts
 
@@ -3509,7 +3512,8 @@ class EPUB_MOBI(CatalogPlugin):
 
         if catalog_source_built:
             recommendations = []
-            # recommendations.append(('cover', I('catalog.svg'), OptionRecommendation.HIGH))
+            recommendations.append(('comments', '\n'.join(line for line in build_log),
+                    OptionRecommendation.HIGH))
 
             dp = getattr(opts, 'debug_pipeline', None)
             if dp is not None:
@@ -3530,7 +3534,6 @@ class EPUB_MOBI(CatalogPlugin):
                             opts.basename + '.opf'), path_to_output, log, report_progress=notification,
                             abort_after_input_dump=False)
             plumber.merge_ui_recommendations(recommendations)
-
             plumber.run()
             return 0
         else:
