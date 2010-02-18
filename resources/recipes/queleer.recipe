@@ -1,0 +1,56 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.que-leer.com
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class QueLeer(BasicNewsRecipe):
+    title                 = 'Que Leer'
+    __author__            = 'Darko Miletic'
+    description           = 'Libros, Novedades en libros, Criticas, Noticias libro'
+    publisher             = 'MC Ediciones, S.A.'
+    category              = 'news, books, criticas, libros'
+    oldest_article        = 7
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf-8'
+    use_embedded_content  = False
+    language              = 'es'
+    remove_empty_feeds    = True
+    masthead_url          = 'http://www.que-leer.com/wp-content/themes/queleer/images/backgrounds/que-leer.jpg'
+    extra_css             = ' body{font-family: Arial,sans-serif } img{margin-bottom: 0.4em} '
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    preprocess_regexps = [(re.compile(r'<h2 class="izq">.*?</body>', re.DOTALL|re.IGNORECASE),lambda match: '')]
+
+    remove_tags = [
+                     dict(attrs={'class':['post-ratings','post-ratings-loading','sociable','toc-anchor']})
+                    ,dict(name=['object','embed','iframe','link'])
+                    ,dict(attrs={'id':'left'})
+                  ]
+
+    remove_tags_after = dict(attrs={'class':'sociable'})
+    remove_attributes = ['width','height']
+    keep_only_tags    = [dict(attrs={'class':'post'})]
+
+    feeds = [(u'Articulos', u'http://www.que-leer.com/feed')]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        url = 'http://www.que-leer.com/comprar-libros-tienda-que-leer/libros-recomendados'
+        fitem = soup.find('a',href=url)
+        if fitem:
+           par = fitem.parent
+           par.extract()
+        return self.adeify_images(soup)
+
