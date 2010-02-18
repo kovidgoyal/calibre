@@ -11,7 +11,7 @@ from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.logging import Log
-from calibre.utils.date import isoformat
+from calibre.utils.date import isoformat, now as nowf
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
@@ -21,7 +21,7 @@ FIELDS = ['all', 'author_sort', 'authors', 'comments',
 class CSV_XML(CatalogPlugin):
     'CSV/XML catalog generator'
 
-    Option = namedtuple('Option', 'option, default, dest, help')
+    Option = namedtuple('Option', 'option, default, dest, action, help')
 
     name = 'Catalog_CSV_XML'
     description = 'CSV/XML catalog generator'
@@ -34,6 +34,7 @@ class CSV_XML(CatalogPlugin):
             Option('--fields',
                 default = 'all',
                 dest = 'fields',
+                action = None,
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
                     'Available fields: %s.\n'
@@ -43,6 +44,7 @@ class CSV_XML(CatalogPlugin):
             Option('--sort-by',
                 default = 'id',
                 dest = 'sort_by',
+                action = None,
                 help = _('Output field to sort on.\n'
                 'Available fields: author_sort, id, rating, size, timestamp, title.\n'
                 "Default: '%default'\n"
@@ -241,7 +243,7 @@ class CSV_XML(CatalogPlugin):
 class EPUB_MOBI(CatalogPlugin):
     'ePub catalog generator'
 
-    Option = namedtuple('Option', 'option, default, dest, help')
+    Option = namedtuple('Option', 'option, default, dest, action, help')
 
     name = 'Catalog_EPUB_MOBI'
     description = 'EPUB/MOBI catalog generator'
@@ -254,12 +256,14 @@ class EPUB_MOBI(CatalogPlugin):
     cli_options = [Option('--catalog-title',
                           default = 'My Books',
                           dest = 'catalog_title',
+                          action = None,
                           help = _('Title of generated catalog used as title in metadata.\n'
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--debug-pipeline',
                            default=None,
                            dest='debug_pipeline',
+                           action = None,
                            help=_("Save the output from different stages of the conversion "
                            "pipeline to the specified "
                            "directory. Useful if you are unsure at which stage "
@@ -269,48 +273,56 @@ class EPUB_MOBI(CatalogPlugin):
                    Option('--exclude-genre',
                           default='\[[\w ]*\]',
                           dest='exclude_genre',
+                          action = None,
                           help=_("Regex describing tags to exclude as genres.\n" "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--exclude-tags',
                           default=('~,'+_('Catalog')),
                           dest='exclude_tags',
+                          action = None,
                           help=_("Comma-separated list of tag words indicating book should be excluded from output.  Case-insensitive.\n"
                           "--exclude-tags=skip will match 'skip this book' and 'Skip will like this'.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-titles',
-                          default=True,
+                          default=False,
                           dest='generate_titles',
+                          action = 'store_true',
                           help=_("Include 'Titles' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-recently-added',
-                          default=True,
+                          default=False,
                           dest='generate_recently_added',
+                          action = 'store_true',
                           help=_("Include 'Recently Added' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--note-tag',
                           default='*',
                           dest='note_tag',
+                          action = None,
                           help=_("Tag prefix for user notes, e.g. '*Jeff might enjoy reading this'.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--numbers-as-text',
                           default=False,
                           dest='numbers_as_text',
+                          action = None,
                           help=_("Sort titles with leading numbers as text, e.g.,\n'2001: A Space Odyssey' sorts as \n'Two Thousand One: A Space Odyssey'.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--output-profile',
                           default=None,
                           dest='output_profile',
+                          action = None,
                           help=_("Specifies the output profile.  In some cases, an output profile is required to optimize the catalog for the device.  For example, 'kindle' or 'kindle_dx' creates a structured Table of Contents with Sections and Articles.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--read-tag',
                           default='+',
                           dest='read_tag',
+                          action = None,
                           help=_("Tag indicating book has been read.\n" "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                           ]
@@ -1749,9 +1761,8 @@ class EPUB_MOBI(CatalogPlugin):
                         book['title_sort'] = self.generateSortTitle(book['title'])
                 self.booksByDateRange = sorted(nspt, key=lambda x:(x['timestamp'], x['timestamp']),reverse=True)
 
-            today = datetime.datetime.now()
             date_range_list = []
-            today_time = datetime.datetime(today.year, today.month, today.day)
+            today_time = nowf().replace(hour=23, minute=59, second=59)
             books_added_in_date_range = False
             for (i, date) in enumerate(self.DATE_RANGE):
                 date_range_limit = self.DATE_RANGE[i]
@@ -1759,14 +1770,16 @@ class EPUB_MOBI(CatalogPlugin):
                     date_range = '%d to %d days ago' % (self.DATE_RANGE[i-1], self.DATE_RANGE[i])
                 else:
                     date_range = 'Last %d days' % (self.DATE_RANGE[i])
+
                 for book in self.booksByDateRange:
-                    book_time = datetime.datetime(book['timestamp'].year, book['timestamp'].month, book['timestamp'].day)
-                    if (today_time-book_time).days <= date_range_limit:
-                        #print "generateHTMLByDateAdded: %s added %d days ago" % (book['title'], (today_time-book_time).days)
+                    book_time = book['timestamp']
+                    delta = today_time-book_time
+                    if delta.days <= date_range_limit:
                         date_range_list.append(book)
                         books_added_in_date_range = True
                     else:
                         break
+
                 dtc = add_books_to_HTML_by_date_range(date_range_list, date_range, dtc)
                 date_range_list = [book]
 
@@ -3412,13 +3425,12 @@ class EPUB_MOBI(CatalogPlugin):
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
         opts.log = log = Log()
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
-        self.opts = opts
 
         # Add local options
         opts.creator = "calibre"
 
         # Finalize output_profile
-        op = self.opts.output_profile
+        op = opts.output_profile
         if op is None:
             op = 'default'
         if opts.connected_device['name'] and 'kindle' in opts.connected_device['name'].lower():
@@ -3428,12 +3440,29 @@ class EPUB_MOBI(CatalogPlugin):
                 op = "kindle"
         opts.descriptionClip = 380 if op.endswith('dx') or 'kindle' not in op else 100
         opts.authorClip = 100 if op.endswith('dx') or 'kindle' not in op else 60
-        self.opts.output_profile = op
+        opts.output_profile = op
 
         opts.basename = "Catalog"
         opts.cli_environment = not hasattr(opts,'sync')
         # GwR *** hardwired to sort by author, could be an option if passed in opts
         opts.sort_descriptions_by_author = True
+
+        # If exclude_genre is blank, assume user wants all genre tags included
+        if opts.exclude_genre.strip() == '':
+            opts.exclude_genre = '\[^.\]'
+            log(" converting empty exclude_genre to '\[^.\]'")
+
+        if opts.connected_device['name']:
+            if opts.connected_device['serial']:
+                log(" connected_device: '%s' #%s%s " % \
+                    (opts.connected_device['name'],
+                     opts.connected_device['serial'][0:4],
+                     'x' * (len(opts.connected_device['serial']) - 4)))
+            else:
+                log(" connected_device: '%s'" % opts.connected_device['name'])
+                for storage in opts.connected_device['storage']:
+                    if storage:
+                        log("  mount point: %s" % storage)
 
         if opts.verbose:
             opts_dict = vars(opts)
@@ -3452,26 +3481,6 @@ class EPUB_MOBI(CatalogPlugin):
                 sections_list.append('Genres')
             log(u"Creating Sections for %s" % ', '.join(sections_list))
 
-            # If exclude_genre is blank, assume user wants all genre tags included
-            if opts.exclude_genre.strip() == '':
-                opts.exclude_genre = '\[^.\]'
-                log(" converting empty exclude_genre to '\[^.\]'")
-
-            if opts.connected_device['name']:
-                if opts.connected_device['serial']:
-                    log(" connected_device: '%s' #%s%s " % \
-                        (opts.connected_device['name'],
-                         opts.connected_device['serial'][0:4],
-                         'x' * (len(opts.connected_device['serial']) - 4)))
-                else:
-                    log(" connected_device: '%s'" % opts.connected_device['name'])
-
-                for storage in opts.connected_device['storage']:
-                    if storage:
-                        log("  mount point: %s" % storage)
-#                 for book in opts.connected_device['books']:
-#                     log("%s: %s" % (book.title, book.path))
-
             # Display opts
             keys = opts_dict.keys()
             keys.sort()
@@ -3481,6 +3490,8 @@ class EPUB_MOBI(CatalogPlugin):
                            'note_tag','numbers_as_text','read_tag',
                            'search_text','sort_by','sort_descriptions_by_author','sync']:
                     log("  %s: %s" % (key, opts_dict[key]))
+
+        self.opts = opts
 
         # Launch the Catalog builder
         catalog = self.CatalogBuilder(db, opts, self, report_progress=notification)

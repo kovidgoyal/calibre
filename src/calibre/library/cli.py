@@ -587,9 +587,6 @@ def command_export(args, dbpath):
     do_export(get_db(dbpath, opts), ids, dir, opts)
     return 0
 
-
-#   GR additions
-
 def catalog_option_parser(args):
     from calibre.customize.ui import available_catalog_formats, plugin_for_catalog_format
     from calibre.utils.logging import Log
@@ -599,10 +596,17 @@ def catalog_option_parser(args):
         # Fetch the extension-specific CLI options from the plugin
         plugin = plugin_for_catalog_format(fmt)
         for option in plugin.cli_options:
-            parser.add_option(option.option,
-                              default=option.default,
-                              dest=option.dest,
-                              help=option.help)
+            if option.action:
+                parser.add_option(option.option,
+                                  default=option.default,
+                                  dest=option.dest,
+                                  action=option.action,
+                                  help=option.help)
+            else:
+                parser.add_option(option.option,
+                                  default=option.default,
+                                  dest=option.dest,
+                                  help=option.help)
 
         return plugin
 

@@ -1467,7 +1467,6 @@ class LibraryDatabase2(LibraryDatabase):
         db_id, existing = None, False
         if matches:
             db_id = list(matches)[0]
-            existing = True
         if db_id is None:
             obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)',
                                 (title, 'calibre'))
