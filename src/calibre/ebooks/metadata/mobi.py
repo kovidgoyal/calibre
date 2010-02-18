@@ -107,7 +107,13 @@ class MetadataUpdater(object):
         self.cover_record = self.thumbnail_record = None
         self.timestamp = None
         self.pdbrecords = self.get_pdbrecords()
-        self.drm_block = self.fetchDRMdata()
+
+        self.drm_block = None
+        if self.encryption_type != 0:
+            if self.have_exth:
+                self.drm_block = self.fetchDRMdata()
+            else:
+                raise MobiError('Unable to set metadata on DRM file without EXTH header')
 
         self.original_exth_records = {}
         if not have_exth:
@@ -117,38 +123,14 @@ class MetadataUpdater(object):
         self.fetchEXTHFields()
 
     def fetchDRMdata(self):
-        ''' Grab everything between end of EXTH and title '''
-        '''
-        if False and self.have_exth:
-            print "incoming file has EXTH header"
-            # 20:24 = mobiHeaderLength, 16=PDBHeader size, 4 = len('EXTH')
-            exth_off = int(unpack('>I', self.record0[20:24])[0] + 16)
-            print "exth_off = 0x%x" % exth_off
-            exth_len_offset = exth_off + 4
-            print "exth_len_offset = 0x%x" % exth_len_offset
-            exth_len = int(unpack('>I', self.record0[exth_len_offset:exth_len_offset+4])[0])
-            print "len(EXTH) = 0x%x" % exth_len
-            title_offset = int(unpack('>I', self.record0[0x54:0x58])[0])
-            print "offset of full title = 0x%x" % title_offset
-            drm_off = exth_off + exth_len
-            print "DRM data begins at 0x%x" % drm_off
-            print "DRM len is 0x%x bytes" % (title_offset - drm_off)
-            return self.record0[drm_off:drm_off + (title_offset - drm_off)]
-        else:
-        '''
-        if True:
-            drm_offset = int(unpack('>I', self.record0[0xa8:0xac])[0])
-            self.drm_key_count = int(unpack('>I', self.record0[0xac:0xb0])[0])
-            drm_string = ''
-            for x in range(self.drm_key_count):
-                base_addr = drm_offset + (x * self.DRM_KEY_SIZE)
-                drm_string += self.record0[base_addr:base_addr + self.DRM_KEY_SIZE]
-            return drm_string
-        else:
-            drm_offset = int(unpack('>I', self.record0[0xa8:0xac])[0])
-            title_offset = int(unpack('>I', self.record0[0x54:0x58])[0])
-            drm_blocklen = title_offset - drm_offset
-            return self.record0[drm_offset:drm_offset + drm_blocklen]
+        ''' Fetch the DRM keys '''
+        drm_offset = int(unpack('>I', self.record0[0xa8:0xac])[0])
+        self.drm_key_count = int(unpack('>I', self.record0[0xac:0xb0])[0])
+        drm_keys = ''
+        for x in range(self.drm_key_count):
+            base_addr = drm_offset + (x * self.DRM_KEY_SIZE)
+            drm_keys += self.record0[base_addr:base_addr + self.DRM_KEY_SIZE]
+        return drm_keys
 
     def fetchEXTHFields(self):
         stream = self.stream
@@ -224,7 +206,8 @@ class MetadataUpdater(object):
 
     def create_exth(self, new_title=None, exth=None):
         # Add an EXTH block to record 0, rewrite the stream
-        # self.hexdump(self.record0)
+        if isinstance(new_title, unicode):
+            new_title = new_title.encode(self.codec, 'replace')
 
         # Fetch the existing title
         title_offset, = unpack('>L', self.record0[0x54:0x58])
@@ -248,12 +231,13 @@ class MetadataUpdater(object):
             exth = ['EXTH', pack('>II', 12, 0), pad]
             exth = ''.join(exth)
 
-        # Update drm_offset
-        self.record0[0xa8:0xac] = pack('>L', 0x10 + mobi_header_length + len(exth))
-        if True:
+        # Update drm_offset(0xa8), title_offset(0x54)
+        if self.encryption_type != 0:
+            self.record0[0xa8:0xac] = pack('>L', 0x10 + mobi_header_length + len(exth))
             self.record0[0xb0:0xb4] = pack('>L', len(self.drm_block))
-        # Update title_offset
-        self.record0[0x54:0x58] = pack('>L', 0x10 + mobi_header_length + len(exth) + len(self.drm_block))
+            self.record0[0x54:0x58] = pack('>L', 0x10 + mobi_header_length + len(exth) + len(self.drm_block))
+        else:
+            self.record0[0x54:0x58] = pack('>L', 0x10 + mobi_header_length + len(exth))
 
         if new_title:
             self.record0[0x58:0x5c] = pack('>L', len(new_title))
@@ -262,20 +246,14 @@ class MetadataUpdater(object):
         new_record0 = StringIO()
         new_record0.write(self.record0[:0x10 + mobi_header_length])
         new_record0.write(exth)
-        new_record0.write(self.drm_block)
-        if new_title:
-            #new_record0.write(new_title.encode(self.codec, 'replace'))
-            new_title = (new_title or _('Unknown')).encode(self.codec, 'replace')
-            new_record0.write(new_title)
-        else:
-            new_record0.write(title_in_file)
+        if self.encryption_type != 0:
+            new_record0.write(self.drm_block)
+        new_record0.write(new_title if new_title else title_in_file)
 
         # Pad to a 4-byte boundary
         trail = len(new_record0.getvalue()) % 4
         pad = '\0' * (4 - trail) # Always pad w/ at least 1 byte
         new_record0.write(pad)
-
-        #self.hexdump(new_record0.getvalue())
 
         # Rebuild the stream, update the pdbrecords pointers
         self.patchSection(0,new_record0.getvalue())
@@ -386,11 +364,7 @@ class MetadataUpdater(object):
             recs.append((202, pack('>I', self.thumbnail_rindex)))
             pop_exth_record(202)
 
-        if getattr(self, 'encryption_type', -1) != 0:
-            prints(u"Setting metadata for '%s' (DRM)" % mi.title)
-            # raise MobiError('Setting metadata in DRMed MOBI files is not supported.')
-
-        # Restore any original EXTH fields that weren't modified/updated
+        # Restore any original EXTH fields that weren't updated
         for id in sorted(self.original_exth_records):
             recs.append((id, self.original_exth_records[id]))
         recs = sorted(recs, key=lambda x:(x[0],x[0]))

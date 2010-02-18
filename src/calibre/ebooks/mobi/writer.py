@@ -1376,7 +1376,7 @@ class MobiWriter(object):
             self._text_length,
             self._text_nrecords-1, RECORD_SIZE, 0, 0)) # 0 - 15 (0x0 - 0xf)
         uid = random.randint(0, 0xffffffff)
-        title = str(metadata.title[0])
+        title = unicode(metadata.title[0]).encode('utf-8')
         # The MOBI Header
 
         # 0x0 - 0x3
