@@ -3534,7 +3534,6 @@ class EPUB_MOBI(CatalogPlugin):
                             opts.basename + '.opf'), path_to_output, log, report_progress=notification,
                             abort_after_input_dump=False)
             plumber.merge_ui_recommendations(recommendations)
-
             plumber.run()
             return 0
         else:
