@@ -3399,19 +3399,6 @@ class EPUB_MOBI(CatalogPlugin):
                     tag_list.append(tag)
             return tag_list
 
-        def updateCatalogMetadata(self, comments):
-            ''' Store comments to library entry's comments metadata '''
-            self.db.search('title:"%s" author:calibre' % self.title)
-            data = self.db.get_data_as_dict()
-            if data:
-                catalog_id = data[0]['id']
-                cm = self.db.get_metadata(catalog_id, index_is_id=True)
-                cm.comments = comments
-                self.db.set_metadata(catalog_id, cm)
-            else:
-                self.opts.log(u"updateCatalogMetadata(): No library entry found for catalog '%s'" % self.title)
-                return
-
         def updateProgressFullStep(self, description):
             self.currentStep += 1
             self.progressString = description
@@ -3549,7 +3536,6 @@ class EPUB_MOBI(CatalogPlugin):
             plumber.merge_ui_recommendations(recommendations)
 
             plumber.run()
-            catalog.updateCatalogMetadata('\n'.join(line for line in build_log))
             return 0
         else:
             return 1
