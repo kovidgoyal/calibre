@@ -139,12 +139,11 @@ class FileTypePlugin(Plugin):
     #: to the database
     on_import      = False
 
-    #: If True, this plugin is run whenever an any2* tool
-    #: is used, on the file passed to the any2* tool.
+    #: If True, this plugin is run just before a conversion
     on_preprocess  = False
 
-    #: If True, this plugin is run after an any2* tool is
-    #: used, on the final file produced by the tool.
+    #: If True, this plugin is run after conversion
+    #: on the final file produced by the conversion output plugin.
     on_postprocess = False
 
     type = _('File type')

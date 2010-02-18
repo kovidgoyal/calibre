@@ -1475,18 +1475,21 @@ class LibraryDatabase2(LibraryDatabase):
             self.data.books_added([db_id], self)
             self.set_path(db_id, index_is_id=True)
             self.conn.commit()
+        try:
+            mi = get_metadata(stream,
+                    os.path.splitext(path)[1][1:].lower())
+        except:
             mi = MetaInformation(title, ['calibre'])
-            mi.tags = [_('Catalog')]
-            self.set_metadata(db_id, mi)
+
+        mi.title, mi.authors = title, ['calibre']
+        mi.tags = [_('Catalog')]
+        mi.pubdate = mi.timestamp = nowf()
+        self.set_metadata(db_id, mi)
 
         self.add_format(db_id, format, stream, index_is_id=True)
         if not hasattr(path, 'read'):
             stream.close()
         self.conn.commit()
-        if existing:
-            t = utcnow()
-            self.set_timestamp(db_id, t, notify=False)
-            self.set_pubdate(db_id, t, notify=False)
         self.data.refresh_ids(self, [db_id]) # Needed to update format list and size
         return db_id
 
