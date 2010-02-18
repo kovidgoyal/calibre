@@ -12,7 +12,6 @@ __docformat__ = 'restructuredtext en'
 from struct import pack, unpack
 from cStringIO import StringIO
 
-from calibre import prints
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.writer import rescale_image, MAX_THUMB_DIMEN
 from calibre.ebooks.mobi.langcodes import iana2mobi

@@ -11,7 +11,7 @@ from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.logging import Log
-from calibre.utils.date import isoformat
+from calibre.utils.date import isoformat, now as nowf
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
@@ -1761,9 +1761,8 @@ class EPUB_MOBI(CatalogPlugin):
                         book['title_sort'] = self.generateSortTitle(book['title'])
                 self.booksByDateRange = sorted(nspt, key=lambda x:(x['timestamp'], x['timestamp']),reverse=True)
 
-            today = datetime.datetime.now()
             date_range_list = []
-            today_time = datetime.datetime(today.year, today.month, today.day, 23, 59, 59)
+            today_time = nowf().replace(hour=23, minute=59, second=59)
             books_added_in_date_range = False
             for (i, date) in enumerate(self.DATE_RANGE):
                 date_range_limit = self.DATE_RANGE[i]
@@ -1773,11 +1772,7 @@ class EPUB_MOBI(CatalogPlugin):
                     date_range = 'Last %d days' % (self.DATE_RANGE[i])
 
                 for book in self.booksByDateRange:
-                    book_time = datetime.datetime(book['timestamp'].year,
-                                                  book['timestamp'].month,
-                                                  book['timestamp'].day,
-                                                  book['timestamp'].hour,
-                                                  book['timestamp'].minute)
+                    book_time = book['timestamp']
                     delta = today_time-book_time
                     if delta.days <= date_range_limit:
                         date_range_list.append(book)
@@ -3469,7 +3464,6 @@ class EPUB_MOBI(CatalogPlugin):
         # If exclude_genre is blank, assume user wants all genre tags included
         if opts.exclude_genre.strip() == '':
             opts.exclude_genre = '\[^.\]'
-            #log(" converting empty exclude_genre to '\[^.\]'")
             build_log.append(" converting empty exclude_genre to '\[^.\]'")
 
         if opts.connected_device['name']:
