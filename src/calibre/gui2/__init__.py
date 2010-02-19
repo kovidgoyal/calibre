@@ -2,9 +2,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import os
+from threading import RLock
+
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
                          QByteArray, QTranslator, QCoreApplication, QThread, \
-                         QEvent
+                         QEvent, QTimer
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView, QApplication, QDialog, QPushButton
 
@@ -533,6 +535,8 @@ class Application(QApplication):
         self._translator = None
         self.load_translations()
         qt_app = self
+        self._file_open_paths = []
+        self._file_open_lock = RLock()
 
         if islinux:
             self.setStyleSheet('''
@@ -544,6 +548,11 @@ class Application(QApplication):
                         background-color: #e1e1ff;
                     }
             ''')
+
+    def _send_file_open_events(self):
+        with self._file_open_lock:
+            self.file_event_hook(self._file_open_paths)
+            self._file_open_paths = []
 
 
     def load_translations(self):
@@ -557,7 +566,9 @@ class Application(QApplication):
         if callable(self.file_event_hook) and e.type() == QEvent.FileOpen:
             path = unicode(e.file())
             if os.access(path, os.R_OK):
-                self.file_event_hook(path)
+                with self._file_open_lock:
+                    self._file_open_paths.append(path)
+                QTimer.singleShot(self._send_file_open_events, 1000)
             return True
         else:
             return QApplication.event(self, e)

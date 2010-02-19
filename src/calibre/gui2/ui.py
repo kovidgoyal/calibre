@@ -988,14 +988,22 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.cover_cache.refresh([cid])
             self.library_view.model().current_changed(current_idx, current_idx)
 
-    def add_filesystem_book(self, path, allow_device=True):
-        if os.access(path, os.R_OK):
-            books = [os.path.abspath(path)]
+    def _add_filesystem_book(self, paths, allow_device=True):
+        if isinstance(paths, basestring):
+            paths = [paths]
+        books = [os.path.abspath(path) for path in paths is os.access(path,
+            os.R_OK)]
+
+        if books:
             to_device = allow_device and self.stack.currentIndex() != 0
             self._add_books(books, to_device)
             if to_device:
                 self.status_bar.showMessage(\
                         _('Uploading books to device.'), 2000)
+
+
+    def add_filesystem_book(self, paths, allow_device=True):
+        Dispatcher(self._add_filesystem_book)(paths, allow_device=allow_device)
 
     def add_books(self, checked):
         '''
@@ -1042,11 +1050,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                                 infos, on_card=on_card)
             self.status_bar.showMessage(
                     _('Uploading books to device.'), 2000)
-        if self._adder.number_of_books_added > 0:
+        if getattr(self._adder, 'number_of_books_added', 0) > 0:
             self.library_view.model().books_added(self._adder.number_of_books_added)
             if hasattr(self, 'db_images'):
                 self.db_images.reset()
-        if self._adder.critical:
+        if getattr(self._adder, 'critical', None) is not None:
             det_msg = []
             for name, log in self._adder.critical.items():
                 if isinstance(name, str):
@@ -1056,7 +1064,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     _('Failed to read metadata from the following')+':',
                     det_msg='\n\n'.join(det_msg), show=True)
 
-        self._adder.cleanup()
+        if hasattr(self._adder, 'cleanup'):
+            self._adder.cleanup()
         self._adder = None
 
 
