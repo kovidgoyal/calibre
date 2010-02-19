@@ -601,6 +601,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if dynamic.get('tag_view_visible', False):
             self.status_bar.tag_view_button.toggle()
 
+        self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
+
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
@@ -988,10 +990,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.cover_cache.refresh([cid])
             self.library_view.model().current_changed(current_idx, current_idx)
 
-    def _add_filesystem_book(self, paths, allow_device=True):
+    def __add_filesystem_book(self, paths, allow_device=True):
+        print 222, paths
         if isinstance(paths, basestring):
             paths = [paths]
-        books = [os.path.abspath(path) for path in paths is os.access(path,
+        books = [path for path in map(os.path.abspath, paths) if os.access(path,
             os.R_OK)]
 
         if books:
@@ -1003,7 +1006,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
 
     def add_filesystem_book(self, paths, allow_device=True):
-        Dispatcher(self._add_filesystem_book)(paths, allow_device=allow_device)
+        self._add_filesystem_book(paths, allow_device=allow_device)
 
     def add_books(self, checked):
         '''
@@ -1054,12 +1057,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.library_view.model().books_added(self._adder.number_of_books_added)
             if hasattr(self, 'db_images'):
                 self.db_images.reset()
-        if getattr(self._adder, 'critical', None) is not None:
+        if getattr(self._adder, 'critical', None):
             det_msg = []
             for name, log in self._adder.critical.items():
                 if isinstance(name, str):
                     name = name.decode(filesystem_encoding, 'replace')
                 det_msg.append(name+'\n'+log)
+
             warning_dialog(self, _('Failed to read metadata'),
                     _('Failed to read metadata from the following')+':',
                     det_msg='\n\n'.join(det_msg), show=True)

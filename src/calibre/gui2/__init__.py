@@ -6,7 +6,7 @@ from threading import RLock
 
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
                          QByteArray, QTranslator, QCoreApplication, QThread, \
-                         QEvent, QTimer
+                         QEvent, QTimer, pyqtSignal
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView, QApplication, QDialog, QPushButton
 
@@ -236,16 +236,17 @@ def human_readable(size):
     return size + " " + suffix
 
 class Dispatcher(QObject):
-    '''Convenience class to ensure that a function call always happens in the GUI thread'''
-    SIGNAL = SIGNAL('dispatcher(PyQt_PyObject,PyQt_PyObject)')
+    '''Convenience class to ensure that a function call always happens in the
+    thread the reciver was created in.'''
+    dispatch_signal = pyqtSignal(object, object)
 
     def __init__(self, func):
         QObject.__init__(self)
         self.func = func
-        self.connect(self, self.SIGNAL, self.dispatch, Qt.QueuedConnection)
+        self.dispatch_signal.connect(self.dispatch, type=Qt.QueuedConnection)
 
     def __call__(self, *args, **kwargs):
-        self.emit(self.SIGNAL, args, kwargs)
+        self.dispatch_signal.emit(args, kwargs)
 
     def dispatch(self, args, kwargs):
         self.func(*args, **kwargs)
@@ -551,8 +552,9 @@ class Application(QApplication):
 
     def _send_file_open_events(self):
         with self._file_open_lock:
-            self.file_event_hook(self._file_open_paths)
-            self._file_open_paths = []
+            if self._file_open_paths:
+                self.file_event_hook(self._file_open_paths)
+                self._file_open_paths = []
 
 
     def load_translations(self):
@@ -568,7 +570,7 @@ class Application(QApplication):
             if os.access(path, os.R_OK):
                 with self._file_open_lock:
                     self._file_open_paths.append(path)
-                QTimer.singleShot(self._send_file_open_events, 1000)
+                QTimer.singleShot(1000, self._send_file_open_events)
             return True
         else:
             return QApplication.event(self, e)
