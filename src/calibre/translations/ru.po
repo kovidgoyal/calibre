@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-12 23:37+0000\n"
-"PO-Revision-Date: 2010-02-12 22:44+0000\n"
-"Last-Translator: Boris Rybalkin <ribalkin@gmail.com>\n"
+"PO-Revision-Date: 2010-02-18 09:16+0000\n"
+"Last-Translator: Nikolai <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-13 04:57+0000\n"
+"X-Launchpad-Export-Date: 2010-02-19 04:35+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -2206,6 +2206,10 @@ msgid ""
 "spaces) represents a paragraph. Paragraphs end when the next line that "
 "starts with an indent is reached."
 msgstr ""
+"Обычно калибр обрабатывает пустые строки в качестве знаков абзацев. С этой "
+"опцией он будет считать, что каждая строка, начинающаяся с отступа "
+"(табуляции или 2+ пробелов), представляет собой абзац. Абзац заканчивается "
+"при достижении строки, начинающейся с отступа."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
@@ -2648,7 +2652,7 @@ msgstr "Скачать социальные метаданные (тэги/ре�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:93
 msgid "Overwrite author and title with new metadata"
-msgstr ""
+msgstr "Заменять автора и название новыми метаданными"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:95
 msgid "Limit max simultaneous jobs to number of CPUs"
