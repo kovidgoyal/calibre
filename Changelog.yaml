@@ -4,6 +4,71 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.41
+  date: 2010-02-19
+
+  new features:
+    - title: "Make calibre timezone aware. This required lots of internal changes, so I may have broken something"
+      type: major
+
+    - title: "Allow editing of metadata in DRMed MOBI files"
+      type: major
+
+    - title: "ebook-convert: Allow passing URLs as argument to --cover"
+      tickets: [4909]
+
+    - title: "OS X/linux driver for EB511"
+
+    - title: "ebook-meta: Allow changing of published date"
+
+    - title: "Make replacing of files in ZIP archives faster and (hopefully) more robust"
+
+    - title: "Speed optimization for viewing large EPUB files"
+
+    - title: "Speed up parsing of OPF files"
+      tickets: [4908]
+
+  bug fixes:
+    - title: "Fix drag and drop of multiple books to OS X dock icon"
+      tickets: [4849]
+
+    - title: "MOBI Output: Encode titles as UTF-8 in the PalmDoc header as well as the EXTH header, since there are apparently MOBI readers that use the title from the PalmDoc header in preference to the title from the EXTH header."
+
+    - title: "MOBI Output: Remove soft hyphens as the Kindle doesn't support them."
+      tickets: [4887]
+
+    - title: "Fix Boox main mem and SD card swapped on windows"
+
+    - title: "Fix sending large ebook fiels to devices"
+      tickets: [4896]
+
+    - title: "EPUB Output: Strip invalid anchors from NCX TOC as Adobe Digital Editions cries when it sees one"
+      tickets: [4907]
+
+    - title: "EPUB metadata: Don't set title_sort as a file_as attribute, as the brain-dead OPF spec doesn't allow this"
+
+    - title: "Make publishing the content server via mDNS a little more robust"
+
+    - title: "Content server: Use new exact matching for greater precision when generating OPDS catalogs. Also fix regression that broke rowsing by Tags on Stanza."
+
+    - title: "Proper fix for breakage in LRF viewer caused by API change in QGraphicsItem in Qt 4.6"
+
+  new recipes:
+    - title: Various Polish news sources
+      author: Tomaz Dlugosz
+
+    - title: Que Leer, Wired UK
+      author: Darko Miletic
+
+    - title: Kathermini and Ta Nea
+      author: Pan
+
+    - title: Winter Olympics
+      author: Starson17
+
+  improved recipes:
+    - Wired Magazine
+
 - version: 0.6.40
   date: 2010-02-12
 

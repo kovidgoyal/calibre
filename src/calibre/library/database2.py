@@ -1482,7 +1482,7 @@ class LibraryDatabase2(LibraryDatabase):
 
         mi.title, mi.authors = title, ['calibre']
         mi.tags = [_('Catalog')]
-        mi.pubdate = mi.timestamp = nowf()
+        mi.pubdate = mi.timestamp = utcnow()
         self.set_metadata(db_id, mi)
 
         self.add_format(db_id, format, stream, index_is_id=True)
@@ -1511,6 +1511,10 @@ class LibraryDatabase2(LibraryDatabase):
         self.data.books_added([id], self)
         self.set_path(id, index_is_id=True)
         self.conn.commit()
+        if mi.pubdate is None:
+            mi.pubdate = utcnow()
+        if mi.timestamp is None:
+            mi.timestamp = utcnow()
         self.set_metadata(id, mi)
 
         self.add_format(id, format, stream, index_is_id=True)
@@ -1548,6 +1552,10 @@ class LibraryDatabase2(LibraryDatabase):
         self.data.books_added([id], self)
         self.set_path(id, True)
         self.conn.commit()
+        if mi.timestamp is None:
+            mi.timestamp = utcnow()
+        if mi.pubdate is None:
+            mi.pubdate = utcnow()
         self.set_metadata(id, mi)
         if cover is not None:
             self.set_cover(id, cover)
@@ -1583,7 +1591,9 @@ class LibraryDatabase2(LibraryDatabase):
             self.set_path(id, True)
             self.conn.commit()
             if mi.timestamp is None:
-                mi.timestamp = nowf()
+                mi.timestamp = utcnow()
+            if mi.pubdate is None:
+                mi.pubdate = utcnow()
             self.set_metadata(id, mi)
             npath = self.run_import_plugins(path, format)
             format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
@@ -1616,7 +1626,9 @@ class LibraryDatabase2(LibraryDatabase):
         self.data.books_added([id], self)
         self.set_path(id, True)
         if mi.timestamp is None:
-            mi.timestamp = nowf()
+            mi.timestamp = utcnow()
+        if mi.pubdate is None:
+            mi.pubdate = utcnow()
         self.set_metadata(id, mi, ignore_errors=True)
         for path in formats:
             ext = os.path.splitext(path)[1][1:].lower()
