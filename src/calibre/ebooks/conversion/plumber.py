@@ -424,7 +424,7 @@ OptionRecommendation(name='author_sort',
 
 OptionRecommendation(name='cover',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the cover to the specified file.')),
+    help=_('Set the cover to the specified file or URL')),
 
 OptionRecommendation(name='comments',
     recommended_value=None, level=OptionRecommendation.LOW,
@@ -638,6 +638,20 @@ OptionRecommendation(name='timestamp',
                         continue
                 setattr(mi, x, val)
 
+    def download_cover(self, url):
+        from calibre import browser
+        from PIL import Image
+        from cStringIO import StringIO
+        from calibre.ptempfile import PersistentTemporaryFile
+        self.log('Downloading cover from %r'%url)
+        br = browser()
+        raw = br.open_novisit(url).read()
+        buf = StringIO(raw)
+        pt = PersistentTemporaryFile('.jpg')
+        pt.close()
+        img = Image.open(buf)
+        img.convert('RGB').save(pt.name)
+        return pt.name
 
     def read_user_metadata(self):
         '''
@@ -655,6 +669,8 @@ OptionRecommendation(name='timestamp',
             mi = MetaInformation(opf)
         self.opts_to_mi(mi)
         if mi.cover:
+            if mi.cover.startswith('http:') or mi.cover.startswith('https:'):
+                mi.cover = self.download_cover(mi.cover)
             mi.cover_data = ('', open(mi.cover, 'rb').read())
             mi.cover = None
         self.user_metadata = mi
