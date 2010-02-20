@@ -131,7 +131,7 @@ class PMLMLizer(object):
                 if item.href in self.link_hrefs.keys():
                     toc.append('* \\q="#%s"%s\\q\n' % (self.link_hrefs[item.href], item.title))
                 else:
-                    self.oeb.warn('Ignoring toc item: %s not found in document.' % item)
+                    self.oeb_book.warn('Ignoring toc item: %s not found in document.' % item)
         return ''.join(toc)
 
     def get_text(self):
