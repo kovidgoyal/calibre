@@ -69,8 +69,10 @@ class WallStreetJournal(BasicNewsRecipe):
             soup = self.wsj_get_index()
 
             year = strftime('%Y')
-            for x in soup.findAll('td', attrs={'class':'b14'}):
+            for x in soup.findAll('td', height='25', attrs={'class':'b14'}):
                 txt = self.tag_to_string(x).strip()
+                txt = txt.replace(u'\xa0', ' ')
+                txt = txt.encode('ascii', 'ignore')
                 if year in txt:
                     self.timefmt = ' [%s]'%txt
                     break
