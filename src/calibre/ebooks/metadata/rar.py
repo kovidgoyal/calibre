@@ -8,9 +8,10 @@ Read metadata from RAR archives
 '''
 
 import os
-from cStringIO import StringIO
-from calibre.ptempfile import PersistentTemporaryFile
+
+from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory
 from calibre.libunrar import extract_member, names
+from calibre import CurrentDir
 
 def get_metadata(stream):
     from calibre.ebooks.metadata.archive import is_comic
@@ -32,8 +33,10 @@ def get_metadata(stream):
             stream_type = stream_type[1:]
             if stream_type in ('lit', 'opf', 'prc', 'mobi', 'fb2', 'epub',
                                'rb', 'imp', 'pdf', 'lrf'):
-                data = extract_member(path, match=None, name=f)[1]
-                stream = StringIO(data)
+                with TemporaryDirectory() as tdir:
+                    with CurrentDir(tdir):
+                       stream = extract_member(path, match=None, name=f,
+                               as_file=True)[1]
                 return get_metadata(stream, stream_type)
     raise ValueError('No ebook found in RAR archive')
 
