@@ -1476,13 +1476,13 @@ class LibraryDatabase2(LibraryDatabase):
             try:
                 mi = get_metadata(stream, format)
             except:
-                import traceback
-                traceback.print_exc()
                 mi = MetaInformation(title, ['calibre'])
             stream.seek(0)
             mi.title, mi.authors = title, ['calibre']
             mi.tags = [_('Catalog')]
             mi.pubdate = mi.timestamp = utcnow()
+            if format == 'mobi':
+                mi.cover, mi.cover_data = None, (None, None)
             self.set_metadata(db_id, mi)
             self.add_format(db_id, format, stream, index_is_id=True)
 
