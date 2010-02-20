@@ -4,8 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os
-import shutil
+import os, shutil, time
 
 from calibre.devices.errors import PathError
 
@@ -55,6 +54,7 @@ class CLI(object):
                 shutil.copyfileobj(infile, dest)
             except IOError:
                 print 'WARNING: First attempt to send file to device failed'
+                time.sleep(0.2)
                 infile.seek(0)
                 dest.seek(0)
                 dest.truncate()
