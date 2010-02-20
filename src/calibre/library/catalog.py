@@ -1585,7 +1585,7 @@ class EPUB_MOBI(CatalogPlugin):
                     pIndexTag = Tag(soup, "p")
                     pIndexTag['class'] = "date_index"
                     aTag = Tag(soup, "a")
-                    aTag['name'] = "%s-%s" % (current_date.year, current_date.month)
+                    aTag['name'] = "bda_%s-%s" % (current_date.year, current_date.month)
                     pIndexTag.insert(0,aTag)
                     pIndexTag.insert(1,NavigableString(date_string))
                     divTag.insert(dtc,pIndexTag)
@@ -1665,7 +1665,7 @@ class EPUB_MOBI(CatalogPlugin):
                     pIndexTag = Tag(soup, "p")
                     pIndexTag['class'] = "date_index"
                     aTag = Tag(soup, "a")
-                    aTag['name'] = date_range.replace(' ','')
+                    aTag['name'] = "bda_%s" % date_range.replace(' ','')
                     pIndexTag.insert(0,aTag)
                     pIndexTag.insert(1,NavigableString(date_range))
                     divTag.insert(dtc,pIndexTag)
@@ -2529,7 +2529,7 @@ class EPUB_MOBI(CatalogPlugin):
                 navLabelTag.insert(0, textTag)
                 navPointByDateRangeTag.insert(0,navLabelTag)
                 contentTag = Tag(soup, 'content')
-                contentTag['src'] = "%s#%s" % (HTML_file,
+                contentTag['src'] = "%s#bda_%s" % (HTML_file,
                     books_by_date_range[1].replace(' ',''))
 
                 navPointByDateRangeTag.insert(1,contentTag)
@@ -2581,7 +2581,7 @@ class EPUB_MOBI(CatalogPlugin):
                 datestr = strftime(u'%B %Y', books_by_month[1].timetuple())
                 navPointByMonthTag = Tag(soup, 'navPoint')
                 navPointByMonthTag['class'] = "article"
-                navPointByMonthTag['id'] = "%s-%s-ID" % (books_by_month[1].year,books_by_month[1].month )
+                navPointByMonthTag['id'] = "bda_%s-%s-ID" % (books_by_month[1].year,books_by_month[1].month )
                 navPointTag['playOrder'] = self.playOrder
                 self.playOrder += 1
                 navLabelTag = Tag(soup, 'navLabel')
@@ -2590,7 +2590,7 @@ class EPUB_MOBI(CatalogPlugin):
                 navLabelTag.insert(0, textTag)
                 navPointByMonthTag.insert(0,navLabelTag)
                 contentTag = Tag(soup, 'content')
-                contentTag['src'] = "%s#%s-%s" % (HTML_file,
+                contentTag['src'] = "%s#bda_%s-%s" % (HTML_file,
                     books_by_month[1].year,books_by_month[1].month)
 
                 navPointByMonthTag.insert(1,contentTag)
