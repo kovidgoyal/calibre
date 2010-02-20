@@ -20,7 +20,7 @@ class Danas(BasicNewsRecipe):
     encoding              = 'utf-8'
     masthead_url          = 'http://www.danas.rs/images/basic/danas.gif'
     language              = 'sr'
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} .article_description,body,.lokacija{font-family: Tahoma,Arial,Helvetica,sans1,sans-serif} .nadNaslov,h1,.preamble{font-family: Georgia,"Times New Roman",Times,serif1,serif} .antrfileText{border-left: 2px solid #999999; color:#666666; margin-left: 0.8em; padding-left: 1.2em; margin-bottom: 0; margin-top: 0} h2,.datum,.lokacija,.autor{font-size: small} .antrfileNaslov{border-left: 2px solid #999999; color:#666666; margin-left: 0.8em; padding-left: 1.2em; font-weight:bold; margin-bottom: 0; margin-top: 0} img{margin-bottom: 0.8em} '
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} .article_description,body,.lokacija{font-family: Tahoma,Arial,Helvetica,sans1,sans-serif} .nadNaslov,h1,.preamble{font-family: Georgia,"Times New Roman",Times,serif1,serif} .antrfileText{border-left: 2px solid #999999; margin-left: 0.8em; padding-left: 1.2em; margin-bottom: 0; margin-top: 0} h2,.datum,.lokacija,.autor{font-size: small} .antrfileNaslov{border-left: 2px solid #999999; margin-left: 0.8em; padding-left: 1.2em; font-weight:bold; margin-bottom: 0; margin-top: 0} img{margin-bottom: 0.8em} '
 
     conversion_options = {
                           'comment'          : description
@@ -38,7 +38,7 @@ class Danas(BasicNewsRecipe):
                     ,dict(name=['object','link','iframe'])
                   ]
 
-    feeds          = [
+    feeds          = [ 
                         (u'Politika' , u'http://www.danas.rs/rss/rss.asp?column_id=27')
                        ,(u'Hronika'  , u'http://www.danas.rs/rss/rss.asp?column_id=2' )
                        ,(u'Drustvo'  , u'http://www.danas.rs/rss/rss.asp?column_id=24')
@@ -60,4 +60,4 @@ class Danas(BasicNewsRecipe):
 
     def print_version(self, url):
         return url + '&action=print'
-
+        

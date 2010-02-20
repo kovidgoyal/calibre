@@ -1,7 +1,6 @@
-#!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 
 '''
 glassrpske.com
@@ -9,7 +8,6 @@ glassrpske.com
 
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class GlasSrpske(BasicNewsRecipe):
     title                 = 'Glas Srpske'
@@ -22,20 +20,16 @@ class GlasSrpske(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'utf-8'
     use_embedded_content  = False
-    cover_url             = 'http://www.glassrpske.com/var/slike/glassrpske-logo.png'
-    lang                  = 'sr-BA'
-    language = 'sr'
-
+    masthead_url          = 'http://www.glassrpske.com/var/slike/glassrpske-logo.png'
+    language              = 'sr'
     INDEX                 = 'http://www.glassrpske.com'
-
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
+    extra_css             = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif} img{margin-bottom: 0.8em} '
 
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
                         , 'publisher'        : publisher
-                        , 'language'         : lang
-                        , 'pretty_print'     : True
+                        , 'language'         : language
                         }
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
@@ -63,11 +57,7 @@ class GlasSrpske(BasicNewsRecipe):
             ]
 
     def preprocess_html(self, soup):
-        soup.html['xml:lang'] = self.lang
-        soup.html['lang']     = self.lang
-        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
-        soup.head.insert(0,mlang)
-        return soup
+        return self.adeify_images(soup)
 
     def parse_index(self):
         totalfeeds = []
