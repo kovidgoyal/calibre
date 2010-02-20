@@ -49,7 +49,7 @@ class CLI(object):
         d = os.path.dirname(path)
         if not os.path.exists(d):
             os.makedirs(d)
-        with open(path, 'wb') as dest:
+        with open(path, 'w+b') as dest:
             try:
                 shutil.copyfileobj(infile, dest)
             except IOError:
