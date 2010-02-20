@@ -50,7 +50,11 @@ class WallStreetJournal(BasicNewsRecipe):
                 br.select_form(nr=0)
                 br['user']   = self.username
                 br['password'] = self.password
-                br.submit()
+                res = br.submit()
+                raw = res.read()
+                if 'Welcome,' not in raw:
+                    raise ValueError('Failed to log in to wsj.com, check your '
+                            'username and password')
             return br
 
         def postprocess_html(self, soup, first):
