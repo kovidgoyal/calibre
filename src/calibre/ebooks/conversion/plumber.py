@@ -786,6 +786,7 @@ OptionRecommendation(name='timestamp',
             self.oeb = create_oebbook(self.log, self.oeb, self.opts,
                     self.input_plugin)
         self.input_plugin.postprocess_book(self.oeb, self.opts, self.log)
+        self.opts.is_image_collection = self.input_plugin.is_image_collection
         pr = CompositeProgressReporter(0.34, 0.67, self.ui_reporter)
         self.flush()
         if self.opts.debug_pipeline is not None:

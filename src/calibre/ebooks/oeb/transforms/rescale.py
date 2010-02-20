@@ -29,6 +29,9 @@ class RescaleImages(object):
 
 
         page_width, page_height = self.opts.dest.width, self.opts.dest.height
+        if not self.opts.is_image_collection:
+            page_width -= (self.opts.margin_left + self.opts.margin_right) * self.opts.dest.dpi/72.
+            page_height -= (self.opts.margin_top + self.opts.margin_bottom) * self.opts.dest.dpi/72.
         for item in self.oeb.manifest:
             if item.media_type.startswith('image'):
                 raw = item.data
