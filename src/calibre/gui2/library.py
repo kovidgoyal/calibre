@@ -1,10 +1,11 @@
-from calibre.ebooks.metadata import authors_to_string
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
 import os, textwrap, traceback, re, shutil
 from operator import attrgetter
-
 from math import cos, sin, pi
+from contextlib import closing
+
 from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, \
@@ -22,7 +23,8 @@ from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, \
 from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
-from calibre.ebooks.metadata import string_to_authors, fmt_sidx
+from calibre.ebooks.metadata import string_to_authors, fmt_sidx, \
+                                    authors_to_string
 from calibre.utils.config import tweaks
 from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 
@@ -469,9 +471,10 @@ class BooksModel(QAbstractTableModel):
                     break
             if format is not None:
                 pt = PersistentTemporaryFile(suffix='.'+format)
-                src = self.db.format(id, format, index_is_id=True, as_file=True)
-                shutil.copyfileobj(src, pt)
-                pt.flush()
+                with closing(self.db.format(id, format, index_is_id=True,
+                    as_file=True)) as src:
+                    shutil.copyfileobj(src, pt)
+                    pt.flush()
                 pt.seek(0)
                 if set_metadata:
                     _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
@@ -505,8 +508,10 @@ class BooksModel(QAbstractTableModel):
                     break
             if format is not None:
                 pt = PersistentTemporaryFile(suffix='.'+format)
-                pt.write(self.db.format(row, format))
-                pt.flush()
+                with closing(self.db.format(row, format, as_file=True)) as src:
+                    shutil.copyfileobj(src, pt)
+                    pt.flush()
+                pt.seek(0)
                 if set_metadata:
                     _set_metadata(pt, self.db.get_metadata(row, get_cover=True),
                                   format)
