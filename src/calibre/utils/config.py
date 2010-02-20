@@ -676,6 +676,27 @@ def _prefs():
 
 prefs = ConfigProxy(_prefs())
 
+# Read tweaks
+def read_tweaks():
+    make_config_dir()
+    default_tweaks = P('default_tweaks.py', data=True)
+    tweaks_file = os.path.join(config_dir, 'tweaks.py')
+    if not os.path.exists(tweaks_file):
+        with open(tweaks_file, 'wb') as f:
+            f.write(default_tweaks)
+    l, g = {}, {}
+    try:
+        exec open(tweaks_file, 'rb') in g, l
+    except:
+        print 'Failed to load custom tweaks file'
+        traceback.print_exc()
+    dl, dg = {}, {}
+    exec default_tweaks in dg, dl
+    dl.update(l)
+    return dl
+
+tweaks = read_tweaks()
+
 def migrate():
     if hasattr(os, 'geteuid') and os.geteuid() == 0:
         return

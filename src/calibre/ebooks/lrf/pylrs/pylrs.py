@@ -50,6 +50,7 @@ from pylrf import (LrfWriter, LrfObject, LrfTag, LrfToc,
         STREAM_COMPRESSED, LrfTagStream, LrfStreamBase, IMAGE_TYPE_ENCODING,
         BINDING_DIRECTION_ENCODING, LINE_TYPE_ENCODING, LrfFileStream,
         STREAM_FORCE_COMPRESSED)
+from calibre.utils.date import isoformat
 
 DEFAULT_SOURCE_ENCODING = "cp1252"      # defualt is us-windows character set
 DEFAULT_GENREADING      = "fs"          # default is yes to both lrf and lrs
@@ -852,7 +853,7 @@ class DocInfo(object):
         self.thumbnail = None
         self.language = "en"
         self.creator  = None
-        self.creationdate = date.today().isoformat()
+        self.creationdate = str(isoformat(date.today()))
         self.producer = "%s v%s"%(__appname__, __version__)
         self.numberofpages = "0"
 

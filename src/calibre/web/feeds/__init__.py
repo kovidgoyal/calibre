@@ -6,16 +6,15 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Contains the logic for parsing feeds.
 '''
 import time, traceback, copy, re
-from datetime import datetime
+
+from lxml import html
 
 from calibre.web.feeds.feedparser import parse
 from calibre.utils.logging import default_log
 from calibre import entity_to_unicode
-from lxml import html
+from calibre.utils.date import dt_factory, utcnow, local_tz
 
 class Article(object):
-
-    time_offset = datetime.now() - datetime.utcnow()
 
     def __init__(self, id, title, url, author, summary, published, content):
         self.downloaded = False
@@ -48,8 +47,8 @@ class Article(object):
         self.author = author
         self.content = content
         self.date = published
-        self.utctime = datetime(*self.date[:6])
-        self.localtime = self.utctime + self.time_offset
+        self.utctime = dt_factory(self.date, assume_utc=True, as_utc=True)
+        self.localtime = self.utctime.astimezone(local_tz)
 
     @dynamic_property
     def title(self):
@@ -146,7 +145,7 @@ class Feed(object):
             content     = item.get('content', '')
             author      = item.get('author', '')
             article = Article(id, title, link, author, description, published, content)
-            delta = datetime.utcnow() - article.utctime
+            delta = utcnow() - article.utctime
             if delta.days*24*3600 + delta.seconds <= 24*3600*self.oldest_article:
                 self.articles.append(article)
             else:
@@ -183,7 +182,7 @@ class Feed(object):
         if not link and not content:
             return
         article = Article(id, title, link, author, description, published, content)
-        delta = datetime.utcnow() - article.utctime
+        delta = utcnow() - article.utctime
         if delta.days*24*3600 + delta.seconds <= 24*3600*self.oldest_article:
             self.articles.append(article)
         else:

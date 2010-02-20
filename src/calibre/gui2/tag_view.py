@@ -173,6 +173,8 @@ class TagsModel(QAbstractItemModel):
             if len(data[r]) > 0:
                 self.beginInsertRows(category_index, 0, len(data[r])-1)
                 for tag in data[r]:
+                    if r == 'author':
+                        tag.name = tag.name.replace('|', ',')
                     tag.state = state_map.get(tag.name, 0)
                     t = TagTreeItem(parent=category, data=tag, icon_map=self.icon_map)
                 self.endInsertRows()
@@ -278,7 +280,7 @@ class TagsModel(QAbstractItemModel):
                 category = key if key != 'news' else 'tag'
                 if tag.state > 0:
                     prefix = ' not ' if tag.state == 2 else ''
-                    ans.append('%s%s:"%s"'%(prefix, category, tag.name))
+                    ans.append('%s%s:"=%s"'%(prefix, category, tag.name))
         return ans
 
 

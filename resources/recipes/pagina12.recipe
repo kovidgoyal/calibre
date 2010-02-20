@@ -15,14 +15,14 @@ class Pagina12(BasicNewsRecipe):
     publisher             = 'La Pagina S.A.'
     category              = 'news, politics, Argentina'
     oldest_article        = 2
-    max_articles_per_feed = 100
+    max_articles_per_feed = 200
     no_stylesheets        = True
     encoding              = 'cp1252'
     use_embedded_content  = False
     language              = 'es'
     remove_empty_feeds    = True
     masthead_url          = 'http://www.pagina12.com.ar/commons/imgs/logo-home.gif'
-    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } h2{color: #028CCD} img{margin-bottom: 0.4em} .epigrafe{font-size: x-small; background-color: #EBEAE5; color: #565144 } .intro{font-size: 1.1em} '
+    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} #autor{font-weight: bold} #fecha,#epigrafe{font-size: 0.9em; margin: 5px} #imagen{border: 1px solid black; margin: 0 0 1.25em 1.25em; width: 232px }  '
 
     conversion_options = {
                           'comment'   : description
@@ -45,7 +45,9 @@ class Pagina12(BasicNewsRecipe):
              ,(u'NO'             , u'http://www.pagina12.com.ar/diario/rss/no.xml'          )
              ,(u'Las/12'         , u'http://www.pagina12.com.ar/diario/rss/las12.xml'       )
              ,(u'Soy'            , u'http://www.pagina12.com.ar/diario/rss/soy.xml'         )
-             ,(u'M2'             , u'http://www.pagina12.com.ar/diario/rss/futuro.xml'      )
+             ,(u'Futuro'         , u'http://www.pagina12.com.ar/diario/rss/futuro.xml'      )
+             ,(u'M2'             , u'http://www.pagina12.com.ar/diario/rss/m2.xml'          )
+             ,(u'Rosario/12'     , u'http://www.pagina12.com.ar/diario/rss/rosario.xml'     )
             ]
 
     def print_version(self, url):
@@ -60,3 +62,7 @@ class Pagina12(BasicNewsRecipe):
               return image['src']
         return None
 
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup

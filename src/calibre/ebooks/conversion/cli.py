@@ -233,14 +233,18 @@ def create_option_parser(args, log):
 
     return parser, plumber
 
+def abspath(x):
+    if x.startswith('http:') or x.startswith('https:'):
+        return x
+    return os.path.abspath(os.path.expanduser(x))
+
 def main(args=sys.argv):
     log = Log()
     parser, plumber = create_option_parser(args, log)
     opts = parser.parse_args(args)[0]
-    y = lambda q : os.path.abspath(os.path.expanduser(q))
     for x in ('read_metadata_from_opf', 'cover'):
         if getattr(opts, x, None) is not None:
-            setattr(opts, x, y(getattr(opts, x)))
+            setattr(opts, x, abspath(getattr(opts, x)))
     recommendations = [(n.dest, getattr(opts, n.dest),
                         OptionRecommendation.HIGH) \
                                         for n in parser.options_iter()

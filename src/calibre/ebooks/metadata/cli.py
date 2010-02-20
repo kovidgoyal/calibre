@@ -15,6 +15,7 @@ from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string, \
                     title_sort, MetaInformation
 from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre import prints
+from calibre.utils.date import parse_date
 
 USAGE='%%prog ebook_file [' + _('options') + ']\n' + \
 _('''
@@ -69,6 +70,8 @@ def config():
               help=_('Set the book producer.'))
     c.add_opt('language', ['-l', '--language'],
               help=_('Set the language.'))
+    c.add_opt('pubdate', ['-d', '--date'],
+              help=_('Set the published date.'))
 
     c.add_opt('get_cover', ['--get-cover'],
               help=_('Get the cover from the ebook and save it at as the '
@@ -132,6 +135,8 @@ def do_set_metadata(opts, mi, stream, stream_type):
         mi.series = opts.series.strip()
     if getattr(opts, 'series_index', None) is not None:
         mi.series_index = float(opts.series_index.strip())
+    if getattr(opts, 'pubdate', None) is not None:
+        mi.pubdate = parse_date(opts.pubdate, assume_utc=False, as_utc=False)
 
     if getattr(opts, 'cover', None) is not None:
         ext = os.path.splitext(opts.cover)[1].replace('.', '').upper()

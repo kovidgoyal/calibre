@@ -104,7 +104,64 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label_5" >
+    <widget class="QGroupBox" name="groupBox" >
+     <property name="maximumSize" >
+      <size>
+       <width>16777215</width>
+       <height>60</height>
+      </size>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_5" >
+      <item>
+       <widget class="QLabel" name="label_5" >
+        <property name="text" >
+         <string>What kind of match to use:</string>
+        </property>
+        <property name="buddy" >
+         <cstring>matchkind</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="matchkind">
+        <item>
+         <property name="text">
+          <string>Contains: the word or phrase matches anywhere in the metadata</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Equals: the word or phrase must match an entire metadata field</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Regular expression: the expression must match anywhere in the metadata</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_51" >
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>40</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text" >
+         <string> </string>
+        </property>
+        <property name="buddy" >
+         <cstring>matchkind</cstring>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_6" >
      <property name="maximumSize" >
       <size>
        <width>16777215</width>

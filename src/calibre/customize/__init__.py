@@ -139,12 +139,11 @@ class FileTypePlugin(Plugin):
     #: to the database
     on_import      = False
 
-    #: If True, this plugin is run whenever an any2* tool
-    #: is used, on the file passed to the any2* tool.
+    #: If True, this plugin is run just before a conversion
     on_preprocess  = False
 
-    #: If True, this plugin is run after an any2* tool is
-    #: used, on the final file produced by the tool.
+    #: If True, this plugin is run after conversion
+    #: on the final file produced by the conversion output plugin.
     on_postprocess = False
 
     type = _('File type')
@@ -249,6 +248,7 @@ class CatalogPlugin(Plugin):
     #:                       dest = 'catalog_title',
     #:                       help = (_('Title of generated catalog. \nDefault:') + " '" +
     #:                       '%default' + "'"))]
+    #: cli_options parsed in library.cli:catalog_option_parser()
 
     cli_options = []
 
@@ -275,9 +275,10 @@ class CatalogPlugin(Plugin):
     def get_output_fields(self, opts):
         # Return a list of requested fields, with opts.sort_by first
         all_fields = set(
-                          ['author_sort','authors','comments','cover','formats',                           'id','isbn','pubdate','publisher','rating',
-                          'series_index','series','size','tags','timestamp',
-                          'title','uuid'])
+                          ['author_sort','authors','comments','cover','formats',
+                           'id','isbn','pubdate','publisher','rating',
+                           'series_index','series','size','tags','timestamp',
+                           'title','uuid'])
 
         fields = all_fields
         if opts.fields != 'all':

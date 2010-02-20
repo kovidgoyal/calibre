@@ -165,6 +165,18 @@ class Node(xml.dom.Node):
         oldChild.parentNode = None
         return oldChild
 
+    def __str__(self):
+        val = []
+        for c in self.childNodes:
+            val.append(str(c))
+        return ''.join(val)
+
+    def __unicode__(self):
+        val = []
+        for c in self.childNodes:
+            val.append(unicode(c))
+        return u''.join(val)
+
 defproperty(Node, "firstChild", doc="First child node, or None.")
 defproperty(Node, "lastChild",  doc="Last child node, or None.")
 
@@ -221,6 +233,9 @@ class Text(Childless, Node):
         self.data = data
 
     def __str__(self):
+        return self.data.encode()
+
+    def __unicode__(self):
         return self.data
 
     def toXml(self,level,f):
@@ -451,4 +466,10 @@ class Element(Node):
     def getElementsByType(self, element):
         obj = element(check_grammar=False)
         return self._getElementsByObj(obj,[])
+
+    def isInstanceOf(self, element):
+        """ This is a check to see if the object is an instance of a type """
+        obj = element(check_grammar=False)
+        return self.qname == obj.qname
+
 

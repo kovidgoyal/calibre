@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # Copyright (C) 2006-2007 Søren Roug, European Environment Agency
-# 
+#
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -47,7 +47,7 @@ from namespaces import ANIMNS, CHARTNS, CONFIGNS, DCNS, DR3DNS, DRAWNS, FONS, \
 #
 # The real styles are declared in the <style:style> element. They have a
 # family referring to the default-styles, and may have a parent style.
-# 
+#
 # Styles have scope. The same name can be used for both paragraph and
 # character etc. styles Since CSS2 has no scope we use a prefix. (Not elegant)
 # In ODF a style can have a parent, these parents can be chained.
@@ -376,6 +376,8 @@ class ODF2XHTML(handler.ContentHandler):
         (OFFICENS, "text"):(self.s_office_text, self.e_office_text),
         (OFFICENS, "scripts"):(self.s_ignorexml, None),
         (PRESENTATIONNS, "notes"):(self.s_ignorexml, None),
+#       (STYLENS, "default-page-layout"):(self.s_style_default_page_layout, self.e_style_page_layout),
+        (STYLENS, "default-page-layout"):(self.s_ignorexml, None),
         (STYLENS, "default-style"):(self.s_style_default_style, self.e_style_default_style),
         (STYLENS, "drawing-page-properties"):(self.s_style_handle_properties, None),
         (STYLENS, "font-face"):(self.s_style_font_face, None),
@@ -834,8 +836,17 @@ class ODF2XHTML(handler.ContentHandler):
         self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
 
+    def s_style_default_page_layout(self, tag, attrs):
+        """ Collect the formatting for the default page layout style.
+        """
+        self.currentstyle = "@page"
+        self.stylestack.append(self.currentstyle)
+        self.styledict[self.currentstyle] = {}
+
     def s_style_page_layout(self, tag, attrs):
         """ Collect the formatting for the page layout style.
+            This won't work in CSS 2.1, as page identifiers are not allowed.
+            It is legal in CSS3, but the rest of the application doesn't specify when to use what page layout
         """
         name = attrs[(STYLENS,'name')]
         name = name.replace(".","_")

@@ -12,46 +12,18 @@ from sqlite3 import IntegrityError, OperationalError
 from threading import Thread
 from Queue import Queue
 from threading import RLock
-from datetime import tzinfo, datetime, timedelta
+from datetime import datetime
 
 from calibre.ebooks.metadata import title_sort
+from calibre.utils.date import parse_date, isoformat
 
 global_lock = RLock()
 
 def convert_timestamp(val):
-    datepart, timepart = val.split(' ')
-    tz, mult = None, 1
-    x = timepart.split('+')
-    if len(x) > 1:
-        timepart, tz = x
-    else:
-        x = timepart.split('-')
-        if len(x) > 1:
-            timepart, tz = x
-            mult = -1
-
-    year, month, day = map(int, datepart.split("-"))
-    timepart_full = timepart.split(".")
-    hours, minutes, seconds = map(int, timepart_full[0].split(":"))
-    if len(timepart_full) == 2:
-        microseconds = int(timepart_full[1])
-    else:
-        microseconds = 0
-    if tz is not None:
-        h, m = map(int, tz.split(':'))
-        delta = timedelta(minutes=mult*(60*h + m))
-        tz = type('CustomTZ', (tzinfo,), {'utcoffset':lambda self, dt:delta,
-                                          'dst':lambda self,dt:timedelta(0)})()
-
-    val = datetime(year, month, day, hours, minutes, seconds, microseconds,
-                   tzinfo=tz)
-    if tz is not None:
-        val = datetime(*(val.utctimetuple()[:6]))
-    return val
+    return parse_date(val, as_utc=False)
 
 def adapt_datetime(dt):
-    dt = datetime(*(dt.utctimetuple()[:6]))
-    return dt.isoformat(' ')
+    return isoformat(dt, sep=' ')
 
 sqlite.register_adapter(datetime, adapt_datetime)
 sqlite.register_converter('timestamp', convert_timestamp)

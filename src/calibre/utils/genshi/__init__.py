@@ -20,10 +20,7 @@ independently of where or how they are produced.
 """
 
 __docformat__ = 'restructuredtext en'
-try:
-    __version__ = __import__('pkg_resources').get_distribution('Genshi').version
-except:
-    pass
+__version__   = '0.5.0'
 
 from calibre.utils.genshi.core import *
 from calibre.utils.genshi.input import ParseError, XML, HTML

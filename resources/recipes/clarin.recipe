@@ -1,6 +1,6 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 clarin.com
 '''
@@ -21,7 +21,8 @@ class Clarin(BasicNewsRecipe):
     cover_url             = strftime('http://www.clarin.com/diario/%Y/%m/%d/portada.jpg')
     encoding              = 'cp1252'
     language              = 'es'
-    extra_css             = ' .Txt{ font-family: sans-serif } .Volan{ font-family: sans-serif; font-size: x-small} .Pie{ font-family: sans-serif; font-size: x-small} .Copete{font-family: sans-serif; font-size: large} .Hora{font-family: sans-serif; font-size: large} .Autor{font-family: sans-serif; font-size: small} '
+    masthead_url          = 'http://www.clarin.com/shared/v10/img/Hd/lg_Clarin.gif'
+    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif} h2{font-family: Georgia,"Times New Roman",Times,serif; font-size: xx-large} .Volan,.Pie,.Autor{ font-size: x-small} .Copete,.Hora{font-size: large} '
 
     conversion_options = {
                           'comment'  : description

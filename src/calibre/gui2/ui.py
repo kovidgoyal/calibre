@@ -337,7 +337,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(self.view_menu.actions()[0],
                 SIGNAL("triggered(bool)"), self.view_book)
         QObject.connect(self.view_menu.actions()[1],
-                SIGNAL("triggered(bool)"), self.view_specific_format)
+                SIGNAL("triggered(bool)"), self.view_specific_format,
+                Qt.QueuedConnection)
         self.connect(self.action_open_containing_folder,
                 SIGNAL('triggered(bool)'), self.view_folder)
         self.delete_menu.actions()[0].triggered.connect(self.delete_books)
@@ -600,6 +601,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if dynamic.get('tag_view_visible', False):
             self.status_bar.tag_view_button.toggle()
 
+        self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
+
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
@@ -668,19 +671,19 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if type == 'series':
             series = idx.model().db.series(row)
             if series:
-                search = ['series:'+series]
+                search = ['series:"'+series+'"']
         elif type == 'publisher':
             publisher = idx.model().db.publisher(row)
             if publisher:
-                search = ['publisher:'+publisher]
+                search = ['publisher:"'+publisher+'"']
         elif type == 'tag':
             tags = idx.model().db.tags(row)
             if tags:
-                search = ['tag:'+t for t in tags.split(',')]
+                search = ['tag:"='+t+'"' for t in tags.split(',')]
         elif type == 'author':
             authors = idx.model().db.authors(row)
             if authors:
-                search = ['author:'+a.strip().replace('|', ',') \
+                search = ['author:"='+a.strip().replace('|', ',')+'"' \
                                 for a in authors.split(',')]
                 join = ' or '
         if search:
@@ -987,14 +990,23 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.cover_cache.refresh([cid])
             self.library_view.model().current_changed(current_idx, current_idx)
 
-    def add_filesystem_book(self, path, allow_device=True):
-        if os.access(path, os.R_OK):
-            books = [os.path.abspath(path)]
+    def __add_filesystem_book(self, paths, allow_device=True):
+        print 222, paths
+        if isinstance(paths, basestring):
+            paths = [paths]
+        books = [path for path in map(os.path.abspath, paths) if os.access(path,
+            os.R_OK)]
+
+        if books:
             to_device = allow_device and self.stack.currentIndex() != 0
             self._add_books(books, to_device)
             if to_device:
                 self.status_bar.showMessage(\
                         _('Uploading books to device.'), 2000)
+
+
+    def add_filesystem_book(self, paths, allow_device=True):
+        self._add_filesystem_book(paths, allow_device=allow_device)
 
     def add_books(self, checked):
         '''
@@ -1041,21 +1053,23 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                                 infos, on_card=on_card)
             self.status_bar.showMessage(
                     _('Uploading books to device.'), 2000)
-        if self._adder.number_of_books_added > 0:
+        if getattr(self._adder, 'number_of_books_added', 0) > 0:
             self.library_view.model().books_added(self._adder.number_of_books_added)
             if hasattr(self, 'db_images'):
                 self.db_images.reset()
-        if self._adder.critical:
+        if getattr(self._adder, 'critical', None):
             det_msg = []
             for name, log in self._adder.critical.items():
                 if isinstance(name, str):
                     name = name.decode(filesystem_encoding, 'replace')
                 det_msg.append(name+'\n'+log)
+
             warning_dialog(self, _('Failed to read metadata'),
                     _('Failed to read metadata from the following')+':',
                     det_msg='\n\n'.join(det_msg), show=True)
 
-        self._adder.cleanup()
+        if hasattr(self._adder, 'cleanup'):
+            self._adder.cleanup()
         self._adder = None
 
 
@@ -1378,7 +1392,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     show=True)
 
         # Calling gui2.tools:generate_catalog()
-        ret = generate_catalog(self, dbspec, ids)
+        ret = generate_catalog(self, dbspec, ids, self.device_manager.device)
         if ret is None:
             return
 
@@ -1394,8 +1408,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.status_bar.showMessage(_('Generating %s catalog...')%fmt)
 
     def catalog_generated(self, job):
-		if job.result:
-			# Search terms nulled catalog results
+        if job.result:
+            # Search terms nulled catalog results
             return error_dialog(self, _('No books found'),
                     _("No books to catalog\nCheck exclude tags"),
                     show=True)
@@ -1642,12 +1656,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         row = rows[0].row()
         formats = self.library_view.model().db.formats(row).upper().split(',')
         d = ChooseFormatDialog(self, _('Choose the format to view'), formats)
-        d.exec_()
-        if d.result() == QDialog.Accepted:
+        if d.exec_() == QDialog.Accepted:
             format = d.format()
             self.view_format(row, format)
-        else:
-            return
 
     def view_folder(self, *args):
         rows = self.current_view().selectionModel().selectedRows()

@@ -4,13 +4,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Read data from .mobi files
 '''
 
-import datetime
 import functools
 import os
 import re
 import struct
 import textwrap
-
 import cStringIO
 
 try:
@@ -23,6 +21,7 @@ from lxml import html, etree
 
 from calibre import entity_to_unicode, CurrentDir
 from calibre.utils.filenames import ascii_filename
+from calibre.utils.date import parse_date
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks import DRMError
 from calibre.ebooks.chardet import ENCODING_PATS
@@ -68,7 +67,10 @@ class EXTHHeader(object):
                 pass
             elif id == 503: # Long title
                 if not title or title == _('Unknown'):
-                    title = content
+                    try:
+                        title = content.decode(codec)
+                    except:
+                        pass
             #else:
             #    print 'unknown record', id, repr(content)
         if title:
@@ -96,8 +98,7 @@ class EXTHHeader(object):
             self.mi.tags = list(set(self.mi.tags))
         elif id == 106:
             try:
-                self.mi.publish_date = datetime.datetime.strptime(
-                    content, '%Y-%m-%d', ).date()
+                self.mi.pubdate = parse_date(content, as_utc=False)
             except:
                 pass
         elif id == 108:
@@ -795,10 +796,11 @@ class MobiReader(object):
 def get_metadata(stream):
     from calibre.utils.logging import Log
     log = Log()
-
     mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
     try:
         mh = MetadataHeader(stream, log)
+        if mh.title and mh.title != _('Unknown'):
+            mi.title = mh.title
 
         if mh.exth is not None:
             if mh.exth.mi is not None:
@@ -817,10 +819,15 @@ def get_metadata(stream):
         else:
             data  = mh.section_data(mh.first_image_index)
         buf = cStringIO.StringIO(data)
-        im = PILImage.open(buf)
-        obuf = cStringIO.StringIO()
-        im.convert('RGBA').save(obuf, format='JPEG')
-        mi.cover_data = ('jpg', obuf.getvalue())
+        try:
+            im = PILImage.open(buf)
+        except:
+            log.exception('Failed to read MOBI cover')
+        else:
+            obuf = cStringIO.StringIO()
+            im.convert('RGB').save(obuf, format='JPEG')
+            mi.cover_data = ('jpg', obuf.getvalue())
     except:
-        log.exception()
+        log.filter_level = Log.DEBUG
+        log.exception('Failed to read MOBI metadata')
     return mi

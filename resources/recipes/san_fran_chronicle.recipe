@@ -7,10 +7,11 @@ sfgate.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+import re
 
 class SanFranciscoChronicle(BasicNewsRecipe):
     title                 = u'San Francisco Chronicle'
-    __author__            = u'Darko Miletic'
+    __author__            = u'Darko Miletic and Sujata Raman'
     description           = u'San Francisco news'
     language = 'en'
 
@@ -19,13 +20,56 @@ class SanFranciscoChronicle(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
 
-    remove_tags_before = {'class':'articleheadings'}
-    remove_tags_after =  dict(name='div', attrs={'id':'articlecontent' })
-    remove_tags = [
-                     dict(name='div', attrs={'class':'tools tools_top'})
-                    ,dict(name='div', attrs={'id':'articlebox'        })
-                  ]
+
+
+    remove_tags_before  = {'id':'printheader'}
+
+    remove_tags         = [
+                            dict(name='div',attrs={'id':'printheader'})
+                           ,dict(name='a', attrs={'href':re.compile('http://ads\.pheedo\.com.*')})
+                           ,dict(name='div',attrs={'id':'footer'})
+                          ]
+
+    extra_css       = '''
+                        h1{font-family :Arial,Helvetica,sans-serif; font-size:large;}
+                        h2{font-family :Arial,Helvetica,sans-serif; font-size:medium; color:#666666;}
+                        h3{font-family :Arial,Helvetica,sans-serif; font-size:medium; color:#000000;}
+                        h4{font-family :Arial,Helvetica,sans-serif; font-size: x-small;}
+                        p{font-family :Arial,Helvetica,sans-serif; font-size:x-small;}
+                        .byline{font-family :Arial,Helvetica,sans-serif; font-size: xx-small;}
+                        .date{font-family :Arial,Helvetica,sans-serif; font-size: xx-small;}
+                        .dtlcomment{font-style:italic;}
+                        .georgia h3{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#000000;}
+                     '''
 
     feeds          = [
                          (u'Top News Stories', u'http://www.sfgate.com/rss/feeds/news.xml')
                      ]
+
+    def print_version(self,url):
+        url= url +"&type=printable"
+        return url
+
+    def get_article_url(self, article):
+        print str(article['title_detail']['value'])
+        url = article.get('guid',None)
+        url = "http://www.sfgate.com/cgi-bin/article.cgi?f="+url
+        if "Presented By:" in str(article['title_detail']['value']):
+            url = ''
+        return url
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

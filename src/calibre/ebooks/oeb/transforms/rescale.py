@@ -29,6 +29,9 @@ class RescaleImages(object):
 
 
         page_width, page_height = self.opts.dest.width, self.opts.dest.height
+        if not getattr(self.opts, 'is_image_collection', False):
+            page_width -= (self.opts.margin_left + self.opts.margin_right) * self.opts.dest.dpi/72.
+            page_height -= (self.opts.margin_top + self.opts.margin_bottom) * self.opts.dest.dpi/72.
         for item in self.oeb.manifest:
             if item.media_type.startswith('image'):
                 raw = item.data
@@ -53,7 +56,8 @@ class RescaleImages(object):
                 scaled, new_width, new_height = fit_image(width, height,
                         page_width, page_height)
                 if scaled:
-                    self.log('Rescaling image', item.href)
+                    self.log('Rescaling image from %dx%d to %dx%d'%(
+                        width, height, new_width, new_height), item.href)
                     if qt:
                         img = img.scaled(new_width, new_height,
                                 Qt.IgnoreAspectRatio, Qt.SmoothTransformation)

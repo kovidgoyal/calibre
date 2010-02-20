@@ -20,37 +20,8 @@ function selector(elem) {
     return sel;
 }
 
-function find_closest_enclosing_block(top) {
-    var START = top-1000;
-    var STOP = top;
-    var matches = [];
-    var elem, temp;
-    var width = 1000;
-
-    for (y = START; y < STOP; y += 20) {
-        for ( x = 0; x < width; x += 20) {
-            elem = document.elementFromPoint(x, y);
-            try {
-                elem = $(elem);
-                temp = elem.offset().top
-                matches.push(elem);
-                if (Math.abs(temp - START) < 25) { y = STOP; break}
-            } catch(error) {}
-        }
-    }
-
-    var miny = Math.abs(matches[0].offset().top - START), min_elem = matches[0];
-
-    for (i = 1; i < matches.length; i++) {
-        elem = matches[i];
-        temp = Math.abs(elem.offset().top - START);
-        if ( temp < miny ) { miny = temp; min_elem = elem; }
-    }
-    return min_elem;
-}
-
-function calculate_bookmark(y) {
-    var elem = find_closest_enclosing_block(y);
+function calculate_bookmark(y, node) {
+    var elem = $(node);
     var sel = selector(elem);
     var ratio = (y - elem.offset().top)/elem.height();
     if (ratio > 1) { ratio = 1; }

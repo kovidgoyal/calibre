@@ -12,6 +12,7 @@ from calibre.customize.ui import input_profiles, output_profiles, \
         run_plugins_on_preprocess, run_plugins_on_postprocess
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils.date import parse_date
 from calibre import extract, walk
 
 DEBUG_README=u'''
@@ -65,7 +66,7 @@ class Plumber(object):
     metadata_option_names = [
         'title', 'authors', 'title_sort', 'author_sort', 'cover', 'comments',
         'publisher', 'series', 'series_index', 'rating', 'isbn',
-        'tags', 'book_producer', 'language'
+        'tags', 'book_producer', 'language', 'pubdate', 'timestamp'
         ]
 
     def __init__(self, input, output, log, report_progress=DummyReporter(),
@@ -423,7 +424,7 @@ OptionRecommendation(name='author_sort',
 
 OptionRecommendation(name='cover',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the cover to the specified file.')),
+    help=_('Set the cover to the specified file or URL')),
 
 OptionRecommendation(name='comments',
     recommended_value=None, level=OptionRecommendation.LOW,
@@ -460,6 +461,14 @@ OptionRecommendation(name='book_producer',
 OptionRecommendation(name='language',
     recommended_value=None, level=OptionRecommendation.LOW,
     help=_('Set the language.')),
+
+OptionRecommendation(name='pubdate',
+    recommended_value=None, level=OptionRecommendation.LOW,
+    help=_('Set the publication date.')),
+
+OptionRecommendation(name='timestamp',
+    recommended_value=None, level=OptionRecommendation.LOW,
+    help=_('Set the book timestamp (used by the date column in calibre).')),
 
 ]
 
@@ -619,8 +628,30 @@ OptionRecommendation(name='language',
                     except ValueError:
                         self.log.warn(_('Values of series index and rating must'
                         ' be numbers. Ignoring'), val)
+                        continue
+                elif x in ('timestamp', 'pubdate'):
+                    try:
+                        val = parse_date(val, assume_utc=x=='pubdate')
+                    except:
+                        self.log.exception(_('Failed to parse date/time') + ' ' +
+                                unicode(val))
+                        continue
                 setattr(mi, x, val)
 
+    def download_cover(self, url):
+        from calibre import browser
+        from PIL import Image
+        from cStringIO import StringIO
+        from calibre.ptempfile import PersistentTemporaryFile
+        self.log('Downloading cover from %r'%url)
+        br = browser()
+        raw = br.open_novisit(url).read()
+        buf = StringIO(raw)
+        pt = PersistentTemporaryFile('.jpg')
+        pt.close()
+        img = Image.open(buf)
+        img.convert('RGB').save(pt.name)
+        return pt.name
 
     def read_user_metadata(self):
         '''
@@ -638,6 +669,8 @@ OptionRecommendation(name='language',
             mi = MetaInformation(opf)
         self.opts_to_mi(mi)
         if mi.cover:
+            if mi.cover.startswith('http:') or mi.cover.startswith('https:'):
+                mi.cover = self.download_cover(mi.cover)
             mi.cover_data = ('', open(mi.cover, 'rb').read())
             mi.cover = None
         self.user_metadata = mi
@@ -753,6 +786,7 @@ OptionRecommendation(name='language',
             self.oeb = create_oebbook(self.log, self.oeb, self.opts,
                     self.input_plugin)
         self.input_plugin.postprocess_book(self.oeb, self.opts, self.log)
+        self.opts.is_image_collection = self.input_plugin.is_image_collection
         pr = CompositeProgressReporter(0.34, 0.67, self.ui_reporter)
         self.flush()
         if self.opts.debug_pipeline is not None:
