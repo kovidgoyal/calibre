@@ -224,6 +224,11 @@ def extract_member(path, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I), na
         f.write(data)
         f.flush()
         path = f.name
+
+    def is_match(fname):
+        return (name is not None and fname == name) or \
+               (match is not None and match.search(fname))
+
     with TemporaryDirectory('_libunrar') as dir:
         with CurrentDir(dir):
             open_archive_data = RAROpenArchiveDataEx(ArcName=path, OpenMode=RAR_OM_EXTRACT, CmtBuf=None)
@@ -235,14 +240,18 @@ def extract_member(path, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I), na
                 while True:
                     if _libunrar.RARReadHeaderEx(arc_data, byref(header_data)) != 0:
                         raise UnRARException('%s has no files'%path)
-                    PFCode = _libunrar.RARProcessFileW(arc_data, RAR_EXTRACT, None, None)
-                    if PFCode != 0:
-                        raise UnRARException(_interpret_process_file_error(PFCode))
                     file_name = header_data.FileNameW
-                    if (name is not None and file_name == name) or \
-                       (match is not None and match.search(file_name)):
+                    if is_match(file_name):
+                        PFCode = _libunrar.RARProcessFileW(arc_data, RAR_EXTRACT, None, None)
+                        if PFCode != 0:
+                            raise UnRARException(_interpret_process_file_error(PFCode))
                         return header_data.FileNameW.replace('/', os.sep), \
                                 open(os.path.join(dir, *header_data.FileNameW.split('/')), 'rb').read()
+                    else:
+                        PFCode = _libunrar.RARProcessFileW(arc_data, RAR_SKIP, None, None)
+                        if PFCode != 0:
+                            raise UnRARException(_interpret_process_file_error(PFCode))
+
             finally:
                 _libunrar.RARCloseArchive(arc_data)
 

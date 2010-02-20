@@ -795,10 +795,12 @@ class MobiReader(object):
 
 def get_metadata(stream):
     from calibre.utils.logging import Log
-    log = Log(level=Log.DEBUG)
+    log = Log()
     mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
     try:
         mh = MetadataHeader(stream, log)
+        if mh.title and mh.title != _('Unknown'):
+            mi.title = mh.title
 
         if mh.exth is not None:
             if mh.exth.mi is not None:
@@ -817,10 +819,15 @@ def get_metadata(stream):
         else:
             data  = mh.section_data(mh.first_image_index)
         buf = cStringIO.StringIO(data)
-        im = PILImage.open(buf)
-        obuf = cStringIO.StringIO()
-        im.convert('RGBA').save(obuf, format='JPEG')
-        mi.cover_data = ('jpg', obuf.getvalue())
+        try:
+            im = PILImage.open(buf)
+        except:
+            log.exception('Failed to read MOBI cover')
+        else:
+            obuf = cStringIO.StringIO()
+            im.convert('RGB').save(obuf, format='JPEG')
+            mi.cover_data = ('jpg', obuf.getvalue())
     except:
+        log.filter_level = Log.DEBUG
         log.exception('Failed to read MOBI metadata')
     return mi
