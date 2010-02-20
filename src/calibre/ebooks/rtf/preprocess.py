@@ -131,9 +131,9 @@ class RtfTokenParser():
                 if isString(self.tokens[i].name, "\\'"):
                     i = i + 1
                     if not isinstance(self.tokens[i], tokenData):
-                        raise BaseException('Error: token8bitChar without data.')
+                        raise Exception('Error: token8bitChar without data.')
                     if len(self.tokens[i].data) < 2:
-                        raise BaseException('Error: token8bitChar without data.')
+                        raise Exception('Error: token8bitChar without data.')
                     newTokens.append(token8bitChar(self.tokens[i].data[0:2]))
                     if len(self.tokens[i].data) > 2:
                         newTokens.append(tokenData(self.tokens[i].data[2:]))
@@ -195,7 +195,7 @@ class RtfTokenParser():
                             i = i + 1
                             j = j + 1
                             continue
-                        raise BaseException('Error: incorect utf replacement.')
+                        raise Exception('Error: incorect utf replacement.')
 
                     #calibre rtf2xml does not support utfreplace
                     replace = []
@@ -248,7 +248,7 @@ class RtfTokenizer():
 
             if isChar(self.rtfData[i], '\\'):
                 if i + 1 >= len(self.rtfData):
-                    raise BaseException('Error: Control character found at the end of the document.')
+                    raise Exception('Error: Control character found at the end of the document.')
 
                 if lastDataStart > -1:
                     self.tokens.append(tokenData(self.rtfData[lastDataStart : i]))
@@ -269,7 +269,7 @@ class RtfTokenizer():
                         i = i + 1
 
                     if not consumed:
-                        raise BaseException('Error (at:%d): Control Word without end.'%(tokenStart))
+                        raise Exception('Error (at:%d): Control Word without end.'%(tokenStart))
 
                     #we have numeric argument before delimiter
                     if isChar(self.rtfData[i], '-') or isDigit(self.rtfData[i]):
@@ -283,10 +283,10 @@ class RtfTokenizer():
                             l = l + 1
                             i = i + 1
                             if l > 10 :
-                                raise BaseException('Error (at:%d): Too many digits in control word numeric argument.'%[tokenStart])
+                                raise Exception('Error (at:%d): Too many digits in control word numeric argument.'%[tokenStart])
 
                         if not consumed:
-                            raise BaseException('Error (at:%d): Control Word without numeric argument end.'%[tokenStart])
+                            raise Exception('Error (at:%d): Control Word without numeric argument end.'%[tokenStart])
 
                     separator = ''
                     if isChar(self.rtfData[i], ' '):
