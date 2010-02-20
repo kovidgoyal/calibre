@@ -933,7 +933,6 @@ class BasicNewsRecipe(Recipe):
             except ImportError:
                 import Image, ImageDraw, ImageFont
             font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
-            font = ImageFont.truetype(font_path, 48)
             title = self.title if isinstance(self.title, unicode) else \
                     self.title.decode(preferred_encoding, 'replace')
             date = strftime(self.timefmt)
@@ -943,6 +942,7 @@ class BasicNewsRecipe(Recipe):
             img = Image.new('RGB', (COVER_WIDTH, COVER_HEIGHT), 'white')
             draw = ImageDraw.Draw(img)
             # Title
+            font = ImageFont.truetype(font_path, 44)
             width, height = draw.textsize(title, font=font)
             left = max(int((COVER_WIDTH - width)/2.), 0)
             top = 15
