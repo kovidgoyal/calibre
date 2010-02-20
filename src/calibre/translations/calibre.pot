@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.6.41\n"
-"POT-Creation-Date: 2010-02-19 12:51+MST\n"
-"PO-Revision-Date: 2010-02-19 12:51+MST\n"
+"Project-Id-Version: calibre 0.6.42\n"
+"POT-Creation-Date: 2010-02-19 19:53+MST\n"
+"PO-Revision-Date: 2010-02-19 19:53+MST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -126,9 +126,9 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:757
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1186
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1223
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1613
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1615
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1617
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1737
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1735
 #: /home/kovid/work/calibre/src/calibre/library/server.py:645
 #: /home/kovid/work/calibre/src/calibre/library/server.py:721
 #: /home/kovid/work/calibre/src/calibre/library/server.py:768
@@ -598,7 +598,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1110
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1114
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1503
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1501
 msgid "News"
 msgstr ""
 
@@ -1108,11 +1108,11 @@ msgstr ""
 msgid "Converting input to HTML..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:796
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:797
 msgid "Running transforms on ebook..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:883
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:884
 msgid "Creating"
 msgstr ""
 
@@ -2278,8 +2278,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:20
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:280
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1465
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1484
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1464
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1482
 msgid "Catalog"
 msgstr ""
 
@@ -7028,27 +7028,27 @@ msgid ""
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1763
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1761
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1792
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1790
 msgid "Copying <b>%s</b>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1809
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1807
 msgid "Compacting database"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1902
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1900
 msgid "Checking SQL integrity..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1939
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1937
 msgid "Checking for missing files."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1961
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1959
 msgid "Checked id"
 msgstr ""
 
