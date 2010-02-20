@@ -53,7 +53,8 @@ class RescaleImages(object):
                 scaled, new_width, new_height = fit_image(width, height,
                         page_width, page_height)
                 if scaled:
-                    self.log('Rescaling image', item.href)
+                    self.log('Rescaling image from %dx%d to %dx%d'%(
+                        width, height, new_width, new_height), item.href)
                     if qt:
                         img = img.scaled(new_width, new_height,
                                 Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
