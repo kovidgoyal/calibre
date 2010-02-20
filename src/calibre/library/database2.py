@@ -1458,36 +1458,34 @@ class LibraryDatabase2(LibraryDatabase):
 
     def add_catalog(self, path, title):
         format = os.path.splitext(path)[1][1:].lower()
-        stream = path if hasattr(path, 'read') else open(path, 'rb')
-        stream.seek(0)
-        matches = self.data.get_matches('title', title)
-        if matches:
-            tag_matches = self.data.get_matches('tags', _('Catalog'))
-            matches = matches.intersection(tag_matches)
-        db_id, existing = None, False
-        if matches:
-            db_id = list(matches)[0]
-        if db_id is None:
-            obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)',
-                                (title, 'calibre'))
-            db_id = obj.lastrowid
-            self.data.books_added([db_id], self)
-            self.set_path(db_id, index_is_id=True)
-            self.conn.commit()
-        try:
-            mi = get_metadata(stream,
-                    os.path.splitext(path)[1][1:].lower())
-        except:
-            mi = MetaInformation(title, ['calibre'])
+        with open(path, 'rb') as stream:
+            matches = self.data.get_matches('title', '='+title)
+            if matches:
+                tag_matches = self.data.get_matches('tags', '='+_('Catalog'))
+                matches = matches.intersection(tag_matches)
+            db_id = None
+            if matches:
+                db_id = list(matches)[0]
+            if db_id is None:
+                obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)',
+                                    (title, 'calibre'))
+                db_id = obj.lastrowid
+                self.data.books_added([db_id], self)
+                self.set_path(db_id, index_is_id=True)
+                self.conn.commit()
+            try:
+                mi = get_metadata(stream, format)
+            except:
+                import traceback
+                traceback.print_exc()
+                mi = MetaInformation(title, ['calibre'])
+            stream.seek(0)
+            mi.title, mi.authors = title, ['calibre']
+            mi.tags = [_('Catalog')]
+            mi.pubdate = mi.timestamp = utcnow()
+            self.set_metadata(db_id, mi)
+            self.add_format(db_id, format, stream, index_is_id=True)
 
-        mi.title, mi.authors = title, ['calibre']
-        mi.tags = [_('Catalog')]
-        mi.pubdate = mi.timestamp = utcnow()
-        self.set_metadata(db_id, mi)
-
-        self.add_format(db_id, format, stream, index_is_id=True)
-        if not hasattr(path, 'read'):
-            stream.close()
         self.conn.commit()
         self.data.refresh_ids(self, [db_id]) # Needed to update format list and size
         return db_id
