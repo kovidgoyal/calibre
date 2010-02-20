@@ -795,8 +795,7 @@ class MobiReader(object):
 
 def get_metadata(stream):
     from calibre.utils.logging import Log
-    log = Log()
-
+    log = Log(level=Log.DEBUG)
     mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
     try:
         mh = MetadataHeader(stream, log)
@@ -823,5 +822,5 @@ def get_metadata(stream):
         im.convert('RGBA').save(obuf, format='JPEG')
         mi.cover_data = ('jpg', obuf.getvalue())
     except:
-        log.exception()
+        log.exception('Failed to read MOBI metadata')
     return mi
