@@ -72,7 +72,7 @@ def qt_to_dt(qdate_or_qdatetime, as_utc=True):
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
 
 def fromtimestamp(ctime, as_utc=True):
-    dt = datetime.utcfromtimestamp().replace(tzinfo=_utc_tz)
+    dt = datetime.utcfromtimestamp(ctime).replace(tzinfo=_utc_tz)
     if not as_utc:
         dt = dt.astimezone(_local_tz)
     return dt

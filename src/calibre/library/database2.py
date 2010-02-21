@@ -1458,35 +1458,35 @@ class LibraryDatabase2(LibraryDatabase):
 
     def add_catalog(self, path, title):
         format = os.path.splitext(path)[1][1:].lower()
-        stream = path if hasattr(path, 'read') else open(path, 'rb')
-        stream.seek(0)
-        matches = self.data.get_matches('title', title)
-        if matches:
-            tag_matches = self.data.get_matches('tags', _('Catalog'))
-            matches = matches.intersection(tag_matches)
-        db_id, existing = None, False
-        if matches:
-            db_id = list(matches)[0]
-            existing = True
-        if db_id is None:
-            obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)',
-                                (title, 'calibre'))
-            db_id = obj.lastrowid
-            self.data.books_added([db_id], self)
-            self.set_path(db_id, index_is_id=True)
-            self.conn.commit()
-            mi = MetaInformation(title, ['calibre'])
+        with open(path, 'rb') as stream:
+            matches = self.data.get_matches('title', '='+title)
+            if matches:
+                tag_matches = self.data.get_matches('tags', '='+_('Catalog'))
+                matches = matches.intersection(tag_matches)
+            db_id = None
+            if matches:
+                db_id = list(matches)[0]
+            if db_id is None:
+                obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)',
+                                    (title, 'calibre'))
+                db_id = obj.lastrowid
+                self.data.books_added([db_id], self)
+                self.set_path(db_id, index_is_id=True)
+                self.conn.commit()
+            try:
+                mi = get_metadata(stream, format)
+            except:
+                mi = MetaInformation(title, ['calibre'])
+            stream.seek(0)
+            mi.title, mi.authors = title, ['calibre']
             mi.tags = [_('Catalog')]
+            mi.pubdate = mi.timestamp = utcnow()
+            if format == 'mobi':
+                mi.cover, mi.cover_data = None, (None, None)
             self.set_metadata(db_id, mi)
+            self.add_format(db_id, format, stream, index_is_id=True)
 
-        self.add_format(db_id, format, stream, index_is_id=True)
-        if not hasattr(path, 'read'):
-            stream.close()
         self.conn.commit()
-        if existing:
-            t = utcnow()
-            self.set_timestamp(db_id, t, notify=False)
-            self.set_pubdate(db_id, t, notify=False)
         self.data.refresh_ids(self, [db_id]) # Needed to update format list and size
         return db_id
 
@@ -1509,6 +1509,10 @@ class LibraryDatabase2(LibraryDatabase):
         self.data.books_added([id], self)
         self.set_path(id, index_is_id=True)
         self.conn.commit()
+        if mi.pubdate is None:
+            mi.pubdate = utcnow()
+        if mi.timestamp is None:
+            mi.timestamp = utcnow()
         self.set_metadata(id, mi)
 
         self.add_format(id, format, stream, index_is_id=True)
@@ -1546,6 +1550,10 @@ class LibraryDatabase2(LibraryDatabase):
         self.data.books_added([id], self)
         self.set_path(id, True)
         self.conn.commit()
+        if mi.timestamp is None:
+            mi.timestamp = utcnow()
+        if mi.pubdate is None:
+            mi.pubdate = utcnow()
         self.set_metadata(id, mi)
         if cover is not None:
             self.set_cover(id, cover)
@@ -1581,7 +1589,9 @@ class LibraryDatabase2(LibraryDatabase):
             self.set_path(id, True)
             self.conn.commit()
             if mi.timestamp is None:
-                mi.timestamp = nowf()
+                mi.timestamp = utcnow()
+            if mi.pubdate is None:
+                mi.pubdate = utcnow()
             self.set_metadata(id, mi)
             npath = self.run_import_plugins(path, format)
             format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
@@ -1614,7 +1624,9 @@ class LibraryDatabase2(LibraryDatabase):
         self.data.books_added([id], self)
         self.set_path(id, True)
         if mi.timestamp is None:
-            mi.timestamp = nowf()
+            mi.timestamp = utcnow()
+        if mi.pubdate is None:
+            mi.pubdate = utcnow()
         self.set_metadata(id, mi, ignore_errors=True)
         for path in formats:
             ext = os.path.splitext(path)[1][1:].lower()

@@ -4,27 +4,21 @@ __license__ = 'GPL v3'
 __copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
                  ' and Alex Bramley <a.bramley at gmail.com>.'
 
-import sys, logging, os, re, shutil, subprocess, uuid
-from shutil import rmtree
+import os, shutil, uuid
 from tempfile import mkdtemp
 from mimetypes import guess_type as guess_mimetype
-from htmlentitydefs import name2codepoint
-from pprint import PrettyPrinter
 
-from BeautifulSoup import BeautifulSoup, NavigableString
-from lxml import html, etree
+from BeautifulSoup import BeautifulSoup
+from lxml import html
 from pychm.chm import CHMFile
 from pychm.chmlib import (
   CHM_RESOLVE_SUCCESS, CHM_ENUMERATE_NORMAL,
-  chm_enumerate, chm_retrieve_object,
+  chm_enumerate,
 )
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.utils.config import OptionParser
-from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.opf2 import OPFCreator, Guide
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
 
@@ -34,17 +28,6 @@ def match_string(s1, s2_already_lowered):
         if s1.lower()==s2_already_lowered:
             return True
     return False
-
-def check_all_prev_empty(tag):
-    if tag is None:
-        return True
-    if tag.__class__ == NavigableString and not check_empty(tag):
-        return False
-    return check_all_prev_empty(tag.previousSibling)
-
-def check_empty(s, rex = re.compile(r'\S')):
-    return rex.search(s) is None
-
 
 def option_parser():
     parser = OptionParser(usage=_('%prog [options] mybook.chm'))
@@ -150,18 +133,18 @@ class CHMReader(CHMFile):
 
     def _reformat(self, data):
         try:
-            html = BeautifulSoup(data)
+            soup = BeautifulSoup(data)
         except UnicodeEncodeError:
             # hit some strange encoding problems...
             print "Unable to parse html for cleaning, leaving it :("
             return data
         # nuke javascript...
-        [s.extract() for s in html('script')]
+        [s.extract() for s in soup('script')]
         # remove forward and back nav bars from the top/bottom of each page
         # cos they really fuck with the flow of things and generally waste space
         # since we can't use [a,b] syntax to select arbitrary items from a list
         # we'll have to do this manually...
-        t = html('table')
+        t = soup('table')
         if t:
             if (t[0].previousSibling is None
               or t[0].previousSibling.previousSibling is None):
@@ -171,15 +154,9 @@ class CHMReader(CHMFile):
                 t[-1].extract()
         # for some very odd reason each page's content appears to be in a table
         # too. and this table has sub-tables for random asides... grr.
-        
-        # remove br at top of page if present after nav bars removed
-        br = html('br')
-        if br:
-            if check_all_prev_empty(br[0].previousSibling):
-                br[0].extract()
 
         # some images seem to be broken in some chm's :/
-        for img in html('img'):
+        for img in soup('img'):
             try:
                 # some are supposedly "relative"... lies.
                 while img['src'].startswith('../'): img['src'] = img['src'][3:]
@@ -189,7 +166,7 @@ class CHMReader(CHMFile):
                 # and some don't even have a src= ?!
                 pass
         # now give back some pretty html.
-        return html.prettify()
+        return soup.prettify()
 
     def Contents(self):
         if self._contents is not None:
@@ -247,7 +224,7 @@ class CHMInput(InputFormatPlugin):
         no_images = False #options.no_images
         chm_name = stream.name
         #chm_data = stream.read()
-        
+
         #closing stream so CHM can be opened by external library
         stream.close()
         log.debug('tdir=%s' % tdir)
@@ -257,7 +234,6 @@ class CHMInput(InputFormatPlugin):
 
         metadata = get_metadata_(tdir)
 
-        cwd = os.getcwdu()
         odi = options.debug_pipeline
         options.debug_pipeline = None
         # try a custom conversion:
@@ -277,15 +253,11 @@ class CHMInput(InputFormatPlugin):
         htmlinput = HTMLInput(None)
         oeb = htmlinput.create_oebbook(htmlpath, basedir, opts, log, mi)
         return oeb
-        
+
 
     def _create_oebbook(self, hhcpath, basedir, opts, log, mi):
         from calibre.ebooks.conversion.plumber import create_oebbook
-        from calibre.ebooks.oeb.base import DirContainer, \
-            rewrite_links, urlnormalize, urldefrag, BINARY_MIME, OEB_STYLES, \
-            xpath
-        from calibre import guess_type
-        import cssutils
+        from calibre.ebooks.oeb.base import DirContainer
         oeb = create_oebbook(log, None, opts, self,
                 encoding=opts.input_encoding, populate=False)
         self.oeb = oeb
@@ -305,10 +277,10 @@ class CHMInput(InputFormatPlugin):
             metadata.add('language', get_lang())
         if not metadata.creator:
             oeb.logger.warn('Creator not specified')
-            metadata.add('creator', self.oeb.translate(__('Unknown')))
+            metadata.add('creator', _('Unknown'))
         if not metadata.title:
             oeb.logger.warn('Title not specified')
-            metadata.add('title', self.oeb.translate(__('Unknown')))
+            metadata.add('title', _('Unknown'))
 
         bookid = str(uuid.uuid4())
         metadata.add('identifier', bookid, id='uuid_id', scheme='uuid')
@@ -325,7 +297,7 @@ class CHMInput(InputFormatPlugin):
         #print etree.tostring(hhcroot, pretty_print=True)
         #print "============================="
         log.debug('Found %d section nodes' % len(chapters))
-        
+
         if len(chapters) > 0:
             path0 = chapters[0][1]
             subpath = os.path.dirname(path0)

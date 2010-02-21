@@ -23,7 +23,7 @@ def convert_timestamp(val):
     return parse_date(val, as_utc=False)
 
 def adapt_datetime(dt):
-    return isoformat(dt)
+    return isoformat(dt, sep=' ')
 
 sqlite.register_adapter(datetime, adapt_datetime)
 sqlite.register_converter('timestamp', convert_timestamp)
