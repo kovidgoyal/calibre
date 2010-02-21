@@ -10,6 +10,7 @@ import re
 import struct
 import textwrap
 import cStringIO
+import sys
 
 try:
     from PIL import Image as PILImage
@@ -806,13 +807,20 @@ def get_metadata(stream):
             if mh.exth.mi is not None:
                 mi = mh.exth.mi
         else:
-            with TemporaryDirectory('_mobi_meta_reader') as tdir:
-                with CurrentDir(tdir):
-                    mr = MobiReader(stream, log)
-                    parse_cache = {}
-                    mr.extract_content(tdir, parse_cache)
-                    if mr.embedded_mi is not None:
-                        mi = mr.embedded_mi
+            size = sys.maxint
+            if hasattr(stream, 'seek') and hasattr(stream, 'tell'):
+                pos = stream.tell()
+                stream.seek(0, 2)
+                size = stream.tell()
+                stream.seek(pos)
+            if size < 4*1024*1024:
+                with TemporaryDirectory('_mobi_meta_reader') as tdir:
+                    with CurrentDir(tdir):
+                        mr = MobiReader(stream, log)
+                        parse_cache = {}
+                        mr.extract_content(tdir, parse_cache)
+                        if mr.embedded_mi is not None:
+                            mi = mr.embedded_mi
         if hasattr(mh.exth, 'cover_offset'):
             cover_index = mh.first_image_index + mh.exth.cover_offset
             data  = mh.section_data(int(cover_index))
