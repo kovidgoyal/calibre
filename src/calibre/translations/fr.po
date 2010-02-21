@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-20 03:45+0000\n"
-"PO-Revision-Date: 2010-02-19 18:37+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-02-20 22:58+0000\n"
+"Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-20 04:40+0000\n"
+"X-Launchpad-Export-Date: 2010-02-21 04:54+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -498,7 +498,7 @@ msgstr "Communique avec le lecteur d'ebook Hanvon N520."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:40
 msgid "Communicate with the Elonex EB 511 eBook reader."
-msgstr ""
+msgstr "Communique avec le lecteur d'ebook Elonex EB 511."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -724,11 +724,11 @@ msgstr "Supprime les livres de la liste des métadonnées de l'appareil..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:33
 msgid "%prog [options] mybook.chm"
-msgstr ""
+msgstr "%prog [options] monlivre.chm"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:34
 msgid "Output directory. Defaults to current directory"
-msgstr ""
+msgstr "Répertoire de sortie. Par défaut : répertoire courant"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:37
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
@@ -763,7 +763,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:51
 msgid "Path to a txt file containing a comment."
-msgstr ""
+msgstr "Chemin d'un txt contenant un commentaire."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:54
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
@@ -1453,7 +1453,7 @@ msgstr "Indiquer la langue."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:467
 msgid "Set the publication date."
-msgstr ""
+msgstr "Indiquer la date de publication."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:471
 msgid "Set the book timestamp (used by the date column in calibre)."
@@ -1980,7 +1980,7 @@ msgstr "Indiquer la catégorie du livre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Set the published date."
-msgstr ""
+msgstr "Indiquer la date de publication."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid "Get the cover from the ebook and save it at as the specified file."
@@ -5610,6 +5610,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:122
 msgid "Equals: the word or phrase must match an entire metadata field"
 msgstr ""
+"Egal: le mot ou la phrase doivent correspondrent à un champ entier de "
+"métadonnée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:123
 msgid ""
