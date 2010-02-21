@@ -180,7 +180,7 @@ Why is my device not detected in linux?
     
     grep SYSFS_DEPRECATED /boot/config-`uname -r`
 
-You should see something like ``CONFIG_SYSFS_DEPRECATED_V2 is not set``. 
+You should see something like ``CONFIG_SYSFS_DEPRECATED_V2 is not set``. If you don't you have to either recompile your kernel with the correct setting, or upgrade your linux distro to a more modern version, where this will not be set.
 
 Library Management
 ------------------

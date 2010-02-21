@@ -150,23 +150,20 @@ class Catalog(QDialog, Ui_Dialog):
             ans = w.options()
         return ans
 
+    def save_catalog_settings(self):
+        self.catalog_format = unicode(self.format.currentText())
+        dynamic.set('catalog_preferred_format', self.catalog_format)
+        self.catalog_title = unicode(self.title.text())
+        dynamic.set('catalog_last_used_title', self.catalog_title)
+        self.catalog_sync = bool(self.sync.isChecked())
+        dynamic.set('catalog_sync_to_device', self.catalog_sync)
+
     def apply(self):
         # Store current values without building catalog
-        self.catalog_format = unicode(self.format.currentText())
-        dynamic.set('catalog_preferred_format', self.catalog_format)
-        self.catalog_title = unicode(self.title.text())
-        dynamic.set('catalog_last_used_title', self.catalog_title)
-        self.catalog_sync = bool(self.sync.isChecked())
-        dynamic.set('catalog_sync_to_device', self.catalog_sync)
+        self.save_catalog_settings()
         if self.tabs.count() > 1:
-            w = self.tabs.widget(1)
-            ans = w.options()
+            self.tabs.widget(1).options()
 
     def accept(self):
-        self.catalog_format = unicode(self.format.currentText())
-        dynamic.set('catalog_preferred_format', self.catalog_format)
-        self.catalog_title = unicode(self.title.text())
-        dynamic.set('catalog_last_used_title', self.catalog_title)
-        self.catalog_sync = bool(self.sync.isChecked())
-        dynamic.set('catalog_sync_to_device', self.catalog_sync)
-        QDialog.accept(self)
+        self.save_catalog_settings()
+        return QDialog.accept(self)
