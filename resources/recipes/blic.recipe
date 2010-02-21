@@ -14,14 +14,13 @@ class Blic(BasicNewsRecipe):
     description           = 'Blic.rs online verzija najtiraznije novine u Srbiji donosi najnovije vesti iz Srbije i sveta, komentare, politicke analize, poslovne i ekonomske vesti, vesti iz regiona, intervjue, informacije iz kulture, reportaze, pokriva sve sportske dogadjaje, detaljan tv program, nagradne igre, zabavu, fenomenalni Blic strip, dnevni horoskop, arhivu svih dogadjaja'
     publisher             = 'RINGIER d.o.o.'
     category              = 'news, politics, Serbia'
-    delay                 = 1
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
+    masthead_url          = 'http://www.blic.rs/resources/images/header/header_back.png'
     language              = 'sr'
-
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif} '
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: Georgia, serif1, serif} .article_description{font-family: Arial, sans1, sans-serif} .img_full{float: none} img{margin-bottom: 0.8em} '
 
     conversion_options = {
                           'comment'  : description
@@ -31,13 +30,15 @@ class Blic(BasicNewsRecipe):
                         }
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
-
     remove_tags_before = dict(name='div', attrs={'id':'article_info'})
+    remove_tags        = [dict(name=['object','link'])]
+    remove_attributes  = ['width','height']
 
     feeds              = [(u'Danasnje Vesti', u'http://www.blic.rs/rss/danasnje-vesti')]
 
-    remove_tags        = [dict(name=['object','link'])]
 
     def print_version(self, url):
         return url + '/print'
 
+    def preprocess_html(self, soup):
+        return self.adeify_images(soup)

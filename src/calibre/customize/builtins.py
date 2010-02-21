@@ -70,9 +70,10 @@ class PML2PMLZ(FileTypePlugin):
         pmlz = zipfile.ZipFile(of.name, 'w')
         pmlz.write(pmlfile, os.path.basename(pmlfile))
 
-        pml_img = os.path.basename(pmlfile)[0] + '_img'
-        img_dir = pml_img if os.path.exists(pml_img) else 'images' if \
-            os.path.exists('images') else ''
+        pml_img = os.path.splitext(pmlfile)[0] + '_img'
+        i_img = os.path.join(os.path.dirname(pmlfile),'images')
+        img_dir = pml_img if os.path.isdir(pml_img) else i_img if \
+            os.path.isdir(i_img) else ''
         if img_dir:
             for image in glob.glob(os.path.join(img_dir, '*.png')):
                 pmlz.write(image, os.path.join('images', (os.path.basename(image))))

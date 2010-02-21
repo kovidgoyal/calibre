@@ -70,11 +70,14 @@ def is_recipe(filename):
         filename.rpartition('.')[0].endswith('_recipe_out')
 
 def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
-    pos = stream.tell()
+    pos = 0
+    if hasattr(stream, 'tell'):
+        pos = stream.tell()
     try:
         return _get_metadata(stream, stream_type, use_libprs_metadata)
     finally:
-        stream.seek(pos)
+        if hasattr(stream, 'seek'):
+            stream.seek(pos)
 
 
 def _get_metadata(stream, stream_type, use_libprs_metadata):
