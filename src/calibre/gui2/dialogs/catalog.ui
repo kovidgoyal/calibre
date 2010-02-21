@@ -20,9 +20,9 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>430</x>
+     <x>383</x>
      <y>470</y>
-     <width>164</width>
+     <width>211</width>
      <height>32</height>
     </rect>
    </property>
@@ -30,7 +30,7 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
   <widget class="QTabWidget" name="tabs">

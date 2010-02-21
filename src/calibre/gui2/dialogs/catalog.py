@@ -8,7 +8,8 @@ __docformat__ = 'restructuredtext en'
 
 import os, sys
 
-from PyQt4.Qt import QDialog
+from PyQt4 import QtGui
+from PyQt4.Qt import QDialog, SIGNAL
 
 from calibre.customize.ui import config
 from calibre.gui2.dialogs.catalog_ui import Ui_Dialog
@@ -119,8 +120,10 @@ class Catalog(QDialog, Ui_Dialog):
             self.sync.setChecked(dynamic.get('catalog_sync_to_device', True))
 
         self.format.currentIndexChanged.connect(self.show_plugin_tab)
+        self.connect(self.buttonBox.button(QtGui.QDialogButtonBox.Apply),
+                     SIGNAL("clicked()"),
+                     self.apply)
         self.show_plugin_tab(None)
-
 
     def show_plugin_tab(self, idx):
         cf = unicode(self.format.currentText()).lower()
@@ -146,6 +149,18 @@ class Catalog(QDialog, Ui_Dialog):
             w = self.tabs.widget(1)
             ans = w.options()
         return ans
+
+    def apply(self):
+        # Store current values without building catalog
+        self.catalog_format = unicode(self.format.currentText())
+        dynamic.set('catalog_preferred_format', self.catalog_format)
+        self.catalog_title = unicode(self.title.text())
+        dynamic.set('catalog_last_used_title', self.catalog_title)
+        self.catalog_sync = bool(self.sync.isChecked())
+        dynamic.set('catalog_sync_to_device', self.catalog_sync)
+        if self.tabs.count() > 1:
+            w = self.tabs.widget(1)
+            ans = w.options()
 
     def accept(self):
         self.catalog_format = unicode(self.format.currentText())
