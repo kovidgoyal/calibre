@@ -1226,7 +1226,7 @@ class EPUB_MOBI(CatalogPlugin):
                         emTag = Tag(soup, "em")
                         emTag.insert(0, aTag)
                         if ttc < len(title['tags']):
-                            emTag.insert(1, NavigableString(', '))
+                            emTag.insert(1, NavigableString(' &middot; '))
                         tagsTag.insert(ttc, emTag)
                         ttc += 1
 
