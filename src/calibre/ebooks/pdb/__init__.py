@@ -11,12 +11,14 @@ class PDBError(Exception):
 from calibre.ebooks.pdb.ereader.reader import Reader as ereader_reader
 from calibre.ebooks.pdb.palmdoc.reader import Reader as palmdoc_reader
 from calibre.ebooks.pdb.ztxt.reader import Reader as ztxt_reader
+from calibre.ebooks.pdb.pdf.reader import Reader as pdf_reader
 
 FORMAT_READERS = {
     'PNPdPPrs': ereader_reader,
     'PNRdPPrs': ereader_reader,
     'zTXTGPlm': ztxt_reader,
     'TEXtREAd': palmdoc_reader,
+    '.pdfADBE': pdf_reader,
 }
 
 from calibre.ebooks.pdb.palmdoc.writer import Writer as palmdoc_writer
@@ -34,8 +36,8 @@ IDENTITY_TO_NAME = {
     'PNRdPPrs': 'eReader',
     'zTXTGPlm': 'zTXT',
     'TEXtREAd': 'PalmDOC',
-
     '.pdfADBE': 'Adobe Reader',
+
     'BVokBDIC': 'BDicty',
     'DB99DBOS': 'DB (Database program)',
     'vIMGView': 'FireViewer (ImageViewer)',

@@ -991,7 +991,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.library_view.model().current_changed(current_idx, current_idx)
 
     def __add_filesystem_book(self, paths, allow_device=True):
-        print 222, paths
         if isinstance(paths, basestring):
             paths = [paths]
         books = [path for path in map(os.path.abspath, paths) if os.access(path,
