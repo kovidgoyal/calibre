@@ -367,6 +367,9 @@ class MetadataUpdater(object):
         if self.thumbnail_record is not None:
             recs.append((202, pack('>I', self.thumbnail_rindex)))
             pop_exth_record(202)
+        if mi.title is not None:
+            recs.append((503, mi.title.encode(self.codec, 'replace')))
+            pop_exth_record(503)
 
         # Restore any original EXTH fields that weren't updated
         for id in sorted(self.original_exth_records):
