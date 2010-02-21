@@ -337,7 +337,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(self.view_menu.actions()[0],
                 SIGNAL("triggered(bool)"), self.view_book)
         QObject.connect(self.view_menu.actions()[1],
-                SIGNAL("triggered(bool)"), self.view_specific_format)
+                SIGNAL("triggered(bool)"), self.view_specific_format,
+                Qt.QueuedConnection)
         self.connect(self.action_open_containing_folder,
                 SIGNAL('triggered(bool)'), self.view_folder)
         self.delete_menu.actions()[0].triggered.connect(self.delete_books)
@@ -668,19 +669,19 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if type == 'series':
             series = idx.model().db.series(row)
             if series:
-                search = ['series:'+series]
+                search = ['series:"'+series+'"']
         elif type == 'publisher':
             publisher = idx.model().db.publisher(row)
             if publisher:
-                search = ['publisher:'+publisher]
+                search = ['publisher:"'+publisher+'"']
         elif type == 'tag':
             tags = idx.model().db.tags(row)
             if tags:
-                search = ['tag:'+t for t in tags.split(',')]
+                search = ['tag:"='+t+'"' for t in tags.split(',')]
         elif type == 'author':
             authors = idx.model().db.authors(row)
             if authors:
-                search = ['author:'+a.strip().replace('|', ',') \
+                search = ['author:"='+a.strip().replace('|', ',')+'"' \
                                 for a in authors.split(',')]
                 join = ' or '
         if search:
@@ -1378,7 +1379,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     show=True)
 
         # Calling gui2.tools:generate_catalog()
-        ret = generate_catalog(self, dbspec, ids)
+        ret = generate_catalog(self, dbspec, ids, self.device_manager.device)
         if ret is None:
             return
 
@@ -1394,6 +1395,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.status_bar.showMessage(_('Generating %s catalog...')%fmt)
 
     def catalog_generated(self, job):
+        if job.result:
+            # Search terms nulled catalog results
+            return error_dialog(self, _('No books found'),
+                    _("No books to catalog\nCheck exclude tags"),
+                    show=True)
         if job.failed:
             return self.job_exception(job)
         id = self.library_view.model().add_catalog(job.catalog_file_path, job.catalog_title)
@@ -1637,12 +1643,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         row = rows[0].row()
         formats = self.library_view.model().db.formats(row).upper().split(',')
         d = ChooseFormatDialog(self, _('Choose the format to view'), formats)
-        d.exec_()
-        if d.result() == QDialog.Accepted:
+        if d.exec_() == QDialog.Accepted:
             format = d.format()
             self.view_format(row, format)
-        else:
-            return
 
     def view_folder(self, *args):
         rows = self.current_view().selectionModel().selectedRows()

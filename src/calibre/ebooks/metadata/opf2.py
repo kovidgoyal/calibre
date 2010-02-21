@@ -12,12 +12,12 @@ from urllib import unquote
 from urlparse import urlparse
 
 from lxml import etree
-from dateutil import parser
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.constants import __appname__, __version__, filesystem_encoding
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from calibre.utils.date import parse_date, isoformat
 
 
 class Resource(object):
@@ -272,6 +272,10 @@ class Spine(ResourceCollection):
             self.id = idfunc(self.path)
             self.idref = None
 
+        def __repr__(self):
+            return 'Spine.Item(path=%r, id=%s, is_linear=%s)' % \
+                    (self.path, self.id, self.is_linear)
+
     @staticmethod
     def from_opf_spine_element(itemrefs, manifest):
         s = Spine(manifest)
@@ -280,7 +284,7 @@ class Spine(ResourceCollection):
             if idref is not None:
                 path = s.manifest.path_for_id(idref)
                 if path:
-                    r = Spine.Item(s.manifest.id_for_path, path, is_path=True)
+                    r = Spine.Item(lambda x:idref, path, is_path=True)
                     r.is_linear = itemref.get('linear', 'yes') == 'yes'
                     r.idref = idref
                     s.append(r)
@@ -441,6 +445,8 @@ class OPF(object):
     guide_path      = XPath('descendant::*[re:match(name(), "guide", "i")]/*[re:match(name(), "reference", "i")]')
 
     title           = MetadataField('title', formatter=lambda x: re.sub(r'\s+', ' ', x))
+    title_sort      = MetadataField('title_sort', formatter=lambda x:
+                        re.sub(r'\s+', ' ', x), is_dc=False)
     publisher       = MetadataField('publisher')
     language        = MetadataField('language')
     comments        = MetadataField('description')
@@ -449,12 +455,14 @@ class OPF(object):
     series          = MetadataField('series', is_dc=False)
     series_index    = MetadataField('series_index', is_dc=False, formatter=float, none_is=1)
     rating          = MetadataField('rating', is_dc=False, formatter=int)
-    pubdate         = MetadataField('date', formatter=parser.parse)
+    pubdate         = MetadataField('date', formatter=parse_date)
     publication_type = MetadataField('publication_type', is_dc=False)
-    timestamp       = MetadataField('timestamp', is_dc=False, formatter=parser.parse)
+    timestamp       = MetadataField('timestamp', is_dc=False,
+                                    formatter=parse_date)
 
 
-    def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True):
+    def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
+            populate_spine=True):
         if not hasattr(stream, 'read'):
             stream = open(stream, 'rb')
         raw = stream.read()
@@ -477,7 +485,7 @@ class OPF(object):
             self.manifest = Manifest.from_opf_manifest_element(m, basedir)
         self.spine = None
         s = self.spine_path(self.root)
-        if s:
+        if populate_spine and s:
             self.spine = Spine.from_opf_spine_element(s, self.manifest)
         self.guide = None
         guide = self.guide_path(self.root)
@@ -584,6 +592,15 @@ class OPF(object):
                 if x.get('id', None) == idref:
                     yield x.get('href', '')
 
+    def first_spine_item(self):
+        items = self.iterspine()
+        if not items:
+            return None
+        idref = items[0].get('idref', '')
+        for x in self.itermanifest():
+            if x.get('id', None) == idref:
+                return x.get('href', None)
+
     def create_spine_item(self, idref):
         ans = etree.Element('{%s}itemref'%self.NAMESPACES['opf'], idref=idref)
         ans.tail = '\n\t\t'
@@ -672,29 +689,6 @@ class OPF(object):
                     if key.endswith('file-as'):
                         matches[0].attrib.pop(key)
                 matches[0].set('{%s}file-as'%self.NAMESPACES['opf'], unicode(val))
-
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
-    def title_sort(self):
-
-        def fget(self):
-            matches = self.title_path(self.metadata)
-            if matches:
-                for match in matches:
-                    ans = match.get('{%s}file-as'%self.NAMESPACES['opf'], None)
-                    if not ans:
-                        ans = match.get('file-as', None)
-                    if ans:
-                        return ans
-
-        def fset(self, val):
-            matches = self.title_path(self.metadata)
-            if matches:
-                for key in matches[0].attrib:
-                    if key.endswith('file-as'):
-                        matches[0].attrib.pop(key)
-                matches[0].set('file-as', unicode(val))
 
         return property(fget=fget, fset=fset)
 
@@ -869,7 +863,8 @@ class OPF(object):
     def smart_update(self, mi):
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
-                     'isbn', 'language', 'tags', 'category', 'comments'):
+                     'isbn', 'language', 'tags', 'category', 'comments',
+                     'pubdate'):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
@@ -1041,12 +1036,12 @@ def metadata_to_opf(mi, as_string=True):
             elem.text = text.strip()
         metadata.append(elem)
 
-    factory(DC('title'), mi.title, mi.title_sort)
+    factory(DC('title'), mi.title)
     for au in mi.authors:
         factory(DC('creator'), au, mi.author_sort, 'aut')
     factory(DC('contributor'), mi.book_producer, __appname__, 'bkp')
     if hasattr(mi.pubdate, 'isoformat'):
-        factory(DC('date'), mi.pubdate.isoformat())
+        factory(DC('date'), isoformat(mi.pubdate))
     factory(DC('language'), mi.language)
     if mi.category:
         factory(DC('type'), mi.category)
@@ -1069,9 +1064,11 @@ def metadata_to_opf(mi, as_string=True):
     if mi.rating is not None:
         meta('rating', str(mi.rating))
     if hasattr(mi.timestamp, 'isoformat'):
-        meta('timestamp', mi.timestamp.isoformat())
+        meta('timestamp', isoformat(mi.timestamp))
     if mi.publication_type:
         meta('publication_type', mi.publication_type)
+    if mi.title_sort:
+        meta('title_sort', mi.title_sort)
 
     metadata[-1].tail = '\n' +(' '*4)
 
@@ -1088,12 +1085,12 @@ def metadata_to_opf(mi, as_string=True):
 
 
 def test_m2o():
-    from datetime import datetime
+    from calibre.utils.date import now as nowf
     from cStringIO import StringIO
     mi = MetaInformation('test & title', ['a"1', "a'2"])
     mi.title_sort = 'a\'"b'
     mi.author_sort = 'author sort'
-    mi.pubdate = datetime.now()
+    mi.pubdate = nowf()
     mi.language = 'en'
     mi.category = 'test'
     mi.comments = 'what a fun book\n\n'
@@ -1103,7 +1100,7 @@ def test_m2o():
     mi.series = 's"c\'l&<>'
     mi.series_index = 3.34
     mi.rating = 3
-    mi.timestamp = datetime.now()
+    mi.timestamp = nowf()
     mi.publication_type = 'ooooo'
     mi.rights = 'yes'
     mi.cover = 'asd.jpg'

@@ -399,7 +399,7 @@ class BuildPDF2XML(Command):
             objects.append(obj)
 
         if self.newer(dest, objects):
-            cmd = ['g++', '-g', '-o', dest]+objects+['-lpoppler', '-lMagickWand',
+            cmd = ['g++', '-ggdb', '-o', dest]+objects+['-lpoppler', '-lMagickWand',
             '-lpng', '-lpthread']
             if iswindows:
                 cmd = [msvc.linker] + '/INCREMENTAL:NO /DEBUG /NODEFAULTLIB:libcmt.lib'.split()

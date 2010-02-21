@@ -4,13 +4,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Read data from .mobi files
 '''
 
-import datetime
 import functools
 import os
 import re
 import struct
 import textwrap
-
 import cStringIO
 
 try:
@@ -23,6 +21,7 @@ from lxml import html, etree
 
 from calibre import entity_to_unicode, CurrentDir
 from calibre.utils.filenames import ascii_filename
+from calibre.utils.date import parse_date
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks import DRMError
 from calibre.ebooks.chardet import ENCODING_PATS
@@ -68,7 +67,10 @@ class EXTHHeader(object):
                 pass
             elif id == 503: # Long title
                 if not title or title == _('Unknown'):
-                    title = content
+                    try:
+                        title = content.decode(codec)
+                    except:
+                        pass
             #else:
             #    print 'unknown record', id, repr(content)
         if title:
@@ -96,8 +98,7 @@ class EXTHHeader(object):
             self.mi.tags = list(set(self.mi.tags))
         elif id == 106:
             try:
-                self.mi.publish_date = datetime.datetime.strptime(
-                    content, '%Y-%m-%d', ).date()
+                self.mi.pubdate = parse_date(content, as_utc=False)
             except:
                 pass
         elif id == 108:

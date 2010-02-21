@@ -23,7 +23,7 @@ def gui_convert(input, output, recommendations, notification=DummyReporter(),
 
     plumber.run()
 
-def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options,
+def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options, connected_device,
         notification=DummyReporter(), log=None):
     if log is None:
         log = Log()
@@ -42,7 +42,9 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options,
     opts, args = parser.parse_args()
 
     # Populate opts
+    # opts.gui_search_text = something
     opts.catalog_title = title
+    opts.connected_device = connected_device
     opts.ids = ids
     opts.search_text = None
     opts.sort_by = None
@@ -56,7 +58,8 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options,
             setattr(opts,option, fmt_options[option])
 
     # Fetch and run the plugin for fmt
+    # Returns 0 if successful, 1 if no catalog built
     plugin = plugin_for_catalog_format(fmt)
-    plugin.run(out_file_name, opts, db, notification=notification)
+    return plugin.run(out_file_name, opts, db, notification=notification)
 
 

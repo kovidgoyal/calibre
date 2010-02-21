@@ -7,6 +7,7 @@ import os
 import glob
 from calibre.customize import FileTypePlugin, MetadataReaderPlugin, MetadataWriterPlugin
 from calibre.constants import numeric_version
+from calibre.ebooks.metadata.archive import ArchiveExtract
 
 class HTML2ZIP(FileTypePlugin):
     name = 'HTML to ZIP'
@@ -416,9 +417,10 @@ from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
-                POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK
+                POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK, \
+                BOOQ
 from calibre.devices.iliad.driver import ILIAD
-from calibre.devices.irexdr.driver import IREXDR1000
+from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.nook.driver import NOOK
@@ -430,11 +432,11 @@ from calibre.devices.eslick.driver import ESLICK
 from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
-from calibre.devices.hanvon.driver import N516
+from calibre.devices.hanvon.driver import N516, EB511
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
 from calibre.library.catalog import CSV_XML, EPUB_MOBI
-plugins = [HTML2ZIP, PML2PMLZ, GoogleBooks, ISBNDB, Amazon, CSV_XML, EPUB_MOBI]
+plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon, CSV_XML, EPUB_MOBI]
 plugins += [
     ComicInput,
     EPUBInput,
@@ -477,6 +479,7 @@ plugins += [
     CYBOOK,
     ILIAD,
     IREXDR1000,
+    IREXDR800,
     JETBOOK,
     SHINEBOOK,
     POCKETBOOK360,
@@ -500,9 +503,11 @@ plugins += [
     DBOOK,
     INVESBOOK,
     BOOX,
+    BOOQ,
     EB600,
     README,
     N516,
+    EB511,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]

@@ -5,21 +5,30 @@ from PyQt4.QtGui import QDialog
 
 from calibre.gui2.dialogs.search_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode
-
+from calibre.library.database2 import CONTAINS_MATCH, EQUALS_MATCH
 
 class SearchDialog(QDialog, Ui_Dialog):
 
     def __init__(self, *args):
         QDialog.__init__(self, *args)
         self.setupUi(self)
+        self.mc = ''
 
     def tokens(self, raw):
-        phrases = re.findall(r'\s+".*?"\s+', raw)
+        phrases = re.findall(r'\s*".*?"\s*', raw)
         for f in phrases:
             raw = raw.replace(f, ' ')
-        return [t.strip() for t in phrases + raw.split()]
+        phrases = [t.strip('" ') for t in phrases]
+        return ['"' + self.mc + t + '"' for t in phrases + [r.strip() for r in raw.split()]]
 
     def search_string(self):
+        mk = self.matchkind.currentIndex()
+        if mk == CONTAINS_MATCH:
+            self.mc = ''
+        elif mk == EQUALS_MATCH:
+            self.mc = '='
+        else:
+            self.mc = '~'
         all, any, phrase, none = map(lambda x: unicode(x.text()),
                 (self.all, self.any, self.phrase, self.none))
         all, any, none = map(self.tokens, (all, any, none))

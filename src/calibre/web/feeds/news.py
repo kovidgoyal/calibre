@@ -11,7 +11,6 @@ import os, time, traceback, re, urlparse, sys
 from collections import defaultdict
 from functools import partial
 from contextlib import nested, closing
-from datetime import datetime
 
 
 from calibre import browser, __appname__, iswindows, \
@@ -29,7 +28,7 @@ from calibre.web.fetch.simple import RecursiveFetcher
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ptempfile import PersistentTemporaryFile, \
                               PersistentTemporaryDirectory
-
+from calibre.utils.date import now as nowf
 
 class BasicNewsRecipe(Recipe):
     '''
@@ -615,10 +614,12 @@ class BasicNewsRecipe(Recipe):
                 del o['onload']
 
         for script in list(soup.findAll('noscript')):
-                script.extract()
+            script.extract()
         for attr in self.remove_attributes:
             for x in soup.findAll(attrs={attr:True}):
                 del x[attr]
+        for base in list(soup.findAll('base')):
+            base.extract()
         return self.postprocess_html(soup, first_fetch)
 
 
@@ -761,14 +762,19 @@ class BasicNewsRecipe(Recipe):
         self.download_cover()
         self.report_progress(0, _('Generating masthead...'))
         self.masthead_path = None
+
         try:
             murl = self.get_masthead_url()
         except:
             self.log.exception('Failed to get masthead url')
             murl = None
+
         if murl is not None:
+            # Try downloading the user-supplied masthead_url
+            # Failure sets self.masthead_path to None
             self.download_masthead(murl)
         if self.masthead_path is None:
+            self.log.info("Synthesizing mastheadImage")
             self.masthead_path = os.path.join(self.output_dir, 'mastheadImage.jpg')
             try:
                 self.default_masthead_image(self.masthead_path)
@@ -916,7 +922,7 @@ class BasicNewsRecipe(Recipe):
         try:
             self._download_masthead(url)
         except:
-            self.log.exception("Failed to download supplied masthead_url, synthesizing")
+            self.log.exception("Failed to download supplied masthead_url")
 
     def default_cover(self, cover_file):
         '''
@@ -989,6 +995,22 @@ class BasicNewsRecipe(Recipe):
     MI_HEIGHT = 60
 
     def default_masthead_image(self, out_path):
+        from calibre.ebooks.conversion.config import load_defaults
+        from calibre.utils.fonts import fontconfig
+        font_path = default_font = P('fonts/liberation/LiberationSerif-Bold.ttf')
+        recs = load_defaults('mobi_output')
+        masthead_font_family = recs.get('masthead_font', 'Default')
+
+        if masthead_font_family != 'Default':
+            masthead_font = fontconfig.files_for_family(masthead_font_family)
+            # Assume 'normal' always in dict, else use default
+            # {'normal': (path_to_font, friendly name)}
+            if 'normal' in masthead_font:
+                font_path = masthead_font['normal'][0]
+
+        if not font_path or not os.access(font_path, os.R_OK):
+            font_path = default_font
+
         try:
             from PIL import Image, ImageDraw, ImageFont
             Image, ImageDraw, ImageFont
@@ -997,7 +1019,10 @@ class BasicNewsRecipe(Recipe):
 
         img = Image.new('RGB', (self.MI_WIDTH, self.MI_HEIGHT), 'white')
         draw = ImageDraw.Draw(img)
-        font = ImageFont.truetype(P('fonts/liberation/LiberationSerif-Bold.ttf'), 48)
+        try:
+            font = ImageFont.truetype(font_path, 48)
+        except:
+            font = ImageFont.truetype(default_font, 48)
         text = self.get_masthead_title().encode('utf-8')
         width, height = draw.textsize(text, font=font)
         left = max(int((self.MI_WIDTH - width)/2.), 0)
@@ -1054,11 +1079,11 @@ class BasicNewsRecipe(Recipe):
         mi.publisher = __appname__
         mi.author_sort = __appname__
         mi.publication_type = 'periodical:'+self.publication_type
-        mi.timestamp = datetime.now()
+        mi.timestamp = nowf()
         mi.comments = self.description
         if not isinstance(mi.comments, unicode):
             mi.comments = mi.comments.decode('utf-8', 'replace')
-        mi.pubdate = datetime.now()
+        mi.pubdate = nowf()
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
 

@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Read meta information from epub files'''
 
-import os
+import os, re
 from cStringIO import StringIO
 from contextlib import closing
 
@@ -29,15 +29,15 @@ class Container(dict):
     def __init__(self, stream=None):
         if not stream: return
         soup = BeautifulStoneSoup(stream.read())
-        container = soup.find('container')
+        container = soup.find(name=re.compile(r'container$', re.I))
         if not container:
-            raise OCFException("<container/> element missing")
+            raise OCFException("<container> element missing")
         if container.get('version', None) != '1.0':
             raise EPubException("unsupported version of OCF")
-        rootfiles = container.find('rootfiles')
+        rootfiles = container.find(re.compile(r'rootfiles$', re.I))
         if not rootfiles:
             raise EPubException("<rootfiles/> element missing")
-        for rootfile in rootfiles.findAll('rootfile'):
+        for rootfile in rootfiles.findAll(re.compile(r'rootfile$', re.I)):
             try:
                 self[rootfile['media-type']] = rootfile['full-path']
             except KeyError:
@@ -69,7 +69,7 @@ class OCFReader(OCF):
         self.opf_path = self.container[OPF.MIMETYPE]
         try:
             with closing(self.open(self.opf_path)) as f:
-                self.opf = OPF(f, self.root)
+                self.opf = OPF(f, self.root, populate_spine=False)
         except KeyError:
             raise EPubException("missing OPF package file")
 
@@ -101,10 +101,9 @@ class OCFDirReader(OCFReader):
 def get_cover(opf, opf_path, stream):
     from calibre.ebooks import render_html_svg_workaround
     from calibre.utils.logging import default_log
-    spine = list(opf.spine_items())
-    if not spine:
+    cpage = opf.first_spine_item()
+    if not cpage:
         return
-    cpage = spine[0]
     with TemporaryDirectory('_epub_meta') as tdir:
         with CurrentDir(tdir):
             stream.seek(0)

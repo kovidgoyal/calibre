@@ -111,7 +111,7 @@ class HTMLFile(object):
                 raise IOError(msg)
             raise IgnoreFile(msg, err.errno)
 
-        self.is_binary = not bool(self.HTML_PAT.search(src[:4096]))
+        self.is_binary = level > 0 and not bool(self.HTML_PAT.search(src[:4096]))
         if not self.is_binary:
             if encoding is None:
                 encoding = xml_to_unicode(src[:4096], verbose=verbose)[-1]
@@ -408,7 +408,10 @@ class HTMLInput(InputFormatPlugin):
             return link_
         if base and not os.path.isabs(link):
             link = os.path.join(base, link)
-        link = os.path.abspath(link)
+        try:
+            link = os.path.abspath(link)
+        except:
+            return link_
         if not os.access(link, os.R_OK):
             return link_
         if os.path.isdir(link):

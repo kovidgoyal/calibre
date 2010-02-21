@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from datetime import datetime
+from calibre.utils.date import isoformat, now
 
 def meta_info_to_oeb_metadata(mi, m, log):
     from calibre.ebooks.oeb.base import OPF
@@ -60,10 +60,10 @@ def meta_info_to_oeb_metadata(mi, m, log):
             m.add('subject', t)
     if mi.pubdate is not None:
         m.clear('date')
-        m.add('date', mi.pubdate.isoformat())
+        m.add('date', isoformat(mi.pubdate))
     if mi.timestamp is not None:
         m.clear('timestamp')
-        m.add('timestamp', mi.timestamp.isoformat())
+        m.add('timestamp', isoformat(mi.timestamp))
     if mi.rights is not None:
         m.clear('rights')
         m.add('rights', mi.rights)
@@ -71,7 +71,7 @@ def meta_info_to_oeb_metadata(mi, m, log):
         m.clear('publication_type')
         m.add('publication_type', mi.publication_type)
     if not m.timestamp:
-        m.add('timestamp', datetime.now().isoformat())
+        m.add('timestamp', isoformat(now()))
 
 
 class MergeMetadata(object):

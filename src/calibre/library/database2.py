@@ -9,7 +9,6 @@ The database used to store ebook metadata
 import os, re, sys, shutil, cStringIO, glob, collections, textwrap, \
        itertools, functools, traceback
 from itertools import repeat
-from datetime import datetime
 from math import floor
 
 from PyQt4.QtCore import QThread, QReadWriteLock
@@ -34,6 +33,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
 
 from calibre.utils.filenames import ascii_filename
+from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.ebooks import BOOK_EXTENSIONS
 
 if iswindows:
@@ -174,6 +174,22 @@ class CoverCache(QThread):
             self.load_queue.appendleft(id)
         self.load_queue_lock.unlock()
 
+### Global utility function for get_match here and in gui2/library.py
+CONTAINS_MATCH = 0
+EQUALS_MATCH   = 1
+REGEXP_MATCH   = 2
+def _match(query, value, matchkind):
+    for t in value:
+        t = t.lower()
+        try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
+            if ((matchkind == EQUALS_MATCH and query == t) or
+                (matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
+                (matchkind == CONTAINS_MATCH and query in t)):
+                    return True
+        except re.error:
+            pass
+    return False
+
 class ResultCache(SearchQueryParser):
 
     '''
@@ -202,16 +218,30 @@ class ResultCache(SearchQueryParser):
         matches = set([])
         if query and query.strip():
             location = location.lower().strip()
-            query = query.lower()
+
+            matchkind = CONTAINS_MATCH
+            if (len(query) > 1):
+                if query.startswith('\\'):
+                    query = query[1:]
+                elif query.startswith('='):
+                    matchkind = EQUALS_MATCH
+                    query = query[1:]
+                elif query.startswith('~'):
+                    matchkind = REGEXP_MATCH
+                    query = query[1:]
+            if matchkind != REGEXP_MATCH: ### leave case in regexps because it can be significant e.g. \S \W \D
+                query = query.lower()
+
             if not isinstance(query, unicode):
                 query = query.decode('utf-8')
-            if location in ('tag', 'author', 'format'):
+            if location in ('tag', 'author', 'format', 'comment'):
                 location += 's'
             all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series', 'formats', 'isbn', 'rating', 'cover')
             MAP = {}
             for x in all:
                 MAP[x] = FIELD_MAP[x]
             EXCLUDE_FIELDS = [MAP['rating'], MAP['cover']]
+            SPLITABLE_FIELDS = [MAP['authors'], MAP['tags'], MAP['formats']]
             location = [location] if location != 'all' else list(MAP.keys())
             for i, loc in enumerate(location):
                 location[i] = MAP[loc]
@@ -219,28 +249,40 @@ class ResultCache(SearchQueryParser):
                 rating_query = int(query) * 2
             except:
                 rating_query = None
-            for item in self._data:
-                if item is None: continue
-                for loc in location:
-                    if query == 'false' and not item[loc]:
-                        if isinstance(item[loc], basestring):
-                            if item[loc].strip() != '':
-                                continue
-                        matches.add(item[0])
-                        break
-                    if query == 'true' and item[loc]:
+            for loc in location:
+                if loc == MAP['authors']:
+                    q = query.replace(',', '|');  ### DB stores authors with commas changed to bars, so change query
+                else:
+                    q = query
+
+                for item in self._data:
+                    if item is None: continue
+                    if not item[loc]:
+                        if query == 'false':
+                            if isinstance(item[loc], basestring):
+                                if item[loc].strip() != '':
+                                    continue
+                            matches.add(item[0])
+                            break
+                        continue    ### item is empty. No possible matches below
+
+                    if q == 'true':
                         if isinstance(item[loc], basestring):
                             if item[loc].strip() == '':
                                 continue
                         matches.add(item[0])
-                        break
-                    if rating_query and item[loc] and loc == MAP['rating'] and rating_query == int(item[loc]):
+                        continue
+                    if rating_query and loc == MAP['rating'] and rating_query == int(item[loc]):
                         matches.add(item[0])
-                        break
-                    if item[loc] and loc not in EXCLUDE_FIELDS and query in item[loc].lower():
-                        matches.add(item[0])
-                        break
-
+                        continue
+                    if loc not in EXCLUDE_FIELDS:
+                        if loc in SPLITABLE_FIELDS:
+                            vals = item[loc].split(',') ### check individual tags/authors/formats, not the long string
+                        else:
+                            vals = [item[loc]]          ### make into list to make _match happy
+                        if _match(q, vals, matchkind):
+                            matches.add(item[0])
+                            continue
         return matches
 
     def remove(self, id):
@@ -673,12 +715,12 @@ class LibraryDatabase2(LibraryDatabase):
 
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''
-        return datetime.utcfromtimestamp(os.stat(self.dbpath).st_mtime)
+        return utcfromtimestamp(os.stat(self.dbpath).st_mtime)
 
     def check_if_modified(self):
         if self.last_modified() > self.last_update_check:
             self.refresh()
-        self.last_update_check = datetime.utcnow()
+        self.last_update_check = utcnow()
 
     def path(self, index, index_is_id=False):
         'Return the relative path to the directory containing this books files as a unicode string.'
@@ -1081,7 +1123,7 @@ class LibraryDatabase2(LibraryDatabase):
 
     def tags_older_than(self, tag, delta):
         tag = tag.lower().strip()
-        now = datetime.now()
+        now = nowf()
         for r in self.data._data:
             if r is not None:
                 if (now - r[FIELD_MAP['timestamp']]) > delta:
@@ -1120,7 +1162,8 @@ class LibraryDatabase2(LibraryDatabase):
         elif column == 'rating':
             self.set_rating(id, val, notify=False)
         elif column == 'tags':
-            self.set_tags(id, val.split(','), append=False, notify=False)
+            self.set_tags(id, [x.strip() for x in val.split(',') if x.strip()],
+                    append=False, notify=False)
         self.data.refresh_ids(self, [id])
         self.set_path(id, True)
         self.notify('metadata', [id])
@@ -1274,6 +1317,10 @@ class LibraryDatabase2(LibraryDatabase):
             self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
             self.conn.execute('DELETE FROM tags WHERE (SELECT COUNT(id) FROM books_tags_link WHERE tag=tags.id) < 1')
         otags = self.get_tags(id)
+        tags = [x.strip() for x in tags if x.strip()]
+        tags = [x.decode(preferred_encoding, 'replace') if not isinstance(x,
+            unicode) else x for x in tags]
+        tags = [u' '.join(x.split()) for x in tags]
         for tag in (set(tags)-otags):
             tag = tag.strip()
             if not tag:
@@ -1344,6 +1391,8 @@ class LibraryDatabase2(LibraryDatabase):
         if series:
             if not isinstance(series, unicode):
                 series = series.decode(preferred_encoding, 'replace')
+            series = series.strip()
+            series = u' '.join(series.split())
             s = self.conn.get('SELECT id from series WHERE name=?', (series,), all=False)
             if s:
                 aid = s
@@ -1435,7 +1484,7 @@ class LibraryDatabase2(LibraryDatabase):
             stream.close()
         self.conn.commit()
         if existing:
-            t = datetime.utcnow()
+            t = utcnow()
             self.set_timestamp(db_id, t, notify=False)
             self.set_pubdate(db_id, t, notify=False)
         self.data.refresh_ids(self, [db_id]) # Needed to update format list and size
@@ -1531,6 +1580,8 @@ class LibraryDatabase2(LibraryDatabase):
             ids.append(id)
             self.set_path(id, True)
             self.conn.commit()
+            if mi.timestamp is None:
+                mi.timestamp = nowf()
             self.set_metadata(id, mi)
             npath = self.run_import_plugins(path, format)
             format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
@@ -1562,6 +1613,8 @@ class LibraryDatabase2(LibraryDatabase):
         id = obj.lastrowid
         self.data.books_added([id], self)
         self.set_path(id, True)
+        if mi.timestamp is None:
+            mi.timestamp = nowf()
         self.set_metadata(id, mi, ignore_errors=True)
         for path in formats:
             ext = os.path.splitext(path)[1][1:].lower()

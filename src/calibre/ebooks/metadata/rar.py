@@ -13,6 +13,9 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.libunrar import extract_member, names
 
 def get_metadata(stream):
+    from calibre.ebooks.metadata.archive import is_comic
+    from calibre.ebooks.metadata.meta import get_metadata
+
     path = getattr(stream, 'name', False)
     if not path:
         pt = PersistentTemporaryFile('_rar-meta.rar')
@@ -21,6 +24,8 @@ def get_metadata(stream):
         path = pt.name
     path = os.path.abspath(path)
     file_names = list(names(path))
+    if is_comic(file_names):
+        return get_metadata(stream, 'cbr')
     for f in file_names:
         stream_type = os.path.splitext(f)[1].lower()
         if stream_type:
@@ -29,8 +34,7 @@ def get_metadata(stream):
                                'rb', 'imp', 'pdf', 'lrf'):
                 data = extract_member(path, match=None, name=f)[1]
                 stream = StringIO(data)
-                from calibre.ebooks.metadata.meta import get_metadata
                 return get_metadata(stream, stream_type)
-    raise ValueError('No ebook found in RAR archive') 
-        
+    raise ValueError('No ebook found in RAR archive')
+
 

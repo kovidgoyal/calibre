@@ -358,6 +358,8 @@ class Line(QGraphicsItem):
         self.links = collections.deque()
         self.current_link = None
         self.valign = None
+        if not hasattr(self, 'children'):
+            self.children = self.childItems
 
     def start_link(self, refobj, slot):
         self.current_link = [self.current_width, sys.maxint, refobj, slot]

@@ -31,7 +31,7 @@ class PeopleMag(BasicNewsRecipe):
 
 
     keep_only_tags = [
-              dict(name='div', attrs={'class': 'panel_news_article_main'}),
+              dict(name='div', attrs={'class': 'panel_news_article_main'}), 	
 	        dict(name='div', attrs={'class':'article_content'}),
               dict(name='div', attrs={'class': 'headline'}),
               dict(name='div', attrs={'class': 'post'}),
@@ -51,6 +51,7 @@ class PeopleMag(BasicNewsRecipe):
          dict(name='div', attrs={'class':'sharelinkcont'}),
          dict(name='div', attrs={'class':'categories'}),
          dict(name='ul', attrs={'class':'categories'}),
+         dict(name='div', attrs={'class':'related_content'}),
          dict(name='div', attrs={'id':'promo'}),
          dict(name='div', attrs={'class':'linksWrapper'}),
          dict(name='p', attrs={'class':'tag tvnews'}),

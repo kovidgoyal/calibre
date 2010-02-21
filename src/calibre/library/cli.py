@@ -17,6 +17,7 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.library.database2 import LibraryDatabase2
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.utils.genshi.template import MarkupTemplate
+from calibre.utils.date import isoformat
 
 FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
     'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
@@ -37,8 +38,8 @@ XML_TEMPLATE = '''\
         </authors>
         <publisher>${record['publisher']}</publisher>
         <rating>${record['rating']}</rating>
-        <date>${record['timestamp']}</date>
-        <pubdate>${record['pubdate']}</pubdate>
+        <date>${record['timestamp'].isoformat()}</date>
+        <pubdate>${record['pubdate'].isoformat()}</pubdate>
         <size>${record['size']}</size>
         <tags py:if="record['tags']">
         <py:for each="tag in record['tags']">
@@ -68,7 +69,7 @@ STANZA_TEMPLATE='''\
     <uri>http://calibre-ebook.com</uri>
   </author>
   <id>$id</id>
-  <updated>${updated.strftime('%Y-%m-%dT%H:%M:%SZ')}</updated>
+  <updated>${updated.isoformat()}</updated>
   <subtitle>
         ${subtitle}
   </subtitle>
@@ -77,7 +78,7 @@ STANZA_TEMPLATE='''\
       <title>${record['title']}</title>
       <id>urn:calibre:${record['uuid']}</id>
       <author><name>${record['author_sort']}</name></author>
-      <updated>${record['timestamp'].strftime('%Y-%m-%dT%H:%M:%SZ')}</updated>
+      <updated>${record['timestamp'].isoformat()}</updated>
       <link type="application/epub+zip" href="${quote(record['fmt_epub'].replace(sep, '/'))}"/>
       <link py:if="record['cover']" rel="x-stanza-cover-image" type="image/png" href="${quote(record['cover'].replace(sep, '/'))}"/>
       <link py:if="record['cover']" rel="x-stanza-cover-image-thumbnail" type="image/png" href="${quote(record['cover'].replace(sep, '/'))}"/>
@@ -144,7 +145,10 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
         widths = list(map(lambda x : 0, fields))
         for record in data:
             for f in record.keys():
-                record[f] = unicode(record[f])
+                if hasattr(record[f], 'isoformat'):
+                    record[f] = isoformat(record[f], as_utc=False)
+                else:
+                    record[f] = unicode(record[f])
                 record[f] = record[f].replace('\n', ' ')
         for i in data:
             for j, field in enumerate(fields):
@@ -672,6 +676,10 @@ def command_catalog(args, dbpath):
         return 1
     if opts.ids:
         opts.ids = [int(id) for id in opts.ids.split(',')]
+
+    # No support for connected device in CLI environment
+    # Parallel initialization in calibre.gui2.tools:generate_catalog()
+    opts.connected_device = {'storage':None,'serial':None,'name':None}
 
     with plugin:
         plugin.run(args[1], opts, get_db(dbpath, opts))

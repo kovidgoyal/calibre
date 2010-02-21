@@ -16,9 +16,10 @@ from urllib import unquote as urlunquote
 from urlparse import urljoin
 
 from lxml import etree, html
+from cssutils import CSSParser
 
 import calibre
-from cssutils import CSSParser
+from calibre.constants import filesystem_encoding
 from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
@@ -434,10 +435,18 @@ class DirContainer(object):
 
     def namelist(self):
         names = []
-        for root, dirs, files in os.walk(self.rootdir):
+        base = self.rootdir
+        if isinstance(base, unicode):
+            base = base.encode(filesystem_encoding)
+        for root, dirs, files in os.walk(base):
             for fname in files:
                 fname = os.path.join(root, fname)
                 fname = fname.replace('\\', '/')
+                if not isinstance(fname, unicode):
+                    try:
+                        fname = fname.decode(filesystem_encoding)
+                    except:
+                        continue
                 names.append(fname)
         return names
 
@@ -842,8 +851,10 @@ class Manifest(object):
                     self.oeb.log.warn('File %r appears to be a HTML fragment'%self.href)
                     nroot = etree.fromstring('<html><body/></html>')
                     parent = nroot[0]
-                for child in list(data):
-                    child.getparent().remove(child)
+                for child in list(data.iter()):
+                    oparent = child.getparent()
+                    if oparent is not None:
+                        oparent.remove(child)
                     parent.append(child)
                 data = nroot
 
@@ -1567,14 +1578,17 @@ class TOC(object):
             parent = etree.Element(NCX('navMap'))
         for node in self.nodes:
             id = node.id or unicode(uuid.uuid4())
-            attrib = {'id': id, 'playOrder': str(node.play_order)}
+            po = node.play_order
+            if po == 0:
+                po = 1
+            attrib = {'id': id, 'playOrder': str(po)}
             if node.klass:
                 attrib['class'] = node.klass
             point = element(parent, NCX('navPoint'), attrib=attrib)
             label = etree.SubElement(point, NCX('navLabel'))
             title = node.title
             if title:
-                title = re.sub(r'\s', ' ', title)
+                title = re.sub(r'\s+', ' ', title)
             element(label, NCX('text')).text = title
             element(point, NCX('content'), src=urlunquote(node.href))
             node.to_ncx(point)

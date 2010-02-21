@@ -195,6 +195,15 @@ are available in the LRF format. Some more examples::
     title:"The Ring" or "This book is about a ring"
     format:epub publisher:feedbooks.com
 
+Searches are by default 'contains'. An item matches if the search string appears anywhere in the indicated metadata.
+Two other kinds of searches are available: equality search and search using regular expressions.
+
+Equality searches are indicated by prefixing the search string with an equals sign (=). For example, the query
+``tag:"=science"`` will match "science", but not "science fiction". Regular expression searches are
+indicated by prefixing the search string with a tilde (~). Any python-compatible regular expression can
+be used. Regular expression searches are contains searches unless the expression contains anchors.
+Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash. 
+
 You can build advanced search queries easily using the :guilabel:`Advanced Search Dialog`, accessed by 
 clicking the button |sbi|.
 

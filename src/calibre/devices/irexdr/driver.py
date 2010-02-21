@@ -36,3 +36,14 @@ class IREXDR1000(USBMS):
     EBOOK_DIR_MAIN = 'ebooks'
     DELETE_EXTS = ['.mbp']
     SUPPORTS_SUB_DIRS = True
+
+class IREXDR800(IREXDR1000):
+    name           = 'IRex Digital Reader 800 Device Interface'
+    description    = _('Communicate with the IRex Digital Reader 800')
+    PRODUCT_ID = [0x002]
+    WINDOWS_MAIN_MEM = 'DR800'
+    FORMATS     = ['epub', 'html', 'pdf', 'txt']
+
+    EBOOK_DIR_MAIN = 'Books'
+    DELETE_EXTS = []
+

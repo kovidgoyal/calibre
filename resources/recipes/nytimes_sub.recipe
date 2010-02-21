@@ -37,7 +37,7 @@ class NYTimes(BasicNewsRecipe):
                    dict(name=['script', 'noscript', 'style'])]
     encoding = decode
     no_stylesheets = True
-    extra_css = 'h1 {font: sans-serif large;}\n.byline {font:monospace;}'
+    extra_css = 'h1 {font-face:sans-serif; font-size:2em; font-weight:bold;}\n.byline {font:monospace;}\n.bold {font-weight:bold;}'
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()

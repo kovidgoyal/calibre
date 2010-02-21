@@ -169,6 +169,8 @@ int main(int argc, char **argv) {
     char *memblock;
     ifstream::pos_type size;
     int ret = 0;
+    map<string,string> info;
+    Reflow *reflow = NULL;
 
 
     if (argc != 2)  {
@@ -189,9 +191,13 @@ int main(int argc, char **argv) {
     }
 
     try {
-        Reflow reflow(memblock, size);
-        reflow.render();
-        vector<char> *data = reflow.render_first_page();
+        reflow = new Reflow(memblock, size);
+        info = reflow->get_info();
+        for (map<string,string>::const_iterator it = info.begin() ; it != info.end(); it++ ) {
+            cout << (*it).first << " : " << (*it).second << endl;
+        }
+        //reflow->render();
+        vector<char> *data = reflow->render_first_page();
         ofstream file("cover.png", ios::binary);
         file.write(&((*data)[0]), data->size());
         delete data;
@@ -200,7 +206,7 @@ int main(int argc, char **argv) {
         cerr << e.what() << endl;
         ret = 1;
     }
-
+    delete reflow;
     delete[] memblock;
     return ret;
 }

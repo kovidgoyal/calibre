@@ -20,6 +20,7 @@ class Wired(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'utf-8'
     use_embedded_content  = False
+    masthead_url          = 'http://www.wired.com/images/home/wired_logo.gif'
     language              = 'en'
     extra_css             = ' body{font-family: sans-serif} .entryDescription li {display: inline; list-style-type: none} '
     index                 = 'http://www.wired.com/magazine/'
@@ -38,14 +39,34 @@ class Wired(BasicNewsRecipe):
                      dict(name=['object','embed','iframe','link'])
                     ,dict(name='div', attrs={'class':['podcast_storyboard','tweetmeme_button']})
                   ]
+    remove_attributes = ['height','width']              
 
-
-    #feeds = [(u'Articles' , u'http://www.wired.com/magazine/feed/' )]
 
     def parse_index(self):
         totalfeeds = []
 
-        soup = self.index_to_soup(self.index)
+        soup   = self.index_to_soup(self.index)
+        majorf = soup.find('div',attrs={'class':'index'})
+        if majorf:
+           pfarticles = []
+           firsta = majorf.find(attrs={'class':'spread-header'})
+           if firsta:
+              pfarticles.append({
+                                  'title'      :self.tag_to_string(firsta.a)
+                                 ,'date'       :strftime(self.timefmt)
+                                 ,'url'        :'http://www.wired.com' + firsta.a['href']
+                                 ,'description':''
+                                })
+           for itt in majorf.findAll('li'):
+               itema = itt.find('a',href=True)
+               if itema:
+                  pfarticles.append({
+                                      'title'      :self.tag_to_string(itema)
+                                     ,'date'       :strftime(self.timefmt)
+                                     ,'url'        :'http://www.wired.com' + itema['href']
+                                     ,'description':''
+                                    })
+           totalfeeds.append(('Cover', pfarticles))
         features = soup.find('div',attrs={'id':'my-glider'})
         if features:
            farticles = []

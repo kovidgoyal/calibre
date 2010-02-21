@@ -1,0 +1,95 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Starson17'
+'''
+www.nbcolympics.com
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Olympics_2010(BasicNewsRecipe):
+    title          = u'NBC Olympics 2010'
+    __author__  = 'Starson17'
+    description = 'Olympics 2010'
+    cover_url     = 'http://www.digitaljournal.com/img/1/1/2/1/i/4/7/6/o/WinterOlympics2010-logo.jpg'
+    publisher      = 'Olympics 2010'
+    tags           = 'Olympics news'
+    language = 'en'
+    use_embedded_content    = False
+    no_stylesheets        = True
+    remove_javascript = True
+    # recursions = 3
+    oldest_article        = 7
+    max_articles_per_feed = 10
+
+    keep_only_tags = [dict(name='div', attrs={'class':['Article ','ArticleGallery']}),
+                      ]
+
+    remove_tags = [dict(name='div', attrs={'id':['RelatedTagsBox','ShareBox']}),
+                   dict(name='div', attrs={'class':['DateUtilities','PhotoGallery BoxRight','Frame','ToolBox']}),
+                   ]
+
+    # RSS feeds are at: http://www.nbcolympics.com/rss/index.html
+    feeds = [
+             ('NBCOlympics.com - News', 'http://www.nbcolympics.com/rss/newscenter/mostpopular.xml'),
+             ('NBCOlympics.com - News - Top Stories', 'http://www.nbcolympics.com/rss/newscenter/topstories.xml'),
+             ('NBCOlympics.com - News - Latest Headlines', 'http://www.nbcolympics.com/rss/newscenter/latestnews.xml'),
+             # ('NBCOlympics.com - Photos', 'http://www.nbcolympics.com/rss/photos/mostpopular.xml'),
+             # ('NBCOlympics.com - Photos - Editorial Picks', 'http://www.nbcolympics.com/rss/photos/editorialpicks.xml'),
+             # ('NBCOlympics.com - Photos - Latest Slideshows', 'http://www.nbcolympics.com/rss/photos/latestslideshows.xml'),
+             ('NBCOlympics.com - Team USA - Latest news', 'http://www.nbcolympics.com/rss/countries/team-usa/index.xml'),
+             # ('NBCOlympics.com - Team USA - Latest Slideshows', 'http://www.nbcolympics.com/rss/countries/team-usa/photos/index.xml'),
+             # ('NBCOlympics.com - Team USA - Video', 'http://www.nbcolympics.com/rss/countries/team-usa/video/index.xml'),
+             # ('NBCOlympics.com - Alpine Skiing - Most Popular News', 'http://www.nbcolympics.com/rss/sport=AS/mostpopular.xml'),
+             # ('NBCOlympics.com - Alpine Skiing - Top News', 'http://www.nbcolympics.com/rss/sport=AS/topnews.xml'),
+             ('NBCOlympics.com - Alpine Skiing - Latest News', 'http://www.nbcolympics.com/rss/sport=AS/latestnews.xml'),
+             # ('NBCOlympics.com - Biathlon - Most Popular News', 'http://www.nbcolympics.com/rss/sport=BT/mostpopular.xml'),
+             # ('NBCOlympics.com - Biathlon - Top News', 'http://www.nbcolympics.com/rss/sport=BT/topnews.xml'),
+             ('NBCOlympics.com - Biathlon - Latest News', 'http://www.nbcolympics.com/rss/sport=BT/latestnews.xml'),
+             # ('NBCOlympics.com - Bobsled - Most Popular News', 'http://www.nbcolympics.com/rss/sport=BS/mostpopular.xml'),
+             # ('NBCOlympics.com - Bobsled - Top News', 'http://www.nbcolympics.com/rss/sport=BS/topnews.xml'),
+             ('NBCOlympics.com - Bobsled - Latest News', 'http://www.nbcolympics.com/rss/sport=BS/latestnews.xml'),
+             # ('NBCOlympics.com - Cross-Country - Most Popular News', 'http://www.nbcolympics.com/rss/sport=CC/mostpopular.xml'),
+             # ('NBCOlympics.com - Cross-Country - Top News', 'http://www.nbcolympics.com/rss/sport=CC/topnews.xml'),
+             ('NBCOlympics.com - Cross-Country - Latest News', 'http://www.nbcolympics.com/rss/sport=CC/latestnews.xml'),
+             # ('NBCOlympics.com - Curling - Most Popular News', 'http://www.nbcolympics.com/rss/sport=CU/mostpopular.xml'),
+             # ('NBCOlympics.com - Curling - Top News', 'http://www.nbcolympics.com/rss/sport=CU/topnews.xml'),
+             ('NBCOlympics.com - Curling - Latest News', 'http://www.nbcolympics.com/rss/sport=CU/latestnews.xml'),
+             # ('NBCOlympics.com - Figure Skating - Most Popular News', 'http://www.nbcolympics.com/rss/sport=FS/mostpopular.xml'),
+             # ('NBCOlympics.com - Figure Skating - Top News', 'http://www.nbcolympics.com/rss/sport=FS/topnews.xml'),
+             ('NBCOlympics.com - Figure Skating - Latest News', 'http://www.nbcolympics.com/rss/sport=FS/latestnews.xml'),
+             # ('NBCOlympics.com - Freestyle Skiing - Most Popular News', 'http://www.nbcolympics.com/rss/sport=FR/mostpopular.xml'),
+             # ('NBCOlympics.com - Freestyle Skiing - Top News', 'http://www.nbcolympics.com/rss/sport=FR/topnews.xml'),
+             ('NBCOlympics.com - Freestyle Skiing - Latest News', 'http://www.nbcolympics.com/rss/sport=FR/latestnews.xml'),
+             # ('NBCOlympics.com - Hockey - Most Popular News', 'http://www.nbcolympics.com/rss/sport=IH/mostpopular.xml'),
+             # ('NBCOlympics.com - Hockey - Top News', 'http://www.nbcolympics.com/rss/sport=IH/topnews.xml'),
+             ('NBCOlympics.com - Hockey - Latest News', 'http://www.nbcolympics.com/rss/sport=IH/latestnews.xml'),
+             # ('NBCOlympics.com - Luge - Most Popular News', 'http://www.nbcolympics.com/rss/sport=LG/mostpopular.xml'),
+             # ('NBCOlympics.com - Luge - Top News', 'http://www.nbcolympics.com/rss/sport=LG/topnews.xml'),
+             ('NBCOlympics.com - Luge - Latest News', 'http://www.nbcolympics.com/rss/sport=LG/latestnews.xml'),
+             # ('NBCOlympics.com - Nordic Combined - Most Popular News', 'http://www.nbcolympics.com/rss/sport=NC/mostpopular.xml'),
+             # ('NBCOlympics.com - Nordic Combined - Top News', 'http://www.nbcolympics.com/rss/sport=NC/topnews.xml'),
+             ('NBCOlympics.com - Nordic Combined - Latest News', 'http://www.nbcolympics.com/rss/sport=NC/latestnews.xml'),
+             # ('NBCOlympics.com - Short Track - Most Popular News', 'http://www.nbcolympics.com/rss/sport=ST/mostpopular.xml'),
+             # ('NBCOlympics.com - Short Track - Top News', 'http://www.nbcolympics.com/rss/sport=ST/topnews.xml'),
+             ('NBCOlympics.com - Short Track - Latest News', 'http://www.nbcolympics.com/rss/sport=ST/latestnews.xml'),
+             # ('NBCOlympics.com - Skeleton - Most Popular News', 'http://www.nbcolympics.com/rss/sport=SN/mostpopular.xml'),
+             # ('NBCOlympics.com - Skeleton - Top News', 'http://www.nbcolympics.com/rss/sport=SN/topnews.xml'),
+             ('NBCOlympics.com - Skeleton - Latest News', 'http://www.nbcolympics.com/rss/sport=SN/latestnews.xml'),
+             # ('NBCOlympics.com - Ski Jumping - Most Popular News', 'http://www.nbcolympics.com/rss/sport=SJ/mostpopular.xml'),
+             # ('NBCOlympics.com - Ski Jumping - Top News', 'http://www.nbcolympics.com/rss/sport=SJ/topnews.xml'),
+             ('NBCOlympics.com - Ski Jumping - Latest News', 'http://www.nbcolympics.com/rss/sport=SJ/latestnews.xml'),
+             # ('NBCOlympics.com - Snowboarding - Most Popular News', 'http://www.nbcolympics.com/rss/sport=SB/mostpopular.xml'),
+             # ('NBCOlympics.com - Snowboarding - Top News', 'http://www.nbcolympics.com/rss/sport=SB/topnews.xml'),
+             ('NBCOlympics.com - Snowboarding - Latest News', 'http://www.nbcolympics.com/rss/sport=SB/latestnews.xml'),
+             # ('NBCOlympics.com - Speed Skating - Most Popular News', 'http://www.nbcolympics.com/rss/sport=AS/mostpopular.xml'),
+             # ('NBCOlympics.com - Speed Skating - Top News', 'http://www.nbcolympics.com/rss/sport=AS/topnews.xml'),
+             ('NBCOlympics.com - Speed Skating - Latest News', 'http://www.nbcolympics.com/rss/sport=AS/latestnews.xml'),
+             ]
+
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+        '''

@@ -11,13 +11,11 @@ __docformat__ = 'restructuredtext en'
 
 from struct import pack, unpack
 from cStringIO import StringIO
-from datetime import datetime
 
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.writer import rescale_image, MAX_THUMB_DIMEN
 from calibre.ebooks.mobi.langcodes import iana2mobi
-
-import struct
+from calibre.utils.date import now as nowf
 
 class StreamSlicer(object):
 
@@ -105,11 +103,12 @@ class MetadataUpdater(object):
         have_exth = self.have_exth = (flags & 0x40) != 0
         self.cover_record = self.thumbnail_record = None
         self.timestamp = None
-
         self.pdbrecords = self.get_pdbrecords()
+
+        self.original_exth_records = {}
         if not have_exth:
             self.create_exth()
-
+            self.have_exth = True
         # Fetch timestamp, cover_record, thumbnail_record
         self.fetchEXTHFields()
 
@@ -131,14 +130,18 @@ class MetadataUpdater(object):
             content = exth[pos + 8: pos + size]
             pos += size
 
+            self.original_exth_records[id] = content
+
             if id == 106:
                 self.timestamp = content
             elif id == 201:
-                rindex, = self.cover_rindex, = unpack('>I', content)
-                self.cover_record = self.record(rindex + image_base)
+                rindex, = self.cover_rindex, = unpack('>i', content)
+                if rindex > 0 :
+                    self.cover_record = self.record(rindex + image_base)
             elif id == 202:
-                rindex, = self.thumbnail_rindex, = unpack('>I', content)
-                self.thumbnail_record = self.record(rindex + image_base)
+                rindex, = self.thumbnail_rindex, = unpack('>i', content)
+                if rindex > 0 :
+                    self.thumbnail_record = self.record(rindex + image_base)
 
     def patch(self, off, new_record0):
         # Save the current size of each record
@@ -181,14 +184,14 @@ class MetadataUpdater(object):
         off = self.pdbrecords[section][0]
         self.patch(off, new)
 
-    def create_exth(self, exth=None):
+    def create_exth(self, new_title=None, exth=None):
         # Add an EXTH block to record 0, rewrite the stream
         # self.hexdump(self.record0)
 
-        # Fetch the title
-        title_offset, = struct.unpack('>L', self.record0[0x54:0x58])
-        title_length, = struct.unpack('>L', self.record0[0x58:0x5c])
-        title_in_file, = struct.unpack('%ds' % (title_length), self.record0[title_offset:title_offset + title_length])
+        # Fetch the existing title
+        title_offset, = unpack('>L', self.record0[0x54:0x58])
+        title_length, = unpack('>L', self.record0[0x58:0x5c])
+        title_in_file, = unpack('%ds' % (title_length), self.record0[title_offset:title_offset + title_length])
 
         # Adjust length to accommodate PrimaryINDX if necessary
         mobi_header_length, = unpack('>L', self.record0[0x14:0x18])
@@ -207,14 +210,21 @@ class MetadataUpdater(object):
             exth = ['EXTH', pack('>II', 12, 0), pad]
             exth = ''.join(exth)
 
-        # Update title_offset
+        # Update title_offset, title_len if new_title
         self.record0[0x54:0x58] = pack('>L', 0x10 + mobi_header_length + len(exth))
+        if new_title:
+            self.record0[0x58:0x5c] = pack('>L', len(new_title))
 
         # Create an updated Record0
         new_record0 = StringIO()
         new_record0.write(self.record0[:0x10 + mobi_header_length])
         new_record0.write(exth)
-        new_record0.write(title_in_file)
+        if new_title:
+            #new_record0.write(new_title.encode(self.codec, 'replace'))
+            new_title = (new_title or _('Unknown')).encode(self.codec, 'replace')
+            new_record0.write(new_title)
+        else:
+            new_record0.write(title_in_file)
 
         # Pad to a 4-byte boundary
         trail = len(new_record0.getvalue()) % 4
@@ -244,7 +254,7 @@ class MetadataUpdater(object):
     def get_pdbrecords(self):
         pdbrecords = []
         for i in xrange(self.nrecs):
-            offset, a1,a2,a3,a4 = struct.unpack('>LBBBB', self.data[78+i*8:78+i*8+8])
+            offset, a1,a2,a3,a4 = unpack('>LBBBB', self.data[78+i*8:78+i*8+8])
             flags, val = a1, a2<<16|a3<<8|a4
             pdbrecords.append( [offset, flags, val] )
         return pdbrecords
@@ -275,6 +285,10 @@ class MetadataUpdater(object):
         return StreamSlicer(self.stream, start, stop)
 
     def update(self, mi):
+        def pop_exth_record(exth_id):
+            if exth_id in self.original_exth_records:
+                self.original_exth_records.pop(exth_id)
+
         if self.type != "BOOKMOBI":
                 raise MobiError("Setting metadata only supported for MOBI files of type 'BOOK'.\n"
                                 "\tThis is a '%s' file of type '%s'" % (self.type[0:4], self.type[4:8]))
@@ -289,34 +303,52 @@ class MetadataUpdater(object):
         if mi.author_sort and pas:
             authors = mi.author_sort
             recs.append((100, authors.encode(self.codec, 'replace')))
+            pop_exth_record(100)
         elif mi.authors:
             authors = '; '.join(mi.authors)
             recs.append((100, authors.encode(self.codec, 'replace')))
+            pop_exth_record(100)
         if mi.publisher:
             recs.append((101, mi.publisher.encode(self.codec, 'replace')))
+            pop_exth_record(101)
         if mi.comments:
             recs.append((103, mi.comments.encode(self.codec, 'replace')))
+            pop_exth_record(103)
         if mi.isbn:
             recs.append((104, mi.isbn.encode(self.codec, 'replace')))
+            pop_exth_record(104)
         if mi.tags:
             subjects = '; '.join(mi.tags)
             recs.append((105, subjects.encode(self.codec, 'replace')))
+            pop_exth_record(105)
         if mi.pubdate:
             recs.append((106, str(mi.pubdate).encode(self.codec, 'replace')))
+            pop_exth_record(106)
         elif mi.timestamp:
             recs.append((106, str(mi.timestamp).encode(self.codec, 'replace')))
+            pop_exth_record(106)
         elif self.timestamp:
             recs.append((106, self.timestamp))
+            pop_exth_record(106)
         else:
-            recs.append((106, str(datetime.now()).encode(self.codec, 'replace')))
+            recs.append((106, nowf().isoformat().encode(self.codec, 'replace')))
+            pop_exth_record(106)
         if self.cover_record is not None:
             recs.append((201, pack('>I', self.cover_rindex)))
             recs.append((203, pack('>I', 0)))
+            pop_exth_record(201)
+            pop_exth_record(203)
         if self.thumbnail_record is not None:
             recs.append((202, pack('>I', self.thumbnail_rindex)))
+            pop_exth_record(202)
 
         if getattr(self, 'encryption_type', -1) != 0:
             raise MobiError('Setting metadata in DRMed MOBI files is not supported.')
+
+        # Restore any original EXTH fields that weren't modified/updated
+        for id in sorted(self.original_exth_records):
+            recs.append((id, self.original_exth_records[id]))
+        recs = sorted(recs, key=lambda x:(x[0],x[0]))
 
         exth = StringIO()
         for code, data in recs:
@@ -332,7 +364,7 @@ class MetadataUpdater(object):
             raise MobiError('No existing EXTH record. Cannot update metadata.')
 
         self.record0[92:96] = iana2mobi(mi.language)
-        self.create_exth(exth)
+        self.create_exth(exth=exth, new_title=mi.title)
 
         # Fetch updated timestamp, cover_record, thumbnail_record
         self.fetchEXTHFields()

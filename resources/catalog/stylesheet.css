@@ -27,7 +27,7 @@ p.tags {
 
 p.description {
 	text-align:left;
-	font-style:italic;
+	font-style:normal;
 	margin-top: 0em;
 	}
 
@@ -55,6 +55,14 @@ p.author_index {
 	text-indent: 0em;
 	}
 
+p.series {
+	text-align: left;
+	margin-top:0px;
+	margin-bottom:0px;
+	margin-left:2em;
+	text-indent:-2em;
+	}
+
 p.read_book {
 	text-align:left;
 	margin-top:0px;
@@ -71,3 +79,9 @@ p.unread_book {
 	text-indent:-2em;
 	}
 
+hr.series_divider {
+	width:50%;
+	margin-left:1em;
+	margin-top:0em;
+	margin-bottom:0em;
+	}

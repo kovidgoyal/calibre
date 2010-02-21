@@ -182,10 +182,10 @@ class PML_HTMLizer(object):
         return pml
 
     def strip_pml(self, pml):
-        pml = re.sub(r'\\C\d=".+*"', '', pml)
-        pml = re.sub(r'\\Fn=".+*"', '', pml)
-        pml = re.sub(r'\\Sd=".+*"', '', pml)
-        pml = re.sub(r'\\.=".+*"', '', pml)
+        pml = re.sub(r'\\C\d=".*"', '', pml)
+        pml = re.sub(r'\\Fn=".*"', '', pml)
+        pml = re.sub(r'\\Sd=".*"', '', pml)
+        pml = re.sub(r'\\.=".*"', '', pml)
         pml = re.sub(r'\\X\d', '', pml)
         pml = re.sub(r'\\S[pbd]', '', pml)
         pml = re.sub(r'\\Fn', '', pml)

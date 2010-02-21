@@ -79,6 +79,8 @@ class _Canvas(QGraphicsRectItem):
         pen = QPen()
         pen.setStyle(Qt.NoPen)
         self.setPen(pen)
+        if not hasattr(self, 'children'):
+            self.children = self.childItems
 
     def layout_block(self, block, x, y):
         if isinstance(block, TextBlock):

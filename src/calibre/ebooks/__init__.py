@@ -70,6 +70,19 @@ def extract_cover_from_embedded_svg(html, base, log):
         if href and os.access(path, os.R_OK):
             return open(path, 'rb').read()
 
+def extract_calibre_cover(raw, base, log):
+    from calibre.ebooks.BeautifulSoup import BeautifulSoup
+    soup = BeautifulSoup(raw)
+    matches = soup.find(name=['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span',
+        'font', 'br'])
+    images = soup.findAll('img')
+    if matches is None and len(images) == 1 and \
+            images[0].get('alt', '')=='cover':
+        img = images[0]
+        img = os.path.join(base, *img['src'].split('/'))
+        if os.path.exists(img):
+            return open(img, 'rb').read()
+
 def render_html_svg_workaround(path_to_html, log, width=590, height=750):
     from calibre.ebooks.oeb.base import SVG_NS
     raw = open(path_to_html, 'rb').read()
@@ -78,6 +91,11 @@ def render_html_svg_workaround(path_to_html, log, width=590, height=750):
         try:
             data = extract_cover_from_embedded_svg(raw,
                    os.path.dirname(path_to_html), log)
+        except:
+            pass
+    if data is None:
+        try:
+            data = extract_calibre_cover(raw, os.path.dirname(path_to_html), log)
         except:
             pass
     if data is None:

@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-01-25 00:45+0000\n"
-"PO-Revision-Date: 2010-01-25 02:45+0000\n"
+"POT-Creation-Date: 2010-01-25 18:58+0000\n"
+"PO-Revision-Date: 2010-01-31 21:36+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-25 04:46+0000\n"
+"X-Launchpad-Export-Date: 2010-02-01 04:43+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:340
@@ -172,9 +172,9 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Volg alle plaatselijke links in een HTML-bestand en maak een ZIP-bestand met "
-"alle gelinkte bestanden. Deze plug-in wordt elke keer u een HTML-bestand aan "
-"de bibliotheek toevoegt, uitgevoerd."
+"Volg alle lokale links in een HTML-bestand en maak een ZIP-bestand met alle "
+"gelinkte bestanden. Deze plug-in wordt elke keer wanneer u een HTML-bestand "
+"aan de bibliotheek toevoegt uitgevoerd."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:49
 msgid ""
@@ -196,7 +196,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:87
 msgid "Extract cover from comic files"
-msgstr "Cover uit stripverhalen uithalen"
+msgstr "Haal de cover uit stripverhalen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:108
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:120
@@ -245,8 +245,8 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
-"Specifieer de tekenencodering van het invoerbestand. Als deze optie "
-"ingesteld wordt, zal de encodering die het document zelf bevat genegeerd "
+"Specificeer de tekenencodering van het invoerbestand. Als deze optie "
+"ingesteld is, zal de encodering die het document zelf bevat genegeerd "
 "worden. Voornamelijk nuttig voor documenten die geen encodering ingesteld "
 "hebben, of die een foutieve coderingsdeclaratie hebben."
 
@@ -259,9 +259,9 @@ msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
-"Indien ingesteld, zal de uitvoerplugin proberen om de uitvoer te maken die "
-"zo menselijk mogelijk leesbaar is als mogelijk. Kan zijn dat sommige "
-"uitvoerplugins geen enkel effect hiervan ondervinden."
+"Indien ingesteld, zal de uitvoerplugin proberen om uitvoer te maken die zo "
+"leesbaar voor mensen is als mogelijk is. Kan zijn dat sommige uitvoerplugins "
+"geen enkel effect hiervan ondervinden."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:44
 msgid "Input profile"
@@ -304,7 +304,7 @@ msgstr "Dit profiel is bedoeld voor de Mobipocket boeken."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:109
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:311
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr "Dit profiel is bedoeld voor de Hanlin V3 en zijn klonen."
+msgstr "Dit profiel is bedoeld voor de Hanlin V3 en afgeleiden."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:121
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:323
@@ -1835,7 +1835,7 @@ msgstr "Gepubliceerd"
 msgid "Rights"
 msgstr "Rechten"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:77
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:78
 msgid "EDITORIAL REVIEW"
 msgstr "REDACTIONELE BEOORDELING"
 
@@ -2866,11 +2866,11 @@ msgid "Fields to include in output:"
 msgstr "Velden te gebruiken in uitvoer:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:17
-msgid "E-book Options"
-msgstr "E-Boek Opties"
+msgid "E-book options"
+msgstr "E-Boek opties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:20
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:259
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:256
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1416
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1430
 msgid "Catalog"
@@ -7773,7 +7773,7 @@ msgstr ""
 "Standaard: '%default'\n"
 "Betrekking op: CSV, XML uitvoer formaten"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:241
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:238
 msgid ""
 "Title of generated catalog used as title in metadata.\n"
 "Default: '%default'\n"
@@ -7783,7 +7783,7 @@ msgstr ""
 "Standaard: '%default'\n"
 "Betrekking tot: ePub, MOBI uitvoer formaten"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:247
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:244
 msgid ""
 "Save the output from different stages of the conversion pipeline to the "
 "specified directory. Useful if you are unsure at which stage of the "
@@ -7791,8 +7791,13 @@ msgid ""
 "Default: '%default'None\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Bewaar de uitvoer van verschillende stadia van het conversie proces in de "
+"opgegeven folder. Handig als je niet zeker weet wanneer fouten optreden "
+"tijdens de conversie.\n"
+"Standaard: '%default'None\n"
+"Betrekking tot: ePub, MOBI uitvoer formaten"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:256
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:253
 msgid ""
 "Regex describing tags to exclude as genres.\n"
 "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
@@ -7803,7 +7808,7 @@ msgstr ""
 "Standaard: '%default'  uitgezonderd labels in haken, b.v. '[<label>]'\n"
 "Betrekking tot: ePub, MOBI uitvoer formaten"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:261
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:258
 msgid ""
 "Comma-separated list of tag words indicating book should be excluded from "
 "output.  Case-insensitive.\n"
@@ -7817,14 +7822,17 @@ msgstr ""
 "Standaard: '%default'\n"
 "Betrekking tot: ePub, MOBI uitvoer formaten"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:268
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:265
 msgid ""
 "Tag indicating book has been read.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
-msgstr "Label geeft aan dat boek gelezen is."
+msgstr ""
+"Label geeft aan dat boek gelezen is.\n"
+"Default: '%default'\n"
+"Applies to: ePub, MOBI output formats"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:273
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:270
 msgid ""
 "Tag prefix for user notes, e.g. '*Jeff might enjoy reading this'.\n"
 "Default: '%default'\n"
@@ -7832,10 +7840,10 @@ msgid ""
 msgstr ""
 "Label prefix voor gebruiker notities, bv. '*Misschien vindt Jeff dit een "
 "leuk boek'\n"
-"Standaard: '%standaard'\n"
+"Standaard: '%default'\n"
 "Betrekking tot: ePub, MOBI uitvoer formaten"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:279
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:276
 msgid ""
 "Specifies the output profile.  In some cases, an output profile is required "
 "to optimize the catalog for the device.  For example, 'kindle' or "
@@ -8179,7 +8187,7 @@ msgstr ""
 "Standaard: Geen filter"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:658
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:484
 msgid "Show detailed output information. Useful for debugging"
 msgstr ""
 "Laat gedetailleerde output informatie zien. Handig bij het opsporen van "
@@ -8608,75 +8616,75 @@ msgstr ""
 msgid "Unknown News Source"
 msgstr "Onbekende Nieuwe Bron"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:528
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:533
 msgid "The \"%s\" recipe needs a username and password."
 msgstr "Het \"%s\" recept heeft een gebruikernaam en wachtwoord nodig"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:614
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:619
 msgid "Download finished"
 msgstr "Download voltooid"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:616
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:621
 msgid "Failed to download the following articles:"
 msgstr "De volgende artikelen konden niet worden gedownload:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:622
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:627
 msgid "Failed to download parts of the following articles:"
 msgstr "Delen van de volgende artikelen konden niet worden gedownload:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:624
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:629
 msgid " from "
 msgstr " van "
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:626
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:631
 msgid "\tFailed links:"
 msgstr "\tMislukte links:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:707
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:712
 msgid "Could not fetch article. Run with -vv to see the reason"
 msgstr "Kan artikel niet ophalen. Voer uit met optie -vv om oorzaak te zien"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:728
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:733
 msgid "Fetching feeds..."
 msgstr "Downloading feeds..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:733
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:738
 msgid "Got feeds from index page"
 msgstr "feeds van index pagina"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:739
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:744
 msgid "Trying to download cover..."
 msgstr "Probeer omslag te downloaden"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:797
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:802
 msgid "Starting download [%d thread(s)]..."
 msgstr "Begin download [%d thread(s)]..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:813
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:818
 msgid "Feeds downloaded to %s"
 msgstr "Feeds gedownload tot %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:823
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:828
 msgid "Could not download cover: %s"
 msgstr "Kon omslag niet downloaden: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:835
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:840
 msgid "Downloading cover from %s"
 msgstr "Download omslag van %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:978
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:983
 msgid "Untitled Article"
 msgstr "Artikel zonder Naam"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1049
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1054
 msgid "Article downloaded: %s"
 msgstr "Artikel gedownload: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1060
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1065
 msgid "Article download failed: %s"
 msgstr "Artikel download mislukt: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1077
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1082
 msgid "Fetching feed"
 msgstr "Downloading feed"
 
@@ -8695,7 +8703,7 @@ msgstr "Gepland"
 msgid "Custom"
 msgstr "Aangepast"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:459
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:461
 msgid ""
 "%prog URL\n"
 "\n"
@@ -8705,12 +8713,12 @@ msgstr ""
 "\n"
 "Waar URL is bijvoorbeeld http://google.com"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:462
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:464
 msgid "Base directory into which URL is saved. Default is %default"
 msgstr ""
 "Basis map waar de URL naar toe wordt geschreven. Standaard is %default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:465
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:467
 msgid ""
 "Timeout in seconds to wait for a response from the server. Default: %default "
 "s"
@@ -8718,7 +8726,7 @@ msgstr ""
 "Timeout in seconden om te wachten op een antwoord van de server. Standaard: "
 "%default s"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:468
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:470
 msgid ""
 "Maximum number of levels to recurse i.e. depth of links to follow. Default "
 "%default"
@@ -8726,7 +8734,7 @@ msgstr ""
 "Maximum aantal niveaus om recursief te zoeken -- de diepte van de te volgen "
 "links. Standaard %default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:471
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:473
 msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
@@ -8734,7 +8742,7 @@ msgstr ""
 "Het maximum aantal bestanden te downloaden. Dit is alleen van toepassing op "
 "bestanden in <a href> labels. Standaard is %default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:473
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:475
 msgid ""
 "Minimum interval in seconds between consecutive fetches. Default is %default "
 "s"
@@ -8742,7 +8750,7 @@ msgstr ""
 "Minimum inteval in seconden tussen aaneensluitende downloads. Standaard is "
 "%default s"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:475
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:477
 msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
@@ -8750,7 +8758,7 @@ msgstr ""
 "De karakter codering voor de websites die je probeert te downloaden. "
 "Standaard zal er worden geprobeerd om de codering te raden."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:477
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
 msgid ""
 "Only links that match this regular expression will be followed. This option "
 "can be specified multiple times, in which case as long as a link matches any "
@@ -8761,7 +8769,7 @@ msgstr ""
 "link zal worden gevolgd als deze overeenkomt met ten minste een reguliere "
 "expressie. Standaard zullen alle links worden gevolgd."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:481
 msgid ""
 "Any link that matches this regular expression will be ignored. This option "
 "can be specified multiple times, in which case as long as any regexp matches "
@@ -8775,7 +8783,7 @@ msgstr ""
 "geen enkele link overgeslagen.  indien zowel --filter-regexp en --match-"
 "regexp worden gebruikt, dan zal --filter-regexp allereerst worden toegepast."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:481
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:483
 msgid "Do not download CSS stylesheets."
 msgstr "Download geen CSS stylesheets"
 
@@ -9892,3 +9900,6 @@ msgstr "Download geen CSS stylesheets"
 #~ "timestamp, title, uuid.\n"
 #~ "Standaard: '%default'\n"
 #~ "Betreft: CSV, XML uitvoer formaten"
+
+#~ msgid "E-book Options"
+#~ msgstr "E-Boek Opties"

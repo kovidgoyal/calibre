@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Device driver for Hanvon devices
 '''
+import re
 
 from calibre.devices.usbms.driver import USBMS
 
@@ -32,3 +33,25 @@ class N516(USBMS):
 
     EBOOK_DIR_MAIN = 'e_book'
     SUPPORTS_SUB_DIRS = True
+
+class EB511(USBMS):
+    name           = 'Elonex EB 511 driver'
+    gui_name       = 'EB 511'
+    description    = _('Communicate with the Elonex EB 511 eBook reader.')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    FORMATS     = ['epub', 'html', 'pdf', 'txt']
+
+    VENDOR_ID   = [0x45e]
+    PRODUCT_ID  = [0xffff]
+    BCD         = [0x0]
+
+    MAIN_MEMORY_VOLUME_LABEL  = 'EB 511 Internal Memory'
+
+    EBOOK_DIR_MAIN = 'e_book'
+    SUPPORTS_SUB_DIRS = True
+
+    OSX_MAIN_MEM_VOL_PAT = re.compile(r'/eReader')
+
+

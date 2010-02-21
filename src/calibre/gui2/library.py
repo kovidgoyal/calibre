@@ -1,8 +1,7 @@
 from calibre.ebooks.metadata import authors_to_string
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, textwrap, traceback, time, re
-from datetime import timedelta, datetime
+import os, textwrap, traceback, re, shutil
 from operator import attrgetter
 
 from math import cos, sin, pi
@@ -17,13 +16,15 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
 from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.pyparsing import ParseException
-from calibre.library.database2 import FIELD_MAP
+from calibre.library.database2 import FIELD_MAP, _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, \
                          error_dialog
 from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.ebooks.metadata import string_to_authors, fmt_sidx
+from calibre.utils.config import tweaks
+from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 
 class LibraryDelegate(QItemDelegate):
     COLOR    = QColor("blue")
@@ -97,7 +98,10 @@ class DateDelegate(QStyledItemDelegate):
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat(unicode(qde.displayFormat()).replace('yy', 'yyyy'))
+        stdformat = unicode(qde.displayFormat())
+        if 'yyyy' not in stdformat:
+            stdformat = stdformat.replace('yy', 'yyyy')
+        qde.setDisplayFormat(stdformat)
         qde.setMinimumDate(QDate(101,1,1))
         qde.setCalendarPopup(True)
         return qde
@@ -465,8 +469,10 @@ class BooksModel(QAbstractTableModel):
                     break
             if format is not None:
                 pt = PersistentTemporaryFile(suffix='.'+format)
-                pt.write(self.db.format(id, format, index_is_id=True))
+                src = self.db.format(id, format, index_is_id=True, as_file=True)
+                shutil.copyfileobj(src, pt)
                 pt.flush()
+                pt.seek(0)
                 if set_metadata:
                     _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
                                   format)
@@ -563,13 +569,11 @@ class BooksModel(QAbstractTableModel):
         def timestamp(r):
             dt = self.db.data[r][tmdx]
             if dt:
-                dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
                 return QDate(dt.year, dt.month, dt.day)
 
         def pubdate(r):
             dt = self.db.data[r][pddx]
             if dt:
-                dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
                 return QDate(dt.year, dt.month, dt.day)
 
         def rating(r):
@@ -657,21 +661,20 @@ class BooksModel(QAbstractTableModel):
                     self.db.set_series_index(id, float(match.group(1)))
                     val = pat.sub('', val).strip()
                 elif val:
-                    ni = self.db.get_next_series_num_for(val)
-                    if ni != 1:
-                        self.db.set_series_index(id, ni)
+                    if tweaks['series_index_auto_increment'] == 'next':
+                        ni = self.db.get_next_series_num_for(val)
+                        if ni != 1:
+                            self.db.set_series_index(id, ni)
                 if val:
                     self.db.set_series(id, val)
             elif column == 'timestamp':
                 if val.isNull() or not val.isValid():
                     return False
-                dt = datetime(val.year(), val.month(), val.day()) + timedelta(seconds=time.timezone) - timedelta(hours=time.daylight)
-                self.db.set_timestamp(id, dt)
+                self.db.set_timestamp(id, qt_to_dt(val, as_utc=False))
             elif column == 'pubdate':
                 if val.isNull() or not val.isValid():
                     return False
-                dt = datetime(val.year(), val.month(), val.day()) + timedelta(seconds=time.timezone) - timedelta(hours=time.daylight)
-                self.db.set_pubdate(id, dt)
+                self.db.set_pubdate(id, qt_to_dt(val, as_utc=False))
             else:
                 self.db.set(row, column, val)
             self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
@@ -888,7 +891,20 @@ class OnDeviceSearch(SearchQueryParser):
 
     def get_matches(self, location, query):
         location = location.lower().strip()
-        query = query.lower().strip()
+
+        matchkind = CONTAINS_MATCH
+        if len(query) > 1:
+            if query.startswith('\\'):
+                query = query[1:]
+            elif query.startswith('='):
+                matchkind = EQUALS_MATCH
+                query = query[1:]
+            elif query.startswith('~'):
+                matchkind = REGEXP_MATCH
+                query = query[1:]
+        if matchkind != REGEXP_MATCH: ### leave case in regexps because it can be significant e.g. \S \W \D
+            query = query.lower()
+
         if location not in ('title', 'author', 'tag', 'all', 'format'):
             return set([])
         matches = set([])
@@ -899,13 +915,28 @@ class OnDeviceSearch(SearchQueryParser):
              'tag':lambda x: ','.join(getattr(x, 'tags')).lower(),
              'format':lambda x: os.path.splitext(x.path)[1].lower()
              }
-        for i, v in enumerate(locations):
-            locations[i] = q[v]
-        for i, r in enumerate(self.model.db):
-            for loc in locations:
-                if query in loc(r):
-                    matches.add(i)
-                    break
+        for index, row in enumerate(self.model.db):
+            for locvalue in locations:
+                accessor = q[locvalue]
+                try:
+                    ### Can't separate authors because comma is used for name sep and author sep
+                    ### Exact match might not get what you want. For that reason, turn author
+                    ### exactmatch searches into contains searches.
+                    if locvalue == 'author' and matchkind == EQUALS_MATCH:
+                        m = CONTAINS_MATCH
+                    else:
+                        m = matchkind
+
+                    if locvalue == 'tag':
+                        vals = accessor(row).split(',')
+                    else:
+                        vals = [accessor(row)]
+                    if _match(query, vals, m):
+                        matches.add(index)
+                        break
+                except ValueError: # Unicode errors
+                    import traceback
+                    traceback.print_exc()
         return matches
 
 
@@ -999,7 +1030,8 @@ class DeviceBooksModel(BooksModel):
         def datecmp(x, y):
             x = self.db[x].datetime
             y = self.db[y].datetime
-            return cmp(datetime(*x[0:6]), datetime(*y[0:6]))
+            return cmp(dt_factory(x, assume_utc=True), dt_factory(y,
+                assume_utc=True))
         def sizecmp(x, y):
             x, y = int(self.db[x].size), int(self.db[y].size)
             return cmp(x, y)
@@ -1048,10 +1080,8 @@ class DeviceBooksModel(BooksModel):
             type = ext[1:].lower()
         data[_('Format')] = type
         data[_('Path')] = item.path
-        dt = item.datetime
-        dt = datetime(*dt[0:6])
-        dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-        data[_('Timestamp')] = strftime('%a %b %d %H:%M:%S %Y', dt.timetuple())
+        dt = dt_factory(item.datetime, assume_utc=True)
+        data[_('Timestamp')] = isoformat(dt, sep=' ', as_utc=False)
         data[_('Tags')] = ', '.join(item.tags)
         self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
 
@@ -1086,8 +1116,7 @@ class DeviceBooksModel(BooksModel):
                 return QVariant(BooksView.human_readable(size))
             elif col == 3:
                 dt = self.db[self.map[row]].datetime
-                dt = datetime(*dt[0:6])
-                dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
+                dt = dt_factory(dt, assume_utc=True, as_utc=False)
                 return QVariant(strftime(BooksView.TIME_FMT, dt.timetuple()))
             elif col == 4:
                 tags = self.db[self.map[row]].tags
