@@ -97,9 +97,14 @@ class MetadataUpdater(object):
 
         self.nrecs, = unpack('>H', data[76:78])
         record0 = self.record0 = self.record(0)
+        mobi_header_length, = unpack('>I', record0[0x14:0x18])
+        if not mobi_header_length:
+            raise MobiError("Non-standard file format.  Try 'Convert E-Books' with MOBI as Input and Output formats.")
+
         self.encryption_type, = unpack('>H', record0[12:14])
         codepage, = unpack('>I', record0[28:32])
         self.codec = 'utf-8' if codepage == 65001 else 'cp1252'
+
         image_base, = unpack('>I', record0[108:112])
         flags, = self.flags, = unpack('>I', record0[128:132])
         have_exth = self.have_exth = (flags & 0x40) != 0
