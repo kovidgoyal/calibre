@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-02-20 03:45+0000\n"
-"PO-Revision-Date: 2010-02-19 18:22+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-02-21 22:09+0000\n"
+"Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-20 04:41+0000\n"
+"X-Launchpad-Export-Date: 2010-02-22 04:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -499,7 +499,7 @@ msgstr "Kommunicera med Hanvon N520 e-boksläsare."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:40
 msgid "Communicate with the Elonex EB 511 eBook reader."
-msgstr ""
+msgstr "Kommunicera med Elonex EB 511 eboksläsare."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -722,11 +722,11 @@ msgstr "Ta bort böcker från enhetens metadatslista..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:33
 msgid "%prog [options] mybook.chm"
-msgstr ""
+msgstr "%prog [alternativ] mybook.chm"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:34
 msgid "Output directory. Defaults to current directory"
-msgstr ""
+msgstr "Resultatkatalog. Standard nuvarande katalog"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:37
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
@@ -761,7 +761,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:51
 msgid "Path to a txt file containing a comment."
-msgstr ""
+msgstr "Sökväg till en txt-fil som innehåller en kommentar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:54
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
@@ -804,11 +804,11 @@ msgstr "Ange bokens identitet"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:64
 msgid "Set font delta"
-msgstr ""
+msgstr "Ange typpsnitt delta"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:203
 msgid "dummy option until real options are determined."
-msgstr ""
+msgstr "Temporärt alternativ till verkliga alternativ bestäms."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:200
 msgid "Rendered %s"
@@ -1374,7 +1374,7 @@ msgstr "Sträng som ska användas vid sortering av författaren. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:427
 msgid "Set the cover to the specified file or URL"
-msgstr ""
+msgstr "Ange omslag till angivna filer eller URL"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:431
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
@@ -1423,11 +1423,11 @@ msgstr "Ange språket."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:467
 msgid "Set the publication date."
-msgstr ""
+msgstr "Ange publiceringsdatum."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:471
 msgid "Set the book timestamp (used by the date column in calibre)."
-msgstr ""
+msgstr "Ange bokens tidsstämpel (används av datumkolumnen i kaliber)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:571
 msgid "Could not find an ebook inside the archive"
@@ -1439,7 +1439,7 @@ msgstr "Värden av serie index och omdömen måste vara siffror. Förbiser"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:636
 msgid "Failed to parse date/time"
-msgstr ""
+msgstr "Misslyckades med att tolka datum/ tid"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:773
 msgid "Converting input to HTML..."
@@ -1872,6 +1872,8 @@ msgid ""
 "Extract common e-book formats from archives (zip/rar) files. Also try to "
 "autodetect if they are actually cbz/cbr files."
 msgstr ""
+"Ta fram gemensamma e-bokformat från arkiv (zip / rar-filer). Försöka också "
+"att automatiskt upptäcka om de faktiskt är cbz / CBR-filer."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:20
 msgid "options"
@@ -1935,7 +1937,7 @@ msgstr "Ange bokkategori."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Set the published date."
-msgstr ""
+msgstr "Ange publiceringsdatumet."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid "Get the cover from the ebook and save it at as the specified file."
@@ -4716,6 +4718,9 @@ msgid ""
 "automatically sent for downloaded news to all email addresses that have Auto-"
 "send checked."
 msgstr ""
+"Caliber kan skicka böckerna till dig (eller dina läsare) via e-post. E-post "
+"skickas automatiskt för nedladdade nyheter för alla e-postadresser som har "
+"markerats automatskickas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:546
 msgid "&Maximum number of waiting worker processes (needs restart):"
@@ -5497,11 +5502,11 @@ msgstr "Något av dessa och oönskade ord:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:120
 msgid "What kind of match to use:"
-msgstr ""
+msgstr "Vilken typ av jämförelse att använda:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:121
 msgid "Contains: the word or phrase matches anywhere in the metadata"
-msgstr ""
+msgstr "Innehåller: ordet eller frasen matcher någonstans i metadatat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:122
 msgid "Equals: the word or phrase must match an entire metadata field"

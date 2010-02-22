@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-20 03:45+0000\n"
-"PO-Revision-Date: 2010-02-20 23:46+0000\n"
+"PO-Revision-Date: 2010-02-21 20:10+0000\n"
 "Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-21 04:55+0000\n"
+"X-Launchpad-Export-Date: 2010-02-22 04:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1391,7 +1391,7 @@ msgstr "Texto que se usará para ordenar por autor. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:427
 msgid "Set the cover to the specified file or URL"
-msgstr ""
+msgstr "Establecer la portada desde el archivo o la URL especificada"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:431
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
@@ -1446,6 +1446,8 @@ msgstr "Establecer la fecha de publicación."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:471
 msgid "Set the book timestamp (used by the date column in calibre)."
 msgstr ""
+"Establecer el sello de tiempo del libro (usado por la columna de fecha en "
+"calibre)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:571
 msgid "Could not find an ebook inside the archive"
