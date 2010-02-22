@@ -267,7 +267,7 @@ def generate_catalog(parent, dbspec, ids, device):
                                 'save_template': device.save_template(),
                                          'name': device.gui_name}
         except:
-            print "No connected device"
+            pass
 
     # These args are passed inline to gui2.convert.gui_conversion:gui_catalog
     args = [
