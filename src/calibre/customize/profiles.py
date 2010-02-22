@@ -235,7 +235,7 @@ class SonyReaderOutput(OutputProfile):
     description = _('This profile is intended for the SONY PRS line. '
                     'The 500/505/600/700 etc.')
 
-    screen_size               = (600, 775)
+    screen_size               = (590, 775)
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
