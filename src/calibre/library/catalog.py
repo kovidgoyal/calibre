@@ -1226,7 +1226,7 @@ class EPUB_MOBI(CatalogPlugin):
                         emTag = Tag(soup, "em")
                         emTag.insert(0, aTag)
                         if ttc < len(title['tags']):
-                            emTag.insert(1, NavigableString(', '))
+                            emTag.insert(1, NavigableString(' &middot; '))
                         tagsTag.insert(ttc, emTag)
                         ttc += 1
 
@@ -3448,6 +3448,10 @@ class EPUB_MOBI(CatalogPlugin):
 
         build_log = []
 
+        build_log.append(u"%s(): Generating %s %sin %s environment" %
+            (self.name,self.fmt,'for %s ' % opts.output_profile if opts.output_profile else '',
+             'CLI' if opts.cli_environment else 'GUI'))
+
         # If exclude_genre is blank, assume user wants all genre tags included
         if opts.exclude_genre.strip() == '':
             opts.exclude_genre = '\[^.\]'
@@ -3455,22 +3459,21 @@ class EPUB_MOBI(CatalogPlugin):
 
         if opts.connected_device['name']:
             if opts.connected_device['serial']:
-                build_log.append(" connected_device: '%s' #%s%s " % \
+                build_log.append(u" connected_device: '%s' #%s%s " % \
                     (opts.connected_device['name'],
                      opts.connected_device['serial'][0:4],
                      'x' * (len(opts.connected_device['serial']) - 4)))
+                build_log.append(u" save_template: '%s'" % opts.connected_device['save_template'])
             else:
-                build_log.append(" connected_device: '%s'" % opts.connected_device['name'])
+                build_log.append(u" connected_device: '%s'" % opts.connected_device['name'])
                 for storage in opts.connected_device['storage']:
                     if storage:
-                        build_log.append("  mount point: %s" % storage)
+                        build_log.append(u"  mount point: %s" % storage)
+                build_log.append(u"  save_template: '%s'" % opts.connected_device['save_template'])
 
         opts_dict = vars(opts)
-        build_log.append(u"%s(): Generating %s %sin %s environment" %
-            (self.name,self.fmt,'for %s ' % opts.output_profile if opts.output_profile else '',
-             'CLI' if opts.cli_environment else 'GUI'))
         if opts_dict['ids']:
-            build_log.append(" Book count: %d" % len(opts_dict['ids']))
+            build_log.append(" book count: %d" % len(opts_dict['ids']))
 
         sections_list = ['Descriptions','Authors']
         if opts.generate_titles:
@@ -3479,7 +3482,7 @@ class EPUB_MOBI(CatalogPlugin):
             sections_list.append('Recently Added')
         if not opts.exclude_genre.strip() == '.':
             sections_list.append('Genres')
-        build_log.append(u"Creating Sections for %s" % ', '.join(sections_list))
+        build_log.append(u" Sections: %s" % ', '.join(sections_list))
 
         # Display opts
         keys = opts_dict.keys()
@@ -3499,16 +3502,16 @@ class EPUB_MOBI(CatalogPlugin):
         # Launch the Catalog builder
         catalog = self.CatalogBuilder(db, opts, self, report_progress=notification)
         if opts.verbose:
-            log.info("Begin catalog source generation")
+            log.info(" Begin catalog source generation")
         catalog.createDirectoryStructure()
         catalog.copyResources()
         catalog.calculateThumbnailSize()
         catalog_source_built = catalog.buildSources()
         if opts.verbose:
             if catalog_source_built:
-                log.info("Finished catalog source generation\n")
+                log.info(" Finished catalog source generation\n")
             else:
-                log.warn("No database hits with supplied criteria")
+                log.warn(" No database hits with supplied criteria")
 
         if catalog_source_built:
             recommendations = []

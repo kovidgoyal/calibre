@@ -683,7 +683,7 @@ def command_catalog(args, dbpath):
 
     # No support for connected device in CLI environment
     # Parallel initialization in calibre.gui2.tools:generate_catalog()
-    opts.connected_device = {'storage':None,'serial':None,'name':None}
+    opts.connected_device = { 'storage':None,'serial':None,'save_template':None,'name':None}
 
     with plugin:
         plugin.run(args[1], opts, get_db(dbpath, opts))

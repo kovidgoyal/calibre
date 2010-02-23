@@ -4,11 +4,11 @@ __license__ = 'GPL v3'
 __copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
                  ' and Alex Bramley <a.bramley at gmail.com>.'
 
-import os, shutil, uuid
+import os, shutil, uuid, re
 from tempfile import mkdtemp
 from mimetypes import guess_type as guess_mimetype
 
-from BeautifulSoup import BeautifulSoup
+from BeautifulSoup import BeautifulSoup, NavigableString
 from lxml import html
 from pychm.chm import CHMFile
 from pychm.chmlib import (
@@ -28,6 +28,17 @@ def match_string(s1, s2_already_lowered):
         if s1.lower()==s2_already_lowered:
             return True
     return False
+
+def check_all_prev_empty(tag):
+    if tag is None:
+        return True
+    if tag.__class__ == NavigableString and not check_empty(tag):
+        return False
+    return check_all_prev_empty(tag.previousSibling)
+
+def check_empty(s, rex = re.compile(r'\S')):
+    return rex.search(s) is None
+
 
 def option_parser():
     parser = OptionParser(usage=_('%prog [options] mybook.chm'))
@@ -154,6 +165,12 @@ class CHMReader(CHMFile):
                 t[-1].extract()
         # for some very odd reason each page's content appears to be in a table
         # too. and this table has sub-tables for random asides... grr.
+
+        # remove br at top of page if present after nav bars removed
+        br = soup('br')
+        if br:
+            if check_all_prev_empty(br[0].previousSibling):
+                br[0].extract()
 
         # some images seem to be broken in some chm's :/
         for img in soup('img'):

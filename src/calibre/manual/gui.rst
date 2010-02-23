@@ -134,7 +134,7 @@ The :guilabel:`Convert E-books` action has three variations, accessed by the arr
                 
     2. **Bulk convert**: This allows you to specify options only once to convert a number of ebooks in bulk.
     
-    3. **Create catalog**: This action allow yous to generate a complete listing with all metadata of the books in your library, in several formats, like XML, CSV, EPUB and MOBI. The catalog will contain all the books showing in the library view currently, so you can use the search features to limit the books to be catalogued. In addition, if you select multiple books using the mouse, only those books will be added to the catalog. If you generate the catalog in an e-book format such as EPUB or MOBI, the next time you connect your e-book reader, the catalog will be automatically sent to the device.
+    3. **Create catalog**: This action allows you to generate a complete listing with all metadata of the books in your library, in several formats, like XML, CSV, EPUB and MOBI. The catalog will contain all the books showing in the library view currently, so you can use the search features to limit the books to be catalogued. In addition, if you select multiple books using the mouse, only those books will be added to the catalog. If you generate the catalog in an e-book format such as EPUB or MOBI, the next time you connect your e-book reader, the catalog will be automatically sent to the device. For details on how catalogs work, see `here <http://www.mobileread.com/forums/showthread.php?p=755468#post755468>`_.
                                             
 .. _view:
 
@@ -156,7 +156,7 @@ A *catalog* is a collection of books. |app| can manage three different catalogs:
                 
     2. **Reader**:  This is a collection of books stored in the main memory of your ebook reader. It will be available when you connect the reader to your computer.
                 
-    3. **Card**: This is a collection of books stored on the storage card in your reader. Note that ${app} supports only a single storage card at a time.
+    3. **Card**: This is a collection of books stored on the storage card in your reader.
 
 .. _search_sort:
 

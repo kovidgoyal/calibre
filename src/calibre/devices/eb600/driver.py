@@ -195,3 +195,15 @@ class BOOQ(EB600):
     WINDOWS_MAIN_MEM = 'EB600'
     WINDOWS_CARD_A_MEM = 'EB600'
 
+class ELONEX(EB600):
+
+    name = 'Elonex 600EB'
+    gui_name = 'Elonex'
+
+    FORMATS = ['epub', 'pdf', 'txt', 'html']
+
+    VENDOR_NAME = 'ELONEX'
+    WINDOWS_MAIN_MEM = 'EBOOK'
+    WINDOWS_CARD_A_MEM = 'EBOOK'
+
+
