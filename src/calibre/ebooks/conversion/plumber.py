@@ -13,6 +13,7 @@ from calibre.customize.ui import input_profiles, output_profiles, \
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import parse_date
+from calibre.utils.zipfile import ZipFile
 from calibre import extract, walk
 
 DEBUG_README=u'''
@@ -726,6 +727,12 @@ OptionRecommendation(name='timestamp',
         else:
             os.makedirs(out_dir)
             self.dump_oeb(ret, out_dir)
+        if self.input_fmt == 'recipe':
+            zf = ZipFile(os.path.join(self.opts.debug_pipeline,
+                'periodical.downloaded_recipe'), 'w')
+            zf.add_dir(out_dir)
+            self.input_plugin.save_download(zf)
+            zf.close()
 
         self.log.info('Input debug saved to:', out_dir)
 
@@ -780,7 +787,7 @@ OptionRecommendation(name='timestamp',
             self.dump_input(self.oeb, tdir)
             if self.abort_after_input_dump:
                 return
-        if self.input_fmt == 'recipe':
+        if self.input_fmt in ('recipe', 'downloaded_recipe'):
             self.opts_to_mi(self.user_metadata)
         if not hasattr(self.oeb, 'manifest'):
             self.oeb = create_oebbook(self.log, self.oeb, self.opts,
@@ -793,6 +800,8 @@ OptionRecommendation(name='timestamp',
             out_dir = os.path.join(self.opts.debug_pipeline, 'parsed')
             self.dump_oeb(self.oeb, out_dir)
             self.log('Parsed HTML written to:', out_dir)
+        self.input_plugin.specialize(self.oeb, self.opts, self.log,
+                self.output_fmt)
 
         pr(0., _('Running transforms on ebook...'))
 
