@@ -3459,17 +3459,17 @@ class EPUB_MOBI(CatalogPlugin):
 
         if opts.connected_device['name']:
             if opts.connected_device['serial']:
-                build_log.append(" connected_device: '%s' #%s%s " % \
+                build_log.append(u" connected_device: '%s' #%s%s " % \
                     (opts.connected_device['name'],
                      opts.connected_device['serial'][0:4],
                      'x' * (len(opts.connected_device['serial']) - 4)))
-                build_log.append(" save_template: '%s'" % opts.connected_device['save_template'])
+                build_log.append(u" save_template: '%s'" % opts.connected_device['save_template'])
             else:
-                build_log.append(" connected_device: '%s'" % opts.connected_device['name'])
+                build_log.append(u" connected_device: '%s'" % opts.connected_device['name'])
                 for storage in opts.connected_device['storage']:
                     if storage:
-                        build_log.append("  mount point: %s" % storage)
-                build_log.append("  save_template: '%s'" % opts.connected_device['save_template'])
+                        build_log.append(u"  mount point: %s" % storage)
+                build_log.append(u"  save_template: '%s'" % opts.connected_device['save_template'])
 
         opts_dict = vars(opts)
         if opts_dict['ids']:
