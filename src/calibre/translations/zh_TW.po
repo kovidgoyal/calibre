@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-02-20 03:45+0000\n"
-"PO-Revision-Date: 2010-02-19 18:57+0000\n"
-"Last-Translator: Chien Cheng Wei <e.cwchien@gmail.com>\n"
+"PO-Revision-Date: 2010-02-22 22:51+0000\n"
+"Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Traditional Chinese <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-20 04:41+0000\n"
+"X-Launchpad-Export-Date: 2010-02-23 05:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
-msgstr ""
+msgstr "完全不做任何事"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:72
@@ -174,7 +174,7 @@ msgstr ""
 msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
-msgstr ""
+msgstr "輸入 HTML 檔案的編碼。一般的選擇包括： cp1252、 latin1、iso-8859-1 和 utf-8。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:57
 msgid ""
@@ -237,7 +237,7 @@ msgid ""
 "will override any encoding declared by the document itself. Particularly "
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
-msgstr ""
+msgstr "指定輸入文件的字元編碼。如果設定這個選項就會蓋過任何由文件本身宣告的編碼。當文件沒有宣告任何編碼或文件所宣告的編碼不正確時會很有幫助。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:228
 msgid "Conversion Output"
@@ -387,7 +387,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:424
 msgid "Add a plugin by specifying the path to the zip file containing it."
-msgstr ""
+msgstr "指定含有外掛程式的 zip 檔案的路徑來加入一個外掛程式。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:426
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -397,7 +397,7 @@ msgstr "依名稱移除一個自訂的外掛程式。對內建外掛程式無效
 msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
-msgstr ""
+msgstr "自訂外掛程式。指定外掛程式的名稱以及用逗號分隔的自訂字串。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:430
 msgid "List all installed plugins"
@@ -419,11 +419,11 @@ msgstr "和Android 為OS的電話交換資料"
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
-msgstr ""
+msgstr "要將電子書傳送至裝置的目錄清單，以逗號分隔。會使用第一個存在的目錄"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr ""
+msgstr "與 Binatone Readme eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
@@ -433,15 +433,15 @@ msgstr "和黑莓機的電話交換資料"
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:90
 msgid "Kovid Goyal"
-msgstr ""
+msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr ""
+msgstr "與 Cybook Gen 3 / Opus eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
 msgid "Communicate with the EB600 eBook reader."
-msgstr ""
+msgstr "與 EB600 eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
@@ -457,25 +457,25 @@ msgstr "與翰林V5電子書通訊。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:113
 msgid "Communicate with the BOOX eBook reader."
-msgstr ""
+msgstr "與 BOOX eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:18
 msgid "Communicate with the Hanvon N520 eBook reader."
-msgstr ""
+msgstr "與 Hanvon N520 eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:40
 msgid "Communicate with the Elonex EB 511 eBook reader."
-msgstr ""
+msgstr "與 Elonex EB 511 eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
-msgstr ""
+msgstr "與 IRex Iliad eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:30
 msgid "John Schember"
-msgstr ""
+msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:22
 msgid "Device Interface"
@@ -487,15 +487,15 @@ msgstr "與 IRex Digital Reader 1000 eBook reader 通訊。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:42
 msgid "Communicate with the IRex Digital Reader 800"
-msgstr ""
+msgstr "與 IRex Digital Reader 800 連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iriver/driver.py:15
 msgid "Communicate with the Iriver Story reader."
-msgstr ""
+msgstr "與 Iriver Story 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:20
 msgid "Communicate with the JetBook eBook reader."
-msgstr ""
+msgstr "與 JetBook eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:22
 msgid "Communicate with the Kindle eBook reader."
@@ -503,35 +503,35 @@ msgstr "與 Kindle eBook reader 通訊。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:67
 msgid "Communicate with the Kindle 2 eBook reader."
-msgstr ""
+msgstr "與 Kindle 2 eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:77
 msgid "Communicate with the Kindle DX eBook reader."
-msgstr ""
+msgstr "與 Kindle DX eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr ""
+msgstr "與 Nokia 770 internet tablet 連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810 internet tablet."
-msgstr ""
+msgstr "與 Nokia810 internet tablet 連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
-msgstr ""
+msgstr "The Nook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:21
 msgid "Communicate with the Nook eBook reader."
-msgstr ""
+msgstr "與 the Nook eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
-msgstr ""
+msgstr "與 Nuut2 eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:89
 msgid "Communicate with the Sony PRS-500 eBook reader."
-msgstr ""
+msgstr "與 Sony PRS-500 eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:150
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:102
@@ -549,7 +549,7 @@ msgstr "從裝置中取得書籍列表"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
 msgid "Communicate with the Sony PRS-300/505/500 eBook reader."
-msgstr ""
+msgstr "與 Sony PRS-300/505/500 eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:58
 msgid ""
@@ -578,19 +578,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:213
 msgid "Communicate with the Sony PRS-600/700/900 eBook reader."
-msgstr ""
+msgstr "與 Sony PRS-600/700/900 eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:250
 msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr ""
+msgstr "無法偵測到 %s 磁碟機。嘗試重新開機。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:429
 msgid "Unable to detect the %s mount point. Try rebooting."
-msgstr ""
+msgstr "無法偵測到 %s 掛載點。嘗試重新開機。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:484
 msgid "Unable to detect the %s disk drive."
-msgstr ""
+msgstr "無法偵測到 %s 磁碟機。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:577
 msgid "Could not find mount helper: %s."
@@ -600,7 +600,7 @@ msgstr ""
 msgid ""
 "Unable to detect the %s disk drive. Your  kernel is probably exporting a "
 "deprecated version of SYSFS."
-msgstr ""
+msgstr "無法偵測到 %s 磁碟機。您的核心可能使用了已廢棄的 SYSFS 版本。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:597
 msgid "Unable to mount main memory (Error code: %d)"
@@ -609,11 +609,11 @@ msgstr "無法裝載主記憶器（錯誤代碼：%d）"
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:734
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:736
 msgid "The reader has no storage card in this slot."
-msgstr ""
+msgstr "這個閱讀器的插槽中沒有記憶卡。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:738
 msgid "Selected slot: %s is not supported."
-msgstr ""
+msgstr "選取的插槽：%s 尚未支援。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:771
 msgid "There is insufficient free space in main memory"
@@ -644,11 +644,11 @@ msgstr "裝置驅動程式設定"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:30
 msgid "Ordered list of formats the device will accept"
-msgstr ""
+msgstr "這個裝置能使用的格式清單（依序排列）"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:32
 msgid "Place files in sub directories if the device supports them"
-msgstr ""
+msgstr "如果裝置有支援，將檔案放在子目錄中"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:78
@@ -657,16 +657,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:36
 msgid "Template to control how books are saved"
-msgstr ""
+msgstr "用來控制要如何儲存書籍的範本"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:80
 msgid "Extra customization"
-msgstr ""
+msgstr "額外自訂項目"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:29
 msgid "Communicate with an eBook reader."
-msgstr ""
+msgstr "與 eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:37
 msgid "Get device information..."
@@ -688,12 +688,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:34
 msgid "Output directory. Defaults to current directory"
-msgstr ""
+msgstr "輸出目錄。預設為目前的目錄"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:37
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
 msgid "Set the book title"
-msgstr ""
+msgstr "設定書籍標題"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:39
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
@@ -722,7 +722,7 @@ msgstr "指定一個圖片為這本電子書的預覽圖片"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:51
 msgid "Path to a txt file containing a comment."
-msgstr ""
+msgstr "含有註解的 txt 檔案路徑"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:54
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
@@ -759,7 +759,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:62
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:615
 msgid "Set book ID"
-msgstr ""
+msgstr "設定書籍 ID"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:64
 msgid "Set font delta"
@@ -767,7 +767,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:203
 msgid "dummy option until real options are determined."
-msgstr ""
+msgstr "在確實決定選項之前的暫時選項"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:200
 msgid "Rendered %s"
@@ -815,19 +815,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:292
 msgid "Don't split landscape images into two portrait images"
-msgstr ""
+msgstr "不要將橫向圖片分割為兩張直向圖片"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:294
 msgid ""
 "Keep aspect ratio and scale image using screen height as image width for "
 "viewing in landscape mode."
-msgstr ""
+msgstr "在橫向模式中觀看時保持圖片的長寬比並且使用螢幕高度做為圖片的寬度。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:297
 msgid ""
 "Used for right-to-left publications like manga. Causes landscape pages to be "
 "split into portrait pages from right to left."
-msgstr ""
+msgstr "用於由右至左的漫畫式出版。這樣會使橫向頁面由右至左分割為兩張直向頁面。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:301
 msgid ""
