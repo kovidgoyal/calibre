@@ -101,5 +101,10 @@ class RecipeInput(InputFormatPlugin):
                 return os.path.abspath(f)
 
     def postprocess_book(self, oeb, opts, log):
+        if opts.no_inline_navbars:
+            from calibre.ebooks.oeb.base import XPath
+            for item in oeb.spine:
+                for div in XPath('//h:div[contains(@class, "calibre_navbar")]')(item.data):
+                    div.getparent().remove(div)
         self.recipe_object.postprocess_book(oeb, opts, log)
 
