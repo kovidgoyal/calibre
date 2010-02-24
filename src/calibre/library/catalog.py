@@ -571,7 +571,9 @@ class EPUB_MOBI(CatalogPlugin):
             self.__authorClip = opts.authorClip
             self.__authors = None
             self.__basename = opts.basename
+            self.__bookmarked_books = None
             self.__booksByAuthor = None
+            self.__booksByDateRead = None
             self.__booksByTitle = None
             self.__booksByTitle_noSeriesPrefix = None
             self.__catalogPath = PersistentTemporaryDirectory("_epub_mobi_catalog", prefix='')
@@ -603,11 +605,13 @@ class EPUB_MOBI(CatalogPlugin):
             self.__useSeriesPrefixInTitlesSection = False
             self.__verbose = opts.verbose
 
-            # Tweak build steps based on optional sections.  1 call for HTML, 1 for NCX
+            # Tweak build steps based on optional sections:  1 call for HTML, 1 for NCX
             if self.opts.generate_titles:
                 self.__totalSteps += 2
             if self.opts.generate_recently_added:
                 self.__totalSteps += 2
+                if self.opts.connected_kindle:
+                    self.__totalSteps += 2
 
         # Accessors
         '''
@@ -642,11 +646,25 @@ class EPUB_MOBI(CatalogPlugin):
                 self.__basename = val
             return property(fget=fget, fset=fset)
         @dynamic_property
+        def bookmarked_books(self):
+            def fget(self):
+                return self.__bookmarked_books
+            def fset(self, val):
+                self.__bookmarked_books = val
+            return property(fget=fget, fset=fset)
+        @dynamic_property
         def booksByAuthor(self):
             def fget(self):
                 return self.__booksByAuthor
             def fset(self, val):
                 self.__booksByAuthor = val
+            return property(fget=fget, fset=fset)
+        @dynamic_property
+        def booksByDateRead(self):
+            def fget(self):
+                return self.__booksByDateRead
+            def fset(self, val):
+                self.__booksByDateRead = val
             return property(fget=fget, fset=fset)
         @dynamic_property
         def booksByTitle(self):
@@ -869,6 +887,16 @@ class EPUB_MOBI(CatalogPlugin):
             def fget(self):
                 return "&#9734;" if self.generateForKindle else ' '
             return property(fget=fget)
+        @dynamic_property
+        def READ_PROGRESS_SYMBOL(self):
+            def fget(self):
+                return "&#9642;" if self.generateForKindle else '+'
+            return property(fget=fget)
+        @dynamic_property
+        def UNREAD_PROGRESS_SYMBOL(self):
+            def fget(self):
+                return "&#9643;" if self.generateForKindle else '-'
+            return property(fget=fget)
 
         # Methods
         def buildSources(self):
@@ -876,12 +904,14 @@ class EPUB_MOBI(CatalogPlugin):
                 if not self.fetchBooksByTitle():
                     return False
             self.fetchBooksByAuthor()
+            self.fetchBookmarks()
             self.generateHTMLDescriptions()
             self.generateHTMLByAuthor()
             if self.opts.generate_titles:
                 self.generateHTMLByTitle()
             if self.opts.generate_recently_added:
                 self.generateHTMLByDateAdded()
+                self.generateHTMLByDateRead()
             self.generateHTMLByTags()
 
             from calibre.utils.PythonMagickWand import ImageMagick
@@ -896,6 +926,7 @@ class EPUB_MOBI(CatalogPlugin):
                 self.generateNCXByTitle("Titles")
             if self.opts.generate_recently_added:
                 self.generateNCXByDateAdded("Recently Added")
+                self.generateNCXByDateRead("Recently Read")
             self.generateNCXByGenre("Genres")
             self.writeNCX()
             return True
@@ -980,10 +1011,12 @@ class EPUB_MOBI(CatalogPlugin):
                     this_title['series_index'] = 0.0
 
                 this_title['title_sort'] = self.generateSortTitle(this_title['title'])
-                if 'authors' in record and record['authors']:
-                    this_title['author'] = " &amp; ".join(record['authors'])
-                else:
-                    this_title['author'] = 'Unknown'
+                if 'authors' in record:
+                    this_title['authors'] = record['authors']
+                    if record['authors']:
+                        this_title['author'] = " &amp; ".join(record['authors'])
+                    else:
+                        this_title['author'] = 'Unknown'
 
                 '''
                 this_title['author_sort_original'] =  record['author_sort']
@@ -1119,6 +1152,160 @@ class EPUB_MOBI(CatalogPlugin):
 
             self.authors = unique_authors
 
+        def fetchBookmarks(self):
+            '''
+            Collect bookmarks for catalog entries
+            This will use the system default save_template specified in
+            Preferences|Add/Save|Sending to device, not a customized one specified in
+            the Kindle plugin
+            '''
+            from cStringIO import StringIO
+            from struct import unpack
+
+            from calibre.devices.usbms.device import Device
+            from calibre.ebooks.metadata import MetaInformation
+            from calibre.ebooks.metadata.mobi import StreamSlicer
+
+            class BookmarkDevice(Device):
+                def initialize(self, save_template):
+                    self._save_template = save_template
+                    self.SUPPORTS_SUB_DIRS = True
+                def save_template(self):
+                    return self._save_template
+
+            class Bookmark():
+                '''
+                A simple class storing bookmark data
+                Kindle-specific
+                '''
+                def __init__(self,path, formats, id):
+                    self.book_format = None
+                    self.book_length = 0
+                    self.id = id
+                    self.last_read_location = 0
+                    self.timestamp = 0
+                    self.get_bookmark_data(path)
+                    self.get_book_length(path, formats)
+
+
+                def get_bookmark_data(self, path):
+                    ''' Return the timestamp and last_read_location '''
+                    with open(path) as f:
+                        stream = StringIO(f.read())
+                        data = StreamSlicer(stream)
+                        self.timestamp, = unpack('>I', data[0x24:0x28])
+                        bpar_offset, = unpack('>I', data[0x4e:0x52])
+                        #print "bpar_offset: 0x%x" % bpar_offset
+                        bpl = bpar_offset + 0x04
+                        lrlo = bpar_offset + 0x0c
+                        self.last_read_location = int(unpack('>I', data[lrlo:lrlo+4])[0])
+                        '''
+                        iolr = bpar_offset + 0x14
+                        index_of_last_read, = unpack('>I', data[iolr:iolr+4])
+                        #print "index_of_last_read: 0x%x" % index_of_last_read
+                        bpar_len, = unpack('>I', data[bpl:bpl+4])
+                        bpar_len += 8
+                        #print "bpar_len: 0x%x" % bpar_len
+                        dro = bpar_offset + bpar_len
+                        #print "dro: 0x%x" % dro
+
+                        # Walk to index_of_last_read to find last_read_location
+                        # If BKMK - offset 8
+                        # If DATA - offset 0x18 + 0x1c
+                        current_entry = 1
+                        while current_entry < index_of_last_read:
+                            rec_len, = unpack('>I', data[dro+4:dro+8])
+                            rec_len += 8
+                            dro += rec_len
+                            current_entry += 1
+
+                        # Looking at the record with last_read_location
+                        if data[dro:dro+4] == 'DATA':
+                            lrlo = dro + 0x18 + 0x1c
+                        elif data[dro:dro+4] == 'BKMK':
+                            lrlo = dro + 8
+                        else:
+                            print "Unrecognized bookmark block type"
+
+                        #print "lrlo: 0x%x" % lrlo
+                        self.last_read_location = float(unpack('>I', data[lrlo:lrlo+4])[0])
+                        #print "last_read_location: 0x%x" % self.last_read_location
+                        '''
+
+                def get_book_length(self, path, formats):
+                    # This assumes only one of the possible formats exists on the Kindle
+                    book_fs = None
+                    for format in formats:
+                        fmt = format.rpartition('.')[2]
+                        if fmt in ['mobi','prc','azw']:
+                            book_fs = path.replace('.mbp','.%s' % fmt)
+                            if os.path.exists(book_fs):
+                                self.book_format = fmt
+                                #print "%s exists on device" % book_fs
+                                break
+                    else:
+                        #print "no files matching library formats exist on device"
+                        self.book_length = 0
+                        return
+                    # Read the book len from the header
+                    with open(book_fs) as f:
+                        self.stream = StringIO(f.read())
+                        self.data = StreamSlicer(self.stream)
+                        self.nrecs, = unpack('>H', self.data[76:78])
+                        record0 = self.record(0)
+                        #self.hexdump(record0)
+                        self.book_length = int(unpack('>I', record0[0x04:0x08])[0])
+
+                def record(self, n):
+                    if n >= self.nrecs:
+                        raise ValueError('non-existent record %r' % n)
+                    offoff = 78 + (8 * n)
+                    start, = unpack('>I', self.data[offoff + 0:offoff + 4])
+                    stop = None
+                    if n < (self.nrecs - 1):
+                        stop, = unpack('>I', self.data[offoff + 8:offoff + 12])
+                    return StreamSlicer(self.stream, start, stop)
+
+                def hexdump(self, src, length=16):
+                    # Diagnostic
+                    FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
+                    N=0; result=''
+                    while src:
+                       s,src = src[:length],src[length:]
+                       hexa = ' '.join(["%02X"%ord(x) for x in s])
+                       s = s.translate(FILTER)
+                       result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
+                       N+=length
+                    print result
+
+            if self.opts.connected_kindle:
+                self.opts.log.info("     Collecting Kindle bookmarks matching catalog entries")
+
+                d = BookmarkDevice(None)
+                d.initialize(self.opts.connected_device['save_template'])
+                bookmarks = {}
+                for book in self.booksByTitle:
+                    myMeta = MetaInformation(book['title'],
+                                             authors=book['authors'])
+                    myMeta.author_sort = book['author_sort']
+                    bm_found = False
+                    for vol in self.opts.connected_device['storage']:
+                        bm_path = d.create_upload_path(vol, myMeta, 'x.mbp', create_dirs=False)
+                        if os.path.exists(bm_path):
+                            myBookmark = Bookmark(bm_path, book['formats'], book['id'])
+                            if myBookmark.book_length:
+                                book['percent_read'] = float(100*myBookmark.last_read_location / myBookmark.book_length)
+                                dots = int((book['percent_read'] + 5)/10)
+                                dot_string = self.READ_PROGRESS_SYMBOL * dots
+                                empty_dots = self.UNREAD_PROGRESS_SYMBOL * (10 - dots)
+                                book['reading_progress'] = '%s%s' % (dot_string,empty_dots)
+                                bookmarks[book['id']] = ((myBookmark,book))
+                                bm_found = True
+                        if bm_found:
+                            break
+
+                self.bookmarked_books = bookmarks
+
         def generateHTMLDescriptions(self):
             # Write each title to a separate HTML file in contentdir
             self.updateProgressFullStep("'Descriptions'")
@@ -1160,29 +1347,25 @@ class EPUB_MOBI(CatalogPlugin):
                 titleTag = body.find(attrs={'class':'title'})
                 titleTag.insert(0,emTag)
 
-                # Insert the author
+                # Create the author anchor
                 authorTag = body.find(attrs={'class':'author'})
                 aTag = Tag(soup, "a")
-                aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(title['author']))
-                #aTag.insert(0, escape(title['author']))
+                aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
+                                                self.generateAuthorAnchor(title['author']))
                 aTag.insert(0, title['author'])
 
-                # Insert READ_SYMBOL
-                if title['read']:
-                    authorTag.insert(0, NavigableString(self.READ_SYMBOL + "by "))
+                # This will include the reading progress dots even if we're not generating Recently Read
+                if self.opts.connected_kindle and title['id'] in self.bookmarked_books:
+                    authorTag.insert(0, NavigableString(title['reading_progress'] + " by "))
+                    authorTag.insert(1, aTag)
                 else:
-                    authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + "by "))
-                authorTag.insert(1, aTag)
+                    # Insert READ_SYMBOL
+                    if title['read']:
+                        authorTag.insert(0, NavigableString(self.READ_SYMBOL + "by "))
+                    else:
+                        authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + "by "))
+                    authorTag.insert(1, aTag)
 
-                '''
-                # Insert the unlinked genres.
-                if 'tags' in title:
-                    tagsTag = body.find(attrs={'class':'tags'})
-                    emTag = Tag(soup,"em")
-                    emTag.insert(0,NavigableString(', '.join(title['tags'])))
-                    tagsTag.insert(0,emTag)
-
-                '''
                 '''
                 # Insert Series info or remove.
                 seriesTag = body.find(attrs={'class':'series'})
@@ -1789,6 +1972,7 @@ class EPUB_MOBI(CatalogPlugin):
                 divTag.insert(dtc,hrTag)
                 dtc += 1
 
+            # >>>> Books by month <<<<
             # Sort titles case-insensitive for by month using series prefix
             self.booksByMonth = sorted(self.booksByTitle,
                                  key=lambda x:(x['timestamp'], x['timestamp']),reverse=True)
@@ -1816,6 +2000,192 @@ class EPUB_MOBI(CatalogPlugin):
             outfile.write(soup.prettify())
             outfile.close()
             self.htmlFileList.append("content/ByDateAdded.html")
+
+        def generateHTMLByDateRead(self):
+            # Write books by active bookmarks
+            friendly_name = 'Recently Read'
+            self.updateProgressFullStep("'%s'" % friendly_name)
+            if not self.bookmarked_books:
+                return
+
+            def add_books_to_HTML_by_day(todays_list, dtc):
+                if len(todays_list):
+                    # Create a new day anchor
+                    date_string = strftime(u'%A, %B %d', current_date.timetuple())
+                    pIndexTag = Tag(soup, "p")
+                    pIndexTag['class'] = "date_index"
+                    aTag = Tag(soup, "a")
+                    aTag['name'] = "bdr_%s-%s-%s" % (current_date.year, current_date.month, current_date.day)
+                    pIndexTag.insert(0,aTag)
+                    pIndexTag.insert(1,NavigableString(date_string))
+                    divTag.insert(dtc,pIndexTag)
+                    dtc += 1
+
+                    for new_entry in todays_list:
+                        pBookTag = Tag(soup, "p")
+                        pBookTag['class'] = "date_read"
+                        ptc = 0
+
+                        # Percent read
+                        pBookTag.insert(ptc, NavigableString(new_entry['reading_progress']))
+                        ptc += 1
+
+                        aTag = Tag(soup, "a")
+                        aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
+                        aTag.insert(0,escape(new_entry['title']))
+                        pBookTag.insert(ptc, aTag)
+                        ptc += 1
+
+                        # Dot
+                        pBookTag.insert(ptc, NavigableString(" &middot; "))
+                        ptc += 1
+
+                        # Link to author
+                        emTag = Tag(soup, "em")
+                        aTag = Tag(soup, "a")
+                        aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
+                        aTag.insert(0, NavigableString(new_entry['author']))
+                        emTag.insert(0,aTag)
+                        pBookTag.insert(ptc, emTag)
+                        ptc += 1
+
+                        divTag.insert(dtc, pBookTag)
+                        dtc += 1
+                return dtc
+
+            def add_books_to_HTML_by_date_range(date_range_list, date_range, dtc):
+                if len(date_range_list):
+                    pIndexTag = Tag(soup, "p")
+                    pIndexTag['class'] = "date_index"
+                    aTag = Tag(soup, "a")
+                    aTag['name'] = "bdr_%s" % date_range.replace(' ','')
+                    pIndexTag.insert(0,aTag)
+                    pIndexTag.insert(1,NavigableString(date_range))
+                    divTag.insert(dtc,pIndexTag)
+                    dtc += 1
+
+                    for new_entry in date_range_list:
+                        # Add books
+                        pBookTag = Tag(soup, "p")
+                        pBookTag['class'] = "date_read"
+                        ptc = 0
+
+                        # Percent read
+                        dots = int((new_entry['percent_read'] + 5)/10)
+                        dot_string = self.READ_PROGRESS_SYMBOL * dots
+                        empty_dots = self.UNREAD_PROGRESS_SYMBOL * (10 - dots)
+                        pBookTag.insert(ptc, NavigableString('%s%s' % (dot_string,empty_dots)))
+                        ptc += 1
+
+                        aTag = Tag(soup, "a")
+                        aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
+                        aTag.insert(0,escape(new_entry['title']))
+                        pBookTag.insert(ptc, aTag)
+                        ptc += 1
+
+                        # Dot
+                        pBookTag.insert(ptc, NavigableString(" &middot; "))
+                        ptc += 1
+
+                        # Link to author
+                        emTag = Tag(soup, "em")
+                        aTag = Tag(soup, "a")
+                        aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
+                        aTag.insert(0, NavigableString(new_entry['author']))
+                        emTag.insert(0,aTag)
+                        pBookTag.insert(ptc, emTag)
+                        ptc += 1
+
+                        divTag.insert(dtc, pBookTag)
+                        dtc += 1
+                return dtc
+
+            soup = self.generateHTMLEmptyHeader(friendly_name)
+            body = soup.find('body')
+
+            btc = 0
+
+            # Insert section tag
+            aTag = Tag(soup,'a')
+            aTag['name'] = 'section_start'
+            body.insert(btc, aTag)
+            btc += 1
+
+            # Insert the anchor
+            aTag = Tag(soup, "a")
+            anchor_name = friendly_name.lower()
+            aTag['name'] = anchor_name.replace(" ","")
+            body.insert(btc, aTag)
+            btc += 1
+
+            # <p class="letter_index">
+            # <p class="author_index">
+            divTag = Tag(soup, "div")
+            dtc = 0
+
+            # self.bookmarked_books: (Bookmark, book)
+            bookmarked_books = []
+            for bm_book in self.bookmarked_books:
+                book = self.bookmarked_books[bm_book]
+                #print "bm_book: %s" % bm_book
+                book[1]['bookmark_timestamp'] = book[0].timestamp
+                book[1]['percent_read'] = float(100*book[0].last_read_location / book[0].book_length)
+                bookmarked_books.append(book[1])
+
+            self.booksByDateRead = sorted(bookmarked_books,
+                             key=lambda x:(x['bookmark_timestamp'], x['bookmark_timestamp']),reverse=True)
+
+            '''
+            # >>>> Recently by date range <<<<
+            date_range_list = []
+            today_time = datetime.datetime.utcnow()
+            today_time.replace(hour=23, minute=59, second=59)
+            books_added_in_date_range = False
+            for (i, date) in enumerate(self.DATE_RANGE):
+                date_range_limit = self.DATE_RANGE[i]
+                if i:
+                    date_range = '%d to %d days ago' % (self.DATE_RANGE[i-1], self.DATE_RANGE[i])
+                else:
+                    date_range = 'Last %d days' % (self.DATE_RANGE[i])
+
+                for book in self.booksByDateRead:
+                    bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
+                    delta = today_time-bookmark_time
+                    if delta.days <= date_range_limit:
+                        date_range_list.append(book)
+                        books_added_in_date_range = True
+                    else:
+                        break
+
+                dtc = add_books_to_HTML_by_date_range(date_range_list, date_range, dtc)
+                date_range_list = [book]
+            '''
+
+            # >>>> Recently read by day <<<<
+            current_date = datetime.date.fromordinal(1)
+            todays_list = []
+            for book in self.booksByDateRead:
+                bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
+                if bookmark_time.day != current_date.day or \
+                   bookmark_time.month != current_date.month or \
+                   bookmark_time.year != current_date.year:
+                    dtc = add_books_to_HTML_by_day(todays_list, dtc)
+                    todays_list = []
+                    current_date = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp']).date()
+                todays_list.append(book)
+
+            # Add the last day's list
+            add_books_to_HTML_by_day(todays_list, dtc)
+
+            # Add the divTag to the body
+            body.insert(btc, divTag)
+
+            # Write the generated file to contentdir
+            outfile_spec = "%s/ByDateRead.html" % (self.contentDir)
+            outfile = open(outfile_spec, 'w')
+            outfile.write(soup.prettify())
+            outfile.close()
+            self.htmlFileList.append("content/ByDateRead.html")
 
         def generateHTMLByTags(self):
             # Generate individual HTML files for each tag, e.g. Fiction, Nonfiction ...
@@ -2229,8 +2599,16 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     if self.generateForKindle:
                         # Don't include Author for Kindle
-                        textTag.insert(0, NavigableString(self.formatNCXText('%s' % (book['title']),
-                                                          dest='title')))
+                        title_str = self.formatNCXText('%s' % (book['title']), dest='title')
+                        if self.opts.connected_kindle and book['id'] in self.bookmarked_books:
+                            '''
+                            dots = int((book['percent_read'] + 5)/10)
+                            dot_string = '+' * dots
+                            empty_dots = '-' * (10 - dots)
+                            title_str += ' %s%s' % (dot_string,empty_dots)
+                            '''
+                            title_str += '*'
+                        textTag.insert(0, NavigableString(title_str))
                     else:
                         # Include Author for non-Kindle
                         textTag.insert(0, NavigableString(self.formatNCXText('%s &middot; %s' % \
@@ -2616,6 +2994,177 @@ class EPUB_MOBI(CatalogPlugin):
             btc += 1
             self.ncxSoup = soup
 
+        def generateNCXByDateRead(self, tocTitle):
+            self.updateProgressFullStep("NCX 'Recently Read'")
+            if not self.booksByDateRead:
+                return
+
+            def add_to_master_day_list(current_titles_list):
+                book_count = len(current_titles_list)
+                current_titles_list = " &bull; ".join(current_titles_list)
+                current_titles_list = self.formatNCXText(current_titles_list, dest='description')
+                master_day_list.append((current_titles_list, current_date, book_count))
+
+            def add_to_master_date_range_list(current_titles_list):
+                book_count = len(current_titles_list)
+                current_titles_list = " &bull; ".join(current_titles_list)
+                current_titles_list = self.formatNCXText(current_titles_list, dest='description')
+                master_date_range_list.append((current_titles_list, date_range, book_count))
+
+            soup = self.ncxSoup
+            HTML_file = "content/ByDateRead.html"
+            body = soup.find("navPoint")
+            btc = len(body.contents)
+
+            # --- Construct the 'Recently Read' *section* ---
+            navPointTag = Tag(soup, 'navPoint')
+            navPointTag['class'] = "section"
+            file_ID = "%s" % tocTitle.lower()
+            file_ID = file_ID.replace(" ","")
+            navPointTag['id'] = "%s-ID" % file_ID
+            navPointTag['playOrder'] = self.playOrder
+            self.playOrder += 1
+            navLabelTag = Tag(soup, 'navLabel')
+            textTag = Tag(soup, 'text')
+            textTag.insert(0, NavigableString('%s' % tocTitle))
+            navLabelTag.insert(0, textTag)
+            nptc = 0
+            navPointTag.insert(nptc, navLabelTag)
+            nptc += 1
+            contentTag = Tag(soup,"content")
+            contentTag['src'] = "%s#section_start" % HTML_file
+            navPointTag.insert(nptc, contentTag)
+            nptc += 1
+
+            # Create an NCX article entry for each date range
+            current_titles_list = []
+            master_date_range_list = []
+            today = datetime.datetime.now()
+            today_time = datetime.datetime(today.year, today.month, today.day)
+            for (i,date) in enumerate(self.DATE_RANGE):
+                if i:
+                    date_range = '%d to %d days ago' % (self.DATE_RANGE[i-1], self.DATE_RANGE[i])
+                else:
+                    date_range = 'Last %d days' % (self.DATE_RANGE[i])
+                date_range_limit = self.DATE_RANGE[i]
+                for book in self.booksByDateRead:
+                    bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
+                    if (today_time-bookmark_time).days <= date_range_limit:
+                        #print "generateNCXByDateAdded: %s added %d days ago" % (book['title'], (today_time-book_time).days)
+                        current_titles_list.append(book['title'])
+                    else:
+                        break
+                if current_titles_list:
+                    add_to_master_date_range_list(current_titles_list)
+                current_titles_list = [book['title']]
+
+            '''
+            # Add *article* entries for each populated date range
+            # master_date_range_list{}: [0]:titles list [1]:datestr
+            for books_by_date_range in master_date_range_list:
+                navPointByDateRangeTag = Tag(soup, 'navPoint')
+                navPointByDateRangeTag['class'] = "article"
+                navPointByDateRangeTag['id'] = "%s-ID" %  books_by_date_range[1].replace(' ','')
+                navPointTag['playOrder'] = self.playOrder
+                self.playOrder += 1
+                navLabelTag = Tag(soup, 'navLabel')
+                textTag = Tag(soup, 'text')
+                textTag.insert(0, NavigableString(books_by_date_range[1]))
+                navLabelTag.insert(0, textTag)
+                navPointByDateRangeTag.insert(0,navLabelTag)
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "%s#bdr_%s" % (HTML_file,
+                    books_by_date_range[1].replace(' ',''))
+
+                navPointByDateRangeTag.insert(1,contentTag)
+
+                if self.generateForKindle:
+                    cmTag = Tag(soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "description"
+                    cmTag.insert(0, NavigableString(books_by_date_range[0]))
+                    navPointByDateRangeTag.insert(2, cmTag)
+
+                    cmTag = Tag(soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "author"
+                    navStr = '%d titles' % books_by_date_range[2] if books_by_date_range[2] > 1 else \
+                             '%d title' % books_by_date_range[2]
+                    cmTag.insert(0, NavigableString(navStr))
+                    navPointByDateRangeTag.insert(3, cmTag)
+
+                navPointTag.insert(nptc, navPointByDateRangeTag)
+                nptc += 1
+            '''
+
+            # Create an NCX article entry for each populated day
+            # Loop over the booksByDate list, find start of each month,
+            # add description_preview_count titles
+            # master_month_list(list,date,count)
+            current_titles_list = []
+            master_day_list = []
+            current_date = datetime.datetime.utcfromtimestamp(self.booksByDateRead[0]['bookmark_timestamp'])
+
+            for book in self.booksByDateRead:
+                bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
+                if bookmark_time.day != current_date.day or \
+                   bookmark_time.month != current_date.month or \
+                   bookmark_time.year != current_date.year:
+                    # Save the old lists
+                    add_to_master_day_list(current_titles_list)
+
+                    # Start the new list
+                    current_date = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp']).date()
+                    current_titles_list = [book['title']]
+                else:
+                    current_titles_list.append(book['title'])
+
+            # Add the last day list
+            add_to_master_day_list(current_titles_list)
+
+            # Add *article* entries for each populated day
+            # master_day_list{}: [0]:titles list [1]:date
+            for books_by_day in master_day_list:
+                datestr = strftime(u'%A, %B %d', books_by_day[1].timetuple())
+                navPointByDayTag = Tag(soup, 'navPoint')
+                navPointByDayTag['class'] = "article"
+                navPointByDayTag['id'] = "bdr_%s-%s-%sID" % (books_by_day[1].year,
+                                                             books_by_day[1].month,
+                                                             books_by_day[1].day )
+                navPointTag['playOrder'] = self.playOrder
+                self.playOrder += 1
+                navLabelTag = Tag(soup, 'navLabel')
+                textTag = Tag(soup, 'text')
+                textTag.insert(0, NavigableString(datestr))
+                navLabelTag.insert(0, textTag)
+                navPointByDayTag.insert(0,navLabelTag)
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "%s#bdr_%s-%s-%s" % (HTML_file,
+                                                         books_by_day[1].year,
+                                                         books_by_day[1].month,
+                                                         books_by_day[1].day)
+
+                navPointByDayTag.insert(1,contentTag)
+
+                if self.generateForKindle:
+                    cmTag = Tag(soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "description"
+                    cmTag.insert(0, NavigableString(books_by_day[0]))
+                    navPointByDayTag.insert(2, cmTag)
+
+                    cmTag = Tag(soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "author"
+                    navStr = '%d titles' % books_by_day[2] if books_by_day[2] > 1 else \
+                             '%d title' % books_by_day[2]
+                    cmTag.insert(0, NavigableString(navStr))
+                    navPointByDayTag.insert(3, cmTag)
+
+                navPointTag.insert(nptc, navPointByDayTag)
+                nptc += 1
+
+            # Add this section to the body
+            body.insert(btc, navPointTag)
+            btc += 1
+            self.ncxSoup = soup
+
         def generateNCXByGenre(self, tocTitle):
             # Create an NCX section for 'By Genre'
             # Add each genre as an article
@@ -2789,7 +3338,7 @@ class EPUB_MOBI(CatalogPlugin):
                         self.thumbWidth = int(self.thumbWidth/2)
                         self.thumbHeight = int(self.thumbHeight/2)
                     break
-            if self.verbose:
+            if False and self.verbose:
                 self.opts.log("     DPI = %d; thumbnail dimensions: %d x %d" % \
                               (x.dpi, self.thumbWidth, self.thumbHeight))
 
@@ -3428,12 +3977,14 @@ class EPUB_MOBI(CatalogPlugin):
 
         # Add local options
         opts.creator = "calibre"
+        opts.connected_kindle = False
 
         # Finalize output_profile
         op = opts.output_profile
         if op is None:
             op = 'default'
         if opts.connected_device['name'] and 'kindle' in opts.connected_device['name'].lower():
+            opts.connected_kindle = True
             if opts.connected_device['serial'] and opts.connected_device['serial'][:4] in ['B004','B005']:
                 op = "kindle_dx"
             else:
@@ -3463,13 +4014,14 @@ class EPUB_MOBI(CatalogPlugin):
                     (opts.connected_device['name'],
                      opts.connected_device['serial'][0:4],
                      'x' * (len(opts.connected_device['serial']) - 4)))
-                build_log.append(" save_template: '%s'" % opts.connected_device['save_template'])
+                for storage in opts.connected_device['storage']:
+                    if storage:
+                        build_log.append("  mount point: %s" % storage)
             else:
                 build_log.append(" connected_device: '%s'" % opts.connected_device['name'])
                 for storage in opts.connected_device['storage']:
                     if storage:
                         build_log.append("  mount point: %s" % storage)
-                build_log.append("  save_template: '%s'" % opts.connected_device['save_template'])
 
         opts_dict = vars(opts)
         if opts_dict['ids']:
@@ -3489,8 +4041,8 @@ class EPUB_MOBI(CatalogPlugin):
         keys.sort()
         build_log.append(" opts:")
         for key in keys:
-            if key in ['catalog_title','authorClip','descriptionClip','exclude_genre','exclude_tags',
-                       'note_tag','numbers_as_text','read_tag',
+            if key in ['catalog_title','authorClip','connected_kindle','descriptionClip',
+                       'exclude_genre','exclude_tags','note_tag','numbers_as_text','read_tag',
                        'search_text','sort_by','sort_descriptions_by_author','sync']:
                 build_log.append("  %s: %s" % (key, opts_dict[key]))
 
@@ -3509,7 +4061,7 @@ class EPUB_MOBI(CatalogPlugin):
         catalog_source_built = catalog.buildSources()
         if opts.verbose:
             if catalog_source_built:
-                log.info(" Finished catalog source generation\n")
+                log.info(" Completed catalog source generation\n")
             else:
                 log.warn(" No database hits with supplied criteria")
 

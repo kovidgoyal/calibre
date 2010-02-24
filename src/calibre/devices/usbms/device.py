@@ -789,7 +789,7 @@ class Device(DeviceConfig, DevicePlugin):
         '''
         return components
 
-    def create_upload_path(self, path, mdata, fname):
+    def create_upload_path(self, path, mdata, fname, create_dirs=True):
         path = os.path.abspath(path)
         extra_components = []
 
@@ -848,7 +848,7 @@ class Device(DeviceConfig, DevicePlugin):
         filedir = os.path.dirname(filepath)
 
 
-        if not os.path.exists(filedir):
+        if create_dirs and not os.path.exists(filedir):
             os.makedirs(filedir)
 
         return filepath
