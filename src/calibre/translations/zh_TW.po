@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-02-20 03:45+0000\n"
-"PO-Revision-Date: 2010-02-22 22:51+0000\n"
+"PO-Revision-Date: 2010-02-24 04:50+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Traditional Chinese <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-23 05:04+0000\n"
+"X-Launchpad-Export-Date: 2010-02-24 04:55+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -793,6 +793,7 @@ msgid ""
 "of less than 256 may result in blurred text on your device if you are "
 "creating your comics in EPUB format."
 msgstr ""
+"灰階圖片轉檔的顏色數。預設值：%default。如果您想把漫畫轉換為 EPUB 格式，顏色數若少於 256 可能會造成在裝置上文字看起來變模糊了。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:282
 msgid ""
@@ -805,13 +806,13 @@ msgstr "維持圖片長寬比。 預設為填滿至螢幕大小。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:287
 msgid "Disable sharpening."
-msgstr ""
+msgstr "停用銳化。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:289
 msgid ""
 "Disable trimming of comic pages. For some comics, trimming might remove "
 "content as well as borders."
-msgstr ""
+msgstr "停用漫畫書修剪。在某些漫畫中，修剪可能會把內容和邊框一同去除。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:292
 msgid "Don't split landscape images into two portrait images"
@@ -833,13 +834,13 @@ msgstr "用於由右至左的漫畫式出版。這樣會使橫向頁面由右至
 msgid ""
 "Enable Despeckle. Reduces speckle noise. May greatly increase processing "
 "time."
-msgstr ""
+msgstr "啟用去除斑點。減少斑點雜訊。可能會大幅增加處理的時間。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:304
 msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
-msgstr ""
+msgstr "不要將漫畫書中找到的檔案依英文字母排序。而要使用將它們加入漫畫書時的次序。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:308
 msgid ""
@@ -882,6 +883,21 @@ msgid ""
 "\n"
 "For full documentation of the conversion system see\n"
 msgstr ""
+"input_file output_file [options]\n"
+"\n"
+"將電子書的格式轉換為另一種格式。\n"
+"\n"
+"input_file 是輸入，而 output_file 是輸出。這兩個都必須指定並且要做為指令的頭兩個引數。\n"
+"\n"
+"輸出的電子書格式是由 output_file 的副檔名來判斷的。output_file 也可以是特殊格式 .EXT，只要將 EXT "
+"做為輸出檔案的副檔名。在這個情形時，輸出檔案的名稱會以輸入檔案的名稱來指定。注意檔案名稱不能以連字符號 ( - ) 開頭。最後，如果 "
+"output_file 沒有副檔名，那麼它會被視為一個目錄並成為「開放式電子書」(OEB)，它的內容主要是由一個目錄及其中的 HTML "
+"檔案所組成。這些檔案一般就是傳送給輸出外掛程式的那些檔案。\n"
+"\n"
+"在指定輸入和輸出檔案後您可以使用各種選項來自訂轉換方式。可以使用的選項取決於輸入和輸出檔案的類型。要取得這部分的說明請指定輸入和輸出檔案後使用 -h "
+"選項。\n"
+"\n"
+"需要轉換系統的完整文件請看\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:97
 msgid "INPUT OPTIONS"
@@ -939,7 +955,7 @@ msgid ""
 "Save the output from different stages of the conversion pipeline to the "
 "specified directory. Useful if you are unsure at which stage of the "
 "conversion process a bug is occurring."
-msgstr ""
+msgstr "將轉換過程管線的各個階段的輸出儲存到指定的目錄。如果您不確定轉換程序的哪個階段發生錯誤時會很有幫助。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:109
 msgid ""
@@ -947,7 +963,7 @@ msgid ""
 "information on how to interpret various information in the input document. "
 "For example resolution dependent lengths (i.e. lengths in pixels). Choices "
 "are:"
-msgstr ""
+msgstr "指定輸入設定檔。輸入設定檔會提供轉換系統關於如何轉譯輸入文件中各類資訊的方式。例如關係解析度的長度（以像素計的長度）。選擇有："
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:120
 msgid ""
@@ -956,6 +972,8 @@ msgid ""
 "cases, an output profile is required to produce documents that will work on "
 "a device. For example EPUB on the SONY reader. Choices are:"
 msgstr ""
+"指定輸出設定檔。輸出設定檔會告訴轉換系統如何將建立的文件為特定裝置進行最佳化。在某些情況，每一種裝置都需要一個輸出設定檔才能產生文件。例如 EPUB "
+"用於 SONY 閱讀器。選擇有："
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:131
 msgid ""
@@ -964,6 +982,9 @@ msgid ""
 "fonts in the output bigger and vice versa. By default, the base font size is "
 "chosen based on the output profile you chose."
 msgstr ""
+"以 pts "
+"計算的基礎字型大小。在產生的電子書中所有的字型大小都會以這個大小為基礎來縮放。選擇較大的字型會使輸出的文件字型變大，反之亦然。預設的情形下，基礎字型大小是"
+"以您所選擇的輸出設定檔為準。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:141
 msgid ""
@@ -973,6 +994,9 @@ msgid ""
 "algorithm uses these sizes to intelligently rescale fonts. The default is to "
 "use a mapping based on the output profile you chose."
 msgstr ""
+"將 CSS 字型名稱映射到字型大小（以 pts 計）。舉例來說您可以設為 12,12,14,16,18,20,22,24。這些設定值的對應會從 xx-"
+"small 到 xx-"
+"large，最後一個大小就會是最大的字型。字型縮放演算法會使用這些大小來適當的縮放字型。預設使用的映射方式是以您所選擇的輸出設定檔為準。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:153
 msgid "Disable all rescaling of font sizes."
@@ -991,34 +1015,35 @@ msgid ""
 "page and other artifacts. This option will extract the content from the "
 "tables and present it in a linear fashion."
 msgstr ""
+"有些設計不良的文件會使用表格來控制頁面文字的排版。在轉換這些文件時常會發生文字超出頁面的問題。這個選項會將表格的內容讀取出來，並重新以直線的方式呈現它。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:178
 msgid ""
 "XPath expression that specifies all tags that should be added to the Table "
 "of Contents at level one. If this is specified, it takes precedence over "
 "other forms of auto-detection."
-msgstr ""
+msgstr "XPath 表示式指定的所有標籤都要加到第一級目錄中。如果有指定這個項目，它的優先權會超過任何自動偵測所排出的結果。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:187
 msgid ""
 "XPath expression that specifies all tags that should be added to the Table "
 "of Contents at level two. Each entry is added under the previous level one "
 "entry."
-msgstr ""
+msgstr "XPath 表示式指定的所有標籤都要加到第二級目錄中。每個項目都會加入前一個一級目錄之下。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:195
 msgid ""
 "XPath expression that specifies all tags that should be added to the Table "
 "of Contents at level three. Each entry is added under the previous level two "
 "entry."
-msgstr ""
+msgstr "XPath 表示式指定的所有標籤都要加到第三級目錄中。每個項目都會加入前一個二級目錄之下。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:203
 msgid ""
 "Normally, if the source file already has a Table of Contents, it is used in "
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
-msgstr ""
+msgstr "一般而言，如果來源檔案已經有目錄，它會被優先用於自動產生的目錄中。使用這個選項，則會強制使用自動產生的目錄。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:211
 msgid "Don't add auto-detected chapters to the Table of Contents."
@@ -1028,20 +1053,20 @@ msgstr "不將自動偵測到的章節增加到文件目錄。"
 msgid ""
 "If fewer than this number of chapters is detected, then links are added to "
 "the Table of Contents. Default: %default"
-msgstr ""
+msgstr "如果偵測到的章節少於這個數目，就會把連結加到目錄頁中。預設值：%default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:225
 msgid ""
 "Maximum number of links to insert into the TOC. Set to 0 to disable. Default "
 "is: %default. Links are only added to the TOC if less than the threshold "
 "number of chapters were detected."
-msgstr ""
+msgstr "插入目錄頁的連結最大數量。設定為 0 代表停用。預設值：%default。只有在偵測到的章節數目少於這個臨界值時才會把連結加入目錄頁中。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:233
 msgid ""
 "Remove entries from the Table of Contents whose titles match the specified "
 "regular expression. Matching entries and all their children are removed."
-msgstr ""
+msgstr "將標題符合指定正規表示式的項目自目錄頁中移除。符合的項目以及它們的子項目都會一起被移除。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:244
 msgid ""
@@ -1052,6 +1077,9 @@ msgid ""
 "detection, use the expression \"/\". See the XPath Tutorial in the calibre "
 "User Manual for further help on using this feature."
 msgstr ""
+"用來偵測章節標題的 XPath 表示式。預設值是使用含有「chapter」、「book」、「section」或「part」字詞做為章節標題和含有 "
+"class=\"chapter\" 標籤的 <h1> 或 <h2> 標籤。使用的表示式必須能解析出一份元素清單。要停用章節偵測，請使用 \"/\" "
+"表示式。請參閱 calibre 使用手冊的 XPath Tutorial 以取得使用這項功能的進一步資訊。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:258
 msgid ""
