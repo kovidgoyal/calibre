@@ -1282,7 +1282,7 @@ class EPUB_MOBI(CatalogPlugin):
                        result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
                        N+=length
                     print result
-
+            self.bookmarked_books = {}
             if self.opts.connected_kindle:
                 self.opts.log.info("     Collecting Kindle bookmarks matching catalog entries")
 
