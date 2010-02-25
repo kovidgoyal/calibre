@@ -868,20 +868,20 @@ class EPUB_MOBI(CatalogPlugin):
         @dynamic_property
         def NOT_READ_SYMBOL(self):
             def fget(self):
-                return '<font style="color:white">&#x2713;</font>' if self.generateForKindle else \
-                       '<font style="color:white">%s</font>' % self.opts.read_tag
+                return '<span style="color:white">&#x2713;</span>' if self.generateForKindle else \
+                       '<span style="color:white">%s</span>' % self.opts.read_tag
             return property(fget=fget)
         @dynamic_property
         def READING_SYMBOL(self):
             def fget(self):
-                return '<font style="color:black">&#x25b7;</font>' if self.generateForKindle else \
-                       '<font style="color:white">%s</font>' % self.opts.read_tag
+                return '<span style="color:black">&#x25b7;</span>' if self.generateForKindle else \
+                       '<span style="color:white">%s</span>' % self.opts.read_tag
             return property(fget=fget)
         @dynamic_property
         def READ_SYMBOL(self):
             def fget(self):
-                return '<font style="color:black">&#x2713;</font>' if self.generateForKindle else \
-                       '<font style="color:black">%s</font>' % self.opts.read_tag
+                return '<span style="color:black">&#x2713;</span>' if self.generateForKindle else \
+                       '<span style="color:black">%s</span>' % self.opts.read_tag
             return property(fget=fget)
         @dynamic_property
         def FULL_RATING_SYMBOL(self):
