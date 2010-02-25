@@ -214,7 +214,20 @@ class InputFormatPlugin(Plugin):
         return ret
 
     def postprocess_book(self, oeb, opts, log):
+        '''
+        Called to allow the input plugin to perform postprocessing after
+        the book has been parsed.
+        '''
         pass
+
+    def specialize(self, oeb, opts, log, output_fmt):
+        '''
+        Called to allow the input plugin to specialize the parsed book
+        for a particular output format. Called after postprocess_book
+        and before any transforms are performed on the parsed book.
+        '''
+        pass
+
 
 class OutputFormatPlugin(Plugin):
     '''

@@ -866,16 +866,22 @@ class EPUB_MOBI(CatalogPlugin):
             return property(fget=fget, fset=fset)
 
         @dynamic_property
-        def READ_SYMBOL(self):
-            def fget(self):
-                return '<font style="color:black">&#x2713;</font>' if self.generateForKindle else \
-                       '<font style="color:black">%s</font>' % self.opts.read_tag
-            return property(fget=fget)
-        @dynamic_property
         def NOT_READ_SYMBOL(self):
             def fget(self):
                 return '<font style="color:white">&#x2713;</font>' if self.generateForKindle else \
                        '<font style="color:white">%s</font>' % self.opts.read_tag
+            return property(fget=fget)
+        @dynamic_property
+        def READING_SYMBOL(self):
+            def fget(self):
+                return '<font style="color:black">&#x25b7;</font>' if self.generateForKindle else \
+                       '<font style="color:white">%s</font>' % self.opts.read_tag
+            return property(fget=fget)
+        @dynamic_property
+        def READ_SYMBOL(self):
+            def fget(self):
+                return '<font style="color:black">&#x2713;</font>' if self.generateForKindle else \
+                       '<font style="color:black">%s</font>' % self.opts.read_tag
             return property(fget=fget)
         @dynamic_property
         def FULL_RATING_SYMBOL(self):
@@ -1196,7 +1202,6 @@ class EPUB_MOBI(CatalogPlugin):
                         self.timestamp, = unpack('>I', data[0x24:0x28])
                         bpar_offset, = unpack('>I', data[0x4e:0x52])
                         #print "bpar_offset: 0x%x" % bpar_offset
-                        bpl = bpar_offset + 0x04
                         lrlo = bpar_offset + 0x0c
                         self.last_read_location = int(unpack('>I', data[lrlo:lrlo+4])[0])
                         '''
@@ -1285,7 +1290,9 @@ class EPUB_MOBI(CatalogPlugin):
                 d.initialize(self.opts.connected_device['save_template'])
                 bookmarks = {}
                 for book in self.booksByTitle:
-                    myMeta = MetaInformation(book['title'],
+                    original_title = book['title'][book['title'].find(':') + 2:] if book['series'] \
+                               else book['title']
+                    myMeta = MetaInformation(original_title,
                                              authors=book['authors'])
                     myMeta.author_sort = book['author_sort']
                     bm_found = False
@@ -1550,10 +1557,14 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                # Prefix book with read/unread symbol
+                #  book with read/reading/unread symbol
                 if book['read']:
                     # check mark
                     pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                    pBookTag['class'] = "read_book"
+                    ptc += 1
+                elif book['id'] in self.bookmarked_books:
+                    pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
                     pBookTag['class'] = "read_book"
                     ptc += 1
                 else:
@@ -1704,10 +1715,14 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                #  book with read/unread symbol
+                #  book with read/reading/unread symbol
                 if book['read']:
                     # check mark
                     pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                    pBookTag['class'] = "read_book"
+                    ptc += 1
+                elif book['id'] in self.bookmarked_books:
+                    pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
                     pBookTag['class'] = "read_book"
                     ptc += 1
                 else:
@@ -1817,10 +1832,14 @@ class EPUB_MOBI(CatalogPlugin):
                         pBookTag = Tag(soup, "p")
                         ptc = 0
 
-                        # Prefix book with read/unread symbol
+                        #  book with read/reading/unread symbol
                         if new_entry['read']:
                             # check mark
                             pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                            pBookTag['class'] = "read_book"
+                            ptc += 1
+                        elif new_entry['id'] in self.bookmarked_books:
+                            pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
                             pBookTag['class'] = "read_book"
                             ptc += 1
                         else:
@@ -1859,10 +1878,14 @@ class EPUB_MOBI(CatalogPlugin):
                         pBookTag = Tag(soup, "p")
                         ptc = 0
 
-                        # Prefix book with read/unread symbol
+                        #  book with read/reading/unread symbol
                         if new_entry['read']:
                             # check mark
                             pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                            pBookTag['class'] = "read_book"
+                            ptc += 1
+                        elif new_entry['id'] in self.bookmarked_books:
+                            pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
                             pBookTag['class'] = "read_book"
                             ptc += 1
                         else:
@@ -3529,14 +3552,21 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                # Prefix book with read/unread symbol
+                #  book with read/reading/unread symbol
                 if book['read']:
+                    # check mark
                     pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
                     pBookTag['class'] = "read_book"
+                    ptc += 1
+                elif book['id'] in self.bookmarked_books:
+                    pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
+                    pBookTag['class'] = "read_book"
+                    ptc += 1
                 else:
+                    # hidden check mark
                     pBookTag['class'] = "unread_book"
                     pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
-                ptc += 1
+                    ptc += 1
 
                 # Add the book title
                 aTag = Tag(soup, "a")
@@ -4010,18 +4040,18 @@ class EPUB_MOBI(CatalogPlugin):
 
         if opts.connected_device['name']:
             if opts.connected_device['serial']:
-                build_log.append(" connected_device: '%s' #%s%s " % \
+                build_log.append(u" connected_device: '%s' #%s%s " % \
                     (opts.connected_device['name'],
                      opts.connected_device['serial'][0:4],
                      'x' * (len(opts.connected_device['serial']) - 4)))
                 for storage in opts.connected_device['storage']:
                     if storage:
-                        build_log.append("  mount point: %s" % storage)
+                        build_log.append(u"  mount point: %s" % storage)
             else:
-                build_log.append(" connected_device: '%s'" % opts.connected_device['name'])
+                build_log.append(u" connected_device: '%s'" % opts.connected_device['name'])
                 for storage in opts.connected_device['storage']:
                     if storage:
-                        build_log.append("  mount point: %s" % storage)
+                        build_log.append(u"  mount point: %s" % storage)
 
         opts_dict = vars(opts)
         if opts_dict['ids']:
