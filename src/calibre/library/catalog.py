@@ -586,6 +586,10 @@ class EPUB_MOBI(CatalogPlugin):
             self.__generateForKindle = True if (self.opts.fmt == 'mobi' and \
                                        self.opts.output_profile and \
                                        self.opts.output_profile.startswith("kindle")) else False
+            self.__generateRecentlyRead = True if self.opts.generate_recently_added \
+                                                  and self.opts.connected_kindle \
+                                                  and self.generateForKindle \
+                                                else False
             self.__genres = None
             self.__genre_tags_dict = None
             self.__htmlFileList = []
@@ -610,7 +614,7 @@ class EPUB_MOBI(CatalogPlugin):
                 self.__totalSteps += 2
             if self.opts.generate_recently_added:
                 self.__totalSteps += 2
-                if self.opts.connected_kindle:
+                if self.generateRecentlyRead:
                     self.__totalSteps += 2
 
         # Accessors
@@ -731,6 +735,13 @@ class EPUB_MOBI(CatalogPlugin):
                 return self.__generateForKindle
             def fset(self, val):
                 self.__generateForKindle = val
+            return property(fget=fget, fset=fset)
+        @dynamic_property
+        def generateRecentlyRead(self):
+            def fget(self):
+                return self.__generateRecentlyRead
+            def fset(self, val):
+                self.__generateRecentlyRead = val
             return property(fget=fget, fset=fset)
         @dynamic_property
         def genres(self):
@@ -917,7 +928,8 @@ class EPUB_MOBI(CatalogPlugin):
                 self.generateHTMLByTitle()
             if self.opts.generate_recently_added:
                 self.generateHTMLByDateAdded()
-                self.generateHTMLByDateRead()
+                if self.generateRecentlyRead:
+                    self.generateHTMLByDateRead()
             self.generateHTMLByTags()
 
             from calibre.utils.PythonMagickWand import ImageMagick
@@ -932,7 +944,8 @@ class EPUB_MOBI(CatalogPlugin):
                 self.generateNCXByTitle("Titles")
             if self.opts.generate_recently_added:
                 self.generateNCXByDateAdded("Recently Added")
-                self.generateNCXByDateRead("Recently Read")
+                if self.generateRecentlyRead:
+                    self.generateNCXByDateRead("Recently Read")
             self.generateNCXByGenre("Genres")
             self.writeNCX()
             return True
@@ -1196,7 +1209,7 @@ class EPUB_MOBI(CatalogPlugin):
 
                 def get_bookmark_data(self, path):
                     ''' Return the timestamp and last_read_location '''
-                    with open(path) as f:
+                    with open(path,'rb') as f:
                         stream = StringIO(f.read())
                         data = StreamSlicer(stream)
                         self.timestamp, = unpack('>I', data[0x24:0x28])
@@ -1253,7 +1266,7 @@ class EPUB_MOBI(CatalogPlugin):
                         self.book_length = 0
                         return
                     # Read the book len from the header
-                    with open(book_fs) as f:
+                    with open(book_fs,'rb') as f:
                         self.stream = StringIO(f.read())
                         self.data = StreamSlicer(self.stream)
                         self.nrecs, = unpack('>H', self.data[76:78])
@@ -1283,7 +1296,7 @@ class EPUB_MOBI(CatalogPlugin):
                        N+=length
                     print result
 
-            if self.opts.connected_kindle:
+            if self.generateRecentlyRead:
                 self.opts.log.info("     Collecting Kindle bookmarks matching catalog entries")
 
                 d = BookmarkDevice(None)
