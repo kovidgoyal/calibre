@@ -1292,7 +1292,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 break
         if rows:
             current = self.library_view.currentIndex()
-            self.library_view.model().current_changed(current, previous)
+            m = self.library_view.model()
+            m.refresh_cover_cache(map(m.id, rows))
+            if self.cover_flow:
+                self.cover_flow.dataChanged()
+            m.current_changed(current, previous)
 
     def edit_bulk_metadata(self, checked):
         '''

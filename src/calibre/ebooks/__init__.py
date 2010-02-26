@@ -135,5 +135,6 @@ def check_ebook_format(stream, current_guess):
         stream.seek(0)
         if stream.read(3) == 'TPZ':
             ans = 'tpz'
+        stream.seek(0)
     return ans
 
