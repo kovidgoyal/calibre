@@ -60,8 +60,10 @@ def debug(ioreg_to_tmp=False, buf=None):
         if isosx:
             from calibre.devices.usbms.device import Device
             mount = repr(Device.osx_run_mount())
-            ioreg = Device.run_ioreg()
-            ioreg = 'Output from mount:\n\n'+mount+'\n\n'+ioreg
+            drives = pprint.pformat(Device.osx_get_usb_drives())
+            ioreg = 'Output from mount:\n'+mount+'\n\n'
+            ioreg += 'Output from osx_get_usb_drives:\n'+drives+'\n\n'
+            ioreg += Device.run_ioreg()
         connected_devices = []
         for dev in device_plugins():
             out('Looking for', dev.__class__.__name__)

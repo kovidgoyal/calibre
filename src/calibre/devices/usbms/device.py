@@ -333,10 +333,14 @@ class Device(DeviceConfig, DevicePlugin):
                     raise
             time.sleep(2)
 
-    def _osx_bsd_names(self):
+    @classmethod
+    def osx_get_usb_drives(cls):
         if usbobserver_err:
             raise RuntimeError('Failed to load usbobserver: '+usbobserver_err)
-        drives = usbobserver.get_usb_drives()
+        return usbobserver.get_usb_drives()
+
+    def _osx_bsd_names(self):
+        drives = self.osx_get_usb_drives()
         matches = []
         d = self.detected_device
         if d.serial:
