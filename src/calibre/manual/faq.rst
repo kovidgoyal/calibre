@@ -81,7 +81,7 @@ Device Integration
 
 What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-At the moment |app| has full support for the SONY PRS 300/500/505/600/700/900, Barnes & Noble Nook, Cybook Gen 3/Opus, Amazon Kindle 1/2/DX, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook 360, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, various Android phones and the iPhone. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
+At the moment |app| has full support for the SONY PRS 300/500/505/600/700/900, Barnes & Noble Nook, Cybook Gen 3/Opus, Amazon Kindle 1/2/DX, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook 360, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3, various Android phones and the iPhone. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
 
 How can I help get my device supported in |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
