@@ -235,6 +235,8 @@ def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
         with plugin:
             try:
                 nfp = plugin.run(path_to_file)
+                if not nfp:
+                    nfp = path_to_file
             except:
                 print 'Running file type plugin %s failed with traceback:'%plugin.name
                 traceback.print_exc()

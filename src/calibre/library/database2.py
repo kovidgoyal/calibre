@@ -34,7 +34,7 @@ from calibre.customize.ui import run_plugins_on_import
 
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
-from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 
 if iswindows:
     import calibre.utils.winshell as winshell
@@ -993,7 +993,9 @@ class LibraryDatabase2(LibraryDatabase):
                               path=None, notify=True):
         npath = self.run_import_plugins(fpath, format)
         format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-        return self.add_format(index, format, open(npath, 'rb'),
+        stream = open(npath, 'rb')
+        format = check_ebook_format(stream, format)
+        return self.add_format(index, format, stream,
                                index_is_id=index_is_id, path=path, notify=notify)
 
     def add_format(self, index, format, stream, index_is_id=False, path=None, notify=True):
@@ -1596,6 +1598,7 @@ class LibraryDatabase2(LibraryDatabase):
             npath = self.run_import_plugins(path, format)
             format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
             stream = open(npath, 'rb')
+            format = check_ebook_format(stream, format)
             self.add_format(id, format, stream, index_is_id=True)
             stream.close()
         self.conn.commit()

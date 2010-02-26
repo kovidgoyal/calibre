@@ -798,44 +798,40 @@ def get_metadata(stream):
     from calibre.utils.logging import Log
     log = Log()
     mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
-    try:
-        mh = MetadataHeader(stream, log)
-        if mh.title and mh.title != _('Unknown'):
-            mi.title = mh.title
+    mh = MetadataHeader(stream, log)
+    if mh.title and mh.title != _('Unknown'):
+        mi.title = mh.title
 
-        if mh.exth is not None:
-            if mh.exth.mi is not None:
-                mi = mh.exth.mi
-        else:
-            size = sys.maxint
-            if hasattr(stream, 'seek') and hasattr(stream, 'tell'):
-                pos = stream.tell()
-                stream.seek(0, 2)
-                size = stream.tell()
-                stream.seek(pos)
-            if size < 4*1024*1024:
-                with TemporaryDirectory('_mobi_meta_reader') as tdir:
-                    with CurrentDir(tdir):
-                        mr = MobiReader(stream, log)
-                        parse_cache = {}
-                        mr.extract_content(tdir, parse_cache)
-                        if mr.embedded_mi is not None:
-                            mi = mr.embedded_mi
-        if hasattr(mh.exth, 'cover_offset'):
-            cover_index = mh.first_image_index + mh.exth.cover_offset
-            data  = mh.section_data(int(cover_index))
-        else:
-            data  = mh.section_data(mh.first_image_index)
-        buf = cStringIO.StringIO(data)
-        try:
-            im = PILImage.open(buf)
-        except:
-            log.exception('Failed to read MOBI cover')
-        else:
-            obuf = cStringIO.StringIO()
-            im.convert('RGB').save(obuf, format='JPEG')
-            mi.cover_data = ('jpg', obuf.getvalue())
+    if mh.exth is not None:
+        if mh.exth.mi is not None:
+            mi = mh.exth.mi
+    else:
+        size = sys.maxint
+        if hasattr(stream, 'seek') and hasattr(stream, 'tell'):
+            pos = stream.tell()
+            stream.seek(0, 2)
+            size = stream.tell()
+            stream.seek(pos)
+        if size < 4*1024*1024:
+            with TemporaryDirectory('_mobi_meta_reader') as tdir:
+                with CurrentDir(tdir):
+                    mr = MobiReader(stream, log)
+                    parse_cache = {}
+                    mr.extract_content(tdir, parse_cache)
+                    if mr.embedded_mi is not None:
+                        mi = mr.embedded_mi
+    if hasattr(mh.exth, 'cover_offset'):
+        cover_index = mh.first_image_index + mh.exth.cover_offset
+        data  = mh.section_data(int(cover_index))
+    else:
+        data  = mh.section_data(mh.first_image_index)
+    buf = cStringIO.StringIO(data)
+    try:
+        im = PILImage.open(buf)
     except:
-        log.filter_level = Log.DEBUG
-        log.exception('Failed to read MOBI metadata')
+        log.exception('Failed to read MOBI cover')
+    else:
+        obuf = cStringIO.StringIO()
+        im.convert('RGB').save(obuf, format='JPEG')
+        mi.cover_data = ('jpg', obuf.getvalue())
     return mi

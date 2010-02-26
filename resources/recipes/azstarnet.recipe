@@ -41,7 +41,7 @@ class Azstarnet(BasicNewsRecipe):
                                    })
             br.open('http://azstarnet.com/app/registration/proxy.php',data)
         return br
-                        
+
     remove_tags = [dict(name=['object','link','iframe','base','img'])]
 
 
