@@ -23,6 +23,8 @@ Run an embedded python interpreter.
                       help='Debug the specified device driver.')
     parser.add_option('-g', '--gui',  default=False, action='store_true',
                       help='Run the GUI',)
+    parser.add_option('-w', '--viewer',  default=False, action='store_true',
+                      help='Run the ebook viewer',)
     parser.add_option('--paths', default=False, action='store_true',
             help='Output the paths necessary to setup the calibre environment')
     parser.add_option('--migrate', action='store_true', default=False,
@@ -98,6 +100,9 @@ def main(args=sys.argv):
     if opts.gui:
         from calibre.gui2.main import main
         main(['calibre'])
+    elif opts.viewer:
+        from calibre.gui2.viewer.main import main
+        main(['ebook-viewer'])
     elif opts.command:
         sys.argv = args[:1]
         exec opts.command
