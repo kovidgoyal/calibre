@@ -102,7 +102,10 @@ def main(args=sys.argv):
         main(['calibre'])
     elif opts.viewer:
         from calibre.gui2.viewer.main import main
-        main(['ebook-viewer'])
+        vargs = ['ebook-viewer']
+        if len(args) > 1:
+            vargs.append(args[-1])
+        main(vargs)
     elif opts.command:
         sys.argv = args[:1]
         exec opts.command
