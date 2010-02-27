@@ -7,6 +7,7 @@ import sys, os, shutil, cPickle, textwrap, stat
 from subprocess import check_call
 
 from calibre import  __appname__, prints
+from calibre.constants import islinux, isfreebsd
 
 
 entry_points = {
@@ -128,20 +129,23 @@ class PostInstall:
         self.icon_resources = []
         self.menu_resources = []
         self.mime_resources = []
-        self.setup_completion()
-        self.setup_udev_rules()
+        if islinux:
+            self.setup_completion()
+            self.setup_udev_rules()
         self.install_man_pages()
-        self.setup_desktop_integration()
+        if islinux:
+            self.setup_desktop_integration()
         self.create_uninstaller()
 
         from calibre.utils.config import config_dir
         if os.path.exists(config_dir):
             os.chdir(config_dir)
-            for f in os.listdir('.'):
-                if os.stat(f).st_uid == 0:
-                    os.rmdir(f) if os.path.isdir(f) else os.unlink(f)
-            if os.stat(config_dir).st_uid == 0:
-                os.rmdir(config_dir)
+            if islinux:
+                for f in os.listdir('.'):
+                    if os.stat(f).st_uid == 0:
+                        os.rmdir(f) if os.path.isdir(f) else os.unlink(f)
+                if os.stat(config_dir).st_uid == 0:
+                    os.rmdir(config_dir)
 
         if warn is None and self.warnings:
             self.info('There were %d warnings'%len(self.warnings))
@@ -318,7 +322,10 @@ class PostInstall:
     def install_man_pages(self):
         try:
             from calibre.utils.help2man import create_man_page
-            manpath = os.path.join(self.opts.staging_sharedir, 'man/man1')
+            if isfreebsd:
+                manpath = os.path.join(self.opts.staging_root, 'man/man1')
+            else:
+                manpath = os.path.join(self.opts.staging_sharedir, 'man/man1')
             if not os.path.exists(manpath):
                 os.makedirs(manpath)
             self.info('Installing MAN pages...')
@@ -331,7 +338,10 @@ class PostInstall:
                     continue
                 parser = parser()
                 raw = create_man_page(prog, parser)
-                manfile = os.path.join(manpath, prog+'.1'+__appname__+'.bz2')
+                if isfreebsd:
+                    manfile = os.path.join(manpath, prog+'.1')
+                else:
+                    manfile = os.path.join(manpath, prog+'.1'+__appname__+'.bz2')
                 self.info('\tInstalling MAN page for', prog)
                 open(manfile, 'wb').write(raw)
                 self.manifest.append(manfile)

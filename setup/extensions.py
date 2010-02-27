@@ -11,7 +11,7 @@ from distutils import sysconfig
 
 from PyQt4.pyqtconfig import QtGuiModuleMakefile
 
-from setup import Command, islinux, isosx, SRC, iswindows
+from setup import Command, islinux, isfreebsd, isosx, SRC, iswindows
 from setup.build_environment import fc_inc, fc_lib, \
         fc_error, poppler_libs, poppler_lib_dirs, poppler_inc_dirs, podofo_inc, \
         podofo_lib, podofo_error, poppler_error, pyqt, OSX_SDK, NMAKE, \
@@ -19,7 +19,7 @@ from setup.build_environment import fc_inc, fc_lib, \
         magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs, \
         magick_error, magick_libs, ft_lib_dirs, ft_libs, jpg_libs, jpg_lib_dirs
 MT
-isunix = islinux or isosx
+isunix = islinux or isosx or isfreebsd
 
 make = 'make' if isunix else NMAKE
 
@@ -148,6 +148,13 @@ if isunix:
     ldflags += shlex.split(os.environ.get('LDFLAGS', ''))
 
 if islinux:
+    cflags.append('-pthread')
+    ldflags.append('-shared')
+    cflags.append('-I'+sysconfig.get_python_inc())
+    ldflags.append('-lpython'+sysconfig.get_python_version())
+
+
+if isfreebsd:
     cflags.append('-pthread')
     ldflags.append('-shared')
     cflags.append('-I'+sysconfig.get_python_inc())

@@ -13,7 +13,7 @@ from functools import partial
 
 from calibre.ebooks import ConversionError, DRMError
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre import isosx, iswindows, islinux
+from calibre import isosx, iswindows, islinux, isfreebsd
 from calibre import CurrentDir
 
 PDFTOHTML = 'pdftohtml'
@@ -23,7 +23,7 @@ if isosx and hasattr(sys, 'frameworks_dir'):
 if iswindows and hasattr(sys, 'frozen'):
     PDFTOHTML = os.path.join(os.path.dirname(sys.executable), 'pdftohtml.exe')
     popen = partial(subprocess.Popen, creationflags=0x08) # CREATE_NO_WINDOW=0x08 so that no ugly console is popped up
-if islinux and getattr(sys, 'frozen_path', False):
+if (islinux or isfreebsd) and getattr(sys, 'frozen_path', False):
     PDFTOHTML = os.path.join(getattr(sys, 'frozen_path'), 'pdftohtml')
 
 def pdftohtml(output_dir, pdf_path, no_images):
