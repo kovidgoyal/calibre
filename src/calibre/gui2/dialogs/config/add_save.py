@@ -44,6 +44,7 @@ class AddSave(QTabWidget, Ui_TabWidget):
         self.filename_pattern = FilenamePattern(self)
         self.metadata_box.layout().insertWidget(0, self.filename_pattern)
         self.opt_swap_author_names.setChecked(prefs['swap_author_names'])
+        self.opt_add_formats_to_existing.setChecked(prefs['add_formats_to_existing'])
         help = '\n'.join(textwrap.wrap(c.get_option('template').help, 75))
         self.save_template.initialize('save_to_disk', opts.template, help)
         self.send_template.initialize('send_to_device', opts.send_template, help)
@@ -69,6 +70,7 @@ class AddSave(QTabWidget, Ui_TabWidget):
         pattern = self.filename_pattern.commit()
         prefs['filename_pattern'] = pattern
         prefs['swap_author_names'] = bool(self.opt_swap_author_names.isChecked())
+        prefs['add_formats_to_existing'] = bool(self.opt_add_formats_to_existing.isChecked())
 
         return True
 

@@ -49,6 +49,16 @@
      </widget>
     </item>
     <item row="2" column="0" colspan="2">
+     <widget class="QCheckBox" name="opt_add_formats_to_existing">
+      <property name="toolTip">
+       <string>Use with caution, this option will overwrite old copies of book with new copies in same format.  Title match ignores leading indefinite articles ("the", "a", "an"), punctuation, case, etc.</string>
+      </property>
+      <property name="text">
+       <string>&amp;Add new formats to existing record of same book. (Caution: overwrites previous same format with new - matches author exactly, fuzzy matches title.)</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0" colspan="2">
      <widget class="QGroupBox" name="metadata_box">
       <property name="title">
        <string>&amp;Configure metadata from file name</string>

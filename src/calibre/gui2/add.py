@@ -13,9 +13,11 @@ from calibre.gui2 import question_dialog, error_dialog, info_dialog
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata import MetaInformation
 from calibre.constants import preferred_encoding, filesystem_encoding
+from calibre.library.database2 import LibraryDatabase2
+from calibre.utils.config import prefs
 
 class DuplicatesAdder(QThread):
-
+    # Add duplicate books
     def __init__(self, parent, db, duplicates, db_adder):
         QThread.__init__(self, parent)
         self.db, self.db_adder = db, db_adder
@@ -27,6 +29,7 @@ class DuplicatesAdder(QThread):
             formats = [f for f in formats if not f.lower().endswith('.opf')]
             id = self.db.create_book_entry(mi, cover=cover,
                     add_duplicates=True)
+            # here we add all the formats for dupe book record created above
             self.db_adder.add_formats(id, formats)
             self.db_adder.number_of_books_added += 1
             self.emit(SIGNAL('added(PyQt_PyObject)'), count)
@@ -52,7 +55,7 @@ class RecursiveFind(QThread):
                         _('Searching in')+' '+dirpath[0])
             self.books += list(self.db.find_books_in_directory(dirpath[0],
                                             self.single_book_per_directory))
-
+            
     def run(self):
         root = os.path.abspath(self.path)
         try:
@@ -73,7 +76,7 @@ class RecursiveFind(QThread):
                 return
 
         self.books = [formats for formats in self.books if formats]
-
+        
         if not self.canceled:
             self.emit(SIGNAL('found(PyQt_PyObject)'), self.books)
 
@@ -125,6 +128,33 @@ class DBAdder(Thread):
                 fmts[-1] = fmt
         return fmts
 
+    def fuzzy_title(self, title):
+        indefinites = ['the', 'a', 'an']
+        removals = [';', ':', ',', '\'', '[', ']', '(', ')', '{', '}', '<', '>']
+        replacements = ['.', '_', '-']
+        title = title.strip().lower()
+        for removal in removals:
+          title = title.replace(removal, '') 
+        for replacement in replacements:
+          title = title.replace(replacement, ' ') 
+        title_split = title.split()
+        for indefinite in indefinites:
+          if title_split[0] == indefinite:
+            title = ' '.join(title_split[1:])
+        return title
+        
+    def find_identical_books(self, mi):
+        author_id = [unicode(self.db.conn.get('SELECT id FROM authors WHERE name = ?;', ([mi.author[0]]), all=False))]
+        identical_book_ids = []
+        book_ids = self.db.conn.get('SELECT book FROM books_authors_link WHERE author = ?;', (author_id), all=True) 
+        for book_id in book_ids:
+            fbook_title = self.db.conn.get('SELECT title FROM books WHERE id = ?;', (book_id), all=False)
+            fbook_title = self.fuzzy_title(fbook_title)
+            mbook_title = self.fuzzy_title(mi.title)
+            if fbook_title == mbook_title:
+                identical_book_ids.append(book_id)
+        return identical_book_ids
+        
     def add(self, id, opf, cover, name):
         formats = self.ids.pop(id)
         if opf.endswith('.error'):
@@ -145,16 +175,30 @@ class DBAdder(Thread):
         if self.db is not None:
             if cover:
                 cover = open(cover, 'rb').read()
-            id = self.db.create_book_entry(mi, cover=cover, add_duplicates=False)
-            self.number_of_books_added += 1
-            if id is None:
-                self.duplicates.append((mi, cover, formats))
+            if prefs['add_formats_to_existing']:
+                identical_book_list = self.find_identical_books(mi)
+                if (identical_book_list): # books with same author and nearly same title exist in db
+                     for identical_book in identical_book_list:                            
+                         formats = [f for f in formats if not f.lower().endswith('.opf')]  
+                         self.add_formats(identical_book[0], formats)                      
+                else:
+                    id = self.db.create_book_entry(mi, cover=cover, add_duplicates=True)
+                    self.number_of_books_added += 1 # what does this do?
+                    formats = [f for f in formats if not f.lower().endswith('.opf')]
+                    self.add_formats(id, formats)                                         
             else:
-                formats = [f for f in formats if not f.lower().endswith('.opf')]
-                self.add_formats(id, formats)
+                if cover:                                                                
+                    cover = open(cover, 'rb').read()                                     
+                id = self.db.create_book_entry(mi, cover=cover, add_duplicates=False)    
+                self.number_of_books_added += 1                                          
+                if id is None:                                                           
+                    self.duplicates.append((mi, cover, formats))                         
+                else:                                                                    
+                    formats = [f for f in formats if not f.lower().endswith('.opf')]     
+                    self.add_formats(id, formats)                                        
         else:
             self.names.append(name)
-            self.paths.append(formats[0])
+            self.path.append(formats[0])
             self.infos.append(mi)
         return mi.title
 

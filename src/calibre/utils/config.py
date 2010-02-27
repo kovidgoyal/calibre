@@ -670,6 +670,8 @@ def _prefs():
               help=_('The priority of worker processes'))
     c.add_opt('swap_author_names', default=False,
             help=_('Swap author first and last names when reading metadata'))
+    c.add_opt('add_formats_to_existing', default=False,
+            help=_('Add new formats to existing book records'))
 
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c
