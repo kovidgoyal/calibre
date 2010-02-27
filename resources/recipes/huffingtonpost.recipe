@@ -3,7 +3,7 @@ import re
 
 class HuffingtonPostRecipe(BasicNewsRecipe):
     __license__  = 'GPL v3'
-    __author__ = 'kwetal'
+    __author__ = 'kwetal and Archana Raman'
     language = 'en'
     version = 2
 
@@ -14,70 +14,89 @@ class HuffingtonPostRecipe(BasicNewsRecipe):
 
     oldest_article = 1.1
     max_articles_per_feed = 100
-    use_embedded_content = True
+    #use_embedded_content = True
 
     encoding = 'utf-8'
     remove_empty_feeds = True
+    no_stylesheets = True
+    remove_javascript = True
 
     # Feeds from: http://www.huffingtonpost.com/syndication/
     feeds = []
     feeds.append((u'Latest News', u'http://feeds.huffingtonpost.com/huffingtonpost/LatestNews'))
 
-    #feeds.append((u'Politics', u'http://www.huffingtonpost.com/feeds/verticals/politics/index.xml'))
-    feeds.append((u'Politics: News', u'http://www.huffingtonpost.com/feeds/verticals/politics/news.xml'))
-    feeds.append((u'Politics: Blog', u'http://www.huffingtonpost.com/feeds/verticals/politics/blog.xml'))
+    feeds.append((u'Politics', u'http://www.huffingtonpost.com/feeds/verticals/politics/index.xml'))
+    #feeds.append((u'Politics: News', u'http://www.huffingtonpost.com/feeds/verticals/politics/news.xml'))
+    #feeds.append((u'Politics: Blog', u'http://www.huffingtonpost.com/feeds/verticals/politics/blog.xml'))
 
-    #feeds.append((u'Media', u'http://www.huffingtonpost.com/feeds/verticals/media/index.xml'))
-    feeds.append((u'Media: News', u'http://www.huffingtonpost.com/feeds/verticals/media/news.xml'))
-    feeds.append((u'Media: Blog', u'http://www.huffingtonpost.com/feeds/verticals/media/blog.xml'))
+    feeds.append((u'Media', u'http://www.huffingtonpost.com/feeds/verticals/media/index.xml'))
+    #feeds.append((u'Media: News', u'http://www.huffingtonpost.com/feeds/verticals/media/news.xml'))
+    #feeds.append((u'Media: Blog', u'http://www.huffingtonpost.com/feeds/verticals/media/blog.xml'))
 
-    #feeds.append((u'Business', u'http://www.huffingtonpost.com/feeds/verticals/business/index.xml'))
-    feeds.append((u'Business: News', u'http://www.huffingtonpost.com/feeds/verticals/business/news.xml'))
-    feeds.append((u'Business: Blogs', u'http://www.huffingtonpost.com/feeds/verticals/business/blog.xml'))
+    feeds.append((u'Business', u'http://www.huffingtonpost.com/feeds/verticals/business/index.xml'))
+    #feeds.append((u'Business: News', u'http://www.huffingtonpost.com/feeds/verticals/business/news.xml'))
+    #feeds.append((u'Business: Blogs', u'http://www.huffingtonpost.com/feeds/verticals/business/blog.xml'))
 
-    #feeds.append((u'Entertainment', u'http://www.huffingtonpost.com/feeds/verticals/entertainment/index.xml'))
-    feeds.append((u'Entertainment: News', u'http://www.huffingtonpost.com/feeds/verticals/business/news.xml'))
-    feeds.append((u'Entertainment: Blog', u'http://www.huffingtonpost.com/feeds/verticals/entertainment/blog.xml'))
+    feeds.append((u'Entertainment', u'http://www.huffingtonpost.com/feeds/verticals/entertainment/index.xml'))
+    #feeds.append((u'Entertainment: News', u'http://www.huffingtonpost.com/feeds/verticals/business/news.xml'))
+    #feeds.append((u'Entertainment: Blog', u'http://www.huffingtonpost.com/feeds/verticals/entertainment/blog.xml'))
 
-    #feeds.append((u'Living', u'http://www.huffingtonpost.com/feeds/verticals/living/index.xml'))
-    feeds.append((u'Living: News', u'http://www.huffingtonpost.com/feeds/verticals/living/news.xml'))
-    feeds.append((u'Living: Blog', u'http://www.huffingtonpost.com/feeds/verticals/living/blog.xml'))
+    feeds.append((u'Living', u'http://www.huffingtonpost.com/feeds/verticals/living/index.xml'))
+    #feeds.append((u'Living: News', u'http://www.huffingtonpost.com/feeds/verticals/living/news.xml'))
+    #feeds.append((u'Living: Blog', u'http://www.huffingtonpost.com/feeds/verticals/living/blog.xml'))
 
-    #feeds.append((u'Style', u'http://www.huffingtonpost.com/feeds/verticals/style/index.xml'))
-    feeds.append((u'Style: News', u'http://www.huffingtonpost.com/feeds/verticals/style/news.xml'))
-    feeds.append((u'Style: Blog', u'http://www.huffingtonpost.com/feeds/verticals/style/blog.xml'))
+    feeds.append((u'Style', u'http://www.huffingtonpost.com/feeds/verticals/style/index.xml'))
+    #feeds.append((u'Style: News', u'http://www.huffingtonpost.com/feeds/verticals/style/news.xml'))
+    #feeds.append((u'Style: Blog', u'http://www.huffingtonpost.com/feeds/verticals/style/blog.xml'))
 
-    #feeds.append((u'Green', u'http://www.huffingtonpost.com/feeds/verticals/green/index.xml'))
-    feeds.append((u'Green: News', u'http://www.huffingtonpost.com/feeds/verticals/green/news.xml'))
-    feeds.append((u'Green: Blog', u'http://www.huffingtonpost.com/feeds/verticals/green/blog.xml'))
+    feeds.append((u'Green', u'http://www.huffingtonpost.com/feeds/verticals/green/index.xml'))
+    #feeds.append((u'Green: News', u'http://www.huffingtonpost.com/feeds/verticals/green/news.xml'))
+    #feeds.append((u'Green: Blog', u'http://www.huffingtonpost.com/feeds/verticals/green/blog.xml'))
 
-    #feeds.append((u'Technology', u'http://www.huffingtonpost.com/feeds/verticals/technology/index.xml'))
-    feeds.append((u'Technology: News', u'http://www.huffingtonpost.com/feeds/verticals/technology/news.xml'))
-    feeds.append((u'Technology: Blog', u'http://www.huffingtonpost.com/feeds/verticals/technology/blog.xml'))
+    feeds.append((u'Technology', u'http://www.huffingtonpost.com/feeds/verticals/technology/index.xml'))
+    #feeds.append((u'Technology: News', u'http://www.huffingtonpost.com/feeds/verticals/technology/news.xml'))
+    #feeds.append((u'Technology: Blog', u'http://www.huffingtonpost.com/feeds/verticals/technology/blog.xml'))
 
-    #feeds.append((u'Comedy', u'http://www.huffingtonpost.com/feeds/verticals/comedy/index.xml'))
-    feeds.append((u'Comedy: News', u'http://www.huffingtonpost.com/feeds/verticals/comedy/news.xml'))
-    feeds.append((u'Comedy: Blog', u'http://www.huffingtonpost.com/feeds/verticals/comedy/blog.xml'))
+    feeds.append((u'Comedy', u'http://www.huffingtonpost.com/feeds/verticals/comedy/index.xml'))
+    #feeds.append((u'Comedy: News', u'http://www.huffingtonpost.com/feeds/verticals/comedy/news.xml'))
+    #feeds.append((u'Comedy: Blog', u'http://www.huffingtonpost.com/feeds/verticals/comedy/blog.xml'))
 
-    #feeds.append((u'World', u'http://www.huffingtonpost.com/feeds/verticals/world/index.xml'))
-    feeds.append((u'World: News', u'http://www.huffingtonpost.com/feeds/verticals/world/news.xml'))
-    feeds.append((u'World: Blog', u'http://www.huffingtonpost.com/feeds/verticals/world/blog.xml'))
+    feeds.append((u'World', u'http://www.huffingtonpost.com/feeds/verticals/world/index.xml'))
+    #feeds.append((u'World: News', u'http://www.huffingtonpost.com/feeds/verticals/world/news.xml'))
+    #feeds.append((u'World: Blog', u'http://www.huffingtonpost.com/feeds/verticals/world/blog.xml'))
 
     feeds.append((u'Original Reporting', u'http://www.huffingtonpost.com/tag/huffpolitics/feed'))
-    feeds.append((u'Original Posts', u'http://www.huffingtonpost.com/feeds/original_posts/index.xml'))
+    #feeds.append((u'Original Posts', u'http://www.huffingtonpost.com/feeds/original_posts/index.xml'))
+
 
     remove_tags = []
     remove_tags.append(dict(name='a', attrs={'href' : re.compile('http://feedads\.g\.doubleclick.net.*')}))
     remove_tags.append(dict(name='div', attrs={'class' : 'feedflare'}))
+    remove_tags.append(dict(name='a', attrs={'class' : 'home_pixie'}))
+    remove_tags.append(dict(name='div', attrs={'id' : ["top_nav",'threeup_top_wrapper','breaking_news_container',"hp_social_network"]}))
+    remove_tags.append(dict(name='img', alt="Connect"))
+    remove_tags.append(dict(name='div', attrs={'class' : ['logo']}))    #'share_boxes_box_block_b_wraper',
+    remove_tags.append(dict(name='div', attrs={'class' :[ 'read_more with_verticals','chicklets_box_outter_v05','blogger_menu_content','chicklets_bar']}))
+    remove_tags.append(dict(name='div', attrs={'class' : ['sidebar_blog_first_design','sidebar_blog_second_design',]}))
+    remove_tags.append(dict(name='div', attrs={'class' : ['main_big_news_ontop','login-menu','sidebar_blog_third_design','read_more']}))
 
-    remove_attributes = ['style']
+
+    remove_tags_after = [dict(name='div', attrs={'class' : 'entry_content'}) ]
+   # remove_attributes = ['style']
+
 
     extra_css = '''
+                    h1{font-family :Arial,Helvetica,sans-serif; font-size:large;}
+                    h2{font-family :Arial,Helvetica,sans-serif; font-size:medium; color:#000000;}
+                    h3{font-family :Arial,Helvetica,sans-serif; font-size:medium; color:#000000;}
                     body{font-family:verdana,arial,helvetica,geneva,sans-serif ;}
-                    h2{font-size: x-large; font-weight: bold; padding: 0em; margin-bottom: 0.2em;}
-                    a[href]{color: blue; text-decoration: none; cursor: pointer;}
+                    #title_permalink{color:black;font-size:large;}
+                    .date{color:#858585;font-family:"Times New Roman",sans-serif;}
+                    .comments_datetime v05{color:#696969;}
+                    .teaser_permalink{font-style:italic;font-size:xx-small;}
+                    .blog_posted_date{color:#696969;font-size:xx-small;font-weight: bold;}
                     '''
-
+#a[href]{color: blue; text-decoration: none; cursor: pointer;}
     def get_article_url(self, article):
         """
             Workaround for Feedparser behaviour. If an item has more than one <link/> element, article.link is empty and
@@ -85,10 +104,21 @@ class HuffingtonPostRecipe(BasicNewsRecipe):
             Todo: refactor to searching this list to avoid the hardcoded zero-index
         """
         link = article.get('link')
+        print("Link:"+link)
         if not link:
             links = article.get('links')
             if links:
                 link = links[0]['href']
+                if not links[0]['href']:
+                    link = links[1]['href']
 
         return link
 
+    def postprocess_html(self, soup, first_fetch):
+        for tag in soup.findAll('div',text = "What's Your Reaction?"):
+                tag.extract()
+
+        for tg in soup.findAll('blockquote'):
+            tg.extract()
+
+        return soup
