@@ -123,6 +123,8 @@ class Economist(BasicNewsRecipe):
             div.insert(0, ns)
             div.insert(1, Tag(soup, 'br'))
             img.extract()
+            del img['width']
+            del img['height']
             div.insert(2, img)
             table.replaceWith(div)
         return soup
