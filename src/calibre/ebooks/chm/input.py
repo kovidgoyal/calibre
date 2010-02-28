@@ -8,7 +8,6 @@ import os, uuid
 from lxml import html
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.chm.reader import CHMReader, match_string
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
@@ -21,6 +20,7 @@ class CHMInput(InputFormatPlugin):
     file_types  = set(['chm'])
 
     def _chmtohtml(self, output_dir, chm_path, no_images, log):
+        from calibre.ebooks.chm.reader import CHMReader
         log.debug('Opening CHM file')
         rdr = CHMReader(chm_path, log)
         log.debug('Extracting CHM to %s' % output_dir)
@@ -168,6 +168,8 @@ class CHMInput(InputFormatPlugin):
         # check that node is a normal node (not a comment, DOCTYPE, etc.)
         # (normal nodes have string tags)
         if isinstance(node.tag, basestring):
+            from calibre.ebooks.chm.reader import match_string
+
             if match_string(node.tag, 'object') and match_string(node.attrib['type'], 'text/sitemap'):
                 for child in node:
                     if match_string(child.tag,'param') and match_string(child.attrib['name'], 'name'):
