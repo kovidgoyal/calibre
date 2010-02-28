@@ -103,6 +103,17 @@ class ComicMetadataReader(MetadataReaderPlugin):
             mi.cover_data = (ext.lower(), data)
         return mi
 
+class CHMMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read CHM metadata'
+    file_types  = set(['chm'])
+    description = _('Read metadata from %s files') % 'CHM'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.chm import get_metadata
+        return get_metadata(stream)
+
+
 class EPUBMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read EPUB metadata'
@@ -384,6 +395,7 @@ from calibre.ebooks.rtf.input import RTFInput
 from calibre.ebooks.tcr.input import TCRInput
 from calibre.ebooks.txt.input import TXTInput
 from calibre.ebooks.lrf.input import LRFInput
+from calibre.ebooks.chm.input import CHMInput
 
 from calibre.ebooks.epub.output import EPUBOutput
 from calibre.ebooks.fb2.output import FB2Output
@@ -444,6 +456,7 @@ plugins += [
     TCRInput,
     TXTInput,
     LRFInput,
+    CHMInput,
 ]
 plugins += [
     EPUBOutput,
