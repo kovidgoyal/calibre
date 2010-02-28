@@ -398,16 +398,6 @@ class Device(DeviceConfig, DevicePlugin):
         if len(matches) > 2:
             drives['cardb'] = matches[2]
 
-        pat = self.OSX_MAIN_MEM_VOL_PAT
-        if pat is not None and len(drives) > 1 and 'main' in drives:
-            if pat.search(drives['main']) is None:
-                main = drives['main']
-                for x in ('carda', 'cardb'):
-                    if x in drives and pat.search(drives[x]):
-                        drives['main'] = drives.pop(x)
-                        drives[x] = main
-                        break
-
         return drives
 
     def osx_bsd_names(self):
@@ -431,6 +421,16 @@ class Device(DeviceConfig, DevicePlugin):
         if drives['main'] is None:
             print bsd_drives, mount_map, drives
             raise DeviceError(_('Unable to detect the %s mount point. Try rebooting.')%self.__class__.__name__)
+        pat = self.OSX_MAIN_MEM_VOL_PAT
+        if pat is not None and len(drives) > 1 and 'main' in drives:
+            if pat.search(drives['main']) is None:
+                main = drives['main']
+                for x in ('carda', 'cardb'):
+                    if x in drives and pat.search(drives[x]):
+                        drives['main'] = drives.pop(x)
+                        drives[x] = main
+                        break
+
         self._main_prefix = drives['main']+os.sep
         def get_card_prefix(c):
             ans = drives.get(c, None)
