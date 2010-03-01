@@ -1,0 +1,50 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.diariovasco.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DiarioVasco(BasicNewsRecipe):
+    title                 = 'Diario Vasco'
+    __author__            = 'Darko Miletic'
+    description           = 'Noticias de pais Vasco y el resto del mundo'
+    publisher             = 'Diario Vasco'
+    category              = 'news, politics, Spain'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'cp1252'
+    use_embedded_content  = False
+    language              = 'es'
+    remove_empty_feeds    = True
+    masthead_url          = 'http://www.diariovasco.com/img/rd.logotipo2_dvasco.gif'
+    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} .photo-caption{font-size: x-small} '
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    keep_only_tags = [
+                         dict(attrs={'id':'title'})
+                        ,dict(attrs={'class':['overhead','headline','subhead','date','text','noticia_cont','desarrollo']})
+                     ]
+    remove_tags = [dict(name='ul')]
+    remove_attributes = ['width','height']
+
+
+    feeds = [
+              (u'Ultimas Noticias' , u'http://www.diariovasco.com/rss/feeds/ultima.xml'       )
+             ,(u'Portada'          , u'http://www.diariovasco.com/portada.xml'                )
+             ,(u'Politica'         , u'http://www.diariovasco.com/rss/feeds/politica.xml'     )
+             ,(u'Deportes'         , u'http://www.diariovasco.com/rss/feeds/deportes.xml'     )
+             ,(u'Economia'         , u'http://www.diariovasco.com/rss/feeds/economia.xml'     )
+             ,(u'Mundo'            , u'http://www.diariovasco.com/rss/feeds/mundo.xml'        )
+             ,(u'Cultura'          , u'http://www.diariovasco.com/rss/feeds/cultura.xml'      )
+             ,(u'Gente'            , u'http://www.diariovasco.com/rss/feeds/gente.xml'        )
+             ,(u'Contraportada'    , u'http://www.diariovasco.com/rss/feeds/contraportada.xml')
+            ]
