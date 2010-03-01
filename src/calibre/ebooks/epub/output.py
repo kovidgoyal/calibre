@@ -157,10 +157,8 @@ class EPUBOutput(OutputFormatPlugin):
 
         self.workaround_ade_quirks()
         self.workaround_webkit_quirks()
-        self.workaround_sony_quirks()
         from calibre.ebooks.oeb.transforms.rescale import RescaleImages
         RescaleImages()(oeb, opts)
-
 
         from calibre.ebooks.oeb.transforms.split import Split
         split = Split(not self.opts.dont_split_on_page_breaks,
@@ -169,6 +167,8 @@ class EPUBOutput(OutputFormatPlugin):
         split(self.oeb, self.opts)
 
         self.insert_cover()
+
+        self.workaround_sony_quirks()
 
         with TemporaryDirectory('_epub_output') as tdir:
             from calibre.customize.ui import plugin_for_output_format
