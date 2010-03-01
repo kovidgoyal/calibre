@@ -173,7 +173,8 @@ class EbookIterator(object):
             plumber.opts.no_process = True
 
         plumber.input_plugin.for_viewer = True
-        self.pathtoopf = plumber.input_plugin(open(plumber.input, 'rb'),
+        with plumber.input_plugin:
+            self.pathtoopf = plumber.input_plugin(open(plumber.input, 'rb'),
                 plumber.opts, plumber.input_fmt, self.log,
                 {}, self.base)
 

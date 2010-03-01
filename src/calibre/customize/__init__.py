@@ -206,7 +206,6 @@ class MetadataReaderPlugin(Plugin):
     type = _('Metadata reader')
 
     def __init__(self, *args, **kwargs):
-        print 11111, args, kwargs
         Plugin.__init__(self, *args, **kwargs)
         self.quick = False
 
