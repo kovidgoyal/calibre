@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-27 04:02+0000\n"
-"PO-Revision-Date: 2010-02-27 02:55+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-03-01 22:31+0000\n"
+"Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-28 04:52+0000\n"
+"X-Launchpad-Export-Date: 2010-03-02 04:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -621,7 +621,7 @@ msgstr "Kommunikation mit den Sony PRS-600/700/900 eBook Readern."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3 reader."
-msgstr ""
+msgstr "Kommunikation mit dem Teclast K3 Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:250
 msgid "Unable to detect the %s disk drive. Try rebooting."

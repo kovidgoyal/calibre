@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-02-27 04:02+0000\n"
-"PO-Revision-Date: 2010-03-01 02:00+0000\n"
+"PO-Revision-Date: 2010-03-02 00:48+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Traditional Chinese <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-01 05:00+0000\n"
+"X-Launchpad-Export-Date: 2010-03-02 04:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -2380,71 +2380,71 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:33
 msgid "Confirm before deleting"
-msgstr ""
+msgstr "刪除前確認"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:35
 msgid "Toolbar icon size"
-msgstr ""
+msgstr "工具列圖示尺寸"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:37
 msgid "Show button labels in the toolbar"
-msgstr ""
+msgstr "在工具列中顯示按鈕標籤"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:39
 msgid "Main window geometry"
-msgstr ""
+msgstr "主視窗位置大小"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:41
 msgid "Notify when a new version is available"
-msgstr ""
+msgstr "當有新版本可用時通知"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:43
 msgid "Use Roman numerals for series number"
-msgstr ""
+msgstr "在叢書編號中使用羅馬數字"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:45
 msgid "Sort tags list by popularity"
-msgstr ""
+msgstr "依熱門度排序標籤清單"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:47
 msgid "Number of covers to show in the cover browsing mode"
-msgstr ""
+msgstr "在封面瀏覽模式中要顯示的封面數量"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:49
 msgid "Defaults for conversion to LRF"
-msgstr ""
+msgstr "轉換為 LRF 的預設值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:51
 msgid "Options for the LRF ebook viewer"
-msgstr ""
+msgstr "LRF 電子書檢視器的選項"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:54
 msgid "Formats that are viewed using the internal viewer"
-msgstr ""
+msgstr "使用內部檢視器觀看的格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:56
 msgid "Columns to be displayed in the book list"
-msgstr ""
+msgstr "在書籍清單中顯示的欄位"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:57
 msgid "Automatically launch content server on application startup"
-msgstr ""
+msgstr "應用程式啟動時自動執行內容伺服器"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:58
 msgid "Oldest news kept in database"
-msgstr ""
+msgstr "保留在資料庫中最舊的新聞"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:59
 msgid "Show system tray icon"
-msgstr ""
+msgstr "顯示系統匣圖示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:61
 msgid "Upload downloaded news to device"
-msgstr ""
+msgstr "將下載的新聞上傳到裝置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:63
 msgid "Delete books from library after uploading to device"
-msgstr ""
+msgstr "上傳到裝置後刪除書庫中的書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:65
 msgid ""
@@ -2454,11 +2454,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:67
 msgid "Disable notifications from the system tray icon"
-msgstr ""
+msgstr "停用系統匣圖示的通知"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:69
 msgid "Default action to perform when send to device button is clicked"
-msgstr ""
+msgstr "當按下「傳送到裝置」按鈕時的預設動作"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:91
 msgid "Maximum number of waiting worker processes"
@@ -2466,11 +2466,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:93
 msgid "Download social metadata (tags/rating/etc.)"
-msgstr ""
+msgstr "下載社交網路元數據（標籤/評等/其他）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:95
 msgid "Overwrite author and title with new metadata"
-msgstr ""
+msgstr "以新的元數據覆蓋作者和書名"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:97
 msgid "Limit max simultaneous jobs to number of CPUs"
@@ -2479,89 +2479,89 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:439
 msgid "Copied"
-msgstr ""
+msgstr "已複製"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:169
 msgid "Copy"
-msgstr ""
+msgstr "複製"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:169
 msgid "Copy to Clipboard"
-msgstr ""
+msgstr "複製到剪貼簿"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:401
 msgid "Choose Files"
-msgstr ""
+msgstr "選擇檔案"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:52
 msgid "Searching in"
-msgstr ""
+msgstr "搜尋"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:173
 msgid "Adding..."
-msgstr ""
+msgstr "加入..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:186
 msgid "Searching in all sub-directories..."
-msgstr ""
+msgstr "搜尋所有的子目錄..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:199
 msgid "Path error"
-msgstr ""
+msgstr "路徑錯誤"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:200
 msgid "The specified directory could not be processed."
-msgstr ""
+msgstr "指定的目錄無法處理。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:495
 msgid "No books"
-msgstr ""
+msgstr "沒有書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:205
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1416
 msgid "No books found"
-msgstr ""
+msgstr "找不到書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:271
 msgid "Added"
-msgstr ""
+msgstr "已加入"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:284
 msgid "Adding failed"
-msgstr ""
+msgstr "加入失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:285
 msgid ""
 "The add books process seems to have hung. Try restarting calibre and adding "
 "the books in smaller increments, until you find the problem book."
-msgstr ""
+msgstr "加入書籍的程序似乎停住了。請試著重新啟動 calibre 並以較少資料量的方式加入書籍，直到您找到出問題的那本書。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:297
 msgid "Duplicates found!"
-msgstr ""
+msgstr "發現重複項目！"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:298
 msgid ""
 "Books with the same title as the following already exist in the database. "
 "Add them anyway?"
-msgstr ""
+msgstr "資料庫中已存在同樣書名的書籍。要強制加入它們嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:301
 msgid "Adding duplicates..."
-msgstr ""
+msgstr "正在加入複本..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:362
 msgid "Saving..."
-msgstr ""
+msgstr "儲存中..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:415
 msgid "Saved"
-msgstr ""
+msgstr "已儲存"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
-msgstr ""
+msgstr "CSV/XML 選項"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:18
@@ -2579,7 +2579,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:17
 msgid "Options specific to"
-msgstr ""
+msgstr "選項指定到"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:18
@@ -2592,7 +2592,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:17
 msgid "output"
-msgstr ""
+msgstr "輸出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:36
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:64
@@ -2628,30 +2628,30 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:37
 msgid "Fields to include in output:"
-msgstr ""
+msgstr "在輸出中包含的欄位："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:17
 msgid "E-book options"
-msgstr ""
+msgstr "電子書選項"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:20
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:280
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1466
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1484
 msgid "Catalog"
-msgstr ""
+msgstr "分類"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:65
 msgid "'Don't include this book' tag:"
-msgstr ""
+msgstr "「不要包含這本書」標籤："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:66
 msgid "'Mark this book as read' tag:"
-msgstr ""
+msgstr "「將這本書標記為已讀」標籤："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:67
 msgid "Additional note tag prefix:"
-msgstr ""
+msgstr "額外的註記標籤前綴："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:68
 msgid "Regex pattern describing tags to exclude as genres:"
@@ -2676,7 +2676,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:74
 msgid "Sort numbers as text"
-msgstr ""
+msgstr "將數字當成文字排序"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:28
 msgid "Tab template for catalog.ui"
@@ -2687,20 +2687,20 @@ msgid ""
 "For settings that cannot be specified in this dialog, use the values saved "
 "in a previous conversion (if they exist) instead of using the defaults "
 "specified in the Preferences"
-msgstr ""
+msgstr "對於不能在這個對話盒指定的設定值，會使用在前一次轉換中儲存的數值（如果有的話），而不使用在偏好設定中指定的預設值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:67
 msgid "Bulk Convert"
-msgstr ""
+msgstr "大量轉換"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:185
 msgid "Options specific to the output format."
-msgstr ""
+msgstr "指定輸出格式的選項。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:15
 msgid "Comic Input"
-msgstr ""
+msgstr "漫畫輸入"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:13
@@ -2708,32 +2708,32 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:13
 msgid "input"
-msgstr ""
+msgstr "輸入"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:94
 msgid "&Number of Colors:"
-msgstr ""
+msgstr "顏色數(&N):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:96
 msgid "Disable &normalize"
-msgstr ""
+msgstr "停用標準化(&N)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:97
 msgid "Keep &aspect ratio"
-msgstr ""
+msgstr "保持長寬比例(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:98
 msgid "Disable &Sharpening"
-msgstr ""
+msgstr "停用銳化(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:104
 msgid "Disable &Trimming"
-msgstr ""
+msgstr "停用截短(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:103
@@ -2743,52 +2743,52 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:99
 msgid "&Landscape"
-msgstr ""
+msgstr "橫向(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:101
 msgid "&Right to left"
-msgstr ""
+msgstr "由右至左(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:100
 msgid "Don't so&rt"
-msgstr ""
+msgstr "不要排序(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:102
 msgid "De&speckle"
-msgstr ""
+msgstr "去除斑點(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:95
 msgid "&Disable comic processing"
-msgstr ""
+msgstr "停用漫畫處理(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:111
 msgid "&Output format:"
-msgstr ""
+msgstr "輸出格式(&O):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
-msgstr ""
+msgstr "除錯"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:21
 msgid "Debug the conversion process."
-msgstr ""
+msgstr "對轉換程序除錯。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:51
 msgid "Choose debug folder"
-msgstr ""
+msgstr "選擇除錯資料夾"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:57
 msgid "Invalid debug directory"
-msgstr ""
+msgstr "無效的除錯資料夾"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:58
 msgid "Failed to create debug directory"
-msgstr ""
+msgstr "無法建立除錯資料夾"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:50
 msgid ""
@@ -2797,6 +2797,8 @@ msgid ""
 "understanding the conversion process and figuring out the correct values for "
 "conversion parameters like Table of Contents and Chapter Detection."
 msgstr ""
+"選擇要放置除錯輸出的資料夾。如果您有指定資料夾，calibre "
+"會放置許多除錯用的輸出資料在裡面。這樣可以幫助我們了解轉換的過程並想出轉換參數的正確數值，像是目錄頁和章節的的偵測。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:53
@@ -2833,26 +2835,26 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:180
 msgid "..."
-msgstr ""
+msgstr "..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:54
 msgid ""
 "The debug process outputs the intermediate HTML generated at various stages "
 "of the conversion process. This HTML can sometimes serve as a good starting "
 "point for hand editing a conversion."
-msgstr ""
+msgstr "除錯程序會輸出在轉換過程中各個階段產生的中間 HTML 檔。這個 HTML 有時也可以當成要手動編輯轉換工作時很好的起點。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
-msgstr ""
+msgstr "EPUB 輸出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:42
 msgid "Do not &split on page breaks"
-msgstr ""
+msgstr "不要在分頁處分割(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:43
 msgid "Split files &larger than:"
-msgstr ""
+msgstr "分割大於此項的檔案(&L):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:44
 msgid " KB"

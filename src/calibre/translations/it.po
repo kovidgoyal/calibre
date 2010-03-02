@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-27 04:02+0000\n"
-"PO-Revision-Date: 2010-02-27 02:23+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-03-01 14:24+0000\n"
+"Last-Translator: incuso <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-28 04:53+0000\n"
+"X-Launchpad-Export-Date: 2010-03-02 04:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -182,7 +182,7 @@ msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
-"Codifica dei caratteri nei file HTML in entrata. Scelte comuni includono: "
+"Codifica dei caratteri nei file HTML in ingresso. Scelte comuni includono: "
 "cp1252, latin1, iso-8859-1 e utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:57
@@ -192,8 +192,8 @@ msgid ""
 "file to the library."
 msgstr ""
 "Creare un archivio PMLZ che contiene il documento PML e tutte le immagini "
-"nella cartella /pmlname_img or /images. Questo plugin é chiamato in azione "
-"ogni volta che si aggiunge un documento PML alla libreria."
+"nella cartella /pmlname_img or /images. Questo plug-in è eseguito ogni volta "
+"che si aggiunge un documento PML alla libreria."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:89
 msgid "Extract cover from comic files"
@@ -217,15 +217,15 @@ msgstr "Estrae le copertine dai file dei fumetti"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:279
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:289
 msgid "Read metadata from %s files"
-msgstr "Legge i metadati da file %s"
+msgstr "Legge i metadati dai file %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:248
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Leggi i metadati dai libri negli archivi RAR"
+msgstr "Leggi i metadati dei libri negli archivi RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:300
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Leggi i metadati dai libri negli archivi ZIP"
+msgstr "Leggi i metadati dei libri negli archivi ZIP"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:311
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:321
