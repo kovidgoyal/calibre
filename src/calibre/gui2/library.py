@@ -211,6 +211,10 @@ class BooksModel(QAbstractTableModel):
         if rows:
             self.refresh_rows(rows, current_row=current_row)
 
+    def refresh_cover_cache(self, ids):
+        if self.cover_cache:
+            self.cover_cache.refresh(ids)
+
     def refresh_rows(self, rows, current_row=-1):
         for row in rows:
             if self.cover_cache:

@@ -27,11 +27,14 @@ from calibre.ebooks.oeb.stylizer import Stylizer
 IMAGE_TAGS = set([XHTML('img'), XHTML('object')])
 KEEP_ATTRS = set(['class', 'style', 'width', 'height', 'align'])
 
+class Unavailable(Exception):
+    pass
+
 class SVGRasterizer(object):
     def __init__(self):
         from calibre.gui2 import is_ok_to_use_qt
         if not is_ok_to_use_qt():
-            raise Exception('Not OK to use Qt')
+            raise Unavailable('Not OK to use Qt')
 
     @classmethod
     def config(cls, cfg):

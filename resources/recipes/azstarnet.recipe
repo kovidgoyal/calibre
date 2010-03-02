@@ -1,10 +1,10 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
-www.azstarnet.com
+azstarnet.com
 '''
-
+import urllib
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Azstarnet(BasicNewsRecipe):
@@ -14,12 +14,12 @@ class Azstarnet(BasicNewsRecipe):
     language              = 'en'
     publisher             = 'azstarnet.com'
     category              = 'news, politics, Arizona, USA'
-    delay                 = 1
     oldest_article        = 3
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'
+    masthead_url          = 'http://azstarnet.com/content/tncms/live/global/resources/images/logo.gif'
     needs_subscription    = True
 
     conversion_options = {
@@ -32,31 +32,27 @@ class Azstarnet(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
+        br.open('http://azstarnet.com/')
         if self.username is not None and self.password is not None:
-            br.open('http://azstarnet.com/registration/retro.php')
-            br.select_form(nr=1)
-            br['email'] = self.username
-            br['pass' ] = self.password
-            br.submit()
+            data = urllib.urlencode({ 'm':'login'
+                                     ,'u':self.username
+                                     ,'p':self.password
+                                     ,'z':'http://azstarnet.com/'
+                                   })
+            br.open('http://azstarnet.com/app/registration/proxy.php',data)
         return br
 
-
-    keep_only_tags = [dict(name='div', attrs={'id':'storycontent'})]
-
-    remove_tags = [
-                     dict(name=['object','link','iframe','base','img'])
-                    ,dict(name='div',attrs={'class':'bannerinstory'})
-                  ]
+    remove_tags = [dict(name=['object','link','iframe','base','img'])]
 
 
     feeds = [
-               (u'Tucson Region', u'http://rss.azstarnet.com/index.php?site=metro')
-              ,(u'Sports'       , u'http://rss.azstarnet.com/index.php?site=sports')
-              ,(u'Business'     , u'http://rss.azstarnet.com/index.php?site=biz-topheadlines')
-              ,(u'Nation-World' , u'http://rss.azstarnet.com/index.php?site=news')
-              ,(u'Opinion'      , u'http://rss.azstarnet.com/index.php?site=opinion')
-              ,(u'Lifestyle'    , u'http://rss.azstarnet.com/index.php?site=accent')
-              ,(u'Food'         , u'http://rss.azstarnet.com/index.php?site=food')
+               (u'Local News'    , u'http://azstarnet.com/search/?f=rss&t=article&c=news/local&l=25&s=start_time&sd=desc')
+              ,(u'National News' , u'http://azstarnet.com/search/?f=rss&t=article&c=news/national&l=25&s=start_time&sd=desc')
+              ,(u'World News'    , u'http://azstarnet.com/search/?f=rss&t=article&c=news/world&l=25&s=start_time&sd=desc')
+              ,(u'Sports'        , u'http://azstarnet.com/search/?f=rss&t=article&c=sports&l=25&s=start_time&sd=desc')
+              ,(u'Opinion'       , u'http://azstarnet.com/search/?f=rss&t=article&c=news/opinion&l=25&s=start_time&sd=desc')
+              ,(u'Movies'        , u'http://azstarnet.com/search/?f=rss&t=article&c=entertainment/movies&l=25&s=start_time&sd=desc')
+              ,(u'Food'          , u'http://azstarnet.com/search/?f=rss&t=article&c=lifestyles/food-and-cooking&l=25&s=start_time&sd=desc')
             ]
 
     def preprocess_html(self, soup):
@@ -64,4 +60,6 @@ class Azstarnet(BasicNewsRecipe):
             del item['style']
         return soup
 
+    def print_version(self, url):
+        return url + '?print=1'
 

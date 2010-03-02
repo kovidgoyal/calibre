@@ -8,7 +8,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import cStringIO
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ptempfile import TemporaryFile

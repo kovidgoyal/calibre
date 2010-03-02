@@ -12,7 +12,7 @@ from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre import islinux, iswindows, isosx
+from calibre import islinux, iswindows, isosx, isfreebsd
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
@@ -579,7 +579,7 @@ _store_app = None
 
 def is_ok_to_use_qt():
     global gui_thread, _store_app
-    if islinux and ':' not in os.environ.get('DISPLAY', ''):
+    if (islinux or isfreebsd) and ':' not in os.environ.get('DISPLAY', ''):
         return False
     if _store_app is None and QApplication.instance() is None:
         _store_app = QApplication([])

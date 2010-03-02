@@ -28,7 +28,7 @@ from calibre.library import server_config as config
 from calibre.library.database2 import LibraryDatabase2, FIELD_MAP
 from calibre.utils.config import config_dir
 from calibre.utils.mdns import publish as publish_zeroconf, \
-                               stop_server as stop_zeroconf
+            stop_server as stop_zeroconf, get_external_ip
 from calibre.ebooks.metadata import fmt_sidx, title_sort
 from calibre.utils.date import now as nowf, fromtimestamp
 
@@ -402,22 +402,44 @@ class LibraryServer(object):
         h.setFormatter(cherrypy._cplogging.logfmt)
         log.access_log.addHandler(h)
 
-
     def start(self):
         self.is_running = False
         self.setup_loggers()
         cherrypy.tree.mount(self, '', config=self.config)
         try:
-            cherrypy.engine.start()
+            try:
+                cherrypy.engine.start()
+            except:
+                ip = get_external_ip()
+                if not ip or ip == '127.0.0.1':
+                    raise
+                cherrypy.log('Trying to bind to single interface: '+ip)
+                cherrypy.config.update({'server.socket_host' : ip})
+                cherrypy.engine.start()
+
             self.is_running = True
-            publish_zeroconf('Books in calibre', '_stanza._tcp',
+            try:
+                publish_zeroconf('Books in calibre', '_stanza._tcp',
                              self.opts.port, {'path':'/stanza'})
+            except:
+                import traceback
+                print 'Failed to start BonJour:'
+                cherrypy.log('Failed to start BonJour:')
+                cherrypy.log(traceback.format_exc())
+                traceback.print_exc()
             cherrypy.engine.block()
         except Exception, e:
             self.exception = e
         finally:
             self.is_running = False
-            stop_zeroconf()
+            try:
+                stop_zeroconf()
+            except:
+                import traceback
+                print 'Failed to stop BonJour:'
+                cherrypy.log('Failed to stop BonJour:')
+                cherrypy.log(traceback.format_exc())
+                traceback.print_exc()
 
     def exit(self):
         cherrypy.engine.exit()

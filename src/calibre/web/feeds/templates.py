@@ -38,7 +38,7 @@ class NavBarTemplate(Template):
         </style>
     </head>
     <body>
-        <div class="navbar calibre_rescale_70" style="text-align:${'center' if center else 'left'};">
+        <div class="calibre_navbar calibre_rescale_70" style="text-align:${'center' if center else 'left'};">
             <hr py:if="bottom" />
             <p py:if="bottom" style="text-align:left">
                 This article was downloaded by <b>${__appname__}</b> from <a href="${url}">${url}</a>
@@ -167,7 +167,7 @@ class FeedTemplate(Template):
             </li>
             </py:for>
         </ul>
-        <div class="navbar calibre_rescale_70">
+        <div class="calibre_navbar calibre_rescale_70">
             | <a href="../index.html">Up one level</a> |
         </div>
         </div>

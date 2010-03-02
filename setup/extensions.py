@@ -11,15 +11,16 @@ from distutils import sysconfig
 
 from PyQt4.pyqtconfig import QtGuiModuleMakefile
 
-from setup import Command, islinux, isosx, SRC, iswindows
-from setup.build_environment import fc_inc, fc_lib, \
+from setup import Command, islinux, isfreebsd, isosx, SRC, iswindows
+from setup.build_environment import fc_inc, fc_lib, chmlib_inc_dirs, \
         fc_error, poppler_libs, poppler_lib_dirs, poppler_inc_dirs, podofo_inc, \
         podofo_lib, podofo_error, poppler_error, pyqt, OSX_SDK, NMAKE, \
         QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, win_ddk, \
         magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs, \
-        magick_error, magick_libs, ft_lib_dirs, ft_libs, jpg_libs, jpg_lib_dirs
+        magick_error, magick_libs, ft_lib_dirs, ft_libs, jpg_libs, \
+        jpg_lib_dirs, chmlib_lib_dirs
 MT
-isunix = islinux or isosx
+isunix = islinux or isosx or isfreebsd
 
 make = 'make' if isunix else NMAKE
 
@@ -56,6 +57,22 @@ if iswindows:
     pdfreflow_libs = ['advapi32', 'User32', 'Gdi32']
 
 extensions = [
+
+    Extension('chmlib',
+            ['calibre/utils/chm/swig_chm.c'],
+            libraries=['ChmLib' if iswindows else 'chm'],
+            inc_dirs=chmlib_inc_dirs,
+            lib_dirs=chmlib_lib_dirs,
+            cflags=["-DSWIG_COBJECT_TYPES"]),
+
+    Extension('chm_extra',
+            ['calibre/utils/chm/extra.c'],
+            libraries=['ChmLib' if iswindows else 'chm'],
+            inc_dirs=chmlib_inc_dirs,
+            lib_dirs=chmlib_lib_dirs,
+            cflags=["-D__PYTHON__"]),
+
+
     Extension('pdfreflow',
                 reflow_sources,
                 headers=reflow_headers,
@@ -148,6 +165,13 @@ if isunix:
     ldflags += shlex.split(os.environ.get('LDFLAGS', ''))
 
 if islinux:
+    cflags.append('-pthread')
+    ldflags.append('-shared')
+    cflags.append('-I'+sysconfig.get_python_inc())
+    ldflags.append('-lpython'+sysconfig.get_python_version())
+
+
+if isfreebsd:
     cflags.append('-pthread')
     ldflags.append('-shared')
     cflags.append('-I'+sysconfig.get_python_inc())

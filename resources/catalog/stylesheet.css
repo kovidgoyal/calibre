@@ -79,6 +79,14 @@ p.unread_book {
 	text-indent:-2em;
 	}
 
+p.date_read {
+	text-align:left;
+	margin-top:0px;
+	margin-bottom:0px;
+	margin-left:6em;
+	text-indent:-6em;
+	}
+
 hr.series_divider {
 	width:50%;
 	margin-left:1em;

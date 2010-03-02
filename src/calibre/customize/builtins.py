@@ -103,6 +103,17 @@ class ComicMetadataReader(MetadataReaderPlugin):
             mi.cover_data = (ext.lower(), data)
         return mi
 
+class CHMMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read CHM metadata'
+    file_types  = set(['chm'])
+    description = _('Read metadata from %s files') % 'CHM'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.chm import get_metadata
+        return get_metadata(stream)
+
+
 class EPUBMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read EPUB metadata'
@@ -384,6 +395,7 @@ from calibre.ebooks.rtf.input import RTFInput
 from calibre.ebooks.tcr.input import TCRInput
 from calibre.ebooks.txt.input import TXTInput
 from calibre.ebooks.lrf.input import LRFInput
+from calibre.ebooks.chm.input import CHMInput
 
 from calibre.ebooks.epub.output import EPUBOutput
 from calibre.ebooks.fb2.output import FB2Output
@@ -422,6 +434,7 @@ from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import N516, EB511
+from calibre.devices.teclast.driver import TECLAST_K3
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
 from calibre.library.catalog import CSV_XML, EPUB_MOBI
@@ -443,6 +456,7 @@ plugins += [
     TCRInput,
     TXTInput,
     LRFInput,
+    CHMInput,
 ]
 plugins += [
     EPUBOutput,
@@ -496,7 +510,8 @@ plugins += [
     README,
     N516,
     EB511,
-    ELONEX
+    ELONEX,
+    TECLAST_K3
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]

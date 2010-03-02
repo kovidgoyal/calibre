@@ -291,7 +291,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(md.actions()[5], SIGNAL('triggered(bool)'),
                 self.__em4__)
         self.__em5__ = partial(self.download_metadata, covers=True,
-                    set_metadata=False)
+                    set_metadata=False, set_social_metadata=False)
         QObject.connect(md.actions()[6], SIGNAL('triggered(bool)'),
                 self.__em5__)
         self.__em6__ = partial(self.download_metadata, covers=False,
@@ -1292,7 +1292,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 break
         if rows:
             current = self.library_view.currentIndex()
-            self.library_view.model().current_changed(current, previous)
+            m = self.library_view.model()
+            m.refresh_cover_cache(map(m.id, rows))
+            if self.cover_flow:
+                self.cover_flow.dataChanged()
+            m.current_changed(current, previous)
 
     def edit_bulk_metadata(self, checked):
         '''
