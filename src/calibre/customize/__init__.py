@@ -129,18 +129,18 @@ class Plugin(object):
                     zip_safe = False
             if zip_safe:
                 sys.path.insert(0, self.plugin_path)
-                self._sys_insertion_path = self.plugin_path
+                self.sys_insertion_path = self.plugin_path
             else:
                 from calibre.ptempfile import TemporaryDirectory
                 self._sys_insertion_tdir = TemporaryDirectory('plugin_unzip')
-                self._sys_insertion_path = self._sys_insertion_tdir.__enter__(*args)
-                zf.extractall(self._sys_insertion_path)
-                sys.path.insert(0, self._sys_insertion_path)
+                self.sys_insertion_path = self._sys_insertion_tdir.__enter__(*args)
+                zf.extractall(self.sys_insertion_path)
+                sys.path.insert(0, self.sys_insertion_path)
             zf.close()
 
 
     def __exit__(self, *args):
-        ip, it = getattr(self, '_sys_insertion_path', None), getattr(self,
+        ip, it = getattr(self, 'sys_insertion_path', None), getattr(self,
                 '_sys_insertion_tdir', None)
         if ip in sys.path:
             sys.path.remove(ip)
