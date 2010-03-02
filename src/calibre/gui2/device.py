@@ -8,7 +8,7 @@ from functools import partial
 from binascii import unhexlify
 
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, QPixmap, \
-                     Qt
+                     Qt, pyqtSignal
 
 from calibre.customize.ui import available_input_formats, available_output_formats, \
     device_plugins
@@ -218,6 +218,16 @@ class DeviceManager(Thread):
         '''Return callable that returns the list of books on device as two booklists'''
         return self.create_job(self._books, done, description=_('Get list of books on device'))
 
+    def _annotations(self, path_map):
+        return self.device.get_annotations(path_map)
+
+    def annotations(self, path_map, done):
+        '''Return mapping of ids to annotations. Each annotation is of the
+        form (type, location_info, content). path_map is a mapping of
+        ids to paths on the device.'''
+        return self.create_job(self._annotations, done, args=[path_map],
+                description=_('Get annotations from device'))
+
     def _sync_booklists(self, booklists):
         '''Sync metadata to device'''
         self.device.sync_booklists(booklists, end_session=False)
@@ -297,6 +307,8 @@ class DeviceAction(QAction):
 
 
 class DeviceMenu(QMenu):
+
+    fetch_annotations = pyqtSignal()
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -389,10 +401,16 @@ class DeviceMenu(QMenu):
 
         self.connect(self.group, SIGNAL('triggered(QAction*)'),
                 self.change_default_action)
-        self.enable_device_actions(False)
         if opts.accounts:
             self.addSeparator()
             self.addMenu(self.email_to_menu)
+        self.addSeparator()
+        annot = self.addAction(_('Fetch annotations (experimental)'))
+        annot.setEnabled(False)
+        annot.triggered.connect(lambda x :
+                self.fetch_annotations.emit())
+        self.annotation_action = annot
+        self.enable_device_actions(False)
 
     def change_default_action(self, action):
         config['default_send_to_device_action'] = repr(action)
@@ -409,7 +427,8 @@ class DeviceMenu(QMenu):
                 self.action_triggered(action)
                 break
 
-    def enable_device_actions(self, enable, card_prefix=(None, None)):
+    def enable_device_actions(self, enable, card_prefix=(None, None),
+            device=None):
         for action in self.actions:
             if action.dest in ('main:', 'carda:0', 'cardb:0'):
                 if not enable:
@@ -427,6 +446,9 @@ class DeviceMenu(QMenu):
                             action.setEnabled(True)
                         else:
                             action.setEnabled(False)
+
+        annot_enable = enable and getattr(device, 'SUPPORTS_ANNOTATIONS', False)
+        self.annotation_action.setEnabled(annot_enable)
 
 
 class Emailer(Thread):

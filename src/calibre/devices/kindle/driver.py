@@ -44,6 +44,7 @@ class KINDLE(USBMS):
     EBOOK_DIR_CARD_A = 'documents'
     DELETE_EXTS = ['.mbp']
     SUPPORTS_SUB_DIRS = True
+    SUPPORTS_ANNOTATIONS = True
 
     WIRELESS_FILE_NAME_PATTERN = re.compile(
     r'(?P<title>[^-]+)-asin_(?P<asin>[a-zA-Z\d]{10,})-type_(?P<type>\w{4})-v_(?P<index>\d+).*')
@@ -59,6 +60,9 @@ class KINDLE(USBMS):
                     mi.title = mi.title.decode(sys.getfilesystemencoding(),
                                                'replace')
         return mi
+
+    def get_annotations(self, path_map):
+        return {}
 
 
 class KINDLE2(KINDLE):
