@@ -143,7 +143,7 @@ extensions = [
 if iswindows:
     extensions.append(Extension('winutil',
                 ['calibre/utils/windows/winutil.c'],
-                libraries=['shell32', 'setupapi'],
+                libraries=['shell32', 'setupapi', 'wininet'],
                 cflags=['/X']
                 ))
 

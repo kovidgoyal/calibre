@@ -51,11 +51,15 @@ wherever possible in this module.
     script being run. So to replace sys.argv, you should use
     `if len(sys.argv) > 1: sys.argv[1:] = winutil.argv()[1-len(sys.argv):]`
 
+.. function:: internet_connected() -> Return True if there is an active
+   internet connection.
+
 */
 
 
 #define UNICODE
 #include <Windows.h>
+#include <Wininet.h>
 #include <Python.h>
 #include <structseq.h>
 #include <timefuncs.h>
@@ -772,6 +776,15 @@ gettmarg(PyObject *args, struct tm *p)
 }
 
 static PyObject *
+winutil_internet_connected(PyObject *self, PyObject *args) {
+    DWORD flags;
+    BOOL ans = InternetGetConnectedState(&flags, 0);
+    if (ans) Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+}
+
+
+static PyObject *
 winutil_strftime(PyObject *self, PyObject *args)
 {
 	PyObject *tup = NULL;
@@ -918,6 +931,10 @@ be a unicode string. Returns unicode strings."
 	{"eject_drive", winutil_eject_drive, METH_VARARGS,
 			"eject_drive(drive_letter)\n\nEject a drive. Raises an exception on failure."
 	},
+
+    {"internet_connected", winutil_internet_connected, METH_VARARGS,
+        "internet_connected()\n\nReturn True if there is an active internet connection"
+    },
 
     {NULL, NULL, 0, NULL}
 };
