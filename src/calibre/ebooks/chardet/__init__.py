@@ -53,13 +53,15 @@ _CHARSET_ALIASES = { "macintosh" : "mac-roman",
                         "x-sjis" : "shift-jis" }
 
 
-def force_encoding(raw, verbose):
+def force_encoding(raw, verbose, assume_utf8=False):
     from calibre.constants import preferred_encoding
     try:
         chardet = detect(raw)
     except:
         chardet = {'encoding':preferred_encoding, 'confidence':0}
     encoding = chardet['encoding']
+    if chardet['confidence'] < 1 and assume_utf8:
+        encoding = 'utf-8'
     if chardet['confidence'] < 1 and verbose:
         print 'WARNING: Encoding detection confidence %d%%'%(chardet['confidence']*100)
     if not encoding:
@@ -73,7 +75,7 @@ def force_encoding(raw, verbose):
 
 
 def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
-                   resolve_entities=False):
+                   resolve_entities=False, assume_utf8=False):
     '''
     Force conversion of byte string to unicode. Tries to look for XML/HTML
     encoding declaration first, if not found uses the chardet library and
@@ -95,7 +97,7 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
                 encoding = match.group(1)
                 break
         if encoding is None:
-            encoding = force_encoding(raw, verbose)
+            encoding = force_encoding(raw, verbose, assume_utf8=assume_utf8)
         try:
             if encoding.lower().strip() == 'macintosh':
                 encoding = 'mac-roman'
