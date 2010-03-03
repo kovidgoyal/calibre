@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-02-27 04:02+0000\n"
-"PO-Revision-Date: 2010-03-02 00:48+0000\n"
+"PO-Revision-Date: 2010-03-02 14:18+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Traditional Chinese <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-02 04:40+0000\n"
+"X-Launchpad-Export-Date: 2010-03-03 04:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -575,7 +575,7 @@ msgstr "正在從裝置中移除書籍..."
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:207
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:177
 msgid "Sending metadata to device..."
-msgstr ""
+msgstr "正在傳送元數據到裝置..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:213
 msgid "Communicate with the Sony PRS-600/700/900 eBook reader."
@@ -658,7 +658,7 @@ msgstr "如果裝置有支援，將檔案放在子目錄中"
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:78
 msgid "Read metadata from files on device"
-msgstr ""
+msgstr "從裝置上的檔案讀取元數據"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:36
 msgid "Template to control how books are saved"
@@ -680,16 +680,16 @@ msgstr "取得裝置資訊..."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:133
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:141
 msgid "Adding books to device metadata listing..."
-msgstr ""
+msgstr "將書籍加入裝置的元數據清單..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:166
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:171
 msgid "Removing books from device metadata listing..."
-msgstr ""
+msgstr "將書籍從裝置的元數據清單移除..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:44
 msgid "%prog [options] mybook.chm"
-msgstr ""
+msgstr "%prog [options] mybook.chm"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:45
 msgid "Output directory. Defaults to current directory"
@@ -2858,34 +2858,34 @@ msgstr "分割大於此項的檔案(&L):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:44
 msgid " KB"
-msgstr ""
+msgstr " KB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:45
 msgid "No default &cover"
-msgstr ""
+msgstr "沒有預設封面(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
-msgstr ""
+msgstr "FB2 輸入"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:29
 msgid "Do not insert a &Table of Contents at the beginning of the book."
-msgstr ""
+msgstr "不要在書籍的開頭插入目錄頁(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:14
 msgid "FB2 Output"
-msgstr ""
+msgstr "FB2 輸出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:47
 msgid "&Inline TOC"
-msgstr ""
+msgstr "行內目錄頁(&I)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:99
 msgid "Font rescaling wizard"
-msgstr ""
+msgstr "字型縮放精靈"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:100
 msgid ""
@@ -2902,20 +2902,25 @@ msgid ""
 "ebook.com/user_manual/conversion.html#font-size-rescaling\">User Manual</a> "
 "for a discussion of how font size rescaling works.</p>"
 msgstr ""
+"<p>這個精靈會協助您依需求選擇適合的字型大小設定鍵。只要有輸入文件的基礎字型大小再鍵入一個輸入字型大小即可。這個精靈會依字型縮放演算法顯示將要映射的字型"
+"大小。您可以調整下面的輸出基礎字型大小和字型設定鍵來調整演算法。當您找到適合的數值後，請按確定。</p>\n"
+"<p>預設值中，如果輸出基礎字型是零而/或有指定字型大小設定鍵，calibre 會使用目前輸出設定檔的數值。</p>\n"
+"<p>請查閱 <a href=\"http://calibre-ebook.com/user_manual/conversion.html#font-"
+"size-rescaling\">User Manual</a> 以了解字型大小縮放如何運作。</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:103
 msgid "&Output document"
-msgstr ""
+msgstr "輸出文件(&O)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:109
 msgid "&Base font size:"
-msgstr ""
+msgstr "基礎字型大小(&B):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:122
 msgid "Font size &key:"
-msgstr ""
+msgstr "字型大小設定鍵(&K):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:110
@@ -2930,78 +2935,78 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:124
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:126
 msgid " pt"
-msgstr ""
+msgstr " pt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:107
 msgid "Use &default values"
-msgstr ""
+msgstr "使用預設數值(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
 msgid "&Input document"
-msgstr ""
+msgstr "輸入文件(&I)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:111
 msgid "&Font size: "
-msgstr ""
+msgstr "字型大小(&F): "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:113
 msgid " will map to size: "
-msgstr ""
+msgstr " 會映射到大小： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:114
 msgid "0.0 pt"
-msgstr ""
+msgstr "0.0 pt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
-msgstr ""
+msgstr "外觀 & 感覺"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:18
 msgid "Control the look and feel of the output"
-msgstr ""
+msgstr "控制輸出的外觀與感覺"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:119
 msgid "&Disable font size rescaling"
-msgstr ""
+msgstr "停用字型大小縮放(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:120
 msgid "Base &font size:"
-msgstr ""
+msgstr "基礎字型大小(&F):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:123
 msgid "Wizard to help you choose an appropriate font size key"
-msgstr ""
+msgstr "協助您選擇適當字型大小設定鍵的精靈"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:125
 msgid "Line &height:"
-msgstr ""
+msgstr "行高(&H):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:127
 msgid "Input character &encoding:"
-msgstr ""
+msgstr "輸入字元編碼(&E):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:128
 msgid "Remove &spacing between paragraphs"
-msgstr ""
+msgstr "移除段落間距(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:129
 msgid "Indent size:"
-msgstr ""
+msgstr "縮排大小："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:130
 msgid ""
 "<p>When calibre removes inter paragraph spacing, it automatically sets a "
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
-msgstr ""
+msgstr "<p>當 calibre 移除內部的段落間距時，會自動設定段落縮排，以確保每個段落能清楚的辨識。這個選項控制了縮排的寬度。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:131
 msgid " em"
-msgstr ""
+msgstr " em"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:132
 msgid "Insert &blank line"
-msgstr ""
+msgstr "插入空白行(&B)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:133
 msgid "No text &justification"
