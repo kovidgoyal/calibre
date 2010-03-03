@@ -14,7 +14,7 @@ class Epicurious(BasicNewsRecipe):
     description = 'Food and Recipes from Epicurious'
     cover_url     = 'http://up6.podbean.com/image-logos/21849_logo.jpg'
     publisher      = 'Epicurious'
-    tags           = 'news, food, gourmet, recipes'          
+    tags           = 'news, food, gourmet, recipes'
     language = 'en'
     use_embedded_content    = False
     no_stylesheets        = True
@@ -38,9 +38,9 @@ class Epicurious(BasicNewsRecipe):
              (u'Recipes: Healthy dinner ', u'http://feeds.epicurious.com/healthy_recipes'),
              (u'New Recipes ', u'http://feeds.epicurious.com/newrecipes'),
              (u'Features ', u'http://feeds.epicurious.com/latestfeatures'),
-             (u'Blogs ', u'http://feeds.feedburner.com/epicurious/epiblog')   
+             (u'Blogs ', u'http://feeds.feedburner.com/epicurious/epiblog')
              ]
-    
+
     match_regexps = [
                      r'http://www.epicurious.com/.*recipes/.*/views'
                      ]
@@ -55,4 +55,4 @@ class Epicurious(BasicNewsRecipe):
         for t in soup.findAll(['table', 'tr', 'td']):
             t.name = 'div'
         return soup
-        
+
