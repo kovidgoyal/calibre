@@ -617,6 +617,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.dispatch_sync_event)
         self.connect(self.action_sync, SIGNAL('triggered(bool)'),
                 self._sync_menu.trigger_default)
+        self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
 
     def add_spare_server(self, *args):
         self.spare_servers.append(Server(limit=int(config['worker_limit']/2.0)))
@@ -855,7 +856,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
             self.device_connected = True
-            self._sync_menu.enable_device_actions(True, self.device_manager.device.card_prefix())
+            self._sync_menu.enable_device_actions(True,
+                    self.device_manager.device.card_prefix(),
+                    self.device_manager.device)
             self.location_view.model().device_connected(self.device_manager.device)
         else:
             self.save_device_view_settings()
@@ -918,7 +921,26 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.sync_catalogs()
     ############################################################################
 
+    ######################### Fetch annotations ################################
 
+    def fetch_annotations(self, *args):
+        #current_device = self.device_manager.device
+        path_map = {}
+        # code to calculate path_map
+        self.device_manager.annotations(Dispatcher(self.annotations_fetched),
+                path_map)
+
+    def annotations_fetched(self, annotation_map):
+        if not annotation_map: return
+        from calibre.gui2.dialogs.progress import ProgressDialog
+        pd = ProgressDialog(_('Adding annotations'),
+                _('Annotations will be saved in the comments field'),
+                min=0, max=0, parent=self)
+        # code to add annotations to database should run in a separate
+        # thread as it could potentially take a long time
+        pd.exec_()
+
+    ############################################################################
 
     ################################# Add books ################################
 
