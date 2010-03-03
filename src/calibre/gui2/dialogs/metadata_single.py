@@ -25,7 +25,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors, \
         authors_to_string, check_isbn
 from calibre.ebooks.metadata.library_thing import cover_from_isbn
-from calibre import islinux
+from calibre import islinux, isfreebsd
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import qt_to_dt
@@ -389,8 +389,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         height_of_rest = self.frameGeometry().height() - self.cover.height()
         width_of_rest  = self.frameGeometry().width() - self.cover.width()
         ag = QCoreApplication.instance().desktop().availableGeometry(self)
-        self.cover.MAX_HEIGHT = ag.height()-(25 if islinux else 0)-height_of_rest
-        self.cover.MAX_WIDTH = ag.width()-(25 if islinux else 0)-width_of_rest
+        self.cover.MAX_HEIGHT = ag.height()-(25 if (islinux or isfreebsd) else 0)-height_of_rest
+        self.cover.MAX_WIDTH = ag.width()-(25 if (islinux or isfreebsd) else 0)-width_of_rest
         if cover:
             pm = QPixmap()
             pm.loadFromData(cover)

@@ -22,7 +22,8 @@ terminal_controller = TerminalController(sys.stdout)
 iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
 isnewosx = isosx and getattr(sys, 'new_app_bundle', False)
-islinux   = not(iswindows or isosx)
+isfreebsd = 'freebsd' in sys.platform.lower()
+islinux   = not(iswindows or isosx or isfreebsd)
 isfrozen  = hasattr(sys, 'frozen')
 isunix = isosx or islinux
 
@@ -56,7 +57,8 @@ if plugins is None:
         sys.path.insert(0, plugin_path)
 
         for plugin in ['pictureflow', 'lzx', 'msdes', 'podofo', 'cPalmdoc',
-            'fontconfig', 'pdfreflow', 'progress_indicator'] + \
+            'fontconfig', 'pdfreflow', 'progress_indicator', 'chmlib',
+            'chm_extra'] + \
                     (['winutil'] if iswindows else []) + \
                     (['usbobserver'] if isosx else []):
             try:

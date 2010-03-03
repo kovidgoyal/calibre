@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os, textwrap, subprocess, shutil, tempfile, atexit, stat, shlex
 
-from setup import Command, islinux, basenames, modules, functions, \
+from setup import Command, islinux, isfreebsd, basenames, modules, functions, \
         __appname__, __version__
 
 HEADER = '''\
@@ -116,7 +116,7 @@ class Develop(Command):
 
 
     def pre_sub_commands(self, opts):
-        if not islinux:
+        if not (islinux or isfreebsd):
             self.info('\nSetting up a source based development environment is only '
                     'supported on linux. On other platforms, see the User Manual'
                     ' for help with setting up a development environment.')
@@ -156,7 +156,7 @@ class Develop(Command):
             self.warn('Failed to compile mount helper. Auto mounting of',
                 ' devices will not work')
 
-        if os.geteuid() != 0:
+        if not isfreebsd and os.geteuid() != 0:
             return self.warn('Must be run as root to compile mount helper. Auto '
                     'mounting of devices will not work.')
         src = os.path.join(self.SRC, 'calibre', 'devices', 'linux_mount_helper.c')
@@ -168,9 +168,10 @@ class Develop(Command):
         ret = p.wait()
         if ret != 0:
             return warn()
-        os.chown(dest, 0, 0)
-        os.chmod(dest, stat.S_ISUID|stat.S_ISGID|stat.S_IRUSR|stat.S_IWUSR|\
-                stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH)
+        if not isfreebsd:
+            os.chown(dest, 0, 0)
+            os.chmod(dest, stat.S_ISUID|stat.S_ISGID|stat.S_IRUSR|stat.S_IWUSR|\
+                    stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH)
         self.manifest.append(dest)
         return dest
 

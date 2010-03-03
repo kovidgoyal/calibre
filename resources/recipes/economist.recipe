@@ -119,6 +119,8 @@ class Economist(BasicNewsRecipe):
             ns = NavigableString(self.tag_to_string(caption))
             div.insert(0, ns)
             div.insert(1, Tag(soup, 'br'))
+            del img['width']
+            del img['height']
             img.extract()
             div.insert(2, img)
             table.replaceWith(div)

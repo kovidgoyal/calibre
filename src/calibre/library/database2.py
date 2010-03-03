@@ -263,7 +263,7 @@ class ResultCache(SearchQueryParser):
                                 if item[loc].strip() != '':
                                     continue
                             matches.add(item[0])
-                            break
+                            continue
                         continue    ### item is empty. No possible matches below
 
                     if q == 'true':

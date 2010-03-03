@@ -12,7 +12,7 @@ warnings.simplefilter('ignore', DeprecationWarning)
 
 
 from calibre.startup import plugins, winutil, winutilerror
-from calibre.constants import iswindows, isosx, islinux, isfrozen, \
+from calibre.constants import iswindows, isosx, islinux, isfreebsd, isfrozen, \
                               terminal_controller, preferred_encoding, \
                               __appname__, __version__, __author__, \
                               win32event, win32api, winerror, fcntl, \
@@ -22,7 +22,7 @@ import mechanize
 if False:
     winutil, winutilerror, __appname__, islinux, __version__
     fcntl, win32event, isfrozen, __author__, terminal_controller
-    winerror, win32api
+    winerror, win32api, isfreebsd
 
 mimetypes.add_type('application/epub+zip',                '.epub')
 mimetypes.add_type('text/x-sony-bbeb+xml',                '.lrs')

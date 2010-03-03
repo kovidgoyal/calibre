@@ -459,7 +459,7 @@ class Py2App(object):
 
     @flush
     def add_misc_libraries(self):
-        for x in ('usb', 'unrar', 'readline.6.0', 'wmflite-0.2.7'):
+        for x in ('usb', 'unrar', 'readline.6.0', 'wmflite-0.2.7', 'chm.0'):
             info('\nAdding', x)
             x = 'lib%s.dylib'%x
             shutil.copy2(join(SW, 'lib', x), self.frameworks_dir)

@@ -215,6 +215,28 @@ def merge_results(one, two):
         else:
             one[idx].smart_update(x)
 
+class MetadataSources(object):
+
+    def __init__(self, sources):
+        self.sources = sources
+
+    def __enter__(self):
+        for s in self.sources:
+            s.__enter__()
+        return self
+
+    def __exit__(self, *args):
+        for s in self.sources:
+            s.__exit__()
+
+    def __call__(self, *args, **kwargs):
+        for s in self.sources:
+            s(*args, **kwargs)
+
+    def join(self):
+        for s in self.sources:
+            s.join()
+
 def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
            verbose=0):
     assert not(title is None and author is None and publisher is None and \
@@ -224,11 +246,10 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
     if isbn is not None:
         isbn = re.sub(r'[^a-zA-Z0-9]', '', isbn).upper()
     fetchers = list(metadata_sources(isbndb_key=isbndb_key))
+    with MetadataSources(fetchers) as manager:
+        manager(title, author, publisher, isbn, verbose)
+        manager.join()
 
-    for fetcher in fetchers:
-        fetcher(title, author, publisher, isbn, verbose)
-    for fetcher in fetchers:
-        fetcher.join()
     results = list(fetchers[0].results)
     for fetcher in fetchers[1:]:
         merge_results(results, fetcher.results)
@@ -243,10 +264,9 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
 def get_social_metadata(mi, verbose=0):
     from calibre.customize.ui import metadata_sources
     fetchers = list(metadata_sources(metadata_type='social'))
-    for fetcher in fetchers:
-        fetcher(mi.title, mi.authors, mi.publisher, mi.isbn, verbose)
-    for fetcher in fetchers:
-        fetcher.join()
+    with MetadataSources(fetchers) as manager:
+        manager(mi.title, mi.authors, mi.publisher, mi.isbn, verbose)
+        manager.join()
     ratings, tags, comments = [], set([]), set([])
     for fetcher in fetchers:
         if fetcher.results:

@@ -4,13 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Read data from .mobi files
 '''
 
-import functools
-import os
-import re
-import struct
-import textwrap
-import cStringIO
-import sys
+import functools, shutil, os, re, struct, textwrap, cStringIO, sys
 
 try:
     from PIL import Image as PILImage
@@ -619,6 +613,16 @@ class MobiReader(object):
             if not os.path.exists(os.path.join(os.path.dirname(htmlfile),
                 * opf.cover.split('/'))):
                 opf.cover = None
+
+        cover = opf.cover
+        if cover is not None:
+            cover = cover.replace('/', os.sep)
+            if os.path.exists(cover):
+                ncover = 'images'+os.sep+'calibre_cover.jpg'
+                if os.path.exists(ncover):
+                    os.remove(ncover)
+                shutil.copyfile(cover, ncover)
+            opf.cover = ncover.replace(os.sep, '/')
 
         manifest = [(htmlfile, 'application/xhtml+xml'),
             (os.path.abspath('styles.css'), 'text/css')]

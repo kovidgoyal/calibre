@@ -1294,7 +1294,7 @@ class EPUB_MOBI(CatalogPlugin):
 
                                 if entry_type:
                                     user_notes[location] = dict(type=entry_type, id=self.id,
-                                                                      text=data[eo+8:eo+8+rec_len].decode('utf-16-be'))
+                                                                text=data[eo+8:eo+8+rec_len].decode('utf-16-be'))
                                     #print " %2d: %s %s" % (current_entry, entry_type,'at %d' % location if location else '')
                                 #if current_block == 'text_block':
                                     #self.textdump(text)
@@ -1307,12 +1307,17 @@ class EPUB_MOBI(CatalogPlugin):
                             while sig == 'BKMK':
                                 # Fix start location for Highlights using BKMK data
                                 end_loc, = unpack('>I', data[eo+0x10:eo+0x14])
-                                #print "looking for end_loc %d in BKMK" % end_loc
                                 if end_loc in user_notes and user_notes[end_loc]['type'] != 'Note':
                                     start, = unpack('>I', data[eo+8:eo+12])
                                     user_notes[start] = user_notes[end_loc]
                                     user_notes.pop(end_loc)
                                     #print "changing start location of %d to %d" % (end_loc,start)
+                                else:
+                                    # If a bookmark coincides with a user annotation, the locs could
+                                    # be the same - cheat by nudging -1
+                                    # Skip bookmark for last_read_location
+                                    if end_loc != self.last_read_location:
+                                        user_notes[end_loc - 1] = dict(type='Bookmark',id=self.id,text=None)
                                 rec_len, = unpack('>I', data[eo+4:eo+8])
                                 eo += rec_len + 8
                                 sig = data[eo:eo+4]
@@ -3361,7 +3366,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.ncxSoup = ncx_soup
 
         def updateLibraryComments(self):
-            # Push user notes back to library
+            # Append user notes to library book['comments'], catalog book['description']
             from calibre.library.cli import send_message as calibre_send_message
 
             if self.bookmarked_books:
@@ -3395,22 +3400,30 @@ class EPUB_MOBI(CatalogPlugin):
                         user_notes = self.bookmarked_books[id][0].user_notes
                         annotations = []
 
-                        '''
-                        spanTag = Tag(ka_soup, 'span')
-                        spanTag['style'] = 'font-style:italic;font-weight:bold'
-                        spanTag.insert(0,NavigableString("Kindle Annotations"))
-                        divTag.insert(dtc, spanTag)
-                        dtc += 1
-                        divTag.insert(dtc, Tag(ka_soup,'br'))
-                        dtc += 1
-                        '''
+                        if False:
+                            spanTag = Tag(ka_soup, 'span')
+                            spanTag['style'] = 'font-style:italic;font-weight:bold;text-align:right'
+                            spanTag.insert(0,NavigableString("Kindle Annotations"))
+                            divTag.insert(dtc, spanTag)
+                            dtc += 1
+                            divTag.insert(dtc, Tag(ka_soup,'br'))
+                            dtc += 1
 
                         # Add the annotations sorted by location
+                        # Italicize highlighted text
                         for location in sorted(user_notes):
-                            annotations.append('<b>Location %d &bull; %s</b><br />%s<br />' % \
-                                                self.magicKindleLocationCalculator(location),
-                                                user_notes[location]['type'],
-                                                user_notes[location]['text'])
+                            if user_notes[location]['text']:
+                                annotations.append('<b>Location %d &bull; %s</b><br />%s<br />' % \
+                                                    (self.magicKindleLocationCalculator(location),
+                                                     user_notes[location]['type'],
+                                                     user_notes[location]['text'] if \
+                                                        user_notes[location]['type'] == 'Note' else \
+                                                        '<i>%s</i>' % user_notes[location]['text']))
+                            else:
+                                annotations.append('<b>Location %d &bull; %s</b><br />' % \
+                                                    (self.magicKindleLocationCalculator(location),
+                                                     user_notes[location]['type']))
+
                         for annotation in annotations:
                             divTag.insert(dtc, annotation)
                             dtc += 1

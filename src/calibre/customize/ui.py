@@ -401,7 +401,7 @@ def initialize_plugins():
                 plugin = load_plugin(zfp) if not isinstance(zfp, type) else zfp
             except PluginNotFound:
                 continue
-            plugin = initialize_plugin(plugin, zfp if not isinstance(zfp, type) else zfp)
+            plugin = initialize_plugin(plugin, None if isinstance(zfp, type) else zfp)
             _initialized_plugins.append(plugin)
         except:
             print 'Failed to initialize plugin...'

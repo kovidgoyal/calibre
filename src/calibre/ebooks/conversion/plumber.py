@@ -731,7 +731,8 @@ OptionRecommendation(name='timestamp',
             zf = ZipFile(os.path.join(self.opts.debug_pipeline,
                 'periodical.downloaded_recipe'), 'w')
             zf.add_dir(out_dir)
-            self.input_plugin.save_download(zf)
+            with self.input_plugin:
+                self.input_plugin.save_download(zf)
             zf.close()
 
         self.log.info('Input debug saved to:', out_dir)
@@ -780,28 +781,29 @@ OptionRecommendation(name='timestamp',
         self.ui_reporter(0.01, _('Converting input to HTML...'))
         ir = CompositeProgressReporter(0.01, 0.34, self.ui_reporter)
         self.input_plugin.report_progress = ir
-        self.oeb = self.input_plugin(stream, self.opts,
-                                    self.input_fmt, self.log,
-                                    accelerators, tdir)
-        if self.opts.debug_pipeline is not None:
-            self.dump_input(self.oeb, tdir)
-            if self.abort_after_input_dump:
-                return
-        if self.input_fmt in ('recipe', 'downloaded_recipe'):
-            self.opts_to_mi(self.user_metadata)
-        if not hasattr(self.oeb, 'manifest'):
-            self.oeb = create_oebbook(self.log, self.oeb, self.opts,
-                    self.input_plugin)
-        self.input_plugin.postprocess_book(self.oeb, self.opts, self.log)
-        self.opts.is_image_collection = self.input_plugin.is_image_collection
-        pr = CompositeProgressReporter(0.34, 0.67, self.ui_reporter)
-        self.flush()
-        if self.opts.debug_pipeline is not None:
-            out_dir = os.path.join(self.opts.debug_pipeline, 'parsed')
-            self.dump_oeb(self.oeb, out_dir)
-            self.log('Parsed HTML written to:', out_dir)
-        self.input_plugin.specialize(self.oeb, self.opts, self.log,
-                self.output_fmt)
+        with self.input_plugin:
+            self.oeb = self.input_plugin(stream, self.opts,
+                                        self.input_fmt, self.log,
+                                        accelerators, tdir)
+            if self.opts.debug_pipeline is not None:
+                self.dump_input(self.oeb, tdir)
+                if self.abort_after_input_dump:
+                    return
+            if self.input_fmt in ('recipe', 'downloaded_recipe'):
+                self.opts_to_mi(self.user_metadata)
+            if not hasattr(self.oeb, 'manifest'):
+                self.oeb = create_oebbook(self.log, self.oeb, self.opts,
+                        self.input_plugin)
+            self.input_plugin.postprocess_book(self.oeb, self.opts, self.log)
+            self.opts.is_image_collection = self.input_plugin.is_image_collection
+            pr = CompositeProgressReporter(0.34, 0.67, self.ui_reporter)
+            self.flush()
+            if self.opts.debug_pipeline is not None:
+                out_dir = os.path.join(self.opts.debug_pipeline, 'parsed')
+                self.dump_oeb(self.oeb, out_dir)
+                self.log('Parsed HTML written to:', out_dir)
+            self.input_plugin.specialize(self.oeb, self.opts, self.log,
+                    self.output_fmt)
 
         pr(0., _('Running transforms on ebook...'))
 
@@ -891,7 +893,8 @@ OptionRecommendation(name='timestamp',
         our = CompositeProgressReporter(0.67, 1., self.ui_reporter)
         self.output_plugin.report_progress = our
         our(0., _('Creating')+' %s'%self.output_plugin.name)
-        self.output_plugin.convert(self.oeb, self.output, self.input_plugin,
+        with self.output_plugin:
+            self.output_plugin.convert(self.oeb, self.output, self.input_plugin,
                 self.opts, self.log)
         self.ui_reporter(1.)
         run_plugins_on_postprocess(self.output, self.output_fmt)
