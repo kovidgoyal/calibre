@@ -12,8 +12,9 @@ from urllib import unquote
 from calibre.customize.conversion import OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
-from calibre import strftime, guess_type, prepare_string_for_xml
+from calibre import strftime, guess_type, prepare_string_for_xml, CurrentDir
 from calibre.customize.conversion import OptionRecommendation
+from calibre.constants import filesystem_encoding
 
 from lxml import etree
 
@@ -170,6 +171,19 @@ class EPUBOutput(OutputFormatPlugin):
 
         self.workaround_sony_quirks()
 
+        from calibre.ebooks.oeb.base import OPF
+        identifiers = oeb.metadata['identifier']
+        uuid = None
+        for x in identifiers:
+            if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode(x).startswith('urn:uuid:'):
+                uuid = unicode(x).split(':')[-1]
+                break
+        if uuid is None:
+            self.log.warn('No UUID identifier found')
+            from uuid import uuid4
+            uuid = str(uuid4())
+            oeb.metadata.add('identifier', uuid, scheme='uuid', id=uuid)
+
         with TemporaryDirectory('_epub_output') as tdir:
             from calibre.customize.ui import plugin_for_output_format
             oeb_output = plugin_for_output_format('oeb')
@@ -177,10 +191,16 @@ class EPUBOutput(OutputFormatPlugin):
             opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
             self.condense_ncx([os.path.join(tdir, x) for x in os.listdir(tdir)\
                     if x.endswith('.ncx')][0])
+            encrypted_fonts = getattr(input_plugin, 'encrypted_fonts', [])
+            encryption = None
+            if encrypted_fonts:
+                encryption = self.encrypt_fonts(encrypted_fonts, tdir, uuid)
 
             from calibre.ebooks.epub import initialize_container
             epub = initialize_container(output_path, os.path.basename(opf))
             epub.add_dir(tdir)
+            if encryption is not None:
+                epub.writestr('META-INF/encryption.xml', encryption)
             if opts.extract_to is not None:
                 if os.path.exists(opts.extract_to):
                     shutil.rmtree(opts.extract_to)
@@ -188,6 +208,52 @@ class EPUBOutput(OutputFormatPlugin):
                 epub.extractall(path=opts.extract_to)
                 self.log.info('EPUB extracted to', opts.extract_to)
             epub.close()
+
+    def encrypt_fonts(self, uris, tdir, uuid):
+        from binascii import unhexlify
+
+        key = re.sub(r'[^a-fA-F0-9]', '', uuid)
+        if len(key) < 16:
+            raise ValueError('UUID identifier %r is invalid'%uuid)
+        key = unhexlify((key + key)[:32])
+        key = tuple(map(ord, key))
+        paths = []
+        with CurrentDir(tdir):
+            paths = [os.path.join(*x.split('/')) for x in uris]
+            uris = dict(zip(uris, paths))
+            fonts = []
+            for uri in list(uris.keys()):
+                path = uris[uri]
+                if isinstance(path, unicode):
+                    path = path.encode(filesystem_encoding)
+                if not os.path.exists(path):
+                    uris.pop(uri)
+                    continue
+                self.log.debug('Encrypting font:', uri)
+                with open(path, 'r+b') as f:
+                    data = f.read(1024)
+                    f.seek(0)
+                    for i in range(1024):
+                        f.write(chr(ord(data[i]) ^ key[i%16]))
+                if not isinstance(uri, unicode):
+                    uri = uri.decode('utf-8')
+                fonts.append(u'''
+                <enc:EncryptedData>
+                    <enc:EncryptionMethod Algorithm="http://ns.adobe.com/pdf/enc#RC"/>
+                    <enc:CipherData>
+                    <enc:CipherReference URI="%s"/>
+                    </enc:CipherData>
+                </enc:EncryptedData>
+                '''%(uri.replace('"', '\\"')))
+            if fonts:
+                    ans = '''<encryption
+                    xmlns="urn:oasis:names:tc:opendocument:xmlns:container"
+                    xmlns:enc="http://www.w3.org/2001/04/xmlenc#"
+                    xmlns:deenc="http://ns.adobe.com/digitaleditions/enc">
+                    '''
+                    ans += (u'\n'.join(fonts)).encode('utf-8')
+                    ans += '\n</encryption>'
+                    return ans
 
     def default_cover(self):
         '''
