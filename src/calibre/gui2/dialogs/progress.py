@@ -40,7 +40,6 @@ class ProgressDialog(QDialog, Ui_Dialog):
         return property(fget=fget, fset=fset)
 
 
-
     def set_min(self, min):
         self.bar.setMinimum(min)
 

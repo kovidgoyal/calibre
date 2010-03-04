@@ -97,8 +97,7 @@ class BookInfo(QDialog, Ui_BookInfo):
         info = self.view.model().get_book_info(row)
         self.setWindowTitle(info[_('Title')])
         self.title.setText('<b>'+info.pop(_('Title')))
-        self.comments.setText(info.pop(_('Comments'), ''))
-
+        self.comments.setText('<div>%s</div>' % info.pop(_('Comments'), ''))
         cdata = info.pop('cover', '')
         self.cover_pixmap = QPixmap.fromImage(cdata)
         self.resize_cover()

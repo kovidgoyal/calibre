@@ -17,6 +17,7 @@ import time
 import re
 import sys
 import glob
+
 from itertools import repeat
 
 from calibre.devices.interface import DevicePlugin
@@ -792,6 +793,12 @@ class Device(DeviceConfig, DevicePlugin):
         for files to be uploaded to the device
         '''
         return components
+
+    def get_annotations(self, path_map):
+        '''
+        Resolve path_map to annotation_map of files found on the device
+        '''
+        return {}
 
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
         path = os.path.abspath(path)

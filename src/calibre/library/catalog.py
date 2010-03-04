@@ -1,3 +1,6 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Greg Riker <griker at hotmail.com>'
+
 import datetime, htmlentitydefs, os, re, shutil
 
 from collections import namedtuple
@@ -1020,6 +1023,8 @@ class EPUB_MOBI(CatalogPlugin):
             for record in data:
                 this_title = {}
 
+                this_title['id'] = record['id']
+
                 this_title['title'] = self.convertHTMLEntities(record['title'])
                 if record['series']:
                     this_title['series'] = record['series']
@@ -1037,19 +1042,11 @@ class EPUB_MOBI(CatalogPlugin):
                     else:
                         this_title['author'] = 'Unknown'
 
-                '''
-                this_title['author_sort_original'] =  record['author_sort']
-                author_sort =  record['author_sort'] if len(record['author_sort'].strip()) \
-                     else self.author_to_author_sort(this_title['author'])
-                author_sort = author_sort[0].upper() + author_sort[1:]
-                this_title['author_sort'] = author_sort
-                '''
                 if 'author_sort' in record and record['author_sort'].strip():
                     this_title['author_sort'] = record['author_sort']
                 else:
                     this_title['author_sort'] = self.author_to_author_sort(this_title['author'])
 
-                this_title['id'] = record['id']
                 if record['publisher']:
                     this_title['publisher'] = re.sub('&', '&amp;', record['publisher'])
 
@@ -1178,12 +1175,9 @@ class EPUB_MOBI(CatalogPlugin):
             Preferences|Add/Save|Sending to device, not a customized one specified in
             the Kindle plugin
             '''
-            from cStringIO import StringIO
-            from struct import unpack
-
             from calibre.devices.usbms.device import Device
+            from calibre.devices.kindle.driver import Bookmark
             from calibre.ebooks.metadata import MetaInformation
-            from calibre.ebooks.metadata.mobi import StreamSlicer
 
             class BookmarkDevice(Device):
                 def initialize(self, save_template):
@@ -1192,115 +1186,12 @@ class EPUB_MOBI(CatalogPlugin):
                 def save_template(self):
                     return self._save_template
 
-            class Bookmark():
-                '''
-                A simple class storing bookmark data
-                Kindle-specific
-                '''
-                def __init__(self,path, formats, id):
-                    self.book_format = None
-                    self.book_length = 0
-                    self.id = id
-                    self.last_read_location = 0
-                    self.timestamp = 0
-                    self.get_bookmark_data(path)
-                    self.get_book_length(path, formats)
-
-
-                def get_bookmark_data(self, path):
-                    ''' Return the timestamp and last_read_location '''
-                    with open(path,'rb') as f:
-                        stream = StringIO(f.read())
-                        data = StreamSlicer(stream)
-                        self.timestamp, = unpack('>I', data[0x24:0x28])
-                        bpar_offset, = unpack('>I', data[0x4e:0x52])
-                        #print "bpar_offset: 0x%x" % bpar_offset
-                        lrlo = bpar_offset + 0x0c
-                        self.last_read_location = int(unpack('>I', data[lrlo:lrlo+4])[0])
-                        '''
-                        iolr = bpar_offset + 0x14
-                        index_of_last_read, = unpack('>I', data[iolr:iolr+4])
-                        #print "index_of_last_read: 0x%x" % index_of_last_read
-                        bpar_len, = unpack('>I', data[bpl:bpl+4])
-                        bpar_len += 8
-                        #print "bpar_len: 0x%x" % bpar_len
-                        dro = bpar_offset + bpar_len
-                        #print "dro: 0x%x" % dro
-
-                        # Walk to index_of_last_read to find last_read_location
-                        # If BKMK - offset 8
-                        # If DATA - offset 0x18 + 0x1c
-                        current_entry = 1
-                        while current_entry < index_of_last_read:
-                            rec_len, = unpack('>I', data[dro+4:dro+8])
-                            rec_len += 8
-                            dro += rec_len
-                            current_entry += 1
-
-                        # Looking at the record with last_read_location
-                        if data[dro:dro+4] == 'DATA':
-                            lrlo = dro + 0x18 + 0x1c
-                        elif data[dro:dro+4] == 'BKMK':
-                            lrlo = dro + 8
-                        else:
-                            print "Unrecognized bookmark block type"
-
-                        #print "lrlo: 0x%x" % lrlo
-                        self.last_read_location = float(unpack('>I', data[lrlo:lrlo+4])[0])
-                        #print "last_read_location: 0x%x" % self.last_read_location
-                        '''
-
-                def get_book_length(self, path, formats):
-                    # This assumes only one of the possible formats exists on the Kindle
-                    book_fs = None
-                    for format in formats:
-                        fmt = format.rpartition('.')[2]
-                        if fmt in ['mobi','prc','azw']:
-                            book_fs = path.replace('.mbp','.%s' % fmt)
-                            if os.path.exists(book_fs):
-                                self.book_format = fmt
-                                #print "%s exists on device" % book_fs
-                                break
-                    else:
-                        #print "no files matching library formats exist on device"
-                        self.book_length = 0
-                        return
-                    # Read the book len from the header
-                    with open(book_fs,'rb') as f:
-                        self.stream = StringIO(f.read())
-                        self.data = StreamSlicer(self.stream)
-                        self.nrecs, = unpack('>H', self.data[76:78])
-                        record0 = self.record(0)
-                        #self.hexdump(record0)
-                        self.book_length = int(unpack('>I', record0[0x04:0x08])[0])
-
-                def record(self, n):
-                    if n >= self.nrecs:
-                        raise ValueError('non-existent record %r' % n)
-                    offoff = 78 + (8 * n)
-                    start, = unpack('>I', self.data[offoff + 0:offoff + 4])
-                    stop = None
-                    if n < (self.nrecs - 1):
-                        stop, = unpack('>I', self.data[offoff + 8:offoff + 12])
-                    return StreamSlicer(self.stream, start, stop)
-
-                def hexdump(self, src, length=16):
-                    # Diagnostic
-                    FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
-                    N=0; result=''
-                    while src:
-                       s,src = src[:length],src[length:]
-                       hexa = ' '.join(["%02X"%ord(x) for x in s])
-                       s = s.translate(FILTER)
-                       result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
-                       N+=length
-                    print result
-
             if self.generateRecentlyRead:
                 self.opts.log.info("     Collecting Kindle bookmarks matching catalog entries")
 
                 d = BookmarkDevice(None)
                 d.initialize(self.opts.connected_device['save_template'])
+
                 bookmarks = {}
                 for book in self.booksByTitle:
                     original_title = book['title'][book['title'].find(':') + 2:] if book['series'] \
@@ -1323,7 +1214,6 @@ class EPUB_MOBI(CatalogPlugin):
                                 bm_found = True
                         if bm_found:
                             break
-
                 self.bookmarked_books = bookmarks
             else:
                 self.bookmarked_books = {}
@@ -1378,15 +1268,14 @@ class EPUB_MOBI(CatalogPlugin):
 
                 # This will include the reading progress dots even if we're not generating Recently Read
                 if self.opts.connected_kindle and title['id'] in self.bookmarked_books:
-                    authorTag.insert(0, NavigableString(title['reading_progress'] + " by "))
-                    authorTag.insert(1, aTag)
+                    authorTag.insert(0, NavigableString(self.READING_SYMBOL + " by "))
                 else:
-                    # Insert READ_SYMBOL
+                    # Insert READ/NOT_READ SYMBOL
                     if title['read']:
                         authorTag.insert(0, NavigableString(self.READ_SYMBOL + "by "))
                     else:
                         authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + "by "))
-                    authorTag.insert(1, aTag)
+                authorTag.insert(1, aTag)
 
                 '''
                 # Insert Series info or remove.
@@ -3914,6 +3803,14 @@ class EPUB_MOBI(CatalogPlugin):
                                             '%s%s\n\n%s' % (lost_cr.group(1),
                                                             lost_cr.group(2),
                                                             lost_cr.group(3)))
+            # Extract pre-built elements - annotations, etc.
+            soup = BeautifulSoup(comments)
+            elems = soup.findAll('div')
+            for elem in elems:
+                elem.extract()
+
+            # Reconstruct comments w/o <div>s
+            comments = soup.renderContents()
 
             # Convert \n\n to <p>s
             if re.search('\n\n', comments):
@@ -3933,7 +3830,6 @@ class EPUB_MOBI(CatalogPlugin):
             # Convert two hypens to emdash
             comments = re.sub('--','&mdash;',comments)
             soup = BeautifulSoup(comments)
-
             result = BeautifulSoup()
             rtc = 0
             open_pTag = False
@@ -3948,7 +3844,7 @@ class EPUB_MOBI(CatalogPlugin):
                     pTag.insert(ptc,prepare_string_for_xml(token))
                     ptc += 1
 
-                elif token.name in ['br','b','i']:
+                elif token.name in ['br','b','i','em']:
                     if not open_pTag:
                         pTag = Tag(result,'p')
                         open_pTag = True
@@ -3977,7 +3873,15 @@ class EPUB_MOBI(CatalogPlugin):
             for p in paras:
                 p['class'] = 'description'
 
+            # Add back <div> elems initially removed
+            for elem in elems:
+                result.insert(rtc,elem)
+                rtc += 1
+
             return result.renderContents(encoding=None)
+
+        def magicKindleLocationCalculator(self,offset):
+            return offset/150 + 1
 
         def processSpecialTags(self, tags, this_title, opts):
             tag_list = []

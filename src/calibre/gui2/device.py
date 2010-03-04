@@ -221,7 +221,7 @@ class DeviceManager(Thread):
     def _annotations(self, path_map):
         return self.device.get_annotations(path_map)
 
-    def annotations(self, path_map, done):
+    def annotations(self, done, path_map):
         '''Return mapping of ids to annotations. Each annotation is of the
         form (type, location_info, content). path_map is a mapping of
         ids to paths on the device.'''

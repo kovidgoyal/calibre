@@ -93,3 +93,10 @@ hr.series_divider {
 	margin-top:0em;
 	margin-bottom:0em;
 	}
+
+hr.annotations_divider {
+	width:50%;
+	margin-left:1em;
+	margin-top:0em;
+	margin-bottom:0em;
+	}
