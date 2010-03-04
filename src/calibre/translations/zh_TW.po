@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-02-27 04:02+0000\n"
-"PO-Revision-Date: 2010-03-02 14:18+0000\n"
+"PO-Revision-Date: 2010-03-04 04:46+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Traditional Chinese <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-03 04:45+0000\n"
+"X-Launchpad-Export-Date: 2010-03-04 04:51+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -2353,12 +2353,14 @@ msgid ""
 "for compatibility with Mac OS 9 and earlier. For Mac OS X use 'unix'. "
 "'system' will default to the newline type used by this OS."
 msgstr ""
+"要使用的換行(newline)字元類型。選項有 %s。預設值為「system」(系統)。使用「old_mac」(舊式 Mac) 可以相容於 Mac OS "
+"9 及更早的版本。Mac OS X 請使用「unix」。「system」預設會使用這個電腦的 OS 所使用的換行字元。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:30
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8. "
 "Note: This option is not honored by all formats."
-msgstr ""
+msgstr "指定輸出文件的字元編碼。預設值為 utf-8。注意：這個選項並不一定能用於所有的格式。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:38
 msgid ""
@@ -2367,16 +2369,18 @@ msgid ""
 "the space after and will exceed the specified value. Also, there is a "
 "minimum of 25 characters. Use 0 to disable line splitting."
 msgstr ""
+"每一行的最大字元數。這會在指定數值前的第一個空白處斷行。如果在行中沒有空白，則會使用超過指定數值後的空白處斷行。同時，這個數值最小為 25 個字元。使用 "
+"0 表示停用斷行。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:45
 msgid ""
 "Force splitting on the max-line-length value when no space is present. Also "
 "allows max-line-length to be below the minimum"
-msgstr ""
+msgstr "當沒有空白時強制於 max-line-length 值處分割。同時允許 max-line-length 成為下列的最小值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:31
 msgid "Send file to storage card instead of main memory by default"
-msgstr ""
+msgstr "預設傳送檔案到記憶卡而非主記憶體"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:33
 msgid "Confirm before deleting"
@@ -3010,59 +3014,59 @@ msgstr "插入空白行(&B)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:133
 msgid "No text &justification"
-msgstr ""
+msgstr "不使用文字左右對齊(&J)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:134
 msgid "&Linearize tables"
-msgstr ""
+msgstr "表格直線化(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:135
 msgid "&Transliterate unicode characters to ASCII."
-msgstr ""
+msgstr "將統一碼字元轉譯為 ASCII (&T)。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:136
 msgid "Extra &CSS"
-msgstr ""
+msgstr "額外的 &CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
-msgstr ""
+msgstr "LRF 輸出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:116
 msgid "Enable &autorotation of wide images"
-msgstr ""
+msgstr "啟用寬圖片自動旋轉(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:117
 msgid "&Wordspace:"
-msgstr ""
+msgstr "字距(&W)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:119
 msgid "Minimum para. &indent:"
-msgstr ""
+msgstr "最小段落縮排(&I):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:121
 msgid "Render &tables as images"
-msgstr ""
+msgstr "將表格繪製為圖片(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:122
 msgid "Text size multiplier for text in rendered tables:"
-msgstr ""
+msgstr "在繪製出的表格中文字要乘上的倍數："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:123
 msgid "Add &header"
-msgstr ""
+msgstr "加入頁首(&H)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:124
 msgid "Header &separation:"
-msgstr ""
+msgstr "頁首分隔(&S):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:126
 msgid "Header &format:"
-msgstr ""
+msgstr "頁首格式(&F):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:127
 msgid "&Embed fonts"
-msgstr ""
+msgstr "內嵌的字型(&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:128
 msgid "&Serif font family:"
@@ -3080,100 +3084,100 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:189
 msgid "Metadata"
-msgstr ""
+msgstr "元數據"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:43
 msgid ""
 "Set the metadata. The output file will contain as much of this metadata as "
 "possible."
-msgstr ""
+msgstr "設定元數據。輸出檔案會儘可能包含這個元數據。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:99
 msgid "Choose cover for "
-msgstr ""
+msgstr "選擇封面給 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:106
 msgid "Cannot read"
-msgstr ""
+msgstr "不能讀取"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:168
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:107
 msgid "You do not have permission to read the file: "
-msgstr ""
+msgstr "您沒有權限可讀取這個檔案： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:176
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:115
 msgid "Error reading file"
-msgstr ""
+msgstr "讀取檔案時發生錯誤"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:116
 msgid "<p>There was an error reading from file: <br /><b>"
-msgstr ""
+msgstr "<p>讀取檔案時發生錯誤： <br /><b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:124
 msgid " is not a valid picture"
-msgstr ""
+msgstr " 不是有效的照片"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:393
 msgid "Book Cover"
-msgstr ""
+msgstr "書籍封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:167
 msgid "Use cover from &source file"
-msgstr ""
+msgstr "使用來源檔案的封面(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:168
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:394
 msgid "Change &cover image:"
-msgstr ""
+msgstr "改變封面圖片(&C):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:169
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:395
 msgid "Browse for an image to use as the cover of this book."
-msgstr ""
+msgstr "瀏覽要成為這本書封面的圖片。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:171
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:354
 msgid "&Title: "
-msgstr ""
+msgstr "書名(&T): "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:355
 msgid "Change the title of this book"
-msgstr ""
+msgstr "改變這本書的書名"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:140
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:358
 msgid "&Author(s): "
-msgstr ""
+msgstr "作者(&A): "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:174
 msgid "Author So&rt:"
-msgstr ""
+msgstr "作者排序(&R):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:175
 msgid ""
 "Change the author(s) of this book. Multiple authors should be separated by a "
 "comma"
-msgstr ""
+msgstr "改變這本書的作者。有多位作者時應以逗號分隔"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:176
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:149
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:367
 msgid "&Publisher: "
-msgstr ""
+msgstr "出版者(&P): "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:368
 msgid "Ta&gs: "
-msgstr ""
+msgstr "標籤(&G): "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:151
@@ -3181,13 +3185,13 @@ msgstr ""
 msgid ""
 "Tags categorize the book. This is particularly useful while searching. "
 "<br><br>They can be any words or phrases, separated by commas."
-msgstr ""
+msgstr "用來分類書籍的標籤。這在搜尋時特別有用。<br><br>這可以是任何字或語詞，以逗號分隔。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:179
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:372
 msgid "&Series:"
-msgstr ""
+msgstr "叢書(&S):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:181
@@ -3196,44 +3200,44 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:373
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:374
 msgid "List of known series. You can add new series."
-msgstr ""
+msgstr "已知叢書的清單。您可以加入新的叢書。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:379
 msgid "Book "
-msgstr ""
+msgstr "書籍 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:20
 msgid "MOBI Output"
-msgstr ""
+msgstr "MOBI 輸出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:42
 msgid "Default"
-msgstr ""
+msgstr "預設值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:58
 msgid "&Title for Table of Contents:"
-msgstr ""
+msgstr "目錄頁的標題(&T):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:59
 msgid "Rescale images for &Palm devices"
-msgstr ""
+msgstr "為 &Palm 裝置重新縮放圖片"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:60
 msgid "Use author &sort for author"
-msgstr ""
+msgstr "以作者進行排序(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:61
 msgid "Disable compression of the file contents"
-msgstr ""
+msgstr "停用檔案內容的壓縮"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:62
 msgid "Do not add Table of Contents to book"
-msgstr ""
+msgstr "不要在書籍中加入目錄頁"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:63
 msgid "Kindle options"
-msgstr ""
+msgstr "Kindle 選項"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:64
 msgid "Masthead font:"
@@ -3241,65 +3245,65 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
-msgstr ""
+msgstr "頁面設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:115
 msgid "&Output profile:"
-msgstr ""
+msgstr "輸出設定檔(&O):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:116
 msgid "Profile description"
-msgstr ""
+msgstr "設定檔描述"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:117
 msgid "&Input profile:"
-msgstr ""
+msgstr "輸入設定檔(&I):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:118
 msgid "Margins"
-msgstr ""
+msgstr "邊界"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:119
 msgid "&Left:"
-msgstr ""
+msgstr "左(&L):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:121
 msgid "&Top:"
-msgstr ""
+msgstr "上(&T):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:123
 msgid "&Right:"
-msgstr ""
+msgstr "右(&R):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:125
 msgid "&Bottom:"
-msgstr ""
+msgstr "下(&B):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input.py:12
 msgid "PDB Input"
-msgstr ""
+msgstr "PDB 輸出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:43
 msgid "Treat each &line as a paragraph"
-msgstr ""
+msgstr "將每一行視為段落(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:33
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:44
 msgid "Assume print formatting"
-msgstr ""
+msgstr "猜測列印格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output.py:16
 msgid "PDB Output"
-msgstr ""
+msgstr "PDB 輸出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:36
 msgid "&Format:"
-msgstr ""
+msgstr "格式(&F):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:12
 msgid "PDF Input"
-msgstr ""
+msgstr "PDF 輸入"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:39
 msgid "Line &Un-Wrapping Factor:"
@@ -3307,28 +3311,28 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:40
 msgid "No &Images"
-msgstr ""
+msgstr "不使用圖片(&I)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output.py:17
 msgid "PDF Output"
-msgstr ""
+msgstr "PDF 輸出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:40
 msgid "&Paper Size:"
-msgstr ""
+msgstr "紙張大小(&P):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:41
 msgid "&Orientation:"
-msgstr ""
+msgstr "紙張方向(&O):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
-msgstr ""
+msgstr "RB 輸出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1661
 msgid "Choose the format to view"
-msgstr ""
+msgstr "選擇要檢視的格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:83
 msgid "Cannot build regex using the GUI builder without a book."
@@ -3336,15 +3340,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:83
 msgid "No formats available"
-msgstr ""
+msgstr "沒有可用的格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:99
 msgid "Open book"
-msgstr ""
+msgstr "開啟書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:99
 msgid "~"
-msgstr ""
+msgstr "~"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:46
 msgid "Regex Builder"
@@ -3352,7 +3356,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:47
 msgid "Preview"
-msgstr ""
+msgstr "預覽"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:48
 msgid "Regex:"
@@ -3360,97 +3364,99 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:171
 msgid "Convert"
-msgstr ""
+msgstr "轉換"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:196
 msgid "Options specific to the input format."
-msgstr ""
+msgstr "用來指定輸入格式的選項。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress_ui.py:48
 msgid "Dialog"
-msgstr ""
+msgstr "對話盒"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:109
 msgid "&Input format:"
-msgstr ""
+msgstr "輸入格式(&I):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:110
 msgid "Use &saved conversion settings for individual books"
-msgstr ""
+msgstr "每本書分別使用已儲存的轉換設定值(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
 "Structure\n"
 "Detection"
 msgstr ""
+"結構\n"
+"偵測"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:19
 msgid ""
 "Fine tune the detection of chapter headings and other document structure."
-msgstr ""
+msgstr "校調章節標題和其他文件結構的偵測。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:34
 msgid "Detect chapters at (XPath expression):"
-msgstr ""
+msgstr "偵測章節於 (XPath 表示式):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:35
 msgid "Insert page breaks before (XPath expression):"
-msgstr ""
+msgstr "在此之前插入分頁符號 (XPath 表示式):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:37
 msgid "Header regular expression:"
-msgstr ""
+msgstr "頁首正規表示式："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:40
 msgid "Footer regular expression:"
-msgstr ""
+msgstr "頁尾正規表示式："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:71
 msgid "Invalid regular expression"
-msgstr ""
+msgstr "不正確的正規表示式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:57
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:72
 msgid "Invalid regular expression: %s"
-msgstr ""
+msgstr "不正確的正規表示式：%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:38
 msgid "Invalid XPath"
-msgstr ""
+msgstr "無效的 XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:39
 msgid "The XPath expression %s is invalid."
-msgstr ""
+msgstr "XPath 表示式 %s 是無效的。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:60
 msgid "Chapter &mark:"
-msgstr ""
+msgstr "章節標記(&M):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:61
 msgid "Remove first &image"
-msgstr ""
+msgstr "移除首張圖片(&I)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:62
 msgid "Insert &metadata as page at start of book"
-msgstr ""
+msgstr "在書籍開頭插入元數據當作一頁(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:63
 msgid "&Preprocess input file to possibly improve structure detection"
-msgstr ""
+msgstr "前置處理輸入檔案儘可能增進結構的偵測(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove F&ooter"
-msgstr ""
+msgstr "移除頁尾(&O)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:65
 msgid "Remove H&eader"
-msgstr ""
+msgstr "移除頁首(&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
@@ -3464,43 +3470,43 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:29
 msgid "Level &1 TOC (XPath expression):"
-msgstr ""
+msgstr "第 &1 級目錄頁 (XPath 表示式):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:30
 msgid "Level &2 TOC (XPath expression):"
-msgstr ""
+msgstr "第 &2 級目錄頁 (XPath 表示式):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:31
 msgid "Level &3 TOC (XPath expression):"
-msgstr ""
+msgstr "第 &3 級目錄頁 (XPath 表示式):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:63
 msgid "Do not add &detected chapters to the Table of Contents"
-msgstr ""
+msgstr "不要將偵測到的章節加入目錄頁(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:64
 msgid "Number of &links to add to Table of Contents"
-msgstr ""
+msgstr "加入目錄頁的連結數(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:65
 msgid "Chapter &threshold"
-msgstr ""
+msgstr "章節界限(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:66
 msgid "&Force use of auto-generated Table of Contents"
-msgstr ""
+msgstr "強制使用自動產生的目錄頁(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:67
 msgid "TOC &Filter:"
-msgstr ""
+msgstr "目錄頁過濾條件(&F):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
-msgstr ""
+msgstr "TXT 輸入"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:45
 msgid "Process using markdown"
-msgstr ""
+msgstr "使用 markdown 處理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:46
 msgid ""
@@ -3508,26 +3514,28 @@ msgid ""
 "advanced formatting. To learn more visit <a "
 "href=\"http://daringfireball.net/projects/markdown\">markdown</a>."
 msgstr ""
+"<p>Markdown 是一種用於純文字檔案的簡易標記語言，可以做進階的格式設計。要了解更多資訊，請參閱 <a "
+"href=\"http://daringfireball.net/projects/markdown\">markdown</a>。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:47
 msgid "Do not insert Table of Contents into output text when using markdown"
-msgstr ""
+msgstr "在使用 markdown 時不要將目錄頁插入輸出文字裡"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:16
 msgid "TXT Output"
-msgstr ""
+msgstr "TXT 輸出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:46
 msgid "&Line ending style:"
-msgstr ""
+msgstr "行結尾樣式(&L):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:48
 msgid "&Maximum line length:"
-msgstr ""
+msgstr "每行最大長度(&M):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:49
 msgid "Force maximum line lenght"
-msgstr ""
+msgstr "強制設定每行最大長度"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:65
@@ -3538,75 +3546,75 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress_ui.py:50
 msgid "TextLabel"
-msgstr ""
+msgstr "文字標籤"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:51
 msgid "Use a wizard to help construct the XPath expression"
-msgstr ""
+msgstr "使用精靈協助建構 XPath 表示式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:68
 msgid "Match HTML &tags with tag name:"
-msgstr ""
+msgstr "以標籤名稱比對 H&TML 標籤："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:69
 msgid "*"
-msgstr ""
+msgstr "*"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:70
 msgid "a"
-msgstr ""
+msgstr "a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:71
 msgid "br"
-msgstr ""
+msgstr "br"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:72
 msgid "div"
-msgstr ""
+msgstr "div"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:73
 msgid "h1"
-msgstr ""
+msgstr "h1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:74
 msgid "h2"
-msgstr ""
+msgstr "h2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:75
 msgid "h3"
-msgstr ""
+msgstr "h3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:76
 msgid "h4"
-msgstr ""
+msgstr "h4"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:77
 msgid "h5"
-msgstr ""
+msgstr "h5"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:78
 msgid "h6"
-msgstr ""
+msgstr "h6"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:79
 msgid "hr"
-msgstr ""
+msgstr "hr"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:80
 msgid "span"
-msgstr ""
+msgstr "span"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:81
 msgid "Having the &attribute:"
-msgstr ""
+msgstr "具有屬性(&A):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:82
 msgid "With &value:"
-msgstr ""
+msgstr "數值為(&V):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:83
 msgid "(A regular expression)"
-msgstr ""
+msgstr "(正規表示式)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:84
 msgid ""
@@ -3617,111 +3625,115 @@ msgid ""
 "tag.</p><p>To learn more advanced usage of XPath see the <a "
 "href=\"http://calibre-ebook.com/user_manual/xpath.html\">XPath Tutorial</a>."
 msgstr ""
+"<p>舉例來說，要比對所有 class=\"chapter\" 的 h2 標籤，請將標籤設為 <i>h2</i>，屬性設為 <i>class</i> "
+"而數值設為 <i>chapter</i>。</p><p>讓屬性留空會比對任何屬性，而讓數值留空則會比對任何數值。將標籤設為 * "
+"則會比對任何標籤。</p><p>要學習更多關於 XPath 的進階用法，請查閱 <a href=\"http://calibre-"
+"ebook.com/user_manual/xpath.html\">XPath Tutorial</a>。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:38
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:135
 msgid "No details available."
-msgstr ""
+msgstr "沒有可用的詳細資料。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:120
 msgid "Device no longer connected."
-msgstr ""
+msgstr "裝置已無連線。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:208
 msgid "Get device information"
-msgstr ""
+msgstr "取得裝置資訊"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:219
 msgid "Get list of books on device"
-msgstr ""
+msgstr "取得裝置上的書籍清單"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:228
 msgid "Send metadata to device"
-msgstr ""
+msgstr "傳送元數據到裝置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:237
 msgid "Upload %d books to device"
-msgstr ""
+msgstr "上傳 %d 本書到裝置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:252
 msgid "Delete books from device"
-msgstr ""
+msgstr "從裝置刪除書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:269
 msgid "Download books from device"
-msgstr ""
+msgstr "從裝置下載書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:279
 msgid "View book on device"
-msgstr ""
+msgstr "檢視裝置上的書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:286
 msgid "and delete from library"
-msgstr ""
+msgstr "並從書庫中刪除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:307
 msgid "Set default send to device action"
-msgstr ""
+msgstr "設定預設的傳送到裝置動作"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:312
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:319
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:321
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:323
 msgid "Email to"
-msgstr ""
+msgstr "寄電子郵件到"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:334
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:341
 msgid "Send to main memory"
-msgstr ""
+msgstr "傳送到主記憶體"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:336
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:343
 msgid "Send to storage card A"
-msgstr ""
+msgstr "傳送到記憶卡 A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:338
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:345
 msgid "Send to storage card B"
-msgstr ""
+msgstr "傳送到記憶卡 B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:348
 msgid "Send specific format to main memory"
-msgstr ""
+msgstr "傳送指定的格式到主記憶體"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:350
 msgid "Send specific format to storage card A"
-msgstr ""
+msgstr "傳送指定的格式到記憶卡 A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:352
 msgid "Send specific format to storage card B"
-msgstr ""
+msgstr "傳送指定的格式到記憶卡 B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:496
 msgid "selected to send"
-msgstr ""
+msgstr "選擇要傳送的項目"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:501
 msgid "Choose format to send to device"
-msgstr ""
+msgstr "選擇要傳送到裝置的格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:508
 msgid "No device"
-msgstr ""
+msgstr "沒有裝置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:509
 msgid "Cannot send: No device is connected"
-msgstr ""
+msgstr "不能傳送：沒有連線中的裝置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:512
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:516
 msgid "No card"
-msgstr ""
+msgstr "沒有記憶卡"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:513
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:517
 msgid "Cannot send: Device has no storage card"
-msgstr ""
+msgstr "不能傳送：裝置沒有記憶卡"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:558
 msgid "E-book:"
