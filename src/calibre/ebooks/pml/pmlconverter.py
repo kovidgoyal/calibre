@@ -79,7 +79,7 @@ class PML_HTMLizer(object):
         'd': ('<span style="text-decoration: line-through;">', '</span>'),
         'b': ('<span style="font-weight: bold;">', '</span>'),
         'l': ('<span style="font-size: 150%;">', '</span>'),
-        'k': ('<span style="font-size: 75%;">', '</span>'),
+        'k': ('<span style="font-size: 75%; font-variant: small-caps;">', '</span>'),
         'FN': ('<br /><br style="page-break-after: always;" /><div id="fn-%s"><p>', '</p><<small><a href="#rfn-%s">return</a></small></div>'),
         'SB': ('<br /><br style="page-break-after: always;" /><div id="sb-%s"><p>', '</p><small><a href="#rsb-%s">return</a></small></div>'),
     }
@@ -154,6 +154,11 @@ class PML_HTMLizer(object):
         self.file_name = ''
 
     def prepare_pml(self, pml):
+        # Give Chapters the form \\*='text'text\\*. This is used for generating
+        # the TOC later.
+        pml = re.sub(r'(?<=\\x)(?P<text>.*?)(?=\\x)', lambda match: '="%s"%s' % (self.strip_pml(match.group('text')), match.group('text')), pml)
+        pml = re.sub(r'(?<=\\X[0-4])(?P<text>.*?)(?=\\X[0-4])', lambda match: '="%s"%s' % (self.strip_pml(match.group('text')), match.group('text')), pml)
+
         # Remove comments
         pml = re.sub(r'(?mus)\\v(?P<text>.*?)\\v', '', pml)
 
@@ -163,7 +168,7 @@ class PML_HTMLizer(object):
         pml = re.sub(r'(?mus)(?<=.)[ ]*$', '', pml)
         pml = re.sub(r'(?mus)^[ ]*$', '', pml)
 
-        # Footnotes and Sidebars
+        # Footnotes and Sidebars.
         pml = re.sub(r'(?mus)<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>', lambda match: '\\FN="%s"%s\\FN' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
         pml = re.sub(r'(?mus)<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', lambda match: '\\SB="%s"%s\\SB' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
 
@@ -171,9 +176,7 @@ class PML_HTMLizer(object):
         # &. It will display as &amp;
         pml = pml.replace('&', '&amp;')
 
-        pml = re.sub(r'(?<=\\x)(?P<text>.*?)(?=\\x)', lambda match: '="%s"%s' % (self.strip_pml(match.group('text')), match.group('text')), pml)
-        pml = re.sub(r'(?<=\\X[0-4])(?P<text>.*?)(?=\\X[0-4])', lambda match: '="%s"%s' % (self.strip_pml(match.group('text')), match.group('text')), pml)
-
+        # Replace \\a and \\U with either the unicode character or the entity.
         pml = re.sub(r'\\a(?P<num>\d{3})', lambda match: '&#%s;' % match.group('num'), pml)
         pml = re.sub(r'\\U(?P<num>[0-9a-f]{4})', lambda match: '%s' % my_unichr(int(match.group('num'), 16)), pml)
 
@@ -536,6 +539,7 @@ class PML_HTMLizer(object):
                         elif '%s%s' % (c, l) == 'Sd':
                             text = self.process_code('Sd', line, 'sb')
                     elif c in 'xXC':
+                        empty = False
                         # The PML was modified eariler so x and X put the text
                         # inside of ="" so we don't have do special processing
                         # for C.
@@ -578,10 +582,7 @@ class PML_HTMLizer(object):
                 else:
                     if c != ' ':
                         empty = False
-                    if self.state['k'][0]:
-                        text = c.upper()
-                    else:
-                        text = c
+                    text = c
                 parsed.append(text)
                 c = line.read(1)
 

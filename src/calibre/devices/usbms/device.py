@@ -17,6 +17,8 @@ import time
 import re
 import sys
 import glob
+
+from collections import namedtuple
 from itertools import repeat
 
 from calibre.devices.interface import DevicePlugin
@@ -88,6 +90,8 @@ class Device(DeviceConfig, DevicePlugin):
     EBOOK_DIR_CARD_B = ''
     DELETE_EXTS = []
 
+    # Used by gui2.ui:annotations_fetched() and devices.kindle.driver:get_annotations()
+    UserAnnotation = namedtuple('Annotation','type, bookmark')
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):
@@ -792,6 +796,12 @@ class Device(DeviceConfig, DevicePlugin):
         for files to be uploaded to the device
         '''
         return components
+
+    def get_annotations(self, path_map):
+        '''
+        Resolve path_map to annotation_map of files found on the device
+        '''
+        return {}
 
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
         path = os.path.abspath(path)

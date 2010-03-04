@@ -9,7 +9,8 @@ __docformat__ = 'restructuredtext en'
 
 '''The main GUI'''
 
-import os, shutil, sys, textwrap, collections, time
+import collections, datetime, os, shutil, sys, textwrap, time
+from collections import namedtuple
 from xml.parsers.expat import ExpatError
 from Queue import Queue, Empty
 from threading import Thread
@@ -18,10 +19,11 @@ from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
                      QModelIndex, QPixmap, QColor, QPainter, QMenu, QIcon, \
                      QToolButton, QDialog, QDesktopServices, QFileDialog, \
                      QSystemTrayIcon, QApplication, QKeySequence, QAction, \
-                     QMessageBox, QStackedLayout, QHelpEvent, QInputDialog
+                     QMessageBox, QStackedLayout, QHelpEvent, QInputDialog,\
+                     QThread
 from PyQt4.QtSvg import QSvgRenderer
 
-from calibre import  prints, patheq
+from calibre import  prints, patheq, strftime
 from calibre.constants import __version__, __appname__, isfrozen, islinux, \
                     iswindows, isosx, filesystem_encoding
 from calibre.utils.filenames import ascii_filename
@@ -54,6 +56,8 @@ from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
+from calibre.library.cli import send_message as calibre_send_message
 from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
 
@@ -617,6 +621,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.dispatch_sync_event)
         self.connect(self.action_sync, SIGNAL('triggered(bool)'),
                 self._sync_menu.trigger_default)
+        self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
 
     def add_spare_server(self, *args):
         self.spare_servers.append(Server(limit=int(config['worker_limit']/2.0)))
@@ -855,7 +860,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
             self.device_connected = True
-            self._sync_menu.enable_device_actions(True, self.device_manager.device.card_prefix())
+            self._sync_menu.enable_device_actions(True,
+                    self.device_manager.device.card_prefix(),
+                    self.device_manager.device)
             self.location_view.model().device_connected(self.device_manager.device)
         else:
             self.save_device_view_settings()
@@ -918,7 +925,163 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.sync_catalogs()
     ############################################################################
 
+    ######################### Fetch annotations ################################
 
+    def fetch_annotations(self, *args):
+    	# Figure out a list of ids using the same logic as the catalog generation
+    	# FUnction.  Use the currently connected device to map ids to paths
+
+        def get_ids_from_selected_rows():
+			rows = self.library_view.selectionModel().selectedRows()
+			if not rows or len(rows) < 2:
+				rows = xrange(self.library_view.model().rowCount(QModelIndex()))
+			ids = map(self.library_view.model().id, rows)
+			return ids
+
+		def generate_annotation_paths(ids, db, device):
+			# Generate a dict {1:'documents/documents/Asimov, Isaac/Foundation - Isaac Asimov.epub'}
+			# These are the not the absolute paths - individual storage mount points will need to be
+			# prepended during the search
+			path_map = {}
+			for id in ids:
+				mi = db.get_metadata(id, index_is_id=True)
+				a_path = device.create_upload_path(os.path.abspath('/<storage>'), mi, 'x.mbp', create_dirs=False)
+				path_map[id] = a_path
+			return path_map
+
+		device = self.device_manager.device
+
+        if self.current_view() is not self.library_view:
+            return error_dialog(self, _('Use library only'),
+                    _('User annotations generated from main library only'),
+                    show=True)
+        db = self.library_view.model().db
+
+		# Get the list of ids
+        ids = get_ids_from_selected_rows()
+        if not ids:
+            return error_dialog(self, _('No books selected'),
+                    _('No books selected to fetch annotations from'),
+                    show=True)
+
+		# Map ids to paths
+		path_map = generate_annotation_paths(ids, db, device)
+
+		# Dispatch to devices.kindle.driver.get_annotations()
+        self.device_manager.annotations(Dispatcher(self.annotations_fetched),
+                path_map)
+
+    def annotations_fetched(self, job):
+		from calibre.devices.usbms.device import Device
+		from calibre.gui2.dialogs.progress import ProgressDialog
+
+		class Updater(QThread):
+			def __init__(self, parent, db, annotation_map):
+				QThread.__init__(self, parent)
+				self.db = db
+				self.pd = ProgressDialog(_('Merging user annotations into database'), '',
+                			             0, len(job.result), parent=parent)
+
+				self.am = annotation_map
+				self.connect(self.pd, SIGNAL('canceled()'), self.canceled)
+				self.pd.setModal(True)
+				self.pd.show()
+
+			def generate_annotation_html(self, bookmark):
+				# Returns <div class="user_annotations"> ... </div>
+				last_read_location = bookmark.last_read_location
+				timestamp = datetime.datetime.utcfromtimestamp(bookmark.timestamp)
+				percent_read = bookmark.percent_read
+
+				ka_soup = BeautifulSoup()
+				dtc = 0
+				divTag = Tag(ka_soup,'div')
+				divTag['class'] = 'user_annotations'
+
+				# Add the last-read location
+				spanTag = Tag(ka_soup, 'span')
+				spanTag['style'] = 'font-weight:bold'
+				spanTag.insert(0,NavigableString("%s<br />Last Page Read: Location %d (%d%%)" % \
+								(strftime(u'%x', timestamp.timetuple()),
+								 last_read_location/150 + 1,
+								 percent_read)))
+
+				divTag.insert(dtc, spanTag)
+				dtc += 1
+				divTag.insert(dtc, Tag(ka_soup,'br'))
+				dtc += 1
+
+				if bookmark.user_notes:
+					user_notes = bookmark.user_notes
+					annotations = []
+
+					# Add the annotations sorted by location
+					# Italicize highlighted text
+					for location in sorted(user_notes):
+						if user_notes[location]['text']:
+							annotations.append('<b>Location %d &bull; %s</b><br />%s<br />' % \
+												(location/150 + 1,
+												 user_notes[location]['type'],
+												 user_notes[location]['text'] if \
+													user_notes[location]['type'] == 'Note' else \
+													'<i>%s</i>' % user_notes[location]['text']))
+						else:
+							annotations.append('<b>Location %d &bull; %s</b><br />' % \
+												(location/150 + 1,
+												 user_notes[location]['type']))
+
+					for annotation in annotations:
+						divTag.insert(dtc, annotation)
+						dtc += 1
+
+				ka_soup.insert(0,divTag)
+				return ka_soup
+
+			def canceled(self):
+				self.pd.hide()
+
+			def start(self):
+				QApplication.processEvents()
+				for (i, id) in enumerate(self.am):
+					bm = Device.UserAnnotation(self.am[id][0],self.am[id][1])
+					user_notes_soup = self.generate_annotation_html(bm.bookmark)
+
+					mi = self.db.get_metadata(id, index_is_id=True)
+					a_offset = mi.comments.find('<div class="user_annotations">')
+					ad_offset = mi.comments.find('<hr class="annotations_divider" />')
+
+					if a_offset >= 0:
+						mi.comments = mi.comments[:a_offset]
+					if ad_offset >= 0:
+						mi.comments = mi.comments[:ad_offset]
+					if mi.comments:
+						hrTag = Tag(user_notes_soup,'hr')
+						hrTag['class'] = 'annotations_divider'
+						user_notes_soup.insert(0,hrTag)
+
+					mi.comments += user_notes_soup.prettify()
+
+					# Update library comments
+					self.db.set_comment(id, mi.comments)
+
+					self.pd.set_value(i)
+				self.pd.hide()
+				calibre_send_message()
+
+        if not job.result: return
+
+        if self.current_view() is not self.library_view:
+            return error_dialog(self, _('Use library only'),
+                    _('User annotations generated from main library only'),
+                    show=True)
+        db = self.library_view.model().db
+
+        self.__annotation_updater = Updater(self, db, job.result)
+        self.__annotation_updater.start()
+        return
+
+
+    ############################################################################
 
     ################################# Add books ################################
 
