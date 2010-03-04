@@ -30,7 +30,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.gui2 import warning_dialog, choose_files, error_dialog, \
-                            question_dialog,\
+                           question_dialog,\
                            pixmap_to_data, choose_dir, \
                            Dispatcher, gprefs, \
                            available_height, \
