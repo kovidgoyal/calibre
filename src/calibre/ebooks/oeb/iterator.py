@@ -152,13 +152,17 @@ class EbookIterator(object):
                         prints('Substituting font family: %s -> %s'%(bad, good))
                         return match.group().replace(bad, '"%s"'%good)
 
+            from calibre.ebooks.chardet import force_encoding
             for csspath in css_files:
                 with open(csspath, 'r+b') as f:
                     css = f.read()
-                    css = font_family_pat.sub(prepend_embedded_font, css)
-                    f.seek(0)
-                    f.truncate()
-                    f.write(css)
+                    enc = force_encoding(css, False)
+                    css = css.decode(enc, 'replace')
+                    ncss = font_family_pat.sub(prepend_embedded_font, css)
+                    if ncss != css:
+                        f.seek(0)
+                        f.truncate()
+                        f.write(ncss.encode(enc))
 
     def __enter__(self, processed=False):
         self.delete_on_exit = []
