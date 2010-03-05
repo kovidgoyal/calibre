@@ -272,7 +272,7 @@ class Bookmark():
                 stream = StringIO(f.read())
                 data = StreamSlicer(stream)
                 self.last_read = int(unpack('>I', data[5:9])[0])
-                self.last_read_location = self.last_read/33
+                self.last_read_location = self.last_read/33.33 + 1
                 entries, = unpack('>I', data[9:13])
                 current_entry = 0
                 e_base = 0x0d
@@ -294,7 +294,7 @@ class Bookmark():
 
                     if self.book_format in ['tpz','azw1']:
                         # *** This needs fine-tuning
-                        displayed_location = location/33
+                        displayed_location = location/33.33 + 1
                     elif self.book_format == 'pdf':
                         # *** This needs testing
                         displayed_location = location
