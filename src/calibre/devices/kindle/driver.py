@@ -61,6 +61,16 @@ class KINDLE(USBMS):
         return mi
 
     def get_annotations(self, path_map):
+        MBP_FORMATS = [u'azw', u'mobi', u'prc', u'txt']
+        TAN_FORMATS = [u'tpz', u'azw1']
+
+        mbp_formats = set()
+        for fmt in MBP_FORMATS:
+            mbp_formats.add(fmt)
+        tan_formats = set()
+        for fmt in TAN_FORMATS:
+            tan_formats.add(fmt)
+
         def get_storage():
             storage = []
             if self._main_prefix:
@@ -71,36 +81,48 @@ class KINDLE(USBMS):
                 storage.append(os.path.join(self._card_b_prefix, self.EBOOK_DIR_CARD_B))
             return storage
 
-        def resolve_mbp_paths(storage, path_map):
+        def resolve_bookmark_paths(storage, path_map):
             pop_list = []
+            book_ext = {}
             for id in path_map:
-                for vol in storage:
-                    #print "path_map[id]: %s" % path_map[id]
-                    mbp_path = path_map[id].replace(os.path.abspath('/<storage>'),vol)
-                    #print "looking for mbp_path: %s" % mbp_path
-                    if os.path.exists(mbp_path):
-                        #print "mbp_path found"
-                        path_map[id] = mbp_path
-                        break
+                file_fmts = set()
+                for fmt in path_map[id]['fmts']:
+                    file_fmts.add(fmt)
+
+                bookmark_extension = None
+                if file_fmts.intersection(mbp_formats):
+                    book_extension = list(file_fmts.intersection(mbp_formats))[0]
+                    bookmark_extension = 'mbp'
+                elif file_fmts.intersection(tan_formats):
+                    book_extension = list(file_fmts.intersection(tan_formats))[0]
+                    bookmark_extension = 'tan'
+
+                if bookmark_extension:
+                    for vol in storage:
+                        bkmk_path = path_map[id]['path'].replace(os.path.abspath('/<storage>'),vol)
+                        bkmk_path = bkmk_path.replace('bookmark',bookmark_extension)
+                        if os.path.exists(bkmk_path):
+                            path_map[id] = bkmk_path
+                            book_ext[id] = book_extension
+                            break
+                    else:
+                        pop_list.append(id)
                 else:
-                    #print "mbp_path not found"
                     pop_list.append(id)
 
-            # Remove non-existent mbp files
+            # Remove non-existent bookmark templates
             for id in pop_list:
                 path_map.pop(id)
-            return path_map
+            return path_map, book_ext
 
         storage = get_storage()
-        path_map = resolve_mbp_paths(storage, path_map)
+        path_map, book_ext = resolve_bookmark_paths(storage, path_map)
 
-        # path_map is now a mapping of valid mbp files
-        # Not yet implemented - Topaz annotations
         bookmarked_books = {}
-        MBP_FORMATS = ['azw', 'mobi', 'prc', 'txt']
         for id in path_map:
-            myBookmark = Bookmark(path_map[id], MBP_FORMATS, id)
-            bookmarked_books[id] = self.UserAnnotation(type='mobi', bookmark=myBookmark)
+            bookmark_ext = path_map[id].rpartition('.')[2]
+            myBookmark = Bookmark(path_map[id], id, book_ext[id], bookmark_ext)
+            bookmarked_books[id] = self.UserAnnotation(type='kindle', bookmark=myBookmark)
 
         # This returns as job.result in gui2.ui.annotations_fetched(self,job)
         return bookmarked_books
@@ -130,18 +152,20 @@ class Bookmark():
     A simple class fetching bookmark data
     Kindle-specific
     '''
-    def __init__(self, path, formats, id):
-        self.book_format = None
+    def __init__(self, path, id, book_format, bookmark_extension):
+        self.book_format = book_format
+        self.bookmark_extension = bookmark_extension
         self.book_length = 0
         self.id = id
+        self.last_read = 0
         self.last_read_location = 0
         self.timestamp = 0
         self.user_notes = None
 
         self.get_bookmark_data(path)
-        self.get_book_length(path, formats)
+        self.get_book_length(path)
         try:
-            self.percent_read = float(100*self.last_read_location / self.book_length)
+            self.percent_read = float(100*self.last_read / self.book_length)
         except:
             self.percent_read = 0
 
@@ -156,20 +180,22 @@ class Bookmark():
             stop, = unpack('>I', self.data[offoff + 8:offoff + 12])
         return StreamSlicer(self.stream, start, stop)
 
-    def get_bookmark_data(self, path, fetchUserNotes=True):
+    def get_bookmark_data(self, path):
         ''' Return the timestamp and last_read_location '''
         from calibre.ebooks.metadata.mobi import StreamSlicer
-        with open(path,'rb') as f:
-            stream = StringIO(f.read())
-            data = StreamSlicer(stream)
-            self.timestamp, = unpack('>I', data[0x24:0x28])
-            bpar_offset, = unpack('>I', data[0x4e:0x52])
-            lrlo = bpar_offset + 0x0c
-            self.last_read_location = int(unpack('>I', data[lrlo:lrlo+4])[0])
-            entries, = unpack('>I', data[0x4a:0x4e])
+        user_notes = {}
+        if self.bookmark_extension == 'mbp':
+            with open(path,'rb') as f:
+                stream = StringIO(f.read())
+                data = StreamSlicer(stream)
+                self.timestamp, = unpack('>I', data[0x24:0x28])
+                bpar_offset, = unpack('>I', data[0x4e:0x52])
+                lrlo = bpar_offset + 0x0c
+                self.last_read = int(unpack('>I', data[lrlo:lrlo+4])[0])
+                self.last_read_location = self.last_read/150 + 1
+                entries, = unpack('>I', data[0x4a:0x4e])
 
-            # Store the annotations/locations
-            if fetchUserNotes:
+                # Store the annotations/locations
                 bpl = bpar_offset + 4
                 bpar_len, = unpack('>I', data[bpl:bpl+4])
                 bpar_len += 8
@@ -182,7 +208,6 @@ class Bookmark():
                 current_entry = 1
                 sig = data[eo:eo+4]
                 previous_block = None
-                user_notes = {}
 
                 while sig == 'DATA':
                     text = None
@@ -204,7 +229,10 @@ class Bookmark():
                         text = data[eo+8:eo+8+rec_len].decode('utf-16-be')
 
                     if entry_type:
-                        user_notes[location] = dict(type=entry_type, id=self.id,
+                        displayed_location = location/150 + 1
+                        user_notes[location] = dict(id=self.id,
+                                                    displayed_location=displayed_location,
+                                                    type=entry_type,
                                                     text=text)
                         #print " %2d: %s %s" % (current_entry, entry_type,'at %d' % location if location else '')
                     #if current_block == 'text_block':
@@ -227,39 +255,104 @@ class Bookmark():
                         # If a bookmark coincides with a user annotation, the locs could
                         # be the same - cheat by nudging -1
                         # Skip bookmark for last_read_location
-                        if end_loc != self.last_read_location:
-                            user_notes[end_loc - 1] = dict(type='Bookmark',id=self.id,text=None)
+                        if end_loc != self.last_read:
+                            displayed_location = end_loc/150 + 1
+                            user_notes[end_loc - 1] = dict(id=self.id,
+                                                           displayed_location=displayed_location,
+                                                           type='Bookmark',
+                                                           text=None)
                     rec_len, = unpack('>I', data[eo+4:eo+8])
                     eo += rec_len + 8
                     sig = data[eo:eo+4]
 
+        elif self.bookmark_extension == 'tan':
+            # TAN bookmarks
+            self.timestamp = os.path.getmtime(path)
+            with open(path,'rb') as f:
+                stream = StringIO(f.read())
+                data = StreamSlicer(stream)
+                self.last_read = int(unpack('>I', data[5:9])[0])
+                self.last_read_location = self.last_read/33
+                entries, = unpack('>I', data[9:13])
+                current_entry = 0
+                e_base = 0x0d
+                while current_entry < entries:
+                    location, = unpack('>I', data[e_base+2:e_base+6])
+                    text = None
+                    text_len, = unpack('>I', data[e_base+0xA:e_base+0xE])
+                    e_type, = unpack('>B', data[e_base+1])
+                    if e_type == 0:
+                        e_type = 'Bookmark'
+                    elif e_type == 1:
+                        e_type = 'Highlight'
+                        text = "(Topaz highlights not yet supported)"
+                    elif e_type == 2:
+                        e_type = 'Note'
+                        text = data[e_base+0x10:e_base+0x10+text_len]
+                    else:
+                        e_type = 'Unknown annotation type'
+
+                    if self.book_format in ['tpz','azw1']:
+                        # *** This needs fine-tuning
+                        displayed_location = location/33
+                    elif self.book_format == 'pdf':
+                        # *** This needs testing
+                        displayed_location = location
+                    user_notes[location] = dict(id=self.id,
+                                                displayed_location=displayed_location,
+                                                type=e_type,
+                                                text=text)
+                    if text_len == 0xFFFFFFFF:
+                        e_base = e_base + 14
+                    else:
+                        e_base = e_base + 14 + 2 + text_len
+                    current_entry += 1
+                for location in user_notes:
+                    if location == self.last_read:
+                        user_notes.pop(location)
+                        break
+        else:
+            print "unsupported bookmark_extension: %s" % self.bookmark_extension
+        self.user_notes = user_notes
+
         '''
         for location in sorted(user_notes):
-            print '  Location %d: %s\n%s' % self.magicKindleLocationCalculator(location),
+            print '  Location %d: %s\n%s' % (user_notes[location]['displayed_location'],
                                                      user_notes[location]['type'],
                                     '\n'.join(self.textdump(user_notes[location]['text'])))
         '''
-        self.user_notes = user_notes
 
-    def get_book_length(self, path, formats):
+    def get_book_length(self, path):
         from calibre.ebooks.metadata.mobi import StreamSlicer
-        # This assumes only one of the possible formats exists on the Kindle
-        book_fs = None
-        for format in formats:
-            fmt = format.rpartition('.')[2]
-            book_fs = path.replace('.mbp','.%s' % fmt)
-            if os.path.exists(book_fs):
-                self.book_format = fmt
-                break
-        else:
-            #print "no files matching library formats exist on device"
-            self.book_length = 0
-            return
+        book_fs = path.replace('.%s' % self.bookmark_extension,'.%s' % self.book_format)
 
-        # Read the book len from the header
-        with open(book_fs,'rb') as f:
-            self.stream = StringIO(f.read())
-            self.data = StreamSlicer(self.stream)
-            self.nrecs, = unpack('>H', self.data[76:78])
-            record0 = self.record(0)
-            self.book_length = int(unpack('>I', record0[0x04:0x08])[0])
+        self.book_length = 0
+        if self.bookmark_extension == 'mbp':
+            # Read the book len from the header
+            with open(book_fs,'rb') as f:
+                self.stream = StringIO(f.read())
+                self.data = StreamSlicer(self.stream)
+                self.nrecs, = unpack('>H', self.data[76:78])
+                record0 = self.record(0)
+                self.book_length = int(unpack('>I', record0[0x04:0x08])[0])
+        elif self.bookmark_extension == 'tan':
+            # Read bookLength from metadata
+            with open(book_fs,'rb') as f:
+                stream = StringIO(f.read())
+                raw = stream.read(8*1024)
+                if not raw.startswith('TPZ'):
+                    raise ValueError('Not a Topaz file')
+                first = raw.find('metadata')
+                if first < 0:
+                    raise ValueError('Invalid Topaz file')
+                second = raw.find('metadata', first+10)
+                if second < 0:
+                    raise ValueError('Invalid Topaz file')
+                raw = raw[second:second+1000]
+                idx = raw.find('bookLength')
+                if idx > -1:
+                    length = ord(raw[idx+len('bookLength')])
+                    self.book_length = int(raw[idx+len('bookLength')+1:idx+len('bookLength')+1+length])
+
+        else:
+            print "unsupported bookmark_extension: %s" % self.bookmark_extension

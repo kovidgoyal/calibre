@@ -926,9 +926,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     ######################### Fetch annotations ################################
 
     def fetch_annotations(self, *args):
-        # Figure out a list of ids using the same logic as the catalog generation
-        # FUnction.  Use the currently connected device to map ids to paths
-
+		# Generate a path_map from selected ids
         def get_ids_from_selected_rows():
 			rows = self.library_view.selectionModel().selectedRows()
 			if not rows or len(rows) < 2:
@@ -936,15 +934,22 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 			ids = map(self.library_view.model().id, rows)
 			return ids
 
+		def get_formats(id):
+			formats = db.formats(id, index_is_id=True)
+			fmts = []
+            if formats:
+                for format in formats.split(','):
+                    fmts.append(format.lower())
+			return fmts
+
 		def generate_annotation_paths(ids, db, device):
-			# Generate a dict {1:'documents/documents/Asimov, Isaac/Foundation - Isaac Asimov.epub'}
-			# These are the not the absolute paths - individual storage mount points will need to be
-			# prepended during the search
+			# Generate path templates
+			# Individual storage mount points scanned/resolved in driver.get_annotations()
 			path_map = {}
 			for id in ids:
 				mi = db.get_metadata(id, index_is_id=True)
-				a_path = device.create_upload_path(os.path.abspath('/<storage>'), mi, 'x.mbp', create_dirs=False)
-				path_map[id] = a_path
+				a_path = device.create_upload_path(os.path.abspath('/<storage>'), mi, 'x.bookmark', create_dirs=False)
+				path_map[id] = dict(path=a_path, fmts=get_formats(id))
 			return path_map
 
 		device = self.device_manager.device
@@ -1009,7 +1014,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 				spanTag['style'] = 'font-weight:bold'
 				spanTag.insert(0,NavigableString("%s<br />Last Page Read: Location %d (%d%%)" % \
 								(strftime(u'%x', timestamp.timetuple()),
-                                last_read_location/150 + 1, percent_read)))
+                                last_read_location, percent_read)))
 
 				divTag.insert(dtc, spanTag)
 				dtc += 1
@@ -1025,14 +1030,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 					for location in sorted(user_notes):
 						if user_notes[location]['text']:
 							annotations.append('<b>Location %d &bull; %s</b><br />%s<br />' % \
-												(location/150 + 1, user_notes[location]['type'],
+												(user_notes[location]['displayed_location'],
+                                                    user_notes[location]['type'],
                                                     user_notes[location]['text'] if \
-													user_notes[location]['type'] == 'Note' else \
+                                                    user_notes[location]['type'] == 'Note' else \
 													'<i>%s</i>' % user_notes[location]['text']))
 						else:
 							annotations.append('<b>Location %d &bull; %s</b><br />' % \
-												(location/150 + 1,
-                                                    user_notes[location]['type']))
+												(user_notes[location]['displayed_location'],
+                                                 user_notes[location]['type']))
 
 					for annotation in annotations:
 						divTag.insert(dtc, annotation)
@@ -1050,20 +1056,22 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 					user_notes_soup = self.generate_annotation_html(bm.bookmark)
 
 					mi = self.db.get_metadata(id, index_is_id=True)
-					a_offset = mi.comments.find('<div class="user_annotations">')
-					ad_offset = mi.comments.find('<hr class="annotations_divider" />')
-
-					if a_offset >= 0:
-						mi.comments = mi.comments[:a_offset]
-					if ad_offset >= 0:
-						mi.comments = mi.comments[:ad_offset]
 					if mi.comments:
-						hrTag = Tag(user_notes_soup,'hr')
-						hrTag['class'] = 'annotations_divider'
-						user_notes_soup.insert(0,hrTag)
+						a_offset = mi.comments.find('<div class="user_annotations">')
+						ad_offset = mi.comments.find('<hr class="annotations_divider" />')
 
-					mi.comments += user_notes_soup.prettify()
+						if a_offset >= 0:
+							mi.comments = mi.comments[:a_offset]
+						if ad_offset >= 0:
+							mi.comments = mi.comments[:ad_offset]
+						if mi.comments:
+							hrTag = Tag(user_notes_soup,'hr')
+							hrTag['class'] = 'annotations_divider'
+							user_notes_soup.insert(0,hrTag)
 
+						mi.comments += user_notes_soup.prettify()
+					else:
+						mi.comments = unicode(user_notes_soup.prettify())
 					# Update library comments
 					self.db.set_comment(id, mi.comments)
                     self.update_progress.emit(i)

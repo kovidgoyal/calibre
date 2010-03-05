@@ -1179,12 +1179,55 @@ class EPUB_MOBI(CatalogPlugin):
             from calibre.devices.kindle.driver import Bookmark
             from calibre.ebooks.metadata import MetaInformation
 
+            MBP_FORMATS = [u'azw', u'mobi', u'prc', u'txt']
+            TAN_FORMATS = [u'tpz', u'azw1']
+            mbp_formats = set()
+            for fmt in MBP_FORMATS:
+                mbp_formats.add(fmt)
+            tan_formats = set()
+            for fmt in TAN_FORMATS:
+                tan_formats.add(fmt)
+
             class BookmarkDevice(Device):
                 def initialize(self, save_template):
                     self._save_template = save_template
                     self.SUPPORTS_SUB_DIRS = True
                 def save_template(self):
                     return self._save_template
+
+            def resolve_bookmark_paths(storage, path_map):
+                pop_list = []
+                book_ext = {}
+                for id in path_map:
+                    file_fmts = set()
+                    for fmt in path_map[id]['fmts']:
+                        file_fmts.add(fmt)
+
+                    bookmark_extension = None
+                    if file_fmts.intersection(mbp_formats):
+                        book_extension = list(file_fmts.intersection(mbp_formats))[0]
+                        bookmark_extension = 'mbp'
+                    elif file_fmts.intersection(tan_formats):
+                        book_extension = list(file_fmts.intersection(tan_formats))[0]
+                        bookmark_extension = 'tan'
+
+                    if bookmark_extension:
+                        for vol in storage:
+                            bkmk_path = path_map[id]['path'].replace(os.path.abspath('/<storage>'),vol)
+                            bkmk_path = bkmk_path.replace('bookmark',bookmark_extension)
+                            print "looking for %s" % bkmk_path
+                            if os.path.exists(bkmk_path):
+                                path_map[id] = bkmk_path
+                                book_ext[id] = book_extension
+                                break
+                        else:
+                            pop_list.append(id)
+                    else:
+                        pop_list.append(id)
+                # Remove non-existent bookmark templates
+                for id in pop_list:
+                    path_map.pop(id)
+                return path_map, book_ext
 
             if self.generateRecentlyRead:
                 self.opts.log.info("     Collecting Kindle bookmarks matching catalog entries")
@@ -1194,26 +1237,32 @@ class EPUB_MOBI(CatalogPlugin):
 
                 bookmarks = {}
                 for book in self.booksByTitle:
-                    original_title = book['title'][book['title'].find(':') + 2:] if book['series'] \
-                               else book['title']
-                    myMeta = MetaInformation(original_title,
-                                             authors=book['authors'])
-                    myMeta.author_sort = book['author_sort']
-                    bm_found = False
-                    for vol in self.opts.connected_device['storage']:
-                        bm_path = d.create_upload_path(vol, myMeta, 'x.mbp', create_dirs=False)
-                        if os.path.exists(bm_path):
-                            myBookmark = Bookmark(bm_path, book['formats'], book['id'])
+                    if 'formats' in book:
+                        path_map = {}
+                        id = book['id']
+                        original_title = book['title'][book['title'].find(':') + 2:] if book['series'] \
+                                   else book['title']
+                        myMeta = MetaInformation(original_title,
+                                                 authors=book['authors'])
+                        myMeta.author_sort = book['author_sort']
+                        a_path = d.create_upload_path('/<storage>', myMeta, 'x.bookmark', create_dirs=False)
+                        path_map[id] = dict(path=a_path, fmts=[x.rpartition('.')[2] for x in book['formats']])
+
+                        path_map, book_ext = resolve_bookmark_paths(self.opts.connected_device['storage'], path_map)
+                        if path_map:
+                            bookmark_ext = path_map[id].rpartition('.')[2]
+                            myBookmark = Bookmark(path_map[id], id, book_ext[id], bookmark_ext)
+                            print "book: %s\nlast_read_location: %d\nlength: %d" % (book['title'],
+                                                                                    myBookmark.last_read_location,
+                                                                                    myBookmark.book_length)
                             if myBookmark.book_length:
                                 book['percent_read'] = float(100*myBookmark.last_read_location / myBookmark.book_length)
                                 dots = int((book['percent_read'] + 5)/10)
                                 dot_string = self.READ_PROGRESS_SYMBOL * dots
                                 empty_dots = self.UNREAD_PROGRESS_SYMBOL * (10 - dots)
                                 book['reading_progress'] = '%s%s' % (dot_string,empty_dots)
-                                bookmarks[book['id']] = ((myBookmark,book))
-                                bm_found = True
-                        if bm_found:
-                            break
+                                bookmarks[id] = ((myBookmark,book))
+
                 self.bookmarked_books = bookmarks
             else:
                 self.bookmarked_books = {}
