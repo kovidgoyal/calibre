@@ -185,7 +185,7 @@ class Bookmark():
         from calibre.ebooks.metadata.mobi import StreamSlicer
         user_notes = {}
         if self.bookmark_extension == 'mbp':
-            MAGIC_MOBI_CONSTANT
+            MAGIC_MOBI_CONSTANT = 150
             with open(path,'rb') as f:
                 stream = StringIO(f.read())
                 data = StreamSlicer(stream)
@@ -234,9 +234,6 @@ class Bookmark():
                                                     displayed_location=displayed_location,
                                                     type=entry_type,
                                                     text=text)
-                        #print " %2d: %s %s" % (current_entry, entry_type,'at %d' % location if location else '')
-                    #if current_block == 'text_block':
-                        #self.textdump(text)
 
                     eo += rec_len + 8
                     current_entry += 1
@@ -246,11 +243,13 @@ class Bookmark():
                 while sig == 'BKMK':
                     # Fix start location for Highlights using BKMK data
                     end_loc, = unpack('>I', data[eo+0x10:eo+0x14])
-                    if end_loc in user_notes and user_notes[end_loc]['type'] != 'Note':
+                    if end_loc in user_notes and user_notes[end_loc]['type'] == 'Highlight':
                         start, = unpack('>I', data[eo+8:eo+12])
                         user_notes[start] = user_notes[end_loc]
                         user_notes.pop(end_loc)
-                        #print "changing start location of %d to %d" % (end_loc,start)
+                    elif end_loc in user_notes and user_notes[end_loc]['type'] == 'Note':
+                        # Skip duplicate bookmarks for notes
+                        pass
                     else:
                         # If a bookmark coincides with a user annotation, the locs could
                         # be the same - cheat by nudging -1

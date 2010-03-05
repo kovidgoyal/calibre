@@ -13,7 +13,6 @@ from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.logging import Log
 from calibre.utils.date import isoformat, now as nowf
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
@@ -3928,9 +3927,6 @@ class EPUB_MOBI(CatalogPlugin):
                 rtc += 1
 
             return result.renderContents(encoding=None)
-
-        def magicKindleLocationCalculator(self,offset):
-            return offset/150 + 1
 
         def processSpecialTags(self, tags, this_title, opts):
             tag_list = []
