@@ -135,8 +135,13 @@ class CHMReader(CHMFile):
                 if guess_mimetype(path)[0] == ('text/html'):
                     data = self._reformat(data)
                 f.write(data)
-        #subprocess.call(['extract_chmLib.exe', self._sourcechm, output_dir])
         self._extracted = True
+        files = os.listdir(output_dir)
+        if self.hhc_path not in files:
+            for f in files:
+                if f.lower() == self.hhc_path.lower():
+                    self.hhc_path = f
+                    break
 
     def _reformat(self, data):
         try:

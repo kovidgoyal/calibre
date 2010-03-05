@@ -84,4 +84,4 @@ class JournalofHospitalMedicine(BasicNewsRecipe):
         for img in soup.findAll('img', src=True):
             img['src'] = img['src'].replace('tfig', 'nfig')
         return soup
-        
+

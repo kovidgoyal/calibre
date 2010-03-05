@@ -12,7 +12,6 @@ from cStringIO import StringIO
 from struct import unpack
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.utils.logging import Log
 
 class KINDLE(USBMS):
 
@@ -116,7 +115,6 @@ class KINDLE(USBMS):
                 path_map.pop(id)
             return path_map, book_ext
 
-        log = Log()
         storage = get_storage()
         path_map, book_ext = resolve_bookmark_paths(storage, path_map)
 
@@ -358,4 +356,4 @@ class Bookmark():
                     self.book_length = int(raw[idx+len('bookLength')+1:idx+len('bookLength')+1+length])
 
         else:
-            print "unsupported bookmark_extension: %s" % bookmark_extension
+            print "unsupported bookmark_extension: %s" % self.bookmark_extension

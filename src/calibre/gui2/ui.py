@@ -935,11 +935,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 			return ids
 
 		def get_formats(id):
-			book_data = db.get_data_as_dict(ids=[id])[0]
-			formats = book_data['formats']
+			formats = db.formats(id, index_is_id=True)
 			fmts = []
-			for format in formats:
-				fmts.append(format.rpartition('.')[2])
+            if formats:
+                for format in formats.split(','):
+                    fmts.append(format.lower())
 			return fmts
 
 		def generate_annotation_paths(ids, db, device):
@@ -1031,9 +1031,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 						if user_notes[location]['text']:
 							annotations.append('<b>Location %d &bull; %s</b><br />%s<br />' % \
 												(user_notes[location]['displayed_location'],
-												 user_notes[location]['type'],
-                                                 user_notes[location]['text'] if \
-												    user_notes[location]['type'] == 'Note' else \
+                                                    user_notes[location]['type'],
+                                                    user_notes[location]['text'] if \
+                                                    user_notes[location]['type'] == 'Note' else \
 													'<i>%s</i>' % user_notes[location]['text']))
 						else:
 							annotations.append('<b>Location %d &bull; %s</b><br />' % \

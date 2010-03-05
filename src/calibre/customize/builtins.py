@@ -110,7 +110,7 @@ class CHMMetadataReader(MetadataReaderPlugin):
     description = _('Read metadata from %s files') % 'CHM'
 
     def get_metadata(self, stream, ftype):
-        from calibre.ebooks.metadata.chm import get_metadata
+        from calibre.ebooks.chm.metadata import get_metadata
         return get_metadata(stream)
 
 

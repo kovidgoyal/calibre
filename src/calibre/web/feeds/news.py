@@ -623,7 +623,7 @@ class BasicNewsRecipe(Recipe):
     def download(self):
         '''
         Download and pre-process all articles from the feeds in this recipe.
-        This method should be called only one on a particular Recipe instance.
+        This method should be called only once on a particular Recipe instance.
         Calling it more than once will lead to undefined behavior.
         @return: Path to index.html
         @rtype: string
@@ -1358,3 +1358,26 @@ class AutomaticNewsRecipe(BasicNewsRecipe):
         if self.use_embedded_content:
             self.web2disk_options.keep_only_tags = []
         return BasicNewsRecipe.fetch_embedded_article(self, article, dir, f, a, num_of_feeds)
+
+class DownloadedNewsRecipe(BasicNewsRecipe):
+
+    def get_downloaded_recipe(self):
+        'Return path on local filesystem to downloaded recipe'
+        raise NotImplementedError
+
+    def download(self):
+        self.log('Fetching downloaded recipe')
+        rpath = self.get_downloaded_recipe()
+        from calibre.utils.zipfile import ZipFile
+        zf = ZipFile(rpath)
+        zf.extractall()
+        zf.close()
+        from calibre.web.feeds.recipes import compile_recipe
+        from glob import glob
+        try:
+            recipe = compile_recipe(open(glob('*.downloaded_recipe')[0],
+                'rb').read())
+            self.conversion_options = recipe.conversion_options
+        except:
+            self.log.exception('Failed to compile downloaded recipe')
+        return os.path.abspath('index.html')
