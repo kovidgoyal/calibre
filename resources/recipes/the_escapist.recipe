@@ -12,7 +12,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class al(BasicNewsRecipe):
     author        = 'Lorenzo Vigentini'
-    description   = 'the Escapist Magazine'
+    description   = 'The Escapist Magazine'
 
     cover_url      = 'http://cdn.themis-media.com/themes/escapistmagazine/default/images/logo.png'
     title          = u'the Escapist Magazine'
