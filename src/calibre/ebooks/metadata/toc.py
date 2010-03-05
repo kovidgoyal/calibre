@@ -149,7 +149,8 @@ class TOC(list):
 
     def read_ncx_toc(self, toc):
         self.base_path = os.path.dirname(toc)
-        soup = NCXSoup(xml_to_unicode(open(toc, 'rb').read())[0])
+        raw  = xml_to_unicode(open(toc, 'rb').read(), assume_utf8=True)[0]
+        soup = NCXSoup(raw)
 
         def process_navpoint(np, dest):
             play_order = np.get('playOrder', None)
@@ -160,7 +161,7 @@ class TOC(list):
             if nl is not None:
                 text = u''
                 for txt in nl.findAll(re.compile('text')):
-                    text += ''.join([unicode(s) for s in txt.findAll(text=True)])
+                    text += u''.join([unicode(s) for s in txt.findAll(text=True)])
                 content = np.find(re.compile('content'))
                 if content is None or not content.has_key('src') or not txt:
                     return

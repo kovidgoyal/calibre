@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, uuid
+import os, uuid
 from itertools import cycle
 
 from lxml import etree
@@ -19,8 +19,7 @@ class EPUBInput(InputFormatPlugin):
 
     recommendations = set([('page_breaks_before', '/', OptionRecommendation.MED)])
 
-    @classmethod
-    def decrypt_font(cls, key, path):
+    def decrypt_font(self, key, path):
         raw = open(path, 'rb').read()
         crypt = raw[:1024]
         key = cycle(iter(key))
@@ -29,13 +28,18 @@ class EPUBInput(InputFormatPlugin):
             f.write(decrypt)
             f.write(raw[1024:])
 
-    @classmethod
-    def process_encryption(cls, encfile, opf, log):
+    def process_encryption(self, encfile, opf, log):
         key = None
-        m = re.search(r'(?i)(urn:uuid:[0-9a-f-]+)', open(opf, 'rb').read())
-        if m:
-            key = m.group(1)
-            key = list(map(ord, uuid.UUID(key).bytes))
+        for item in opf.identifier_iter():
+            scheme = None
+            for key in item.attrib.keys():
+                if key.endswith('scheme'):
+                    scheme = item.get(key)
+            if (scheme and scheme.lower() == 'uuid') or \
+                    (item.text and item.text.startswith('urn:uuid:')):
+                key = str(item.text).rpartition(':')[-1]
+                key = list(map(ord, uuid.UUID(key).bytes))
+
         try:
             root = etree.parse(encfile)
             for em in root.xpath('descendant::*[contains(name(), "EncryptionMethod")]'):
@@ -46,7 +50,8 @@ class EPUBInput(InputFormatPlugin):
                 uri = cr.get('URI')
                 path = os.path.abspath(os.path.join(os.path.dirname(encfile), '..', *uri.split('/')))
                 if os.path.exists(path):
-                    cls.decrypt_font(key, path)
+                    self._encrypted_font_uris.append(uri)
+                    self.decrypt_font(key, path)
             return True
         except:
             import traceback
@@ -115,13 +120,16 @@ class EPUBInput(InputFormatPlugin):
         if opf is None:
             raise ValueError('%s is not a valid EPUB file'%path)
 
-        if os.path.exists(encfile):
-            if not self.process_encryption(encfile, opf, log):
-                raise DRMError(os.path.basename(path))
-
         opf = os.path.relpath(opf, os.getcwdu())
         parts = os.path.split(opf)
         opf = OPF(opf, os.path.dirname(os.path.abspath(opf)))
+
+        self._encrypted_font_uris = []
+        if os.path.exists(encfile):
+            if not self.process_encryption(encfile, opf, log):
+                raise DRMError(os.path.basename(path))
+        self.encrypted_fonts = self._encrypted_font_uris
+
 
         if len(parts) > 1 and parts[0]:
             delta = '/'.join(parts[:-1])+'/'

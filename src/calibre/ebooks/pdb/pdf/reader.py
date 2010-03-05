@@ -27,7 +27,7 @@ class Reader(FormatReader):
         self.log.info('Extracting PDF...')
 
         with TemporaryFile() as pdf_n:
-            pdf = open(pdf_n, 'rw+b')
+            pdf = open(pdf_n, 'rwb')
             for x in xrange(self.header.section_count()):
                 pdf.write(self.header.section_data(x))
 

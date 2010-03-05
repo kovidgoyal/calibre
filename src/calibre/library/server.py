@@ -20,10 +20,10 @@ try:
 except ImportError:
     import Image as PILImage
 
-from calibre.constants import __version__, __appname__
+from calibre.constants import __version__, __appname__, iswindows
 from calibre.utils.genshi.template import MarkupTemplate
 from calibre import fit_image, guess_type, prepare_string_for_xml, \
-        strftime as _strftime, prints
+        strftime as _strftime
 from calibre.library import server_config as config
 from calibre.library.database2 import LibraryDatabase2, FIELD_MAP
 from calibre.utils.config import config_dir
@@ -423,10 +423,8 @@ class LibraryServer(object):
                              self.opts.port, {'path':'/stanza'})
             except:
                 import traceback
-                print 'Failed to start BonJour:'
-                cherrypy.log('Failed to start BonJour:')
-                cherrypy.log(traceback.format_exc())
-                traceback.print_exc()
+                cherrypy.log.error('Failed to start BonJour:')
+                cherrypy.log.error(traceback.format_exc())
             cherrypy.engine.block()
         except Exception, e:
             self.exception = e
@@ -436,10 +434,8 @@ class LibraryServer(object):
                 stop_zeroconf()
             except:
                 import traceback
-                print 'Failed to stop BonJour:'
-                cherrypy.log('Failed to stop BonJour:')
-                cherrypy.log(traceback.format_exc())
-                traceback.print_exc()
+                cherrypy.log.error('Failed to stop BonJour:')
+                cherrypy.log.error(traceback.format_exc())
 
     def exit(self):
         cherrypy.engine.exit()
@@ -472,7 +468,8 @@ class LibraryServer(object):
             return of.getvalue()
         except Exception, err:
             import traceback
-            traceback.print_exc()
+            cherrypy.log.error('Failed to generate cover:')
+            cherrypy.log.error(traceback.print_exc())
             raise cherrypy.HTTPError(404, 'Failed to generate cover: %s'%err)
 
     def get_format(self, id, format):
@@ -813,7 +810,7 @@ class LibraryServer(object):
         # A better search would be great
         want_mobile = self.MOBILE_UA.search(ua) is not None
         if self.opts.develop and not want_mobile:
-            prints('User agent:', ua)
+            cherrypy.log('User agent: '+ua)
 
         if want_opds:
             return self.stanza(search=kwargs.get('search', None), sortby=kwargs.get('sortby',None), authorid=kwargs.get('authorid',None),
@@ -882,12 +879,55 @@ def option_parser():
     parser = config().option_parser('%prog '+ _('[options]\n\nStart the calibre content server.'))
     parser.add_option('--with-library', default=None,
             help=_('Path to the library folder to serve with the content server'))
+    parser.add_option('--pidfile', default=None,
+            help=_('Write process PID to the specified file'))
+    parser.add_option('--daemonize', default=False, action='store_true',
+            help='Run process in background as a daemon. No effect on windows.')
     return parser
+
+def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+    try:
+        pid = os.fork()
+        if pid > 0:
+            # exit first parent
+            sys.exit(0)
+    except OSError, e:
+        print >>sys.stderr, "fork #1 failed: %d (%s)" % (e.errno, e.strerror)
+        sys.exit(1)
+
+    # decouple from parent environment
+    os.chdir("/")
+    os.setsid()
+    os.umask(0)
+
+    # do second fork
+    try:
+        pid = os.fork()
+        if pid > 0:
+            # exit from second parent
+            sys.exit(0)
+    except OSError, e:
+        print >>sys.stderr, "fork #2 failed: %d (%s)" % (e.errno, e.strerror)
+        sys.exit(1)
+
+    # Redirect standard file descriptors.
+    si = file(stdin, 'r')
+    so = file(stdout, 'a+')
+    se = file(stderr, 'a+', 0)
+    os.dup2(si.fileno(), sys.stdin.fileno())
+    os.dup2(so.fileno(), sys.stdout.fileno())
+    os.dup2(se.fileno(), sys.stderr.fileno())
+
 
 
 def main(args=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(args)
+    if opts.daemonize and not iswindows:
+        daemonize()
+    if opts.pidfile is not None:
+        with open(opts.pidfile, 'wb') as f:
+            f.write(str(os.getpid()))
     cherrypy.log.screen = True
     from calibre.utils.config import prefs
     if opts.with_library is None:

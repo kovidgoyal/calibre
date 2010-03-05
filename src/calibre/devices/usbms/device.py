@@ -18,7 +18,6 @@ import re
 import sys
 import glob
 
-from collections import namedtuple
 from itertools import repeat
 
 from calibre.devices.interface import DevicePlugin
@@ -90,8 +89,6 @@ class Device(DeviceConfig, DevicePlugin):
     EBOOK_DIR_CARD_B = ''
     DELETE_EXTS = []
 
-    # Used by gui2.ui:annotations_fetched() and devices.kindle.driver:get_annotations()
-    UserAnnotation = namedtuple('Annotation','type, bookmark')
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):

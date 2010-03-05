@@ -331,7 +331,10 @@ class OEBReader(object):
             id = child.get('id')
             klass = child.get('class', 'chapter')
 
-            po = int(child.get('playOrder', self.oeb.toc.next_play_order()))
+            try:
+                po = int(child.get('playOrder', self.oeb.toc.next_play_order()))
+            except:
+                po = self.oeb.toc.next_play_order()
 
             authorElement = xpath(child,
                     'descendant::calibre:meta[@name = "author"]')

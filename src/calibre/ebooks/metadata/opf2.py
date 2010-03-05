@@ -779,6 +779,9 @@ class OPF(object):
             self.set_text(matches[0], unicode(val))
         return property(fget=fget, fset=fset)
 
+    def identifier_iter(self):
+        for item in self.identifier_path(self.metadata):
+            yield item
 
     def guess_cover(self):
         '''
