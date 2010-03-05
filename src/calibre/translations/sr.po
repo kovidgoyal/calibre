@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-02-27 04:02+0000\n"
-"PO-Revision-Date: 2010-02-27 04:51+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-03-04 15:45+0000\n"
+"Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-28 04:53+0000\n"
+"X-Launchpad-Export-Date: 2010-03-05 05:00+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -615,7 +615,7 @@ msgstr "Uspostavi komunikaciju sa Sony PRS-600/700/900 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3 reader."
-msgstr ""
+msgstr "Uspostavi komunikaciju s Teclast K3 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:250
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1476,6 +1476,11 @@ msgid ""
 "if your source file contains a very large number of page breaks, you should "
 "turn off splitting on page breaks."
 msgstr ""
+"Isključi podelu na prelomu stranice. Ulazni fajlovi se obično automatski "
+"dele na dva na svakom prelomu stranice. Ovo proizvodi e-knjigu koja se "
+"obrađuje lakše i uz upotrebu manje resursa. Međutim, ova podela je spora i "
+"ako vaš ulazni fajl sadrži mnogo preloma stranica, trebalo bi da isključite "
+"ovu podelu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:74
 msgid ""
@@ -1483,6 +1488,10 @@ msgid ""
 "most EPUB readers cannot handle large file sizes. The default of %defaultKB "
 "is the size required for Adobe Digital Editions."
 msgstr ""
+"Podeli sve HTML fajlove na više delova ako im veličina prevazilazi ovu (u "
+"KB). Ovo je potrebno, jer većina EPUB čitača ne može da barata previše "
+"velikim fajlovima. Podrazumevana veličina od %defaultKB je ona koju zahteva "
+"Adobe Digital Editions."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:81
 msgid ""
@@ -1490,17 +1499,20 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
+"Obično, ako ulazni fajl nema naslovnu stranicu, a vi niste definisali svoju, "
+"biće kreirana podrazumevana naslovna stranica koja sadrži naslov, autore, "
+"itd. Ova opcija onemogućava kreiranje podrazumevane naslovne stranice."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/pmlml.py:129
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:77
 msgid "Table of Contents:"
-msgstr ""
+msgstr "Sadržaj:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:32
 msgid "Do not insert a Table of Contents at the beginning of the book."
-msgstr ""
+msgstr "Nemoj da dodaš Sadržaj na početak knjige."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:32
@@ -1508,13 +1520,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:35
 msgid "Add Table of Contents to beginning of the book."
-msgstr ""
+msgstr "Dodaj Sadržaj na početak knjige."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:243
 msgid ""
 "Traverse links in HTML files breadth first. Normally, they are traversed "
 "depth first."
 msgstr ""
+"Prati sve HTML linkove prvo po širini. Obično se linkovi prate prvo po "
+"dubini."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:250
 msgid ""
@@ -1522,6 +1536,9 @@ msgid ""
 "negative. 0 implies that no links in the root HTML file are followed. "
 "Default is %default."
 msgstr ""
+"Najveća dubina rekurzije kada se prate linkovi u HTML fajlu. Mora biti "
+"nenegativna. Vrednost 0 sprečava praćenje bilo kog linka iz osnovnog HTML "
+"fajla. Podrazumeva se %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:259
 msgid ""
@@ -1530,151 +1547,164 @@ msgid ""
 "can result in various nasty side effects in the rest of of the conversion "
 "pipeline."
 msgstr ""
+"Ovaj ulazni dodatak obično preuredi sve ulazne fajlove u uobičajenu "
+"hijerarhiju direktorijuma. Koristite ovu opciju samo ako znate šta radite, "
+"jer može proizveti brojne neženjene efekte u nastavku konverzije."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:267
 msgid ""
 "Average line length for line breaking if the HTML is from a previous partial "
 "conversion of a PDF file. Default is %default which disables this."
 msgstr ""
+"Srednja dužina reda za prelom ako je HTML fajl rezultat prethodne konverzije "
+"iz PDF fajla. Podrazumeva se %default i ta vrednost isključuje ovu opciju."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
-msgstr ""
+msgstr "Kreiram LIT fajl iz EPUB..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:320
 msgid "\tBook Designer file detected."
-msgstr ""
+msgstr "\tDetektovan je fajl tipa Bok Designer."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:322
 msgid "\tParsing HTML..."
-msgstr ""
+msgstr "\tČitam HTML..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:345
 msgid "\tBaen file detected. Re-parsing..."
-msgstr ""
+msgstr "\tDetektovan je fajl tipa Baen. Ponovo čitam..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:361
 msgid "Written preprocessed HTML to "
-msgstr ""
+msgstr "Upisao sam pretprocesiran HTML fajl u "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:379
 msgid "Processing %s"
-msgstr ""
+msgstr "Obrađujem %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:393
 msgid "\tConverting to BBeB..."
-msgstr ""
+msgstr "\tKonvertujem u BBeB..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:539
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:552
 msgid "Could not parse file: %s"
-msgstr ""
+msgstr "Nisam uspeo da pročitam fajl: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:544
 msgid "%s is an empty file"
-msgstr ""
+msgstr "%s je prazan fajl"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:564
 msgid "Failed to parse link %s %s"
-msgstr ""
+msgstr "Nisam uspeo da pročitam link %s %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:608
 msgid "Cannot add link %s to TOC"
-msgstr ""
+msgstr "Ne mogu da dodam link %s u Sadržaj"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:957
 msgid "Unable to process image %s. Error: %s"
-msgstr ""
+msgstr "Ne mogu da obradim sliku %s. Greška: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1002
 msgid "Unable to process interlaced PNG %s"
-msgstr ""
+msgstr "Ne mogu da obradim prepleteni PNG %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1017
 msgid ""
 "Could not process image: %s\n"
 "%s"
 msgstr ""
+"Ne mogu da obradim sliku: %s\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1772
 msgid ""
 "An error occurred while processing a table: %s. Ignoring table markup."
-msgstr ""
+msgstr "Greška u obradi tabele: %s. Ignorišem opis tabele."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1774
 msgid ""
 "Bad table:\n"
 "%s"
 msgstr ""
+"Neispravna tabela:\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1796
 msgid "Table has cell that is too large"
-msgstr ""
+msgstr "Tabela sadrži preveliku ćeliju"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1862
 msgid "Could not read cover image: %s"
-msgstr ""
+msgstr "Ne mogu da pročitam sliku s naslovne strane: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1865
 msgid "Cannot read from: %s"
-msgstr ""
+msgstr "Ne uspevam da pročitam: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1994
 msgid "Failed to process opf file"
-msgstr ""
+msgstr "Nisam uspeo da obradim opf fajl"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:136
 msgid ""
 "%prog book.lrf\n"
 "Convert an LRF file into an LRS (XML UTF-8 encoded) file"
 msgstr ""
+"%prog knjiga.lrf\n"
+"prevedi LRF fajl u LRS fajl (u XML UTF-8 kodnom rasporedu)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:137
 msgid "Output LRS file"
-msgstr ""
+msgstr "Izlazni LRS fajl"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:139
 msgid "Do not save embedded image and font files to disk"
-msgstr ""
+msgstr "Nemoj da snimaš ugnežđene slike i fontove na disk"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:158
 msgid "Parsing LRF..."
-msgstr ""
+msgstr "Čitam LRF..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:161
 msgid "Creating XML..."
-msgstr ""
+msgstr "Kreiram XML..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:163
 msgid "LRS written to "
-msgstr ""
+msgstr "Pišem LRF u "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:267
 msgid "Could not read from thumbnail file:"
-msgstr ""
+msgstr "Ne mogu da pročitam ikonu:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:287
 msgid ""
 "%prog [options] file.lrs\n"
 "Compile an LRS file into an LRF file."
 msgstr ""
+"%prog [opcije] fajl.lrs\n"
+"Prevedi LRS fajl u LRF fajl."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:288
 msgid "Path to output file"
-msgstr ""
+msgstr "Putanja do izlaznog fajla"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:290
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:113
 msgid "Verbose processing"
-msgstr ""
+msgstr "Detaljni izveštaj o obradi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:292
 msgid "Convert LRS to LRS, useful for debugging."
-msgstr ""
+msgstr "Konvertuj LRS u LRS, korisno ako tražite grešku."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:457
 msgid "Invalid LRF file. Could not set metadata."
-msgstr ""
+msgstr "Neispravan LRF fajl. Ne mogu da upišem metapodatke."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:582
 msgid ""
@@ -1684,67 +1714,81 @@ msgid ""
 "Show/edit the metadata in an LRF file.\n"
 "\n"
 msgstr ""
+"%prog [opcije] mojaknjiga.lrf\n"
+"\n"
+"\n"
+"Prikaži/promeni metapodatke u LRF fajlu.\n"
+"\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:603
 msgid ""
 "Path to a txt file containing the comment to be stored in the lrf file."
-msgstr ""
+msgstr "Putanja do txt fajla koji sadrži komentar za lrf fajl."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:90
 msgid "Enable autorotation of images that are wider than the screen width."
-msgstr ""
+msgstr "Omogući automatsko okretanje slika koje su šire od ekrana."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:94
 msgid "Set the space between words in pts. Default is %default"
 msgstr ""
+"Postavi razmak između reči u štamparksim tačkama. Podrazumeva se %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:97
 msgid "Add a header to all the pages with title and author."
-msgstr ""
+msgstr "Dodaj zaglavlje sa naslovom i imenom autora na sve stranice."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:100
 msgid ""
 "Set the format of the header. %a is replaced by the author and %t by the "
 "title. Default is %default"
 msgstr ""
+"Postavi format za zaglavlje. %a će biti zamenjeno imenom autora, a %t "
+"naslovom. Podrazumeva se %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:104
 msgid "Add extra spacing below the header. Default is %default pt."
 msgstr ""
+"Dodatni razmak ispod zaglavlja. Podrazumeva se %default štamparskih tačaka."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:107
 msgid ""
 "Minimum paragraph indent (the indent of the first line of a paragraph) in "
 "pts. Default: %default"
 msgstr ""
+"Minimalno uvlačenje prvog reda pasusa u štamparskim tačkama. Podrazumeva se: "
+"%default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:112
 msgid ""
 "Render tables in the HTML as images (useful if the document has large or "
 "complex tables)"
 msgstr ""
+"Predstavi HTML tabele kao slike (korisno ako dokument ima velike, ili "
+"komplikovane tabele)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:117
 msgid ""
 "Multiply the size of text in rendered tables by this factor. Default is "
 "%default"
 msgstr ""
+"Pomnoži veličinu teksta u tabelama ovim faktorom. Podrazumeva se %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:121
 msgid "The serif family of fonts to embed"
-msgstr ""
+msgstr "Porodica serifnih fontova za ugnežđivanje"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:124
 msgid "The sans-serif family of fonts to embed"
-msgstr ""
+msgstr "Porodica bezserifnih fontova za ugnežđivanje"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:127
 msgid "The monospace family of fonts to embed"
-msgstr ""
+msgstr "Porodica uniformnih fontova za ugnežđivanje"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:152
 msgid "Comic"
-msgstr ""
+msgstr "Strip"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:363
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:45
@@ -1755,7 +1799,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:409
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1149
 msgid "Title"
-msgstr ""
+msgstr "Naslov"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:364
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:62
@@ -1763,18 +1807,18 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:414
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1150
 msgid "Author(s)"
-msgstr ""
+msgstr "Autor(i)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:365
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:175
 msgid "Publisher"
-msgstr ""
+msgstr "Izdavač"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:366
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:49
 msgid "Producer"
-msgstr ""
+msgstr "Producent"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:367
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:183
@@ -1783,7 +1827,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:370
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:94
 msgid "Comments"
-msgstr ""
+msgstr "Komentari"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:375
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:176
@@ -1793,7 +1837,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Tags"
-msgstr ""
+msgstr "Etikete"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:377
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:177
@@ -1801,40 +1845,42 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Series"
-msgstr ""
+msgstr "Serije"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:378
 msgid "Language"
-msgstr ""
+msgstr "Jezik"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:380
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1093
 msgid "Timestamp"
-msgstr ""
+msgstr "Vremenska oznaka"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:382
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:173
 msgid "Published"
-msgstr ""
+msgstr "Objavljeno"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:384
 msgid "Rights"
-msgstr ""
+msgstr "Prava"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:76
 msgid "EDITORIAL REVIEW"
-msgstr ""
+msgstr "REČ UREDNIKA"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/archive.py:21
 msgid ""
 "Extract common e-book formats from archives (zip/rar) files. Also try to "
 "autodetect if they are actually cbz/cbr files."
 msgstr ""
+"Izvadi uobičajene formate e-knjiga iz arhiva (zip/rar). Takođe probaj da "
+"otkriješ da li su to u stvari cbz/cbr fajlovi."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:20
 msgid "options"
-msgstr ""
+msgstr "Opcije"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:21
 msgid ""
@@ -1849,46 +1895,62 @@ msgid ""
 "some metadata on a file type that does not support it, the metadata will be\n"
 "silently ignored.\n"
 msgstr ""
+"\n"
+"Čitaj/piši metapodatke iz/u e-knjigu.\n"
+"\n"
+"Podržani formati za čitanje metapodataka: %s\n"
+"\n"
+"Podržani formati za pisanje metapodataka: %s\n"
+"\n"
+"Različiti tipovi fajlova podržavaju različite vrste metapodataka. Ako "
+"pokušate da upišete metapodatak u fajl koji ga ne podržava, metapodatak će "
+"biti ignorisan bez izdavanja bilo kakve poruke.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:40
 msgid ""
 "Set the authors. Multiple authors should be separated by the & character. "
 "Author names should be in the order Firstname Lastname."
 msgstr ""
+"Postavi imena autora. Ako ima više od jednog autora njihova imena treba da "
+"budu razdvojena znakom &. Imena autora treba da budu u obliku Ime Prezime."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:44
 msgid ""
 "The version of the title to be used for sorting. If unspecified, and the "
 "title is specified, it will be auto-generated from the title."
 msgstr ""
+"Verzija naslova koja će biti korišćena za sortiranje. Ako nije navedena, a "
+"naslov jeste, biće automatski generisana iz naslova."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:48
 msgid ""
 "String to be used when sorting by author. If unspecified, and the author(s) "
 "are specified, it will be auto-generated from the author(s)."
 msgstr ""
+"Niz znakova koji će biti korišćen za sortiranje po imenu autora. Ako nije "
+"naveden, a imena autora jesu, biće automatski generisan iz imena autora."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:52
 msgid "Set the cover to the specified file."
-msgstr ""
+msgstr "Iskoristi fajl za naslovnu stranu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:58
 msgid "Set the book category."
-msgstr ""
+msgstr "Postavi kategoriju knjige."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Set the published date."
-msgstr ""
+msgstr "Postavi datum izdavanja."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid "Get the cover from the ebook and save it at as the specified file."
-msgstr ""
+msgstr "Uzmi naslovnu stranu iz e-knjige i snimi je u navedeni fajl."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:80
 msgid ""
 "Specify the name of an OPF file. The metadata will be written to the OPF "
 "file."
-msgstr ""
+msgstr "Navedi ime OPF fajla. Metapodaci će biti upisani u ovaj OPF fajl."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:83
 msgid ""
@@ -1896,72 +1958,77 @@ msgid ""
 "ebook. Metadata specified on the command line will override metadata read "
 "from the OPF file"
 msgstr ""
+"Pročitaj metapodatke iz navedenog OPF fajla i koristi ih kao metapodatke za "
+"e-knjigu. Metapodaci navedeni na komandnoj liniji imaju prednost nad "
+"metapodacima iz OPF fajla."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:88
 msgid "Set the BookID in LRF files"
-msgstr ""
+msgstr "Postavi BookID u LRF fajlove"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:153
 msgid "No file specified"
-msgstr ""
+msgstr "Nijedan fajl nije naveden"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:168
 msgid "Original metadata"
-msgstr ""
+msgstr "Originalni metapodaci"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:185
 msgid "Changed metadata"
-msgstr ""
+msgstr "Izmenjeni metapodaci"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:197
 msgid "OPF created in"
-msgstr ""
+msgstr "OPF fajl je kreiran u"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:203
 msgid "Cover saved to"
-msgstr ""
+msgstr "Naslovna strana je snimljena u"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:205
 msgid "No cover found"
-msgstr ""
+msgstr "Naslovna strana nije nađena"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:34
 msgid "Metadata download"
-msgstr ""
+msgstr "Preuzimam metapodatke"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:111
 msgid "ratings"
-msgstr ""
+msgstr "ocene"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:111
 msgid "tags"
-msgstr ""
+msgstr "etikete"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:112
 msgid "description/reviews"
-msgstr ""
+msgstr "opis/prikazi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:113
 msgid "Download %s from %s"
-msgstr ""
+msgstr "Preuzmi %s sa %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:137
 msgid "Downloads metadata from Google Books"
-msgstr ""
+msgstr "Preuzmi metapodatke s Google Books"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:153
 msgid "Downloads metadata from isbndb.com"
-msgstr ""
+msgstr "Preuzmi metapodatke s isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:181
 msgid ""
 "To use isbndb.com you must sign up for a %sfree account%s and enter your "
 "access key below."
 msgstr ""
+"Da biste koristili isbndb.com morate se prijaviti za %sbesplatan nalog%s i "
+"uneti vaš pristupni kluč."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:189
 msgid "Downloads social metadata from amazon.com"
-msgstr ""
+msgstr "Preuzmi društvene metapodatke s amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:94
 msgid ""
@@ -1976,40 +2043,52 @@ msgid ""
 "isbndb.com.\n"
 "\n"
 msgstr ""
+"\n"
+"%prog [opcije] ključ\n"
+"\n"
+"Prihvati metapodatke za knjige s isbndb.com. Možete odrediti ili\n"
+"ISBN ID za knjigu, ili naslov i autore. Ako odredite naslov i autore\n"
+"može se desiti da dobijete podatke o više od jedne knjige.\n"
+"\n"
+"ključ je pristupni ključ za vaš nalog generisan kada se prijavite za "
+"besplatan nalog na isbndb.com.\n"
+"\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:105
 msgid "The ISBN ID of the book you want metadata for."
-msgstr ""
+msgstr "ISBN ID knjige za koju želite metapodatke."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:107
 msgid "The author whose book to search for."
-msgstr ""
+msgstr "Autor čije knjige želite da pronađete."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:109
 msgid "The title of the book to search for."
-msgstr ""
+msgstr "Naslov knjige koju želite da pronađete."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:111
 msgid "The publisher of the book to search for."
-msgstr ""
+msgstr "Izdavač knjige koju želite da pronađete."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:53
 msgid "LibraryThing.com timed out. Try again later."
-msgstr ""
+msgstr "LibraryThing.com se nije odazvao na vreme. Pokušajte kasnije."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:60
 msgid ""
 "Could not fetch cover as server is experiencing high load. Please try again "
 "later."
 msgstr ""
+"Nisam uspeo da preuzmem naslovnu stranu, jer je server preopterećen. Molim "
+"pokušajte kasnije."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:61
 msgid " not found."
-msgstr ""
+msgstr " nije pronađen(a)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:64
 msgid "LibraryThing.com server error. Try again later."
-msgstr ""
+msgstr "Greška na serveru LibraryThing.com. Pokušajte kasnije."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:71
 msgid ""
@@ -2018,147 +2097,155 @@ msgid ""
 "\n"
 "Fetch a cover image for the book identified by ISBN from LibraryThing.com\n"
 msgstr ""
+"\n"
+"%prog [opcije] ISBN\n"
+"\n"
+"Preuzmi naslovnu stranu knjige određene ISBN brojem s LibrayThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1080
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1347
 msgid "Cover"
-msgstr ""
+msgstr "Naslovna strana"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
-msgstr ""
+msgstr "Obradi slike tako da odgovaraju ograničenjima veličine Palm uređaja."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:26
 msgid "When present, use author sort field as author."
 msgstr ""
+"Kada postoji, koristi polje za sortiranje po imenu autora kao ime autora."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:30
 msgid ""
 "Don't add Table of Contents to end of book. Useful if the book has its own "
 "table of contents."
 msgstr ""
+"Nemoj da dodaš Sadržaj na kraj e-knjige. Ovo je korisno ako knjiga već ima "
+"sopstveni Sadržaj."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:33
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:56
 msgid "Title for any generated in-line table of contents."
-msgstr ""
+msgstr "Naslov za automatski generisan Sadržaj."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:37
 msgid "Disable compression of the file contents."
-msgstr ""
+msgstr "Onemogući komprimovanje sadržaja fajla."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:105
 msgid "All articles"
-msgstr ""
+msgstr "Svi članci"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1348
 msgid "Title Page"
-msgstr ""
+msgstr "Naslovna stranica"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1349
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:188
 msgid "Table of Contents"
-msgstr ""
+msgstr "Sadržaj"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1350
 msgid "Index"
-msgstr ""
+msgstr "Indeks"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1351
 msgid "Glossary"
-msgstr ""
+msgstr "Pojmovnik"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1352
 msgid "Acknowledgements"
-msgstr ""
+msgstr "Zahvalnosti"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1353
 msgid "Bibliography"
-msgstr ""
+msgstr "Bibliografija"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1354
 msgid "Colophon"
-msgstr ""
+msgstr "Impresum"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1355
 msgid "Copyright"
-msgstr ""
+msgstr "Autorska prava"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1356
 msgid "Dedication"
-msgstr ""
+msgstr "Posveta"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1357
 msgid "Epigraph"
-msgstr ""
+msgstr "Epigraf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1358
 msgid "Foreword"
-msgstr ""
+msgstr "Predgovor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1359
 msgid "List of Illustrations"
-msgstr ""
+msgstr "Spisak ilustracija"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1360
 msgid "List of Tables"
-msgstr ""
+msgstr "Spisak tabela"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1361
 msgid "Notes"
-msgstr ""
+msgstr "Beleške"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1362
 msgid "Preface"
-msgstr ""
+msgstr "Predgovor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1363
 msgid "Main Text"
-msgstr ""
+msgstr "Glavni tekst"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:39
 msgid "%s format books are not supported"
-msgstr ""
+msgstr "Knjige u formatu %s nisu podržane"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."
-msgstr ""
+msgstr "Opcije za generisanje HTML Sadržaja"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:108
 msgid "Book Jacket"
-msgstr ""
+msgstr "Omot knjige"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/split.py:34
 msgid ""
 "Could not find reasonable point at which to split: %s Sub-tree size: %d KB"
 msgstr ""
+"Nisam uspeo da pronađem dobro mesto za podelu: %s Veličina pod-stabla: %d KB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
 msgid "Unnamed"
-msgstr ""
+msgstr "Neimenovano"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:32
 msgid "OPF/NCX/etc. generation options."
-msgstr ""
+msgstr "Opcije za generisanje OPF/NCX/itd."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:35
 msgid "OPF version to generate. Default is %default."
-msgstr ""
+msgstr "Verzija OPF koju treba generisati. Podrazumeva se %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:37
 msgid ""
 "Generate an Adobe \"page-map\" file if pagination information is available."
-msgstr ""
+msgstr "Generiši Adobe \"page-map\" fajl ako nema podataka za paginaciju."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:126
 msgid "Footnotes"
-msgstr ""
+msgstr "Fusnote"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:133
 msgid "Sidebar"
-msgstr ""
+msgstr "Bočna traka"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:22
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:23
@@ -2167,6 +2254,8 @@ msgid ""
 "Normally calibre treats blank lines as paragraph markers. With this option "
 "it will assume that every line represents a paragraph instead."
 msgstr ""
+"Calibre obično tretira prazne redove kao granicu pasusa. Uključivanjem ove "
+"opcije podrazumevaće se da svaki red predstavlja jedan pasus."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:27
@@ -2177,20 +2266,26 @@ msgid ""
 "spaces) represents a paragraph. Paragraphs end when the next line that "
 "starts with an indent is reached."
 msgstr ""
+"Calibre obično tretira prazne redove kao granicu pasusa. Uključivanjem ove "
+"opcije podrazumevaće se da svaki red koji je uvučen (bilo tabulatorom, ili "
+"sa dve i više praznina) predstavlaj poseban pasus. Pasusi se završavaju "
+"nailaskom na prvi red koji je uvučen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
-msgstr ""
+msgstr "Format koji će se koristiti unutar pdb kontejnera. Izbor je:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:27
 msgid ""
 "Specify the character encoding of the output document. The default is "
 "cp1252. Note: This option is not honored by all formats."
 msgstr ""
+"Odredi kodni raspored za izlazni dokument. Podrazumeva se cp1252. NB: Ova "
+"opcija nije podržana u svim formatima."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:24
 msgid "Do not extract images from the document"
-msgstr ""
+msgstr "Ne uzimaj slike iz dokumenta."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:26
 msgid ""
@@ -2198,10 +2293,13 @@ msgid ""
 "Valid values are a decimal between 0 and 1. The default is 0.5, this is the "
 "median line length."
 msgstr ""
+"Razmera koja se koristi da se odredi mesto na kome će se poništiti prelom "
+"reda. Dozvoljene veličine se kreću od 0 do 1. Podrazumeva se 0.5 i to je "
+"medijana dužine reda."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."
-msgstr ""
+msgstr "Koristi novi mehanizam za PDF konverziju."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/cli.py:31
 msgid ""
@@ -2214,6 +2312,15 @@ msgid ""
 "\n"
 "Manipulate a PDF.\n"
 msgstr ""
+"komanda ...\n"
+"\n"
+"komanda može biti jedna od:\n"
+"[%%commands]\n"
+"\n"
+"Koristi %prog komanda --help da dobiješ više informacija o željenoj "
+"komandi.\n"
+"\n"
+"Preradi PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:29
 msgid ""
@@ -2221,6 +2328,9 @@ msgid ""
 "\n"
 "Crop a PDF file.\n"
 msgstr ""
+"[opcije] fajl.pdf\n"
+"\n"
+"Opseci PDF fajl.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:38
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:32
@@ -2232,32 +2342,45 @@ msgstr ""
 msgid ""
 "Path to output file. By default a file is created in the current directory."
 msgstr ""
+"Putanja do izlaznog fajla. Podrazumeva se da će fajl biti u trenutnom "
+"direktorijumu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:41
 msgid "Number of pixels to crop from the left most x (default is %s)"
 msgstr ""
+"Broj tačaka počevši od leve granice x (podrazumeva se %s) koje će biti "
+"opsečene."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:44
 msgid "Number of pixels to crop from the left most y (default is %s)"
 msgstr ""
+"Broj tačaka počevši od leve granice y (podrazumeva se %s) koje će biti "
+"opsečene."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:47
 msgid "Number of pixels to crop from the right most x (default is %s)"
 msgstr ""
+"Broj tačaka počevši od desne granice x (podrazumeva se %s) koje će biti "
+"opsečene."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:50
 msgid "Number of pixels to crop from the right most y (default is %s)"
 msgstr ""
+"Broj tačaka počevši od desne granice y (podrazumeva se %s) koje će biti "
+"opsečene."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:53
 msgid ""
 "A file generated by ghostscript which allows each page to be individually "
 "cropped `gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox file.pdf 2> bounding`"
 msgstr ""
+"Fajl koji kreira ghostscript, a koji omogućava da svaka strana pojedinačno "
+"bude opsečena `gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox fajl.pdf 2> "
+"bounding`"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 msgid "Crop Options:"
-msgstr ""
+msgstr "Opcije za opsecanje:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
@@ -2267,7 +2390,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Options to control the transformation of pdf"
-msgstr ""
+msgstr "Opcije koje upravljaju transofrmacijom PDFa"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:23
 msgid ""
@@ -2275,10 +2398,13 @@ msgid ""
 "\n"
 "Decrypt a PDF.\n"
 msgstr ""
+"[opcije] fajl.pdf lozinka\n"
+"\n"
+"Dešifruj PDF fajl.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
 msgid "Decrypt Options:"
-msgstr ""
+msgstr "Opcije za dešifrovanje:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:25
 msgid ""
@@ -2286,10 +2412,13 @@ msgid ""
 "\n"
 "Encrypt a PDF.\n"
 msgstr ""
+"[opcije] fajl.pdf lozinka\n"
+"\n"
+"Šifruj PDF fajl.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:54
 msgid "Encrypt Options:"
-msgstr ""
+msgstr "Opcije za šifriranje:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:21
 msgid ""
@@ -2297,30 +2426,33 @@ msgid ""
 "\n"
 "Get info about a PDF.\n"
 msgstr ""
+"fajl.pdf ...\n"
+"\n"
+"Traži podatke of PDF fajlu.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:46
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:47
 msgid "Subject"
-msgstr ""
+msgstr "Naslov"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:48
 msgid "Creator"
-msgstr ""
+msgstr "Autor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:50
 msgid "Pages"
-msgstr ""
+msgstr "Stranice"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:51
 msgid "File Size"
-msgstr ""
+msgstr "Veličina fajla"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:52
 msgid "PDF Version"
-msgstr ""
+msgstr "PDF verzija"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:25
 msgid ""
@@ -2330,10 +2462,15 @@ msgid ""
 "\n"
 "Merges individual PDFs.\n"
 msgstr ""
+"[opcije] fajl1.pdf fajl2.pdf ...\n"
+"\n"
+"Biće korišćeni metapodaci iz prvog PDF fajla.\n"
+"\n"
+"Spaja više PDF fajlova.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:56
 msgid "Merge Options:"
-msgstr ""
+msgstr "Opcije za spajanje:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/reverse.py:25
 msgid ""
@@ -2341,10 +2478,13 @@ msgid ""
 "\n"
 "Reverse a PDF.\n"
 msgstr ""
+"[opcije] fajl.podf\n"
+"\n"
+"Preokreni PDF fajl.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/reverse.py:54
 msgid "Reverse Options:"
-msgstr ""
+msgstr "Opcije za preokretanje:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:24
 msgid ""
@@ -2352,10 +2492,13 @@ msgid ""
 "\n"
 "Rotate pages of a PDF clockwise.\n"
 msgstr ""
+"fajl.pdf stepeni\n"
+"\n"
+"Okreni PDF fajl u smeru kazaljke na satu.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 msgid "Rotate Options:"
-msgstr ""
+msgstr "Opcije za okretanje:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:25
 msgid ""
@@ -2371,41 +2514,59 @@ msgid ""
 "\n"
 "Split a PDF.\n"
 msgstr ""
+"\n"
+"%prog %%name [opcijer] fajl.pdf starana_za_podelu ...\n"
+"%prog %%name [opcijer] fajl.pdf starana_za_podelu ...\n"
+"\t\n"
+"Npr.\n"
+"\t\n"
+"%prog %%name fajl.pdf 6\n"
+"%prog %%name fajl.pdf 6-12\n"
+"%prog %%name fajl.pdf 6-12 8 10 9-20\n"
+"\n"
+"Podeli PDF fajl.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Split Options:"
-msgstr ""
+msgstr "Opcije za podelu:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:31
 msgid ""
 "The unit of measure. Default is inch. Choices are %s Note: This does not "
 "override the unit for margins!"
 msgstr ""
+"Jedinice mere. Podrazumevaju se inči. Izbor je: %s NB: Ovo ne utiče na "
+"jedinice koje se koriste za margine!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:36
 msgid ""
 "The size of the paper. This size will be overridden when an output profile "
 "is used. Default is letter. Choices are %s"
 msgstr ""
+"Veličina papira. Ova veličina neće biti korišćena ako se koristi ulazni "
+"profil. Podrazumeva se \"letter\". Izbor je: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:40
 msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
 msgstr ""
+"Posebna veličina dokumenta. Koristite oblik širinaxvisina, na primer, "
+"`123x123`, da biste odredili širinu i visinu. Ova opcija će se koristiti "
+"umesto veličine papira, čak i ako je ova prethodno zadata."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:45
 msgid "The orientation of the page. Default is portrait. Choices are %s"
-msgstr ""
+msgstr "Orijentacija stranice. Podrazumeva se vertikalna. Izbor je: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:55
 msgid "Could not find pdftohtml, check it is in your PATH"
-msgstr ""
+msgstr "Ne mogu da pronađem pdftohtml, proverite da li je naveden u PATH."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/output.py:33
 msgid ""
 "Specify the character encoding of the output document. The default is cp1252."
-msgstr ""
+msgstr "Navedi kodni raspored za izlazni dokument. Podrazumeva se cp1252."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:199
 msgid ""
@@ -2413,11 +2574,12 @@ msgid ""
 "first and then try it.\n"
 "%s"
 msgstr ""
+"Calibre ne podržava ovaj RTF fajl. Konvertujte ga u HTML i probajte ponovo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8."
-msgstr ""
+msgstr "Navedi kodni raspored za izlazni dokument. Podrazumeva se utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
@@ -2425,16 +2587,18 @@ msgid ""
 "compression but the fastest and 10 being the highest compression but the "
 "slowest."
 msgstr ""
+"Odredi stepen kompresije u razmeri od 1 do 10, gde je 1 najniži i najbrži, a "
+"10 najviši i najsporiji stepen kompresije."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:32
 msgid ""
 "Run the text input through the markdown pre-processor. To learn more about "
 "markdown see"
-msgstr ""
+msgstr "Propusti tekst kroz markdown pretprocesor. Za više informacija vidi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:35
 msgid "Do not insert a Table of Contents into the output text."
-msgstr ""
+msgstr "Nemoj da dodaješ Sadržaj u izlazni tekst."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
 msgid ""
@@ -2442,12 +2606,18 @@ msgid ""
 "for compatibility with Mac OS 9 and earlier. For Mac OS X use 'unix'. "
 "'system' will default to the newline type used by this OS."
 msgstr ""
+"Koja vrsta znaka za novi red će biti korišćena. Opcije su %s. Podrazumeva se "
+"'system'. Navedite 'old_mac' za Mac OS 9 i ranije. za Mac OS X navedite "
+"'unix'. Navođenje 'system' će koristiti znak za novi red u zavisnosti od "
+"operativnog sistema."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:30
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8. "
 "Note: This option is not honored by all formats."
 msgstr ""
+"Navedi kodni raposred za izlazni dokument. Podrazumeva se utf-8. NB: Ovu "
+"opciju ne podržavaju svi formati."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:38
 msgid ""
@@ -2456,48 +2626,54 @@ msgid ""
 "the space after and will exceed the specified value. Also, there is a "
 "minimum of 25 characters. Use 0 to disable line splitting."
 msgstr ""
+"Maksimalni broj znakova u redu. Red će biti prelomljen kod prvog razmaka pre "
+"navedene vrednosti. Ako nije pronađen nijedan razmak, red će biti prelomljen "
+"na mestu prvog razmaka posle navedene vrednosti i biće duži od nje. Takođe, "
+"podrazumevani minimum je 25 znakova. Navedite 0 da sprečite prelom redova."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:45
 msgid ""
 "Force splitting on the max-line-length value when no space is present. Also "
 "allows max-line-length to be below the minimum"
 msgstr ""
+"Forsiraj prelom reda na mestu zadate maksimalne dužine čak i ako nema "
+"razmaka. Takođe omogućava da dužina reda bude ispod podrazumevane minimalne."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:31
 msgid "Send file to storage card instead of main memory by default"
-msgstr ""
+msgstr "Pošalji fajl na memorijsku karticu umesto u glavnu memoriju uređaja."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:33
 msgid "Confirm before deleting"
-msgstr ""
+msgstr "Traži potvrdu pre brisanja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:35
 msgid "Toolbar icon size"
-msgstr ""
+msgstr "Veličina ikona za alatke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:37
 msgid "Show button labels in the toolbar"
-msgstr ""
+msgstr "Prikaži ikone za alatke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:39
 msgid "Main window geometry"
-msgstr ""
+msgstr "Geometrija glavnog prozora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:41
 msgid "Notify when a new version is available"
-msgstr ""
+msgstr "Obavesti me o novoj verziji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:43
 msgid "Use Roman numerals for series number"
-msgstr ""
+msgstr "Koristi rimske cifre za broj Serije"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:45
 msgid "Sort tags list by popularity"
-msgstr ""
+msgstr "Sortiraj etikete po popularnosti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:47
 msgid "Number of covers to show in the cover browsing mode"
-msgstr ""
+msgstr "Broj naslovnih strana koje će biti prikazane u izlogu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:49
 msgid "Defaults for conversion to LRF"

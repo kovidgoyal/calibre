@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-02-27 04:02+0000\n"
-"PO-Revision-Date: 2010-03-04 04:46+0000\n"
+"PO-Revision-Date: 2010-03-05 04:52+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Traditional Chinese <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-04 04:51+0000\n"
+"X-Launchpad-Export-Date: 2010-03-05 05:00+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -3737,11 +3737,11 @@ msgstr "不能傳送：裝置沒有記憶卡"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:558
 msgid "E-book:"
-msgstr ""
+msgstr "電子書："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:561
 msgid "Attached, you will find the e-book"
-msgstr ""
+msgstr "已附加，您會發現電子書"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:562
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:177
@@ -3750,11 +3750,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:563
 msgid "in the %s format."
-msgstr ""
+msgstr "%s 格式。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:576
 msgid "Sending email to"
-msgstr ""
+msgstr "傳送電子郵件到"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:606
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:613
@@ -3763,32 +3763,32 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:881
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:888
 msgid "No suitable formats"
-msgstr ""
+msgstr "沒有合適的格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:607
 msgid "Auto convert the following books before sending via email?"
-msgstr ""
+msgstr "是否在透過電子郵件傳送前自動轉換下列書籍？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:614
 msgid ""
 "Could not email the following books as no suitable formats were found:"
-msgstr ""
+msgstr "無法透過電子郵件傳送前下列書籍，因為找不到適合的格式："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:632
 msgid "Failed to email books"
-msgstr ""
+msgstr "無法寄出書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:633
 msgid "Failed to email the following books:"
-msgstr ""
+msgstr "無法寄出下列書籍："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:637
 msgid "Sent by email:"
-msgstr ""
+msgstr "以電子郵件傳送："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:664
 msgid "News:"
-msgstr ""
+msgstr "新聞："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:665
 msgid "Attached is the"
@@ -3796,52 +3796,52 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:676
 msgid "Sent news to"
-msgstr ""
+msgstr "傳送新聞到"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:706
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:766
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:882
 msgid "Auto convert the following books before uploading to the device?"
-msgstr ""
+msgstr "是否在上傳到裝置前自動轉換下列書籍？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:735
 msgid "Sending catalogs to device."
-msgstr ""
+msgstr "正在傳送分類到裝置。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:796
 msgid "Sending news to device."
-msgstr ""
+msgstr "正在傳送新聞到裝置。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:850
 msgid "Sending books to device."
-msgstr ""
+msgstr "正在傳送書籍到裝置。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:889
 msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found. Convert the book(s) to a format supported by your device first."
-msgstr ""
+msgstr "無法上傳下列書籍到裝置，因為找不到適合的格式。請先將書籍轉換為您的裝置支援的格式。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:937
 msgid "No space on device"
-msgstr ""
+msgstr "裝置上已無空間"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:938
 msgid ""
 "<p>Cannot upload books to device there is no more free space available "
-msgstr ""
+msgstr "<p>不能上傳書籍到裝置，因為已無更多可用空間 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:75
 msgid "Select available formats and their order for this device"
-msgstr ""
+msgstr "選擇這個裝置可用的格式和它們的順序"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:79
 msgid "Use sub directories"
-msgstr ""
+msgstr "使用子目錄"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:81
 msgid "Save &template:"
-msgstr ""
+msgstr "儲存範本(&T):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:110
@@ -3850,7 +3850,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1091
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:92
 msgid "Path"
-msgstr ""
+msgstr "路徑"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:112
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:113
@@ -3861,65 +3861,65 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Formats"
-msgstr ""
+msgstr "格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:68
 msgid "Fit &cover to view"
-msgstr ""
+msgstr "封面符合檢視(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:69
 msgid "&Previous"
-msgstr ""
+msgstr "上一本(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:70
 msgid "&Next"
-msgstr ""
+msgstr "下一本(&N)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:38
 msgid "My Books"
-msgstr ""
+msgstr "我的書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:287
 msgid "Generate catalog"
-msgstr ""
+msgstr "產生分類"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:70
 msgid "Generate catalog for {0} books"
-msgstr ""
+msgstr "產生 {0} 書籍的分類"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:71
 msgid "Catalog &format:"
-msgstr ""
+msgstr "分類格式(&F):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:72
 msgid ""
 "Catalog &title (existing catalog with the same title will be replaced):"
-msgstr ""
+msgstr "分類標題（現有的同名分類會被取代）(&T):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:73
 msgid "&Send catalog to device automatically"
-msgstr ""
+msgstr "自動傳送分類到裝置(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:74
 msgid "Catalog options"
-msgstr ""
+msgstr "分類選項"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:40
 msgid "Choose Format"
-msgstr ""
+msgstr "選擇格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:34
 msgid "Set defaults for conversion of comics (CBR/CBZ files)"
-msgstr ""
+msgstr "設定轉換漫畫的預設值 (CBR/CBZ 檔案)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:49
 msgid "Set options for converting %s"
-msgstr ""
+msgstr "設定轉換 %s 的選項"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:92
 msgid "&Title:"
-msgstr ""
+msgstr "書名(&T):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:93
 msgid "&Author(s):"
@@ -3957,49 +3957,53 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:197
 msgid "Add/Save"
-msgstr ""
+msgstr "加入/儲存"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:197
 msgid ""
 "Email\n"
 "Delivery"
 msgstr ""
+"電子郵件\n"
+"遞送"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:198
 msgid "Advanced"
-msgstr ""
+msgstr "進階"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:198
 msgid ""
 "Content\n"
 "Server"
 msgstr ""
+"內容\n"
+"伺服器"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:198
 msgid "Plugins"
-msgstr ""
+msgstr "外掛程式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:216
 msgid "Auto send"
-msgstr ""
+msgstr "自動傳送"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:216
 msgid "Email"
-msgstr ""
+msgstr "電子郵件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:221
 msgid "Formats to email. The first matching format will be sent."
-msgstr ""
+msgstr "要寄出的格式。會將第一個符合的格式以電子郵件寄出。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:222
 msgid ""
 "If checked, downloaded news will be automatically mailed <br>to this email "
 "address (provided it is in one of the listed formats)."
-msgstr ""
+msgstr "如果核取這個選項，已下載的新聞就會自動寄到這個<br>電子郵件位址（以列出的格式之一）。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:296
 msgid "new email address"
-msgstr ""
+msgstr "新電子郵件位址"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:478
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:823
@@ -4007,86 +4011,86 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1261
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:53
 msgid "Error"
-msgstr ""
+msgstr "錯誤"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:479
 msgid "Failed to install command line tools."
-msgstr ""
+msgstr "安裝命令列工具失敗。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:482
 msgid "Command line tools installed"
-msgstr ""
+msgstr "命令列工具已安裝"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:483
 msgid "Command line tools installed in"
-msgstr ""
+msgstr "命令列工具已安裝於"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:484
 msgid ""
 "If you move calibre.app, you have to re-install the command line tools."
-msgstr ""
+msgstr "如果您移動 calibre.app，您必須重新安裝命令列工具。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:535
 msgid "No valid plugin path"
-msgstr ""
+msgstr "沒有有效的外掛程式路徑"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:536
 msgid "%s is not a valid plugin path"
-msgstr ""
+msgstr "%s 不是有效的外掛程式路徑"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:539
 msgid "Choose plugin"
-msgstr ""
+msgstr "選擇外掛程式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:551
 msgid "Plugin cannot be disabled"
-msgstr ""
+msgstr "外掛程式不能停用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:552
 msgid "The plugin: %s cannot be disabled"
-msgstr ""
+msgstr "外掛程式：%s 不能停用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:561
 msgid "Plugin not customizable"
-msgstr ""
+msgstr "外掛程式不可自訂"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:562
 msgid "Plugin: %s does not need customization"
-msgstr ""
+msgstr "外掛程式：%s 不需要自訂"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:570
 msgid "Customize"
-msgstr ""
+msgstr "自訂"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:608
 msgid "Cannot remove builtin plugin"
-msgstr ""
+msgstr "不能移除內建的外掛程式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:609
 msgid " cannot be removed. It is a builtin plugin. Try disabling it instead."
-msgstr ""
+msgstr " 不能移除。它是內建的外掛程式。請嘗試停用它來代替。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:642
 msgid "Error log:"
-msgstr ""
+msgstr "錯誤紀錄檔："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:649
 msgid "Access log:"
-msgstr ""
+msgstr "存取紀錄檔："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:677
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:662
 msgid "Failed to start content server"
-msgstr ""
+msgstr "啟動內容伺服器失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:701
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:550
 msgid "Select location for books"
-msgstr ""
+msgstr "選擇書籍的位置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:709
 msgid "Invalid size"
-msgstr ""
+msgstr "不正確的大小"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:710
 msgid "The size %s is invalid. must be of the form widthxheight"
