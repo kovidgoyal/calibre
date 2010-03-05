@@ -926,33 +926,33 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     ######################### Fetch annotations ################################
 
     def fetch_annotations(self, *args):
-		# Generate a path_map from selected ids
+        # Generate a path_map from selected ids
         def get_ids_from_selected_rows():
-			rows = self.library_view.selectionModel().selectedRows()
-			if not rows or len(rows) < 2:
-				rows = xrange(self.library_view.model().rowCount(QModelIndex()))
-			ids = map(self.library_view.model().id, rows)
-			return ids
+            rows = self.library_view.selectionModel().selectedRows()
+            if not rows or len(rows) < 2:
+                rows = xrange(self.library_view.model().rowCount(QModelIndex()))
+            ids = map(self.library_view.model().id, rows)
+            return ids
 
-		def get_formats(id):
-			formats = db.formats(id, index_is_id=True)
-			fmts = []
+        def get_formats(id):
+            formats = db.formats(id, index_is_id=True)
+            fmts = []
             if formats:
                 for format in formats.split(','):
                     fmts.append(format.lower())
-			return fmts
+            return fmts
 
-		def generate_annotation_paths(ids, db, device):
-			# Generate path templates
-			# Individual storage mount points scanned/resolved in driver.get_annotations()
-			path_map = {}
-			for id in ids:
-				mi = db.get_metadata(id, index_is_id=True)
-				a_path = device.create_upload_path(os.path.abspath('/<storage>'), mi, 'x.bookmark', create_dirs=False)
-				path_map[id] = dict(path=a_path, fmts=get_formats(id))
-			return path_map
+        def generate_annotation_paths(ids, db, device):
+            # Generate path templates
+            # Individual storage mount points scanned/resolved in driver.get_annotations()
+            path_map = {}
+            for id in ids:
+                mi = db.get_metadata(id, index_is_id=True)
+                a_path = device.create_upload_path(os.path.abspath('/<storage>'), mi, 'x.bookmark', create_dirs=False)
+                path_map[id] = dict(path=a_path, fmts=get_formats(id))
+            return path_map
 
-		device = self.device_manager.device
+        device = self.device_manager.device
 
         if self.current_view() is not self.library_view:
             return error_dialog(self, _('Use library only'),
@@ -960,120 +960,120 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     show=True)
         db = self.library_view.model().db
 
-		# Get the list of ids
+        # Get the list of ids
         ids = get_ids_from_selected_rows()
         if not ids:
             return error_dialog(self, _('No books selected'),
                     _('No books selected to fetch annotations from'),
                     show=True)
 
-		# Map ids to paths
-		path_map = generate_annotation_paths(ids, db, device)
+        # Map ids to paths
+        path_map = generate_annotation_paths(ids, db, device)
 
-		# Dispatch to devices.kindle.driver.get_annotations()
+        # Dispatch to devices.kindle.driver.get_annotations()
         self.device_manager.annotations(Dispatcher(self.annotations_fetched),
                 path_map)
 
     def annotations_fetched(self, job):
-		from calibre.devices.usbms.device import Device
-		from calibre.gui2.dialogs.progress import ProgressDialog
+        from calibre.devices.usbms.device import Device
+        from calibre.gui2.dialogs.progress import ProgressDialog
 
-		class Updater(QThread):
+        class Updater(QThread):
 
             update_progress = pyqtSignal(int)
             update_done     = pyqtSignal()
 
-			def __init__(self, parent, db, annotation_map, done_callback):
-				QThread.__init__(self, parent)
-				self.db = db
-				self.pd = ProgressDialog(_('Merging user annotations into database'), '',
+            def __init__(self, parent, db, annotation_map, done_callback):
+                QThread.__init__(self, parent)
+                self.db = db
+                self.pd = ProgressDialog(_('Merging user annotations into database'), '',
                         0, len(job.result), parent=parent)
 
-				self.am = annotation_map
+                self.am = annotation_map
                 self.done_callback = done_callback
-				self.connect(self.pd, SIGNAL('canceled()'), self.canceled)
-				self.pd.setModal(True)
-				self.pd.show()
+                self.connect(self.pd, SIGNAL('canceled()'), self.canceled)
+                self.pd.setModal(True)
+                self.pd.show()
                 self.update_progress.connect(self.pd.set_value,
                         type=Qt.QueuedConnection)
                 self.update_done.connect(self.pd.hide, type=Qt.QueuedConnection)
 
-			def generate_annotation_html(self, bookmark):
-				# Returns <div class="user_annotations"> ... </div>
-				last_read_location = bookmark.last_read_location
-				timestamp = datetime.datetime.utcfromtimestamp(bookmark.timestamp)
-				percent_read = bookmark.percent_read
+            def generate_annotation_html(self, bookmark):
+                # Returns <div class="user_annotations"> ... </div>
+                last_read_location = bookmark.last_read_location
+                timestamp = datetime.datetime.utcfromtimestamp(bookmark.timestamp)
+                percent_read = bookmark.percent_read
 
-				ka_soup = BeautifulSoup()
-				dtc = 0
-				divTag = Tag(ka_soup,'div')
-				divTag['class'] = 'user_annotations'
+                ka_soup = BeautifulSoup()
+                dtc = 0
+                divTag = Tag(ka_soup,'div')
+                divTag['class'] = 'user_annotations'
 
-				# Add the last-read location
-				spanTag = Tag(ka_soup, 'span')
-				spanTag['style'] = 'font-weight:bold'
-				spanTag.insert(0,NavigableString("%s<br />Last Page Read: Location %d (%d%%)" % \
-								(strftime(u'%x', timestamp.timetuple()),
-                                last_read_location, percent_read)))
+                # Add the last-read location
+                spanTag = Tag(ka_soup, 'span')
+                spanTag['style'] = 'font-weight:bold'
+                spanTag.insert(0,NavigableString("%s<br />Last Page Read: Location %d (%d%%)" % \
+                        (strftime(u'%x', timestamp.timetuple()),
+                        last_read_location, percent_read)))
 
-				divTag.insert(dtc, spanTag)
-				dtc += 1
-				divTag.insert(dtc, Tag(ka_soup,'br'))
-				dtc += 1
+                divTag.insert(dtc, spanTag)
+                dtc += 1
+                divTag.insert(dtc, Tag(ka_soup,'br'))
+                dtc += 1
 
-				if bookmark.user_notes:
-					user_notes = bookmark.user_notes
-					annotations = []
+                if bookmark.user_notes:
+                    user_notes = bookmark.user_notes
+                    annotations = []
 
-					# Add the annotations sorted by location
-					# Italicize highlighted text
-					for location in sorted(user_notes):
-						if user_notes[location]['text']:
-							annotations.append('<b>Location %d &bull; %s</b><br />%s<br />' % \
-												(user_notes[location]['displayed_location'],
+                    # Add the annotations sorted by location
+                    # Italicize highlighted text
+                    for location in sorted(user_notes):
+                        if user_notes[location]['text']:
+                            annotations.append('<b>Location %d &bull; %s</b><br />%s<br />' % \
+                                                (user_notes[location]['displayed_location'],
                                                     user_notes[location]['type'],
                                                     user_notes[location]['text'] if \
                                                     user_notes[location]['type'] == 'Note' else \
-													'<i>%s</i>' % user_notes[location]['text']))
-						else:
-							annotations.append('<b>Location %d &bull; %s</b><br />' % \
-												(user_notes[location]['displayed_location'],
+                                                    '<i>%s</i>' % user_notes[location]['text']))
+                        else:
+                            annotations.append('<b>Location %d &bull; %s</b><br />' % \
+                                                (user_notes[location]['displayed_location'],
                                                  user_notes[location]['type']))
 
-					for annotation in annotations:
-						divTag.insert(dtc, annotation)
-						dtc += 1
+                    for annotation in annotations:
+                        divTag.insert(dtc, annotation)
+                        dtc += 1
 
-				ka_soup.insert(0,divTag)
-				return ka_soup
+                ka_soup.insert(0,divTag)
+                return ka_soup
 
-			def canceled(self):
-				self.pd.hide()
+            def canceled(self):
+                self.pd.hide()
 
-			def run(self):
-				for (i, id) in enumerate(self.am):
-					bm = Device.UserAnnotation(self.am[id][0],self.am[id][1])
-					user_notes_soup = self.generate_annotation_html(bm.bookmark)
+            def run(self):
+                for (i, id) in enumerate(self.am):
+                    bm = Device.UserAnnotation(self.am[id][0],self.am[id][1])
+                    user_notes_soup = self.generate_annotation_html(bm.bookmark)
 
-					mi = self.db.get_metadata(id, index_is_id=True)
-					if mi.comments:
-						a_offset = mi.comments.find('<div class="user_annotations">')
-						ad_offset = mi.comments.find('<hr class="annotations_divider" />')
+                    mi = self.db.get_metadata(id, index_is_id=True)
+                    if mi.comments:
+                        a_offset = mi.comments.find('<div class="user_annotations">')
+                        ad_offset = mi.comments.find('<hr class="annotations_divider" />')
 
-						if a_offset >= 0:
-							mi.comments = mi.comments[:a_offset]
-						if ad_offset >= 0:
-							mi.comments = mi.comments[:ad_offset]
-						if mi.comments:
-							hrTag = Tag(user_notes_soup,'hr')
-							hrTag['class'] = 'annotations_divider'
-							user_notes_soup.insert(0,hrTag)
+                        if a_offset >= 0:
+                            mi.comments = mi.comments[:a_offset]
+                        if ad_offset >= 0:
+                            mi.comments = mi.comments[:ad_offset]
+                        if mi.comments:
+                            hrTag = Tag(user_notes_soup,'hr')
+                            hrTag['class'] = 'annotations_divider'
+                            user_notes_soup.insert(0,hrTag)
 
-						mi.comments += user_notes_soup.prettify()
-					else:
-						mi.comments = unicode(user_notes_soup.prettify())
-					# Update library comments
-					self.db.set_comment(id, mi.comments)
+                        mi.comments += user_notes_soup.prettify()
+                    else:
+                        mi.comments = unicode(user_notes_soup.prettify())
+                    # Update library comments
+                    self.db.set_comment(id, mi.comments)
                     self.update_progress.emit(i)
                 self.update_done.emit()
                 self.done_callback(self.am.keys())
@@ -1599,12 +1599,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             dynamic.set('catalogs_to_be_synced', sync)
         self.status_bar.showMessage(_('Catalog generated.'), 3000)
         self.sync_catalogs()
-		if job.fmt not in ['EPUB','MOBI']:
-			export_dir = choose_dir(self, _('Export Catalog Directory'),
+        if job.fmt not in ['EPUB','MOBI']:
+            export_dir = choose_dir(self, _('Export Catalog Directory'),
                     _('Select destination for %s.%s') % (job.catalog_title, job.fmt.lower()))
-			if export_dir:
-				destination = os.path.join(export_dir, '%s.%s' % (job.catalog_title, job.fmt.lower()))
-				shutil.copyfile(job.catalog_file_path, destination)
+            if export_dir:
+                destination = os.path.join(export_dir, '%s.%s' % (job.catalog_title, job.fmt.lower()))
+                shutil.copyfile(job.catalog_file_path, destination)
 
     ############################### Fetch news #################################
 
