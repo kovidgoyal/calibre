@@ -187,6 +187,7 @@ class Bookmark():
         from calibre.ebooks.metadata.mobi import StreamSlicer
         user_notes = {}
         if self.bookmark_extension == 'mbp':
+            MAGIC_MOBI_CONSTANT
             with open(path,'rb') as f:
                 stream = StringIO(f.read())
                 data = StreamSlicer(stream)
@@ -194,7 +195,7 @@ class Bookmark():
                 bpar_offset, = unpack('>I', data[0x4e:0x52])
                 lrlo = bpar_offset + 0x0c
                 self.last_read = int(unpack('>I', data[lrlo:lrlo+4])[0])
-                self.last_read_location = self.last_read/150 + 1
+                self.last_read_location = self.last_read/MAGIC_MOBI_CONSTANT + 1
                 entries, = unpack('>I', data[0x4a:0x4e])
 
                 # Store the annotations/locations
@@ -206,7 +207,6 @@ class Bookmark():
 
                 # Walk bookmark entries
                 #print " --- %s --- " % path
-                #print "  last_read_location: %d" % self.magicKindleLocationCalculator(last_read_location)
                 current_entry = 1
                 sig = data[eo:eo+4]
                 previous_block = None
@@ -231,7 +231,7 @@ class Bookmark():
                         text = data[eo+8:eo+8+rec_len].decode('utf-16-be')
 
                     if entry_type:
-                        displayed_location = location/150 + 1
+                        displayed_location = location/MAGIC_MOBI_CONSTANT + 1
                         user_notes[location] = dict(id=self.id,
                                                     displayed_location=displayed_location,
                                                     type=entry_type,
@@ -258,7 +258,7 @@ class Bookmark():
                         # be the same - cheat by nudging -1
                         # Skip bookmark for last_read_location
                         if end_loc != self.last_read:
-                            displayed_location = end_loc/150 + 1
+                            displayed_location = end_loc/MAGIC_MOBI_CONSTANT + 1
                             user_notes[end_loc - 1] = dict(id=self.id,
                                                            displayed_location=displayed_location,
                                                            type='Bookmark',
@@ -269,12 +269,13 @@ class Bookmark():
 
         elif self.bookmark_extension == 'tan':
             # TAN bookmarks
+            MAGIC_TOPAZ_CONSTANT = 33.33
             self.timestamp = os.path.getmtime(path)
             with open(path,'rb') as f:
                 stream = StringIO(f.read())
                 data = StreamSlicer(stream)
                 self.last_read = int(unpack('>I', data[5:9])[0])
-                self.last_read_location = self.last_read/33.33 + 1
+                self.last_read_location = self.last_read/MAGIC_TOPAZ_CONSTANT + 1
                 entries, = unpack('>I', data[9:13])
                 current_entry = 0
                 e_base = 0x0d
@@ -296,7 +297,7 @@ class Bookmark():
 
                     if self.book_format in ['tpz','azw1']:
                         # *** This needs fine-tuning
-                        displayed_location = location/33.33 + 1
+                        displayed_location = location/MAGIC_TOPAZ_CONSTANT + 1
                     elif self.book_format == 'pdf':
                         # *** This needs testing
                         displayed_location = location
