@@ -13,8 +13,8 @@ from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.logging import Log
 from calibre.utils.date import isoformat, now as nowf
+from calibre.utils.logging import default_log as log
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
@@ -54,7 +54,6 @@ class CSV_XML(CatalogPlugin):
                 "Applies to: CSV, XML output formats"))]
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
-        log = Log()
         self.fmt = path_to_output.rpartition('.')[2]
         self.notification = notification
 
@@ -349,7 +348,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.number_as_float = 0.0
             self.text = ''
             self.verbose = verbose
-            self.log = Log()
+            self.log = log
             self.numberTranslate()
 
         def stringFromInt(self, intToTranslate):
@@ -3853,6 +3852,8 @@ class EPUB_MOBI(CatalogPlugin):
                                                             lost_cr.group(2),
                                                             lost_cr.group(3)))
             # Extract pre-built elements - annotations, etc.
+            if not isinstance(comments, unicode):
+                comments = comments.decode('utf-8', 'replace')
             soup = BeautifulSoup(comments)
             elems = soup.findAll('div')
             for elem in elems:
@@ -3860,11 +3861,13 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Reconstruct comments w/o <div>s
             comments = soup.renderContents()
+            if not isinstance(comments, unicode):
+                comments = comments.decode('utf-8', 'replace')
 
             # Convert \n\n to <p>s
             if re.search('\n\n', comments):
                 soup = BeautifulSoup()
-                split_ps = comments.split('\n\n')
+                split_ps = comments.split(u'\n\n')
                 tsc = 0
                 for p in split_ps:
                     pTag = Tag(soup,'p')
@@ -3929,9 +3932,6 @@ class EPUB_MOBI(CatalogPlugin):
 
             return result.renderContents(encoding=None)
 
-        def magicKindleLocationCalculator(self,offset):
-            return offset/150 + 1
-
         def processSpecialTags(self, tags, this_title, opts):
             tag_list = []
             for tag in tags:
@@ -3970,7 +3970,7 @@ class EPUB_MOBI(CatalogPlugin):
                 self.opts.log.info('%s not implemented' % self.error)
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
-        opts.log = log = Log()
+        opts.log = log
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
 
         # Add local options
