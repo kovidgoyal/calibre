@@ -25,15 +25,16 @@ class CHMInput(InputFormatPlugin):
         rdr = CHMReader(chm_path, log)
         log.debug('Extracting CHM to %s' % output_dir)
         rdr.extract_content(output_dir)
+        self._chm_reader = rdr
         return rdr.hhc_path
 
 
     def convert(self, stream, options, file_ext, log, accelerators):
-        from calibre.ebooks.metadata.chm import get_metadata_
+        from calibre.ebooks.chm.metadata import get_metadata_from_reader
         from calibre.customize.ui import plugin_for_input_format
 
         log.debug('Processing CHM...')
-        with TemporaryDirectory('chm2oeb') as tdir:
+        with TemporaryDirectory('_chm2oeb') as tdir:
             html_input = plugin_for_input_format('html')
             for opt in html_input.options:
                 setattr(options, opt.option.name, opt.recommended_value)
@@ -48,8 +49,9 @@ class CHMInput(InputFormatPlugin):
             log.debug('stream.name=%s' % stream.name)
             mainname = self._chmtohtml(tdir, chm_name, no_images, log)
             mainpath = os.path.join(tdir, mainname)
+            #raw_input()
 
-            metadata = get_metadata_(tdir)
+            metadata = get_metadata_from_reader(self._chm_reader)
 
             odi = options.debug_pipeline
             options.debug_pipeline = None
@@ -170,6 +172,7 @@ class CHMInput(InputFormatPlugin):
         if isinstance(node.tag, basestring):
             from calibre.ebooks.chm.reader import match_string
 
+            chapter_path = None
             if match_string(node.tag, 'object') and match_string(node.attrib['type'], 'text/sitemap'):
                 for child in node:
                     if match_string(child.tag,'param') and match_string(child.attrib['name'], 'name'):
