@@ -103,7 +103,7 @@ class RecipeInput(InputFormatPlugin):
             ro.download()
             self.recipe_object = ro
 
-        for key, val in recipe.conversion_options.items():
+        for key, val in self.recipe_object.conversion_options.items():
             setattr(opts, key, val)
 
         for f in os.listdir('.'):
