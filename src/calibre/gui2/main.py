@@ -35,9 +35,12 @@ def init_qt(args):
     from calibre.gui2.ui import Main
     parser = option_parser()
     opts, args = parser.parse_args(args)
-    if opts.with_library is not None and os.path.isdir(opts.with_library):
-        prefs.set('library_path', os.path.abspath(opts.with_library))
-        prints('Using library at', prefs['library_path'])
+    if opts.with_library is not None:
+        if not os.path.exists(opts.with_library):
+            os.makedirs(opts.with_library)
+        if os.path.isdir(opts.with_library):
+            prefs.set('library_path', os.path.abspath(opts.with_library))
+            prints('Using library at', prefs['library_path'])
     QCoreApplication.setOrganizationName(ORG_NAME)
     QCoreApplication.setApplicationName(APP_UID)
     app = Application(args)
