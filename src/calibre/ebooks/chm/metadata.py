@@ -15,7 +15,10 @@ from calibre.utils.logging import default_log
 from calibre.ptempfile import TemporaryFile
 
 def _clean(s):
-    return s.replace(u'\u00a0', u' ')
+    try:
+        return s.replace(u'\u00a0', u' ')
+    except UnicodeDecodeError:
+        return u""
 
 def _detag(tag):
     str = u""
