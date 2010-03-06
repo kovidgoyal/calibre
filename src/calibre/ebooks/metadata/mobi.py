@@ -97,9 +97,14 @@ class MetadataUpdater(object):
 
         self.nrecs, = unpack('>H', data[76:78])
         record0 = self.record0 = self.record(0)
+        mobi_header_length, = unpack('>I', record0[0x14:0x18])
+        if not mobi_header_length:
+            raise MobiError("Non-standard file format.  Try 'Convert E-Books' with MOBI as Input and Output formats.")
+
         self.encryption_type, = unpack('>H', record0[12:14])
         codepage, = unpack('>I', record0[28:32])
         self.codec = 'utf-8' if codepage == 65001 else 'cp1252'
+
         image_base, = unpack('>I', record0[108:112])
         flags, = self.flags, = unpack('>I', record0[128:132])
         have_exth = self.have_exth = (flags & 0x40) != 0
@@ -306,9 +311,10 @@ class MetadataUpdater(object):
         return StreamSlicer(self.stream, start, stop)
 
     def update(self, mi):
-        def pop_exth_record(exth_id):
-            if exth_id in self.original_exth_records:
-                self.original_exth_records.pop(exth_id)
+        def update_exth_record(rec):
+            recs.append(rec)
+            if rec[0] in self.original_exth_records:
+                self.original_exth_records.pop(rec[0])
 
         if self.type != "BOOKMOBI":
                 raise MobiError("Setting metadata only supported for MOBI files of type 'BOOK'.\n"
@@ -323,47 +329,36 @@ class MetadataUpdater(object):
             pas = False
         if mi.author_sort and pas:
             authors = mi.author_sort
-            recs.append((100, authors.encode(self.codec, 'replace')))
-            pop_exth_record(100)
+            update_exth_record((100, authors.encode(self.codec, 'replace')))
         elif mi.authors:
             authors = '; '.join(mi.authors)
-            recs.append((100, authors.encode(self.codec, 'replace')))
-            pop_exth_record(100)
+            update_exth_record((100, authors.encode(self.codec, 'replace')))
         if mi.publisher:
-            recs.append((101, mi.publisher.encode(self.codec, 'replace')))
-            pop_exth_record(101)
+            update_exth_record((101, mi.publisher.encode(self.codec, 'replace')))
         if mi.comments:
-            recs.append((103, mi.comments.encode(self.codec, 'replace')))
-            pop_exth_record(103)
+            update_exth_record((103, mi.comments.encode(self.codec, 'replace')))
         if mi.isbn:
-            recs.append((104, mi.isbn.encode(self.codec, 'replace')))
-            pop_exth_record(104)
+            update_exth_record((104, mi.isbn.encode(self.codec, 'replace')))
         if mi.tags:
             subjects = '; '.join(mi.tags)
-            recs.append((105, subjects.encode(self.codec, 'replace')))
-            pop_exth_record(105)
+            update_exth_record((105, subjects.encode(self.codec, 'replace')))
         if mi.pubdate:
-            recs.append((106, str(mi.pubdate).encode(self.codec, 'replace')))
-            pop_exth_record(106)
+            update_exth_record((106, str(mi.pubdate).encode(self.codec, 'replace')))
         elif mi.timestamp:
-            recs.append((106, str(mi.timestamp).encode(self.codec, 'replace')))
-            pop_exth_record(106)
+            update_exth_record((106, str(mi.timestamp).encode(self.codec, 'replace')))
         elif self.timestamp:
-            recs.append((106, self.timestamp))
-            pop_exth_record(106)
+            update_exth_record((106, self.timestamp))
         else:
-            recs.append((106, nowf().isoformat().encode(self.codec, 'replace')))
-            pop_exth_record(106)
+            update_exth_record((106, nowf().isoformat().encode(self.codec, 'replace')))
         if self.cover_record is not None:
-            recs.append((201, pack('>I', self.cover_rindex)))
-            recs.append((203, pack('>I', 0)))
-            pop_exth_record(201)
-            pop_exth_record(203)
+            update_exth_record((201, pack('>I', self.cover_rindex)))
+            update_exth_record((203, pack('>I', 0)))
         if self.thumbnail_record is not None:
-            recs.append((202, pack('>I', self.thumbnail_rindex)))
-            pop_exth_record(202)
+            update_exth_record((202, pack('>I', self.thumbnail_rindex)))
+        if 503 in self.original_exth_records:
+            update_exth_record((503, mi.title.encode(self.codec, 'replace')))
 
-        # Restore any original EXTH fields that weren't updated
+        # Include remaining original EXTH fields
         for id in sorted(self.original_exth_records):
             recs.append((id, self.original_exth_records[id]))
         recs = sorted(recs, key=lambda x:(x[0],x[0]))

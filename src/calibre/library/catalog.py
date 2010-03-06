@@ -1,3 +1,6 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Greg Riker <griker at hotmail.com>'
+
 import datetime, htmlentitydefs, os, re, shutil
 
 from collections import namedtuple
@@ -10,8 +13,8 @@ from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.logging import Log
 from calibre.utils.date import isoformat, now as nowf
+from calibre.utils.logging import default_log as log
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
@@ -51,7 +54,6 @@ class CSV_XML(CatalogPlugin):
                 "Applies to: CSV, XML output formats"))]
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
-        log = Log()
         self.fmt = path_to_output.rpartition('.')[2]
         self.notification = notification
 
@@ -346,7 +348,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.number_as_float = 0.0
             self.text = ''
             self.verbose = verbose
-            self.log = Log()
+            self.log = log
             self.numberTranslate()
 
         def stringFromInt(self, intToTranslate):
@@ -571,7 +573,9 @@ class EPUB_MOBI(CatalogPlugin):
             self.__authorClip = opts.authorClip
             self.__authors = None
             self.__basename = opts.basename
+            self.__bookmarked_books = None
             self.__booksByAuthor = None
+            self.__booksByDateRead = None
             self.__booksByTitle = None
             self.__booksByTitle_noSeriesPrefix = None
             self.__catalogPath = PersistentTemporaryDirectory("_epub_mobi_catalog", prefix='')
@@ -584,6 +588,10 @@ class EPUB_MOBI(CatalogPlugin):
             self.__generateForKindle = True if (self.opts.fmt == 'mobi' and \
                                        self.opts.output_profile and \
                                        self.opts.output_profile.startswith("kindle")) else False
+            self.__generateRecentlyRead = True if self.opts.generate_recently_added \
+                                                  and self.opts.connected_kindle \
+                                                  and self.generateForKindle \
+                                                else False
             self.__genres = None
             self.__genre_tags_dict = None
             self.__htmlFileList = []
@@ -603,11 +611,13 @@ class EPUB_MOBI(CatalogPlugin):
             self.__useSeriesPrefixInTitlesSection = False
             self.__verbose = opts.verbose
 
-            # Tweak build steps based on optional sections.  1 call for HTML, 1 for NCX
+            # Tweak build steps based on optional sections:  1 call for HTML, 1 for NCX
             if self.opts.generate_titles:
                 self.__totalSteps += 2
             if self.opts.generate_recently_added:
                 self.__totalSteps += 2
+                if self.generateRecentlyRead:
+                    self.__totalSteps += 2
 
         # Accessors
         '''
@@ -642,11 +652,25 @@ class EPUB_MOBI(CatalogPlugin):
                 self.__basename = val
             return property(fget=fget, fset=fset)
         @dynamic_property
+        def bookmarked_books(self):
+            def fget(self):
+                return self.__bookmarked_books
+            def fset(self, val):
+                self.__bookmarked_books = val
+            return property(fget=fget, fset=fset)
+        @dynamic_property
         def booksByAuthor(self):
             def fget(self):
                 return self.__booksByAuthor
             def fset(self, val):
                 self.__booksByAuthor = val
+            return property(fget=fget, fset=fset)
+        @dynamic_property
+        def booksByDateRead(self):
+            def fget(self):
+                return self.__booksByDateRead
+            def fset(self, val):
+                self.__booksByDateRead = val
             return property(fget=fget, fset=fset)
         @dynamic_property
         def booksByTitle(self):
@@ -713,6 +737,13 @@ class EPUB_MOBI(CatalogPlugin):
                 return self.__generateForKindle
             def fset(self, val):
                 self.__generateForKindle = val
+            return property(fget=fget, fset=fset)
+        @dynamic_property
+        def generateRecentlyRead(self):
+            def fget(self):
+                return self.__generateRecentlyRead
+            def fset(self, val):
+                self.__generateRecentlyRead = val
             return property(fget=fget, fset=fset)
         @dynamic_property
         def genres(self):
@@ -848,16 +879,22 @@ class EPUB_MOBI(CatalogPlugin):
             return property(fget=fget, fset=fset)
 
         @dynamic_property
-        def READ_SYMBOL(self):
-            def fget(self):
-                return '<font style="color:black">&#x2713;</font>' if self.generateForKindle else \
-                       '<font style="color:black">%s</font>' % self.opts.read_tag
-            return property(fget=fget)
-        @dynamic_property
         def NOT_READ_SYMBOL(self):
             def fget(self):
-                return '<font style="color:white">&#x2713;</font>' if self.generateForKindle else \
-                       '<font style="color:white">%s</font>' % self.opts.read_tag
+                return '<span style="color:white">&#x2713;</span>' if self.generateForKindle else \
+                       '<span style="color:white">%s</span>' % self.opts.read_tag
+            return property(fget=fget)
+        @dynamic_property
+        def READING_SYMBOL(self):
+            def fget(self):
+                return '<span style="color:black">&#x25b7;</span>' if self.generateForKindle else \
+                       '<span style="color:white">%s</span>' % self.opts.read_tag
+            return property(fget=fget)
+        @dynamic_property
+        def READ_SYMBOL(self):
+            def fget(self):
+                return '<span style="color:black">&#x2713;</span>' if self.generateForKindle else \
+                       '<span style="color:black">%s</span>' % self.opts.read_tag
             return property(fget=fget)
         @dynamic_property
         def FULL_RATING_SYMBOL(self):
@@ -869,6 +906,16 @@ class EPUB_MOBI(CatalogPlugin):
             def fget(self):
                 return "&#9734;" if self.generateForKindle else ' '
             return property(fget=fget)
+        @dynamic_property
+        def READ_PROGRESS_SYMBOL(self):
+            def fget(self):
+                return "&#9642;" if self.generateForKindle else '+'
+            return property(fget=fget)
+        @dynamic_property
+        def UNREAD_PROGRESS_SYMBOL(self):
+            def fget(self):
+                return "&#9643;" if self.generateForKindle else '-'
+            return property(fget=fget)
 
         # Methods
         def buildSources(self):
@@ -876,12 +923,15 @@ class EPUB_MOBI(CatalogPlugin):
                 if not self.fetchBooksByTitle():
                     return False
             self.fetchBooksByAuthor()
+            self.fetchBookmarks()
             self.generateHTMLDescriptions()
             self.generateHTMLByAuthor()
             if self.opts.generate_titles:
                 self.generateHTMLByTitle()
             if self.opts.generate_recently_added:
                 self.generateHTMLByDateAdded()
+                if self.generateRecentlyRead:
+                    self.generateHTMLByDateRead()
             self.generateHTMLByTags()
 
             from calibre.utils.PythonMagickWand import ImageMagick
@@ -896,6 +946,8 @@ class EPUB_MOBI(CatalogPlugin):
                 self.generateNCXByTitle("Titles")
             if self.opts.generate_recently_added:
                 self.generateNCXByDateAdded("Recently Added")
+                if self.generateRecentlyRead:
+                    self.generateNCXByDateRead("Recently Read")
             self.generateNCXByGenre("Genres")
             self.writeNCX()
             return True
@@ -970,6 +1022,8 @@ class EPUB_MOBI(CatalogPlugin):
             for record in data:
                 this_title = {}
 
+                this_title['id'] = record['id']
+
                 this_title['title'] = self.convertHTMLEntities(record['title'])
                 if record['series']:
                     this_title['series'] = record['series']
@@ -980,24 +1034,18 @@ class EPUB_MOBI(CatalogPlugin):
                     this_title['series_index'] = 0.0
 
                 this_title['title_sort'] = self.generateSortTitle(this_title['title'])
-                if 'authors' in record and record['authors']:
-                    this_title['author'] = " &amp; ".join(record['authors'])
-                else:
-                    this_title['author'] = 'Unknown'
+                if 'authors' in record:
+                    this_title['authors'] = record['authors']
+                    if record['authors']:
+                        this_title['author'] = " &amp; ".join(record['authors'])
+                    else:
+                        this_title['author'] = 'Unknown'
 
-                '''
-                this_title['author_sort_original'] =  record['author_sort']
-                author_sort =  record['author_sort'] if len(record['author_sort'].strip()) \
-                     else self.author_to_author_sort(this_title['author'])
-                author_sort = author_sort[0].upper() + author_sort[1:]
-                this_title['author_sort'] = author_sort
-                '''
                 if 'author_sort' in record and record['author_sort'].strip():
                     this_title['author_sort'] = record['author_sort']
                 else:
                     this_title['author_sort'] = self.author_to_author_sort(this_title['author'])
 
-                this_title['id'] = record['id']
                 if record['publisher']:
                     this_title['publisher'] = re.sub('&', '&amp;', record['publisher'])
 
@@ -1119,6 +1167,105 @@ class EPUB_MOBI(CatalogPlugin):
 
             self.authors = unique_authors
 
+        def fetchBookmarks(self):
+            '''
+            Collect bookmarks for catalog entries
+            This will use the system default save_template specified in
+            Preferences|Add/Save|Sending to device, not a customized one specified in
+            the Kindle plugin
+            '''
+            from calibre.devices.usbms.device import Device
+            from calibre.devices.kindle.driver import Bookmark
+            from calibre.ebooks.metadata import MetaInformation
+
+            MBP_FORMATS = [u'azw', u'mobi', u'prc', u'txt']
+            TAN_FORMATS = [u'tpz', u'azw1']
+            mbp_formats = set()
+            for fmt in MBP_FORMATS:
+                mbp_formats.add(fmt)
+            tan_formats = set()
+            for fmt in TAN_FORMATS:
+                tan_formats.add(fmt)
+
+            class BookmarkDevice(Device):
+                def initialize(self, save_template):
+                    self._save_template = save_template
+                    self.SUPPORTS_SUB_DIRS = True
+                def save_template(self):
+                    return self._save_template
+
+            def resolve_bookmark_paths(storage, path_map):
+                pop_list = []
+                book_ext = {}
+                for id in path_map:
+                    file_fmts = set()
+                    for fmt in path_map[id]['fmts']:
+                        file_fmts.add(fmt)
+
+                    bookmark_extension = None
+                    if file_fmts.intersection(mbp_formats):
+                        book_extension = list(file_fmts.intersection(mbp_formats))[0]
+                        bookmark_extension = 'mbp'
+                    elif file_fmts.intersection(tan_formats):
+                        book_extension = list(file_fmts.intersection(tan_formats))[0]
+                        bookmark_extension = 'tan'
+
+                    if bookmark_extension:
+                        for vol in storage:
+                            bkmk_path = path_map[id]['path'].replace(os.path.abspath('/<storage>'),vol)
+                            bkmk_path = bkmk_path.replace('bookmark',bookmark_extension)
+                            print "looking for %s" % bkmk_path
+                            if os.path.exists(bkmk_path):
+                                path_map[id] = bkmk_path
+                                book_ext[id] = book_extension
+                                break
+                        else:
+                            pop_list.append(id)
+                    else:
+                        pop_list.append(id)
+                # Remove non-existent bookmark templates
+                for id in pop_list:
+                    path_map.pop(id)
+                return path_map, book_ext
+
+            if self.generateRecentlyRead:
+                self.opts.log.info("     Collecting Kindle bookmarks matching catalog entries")
+
+                d = BookmarkDevice(None)
+                d.initialize(self.opts.connected_device['save_template'])
+
+                bookmarks = {}
+                for book in self.booksByTitle:
+                    if 'formats' in book:
+                        path_map = {}
+                        id = book['id']
+                        original_title = book['title'][book['title'].find(':') + 2:] if book['series'] \
+                                   else book['title']
+                        myMeta = MetaInformation(original_title,
+                                                 authors=book['authors'])
+                        myMeta.author_sort = book['author_sort']
+                        a_path = d.create_upload_path('/<storage>', myMeta, 'x.bookmark', create_dirs=False)
+                        path_map[id] = dict(path=a_path, fmts=[x.rpartition('.')[2] for x in book['formats']])
+
+                        path_map, book_ext = resolve_bookmark_paths(self.opts.connected_device['storage'], path_map)
+                        if path_map:
+                            bookmark_ext = path_map[id].rpartition('.')[2]
+                            myBookmark = Bookmark(path_map[id], id, book_ext[id], bookmark_ext)
+                            print "book: %s\nlast_read_location: %d\nlength: %d" % (book['title'],
+                                                                                    myBookmark.last_read_location,
+                                                                                    myBookmark.book_length)
+                            if myBookmark.book_length:
+                                book['percent_read'] = float(100*myBookmark.last_read_location / myBookmark.book_length)
+                                dots = int((book['percent_read'] + 5)/10)
+                                dot_string = self.READ_PROGRESS_SYMBOL * dots
+                                empty_dots = self.UNREAD_PROGRESS_SYMBOL * (10 - dots)
+                                book['reading_progress'] = '%s%s' % (dot_string,empty_dots)
+                                bookmarks[id] = ((myBookmark,book))
+
+                self.bookmarked_books = bookmarks
+            else:
+                self.bookmarked_books = {}
+
         def generateHTMLDescriptions(self):
             # Write each title to a separate HTML file in contentdir
             self.updateProgressFullStep("'Descriptions'")
@@ -1160,29 +1307,24 @@ class EPUB_MOBI(CatalogPlugin):
                 titleTag = body.find(attrs={'class':'title'})
                 titleTag.insert(0,emTag)
 
-                # Insert the author
+                # Create the author anchor
                 authorTag = body.find(attrs={'class':'author'})
                 aTag = Tag(soup, "a")
-                aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(title['author']))
-                #aTag.insert(0, escape(title['author']))
+                aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
+                                                self.generateAuthorAnchor(title['author']))
                 aTag.insert(0, title['author'])
 
-                # Insert READ_SYMBOL
-                if title['read']:
-                    authorTag.insert(0, NavigableString(self.READ_SYMBOL + "by "))
+                # This will include the reading progress dots even if we're not generating Recently Read
+                if self.opts.connected_kindle and title['id'] in self.bookmarked_books:
+                    authorTag.insert(0, NavigableString(self.READING_SYMBOL + " by "))
                 else:
-                    authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + "by "))
+                    # Insert READ/NOT_READ SYMBOL
+                    if title['read']:
+                        authorTag.insert(0, NavigableString(self.READ_SYMBOL + "by "))
+                    else:
+                        authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + "by "))
                 authorTag.insert(1, aTag)
 
-                '''
-                # Insert the unlinked genres.
-                if 'tags' in title:
-                    tagsTag = body.find(attrs={'class':'tags'})
-                    emTag = Tag(soup,"em")
-                    emTag.insert(0,NavigableString(', '.join(title['tags'])))
-                    tagsTag.insert(0,emTag)
-
-                '''
                 '''
                 # Insert Series info or remove.
                 seriesTag = body.find(attrs={'class':'series'})
@@ -1226,7 +1368,7 @@ class EPUB_MOBI(CatalogPlugin):
                         emTag = Tag(soup, "em")
                         emTag.insert(0, aTag)
                         if ttc < len(title['tags']):
-                            emTag.insert(1, NavigableString(', '))
+                            emTag.insert(1, NavigableString(' &middot; '))
                         tagsTag.insert(ttc, emTag)
                         ttc += 1
 
@@ -1367,10 +1509,14 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                # Prefix book with read/unread symbol
+                #  book with read/reading/unread symbol
                 if book['read']:
                     # check mark
                     pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                    pBookTag['class'] = "read_book"
+                    ptc += 1
+                elif book['id'] in self.bookmarked_books:
+                    pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
                     pBookTag['class'] = "read_book"
                     ptc += 1
                 else:
@@ -1521,10 +1667,14 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                #  book with read/unread symbol
+                #  book with read/reading/unread symbol
                 if book['read']:
                     # check mark
                     pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                    pBookTag['class'] = "read_book"
+                    ptc += 1
+                elif book['id'] in self.bookmarked_books:
+                    pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
                     pBookTag['class'] = "read_book"
                     ptc += 1
                 else:
@@ -1585,7 +1735,7 @@ class EPUB_MOBI(CatalogPlugin):
                     pIndexTag = Tag(soup, "p")
                     pIndexTag['class'] = "date_index"
                     aTag = Tag(soup, "a")
-                    aTag['name'] = "%s-%s" % (current_date.year, current_date.month)
+                    aTag['name'] = "bda_%s-%s" % (current_date.year, current_date.month)
                     pIndexTag.insert(0,aTag)
                     pIndexTag.insert(1,NavigableString(date_string))
                     divTag.insert(dtc,pIndexTag)
@@ -1634,10 +1784,14 @@ class EPUB_MOBI(CatalogPlugin):
                         pBookTag = Tag(soup, "p")
                         ptc = 0
 
-                        # Prefix book with read/unread symbol
+                        #  book with read/reading/unread symbol
                         if new_entry['read']:
                             # check mark
                             pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                            pBookTag['class'] = "read_book"
+                            ptc += 1
+                        elif new_entry['id'] in self.bookmarked_books:
+                            pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
                             pBookTag['class'] = "read_book"
                             ptc += 1
                         else:
@@ -1665,7 +1819,7 @@ class EPUB_MOBI(CatalogPlugin):
                     pIndexTag = Tag(soup, "p")
                     pIndexTag['class'] = "date_index"
                     aTag = Tag(soup, "a")
-                    aTag['name'] = date_range.replace(' ','')
+                    aTag['name'] = "bda_%s" % date_range.replace(' ','')
                     pIndexTag.insert(0,aTag)
                     pIndexTag.insert(1,NavigableString(date_range))
                     divTag.insert(dtc,pIndexTag)
@@ -1676,10 +1830,14 @@ class EPUB_MOBI(CatalogPlugin):
                         pBookTag = Tag(soup, "p")
                         ptc = 0
 
-                        # Prefix book with read/unread symbol
+                        #  book with read/reading/unread symbol
                         if new_entry['read']:
                             # check mark
                             pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                            pBookTag['class'] = "read_book"
+                            ptc += 1
+                        elif new_entry['id'] in self.bookmarked_books:
+                            pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
                             pBookTag['class'] = "read_book"
                             ptc += 1
                         else:
@@ -1789,6 +1947,7 @@ class EPUB_MOBI(CatalogPlugin):
                 divTag.insert(dtc,hrTag)
                 dtc += 1
 
+            # >>>> Books by month <<<<
             # Sort titles case-insensitive for by month using series prefix
             self.booksByMonth = sorted(self.booksByTitle,
                                  key=lambda x:(x['timestamp'], x['timestamp']),reverse=True)
@@ -1816,6 +1975,192 @@ class EPUB_MOBI(CatalogPlugin):
             outfile.write(soup.prettify())
             outfile.close()
             self.htmlFileList.append("content/ByDateAdded.html")
+
+        def generateHTMLByDateRead(self):
+            # Write books by active bookmarks
+            friendly_name = 'Recently Read'
+            self.updateProgressFullStep("'%s'" % friendly_name)
+            if not self.bookmarked_books:
+                return
+
+            def add_books_to_HTML_by_day(todays_list, dtc):
+                if len(todays_list):
+                    # Create a new day anchor
+                    date_string = strftime(u'%A, %B %d', current_date.timetuple())
+                    pIndexTag = Tag(soup, "p")
+                    pIndexTag['class'] = "date_index"
+                    aTag = Tag(soup, "a")
+                    aTag['name'] = "bdr_%s-%s-%s" % (current_date.year, current_date.month, current_date.day)
+                    pIndexTag.insert(0,aTag)
+                    pIndexTag.insert(1,NavigableString(date_string))
+                    divTag.insert(dtc,pIndexTag)
+                    dtc += 1
+
+                    for new_entry in todays_list:
+                        pBookTag = Tag(soup, "p")
+                        pBookTag['class'] = "date_read"
+                        ptc = 0
+
+                        # Percent read
+                        pBookTag.insert(ptc, NavigableString(new_entry['reading_progress']))
+                        ptc += 1
+
+                        aTag = Tag(soup, "a")
+                        aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
+                        aTag.insert(0,escape(new_entry['title']))
+                        pBookTag.insert(ptc, aTag)
+                        ptc += 1
+
+                        # Dot
+                        pBookTag.insert(ptc, NavigableString(" &middot; "))
+                        ptc += 1
+
+                        # Link to author
+                        emTag = Tag(soup, "em")
+                        aTag = Tag(soup, "a")
+                        aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
+                        aTag.insert(0, NavigableString(new_entry['author']))
+                        emTag.insert(0,aTag)
+                        pBookTag.insert(ptc, emTag)
+                        ptc += 1
+
+                        divTag.insert(dtc, pBookTag)
+                        dtc += 1
+                return dtc
+
+            def add_books_to_HTML_by_date_range(date_range_list, date_range, dtc):
+                if len(date_range_list):
+                    pIndexTag = Tag(soup, "p")
+                    pIndexTag['class'] = "date_index"
+                    aTag = Tag(soup, "a")
+                    aTag['name'] = "bdr_%s" % date_range.replace(' ','')
+                    pIndexTag.insert(0,aTag)
+                    pIndexTag.insert(1,NavigableString(date_range))
+                    divTag.insert(dtc,pIndexTag)
+                    dtc += 1
+
+                    for new_entry in date_range_list:
+                        # Add books
+                        pBookTag = Tag(soup, "p")
+                        pBookTag['class'] = "date_read"
+                        ptc = 0
+
+                        # Percent read
+                        dots = int((new_entry['percent_read'] + 5)/10)
+                        dot_string = self.READ_PROGRESS_SYMBOL * dots
+                        empty_dots = self.UNREAD_PROGRESS_SYMBOL * (10 - dots)
+                        pBookTag.insert(ptc, NavigableString('%s%s' % (dot_string,empty_dots)))
+                        ptc += 1
+
+                        aTag = Tag(soup, "a")
+                        aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
+                        aTag.insert(0,escape(new_entry['title']))
+                        pBookTag.insert(ptc, aTag)
+                        ptc += 1
+
+                        # Dot
+                        pBookTag.insert(ptc, NavigableString(" &middot; "))
+                        ptc += 1
+
+                        # Link to author
+                        emTag = Tag(soup, "em")
+                        aTag = Tag(soup, "a")
+                        aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
+                        aTag.insert(0, NavigableString(new_entry['author']))
+                        emTag.insert(0,aTag)
+                        pBookTag.insert(ptc, emTag)
+                        ptc += 1
+
+                        divTag.insert(dtc, pBookTag)
+                        dtc += 1
+                return dtc
+
+            soup = self.generateHTMLEmptyHeader(friendly_name)
+            body = soup.find('body')
+
+            btc = 0
+
+            # Insert section tag
+            aTag = Tag(soup,'a')
+            aTag['name'] = 'section_start'
+            body.insert(btc, aTag)
+            btc += 1
+
+            # Insert the anchor
+            aTag = Tag(soup, "a")
+            anchor_name = friendly_name.lower()
+            aTag['name'] = anchor_name.replace(" ","")
+            body.insert(btc, aTag)
+            btc += 1
+
+            # <p class="letter_index">
+            # <p class="author_index">
+            divTag = Tag(soup, "div")
+            dtc = 0
+
+            # self.bookmarked_books: (Bookmark, book)
+            bookmarked_books = []
+            for bm_book in self.bookmarked_books:
+                book = self.bookmarked_books[bm_book]
+                #print "bm_book: %s" % bm_book
+                book[1]['bookmark_timestamp'] = book[0].timestamp
+                book[1]['percent_read'] = float(100*book[0].last_read_location / book[0].book_length)
+                bookmarked_books.append(book[1])
+
+            self.booksByDateRead = sorted(bookmarked_books,
+                             key=lambda x:(x['bookmark_timestamp'], x['bookmark_timestamp']),reverse=True)
+
+            '''
+            # >>>> Recently by date range <<<<
+            date_range_list = []
+            today_time = datetime.datetime.utcnow()
+            today_time.replace(hour=23, minute=59, second=59)
+            books_added_in_date_range = False
+            for (i, date) in enumerate(self.DATE_RANGE):
+                date_range_limit = self.DATE_RANGE[i]
+                if i:
+                    date_range = '%d to %d days ago' % (self.DATE_RANGE[i-1], self.DATE_RANGE[i])
+                else:
+                    date_range = 'Last %d days' % (self.DATE_RANGE[i])
+
+                for book in self.booksByDateRead:
+                    bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
+                    delta = today_time-bookmark_time
+                    if delta.days <= date_range_limit:
+                        date_range_list.append(book)
+                        books_added_in_date_range = True
+                    else:
+                        break
+
+                dtc = add_books_to_HTML_by_date_range(date_range_list, date_range, dtc)
+                date_range_list = [book]
+            '''
+
+            # >>>> Recently read by day <<<<
+            current_date = datetime.date.fromordinal(1)
+            todays_list = []
+            for book in self.booksByDateRead:
+                bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
+                if bookmark_time.day != current_date.day or \
+                   bookmark_time.month != current_date.month or \
+                   bookmark_time.year != current_date.year:
+                    dtc = add_books_to_HTML_by_day(todays_list, dtc)
+                    todays_list = []
+                    current_date = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp']).date()
+                todays_list.append(book)
+
+            # Add the last day's list
+            add_books_to_HTML_by_day(todays_list, dtc)
+
+            # Add the divTag to the body
+            body.insert(btc, divTag)
+
+            # Write the generated file to contentdir
+            outfile_spec = "%s/ByDateRead.html" % (self.contentDir)
+            outfile = open(outfile_spec, 'w')
+            outfile.write(soup.prettify())
+            outfile.close()
+            self.htmlFileList.append("content/ByDateRead.html")
 
         def generateHTMLByTags(self):
             # Generate individual HTML files for each tag, e.g. Fiction, Nonfiction ...
@@ -2229,8 +2574,16 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     if self.generateForKindle:
                         # Don't include Author for Kindle
-                        textTag.insert(0, NavigableString(self.formatNCXText('%s' % (book['title']),
-                                                          dest='title')))
+                        title_str = self.formatNCXText('%s' % (book['title']), dest='title')
+                        if self.opts.connected_kindle and book['id'] in self.bookmarked_books:
+                            '''
+                            dots = int((book['percent_read'] + 5)/10)
+                            dot_string = '+' * dots
+                            empty_dots = '-' * (10 - dots)
+                            title_str += ' %s%s' % (dot_string,empty_dots)
+                            '''
+                            title_str += '*'
+                        textTag.insert(0, NavigableString(title_str))
                     else:
                         # Include Author for non-Kindle
                         textTag.insert(0, NavigableString(self.formatNCXText('%s &middot; %s' % \
@@ -2529,7 +2882,7 @@ class EPUB_MOBI(CatalogPlugin):
                 navLabelTag.insert(0, textTag)
                 navPointByDateRangeTag.insert(0,navLabelTag)
                 contentTag = Tag(soup, 'content')
-                contentTag['src'] = "%s#%s" % (HTML_file,
+                contentTag['src'] = "%s#bda_%s" % (HTML_file,
                     books_by_date_range[1].replace(' ',''))
 
                 navPointByDateRangeTag.insert(1,contentTag)
@@ -2581,7 +2934,7 @@ class EPUB_MOBI(CatalogPlugin):
                 datestr = strftime(u'%B %Y', books_by_month[1].timetuple())
                 navPointByMonthTag = Tag(soup, 'navPoint')
                 navPointByMonthTag['class'] = "article"
-                navPointByMonthTag['id'] = "%s-%s-ID" % (books_by_month[1].year,books_by_month[1].month )
+                navPointByMonthTag['id'] = "bda_%s-%s-ID" % (books_by_month[1].year,books_by_month[1].month )
                 navPointTag['playOrder'] = self.playOrder
                 self.playOrder += 1
                 navLabelTag = Tag(soup, 'navLabel')
@@ -2590,7 +2943,7 @@ class EPUB_MOBI(CatalogPlugin):
                 navLabelTag.insert(0, textTag)
                 navPointByMonthTag.insert(0,navLabelTag)
                 contentTag = Tag(soup, 'content')
-                contentTag['src'] = "%s#%s-%s" % (HTML_file,
+                contentTag['src'] = "%s#bda_%s-%s" % (HTML_file,
                     books_by_month[1].year,books_by_month[1].month)
 
                 navPointByMonthTag.insert(1,contentTag)
@@ -2609,6 +2962,177 @@ class EPUB_MOBI(CatalogPlugin):
                     navPointByMonthTag.insert(3, cmTag)
 
                 navPointTag.insert(nptc, navPointByMonthTag)
+                nptc += 1
+
+            # Add this section to the body
+            body.insert(btc, navPointTag)
+            btc += 1
+            self.ncxSoup = soup
+
+        def generateNCXByDateRead(self, tocTitle):
+            self.updateProgressFullStep("NCX 'Recently Read'")
+            if not self.booksByDateRead:
+                return
+
+            def add_to_master_day_list(current_titles_list):
+                book_count = len(current_titles_list)
+                current_titles_list = " &bull; ".join(current_titles_list)
+                current_titles_list = self.formatNCXText(current_titles_list, dest='description')
+                master_day_list.append((current_titles_list, current_date, book_count))
+
+            def add_to_master_date_range_list(current_titles_list):
+                book_count = len(current_titles_list)
+                current_titles_list = " &bull; ".join(current_titles_list)
+                current_titles_list = self.formatNCXText(current_titles_list, dest='description')
+                master_date_range_list.append((current_titles_list, date_range, book_count))
+
+            soup = self.ncxSoup
+            HTML_file = "content/ByDateRead.html"
+            body = soup.find("navPoint")
+            btc = len(body.contents)
+
+            # --- Construct the 'Recently Read' *section* ---
+            navPointTag = Tag(soup, 'navPoint')
+            navPointTag['class'] = "section"
+            file_ID = "%s" % tocTitle.lower()
+            file_ID = file_ID.replace(" ","")
+            navPointTag['id'] = "%s-ID" % file_ID
+            navPointTag['playOrder'] = self.playOrder
+            self.playOrder += 1
+            navLabelTag = Tag(soup, 'navLabel')
+            textTag = Tag(soup, 'text')
+            textTag.insert(0, NavigableString('%s' % tocTitle))
+            navLabelTag.insert(0, textTag)
+            nptc = 0
+            navPointTag.insert(nptc, navLabelTag)
+            nptc += 1
+            contentTag = Tag(soup,"content")
+            contentTag['src'] = "%s#section_start" % HTML_file
+            navPointTag.insert(nptc, contentTag)
+            nptc += 1
+
+            # Create an NCX article entry for each date range
+            current_titles_list = []
+            master_date_range_list = []
+            today = datetime.datetime.now()
+            today_time = datetime.datetime(today.year, today.month, today.day)
+            for (i,date) in enumerate(self.DATE_RANGE):
+                if i:
+                    date_range = '%d to %d days ago' % (self.DATE_RANGE[i-1], self.DATE_RANGE[i])
+                else:
+                    date_range = 'Last %d days' % (self.DATE_RANGE[i])
+                date_range_limit = self.DATE_RANGE[i]
+                for book in self.booksByDateRead:
+                    bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
+                    if (today_time-bookmark_time).days <= date_range_limit:
+                        #print "generateNCXByDateAdded: %s added %d days ago" % (book['title'], (today_time-book_time).days)
+                        current_titles_list.append(book['title'])
+                    else:
+                        break
+                if current_titles_list:
+                    add_to_master_date_range_list(current_titles_list)
+                current_titles_list = [book['title']]
+
+            '''
+            # Add *article* entries for each populated date range
+            # master_date_range_list{}: [0]:titles list [1]:datestr
+            for books_by_date_range in master_date_range_list:
+                navPointByDateRangeTag = Tag(soup, 'navPoint')
+                navPointByDateRangeTag['class'] = "article"
+                navPointByDateRangeTag['id'] = "%s-ID" %  books_by_date_range[1].replace(' ','')
+                navPointTag['playOrder'] = self.playOrder
+                self.playOrder += 1
+                navLabelTag = Tag(soup, 'navLabel')
+                textTag = Tag(soup, 'text')
+                textTag.insert(0, NavigableString(books_by_date_range[1]))
+                navLabelTag.insert(0, textTag)
+                navPointByDateRangeTag.insert(0,navLabelTag)
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "%s#bdr_%s" % (HTML_file,
+                    books_by_date_range[1].replace(' ',''))
+
+                navPointByDateRangeTag.insert(1,contentTag)
+
+                if self.generateForKindle:
+                    cmTag = Tag(soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "description"
+                    cmTag.insert(0, NavigableString(books_by_date_range[0]))
+                    navPointByDateRangeTag.insert(2, cmTag)
+
+                    cmTag = Tag(soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "author"
+                    navStr = '%d titles' % books_by_date_range[2] if books_by_date_range[2] > 1 else \
+                             '%d title' % books_by_date_range[2]
+                    cmTag.insert(0, NavigableString(navStr))
+                    navPointByDateRangeTag.insert(3, cmTag)
+
+                navPointTag.insert(nptc, navPointByDateRangeTag)
+                nptc += 1
+            '''
+
+            # Create an NCX article entry for each populated day
+            # Loop over the booksByDate list, find start of each month,
+            # add description_preview_count titles
+            # master_month_list(list,date,count)
+            current_titles_list = []
+            master_day_list = []
+            current_date = datetime.datetime.utcfromtimestamp(self.booksByDateRead[0]['bookmark_timestamp'])
+
+            for book in self.booksByDateRead:
+                bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
+                if bookmark_time.day != current_date.day or \
+                   bookmark_time.month != current_date.month or \
+                   bookmark_time.year != current_date.year:
+                    # Save the old lists
+                    add_to_master_day_list(current_titles_list)
+
+                    # Start the new list
+                    current_date = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp']).date()
+                    current_titles_list = [book['title']]
+                else:
+                    current_titles_list.append(book['title'])
+
+            # Add the last day list
+            add_to_master_day_list(current_titles_list)
+
+            # Add *article* entries for each populated day
+            # master_day_list{}: [0]:titles list [1]:date
+            for books_by_day in master_day_list:
+                datestr = strftime(u'%A, %B %d', books_by_day[1].timetuple())
+                navPointByDayTag = Tag(soup, 'navPoint')
+                navPointByDayTag['class'] = "article"
+                navPointByDayTag['id'] = "bdr_%s-%s-%sID" % (books_by_day[1].year,
+                                                             books_by_day[1].month,
+                                                             books_by_day[1].day )
+                navPointTag['playOrder'] = self.playOrder
+                self.playOrder += 1
+                navLabelTag = Tag(soup, 'navLabel')
+                textTag = Tag(soup, 'text')
+                textTag.insert(0, NavigableString(datestr))
+                navLabelTag.insert(0, textTag)
+                navPointByDayTag.insert(0,navLabelTag)
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "%s#bdr_%s-%s-%s" % (HTML_file,
+                                                         books_by_day[1].year,
+                                                         books_by_day[1].month,
+                                                         books_by_day[1].day)
+
+                navPointByDayTag.insert(1,contentTag)
+
+                if self.generateForKindle:
+                    cmTag = Tag(soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "description"
+                    cmTag.insert(0, NavigableString(books_by_day[0]))
+                    navPointByDayTag.insert(2, cmTag)
+
+                    cmTag = Tag(soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "author"
+                    navStr = '%d titles' % books_by_day[2] if books_by_day[2] > 1 else \
+                             '%d title' % books_by_day[2]
+                    cmTag.insert(0, NavigableString(navStr))
+                    navPointByDayTag.insert(3, cmTag)
+
+                navPointTag.insert(nptc, navPointByDayTag)
                 nptc += 1
 
             # Add this section to the body
@@ -2789,7 +3313,7 @@ class EPUB_MOBI(CatalogPlugin):
                         self.thumbWidth = int(self.thumbWidth/2)
                         self.thumbHeight = int(self.thumbHeight/2)
                     break
-            if self.verbose:
+            if False and self.verbose:
                 self.opts.log("     DPI = %d; thumbnail dimensions: %d x %d" % \
                               (x.dpi, self.thumbWidth, self.thumbHeight))
 
@@ -2980,14 +3504,21 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                # Prefix book with read/unread symbol
+                #  book with read/reading/unread symbol
                 if book['read']:
+                    # check mark
                     pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
                     pBookTag['class'] = "read_book"
+                    ptc += 1
+                elif book['id'] in self.bookmarked_books:
+                    pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
+                    pBookTag['class'] = "read_book"
+                    ptc += 1
                 else:
+                    # hidden check mark
                     pBookTag['class'] = "unread_book"
                     pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
-                ptc += 1
+                    ptc += 1
 
                 # Add the book title
                 aTag = Tag(soup, "a")
@@ -3320,11 +3851,23 @@ class EPUB_MOBI(CatalogPlugin):
                                             '%s%s\n\n%s' % (lost_cr.group(1),
                                                             lost_cr.group(2),
                                                             lost_cr.group(3)))
+            # Extract pre-built elements - annotations, etc.
+            if not isinstance(comments, unicode):
+                comments = comments.decode('utf-8', 'replace')
+            soup = BeautifulSoup(comments)
+            elems = soup.findAll('div')
+            for elem in elems:
+                elem.extract()
+
+            # Reconstruct comments w/o <div>s
+            comments = soup.renderContents()
+            if not isinstance(comments, unicode):
+                comments = comments.decode('utf-8', 'replace')
 
             # Convert \n\n to <p>s
             if re.search('\n\n', comments):
                 soup = BeautifulSoup()
-                split_ps = comments.split('\n\n')
+                split_ps = comments.split(u'\n\n')
                 tsc = 0
                 for p in split_ps:
                     pTag = Tag(soup,'p')
@@ -3339,7 +3882,6 @@ class EPUB_MOBI(CatalogPlugin):
             # Convert two hypens to emdash
             comments = re.sub('--','&mdash;',comments)
             soup = BeautifulSoup(comments)
-
             result = BeautifulSoup()
             rtc = 0
             open_pTag = False
@@ -3354,7 +3896,7 @@ class EPUB_MOBI(CatalogPlugin):
                     pTag.insert(ptc,prepare_string_for_xml(token))
                     ptc += 1
 
-                elif token.name in ['br','b','i']:
+                elif token.name in ['br','b','i','em']:
                     if not open_pTag:
                         pTag = Tag(result,'p')
                         open_pTag = True
@@ -3382,6 +3924,11 @@ class EPUB_MOBI(CatalogPlugin):
             paras = result.findAll('p')
             for p in paras:
                 p['class'] = 'description'
+
+            # Add back <div> elems initially removed
+            for elem in elems:
+                result.insert(rtc,elem)
+                rtc += 1
 
             return result.renderContents(encoding=None)
 
@@ -3423,17 +3970,19 @@ class EPUB_MOBI(CatalogPlugin):
                 self.opts.log.info('%s not implemented' % self.error)
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
-        opts.log = log = Log()
+        opts.log = log
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
 
         # Add local options
         opts.creator = "calibre"
+        opts.connected_kindle = False
 
         # Finalize output_profile
         op = opts.output_profile
         if op is None:
             op = 'default'
         if opts.connected_device['name'] and 'kindle' in opts.connected_device['name'].lower():
+            opts.connected_kindle = True
             if opts.connected_device['serial'] and opts.connected_device['serial'][:4] in ['B004','B005']:
                 op = "kindle_dx"
             else:
@@ -3448,6 +3997,10 @@ class EPUB_MOBI(CatalogPlugin):
 
         build_log = []
 
+        build_log.append(u"%s(): Generating %s %sin %s environment" %
+            (self.name,self.fmt,'for %s ' % opts.output_profile if opts.output_profile else '',
+             'CLI' if opts.cli_environment else 'GUI'))
+
         # If exclude_genre is blank, assume user wants all genre tags included
         if opts.exclude_genre.strip() == '':
             opts.exclude_genre = '\[^.\]'
@@ -3455,22 +4008,22 @@ class EPUB_MOBI(CatalogPlugin):
 
         if opts.connected_device['name']:
             if opts.connected_device['serial']:
-                build_log.append(" connected_device: '%s' #%s%s " % \
+                build_log.append(u" connected_device: '%s' #%s%s " % \
                     (opts.connected_device['name'],
                      opts.connected_device['serial'][0:4],
                      'x' * (len(opts.connected_device['serial']) - 4)))
-            else:
-                build_log.append(" connected_device: '%s'" % opts.connected_device['name'])
                 for storage in opts.connected_device['storage']:
                     if storage:
-                        build_log.append("  mount point: %s" % storage)
+                        build_log.append(u"  mount point: %s" % storage)
+            else:
+                build_log.append(u" connected_device: '%s'" % opts.connected_device['name'])
+                for storage in opts.connected_device['storage']:
+                    if storage:
+                        build_log.append(u"  mount point: %s" % storage)
 
         opts_dict = vars(opts)
-        build_log.append(u"%s(): Generating %s %sin %s environment" %
-            (self.name,self.fmt,'for %s ' % opts.output_profile if opts.output_profile else '',
-             'CLI' if opts.cli_environment else 'GUI'))
         if opts_dict['ids']:
-            build_log.append(" Book count: %d" % len(opts_dict['ids']))
+            build_log.append(" book count: %d" % len(opts_dict['ids']))
 
         sections_list = ['Descriptions','Authors']
         if opts.generate_titles:
@@ -3479,15 +4032,15 @@ class EPUB_MOBI(CatalogPlugin):
             sections_list.append('Recently Added')
         if not opts.exclude_genre.strip() == '.':
             sections_list.append('Genres')
-        build_log.append(u"Creating Sections for %s" % ', '.join(sections_list))
+        build_log.append(u" Sections: %s" % ', '.join(sections_list))
 
         # Display opts
         keys = opts_dict.keys()
         keys.sort()
         build_log.append(" opts:")
         for key in keys:
-            if key in ['catalog_title','authorClip','descriptionClip','exclude_genre','exclude_tags',
-                       'note_tag','numbers_as_text','read_tag',
+            if key in ['catalog_title','authorClip','connected_kindle','descriptionClip',
+                       'exclude_genre','exclude_tags','note_tag','numbers_as_text','read_tag',
                        'search_text','sort_by','sort_descriptions_by_author','sync']:
                 build_log.append("  %s: %s" % (key, opts_dict[key]))
 
@@ -3499,16 +4052,16 @@ class EPUB_MOBI(CatalogPlugin):
         # Launch the Catalog builder
         catalog = self.CatalogBuilder(db, opts, self, report_progress=notification)
         if opts.verbose:
-            log.info("Begin catalog source generation")
+            log.info(" Begin catalog source generation")
         catalog.createDirectoryStructure()
         catalog.copyResources()
         catalog.calculateThumbnailSize()
         catalog_source_built = catalog.buildSources()
         if opts.verbose:
             if catalog_source_built:
-                log.info("Finished catalog source generation\n")
+                log.info(" Completed catalog source generation\n")
             else:
-                log.warn("No database hits with supplied criteria")
+                log.warn(" No database hits with supplied criteria")
 
         if catalog_source_built:
             recommendations = []

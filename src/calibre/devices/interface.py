@@ -6,6 +6,7 @@ the GUI. A device backend must subclass the L{Device} class. See prs500.py for
 a backend that implement the Device interface for the SONY PRS500 Reader.
 """
 import os
+from collections import namedtuple
 
 from calibre.customize import Plugin
 from calibre.constants import iswindows
@@ -42,6 +43,9 @@ class DevicePlugin(Plugin):
     path_sep = os.sep
     #: Icon for this device
     icon = I('reader.svg')
+
+    # Used by gui2.ui:annotations_fetched() and devices.kindle.driver:get_annotations()
+    UserAnnotation = namedtuple('Annotation','type, bookmark')
 
     @classmethod
     def get_gui_name(cls):

@@ -9,15 +9,34 @@ class StrategyBusinessRecipe(BasicNewsRecipe):
     title = u'Strategy+Business'
     publisher = u' Booz & Company'
     category = u'Business'
-    description = u'Business magazine for senior business executives and the people who influence them.'
+    description = (u'Business magazine for senior business executives and the people who influence them.'
+            'Go to http://www.strategy-business.com/registration to sign up for a free account')
 
     oldest_article = 13 * 7 # 3 months
     max_articles_per_feed = 100
     use_embedded_content = False
     remove_empty_feeds = True
+    needs_subscription = True
 
     no_stylesheets = True
     remove_javascript = True
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.open('http://www.strategy-business.com/registration')
+        for i, f in enumerate(br.forms()):
+            if 'gatekeeper_edit' in f.name:
+                br.select_form(name=f.name)
+                for c in f.controls:
+                    if c.name.endswith('_email'):
+                        br[c.name] = self.username
+                    elif c.name.endswith('_password'):
+                        br[c.name] = self.password
+                raw = br.submit().read()
+                if '>Logout' not in raw:
+                    raise ValueError('Failed to login, check your username and password')
+        return br
+
 
     extra_css = '''
                 body{font-family:verdana,arial,helvetica,geneva,sans-serif ;}

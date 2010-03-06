@@ -5,8 +5,9 @@ GUI for fetching metadata from servers.
 '''
 
 import time
+from threading import Thread
 
-from PyQt4.QtCore import Qt, QObject, SIGNAL, QVariant, QThread, \
+from PyQt4.QtCore import Qt, QObject, SIGNAL, QVariant, pyqtSignal, \
                          QAbstractTableModel, QCoreApplication, QTimer
 from PyQt4.QtGui import QDialog, QItemSelectionModel
 
@@ -16,15 +17,19 @@ from calibre.gui2.widgets import ProgressIndicator
 from calibre import strftime
 from calibre.customize.ui import get_isbndb_key, set_isbndb_key
 
-class Fetcher(QThread):
+_hung_fetchers = set([])
+
+class Fetcher(Thread):
 
     def __init__(self, title, author, publisher, isbn, key):
-        QThread.__init__(self)
+        Thread.__init__(self)
+        self.daemon = True
         self.title = title
         self.author = author
         self.publisher = publisher
         self.isbn = isbn
         self.key = key
+        self.results, self.exceptions = [], []
 
     def run(self):
         from calibre.ebooks.metadata.fetch import search
@@ -92,14 +97,23 @@ class Matches(QAbstractTableModel):
 
 class FetchMetadata(QDialog, Ui_FetchMetadata):
 
+    HANG_TIME = 75 #seconds
+
+    queue_reject = pyqtSignal()
+
     def __init__(self, parent, isbn, title, author, publisher, timeout):
         QDialog.__init__(self, parent)
         Ui_FetchMetadata.__init__(self)
         self.setupUi(self)
 
+        for fetcher in list(_hung_fetchers):
+            if not fetcher.is_alive():
+                _hung_fetchers.remove(fetcher)
+
         self.pi = ProgressIndicator(self)
         self.timeout = timeout
         QObject.connect(self.fetch, SIGNAL('clicked()'), self.fetch_metadata)
+        self.queue_reject.connect(self.reject, Qt.QueuedConnection)
 
         isbndb_key = get_isbndb_key()
         if not isbndb_key:
@@ -156,16 +170,17 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self._hangcheck.start(100)
 
     def hangcheck(self):
-        if not (self.fetcher.isFinished() or time.time() - self.start_time > 75):
+        if self.fetcher.is_alive() and \
+                time.time() - self.start_time < self.HANG_TIME:
             return
         self._hangcheck.stop()
         try:
-            if self.fetcher.isRunning():
+            if self.fetcher.is_alive():
                 error_dialog(self, _('Could not find metadata'),
                              _('The metadata download seems to have stalled. '
                                'Try again later.')).exec_()
-                self.fetcher.terminate()
-                return
+                self.terminate()
+                return self.queue_reject.emit()
             self.model = Matches(self.fetcher.results)
             warnings = [(x[0], unicode(x[1])) for x in \
                             self.fetcher.exceptions if x[1] is not None]
@@ -196,8 +211,8 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
             self.pi.stop()
 
     def terminate(self):
-        if hasattr(self, 'fetcher') and self.fetcher.isRunning():
-            self.fetcher.terminate()
+        if hasattr(self, 'fetcher') and self.fetcher.is_alive():
+            _hung_fetchers.add(self.fetcher)
         if hasattr(self, '_hangcheck') and self._hangcheck.isActive():
             self._hangcheck.stop()
 

@@ -19,15 +19,13 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, 
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre import entity_to_unicode
 from calibre.web import Recipe
-from calibre.ebooks import render_html
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
 from calibre.web.feeds import feed_from_xml, templates, feeds_from_index, Feed
 from calibre.web.fetch.simple import option_parser as web2disk_option_parser
 from calibre.web.fetch.simple import RecursiveFetcher
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
-from calibre.ptempfile import PersistentTemporaryFile, \
-                              PersistentTemporaryDirectory
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
 
 class BasicNewsRecipe(Recipe):
@@ -268,7 +266,7 @@ class BasicNewsRecipe(Recipe):
                 font-weight: bold;
             }
 
-            .navbar {
+            .calibre_navbar {
                 font-family:monospace;
             }
     '''
@@ -527,7 +525,6 @@ class BasicNewsRecipe(Recipe):
         self.username = options.username
         self.password = options.password
         self.lrf = options.lrf
-        self.include_navbars = not options.no_inline_navbars
 
         self.output_dir = os.path.abspath(self.output_dir)
         if options.test:
@@ -599,7 +596,7 @@ class BasicNewsRecipe(Recipe):
         if first_fetch and job_info:
             url, f, a, feed_len = job_info
             body = soup.find('body')
-            if body is not None and self.include_navbars:
+            if body is not None:
                 templ = self.navbar.generate(False, f, a, feed_len,
                                              not self.has_single_feed,
                                              url, __appname__,
@@ -626,7 +623,7 @@ class BasicNewsRecipe(Recipe):
     def download(self):
         '''
         Download and pre-process all articles from the feeds in this recipe.
-        This method should be called only one on a particular Recipe instance.
+        This method should be called only once on a particular Recipe instance.
         Calling it more than once will lead to undefined behavior.
         @return: Path to index.html
         @rtype: string
@@ -928,63 +925,52 @@ class BasicNewsRecipe(Recipe):
         '''
         Create a generic cover for recipes that dont have a cover
         '''
-        from calibre.gui2 import is_ok_to_use_qt
-        if not is_ok_to_use_qt():
-            return False
-        img_data = open(I('library.png'), 'rb').read()
-        tdir = PersistentTemporaryDirectory('_default_cover')
-        img = os.path.join(tdir, 'logo.png')
-        with open(img, 'wb') as g:
-            g.write(img_data)
-        img = os.path.basename(img)
-        html= u'''\
-        <html>
-            <head>
-                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                <style type="text/css">
-                    body {
-                        background: white no-repeat fixed center center;
-                        text-align: center;
-                        vertical-align: center;
-                        overflow: hidden;
-                        font-size: 18px;
-                    }
-                    h1 { font-family: serif; }
-                    h2, h4 { font-family: monospace; }
-                </style>
-            </head>
-            <body>
-                <h1>%(title)s</h1>
-                <br/><br/>
-                <div style="position:relative">
-                    <div style="position: absolute; left: 0; top: 0; width:100%%; height:100%%; vertical-align:center">
-                        <img src="%(img)s" alt="calibre" style="opacity:0.3"/>
-                    </div>
-                    <div style="position: absolute; left: 0; top: 0; width:100%%; height:100%%; vertical-align:center">
-                        <h2>%(date)s</h2>
-                        <br/><br/><br/><br/><br/>
-                        <h3>%(author)s</h3>
-                        <br/><br/></br/><br/><br/><br/><br/><br/><br/>
-                        <h4>Produced by %(app)s</h4>
-                    </div>
-                </div>
-            </body>
-        </html>
-        '''%dict(title=self.title if isinstance(self.title, unicode) else self.title.decode(preferred_encoding, 'replace'),
-                 author=self.__author__ if isinstance(self.__author__, unicode) else self.__author__.decode(preferred_encoding, 'replace'),
-                 date=strftime(self.timefmt),
-                 app=__appname__ +' '+__version__,
-                 img=img)
-        hf = os.path.join(tdir, 'cover.htm')
-        with open(hf, 'wb') as f:
-            f.write(html.encode('utf-8'))
-        renderer = render_html(hf)
-        if renderer.tb is not None:
-            self.log.warning('Failed to render default cover')
-            self.log.debug(renderer.tb)
-        else:
-            cover_file.write(renderer.data)
+        try:
+            try:
+                from PIL import Image, ImageDraw, ImageFont
+                Image, ImageDraw, ImageFont
+            except ImportError:
+                import Image, ImageDraw, ImageFont
+            font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
+            title = self.title if isinstance(self.title, unicode) else \
+                    self.title.decode(preferred_encoding, 'replace')
+            date = strftime(self.timefmt)
+            app = '['+__appname__ +' '+__version__+']'
+
+            COVER_WIDTH, COVER_HEIGHT = 590, 750
+            img = Image.new('RGB', (COVER_WIDTH, COVER_HEIGHT), 'white')
+            draw = ImageDraw.Draw(img)
+            # Title
+            font = ImageFont.truetype(font_path, 44)
+            width, height = draw.textsize(title, font=font)
+            left = max(int((COVER_WIDTH - width)/2.), 0)
+            top = 15
+            draw.text((left, top), title, fill=(0,0,0), font=font)
+            bottom = top + height
+            # Date
+            font = ImageFont.truetype(font_path, 32)
+            width, height = draw.textsize(date, font=font)
+            left = max(int((COVER_WIDTH - width)/2.), 0)
+            draw.text((left, bottom+15), date, fill=(0,0,0), font=font)
+            # Vanity
+            font = ImageFont.truetype(font_path, 28)
+            width, height = draw.textsize(app, font=font)
+            left = max(int((COVER_WIDTH - width)/2.), 0)
+            top = COVER_HEIGHT - height - 15
+            draw.text((left, top), app, fill=(0,0,0), font=font)
+            # Logo
+            logo = Image.open(I('library.png'), 'r')
+            width, height = logo.size
+            left = max(int((COVER_WIDTH - width)/2.), 0)
+            top = max(int((COVER_HEIGHT - height)/2.), 0)
+            img.paste(logo, (left, top))
+            img = img.convert('RGB').convert('P', palette=Image.ADAPTIVE)
+
+            img.convert('RGB').save(cover_file, 'JPEG')
             cover_file.flush()
+        except:
+            self.log.exception('Failed to generate default cover')
+            return False
         return True
 
     def get_masthead_title(self):
@@ -1162,13 +1148,12 @@ class BasicNewsRecipe(Recipe):
                         body = soup.find('body')
                         if body is not None:
                             prefix = '/'.join('..'for i in range(2*len(re.findall(r'link\d+', last))))
-                            if self.include_navbars:
-                                templ = self.navbar.generate(True, num, j, len(f),
-                                                not self.has_single_feed,
-                                                a.orig_url, __appname__, prefix=prefix,
-                                                center=self.center_navbar)
-                                elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
-                                body.insert(len(body.contents), elem)
+                            templ = self.navbar.generate(True, num, j, len(f),
+                                            not self.has_single_feed,
+                                            a.orig_url, __appname__, prefix=prefix,
+                                            center=self.center_navbar)
+                            elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
+                            body.insert(len(body.contents), elem)
                             with open(last, 'wb') as fi:
                                 fi.write(unicode(soup).encode('utf-8'))
 
@@ -1373,3 +1358,26 @@ class AutomaticNewsRecipe(BasicNewsRecipe):
         if self.use_embedded_content:
             self.web2disk_options.keep_only_tags = []
         return BasicNewsRecipe.fetch_embedded_article(self, article, dir, f, a, num_of_feeds)
+
+class DownloadedNewsRecipe(BasicNewsRecipe):
+
+    def get_downloaded_recipe(self):
+        'Return path on local filesystem to downloaded recipe'
+        raise NotImplementedError
+
+    def download(self):
+        self.log('Fetching downloaded recipe')
+        rpath = self.get_downloaded_recipe()
+        from calibre.utils.zipfile import ZipFile
+        zf = ZipFile(rpath)
+        zf.extractall()
+        zf.close()
+        from calibre.web.feeds.recipes import compile_recipe
+        from glob import glob
+        try:
+            recipe = compile_recipe(open(glob('*.downloaded_recipe')[0],
+                'rb').read())
+            self.conversion_options = recipe.conversion_options
+        except:
+            self.log.exception('Failed to compile downloaded recipe')
+        return os.path.abspath('index.html')

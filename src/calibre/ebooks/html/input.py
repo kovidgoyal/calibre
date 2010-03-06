@@ -20,7 +20,7 @@ from itertools import izip
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.customize.conversion import OptionRecommendation
-from calibre.constants import islinux
+from calibre.constants import islinux, isfreebsd
 from calibre import unicode_path
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
@@ -346,7 +346,7 @@ class HTMLInput(InputFormatPlugin):
         self.added_resources = {}
         self.log = log
         for path, href in htmlfile_map.items():
-            if not islinux:
+            if not (islinux or isfreebsd):
                 path = path.lower()
             self.added_resources[path] = href
         self.urlnormalize, self.DirContainer = urlnormalize, DirContainer
@@ -417,7 +417,7 @@ class HTMLInput(InputFormatPlugin):
         if os.path.isdir(link):
             self.log.warn(link_, 'is a link to a directory. Ignoring.')
             return link_
-        if not islinux:
+        if not (islinux or isfreebsd):
             link = link.lower()
         if link not in self.added_resources:
             bhref = os.path.basename(link)

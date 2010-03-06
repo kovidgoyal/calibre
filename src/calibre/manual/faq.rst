@@ -20,7 +20,7 @@ What formats does |app| support conversion to/from?
 |app| supports the conversion of many input formats to many output formats.
 It can convert every input format in the following list, to every output format.
 
-*Input Formats:* CBZ, CBR, CBC, EPUB, FB2, HTML, LIT, LRF, MOBI, ODT, PDF, PRC**, PDB, PML, RB, RTF, TCR, TXT
+*Input Formats:* CBZ, CBR, CBC, CHM, EPUB, FB2, HTML, LIT, LRF, MOBI, ODT, PDF, PRC**, PDB, PML, RB, RTF, TCR, TXT
 
 *Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, PDB, PML, RB, PDF, TCR, TXT
 
@@ -81,7 +81,7 @@ Device Integration
 
 What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-At the moment |app| has full support for the SONY PRS 300/500/505/600/700/900, Barnes & Noble Nook, Cybook Gen 3/Opus, Amazon Kindle 1/2/DX, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook 360, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, various Android phones and the iPhone. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
+At the moment |app| has full support for the SONY PRS 300/500/505/600/700/900, Barnes & Noble Nook, Cybook Gen 3/Opus, Amazon Kindle 1/2/DX, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook 360, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3, various Android phones and the iPhone. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
 
 How can I help get my device supported in |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -180,7 +180,7 @@ Why is my device not detected in linux?
     
     grep SYSFS_DEPRECATED /boot/config-`uname -r`
 
-You should see something like ``CONFIG_SYSFS_DEPRECATED_V2 is not set``. 
+You should see something like ``CONFIG_SYSFS_DEPRECATED_V2 is not set``. If you don't you have to either recompile your kernel with the correct setting, or upgrade your linux distro to a more modern version, where this will not be set.
 
 Library Management
 ------------------
@@ -191,7 +191,7 @@ Library Management
 
 What formats does |app| read metadata from?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| reads metadata from the following formats: LRF, PDF, LIT, RTF, OPF, MOBI, PRC, EPUB, FB2, IMP, RB, HTML. In addition it can write metadata to: LRF, RTF, OPF, EPUB, PDF, MOBI
+|app| reads metadata from the following formats: CHM, LRF, PDF, LIT, RTF, OPF, MOBI, PRC, EPUB, FB2, IMP, RB, HTML. In addition it can write metadata to: LRF, RTF, OPF, EPUB, PDF, MOBI
 
 Where are the book files stored?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -305,7 +305,7 @@ Your antivirus program is wrong. |app| is a completely open source product. You 
 
 How do I use purchased EPUB books with |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Most purchased EPUB books have `DRM <http://wiki.mobileread.com/wiki/DRM>`_. This prevents |app| from opening them. You can still use |app| to store and transfer them to your SONY Reader. First, you must authorize your reader on a windows machine with Adobe Digital Editions. Once this is done, EPUB books transferred with |app| will work fine on your reader. When you purchase an epub book from a website, you will get an ".acsm" file. This file should be opened with Adobe Digital Editions, which will then download the actual ".epub" e-book. The e-book file will be stored in the folder "My Digital Editions", from where you can add it to |app|.
+Most purchased EPUB books have `DRM <http://wiki.mobileread.com/wiki/DRM>`_. This prevents |app| from opening them. You can still use |app| to store and transfer them to your e-book reader. First, you must authorize your reader on a windows machine with Adobe Digital Editions. Once this is done, EPUB books transferred with |app| will work fine on your reader. When you purchase an epub book from a website, you will get an ".acsm" file. This file should be opened with Adobe Digital Editions, which will then download the actual ".epub" e-book. The e-book file will be stored in the folder "My Digital Editions", from where you can add it to |app|.
 
 
 I want some feature added to |app|. What can I do?

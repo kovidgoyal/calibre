@@ -235,6 +235,8 @@ def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
         with plugin:
             try:
                 nfp = plugin.run(path_to_file)
+                if not nfp:
+                    nfp = path_to_file
             except:
                 print 'Running file type plugin %s failed with traceback:'%plugin.name
                 traceback.print_exc()
@@ -399,7 +401,7 @@ def initialize_plugins():
                 plugin = load_plugin(zfp) if not isinstance(zfp, type) else zfp
             except PluginNotFound:
                 continue
-            plugin = initialize_plugin(plugin, zfp if not isinstance(zfp, type) else zfp)
+            plugin = initialize_plugin(plugin, None if isinstance(zfp, type) else zfp)
             _initialized_plugins.append(plugin)
         except:
             print 'Failed to initialize plugin...'

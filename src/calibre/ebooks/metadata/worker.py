@@ -43,6 +43,8 @@ def read_metadata_(task, tdir, notification=lambda x,y:x):
             import_map = {}
             for format in formats:
                 nfp = run_plugins_on_import(format)
+                if nfp is None:
+                    nfp = format
                 nfp = os.path.abspath(nfp)
                 if isinstance(nfp, unicode):
                     nfp.encode(filesystem_encoding)

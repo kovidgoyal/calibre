@@ -15,7 +15,7 @@ class ANDROID(USBMS):
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub']
+    FORMATS     = ['epub', 'pdf']
 
     VENDOR_ID   = {
             0x0bb4 : { 0x0c02 : [0x100], 0x0c01 : [0x100]},

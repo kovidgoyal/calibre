@@ -154,7 +154,7 @@ class MOBIOutput(OutputFormatPlugin):
                 MobiWriter, PALMDOC, UNCOMPRESSED
         from calibre.ebooks.mobi.mobiml import MobiMLizer
         from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
-        from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
+        from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
         from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
         from calibre.customize.ui import plugin_for_input_format
         imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
@@ -163,8 +163,11 @@ class MOBIOutput(OutputFormatPlugin):
             tocadder(oeb, opts)
         mangler = CaseMangler()
         mangler(oeb, opts)
-        rasterizer = SVGRasterizer()
-        rasterizer(oeb, opts)
+        try:
+            rasterizer = SVGRasterizer()
+            rasterizer(oeb, opts)
+        except Unavailable:
+            self.log.warn('SVG rasterizer unavailable, SVG will not be converted')
         mobimlizer = MobiMLizer(ignore_tables=opts.linearize_tables)
         mobimlizer(oeb, opts)
         self.check_for_periodical()

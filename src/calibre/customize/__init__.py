@@ -119,11 +119,34 @@ class Plugin(object):
 
     def __enter__(self, *args):
         if self.plugin_path is not None:
-            sys.path.insert(0, self.plugin_path)
+            from calibre.utils.zipfile import ZipFile
+            zf = ZipFile(self.plugin_path)
+            extensions = set([x.rpartition('.')[-1].lower() for x in
+                zf.namelist()])
+            zip_safe = True
+            for ext in ('pyd', 'so', 'dll', 'dylib'):
+                if ext in extensions:
+                    zip_safe = False
+            if zip_safe:
+                sys.path.insert(0, self.plugin_path)
+                self.sys_insertion_path = self.plugin_path
+            else:
+                from calibre.ptempfile import TemporaryDirectory
+                self._sys_insertion_tdir = TemporaryDirectory('plugin_unzip')
+                self.sys_insertion_path = self._sys_insertion_tdir.__enter__(*args)
+                zf.extractall(self.sys_insertion_path)
+                sys.path.insert(0, self.sys_insertion_path)
+            zf.close()
+
 
     def __exit__(self, *args):
-        if self.plugin_path in sys.path:
-            sys.path.remove(self.plugin_path)
+        ip, it = getattr(self, 'sys_insertion_path', None), getattr(self,
+                '_sys_insertion_tdir', None)
+        if ip in sys.path:
+            sys.path.remove(ip)
+        if hasattr(it, '__exit__'):
+            it.__exit__(*args)
+
 
 
 class FileTypePlugin(Plugin):

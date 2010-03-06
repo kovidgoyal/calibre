@@ -17,6 +17,7 @@ import time
 import re
 import sys
 import glob
+
 from itertools import repeat
 
 from calibre.devices.interface import DevicePlugin
@@ -333,10 +334,14 @@ class Device(DeviceConfig, DevicePlugin):
                     raise
             time.sleep(2)
 
-    def _osx_bsd_names(self):
+    @classmethod
+    def osx_get_usb_drives(cls):
         if usbobserver_err:
             raise RuntimeError('Failed to load usbobserver: '+usbobserver_err)
-        drives = usbobserver.get_usb_drives()
+        return usbobserver.get_usb_drives()
+
+    def _osx_bsd_names(self):
+        drives = self.osx_get_usb_drives()
         matches = []
         d = self.detected_device
         if d.serial:
@@ -394,16 +399,6 @@ class Device(DeviceConfig, DevicePlugin):
         if len(matches) > 2:
             drives['cardb'] = matches[2]
 
-        pat = self.OSX_MAIN_MEM_VOL_PAT
-        if pat is not None and len(drives) > 1 and 'main' in drives:
-            if pat.search(drives['main']) is None:
-                main = drives['main']
-                for x in ('carda', 'cardb'):
-                    if x in drives and pat.search(drives[x]):
-                        drives['main'] = drives.pop(x)
-                        drives[x] = main
-                        break
-
         return drives
 
     def osx_bsd_names(self):
@@ -427,6 +422,16 @@ class Device(DeviceConfig, DevicePlugin):
         if drives['main'] is None:
             print bsd_drives, mount_map, drives
             raise DeviceError(_('Unable to detect the %s mount point. Try rebooting.')%self.__class__.__name__)
+        pat = self.OSX_MAIN_MEM_VOL_PAT
+        if pat is not None and len(drives) > 1 and 'main' in drives:
+            if pat.search(drives['main']) is None:
+                main = drives['main']
+                for x in ('carda', 'cardb'):
+                    if x in drives and pat.search(drives[x]):
+                        drives['main'] = drives.pop(x)
+                        drives[x] = main
+                        break
+
         self._main_prefix = drives['main']+os.sep
         def get_card_prefix(c):
             ans = drives.get(c, None)
@@ -789,7 +794,13 @@ class Device(DeviceConfig, DevicePlugin):
         '''
         return components
 
-    def create_upload_path(self, path, mdata, fname):
+    def get_annotations(self, path_map):
+        '''
+        Resolve path_map to annotation_map of files found on the device
+        '''
+        return {}
+
+    def create_upload_path(self, path, mdata, fname, create_dirs=True):
         path = os.path.abspath(path)
         extra_components = []
 
@@ -848,7 +859,7 @@ class Device(DeviceConfig, DevicePlugin):
         filedir = os.path.dirname(filepath)
 
 
-        if not os.path.exists(filedir):
+        if create_dirs and not os.path.exists(filedir):
             os.makedirs(filedir)
 
         return filepath

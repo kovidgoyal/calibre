@@ -70,6 +70,17 @@ def is_recipe(filename):
         filename.rpartition('.')[0].endswith('_recipe_out')
 
 def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
+    pos = 0
+    if hasattr(stream, 'tell'):
+        pos = stream.tell()
+    try:
+        return _get_metadata(stream, stream_type, use_libprs_metadata)
+    finally:
+        if hasattr(stream, 'seek'):
+            stream.seek(pos)
+
+
+def _get_metadata(stream, stream_type, use_libprs_metadata):
     if stream_type: stream_type = stream_type.lower()
     if stream_type in ('html', 'html', 'xhtml', 'xhtm', 'xml'):
         stream_type = 'html'

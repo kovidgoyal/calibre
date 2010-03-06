@@ -89,6 +89,7 @@ fc_inc = '/usr/include/fontconfig'
 fc_lib = '/usr/lib'
 podofo_inc = '/usr/include/podofo'
 podofo_lib = '/usr/lib'
+chmlib_inc_dirs = chmlib_lib_dirs = []
 
 if iswindows:
     prefix  = r'C:\cygwin\home\kovid\sw'
@@ -96,6 +97,10 @@ if iswindows:
     sw_lib_dir  = os.path.join(prefix, 'lib')
     fc_inc = os.path.join(sw_inc_dir, 'fontconfig')
     fc_lib = sw_lib_dir
+    chmlib_inc_dirs = consolidate('CHMLIB_INC_DIR', os.path.join(prefix,
+        'build', 'chmlib-0.40', 'src'))
+    chmlib_lib_dirs = consolidate('CHMLIB_LIB_DIR', os.path.join(prefix,
+        'build', 'chmlib-0.40', 'src', 'Release'))
     png_inc_dirs = [sw_inc_dir]
     png_lib_dirs = [sw_lib_dir]
     png_libs = ['png12']

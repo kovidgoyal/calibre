@@ -70,9 +70,10 @@ class PML2PMLZ(FileTypePlugin):
         pmlz = zipfile.ZipFile(of.name, 'w')
         pmlz.write(pmlfile, os.path.basename(pmlfile))
 
-        pml_img = os.path.basename(pmlfile)[0] + '_img'
-        img_dir = pml_img if os.path.exists(pml_img) else 'images' if \
-            os.path.exists('images') else ''
+        pml_img = os.path.splitext(pmlfile)[0] + '_img'
+        i_img = os.path.join(os.path.dirname(pmlfile),'images')
+        img_dir = pml_img if os.path.isdir(pml_img) else i_img if \
+            os.path.isdir(i_img) else ''
         if img_dir:
             for image in glob.glob(os.path.join(img_dir, '*.png')):
                 pmlz.write(image, os.path.join('images', (os.path.basename(image))))
@@ -80,17 +81,6 @@ class PML2PMLZ(FileTypePlugin):
 
         return of.name
 
-
-# CHM MODIFIED
-class CHMMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read CHM metadata'
-    file_types  = set(['chm'])
-    description = _('Read metadata from %s files') % 'CHM'
-
-    def get_metadata(self, stream, ftype):
-        from calibre.ebooks.metadata.chm import get_metadata
-        return get_metadata(stream)
 
 class ComicMetadataReader(MetadataReaderPlugin):
 
@@ -112,6 +102,17 @@ class ComicMetadataReader(MetadataReaderPlugin):
             ext = os.path.splitext(path)[1][1:]
             mi.cover_data = (ext.lower(), data)
         return mi
+
+class CHMMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read CHM metadata'
+    file_types  = set(['chm'])
+    description = _('Read metadata from %s files') % 'CHM'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.chm.metadata import get_metadata
+        return get_metadata(stream)
+
 
 class EPUBMetadataReader(MetadataReaderPlugin):
 
@@ -394,7 +395,7 @@ from calibre.ebooks.rtf.input import RTFInput
 from calibre.ebooks.tcr.input import TCRInput
 from calibre.ebooks.txt.input import TXTInput
 from calibre.ebooks.lrf.input import LRFInput
-from calibre.ebooks.chm.input import CHMInput # CHM MODIFIED
+from calibre.ebooks.chm.input import CHMInput
 
 from calibre.ebooks.epub.output import EPUBOutput
 from calibre.ebooks.fb2.output import FB2Output
@@ -418,7 +419,7 @@ from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK, \
-                BOOQ
+                BOOQ, ELONEX
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK
@@ -433,6 +434,7 @@ from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import N516, EB511
+from calibre.devices.teclast.driver import TECLAST_K3
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
 from calibre.library.catalog import CSV_XML, EPUB_MOBI
@@ -454,7 +456,7 @@ plugins += [
     TCRInput,
     TXTInput,
     LRFInput,
-    CHMInput, # CHM MODIFIED
+    CHMInput,
 ]
 plugins += [
     EPUBOutput,
@@ -508,6 +510,8 @@ plugins += [
     README,
     N516,
     EB511,
+    ELONEX,
+    TECLAST_K3
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]

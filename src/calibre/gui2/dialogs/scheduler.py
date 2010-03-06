@@ -18,6 +18,7 @@ from calibre.gui2 import config as gconf, error_dialog
 from calibre.web.feeds.recipes.model import RecipeModel
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import utcnow
+from calibre.utils.network import internet_connected
 
 class SchedulerDialog(QDialog, Ui_Dialog):
 
@@ -304,6 +305,8 @@ class Scheduler(QObject):
             self.download(urn)
 
     def download(self, urn):
+        if not internet_connected():
+            return
         self.lock.lock()
         doit = urn not in self.download_queue
         self.lock.unlock()

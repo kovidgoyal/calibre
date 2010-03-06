@@ -142,7 +142,7 @@ class RTFMLizer(object):
     def image_to_hexstring(self, data):
         im = Image.open(cStringIO.StringIO(data))
         data = cStringIO.StringIO()
-        im.save(data, 'JPEG')
+        im.convert('RGB').save(data, 'JPEG')
         data = data.getvalue()
 
         raw_hex = ''

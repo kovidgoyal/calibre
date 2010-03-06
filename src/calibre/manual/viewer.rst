@@ -1,6 +1,6 @@
 .. include:: global.rst
 
-.. _gui:
+.. _viewer:
 
 The E-book Viewer
 =============================

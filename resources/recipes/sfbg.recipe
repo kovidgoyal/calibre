@@ -1,0 +1,42 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+class SanFranciscoBayGuardian(BasicNewsRecipe):
+    title          = u'San Francisco Bay Guardian'
+    language       = 'en'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 1 #days
+    max_articles_per_feed = 25
+    #encoding = 'latin1'
+
+    no_stylesheets = True
+    remove_tags_before = dict(name='div', attrs={'id':'story_header'})
+    remove_tags_after  = dict(name='div', attrs={'id':'shirttail'})
+    remove_tags = [
+       dict(name='iframe'),
+       #dict(name='div', attrs={'class':'related-articles'}),
+        dict(name='div', attrs={'id':['story_tools', 'toolbox', 'shirttail', 'comment_widget']}),
+       #dict(name='ul', attrs={'class':'article-tools'}),
+       dict(name='ul', attrs={'id':'story_tabs'}),
+    ]
+
+
+    feeds = [
+        ('Cover', 'http://www.newsobserver.com/100/index.rss'),
+        ('News', 'http://www.newsobserver.com/102/index.rss'),
+        ('Politics', 'http://www.newsobserver.com/105/index.rss'),
+        ('Business', 'http://www.newsobserver.com/104/index.rss'),
+        ('Sports', 'http://www.newsobserver.com/103/index.rss'),
+        ('College Sports', 'http://www.newsobserver.com/119/index.rss'),
+        ('Lifestyles', 'http://www.newsobserver.com/106/index.rss'),
+        ('Editorials', 'http://www.newsobserver.com/158/index.rss')]
+
+
+    def preprocess_html(self, soup):
+        story = soup.find(name='div', attrs={'id':'story_body'})
+        #td = heading.findParent(name='td')
+        #td.extract()
+        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
+        body = soup.find(name='body')
+        body.insert(0, story)
+        return soup

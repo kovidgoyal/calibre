@@ -250,7 +250,8 @@ def generate_catalog(parent, dbspec, ids, device):
 
     # Profile the connected device
     # Parallel initialization in calibre.library.cli:command_catalog()
-    connected_device = { 'storage':None,'serial':None,'name':None}
+    connected_device = { 'storage':None,'serial':None,'save_template':None,'name':None}
+
     if device:
         try:
             storage = []
@@ -260,10 +261,11 @@ def generate_catalog(parent, dbspec, ids, device):
                 storage.append(os.path.join(device._card_a_prefix, device.EBOOK_DIR_CARD_A))
             if device._card_b_prefix:
                 storage.append(os.path.join(device._card_b_prefix, device.EBOOK_DIR_CARD_B))
-            connected_device = {'storage': storage,
-                                'serial': device.detected_device.serial if \
-                                        hasattr(device.detected_device,'serial') else None,
-                                'name': device.gui_name}
+            connected_device = {      'storage': storage,
+                                       'serial': device.detected_device.serial if \
+                                                 hasattr(device.detected_device,'serial') else None,
+                                'save_template': device.save_template(),
+                                         'name': device.gui_name}
         except:
             pass
 

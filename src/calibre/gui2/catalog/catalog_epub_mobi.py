@@ -64,5 +64,4 @@ class PluginWidget(QWidget,Ui_Form):
                 opts_dict[opt[0]] = opt_value.split(',')
         opts_dict['output_profile'] = [load_defaults('page_setup')['output_profile']]
 
-
         return opts_dict

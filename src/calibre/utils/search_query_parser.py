@@ -6,14 +6,14 @@ __docformat__ = 'restructuredtext en'
 
 '''
 A parser for search queries with a syntax very similar to that used by
-the Google search engine. 
+the Google search engine.
 
-For details on the search query syntax see :class:`SearchQueryParser`. 
-To use the parser, subclass :class:`SearchQueryParser` and implement the 
-methods :method:`SearchQueryParser.universal_set` and 
+For details on the search query syntax see :class:`SearchQueryParser`.
+To use the parser, subclass :class:`SearchQueryParser` and implement the
+methods :method:`SearchQueryParser.universal_set` and
 :method:`SearchQueryParser.get_matches`. See for example :class:`Tester`.
 
-If this module is run, it will perform a series of unit tests. 
+If this module is run, it will perform a series of unit tests.
 '''
 
 import sys, string, operator
@@ -24,26 +24,26 @@ from calibre.utils.pyparsing import Keyword, Group, Forward, CharsNotIn, Suppres
 
 class SearchQueryParser(object):
     '''
-    Parses a search query. 
-    
+    Parses a search query.
+
     A search query consists of tokens. The tokens can be combined using
-    the `or`, `and` and `not` operators as well as grouped using parentheses. 
+    the `or`, `and` and `not` operators as well as grouped using parentheses.
     When no operator is specified between two tokens, `and` is assumed.
-    
+
     Each token is a string of the form `location:query`. `location` is a string
-    from :member:`LOCATIONS`. It is optional. If it is omitted, it is assumed to 
-    be `all`. `query` is an arbitrary string that must not contain parentheses. 
+    from :member:`LOCATIONS`. It is optional. If it is omitted, it is assumed to
+    be `all`. `query` is an arbitrary string that must not contain parentheses.
     If it contains whitespace, it should be quoted by enclosing it in `"` marks.
-    
+
     Examples::
-      
+
       * `Asimov` [search for the string "Asimov" in location `all`]
       * `comments:"This is a good book"` [search for "This is a good book" in `comments`]
       * `author:Asimov tag:unread` [search for books by Asimov that have been tagged as unread]
       * `author:Asimov or author:Hardy` [search for books by Asimov or Hardy]
-      * `(author:Asimov or author:Hardy) and not tag:read` [search for unread books by Asimov or Hardy] 
+      * `(author:Asimov or author:Hardy) and not tag:read` [search for unread books by Asimov or Hardy]
     '''
-    
+
     LOCATIONS = [
         'tag',
         'title',
@@ -57,12 +57,12 @@ class SearchQueryParser(object):
         'isbn',
         'all',
                  ]
-    
+
     @staticmethod
     def run_tests(parser, result, tests):
         failed = []
         for test in tests:
-            print '\tTesting:', test[0], 
+            print '\tTesting:', test[0],
             res = parser.parseString(test[0])
             if list(res.get(result, None)) == test[1]:
                 print 'OK'
@@ -70,7 +70,7 @@ class SearchQueryParser(object):
                 print 'FAILED:', 'Expected:', test[1], 'Got:', list(res.get(result, None))
                 failed.append(test[0])
         return failed
-    
+
     def __init__(self, test=False):
         self._tests_failed = False
         # Define a token
@@ -95,50 +95,50 @@ class SearchQueryParser(object):
                  ('title:"one two"',   ['title', 'one two']),
                 )
             )
-        
+
         Or = Forward()
-        
+
         Parenthesis = Group(
                         Suppress('(') + Or + Suppress(')')
                         ).setResultsName('parenthesis') | Token
-        
-         
+
+
         Not = Forward()
         Not << (Group(
             Suppress(Keyword("not", caseless=True)) + Not
         ).setResultsName("not") | Parenthesis)
-        
+
         And = Forward()
         And << (Group(
             Not + Suppress(Keyword("and", caseless=True)) + And
         ).setResultsName("and") | Group(
-            Not + OneOrMore(~oneOf("and or") + And)
+            Not + OneOrMore(~oneOf("and or", caseless=True) + And)
         ).setResultsName("and") | Not)
-        
+
         Or << (Group(
             And + Suppress(Keyword("or", caseless=True)) + Or
         ).setResultsName("or") | And)
-        
+
         if test:
             Or.validate()
             self._tests_failed = bool(failed)
-        
+
         self._parser = Or
         #self._parser.setDebug(True)
         #self.parse('(tolstoy)')
         self._parser.setDebug(False)
-        
-        
+
+
     def parse(self, query):
         res = self._parser.parseString(query)[0]
         return self.evaluate(res)
-        
+
     def method(self, group_name):
         return getattr(self, 'evaluate_'+group_name)
-    
+
     def evaluate(self, parse_result):
         return self.method(parse_result.getName())(parse_result)
-    
+
     def evaluate_and(self, argument):
         return self.evaluate(argument[0]).intersection(self.evaluate(argument[1]))
 
@@ -150,27 +150,27 @@ class SearchQueryParser(object):
 
     def evaluate_parenthesis(self, argument):
         return self.evaluate(argument[0])
-    
+
     def evaluate_token(self, argument):
         return self.get_matches(argument[0], argument[1])
-        
+
     def get_matches(self, location, query):
         '''
-        Should return the set of matches for :param:'location` and :param:`query`. 
-        
+        Should return the set of matches for :param:'location` and :param:`query`.
+
         :param:`location` is one of the items in :member:`SearchQueryParser.LOCATIONS`.
-        :param:`query` is a string literal.        
+        :param:`query` is a string literal.
         '''
         return set([])
-        
+
     def universal_set(self):
         '''
         Should return the set of all matches.
         '''
         return set([])
-    
+
 class Tester(SearchQueryParser):
-    
+
     texts = {
  1: [u'Eugenie Grandet', u'Honor\xe9 de Balzac', u'manybooks.net', u'lrf'],
  2: [u'Fanny Hill', u'John Cleland', u'manybooks.net', u'lrf'],
@@ -459,30 +459,30 @@ class Tester(SearchQueryParser):
        u'Washington Square Press',
        u'lrf,rar']
  }
-    
+
     tests = {
              'Dysfunction' : set([348]),
              'title:Dysfunction' : set([348]),
-             'title:Dysfunction or author:Laurie': set([348, 444]),
+             'title:Dysfunction OR author:Laurie': set([348, 444]),
              '(tag:txt or tag:pdf)': set([33, 258, 354, 305, 242, 51, 55, 56, 154]),
-             '(tag:txt or tag:pdf) and author:Tolstoy': set([55, 56]),
+             '(tag:txt OR tag:pdf) and author:Tolstoy': set([55, 56]),
              'Tolstoy txt': set([55, 56]),
              'Hamilton Amsterdam' : set([]),
              u'Beär' : set([91]),
              'dysfunc or tolstoy': set([348, 55, 56]),
-             'tag:txt and not tolstoy': set([33, 258, 354, 305, 242, 154]),
+             'tag:txt AND NOT tolstoy': set([33, 258, 354, 305, 242, 154]),
              'not tag:lrf' : set([305]),
              'london:thames': set([13]),
              'publisher:london:thames': set([13]),
              '"(1977)"': set([13]),
              }
     fields = {'title':0, 'author':1, 'publisher':2, 'tag':3}
-    
+
     _universal_set = set(texts.keys())
-    
+
     def universal_set(self):
         return self._universal_set
-    
+
     def get_matches(self, location, query):
         location = location.lower()
         if location in self.fields.keys():
@@ -491,19 +491,19 @@ class Tester(SearchQueryParser):
             getter = lambda y: ''.join(x if x else '' for x in y)
         else:
             getter = lambda x: ''
-        
+
         if not query:
-            return set([])    
+            return set([])
         query = query.lower()
         return set(key for key, val in self.texts.items() \
             if query and query in getattr(getter(val), 'lower', lambda : '')())
-            
-        
-    
+
+
+
     def run_tests(self):
         failed = []
         for query in self.tests.keys():
-            print 'Testing query:', query, 
+            print 'Testing query:', query,
             res = self.parse(query)
             if res != self.tests[query]:
                 print 'FAILED', 'Expected:', self.tests[query], 'Got:', res
@@ -511,7 +511,7 @@ class Tester(SearchQueryParser):
             else:
                 print 'OK'
         return failed
-                 
+
 
 def main(args=sys.argv):
     tester = Tester(test=True)
@@ -519,7 +519,7 @@ def main(args=sys.argv):
     if tester._tests_failed or failed:
         print '>>>>>>>>>>>>>> Tests Failed <<<<<<<<<<<<<<<'
         return 1
-    
+
     return 0
 
 if __name__ == '__main__':

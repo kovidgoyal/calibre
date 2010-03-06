@@ -1,7 +1,5 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 latercera.com
 '''
@@ -18,32 +16,32 @@ class LaTercera(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     encoding              = 'cp1252'
-    remove_javascript     = True
     use_embedded_content  = False
-
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+    remove_empty_feeds    = True
+    language              = 'es'
+ 
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : language
+						, 'linearize_tables' : True
+                        }
 
     keep_only_tags = [dict(name='div', attrs={'class':['span-16 articulo border','span-16 border','span-16']}) ]
 
     remove_tags = [
-                     dict(name='script')
-                    ,dict(name='ul')
+                     dict(name=['ul','input','base'])
                     ,dict(name='div', attrs={'id':['boxComentarios','shim','enviarAmigo']})
                     ,dict(name='div', attrs={'class':['ad640','span-10 imgSet A','infoRelCol']})
-                    ,dict(name='input')
                     ,dict(name='p', attrs={'id':['mensajeError','mensajeEnviandoNoticia','mensajeExito']})
                   ]
 
 
     feeds = [
                (u'Noticias de ultima hora', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&ul=1')
-              ,(u'Pais', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=654')
+              ,(u'Nacional', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=680')
+              ,(u'Politica', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=674')              
               ,(u'Mundo', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=678')
               ,(u'Deportes', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=656')
               ,(u'Negocios', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=655')
@@ -55,10 +53,6 @@ class LaTercera(BasicNewsRecipe):
             ]
 
     def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="Content-Language" content="es-CL"/>'
-        soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-
-    language = 'es'

@@ -4,6 +4,151 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.44
+  date: 2010-03-05
+
+  new features:
+    - title: "Experimental support for conversion of CHM files"
+      type: major
+      description : >
+        "Conversion and reading of metadata from CHM files is now supported. This feature is
+        still experimental, with more testing needed. Building from source on linux now 
+        requires chmlib."
+
+    - title: "Experimental support for fetching annotations from the Kindles"
+      type: major
+      description: >
+        "calibre can now fetch annotations from your kindle and put them into the
+        comments field. To fetch annotations, click the arrow next to the 
+        'send to device' button and select 'Fetch Annotations', with your Kindle
+        connected."
+
+    - title: "Support FreeBSD out of the box (except USB)"
+      type: major
+      tickets: [4715]
+
+
+    - title: "News download scheduler: Don't try to download news when no active internet connection is present (linux/windows only)"
+
+    - title: "EPUB to WPUB conversion: Preserve font encryption"
+
+    - title: "calibre-server: Add --pidfile and --daemonize (unix only) options"
+
+    - title: "Plugins: When loading a plugin zip file extract to temp dir and add to sys.path, if the zip file contains binay code (pyd/dll/so/dylib), instead of just adding the zip file to the path, as python cannot load compiled code from a zip file"
+
+
+
+  bug fixes:
+    - title: "Ebook-viewer: Handle non-ascii CSS files when doing font substitutions"
+
+    - title: "Conversion pipline: Ignore non-integral play orders when parsing NCX files"
+
+    - title: "When decoding NCX toc files, if no encoding is declared and detection has less that 100% confidence, assume UTF-8."
+      tickets: [5039]
+
+    - title: "PML chapter definitions missing from toc.ncx"
+      tickets: [4990]
+
+    - title: "Unicode string for cover causes calibredb --output-format stanza to fail"
+      ticket: [5035]
+
+    - title: "Search cover:False fails, cover:True succeeds"
+      tickets: [5034]
+
+    - title: "Plugins: correctly use context"
+
+    - title: "MOBI Input: Don't lose cover if it is also referred to in main text"
+      ticket: [5020]
+
+    - title: "RTF Output: Don't choke on PNG images"
+
+  new recipes:
+    - title: Journal of Hospital Medicine, San Francisco Bay Guardian, Smithsonian Magazine
+      author: Krittika Goyal
+
+    - title: Astronomy Pick of the Day, Epicurious
+      author: Starson17
+
+    - title: Diario Vasco, Various Chilean newspapers
+      author: Darko Miletic
+
+    - title: Kukuburi
+      author: Mori
+
+
+  improved recipes:
+    - Ars Technica
+    - Fudzilla
+    - The Atlantic
+    - The Economist
+    - Huffington Post
+
+- version: 0.6.43
+  date: 2010-02-26
+
+  new features:
+    - title: "Support for the Teclast K3 and Elonex e-book readers"
+
+    - title: "Add 'Recently Read' category to catalog if Kindle is connected when catalog is generated"
+
+    - title: "When adding PRC/MOBI files that are actually Topaz files, change detected file type to Topaz"
+
+    - title: "MOBI Output: If the SVG rasterizer is not avaialbale continue anyway"
+
+    - title: "News download: When using the debug pipeline options, create a zip file named periodical.downloaded_recipe in the debug directory. This can be passed to ebook-convert to directly convert a previous download into an e-book."
+
+    - title: "Add Apply button to catalog generation dialog"
+
+  bug fixes:
+    - title: "When fetching metadata in the edit metadata dialog, use a python thread instead of a Qt thread. Hopefully this will fix the reports of crashes when fetching metadata"
+
+    - title: "Refresh cover browser when a cover is changed via the edit meta information dialog"
+
+    - title: "More device detection debug output on OS X"
+
+    - title: "Download only covers should not also set social metadata"
+      tickets: [4966]
+
+    - title: "Content server: If fail to bind to 0.0.0.0 try detecting and binding only to interface used for outgoing traffic"
+
+    - title: "Handle poorly designed import plugins that return None on error"
+
+    - title: "Move logic for removing inline navbars out of the BasicNewsRecipe class"
+
+    - title: "MOBI metadata: When setting title, set in both PalmDoc and EXTH headers"
+
+    - title: "MOBI metadata: Do not try to extarct embedded metadata from MOBI files larger than 4MB"
+
+    - title: "Handle PDB files that contain PDF files"
+      tickets: [4971]
+
+    - title: "PML Input: Various fixes"
+      tickets: [4959,4961]
+
+    - title: "Fix reading MOBI metadata from files in zip/rar archives"
+
+    - title: "Make extracting single files from RAR archives more efficient"
+
+    - title: "No longer need Qt to generate default cover for news downloads"
+
+    - title: "Catalog generation: fix for EPUB anchors beginning with numbers in Recently Added"
+
+    - title: "Searching: Handle uppercase keywords correctly"
+      tickets: [4951]
+
+
+  new recipes:
+    - title: Gamasutra
+      author: Darko Miletic
+
+  improved recipes:
+    - "Strategy+Business"
+    - Arizona Daily Star
+    - Heise
+    - New Scientist
+    - Various Serbian news feeds
+    - Houston and San Francisco Chronicles
+
 - version: 0.6.42
   date: 2010-02-20
 

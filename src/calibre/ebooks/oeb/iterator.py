@@ -152,13 +152,17 @@ class EbookIterator(object):
                         prints('Substituting font family: %s -> %s'%(bad, good))
                         return match.group().replace(bad, '"%s"'%good)
 
+            from calibre.ebooks.chardet import force_encoding
             for csspath in css_files:
                 with open(csspath, 'r+b') as f:
                     css = f.read()
-                    css = font_family_pat.sub(prepend_embedded_font, css)
-                    f.seek(0)
-                    f.truncate()
-                    f.write(css)
+                    enc = force_encoding(css, False)
+                    css = css.decode(enc, 'replace')
+                    ncss = font_family_pat.sub(prepend_embedded_font, css)
+                    if ncss != css:
+                        f.seek(0)
+                        f.truncate()
+                        f.write(ncss.encode(enc))
 
     def __enter__(self, processed=False):
         self.delete_on_exit = []
@@ -173,11 +177,12 @@ class EbookIterator(object):
             plumber.opts.no_process = True
 
         plumber.input_plugin.for_viewer = True
-        self.pathtoopf = plumber.input_plugin(open(plumber.input, 'rb'),
+        with plumber.input_plugin:
+            self.pathtoopf = plumber.input_plugin(open(plumber.input, 'rb'),
                 plumber.opts, plumber.input_fmt, self.log,
                 {}, self.base)
 
-        if processed or plumber.input_fmt.lower() in ('pdf', 'rb') and \
+        if processed or plumber.input_fmt.lower() in ('pdb', 'pdf', 'rb') and \
                 not hasattr(self.pathtoopf, 'manifest'):
             self.pathtoopf = create_oebbook(self.log, self.pathtoopf, plumber.opts,
                     plumber.input_plugin)

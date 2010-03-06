@@ -190,11 +190,11 @@ class Stylizer(object):
                     selector = CSSSelector(ntext)
                     matches = selector(tree)
 
-            if not matches and class_sel_pat.match(text):
+            if not matches and class_sel_pat.match(text) and text.lower() != text:
                 found = False
+                ltext = text.lower()
                 for x in tree.xpath('//*[@class]'):
-                    if text.lower().endswith('.'+x.get('class').lower()) and \
-                            text.lower() != text:
+                    if ltext.endswith('.'+x.get('class').lower()):
                         matches.append(x)
                         found = True
                 if found:

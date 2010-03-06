@@ -196,6 +196,8 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
         for x in data:
             if isinstance(x['fmt_epub'], unicode):
                 x['fmt_epub'] = x['fmt_epub'].encode('utf-8')
+            if isinstance(x['cover'], unicode):
+                x['cover'] = x['cover'].encode('utf-8')
         template = MarkupTemplate(STANZA_TEMPLATE)
         return template.generate(id="urn:calibre:main", data=data, subtitle=subtitle,
                 sep=os.sep, quote=quote, updated=db.last_modified()).render('xml')
@@ -683,7 +685,7 @@ def command_catalog(args, dbpath):
 
     # No support for connected device in CLI environment
     # Parallel initialization in calibre.gui2.tools:generate_catalog()
-    opts.connected_device = {'storage':None,'serial':None,'name':None}
+    opts.connected_device = { 'storage':None,'serial':None,'save_template':None,'name':None}
 
     with plugin:
         plugin.run(args[1], opts, get_db(dbpath, opts))
