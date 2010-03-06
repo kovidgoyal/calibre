@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-27 04:02+0000\n"
-"PO-Revision-Date: 2010-02-27 12:39+0000\n"
-"Last-Translator: Dijkschneier <Unknown>\n"
+"PO-Revision-Date: 2010-03-05 22:57+0000\n"
+"Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-28 04:52+0000\n"
+"X-Launchpad-Export-Date: 2010-03-06 05:10+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -3021,7 +3021,7 @@ msgstr "Trier les chiffres comme du texte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:28
 msgid "Tab template for catalog.ui"
-msgstr ""
+msgstr "Gabarit d'étiquette pour catalog.ui"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:36
 msgid ""
@@ -4809,7 +4809,7 @@ msgid ""
 msgstr ""
 "calibre peut vous envoyer vos livres (ou à votre lecteur) par email. Les "
 "emails seront automatiquement envoyés lors du téléchargement des News à "
-"toutes les adresses qui ont 'Envoi automatiquement' de coché."
+"toutes les adresses qui ont 'Envoyer automatiquement' coché."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:546
 msgid "&Maximum number of waiting worker processes (needs restart):"
@@ -4904,7 +4904,7 @@ msgstr "Démarrer le &Serveur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:562
 msgid "St&op Server"
-msgstr "Arrêter le serveur"
+msgstr "Arrêter le Serveur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:563
 msgid "&Test Server"
