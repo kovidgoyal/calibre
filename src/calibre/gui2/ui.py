@@ -1074,11 +1074,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         mi.comments = unicode(user_notes_soup.prettify())
                     # Update library comments
                     self.db.set_comment(id, mi.comments)
-                    '''
                     # Add bookmark file to id
                     self.db.add_format_with_hooks(id, bm.bookmark.bookmark_extension,
                                                   bm.bookmark.path, index_is_id=True)
-                    '''
                     self.update_progress.emit(i)
                 self.update_done.emit()
                 self.done_callback(self.am.keys())
@@ -1522,7 +1520,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if single_format is not None:
                 opts.formats = single_format
                 # Special case for Kindle annotation files
-                if single_format.lower() == 'mbp' or single_format == 'tan':
+                if single_format.lower() in ['mbp','tan']:
                     opts.to_lowercase = False
                     opts.save_cover = False
                     opts.write_opf = False
