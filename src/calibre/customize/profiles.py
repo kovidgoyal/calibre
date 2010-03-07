@@ -185,6 +185,17 @@ class IRexDR1000Input(InputProfile):
     fbase                     = 16
     fsizes                    = [12, 14, 16, 18, 20, 22, 24]
 
+class IRexDR800Input(InputProfile):
+
+    author      = 'Eric Cronin'
+    name        = 'IRex Digital Reader 800'
+    short_name  = 'irexdr800'
+    description = _('This profile is intended for the IRex Digital Reader 800.')
+
+    screen_size               = (768, 1024)
+    dpi                       = 160
+    fbase                     = 16
+    fsizes                    = [12, 14, 16, 18, 20, 22, 24]
 
 class NookInput(InputProfile):
 
@@ -202,7 +213,7 @@ class NookInput(InputProfile):
 input_profiles = [InputProfile, SonyReaderInput, SonyReader300Input,
         SonyReader900Input, MSReaderInput, MobipocketInput, HanlinV3Input,
         HanlinV5Input, CybookG3Input, CybookOpusInput, KindleInput, IlliadInput,
-        IRexDR1000Input, NookInput]
+        IRexDR1000Input, IRexDR800Input, NookInput]
 
 
 class OutputProfile(Plugin):
@@ -407,6 +418,20 @@ class IRexDR1000Output(OutputProfile):
     fbase                     = 16
     fsizes                    = [12, 14, 16, 18, 20, 22, 24]
 
+class IRexDR800Output(OutputProfile):
+
+    author      = 'Eric Cronin'
+    name        = 'IRex Digital Reader 800'
+    short_name  = 'irexdr800'
+    description = _('This profile is intended for the IRex Digital Reader 800.')
+
+    # Screen size is a best guess
+    screen_size               = (768, 1024)
+    comic_screen_size         = (768, 1024)
+    dpi                       = 160
+    fbase                     = 16
+    fsizes                    = [12, 14, 16, 18, 20, 22, 24]
+
 class NookOutput(OutputProfile):
 
     author      = 'John Schember'
@@ -425,4 +450,4 @@ output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
-        IRexDR1000Output, JetBook5Output, NookOutput]
+        IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput]
