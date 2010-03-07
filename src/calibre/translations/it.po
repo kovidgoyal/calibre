@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-27 04:02+0000\n"
-"PO-Revision-Date: 2010-03-01 14:24+0000\n"
-"Last-Translator: incuso <Unknown>\n"
+"PO-Revision-Date: 2010-03-06 15:29+0000\n"
+"Last-Translator: usa_getta <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-02 04:40+0000\n"
+"X-Launchpad-Export-Date: 2010-03-07 05:27+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -502,7 +502,7 @@ msgstr "Comunica con il dispositivo di lettura Hanvon N520"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:40
 msgid "Communicate with the Elonex EB 511 eBook reader."
-msgstr ""
+msgstr "Comunica con il Elonex EB 511 eBook reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -524,7 +524,7 @@ msgstr "Comunica con il lettore eBook IRex Digital Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:42
 msgid "Communicate with the IRex Digital Reader 800"
-msgstr ""
+msgstr "Comunica con il IRex Digital Reader 800"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iriver/driver.py:15
 msgid "Communicate with the Iriver Story reader."
@@ -622,7 +622,7 @@ msgstr "Comunica con il Sony PRS-600/700/900 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3 reader."
-msgstr ""
+msgstr "Comunica con il Teclast K3 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:250
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -740,7 +740,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:45
 msgid "Output directory. Defaults to current directory"
-msgstr ""
+msgstr "Cartella di output . Per defaults è la cartella corrente"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:48
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
@@ -1921,6 +1921,8 @@ msgid ""
 "Extract common e-book formats from archives (zip/rar) files. Also try to "
 "autodetect if they are actually cbz/cbr files."
 msgstr ""
+"Estrae i formati comuni di e-book da un archivio (zip/rar). Cerca anche di "
+"identificare se essi sono file cbz o cbr"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:20
 msgid "options"
