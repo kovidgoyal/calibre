@@ -159,11 +159,12 @@ class Bookmark():
         self.id = id
         self.last_read = 0
         self.last_read_location = 0
+        self.path = path
         self.timestamp = 0
         self.user_notes = None
 
-        self.get_bookmark_data(path)
-        self.get_book_length(path)
+        self.get_bookmark_data()
+        self.get_book_length()
         try:
             self.percent_read = float(100*self.last_read / self.book_length)
         except:
@@ -180,13 +181,13 @@ class Bookmark():
             stop, = unpack('>I', self.data[offoff + 8:offoff + 12])
         return StreamSlicer(self.stream, start, stop)
 
-    def get_bookmark_data(self, path):
+    def get_bookmark_data(self):
         ''' Return the timestamp and last_read_location '''
         from calibre.ebooks.metadata.mobi import StreamSlicer
         user_notes = {}
         if self.bookmark_extension == 'mbp':
             MAGIC_MOBI_CONSTANT = 150
-            with open(path,'rb') as f:
+            with open(self.path,'rb') as f:
                 stream = StringIO(f.read())
                 data = StreamSlicer(stream)
                 self.timestamp, = unpack('>I', data[0x24:0x28])
@@ -204,7 +205,7 @@ class Bookmark():
                 eo = bpar_offset + bpar_len
 
                 # Walk bookmark entries
-                #print " --- %s --- " % path
+                #print " --- %s --- " % self.path
                 current_entry = 1
                 sig = data[eo:eo+4]
                 previous_block = None
@@ -243,18 +244,28 @@ class Bookmark():
                 while sig == 'BKMK':
                     # Fix start location for Highlights using BKMK data
                     end_loc, = unpack('>I', data[eo+0x10:eo+0x14])
-                    if end_loc in user_notes and user_notes[end_loc]['type'] == 'Highlight':
+
+                    if end_loc in user_notes and \
+                       (user_notes[end_loc]['type'] == 'Highlight' or \
+                        user_notes[end_loc]['type'] == 'Note'):
+                        # Switch location to start (0x08:0x0c)
                         start, = unpack('>I', data[eo+8:eo+12])
                         user_notes[start] = user_notes[end_loc]
+                        '''
+                        print " %s: swapping 0x%x (%d) to 0x%x (%d)" % (user_notes[end_loc]['type'],
+                                                                    end_loc,
+                                                                    end_loc/MAGIC_MOBI_CONSTANT + 1,
+                                                                    start,
+                                                                    start//MAGIC_MOBI_CONSTANT + 1)
+                        '''
+                        user_notes[start]['displayed_location'] = start/MAGIC_MOBI_CONSTANT + 1
                         user_notes.pop(end_loc)
-                    elif end_loc in user_notes and user_notes[end_loc]['type'] == 'Note':
-                        # Skip duplicate bookmarks for notes
-                        pass
                     else:
                         # If a bookmark coincides with a user annotation, the locs could
                         # be the same - cheat by nudging -1
                         # Skip bookmark for last_read_location
                         if end_loc != self.last_read:
+                            # print " adding Bookmark at 0x%x (%d)" % (end_loc, end_loc/MAGIC_MOBI_CONSTANT + 1)
                             displayed_location = end_loc/MAGIC_MOBI_CONSTANT + 1
                             user_notes[end_loc - 1] = dict(id=self.id,
                                                            displayed_location=displayed_location,
@@ -265,10 +276,43 @@ class Bookmark():
                     sig = data[eo:eo+4]
 
         elif self.bookmark_extension == 'tan':
-            # TAN bookmarks
+            from calibre.ebooks.metadata.topaz import get_metadata as get_topaz_metadata
+
+            def get_topaz_highlight(displayed_location):
+                # Parse My Clippings.txt for a matching highlight
+                book_fs = self.path.replace('.%s' % self.bookmark_extension,'.%s' % self.book_format)
+                with open(book_fs,'rb') as f2:
+                    stream = StringIO(f2.read())
+                    mi = get_topaz_metadata(stream)
+                my_clippings = self.path
+                split = my_clippings.find('documents') + len('documents/')
+                my_clippings = my_clippings[:split] + "My Clippings.txt"
+                try:
+                    with open(my_clippings, 'r') as f2:
+                        marker_found = 0
+                        text = ''
+                        search_str1 = '%s (%s)' % (mi.title, str(mi.author[0]))
+                        search_str2 = '- Highlight Loc. %d' % (displayed_location)
+                        for line in f2:
+                            if marker_found == 0:
+                                if line.startswith(search_str1):
+                                    marker_found = 1
+                            elif marker_found == 1:
+                                if line.startswith(search_str2):
+                                    marker_found = 2
+                            elif marker_found == 2:
+                                if line.startswith('=========='):
+                                    break
+                                text += line.strip()
+                        else:
+                            raise Exception('error')
+                except:
+                    text = '(Unable to extract highlight text from My Clippings.txt)'
+                return text
+
             MAGIC_TOPAZ_CONSTANT = 33.33
-            self.timestamp = os.path.getmtime(path)
-            with open(path,'rb') as f:
+            self.timestamp = os.path.getmtime(self.path)
+            with open(self.path,'rb') as f:
                 stream = StringIO(f.read())
                 data = StreamSlicer(stream)
                 self.last_read = int(unpack('>I', data[5:9])[0])
@@ -285,7 +329,7 @@ class Bookmark():
                         e_type = 'Bookmark'
                     elif e_type == 1:
                         e_type = 'Highlight'
-                        text = "(Topaz highlights not yet supported)"
+                        text = get_topaz_highlight(location/MAGIC_TOPAZ_CONSTANT + 1)
                     elif e_type == 2:
                         e_type = 'Note'
                         text = data[e_base+0x10:e_base+0x10+text_len]
@@ -293,10 +337,9 @@ class Bookmark():
                         e_type = 'Unknown annotation type'
 
                     if self.book_format in ['tpz','azw1']:
-                        # *** This needs fine-tuning
                         displayed_location = location/MAGIC_TOPAZ_CONSTANT + 1
                     elif self.book_format == 'pdf':
-                        # *** This needs testing
+                        # *** This needs implementation
                         displayed_location = location
                     user_notes[location] = dict(id=self.id,
                                                 displayed_location=displayed_location,
@@ -315,16 +358,9 @@ class Bookmark():
             print "unsupported bookmark_extension: %s" % self.bookmark_extension
         self.user_notes = user_notes
 
-        '''
-        for location in sorted(user_notes):
-            print '  Location %d: %s\n%s' % (user_notes[location]['displayed_location'],
-                                                     user_notes[location]['type'],
-                                    '\n'.join(self.textdump(user_notes[location]['text'])))
-        '''
-
-    def get_book_length(self, path):
+    def get_book_length(self):
         from calibre.ebooks.metadata.mobi import StreamSlicer
-        book_fs = path.replace('.%s' % self.bookmark_extension,'.%s' % self.book_format)
+        book_fs = self.path.replace('.%s' % self.bookmark_extension,'.%s' % self.book_format)
 
         self.book_length = 0
         if self.bookmark_extension == 'mbp':
