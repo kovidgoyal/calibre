@@ -125,7 +125,7 @@ With recent reader iterations, SONY, in all its wisdom has decided to try to for
 use their software. If you install it, it auto-launches whenever you connect the reader.
 If you don't want to uninstall it altogether, there are a couple of tricks you can use. The
 simplest is to simply re-name the executable file that launches the library program. More detail
-`here http://www.mobileread.com/forums/showthread.php?t=65809`_.
+`here <http://www.mobileread.com/forums/showthread.php?t=65809>`_.
 
 Can I use the collections feature of the SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1052,7 +1052,16 @@ class EPUB_MOBI(CatalogPlugin):
                 this_title['rating'] = record['rating'] if record['rating'] else 0
                 this_title['date'] = strftime(u'%B %Y', record['pubdate'].timetuple())
                 this_title['timestamp'] = record['timestamp']
+
                 if record['comments']:
+                    # Strip annotations
+                    a_offset = record['comments'].find('<div class="user_annotations">')
+                    ad_offset = record['comments'].find('<hr class="annotations_divider" />')
+                    if a_offset >= 0:
+                        record['comments'] = record['comments'][:a_offset]
+                    if ad_offset >= 0:
+                        record['comments'] = record['comments'][:ad_offset]
+
                     this_title['description'] = self.markdownComments(record['comments'])
                     paras = BeautifulSoup(this_title['description']).findAll('p')
                     tokens = []

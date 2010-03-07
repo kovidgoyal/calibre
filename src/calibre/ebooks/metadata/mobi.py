@@ -336,6 +336,13 @@ class MetadataUpdater(object):
         if mi.publisher:
             update_exth_record((101, mi.publisher.encode(self.codec, 'replace')))
         if mi.comments:
+            # Strip user annotations
+            a_offset = mi.comments.find('<div class="user_annotations">')
+            ad_offset = mi.comments.find('<hr class="annotations_divider" />')
+            if a_offset >= 0:
+                mi.comments = mi.comments[:a_offset]
+            if ad_offset >= 0:
+                mi.comments = mi.comments[:ad_offset]
             update_exth_record((103, mi.comments.encode(self.codec, 'replace')))
         if mi.isbn:
             update_exth_record((104, mi.isbn.encode(self.codec, 'replace')))
