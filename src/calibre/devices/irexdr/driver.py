@@ -42,8 +42,9 @@ class IREXDR800(IREXDR1000):
     description    = _('Communicate with the IRex Digital Reader 800')
     PRODUCT_ID = [0x002]
     WINDOWS_MAIN_MEM = 'DR800'
-    FORMATS     = ['epub', 'html', 'pdf', 'txt']
+    FORMATS     = ['epub', 'pdb', 'html', 'pdf', 'txt']
 
     EBOOK_DIR_MAIN = 'Books'
     DELETE_EXTS = []
+    SUPPORTS_SUB_DIRS = True
 
