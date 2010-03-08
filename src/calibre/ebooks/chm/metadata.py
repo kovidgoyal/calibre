@@ -19,6 +19,8 @@ def _clean(s):
 
 def _detag(tag):
     str = u""
+    if tag is None:
+        return str
     for elem in tag:
         if hasattr(elem, "contents"):
             str += _detag(elem)
