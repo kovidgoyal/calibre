@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-27 04:02+0000\n"
-"PO-Revision-Date: 2010-03-05 22:57+0000\n"
+"PO-Revision-Date: 2010-03-07 09:48+0000\n"
 "Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-06 05:10+0000\n"
+"X-Launchpad-Export-Date: 2010-03-08 05:37+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -618,7 +618,7 @@ msgstr "Communique avec le lecteur d'ebook SONY PRS-600/700/900."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3 reader."
-msgstr ""
+msgstr "Communique avec le lecteur Teclast K3."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:250
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1408,7 +1408,7 @@ msgstr "Chaîne à utiliser lors du tri par auteur. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
 msgid "Set the cover to the specified file or URL"
-msgstr ""
+msgstr "Indiquer la couverture à partir du fichier spécifié ou de l'URL"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:432
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
@@ -6586,7 +6586,7 @@ msgstr "&Redémarrer"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:222
 msgid "<p>For help see the: <a href=\"%s\">User Manual</a><br>"
 msgstr ""
-"<p>Pour l'aider, consulter le <a href=\"%s\">Manuel Utilisateur</a><br>"
+"<p>Pour l'aide, consulter le <a href=\"%s\">Manuel Utilisateur</a><br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:224
 msgid "<b>%s</b>: %s by <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
