@@ -3869,9 +3869,7 @@ class EPUB_MOBI(CatalogPlugin):
                 elem.extract()
 
             # Reconstruct comments w/o <div>s
-            comments = soup.renderContents()
-            if not isinstance(comments, unicode):
-                comments = comments.decode('utf-8', 'replace')
+            comments = soup.renderContents(None)
 
             # Convert \n\n to <p>s
             if re.search('\n\n', comments):
@@ -3883,7 +3881,7 @@ class EPUB_MOBI(CatalogPlugin):
                     pTag.insert(0,p)
                     soup.insert(tsc,pTag)
                     tsc += 1
-                comments = soup.renderContents()
+                comments = soup.renderContents(None)
 
             # Convert solo returns to <br />
             comments = re.sub('[\r\n]','<br />', comments)
