@@ -37,7 +37,7 @@ def _metadata_from_table(soup, searchfor):
     td = td.parent
     # there appears to be multiple ways of structuring the metadata
     # on the home page. cue some nasty special-case hacks...
-    if re.match(r'^\s*'+searchfor+r'\s*$', td.renderContents(), flags=re.I):
+    if re.match(r'^\s*'+searchfor+r'\s*$', td.renderContents(None), flags=re.I):
         meta = _detag(td.findNextSibling('td'))
         return re.sub('^:', '', meta).strip()
     else:
@@ -49,7 +49,7 @@ def _metadata_from_span(soup, searchfor):
     if span is None:
         return None
     # this metadata might need some cleaning up still :/
-    return _detag(span.renderContents().strip())
+    return _detag(span.renderContents(None).strip())
 
 def _get_authors(soup):
     aut = (_metadata_from_span(soup, r'author')
