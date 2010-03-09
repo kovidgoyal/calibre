@@ -1189,12 +1189,17 @@ class EPUB_MOBI(CatalogPlugin):
 
             MBP_FORMATS = [u'azw', u'mobi', u'prc', u'txt']
             TAN_FORMATS = [u'tpz', u'azw1']
+            PDR_FORMATS = [u'pdf']
+
             mbp_formats = set()
             for fmt in MBP_FORMATS:
                 mbp_formats.add(fmt)
             tan_formats = set()
             for fmt in TAN_FORMATS:
                 tan_formats.add(fmt)
+            pdr_formats = set()
+            for fmt in PDR_FORMATS:
+                pdr_formats.add(fmt)
 
             class BookmarkDevice(Device):
                 def initialize(self, save_template):
@@ -1218,12 +1223,14 @@ class EPUB_MOBI(CatalogPlugin):
                     elif file_fmts.intersection(tan_formats):
                         book_extension = list(file_fmts.intersection(tan_formats))[0]
                         bookmark_extension = 'tan'
+                    elif file_fmts.intersection(pdr_formats):
+                        book_extension = list(file_fmts.intersection(pdr_formats))[0]
+                        bookmark_extension = 'pdr'
 
                     if bookmark_extension:
                         for vol in storage:
                             bkmk_path = path_map[id]['path'].replace(os.path.abspath('/<storage>'),vol)
                             bkmk_path = bkmk_path.replace('bookmark',bookmark_extension)
-                            print "looking for %s" % bkmk_path
                             if os.path.exists(bkmk_path):
                                 path_map[id] = bkmk_path
                                 book_ext[id] = book_extension
@@ -1260,16 +1267,15 @@ class EPUB_MOBI(CatalogPlugin):
                         if path_map:
                             bookmark_ext = path_map[id].rpartition('.')[2]
                             myBookmark = Bookmark(path_map[id], id, book_ext[id], bookmark_ext)
-                            print "book: %s\nlast_read_location: %d\nlength: %d" % (book['title'],
-                                                                                    myBookmark.last_read_location,
-                                                                                    myBookmark.book_length)
-                            if myBookmark.book_length:
-                                book['percent_read'] = float(100*myBookmark.last_read_location / myBookmark.book_length)
-                                dots = int((book['percent_read'] + 5)/10)
-                                dot_string = self.READ_PROGRESS_SYMBOL * dots
-                                empty_dots = self.UNREAD_PROGRESS_SYMBOL * (10 - dots)
-                                book['reading_progress'] = '%s%s' % (dot_string,empty_dots)
-                                bookmarks[id] = ((myBookmark,book))
+                            try:
+                                book['percent_read'] = float(100*myBookmark.last_read / myBookmark.book_length)
+                            except:
+                                book['percent_read'] = 0
+                            dots = int((book['percent_read'] + 5)/10)
+                            dot_string = self.READ_PROGRESS_SYMBOL * dots
+                            empty_dots = self.UNREAD_PROGRESS_SYMBOL * (10 - dots)
+                            book['reading_progress'] = '%s%s' % (dot_string,empty_dots)
+                            bookmarks[id] = ((myBookmark,book))
 
                 self.bookmarked_books = bookmarks
             else:
@@ -2113,7 +2119,10 @@ class EPUB_MOBI(CatalogPlugin):
                 book = self.bookmarked_books[bm_book]
                 #print "bm_book: %s" % bm_book
                 book[1]['bookmark_timestamp'] = book[0].timestamp
-                book[1]['percent_read'] = float(100*book[0].last_read_location / book[0].book_length)
+                try:
+                    book[1]['percent_read'] = float(100*book[0].last_read / book[0].book_length)
+                except:
+                    book[1]['percent_read'] = 0
                 bookmarked_books.append(book[1])
 
             self.booksByDateRead = sorted(bookmarked_books,
