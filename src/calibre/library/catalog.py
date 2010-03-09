@@ -102,7 +102,7 @@ class CSV_XML(CatalogPlugin):
                     if field == 'formats':
                         fmt_list = []
                         for format in item:
-                            fmt_list.append(format.partition('.')[2])
+                            fmt_list.append(format.rpartition('.')[2].lower())
                         item = ', '.join(fmt_list)
                     elif field in ['authors','tags']:
                         item = ', '.join(item)
