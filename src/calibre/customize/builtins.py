@@ -378,6 +378,17 @@ class RTFMetadataWriter(MetadataWriterPlugin):
         from calibre.ebooks.metadata.rtf import set_metadata
         set_metadata(stream, mi)
 
+class TOPAZMetadataWriter(MetadataWriterPlugin):
+
+    name        = 'Set TOPAZ metadata'
+    file_types  = set(['tpz', 'azw1'])
+    description = _('Set metadata in %s files')%'TOPAZ'
+    author      = 'Greg Riker'
+
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.topaz import set_metadata
+        set_metadata(stream, mi)
+
 
 from calibre.ebooks.comic.input import ComicInput
 from calibre.ebooks.epub.input import EPUBInput

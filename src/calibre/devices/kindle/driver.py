@@ -12,7 +12,6 @@ from cStringIO import StringIO
 from struct import unpack
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.ebooks.metadata.topaz import get_metadata as get_topaz_metadata
 
 class KINDLE(USBMS):
 
@@ -42,7 +41,7 @@ class KINDLE(USBMS):
 
     EBOOK_DIR_MAIN = 'documents'
     EBOOK_DIR_CARD_A = 'documents'
-    DELETE_EXTS = ['.mbp']
+    DELETE_EXTS = ['.mbp','.tan','.pdr']
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_ANNOTATIONS = True
 
@@ -64,6 +63,7 @@ class KINDLE(USBMS):
     def get_annotations(self, path_map):
         MBP_FORMATS = [u'azw', u'mobi', u'prc', u'txt']
         TAN_FORMATS = [u'tpz', u'azw1']
+        PDR_FORMATS = [u'pdf']
 
         mbp_formats = set()
         for fmt in MBP_FORMATS:
@@ -71,6 +71,9 @@ class KINDLE(USBMS):
         tan_formats = set()
         for fmt in TAN_FORMATS:
             tan_formats.add(fmt)
+        pdr_formats = set()
+        for fmt in PDR_FORMATS:
+            pdr_formats.add(fmt)
 
         def get_storage():
             storage = []
@@ -89,7 +92,6 @@ class KINDLE(USBMS):
                 file_fmts = set()
                 for fmt in path_map[id]['fmts']:
                     file_fmts.add(fmt)
-
                 bookmark_extension = None
                 if file_fmts.intersection(mbp_formats):
                     book_extension = list(file_fmts.intersection(mbp_formats))[0]
@@ -97,6 +99,9 @@ class KINDLE(USBMS):
                 elif file_fmts.intersection(tan_formats):
                     book_extension = list(file_fmts.intersection(tan_formats))[0]
                     bookmark_extension = 'tan'
+                elif file_fmts.intersection(pdr_formats):
+                    book_extension = list(file_fmts.intersection(pdr_formats))[0]
+                    bookmark_extension = 'pdr'
 
                 if bookmark_extension:
                     for vol in storage:
@@ -166,10 +171,13 @@ class Bookmark():
 
         self.get_bookmark_data()
         self.get_book_length()
-        try:
-            self.percent_read = float(100*self.last_read / self.book_length)
-        except:
-            self.percent_read = 0
+        if self.book_length >= 0:
+            try:
+                self.percent_read = float(100*self.last_read / self.book_length)
+            except:
+                self.percent_read = 0
+        else:
+            self.percent_read = -1
 
     def record(self, n):
         from calibre.ebooks.metadata.mobi import StreamSlicer
@@ -277,8 +285,13 @@ class Bookmark():
                     sig = data[eo:eo+4]
 
         elif self.bookmark_extension == 'tan':
+            from calibre.ebooks.metadata.topaz import get_metadata as get_topaz_metadata
+
             def get_topaz_highlight(displayed_location):
                 # Parse My Clippings.txt for a matching highlight
+                # Search looks for book title match, highlight match, and location match
+                # Author is not matched
+                # This will find the first instance of a clipping only
                 book_fs = self.path.replace('.%s' % self.bookmark_extension,'.%s' % self.book_format)
                 with open(book_fs,'rb') as f2:
                     stream = StringIO(f2.read())
@@ -290,7 +303,7 @@ class Bookmark():
                     with open(my_clippings, 'r') as f2:
                         marker_found = 0
                         text = ''
-                        search_str1 = '%s (%s)' % (mi.title, str(mi.author[0]))
+                        search_str1 = '%s' % (mi.title)
                         search_str2 = '- Highlight Loc. %d' % (displayed_location)
                         for line in f2:
                             if marker_found == 0:
@@ -304,7 +317,7 @@ class Bookmark():
                                     break
                                 text += line.strip()
                         else:
-                            raise error
+                            raise Exception('error')
                 except:
                     text = '(Unable to extract highlight text from My Clippings.txt)'
                 return text
@@ -335,6 +348,47 @@ class Bookmark():
                     else:
                         e_type = 'Unknown annotation type'
 
+                    displayed_location = location/MAGIC_TOPAZ_CONSTANT + 1
+                    user_notes[location] = dict(id=self.id,
+                                                displayed_location=displayed_location,
+                                                type=e_type,
+                                                text=text)
+                    if text_len == 0xFFFFFFFF:
+                        e_base = e_base + 14
+                    else:
+                        e_base = e_base + 14 + 2 + text_len
+                    current_entry += 1
+                for location in user_notes:
+                    if location == self.last_read:
+                        user_notes.pop(location)
+                        break
+
+        elif self.bookmark_extension == 'pdr':
+            self.timestamp = os.path.getmtime(self.path)
+            with open(self.path,'rb') as f:
+                stream = StringIO(f.read())
+                data = StreamSlicer(stream)
+                self.last_read = int(unpack('>I', data[5:9])[0])
+                entries, = unpack('>I', data[9:13])
+                current_entry = 0
+                e_base = 0x0d
+                while current_entry < entries:
+                    '''
+                    location, = unpack('>I', data[e_base+2:e_base+6])
+                    text = None
+                    text_len, = unpack('>I', data[e_base+0xA:e_base+0xE])
+                    e_type, = unpack('>B', data[e_base+1])
+                    if e_type == 0:
+                        e_type = 'Bookmark'
+                    elif e_type == 1:
+                        e_type = 'Highlight'
+                        text = get_topaz_highlight(location/MAGIC_TOPAZ_CONSTANT + 1)
+                    elif e_type == 2:
+                        e_type = 'Note'
+                        text = data[e_base+0x10:e_base+0x10+text_len]
+                    else:
+                        e_type = 'Unknown annotation type'
+
                     if self.book_format in ['tpz','azw1']:
                         displayed_location = location/MAGIC_TOPAZ_CONSTANT + 1
                     elif self.book_format == 'pdf':
@@ -349,10 +403,24 @@ class Bookmark():
                     else:
                         e_base = e_base + 14 + 2 + text_len
                     current_entry += 1
-                for location in user_notes:
-                    if location == self.last_read:
-                        user_notes.pop(location)
-                        break
+                    '''
+                    # Use label as page number
+                    pdf_location, = unpack('>I', data[e_base+1:e_base+5])
+                    label_len, = unpack('>H', data[e_base+5:e_base+7])
+                    location = int(data[e_base+7:e_base+7+label_len])
+                    displayed_location = location
+                    e_type = 'Bookmark'
+                    text = None
+                    user_notes[location] = dict(id=self.id,
+                                                displayed_location=displayed_location,
+                                                type=e_type,
+                                                text=text)
+                    self.pdf_page_offset = pdf_location - location
+                    e_base += (7 + label_len)
+                    current_entry += 1
+
+                self.last_read_location = self.last_read - self.pdf_page_offset
+
         else:
             print "unsupported bookmark_extension: %s" % self.bookmark_extension
         self.user_notes = user_notes
@@ -388,6 +456,10 @@ class Bookmark():
                 if idx > -1:
                     length = ord(raw[idx+len('bookLength')])
                     self.book_length = int(raw[idx+len('bookLength')+1:idx+len('bookLength')+1+length])
+
+        elif self.bookmark_extension == 'pdr':
+            # Book length not yet implemented for PDF files
+            self.book_length = -1
 
         else:
             print "unsupported bookmark_extension: %s" % self.bookmark_extension

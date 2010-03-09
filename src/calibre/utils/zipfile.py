@@ -138,12 +138,16 @@ _CD64_OFFSET_START_CENTDIR = 9
 
 def decode_arcname(name):
     if not isinstance(name, unicode):
-        encoding = detect(name)['encoding']
         try:
-            name = name.decode(encoding)
+            name = name.decode('utf-8')
         except:
-            name = name.decode('utf-8', 'replace')
-    return name.encode(filesystem_encoding, 'replace')
+            res = detect(name)
+            encoding = res['encoding']
+            try:
+                name = name.decode(encoding)
+            except:
+                name = name.decode('utf-8', 'replace')
+    return name
 
 
 def is_zipfile(filename):
@@ -352,10 +356,7 @@ class ZipInfo (object):
 
     def _encodeFilenameFlags(self):
         if isinstance(self.filename, unicode):
-            try:
-                return self.filename.encode('ascii'), self.flag_bits
-            except:
-                return self.filename.encode('utf-8'), self.flag_bits | 0x800
+            return self.filename.encode('utf-8'), self.flag_bits | 0x800
         else:
             return self.filename, self.flag_bits
 
@@ -363,7 +364,7 @@ class ZipInfo (object):
         if self.flag_bits & 0x800:
             return self.filename.decode('utf-8')
         else:
-            return self.filename
+            return decode_arcname(self.filename)
 
     def _decodeExtra(self):
         # Try to decode the extra field.
@@ -1059,7 +1060,9 @@ class ZipFile:
             targetpath = targetpath[:-1]
 
         # don't include leading "/" from file name if present
-        fname = decode_arcname(member.filename)
+        fname = member.filename
+        if isinstance(fname, unicode):
+            fname = fname.encode(filesystem_encoding, 'replace')
         if fname.startswith('/'):
             fname = fname[1:]
         targetpath = os.path.join(targetpath, fname)
@@ -1111,8 +1114,6 @@ class ZipFile:
     def write(self, filename, arcname=None, compress_type=None):
         """Put the bytes from filename into the archive under the name
         arcname."""
-        if isinstance(filename, unicode):
-            filename = filename.encode('utf-8')
         if not self.fp:
             raise RuntimeError(
                   "Attempt to write to ZIP archive that was already closed")
@@ -1126,6 +1127,8 @@ class ZipFile:
         arcname = os.path.normpath(os.path.splitdrive(arcname)[1])
         while arcname[0] in (os.sep, os.altsep):
             arcname = arcname[1:]
+        if not isinstance(arcname, unicode):
+            arcname = arcname.decode(filesystem_encoding)
         zinfo = ZipInfo(arcname, date_time)
         zinfo.external_attr = (st[0] & 0xFFFF) << 16L      # Unix attributes
         if compress_type is None:
@@ -1187,8 +1190,8 @@ class ZipFile:
         assert not raw_bytes or (raw_bytes and
                 isinstance(zinfo_or_arcname, ZipInfo))
         if not isinstance(zinfo_or_arcname, ZipInfo):
-            if isinstance(zinfo_or_arcname, unicode):
-                zinfo_or_arcname = zinfo_or_arcname.encode('utf-8')
+            if not isinstance(zinfo_or_arcname, unicode):
+                zinfo_or_arcname = zinfo_or_arcname.decode(filesystem_encoding)
             zinfo = ZipInfo(filename=zinfo_or_arcname,
                             date_time=time.localtime(time.time())[:6])
             zinfo.compress_type = compression

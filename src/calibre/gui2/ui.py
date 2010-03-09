@@ -1012,9 +1012,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 # Add the last-read location
                 spanTag = Tag(ka_soup, 'span')
                 spanTag['style'] = 'font-weight:bold'
-                spanTag.insert(0,NavigableString("%s<br />Last Page Read: Location %d (%d%%)" % \
-                                (strftime(u'%x', timestamp.timetuple()),
-                                last_read_location, percent_read)))
+                if bookmark.book_format == 'pdf':
+                    spanTag.insert(0,NavigableString("%s<br />Last Page Read: %d" % \
+                                    (strftime(u'%x', timestamp.timetuple()),
+                                    last_read_location)))
+                else:
+                    spanTag.insert(0,NavigableString("%s<br />Last Page Read: Location %d (%d%%)" % \
+                                    (strftime(u'%x', timestamp.timetuple()),
+                                    last_read_location,
+                                    percent_read)))
 
                 divTag.insert(dtc, spanTag)
                 dtc += 1
@@ -1036,9 +1042,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                                                     user_notes[location]['type'] == 'Note' else \
                                                     '<i>%s</i>' % user_notes[location]['text']))
                         else:
-                            annotations.append('<b>Location %d &bull; %s</b><br />' % \
-                                                (user_notes[location]['displayed_location'],
-                                                 user_notes[location]['type']))
+                            if bookmark.book_format == 'pdf':
+                                annotations.append('<b>Page %d &bull; %s</b><br />' % \
+                                                    (user_notes[location]['displayed_location'],
+                                                     user_notes[location]['type']))
+                            else:
+                                annotations.append('<b>Location %d &bull; %s</b><br />' % \
+                                                    (user_notes[location]['displayed_location'],
+                                                     user_notes[location]['type']))
 
                     for annotation in annotations:
                         divTag.insert(dtc, annotation)
@@ -1520,7 +1531,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if single_format is not None:
                 opts.formats = single_format
                 # Special case for Kindle annotation files
-                if single_format.lower() in ['mbp','tan']:
+                if single_format.lower() in ['mbp','pdr','tan']:
                     opts.to_lowercase = False
                     opts.save_cover = False
                     opts.write_opf = False
