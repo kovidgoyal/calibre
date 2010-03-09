@@ -135,7 +135,7 @@ def option_parser():
                             'to SMTP server.'))
     r=parser.add_option_group('SMTP RELAY',
         'Options to use an SMTP relay server to send mail. '
-        '%prog will try to send the email directly unless --relay is '
+        'calibre will try to send the email directly unless --relay is '
         'specified.').add_option
     r('-r', '--relay', help=('An SMTP relay server to use to send mail.'))
     r('-p', '--port', default=-1,

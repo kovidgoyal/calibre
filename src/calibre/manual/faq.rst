@@ -313,3 +313,9 @@ I want some feature added to |app|. What can I do?
 You have two choices: 
  1. Create a patch by hacking on |app| and send it to me for review and inclusion. See `Development <http://calibre-ebook.com/get-involved>`_. 
  2. `Open a ticket <http://bugs.calibre-ebook.com/newticket>`_ (you have to register and login first) and hopefully I will find the time to implement your feature.
+
+Can I include |app| on a CD to be distributed with my product/magazine?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+|app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `here <http://code.google.com/p/calibre-ebook/downloads/list>`_.
+
+

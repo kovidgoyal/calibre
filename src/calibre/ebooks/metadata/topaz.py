@@ -272,20 +272,19 @@ class MetadataUpdater(object):
     def generate_metadata_stream(self):
         ms = StringIO.StringIO()
         # Generate the header
-        ms.write(self.encode_vwi(len(self.md_header['tag'])))
+        ms.write(self.encode_vwi(len(self.md_header['tag'])).encode('iso-8859-1'))
         ms.write(self.md_header['tag'])
         ms.write(chr(self.md_header['flags']))
         ms.write(chr(len(self.metadata)))
 
-        # Add the metadata fields
+        # Add the metadata fields.
         for item in self.metadata:
-            ms.write(self.encode_vwi(len(self.metadata[item]['tag'])))
+            ms.write(self.encode_vwi(len(self.metadata[item]['tag'])).encode('iso-8859-1'))
             ms.write(self.metadata[item]['tag'])
-            ms.write(self.encode_vwi(len(self.metadata[item]['metadata'])))
+            ms.write(self.encode_vwi(len(self.metadata[item]['metadata'])).encode('iso-8859-1'))
             ms.write(self.metadata[item]['metadata'])
 
-        return ms.getvalue().encode('iso-8859-1')
-        #return ms.getvalue().encode('utf-8')
+        return ms.getvalue()
 
     def get_md_header(self,offset):
         md_header = {}
@@ -344,11 +343,11 @@ class MetadataUpdater(object):
 
         if mi.author_sort and pas:
             authors = mi.author_sort
-            update_metadata('Authors',authors)
+            update_metadata('Authors',authors.encode('utf-8'))
         elif mi.authors:
             authors = '; '.join(mi.authors)
             update_metadata('Authors',authors)
-        update_metadata('Title',mi.title)
+        update_metadata('Title',mi.title.encode('utf-8'))
 
         updated_metadata = self.generate_metadata_stream()
         head = self.fixup_topaz_headers(len(updated_metadata) - self.orig_md_len)

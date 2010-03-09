@@ -32,6 +32,7 @@ class IRIVER_STORY(USBMS):
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Story Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Story Storage Card'
+    EBOOK_DIR_MAIN = 'Book'
 
     SUPPORTS_SUB_DIRS = True
 
