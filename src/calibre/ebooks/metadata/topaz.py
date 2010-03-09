@@ -285,6 +285,7 @@ class MetadataUpdater(object):
             ms.write(self.metadata[item]['metadata'])
 
         return ms.getvalue().encode('iso-8859-1')
+        #return ms.getvalue().encode('utf-8')
 
     def get_md_header(self,offset):
         md_header = {}
