@@ -253,6 +253,7 @@ class MetadataUpdater(object):
         offset = 5
         topaz_headers = {}
         dkey_offset = 0
+        highest_payload_offset = 0
         for x in range(self.header_records):
             marker = self.data[offset]
             offset += 1
@@ -267,6 +268,10 @@ class MetadataUpdater(object):
                 hdr_offset, consumed = self.decode_vwi(self.data[offset:offset+4])
                 if tag == 'dkey':
                     dkey_offset = hdr_offset
+                if tag != 'metadata':
+                    if hdr_offset > highest_payload_offset:
+                        highest_payload_offset = hdr_offset
+                        #print "adjusting highest_payload_offset to 0x%x (%s)" % (hdr_offset,tag)
                 offset += consumed
                 len_uncomp, consumed = self.decode_vwi(self.data[offset:offset+4])
                 offset += consumed
@@ -275,14 +280,13 @@ class MetadataUpdater(object):
                 blocks[val] = dict(hdr_offset=hdr_offset,len_uncomp=len_uncomp,len_comp=len_comp)
             topaz_headers[x] = dict(tag=tag,blocks=blocks)
         self.topaz_headers = topaz_headers
-
+        self.highest_payload_offset = highest_payload_offset
         self.eod = self.data[offset]
         offset += 1
         self.base = offset
         self.base_value = None
         if dkey_offset:
             self.base_value = self.data[offset:offset + dkey_offset]
-
         return md_header_offset, topaz_headers
 
     def generate_metadata_stream(self):
@@ -348,6 +352,9 @@ class MetadataUpdater(object):
                     self.metadata[item]['metadata'] = value
                     return
 
+        if self.md_start > self.highest_payload_offset:
+            raise ValueError('Unable to update metadata')
+
         try:
              from calibre.ebooks.conversion.config import load_defaults
              prefs = load_defaults('mobi_output')
@@ -378,7 +385,7 @@ class MetadataUpdater(object):
             self.stream.write(dkey)
         self.stream.write(updated_metadata)
         self.stream.write(tail)
-        self.stream.close()
+
 
 def set_metadata(stream, mi):
     mu = MetadataUpdater(stream)
