@@ -115,12 +115,19 @@ class MetadataUpdater(object):
         first = raw.find('metadata')
         if first < 0:
             raise ValueError('Invalid Topaz file')
-        second = raw.find('metadata', first+10)
-        if second < 0:
-            raise ValueError('Invalid Topaz file')
-        self.md_start = second-1
+
         self.data = StreamSlicer(stream)
         self.header_records, = unpack('>B',self.data[4])
+        self.get_topaz_headers()
+
+        # Seek the metadata block
+        md_block_offset, spam = self.decode_vwi(self.data[first+9:first+13])
+        md_block_offset += self.base
+        if self.data[md_block_offset+1:md_block_offset+9] != 'metadata':
+            raise ValueError('Invalid Topaz file')
+        else:
+            self.md_start = md_block_offset
+
         offset = self.get_md_header(self.md_start)
         self.metadata = {}
         self.md_end = self.get_original_metadata(offset)
@@ -195,13 +202,16 @@ class MetadataUpdater(object):
 
     def generate_dkey(self):
         for x in self.topaz_headers:
+            #print "dkey['blocks']: %s" % self.topaz_headers[x]['blocks']
             if self.topaz_headers[x]['tag'] == 'dkey':
-                offset = self.base + self.topaz_headers[x]['blocks'][0]['hdr_offset']
-                len_uncomp = self.topaz_headers[x]['blocks'][0]['len_uncomp']
-                break
+                if self.topaz_headers[x]['blocks']:
+                    offset = self.base + self.topaz_headers[x]['blocks'][0]['hdr_offset']
+                    len_uncomp = self.topaz_headers[x]['blocks'][0]['len_uncomp']
+                    break
+                else:
+                    return None
         dkey = self.topaz_headers[x]
         dks = StringIO.StringIO()
-        dks.write('d@')
         dks.write(self.encode_vwi(len(dkey['tag'])))
         offset += 1
         dks.write(dkey['tag'])
@@ -242,6 +252,8 @@ class MetadataUpdater(object):
 
         offset = 5
         topaz_headers = {}
+        dkey_offset = 0
+        highest_payload_offset = 0
         for x in range(self.header_records):
             marker = self.data[offset]
             offset += 1
@@ -254,6 +266,12 @@ class MetadataUpdater(object):
             blocks = {}
             for val in range(num_vals):
                 hdr_offset, consumed = self.decode_vwi(self.data[offset:offset+4])
+                if tag == 'dkey':
+                    dkey_offset = hdr_offset
+                if tag != 'metadata':
+                    if hdr_offset > highest_payload_offset:
+                        highest_payload_offset = hdr_offset
+                        #print "adjusting highest_payload_offset to 0x%x (%s)" % (hdr_offset,tag)
                 offset += consumed
                 len_uncomp, consumed = self.decode_vwi(self.data[offset:offset+4])
                 offset += consumed
@@ -262,11 +280,13 @@ class MetadataUpdater(object):
                 blocks[val] = dict(hdr_offset=hdr_offset,len_uncomp=len_uncomp,len_comp=len_comp)
             topaz_headers[x] = dict(tag=tag,blocks=blocks)
         self.topaz_headers = topaz_headers
-
-        eod = self.data[offset]
+        self.highest_payload_offset = highest_payload_offset
+        self.eod = self.data[offset]
         offset += 1
         self.base = offset
-
+        self.base_value = None
+        if dkey_offset:
+            self.base_value = self.data[offset:offset + dkey_offset]
         return md_header_offset, topaz_headers
 
     def generate_metadata_stream(self):
@@ -332,7 +352,8 @@ class MetadataUpdater(object):
                     self.metadata[item]['metadata'] = value
                     return
 
-        self.get_topaz_headers()
+        if self.md_start > self.highest_payload_offset:
+            raise ValueError('Unable to update metadata')
 
         try:
              from calibre.ebooks.conversion.config import load_defaults
@@ -357,9 +378,14 @@ class MetadataUpdater(object):
         self.stream.seek(0)
         self.stream.truncate(0)
         self.stream.write(head)
-        self.stream.write(dkey)
+        self.stream.write(self.eod)
+        if self.base_value:
+            self.stream.write(self.base_value)
+        if dkey:
+            self.stream.write(dkey)
         self.stream.write(updated_metadata)
         self.stream.write(tail)
+
 
 def set_metadata(stream, mi):
     mu = MetadataUpdater(stream)
