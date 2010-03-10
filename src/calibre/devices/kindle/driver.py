@@ -171,13 +171,10 @@ class Bookmark():
 
         self.get_bookmark_data()
         self.get_book_length()
-        if self.book_length >= 0:
-            try:
-                self.percent_read = float(100*self.last_read / self.book_length)
-            except:
-                self.percent_read = 0
-        else:
-            self.percent_read = -1
+        try:
+            self.percent_read = float(100*self.last_read / self.book_length)
+        except:
+            self.percent_read = 0
 
     def record(self, n):
         from calibre.ebooks.metadata.mobi import StreamSlicer
@@ -459,7 +456,7 @@ class Bookmark():
 
         elif self.bookmark_extension == 'pdr':
             # Book length not yet implemented for PDF files
-            self.book_length = -1
+            self.book_length = 0
 
         else:
             print "unsupported bookmark_extension: %s" % self.bookmark_extension
