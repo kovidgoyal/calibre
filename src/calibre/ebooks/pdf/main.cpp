@@ -86,6 +86,32 @@ extern "C" {
     }
 
     static PyObject *
+    pdfreflow_get_numpages(PyObject *self, PyObject *args) {
+        char *pdfdata;
+        int num = 0;
+        Py_ssize_t size;
+        map<string,string> info;
+
+        if (!PyArg_ParseTuple(args, "s#", &pdfdata, &size))
+            return NULL;
+
+        Reflow *reflow = NULL;
+        try {
+            reflow = new Reflow(pdfdata, size);
+            num = reflow->numpages();
+        } catch (std::exception &e) {
+            PyErr_SetString(PyExc_RuntimeError, e.what()); delete reflow; return NULL;
+        } catch (...) {
+            PyErr_SetString(PyExc_RuntimeError,
+                    "Unknown exception raised while getting metadata from PDF"); delete reflow; return NULL;
+        }
+
+        delete reflow; reflow = NULL;
+        return Py_BuildValue("i", num);
+    }
+
+
+    static PyObject *
     pdfreflow_set_metadata(PyObject *self, PyObject *args) {
         char *pdfdata;
         Py_ssize_t size;
@@ -143,6 +169,10 @@ extern "C" {
         {"set_metadata", pdfreflow_set_metadata, METH_VARARGS,
         "get_metadata(info_dict)\n\n"
                 "Set metadata in the specified PDF. Currently broken."
+        },
+        {"get_numpages", pdfreflow_get_numpages, METH_VARARGS,
+        "get_numpages(pdf_data)\n\n"
+                "Get number of pages in the PDF."
         },
 
         {NULL, NULL, 0, NULL}
