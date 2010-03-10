@@ -1041,34 +1041,34 @@ class ODF2XHTML(handler.ContentHandler):
             of <text:list> elements on the tagstack.
         """
         name = attrs.get( (TEXTNS,'style-name') )
+        level = self.tagstack.count_tags(tag) + 1
         if name:
             name = name.replace(".","_")
-            level = 1
         else:
             # FIXME: If a list is contained in a table cell or text box,
             # the list level must return to 1, even though the table or
             # textbox itself may be nested within another list.
-            level = self.tagstack.count_tags(tag) + 1
             name = self.tagstack.rfindattr( (TEXTNS,'style-name') )
+        list_class = "%s_%d" % (name, level)
         if self.generate_css:
-            self.opentag('%s' % self.listtypes.get(name), {'class':"%s_%d" % (name, level) })
+            self.opentag('%s' % self.listtypes.get(list_class,'UL'), {'class': list_class })
         else:
-            self.opentag('%s' % self.listtypes.get(name))
+            self.opentag('%s' % self.listtypes.get(list_class,'UL'))
         self.purgedata()
 
     def e_text_list(self, tag, attrs):
         self.writedata()
         name = attrs.get( (TEXTNS,'style-name') )
+        level = self.tagstack.count_tags(tag) + 1
         if name:
             name = name.replace(".","_")
-            level = 1
         else:
             # FIXME: If a list is contained in a table cell or text box,
             # the list level must return to 1, even though the table or
             # textbox itself may be nested within another list.
-            level = self.tagstack.count_tags(tag) + 1
             name = self.tagstack.rfindattr( (TEXTNS,'style-name') )
-        self.closetag(self.listtypes.get(name))
+        list_class = "%s_%d" % (name, level)
+        self.closetag(self.listtypes.get(list_class,'UL'))
         self.purgedata()
 
     def s_text_list_item(self, tag, attrs):
@@ -1086,9 +1086,10 @@ class ODF2XHTML(handler.ContentHandler):
             the available glyphs
         """
         name = self.tagstack.rfindattr( (STYLENS,'name') )
-        self.listtypes[name] = 'ul'
         level = attrs[(TEXTNS,'level')]
         self.prevstyle = self.currentstyle
+        list_class = "%s_%s" % (name, level)
+        self.listtypes[list_class] = 'ul'
         self.currentstyle = ".%s_%s" % ( name.replace(".","_"), level)
         self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
@@ -1103,11 +1104,12 @@ class ODF2XHTML(handler.ContentHandler):
 
     def s_text_list_level_style_number(self, tag, attrs):
         name = self.tagstack.stackparent()[(STYLENS,'name')]
-        self.listtypes[name] = 'ol'
         level = attrs[(TEXTNS,'level')]
         num_format = attrs.get( (STYLENS,'name'),"1")
+        list_class = "%s_%s" % (name, level)
         self.prevstyle = self.currentstyle
         self.currentstyle = ".%s_%s" % ( name.replace(".","_"), level)
+        self.listtypes[list_class] = 'ol'
         self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
         if   num_format == "1": listtype = "decimal"
