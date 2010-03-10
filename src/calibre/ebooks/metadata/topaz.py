@@ -201,7 +201,8 @@ class MetadataUpdater(object):
                 break
         dkey = self.topaz_headers[x]
         dks = StringIO.StringIO()
-        dks.write('d@')
+        dks.write(self.eod)
+        dks.write(self.base_value)
         dks.write(self.encode_vwi(len(dkey['tag'])))
         offset += 1
         dks.write(dkey['tag'])
@@ -263,9 +264,10 @@ class MetadataUpdater(object):
             topaz_headers[x] = dict(tag=tag,blocks=blocks)
         self.topaz_headers = topaz_headers
 
-        eod = self.data[offset]
+        self.eod = self.data[offset]
         offset += 1
         self.base = offset
+        self.base_value = self.data[offset]
 
         return md_header_offset, topaz_headers
 
