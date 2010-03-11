@@ -470,7 +470,8 @@ class OPF(object):
             raise ValueError('Empty file: '+getattr(stream, 'name', 'stream'))
         self.basedir  = self.base_dir = basedir
         self.path_to_html_toc = self.html_toc_fragment = None
-        raw, self.encoding = xml_to_unicode(raw, strip_encoding_pats=True, resolve_entities=True)
+        raw, self.encoding = xml_to_unicode(raw, strip_encoding_pats=True,
+                resolve_entities=True, assume_utf8=True)
         raw = raw[raw.find('<'):]
         self.root     = etree.fromstring(raw, self.PARSER)
         self.metadata = self.metadata_path(self.root)
