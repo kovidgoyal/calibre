@@ -1205,6 +1205,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         (_('HTML Books'), ['htm', 'html', 'xhtm', 'xhtml']),
                         (_('LIT Books'), ['lit']),
                         (_('MOBI Books'), ['mobi', 'prc', 'azw']),
+                        (_('Topaz books'), ['tpz','azw1']),
                         (_('Text books'), ['txt', 'rtf']),
                         (_('PDF Books'), ['pdf']),
                         (_('Comics'), ['cbz', 'cbr', 'cbc']),
