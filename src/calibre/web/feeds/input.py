@@ -59,6 +59,7 @@ class RecipeInput(InputFormatPlugin):
             zf.close()
             self.recipe_source = open('download.recipe', 'rb').read()
             recipe = compile_recipe(self.recipe_source)
+            recipe.needs_subscription = False
             self.recipe_object = recipe(opts, log, self.report_progress)
         else:
             if os.access(recipe_or_file, os.R_OK):
