@@ -429,33 +429,30 @@ class Bookmark():
         self.book_length = 0
         if self.bookmark_extension == 'mbp':
             # Read the book len from the header
-            with open(book_fs,'rb') as f:
-                self.stream = StringIO(f.read())
-                self.data = StreamSlicer(self.stream)
-                self.nrecs, = unpack('>H', self.data[76:78])
-                record0 = self.record(0)
-                self.book_length = int(unpack('>I', record0[0x04:0x08])[0])
+            try:
+                with open(book_fs,'rb') as f:
+                    self.stream = StringIO(f.read())
+                    self.data = StreamSlicer(self.stream)
+                    self.nrecs, = unpack('>H', self.data[76:78])
+                    record0 = self.record(0)
+                    self.book_length = int(unpack('>I', record0[0x04:0x08])[0])
+            except:
+                pass
         elif self.bookmark_extension == 'tan':
             # Read bookLength from metadata
-            with open(book_fs,'rb') as f:
-                stream = StringIO(f.read())
-                raw = stream.read(8*1024)
-                if not raw.startswith('TPZ'):
-                    raise ValueError('Not a Topaz file')
-                first = raw.find('metadata')
-                if first < 0:
-                    raise ValueError('Invalid Topaz file')
-                second = raw.find('metadata', first+10)
-                if second < 0:
-                    raise ValueError('Invalid Topaz file')
-                raw = raw[second:second+1000]
-                idx = raw.find('bookLength')
-                if idx > -1:
-                    length = ord(raw[idx+len('bookLength')])
-                    self.book_length = int(raw[idx+len('bookLength')+1:idx+len('bookLength')+1+length])
-
+            from calibre.ebooks.metadata.topaz import MetadataUpdater
+            try:
+                with open(book_fs,'rb') as f:
+                    mu = MetadataUpdater(f)
+                    self.book_length = mu.book_length
+            except:
+                pass
         elif self.bookmark_extension == 'pdr':
             # Book length not yet implemented for PDF files
+            # After 0.6.45:
+            # from calibre import plugins
+            # self.book_length = plugins['pdfreflow'][0].get_numpages(open(book_fs).read())
+
             self.book_length = 0
 
         else:
