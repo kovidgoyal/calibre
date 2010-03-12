@@ -4,6 +4,55 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.45
+  date: 2010-03-11
+
+  new features:
+    - title: "Option for more aggressive duplicates detection when adding books"
+      type: major
+      description: >
+        "There is now an option in Preferences->Add/Save that will cause calibre to try to detect duplicates
+        based on title and author similarity. If a duplicate is found, calibre will automatically merge files intot he existing entry,
+        instead of creating a new one."
+      tickets: [5016]
+
+    - title: "ODT Input: Fix handling of mixed ordered and un-ordered lists"
+
+    - title: "Support for setting metadata in Topaz files and getting pdf anntations from a Kindle"
+      type: major
+
+    - title: "Support for the Samsung Moment"
+      tickets: [5077]
+
+  bug fixes:
+    - title: "Fix generated list of formats when generating catalog in CSV format"
+      tickets: [5092]
+
+    - title: "CHM metadata: Fix unicode handling"
+      tickets: [5080]
+
+    - title: "Iriver story driver: Put uploads into the Books directory"
+
+    - title: "Improved iRex DR800 support"
+      tickets: [5082]
+
+    - title: "When creating ZIP/EPUB files encode all file names in UTF-8 and set the UTF-8 bit marker. When extracting from a ZIP/EPUB file, if the UTF-8 bit marker is not set, still assume that the file name is encoded in UTF-8. If UTF-8 decoding fails try to detect character encoding using chardet. This is because most ZIP/EPUB files calibre comes across seem to be utf-8 encoded."
+
+  new recipes:
+    - title: TAZ DigiABO 
+      author: Lars Jacob
+
+    - title: Elsevier.nl
+      author: Darko Miletic
+
+    - title: News Observer
+      author: Krittika Goyal
+
+    - title: Comics.com
+      author: Starson17
+
+  improved recipes:
+
 - version: 0.6.44
   date: 2010-03-05
 
