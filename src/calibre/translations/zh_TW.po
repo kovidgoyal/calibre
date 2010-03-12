@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-03-09 11:08+0000\n"
-"PO-Revision-Date: 2010-03-11 02:32+0000\n"
+"PO-Revision-Date: 2010-03-12 04:43+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-11 04:37+0000\n"
+"X-Launchpad-Export-Date: 2010-03-12 04:50+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: zh_TW\n"
 
@@ -7388,6 +7388,9 @@ msgid ""
 "directly on the device. To do this you have to turn on the calibre content "
 "server."
 msgstr ""
+"<p>如果您使用 iPhone/iTouch 上的 <a "
+"href=\"http://www.lexcycle.com/download\">Stanza</a> 電子書軟體，您可以直接在裝置上存取您的 "
+"calibre 藏書。要這麼做您需要先開啟 calibre 內容伺服器。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:45
 msgid "Turn on the &content server"
@@ -7395,15 +7398,15 @@ msgstr "開啟內容伺服器(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/library/__init__.py:8
 msgid "Settings to control the calibre content server"
-msgstr ""
+msgstr "用來控制 calibre 內容伺服器的設定值"
 
 #: /home/kovid/work/calibre/src/calibre/library/__init__.py:12
 msgid "The port on which to listen. Default is %default"
-msgstr ""
+msgstr "要聽取哪個連接埠。預設值為 %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/__init__.py:14
 msgid "The server timeout in seconds. Default is %default"
-msgstr ""
+msgstr "伺服器逾時秒數。預設值為 %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/__init__.py:16
 msgid "The max number of worker threads to use. Default is %default"
@@ -7411,11 +7414,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/__init__.py:18
 msgid "Set a password to restrict access. By default access is unrestricted."
-msgstr ""
+msgstr "設定限制存取的密碼。預設的存取是沒有限制的。"
 
 #: /home/kovid/work/calibre/src/calibre/library/__init__.py:20
 msgid "Username for access. By default, it is: %default"
-msgstr ""
+msgstr "存取的使用者名稱。預設的狀況下，它是：%default"
 
 #: /home/kovid/work/calibre/src/calibre/library/__init__.py:24
 msgid "The maximum size for displayed covers. Default is %default."
@@ -7425,7 +7428,7 @@ msgstr "顯示封面的最大尺寸。預設值為 %default。"
 msgid ""
 "The maximum number of matches to return per OPDS query. This affects Stanza, "
 "WordPlayer, etc. integration."
-msgstr ""
+msgstr "每次 OPDS 查詢傳回符合項的最大數目。這會影響 Stanza、WordPlayer 等的整合。"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:41
 msgid ""
@@ -7435,6 +7438,10 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"當分類資料庫中的書籍時要輸出的欄位。應該使用以逗號分隔的清單來列出欄位。\n"
+"可用的欄位：%s。\n"
+"預設值：「%%default」\n"
+"可套用到：CSV、XML 輸出格式"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:51
 msgid ""
@@ -7443,6 +7450,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"要排序的輸出欄位\n"
+"可用的欄位：author_sort, id, rating, size, timestamp, title。\n"
+"預設值：「%default」\n"
+"可套用到：CSV、XML 輸出格式"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:262
 msgid ""
@@ -7450,6 +7461,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"產生分類的標題，用於元數據的標題。\n"
+"預設：「%default」\n"
+"套用到：ePub、MOBI 輸出格式"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:269
 msgid ""
@@ -7459,6 +7473,9 @@ msgid ""
 "Default: '%default'None\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"將轉換管線不同階段的輸出儲存到指定的目錄。當您不確定轉換程序的哪個程多出錯時會媭有用。\n"
+"預設：「%default」沒有\n"
+"套用到：ePub、MOBI 輸出格式"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:279
 msgid ""
@@ -7475,6 +7492,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"以逗號分隔的標籤清單，指出要從輸出排除的書籍。有區分大小寫。\n"
+"--exclude-tags=skip 會比對「skip this book」和「Skip will like this」。\n"
+"預設值為：「%default」\n"
+"套用到： ePub、MOBI 輸出格式"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:293
 msgid ""
@@ -7496,6 +7517,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"使用者備註的標籤前綴，例如「*Jeff might enjoy reading this」。\n"
+"預設值為：「%default」\n"
+"套用到： ePub、MOBI 輸出格式"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:314
 msgid ""
@@ -7505,6 +7529,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"將書名開頭的數字以文字方式排序例如\n"
+"「2001: A Space Odyssey」會排序為 \n"
+"「Two Thousand One: A Space Odyssey」\n"
+"預設值為：「%default」\n"
+"套用到： ePub、MOBI 輸出格式"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:321
 msgid ""
@@ -7527,7 +7556,7 @@ msgstr ""
 msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
-msgstr ""
+msgstr "calibre 書庫的路徑。預設值會使用儲存在設定值中的路徑。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:206
 msgid ""
@@ -7535,6 +7564,9 @@ msgid ""
 "\n"
 "List the books available in the calibre database.\n"
 msgstr ""
+"%prog list [options]\n"
+"\n"
+"列出在 calibre 資料庫中可用的書籍。\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:214
 msgid ""
@@ -7551,6 +7583,9 @@ msgid ""
 "Available fields: %s\n"
 "Default: %%default"
 msgstr ""
+"用來排序結果的欄位。\n"
+"可用的欄位：%s\n"
+"預設值：%%default"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:218
 msgid "Sort results in ascending order"
