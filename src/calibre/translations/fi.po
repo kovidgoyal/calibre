@@ -628,7 +628,7 @@ msgstr "Levyasemaa %s ei havaittu. Kokeile uudelleenkäynnistämistä."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:433
 msgid "Unable to detect the %s mount point. Try rebooting."
-msgstr "Alustaa &s ei havaittu. Kokeile uudelleenkäynnistämistä."
+msgstr "Alustaa %s ei havaittu. Kokeile uudelleenkäynnistämistä."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:488
 msgid "Unable to detect the %s disk drive."
