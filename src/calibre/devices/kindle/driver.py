@@ -448,12 +448,11 @@ class Bookmark():
             except:
                 pass
         elif self.bookmark_extension == 'pdr':
-            # Book length not yet implemented for PDF files
-            # After 0.6.45:
-            # from calibre import plugins
-            # self.book_length = plugins['pdfreflow'][0].get_numpages(open(book_fs).read())
-
-            self.book_length = 0
+            from calibre import plugins
+            try:
+                self.book_length = plugins['pdfreflow'][0].get_numpages(open(book_fs).read())
+            except:
+                pass
 
         else:
             print "unsupported bookmark_extension: %s" % self.bookmark_extension
