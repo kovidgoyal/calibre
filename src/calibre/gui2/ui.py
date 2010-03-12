@@ -1013,9 +1013,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 spanTag = Tag(ka_soup, 'span')
                 spanTag['style'] = 'font-weight:bold'
                 if bookmark.book_format == 'pdf':
-                    spanTag.insert(0,NavigableString("%s<br />Last Page Read: %d" % \
+                    spanTag.insert(0,NavigableString("%s<br />Last Page Read: %d (%d%%)" % \
                                     (strftime(u'%x', timestamp.timetuple()),
-                                    last_read_location)))
+                                    last_read_location,
+                                    percent_read)))
                 else:
                     spanTag.insert(0,NavigableString("%s<br />Last Page Read: Location %d (%d%%)" % \
                                     (strftime(u'%x', timestamp.timetuple()),
