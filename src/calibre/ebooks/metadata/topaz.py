@@ -4,10 +4,9 @@ __copyright__ = '2010, Greg Riker <griker@hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 ''' Read/write metadata from Amazon's topaz format '''
-import copy, StringIO, sys
-from struct import pack, unpack
+import StringIO, sys
+from struct import pack
 
-from calibre import prints
 from calibre.ebooks.metadata import MetaInformation
 
 class StreamSlicer(object):
@@ -200,7 +199,6 @@ class MetadataUpdater(object):
         # Build a dict of topaz_header records
         topaz_headers = {}
         for x in range(self.header_records):
-            c_marker = self.data[offset]
             offset += 1
             taglen, consumed = self.decode_vwi(self.data[offset:offset+4])
             offset += consumed
@@ -259,7 +257,6 @@ class MetadataUpdater(object):
 
         self.metadata = {}
         for x in range(self.md_header['num_recs']):
-            md_record = {}
             taglen, consumed = self.decode_vwi(self.data[offset:offset+4])
             offset += consumed
             tag = self.data[offset:offset+taglen]
@@ -380,7 +377,6 @@ def set_metadata(stream, mi):
     return
 
 if __name__ == '__main__':
-    import cStringIO, sys
     #print get_metadata(open(sys.argv[1], 'rb'))
     mi = MetaInformation(title="My New Title", authors=['Smith, John'])
     set_metadata(open(sys.argv[1], 'rb'), mi)

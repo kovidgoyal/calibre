@@ -998,12 +998,15 @@ class LibraryDatabase2(LibraryDatabase):
         return self.add_format(index, format, stream,
                                index_is_id=index_is_id, path=path, notify=notify)
 
-    def add_format(self, index, format, stream, index_is_id=False, path=None, notify=True):
+    def add_format(self, index, format, stream, index_is_id=False, path=None,
+            notify=True, replace=True):
         id = index if index_is_id else self.id(index)
         if path is None:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
         if name:
+            if not replace:
+                return False
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format))
         name = self.construct_file_name(id)
         ext = ('.' + format.lower()) if format else ''
@@ -1021,6 +1024,7 @@ class LibraryDatabase2(LibraryDatabase):
         self.refresh_ids([id])
         if notify:
             self.notify('metadata', [id])
+        return True
 
     def delete_book(self, id, notify=True):
         '''

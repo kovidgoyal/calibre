@@ -24,7 +24,7 @@ from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import  prints, patheq, strftime
 from calibre.constants import __version__, __appname__, isfrozen, islinux, \
-                    iswindows, isosx, filesystem_encoding
+                    iswindows, isosx, filesystem_encoding, preferred_encoding
 from calibre.utils.filenames import ascii_filename
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
@@ -1244,6 +1244,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.library_view.model().books_added(self._adder.number_of_books_added)
             if hasattr(self, 'db_images'):
                 self.db_images.reset()
+        if getattr(self._adder, 'merged_books', False):
+            books = u'\n'.join([x if isinstance(x, unicode) else
+                    x.decode(preferred_encoding, 'replace') for x in
+                    self._adder.merged_books])
+            info_dialog(self, _('Merged some books'),
+                    _('Some duplicates were found and merged into the '
+                        'following existing books:'), det_msg=books, show=True)
         if getattr(self._adder, 'critical', None):
             det_msg = []
             for name, log in self._adder.critical.items():

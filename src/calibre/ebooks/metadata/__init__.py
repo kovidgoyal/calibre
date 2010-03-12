@@ -20,7 +20,7 @@ def string_to_authors(raw):
     raw = raw.replace('&&', u'\uffff')
     raw = _author_pat.sub('&', raw)
     authors = [a.strip().replace(u'\uffff', '&') for a in raw.split('&')]
-    return authors
+    return [a for a in authors if a]
 
 def authors_to_string(authors):
     if authors is not None:
