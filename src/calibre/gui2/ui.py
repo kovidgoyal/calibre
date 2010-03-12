@@ -1013,12 +1013,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 spanTag = Tag(ka_soup, 'span')
                 spanTag['style'] = 'font-weight:bold'
                 if bookmark.book_format == 'pdf':
-                    spanTag.insert(0,NavigableString("%s<br />Last Page Read: %d (%d%%)" % \
+                    spanTag.insert(0,NavigableString(
+                        _("%s<br />Last Page Read: %d (%d%%)") % \
                                     (strftime(u'%x', timestamp.timetuple()),
                                     last_read_location,
                                     percent_read)))
                 else:
-                    spanTag.insert(0,NavigableString("%s<br />Last Page Read: Location %d (%d%%)" % \
+                    spanTag.insert(0,NavigableString(
+                        _("%s<br />Last Page Read: Location %d (%d%%)") % \
                                     (strftime(u'%x', timestamp.timetuple()),
                                     last_read_location,
                                     percent_read)))
@@ -1036,7 +1038,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     # Italicize highlighted text
                     for location in sorted(user_notes):
                         if user_notes[location]['text']:
-                            annotations.append('<b>Location %d &bull; %s</b><br />%s<br />' % \
+                            annotations.append(
+                                    _('<b>Location %d &bull; %s</b><br />%s<br />') % \
                                                 (user_notes[location]['displayed_location'],
                                                     user_notes[location]['type'],
                                                     user_notes[location]['text'] if \
@@ -1044,11 +1047,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                                                     '<i>%s</i>' % user_notes[location]['text']))
                         else:
                             if bookmark.book_format == 'pdf':
-                                annotations.append('<b>Page %d &bull; %s</b><br />' % \
+                                annotations.append(
+                                        _('<b>Page %d &bull; %s</b><br />') % \
                                                     (user_notes[location]['displayed_location'],
                                                      user_notes[location]['type']))
                             else:
-                                annotations.append('<b>Location %d &bull; %s</b><br />' % \
+                                annotations.append(
+                                        _('<b>Location %d &bull; %s</b><br />') % \
                                                     (user_notes[location]['displayed_location'],
                                                      user_notes[location]['type']))
 
