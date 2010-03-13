@@ -51,32 +51,6 @@ class PersistentTemporaryFile(object):
         except:
             pass
 
-    def startswith(self,*args):
-        if len(args):
-            str = args[0]
-            beg = 0
-            end = len(str)
-        else:
-            return False
-
-        if len(args) > 1:
-            begin = args[1]
-        if len(args) > 2:
-            end = args[2]
-        if self._name[beg:end].startswith(str):
-            return True
-        return False
-
-    def split(self,*args):
-        if len(args):
-            sep = args[0]
-        if len(args) > 1:
-            maxsplit = args[1]
-            return self._name.split(sep,maxsplit)
-        else:
-            return self._name.split(sep)
-
-
 def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
     '''
     Return the path to a newly created temporary directory that will

@@ -982,6 +982,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
             update_progress = pyqtSignal(int)
             update_done     = pyqtSignal()
+            FINISHED_READING_PCT_THRESHOLD = 96
 
             def __init__(self, parent, db, annotation_map, done_callback):
                 QThread.__init__(self, parent)
@@ -1064,6 +1065,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 ka_soup.insert(0,divTag)
                 return ka_soup
 
+            def mark_book_as_read(self,id):
+                read_tag = gprefs.get('catalog_epub_mobi_read_tag')
+                self.db.set_tags(id, [read_tag], append=True)
+
             def canceled(self):
                 self.pd.hide()
 
@@ -1091,6 +1096,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         mi.comments = unicode(user_notes_soup.prettify())
                     # Update library comments
                     self.db.set_comment(id, mi.comments)
+                    # Update 'read' tag
+                    if bm.bookmark.percent_read >= self.FINISHED_READING_PCT_THRESHOLD:
+                        self.mark_book_as_read(id)
                     # Add bookmark file to id
                     self.db.add_format_with_hooks(id, bm.bookmark.bookmark_extension,
                                                   bm.bookmark.path, index_is_id=True)
