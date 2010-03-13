@@ -11,6 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class InteriaSport(BasicNewsRecipe):
     title          = u'Interia.pl - Sport'
+    description    = u'Sport ze strony interia.pl'
     language = 'pl'
     oldest_article = 7
     __author__ = u'Tomasz D\u0142ugosz'
@@ -30,7 +31,8 @@ class InteriaSport(BasicNewsRecipe):
 
     keep_only_tags = [dict(name='div', attrs={'id':'article'})]
 
-    remove_tags = [dict(name='div', attrs={'class':'object gallery'})]
+    remove_tags = [dict(name='div', attrs={'class':'object gallery'}),
+                   dict(name='div', attrs={'class':'box fontSizeSwitch'})]
 
     extra_css = '''
         .articleDate {

@@ -11,7 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class eksiazki(BasicNewsRecipe):
 
     title          = u'eKsiazki.org'
-    desciption     = u'Twoje centrum wiedzy o ePapierze i eBookach'
+    description    = u'Twoje centrum wiedzy o ePapierze i eBookach'
     language = 'pl'
     __author__ = u'Tomasz D\u0142ugosz'
     no_stylesheets = True
