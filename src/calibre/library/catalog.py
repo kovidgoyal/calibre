@@ -1188,18 +1188,11 @@ class EPUB_MOBI(CatalogPlugin):
             from calibre.ebooks.metadata import MetaInformation
 
             MBP_FORMATS = [u'azw', u'mobi', u'prc', u'txt']
-            TAN_FORMATS = [u'tpz', u'azw1']
+            mbp_formats = set(MBP_FORMATS)
             PDR_FORMATS = [u'pdf']
-
-            mbp_formats = set()
-            for fmt in MBP_FORMATS:
-                mbp_formats.add(fmt)
-            tan_formats = set()
-            for fmt in TAN_FORMATS:
-                tan_formats.add(fmt)
-            pdr_formats = set()
-            for fmt in PDR_FORMATS:
-                pdr_formats.add(fmt)
+            pdr_formats = set(PDR_FORMATS)
+            TAN_FORMATS = [u'tpz', u'azw1']
+            tan_formats = set(TAN_FORMATS)
 
             class BookmarkDevice(Device):
                 def initialize(self, save_template):

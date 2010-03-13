@@ -45,7 +45,7 @@ class DevicePlugin(Plugin):
     icon = I('reader.svg')
 
     # Used by gui2.ui:annotations_fetched() and devices.kindle.driver:get_annotations()
-    UserAnnotation = namedtuple('Annotation','type, bookmark')
+    UserAnnotation = namedtuple('Annotation','type, value')
 
     @classmethod
     def get_gui_name(cls):

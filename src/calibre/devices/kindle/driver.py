@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Device driver for Amazon's Kindle
 '''
-import os, re, sys
+import datetime, os, re, sys
 from cStringIO import StringIO
 from struct import unpack
 
@@ -62,18 +62,11 @@ class KINDLE(USBMS):
 
     def get_annotations(self, path_map):
         MBP_FORMATS = [u'azw', u'mobi', u'prc', u'txt']
-        TAN_FORMATS = [u'tpz', u'azw1']
+        mbp_formats = set(MBP_FORMATS)
         PDR_FORMATS = [u'pdf']
-
-        mbp_formats = set()
-        for fmt in MBP_FORMATS:
-            mbp_formats.add(fmt)
-        tan_formats = set()
-        for fmt in TAN_FORMATS:
-            tan_formats.add(fmt)
-        pdr_formats = set()
-        for fmt in PDR_FORMATS:
-            pdr_formats.add(fmt)
+        pdr_formats = set(PDR_FORMATS)
+        TAN_FORMATS = [u'tpz', u'azw1']
+        tan_formats = set(TAN_FORMATS)
 
         def get_storage():
             storage = []
@@ -121,6 +114,14 @@ class KINDLE(USBMS):
                 path_map.pop(id)
             return path_map, book_ext
 
+        def get_my_clippings(storage, bookmarked_books):
+            # add an entry for 'My Clippings.txt'
+            for vol in storage:
+                mc_path = os.path.join(vol,'My Clippings.txt')
+                if os.path.exists(mc_path):
+                    return mc_path
+            return None
+
         storage = get_storage()
         path_map, book_ext = resolve_bookmark_paths(storage, path_map)
 
@@ -128,7 +129,13 @@ class KINDLE(USBMS):
         for id in path_map:
             bookmark_ext = path_map[id].rpartition('.')[2]
             myBookmark = Bookmark(path_map[id], id, book_ext[id], bookmark_ext)
-            bookmarked_books[id] = self.UserAnnotation(type='kindle', bookmark=myBookmark)
+            bookmarked_books[id] = self.UserAnnotation(type='kindle_bookmark', value=myBookmark)
+
+        mc_path = get_my_clippings(storage, bookmarked_books)
+        if mc_path:
+            timestamp = datetime.datetime.utcfromtimestamp(os.path.getmtime(mc_path))
+            bookmarked_books['clippings'] = self.UserAnnotation(type='kindle_clippings',
+                                              value=dict(path=mc_path,timestamp=timestamp))
 
         # This returns as job.result in gui2.ui.annotations_fetched(self,job)
         return bookmarked_books
