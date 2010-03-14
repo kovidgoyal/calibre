@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-12 07:36+0000\n"
-"PO-Revision-Date: 2010-03-12 07:13+0000\n"
-"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
+"PO-Revision-Date: 2010-03-13 12:12+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-13 04:50+0000\n"
+"X-Launchpad-Export-Date: 2010-03-14 05:01+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -347,7 +347,7 @@ msgstr "Este perfil está pensado para el IRex Digital Reader 1000."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:193
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:426
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr ""
+msgstr "Este perfil está pensado para el IRex Digital Reader 800."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:205
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:440
@@ -4574,12 +4574,23 @@ msgid ""
 "Title match ignores leading indefinite articles (\"the\", \"a\", \"an\"), "
 "punctuation, case, etc. Author match is exact."
 msgstr ""
+"Si se encuentra un libro preexistente con el mismo título y autor que no "
+"tenga el formato que se está\n"
+"añadiendo, se añade el formato a ese libro en lugar de crear una nueva "
+"entrada. Si el libro existente\n"
+"ya tiene el formato, no se hace nada.\n"
+"\n"
+"La correspondencia en los títulos no tiene en cuenta los artículos (\"the\", "
+"\"a\", \"an\"), puntuación, mayúsculas,\n"
+"etc. La correspondencia del autor es exacta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:112
 msgid ""
 "If books with similar titles and authors found, &merge the new files "
 "automatically"
 msgstr ""
+"Si se encuentran libros con el mismo título y autor, &unir automáticamente "
+"los nuevos ficheros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:113
 msgid "&Configure metadata from file name"
@@ -6820,7 +6831,7 @@ msgstr "Libros en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1208
 msgid "Topaz books"
-msgstr ""
+msgstr "Libros en formato topaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1209
 msgid "Text books"
@@ -6844,12 +6855,14 @@ msgstr "Libros soportados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1251
 msgid "Merged some books"
-msgstr ""
+msgstr "Se han unido algunos libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1252
 msgid ""
 "Some duplicates were found and merged into the following existing books:"
 msgstr ""
+"Se han encontrado algunos libros duplicados y se han unido a los siguientes "
+"libros existentes:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1261
 msgid "Failed to read metadata"
@@ -8780,7 +8793,7 @@ msgstr "Intercambiar el nombre y el apellido del autor al leer los metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:674
 msgid "Add new formats to existing book records"
-msgstr ""
+msgstr "Añadir nuevos formatos a los registros de libros existentes"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
