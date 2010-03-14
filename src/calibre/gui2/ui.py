@@ -1075,12 +1075,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.pd.hide()
 
             def run(self):
+                ignore_tags = set(['Catalog','Clippings'])
                 for (i, id) in enumerate(self.am):
                     bm = Device.UserAnnotation(self.am[id][0],self.am[id][1])
                     if bm.type == 'kindle_bookmark':
-                        user_notes_soup = self.generate_annotation_html(bm.value)
-
                         mi = self.db.get_metadata(id, index_is_id=True)
+                        user_notes_soup = self.generate_annotation_html(bm.value)
                         if mi.comments:
                             a_offset = mi.comments.find('<div class="user_annotations">')
                             ad_offset = mi.comments.find('<hr class="annotations_divider" />')
@@ -1089,6 +1089,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                                 mi.comments = mi.comments[:a_offset]
                             if ad_offset >= 0:
                                 mi.comments = mi.comments[:ad_offset]
+                            if set(mi.tags).intersection(ignore_tags):
+                                continue
                             if mi.comments:
                                 hrTag = Tag(user_notes_soup,'hr')
                                 hrTag['class'] = 'annotations_divider'
@@ -1099,9 +1101,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                             mi.comments = unicode(user_notes_soup.prettify())
                         # Update library comments
                         self.db.set_comment(id, mi.comments)
-                        # Update 'read' tag
+
+                        # Update 'read' tag except for Catalogs/Clippings
                         if bm.value.percent_read >= self.FINISHED_READING_PCT_THRESHOLD:
-                            self.mark_book_as_read(id)
+                            if not set(mi.tags).intersection(ignore_tags):
+                                self.mark_book_as_read(id)
+
                         # Add bookmark file to id
                         self.db.add_format_with_hooks(id, bm.value.bookmark_extension,
                                                       bm.value.path, index_is_id=True)

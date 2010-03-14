@@ -179,7 +179,7 @@ class Bookmark():
         self.get_bookmark_data()
         self.get_book_length()
         try:
-            self.percent_read = float(100*self.last_read / self.book_length)
+            self.percent_read = min(float(100*self.last_read / self.book_length),100)
         except:
             self.percent_read = 0
 
