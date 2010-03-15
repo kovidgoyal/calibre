@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-03-12 07:36+0000\n"
-"PO-Revision-Date: 2010-03-12 13:01+0000\n"
-"Last-Translator: Antón Méixome <meixome@gmail.com>\n"
+"PO-Revision-Date: 2010-03-14 14:29+0000\n"
+"Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>\n"
 "Language-Team: Galician <gl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-13 04:49+0000\n"
+"X-Launchpad-Export-Date: 2010-03-15 04:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
-msgstr "Non fai ren"
+msgstr "Non facer nada"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:72
@@ -162,7 +162,7 @@ msgstr "Editor de metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:263
 msgid "Catalog generator"
-msgstr "Xerador do catálogo"
+msgstr "Xerador de catálogos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:15
 msgid ""
@@ -219,7 +219,7 @@ msgstr "Ler os metadatos dos ficheiros %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:259
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Ler os metadatos de ebooks en arquivos RAR"
+msgstr "Ler os metadatos dos ebooks dentro de arquivos RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:311
 msgid "Read metadata from ebooks in ZIP archives"
@@ -263,9 +263,8 @@ msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
-"Se se especifica, o complemento de saída  tratará de crear unha saída o máis "
-"lexible para os humanos posible. Pode non ter efecto nalgúns complementos de "
-"saída."
+"Se está especificado, o complemento de saída  tratará de crear unha saída o "
+"máis lexible posible. Pode non funcionar nalgúns complementos de saída."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:44
 msgid "Input profile"
@@ -276,8 +275,8 @@ msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
 msgstr ""
-"Este perfil tenta forncecer predefinidos sane e resulta útil se non sabe "
-"nada sobre o documento de entrada."
+"Este perfil tenta fornecer valores predefinidos adecuados e resulta útil se "
+"non sabe nada sobre o documento de entrada."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:56
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:246
@@ -303,7 +302,7 @@ msgstr "Este perfil é o propio para o Microsoft Reader."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:96
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:309
 msgid "This profile is intended for the Mobipocket books."
-msgstr "Este perfil é o propio para os libroz Mobipocket."
+msgstr "Este perfil é o propio para os libros Mobipocket."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:109
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:322
@@ -360,8 +359,9 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
-"Este perfil fornece predefinidos sane e resulta útil se quere producir un "
-"documento apropiado para ser lido nun computador ou nun tipo de dispositivos."
+"Este perfil tenta fornecr valores  predefinidos adecuados e resulta útil se "
+"quere producir un documento apropiado para ser lido nun computador ou noutro "
+"tipo de dispositivos."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:259
 msgid "This profile is intended for the SONY PRS-300."
@@ -427,6 +427,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:428
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
 msgstr ""
+"Eiminar un engadido persoal polo nome. Non afecta aos engadidos incorporados "
+"no programa."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:430
 msgid ""
@@ -448,7 +450,7 @@ msgstr "Desactivar o complemento sinalado"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
-msgstr ""
+msgstr "Comunicar con teléfonos Android."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:27
 msgid ""
@@ -462,7 +464,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
-msgstr ""
+msgstr "Comunicar con teléfonos smartphone de Blackberry."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
@@ -580,7 +582,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:90
 msgid "Getting list of books on device..."
-msgstr ""
+msgstr "Obtendo a lista de libros do dispositivo..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
 msgid "Communicate with the Sony PRS-300/505/500 eBook reader."
@@ -625,7 +627,7 @@ msgstr "Non se puido detectar a unidade de disco %s. Probe a reiniciar."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:424
 msgid "Unable to detect the %s mount point. Try rebooting."
-msgstr ""
+msgstr "Non é posible detectar o punto de montaxe %s. Tente reiniciar."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:489
 msgid "Unable to detect the %s disk drive."
@@ -633,7 +635,7 @@ msgstr "Non se puido detectar a unidade de disco %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:582
 msgid "Could not find mount helper: %s."
-msgstr ""
+msgstr "Non é posible atopar o asistente para a montaxe: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:594
 msgid ""
@@ -643,12 +645,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:602
 msgid "Unable to mount main memory (Error code: %d)"
-msgstr ""
+msgstr "Non é posible montar a memoria principal (código do erro: %d)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:739
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:741
 msgid "The reader has no storage card in this slot."
-msgstr ""
+msgstr "O lector non ten ningunha tarxeta de memoria no slot."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:743
 msgid "Selected slot: %s is not supported."
@@ -656,12 +658,12 @@ msgstr "A bahía %s seleccionada non está soportada."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:776
 msgid "There is insufficient free space in main memory"
-msgstr ""
+msgstr "O espazo libre na memoria principal é insuficiente"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:778
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:780
 msgid "There is insufficient free space on the storage card"
-msgstr ""
+msgstr "O espazo libre na tarxeta de memoria é insuficiente"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:810
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:835
@@ -688,11 +690,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:32
 msgid "Place files in sub directories if the device supports them"
 msgstr ""
+"Colocar os ficheiros dentro de subcartafoles se o dispositivo os soporta"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:78
 msgid "Read metadata from files on device"
-msgstr ""
+msgstr "Ler os metadatos dos ficheiros no dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:36
 msgid "Template to control how books are saved"
@@ -705,7 +708,7 @@ msgstr "Personalización adicional"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:29
 msgid "Communicate with an eBook reader."
-msgstr ""
+msgstr "Comunicar cun lector de eBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:37
 msgid "Get device information..."
@@ -761,7 +764,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:58
 msgid "Path to a txt file containing a comment."
-msgstr ""
+msgstr "Camiño a un ficheiro txt que contén un comentario."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
@@ -850,7 +853,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:292
 msgid "Don't split landscape images into two portrait images"
-msgstr ""
+msgstr "Non dividir as imaxes horizontais en dúas imaxes verticais"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:294
 msgid ""
@@ -8001,11 +8004,11 @@ msgstr "Rematou a descarga"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:635
 msgid "Failed to download the following articles:"
-msgstr ""
+msgstr "Produciuse un fallo na descarga dos seguintes artigos:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:641
 msgid "Failed to download parts of the following articles:"
-msgstr ""
+msgstr "Produciuse un fallo na descarga de partes do seguintes artigos:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:643
 msgid " from "
