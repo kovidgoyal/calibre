@@ -12,7 +12,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class michalkiewicz(BasicNewsRecipe):
     title          = u'Stanis\u0142aw Michalkiewicz'
-    desciption     = u'Strona autorska * felietony * artyku\u0142y * komentarze'
+    description    = u'Strona autorska * felietony * artyku\u0142y * komentarze'
     __author__     = u'Tomasz D\u0142ugosz'
     language       = 'pl'
     oldest_article = 7

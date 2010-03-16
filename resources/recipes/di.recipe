@@ -15,42 +15,42 @@ class DziennikInternautowRecipe(BasicNewsRecipe):
 	language = 'pl'
 
 	title = u'Dziennik Internautow'
-	publisher = u'Dziennik Internaut\xc3\xb3w Sp. z o.o.'
-	description =u'Internet w \xc5\xbcyciu i biznesie. Porady, wywiady, interwencje, bezpiecze\xc5\x84stwo w Sieci, technologia.'
+	publisher = u'Dziennik Internaut\u00f3w Sp. z o.o.'
+	description = u'Internet w \u017cyciu i biznesie. Porady, wywiady, interwencje, bezpiecze\u0144stwo w Sieci, technologia.'
 
 	max_articles_per_feed = 100
 	oldest_article = 7
 	cover_url = 'http://di.com.pl/pic/logo_di_norm.gif'
-
+	
 	no_stylesheets = True
 	remove_javascript = True
 	encoding = 'utf-8'
-
+	
 	extra_css = '''
 		.fotodesc{font-size: 75%;}
 		.pub_data{font-size: 75%;}
 		.fotonews{clear: both; padding-top: 10px; padding-bottom: 10px;}
 		#pub_foto{font-size: 75%; float: left; padding-right: 10px;}
 	'''
-
+	
 	feeds = [
-		(u'Dziennik Internautów', u'http://feeds.feedburner.com/glowny-di')
+		(u'Dziennik Internaut\u00f3w', u'http://feeds.feedburner.com/glowny-di')
 	]
-
+	
 	keep_only_tags = [
 		dict(name = 'div', attrs = {'id' : 'pub_head'}),
 		dict(name = 'div', attrs = {'id' : 'pub_content'})
 	]
-
+	
 	remove_tags = [
 		dict(name = 'div', attrs = {'class' : 'poradniki_context'}),
 		dict(name = 'div', attrs = {'class' : 'uniBox'}),
 		dict(name = 'object', attrs = {}),
 		dict(name = 'h3', attrs = {})
 	]
-
+	
 	preprocess_regexps = [
-		(re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
+		(re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
 		[
 			(r', <a href="http://di.com.pl/komentarze,.*?</div>', lambda match: '</div>'),
 			(r'<div class="fotonews".*?">', lambda match: '<div class="fotonews">'),

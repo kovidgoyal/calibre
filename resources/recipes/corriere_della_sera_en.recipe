@@ -2,18 +2,22 @@
 __license__   = 'GPL v3'
 __author__    = 'Lorenzo Vigentini, based on Darko Miletic'
 __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>, Lorenzo Vigentini <l.vigentini at gmail.com>'
-__version__     = 'v1.01'
-__date__        = '10, January 2010'
+__version__     = 'v1.02'
+__date__        = '14, March 2010'
 __description__ = 'Italian daily newspaper (english version)'
+# NOTE: the feeds url are broken on the main site as the permalink structure has been changed erroneously ie:
+# actual link in feed   http://www.corriere.it/english/10_marzo_11/legitimate_impediment_approved_de9ba480-2cfd-11df-a00c-00144f02aabe.shtml
+# this needs to be change to
+# real feed URL http://www.corriere.it/International/english/articoli/2010/03/11/legitimate_impediment_approved.shtml
 '''
 http://www.corriere.it/
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class ilCorriere(BasicNewsRecipe):
-    __author__     = 'Lorenzo Vigentini, based on Darko Miletic'
-    description    = 'Italian daily newspaper (english version)'
+class ilCorriereEn(BasicNewsRecipe):
+    author        = 'Lorenzo Vigentini, based on Darko Miletic'
+    description   = 'Italian daily newspaper (english version)'
 
     cover_url      = 'http://images.corriereobjects.it/images/static/common/logo_home.gif?v=200709121520'
     title          = u'Il Corriere della sera (english) '
@@ -23,7 +27,7 @@ class ilCorriere(BasicNewsRecipe):
     language       = 'en'
     timefmt        = '[%a, %d %b, %Y]'
 
-    oldest_article = 1
+    oldest_article = 5
     max_articles_per_feed = 100
     use_embedded_content  = False
     recursion             = 10
@@ -31,14 +35,30 @@ class ilCorriere(BasicNewsRecipe):
     remove_javascript = True
     no_stylesheets = True
 
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        , '--ignore-tables'
-                        ]
+    def get_article_url(self, article):
+        articleUrl= article.get('link')
+        segments = articleUrl.split('/')
+        basename = '/'.join(segments[:3]) + '/' + 'International/english/articoli/'
 
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True'
+    #the date has to be redone with the url structure
+        mlist1 = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre']
+        mlist2 = ['01','02','03','04','05','06','07','08','09','10','11','12']
+        myDate = segments[4].split('_')
+        x=0
+        for x in range(11):
+            if myDate[1] == mlist1[x]:
+                noMonth=mlist2[x]
+                break
+
+        newDateUrl= '20'+ myDate[0] + '/' + noMonth + '/' + myDate[2] + '/'
+
+    #clean the article title
+        articleURLseg=segments[5].split('-')
+        myArticle = (articleURLseg[0])[:-9] + '.shtml'
+
+        myURL= basename + newDateUrl + myArticle
+        #print myURL
+        return myURL
 
     keep_only_tags = [dict(name='div', attrs={'class':['news-dettaglio article','article']})]
 
