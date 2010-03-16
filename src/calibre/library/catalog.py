@@ -1261,7 +1261,7 @@ class EPUB_MOBI(CatalogPlugin):
                             bookmark_ext = path_map[id].rpartition('.')[2]
                             myBookmark = Bookmark(path_map[id], id, book_ext[id], bookmark_ext)
                             try:
-                                book['percent_read'] = float(100*myBookmark.last_read / myBookmark.book_length)
+                                book['percent_read'] = min(float(100*myBookmark.last_read / myBookmark.book_length),100)
                             except:
                                 book['percent_read'] = 0
                             dots = int((book['percent_read'] + 5)/10)
@@ -2113,7 +2113,7 @@ class EPUB_MOBI(CatalogPlugin):
                 #print "bm_book: %s" % bm_book
                 book[1]['bookmark_timestamp'] = book[0].timestamp
                 try:
-                    book[1]['percent_read'] = float(100*book[0].last_read / book[0].book_length)
+                    book[1]['percent_read'] = min(float(100*book[0].last_read / book[0].book_length),100)
                 except:
                     book[1]['percent_read'] = 0
                 bookmarked_books.append(book[1])
