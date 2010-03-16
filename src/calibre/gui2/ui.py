@@ -976,12 +976,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def annotations_fetched(self, job):
         from calibre.devices.usbms.device import Device
+        from calibre.ebooks.metadata import MetaInformation
         from calibre.gui2.dialogs.progress import ProgressDialog
+        from calibre.library.cli import do_add_format
 
         class Updater(QThread):
 
             update_progress = pyqtSignal(int)
             update_done     = pyqtSignal()
+            FINISHED_READING_PCT_THRESHOLD = 96
 
             def __init__(self, parent, db, annotation_map, done_callback):
                 QThread.__init__(self, parent)
@@ -1064,37 +1067,66 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 ka_soup.insert(0,divTag)
                 return ka_soup
 
+            def mark_book_as_read(self,id):
+                read_tag = gprefs.get('catalog_epub_mobi_read_tag')
+                self.db.set_tags(id, [read_tag], append=True)
+
             def canceled(self):
                 self.pd.hide()
 
             def run(self):
                 for (i, id) in enumerate(self.am):
                     bm = Device.UserAnnotation(self.am[id][0],self.am[id][1])
-                    user_notes_soup = self.generate_annotation_html(bm.bookmark)
+                    if bm.type == 'kindle_bookmark':
+                        user_notes_soup = self.generate_annotation_html(bm.value)
 
-                    mi = self.db.get_metadata(id, index_is_id=True)
-                    if mi.comments:
-                        a_offset = mi.comments.find('<div class="user_annotations">')
-                        ad_offset = mi.comments.find('<hr class="annotations_divider" />')
-
-                        if a_offset >= 0:
-                            mi.comments = mi.comments[:a_offset]
-                        if ad_offset >= 0:
-                            mi.comments = mi.comments[:ad_offset]
+                        mi = self.db.get_metadata(id, index_is_id=True)
                         if mi.comments:
-                            hrTag = Tag(user_notes_soup,'hr')
-                            hrTag['class'] = 'annotations_divider'
-                            user_notes_soup.insert(0,hrTag)
+                            a_offset = mi.comments.find('<div class="user_annotations">')
+                            ad_offset = mi.comments.find('<hr class="annotations_divider" />')
 
-                        mi.comments += user_notes_soup.prettify()
-                    else:
-                        mi.comments = unicode(user_notes_soup.prettify())
-                    # Update library comments
-                    self.db.set_comment(id, mi.comments)
-                    # Add bookmark file to id
-                    self.db.add_format_with_hooks(id, bm.bookmark.bookmark_extension,
-                                                  bm.bookmark.path, index_is_id=True)
-                    self.update_progress.emit(i)
+                            if a_offset >= 0:
+                                mi.comments = mi.comments[:a_offset]
+                            if ad_offset >= 0:
+                                mi.comments = mi.comments[:ad_offset]
+                            if mi.comments:
+                                hrTag = Tag(user_notes_soup,'hr')
+                                hrTag['class'] = 'annotations_divider'
+                                user_notes_soup.insert(0,hrTag)
+
+                            mi.comments += user_notes_soup.prettify()
+                        else:
+                            mi.comments = unicode(user_notes_soup.prettify())
+                        # Update library comments
+                        self.db.set_comment(id, mi.comments)
+                        # Update 'read' tag
+                        if bm.value.percent_read >= self.FINISHED_READING_PCT_THRESHOLD:
+                            self.mark_book_as_read(id)
+                        # Add bookmark file to id
+                        self.db.add_format_with_hooks(id, bm.value.bookmark_extension,
+                                                      bm.value.path, index_is_id=True)
+                        self.update_progress.emit(i)
+                    elif bm.type == 'kindle_clippings':
+                        # Find 'My Clippings' author=Kindle in database, or add
+                        self.db.search('title:"My Clippings" author:Kindle')
+                        data = self.db.get_data_as_dict()
+                        last_update = 'Last modified %s' % strftime(u'%x %X',bm.value['timestamp'].timetuple())
+                        if data:
+                            do_add_format(self.db, data[0]['id'], 'TXT', bm.value['path'])
+                            mi = self.db.get_metadata(data[0]['id'], index_is_id=True)
+                            mi.comments = last_update
+                            self.db.set_metadata(data[0]['id'], mi)
+                        else:
+                            mi = MetaInformation('My Clippings', authors = ['Kindle'])
+                            mi.tags = ['Clippings']
+                            mi.comments = last_update
+                            self.db.add_books([bm.value['path']], ['txt'], [mi])
+
+                        # KG: This doesn't seem right, but without it the main window
+                        # shows the results of the last search for 'My Clippings' instead of
+                        # its previous contents
+                        self.db.search('')
+
                 self.update_done.emit()
                 self.done_callback(self.am.keys())
 

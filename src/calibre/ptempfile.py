@@ -51,7 +51,6 @@ class PersistentTemporaryFile(object):
         except:
             pass
 
-
 def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
     '''
     Return the path to a newly created temporary directory that will
