@@ -1100,7 +1100,7 @@ class EPUB_MOBI(CatalogPlugin):
                     self.opts.log.info(" %-40s %-40s" % ('title', 'title_sort'))
                     for title in self.booksByTitle:
                         self.opts.log.info((u" %-40s %-40s" % (title['title'][0:40],
-                                                               title['title_sort'][0:40])).encode('utf-8'))
+                                                               title['title_sort'][0:40])).decode('mac-roman'))
                 return True
             else:
                 return False
@@ -3748,10 +3748,11 @@ class EPUB_MOBI(CatalogPlugin):
                 raise RuntimeError
 
         def generateSortTitle(self, title):
-            # Convert the actual title to a string suitable for sorting.
+            # Generate a string suitable for sorting from the title
             # Ignore leading stop words
             # Optionally convert leading numbers to strings
             from calibre.ebooks.metadata import title_sort
+
             # Strip stop words
             title_words = title_sort(title).split()
             translated = []
@@ -3770,6 +3771,12 @@ class EPUB_MOBI(CatalogPlugin):
                                 word = '%10.0f%s' % (float(word[:suffix.start()]),word[suffix.start():])
                             else:
                                 word = '%10.0f' % (float(word))
+
+                        # If leading char > 'A', insert symbol as leading forcing lower sort
+                        # '/' sorts below numbers, g
+                        if self.letter_or_symbol(word[0]) != word[0]:
+                            if word[0] > 'A' or (ord('9') < ord(word[0]) < ord('A')) :
+                                translated.append('/')
                         translated.append(word.capitalize())
 
                 else:
