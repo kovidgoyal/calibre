@@ -1108,24 +1108,18 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         self.update_progress.emit(i)
                     elif bm.type == 'kindle_clippings':
                         # Find 'My Clippings' author=Kindle in database, or add
-                        self.db.search('title:"My Clippings" author:Kindle')
-                        data = self.db.get_data_as_dict()
                         last_update = 'Last modified %s' % strftime(u'%x %X',bm.value['timestamp'].timetuple())
-                        if data:
-                            do_add_format(self.db, data[0]['id'], 'TXT', bm.value['path'])
-                            mi = self.db.get_metadata(data[0]['id'], index_is_id=True)
+                        mc_id = list(db.data.parse('title:"My Clippings"'))
+                        if mc_id:
+                            do_add_format(self.db, mc_id[0], 'TXT', bm.value['path'])
+                            mi = self.db.get_metadata(mc_id[0], index_is_id=True)
                             mi.comments = last_update
-                            self.db.set_metadata(data[0]['id'], mi)
+                            self.db.set_metadata(mc_id[0], mi)
                         else:
                             mi = MetaInformation('My Clippings', authors = ['Kindle'])
                             mi.tags = ['Clippings']
                             mi.comments = last_update
                             self.db.add_books([bm.value['path']], ['txt'], [mi])
-
-                        # KG: This doesn't seem right, but without it the main window
-                        # shows the results of the last search for 'My Clippings' instead of
-                        # its previous contents
-                        self.db.search('')
 
                 self.update_done.emit()
                 self.done_callback(self.am.keys())
