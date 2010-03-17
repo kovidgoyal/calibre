@@ -1322,15 +1322,13 @@ class EPUB_MOBI(CatalogPlugin):
                                                 self.generateAuthorAnchor(title['author']))
                 aTag.insert(0, title['author'])
 
-                # This will include the reading progress dots even if we're not generating Recently Read
-                if self.opts.connected_kindle and title['id'] in self.bookmarked_books:
+                # Prefix author with read/reading/none symbol
+                if title['read']:
+                    authorTag.insert(0, NavigableString(self.READ_SYMBOL + "by "))
+                elif self.opts.connected_kindle and title['id'] in self.bookmarked_books:
                     authorTag.insert(0, NavigableString(self.READING_SYMBOL + " by "))
                 else:
-                    # Insert READ/NOT_READ SYMBOL
-                    if title['read']:
-                        authorTag.insert(0, NavigableString(self.READ_SYMBOL + "by "))
-                    else:
-                        authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + "by "))
+                    authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + "by "))
                 authorTag.insert(1, aTag)
 
                 '''
