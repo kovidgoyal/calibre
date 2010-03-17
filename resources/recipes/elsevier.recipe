@@ -9,16 +9,16 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Pagina12(BasicNewsRecipe):
     title                 = 'Elsevier.nl'
     __author__            = 'Darko Miletic'
-    description           = 'News from Denmark'
+    description           = 'News from Holland'
     publisher             = 'elsevier.nl'
-    category              = 'news, politics, Denmark'
+    category              = 'news, politics, Holland'
     oldest_article        = 2
     max_articles_per_feed = 200
     no_stylesheets        = True
     encoding              = 'utf-8'
     use_embedded_content  = False
     language              = 'nl'
-    country               = 'NL'
+    country               = 'NL'    
     remove_empty_feeds    = True
     masthead_url          = 'http://www.elsevier.nl/static/elsevier/stdimg/logo.gif'
     extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em}  '
@@ -29,7 +29,7 @@ class Pagina12(BasicNewsRecipe):
                         , 'publisher' : publisher
                         , 'language'  : language
                         }
-
+    
     keep_only_tags     = dict(attrs={'id':'artikel_container'})
     remove_tags_before = dict(attrs={'id':'breadcrumb_container'})
     remove_tags_after  = dict(attrs={'class':'author_link'})
@@ -50,7 +50,7 @@ class Pagina12(BasicNewsRecipe):
               ,(u'Cultuur & Televisie' , u'http://www.elsevier.nl/web/RSS/Cultuur-Televisie-RSS.htm?output=xml')
               ,(u'Society'             , u'http://www.elsevier.nl/web/RSS/Society-RSS.htm?output=xml'          )
               ,(u'Internet&/Gadgets'   , u'http://www.elsevier.nl/web/RSS/Internet-Gadgets-RSS.htm?output=xml' )
-              ,(u'Comentaren'          , u'http://www.elsevier.nl/web/RSS/Commentaren-RSS.htm?output=xml'      )
+              ,(u'Comentaren'          , u'http://www.elsevier.nl/web/RSS/Commentaren-RSS.htm?output=xml'      )              
             ]
 
     def print_version(self, url):
@@ -58,7 +58,7 @@ class Pagina12(BasicNewsRecipe):
 
     def get_article_url(self, article):
         return article.get('guid',  None).rpartition('?')[0]
-
+        
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
