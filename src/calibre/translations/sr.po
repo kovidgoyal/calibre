@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-03-12 07:36+0000\n"
-"PO-Revision-Date: 2010-03-16 00:49+0000\n"
+"PO-Revision-Date: 2010-03-17 02:16+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-16 04:45+0000\n"
+"X-Launchpad-Export-Date: 2010-03-17 04:38+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -4514,7 +4514,7 @@ msgid ""
 "punctuation, case, etc. Author match is exact."
 msgstr ""
 "Ako je pronađena knjiga sa sličnim naslovom i autorima, a koja nije u "
-"formatu koji se dodaje, format će se dodati postojećoj knjizi, umesto da se "
+"formatu koji se dodaje, format će se dodati postojećoj knjizi umesto da se "
 "doda kao nova knjiga. Ako postojeća knjiga već postoji u datom formatu biće "
 "ignorisana bez ikakve poruke.\n"
 "\n"
@@ -8907,7 +8907,7 @@ msgstr "Članak bez imena"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1205
 msgid "Article downloaded: %s"
-msgstr "Preuzeo sam članak: 5s"
+msgstr "Preuzeo sam članak: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1216
 msgid "Article download failed: %s"
