@@ -1,0 +1,45 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1268409464(BasicNewsRecipe):
+    title = u'The Sun'
+    __author__ = 'Chaz Ralph'
+    description = 'News from The Sun'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    language = 'en'
+    no_stylesheets = True
+    extra_css = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt }'
+    encoding= 'iso-8859-1'
+    remove_javascript = True
+
+    keep_only_tags = [
+        dict(name='div', attrs={'class':'medium-centered'})
+        ,dict(name='div', attrs={'class':'article'})
+        ,dict(name='div', attrs={'class':'clear-left'})
+        ,dict(name='div', attrs={'class':'text-center'})
+    ]
+
+    remove_tags = [
+        dict(name='div', attrs={'class':'slideshow'})
+        ,dict(name='div', attrs={'class':'float-left'})
+        ,dict(name='div', attrs={'class':'ltbx-slideshow ltbx-btn-ss'})
+        ,dict(name='a', attrs={'class':'add_a_comment'})
+        ,dict(name='div', attrs={'id':'vxFlashPlayerContent'})
+        ,dict(name='div', attrs={'id':'k1006094r1c1t5w380h529'})
+        ,dict(name='div', attrs={'id':'tum_login_form_container'})
+        ,dict(name='div', attrs={'class':'discHeader'})
+        ,dict(name='div', attrs={'class':'margin-bottom-neg-2'})
+    ]
+
+
+    feeds = [(u'News', u'http://www.thesun.co.uk/sol/homepage/feeds/rss/article312900.ece')
+,(u'Sport', u'http://www.thesun.co.uk/sol/homepage/feeds/rss/article247732.ece')
+,(u'Football', u'http://www.thesun.co.uk/sol/homepage/feeds/rss/article247739.ece')
+,(u'Gizmo', u'http://www.thesun.co.uk/sol/homepage/feeds/rss/article247829.ece')
+,(u'Bizarre', u'http://www.thesun.co.uk/sol/homepage/feeds/rss/article247767.ece')]
+
+    def print_version(self, url):
+        return re.sub(r'\?OTC-RSS&ATTR=[-a-zA-Z]+', '?print=yes', url)
+
+
