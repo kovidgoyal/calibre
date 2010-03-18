@@ -27,15 +27,30 @@ class NYTimes(BasicNewsRecipe):
                           'Home','Styles','Sunday Business','Week In Review','Travel','Magazine',
                           'Book Review','Weddings','Real Estate','Automobiles',"T Men's Fashion",
                           "T Women's Fashion"]
-    excludeSectionKeywords = ['Dining','Weddings']
 
-    test_mode = False
-    if test_mode:
-        all = set(allSectionKeywords)
-        fetch_only = set(['The Front Page'])
-        excludeSectionKeywords = list(all ^ fetch_only)
+    # List of sections to exclude
+    # To add a section, copy the section name from the allSectionKeywords list above
+    # For example, to exclude 'Dining' and 'Weddings':
+    # excludeSectionKeywords = ['Dining','Weddings']
+    excludeSectionKeywords = []
 
-    use_one_picture_per_article = True
+    # List of sections to include (test and debug only)
+    # By default, any sections in today's paper that are not listed in excludeSectionKeywords
+    # are downloaded.  fetch_only specifies that only certain sections are to be downloaded.
+    # This should only be used for testing and debugging.
+    # For example, to download only 'The Front Page' section:
+    # fetch_only = set(['The Front Page'])
+    fetch_only = set([])
+    if fetch_only:
+        excludeSectionKeywords = list(set(allSectionKeywords) ^ fetch_only)
+
+    # one_picture_per_article specifies that calibre should only use the first image
+    # from an article (if one exists).  If one_picture_per_article = True, the image
+    # will be moved to a location between the headline and the byline.
+    # If one_picture_per_article = False, all images from the article will be included
+    # and shown in their original location.
+    one_picture_per_article = True
+
     timefmt = ''
     needs_subscription = True
     remove_tags_before = dict(id='article')
@@ -45,6 +60,7 @@ class NYTimes(BasicNewsRecipe):
                             'columnGroup doubleRule',
                             'columnGroup last',
                             'doubleRule',
+                            'dottedLine',
                             'entry-meta',
                             'icon enlargeThis',
                             'leftNavTabs',
@@ -78,7 +94,7 @@ class NYTimes(BasicNewsRecipe):
                             'toolsRight',
                             ]),
                    dict(name=['script', 'noscript', 'style'])]
-    #encoding = 'utf-8'
+    masthead_url = 'http://graphics8.nytimes.com/images/misc/nytlogo379x64.gif'
     no_stylesheets = True
     extra_css = '.headline      {text-align:    left;}\n    \
                  .byline        {font-family:   monospace;  \
@@ -118,11 +134,6 @@ class NYTimes(BasicNewsRecipe):
 
         return br
 
-    masthead_url = 'http://graphics8.nytimes.com/images/misc/nytlogo379x64.gif'
-
-    def get_masthead_title(self):
-        return 'NYTimes GR Version'
-
     def get_cover_url(self):
         cover = None
         st = time.localtime()
@@ -137,6 +148,9 @@ class NYTimes(BasicNewsRecipe):
             self.log("\nCover unavailable")
             cover = None
         return cover
+
+    def get_masthead_title(self):
+        return 'NYTimes GR Version'
 
     def dump_ans(self, ans):
         total_article_count = 0
@@ -163,9 +177,6 @@ class NYTimes(BasicNewsRecipe):
         print result
 
     def fixChars(self,string):
-        # Something's not right in the pipeline
-        #
-
         # Replace lsquo (\x91)
         fixed = re.sub("\x91","&#8216;",string)
 
@@ -260,16 +271,6 @@ class NYTimes(BasicNewsRecipe):
         self.dump_ans(ans)
         return ans
 
-    def strip_anchors(self,soup):
-        paras = soup.findAll(True)
-        for para in paras:
-            aTags = para.findAll('a')
-            for a in aTags:
-                if a.img is None:
-                    a.replaceWith(a.renderContents().decode('utf-8','replace'))
-                    #a.replaceWith(a.renderContents().decode('cp1252','replace'))
-        return soup
-
     def preprocess_html(self, soup):
         '''
         refresh = soup.find('meta', {'http-equiv':'refresh'})
@@ -283,7 +284,7 @@ class NYTimes(BasicNewsRecipe):
 
     def postprocess_html(self,soup, True):
 
-        if self.use_one_picture_per_article:
+        if self.one_picture_per_article:
             # Remove all images after first
             largeImg = soup.find(True, {'class':'articleSpanImage'})
             inlineImgs = soup.findAll(True, {'class':'inlineImage module'})
@@ -461,4 +462,14 @@ class NYTimes(BasicNewsRecipe):
                         article.author = extract_byline(article.href)
                     if article.description is None :
                         article.description = extract_description(article.href)
+
+    def strip_anchors(self,soup):
+        paras = soup.findAll(True)
+        for para in paras:
+            aTags = para.findAll('a')
+            for a in aTags:
+                if a.img is None:
+                    a.replaceWith(a.renderContents().decode('utf-8','replace'))
+                    #a.replaceWith(a.renderContents().decode('cp1252','replace'))
+        return soup
 

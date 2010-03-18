@@ -6521,7 +6521,7 @@ msgstr "<p>Za pomoć vidi: <a href=\"%s\">Korisničko uputstvo</a><br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:226
 msgid "<b>%s</b>: %s by <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
-msgstr "<b>%s</b>: %s autor <b>Kovid Goyal %%(version)</b><br>%%(device)</p>"
+msgstr "<b>%s</b>: %s autor <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:249
 msgid "Edit metadata individually"
