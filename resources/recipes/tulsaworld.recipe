@@ -1,0 +1,47 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+tulsaworld.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TulsaWorld(BasicNewsRecipe):
+    title                 = 'Tulsa World'
+    __author__            = 'Darko Miletic'
+    description           = 'Find breaking news, local news, Oklahoma weather, sports, business, entertainment, lifestyle, opinion, government, movies, books, jobs, education, blogs, video & multimedia.'
+    publisher             = 'World Publishing Co.'
+    category              = 'Tulsa World, tulsa world, daily newspaper, breaking news, stories, articles, news, local, weather, coverage, editorial, government, education, community, sports, business, entertainment, lifestyle, opinion, multimedia, media, blogs, consumer, OU, OSU, TU, ORU, football, basketball, school, schools, sudoku, movie reviews, stocks, classified ads, classifieds, books, job, jobs, careers, real estate, home, homes, Oklahoma, northeastern, reviews, auto, autos, archives, forecasts, Sooners, Cowboys, Hurricane, Golden Eagles, NFL, NBA, MLB, pro football, scores, college basketball, college football, college baseball, sports columns, fashion and style, associated press, regional news coverage, health, obituaries, politics, political news, Jenks, Union, Owasso, Tulsa, Booker T. Washington, Trojans, Rams, Hornets, video, photography, photos, images, games, search, the picker, predictions, satellite, family, food, teens, polls, births, celebrations, death notices, divorces, marriages, obituaries, audio, podcasts.'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'en'
+    country               = 'US'
+    remove_empty_feeds    = True
+    masthead_url          = 'http://www.tulsaworld.com/images/TW_logo-blue-footer.jpg'
+    extra_css             = ' body{font-family: Arial,Verdana,sans-serif } img{margin-bottom: 0.4em} .articleHeadline{font-size: xx-large; font-weight: bold} .articleKicker{font-size: x-large; font-weight: bold} .articleByline,.articleDate{font-size: small} .leadp{font-size: 1.1em} '
+
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : language
+                        , 'linearize_tables' : True
+                        }
+    keep_only_tags = [dict(name='div',attrs={'id':['ctl00_body1_ArticleControl_divArticleText','ctl00_BodyContent_ArticleControl_divArticleText']})]
+
+    feeds = [
+              (u'News'    , u'http://www.tulsaworld.com/site/rss.aspx?group=1')
+             ,(u'Business', u'http://www.tulsaworld.com/site/rss.aspx?group=5')
+             ,(u'Opinion' , u'http://www.tulsaworld.com/site/rss.aspx?group=7')
+            ]
+
+    def get_article_url(self, article):        
+        return article.get('link',  None).rpartition('&rss')[0]
+            
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return self.adeify_images(soup)
