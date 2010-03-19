@@ -1,0 +1,34 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+oilprice.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class OilPrice(BasicNewsRecipe):
+    title                 = 'Oil Price'
+    __author__            = 'Darko Miletic'
+    description           = 'The nr. 1 source for Oil Price Information'
+    publisher             = 'oilprice.com'
+    category              = 'news, oil, politics, world, usa'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'cp1252'
+    use_embedded_content  = False
+    language              = 'en'
+    country               = 'US'
+    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} '
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+    remove_tags       = [dict(name='div',attrs={'class':'banner'})]
+    keep_only_tags    = [dict(name='div',attrs={'id':'storyContent'})]
+    remove_tags_after = dict(attrs={'id':'KonaBody'})
+
+    feeds = [(u'Articles', u'http://www.oilprice.com/rss.xml')]

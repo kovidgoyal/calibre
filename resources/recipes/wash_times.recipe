@@ -1,0 +1,49 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
+__docformat__ = 'restructuredtext en'
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class WashingtonTimes(BasicNewsRecipe):
+
+    title = 'Washington Times'
+    max_articles_per_feed = 15
+    language = 'en'
+    __author__ = 'Kos Semonski'
+
+
+    preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
+                          [
+        (r'<HEAD>.*?</HEAD>' , lambda match : '<HEAD></HEAD>'),
+        (r'<div id="apple-rss-sidebar-background">.*?<!-- start Entries -->', lambda match : ''),
+        (r'<!-- end apple-rss-content-area -->.*?</body>', lambda match : '</body>'),
+        (r'<script.*?>.*?</script>', lambda match : ''),
+        (r'<body onload=.*?>.*?<a href="http://www.upi.com">', lambda match : '<body style="font: 8pt arial;">'),
+        ##(r'<div class=\'headerDIV\'><h2><a style="color: #990000;" href="http://www.washingtontimes.com/NewsTrack/Top_News/">Top News</a></h2></div>.*?<br clear="all">', lambda match : ''),
+        (r'<script src="http://www.g.*?>.*?</body>', lambda match : ''),
+        (r'<span style="font: 16pt arial', lambda match : '<span style="font: 12pt arial'),
+     ]
+    ]
+
+
+
+    def get_feeds(self):
+        return [ (u'Headlines', u'http://www.washingtontimes.com/rss/headlines/news/headlines/'),
+                      (u'Newsmakers', u'http://www.washingtontimes.com/rss/headlines/news/newsmakers/'),
+	  (u'National', u'http://www.washingtontimes.com/rss/headlines/news/national/'),
+	  (u'World', u'http://www.washingtontimes.com/rss/headlines/news/world/'),
+	  (u'Editor Favs', u'http://www.washingtontimes.com/rss/headlines/news/editor-favorites/'),
+	  (u'Editorials', u'http://www.washingtontimes.com/rss/headlines/opinion/editorials/'),
+	  (u'Cartoons', u'http://www.washingtontimes.com/rss/headlines/opinion/cartoons/'),
+                      (u'Business', u'http://www.washingtontimes.com/rss/headlines/news/business/'),
+	  (u'Technology', u'http://www.washingtontimes.com/rss/headlines/news/technology/'),
+                      (u'Security', u'http://www.washingtontimes.com/rss/headlines/news/security/'),
+	  (u'Politics', u'http://www.washingtontimes.com/rss/headlines/news/politics/'),
+                      (u'Congress', u'http://www.washingtontimes.com/rss/headlines/news/congress/'),
+          ]
+
+    def print_version(self, url):
+        return url + '/print/'

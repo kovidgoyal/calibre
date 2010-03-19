@@ -181,7 +181,7 @@ def main():
         cols = 80
 
     parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand "+
-            "is one of: info, books, df, ls, cp, mkdir, touch, cat, rm, eject\n\n"+
+            "is one of: info, books, df, ls, cp, mkdir, touch, cat, rm, eject, test_file\n\n"+
     "For help on a particular command: %prog command", version=__appname__+" version: " + __version__)
     parser.add_option("--log-packets", help="print out packet stream to stdout. "+\
                     "The numbers in the left column are byte offsets that allow the packet size to be read off easily.",
@@ -335,6 +335,20 @@ def main():
                 parser.print_help()
                 return 1
             dev.touch(args[0])
+        elif command == 'test_file':
+            parser = OptionParser(usage=("usage: %prog test_file path\n"
+                'Open device, copy file psecified by path to device and '
+                'then eject device.'))
+            options, args = parser.parse_args(args)
+            if len(args) != 1:
+                parser.print_help()
+                return 1
+            path = args[0]
+            from calibre.ebooks.metadata.meta import get_metadata
+            mi = get_metadata(open(path, 'rb'), path.rpartition('.')[-1].lower())
+            print dev.upload_books([args[0]], [os.path.basename(args[0])],
+                    end_session=False, metadata=[mi])
+            dev.eject()
         else:
             parser.print_help()
             if getattr(dev, 'handle', False): dev.close()
