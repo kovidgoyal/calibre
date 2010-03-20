@@ -22,3 +22,7 @@ src/cssutils/stylesheets/.svn/
 src/odf/.svn
 tags
 nbproject/
+*.mdproj
+*.pidb
+*.sln
+*.userprefs
