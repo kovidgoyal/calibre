@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-03-12 07:36+0000\n"
-"PO-Revision-Date: 2010-03-18 16:31+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-03-19 15:07+0000\n"
+"Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-19 07:48+0000\n"
+"X-Launchpad-Export-Date: 2010-03-20 04:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -602,7 +602,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:116
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:118
 msgid "Transferring books to device..."
-msgstr "Prebacujem knjige na uređaj..."
+msgstr "Šaljem knjige na uređaj..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:174
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:181
@@ -3637,7 +3637,7 @@ msgstr "RB izlaz"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1862
 msgid "Choose the format to view"
-msgstr "Izaberite format za pregledanje"
+msgstr "Izaberite format za prikaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:83
 msgid "Cannot build regex using the GUI builder without a book."
@@ -4263,7 +4263,7 @@ msgstr "%(plugin_type)s %(plugins)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:171
 msgid "plugins"
-msgstr ""
+msgstr "..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:180
 msgid ""
@@ -6007,7 +6007,7 @@ msgstr "Posao je već završen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:243
 msgid "Unavailable"
-msgstr "Nedostupno"
+msgstr "Nedostupan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:254
 msgid " - Jobs"
@@ -6035,7 +6035,7 @@ msgstr "Ocena"
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:440
 msgid "None"
-msgstr "Nisu izabrana"
+msgstr "Nema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:375
 msgid "Book <font face=\"serif\">%s</font> of %s."
@@ -6504,7 +6504,7 @@ msgstr "Greška u komunikaciji sa uređajem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:178
 msgid "&Restore"
-msgstr "Pov&rati"
+msgstr "V&rati na ekran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:180
 msgid "&Donate to support calibre"
@@ -6579,7 +6579,7 @@ msgstr "Snimi na disk u jedan direktorijum"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:308
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1967
 msgid "Save only %s format to disk"
-msgstr "Snimi na disk samo format %s"
+msgstr "Snimi na disk samo %s format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:317
 msgid "View specific format"
@@ -6654,7 +6654,7 @@ msgstr " detektovan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:885
 msgid "Connected "
-msgstr "Povezan "
+msgstr "Priključen je "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:897
 msgid "Device database corrupted"
@@ -8696,7 +8696,7 @@ msgstr "Zaustavljeno"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:53
 msgid "Finished"
-msgstr "Završeno"
+msgstr "Gotovo"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:75
 msgid "Working..."
@@ -8841,7 +8841,7 @@ msgstr "Recept \"%s\" zahteva korisničko ime i lozinku"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:633
 msgid "Download finished"
-msgstr "Preuzimanje završeno"
+msgstr "Preuzimanje gotovo"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:635
 msgid "Failed to download the following articles:"
