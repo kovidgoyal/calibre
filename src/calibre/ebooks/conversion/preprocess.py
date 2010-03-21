@@ -230,14 +230,25 @@ class HTMLPreProcessor(object):
 
         end_rules = []
         if getattr(self.extra_opts, 'remove_header', None):
-            end_rules.append(
-                (re.compile(getattr(self.extra_opts, 'header_regex')), lambda match : '')
-            )
+            try:
+                end_rules.append(
+                    (re.compile(self.extra_opts.header_regex), lambda match : '')
+                )
+            except:
+                import traceback
+                print 'Failed to parse remove_header regexp'
+                traceback.print_exc()
+
         if getattr(self.extra_opts, 'remove_footer', None):
-            end_rules.append(
-                (re.compile(getattr(self.extra_opts, 'footer_regex')), lambda match : '')
-            )
-        
+            try:
+                end_rules.append(
+                    (re.compile(self.extra_opts.footer_regex), lambda match : '')
+                )
+            except:
+                import traceback
+                print 'Failed to parse remove_footer regexp'
+                traceback.print_exc()
+
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
             length = line_length(html, getattr(self.extra_opts, 'unwrap_factor'))
             if length:
