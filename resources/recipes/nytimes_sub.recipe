@@ -31,7 +31,7 @@ class NYTimes(BasicNewsRecipe):
     # List of sections to exclude
     # To add a section, copy the section name from the allSectionKeywords list above
     # For example, to exclude 'Dining' and 'Weddings':
-    # excludeSectionKeywords = ['Dining','Weddings']
+    #excludeSectionKeywords = ['Dining','Weddings']
     excludeSectionKeywords = []
 
     # List of sections to include (test and debug only)
@@ -56,9 +56,12 @@ class NYTimes(BasicNewsRecipe):
     remove_tags_before = dict(id='article')
     remove_tags_after  = dict(id='article')
     remove_tags = [dict(attrs={'class':[
+                            'articleFooter',
+                            'articleInline runaroundLeft',
                             'articleTools',
                             'columnGroup doubleRule',
                             'columnGroup last',
+                            'columnGroup  last',
                             'doubleRule',
                             'dottedLine',
                             'entry-meta',
@@ -70,6 +73,7 @@ class NYTimes(BasicNewsRecipe):
                             'relatedSearchesModule',
                             'side_tool',
                             'singleAd',
+                            'subNavigation tabContent active clearfix',
                             ]}),
                    dict(id=[
                             'adxLeaderboard',
@@ -222,11 +226,11 @@ class NYTimes(BasicNewsRecipe):
 
             if div['class'] == 'section-headline':
                 key = string.capwords(feed_title(div))
-                excluded = re.compile('|'.join(self.excludeSectionKeywords))
-                if excluded.search(key):
-                    self.log("Skipping section %s" % key)
-                    continue
-
+                if len(self.excludeSectionKeywords):
+                    excluded = re.compile('|'.join(self.excludeSectionKeywords))
+                    if excluded.search(key):
+                        self.log("Skipping section %s" % key)
+                        continue
                 articles[key] = []
                 ans.append(key)
 
