@@ -57,9 +57,9 @@ class NYTimes(BasicNewsRecipe):
     remove_tags_after  = dict(id='article')
     remove_tags = [dict(attrs={'class':[
                             'articleFooter',
-                            'articleInline runaroundLeft',
                             'articleTools',
                             'columnGroup doubleRule',
+                            'columnGroup singleRule',
                             'columnGroup last',
                             'columnGroup  last',
                             'doubleRule',
@@ -68,6 +68,7 @@ class NYTimes(BasicNewsRecipe):
                             'icon enlargeThis',
                             'leftNavTabs',
                             'module box nav',
+                            'nextArticleLink',
                             'nextArticleLink clearfix',
                             'post-tools',
                             'relatedSearchesModule',
@@ -226,7 +227,7 @@ class NYTimes(BasicNewsRecipe):
 
             if div['class'] == 'section-headline':
                 key = string.capwords(feed_title(div))
-                if len(self.excludeSectionKeywords):
+                if self.excludeSectionKeywords:
                     excluded = re.compile('|'.join(self.excludeSectionKeywords))
                     if excluded.search(key):
                         self.log("Skipping section %s" % key)
