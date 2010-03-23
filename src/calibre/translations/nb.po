@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-03-12 07:36+0000\n"
-"PO-Revision-Date: 2010-03-16 11:18+0000\n"
-"Last-Translator: Øyvind Øritsland <Unknown>\n"
+"PO-Revision-Date: 2010-03-22 19:53+0000\n"
+"Last-Translator: Anders Skogheim Liane <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-17 04:38+0000\n"
+"X-Launchpad-Export-Date: 2010-03-23 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -988,7 +988,7 @@ msgstr "VALG FOR UTDATA"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:105
 msgid "Options to control the processing of the output %s"
-msgstr "Valgmuligheter for å kontorllere prosseseringen av utdata %s"
+msgstr "Valgmuligheter for å kontrollere prosesseringen av utdata %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:119
 msgid "Options to control the look and feel of the output"
@@ -2790,7 +2790,7 @@ msgstr "Feil i stien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:252
 msgid "The specified directory could not be processed."
-msgstr "Det spesifiserte mappen kunne ikke prossesseres"
+msgstr "Den spesifiserte mappen kunne ikke prosesseres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:256
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:517
@@ -3053,7 +3053,7 @@ msgstr "Kant&utgjevning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:95
 msgid "&Disable comic processing"
-msgstr "&Slå av tegneserieprossessering"
+msgstr "&Slå av tegneserieprosessering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:111
@@ -3818,7 +3818,7 @@ msgstr "TXT Inndata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:45
 msgid "Process using markdown"
-msgstr "Prosseser ved å benytte markdown"
+msgstr "Prosesser ved å benytte markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:46
 msgid ""
@@ -6043,7 +6043,7 @@ msgid ""
 "Dropping onto a device is not supported. First add the book to the calibre "
 "library."
 msgstr ""
-"Legger inn på en enhet som ikke er støttet. Legg først boken til "
+"Å legge direkte inn på en enhet er ikke støttet. Legg først boken til i "
 "Calibrebiblioteket."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1090
@@ -8494,8 +8494,8 @@ msgid ""
 "Normally, calibre will update the metadata in the saved files from what is "
 "in the calibre library. Makes saving to disk slower."
 msgstr ""
-"Normalt vil Calibre oppdatere metadata i de lagrede filene i "
-"Calibrebiblioteket. Dette gjør lagring til disk tregere."
+"Normalt vil Calibre oppdatere metadata i de lagrede filene ut i fra hva som "
+"ligger i Calibrebiblioteket. Dette gjør lagring til disk tregere."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:55
 msgid ""
