@@ -29,16 +29,12 @@ class IEEESpectrum(BasicNewsRecipe):
     keep_only_tags        = [dict(attrs={'class': {'artSctn':True, 'artTitle':True, 'dekTitle': True}}), dict(attrs={'id':'artBody'})]
 
 
-#    def get_cover_url(self):
-#        cover_url = None
-#        soup = self.index_to_soup(self.index)
-#        cover_item = soup.find('img',attrs={'image':'cover.gif'})
-#        if cover_item:
-#            cover_url = urljoin(self.index, cover_item['src'])
-#        return cover_url
-
     def parse_index(self):
         soup = self.index_to_soup(self.index)
+        img = soup.find('img', image='cover.gif', src=True)
+        if img is not None:
+            self.cover_url = 'http://spectrum.ieee.org'+img['src']
+
         content = soup.find(id='gnrlContent')
         title = content.find(attrs={'class':'style4'}).string.strip()
         date = ' '.join(title.split()[0:2])
