@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-03-12 07:36+0000\n"
-"PO-Revision-Date: 2010-03-22 22:15+0000\n"
+"PO-Revision-Date: 2010-03-23 10:22+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-23 04:45+0000\n"
+"X-Launchpad-Export-Date: 2010-03-24 04:51+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:424
@@ -167,7 +167,7 @@ msgstr "Metaadat író"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:263
 msgid "Catalog generator"
-msgstr ""
+msgstr "Katalógus készítő"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:15
 msgid ""
@@ -1869,6 +1869,8 @@ msgid ""
 "Extract common e-book formats from archives (zip/rar) files. Also try to "
 "autodetect if they are actually cbz/cbr files."
 msgstr ""
+"Kicsomagolja az általános e-book formátumokat az arhív (zip/rar) fájlokból. "
+"Egyúttal megpróbálja automatikusan meghatározni, hogy azok cbz/cbr fájlok-e."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:20
 msgid "options"
@@ -3256,7 +3258,7 @@ msgstr "Bekezdések közötti térköz eltávolítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:129
 msgid "Indent size:"
-msgstr ""
+msgstr "Behúzás nagysága:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:130
 msgid ""
@@ -3264,6 +3266,9 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
 msgstr ""
+"<p>Amikor a calibre eltávolítja a bekezdések közötti térközt, automatikusan "
+"beállítja a bekezdés behúzását azok könnyebb olvashatósága érdekében. Ez a "
+"beállítás határozza meg a behúzás nagyságát."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:131
 msgid " em"
@@ -3504,7 +3509,7 @@ msgstr "Ne adjon Tartalomjegyzéket a könyvhöz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:63
 msgid "Kindle options"
-msgstr ""
+msgstr "Kindle beállítások"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:64
 msgid "Masthead font:"
