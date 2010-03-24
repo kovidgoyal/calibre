@@ -267,7 +267,7 @@ class MetadataUpdater(object):
             offset += md_len
             self.metadata[tag] = metadata
 
-    def regenerate_headers(self, len_updated_metadata):
+    def regenerate_headers(self, updated_md_len):
 
         headers = {}
         for tag in self.topaz_headers:
@@ -276,22 +276,16 @@ class MetadataUpdater(object):
             else:
                 headers[tag] = None
 
-        # Sort headers based on initial offset
-        sh = sorted(headers,key=lambda x:(headers[x],headers[x]))
-
-        # Metadata goes last
-        sh.remove('metadata')
-        sh.append('metadata')
-
         original_md_len = self.topaz_headers['metadata']['blocks'][0]['len_uncomp']
         original_md_offset = self.topaz_headers['metadata']['blocks'][0]['offset']
+        delta = updated_md_len - original_md_len
 
         # Copy the first 5 bytes of the file: sig + num_recs
         ths = StringIO.StringIO()
         ths.write(self.data[:5])
 
-        # Rewrite the offsets for hdr_offsets > metadata original location
-        for tag in sh[:-1]:
+        # Rewrite the offsets for hdr_offsets > metadata offset
+        for tag in headers.keys():
             ths.write('c')
             ths.write(self.encode_vwi(len(tag)))
             ths.write(tag)
@@ -300,32 +294,18 @@ class MetadataUpdater(object):
                 for block in self.topaz_headers[tag]['blocks']:
                     b = self.topaz_headers[tag]['blocks'][block]
 
-                    if b['offset'] < original_md_offset:
+                    if b['offset'] <= original_md_offset:
                         ths.write(self.encode_vwi(b['offset']))
                     else:
-                        ths.write(self.encode_vwi(b['offset'] - original_md_len))
+                        ths.write(self.encode_vwi(b['offset'] + delta))
 
-                    ths.write(self.encode_vwi(b['len_uncomp']))
+                    if tag == 'metadata':
+                        ths.write(self.encode_vwi(updated_md_len))
+                    else:
+                        ths.write(self.encode_vwi(b['len_uncomp']))
                     ths.write(self.encode_vwi(b['len_comp']))
             else:
                 ths.write(self.encode_vwi(0))
-
-        # Adjust metadata offset to end
-        new_md_offset = (len(self.data) - self.base - original_md_len)
-
-        new_md_len = len_updated_metadata - 1 - len('metadata') - 1
-
-        # Write the metadata header
-        ths.write('c')
-        ths.write(self.encode_vwi(len('metadata')))
-        ths.write('metadata')
-        ths.write(self.encode_vwi(1))
-        ths.write(self.encode_vwi(new_md_offset))
-
-        ths.write(self.encode_vwi(new_md_len))
-        ths.write(self.encode_vwi(0))
-
-        self.sorted_headers = sh
         self.original_md_start = original_md_offset + self.base
         self.original_md_len = original_md_len
         return ths.getvalue().encode('iso-8859-1')
@@ -364,8 +344,8 @@ class MetadataUpdater(object):
         self.stream.write(head)
         self.stream.write('d')
         self.stream.write(chunk1)
-        self.stream.write(chunk2)
         self.stream.write(updated_metadata)
+        self.stream.write(chunk2)
 
 def get_metadata(stream):
     mu = MetadataUpdater(stream)
@@ -377,6 +357,21 @@ def set_metadata(stream, mi):
     return
 
 if __name__ == '__main__':
-    #print get_metadata(open(sys.argv[1], 'rb'))
-    mi = MetaInformation(title="My New Title", authors=['Smith, John'])
-    set_metadata(open(sys.argv[1], 'rb'), mi)
+    if False:
+        # Test get_metadata()
+        print get_metadata(open(sys.argv[1], 'rb'))
+    else:
+        # Test set_metadata()
+        import cStringIO
+        data = open(sys.argv[1], 'rb')
+        stream = cStringIO.StringIO()
+        stream.write(data.read())
+        mi = MetaInformation(title="A Marvelously Long Title", authors=['Riker, Gregory; Riker, Charles'])
+        set_metadata(stream, mi)
+
+        # Write the result
+        tokens = sys.argv[1].rpartition('.')
+        updated_data = open(tokens[0]+'-updated' + '.' + tokens[2],'wb')
+        updated_data.write(stream.getvalue())
+        updated_data.close()
+

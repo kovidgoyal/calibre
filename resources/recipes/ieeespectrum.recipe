@@ -1,0 +1,63 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Franco Venturi <fventuri at comcast.net>'
+'''
+spectrum.ieee.org
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from string import capwords
+from urlparse import urljoin
+
+class IEEESpectrum(BasicNewsRecipe):
+    title                 = 'IEEE Spectrum'
+    __author__            = 'Franco Venturi'
+    description           = 'Electronics News from IEEE'
+    publisher             = 'IEEE'
+    category              = 'news, electronics, IT, computer science'
+    oldest_article        = 32
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    language              = 'en'
+    index                 = 'http://spectrum.ieee.org/magazine/'
+    masthead_url          = 'http://spectrum.ieee.org/images/logo_hdr.png'
+
+    remove_javascript     = True
+    remove_tags           = [dict(name={'script':True, 'object':True})]
+    remove_attributes     = ['height','width','alt']
+    keep_only_tags        = [dict(attrs={'class': {'artSctn':True, 'artTitle':True, 'dekTitle': True}}), dict(attrs={'id':'artBody'})]
+
+
+    def parse_index(self):
+        soup = self.index_to_soup(self.index)
+        img = soup.find('img', image='cover.gif', src=True)
+        if img is not None:
+            self.cover_url = 'http://spectrum.ieee.org'+img['src']
+
+        content = soup.find(id='gnrlContent')
+        title = content.find(attrs={'class':'style4'}).string.strip()
+        date = ' '.join(title.split()[0:2])
+        self.timefmt = ' [' + date + ']'
+        contents = []
+        for tag in content.findAll(attrs={'class': {'style2':True, 'lstngTitle':True, 'lstngBody': True}}):
+            if tag['class'] == 'style2':
+                contents.append((capwords(tag.renderContents().strip()), []))
+            elif tag['class'] == 'lstngTitle':
+                url = urljoin(self.index, tag.findPrevious('a')['href']) + '/0'
+                contents[-1][1].append({'title': tag.renderContents().strip(),
+                                        'url': url,
+                                        'date': date,
+                                        'description': '',
+                                        'content': ''
+                                       })
+            elif tag['class'] == 'lstngBody':
+                contents[-1][1][-1]['description'] = tag.renderContents().strip()
+
+        return contents
+
+    def preprocess_html(self, soup):
+        for a in soup.findAll('a'):
+            if not a['href'].lower().startswith('http'):
+               a['href'] = urljoin(self.index, a['href'])
+        return soup

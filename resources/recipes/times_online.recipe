@@ -21,9 +21,8 @@ class Timesonline(BasicNewsRecipe):
     use_embedded_content   = False
     simultaneous_downloads = 1
     encoding               = 'ISO-8859-1'
-    lang                   = 'en-UK'
     remove_javascript = True
-    language = 'en'
+    language = 'en_GB'
     recursions = 9
     match_regexps = [r'http://www.timesonline.co.uk/.*page=[2-9]']
 

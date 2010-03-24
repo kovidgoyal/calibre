@@ -864,10 +864,10 @@ class BasicNewsRecipe(Recipe):
             self.log.error(_('Could not download cover: %s')%str(err))
             self.log.debug(traceback.format_exc())
         if cu is not None:
-            ext = cu.rpartition('.')[-1]
+            ext = cu.split('/')[-1].rpartition('.')[-1]
             if '?' in ext:
                 ext = ''
-            ext = ext.lower() if ext else 'jpg'
+            ext = ext.lower() if ext and '/' not in ext else 'jpg'
             cpath = os.path.join(self.output_dir, 'cover.'+ext)
             if os.access(cu, os.R_OK):
                 with open(cpath, 'wb') as cfile:
