@@ -88,7 +88,7 @@ class MetadataUpdater(object):
 
         self.header_records, consumed = self.decode_vwi(self.data[offset:offset+4])
         offset += consumed
-        self.topaz_headers = self.get_headers(offset)
+        self.topaz_headers, self.th_seq = self.get_headers(offset)
 
         # First integrity test - metadata header
         if not 'metadata' in self.topaz_headers:
@@ -158,6 +158,8 @@ class MetadataUpdater(object):
             if value == 0:
                 if multi_byte:
                     bytes.append(b|0x80)
+                    if bytes[-1] == 0xFF:
+                        bytes.append(0x80)
                     if len(bytes) == 4:
                         return pack('>BBBB',bytes[3],bytes[2],bytes[1],bytes[0]).decode('iso-8859-1')
                     elif len(bytes) == 3:
@@ -196,8 +198,9 @@ class MetadataUpdater(object):
         return dks.getvalue().encode('iso-8859-1')
 
     def get_headers(self, offset):
-        # Build a dict of topaz_header records
+        # Build a dict of topaz_header records, list of order
         topaz_headers = {}
+        th_seq = []
         for x in range(self.header_records):
             offset += 1
             taglen, consumed = self.decode_vwi(self.data[offset:offset+4])
@@ -216,10 +219,11 @@ class MetadataUpdater(object):
                 offset += consumed
                 blocks[val] = dict(offset=hdr_offset,len_uncomp=len_uncomp,len_comp=len_comp)
             topaz_headers[tag] = dict(blocks=blocks)
+            th_seq.append(tag)
         self.eoth = self.data[offset]
         offset += 1
         self.base = offset
-        return topaz_headers
+        return topaz_headers, th_seq
 
     def generate_metadata_stream(self):
         ms = StringIO.StringIO()
@@ -229,7 +233,8 @@ class MetadataUpdater(object):
         ms.write(chr(len(self.metadata)))
 
         # Add the metadata fields.
-        for tag in self.metadata:
+        #for tag in self.metadata:
+        for tag in self.md_seq:
             ms.write(self.encode_vwi(len(tag)).encode('iso-8859-1'))
             ms.write(tag)
             ms.write(self.encode_vwi(len(self.metadata[tag])).encode('iso-8859-1'))
@@ -256,6 +261,7 @@ class MetadataUpdater(object):
         #print "self.md_header: %s" % self.md_header
 
         self.metadata = {}
+        self.md_seq = []
         for x in range(self.md_header['num_recs']):
             taglen, consumed = self.decode_vwi(self.data[offset:offset+4])
             offset += consumed
@@ -266,15 +272,9 @@ class MetadataUpdater(object):
             metadata = self.data[offset:offset + md_len]
             offset += md_len
             self.metadata[tag] = metadata
+            self.md_seq.append(tag)
 
     def regenerate_headers(self, updated_md_len):
-
-        headers = {}
-        for tag in self.topaz_headers:
-            if self.topaz_headers[tag]['blocks']:
-                headers[tag] = self.topaz_headers[tag]['blocks'][0]['offset']
-            else:
-                headers[tag] = None
 
         original_md_len = self.topaz_headers['metadata']['blocks'][0]['len_uncomp']
         original_md_offset = self.topaz_headers['metadata']['blocks'][0]['offset']
@@ -285,7 +285,7 @@ class MetadataUpdater(object):
         ths.write(self.data[:5])
 
         # Rewrite the offsets for hdr_offsets > metadata offset
-        for tag in headers.keys():
+        for tag in self.th_seq:
             ths.write('c')
             ths.write(self.encode_vwi(len(tag)))
             ths.write(tag)
@@ -330,12 +330,15 @@ class MetadataUpdater(object):
         self.metadata['Title'] = mi.title.encode('utf-8')
 
         updated_metadata = self.generate_metadata_stream()
-        head = self.regenerate_headers(len(updated_metadata))
+        # Skip tag_len, tag, extra
+        prefix = len('metadata') + 2
+        um_buf_len = len(updated_metadata) - prefix
+        head = self.regenerate_headers(um_buf_len)
 
         # Chunk1: self.base -> original metadata start
         # Chunk2: original metadata end -> eof
         chunk1 = self.data[self.base:self.original_md_start]
-        chunk2 = self.data[self.original_md_start + self.original_md_len:]
+        chunk2 = self.data[prefix + self.original_md_start + self.original_md_len:]
 
         self.stream.seek(0)
         self.stream.truncate(0)
@@ -366,7 +369,7 @@ if __name__ == '__main__':
         data = open(sys.argv[1], 'rb')
         stream = cStringIO.StringIO()
         stream.write(data.read())
-        mi = MetaInformation(title="A Marvelously Long Title", authors=['Riker, Gregory; Riker, Charles'])
+        mi = MetaInformation(title="Updated Title", authors=['Author, Random'])
         set_metadata(stream, mi)
 
         # Write the result
