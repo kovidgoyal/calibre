@@ -226,11 +226,19 @@ class BookList(_BookList):
         for item in collections:
             item = item.strip()
             mitem = getattr(mi, item, None)
+            titems = []
             if mitem:
                 if isinstance(mitem, list):
-                    tags.extend(mitem)
+                    titems = mitem
                 else:
-                    tags.append(mitem)
+                    titems = [mitem]
+                if item == 'tags' and titems:
+                    litems = []
+                    for i in titems:
+                        if not i.strip().startswith('[') and not i.strip().endswith(']'):
+                            litems.append(i)
+                    titems = litems
+                tags.extend(titems)
         if tags:
             tags = list(set(tags))
             if hasattr(mi, 'tag_order'):
