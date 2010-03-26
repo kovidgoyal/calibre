@@ -833,7 +833,7 @@ def get_metadata(stream):
     try:
         im = PILImage.open(buf)
     except:
-        log.exception('Failed to read MOBI cover')
+        log.exception("Failed to read MOBI cover: '%s'" % os.path.basename(stream.name))
     else:
         obuf = cStringIO.StringIO()
         im.convert('RGB').save(obuf, format='JPEG')
