@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-03-12 07:36+0000\n"
-"PO-Revision-Date: 2010-03-12 06:56+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-03-26 19:48+0000\n"
+"Last-Translator: Peregrinus <peregrin_bral2@seznam.cz>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-13 04:48+0000\n"
+"X-Launchpad-Export-Date: 2010-03-27 04:58+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -766,7 +766,7 @@ msgstr "Cesta k grafickámu souboru, který bude použit jako náhled"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:58
 msgid "Path to a txt file containing a comment."
-msgstr ""
+msgstr "Cesta k txt souboru obsahující komentář."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
@@ -1250,6 +1250,9 @@ msgid ""
 "1.5em. Spacing removal will not work if the source file does not use "
 "paragraphs (<p> or <div> tags)."
 msgstr ""
+"Odstraní mezery mezi odstavci. Dále nastaví odsazení prvního řádku na 1,5em. "
+"Odstranění mezer nebude fungovat, pokud nejsou ve zdrojovém souboru odstavce "
+"označeny (tagy <p> nebo <div>)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:318
 msgid ""
@@ -1338,11 +1341,11 @@ msgstr "Nastavit Autory. Více autorů by mělo být odděleno znakem &."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:420
 msgid "The version of the title to be used for sorting. "
-msgstr ""
+msgstr "Varianta názvu, která bude použita při řazení. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:424
 msgid "String to be used when sorting by author. "
-msgstr ""
+msgstr "Řetězec, který bude použit při řazení dle autora. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
 msgid "Set the cover to the specified file or URL"
