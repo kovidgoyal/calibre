@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>421</width>
-    <height>300</height>
+    <width>521</width>
+    <height>331</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -64,12 +64,26 @@
       <item>
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Masthead font:</string>
+         <string>Periodical masthead font:</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QComboBox" name="opt_masthead_font"/>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Personal Doc tag:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="opt_personal_doc"/>
+        </item>
+       </layout>
       </item>
       <item>
        <spacer name="verticalSpacer">
@@ -79,7 +93,7 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>20</width>
-          <height>55</height>
+          <height>40</height>
          </size>
         </property>
        </spacer>

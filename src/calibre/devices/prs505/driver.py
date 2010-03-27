@@ -150,7 +150,8 @@ class PRS505(CLI, Device):
         for location in locations:
             info = metadata.next()
             path = location[0]
-            blist = 2 if location[3] == 'cardb' else 1 if location[3] == 'carda' else 0
+            oncard = location[3]
+            blist = 2 if oncard == 'cardb' else 1 if oncard == 'carda' else 0
 
             if self._main_prefix and path.startswith(self._main_prefix):
                 name = path.replace(self._main_prefix, '')
@@ -166,7 +167,11 @@ class PRS505(CLI, Device):
 
             opts = self.settings()
             collections = opts.extra_customization.split(',') if opts.extra_customization else []
-            booklists[blist].add_book(info, name, collections, *location[1:-1])
+            booklist = booklists[blist]
+            if not hasattr(booklist, 'add_book'):
+                raise ValueError(('Incorrect upload location %s. Did you choose the'
+                        ' correct card A or B, to send books to?')%oncard)
+            booklist.add_book(info, name, collections, *location[1:-1])
         fix_ids(*booklists)
 
     def delete_books(self, paths, end_session=True):

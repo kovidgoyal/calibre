@@ -230,8 +230,8 @@ class FB2MLizer(object):
                 if '://' in href:
                     fb2_text.append('<a xlink:href="%s">' % href)
                 else:
-                    if '#' not in href:
-                        href += '#'
+                    if href.startswith('#'):
+                        href = href[1:]
                     if href not in self.link_hrefs.keys():
                         self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
                     href = self.link_hrefs[href]

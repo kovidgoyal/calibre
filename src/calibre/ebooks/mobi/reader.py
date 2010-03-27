@@ -168,9 +168,9 @@ class BookHeader(object):
                     try:
                         self.exth.mi.language = mobi2iana(langid, sublangid)
                     except:
-                        self.log.exception('Unknown language code')
+                        self.log.exception("'%s': Unknown language code" % getattr(stream, 'name', 'Unnamed stream'))
                 except:
-                    self.log.exception('Invalid EXTH header')
+                    self.log.exception("'%s': Invalid EXTH header" % getattr(stream, 'name', 'Unnamed stream'))
                     self.exth_flag = 0
 
 
@@ -833,7 +833,7 @@ def get_metadata(stream):
     try:
         im = PILImage.open(buf)
     except:
-        log.exception("Failed to read MOBI cover: '%s'" % os.path.basename(stream.name))
+        log.exception("'%s': Failed to read MOBI cover" % getattr(stream, 'name', 'Unnamed stream'))
     else:
         obuf = cStringIO.StringIO()
         im.convert('RGB').save(obuf, format='JPEG')

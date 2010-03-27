@@ -12,6 +12,7 @@ __docformat__ = 'restructuredtext en'
 from struct import pack, unpack
 from cStringIO import StringIO
 
+from calibre.ebooks.conversion.config import load_defaults
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.writer import rescale_image, MAX_THUMB_DIMEN
 from calibre.ebooks.mobi.langcodes import iana2mobi
@@ -350,15 +351,10 @@ class MetadataUpdater(object):
             subjects = '; '.join(mi.tags)
             update_exth_record((105, subjects.encode(self.codec, 'replace')))
 
-            # >>> Begin patch for ticket #4652 <<<
-            kindle_doc_types = set([u'[kindle_ebok]',u'[kindle_pdoc]'])
-            doc_type = list(kindle_doc_types.intersection(set(mi.tags)))[0]
-            if doc_type:
-                if doc_type == '[kindle_ebok]':
-                    update_exth_record((501,str('EBOK')))
-                elif doc_type == '[kindle_pdoc]':
-                    update_exth_record((501, str('PDOC')))
-            # >>> End patch
+            prefs = load_defaults('mobi_output')
+            kindle_pdoc = prefs.get('personal_doc', None)
+            if kindle_pdoc in mi.tags:
+                update_exth_record((501, str('PDOC')))
 
         if mi.pubdate:
             update_exth_record((106, str(mi.pubdate).encode(self.codec, 'replace')))

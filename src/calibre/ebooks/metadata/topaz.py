@@ -4,7 +4,7 @@ __copyright__ = '2010, Greg Riker <griker@hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 ''' Read/write metadata from Amazon's topaz format '''
-import os, StringIO, sys
+import StringIO, sys
 from struct import pack
 
 from calibre.ebooks.metadata import MetaInformation
@@ -83,7 +83,7 @@ class MetadataUpdater(object):
 
         sig = self.data[:4]
         if not sig.startswith('TPZ'):
-            raise ValueError("'%s': unexpected Topaz signature '%s'" % (os.path.basename(stream.name),self.data[:4]))
+            raise ValueError("'%s': Not a Topaz file" % getattr(stream, 'name', 'Unnamed stream'))
         offset = 4
 
         self.header_records, consumed = self.decode_vwi(self.data[offset:offset+4])
@@ -92,13 +92,13 @@ class MetadataUpdater(object):
 
         # First integrity test - metadata header
         if not 'metadata' in self.topaz_headers:
-            raise ValueError("'%s': Topaz metadata record missing" % os.path.basename(stream.name))
+            raise ValueError("'%s': Invalid Topaz format - no metadata record" % getattr(stream, 'name', 'Unnamed stream'))
 
         # Second integrity test - metadata body
         md_offset = self.topaz_headers['metadata']['blocks'][0]['offset']
         md_offset += self.base
         if self.data[md_offset+1:md_offset+9] != 'metadata':
-            raise ValueError("'%s': damaged Topaz metadata record" % os.path.basename(stream.name))
+            raise ValueError("'%s': Damaged metadata record" % getattr(stream, 'name', 'Unnamed stream'))
 
     def book_length(self):
         ''' convenience method for retrieving book length '''
