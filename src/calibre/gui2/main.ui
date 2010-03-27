@@ -470,6 +470,7 @@
    </attribute>
    <addaction name="action_add"/>
    <addaction name="action_edit"/>
+   <addaction name="action_merge"/>
    <addaction name="action_convert"/>
    <addaction name="action_view"/>
    <addaction name="action_news"/>
@@ -525,6 +526,21 @@
    </property>
    <property name="shortcut">
     <string>E</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_merge">
+   <property name="icon">
+    <iconset resource="../../../resources/images.qrc">
+     <normaloff>:/images/merge_books.svg</normaloff>:/images/merge_books.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Merge books</string>
+   </property>
+   <property name="shortcut">
+    <string>M</string>
    </property>
    <property name="autoRepeat">
     <bool>false</bool>
