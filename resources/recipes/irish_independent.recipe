@@ -10,7 +10,7 @@ class IrishIndependent(BasicNewsRecipe):
     title          = u'Irish Independent'
     description = 'Irish and World news from Irelands Bestselling Daily Broadsheet'
     __author__	= 'Neil Grogan'
-    language = 'en_GB'
+    language = 'en_IE'
     oldest_article = 7
     max_articles_per_feed = 100
     remove_tags_before = dict(id='article')
