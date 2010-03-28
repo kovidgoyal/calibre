@@ -322,11 +322,13 @@ class MetadataUpdater(object):
 
         recs = []
         try:
-             from calibre.ebooks.conversion.config import load_defaults
-             prefs = load_defaults('mobi_output')
-             pas = prefs.get('prefer_author_sort', False)
+            from calibre.ebooks.conversion.config import load_defaults
+            prefs = load_defaults('mobi_output')
+            pas = prefs.get('prefer_author_sort', False)
+            kindle_pdoc = prefs.get('personal_doc', None)
         except:
             pas = False
+            kindle_pdoc = None
         if mi.author_sort and pas:
             authors = mi.author_sort
             update_exth_record((100, authors.encode(self.codec, 'replace')))
@@ -350,15 +352,8 @@ class MetadataUpdater(object):
             subjects = '; '.join(mi.tags)
             update_exth_record((105, subjects.encode(self.codec, 'replace')))
 
-            # >>> Begin patch for ticket #4652 <<<
-            kindle_doc_types = set([u'[kindle_ebok]',u'[kindle_pdoc]'])
-            doc_type = list(kindle_doc_types.intersection(set(mi.tags)))[0]
-            if doc_type:
-                if doc_type == '[kindle_ebok]':
-                    update_exth_record((501,str('EBOK')))
-                elif doc_type == '[kindle_pdoc]':
-                    update_exth_record((501, str('PDOC')))
-            # >>> End patch
+            if kindle_pdoc and kindle_pdoc in mi.tags:
+                update_exth_record((501, str('PDOC')))
 
         if mi.pubdate:
             update_exth_record((106, str(mi.pubdate).encode(self.codec, 'replace')))
