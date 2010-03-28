@@ -25,7 +25,7 @@ class RegexHighlighter(QSyntaxHighlighter):
         self.regex = u''
 
     def update_regex(self, regex):
-        self.regex = qstring_to_unicode(regex)
+        self.regex = regex
         self.rehighlight()
 
     def highlightBlock(self, text):
@@ -59,14 +59,22 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             self.select_format(db, book_id)
 
         self.connect(self.button_box, SIGNAL('clicked(QAbstractButton*)'), self.button_clicked)
-        self.connect(self.regex, SIGNAL('textChanged(QString)'), self.highlighter.update_regex)
-        self.connect(self.highlighter, SIGNAL('regex_valid(PyQt_PyObject)'), self.regex_valid)
+        self.connect(self.regex, SIGNAL('textChanged(QString)'), self.regex_valid)
+        self.connect(self.test, SIGNAL('clicked()'), self.do_test)
 
     def regex_valid(self, valid):
-        if valid:
-            self.regex.setStyleSheet('QLineEdit { color: black; background-color: white; }')
+        regex = qstring_to_unicode(self.regex.text())
+        if regex:
+            try:
+                re.compile(regex)
+                self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(0,255,0,20%); }')
+            except:
+                self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgb(255,0,0,20%); }')
         else:
-            self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgb(255,0,0,20%); }')
+            self.regex.setStyleSheet('QLineEdit { color: black; background-color: white; }')
+
+    def do_test(self):
+        self.highlighter.update_regex(qstring_to_unicode(self.regex.text()))
 
     def select_format(self, db, book_id):
         format = None
