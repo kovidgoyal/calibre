@@ -36,7 +36,7 @@ class MOBIOutput(OutputFormatPlugin):
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Disable compression of the file contents.')
         ),
-        OptionRecommendation(name='personal_doc', recommended_value='[kindle_pdoc]',
+        OptionRecommendation(name='personal_doc', recommended_value='[PDOC]',
             help=_('Tag marking book to be filed with Personal Docs')
         ),
     ])
