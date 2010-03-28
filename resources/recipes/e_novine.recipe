@@ -20,6 +20,7 @@ class E_novine(BasicNewsRecipe):
     encoding              = 'utf-8'
     use_embedded_content  = False
     language              = 'sr'
+    publication_type      = 'newsportal'    
     masthead_url          = 'http://www.e-novine.com/themes/e_novine/img/logo.gif'
     extra_css = ' @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} .article_description,body{font-family: Arial,Helvetica,sans1,sans-serif} img{float: none; margin-bottom: 0.8em} '
 

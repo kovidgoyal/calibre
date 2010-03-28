@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class B92(BasicNewsRecipe):
     title                 = 'B92'
     __author__            = 'Darko Miletic'
-    description           = 'Dnevne vesti iz Srbije i sveta'    
+    description           = 'B92 info, najnovije vesti iz Srbije, regiona i sveta'    
     publisher             = 'B92'
     category              = 'news, politics, Serbia'
     oldest_article        = 2
@@ -19,6 +19,7 @@ class B92(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'cp1250'
     language              = 'sr'
+    publication_type      = 'newsportal'
     extra_css             = ' @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif} '
     
     conversion_options = {

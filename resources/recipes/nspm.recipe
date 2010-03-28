@@ -20,6 +20,7 @@ class Nspm(BasicNewsRecipe):
     INDEX                 = 'http://www.nspm.rs/?alphabet=l'
     encoding              = 'utf-8'
     language              = 'sr'
+    publication_type      = 'magazine'    
     masthead_url          = 'http://www.nspm.rs/templates/jsn_epic_pro/images/logol.jpg'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
 

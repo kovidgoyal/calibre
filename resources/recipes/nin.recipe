@@ -25,7 +25,8 @@ class Nin(BasicNewsRecipe):
     LOGIN                  = PREFIX + '/?logout=true'
     use_embedded_content   = False
     language               = 'sr'
-    extra_css = ' @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: Verdana, Lucida, sans1, sans-serif} .article_description{font-family: Verdana, Lucida, sans1, sans-serif} .artTitle{font-size: x-large; font-weight: bold; color: #900} .izjava{font-size: x-large; font-weight: bold} .columnhead{font-size: small; font-weight: bold;} img{margin-top:0.5em; margin-bottom: 0.7em} b{margin-top: 1em} '
+    publication_type       = 'magazine'
+    extra_css              = ' @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: Verdana, Lucida, sans1, sans-serif} .article_description{font-family: Verdana, Lucida, sans1, sans-serif} .artTitle{font-size: x-large; font-weight: bold; color: #900} .izjava{font-size: x-large; font-weight: bold} .columnhead{font-size: small; font-weight: bold;} img{margin-top:0.5em; margin-bottom: 0.7em} b{margin-top: 1em} '
 
     conversion_options = {
                           'comment'          : description
