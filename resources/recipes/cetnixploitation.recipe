@@ -15,6 +15,7 @@ class Chetnixploitation(BasicNewsRecipe):
     oldest_article        = 7
     max_articles_per_feed = 100
     language              = 'sr'
+    publication_type      = 'blog'    
     encoding              = 'utf-8'
     no_stylesheets        = True
     use_embedded_content  = True
@@ -32,5 +33,3 @@ class Chetnixploitation(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)
-
-

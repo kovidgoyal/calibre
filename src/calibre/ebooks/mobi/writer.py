@@ -2030,9 +2030,7 @@ class MobiWriter(object):
         if (not self._periodicalCount and not self._sectionCount and not self._articleCount) or \
             not self.opts.mobi_periodical :
             mobiType = 0x002
-        elif self._periodicalCount and self._sectionCount == 1 :
-            mobiType = 0x102
-        elif self._periodicalCount and self._sectionCount > 1 :
+        elif self._periodicalCount:
             pt = None
             if self._oeb.metadata.publication_type:
                 x = unicode(self._oeb.metadata.publication_type[0]).split(':')

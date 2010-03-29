@@ -127,6 +127,7 @@ class BookHeader(object):
             self.length, self.type, self.codepage, self.unique_id, \
                 self.version = struct.unpack('>LLLLL', raw[20:40])
 
+
             try:
                 self.codec = {
                     1252: 'cp1252',
@@ -153,31 +154,24 @@ class BookHeader(object):
             sublangid = (langcode >> 10) & 0xFF
             self.language = main_language.get(langid, 'ENGLISH')
             self.sublanguage = sub_language.get(sublangid, 'NEUTRAL')
+            self.mobi_version = struct.unpack('>I', raw[0x68:0x6c])[0]
+            self.first_image_index = struct.unpack('>L', raw[0x6c:0x6c + 4])[0]
 
-            if ident == 'TEXTREAD':
-                self.mobi_version = 1
-                self.first_image_index = -1
-                self.exth_flag = 0
-                self.exth = None
-            else:
-                self.mobi_version = struct.unpack('>I', raw[0x68:0x6c])[0]
-                self.first_image_index = struct.unpack('>L', raw[0x6c:0x6c + 4])[0]
-                self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
-
-                self.exth = None
-                if not isinstance(self.title, unicode):
-                    self.title = self.title.decode(self.codec, 'replace')
-                if self.exth_flag & 0x40:
+            self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
+            self.exth = None
+            if not isinstance(self.title, unicode):
+                self.title = self.title.decode(self.codec, 'replace')
+            if self.exth_flag & 0x40:
+                try:
+                    self.exth = EXTHHeader(raw[16 + self.length:], self.codec, self.title)
+                    self.exth.mi.uid = self.unique_id
                     try:
-                        self.exth = EXTHHeader(raw[16 + self.length:], self.codec, self.title)
-                        self.exth.mi.uid = self.unique_id
-                        try:
-                            self.exth.mi.language = mobi2iana(langid, sublangid)
-                        except:
-                            self.log.exception("'%s': Unknown language code" % getattr(stream, 'name', 'Unnamed stream'))
+                        self.exth.mi.language = mobi2iana(langid, sublangid)
                     except:
-                        self.log.exception("'%s': Invalid EXTH header" % getattr(stream, 'name', 'Unnamed stream'))
-                        self.exth_flag = 0
+                        self.log.exception('Unknown language code')
+                except:
+                    self.log.exception('Invalid EXTH header')
+                    self.exth_flag = 0
 
 
 class MetadataHeader(BookHeader):
@@ -839,7 +833,7 @@ def get_metadata(stream):
     try:
         im = PILImage.open(buf)
     except:
-        log.exception("'%s': Failed to read MOBI cover" % getattr(stream, 'name', 'Unnamed stream'))
+        log.exception('Failed to read MOBI cover')
     else:
         obuf = cStringIO.StringIO()
         im.convert('RGB').save(obuf, format='JPEG')

@@ -9,7 +9,8 @@ import re
 import time
 from calibre import entity_to_unicode
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString, Comment
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString, \
+Comment, BeautifulStoneSoup
 
 class NYTimes(BasicNewsRecipe):
 
@@ -256,7 +257,6 @@ class NYTimes(BasicNewsRecipe):
         # Fetch the outer table
         table = soup.find('table')
         previousTable = table
-        contentTable = None
 
         # Find the deepest table containing the stories
         while True :

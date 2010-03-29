@@ -5,7 +5,7 @@ class RTE(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     __author__ = u'Robin Phillips'
-    language = 'en_GB'
+    language = 'en_IE'
 
     remove_tags = [dict(attrs={'class':['topAd','botad','previousNextItem','headline','footerLinks','footernav']})]
 
