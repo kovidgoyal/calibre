@@ -6,8 +6,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, shutil, cPickle, textwrap, stat
 from subprocess import check_call
 
-from calibre import  __appname__, prints
+from calibre import  __appname__, prints, guess_type
 from calibre.constants import islinux, isfreebsd
+from calibre.customize.ui import all_input_formats
 
 
 entry_points = {
@@ -375,14 +376,22 @@ class PostInstall:
                 check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
                 self.icon_resources.append(('apps', 'calibre-viewer', '128'))
 
+                def write_mimetypes(f):
+                    for x in all_input_formats():
+                        mt = guess_type('dummy.'+x)[0]
+                        if mt:
+                            f.write('MimeType=%s;\n'%mt)
+
                 f = open('calibre-lrfviewer.desktop', 'wb')
                 f.write(VIEWER)
                 f.close()
                 f = open('calibre-ebook-viewer.desktop', 'wb')
                 f.write(EVIEWER)
+                write_mimetypes(f)
                 f.close()
                 f = open('calibre-gui.desktop', 'wb')
                 f.write(GUI)
+                write_mimetypes(f)
                 f.close()
                 des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
                         'calibre-ebook-viewer.desktop')
@@ -526,7 +535,6 @@ Comment=Viewer for E-books
 TryExec=ebook-viewer
 Exec=ebook-viewer %F
 Icon=calibre-viewer
-MimeType=application/epub+zip;
 Categories=Graphics;Viewer;
 '''
 
