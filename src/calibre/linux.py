@@ -465,7 +465,8 @@ def opts_and_exts(name, op, exts):
     opts = ' '.join(options(op))
     exts.extend([i.upper() for i in exts])
     exts='|'.join(exts)
-    return '_'+name+'()'+\
+    fname = name.replace('-', '_')
+    return '_'+fname+'()'+\
 '''
 {
     local cur prev opts
@@ -498,7 +499,7 @@ def opts_and_exts(name, op, exts):
     esac
 
 }
-complete -o filenames -F _'''%(opts,exts) + name + ' ' + name +"\n\n"
+complete -o filenames -F _'''%(opts,exts) + fname + ' ' + name +"\n\n"
 
 
 VIEWER = '''\
