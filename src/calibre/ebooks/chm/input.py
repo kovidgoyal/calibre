@@ -141,7 +141,8 @@ class CHMInput(InputFormatPlugin):
         log.debug('Found %d section nodes' % len(chapters))
         htmlpath = os.path.splitext(hhcpath)[0] + ".html"
         f = open(htmlpath, 'wb')
-        f.write("<HTML><HEAD></HEAD><BODY>\r\n")
+        f.write('<html><head><meta http-equiv="Content-type"'
+                ' content="text/html;charset=UTF-8" /></head><body>\n')
 
         if chapters:
             path0 = chapters[0][1]
@@ -152,10 +153,12 @@ class CHMInput(InputFormatPlugin):
                 rsrcname = os.path.basename(chapter[1])
                 rsrcpath = os.path.join(subpath, rsrcname)
                 # title should already be url encoded
-                url = "<br /><a href=" + rsrcpath + ">" + title + " </a>\r\n"
+                url = "<br /><a href=" + rsrcpath + ">" + title + " </a>\n"
+                if isinstance(url, unicode):
+                    url = url.encode('utf-8')
                 f.write(url)
 
-        f.write("</BODY></HTML>")
+        f.write("</body></html>")
         f.close()
         return htmlpath
 
