@@ -28,6 +28,12 @@ from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
 
+class LoginFailed(ValueError):
+    pass
+
+class DownloadDenied(ValueError):
+    pass
+
 class BasicNewsRecipe(Recipe):
     '''
     Abstract base class that contains logic needed in all feed fetchers.
@@ -1359,9 +1365,6 @@ class AutomaticNewsRecipe(BasicNewsRecipe):
             self.web2disk_options.keep_only_tags = []
         return BasicNewsRecipe.fetch_embedded_article(self, article, dir, f, a, num_of_feeds)
 
-class LoginFailed(ValueError):
-    pass
-
 class CalibrePeriodical(BasicNewsRecipe):
 
     #: Set this to the slug for the calibre periodical
@@ -1380,18 +1383,26 @@ class CalibrePeriodical(BasicNewsRecipe):
         raw = br.submit().read()
         if 'href="/my-account"' not in raw:
             raise LoginFailed(
-                    'Failed to log in, check your username and password for'
-                    ' the calibre Periodicals service.')
+                    _('Failed to log in, check your username and password for'
+                    ' the calibre Periodicals service.'))
 
         return br
 
     def download(self):
         import cStringIO
         self.log('Fetching downloaded recipe')
-        raw = self.browser.open_novisit(
-            'http://news.calibre-ebook.com/subscribed_files/%s/0/temp.downloaded_recipe'
-            % self.calibre_periodicals_slug
-                ).read()
+        try:
+            raw = self.browser.open_novisit(
+                'http://news.calibre-ebook.com/subscribed_files/%s/0/temp.downloaded_recipe'
+                % self.calibre_periodicals_slug
+                    ).read()
+        except Exception, e:
+            if hasattr(e, 'getcode') and e.getcode() == 403:
+                raise DownloadDenied(
+                        _('You do not have permission to download this issue.'
+                        ' Either your subscription has expired or you have'
+                        ' exceeded the maximum allowed downloads for today.'))
+            raise
         f = cStringIO.StringIO(raw)
         from calibre.utils.zipfile import ZipFile
         zf = ZipFile(f)

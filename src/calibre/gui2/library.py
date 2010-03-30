@@ -35,6 +35,7 @@ class LibraryDelegate(QItemDelegate):
 
     def __init__(self, parent):
         QItemDelegate.__init__(self, parent)
+        self._parent = parent
         self.star_path = QPainterPath()
         self.star_path.moveTo(90, 50)
         for i in range(1, 5):
@@ -65,7 +66,8 @@ class LibraryDelegate(QItemDelegate):
 
         painter.save()
         if hasattr(QStyle, 'CE_ItemViewItem'):
-            QApplication.style().drawControl(QStyle.CE_ItemViewItem, option, painter)
+            QApplication.style().drawControl(QStyle.CE_ItemViewItem, option,
+                    painter, self._parent)
         elif option.state & QStyle.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
         self.drawFocus(painter, option, option.rect)
@@ -82,8 +84,8 @@ class LibraryDelegate(QItemDelegate):
                 draw_star()
                 painter.translate(-self.SIZE, 0)
                 i += 1
-        except Exception, e:
-            traceback.print_exc(e)
+        except:
+            traceback.print_exc()
         painter.restore()
 
     def createEditor(self, parent, option, index):

@@ -205,6 +205,7 @@ class Scheduler(QObject):
 
     def __init__(self, parent, db):
         QObject.__init__(self, parent)
+        self.internet_connection_failed = False
         self._parent = parent
         self.recipe_model = RecipeModel(db)
         self.lock = QMutex(QMutex.Recursive)
@@ -305,9 +306,17 @@ class Scheduler(QObject):
             self.download(urn)
 
     def download(self, urn):
-        if not internet_connected():
-            return
         self.lock.lock()
+        if not internet_connected():
+            if not self.internet_connection_failed:
+                self.internet_connection_failed = True
+                d = error_dialog(self._parent, _('No internet connection'),
+                        _('Cannot download news as no internet connection '
+                            'is active'))
+                d.setModal(False)
+                d.show()
+            return
+        self.internet_connection_failed = False
         doit = urn not in self.download_queue
         self.lock.unlock()
         if doit:
