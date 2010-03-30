@@ -18,7 +18,7 @@ class NursingTimes(BasicNewsRecipe):
     encoding               = 'utf-8'
     publisher              = 'emap'
     category               = 'news, health, nursing, UK'
-    language               = 'en-UK'
+    language               = 'en_GB'
     needs_subscription     = True
     LOGIN                  = 'http://www.nursingtimes.net/sign-in'
 

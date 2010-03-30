@@ -5,14 +5,16 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Builtin recipes.
 '''
 import re, imp, inspect, time, os
-from calibre.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe, AutomaticNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe, \
+    AutomaticNewsRecipe, CalibrePeriodical
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre import __appname__, english_sort
 
 BeautifulSoup, time, english_sort
 
-basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe)
+basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe,
+        CalibrePeriodical)
 _tdir = None
 _crep = 0
 def compile_recipe(src):

@@ -9,6 +9,7 @@ class JournalofHospitalMedicine(BasicNewsRecipe):
     description = 'Medical news'
     timefmt = ' [%d %b, %Y]'
     needs_subscription = True
+    language = 'en'
 
     no_stylesheets = True
     #remove_tags_before = dict(name='div', attrs={'align':'center'})

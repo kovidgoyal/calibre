@@ -1359,25 +1359,51 @@ class AutomaticNewsRecipe(BasicNewsRecipe):
             self.web2disk_options.keep_only_tags = []
         return BasicNewsRecipe.fetch_embedded_article(self, article, dir, f, a, num_of_feeds)
 
-class DownloadedNewsRecipe(BasicNewsRecipe):
+class LoginFailed(ValueError):
+    pass
 
-    def get_downloaded_recipe(self):
-        'Return path on local filesystem to downloaded recipe'
-        raise NotImplementedError
+class CalibrePeriodical(BasicNewsRecipe):
+
+    #: Set this to the slug for the calibre periodical
+    calibre_periodicals_slug = None
+
+    LOG_IN = 'http://news.calibre-ebook.com/accounts/login'
+    needs_subscription = True
+    __author__ = 'calibre Periodicals'
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.open(self.LOG_IN)
+        br.select_form(name='login')
+        br['username'] = self.username
+        br['password'] = self.password
+        raw = br.submit().read()
+        if 'href="/my-account"' not in raw:
+            raise LoginFailed(
+                    'Failed to log in, check your username and password for'
+                    ' the calibre Periodicals service.')
+
+        return br
 
     def download(self):
+        import cStringIO
         self.log('Fetching downloaded recipe')
-        rpath = self.get_downloaded_recipe()
+        raw = self.browser.open_novisit(
+            'http://news.calibre-ebook.com/subscribed_files/%s/0/temp.downloaded_recipe'
+            % self.calibre_periodicals_slug
+                ).read()
+        f = cStringIO.StringIO(raw)
         from calibre.utils.zipfile import ZipFile
-        zf = ZipFile(rpath)
+        zf = ZipFile(f)
         zf.extractall()
         zf.close()
         from calibre.web.feeds.recipes import compile_recipe
         from glob import glob
         try:
-            recipe = compile_recipe(open(glob('*.downloaded_recipe')[0],
+            recipe = compile_recipe(open(glob('*.recipe')[0],
                 'rb').read())
             self.conversion_options = recipe.conversion_options
         except:
             self.log.exception('Failed to compile downloaded recipe')
         return os.path.abspath('index.html')
+

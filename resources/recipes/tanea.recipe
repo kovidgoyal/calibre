@@ -6,6 +6,7 @@ class TaNea(BasicNewsRecipe):
     oldest_article = 1
     max_articles_per_feed = 100
     no_stylesheets         = True
+    language = 'el'
 
     remove_tags_before = dict(name='div',attrs={'id':'print-body'})
     remove_tags_after = dict(name='div',attrs={'id':'text'})
