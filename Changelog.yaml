@@ -4,6 +4,106 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.46
+  date: 2010-03-31
+
+  new features:
+    - title: "EPUB Output: Use SVG for covers, to ensure cover image is correctly resized to fit available screen space"
+
+    - title: "Support for the Motorola Cliq and Milestone"
+
+    - title: "Fetch My Clippings from the Kindle"
+
+    - title: "Comic Input: Add option to disable conversion to grayscale (black and white)"
+
+    - title: "MOBI Output: Mark single section news downloads as newspapers so that they are automatically archived by the Kindle"
+
+    - title: "MOBI Output: Add option to control setting of document type to Personal Document"
+
+    - title: "SONY driver: Tags  within [] do not translate into a category when sending books to device"
+
+    - title: "ebook-device: Add a test_file command"
+
+    - title: "Location support for PDF when fetching annotations from a Kindle"
+
+  bug fixes:
+    - title: "CHM Input: Various fixes"
+      tickets: [5132, 5141]
+
+    - title: "Linux installer: Add mimetypes to .desktop files"
+      tickets: [5156]
+
+    - title: "Fix function naming in bash completion script"
+      tickets: [5146]
+
+    - title: "Fix the author of the metadata download plugins goes wrong after downloaded metadata for a book"
+      tickets: [5129]
+
+    - title: "Popup an error message if a news download is aborted because of no active internet connection"
+
+    - title: "Add test button to regex builder to improve performance"
+
+    - title: "Fix loading of custom device interface plugins"
+
+    - title: "Fix extra spaces in MOBI author field with multiple authors"
+      tickets: [2279, 4652, 5162]
+
+    - title: "Fix Kindle Topaz files with edited metadata won't index"
+      tickets: [5154]
+
+    - title: "PDB output: Fix problem with links continuing through story"
+      tickets: [5149]
+
+    - title: "Don't choke if the user provides an invalid remove header/footer regexp"
+
+  new recipes:
+    - title: MiDDay
+      author: calibre Periodicals
+
+    - title: Business Line 
+      author: Dhiru
+
+    - title:  New York Post
+      author: Darko Miletic
+
+    - title:  Tulsa World
+      author: Darko Miletic
+
+    - title:  Oil Price
+      author: Darko Miletic
+
+    - title:  nrc.nl
+      author: Darko Miletic
+
+    - title: "Peter Schiff's Economic Commentary"
+      author: Darko Miletic
+
+    - title: IEEE Spectrum
+      author: Franco Venturi
+
+    - title:  Washington Post
+      author: Kos Semonski
+
+    - title: The Sun
+      author: Chaz Ralph
+
+    - title: Fronda
+      author: Tomasz Dugosz
+
+    - title: Runa
+      author: Mori
+
+    - title: Times of India
+      author: Krittika Goyal
+
+  improved recipes:
+    - Various Serian and Polish newspapers
+    - New York Times Top Stories
+    - USA Today
+    - Daily Telegraph
+    - New York Times
+    - SFBG
+
 - version: 0.6.45
   date: 2010-03-11
 
