@@ -299,6 +299,11 @@ class StanzaPage(QWizardPage, StanzaUI):
         return FinishPage.ID
 
     def commit(self):
+        from calibre.ebooks.conversion.config import load_defaults, save_defaults
+        recs = load_defaults('comic_input')
+        recs['dont_grayscale'] = True
+        save_defaults('comic_input', recs)
+
         p = self.set_port()
         if p is not None:
             from calibre.library import server_config
