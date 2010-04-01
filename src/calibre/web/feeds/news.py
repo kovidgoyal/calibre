@@ -803,7 +803,6 @@ class BasicNewsRecipe(Recipe):
         if self.reverse_article_order:
             for feed in feeds:
                 if hasattr(feed, 'reverse'):
-                    print 111111
                     feed.reverse()
 
         for f, feed in enumerate(feeds):
