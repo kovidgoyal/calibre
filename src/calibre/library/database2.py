@@ -956,7 +956,7 @@ class LibraryDatabase2(LibraryDatabase):
             im.convert('RGB').save(path, 'JPEG')
 
     def all_formats(self):
-        formats = self.conn.get('SELECT format from data')
+        formats = self.conn.get('SELECT DISTINCT format from data')
         if not formats:
             return set([])
         return set([f[0] for f in formats])
