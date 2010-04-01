@@ -193,6 +193,9 @@ class Feed(object):
                     title = title.decode('utf-8', 'replace')
                 self.logger.debug('Skipping article %s as it is too old'%title)
 
+    def reverse(self):
+        self.articles.reverse()
+
     def __iter__(self):
         return iter(self.articles)
 

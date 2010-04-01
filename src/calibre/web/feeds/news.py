@@ -801,7 +801,10 @@ class BasicNewsRecipe(Recipe):
         self.jobs = []
 
         if self.reverse_article_order:
-            feeds = [list(reversed(list(feed))) for feed in feeds]
+            for feed in feeds:
+                if hasattr(feed, 'reverse'):
+                    print 111111
+                    feed.reverse()
 
         for f, feed in enumerate(feeds):
             feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
