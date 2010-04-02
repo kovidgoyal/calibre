@@ -376,11 +376,14 @@ class PostInstall:
                 check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
                 self.icon_resources.append(('apps', 'calibre-viewer', '128'))
 
+                mimetypes = set([])
+                for x in all_input_formats():
+                    mt = guess_type('dummy.'+x)[0]
+                    if mt and 'chemical' not in mt:
+                        mimetypes.add(mt)
+
                 def write_mimetypes(f):
-                    for x in all_input_formats():
-                        mt = guess_type('dummy.'+x)[0]
-                        if mt:
-                            f.write('MimeType=%s;\n'%mt)
+                    f.write('MimeType=%s;\n'%';'.join(mimetypes))
 
                 f = open('calibre-lrfviewer.desktop', 'wb')
                 f.write(VIEWER)
@@ -531,7 +534,7 @@ Version=1.0
 Type=Application
 Name=E-book Viewer
 GenericName=Viewer for E-books
-Comment=Viewer for E-books
+Comment=Viewer for E-books in all the major formats
 TryExec=ebook-viewer
 Exec=ebook-viewer %F
 Icon=calibre-viewer
@@ -545,7 +548,7 @@ Version=1.0
 Type=Application
 Name=calibre
 GenericName=E-book library management
-Comment=E-book library management
+Comment=E-book library management: Convert, view, share, catalogue all your e-books
 TryExec=calibre
 Exec=calibre
 Icon=calibre-gui
