@@ -256,10 +256,11 @@ class SavedSearchBox(QComboBox):
 
     def saved_search_selected (self, qname):
         #print 'in saved_search_selected'
-        if qname is None or qname == '':
+        qname = unicode(qname)
+        if qname is None or not qname.strip():
             return
         self.normalize_state()
-        self.search_box.set_search_string ('search:"'+unicode(qname)+'"')
+        self.search_box.set_search_string(u'search:"%s"' % qname)
         self.setEditText(qname)
         self.setToolTip(self.saved_searches.lookup(qname))
 
@@ -276,18 +277,19 @@ class SavedSearchBox(QComboBox):
         idx = self.currentIndex
         if idx < 0:
             return
-        self.saved_searches.delete (unicode(self.currentText()))
+        self.saved_searches.delete(unicode(self.currentText()))
         self.clear_to_help()
-        self.search_box.set_search_string ('')
+        self.search_box.set_search_string('')
         self.emit(SIGNAL('changed()'))
 
     # SIGNALed from the main UI
     def save_search_button_clicked(self):
         #print 'in save_search_button_clicked'
-        name = self.currentText()
-        if self.help_state or name == '':
-            name = self.search_box.text().replace('"', '')
-        self.saved_searches.add(name, self.search_box.text())
+        name = unicode(self.currentText())
+        if self.help_state or not name.strip():
+            name = unicode(self.search_box.text()).replace('"', '')
+        self.saved_searches.delete(name)
+        self.saved_searches.add(name, unicode(self.search_box.text()))
         # now go through an initialization cycle to ensure that the combobox has
         # the new search in it, that it is selected, and that the search box
         # references the new search instead of the text in the search.
@@ -303,6 +305,6 @@ class SavedSearchBox(QComboBox):
         idx = self.currentIndex();
         if idx < 0:
             return
-        self.search_box.set_search_string (self.saved_searches.lookup(self.currentText()))
+        self.search_box.set_search_string(self.saved_searches.lookup(unicode(self.currentText())))
 
 

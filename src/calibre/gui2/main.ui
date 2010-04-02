@@ -207,6 +207,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QLabel" name="search_count">
+        <property name="text">
+         <string>set in ui.py</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="clear_button">
         <property name="toolTip">
          <string>Reset Quick Search</string>

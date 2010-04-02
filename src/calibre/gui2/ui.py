@@ -144,8 +144,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         self.search.initialize('main_search_history', colorize=True,
                 help_text=_('Search (For Advanced Search click the button to the left)'))
-        self.connect(self.clear_button, SIGNAL('clicked()'), self.search.clear)
+        self.connect(self.clear_button, SIGNAL('clicked()'), self.search_clear)
         self.connect(self.clear_button, SIGNAL('clicked()'), self.saved_search.clear_to_help)
+        self.search_clear()
 
         self.saved_search.initialize(saved_searches, self.search, colorize=True,
                 help_text=_('Saved Searches'))
@@ -536,8 +537,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 SIGNAL('count_changed(int)'), self.location_view.count_changed)
         self.connect(self.library_view.model(), SIGNAL('count_changed(int)'),
                      self.tags_view.recount)
-        self.connect(self.search, SIGNAL('cleared()'), self.tags_view.clear)
-        self.connect(self.saved_search, SIGNAL('changed()'), self.tags_view.recount)
+        self.connect(self.search, SIGNAL('cleared()'), self.tags_view_clear)
+        self.connect(self.saved_search, SIGNAL('changed()'), self.tags_view.recount, Qt.QueuedConnection)
         if not gprefs.get('quick_start_guide_added', False):
             from calibre.ebooks.metadata import MetaInformation
             mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
@@ -779,8 +780,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.tag_match.setVisible(False)
             self.popularity.setVisible(False)
 
+    def tags_view_clear(self):
+        self.search_count.setText(_("(all books)"))
+        self.tags_view.clear()
+
+    def search_clear(self):
+        self.search_count.setText(_("(all books)"))
+        self.search.clear()
+
     def search_done(self, view, ok):
         if view is self.current_view():
+            self.search_count.setText(_("(%d found)") % self.current_view().row_count())
             self.search.search_done(ok)
 
     def sync_cf_to_listview(self, current, previous):

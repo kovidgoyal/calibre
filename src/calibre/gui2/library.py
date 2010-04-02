@@ -861,6 +861,9 @@ class BooksView(TableView):
     def search_done(self, ok):
         self._search_done(self, ok)
 
+    def row_count(self):
+        return self._model.count()
+
 
 class DeviceBooksView(BooksView):
 
