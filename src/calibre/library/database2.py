@@ -471,13 +471,14 @@ class LibraryDatabase2(LibraryDatabase):
             not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
         # Upgrade database
         while True:
-            meth = getattr(self, 'upgrade_version_%d'%self.user_version, None)
+            uv = self.user_version
+            meth = getattr(self, 'upgrade_version_%d'%uv, None)
             if meth is None:
                 break
             else:
-                print 'Upgrading database to version %d...'%(self.user_version+1)
+                print 'Upgrading database to version %d...'%(uv+1)
                 meth()
-                self.user_version += 1
+                self.user_version = uv+1
 
         self.data    = ResultCache()
         self.search  = self.data.search
