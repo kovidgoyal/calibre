@@ -286,7 +286,7 @@ class SavedSearchBox(QComboBox):
         #print 'in save_search_button_clicked'
         name = self.currentText()
         if self.help_state or name == '':
-            name = self.search_box.text()
+            name = self.search_box.text().replace('"', '')
         self.saved_searches.add(name, self.search_box.text())
         # now go through an initialization cycle to ensure that the combobox has
         # the new search in it, that it is selected, and that the search box
