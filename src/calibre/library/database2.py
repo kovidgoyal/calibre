@@ -477,7 +477,6 @@ class LibraryDatabase2(LibraryDatabase):
             else:
                 print 'Upgrading database to version %d...'%(self.user_version+1)
                 meth()
-                self.conn.commit()
                 self.user_version += 1
 
         self.data    = ResultCache()
