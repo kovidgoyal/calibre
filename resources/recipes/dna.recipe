@@ -25,7 +25,12 @@ class DNAIndia(BasicNewsRecipe):
                    ('After Hours', 'http://www.dnaindia.com/syndication/rss,catid-7.xml'),
                    ('Digital Life', 'http://www.dnaindia.com/syndication/rss,catid-1089741.xml'),
                    ]
-    remove_tags = [{'id':'footer'}, {'class':['bottom', 'categoryHead']}]
+    remove_tags = [{'id':['footer', 'lhs-col']}, {'class':['bottom', 'categoryHead',
+        'article_tools']}]
+    keep_only_tags = dict(id='middle-col')
+    remove_tags_after=[dict(attrs={'id':'story'})]
+    remove_attributes=['style']
+    no_stylesheets = True
 
     def print_version(self, url):
         match = re.search(r'newsid=(\d+)', url)
