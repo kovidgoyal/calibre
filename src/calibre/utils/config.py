@@ -673,6 +673,9 @@ def _prefs():
     c.add_opt('add_formats_to_existing', default=False,
             help=_('Add new formats to existing book records'))
 
+    # this is here instead of the gui preferences because calibredb can execute searches
+    c.add_opt('saved_searches', default={}, help=_('List of named saved searches'))
+
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c
 

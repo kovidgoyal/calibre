@@ -409,14 +409,15 @@ class ResultCache(SearchQueryParser):
 
 class Tag(object):
 
-    def __init__(self, name, id=None, count=0, state=0):
+    def __init__(self, name, id=None, count=0, state=0, tooltip=None):
         self.name = name
         self.id = id
         self.count = count
         self.state = state
+        self.tooltip = tooltip
 
     def __unicode__(self):
-        return u'%s:%s:%s:%s'%(self.name, self.count, self.id, self.state)
+        return u'%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state, self.tooltip)
 
     def __str__(self):
         return unicode(self).encode('utf-8')

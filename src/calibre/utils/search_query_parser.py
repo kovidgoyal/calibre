@@ -19,7 +19,49 @@ If this module is run, it will perform a series of unit tests.
 import sys, string, operator
 
 from calibre.utils.pyparsing import Keyword, Group, Forward, CharsNotIn, Suppress, \
-                      OneOrMore, oneOf, CaselessLiteral, Optional, NoMatch
+                      OneOrMore, oneOf, CaselessLiteral, Optional, NoMatch, ParseException
+from calibre.constants import preferred_encoding
+from calibre.utils.config import prefs
+
+
+'''
+This class manages access to the preference holding the saved search queries.
+It exists to ensure that unicode is used throughout, and also to permit
+adding other fields, such as whether the search is a 'favorite'
+'''
+class SavedSearchQueries(object):
+    queries = {}
+    opt_name = ''
+
+    def __init__(self, _opt_name):
+        self.opt_name = _opt_name;
+        self.queries = prefs[self.opt_name]
+
+    def force_unicode(self, x):
+        if not isinstance(x, unicode):
+            x = x.decode(preferred_encoding, 'replace')
+        return x
+
+    def add(self, name, value):
+        self.queries[self.force_unicode(name)] = self.force_unicode(value).strip()
+        prefs[self.opt_name] = self.queries
+
+    def lookup(self, name):
+        return self.queries.get(self.force_unicode(name), None)
+
+    def delete(self, name):
+        self.queries.pop(self.force_unicode(name), False)
+        prefs[self.opt_name] = self.queries
+
+    def names(self):
+        return sorted(self.queries.keys(),
+                cmp=lambda x,y: cmp(x.lower(), y.lower()))
+
+'''
+Create a global instance of the saved searches. It is global so that the searches
+are common across all instances of the parser (devices, library, etc).
+'''
+saved_searches = SavedSearchQueries('saved_searches')
 
 
 class SearchQueryParser(object):
@@ -55,6 +97,7 @@ class SearchQueryParser(object):
         'comments',
         'format',
         'isbn',
+        'search',
         'all',
                  ]
 
@@ -130,6 +173,13 @@ class SearchQueryParser(object):
 
 
     def parse(self, query):
+        # empty the list of searches used for recursion testing
+        self.searches_seen = set([])
+        return self._parse(query)
+
+    # this parse is used internally because it doesn't clear the
+    # recursive search test list
+    def _parse(self, query):
         res = self._parser.parseString(query)[0]
         return self.evaluate(res)
 
@@ -152,7 +202,20 @@ class SearchQueryParser(object):
         return self.evaluate(argument[0])
 
     def evaluate_token(self, argument):
-        return self.get_matches(argument[0], argument[1])
+        location = argument[0]
+        query = argument[1]
+        if location.lower() == 'search':
+            # print "looking for named search " + query
+            if query.startswith('='):
+                query = query[1:]
+            try:
+                if query in self.searches_seen:
+                    raise ParseException(query, len(query), 'undefined saved search', self)
+                self.searches_seen.add(query)
+                return self._parse(saved_searches.lookup(query))
+            except: # convert all exceptions (e.g., missing key) to a parse error
+                raise ParseException(query, len(query), 'undefined saved search', self)
+        return self.get_matches(location, query)
 
     def get_matches(self, location, query):
         '''
