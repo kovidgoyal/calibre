@@ -129,7 +129,7 @@ class TagTreeItem(object):
         if role == Qt.DecorationRole:
             return self.icon_map[self.tag.state]
         if role == Qt.ToolTipRole and self.tag.tooltip:
-            return self.tag.tooltip
+            return QVariant(self.tag.tooltip)
         return NONE
 
     def toggle(self):
