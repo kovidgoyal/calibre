@@ -12,7 +12,7 @@ from urllib import unquote
 from calibre.customize.conversion import OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
-from calibre import strftime, guess_type, prepare_string_for_xml, CurrentDir
+from calibre import guess_type, CurrentDir
 from calibre.customize.conversion import OptionRecommendation
 from calibre.constants import filesystem_encoding
 
@@ -110,37 +110,6 @@ class EPUBOutput(OutputFormatPlugin):
 </html>
 '''
 
-    TITLEPAGE = '''\
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-    <head>
-        <title>%(title)s</title>
-        <style type="text/css">
-            body {
-                text-align: center;
-                vertical-align: center;
-                overflow: hidden;
-                font-size: 16pt;
-            }
-            .logo {
-                width: 510px; height: 390px;
-                text-align:center;
-                font-size: 1pt;
-                overflow:hidden;
-            }
-            h1 { font-family: serif; }
-            h2, h4 { font-family: monospace; }
-        </style>
-    </head>
-    <body>
-        <h1>%(title)s</h1>
-        <div style="text-align:center">
-            <img class="logo" src="%(img)s" alt="calibre logo" />
-        </div>
-        <h2>%(author)s</h2>
-        <h4>Produced by %(app)s</h4>
-    </body>
-</html>
-'''
     def workaround_webkit_quirks(self):
         from calibre.ebooks.oeb.base import XPath
         for x in self.oeb.spine:
@@ -262,42 +231,80 @@ class EPUBOutput(OutputFormatPlugin):
         '''
         Create a generic cover for books that dont have a cover
         '''
+        from calibre.utils.pil_draw import draw_centered_text
+        from calibre.ebooks.metadata import authors_to_string
         if self.opts.no_default_epub_cover:
             return None
         self.log('Generating default cover')
-        from calibre.ebooks.metadata import authors_to_string
         m = self.oeb.metadata
         title = unicode(m.title[0])
-        a = [unicode(x) for x in m.creator if x.role == 'aut']
-        author = authors_to_string(a)
-        img_data = open(I('library.png'), 'rb').read()
-        id, href = self.oeb.manifest.generate('calibre-logo',
-                'calibre-logo.png')
-        self.oeb.manifest.add(id, href, 'image/png', data=img_data)
-        title, author = map(prepare_string_for_xml, (title, author))
-        if not author or not author.strip():
-            author = strftime('%d %b, %Y')
-        html = self.TITLEPAGE%dict(title=title, author=author,
-                app=__appname__ +' '+__version__,
-                img=href)
-        id, href = self.oeb.manifest.generate('calibre-titlepage',
-                'calibre-titlepage.xhtml')
-        return self.oeb.manifest.add(id, href, guess_type('t.xhtml')[0],
-                data=etree.fromstring(html))
+        authors = [unicode(x) for x in m.creator if x.role == 'aut']
+
+        import cStringIO
+        cover_file = cStringIO.StringIO()
+        try:
+            try:
+                from PIL import Image, ImageDraw, ImageFont
+                Image, ImageDraw, ImageFont
+            except ImportError:
+                import Image, ImageDraw, ImageFont
+            font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
+            app = '['+__appname__ +' '+__version__+']'
+
+            COVER_WIDTH, COVER_HEIGHT = 590, 750
+            img = Image.new('RGB', (COVER_WIDTH, COVER_HEIGHT), 'white')
+            draw = ImageDraw.Draw(img)
+            # Title
+            font = ImageFont.truetype(font_path, 44)
+            bottom = draw_centered_text(img, draw, font, title, 15, ysep=9)
+            # Authors
+            bottom += 14
+            font = ImageFont.truetype(font_path, 32)
+            authors = authors_to_string(authors)
+            bottom = draw_centered_text(img, draw, font, authors, bottom, ysep=7)
+            # Vanity
+            font = ImageFont.truetype(font_path, 28)
+            width, height = draw.textsize(app, font=font)
+            left = max(int((COVER_WIDTH - width)/2.), 0)
+            top = COVER_HEIGHT - height - 15
+            draw.text((left, top), app, fill=(0,0,0), font=font)
+            # Logo
+            logo = Image.open(I('library.png'), 'r')
+            width, height = logo.size
+            left = max(int((COVER_WIDTH - width)/2.), 0)
+            top = max(int((COVER_HEIGHT - height)/2.), 0)
+            img.paste(logo, (left, max(bottom, top)))
+            img = img.convert('RGB').convert('P', palette=Image.ADAPTIVE)
+
+            img.convert('RGB').save(cover_file, 'JPEG')
+            cover_file.flush()
+            id, href = self.oeb.manifest.generate('cover_image', 'cover_image.jpg')
+            item = self.oeb.manifest.add(id, href, guess_type('t.jpg')[0],
+                        data=cover_file.getvalue())
+            m.clear('cover')
+            m.add('cover', item.id)
+
+            return item.href
+        except:
+            self.log.exception('Failed to generate default cover')
+        return None
 
 
     def insert_cover(self):
         from calibre.ebooks.oeb.base import urldefrag
         from calibre import guess_type
         g, m = self.oeb.guide, self.oeb.manifest
+        item = None
         if 'titlepage' not in g:
             if 'cover' in g:
-                tp = self.TITLEPAGE_COVER%unquote(g['cover'].href)
+                href = g['cover'].href
+            else:
+                href = self.default_cover()
+            if href is not None:
+                tp = self.TITLEPAGE_COVER%unquote(href)
                 id, href = m.generate('titlepage', 'titlepage.xhtml')
                 item = m.add(id, href, guess_type('t.xhtml')[0],
                         data=etree.fromstring(tp))
-            else:
-                item = self.default_cover()
         else:
             item = self.oeb.manifest.hrefs[
                     urldefrag(self.oeb.guide['titlepage'].href)[0]]
