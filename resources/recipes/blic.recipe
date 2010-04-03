@@ -20,7 +20,8 @@ class Blic(BasicNewsRecipe):
     use_embedded_content  = False
     masthead_url          = 'http://www.blic.rs/resources/images/header/header_back.png'
     language              = 'sr'
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: Georgia, serif1, serif} .article_description{font-family: Arial, sans1, sans-serif} .img_full{float: none} img{margin-bottom: 0.8em} '
+    publication_type      = 'newspaper'
+    extra_css             = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: Georgia, serif1, serif} .article_description{font-family: Arial, sans1, sans-serif} .img_full{float: none} img{margin-bottom: 0.8em} '
 
     conversion_options = {
                           'comment'  : description
@@ -41,4 +42,6 @@ class Blic(BasicNewsRecipe):
         return url + '/print'
 
     def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']    
         return self.adeify_images(soup)

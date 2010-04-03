@@ -12,7 +12,9 @@ from itertools import izip
 from PyQt4.Qt import Qt, QTreeView, QApplication, \
                      QFont, SIGNAL, QSize, QIcon, QPoint, \
                      QAbstractItemModel, QVariant, QModelIndex
-from calibre.gui2 import config, NONE
+from calibre.gui2 import config, NONE, is_gui_thread, Dispatcher
+from calibre.utils.search_query_parser import saved_searches
+from calibre.library.database2 import Tag
 
 class TagsView(QTreeView):
 
@@ -31,6 +33,7 @@ class TagsView(QTreeView):
         self.connect(self, SIGNAL('clicked(QModelIndex)'), self.toggle)
         self.popularity.setChecked(config['sort_by_popularity'])
         self.connect(self.popularity, SIGNAL('stateChanged(int)'), self.sort_changed)
+        self.connect(self, SIGNAL('need_refresh()'), self.recount, Qt.QueuedConnection)
 
     @property
     def match_all(self):
@@ -51,6 +54,9 @@ class TagsView(QTreeView):
         self.model().clear_state()
 
     def recount(self, *args):
+        if not is_gui_thread():
+            # Re-call in GUI thread
+            return Dispatcher(self.recount)(*args)
         ci = self.currentIndex()
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))
@@ -119,9 +125,14 @@ class TagTreeItem(object):
 
     def tag_data(self, role):
         if role == Qt.DisplayRole:
-            return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
+            if self.tag.count == 0:
+                return QVariant('%s'%(self.tag.name))
+            else:
+                return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
         if role == Qt.DecorationRole:
             return self.icon_map[self.tag.state]
+        if role == Qt.ToolTipRole and self.tag.tooltip:
+            return QVariant(self.tag.tooltip)
         return NONE
 
     def toggle(self):
@@ -129,36 +140,44 @@ class TagTreeItem(object):
             self.tag.state = (self.tag.state + 1)%3
 
 class TagsModel(QAbstractItemModel):
-    categories = [_('Authors'), _('Series'), _('Formats'), _('Publishers'), _('News'), _('Tags')]
-    row_map    = ['author', 'series', 'format', 'publisher', 'news', 'tag']
+    categories = [_('Authors'), _('Series'), _('Formats'), _('Publishers'), _('News'), _('Tags'), _('Searches')]
+    row_map    = ['author', 'series', 'format', 'publisher', 'news', 'tag', 'search']
 
     def __init__(self, db, parent=None):
         QAbstractItemModel.__init__(self, parent)
         self.cmap = tuple(map(QIcon, [I('user_profile.svg'),
                 I('series.svg'), I('book.svg'), I('publisher.png'),
-                I('news.svg'), I('tags.svg')]))
+                I('news.svg'), I('tags.svg'), I('search.svg')]))
         self.icon_map = [QIcon(), QIcon(I('plus.svg')),
                 QIcon(I('minus.svg'))]
         self.db = db
         self.ignore_next_search = 0
         self.root_item = TagTreeItem()
         data = self.db.get_categories(config['sort_by_popularity'])
+        data['search'] = self.get_search_nodes()
+
         for i, r in enumerate(self.row_map):
             c = TagTreeItem(parent=self.root_item,
                     data=self.categories[i], category_icon=self.cmap[i])
             for tag in data[r]:
-                t = TagTreeItem(parent=c, data=tag, icon_map=self.icon_map)
-                t
+                TagTreeItem(parent=c, data=tag, icon_map=self.icon_map)
 
         self.db.add_listener(self.database_changed)
         self.connect(self, SIGNAL('need_refresh()'), self.refresh,
                 Qt.QueuedConnection)
+
+    def get_search_nodes(self):
+        l = []
+        for i in saved_searches.names():
+            l.append(Tag(i, tooltip=saved_searches.lookup(i)))
+        return l
 
     def database_changed(self, event, ids):
         self.emit(SIGNAL('need_refresh()'))
 
     def refresh(self):
         data = self.db.get_categories(config['sort_by_popularity'])
+        data['search'] = self.get_search_nodes()
         for i, r in enumerate(self.row_map):
             category = self.root_item.children[i]
             names = [t.tag.name for t in category.children]

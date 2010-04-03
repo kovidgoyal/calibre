@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.51\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-12 07:36+0000\n"
-"PO-Revision-Date: 2010-03-15 23:10+0000\n"
-"Last-Translator: svilborg <Unknown>\n"
+"PO-Revision-Date: 2010-03-17 02:27+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: bg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-16 04:44+0000\n"
+"X-Launchpad-Export-Date: 2010-03-18 04:32+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -4132,7 +4132,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:366
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:193
 msgid "Preferences"
-msgstr ""
+msgstr "Предпочитания"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:505
 msgid ""
@@ -4168,7 +4168,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:513
 msgid " seconds"
-msgstr ""
+msgstr " секунди"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:514
 msgid "Choose &language (requires restart):"
@@ -4232,23 +4232,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:531
 msgid "Toolbar"
-msgstr ""
+msgstr "Лента с инструменти"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:532
 msgid "Large"
-msgstr ""
+msgstr "Голям"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:533
 msgid "Medium"
-msgstr ""
+msgstr "Среден"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:534
 msgid "Small"
-msgstr ""
+msgstr "Малък"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:535
 msgid "&Button size in toolbar"
-msgstr ""
+msgstr "Размер на &бутоните в лентата с инструменти"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:536
 msgid "Show &text in toolbar buttons"
@@ -4325,20 +4325,22 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:210
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:117
 msgid "&Username:"
-msgstr ""
+msgstr "&Потребителско име:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:555
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:119
 msgid "&Password:"
-msgstr ""
+msgstr "П&арола:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:556
 msgid ""
 "If you leave the password blank, anyone will be able to access your book "
 "collection using the web interface."
 msgstr ""
+"Ако оставите празно полето с  паролата, всеки ще може да достъпи вашата "
+"колекция от книга през уеб интерфейса."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:557
 msgid ""
@@ -4362,15 +4364,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:561
 msgid "&Start Server"
-msgstr ""
+msgstr "&Стартиране на Сървъра"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:562
 msgid "St&op Server"
-msgstr ""
+msgstr "С&пиране на Сървъра"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:563
 msgid "&Test Server"
-msgstr ""
+msgstr "&Тестване на Сървъра"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:564
 msgid "Run server &automatically on startup"
@@ -4396,6 +4398,8 @@ msgid ""
 "Here you can customize the behavior of Calibre by controlling what plugins "
 "it uses."
 msgstr ""
+"Тук можете да персонализирате поведението на Calibre, контролирайки "
+"приставките, които той използва."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:569
 msgid "Enable/&Disable plugin"
@@ -4419,7 +4423,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:575
 msgid "&Add"
-msgstr ""
+msgstr "&Добавяне"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:21
 msgid "Getting debug information"
@@ -4464,7 +4468,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:48
 msgid "Are you sure?"
-msgstr ""
+msgstr "Сигурни ли сте?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:50
 msgid "&Show this warning again"
@@ -4472,7 +4476,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/conversion_error_ui.py:41
 msgid "ERROR"
-msgstr ""
+msgstr "ГРЕШКА"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:63
 msgid "Author Sort"
@@ -4480,7 +4484,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:65
 msgid "ISBN"
-msgstr ""
+msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:165
 msgid "Finding metadata..."
@@ -4496,7 +4500,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:189
 msgid "Warning"
-msgstr ""
+msgstr "Внимание"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:190
 msgid "Could not fetch metadata from:"
@@ -4606,16 +4610,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:147
 msgid "No change"
-msgstr ""
+msgstr "Без промяна"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:366
 msgid " stars"
-msgstr ""
+msgstr " звезди"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:150
 msgid "Add ta&gs: "
-msgstr ""
+msgstr "Добавяне на &етикети: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:152
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:153
@@ -4642,7 +4646,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:123
 msgid "Not a valid picture"
-msgstr ""
+msgstr "Невалидна картинка"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:136
 msgid "Choose formats for "
@@ -4651,7 +4655,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1202
 msgid "Books"
-msgstr ""
+msgstr "Книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:165
 msgid "No permission"
@@ -4659,12 +4663,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:166
 msgid "You do not have permission to read the following files:"
-msgstr ""
+msgstr "Нямате права за четене на следните файлове:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:189
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:190
 msgid "No format selected"
-msgstr ""
+msgstr "Няма избран формат"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:201
 msgid "Could not read metadata"
@@ -4694,15 +4698,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:406
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:411
 msgid "This ISBN number is valid"
-msgstr ""
+msgstr "Това е валиден ISBN номер"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:414
 msgid "This ISBN number is invalid"
-msgstr ""
+msgstr "Това е невалиден ISBN номер"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:510
 msgid "Downloading cover..."
-msgstr ""
+msgstr "Изтегляне на обложка..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:522
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:527
@@ -4722,6 +4726,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:528
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr ""
+"За тази книга не може да бъде намерена обложка. Опитайте се да посочите ISBN "
+"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:540
 msgid "Bad cover"
@@ -4746,6 +4752,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:602
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
 msgstr ""
+"Трябва да посочите поне едно от ISBN, Заглавие, Автори или Производител"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:671
 msgid "Permission denied"
@@ -4778,7 +4785,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:377
 msgid "IS&BN:"
-msgstr ""
+msgstr "IS&BN:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:378
 msgid "Publishe&d:"
@@ -4786,15 +4793,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:381
 msgid "dd MMM yyyy"
-msgstr ""
+msgstr "dd MMM yyyy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:382
 msgid "&Date:"
-msgstr ""
+msgstr "&Дата:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:383
 msgid "&Comments"
-msgstr ""
+msgstr "&Коментари"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:384
 msgid "&Fetch metadata from server"
@@ -4802,7 +4809,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:385
 msgid "Available Formats"
-msgstr ""
+msgstr "Налични формати"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:386
 msgid "Add a new format for this book to the database"
@@ -4834,7 +4841,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:52
 msgid "Aborting..."
-msgstr ""
+msgstr "Прекъсване..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:119
 msgid "Need username and password"
@@ -4854,16 +4861,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:193
 msgid "%d days, %d hours and %d minutes ago"
-msgstr ""
+msgstr "преди %d дни, %d часа и %d минути"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:195
 msgid "Last downloaded"
-msgstr ""
+msgstr "Последно изтегляне"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:190
 msgid "Schedule news download"
-msgstr ""
+msgstr "График за изтегляне на новини"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:218
 msgid "Add a custom news source"
@@ -4893,43 +4900,43 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:196
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
 msgid "Every "
-msgstr ""
+msgstr "Всеки "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:197
 msgid "day"
-msgstr ""
+msgstr "ден"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:198
 msgid "Monday"
-msgstr ""
+msgstr "Понеделник"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:199
 msgid "Tuesday"
-msgstr ""
+msgstr "Вторник"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:200
 msgid "Wednesday"
-msgstr ""
+msgstr "Сряда"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:201
 msgid "Thursday"
-msgstr ""
+msgstr "Четвъртък"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:202
 msgid "Friday"
-msgstr ""
+msgstr "Петък"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:203
 msgid "Saturday"
-msgstr ""
+msgstr "Събота"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
 msgid "Sunday"
-msgstr ""
+msgstr "Неделя"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:205
 msgid "at"
-msgstr ""
+msgstr "в"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid ""
@@ -4941,7 +4948,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid " days"
-msgstr ""
+msgstr " дни"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:209
 msgid "&Account"
@@ -4965,7 +4972,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:217
 msgid "&Advanced"
-msgstr ""
+msgstr "Д&опълнителни"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:218
 msgid "&Download now"
@@ -4983,7 +4990,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:36
 msgid "contains"
-msgstr ""
+msgstr "съдържа"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:37
 msgid "The text to search for. It is interpreted as a regular expression."
@@ -5046,7 +5053,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:124
 msgid " "
-msgstr ""
+msgstr " "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:125
 msgid ""
@@ -5060,7 +5067,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:66
 msgid "Are your sure?"
-msgstr ""
+msgstr "Сигурни ли сте?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:67
 msgid ""
@@ -5070,7 +5077,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:123
 msgid "Tag Editor"
-msgstr ""
+msgstr "Редактор на етикети"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:124
 msgid "A&vailable tags"
@@ -5084,7 +5091,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:127
 msgid "Apply tag to current book"
-msgstr ""
+msgstr "Добавяне на етикет към текущата книга"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:129
 msgid "A&pplied tags"
@@ -5119,7 +5126,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:115
 msgid "&Test"
-msgstr ""
+msgstr "Про&ба"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:127
 msgid "No recipe selected"
@@ -5162,7 +5169,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:185
 msgid "Already exists"
-msgstr ""
+msgstr "Вече съществува"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:186
 msgid "This feed has already been added to the recipe"
@@ -5172,7 +5179,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:236
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:286
 msgid "Invalid input"
-msgstr ""
+msgstr "Невалидни входящи данни"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:228
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:237
@@ -5327,7 +5334,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:114
 msgid "Regular &expression"
-msgstr ""
+msgstr "&Регулярен израз"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:116
 msgid "File &name:"
@@ -5335,11 +5342,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:117
 msgid "Test"
-msgstr ""
+msgstr "Проба"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:118
 msgid "Title:"
-msgstr ""
+msgstr "Заглавие:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:119
 msgid "Regular expression (?P&lt;title&gt;)"
@@ -5356,11 +5363,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:94
 msgid "No match"
-msgstr ""
+msgstr "Няма съвпадение"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:121
 msgid "Authors:"
-msgstr ""
+msgstr "Автори:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:122
 msgid "Regular expression (?P<author>)"
@@ -5396,7 +5403,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:54
 msgid "Status"
-msgstr ""
+msgstr "Състояние"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:55
 msgid "Progress"
@@ -5444,16 +5451,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:171
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1151
 msgid "Size (MB)"
-msgstr ""
+msgstr "Размер (MB)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1152
 msgid "Date"
-msgstr ""
+msgstr "Дата"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:174
 msgid "Rating"
-msgstr ""
+msgstr "Рейтинг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:358
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:364
@@ -5467,11 +5474,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:375
 msgid "Book <font face=\"serif\">%s</font> of %s."
-msgstr ""
+msgstr "Книга <font face=\"serif\">%s</font> of %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:889
 msgid "Not allowed"
-msgstr ""
+msgstr "Не е позволено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:890
 msgid ""
@@ -5514,7 +5521,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:433
 msgid "No matches found"
-msgstr ""
+msgstr "Не са намерени съвпадения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:128
 msgid "LRF Viewer"
@@ -5530,21 +5537,21 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
 msgid "Next Page"
-msgstr ""
+msgstr "Следваща страница"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:132
 msgid "Previous Page"
-msgstr ""
+msgstr "Предишна страница"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:182
 msgid "Back"
-msgstr ""
+msgstr "Назад"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:183
 msgid "Forward"
-msgstr ""
+msgstr "Напред"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:135
 msgid "Next match"
@@ -5557,7 +5564,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:137
 msgid "Configure"
-msgstr ""
+msgstr "Настройки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:25
 msgid "Use the library located at the specified path."
@@ -5585,7 +5592,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:89
 msgid "%s is already running."
-msgstr ""
+msgstr "%s вече се изпълнява."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:92
 msgid "may be running in the system tray, in the"
@@ -5606,7 +5613,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:113
 msgid "try deleting the file"
-msgstr ""
+msgstr "опитайте да изтриете файла"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:331
 msgid "calibre"
@@ -5618,11 +5625,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:335
 msgid "Alt+S"
-msgstr ""
+msgstr "Alt+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:336
 msgid "&Search:"
-msgstr ""
+msgstr "&Търсене:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:337
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:338
@@ -5633,7 +5640,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:339
 msgid "Reset Quick Search"
-msgstr ""
+msgstr "Изчистване на бързото търсене"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:341
 msgid "Sort by &popularity"
@@ -5649,7 +5656,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:344
 msgid "Add books"
-msgstr ""
+msgstr "Добавяне на книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:345
 msgid "A"
@@ -5658,11 +5665,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:346
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:347
 msgid "Remove books"
-msgstr ""
+msgstr "Премахване на книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:348
 msgid "Del"
-msgstr ""
+msgstr "Изтр."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:349
 msgid "Edit meta information"
@@ -5704,7 +5711,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:358
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:316
 msgid "View"
-msgstr ""
+msgstr "Преглед"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:359
 msgid "V"
@@ -5740,7 +5747,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:368
 msgid "Ctrl+P"
-msgstr ""
+msgstr "Ctrl+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:20
 msgid ""
@@ -5754,7 +5761,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:60
 msgid "&Quit"
-msgstr ""
+msgstr "&Изход"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:85
 msgid "ERROR: Unhandled exception"
@@ -5762,7 +5769,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:89
 msgid "Book has neither title nor ISBN"
-msgstr ""
+msgstr "Книгата няма нито заглавие нито ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:115
 msgid "No matches found for this book"
@@ -5770,7 +5777,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:71
 msgid "Search"
-msgstr ""
+msgstr "Търсене"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:58
 msgid "Press a key..."
@@ -5787,7 +5794,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:223
 msgid " or "
-msgstr ""
+msgstr " или "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:68
@@ -5800,7 +5807,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:223
 msgid "Keys"
-msgstr ""
+msgstr "Клавиши"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:225
 msgid "Double click to change"
@@ -5812,21 +5819,21 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:69
 msgid "&Custom"
-msgstr ""
+msgstr "Потреб&ителски"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:70
 msgid "&Shortcut:"
-msgstr ""
+msgstr "&Бърз клавиш:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:76
 msgid "Click to change"
-msgstr ""
+msgstr "Щракнете, за да промените"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:78
 msgid "Clear"
-msgstr ""
+msgstr "Изчистване"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:75
 msgid "&Alternate shortcut:"
@@ -5860,7 +5867,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Authors"
-msgstr ""
+msgstr "Автори"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:132
 msgid "Publishers"
@@ -5919,7 +5926,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:178
 msgid "&Restore"
-msgstr ""
+msgstr "&Възстановяване"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:180
 msgid "&Donate to support calibre"
@@ -5927,7 +5934,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:185
 msgid "&Restart"
-msgstr ""
+msgstr "&Рестартиране"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:224
 msgid "<p>For help see the: <a href=\"%s\">User Manual</a><br>"

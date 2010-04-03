@@ -320,6 +320,7 @@ class MobiReader(object):
             from lxml.html import soupparser
             self.log.warning('Malformed markup, parsing using BeautifulSoup')
             try:
+                self.processed_html = self.processed_html.replace('</</', '</')
                 root = soupparser.fromstring(self.processed_html)
             except Exception:
                 self.log.warning('MOBI markup appears to contain random bytes. Stripping.')

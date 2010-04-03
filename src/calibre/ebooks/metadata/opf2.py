@@ -433,6 +433,8 @@ class OPF(object):
     tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
     isbn_path       = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@scheme, "isbn", "i") or re:match(@opf:scheme, "isbn", "i"))]')
+    raster_cover_path = XPath('descendant::*[re:match(name(), "meta", "i") and ' +
+            're:match(@name, "cover", "i") and @content]')
     identifier_path = XPath('descendant::*[re:match(name(), "identifier", "i")]')
     application_id_path = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@opf:scheme, "calibre|libprs500", "i") or re:match(@scheme, "calibre|libprs500", "i"))]')
@@ -804,6 +806,14 @@ class OPF(object):
                         if os.access(os.path.join(self.base_dir, prefix+suffix), os.R_OK):
                             return cpath
 
+    @property
+    def raster_cover(self):
+        covers = self.raster_cover_path(self.metadata)
+        if covers:
+            cover_id = covers[0].get('content')
+            for item in self.itermanifest():
+                if item.get('id', None) == cover_id:
+                    return item.get('href', None)
 
     @dynamic_property
     def cover(self):

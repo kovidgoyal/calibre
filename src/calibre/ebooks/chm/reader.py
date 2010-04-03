@@ -7,7 +7,7 @@ __copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
 import os, re
 from mimetypes import guess_type as guess_mimetype
 
-from BeautifulSoup import BeautifulSoup, NavigableString
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
 
 from calibre.utils.chm.chm import CHMFile
 from calibre.utils.chm.chmlib import (
@@ -17,6 +17,7 @@ from calibre.utils.chm.chmlib import (
 
 from calibre.utils.config import OptionParser
 from calibre.ebooks.metadata.toc import TOC
+from calibre.ebooks.chardet import xml_to_unicode
 
 
 def match_string(s1, s2_already_lowered):
@@ -145,8 +146,9 @@ class CHMReader(CHMFile):
 
     def _reformat(self, data):
         try:
+            data = xml_to_unicode(data, strip_encoding_pats=True)[0]
             soup = BeautifulSoup(data)
-        except UnicodeEncodeError:
+        except ValueError:
             # hit some strange encoding problems...
             print "Unable to parse html for cleaning, leaving it :("
             return data
@@ -184,7 +186,7 @@ class CHMReader(CHMFile):
                 # and some don't even have a src= ?!
                 pass
         # now give back some pretty html.
-        return soup.prettify()
+        return soup.prettify('utf-8')
 
     def Contents(self):
         if self._contents is not None:

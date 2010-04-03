@@ -1191,7 +1191,8 @@ class Manifest(object):
             href = urlnormalize(href)
             base, ext = os.path.splitext(href)
             index = 1
-            while href in self.hrefs:
+            lhrefs = set([x.lower() for x in self.hrefs])
+            while href.lower() in lhrefs:
                 href = base + str(index) + ext
                 index += 1
         return id, href

@@ -592,6 +592,11 @@ def is_ok_to_use_qt():
         gui_thread = QThread.currentThread()
     return gui_thread is QThread.currentThread()
 
+def is_gui_thread():
+    global gui_thread
+    return gui_thread is QThread.currentThread()
+
+
 def find_forms(srcdir):
     base = os.path.join(srcdir, 'calibre', 'gui2')
     forms = []

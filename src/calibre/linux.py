@@ -6,8 +6,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, shutil, cPickle, textwrap, stat
 from subprocess import check_call
 
-from calibre import  __appname__, prints
+from calibre import  __appname__, prints, guess_type
 from calibre.constants import islinux, isfreebsd
+from calibre.customize.ui import all_input_formats
 
 
 entry_points = {
@@ -375,14 +376,25 @@ class PostInstall:
                 check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
                 self.icon_resources.append(('apps', 'calibre-viewer', '128'))
 
+                mimetypes = set([])
+                for x in all_input_formats():
+                    mt = guess_type('dummy.'+x)[0]
+                    if mt and 'chemical' not in mt:
+                        mimetypes.add(mt)
+
+                def write_mimetypes(f):
+                    f.write('MimeType=%s;\n'%';'.join(mimetypes))
+
                 f = open('calibre-lrfviewer.desktop', 'wb')
                 f.write(VIEWER)
                 f.close()
                 f = open('calibre-ebook-viewer.desktop', 'wb')
                 f.write(EVIEWER)
+                write_mimetypes(f)
                 f.close()
                 f = open('calibre-gui.desktop', 'wb')
                 f.write(GUI)
+                write_mimetypes(f)
                 f.close()
                 des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
                         'calibre-ebook-viewer.desktop')
@@ -465,7 +477,8 @@ def opts_and_exts(name, op, exts):
     opts = ' '.join(options(op))
     exts.extend([i.upper() for i in exts])
     exts='|'.join(exts)
-    return '_'+name+'()'+\
+    fname = name.replace('-', '_')
+    return '_'+fname+'()'+\
 '''
 {
     local cur prev opts
@@ -498,7 +511,7 @@ def opts_and_exts(name, op, exts):
     esac
 
 }
-complete -o filenames -F _'''%(opts,exts) + name + ' ' + name +"\n\n"
+complete -o filenames -F _'''%(opts,exts) + fname + ' ' + name +"\n\n"
 
 
 VIEWER = '''\
@@ -521,11 +534,10 @@ Version=1.0
 Type=Application
 Name=E-book Viewer
 GenericName=Viewer for E-books
-Comment=Viewer for E-books
+Comment=Viewer for E-books in all the major formats
 TryExec=ebook-viewer
 Exec=ebook-viewer %F
 Icon=calibre-viewer
-MimeType=application/epub+zip;
 Categories=Graphics;Viewer;
 '''
 
@@ -536,7 +548,7 @@ Version=1.0
 Type=Application
 Name=calibre
 GenericName=E-book library management
-Comment=E-book library management
+Comment=E-book library management: Convert, view, share, catalogue all your e-books
 TryExec=calibre
 Exec=calibre
 Icon=calibre-gui

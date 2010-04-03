@@ -7,6 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import QComboBox, SIGNAL, Qt, QLineEdit, QStringList, pyqtSlot
+from PyQt4.QtGui import QCompleter
 
 from calibre.gui2 import config
 
@@ -19,6 +20,10 @@ class SearchLineEdit(QLineEdit):
     def mouseReleaseEvent(self, event):
         self.emit(SIGNAL('mouse_released(PyQt_PyObject)'), event)
         QLineEdit.mouseReleaseEvent(self, event)
+
+    def focusOutEvent(self, event):
+        self.emit(SIGNAL('focus_out(PyQt_PyObject)'), event)
+        QLineEdit.focusOutEvent(self, event)
 
     def dropEvent(self, ev):
         if self.parent().help_state:
@@ -175,4 +180,131 @@ class SearchBox2(QComboBox):
 
     def search_as_you_type(self, enabled):
         self.as_you_type = enabled
+
+
+class SavedSearchBox(QComboBox):
+
+    '''
+    To use this class:
+        * Call initialize()
+        * Connect to the changed() signal from this widget
+          if you care about changes to the list of saved searches.
+    '''
+
+    def __init__(self, parent=None):
+        QComboBox.__init__(self, parent)
+        self.normal_background = 'rgb(255, 255, 255, 0%)'
+
+        self.line_edit = SearchLineEdit(self)
+        self.setLineEdit(self.line_edit)
+        self.connect(self.line_edit, SIGNAL('key_pressed(PyQt_PyObject)'),
+                self.key_pressed, Qt.DirectConnection)
+        self.connect(self.line_edit, SIGNAL('mouse_released(PyQt_PyObject)'),
+                self.mouse_released, Qt.DirectConnection)
+        self.connect(self.line_edit, SIGNAL('focus_out(PyQt_PyObject)'),
+                self.focus_out, Qt.DirectConnection)
+        self.connect(self, SIGNAL('activated(const QString&)'),
+                self.saved_search_selected)
+
+        completer = QCompleter(self) # turn off auto-completion
+        self.setCompleter(completer)
+        self.setEditable(True)
+        self.help_state = True
+        self.prev_search = ''
+        self.setInsertPolicy(self.NoInsert)
+
+    def initialize(self, _saved_searches, _search_box, colorize=False, help_text=_('Search')):
+        self.tool_tip_text = self.toolTip()
+        self.saved_searches = _saved_searches
+        self.search_box = _search_box
+        self.help_text = help_text
+        self.colorize = colorize
+        self.clear_to_help()
+
+    def normalize_state(self):
+        #print 'in normalize_state'
+        self.setEditText('')
+        self.line_edit.setStyleSheet(
+            'QLineEdit { color: black; background-color: %s; }' %
+            self.normal_background)
+        self.help_state = False
+
+    def clear_to_help(self):
+        #print 'in clear_to_help'
+        self.setToolTip(self.tool_tip_text)
+        self.initialize_saved_search_names()
+        self.setEditText(self.help_text)
+        self.line_edit.home(False)
+        self.help_state = True
+        self.line_edit.setStyleSheet(
+                'QLineEdit { color: gray; background-color: %s; }' %
+                self.normal_background)
+
+    def focus_out(self, event):
+        #print 'in focus_out'
+        if self.currentText() == '':
+            self.clear_to_help()
+
+    def key_pressed(self, event):
+        #print 'in key_pressed'
+        if self.help_state:
+            self.normalize_state()
+
+    def mouse_released(self, event):
+        if self.help_state:
+            self.normalize_state()
+
+    def saved_search_selected (self, qname):
+        #print 'in saved_search_selected'
+        qname = unicode(qname)
+        if qname is None or not qname.strip():
+            return
+        self.normalize_state()
+        self.search_box.set_search_string(u'search:"%s"' % qname)
+        self.setEditText(qname)
+        self.setToolTip(self.saved_searches.lookup(qname))
+
+    def initialize_saved_search_names(self):
+        #print 'in initialize_saved_search_names'
+        self.clear()
+        qnames = self.saved_searches.names()
+        self.addItems(qnames)
+        self.setCurrentIndex(-1)
+
+    # SIGNALed from the main UI
+    def delete_search_button_clicked(self):
+        #print 'in delete_search_button_clicked'
+        idx = self.currentIndex
+        if idx < 0:
+            return
+        self.saved_searches.delete(unicode(self.currentText()))
+        self.clear_to_help()
+        self.search_box.set_search_string('')
+        self.emit(SIGNAL('changed()'))
+
+    # SIGNALed from the main UI
+    def save_search_button_clicked(self):
+        #print 'in save_search_button_clicked'
+        name = unicode(self.currentText())
+        if self.help_state or not name.strip():
+            name = unicode(self.search_box.text()).replace('"', '')
+        self.saved_searches.delete(name)
+        self.saved_searches.add(name, unicode(self.search_box.text()))
+        # now go through an initialization cycle to ensure that the combobox has
+        # the new search in it, that it is selected, and that the search box
+        # references the new search instead of the text in the search.
+        self.clear_to_help()
+        self.normalize_state()
+        self.setCurrentIndex(self.findText(name))
+        self.saved_search_selected (name)
+        self.emit(SIGNAL('changed()'))
+
+    # SIGNALed from the main UI
+    def copy_search_button_clicked (self):
+        #print 'in copy_search_button_clicked'
+        idx = self.currentIndex();
+        if idx < 0:
+            return
+        self.search_box.set_search_string(self.saved_searches.lookup(unicode(self.currentText())))
+
 

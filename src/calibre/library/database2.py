@@ -409,11 +409,21 @@ class ResultCache(SearchQueryParser):
 
 class Tag(object):
 
-    def __init__(self, name, id=None, count=0, state=0):
+    def __init__(self, name, id=None, count=0, state=0, tooltip=None):
         self.name = name
         self.id = id
         self.count = count
         self.state = state
+        self.tooltip = tooltip
+
+    def __unicode__(self):
+        return u'%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state, self.tooltip)
+
+    def __str__(self):
+        return unicode(self).encode('utf-8')
+
+    def __repr__(self):
+        return str(self)
 
 
 class LibraryDatabase2(LibraryDatabase):
@@ -462,14 +472,14 @@ class LibraryDatabase2(LibraryDatabase):
             not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
         # Upgrade database
         while True:
-            meth = getattr(self, 'upgrade_version_%d'%self.user_version, None)
+            uv = self.user_version
+            meth = getattr(self, 'upgrade_version_%d'%uv, None)
             if meth is None:
                 break
             else:
-                print 'Upgrading database to version %d...'%(self.user_version+1)
+                print 'Upgrading database to version %d...'%(uv+1)
                 meth()
-                self.conn.commit()
-                self.user_version += 1
+                self.user_version = uv+1
 
         self.data    = ResultCache()
         self.search  = self.data.search
@@ -712,6 +722,24 @@ class LibraryDatabase2(LibraryDatabase):
         END TRANSACTION;
         ''')
 
+    def upgrade_version_8(self):
+        'Add Tag Browser views'
+        def create_tag_browser_view(table_name, column_name):
+            self.conn.executescript('''
+                DROP VIEW IF EXISTS tag_browser_{tn};
+                CREATE VIEW tag_browser_{tn} AS SELECT
+                    id,
+                    name,
+                    (SELECT COUNT(id) FROM books_{tn}_link WHERE {cn}={tn}.id) count
+                FROM {tn};
+                '''.format(tn=table_name, cn=column_name))
+
+        for tn in ('authors', 'tags', 'publishers', 'series'):
+            cn = tn[:-1]
+            if tn == 'series':
+                cn = tn
+            create_tag_browser_view(tn, cn)
+
 
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''
@@ -929,7 +957,7 @@ class LibraryDatabase2(LibraryDatabase):
             im.convert('RGB').save(path, 'JPEG')
 
     def all_formats(self):
-        formats = self.conn.get('SELECT format from data')
+        formats = self.conn.get('SELECT DISTINCT format from data')
         if not formats:
             return set([])
         return set([f[0] for f in formats])
@@ -1083,49 +1111,43 @@ class LibraryDatabase2(LibraryDatabase):
         return self.conn.get('SELECT script FROM feeds WHERE id=?', (id,), all=False)
 
     def get_categories(self, sort_on_count=False):
-        categories = {}
-        def get(name, category, field='name'):
-            ans = self.conn.get('SELECT DISTINCT %s FROM %s'%(field, name))
-            ans = [x[0].strip() for x in ans]
-            try:
-                ans.remove('')
-            except ValueError: pass
-            categories[category] = list(map(Tag, ans))
-            tags = categories[category]
-            if name != 'data':
-                for tag in tags:
-                    id = self.conn.get('SELECT id FROM %s WHERE %s=?'%(name,
-                        field), (tag.name,), all=False)
-                    tag.id = id
-                for tag in tags:
-                    if tag.id is not None:
-                        tag.count = self.conn.get('SELECT COUNT(id) FROM books_%s_link WHERE %s=?'%(name, category), (tag.id,), all=False)
-            else:
-                for tag in tags:
-                    tag.count = self.conn.get('SELECT COUNT(format) FROM data WHERE format=?',
-                            (tag.name,), all=False)
-            tags.sort(reverse=sort_on_count, cmp=(lambda
-                x,y:cmp(x.count,y.count)) if sort_on_count else (lambda
-                    x,y:cmp(x.name, y.name)))
-        for x in (('authors', 'author'), ('tags', 'tag'), ('publishers', 'publisher'),
-                  ('series', 'series')):
-            get(*x)
-        get('data', 'format', 'format')
+        self.conn.executescript(u'''
+            CREATE TEMP VIEW IF NOT EXISTS tag_browser_news AS SELECT DISTINCT
+                id,
+                name,
+                (SELECT COUNT(id) FROM books_tags_link WHERE tag=x.id) count
+            FROM tags as x WHERE name!="{0}" AND id IN
+                (SELECT DISTINCT tag FROM books_tags_link WHERE book IN
+                    (SELECT DISTINCT book FROM books_tags_link WHERE tag IN
+                        (SELECT id FROM tags WHERE name="{0}")));
+            '''.format(_('News')))
+        self.conn.commit()
 
-        categories['news'] = []
-        newspapers = self.conn.get('SELECT name FROM tags WHERE id IN (SELECT DISTINCT tag FROM books_tags_link WHERE book IN (select book from books_tags_link where tag IN (SELECT id FROM tags WHERE name=?)))', (_('News'),))
-        if newspapers:
-            newspapers = [f[0] for f in newspapers]
-            try:
-                newspapers.remove(_('News'))
-            except ValueError:
-                pass
-            categories['news'] = list(map(Tag, newspapers))
-            for tag in categories['news']:
-                tag.count = self.conn.get('SELECT COUNT(id) FROM books_tags_link WHERE tag IN (SELECT DISTINCT id FROM tags WHERE name=?)', (tag.name,), all=False)
+        categories = {}
+        for x in ('tags', 'series', 'news', 'publishers', 'authors'):
+            query = 'SELECT id,name,count FROM tag_browser_'+x
+            if sort_on_count:
+                query += ' ORDER BY count DESC'
+            else:
+                query += ' ORDER BY name ASC'
+            data = self.conn.get(query)
+            category = x if x in ('series', 'news') else x[:-1]
+            categories[category] = [Tag(r[1], count=r[2], id=r[0]) for r in data]
+
+        categories['format'] = []
+        for fmt in self.conn.get('SELECT DISTINCT format FROM data'):
+            fmt = fmt[0]
+            count = self.conn.get('SELECT COUNT(id) FROM data WHERE format="%s"'%fmt,
+                    all=False)
+            categories['format'].append(Tag(fmt, count=count))
+
+        if sort_on_count:
+            categories['format'].sort(cmp=lambda x,y:cmp(x.count, y.count),
+                    reverse=True)
+        else:
+            categories['format'].sort(cmp=lambda x,y:cmp(x.name, y.name))
 
         return categories
-
 
     def tags_older_than(self, tag, delta):
         tag = tag.lower().strip()

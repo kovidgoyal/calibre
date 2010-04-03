@@ -29,6 +29,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
+from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import warning_dialog, choose_files, error_dialog, \
                            question_dialog,\
                            pixmap_to_data, choose_dir, \
@@ -140,9 +141,22 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
         self.setWindowTitle(__appname__)
+
         self.search.initialize('main_search_history', colorize=True,
                 help_text=_('Search (For Advanced Search click the button to the left)'))
-        self.connect(self.clear_button, SIGNAL('clicked()'), self.search.clear)
+        self.connect(self.clear_button, SIGNAL('clicked()'), self.search_clear)
+        self.connect(self.clear_button, SIGNAL('clicked()'), self.saved_search.clear_to_help)
+        self.search_clear()
+
+        self.saved_search.initialize(saved_searches, self.search, colorize=True,
+                help_text=_('Saved Searches'))
+        self.connect(self.save_search_button, SIGNAL('clicked()'),
+                self.saved_search.save_search_button_clicked)
+        self.connect(self.delete_search_button, SIGNAL('clicked()'),
+                self.saved_search.delete_search_button_clicked)
+        self.connect(self.copy_search_button, SIGNAL('clicked()'),
+                self.saved_search.copy_search_button_clicked)
+
         self.progress_indicator = ProgressIndicator(self)
         self.verbose = opts.verbose
         self.get_metadata = GetMetadata()
@@ -511,6 +525,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.tags_view,
                 SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
                      self.search.search_from_tags)
+        self.connect(self.tags_view,
+                SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
+                     self.saved_search.clear_to_help)
         self.connect(self.status_bar.tag_view_button,
                 SIGNAL('toggled(bool)'), self.toggle_tags_view)
         self.connect(self.search,
@@ -519,8 +536,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.library_view.model(),
                 SIGNAL('count_changed(int)'), self.location_view.count_changed)
         self.connect(self.library_view.model(), SIGNAL('count_changed(int)'),
-                     self.tags_view.recount)
-        self.connect(self.search, SIGNAL('cleared()'), self.tags_view.clear)
+                     self.tags_view.recount, Qt.QueuedConnection)
+        self.connect(self.search, SIGNAL('cleared()'), self.tags_view_clear)
+        self.connect(self.saved_search, SIGNAL('changed()'), self.tags_view.recount, Qt.QueuedConnection)
         if not gprefs.get('quick_start_guide_added', False):
             from calibre.ebooks.metadata import MetaInformation
             mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
@@ -762,8 +780,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.tag_match.setVisible(False)
             self.popularity.setVisible(False)
 
+    def tags_view_clear(self):
+        self.search_count.setText(_("(all books)"))
+        self.tags_view.clear()
+
+    def search_clear(self):
+        self.search_count.setText(_("(all books)"))
+        self.search.clear()
+
     def search_done(self, view, ok):
         if view is self.current_view():
+            self.search_count.setText(_("(%d found)") % self.current_view().row_count())
             self.search.search_done(ok)
 
     def sync_cf_to_listview(self, current, previous):

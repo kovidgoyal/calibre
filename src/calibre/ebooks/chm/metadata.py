@@ -103,7 +103,8 @@ def _get_cover(soup, rdr):
                 r[0] = img['src']
         l = r.keys()
         l.sort()
-        ans = r[l[0]]
+        if l:
+            ans = r[l[0]]
     # this link comes from the internal html, which is in a subdir
     if ans is not None:
         try:

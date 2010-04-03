@@ -207,6 +207,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QLabel" name="search_count">
+        <property name="text">
+         <string>set in ui.py</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="clear_button">
         <property name="toolTip">
          <string>Reset Quick Search</string>
@@ -217,6 +224,64 @@
         <property name="icon">
          <iconset resource="../../../resources/images.qrc">
           <normaloff>:/images/clear_left.svg</normaloff>:/images/clear_left.svg</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="SavedSearchBox" name="saved_search">
+        <property name="toolTip">
+         <string>Choose saved search or enter name for new saved search</string>
+        </property>
+        <property name="minimumContentsLength">
+         <number>15</number>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="copy_search_button">
+        <property name="toolTip">
+         <string>Copy current search text (instead of search name)</string>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../resources/images.qrc">
+          <normaloff>:/images/search_copy_saved.svg</normaloff>:/images/search_copy_saved.svg</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="save_search_button">
+        <property name="toolTip">
+         <string>Save current search under the name shown in the box</string>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../resources/images.qrc">
+          <normaloff>:/images/search_add_saved.svg</normaloff>:/images/search_add_saved.svg</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="delete_search_button">
+        <property name="toolTip">
+         <string>Delete current search and clear search box</string>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../resources/images.qrc">
+          <normaloff>:/images/search_delete_saved.svg</normaloff>:/images/search_delete_saved.svg</iconset>
         </property>
        </widget>
       </item>
@@ -683,6 +748,11 @@
   </customwidget>
   <customwidget>
    <class>SearchBox2</class>
+   <extends>QComboBox</extends>
+   <header>calibre.gui2.search_box</header>
+  </customwidget>
+  <customwidget>
+   <class>SavedSearchBox</class>
    <extends>QComboBox</extends>
    <header>calibre.gui2.search_box</header>
   </customwidget>

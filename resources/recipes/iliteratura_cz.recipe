@@ -4,7 +4,7 @@ import re
 class SmeRecipe(BasicNewsRecipe):
     __license__  = 'GPL v3'
     __author__ = 'Abelturd'
-    language = 'cz'
+    language = 'cs'
     version = 1
 
     title = u'iLiteratura.cz'

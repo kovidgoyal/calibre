@@ -39,7 +39,7 @@ class MetadataSource(Plugin):
         self.worker.daemon = True
         self.title = title
         self.verbose = verbose
-        self.author = author
+        self.book_author = author
         self.publisher = publisher
         self.isbn = isbn
         self.log = log if log is not None else default_log
@@ -139,7 +139,7 @@ class GoogleBooks(MetadataSource):
     def fetch(self):
         from calibre.ebooks.metadata.google_books import search
         try:
-            self.results = search(self.title, self.author, self.publisher,
+            self.results = search(self.title, self.book_author, self.publisher,
                                   self.isbn, max_results=10,
                                   verbose=self.verbose)
         except Exception, e:
@@ -162,8 +162,8 @@ class ISBNDB(MetadataSource):
         else:
             if self.title:
                 args.extend(['--title', self.title])
-            if self.author:
-                args.extend(['--author', self.author])
+            if self.book_author:
+                args.extend(['--author', self.book_author])
             if self.publisher:
                 args.extend(['--publisher', self.publisher])
         if self.verbose:
@@ -193,7 +193,7 @@ class Amazon(MetadataSource):
             return
         from calibre.ebooks.metadata.amazon import get_social_metadata
         try:
-            self.results = get_social_metadata(self.title, self.author,
+            self.results = get_social_metadata(self.title, self.book_author,
                     self.publisher, self.isbn)
         except Exception, e:
             self.exception = e

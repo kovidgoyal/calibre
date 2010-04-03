@@ -128,7 +128,6 @@ class USAToday(BasicNewsRecipe):
     def parse_feeds(self, *args, **kwargs):
         parsed_feeds = BasicNewsRecipe.parse_feeds(self, *args, **kwargs)
         # Count articles for progress dialog
-        content_feeds = []
         article_count = 0
         for feed in parsed_feeds:
             article_count += len(feed)
@@ -297,7 +296,6 @@ class USAToday(BasicNewsRecipe):
 
             if not headline_found:
                 # Monolithic <div> - restructure
-                insert_loc = 0
                 tag = body.find(True)
                 while True:
                     insertLoc += 1

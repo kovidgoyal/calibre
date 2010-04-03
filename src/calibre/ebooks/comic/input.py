@@ -171,7 +171,8 @@ class PageProcessor(list):
                 if not self.opts.dont_sharpen:
                     p.MagickSharpenImage(wand, 0.0, 1.0)
 
-                p.MagickSetImageType(wand, p.GrayscaleType)
+                if not self.opts.dont_grayscale:
+                    p.MagickSetImageType(wand, p.GrayscaleType)
 
                 if self.opts.despeckle:
                     p.MagickDespeckleImage(wand)
@@ -310,6 +311,8 @@ class ComicInput(InputFormatPlugin):
                 'you optimal size and look on your device.')),
         OptionRecommendation(name='no_process', recommended_value=False,
               help=_("Apply no processing to the image")),
+        OptionRecommendation(name='dont_grayscale', recommended_value=False,
+            help=_('Do not convert the image to grayscale (black and white)'))
         ])
 
     recommendations = set([

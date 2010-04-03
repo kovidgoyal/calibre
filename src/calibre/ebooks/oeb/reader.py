@@ -359,7 +359,7 @@ class OEBReader(object):
             self._toc_from_navpoint(item, node, child)
 
     def _toc_from_ncx(self, item):
-        if item is None:
+        if (item is None) or (item.data is None):
             return False
         self.log.debug('Reading TOC from NCX...')
         ncx = item.data

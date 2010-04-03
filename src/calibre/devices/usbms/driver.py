@@ -25,7 +25,6 @@ from calibre.devices.mime import mime_type_ext
 # are inherited from the device interface in Device.
 class USBMS(CLI, Device):
 
-    name           = 'USBMS Base Device Interface'
     description    = _('Communicate with an eBook reader.')
     author         = _('John Schember')
     supported_platforms = ['windows', 'osx', 'linux']

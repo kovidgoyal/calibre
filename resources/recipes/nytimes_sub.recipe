@@ -89,6 +89,7 @@ class NYTimes(BasicNewsRecipe):
                             'header_search',
                             'login',
                             'masthead',
+                            'masthead-nav',
                             'memberTools',
                             'navigation',
                             'portfolioInline',

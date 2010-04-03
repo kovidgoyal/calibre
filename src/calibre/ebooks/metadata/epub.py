@@ -99,15 +99,33 @@ class OCFDirReader(OCFReader):
         return open(os.path.join(self.root, path), *args, **kwargs)
 
 def get_cover(opf, opf_path, stream):
+    import posixpath
     from calibre.ebooks import render_html_svg_workaround
     from calibre.utils.logging import default_log
+    raster_cover = opf.raster_cover
+    stream.seek(0)
+    zf = ZipFile(stream)
+    if raster_cover:
+        base = posixpath.dirname(opf_path)
+        cpath = posixpath.normpath(posixpath.join(base, raster_cover))
+        try:
+            member = zf.getinfo(cpath)
+        except:
+            pass
+        else:
+            f = zf.open(member)
+            data = f.read()
+            f.close()
+            zf.close()
+            return data
+
     cpage = opf.first_spine_item()
     if not cpage:
         return
+
     with TemporaryDirectory('_epub_meta') as tdir:
         with CurrentDir(tdir):
-            stream.seek(0)
-            ZipFile(stream).extractall()
+            zf.extractall()
             opf_path = opf_path.replace('/', os.sep)
             cpage = os.path.join(tdir, os.path.dirname(opf_path), cpage)
             if not os.path.exists(cpage):
