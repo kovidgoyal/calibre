@@ -1181,6 +1181,12 @@ class Manifest(object):
         :param:`href` are `None` then the corresponding item in the return
         tuple will also be `None`.
         """
+        def href_present(href):
+            for x in self.hrefs:
+                if x.lower() == href.lower():
+                    return True
+            return False
+
         if id is not None:
             base = id
             index = 1
@@ -1191,7 +1197,7 @@ class Manifest(object):
             href = urlnormalize(href)
             base, ext = os.path.splitext(href)
             index = 1
-            while href in self.hrefs:
+            while href_present(href):
                 href = base + str(index) + ext
                 index += 1
         return id, href
