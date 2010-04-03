@@ -12,7 +12,7 @@ from itertools import izip
 from PyQt4.Qt import Qt, QTreeView, QApplication, \
                      QFont, SIGNAL, QSize, QIcon, QPoint, \
                      QAbstractItemModel, QVariant, QModelIndex
-from calibre.gui2 import config, NONE
+from calibre.gui2 import config, NONE, is_gui_thread, Dispatcher
 from calibre.utils.search_query_parser import saved_searches
 from calibre.library.database2 import Tag
 
@@ -54,6 +54,9 @@ class TagsView(QTreeView):
         self.model().clear_state()
 
     def recount(self, *args):
+        if not is_gui_thread():
+            # Re-call in GUI thread
+            return Dispatcher(self.recount)(*args)
         ci = self.currentIndex()
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))

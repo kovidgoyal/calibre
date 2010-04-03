@@ -536,7 +536,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.library_view.model(),
                 SIGNAL('count_changed(int)'), self.location_view.count_changed)
         self.connect(self.library_view.model(), SIGNAL('count_changed(int)'),
-                     self.tags_view.recount)
+                     self.tags_view.recount, Qt.QueuedConnection)
         self.connect(self.search, SIGNAL('cleared()'), self.tags_view_clear)
         self.connect(self.saved_search, SIGNAL('changed()'), self.tags_view.recount, Qt.QueuedConnection)
         if not gprefs.get('quick_start_guide_added', False):
