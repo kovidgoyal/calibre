@@ -12,7 +12,7 @@ from itertools import izip
 from PyQt4.Qt import Qt, QTreeView, QApplication, \
                      QFont, SIGNAL, QSize, QIcon, QPoint, \
                      QAbstractItemModel, QVariant, QModelIndex
-from calibre.gui2 import config, NONE, is_gui_thread, Dispatcher
+from calibre.gui2 import config, NONE
 from calibre.utils.search_query_parser import saved_searches
 from calibre.library.database2 import Tag
 
@@ -54,18 +54,19 @@ class TagsView(QTreeView):
         self.model().clear_state()
 
     def recount(self, *args):
-        if not is_gui_thread():
-            # Re-call in GUI thread
-            return Dispatcher(self.recount)(*args)
         ci = self.currentIndex()
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))
+        path = self.model().path_for_index(ci)
         try:
             self.model().refresh()
         except: #Database connection could be closed if an integrity check is happening
             pass
-        if ci.isValid():
-            self.scrollTo(ci, QTreeView.PositionAtTop)
+        if path:
+            idx = self.model().index_for_path(path)
+            if idx.isValid():
+                self.setCurrentIndex(idx)
+                self.scrollTo(idx, QTreeView.PositionAtCenter)
 
 class TagTreeItem(object):
 
@@ -138,6 +139,7 @@ class TagTreeItem(object):
     def toggle(self):
         if self.type == self.TAG:
             self.tag.state = (self.tag.state + 1)%3
+
 
 class TagsModel(QAbstractItemModel):
     categories = [_('Authors'), _('Series'), _('Formats'), _('Publishers'), _('News'), _('Tags'), _('Searches')]
@@ -213,6 +215,21 @@ class TagsModel(QAbstractItemModel):
     def flags(self, *args):
         return Qt.ItemIsEnabled|Qt.ItemIsSelectable
 
+    def path_for_index(self, index):
+        ans = []
+        while index.isValid():
+            ans.append(index.row())
+            index = self.parent(index)
+        ans.reverse()
+        return ans
+
+    def index_for_path(self, path):
+        parent = QModelIndex()
+        for i in path:
+            parent = self.index(i, 0, parent)
+            if not parent.isValid():
+                return QModelIndex()
+        return parent
 
     def index(self, row, column, parent):
         if not self.hasIndex(row, column, parent):
