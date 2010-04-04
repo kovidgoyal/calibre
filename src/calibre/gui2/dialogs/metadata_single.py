@@ -553,7 +553,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def fetch_metadata(self):
         isbn   = re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text()))
         title  = qstring_to_unicode(self.title.text())
-        author = string_to_authors(unicode(self.authors.text()))[0]
+        try:
+            author = string_to_authors(unicode(self.authors.text()))[0]
+        except IndexError:
+            author = ''
         publisher = qstring_to_unicode(self.publisher.currentText())
         if isbn or title or author or publisher:
             d = FetchMetadata(self, isbn, title, author, publisher, self.timeout)
