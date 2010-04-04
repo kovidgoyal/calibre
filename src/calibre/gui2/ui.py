@@ -1556,6 +1556,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if self.cover_flow:
                 self.cover_flow.dataChanged()
             m.current_changed(current, previous)
+            self.tags_view.recount()
 
     def edit_bulk_metadata(self, checked):
         '''
@@ -1572,6 +1573,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.library_view.model().db).changed:
             self.library_view.model().resort(reset=False)
             self.library_view.model().research()
+            self.tags_view.recount()
 
     ############################################################################
 

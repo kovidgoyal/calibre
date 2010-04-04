@@ -122,10 +122,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 if aum:
                     aum = [a.strip().replace('|', ',') for a in aum.split(',')]
                     new_title = authors_to_string(aum)
-                    self.db.set_title(id, new_title)
+                    self.db.set_title(id, new_title, notify=False)
                 if title:
                     new_authors = string_to_authors(title)
-                    self.db.set_authors(id, new_authors)
+                    self.db.set_authors(id, new_authors, notify=False)
 
             self.changed = True
 

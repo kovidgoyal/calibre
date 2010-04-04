@@ -657,11 +657,11 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.db.set_comment(self.id, qstring_to_unicode(self.comments.toPlainText()), notify=False)
             d = self.pubdate.date()
             d = qt_to_dt(d)
-            self.db.set_pubdate(self.id, d)
+            self.db.set_pubdate(self.id, d, notify=False)
             d = self.date.date()
             d = qt_to_dt(d)
             if d.date() != self.orig_timestamp.date():
-                self.db.set_timestamp(self.id, d)
+                self.db.set_timestamp(self.id, d, notify=False)
 
             if self.cover_changed:
                 if self.cover_data is not None:
