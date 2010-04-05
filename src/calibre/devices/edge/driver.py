@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com>'
+__copyright__ = '2009, Kovid Goyal'
 __docformat__ = 'restructuredtext en'
 
 '''
@@ -22,9 +22,9 @@ class EDGE(USBMS):
     # Ordered list of supported formats
     FORMATS     = ['epub', 'pdf']
 
-    VENDOR_ID   = [0x2080]
-    PRODUCT_ID  = [0x001]
-    BCD         = [0x322]
+    VENDOR_ID   = [0x0bb4]
+    PRODUCT_ID  = [0x0c02]
+    BCD         = [0x0223]
 
     VENDOR_NAME = 'ANDROID'
     WINDOWS_MAIN_MEM = '__FILE-STOR_GADG'
@@ -45,5 +45,3 @@ class EDGE(USBMS):
 
         return drives
 
-    def sanitize_path_components(self, components):
-        return [x.replace('#', '_') for x in components]
