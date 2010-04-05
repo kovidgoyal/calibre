@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-31 10:01+0000\n"
-"PO-Revision-Date: 2010-04-04 03:33+0000\n"
+"PO-Revision-Date: 2010-04-04 05:20+0000\n"
 "Last-Translator: Antonio Jacquez <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-04-04 03:51+0000\n"
+"X-Launchpad-Export-Date: 2010-04-05 03:52+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -929,7 +929,7 @@ msgstr "Dejar imágenes sin procesar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:315
 msgid "Do not convert the image to grayscale (black and white)"
-msgstr ""
+msgstr "No convertir la imagen a escalas de gris (blanco y negro)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:445
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:456
@@ -2174,6 +2174,7 @@ msgstr "Desactivar la compresión del fichero."
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:40
 msgid "Tag marking book to be filed with Personal Docs"
 msgstr ""
+"Etiquetar el libro marcado para ser archivado como documentos personales"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:108
 msgid "All articles"
@@ -3108,7 +3109,7 @@ msgstr "Formato de &salida:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:100
 msgid "Disable conversion of images to &black and white"
-msgstr ""
+msgstr "Deshabilitar la conversión de imagenes a blanco y negro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
@@ -3603,11 +3604,11 @@ msgstr "Opciones de Kindle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:73
 msgid "Periodical masthead font:"
-msgstr ""
+msgstr "Fuente para cabecera de publicación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:74
 msgid "Personal Doc tag:"
-msgstr ""
+msgstr "Etiqueta de documentos personales"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -5483,11 +5484,12 @@ msgstr "Añadir una nueva fuente de noticias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:313
 msgid "No internet connection"
-msgstr ""
+msgstr "Sin conexión a Internet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:314
 msgid "Cannot download news as no internet connection is active"
 msgstr ""
+"No se pueden bajar las noticias porque no hay conexión activa al internet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:278
@@ -6823,23 +6825,23 @@ msgstr "Mezclando anotaciones de usuario en la base de datos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1020
 msgid "%s<br />Last Page Read: %d (%d%%)"
-msgstr ""
+msgstr "%s<br />Última página leída: %d (%d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1026
 msgid "%s<br />Last Page Read: Location %d (%d%%)"
-msgstr ""
+msgstr "%s<br />Última página leída: Localizada en %d (%d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1045
 msgid "<b>Location %d &bull; %s</b><br />%s<br />"
-msgstr ""
+msgstr "<b>Lugar %d &bull; %s</b><br />%s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1054
 msgid "<b>Page %d &bull; %s</b><br />"
-msgstr ""
+msgstr "<b>Page %d &bull; %s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1059
 msgid "<b>Location %d &bull; %s</b><br />"
-msgstr ""
+msgstr "<b>Lugar %d &bull; %s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1179
 msgid "How many empty books?"
@@ -8918,7 +8920,7 @@ msgstr "Inglés (Yemen)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "English (Ireland)"
-msgstr ""
+msgstr "Inglés (Irlanda)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "German (AT)"
@@ -9082,12 +9084,16 @@ msgid ""
 "Failed to log in, check your username and password for the calibre "
 "Periodicals service."
 msgstr ""
+"No se pudo ingresar, revise su nombre de usuario o clave para el servicio de "
+"boletín de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1402
 msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
 msgstr ""
+"Ud. no tiene permiso para bajar esta publicación. Su subscripción ha "
+"expirado o ha exedido el máximo permitido por día"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 msgid "You"
