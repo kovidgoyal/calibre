@@ -22,27 +22,52 @@ class Diariosur(BasicNewsRecipe):
     encoding              = 'UTF-8'
     remove_javascript     = True
     language              = 'es'
+    extra_css              = 'body{font-family: Arial,Helvetica,sans-serif}'
 
-    cover_url = 'http://rlv.zcache.com/made_in_cordoba_tshirt-p235723524914286044yu5i_400.jpg'
+
+    remove_attributes = ['height','width']
 
     keep_only_tags = [
-                        dict(name='div', attrs={'class':'bloqueTitulosNoticia'})
-                       ,dict(name='div', attrs={'id':'contenidos'                 })
+                       dict(name='div', attrs={'id':'contenidos'})
                      ]
 
     remove_tags = [
+                   dict(name='div', attrs={'class':'Recorte'}),
                   dict(name='div', attrs={'id':'comentarios'}),
+                  dict(name='div', attrs={'id':'CajaAccesoCuentaUsuario'}),
                   dict(name='div', attrs={'id':'cajacomparte'}),
+                  dict(name='div', attrs={'class':'FormularioDeAcceso'}),
+                  dict(name='div', attrs={'class':'TextoFormularioDeAcceso'}),
+                  dict(name='div', attrs={'class':'Recorte'}),
                   dict(name='div', attrs={'id':'IframeCajaComparte'}),
+                  dict(name='div', attrs={'id':'CintilloComentario'}),
+                  dict(name='div', attrs={'id':'EscribeComentario'}),
                   dict(name='div', attrs={'class':'Nota'}),
+                  dict(name='div', attrs={'id':'FormularioComentario'}),
                   dict(name='div', attrs={'id':'Comparte'}),
-            dict(name='iframe', attrs={'id':'IframeCajaComparte'}),
-            dict(name='ul', attrs={'class':'herramientasDeNoticia'}),
-            dict(name='div', attrs={'id':'NoticiaEnPapel'}),
-            dict(name='div', attrs={'class':'navegaNoticias'})
+                  dict(name='iframe', attrs={'id':'IframeCajaComparte'}),
+                  dict(name='ul', attrs={'class':'herramientasDeNoticia'}),
+                  dict(name='div', attrs={'id':'NoticiaEnPapel'}),
+                  dict(name='div', attrs={'class':'navegaNoticias'}),
+                  dict(name='p', attrs={'class':'RecorteEnNoticias'}),
+                  dict(name='ul', attrs={'class':'herramientasDeNoticia'}),
+                  dict(name='div', attrs={'class':'navegaNoticias'}),
+                  dict(name='div', attrs={'id':'CajaComparte'}),
+                  dict(name='div', attrs={'id':'Comparte'})
+
 
 
                   ]
+
+
+
+
+    html2lrf_options = [
+                          '--comment', description
+                        , '--base-font-size', '6'
+                        , '--category', 'news, Spain'
+                          , '--ignore-tables'
+                        ]
 
 
 
@@ -55,7 +80,7 @@ class Diariosur(BasicNewsRecipe):
      (u'Andalucia' ,'http://www.diariocordoba.com/rss/1.xml'),
      (u'Opinion' ,'http://www.diariocordoba.com/rss/100.xml'),
      (u'Deportes' ,'http://www.diariocordoba.com/rss/4.xml'),
-     (u'España' ,'http://www.diariocordoba.com/rss/7.xml'),
+     (u'Espa\xc3\xb1a' ,'http://www.diariocordoba.com/rss/7.xml'),
      (u'Internacional' ,'http://www.diariocordoba.com/rss/6.xml'),
      (u'Economia' ,'http://www.diariocordoba.com/rss/5.xml'),
      (u'Cultura' ,'http://www.diariocordoba.com/rss/3.xml'),
