@@ -65,7 +65,8 @@ def debug(ioreg_to_tmp=False, buf=None):
             ioreg += 'Output from osx_get_usb_drives:\n'+drives+'\n\n'
             ioreg += Device.run_ioreg()
         connected_devices = []
-        for dev in device_plugins():
+        for dev in sorted(device_plugins(), cmp=lambda
+                x,y:cmp(x.__class__.__name__, y.__class__.__name__)):
             out('Looking for', dev.__class__.__name__)
             connected, det = s.is_device_connected(dev, debug=True)
             if connected:

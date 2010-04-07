@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 
-import mechanize, string, urllib, time
+import mechanize, string, urllib, time, re
 
 class Economist(BasicNewsRecipe):
 
@@ -27,6 +27,8 @@ class Economist(BasicNewsRecipe):
             dict(attrs={'class':['dblClkTrk']})]
     remove_tags_before = dict(name=lambda tag: tag.name=='title' and tag.parent.name=='body')
     needs_subscription = True
+    preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
+        lambda x:'</html>')]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -111,11 +113,15 @@ class Economist(BasicNewsRecipe):
                 yield x
 
     def postprocess_html(self, soup, first):
+        body = soup.find('body')
+        for name, val in body.attrs:
+            del body[name]
+
         for table in list(self.eco_find_image_tables(soup)):
             caption = table.find('font')
             img = table.find('img')
             div = Tag(soup, 'div')
-            div['style'] = 'text-align:center;font-size:70%'
+            div['style'] = 'text-align:left;font-size:70%'
             ns = NavigableString(self.tag_to_string(caption))
             div.insert(0, ns)
             div.insert(1, Tag(soup, 'br'))
