@@ -5,6 +5,7 @@ smh.com.au
 '''
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class Smh_au(BasicNewsRecipe):
     title                 = 'The Sydney Morning Herald - Printed edition'
@@ -20,7 +21,7 @@ class Smh_au(BasicNewsRecipe):
     language              = 'en_AU'
     remove_empty_feeds    = True
     masthead_url          = 'http://images.smh.com.au/2010/02/02/1087188/smh-620.jpg'
-    publication_type      = 'newspaper'
+    publication_type      = 'newspaper' 
     extra_css             = ' h1{font-family: Georgia,"Times New Roman",Times,serif } body{font-family: Arial,Helvetica,sans-serif} .cT-imageLandscape{font-size: x-small} '
 
     conversion_options = {
@@ -41,11 +42,12 @@ class Smh_au(BasicNewsRecipe):
 
     def parse_index(self):
         articles = []
-        soup = self.index_to_soup('http://www.smh.com.au/todays-paper')
+        rawc = self.index_to_soup('http://www.smh.com.au/todays-paper',True)
+        soup = BeautifulSoup(rawc,fromEncoding=self.encoding)
         for itimg in soup.findAll('img',src=True):
             if itimg['src'].endswith('frontpage.jpg'):
                self.cover_url = itimg['src']
-
+            
         for item in soup.findAll(attrs={'class':'cN-storyHeadlineLead cfix'}):
             description = ''
             title_prefix = ''
