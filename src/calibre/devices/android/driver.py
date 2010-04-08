@@ -25,6 +25,7 @@ class ANDROID(USBMS):
 
             0x18d1 : { 0x4e11 : [0x0100, 0x226], 0x4e12: [0x0100, 0x226]},
 
+            # Samsung
             0x04e8 : { 0x681d : [0x0222]},
             }
     EBOOK_DIR_MAIN = ['wordplayer/calibretransfer', 'eBooks/import', 'Books']
@@ -35,7 +36,7 @@ class ANDROID(USBMS):
 
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
-            '___UMS_COMPOSITE', '_MB200']
+            '__UMS_COMPOSITE', '_MB200']
 
     OSX_MAIN_MEM = 'HTC Android Phone Media'
 
