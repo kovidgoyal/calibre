@@ -1,0 +1,14 @@
+from calibre.web.feeds.news import CalibrePeriodical
+
+class PCQ(CalibrePeriodical):
+
+    title = 'PCQuest'
+    calibre_periodicals_slug = 'pc-quest-india'
+
+    description = '''
+    Buying a tech product? Seeking a tech solution? Consult PCQuest, India's
+    market-leading selection and implementation guide for the latest
+    technologies: servers, business apps, security, open source, gadgets and
+    more.
+    '''
+    language = 'en_IN'
