@@ -220,6 +220,11 @@ The special field ``search`` is used for saved searches. So if you save a search
 "My spouse's books" you can enter ``search:"My spouses' books"`` in the search bar to reuse the saved
 search. More about saving searches, below.
 
+You can search for the absence or presnce of a filed using the specia "true" and "false" values. For example::
+
+    cover:false Will give you all books without a cover
+    series:true Will give you all books that belong to a series
+
 .. |sbi| image:: images/search_button.png
     :align: middle
 
@@ -232,7 +237,7 @@ Saving searches
 
 |app| has a useful feature, it allows you to save a search you use frequently under a special name and then re-use that search with a single click. To do this, create your search, either by typing it in the search bar, or using the Tag Browser. Then, type the name you would like to give to the search in the Saved Searches box next to the search bar and click the plus icon next to the saved searches box to save the search. 
 
-Now, you can access your saved search in the Tga Browser under "Saved searches". A single click will allow you to re-use any arbitrarily comple search easily without needing to re-create it.
+Now, you can access your saved search in the Tag Browser under "Searches". A single click will allow you to re-use any arbitrarily complex search easily, without needing to re-create it.
 
 .. _configuration:
 
