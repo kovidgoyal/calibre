@@ -229,17 +229,17 @@
       </item>
       <item>
        <widget class="SavedSearchBox" name="saved_search">
-        <property name="toolTip">
-         <string>Choose saved search or enter name for new saved search</string>
-        </property>
-        <property name="minimumContentsLength">
-         <number>15</number>
-        </property>
         <property name="maximumSize">
          <size>
           <width>150</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string>Choose saved search or enter name for new saved search</string>
+        </property>
+        <property name="minimumContentsLength">
+         <number>15</number>
         </property>
        </widget>
       </item>
@@ -274,7 +274,7 @@
       <item>
        <widget class="QToolButton" name="delete_search_button">
         <property name="toolTip">
-         <string>Delete current search and clear search box</string>
+         <string>Delete current saved search</string>
         </property>
         <property name="text">
          <string>...</string>

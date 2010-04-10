@@ -207,6 +207,24 @@ Should you need to search for a string with a leading equals or tilde, prefix th
 You can build advanced search queries easily using the :guilabel:`Advanced Search Dialog`, accessed by 
 clicking the button |sbi|.
 
+Available fields for searching are: ``tag, title, author, publisher, series, rating cover, comments, format,
+isbn, date, pubdate, search``.
+
+The syntax for searching for dates and publication dates is::
+
+    pubdate:>2000-1 Will find all books published after Jan, 2000
+    date:<=2000-1-3 Will find all books added to calibre beforre 3 Jan, 2000
+    pubdate:=2009 Will find all books published in 2009
+
+The special field ``search`` is used for saved searches. So if you save a search with the name
+"My spouse's books" you can enter ``search:"My spouses' books"`` in the search bar to reuse the saved
+search. More about saving searches, below.
+
+You can search for the absence or presnce of a filed using the specia "true" and "false" values. For example::
+
+    cover:false Will give you all books without a cover
+    series:true Will give you all books that belong to a series
+
 .. |sbi| image:: images/search_button.png
     :align: middle
 
@@ -214,6 +232,12 @@ clicking the button |sbi|.
     
     :guilabel:`Advanced Search Dialog`
 
+Saving searches
+-----------------
+
+|app| has a useful feature, it allows you to save a search you use frequently under a special name and then re-use that search with a single click. To do this, create your search, either by typing it in the search bar, or using the Tag Browser. Then, type the name you would like to give to the search in the Saved Searches box next to the search bar and click the plus icon next to the saved searches box to save the search. 
+
+Now, you can access your saved search in the Tag Browser under "Searches". A single click will allow you to re-use any arbitrarily complex search easily, without needing to re-create it.
 
 .. _configuration:
 

@@ -23,14 +23,6 @@ class NewYorker(BasicNewsRecipe):
     category              = 'news, politics, USA'
     encoding              = 'cp1252'
 
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
-
     keep_only_tags = [dict(name='div', attrs={'id':'printbody'})]
     remove_tags_after = dict(name='div',attrs={'id':'articlebody'})
     remove_tags = [

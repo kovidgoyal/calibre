@@ -672,6 +672,7 @@ def _prefs():
             help=_('Swap author first and last names when reading metadata'))
     c.add_opt('add_formats_to_existing', default=False,
             help=_('Add new formats to existing book records'))
+    c.add_opt('installation_uuid', default=None, help='Installation UUID')
 
     # this is here instead of the gui preferences because calibredb can execute searches
     c.add_opt('saved_searches', default={}, help=_('List of named saved searches'))
@@ -680,6 +681,9 @@ def _prefs():
     return c
 
 prefs = ConfigProxy(_prefs())
+if prefs['installation_uuid'] is None:
+    import uuid
+    prefs['installation_uuid'] = str(uuid.uuid4())
 
 # Read tweaks
 def read_tweaks():

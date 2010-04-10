@@ -221,7 +221,7 @@
     </xsl:template>
 
     <xsl:template name="parse-styles-attrs">
-        <xsl:text>position:relative;</xsl:text>
+        <!--<xsl:text>position:relative;</xsl:text>-->
         <xsl:if test="@space-before">
             <xsl:text>padding-top:</xsl:text>
             <xsl:value-of select="@space-before"/>

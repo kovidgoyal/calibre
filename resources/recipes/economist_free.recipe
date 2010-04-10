@@ -1,7 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.threadpool import ThreadPool, makeRequests
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
-import time, string
+import time, string, re
 from datetime import datetime
 from lxml import html
 
@@ -19,9 +19,13 @@ class Economist(BasicNewsRecipe):
     remove_tags = [dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
             dict(attrs={'class':['dblClkTrk']})]
     remove_tags_before = dict(name=lambda tag: tag.name=='title' and tag.parent.name=='body')
+    preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
+        lambda x:'</html>')]
 
     def parse_index(self):
         from calibre.web.feeds.feedparser import parse
+        if self.test:
+            self.oldest_article = 14.0
         raw = self.index_to_soup(
                 'http://feeds.feedburner.com/economist/full_print_edition',
                 raw=True)
@@ -44,6 +48,8 @@ class Economist(BasicNewsRecipe):
             author      = item.get('author', '')
 
             requests.append([i, link, title, description, author, published])
+        if self.test:
+            requests = requests[:4]
         requests = makeRequests(self.process_eco_feed_article, requests, self.eco_article_found,
                 self.eco_article_failed)
         for r in requests: pool.putRequest(r)
@@ -114,11 +120,14 @@ class Economist(BasicNewsRecipe):
                 yield x
 
     def postprocess_html(self, soup, first):
+        body = soup.find('body')
+        for name, val in body.attrs:
+            del body[name]
         for table in list(self.eco_find_image_tables(soup)):
             caption = table.find('font')
             img = table.find('img')
             div = Tag(soup, 'div')
-            div['style'] = 'text-align:center;font-size:70%'
+            div['style'] = 'text-align:left;font-size:70%'
             ns = NavigableString(self.tag_to_string(caption))
             div.insert(0, ns)
             div.insert(1, Tag(soup, 'br'))

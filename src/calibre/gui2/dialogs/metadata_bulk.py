@@ -18,7 +18,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         Ui_MetadataBulkDialog.__init__(self)
         self.setupUi(self)
         self.db = db
-        self.ids = [ db.id(r) for r in rows]
+        self.ids = [db.id(r) for r in rows]
         self.write_series = False
         self.changed = False
         QObject.connect(self.button_box, SIGNAL("accepted()"), self.sync)
@@ -111,7 +111,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 tags = map(lambda x: x.strip(), tags.split(','))
                 self.db.set_tags(id, tags, append=True, notify=False)
             if self.write_series:
-                self.db.set_series(id, unicode(self.series.currentText()), notify=False)
+                series = unicode(self.series.currentText()).strip()
+                next = self.db.get_next_series_num_for(series)
+                self.db.set_series(id, series, notify=False)
+                num = next if self.autonumber_series.isChecked() and series else 1.0
+                self.db.set_series_index(id, num, notify=False)
 
             if self.remove_format.currentIndex() > -1:
                 self.db.remove_format(id, unicode(self.remove_format.currentText()), index_is_id=True, notify=False)
@@ -122,10 +126,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 if aum:
                     aum = [a.strip().replace('|', ',') for a in aum.split(',')]
                     new_title = authors_to_string(aum)
-                    self.db.set_title(id, new_title)
+                    self.db.set_title(id, new_title, notify=False)
                 if title:
                     new_authors = string_to_authors(title)
-                    self.db.set_authors(id, new_authors)
+                    self.db.set_authors(id, new_authors, notify=False)
 
             self.changed = True
 

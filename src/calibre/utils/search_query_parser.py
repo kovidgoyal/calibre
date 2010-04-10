@@ -98,6 +98,8 @@ class SearchQueryParser(object):
         'format',
         'isbn',
         'search',
+        'date',
+        'pubdate',
         'all',
                  ]
 

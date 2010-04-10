@@ -296,6 +296,10 @@ class MobiReader(object):
         self.add_anchors()
         self.processed_html = self.processed_html.decode(self.book_header.codec,
             'ignore')
+        self.processed_html = self.processed_html.replace('</</', '</')
+        self.processed_html = re.sub(r'</([a-zA-Z]+)<', r'</\1><',
+                self.processed_html)
+
         for pat in ENCODING_PATS:
             self.processed_html = pat.sub('', self.processed_html)
         e2u = functools.partial(entity_to_unicode,
@@ -320,7 +324,6 @@ class MobiReader(object):
             from lxml.html import soupparser
             self.log.warning('Malformed markup, parsing using BeautifulSoup')
             try:
-                self.processed_html = self.processed_html.replace('</</', '</')
                 root = soupparser.fromstring(self.processed_html)
             except Exception:
                 self.log.warning('MOBI markup appears to contain random bytes. Stripping.')

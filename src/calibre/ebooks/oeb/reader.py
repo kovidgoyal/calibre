@@ -470,6 +470,8 @@ class OEBReader(object):
         if item is None:
             return False
         ncx = item.data
+        if ncx is None:
+            return False
         ptargets = xpath(ncx, 'ncx:pageList/ncx:pageTarget')
         if not ptargets:
             return False

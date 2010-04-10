@@ -127,7 +127,7 @@ class CybookOpus(CybookG3):
 
 class iPhone(Device):
 
-    name = 'iPhone/iTouch + Stanza'
+    name = 'iPad or iPhone/iTouch + Stanza'
     output_format = 'EPUB'
     manufacturer = 'Apple'
     id = 'iphone'

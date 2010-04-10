@@ -9,14 +9,16 @@ Browsing book collection by tags.
 
 from itertools import izip
 
-from PyQt4.Qt import Qt, QTreeView, QApplication, \
+from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
                      QFont, SIGNAL, QSize, QIcon, QPoint, \
                      QAbstractItemModel, QVariant, QModelIndex
-from calibre.gui2 import config, NONE, is_gui_thread, Dispatcher
+from calibre.gui2 import config, NONE
 from calibre.utils.search_query_parser import saved_searches
 from calibre.library.database2 import Tag
 
 class TagsView(QTreeView):
+
+    need_refresh = pyqtSignal()
 
     def __init__(self, *args):
         QTreeView.__init__(self, *args)
@@ -33,7 +35,11 @@ class TagsView(QTreeView):
         self.connect(self, SIGNAL('clicked(QModelIndex)'), self.toggle)
         self.popularity.setChecked(config['sort_by_popularity'])
         self.connect(self.popularity, SIGNAL('stateChanged(int)'), self.sort_changed)
-        self.connect(self, SIGNAL('need_refresh()'), self.recount, Qt.QueuedConnection)
+        self.need_refresh.connect(self.recount, type=Qt.QueuedConnection)
+        db.add_listener(self.database_changed)
+
+    def database_changed(self, event, ids):
+        self.need_refresh.emit()
 
     @property
     def match_all(self):
@@ -54,18 +60,19 @@ class TagsView(QTreeView):
         self.model().clear_state()
 
     def recount(self, *args):
-        if not is_gui_thread():
-            # Re-call in GUI thread
-            return Dispatcher(self.recount)(*args)
         ci = self.currentIndex()
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))
+        path = self.model().path_for_index(ci)
         try:
             self.model().refresh()
         except: #Database connection could be closed if an integrity check is happening
             pass
-        if ci.isValid():
-            self.scrollTo(ci, QTreeView.PositionAtTop)
+        if path:
+            idx = self.model().index_for_path(path)
+            if idx.isValid():
+                self.setCurrentIndex(idx)
+                self.scrollTo(idx, QTreeView.PositionAtCenter)
 
 class TagTreeItem(object):
 
@@ -139,6 +146,7 @@ class TagTreeItem(object):
         if self.type == self.TAG:
             self.tag.state = (self.tag.state + 1)%3
 
+
 class TagsModel(QAbstractItemModel):
     categories = [_('Authors'), _('Series'), _('Formats'), _('Publishers'), _('News'), _('Tags'), _('Searches')]
     row_map    = ['author', 'series', 'format', 'publisher', 'news', 'tag', 'search']
@@ -162,18 +170,12 @@ class TagsModel(QAbstractItemModel):
             for tag in data[r]:
                 TagTreeItem(parent=c, data=tag, icon_map=self.icon_map)
 
-        self.db.add_listener(self.database_changed)
-        self.connect(self, SIGNAL('need_refresh()'), self.refresh,
-                Qt.QueuedConnection)
 
     def get_search_nodes(self):
         l = []
         for i in saved_searches.names():
             l.append(Tag(i, tooltip=saved_searches.lookup(i)))
         return l
-
-    def database_changed(self, event, ids):
-        self.emit(SIGNAL('need_refresh()'))
 
     def refresh(self):
         data = self.db.get_categories(config['sort_by_popularity'])
@@ -213,6 +215,21 @@ class TagsModel(QAbstractItemModel):
     def flags(self, *args):
         return Qt.ItemIsEnabled|Qt.ItemIsSelectable
 
+    def path_for_index(self, index):
+        ans = []
+        while index.isValid():
+            ans.append(index.row())
+            index = self.parent(index)
+        ans.reverse()
+        return ans
+
+    def index_for_path(self, path):
+        parent = QModelIndex()
+        for i in path:
+            parent = self.index(i, 0, parent)
+            if not parent.isValid():
+                return QModelIndex()
+        return parent
 
     def index(self, row, column, parent):
         if not self.hasIndex(row, column, parent):

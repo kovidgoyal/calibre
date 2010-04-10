@@ -150,7 +150,8 @@ class BasicNewsRecipe(Recipe):
     remove_empty_feeds = False
 
     #: List of regular expressions that determines which links to follow
-    #: If empty, it is ignored. For example::
+    #: If empty, it is ignored. Used only if is_link_wanted is
+    #: not implemented. For example::
     #:
     #:     match_regexps = [r'page=[0-9]+']
     #:
@@ -161,7 +162,8 @@ class BasicNewsRecipe(Recipe):
     match_regexps         = []
 
     #: List of regular expressions that determines which links to ignore
-    #: If empty it is ignored. For example::
+    #: If empty it is ignored. Used only if is_link_wanted is not
+    #: implemented. For example::
     #:
     #:     filter_regexps = [r'ads\.doubleclick\.net']
     #:
@@ -290,6 +292,17 @@ class BasicNewsRecipe(Recipe):
 
     def short_title(self):
         return self.title
+
+    def is_link_wanted(self, url, tag):
+        '''
+        Return True if the link should be followed or False otherwise. By
+        default, raises NotImplementedError which causes the downloader to
+        ignore it.
+
+        :param url: The URL to be followed
+        :param tag: The Tag from which the URL was derived
+        '''
+        raise NotImplementedError
 
     def get_cover_url(self):
         '''
@@ -575,7 +588,8 @@ class BasicNewsRecipe(Recipe):
 
         self.web2disk_options = web2disk_option_parser().parse_args(web2disk_cmdline)[0]
         for extra in ('keep_only_tags', 'remove_tags', 'preprocess_regexps',
-                      'preprocess_html', 'remove_tags_after', 'remove_tags_before'):
+                      'preprocess_html', 'remove_tags_after',
+                      'remove_tags_before', 'is_link_wanted'):
             setattr(self.web2disk_options, extra, getattr(self, extra))
         self.web2disk_options.postprocess_html = self._postprocess_html
         self.web2disk_options.encoding = self.encoding
@@ -621,8 +635,9 @@ class BasicNewsRecipe(Recipe):
         for attr in self.remove_attributes:
             for x in soup.findAll(attrs={attr:True}):
                 del x[attr]
-        for base in list(soup.findAll('base')):
+        for base in list(soup.findAll(['base', 'iframe'])):
             base.extract()
+
         return self.postprocess_html(soup, first_fetch)
 
 

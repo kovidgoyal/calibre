@@ -553,7 +553,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def fetch_metadata(self):
         isbn   = re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text()))
         title  = qstring_to_unicode(self.title.text())
-        author = string_to_authors(unicode(self.authors.text()))[0]
+        try:
+            author = string_to_authors(unicode(self.authors.text()))[0]
+        except IndexError:
+            author = ''
         publisher = qstring_to_unicode(self.publisher.currentText())
         if isbn or title or author or publisher:
             d = FetchMetadata(self, isbn, title, author, publisher, self.timeout)
@@ -654,11 +657,11 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.db.set_comment(self.id, qstring_to_unicode(self.comments.toPlainText()), notify=False)
             d = self.pubdate.date()
             d = qt_to_dt(d)
-            self.db.set_pubdate(self.id, d)
+            self.db.set_pubdate(self.id, d, notify=False)
             d = self.date.date()
             d = qt_to_dt(d)
             if d.date() != self.orig_timestamp.date():
-                self.db.set_timestamp(self.id, d)
+                self.db.set_timestamp(self.id, d, notify=False)
 
             if self.cover_changed:
                 if self.cover_data is not None:

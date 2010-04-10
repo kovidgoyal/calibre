@@ -91,6 +91,9 @@ class DummyLock(object):
     def __enter__(self, *args): return self
     def __exit__(self, *args): pass
 
+def default_is_link_wanted(url, tag):
+    raise NotImplementedError()
+
 class RecursiveFetcher(object):
     LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in
                 ('.exe\s*$', '.mp3\s*$', '.ogg\s*$', '^\s*mailto:', '^\s*$'))
@@ -134,6 +137,8 @@ class RecursiveFetcher(object):
         self.keep_only_tags      = getattr(options, 'keep_only_tags', [])
         self.preprocess_html_ext = getattr(options, 'preprocess_html', lambda soup: soup)
         self.postprocess_html_ext= getattr(options, 'postprocess_html', None)
+        self._is_link_wanted     = getattr(options, 'is_link_wanted',
+                default_is_link_wanted)
         self.download_stylesheets = not options.no_stylesheets
         self.show_progress = True
         self.failed_links = []
@@ -233,7 +238,13 @@ class RecursiveFetcher(object):
                 return False
         return True
 
-    def is_link_wanted(self, url):
+    def is_link_wanted(self, url, tag):
+        try:
+            return self._is_link_wanted(url, tag)
+        except NotImplementedError:
+            pass
+        except:
+            return False
         if self.filter_regexps:
             for f in self.filter_regexps:
                 if f.search(url):
@@ -342,7 +353,7 @@ class RecursiveFetcher(object):
         if not self.is_link_ok(iurl):
             self.log.debug('Skipping invalid link:', iurl)
             return None
-        if filter and not self.is_link_wanted(iurl):
+        if filter and not self.is_link_wanted(iurl, tag):
             self.log.debug('Filtered link: '+iurl)
             return None
         return iurl

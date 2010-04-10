@@ -8,6 +8,7 @@ import mechanize
 
 from calibre.constants import __version__, iswindows, isosx
 from calibre import browser
+from calibre.utils.config import prefs
 
 URL = 'http://status.calibre-ebook.com/latest'
 
@@ -32,6 +33,7 @@ class CheckForUpdates(QObject):
             req.add_header('CALIBRE_VERSION', __version__)
             req.add_header('CALIBRE_OS',
                     'win' if iswindows else 'osx' if isosx else 'oth')
+            req.add_header('CALIBRE_INSTALL_UUID', prefs['installation_uuid'])
             version = br.open(req).read().strip()
             if version and version != __version__:
                 self.emit(SIGNAL('update_found(PyQt_PyObject)'), version)

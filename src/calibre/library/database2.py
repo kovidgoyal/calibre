@@ -10,7 +10,6 @@ import os, re, sys, shutil, cStringIO, glob, collections, textwrap, \
        itertools, functools, traceback
 from itertools import repeat
 from math import floor
-
 from PyQt4.QtCore import QThread, QReadWriteLock
 try:
     from PIL import Image as PILImage
@@ -33,7 +32,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
 
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
+from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp, parse_date
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 
 if iswindows:
@@ -196,10 +195,58 @@ class ResultCache(SearchQueryParser):
     Stores sorted and filtered metadata in memory.
     '''
 
+    def build_relop_dict(self):
+        '''
+        Because the database dates have time in them, we can't use direct
+        comparisons even when field_count == 3. The query has time = 0, but
+        the database object has time == something. As such, a complete compare
+        will almost never be correct.
+        '''
+        def relop_eq(db, query, field_count):
+            if db.year == query.year:
+                if field_count == 1:
+                    return True
+                if db.month == query.month:
+                    if field_count == 2:
+                        return True
+                    return db.day == query.day
+            return False
+
+        def relop_gt(db, query, field_count):
+            if db.year > query.year:
+                return True
+            if field_count > 1 and db.year == query.year:
+                if db.month > query.month:
+                    return True
+                return field_count == 3 and db.month == query.month and db.day > query.day
+            return False
+
+        def relop_lt(db, query, field_count):
+            if db.year < query.year:
+                return True
+            if field_count > 1 and db.year == query.year:
+                if db.month < query.month:
+                    return True
+                return field_count == 3 and db.month == query.month and db.day < query.day
+            return False
+
+        def relop_ne(db, query, field_count):
+            return not relop_eq(db, query, field_count)
+
+        def relop_ge(db, query, field_count):
+            return not relop_lt(db, query, field_count)
+
+        def relop_le(db, query, field_count):
+            return not relop_gt(db, query, field_count)
+
+        self.search_relops = {'=':[1, relop_eq],  '>':[1, relop_gt],  '<':[1, relop_lt], \
+                              '!=':[2, relop_ne], '>=':[2, relop_ge], '<=':[2, relop_le]}
+
     def __init__(self):
         self._map = self._map_filtered = self._data = []
         self.first_sort = True
         SearchQueryParser.__init__(self)
+        self.build_relop_dict()
 
     def __getitem__(self, row):
         return self._data[self._map_filtered[row]]
@@ -219,6 +266,27 @@ class ResultCache(SearchQueryParser):
         if query and query.strip():
             location = location.lower().strip()
 
+            ### take care of dates special case
+            if location in ('pubdate', 'date'):
+                if len(query) < 2:
+                    return matches
+                relop = None
+                for k in self.search_relops.keys():
+                    if query.startswith(k):
+                        (p, relop) = self.search_relops[k]
+                        query = query[p:]
+                if relop is None:
+                    return matches
+                loc = FIELD_MAP[{'date':'timestamp', 'pubdate':'pubdate'}[location]]
+                qd = parse_date(query)
+                field_count = query.count('-') + 1
+                for item in self._data:
+                    if item is None: continue
+                    if relop(item[loc], qd, field_count):
+                        matches.add(item[0])
+                return matches
+
+            ### everything else
             matchkind = CONTAINS_MATCH
             if (len(query) > 1):
                 if query.startswith('\\'):
@@ -1994,6 +2062,3 @@ books_series_link      feeds
         self.refresh_ids(list(bad.keys()))
 
         return bad
-
-
-
