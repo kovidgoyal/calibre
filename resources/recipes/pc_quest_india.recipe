@@ -9,6 +9,8 @@ class PCQ(CalibrePeriodical):
     Buying a tech product? Seeking a tech solution? Consult PCQuest, India's
     market-leading selection and implementation guide for the latest
     technologies: servers, business apps, security, open source, gadgets and
-    more.
+    more. To subscribe visit, <a
+    href="http://news.calibre-ebook.com/periodical/pc-quest-india">calibre
+    Periodicals</a>.
     '''
     language = 'en_IN'

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>495</width>
-    <height>456</height>
+    <height>468</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -219,7 +219,7 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="0">
+        <item row="9" column="0">
          <widget class="QLabel" name="label_5">
           <property name="text">
            <string>Remove &amp;format:</string>
@@ -229,7 +229,7 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
+        <item row="9" column="1">
          <widget class="QComboBox" name="remove_format"/>
         </item>
         <item row="0" column="1">
@@ -239,10 +239,23 @@
           </property>
          </widget>
         </item>
-        <item row="9" column="0" colspan="2">
+        <item row="10" column="0" colspan="2">
          <widget class="QCheckBox" name="swap_title_and_author">
           <property name="text">
            <string>&amp;Swap title and author</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1">
+         <widget class="QCheckBox" name="autonumber_series">
+          <property name="toolTip">
+           <string>Selected books will be automatically numbered,
+in the order you selected them.
+So if you selected Book A and then Book B,
+Book A will have series number 1 and Book B series number 2.</string>
+          </property>
+          <property name="text">
+           <string>Automatically number books in this series</string>
           </property>
          </widget>
         </item>
