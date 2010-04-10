@@ -104,7 +104,7 @@ class Reader132(FormatReader):
 
     def extract_content(self, output_dir):
         from calibre.ebooks.pml.pmlconverter import footnote_to_html, sidebar_to_html
-        from calibre.ebooks.pml.pmlconverter import pml_to_html
+        from calibre.ebooks.pml.pmlconverter import PML_HTMLizer
 
         output_dir = os.path.abspath(output_dir)
 
@@ -120,7 +120,9 @@ class Reader132(FormatReader):
         for i in range(1, self.header_record.num_text_pages + 1):
             self.log.debug('Extracting text page %i' % i)
             pml += self.get_text_page(i)
-        html += pml_to_html(pml)
+        hizer = PML_HTMLizer()
+        html += hizer.parse_pml(pml, 'index.html')
+        toc = hizer.get_toc()
 
         if self.header_record.footnote_count > 0:
             html += '<br /><h1>%s</h1>' % _('Footnotes')
@@ -154,11 +156,11 @@ class Reader132(FormatReader):
                     self.log.debug('Writing image %s to images/' % name)
                     imgf.write(img)
 
-        opf_path = self.create_opf(output_dir, images)
+        opf_path = self.create_opf(output_dir, images, toc)
 
         return opf_path
 
-    def create_opf(self, output_dir, images):
+    def create_opf(self, output_dir, images, toc):
         with CurrentDir(output_dir):
             if 'cover.png' in images:
                 self.mi.cover = os.path.join('images', 'cover.png')
@@ -172,8 +174,10 @@ class Reader132(FormatReader):
 
             opf.create_manifest(manifest)
             opf.create_spine(['index.html'])
+            opf.set_toc(toc)
             with open('metadata.opf', 'wb') as opffile:
-                opf.render(opffile)
+                with open('toc.ncx', 'wb') as tocfile:
+                    opf.render(opffile, tocfile, 'toc.ncx')
 
         return os.path.join(output_dir, 'metadata.opf')
 

@@ -85,10 +85,11 @@ class PMLMLizer(object):
         # from the optional inline toc.
         self.toc = {}
         for item in oeb_book.toc:
-            page, mid, id = item.href.partition('#')
-            if not self.toc.get(page, None):
-                self.toc[page] = {}
-            self.toc[page][id] = item.title
+            href, mid, id = item.href.partition('#')
+            aid = self.get_anchor_id(href, id)
+            if not self.toc.get(href, None):
+                self.toc[href] = {}
+            self.toc[href][id] = item.title
 
         return self.pmlmlize_spine()
 
@@ -97,9 +98,8 @@ class PMLMLizer(object):
         self.link_hrefs = {}
         output = [u'']
         output.append(self.get_cover_page())
-        output.append(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk')
         output.append(self.get_text())
-        output = ''.join(output).replace(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk', self.get_toc())
+        output = ''.join(output)
         output = self.clean_text(output)
         return output
 
@@ -118,22 +118,6 @@ class PMLMLizer(object):
                 output += ''.join(self.dump_text(item.data.find(XHTML('body')), stylizer, item))
         return output
 
-    def get_toc(self):
-        '''
-        Generation of inline TOC
-        '''
-
-        toc = []
-        if self.opts.inline_toc:
-            self.log.debug('Generating table of contents...')
-            toc.append(u'\\X0%s\\X0\n\n' % _('Table of Contents:'))
-            for item in self.oeb_book.toc:
-                if item.href in self.link_hrefs.keys():
-                    toc.append('* \\q="#%s"%s\\q\n' % (self.link_hrefs[item.href], item.title))
-                else:
-                    self.oeb_book.warn('Ignoring toc item: %s not found in document.' % item)
-        return ''.join(toc)
-
     def get_text(self):
         text = [u'']
         for item in self.oeb_book.spine:
@@ -146,11 +130,15 @@ class PMLMLizer(object):
     def add_page_anchor(self, page):
         return self.get_anchor(page, '')
 
-    def get_anchor(self, page, aid):
-        aid = '%s#%s' % (page.href, aid)
+    def get_anchor_id(self, href, aid):
+        aid = '%s#%s' % (href, aid)
         if aid not in self.link_hrefs.keys():
             self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
         aid = self.link_hrefs[aid]
+        return aid
+
+    def get_anchor(self, page, aid):
+        aid = self.get_anchor_id(page.href, aid)
         return u'\\Q="%s"' % aid
 
     def remove_newlines(self, text):
@@ -232,12 +220,15 @@ class PMLMLizer(object):
             else:
                 w += '="50%"'
             text.append(w)
+        toc_name = elem.attrib.get('name', None)
         toc_id = elem.attrib.get('id', None)
-        if toc_id and tag  not in ('h1', 'h2','h3','h4','h5','h6',):
-            if self.toc.get(page.href, None):
-                toc_title = self.toc[page.href].get(toc_id, None)
-                if toc_title:
-                    text.append('\\C0="%s"' % toc_title)
+        if (toc_id or toc_name) and tag  not in ('h1', 'h2','h3','h4','h5','h6',):
+            toc_page = page.href
+            if self.toc.get(toc_page, None):
+                for toc_x in (toc_name, toc_id):
+                    toc_title = self.toc[toc_page].get(toc_x, None)
+                    if toc_title:
+                        text.append('\\C0="%s"' % toc_title)
 
         # Process style information that needs holds a single tag
         # Commented out because every page in an OEB book starts with this style
@@ -266,8 +257,10 @@ class PMLMLizer(object):
 
         # Anchor ids
         id_name = elem.get('id')
-        if id_name:
-            text.append(self.get_anchor(page, id_name))
+        name_name = elem.get('name')
+        for name_x in (id_name, name_name):
+            if name_x:
+                text.append(self.get_anchor(page, name_x))
 
         # Processes style information
         for s in STYLES:
