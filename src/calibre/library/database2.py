@@ -211,7 +211,7 @@ class ResultCache(SearchQueryParser):
                         return True
                     return db.day == query.day
             return False
-        
+
         def relop_gt(db, query, field_count):
             if db.year > query.year:
                 return True
@@ -220,7 +220,7 @@ class ResultCache(SearchQueryParser):
                     return True
                 return field_count == 3 and db.month == query.month and db.day > query.day
             return False
-    
+
         def relop_lt(db, query, field_count):
             if db.year < query.year:
                 return True
@@ -229,16 +229,16 @@ class ResultCache(SearchQueryParser):
                     return True
                 return field_count == 3 and db.month == query.month and db.day < query.day
             return False
-    
+
         def relop_ne(db, query, field_count):
             return not relop_eq(db, query, field_count)
-    
+
         def relop_ge(db, query, field_count):
             return not relop_lt(db, query, field_count)
-    
+
         def relop_le(db, query, field_count):
             return not relop_gt(db, query, field_count)
-        
+
         self.search_relops = {'=':[1, relop_eq],  '>':[1, relop_gt],  '<':[1, relop_lt], \
                               '!=':[2, relop_ne], '>=':[2, relop_ge], '<=':[2, relop_le]}
 
