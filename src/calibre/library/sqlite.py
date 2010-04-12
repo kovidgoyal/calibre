@@ -32,18 +32,16 @@ class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
     def __init__(self, sep=','):
         self.sep = sep
-        self.ans = ''
+        self.ans = []
 
     def step(self, value):
         if value is not None:
-            self.ans += value + self.sep
+            self.ans.append(value)
 
     def finalize(self):
         if not self.ans:
             return None
-        if self.sep:
-            return self.ans[:-len(self.sep)]
-        return self.ans
+        return self.sep.join(self.ans)
 
 class SortedConcatenate(object):
     '''String concatenation aggregator for sqlite, sorted by supplied index'''

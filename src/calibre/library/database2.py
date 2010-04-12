@@ -389,7 +389,7 @@ class ResultCache(SearchQueryParser):
         '''
         for id in ids:
             try:
-                self._data[id] = db.conn.get('SELECT * from meta WHERE id=?',
+                self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?',
                         (id,))[0]
                 self._data[id].append(db.has_cover(id, index_is_id=True))
             except IndexError:
@@ -405,7 +405,7 @@ class ResultCache(SearchQueryParser):
             return
         self._data.extend(repeat(None, max(ids)-len(self._data)+2))
         for id in ids:
-            self._data[id] = db.conn.get('SELECT * from meta WHERE id=?', (id,))[0]
+            self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
             self._data[id].append(db.has_cover(id, index_is_id=True))
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
@@ -420,7 +420,7 @@ class ResultCache(SearchQueryParser):
         return len(self._map)
 
     def refresh(self, db, field=None, ascending=True):
-        temp = db.conn.get('SELECT * FROM meta')
+        temp = db.conn.get('SELECT * FROM meta2')
         self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []
         for r in temp:
             self._data[r[0]] = r
@@ -548,6 +548,97 @@ class LibraryDatabase2(LibraryDatabase):
                 print 'Upgrading database to version %d...'%(uv+1)
                 meth()
                 self.user_version = uv+1
+        self.initialize_dynamic()
+
+    def custom_table_names(self, num):
+        return 'custom_column_%d'%num, 'books_custom_column_%d_link'%num
+
+    @property
+    def custom_tables(self):
+        return set([x[0] for x in self.conn.get(
+            'SELECT name FROM sqlite_master WHERE type="table" AND '
+            '(name GLOB "custom_column_*" OR name GLOB books_customcolumn_*)')])
+
+
+    def initialize_dynamic(self):
+        template = '''\
+                (SELECT {query} FROM books_{table}_link AS link INNER JOIN
+                    {table} ON(link.{link_col}={table}.id) WHERE link.book=books.id)
+                    {col}
+                '''
+        columns = ['id', 'title',
+            # col         table     link_col          query
+            ('authors', 'authors', 'author', 'sortconcat(link.id, name)'),
+            ('publisher', 'publishers', 'publisher', 'name'),
+            ('rating', 'ratings', 'rating', 'ratings.rating'),
+             'timestamp',
+             '(SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size',
+            ('tags', 'tags', 'tag', 'group_concat(name)'),
+             '(SELECT text FROM comments WHERE book=books.id) comments',
+            ('series', 'series', 'series', 'name'),
+             'series_index',
+             'sort',
+             'author_sort',
+             '(SELECT group_concat(format) FROM data WHERE data.book=books.id) formats',
+             'isbn',
+             'path',
+             'lccn',
+             'pubdate',
+             'flags',
+             'uuid'
+            ]
+        lines = []
+        for col in columns:
+            line = col
+            if isinstance(col, tuple):
+                line = template.format(col=col[0], table=col[1],
+                        link_col=col[2], query=col[3])
+            lines.append(line)
+        script = '''
+        DROP VIEW IF EXISTS meta2;
+        CREATE TEMP VIEW meta2 AS
+        SELECT
+        {0}
+        FROM books;
+        '''.format(', \n'.join(lines))
+        self.conn.executescript(script.format(''))
+        self.conn.commit()
+        """
+        # Delete marked custom columns
+        for num in self.conn.get(
+                'SELECT id FROM custom_columns WHERE delete=1'):
+            dt, lt = self.custom_table_names(num)
+            self.conn.executescript('''\
+                    DROP TABLE IF EXISTS %s;
+                    DROP TABLE IF EXISTS %s;
+                    '''%(dt, lt)
+            )
+        self.conn.execute('DELETE FROM custom_columns WHERE delete=1')
+        self.conn.commit()
+
+        columns = []
+        remove = set([])
+        tables = self.custom_tables
+        for num, label, is_multiple in self.conn.get(
+                'SELECT id,label,is_multiple from custom_columns'):
+            data_table, link_table = self.custom_table_names(num)
+            if data_table in tables and link_table in tables:
+                col = 'concat(name)' if is_multiple else 'name'
+                columns.append(('(SELECT {col} FROM {dt} WHERE '
+                        '{dt}.id IN (SELECT custom FROM '
+                        '{lt} WHERE book=books.id)) '
+                        'custom_{label}').format(num=num, label=label, col=col,
+                            dt=data_table, lt=link_table))
+            else:
+                from calibre import prints
+                prints(u'WARNING: Custom column %s is missing, removing its entry!'%label)
+                remove.add(num)
+        for num in remove:
+            self.conn.execute('DELETE FROM custom_columns WHERE id=%d'%num)
+
+        self.conn.executescript(script)
+        self.conn.commit()
+        """
 
         self.data    = ResultCache()
         self.search  = self.data.search
@@ -570,7 +661,7 @@ class LibraryDatabase2(LibraryDatabase):
 
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
                      'publisher', 'rating', 'series', 'series_index', 'tags',
-                     'title', 'timestamp', 'uuid'):
+                     'title', 'timestamp', 'uuid', 'pubdate'):
             setattr(self, prop, functools.partial(get_property,
                     loc=FIELD_MAP['comments' if prop == 'comment' else prop]))
 
@@ -808,6 +899,18 @@ class LibraryDatabase2(LibraryDatabase):
                 cn = tn
             create_tag_browser_view(tn, cn)
 
+    """def upgrade_version_9(self):
+        'Add custom columns'
+        self.conn.executescript('''
+                CREATE TABLE custom_columns (
+                    id       INTEGER PRIMARY KEY AUTOINCREMENT,
+                    label    TEXT NOT NULL,
+                    name     TEXT NOT NULL,
+                    datatype TEXT NOT NULL,
+                    delete   BOOL DEFAULT 0,
+                    UNIQUE(label)
+                );
+        ''')"""
 
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''
@@ -952,16 +1055,6 @@ class LibraryDatabase2(LibraryDatabase):
                 img.loadFromData(f.read())
                 return img
             return f if as_file else f.read()
-
-    def timestamp(self, index, index_is_id=False):
-        if index_is_id:
-            return self.conn.get('SELECT timestamp FROM meta WHERE id=?', (index,), all=False)
-        return self.data[index][FIELD_MAP['timestamp']]
-
-    def pubdate(self, index, index_is_id=False):
-        if index_is_id:
-            return self.conn.get('SELECT pubdate FROM meta WHERE id=?', (index,), all=False)
-        return self.data[index][FIELD_MAP['pubdate']]
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''
