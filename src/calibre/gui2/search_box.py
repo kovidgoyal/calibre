@@ -71,6 +71,8 @@ class SearchBox2(QComboBox):
         self.timer = None
         self.setInsertPolicy(self.NoInsert)
         self.setMaxCount(self.MAX_COUNT)
+        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
+        self.setMinimumContentsLength(50)
 
     def initialize(self, opt_name, colorize=False,
             help_text=_('Search')):
@@ -212,6 +214,8 @@ class SavedSearchBox(QComboBox):
         self.help_state = True
         self.prev_search = ''
         self.setInsertPolicy(self.NoInsert)
+        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
+        self.setMinimumContentsLength(10)
 
     def initialize(self, _saved_searches, _search_box, colorize=False, help_text=_('Search')):
         self.tool_tip_text = self.toolTip()
