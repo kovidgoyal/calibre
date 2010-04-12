@@ -20,7 +20,9 @@ from calibre.utils.date import parse_date, isoformat
 global_lock = RLock()
 
 def convert_timestamp(val):
-    return parse_date(val, as_utc=False)
+    if val:
+        return parse_date(val, as_utc=False)
+    return None
 
 def adapt_datetime(dt):
     return isoformat(dt, sep=' ')

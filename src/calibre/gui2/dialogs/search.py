@@ -5,7 +5,7 @@ from PyQt4.QtGui import QDialog
 
 from calibre.gui2.dialogs.search_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode
-from calibre.library.database2 import CONTAINS_MATCH, EQUALS_MATCH
+from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
 
 class SearchDialog(QDialog, Ui_Dialog):
 

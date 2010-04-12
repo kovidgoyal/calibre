@@ -17,7 +17,7 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
 from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.pyparsing import ParseException
-from calibre.library.database2 import FIELD_MAP, _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
+from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, \
                          error_dialog
 from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
@@ -560,16 +560,16 @@ class BooksModel(QAbstractTableModel):
 
     def build_data_convertors(self):
 
-        tidx = FIELD_MAP['title']
-        aidx = FIELD_MAP['authors']
-        sidx = FIELD_MAP['size']
-        ridx = FIELD_MAP['rating']
-        pidx = FIELD_MAP['publisher']
-        tmdx = FIELD_MAP['timestamp']
-        pddx = FIELD_MAP['pubdate']
-        srdx = FIELD_MAP['series']
-        tgdx = FIELD_MAP['tags']
-        siix = FIELD_MAP['series_index']
+        tidx = self.db.FIELD_MAP['title']
+        aidx = self.db.FIELD_MAP['authors']
+        sidx = self.db.FIELD_MAP['size']
+        ridx = self.db.FIELD_MAP['rating']
+        pidx = self.db.FIELD_MAP['publisher']
+        tmdx = self.db.FIELD_MAP['timestamp']
+        pddx = self.db.FIELD_MAP['pubdate']
+        srdx = self.db.FIELD_MAP['series']
+        tgdx = self.db.FIELD_MAP['tags']
+        siix = self.db.FIELD_MAP['series_index']
 
         def authors(r):
             au = self.db.data[r][aidx]

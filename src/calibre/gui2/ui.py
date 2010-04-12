@@ -57,7 +57,8 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
-from calibre.library.database2 import LibraryDatabase2, CoverCache
+from calibre.library.database2 import LibraryDatabase2
+from calibre.library.caches import CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
 
 class SaveMenu(QMenu):
