@@ -1,0 +1,167 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Hans Donner <hans.donner at pobox.com>'
+'''
+www.standardmedia.co.ke
+'''
+
+import os
+from calibre import strftime, __appname__, __version__
+import calibre.utils.PythonMagickWand as pw
+from ctypes import byref
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.constants import preferred_encoding
+
+class NationKeRecipe(BasicNewsRecipe):
+
+    __author__ = 'Hans Donner'
+
+    title = u'Sunday Nation'
+    description = 'News from Kenia'
+    language = 'en'
+    country = 'KE'
+    publication_type = 'newspaper'
+    publisher = 'nation.co.ke'
+    category = 'news, politics, Kenia'
+
+    cover_img_url = 'http://www.nation.co.ke/image/view/-/465228/medRes/33884/-/maxh/85/-/12e8pptz/-/Sunday_Logo.gif'
+    masthead_url = cover_img_url
+
+    max_articles_per_feed = 200
+    oldest_article = 2
+
+    use_embedded_content = False
+    remove_empty_feeds = True
+
+    no_stylesheets = True
+    extra_css = ' body{font-family: Verdana,Arial,Helvetica,sans-serif; font-size:0.7em } ' + \
+                ' .image{margin-bottom: 1em} '
+
+    keep_only_tags = dict(id='articlebody')
+
+    feeds = [(u'News', u'http://www.nation.co.ke/News/-/1056/1056/-/view/asFeed/-/14nfs48z/-/index.xml'),
+             (u'Business', u'http://www.nation.co.ke/business/-/996/996/-/view/asFeed/-/14lpkvc/-/index.xml'),
+             (u'InDepth', u'http://www.nation.co.ke/InDepth/-/452898/452898/-/view/asFeed/-/14ndbk6/-/index.xml'),
+             (u'Sports', u'http://www.nation.co.ke/sports/-/1090/1090/-/view/asFeed/-/hlukmj/-/index.xml'),
+             (u'Magazines', u'http://www.nation.co.ke/magazines/-/1190/1190/-/view/asFeed/-/fcxm6jz/-/index.xml'),
+             (u'Op/Ed', u'http://www.nation.co.ke/oped/-/1192/1192/-/view/asFeed/-/unsp8mz/-/index.xml'),
+             (u'Blogs', u'http://www.nation.co.ke/blogs/-/620/620/-/view/asFeed/-/28ia05z/-/index.xml')]
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+
+    def print_version(self, url):
+        from calibre.ebooks.BeautifulSoup import BeautifulSoup
+        soup = BeautifulSoup(self.browser.open(url).read())
+        printversion = soup.find('a', text='Print')
+        if printversion is None:
+            return url
+        else:
+            return 'http://www.nation.co.ke' + printversion.parent['href']
+
+    def preprocess_html(self, soup):
+        return self.adeify_images(soup)
+
+    def get_cover_img_url(self):
+        return getattr(self, 'cover_img_url', None)
+
+    def _download_cover_img(self):
+        # hack to reuse download_cover
+        old_cu = None
+        try:
+            old_cu = self.get_cover_ur()
+        except:
+            pass
+        new_cu = self.get_cover_img_url()
+        self.cover_url = new_cu
+        self._download_cover()
+
+        outfile = os.path.join(self.output_dir, 'cover_img.jpg')
+        self.prepare_masthead_image(self.cover_path, outfile)
+
+        self.cover_url = old_cu
+        self.cover_img_path = outfile
+
+    def download_cover_img(self):
+        try:
+            self._download_cover_img()
+            self.report_progress(1, _('Downloaded cover to %s') % self.cover_img_path)
+        except:
+            self.log.exception('Failed to download cover img')
+            self.cover_img_path = None
+
+    def prepare_cover_image(self, path_to_image, out_path):
+        with pw.ImageMagick():
+            img = pw.NewMagickWand()
+            if img < 0:
+                raise RuntimeError('Out of memory')
+            if not pw.MagickReadImage(img, path_to_image):
+                severity = pw.ExceptionType(0)
+                msg = pw.MagickGetException(img, byref(severity))
+                raise IOError('Failed to read image from: %s: %s'
+                        %(path_to_image, msg))
+            if not pw.MagickWriteImage(img, out_path):
+                raise RuntimeError('Failed to save image to %s'%out_path)
+            pw.DestroyMagickWand(img)
+
+
+    def default_cover(self, cover_file):
+        '''
+        Create a generic cover for recipes that have a special cover img
+        '''
+        try:
+            try:
+                from PIL import Image, ImageDraw, ImageFont
+                Image, ImageDraw, ImageFont
+            except ImportError:
+                import Image, ImageDraw, ImageFont
+            font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
+            title = self.title if isinstance(self.title, unicode) else \
+                    self.title.decode(preferred_encoding, 'replace')
+            date = strftime(self.timefmt)
+            app = '['+__appname__ +' '+__version__+']'
+
+            COVER_WIDTH, COVER_HEIGHT = 590, 750
+            img = Image.new('RGB', (COVER_WIDTH, COVER_HEIGHT), 'white')
+            draw = ImageDraw.Draw(img)
+            # Title
+            font = ImageFont.truetype(font_path, 44)
+            width, height = draw.textsize(title, font=font)
+            left = max(int((COVER_WIDTH - width)/2.), 0)
+            top = 15
+            draw.text((left, top), title, fill=(0,0,0), font=font)
+            bottom = top + height
+            # Date
+            font = ImageFont.truetype(font_path, 32)
+            width, height = draw.textsize(date, font=font)
+            left = max(int((COVER_WIDTH - width)/2.), 0)
+            draw.text((left, bottom+15), date, fill=(0,0,0), font=font)
+            # Vanity
+            font = ImageFont.truetype(font_path, 28)
+            width, height = draw.textsize(app, font=font)
+            left = max(int((COVER_WIDTH - width)/2.), 0)
+            top = COVER_HEIGHT - height - 15
+            draw.text((left, top), app, fill=(0,0,0), font=font)
+
+            # Logo
+            logo_file = I('library.png')
+            self.download_cover_img()
+            if getattr(self, 'cover_img_path', None) is not None:
+                logo_file = self.cover_img_path
+            self.report_progress(1, _('using cover img from %s') % logo_file)
+            logo = Image.open(logo_file, 'r')
+            width, height = logo.size
+            left = max(int((COVER_WIDTH - width)/2.), 0)
+            top = max(int((COVER_HEIGHT - height)/2.), 0)
+            img.paste(logo, (left, top))
+            img = img.convert('RGB').convert('P', palette=Image.ADAPTIVE)
+            img.convert('RGB').save(cover_file, 'JPEG')
+            cover_file.flush()
+        except Exception, e:
+            self.log.exception('Failed to generate default cover ', e)
+            return False
+        return True
