@@ -27,9 +27,12 @@ class RescaleImages(object):
         except ImportError:
             import Image as PILImage
 
+        is_image_collection = getattr(self.opts, 'is_image_collection', False)
 
-        page_width, page_height = self.opts.dest.width, self.opts.dest.height
-        if not getattr(self.opts, 'is_image_collection', False):
+        if is_image_collection:
+            page_width, page_height = self.opts.dest.comic_screen_size
+        else:
+            page_width, page_height = self.opts.dest.width, self.opts.dest.height
             page_width -= (self.opts.margin_left + self.opts.margin_right) * self.opts.dest.dpi/72.
             page_height -= (self.opts.margin_top + self.opts.margin_bottom) * self.opts.dest.dpi/72.
         for item in self.oeb.manifest:
