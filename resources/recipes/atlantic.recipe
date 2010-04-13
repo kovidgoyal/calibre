@@ -33,9 +33,9 @@ class TheAtlantic(BasicNewsRecipe):
         soup = self.index_to_soup(self.INDEX)
         sectit = soup.find('h1', attrs={'class':'sectionTitle'})
         if sectit is not None:
-            texts = sectit.findAll('cufontext')
-            texts = map(self.tag_to_string, texts[-2:])
-            self.timefmt = ' [%s]'%(''.join(texts))
+            texts = self.tag_to_string(sectit).strip().split()[-2:]
+            if texts:
+                self.timefmt = ' [%s]'%(' '.join(texts))
 
         cover = soup.find('img', src=True, attrs={'class':'cover'})
         if cover is not None:
