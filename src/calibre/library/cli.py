@@ -119,7 +119,7 @@ def send_message(msg=''):
 def get_parser(usage):
     parser = OptionParser(usage)
     go = parser.add_option_group('GLOBAL OPTIONS')
-    go.add_option('--library-path', default=None, help=_('Path to the calibre library. Default is to use the path stored in the settings.'))
+    go.add_option('--library-path', '--with-library', default=None, help=_('Path to the calibre library. Default is to use the path stored in the settings.'))
 
     return parser
 
@@ -129,7 +129,7 @@ def get_db(dbpath, options):
     dbpath = os.path.abspath(dbpath)
     return LibraryDatabase2(dbpath)
 
-def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
+def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, separator,
             prefix, output_format, subtitle='Books in the calibre database'):
     if sort_by:
         db.sort(sort_by, ascending)
@@ -138,6 +138,9 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
     authors_to_string = output_format in ['stanza', 'text']
     data = db.get_data_as_dict(prefix, authors_as_string=authors_to_string)
     fields = ['id'] + fields
+    title_fields = fields
+    fields = [db.custom_column_label_map[x[1:]]['num'] if x[0]=='*'
+            else x for x in fields]
     if output_format == 'text':
         for f in data:
             fmts = [x for x in f['formats'] if x is not None]
@@ -152,7 +155,7 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
                 record[f] = record[f].replace('\n', ' ')
         for i in data:
             for j, field in enumerate(fields):
-                widths[j] = max(widths[j], len(unicode(i[str(field)])))
+                widths[j] = max(widths[j], len(unicode(i[field])))
 
         screen_width = terminal_controller.COLS if line_width < 0 else line_width
         if not screen_width:
@@ -171,7 +174,8 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
                 break
 
         widths = list(base_widths)
-        titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator), widths, fields)
+        titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator),
+                widths, title_fields)
         print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
 
         wrappers = map(lambda x: TextWrapper(x-1), widths)
@@ -202,7 +206,12 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
         return template.generate(id="urn:calibre:main", data=data, subtitle=subtitle,
                 sep=os.sep, quote=quote, updated=db.last_modified()).render('xml')
 
-def list_option_parser():
+def list_option_parser(db=None):
+    fields = set(FIELDS)
+    if db is not None:
+        for f in db.custom_column_label_map:
+            fields.add('*'+f)
+
     parser = get_parser(_(
 '''\
 %prog list [options]
@@ -211,7 +220,12 @@ List the books available in the calibre database.
 '''
                             ))
     parser.add_option('-f', '--fields', default='title,authors',
-                      help=_('The fields to display when listing books in the database. Should be a comma separated list of fields.\nAvailable fields: %s\nDefault: %%default. The special field "all" can be used to select all fields. Only has effect in the text output format.')%','.join(FIELDS))
+                      help=_('The fields to display when listing books in the'
+                          ' database. Should be a comma separated list of'
+                          ' fields.\nAvailable fields: %s\nDefault: %%default. The'
+                          ' special field "all" can be used to select all fields.'
+                          ' Only has effect in the text output'
+                          ' format.')%','.join(sorted(fields)))
     parser.add_option('--sort-by', default=None,
                       help=_('The field by which to sort the results.\nAvailable fields: %s\nDefault: %%default')%','.join(FIELDS))
     parser.add_option('--ascending', default=False, action='store_true',
@@ -229,25 +243,35 @@ List the books available in the calibre database.
 
 
 def command_list(args, dbpath):
-    parser = list_option_parser()
+    pre = get_parser('')
+    pargs = [x for x in args if x in ('--with-library', '--library-path')
+        or not x.startswith('-')]
+    opts = pre.parse_args(sys.argv[:1] + pargs)[0]
+    db = get_db(dbpath, opts)
+    parser = list_option_parser(db=db)
     opts, args = parser.parse_args(sys.argv[:1] + args)
+    afields = set(FIELDS)
+    if db is not None:
+        for f in db.custom_column_label_map:
+            afields.add('*'+f)
     fields = [str(f.strip().lower()) for f in opts.fields.split(',')]
     if 'all' in fields:
-        fields = sorted(list(FIELDS))
-    if not set(fields).issubset(FIELDS):
+        fields = sorted(list(afields))
+    if not set(fields).issubset(afields):
         parser.print_help()
         print
-        print >>sys.stderr, _('Invalid fields. Available fields:'), ','.join(sorted(FIELDS))
+        prints(_('Invalid fields. Available fields:'),
+                ','.join(sorted(afields)), file=sys.stderr)
         return 1
 
-    db = get_db(dbpath, opts)
-    if not opts.sort_by in FIELDS and opts.sort_by is not None:
+    if not opts.sort_by in afields and opts.sort_by is not None:
         parser.print_help()
         print
-        print >>sys.stderr, _('Invalid sort field. Available fields:'), ','.join(FIELDS)
+        prints(_('Invalid sort field. Available fields:'), ','.join(afields),
+                file=sys.stderr)
         return 1
 
-    print do_list(db, fields, opts.sort_by, opts.ascending, opts.search, opts.line_width, opts.separator,
+    print do_list(db, fields, afields, opts.sort_by, opts.ascending, opts.search, opts.line_width, opts.separator,
             opts.prefix, opts.output_format)
     return 0
 
@@ -589,6 +613,44 @@ def command_export(args, dbpath):
     do_export(get_db(dbpath, opts), ids, dir, opts)
     return 0
 
+def do_add_custom_column(db, label, name, datatype, is_multiple, display):
+    num = db.create_custom_column(label, name, datatype, is_multiple, display=display)
+    prints('Custom column created with id: %d'%num)
+
+def add_custom_column_option_parser():
+    from calibre.library.custom_columns import CustomColumns
+    parser = get_parser(_('''\
+%prog add_custom_column [options] label name datatype
+
+Create a custom column. label is the machine friendly name of the column. Should
+not contain spaces or colons. name is the human friendly name of the column.
+datatype is one of: {0}
+''').format(', '.join(CustomColumns.CUSTOM_DATA_TYPES)))
+
+    parser.add_option('--is-multiple', default=False, action='store_true',
+                      help=_('This column stores tag like data (i.e. '
+                          'multiple comma separated values). Only '
+                          'applies if datatype is text.'))
+    parser.add_option('--display', default='{}',
+            help=_('A dictionary of options to customize how '
+                'the data in this column will be interpreted.'))
+
+    return parser
+
+
+def command_add_custom_column(args, dbpath):
+    import json
+    parser = add_custom_column_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) < 3:
+        parser.print_help()
+        print
+        print >>sys.stderr, _('You must specify label, name and datatype')
+        return 1
+    do_add_custom_column(get_db(dbpath, opts), args[0], args[1], args[2],
+            opts.is_multiple, json.loads(opts.display))
+    return 0
+
 def catalog_option_parser(args):
     from calibre.customize.ui import available_catalog_formats, plugin_for_catalog_format
     from calibre.utils.logging import Log
@@ -693,8 +755,107 @@ def command_catalog(args, dbpath):
 
 # end of GR additions
 
+def do_set_custom(db, col, id_, val, append):
+    db.set_custom(id_, val, label=col, append=append)
+    prints('Data set to: %r'%db.get_custom(id_, label=col, index_is_id=True))
+
+def set_custom_option_parser():
+    parser = get_parser(_(
+    '''
+    %prog set_custom [options] column id value
+
+    Set the value of a custom column for the book identified by id.
+    You can get a list of ids using the list command.
+    You can get a list of custom column names using the custom_columns
+    command.
+    '''))
+
+    parser.add_option('-a', '--append', default=False, action='store_true',
+            help=_('If the column stores multiple values, append the specified '
+                'values to the existing ones, instead of replacing them.'))
+    return parser
+
+
+def command_set_custom(args, dbpath):
+    parser = set_custom_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) < 3:
+        parser.print_help()
+        print
+        print >>sys.stderr, _('Error: You must specify a field name, id and value')
+        return 1
+    do_set_custom(get_db(dbpath, opts), args[0], int(args[1]), args[2],
+            opts.append)
+    return 0
+
+def do_custom_columns(db, details):
+    from pprint import pformat
+    cols = db.custom_column_label_map
+    for col, data in cols.items():
+        if details:
+            prints(col)
+            print
+            prints(pformat(data))
+            print '\n'
+        else:
+            prints(col, '(%d)'%data['num'])
+
+def custom_columns_option_parser():
+    parser = get_parser(_(
+    '''
+    %prog custom_columns [options]
+
+    List available custom columns. Shows column labels and ids.
+    '''))
+    parser.add_option('-d', '--details', default=False, action='store_true',
+            help=_('Show details for each column.'))
+    return parser
+
+
+def command_custom_columns(args, dbpath):
+    parser = custom_columns_option_parser()
+    opts, args = parser.parse_args(args)
+    do_custom_columns(get_db(dbpath, opts), opts.details)
+    return 0
+
+def do_remove_custom_column(db, label, force):
+    if not force:
+        q = raw_input(_('You will lose all data in the column: %r.'
+            ' Are you sure (y/n)? ')%label)
+        if q.lower().strip() != 'y':
+            return
+    db.delete_custom_column(label=label)
+    prints('Column %r removed.'%label)
+
+def remove_custom_column_option_parser():
+    parser = get_parser(_(
+    '''
+    %prog remove_custom_column [options] label
+
+    Remove the custom column identified by label. You can see available
+    columns with the custom_columns command.
+    '''))
+    parser.add_option('-f', '--force', default=False, action='store_true',
+            help=_('Do not ask for confirmation'))
+    return parser
+
+
+def command_remove_custom_column(args, dbpath):
+    parser = remove_custom_column_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) < 1:
+        parser.print_help()
+        print
+        prints(_('Error: You must specify a column label'), file=sys.stderr)
+        return 1
+
+    do_remove_custom_column(get_db(dbpath, opts), args[0], opts.force)
+    return 0
+
+
 COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
-                'show_metadata', 'set_metadata', 'export', 'catalog')
+            'show_metadata', 'set_metadata', 'export', 'catalog',
+            'add_custom_column', 'custom_columns', 'remove_custom_column', 'set_custom')
 
 
 def option_parser():

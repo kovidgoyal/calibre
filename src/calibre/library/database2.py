@@ -161,11 +161,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         link_col=col[2], query=col[3])
             lines.append(line)
 
+        custom_map = self.custom_columns_in_meta()
+        custom_cols = list(sorted(custom_map.keys()))
+        lines.extend([custom_map[x] for x in custom_cols])
+
         self.FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'publisher':3, 'rating':4, 'timestamp':5,
              'size':6, 'tags':7, 'comments':8, 'series':9, 'series_index':10,
              'sort':11, 'author_sort':12, 'formats':13, 'isbn':14, 'path':15,
-             'lccn':16, 'pubdate':17, 'flags':18, 'uuid':19, 'cover':20}
+             'lccn':16, 'pubdate':17, 'flags':18, 'uuid':19}
 
+        for i, col in enumerate(custom_cols):
+            self.FIELD_MAP[col] = 19+1+i
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -174,7 +180,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         {0}
         FROM books;
         '''.format(', \n'.join(lines))
-        self.conn.executescript(script.format(''))
+        self.conn.executescript(script)
         self.conn.commit()
 
         self.data    = ResultCache(self.FIELD_MAP)
@@ -558,6 +564,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.execute(st%dict(ltable='publishers', table='publishers', ltable_col='publisher'))
         self.conn.execute(st%dict(ltable='tags', table='tags', ltable_col='tag'))
         self.conn.execute(st%dict(ltable='series', table='series', ltable_col='series'))
+        self.clean_custom()
         self.conn.commit()
 
     def get_recipes(self):
@@ -1204,6 +1211,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
             'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
             'isbn', 'uuid', 'pubdate'])
+        for x in self.custom_column_num_map:
+            FIELDS.add(x)
         data = []
         for record in self.data:
             if record is None: continue

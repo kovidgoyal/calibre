@@ -250,7 +250,6 @@ class SchemaUpgrade(object):
                 cn = tn
             create_tag_browser_view(tn, cn)
 
-"""
     def upgrade_version_9(self):
         'Add custom columns'
         self.conn.executescript('''
@@ -260,12 +259,13 @@ class SchemaUpgrade(object):
                     name     TEXT NOT NULL,
                     datatype TEXT NOT NULL,
                     mark_for_delete   BOOL DEFAULT 0 NOT NULL,
-                    flag     BOOL DEFAULT 0 NOT NULL,
                     editable BOOL DEFAULT 1 NOT NULL,
+                    display  TEXT DEFAULT "{}" NOT NULL,
+                    is_multiple BOOL DEFAULT 0 NOT NULL,
+                    normalized BOOL NOT NULL,
                     UNIQUE(label)
                 );
                 CREATE INDEX custom_columns_idx ON custom_columns (label);
                 CREATE INDEX formats_idx ON data (format);
         ''')
 
-"""

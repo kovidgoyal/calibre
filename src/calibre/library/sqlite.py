@@ -30,6 +30,13 @@ def adapt_datetime(dt):
 sqlite.register_adapter(datetime, adapt_datetime)
 sqlite.register_converter('timestamp', convert_timestamp)
 
+def convert_bool(val):
+    return bool(int(val))
+
+sqlite.register_adapter(bool, lambda x : 1 if x else 0)
+sqlite.register_converter('bool', convert_bool)
+
+
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
     def __init__(self, sep=','):
@@ -47,8 +54,8 @@ class Concatenate(object):
 
 class SortedConcatenate(object):
     '''String concatenation aggregator for sqlite, sorted by supplied index'''
-    def __init__(self, sep=','):
-        self.sep = sep
+    sep = ','
+    def __init__(self):
         self.ans = {}
 
     def step(self, ndx, value):
@@ -59,6 +66,9 @@ class SortedConcatenate(object):
         if len(self.ans) == 0:
             return None
         return self.sep.join(map(self.ans.get, sorted(self.ans.keys())))
+
+class SafeSortedConcatenate(SortedConcatenate):
+    sep = '|'
 
 class Connection(sqlite.Connection):
 
@@ -92,6 +102,7 @@ class DBThread(Thread):
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
         self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
+        self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
         self.conn.create_function('title_sort', 1, title_sort)
         self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
 
