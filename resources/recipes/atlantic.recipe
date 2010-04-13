@@ -77,13 +77,14 @@ class TheAtlantic(BasicNewsRecipe):
         if poems:
             feeds.append(('Poems', poems))
 
-        self.log('Found section: Advice')
         div = soup.find(id='advice')
-        title = self.tag_to_string(div.find('h4'))
-        url = 'http://www.theatlantic.com'+div.find('a')['href']
-        desc = self.tag_to_string(div.find('p'))
-        self.log('\tFound article:', title, 'at', url)
-        self.log('\t\t', desc)
+        if div is not None:
+            self.log('Found section: Advice')
+            title = self.tag_to_string(div.find('h4'))
+            url = 'http://www.theatlantic.com'+div.find('a')['href']
+            desc = self.tag_to_string(div.find('p'))
+            self.log('\tFound article:', title, 'at', url)
+            self.log('\t\t', desc)
 
         feeds.append(('Advice', [{'title':title, 'url':url, 'description':desc,
                     'date':''}]))
