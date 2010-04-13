@@ -56,17 +56,21 @@ class RescaleImages(object):
                 scaled, new_width, new_height = fit_image(width, height,
                         page_width, page_height)
                 if scaled:
+                    data = None
                     self.log('Rescaling image from %dx%d to %dx%d'%(
                         width, height, new_width, new_height), item.href)
                     if qt:
                         img = img.scaled(new_width, new_height,
                                 Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-                        item.data = pixmap_to_data(img)
+                        data = pixmap_to_data(img)
                     else:
                         im = im.resize((int(new_width), int(new_height)), PILImage.ANTIALIAS)
                         of = cStringIO.StringIO()
                         im.convert('RGB').save(of, 'JPEG')
-                        item.data = of.getvalue()
+                        data = of.getvalue()
+                    if data is not None:
+                        item.data = data
+                        item.unload_data_from_memory()
 
 
 
