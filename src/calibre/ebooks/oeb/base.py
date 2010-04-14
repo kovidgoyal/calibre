@@ -1048,18 +1048,25 @@ class Manifest(object):
                 self._data = None
             return property(fget, fset, fdel, doc=doc)
 
-        def unload_data_from_memory(self):
+        def unload_data_from_memory(self, memory=None):
             if isinstance(self._data, (str, bytes)):
-                from calibre.ptempfile import PersistentTemporaryFile
-                pt = PersistentTemporaryFile('_oeb_base_mem_unloader')
-                pt.write(self._data)
-                pt.close()
-                def loader(*args):
-                    with open(pt.name, 'rb') as f:
-                        ans = f.read()
-                    os.remove(pt.name)
-                    return ans
-                self._loader = loader
+                if memory is None:
+                    from calibre.ptempfile import PersistentTemporaryFile
+                    pt = PersistentTemporaryFile(suffix='_oeb_base_mem_unloader.img')
+                    pt.write(self._data)
+                    pt.close()
+                    def loader(*args):
+                        with open(pt.name, 'rb') as f:
+                            ans = f.read()
+                        os.remove(pt.name)
+                        return ans
+                    self._loader = loader
+                else:
+                    def loader2(*args):
+                        with open(memory, 'rb') as f:
+                            ans = f.read()
+                        return ans
+                    self._loader = loader2
                 self._data = None
 
 

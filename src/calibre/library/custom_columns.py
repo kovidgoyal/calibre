@@ -189,8 +189,6 @@ class CustomColumns(object):
         if label is not None:
             self.conn.execute('UPDATE custom_columns SET label=? WHERE id=?',
                     (label, num))
-            self.custom_column_num_map[num]['label'] = label
-            self.custom_column_label_map[label] = self.custom_column_num_map[num]
             changed = True
         if is_editable is not None:
             self.conn.execute('UPDATE custom_columns SET is_editable=? WHERE id=?',
@@ -317,7 +315,8 @@ class CustomColumns(object):
             editable=True, display={}):
         if datatype not in self.CUSTOM_DATA_TYPES:
             raise ValueError('%r is not a supported data type'%datatype)
-        normalized  = datatype not in ('datetime', 'comments', 'int', 'bool')
+        normalized  = datatype not in ('datetime', 'comments', 'int', 'bool',
+                'float')
         is_multiple = is_multiple and datatype in ('text',)
         num = self.conn.execute(
                 ('INSERT INTO '
