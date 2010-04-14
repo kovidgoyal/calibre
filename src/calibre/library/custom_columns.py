@@ -178,6 +178,37 @@ class CustomColumns(object):
                 (data['num'],))
         self.conn.commit()
 
+    def set_custom_column_metadata(self, num, name=None, label=None,
+            is_editable=None, display=None):
+        changed = False
+        if name is not None:
+            self.conn.execute('UPDATE custom_columns SET name=? WHERE id=?',
+                    (name, num))
+            self.custom_column_num_map[num]['name'] = name
+            changed = True
+        if label is not None:
+            self.conn.execute('UPDATE custom_columns SET label=? WHERE id=?',
+                    (label, num))
+            self.custom_column_num_map[num]['label'] = label
+            self.custom_column_label_map[label] = self.custom_column_num_map[num]
+            changed = True
+        if is_editable is not None:
+            self.conn.execute('UPDATE custom_columns SET is_editable=? WHERE id=?',
+                    (bool(is_editable), num))
+            self.custom_column_num_map[num]['is_editable'] = bool(is_editable)
+            changed = True
+        if display is not None:
+            self.conn.execute('UPDATE custom_columns SET display=? WHERE id=?',
+                    (json.dumps(display), num))
+            self.custom_column_num_map[num]['display'] = display
+            changed = True
+
+        if changed:
+            self.conn.commit()
+        return changed
+
+
+
     def set_custom(self, id_, val, label=None, num=None, append=False, notify=True):
         if label is not None:
             data = self.custom_column_label_map[label]
