@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-04-09 08:02+0000\n"
-"PO-Revision-Date: 2010-04-09 05:41+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-04-13 17:19+0000\n"
+"Last-Translator: mawamba <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-04-10 03:47+0000\n"
+"X-Launchpad-Export-Date: 2010-04-14 03:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -492,11 +492,11 @@ msgstr "Comunicar con el lector EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr ""
+msgstr "Equipo de expertos"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr ""
+msgstr "Comunicarte con el equipo de expertos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
@@ -6324,7 +6324,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:366
 msgid "set in ui.py"
-msgstr ""
+msgstr "ajustado en ui.py"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:367
 msgid "Reset Quick Search"
@@ -6333,18 +6333,19 @@ msgstr "Reiniciar la búsqueda rápida"
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:369
 msgid "Choose saved search or enter name for new saved search"
 msgstr ""
+"Elige una búsqueda guardada o asigna un nombre para guardar la nueva búsqueda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:370
 msgid "Copy current search text (instead of search name)"
-msgstr ""
+msgstr "Copiar el texto de búsqueda actual (en vez del nombre de búsqueda)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:372
 msgid "Save current search under the name shown in the box"
-msgstr ""
+msgstr "Guardar la búsqueda actual con el nombre mostrado en el recuadro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:374
 msgid "Delete current search and clear search box"
-msgstr ""
+msgstr "Borrar la búsqueda actual y vaciar el recuadro de búsqueda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:376
 msgid "Sort by &popularity"
@@ -6585,7 +6586,7 @@ msgstr "Editoriales"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:151
 msgid "Searches"
-msgstr ""
+msgstr "Búsquedas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:182
@@ -6640,7 +6641,7 @@ msgstr "Buscar (Para búsqueda avanzada, pulse el botón de la izquierda)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:152
 msgid "Saved Searches"
-msgstr ""
+msgstr "Búsquedas Guardadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:175
 msgid "Error communicating with device"
@@ -6791,11 +6792,11 @@ msgstr "Explorar por portadas"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:784
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:788
 msgid "(all books)"
-msgstr ""
+msgstr "(todos los libros)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:793
 msgid "(%d found)"
-msgstr ""
+msgstr "(%d encontrado)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:884
 msgid "Device: "
@@ -8892,7 +8893,7 @@ msgstr "Añadir nuevos formatos a los registros de libros existentes"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:678
 msgid "List of named saved searches"
-msgstr ""
+msgstr "Lista de búsquedas guardadas con nombre"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."

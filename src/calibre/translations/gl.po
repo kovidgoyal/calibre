@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-04-09 08:02+0000\n"
-"PO-Revision-Date: 2010-04-09 05:20+0000\n"
+"PO-Revision-Date: 2010-04-13 13:05+0000\n"
 "Last-Translator: Antón Méixome <meixome@gmail.com>\n"
 "Language-Team: Galician <gl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-04-10 03:46+0000\n"
+"X-Launchpad-Export-Date: 2010-04-14 03:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -486,11 +486,11 @@ msgstr "Comunicar co lector EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr ""
+msgstr "Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr ""
+msgstr "Comunicar co Entourage Edge."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
@@ -1024,7 +1024,7 @@ msgstr "As opcións para asignar metadatos na saída"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:158
 msgid "Options to help with debugging the conversion"
-msgstr ""
+msgstr "Opción para axudar coa depuración da conversión"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:183
 msgid "List builtin recipes"
@@ -1037,6 +1037,7 @@ msgstr "Saída gardada en"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:94
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
 msgstr ""
+"Nivel de verbosidade. Especificar varias veces para maior verbosidade."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:101
 msgid ""
@@ -1044,6 +1045,9 @@ msgid ""
 "specified directory. Useful if you are unsure at which stage of the "
 "conversion process a bug is occurring."
 msgstr ""
+"Gardar a saída das distintas etapas do proceso de conversión no cartafol "
+"especificado. Útil se non está seguro de en qué punto do proceso de "
+"conversión ocorre un erro."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:110
 msgid ""
@@ -1052,6 +1056,10 @@ msgid ""
 "For example resolution dependent lengths (i.e. lengths in pixels). Choices "
 "are:"
 msgstr ""
+"Especificar o perfil de entrada. O perfil de entrada dálle información ao "
+"sistema de conversión sobre como interpretar os distintos datos do documento "
+"de entrada. Por exemplo, as lonxitudes dependentes da resolución (en "
+"píxeles). As opcións son:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:121
 msgid ""
@@ -1060,6 +1068,11 @@ msgid ""
 "cases, an output profile is required to produce documents that will work on "
 "a device. For example EPUB on the SONY reader. Choices are:"
 msgstr ""
+"Especificar o perfil de saída. O perfil de saída dille ao sistema de "
+"conversión cómo optimizar o documento creado para un dispositivo "
+"determinado. Nalgúns casos cómpre un perfil de saída para xerar documentos "
+"que funcionen en certos dispositivos. Por exemplo, EPUB nun lector SONY. As "
+"opcións son:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:132
 msgid ""
@@ -1068,6 +1081,10 @@ msgid ""
 "fonts in the output bigger and vice versa. By default, the base font size is "
 "chosen based on the output profile you chose."
 msgstr ""
+"O tamaño da letra base en pt. Todos os tamaños de letra no libro xerado "
+"escalaranse respecto deste tamaño. Escollendo un tamaño máis grande pode "
+"facer os tipos de letra da saída máis grandes, e viceversa. En principio, o "
+"tamaño base do tipo de letra escóllese seundo o perfil de saída  que escolla."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:142
 msgid ""
@@ -1077,16 +1094,24 @@ msgid ""
 "algorithm uses these sizes to intelligently rescale fonts. The default is to "
 "use a mapping based on the output profile you chose."
 msgstr ""
+"Correspondencia entre os tamaños de letra de CSS e tamaños en pt. Un exemplo "
+"podería ser 12,12,14,16,18,20,22,24. Éstas son as correspondencias para os "
+"tamaños de xx-small a xx-large, e o último tamaño para letras enormes. O "
+"algoritmo para ampliar ou reducir o texto emprega estes tamaños para "
+"determinar o tamaño de letra de maneira intelixente. Por omisión, o valor é "
+"usar unha correspondencia baseada no perfil de saída seleccionado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:154
 msgid "Disable all rescaling of font sizes."
-msgstr ""
+msgstr "Desactivar o reescalado dos tamaños de letra."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:161
 msgid ""
 "The line height in pts. Controls spacing between consecutive lines of text. "
 "By default no line height manipulation is performed."
 msgstr ""
+"A altura de liña en pt. Controla o espazado entre liñas consecutivas de "
+"texto. Por omisión,  non se alterea la altura de liña."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:169
 msgid ""
@@ -1095,6 +1120,10 @@ msgid ""
 "page and other artifacts. This option will extract the content from the "
 "tables and present it in a linear fashion."
 msgstr ""
+"Algúns documentos mal deseñados usan táboas para controlar a disposición do "
+"texto na páxina. Cando se converten estes documentos adoitan dar lugar a "
+"texto que se sae da páxina e outros problemas. Esta opción extrae o contido "
+"das táboas e o presenta de manera lineal."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:179
 msgid ""
@@ -1102,6 +1131,9 @@ msgid ""
 "of Contents at level one. If this is specified, it takes precedence over "
 "other forms of auto-detection."
 msgstr ""
+"Expresión XPath que especifica todas as etiquetas que se deben engadir no "
+"primeiro nivel do Índice. Se se indica, ten prioridade sobre outras formas "
+"de autodetección."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:188
 msgid ""
@@ -1109,6 +1141,9 @@ msgid ""
 "of Contents at level two. Each entry is added under the previous level one "
 "entry."
 msgstr ""
+"Expresión XPath que especifica todas as etiquetas que se deben engadir no "
+"segundo nivel do Índice. Cada entrada engádese baixo a entrada de primeiro "
+"nivel previa."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:196
 msgid ""
@@ -1116,6 +1151,9 @@ msgid ""
 "of Contents at level three. Each entry is added under the previous level two "
 "entry."
 msgstr ""
+"Expresión XPath que especifica todas as etiquetas que se deben engadir  no "
+"terceiro nivel do Índice. Cada unha engádese baixo a entrada de segundo "
+"nivel previa."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:204
 msgid ""
@@ -1123,16 +1161,20 @@ msgid ""
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
 msgstr ""
+"Normalmente, se o ficheiro de orixe ten un Índice, úsase este en vez do "
+"autoxerado. Con esta opción sempre se usará o autoxenerado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:212
 msgid "Don't add auto-detected chapters to the Table of Contents."
-msgstr ""
+msgstr "Non engadir os capítulos autodetectados á táboa de contidos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:219
 msgid ""
 "If fewer than this number of chapters is detected, then links are added to "
 "the Table of Contents. Default: %default"
 msgstr ""
+"Se se detecta menos deste número de capítulos, entón engádense ligazóns á "
+"táboa de contidos. Predefinido: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:226
 msgid ""
@@ -1140,12 +1182,18 @@ msgid ""
 "is: %default. Links are only added to the TOC if less than the threshold "
 "number of chapters were detected."
 msgstr ""
+"Número máximo de ligazóns que se incluirán na táboa de contidos. O valor 0 "
+"desactiva a opción. Valor predefinido: %default. Só se engadirán ligazóns na "
+"TdC se se detecta un número de capítulos menor que o limiar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:234
 msgid ""
 "Remove entries from the Table of Contents whose titles match the specified "
 "regular expression. Matching entries and all their children are removed."
 msgstr ""
+"Sacar entradas da táboa de contidos (TdC) con títulos que se corresponden "
+"coa expresión regular especificada. As entradas correspondentes e todas as "
+"subordinadas serán borradas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:245
 msgid ""
@@ -1156,6 +1204,13 @@ msgid ""
 "detection, use the expression \"/\". See the XPath Tutorial in the calibre "
 "User Manual for further help on using this feature."
 msgstr ""
+"Expresión XPath para detectar títulos de capítulo. O comportamento "
+"predefinido é considerar como títulos de capítulo as etiquetas <h1> o <h2> "
+"que conteñan as palabras \"chapter\",\"book\",\"section\" o \"part\", así "
+"como calquera etiqueta que teña class=\"chapter\". A expresión debe dar unha "
+"lista de elementos. Para desactivar a detección de capítulos use a expresión "
+"\"/\". Véxase o Tutorial de XPath no Manual de usuario de calibre para obter "
+"máis axuda sobre o uso desta opción."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:259
 msgid ""
@@ -1164,6 +1219,12 @@ msgid ""
 "chapters. A value of \"none\" will disable chapter marking and a value of "
 "\"both\" will use both page breaks and lines to mark chapters."
 msgstr ""
+"Especificar como marcar os capítulos detectados. Un valor \"pagebreak\" "
+"inserirá un salto de páxina antes de cada capítulo. Un valor de \"rule\" "
+"inserirá unha liña antes de cada capítulo. \"both\" marcará os capítulos cun "
+"salto de páxina e unha liña en branco. \"none\" desactivará o marcado de "
+"capítulos e un valor de \"both\" usará ambos saltos de páxina e liñas para "
+"marcar capítulos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:269
 msgid ""
@@ -1171,31 +1232,44 @@ msgid ""
 "the style rules from the source file, so it can be used to override those "
 "rules."
 msgstr ""
+"Tanto o camiño dunha folla de estilo CSS como CSS directo. Este CSS será "
+"anexado ás regras de estilo do ficheiro orixinal, de modo que poida usarse "
+"para sobreescribir aquelas regras."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:278
 msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements."
 msgstr ""
+"Unha expresión XPath. Os saltos de páxina inseriranse antes dos elementos "
+"especificados."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:284
 msgid ""
 "Set the top margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Estabelecer a marxe superior en pt. Valor predefinidos: %default. 72 pt son "
+"una polgada (2,54 cm)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:289
 msgid ""
 "Set the bottom margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Estabelecer a marxe inferior en pt. Valor predefinido: %default. 72 pt son "
+"unha polgada (2,54 cm)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:294
 msgid ""
 "Set the left margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Estabelecer a marxe esquerda en pt. Valor predefinido: %default. 72 pt son "
+"unha polgada (2,54 cm)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:299
 msgid ""
 "Set the right margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Estabelecer a marxe dereita en pt. Valor predefinido: %default. 72 pt son "
+"unha polgada (2,54 cm)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:304
 msgid ""
@@ -1203,6 +1277,9 @@ msgid ""
 "displayed justified or not depends on whether the ebook format and reading "
 "device support justification."
 msgstr ""
+"Non forzar a xustificación do texto na saída. Que o texto se mostre "
+"xustificado ou non en realidade, depende de se o formato de libro "
+"electrónico e o dispositivo de lectura admiten o texto xustificado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:311
 msgid ""
@@ -1210,6 +1287,9 @@ msgid ""
 "1.5em. Spacing removal will not work if the source file does not use "
 "paragraphs (<p> or <div> tags)."
 msgstr ""
+"Eliminar o espazo entre párágrafos. Tamén estabelece o sangrado na primeira "
+"líña de cada párágrafo de 1,5em. A eliminación do espazo non funciona se o "
+"ficheiro de orixe non define párágrafos (etiquetas <p> o <div>)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:318
 msgid ""

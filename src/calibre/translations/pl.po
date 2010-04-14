@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-04-09 08:02+0000\n"
-"PO-Revision-Date: 2010-04-12 22:11+0000\n"
+"PO-Revision-Date: 2010-04-13 20:36+0000\n"
 "Last-Translator: Bartosz Kaszubowski <gosimek@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-04-13 03:33+0000\n"
+"X-Launchpad-Export-Date: 2010-04-14 03:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -900,6 +900,8 @@ msgid ""
 "Enable Despeckle. Reduces speckle noise. May greatly increase processing "
 "time."
 msgstr ""
+"Włącza odplamiacz. Zmniejsza zakłócenia powodowane plamami. Może znacznie "
+"wydłużyć czas przetwarzania."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:305
 msgid ""
@@ -2121,7 +2123,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:35
 msgid "OPF version to generate. Default is %default."
-msgstr ""
+msgstr "Wersja OPF do wygenerowania. Domyślnie %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:37
 msgid ""
@@ -2841,7 +2843,7 @@ msgstr "Nie sor&tuj"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:102
 msgid "De&speckle"
-msgstr ""
+msgstr "&Odpalmiacz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:99
 msgid "&Disable comic processing"
@@ -3157,7 +3159,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:130
 msgid "&Monospaced font family:"
-msgstr ""
+msgstr "Rodzina czcionki o &jednakowej szerokości znaków:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:114
@@ -3369,7 +3371,7 @@ msgstr "Źródłowy PDB"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:43
 msgid "Treat each &line as a paragraph"
-msgstr ""
+msgstr "Traktuj każdą &linię jako paragraf"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:33
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:44
@@ -3456,7 +3458,7 @@ msgstr "Konwersja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:196
 msgid "Options specific to the input format."
-msgstr ""
+msgstr "Opcje dotyczące formatu źródłowego."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:64
@@ -3471,7 +3473,7 @@ msgstr "Format ź&ródłowy:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:110
 msgid "Use &saved conversion settings for individual books"
-msgstr ""
+msgstr "Uzyj &zapisanych ustawień konwersji dla pojedynczych książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
@@ -3580,7 +3582,7 @@ msgstr "Liczba &linków do dodania do spisu tresci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:65
 msgid "Chapter &threshold"
-msgstr ""
+msgstr "&Wstęp do rozdziału"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:66
 msgid "&Force use of auto-generated Table of Contents"
@@ -4117,20 +4119,22 @@ msgstr "Błąd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:479
 msgid "Failed to install command line tools."
-msgstr ""
+msgstr "Nie powiodła się instalacja narzędzi linii poleceń."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:482
 msgid "Command line tools installed"
-msgstr ""
+msgstr "Narzędzia linii poleceń zostały zainstalowane"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:483
 msgid "Command line tools installed in"
-msgstr ""
+msgstr "Narzędzia linii poleceń zostały zainstalowane w"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:484
 msgid ""
 "If you move calibre.app, you have to re-install the command line tools."
 msgstr ""
+"Jeśli przeniesiesz calibre.app, będziesz musiał przeinstalować narzędzia "
+"linii poleceń."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:535
 msgid "No valid plugin path"
@@ -4171,6 +4175,8 @@ msgstr "Nie można usunąć wbudowanej wtyczki"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:609
 msgid " cannot be removed. It is a builtin plugin. Try disabling it instead."
 msgstr ""
+" - ta wtyczka nie może zostać usunięta. Ta wtyczka jest wbudowana w program. "
+"Zamiast tego spróbuj ją wyłączyć."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:642
 msgid "Error log:"
@@ -4257,10 +4263,12 @@ msgid ""
 "Swap the firstname and lastname of the author. This affects only metadata "
 "read from file names."
 msgstr ""
+"Zamień pozycjami imię i nazwisko autora. To ma wpływ jedynie na metadane "
+"odczytywane z nazw plików."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:107
 msgid "&Swap author firstname and lastname"
-msgstr ""
+msgstr "&Zamień pozycjami imię i nazwisko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:108
 msgid ""
@@ -4308,6 +4316,7 @@ msgstr "Zapisz metadane w pliku &OPF"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:119
 msgid "Convert non-English characters to &English equivalents"
 msgstr ""
+"Zamieniaj znaki nie w języku angielskiem na ich &angielskie odpowiedniki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:120
 msgid "Format &dates as:"
@@ -4368,7 +4377,7 @@ msgstr "Pobieraj domyślnie metadane &społecznościowe (etykiety/oceny/itd.)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:510
 msgid "&Overwrite author and title by default when fetching metadata"
-msgstr ""
+msgstr "Domyślnie &nadpisuj autora i tytuł przy pobieraniu metadanych"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:511
 msgid "Default network &timeout:"
@@ -4427,7 +4436,7 @@ msgstr "Pokaż &powiadomienia w zasobniku systemowym"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:526
 msgid "Show cover &browser in a separate window (needs restart)"
-msgstr ""
+msgstr "Pokaż &przeglądarkę okładek w nowym oknie (wymaga restartu)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:527
 msgid "Search as you type"
@@ -4445,6 +4454,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:530
 msgid "&Number of covers to show in browse mode (needs restart):"
 msgstr ""
+"&Liczba wyświetlanych okładek w trybie przeglądarki (wymaga restartu):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:531
 msgid "Toolbar"
@@ -5398,7 +5408,7 @@ msgstr "Nie zaznaczono źródła"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:132
 msgid "The attached file: %s is a recipe to download %s."
-msgstr ""
+msgstr "Załączony plik: %s jest źródłem do pobrania %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:133
 msgid "Recipe for "
@@ -5779,7 +5789,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 msgid "<b>No matches</b> for the search phrase <i>%s</i> were found."
-msgstr ""
+msgstr "<b>Nie znaleziono wyników</b> dla szukanej frazy <i>%s</i>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:433
@@ -5863,7 +5873,7 @@ msgstr "może być uruchomione i znajdować się w zasobniku systemowym"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:94
 msgid "upper right region of the screen."
-msgstr ""
+msgstr "w prawym górnym obszarze wyświetlacza."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:96
 msgid "lower right region of the screen."
@@ -5912,18 +5922,20 @@ msgstr "Wyczyść pasek wyszukiwania"
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:369
 msgid "Choose saved search or enter name for new saved search"
 msgstr ""
+"Wybierz zapisane wyszukiwanie lub wpisz nazwę dla nowego wyszukiwania do "
+"zapisu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:370
 msgid "Copy current search text (instead of search name)"
-msgstr ""
+msgstr "Skopiuj aktualny tekst wyszukiwania (zamiast nazwy wyszukiwania)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:372
 msgid "Save current search under the name shown in the box"
-msgstr ""
+msgstr "Zapisz aktualne wyszukiwanie pod nazwą pokazaną w polu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:374
 msgid "Delete current search and clear search box"
-msgstr ""
+msgstr "Usuń aktualne wyszukiwanie i wyczyść pole wyszukiwania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:376
 msgid "Sort by &popularity"
@@ -5943,7 +5955,7 @@ msgstr "Dodaj książki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:380
 msgid "A"
-msgstr ""
+msgstr "A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:381
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:382
@@ -5960,7 +5972,7 @@ msgstr "Edytuj metadane"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:385
 msgid "E"
-msgstr ""
+msgstr "E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:386
 msgid "Send to device"
@@ -5973,7 +5985,7 @@ msgstr "Zapisz na dysku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:388
 msgid "S"
-msgstr ""
+msgstr "S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:389
 msgid "Fetch news"
@@ -5981,7 +5993,7 @@ msgstr "Pobierz aktualności"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:390
 msgid "F"
-msgstr ""
+msgstr "F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:391
 msgid "Convert E-books"
@@ -5989,7 +6001,7 @@ msgstr "Konwertuj ksiązki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:392
 msgid "C"
-msgstr ""
+msgstr "C"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:393
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:330
@@ -5998,7 +6010,7 @@ msgstr "Wyświetl"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:394
 msgid "V"
-msgstr ""
+msgstr "V"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:395
 msgid "Open containing folder"
@@ -6056,7 +6068,7 @@ msgstr "Książka nie ma, ani tytułu, ani kodu ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:115
 msgid "No matches found for this book"
-msgstr ""
+msgstr "Nie znaleziono wyników dla tej książki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:216
@@ -6618,7 +6630,7 @@ msgstr "Nie można była zapisać niektórych książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1640
 msgid "Click the show details button to see which ones."
-msgstr ""
+msgstr "Kliknij \"Pokaż szczegóły\", aby zobaczyć które."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1661
 msgid "No books selected to generate catalog for"
@@ -6914,7 +6926,7 @@ msgstr "Maksymalna &szerokość okienka:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:170
 msgid "H&yphenate (break line in the middle of large words)"
-msgstr ""
+msgstr "Wykorzystaj łą&cznik (przełamuj linię w połowie długich słów)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:171
 msgid ""
@@ -6980,7 +6992,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:47
 msgid "Hyphenate text"
-msgstr ""
+msgstr "Tekst łącznika"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:49
 msgid "Default language for hyphenation rules"
@@ -7594,7 +7606,7 @@ msgstr "Port, na którym będziemy nasłuchiwać. Domyślnie to %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/__init__.py:14
 msgid "The server timeout in seconds. Default is %default"
-msgstr ""
+msgstr "Czas oczekiwania serwera w sekundach. Domyslnie %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/__init__.py:16
 msgid "The max number of worker threads to use. Default is %default"
@@ -7775,6 +7787,7 @@ msgid ""
 "The format in which to output the data. Available choices: %s. Defaults is "
 "text."
 msgstr ""
+"Format, w którym będą dane wyjściowe. Do wyboru są: %s. Domyślny to tekst."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:240
 msgid "Invalid fields. Available fields:"
@@ -7789,6 +7802,8 @@ msgid ""
 "The following books were not added as they already exist in the database "
 "(see --duplicates option):"
 msgstr ""
+"Następujące książki nie zostały dodane ponieważ istnieją ją one w bazie "
+"danych (zobacz opcję --duplicates):"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:341
 msgid ""
@@ -8151,6 +8166,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server.py:881
 msgid "Path to the library folder to serve with the content server"
 msgstr ""
+"Ściezka do folderu biblioteki, który ma być uzywany w serwerze zawartości"
 
 #: /home/kovid/work/calibre/src/calibre/library/server.py:883
 msgid "Write process PID to the specified file"
@@ -8176,7 +8192,7 @@ msgstr "Ścieżka do bazy danych, w której książki są zlokalizowane"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:652
 msgid "Pattern to guess metadata from filenames"
-msgstr ""
+msgstr "Szablony odgadywania metadanych z nazw plików"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:654
 msgid "Access key for isbndb.com"
@@ -8329,7 +8345,7 @@ msgstr "Nie udało się wynegocjować sesji SSH: "
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:71
 msgid "Failed to authenticate with server: %s"
-msgstr ""
+msgstr "Nie mozna było uwierzytelnić z serwerem: %s"
 
 #: /home/kovid/work/calibre/src/calibre/utils/smtp.py:234
 msgid "Control email delivery"
@@ -8347,7 +8363,7 @@ msgstr "Artukył bez tytułu"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:21
 msgid "Download periodical content from the internet"
-msgstr ""
+msgstr "Pobieraj okresową zawartość z internetu"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:36
 msgid ""

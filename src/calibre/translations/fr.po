@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-04-09 08:02+0000\n"
-"PO-Revision-Date: 2010-04-09 13:59+0000\n"
-"Last-Translator: Alexandre C <Unknown>\n"
+"PO-Revision-Date: 2010-04-13 20:05+0000\n"
+"Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-04-10 03:46+0000\n"
+"X-Launchpad-Export-Date: 2010-04-14 03:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -486,11 +486,11 @@ msgstr "Communique avec le lecteur d'ebook EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr ""
+msgstr "Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr ""
+msgstr "Communique avec l'Entourage Edge."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
@@ -4627,6 +4627,14 @@ msgid ""
 "Title match ignores leading indefinite articles (\"the\", \"a\", \"an\"), "
 "punctuation, case, etc. Author match is exact."
 msgstr ""
+"Si un livre existant avec un titre et un auteur similaire est trouvé et qui "
+"n'a pas le format qui a été ajouté, le format est ajouté \n"
+"au livre existant, au lieu de créer une nouvelle entrée.Si le livre existant "
+"a déjà le format, alors il sera silencieusement ignoré.\n"
+"\n"
+"La correspondance par titre ignore les articles indéfinis de tête "
+"(\"the\",\"a\",\"an\"), ponctuation, casse, etc. La correspondance par "
+"auteur est exacte."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:112
 msgid ""
@@ -6351,7 +6359,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:366
 msgid "set in ui.py"
-msgstr ""
+msgstr "indiquer dans ui.py"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:367
 msgid "Reset Quick Search"
@@ -6360,18 +6368,21 @@ msgstr "Réinitialisation de la recherche rapide"
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:369
 msgid "Choose saved search or enter name for new saved search"
 msgstr ""
+"Choisir la recherche sauvegardée ou entrer un nom pour une nouvelle "
+"recherche à sauvegarder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:370
 msgid "Copy current search text (instead of search name)"
 msgstr ""
+"Copier le texte de recherche courant (au lieu du nom de la recherche)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:372
 msgid "Save current search under the name shown in the box"
-msgstr ""
+msgstr "Sauvegarder la recherche courante avec le nom indiqué dans la boite"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:374
 msgid "Delete current search and clear search box"
-msgstr ""
+msgstr "Supprimer la recherche courante et effacer la boite de recherche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:376
 msgid "Sort by &popularity"
@@ -6612,7 +6623,7 @@ msgstr "Editeurs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:151
 msgid "Searches"
-msgstr ""
+msgstr "Recherches"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:182
@@ -6668,7 +6679,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:152
 msgid "Saved Searches"
-msgstr ""
+msgstr "Recherches sauvegardées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:175
 msgid "Error communicating with device"
@@ -6819,11 +6830,11 @@ msgstr "Navigation par couvertures"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:784
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:788
 msgid "(all books)"
-msgstr ""
+msgstr "(tous les livres)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:793
 msgid "(%d found)"
-msgstr ""
+msgstr "(%d trouvé(s))"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:884
 msgid "Device: "
@@ -8920,7 +8931,7 @@ msgstr "Ajouter des nouveaux formats aux enregistrements existants de livres"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:678
 msgid "List of named saved searches"
-msgstr ""
+msgstr "Liste de nom de recherches sauvegardées"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
