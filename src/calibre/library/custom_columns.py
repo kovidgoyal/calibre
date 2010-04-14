@@ -204,7 +204,7 @@ class CustomColumns(object):
             for x in set(set_val) - set(existing):
                 if x is None:
                     continue
-                existing = self.all_custom(num=data['num'])
+                existing = list(self.all_custom(num=data['num']))
                 lx = [t.lower() if hasattr(t, 'lower') else t for t in existing]
                 try:
                     idx = lx.index(x.lower() if hasattr(x, 'lower') else x)
