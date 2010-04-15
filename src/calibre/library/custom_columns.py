@@ -184,7 +184,6 @@ class CustomColumns(object):
         if name is not None:
             self.conn.execute('UPDATE custom_columns SET name=? WHERE id=?',
                     (name, num))
-            self.custom_column_num_map[num]['name'] = name
             changed = True
         if label is not None:
             self.conn.execute('UPDATE custom_columns SET label=? WHERE id=?',
@@ -198,7 +197,6 @@ class CustomColumns(object):
         if display is not None:
             self.conn.execute('UPDATE custom_columns SET display=? WHERE id=?',
                     (json.dumps(display), num))
-            self.custom_column_num_map[num]['display'] = display
             changed = True
 
         if changed:
