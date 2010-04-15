@@ -13,7 +13,8 @@ from calibre.customize import FileTypePlugin
 
 def is_comic(list_of_names):
     extensions = set([x.rpartition('.')[-1].lower() for x in list_of_names])
-    return len(extensions) == 1 and iter(extensions).next() in ('jpg', 'jpeg', 'png')
+    comic_extensions = set(['jpg', 'jpeg', 'png'])
+    return len(extensions - comic_extensions) == 0
 
 class ArchiveExtract(FileTypePlugin):
     name = 'Archive Extract'
