@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-04-09 08:02+0000\n"
-"PO-Revision-Date: 2010-04-13 20:36+0000\n"
+"PO-Revision-Date: 2010-04-14 20:21+0000\n"
 "Last-Translator: Bartosz Kaszubowski <gosimek@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-04-14 03:48+0000\n"
+"X-Launchpad-Export-Date: 2010-04-15 03:57+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1370,7 +1370,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:572
 msgid "Could not find an ebook inside the archive"
-msgstr "Nie znaleziono e-book'a w archiwum"
+msgstr "Nie znaleziono książki w archiwum"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:630
 msgid "Values of series index and rating must be numbers. Ignoring"
@@ -1529,7 +1529,7 @@ msgid ""
 "Could not process image: %s\n"
 "%s"
 msgstr ""
-"Nie można przetworzyć obrazu: %s\n"
+"Nie można przetworzyć grafiki: %s\n"
 "%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1772
@@ -1591,7 +1591,7 @@ msgstr "Plik LRS zapisany do "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:267
 msgid "Could not read from thumbnail file:"
-msgstr "Nie można przeczytać z pliku miniaturki:"
+msgstr "Nie można odczytać z pliku miniaturki:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:287
 msgid ""
@@ -1616,7 +1616,7 @@ msgstr "Konwersja LRS do LRS, opcja przydatna przy debugowaniu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:457
 msgid "Invalid LRF file. Could not set metadata."
-msgstr "Niewłaściwy plik LRF. Nie moża ustawić metadanych."
+msgstr "Niewłaściwy plik LRF. Nie można ustawić metadanych."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:582
 msgid ""
@@ -1970,7 +1970,7 @@ msgid ""
 "Could not fetch cover as server is experiencing high load. Please try again "
 "later."
 msgstr ""
-"Nie można pobrać okładki z serwera z powodu zbyt dużego obciążenia. Spróbuj "
+"Nie można pobrać okładki z serwera, z powodu zbyt dużego obciążenia. Spróbuj "
 "ponownie później."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:61
@@ -2543,6 +2543,8 @@ msgstr "Zablokuj powiadomienia z ikony w zasobniku systemowym"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:69
 msgid "Default action to perform when send to device button is clicked"
 msgstr ""
+"Domyślne działanie do wykonania, gdy został kliknięty przycisk przesyłania "
+"na urządzenie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:91
 msgid "Maximum number of waiting worker processes"
@@ -3763,7 +3765,7 @@ msgstr "i usuń z biblioteki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:319
 msgid "Set default send to device action"
-msgstr "Wybierz domyślną akcję dla przesyłania na urządzenie"
+msgstr "Ustaw domyślne działanie przesyłania na urządzenie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:324
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:331
@@ -6371,7 +6373,7 @@ msgstr "Wybierz lokalizację dla twojej biblioteki książek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:544
 msgid "Calibre Quick Start Guide"
-msgstr "Przewodnik szybkiego startu calibre"
+msgstr "Krótki przewodnik po calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:727
 msgid "Browse by covers"
@@ -6737,8 +6739,9 @@ msgid ""
 "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
 "first remove the DRM using third party tools."
 msgstr ""
-"<p>Nie można skonwertować: %s<p>Książka posiada <a href=\"%s\">DRM</a>. "
-"Musisz najpierw usunąć DRM korzystając z innych programów."
+"<p>Nie można skonwertować: %s<p>Książka posiada zabezpieczenie <a "
+"href=\"%s\">DRM</a>. Musisz najpierw usunąć to zabezpieczenie przy pomocy "
+"innego programu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2155
 msgid "Recipe Disabled"
@@ -7152,7 +7155,7 @@ msgstr "<p>Ta książka jest chroniona przez <a href=\"%s\">DRM</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:587
 msgid "Could not open ebook"
-msgstr "Nie można otworzyć e-booka"
+msgstr "Nie można otworzyć książki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:661
 msgid "Options to control the ebook viewer"
@@ -8370,7 +8373,7 @@ msgid ""
 "Useful for recipe development. Forces max_articles_per_feed to 2 and "
 "downloads at most 2 feeds."
 msgstr ""
-"Użyteczne dla twórców źródeł. Wymusza, aby ustawienie "
+"Użyteczne przy opracowywaniu źródeł. Wymusza, aby ustawienie "
 "\"max_articles_per_feed\" przyjęło wartość 2 i źródło pobierało co najwyżej "
 "2 strumienie."
 

@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-04-09 08:02+0000\n"
-"PO-Revision-Date: 2010-04-13 09:21+0000\n"
-"Last-Translator: Ghiggi Athios <Unknown>\n"
+"PO-Revision-Date: 2010-04-14 08:09+0000\n"
+"Last-Translator: timendum <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-04-14 03:48+0000\n"
+"X-Launchpad-Export-Date: 2010-04-15 03:57+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -489,7 +489,7 @@ msgstr "Comunica con il lettore eBook EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr ""
+msgstr "Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
@@ -1423,7 +1423,7 @@ msgstr "Stinga che sara' usata quando si ordina per autore. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
 msgid "Set the cover to the specified file or URL"
-msgstr ""
+msgstr "Seleziona la copertina da un file o da un URL"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:432
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
@@ -3145,7 +3145,7 @@ msgstr "&Formati output"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:101
 msgid "Disable conversion of images to &black and white"
-msgstr ""
+msgstr "Disabilita la conversione delle immagini in bianco e nero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
@@ -4419,7 +4419,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:198
 msgid "Advanced"
-msgstr "Avanzata"
+msgstr "Avanzate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:198
 msgid ""
@@ -4661,7 +4661,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:116
 msgid "Save &cover separately"
-msgstr "Salva &cover separatamente"
+msgstr "Salva &copertina separatamente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:117
 msgid "Update &metadata in saved copies"
@@ -4694,7 +4694,7 @@ msgstr "Cambiare percorsi in &lowercase"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:124
 msgid "&Saving books"
-msgstr "&Saving libri"
+msgstr "&Salvataggio libri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:125
 msgid ""
@@ -4801,12 +4801,12 @@ msgstr "Visualizza le &notifications nella barra di sistema."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:526
 msgid "Show cover &browser in a separate window (needs restart)"
 msgstr ""
-"Visualizza il &browser di copertine in una finestra separata (richiede "
-"ricaricamento del programma)"
+"Visualizza il &browser di copertine in una finestra separata (richiede il "
+"riavvio)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:527
 msgid "Search as you type"
-msgstr "Cerc mentre si scrive"
+msgstr "Cerca mentre si scrive"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:528
 msgid "Automatically send downloaded &news to ebook reader"
@@ -6785,7 +6785,7 @@ msgstr "Percorso del database sbagliato"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:492
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:563
 msgid "Calibre Library"
-msgstr "Libreeria di Calibre"
+msgstr "Libreria di Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:502
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2189
@@ -7892,8 +7892,9 @@ msgid ""
 "<h2>Demo videos</h2>Videos demonstrating the various features of calibre are "
 "available <a href=\"http://calibre-ebook.com/demo\">online</a>."
 msgstr ""
-"<h2>Videoguide</h2>Videoguide permettono di vedere le varie caratteristiche "
-"del programma <a href=\"http://calibre-ebook.com/demo\">online</a>."
+"<h2>Videoguide</h2>Le videoguide ti permettono di vedere le varie "
+"caratteristiche del programma <a href=\"http://calibre-"
+"ebook.com/demo\">online</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:50
 msgid ""
