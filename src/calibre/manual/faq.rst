@@ -132,13 +132,30 @@ Can I use the collections feature of the SONY reader?
 |app| has full support for collections. When you add tags to a book's metadata, those tags are turned into collections when you upload the book to the SONY reader. Also, the series information is automatically
 turned into a collection on the reader. Note that the PRS-500 does not support collections for books stored on the SD card. The PRS-505 does. 
 
-How do I use |app| with my iPhone?
+How do I use |app| with my iPad/iPhone/iTouch?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-First install the Stanza reader on your iPhone using iTunes.
+
+You can access your calibre library on a iPad/iPhone/iTouch over the air using the calibre content server. 
+
+First perform the following steps in |app|
 
   * Set the Preferred Output Format in |app| to EPUB (The output format can be set under Preferences->General) 
   * Convert the books you want to read on your iPhone to EPUB format by selecting them and clicking the Convert button.
   * Turn on the Content Server in |app|'s preferences and leave |app| running.
+
+For an iPad:
+
+Install the ReadMe app on your iPad using iTunes. Open Safari and browse to::
+
+    http://192.168.1.2:8080/
+
+Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port. The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address.
+
+The books in your |app| library will be presented as a list, 25 entries at a time. Click the right arrow to go to the next 25. You can also type in the search box to find specific books. Just click on the EPUB link of the book you want and it will be downloaded into your ReadMe library.
+
+For an iPhone/iTouch:   
+
+Install the free Stanza reader app on your iPhone/iTouch using iTunes.
 
 Now you should be able to access your books on your iPhone by opening Stanza. Go to "Get Books" and then click the "Shared" tab. Under Shared you will see an entry "Books in calibre". If you don't, make sure your iPhone is connected using the WiFi network in your house, not 3G. If the |app| catalog is still not detected in Stanza, you can add it manually in Stanza. To do this, click the "Shared" tab, then click the "Edit" button and then click "Add book source" to add a new book source. In the Add Book Source screen enter whatever name you like and in the URL field, enter the following::
 
