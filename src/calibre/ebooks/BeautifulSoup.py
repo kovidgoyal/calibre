@@ -129,11 +129,16 @@ class PageElement:
 
     def extract(self):
         """Destructively rips this element out of the tree."""
+        # Changed by KG as list.remove uses _-eq__ which is True for two Tags
+        # with the same name and attributes.
         if self.parent:
-            try:
-                self.parent.contents.remove(self)
-            except ValueError:
-                pass
+            idx = None
+            for i, x in enumerate(self.parent.contents):
+                if x is self:
+                    idx = i
+                    break
+            if idx is not None:
+                self.parent.contents.pop(idx)
 
         #Find the two elements that would be next to each other if
         #this element (and any children) hadn't been parsed. Connect
@@ -1075,7 +1080,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
                 self.originalEncoding = None
         else:
             # Changed detection by Kovid
-            markup, self.originalEncoding = chardet.xml_to_unicode(markup)            
+            markup, self.originalEncoding = chardet.xml_to_unicode(markup)
         if markup:
             if self.markupMassage:
                 if not isList(self.markupMassage):
@@ -1090,7 +1095,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
                 del(self.markupMassage)
                 self.markup = markup
         self.reset()
-        
+
         SGMLParser.feed(self, markup)
         # Close out any unfinished strings and close all the open tags.
         self.endData()
@@ -1309,7 +1314,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
             try:
                 data = unichr(int(ref))
             except ValueError: # Bad numerical entity. Added by Kovid
-                data = u'' 
+                data = u''
         else:
             data = '&#%s;' % ref
         self.handle_data(data)
@@ -1663,7 +1668,7 @@ class UnicodeDammit:
                      self._detectEncoding(markup)
         self.smartQuotesTo = smartQuotesTo
         self.triedEncodings = []
-        
+
         if markup == '' or isinstance(markup, unicode):
             self.originalEncoding = None
             self.unicode = unicode(markup)
@@ -1677,7 +1682,7 @@ class UnicodeDammit:
             for proposedEncoding in (documentEncoding, sniffedEncoding):
                 u = self._convertFrom(proposedEncoding)
                 if u: break
-        
+
         # If no luck and we have auto-detection library, try that:
         if not u and chardet and not isinstance(self.markup, unicode):
             u = self._convertFrom(chardet.detect(self.markup)['encoding'])
@@ -1751,9 +1756,9 @@ class UnicodeDammit:
         elif data[:4] == '\xff\xfe\x00\x00':
             encoding = 'utf-32le'
             data = data[4:]
-        
+
         newdata = unicode(data, encoding)
-        
+
         return newdata
 
     def _detectEncoding(self, xml_data):
@@ -1763,9 +1768,9 @@ class UnicodeDammit:
             if xml_data[:4] == '\x4c\x6f\xa7\x94':
                 # EBCDIC
                 xml_data = self._ebcdic_to_ascii(xml_data)
-                
+
             # By Kovid commented out all the recoding to UTF-8 of UTF-16 and UTF-32
-            # as this doesn't make sense and doesn't work for the test case 
+            # as this doesn't make sense and doesn't work for the test case
             # BeautifulSoup.UnicodeDammit(u'abcd'.encode('utf-16')).unicode
             elif xml_data[:4] == '\x00\x3c\x00\x3f':
                 # UTF-16BE
@@ -1817,14 +1822,14 @@ class UnicodeDammit:
             xml_encoding_match = None
         if xml_encoding_match:
             xml_encoding = xml_encoding_match.groups()[0].lower()
-            
+
             if sniffed_xml_encoding and \
                (xml_encoding in ('iso-10646-ucs-2', 'ucs-2', 'csunicode',
                                  'iso-10646-ucs-4', 'ucs-4', 'csucs4',
                                  'utf-16', 'utf-32', 'utf_16', 'utf_32',
                                  'utf16', 'u16')):
                 xml_encoding = sniffed_xml_encoding
-            
+
         return xml_data, xml_encoding, sniffed_xml_encoding
 
 
