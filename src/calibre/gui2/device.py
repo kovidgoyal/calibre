@@ -154,7 +154,7 @@ class DeviceManager(Thread):
                     if not self.do_connect(possibly_connected_devices):
                         print 'Device connect failed again, giving up'
 
-    def umount_device(self):
+    def umount_device(self, *args):
         if self.is_device_connected:
             self.connected_device.eject()
             self.ejected_devices.add(self.connected_device)

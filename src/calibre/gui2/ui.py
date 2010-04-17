@@ -194,6 +194,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.donate_action  = self.system_tray_menu.addAction(
                 QIcon(I('donate.svg')), _('&Donate to support calibre'))
         self.donate_button.setDefaultAction(self.donate_action)
+        self.eject_action = self.system_tray_menu.addAction(
+                QIcon(I('eject.svg')), _('&Eject connected device'))
+        self.eject_action.setEnabled(False)
         if not config['show_donate_button']:
             self.donate_button.setVisible(False)
         self.addAction(self.quit_action)
@@ -234,6 +237,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(self.location_view,
                 SIGNAL('umount_device()'),
                         self.device_manager.umount_device)
+        self.eject_action.triggered.connect(self.device_manager.umount_device)
 
         ####################### Vanity ########################
         self.vanity_template  = _('<p>For help see the: <a href="%s">User Manual</a>'
@@ -889,6 +893,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     self.device_manager.device.card_prefix(),
                     self.device_manager.device)
             self.location_view.model().device_connected(self.device_manager.device)
+            self.eject_action.setEnabled(True)
         else:
             self.save_device_view_settings()
             self.device_connected = False
@@ -900,6 +905,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if self.current_view() != self.library_view:
                 self.status_bar.reset_info()
                 self.location_view.setCurrentIndex(self.location_view.model().index(0))
+            self.eject_action.setEnabled(False)
 
     def info_read(self, job):
         '''
