@@ -154,7 +154,7 @@ class DeviceManager(Thread):
                     if not self.do_connect(possibly_connected_devices):
                         print 'Device connect failed again, giving up'
 
-    def umount_device(self):
+    def umount_device(self, *args):
         if self.is_device_connected:
             self.connected_device.eject()
             self.ejected_devices.add(self.connected_device)
@@ -558,7 +558,8 @@ class DeviceGUI(object):
                                     specific_format=specific_format,
                                     exclude_auto=do_auto_convert)
         if do_auto_convert:
-            ids = list(set(ids).difference(_auto_ids))
+            nids = list(set(ids).difference(_auto_ids))
+            ids = [i for i in ids if i in nids]
         else:
             _auto_ids = []
 
@@ -653,7 +654,7 @@ class DeviceGUI(object):
                     ])
             error_dialog(self, _('Failed to email books'),
                     _('Failed to email the following books:'),
-                            '%s'%errors
+                            '%s'%errors, show=True
                         )
         else:
             self.status_bar.showMessage(_('Sent by email:') + ', '.join(good),

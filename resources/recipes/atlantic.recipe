@@ -33,9 +33,9 @@ class TheAtlantic(BasicNewsRecipe):
         soup = self.index_to_soup(self.INDEX)
         sectit = soup.find('h1', attrs={'class':'sectionTitle'})
         if sectit is not None:
-            texts = sectit.findAll('cufontext')
-            texts = map(self.tag_to_string, texts[-2:])
-            self.timefmt = ' [%s]'%(''.join(texts))
+            texts = self.tag_to_string(sectit).strip().split()[-2:]
+            if texts:
+                self.timefmt = ' [%s]'%(' '.join(texts))
 
         cover = soup.find('img', src=True, attrs={'class':'cover'})
         if cover is not None:
@@ -77,13 +77,14 @@ class TheAtlantic(BasicNewsRecipe):
         if poems:
             feeds.append(('Poems', poems))
 
-        self.log('Found section: Advice')
         div = soup.find(id='advice')
-        title = self.tag_to_string(div.find('h4'))
-        url = 'http://www.theatlantic.com'+div.find('a')['href']
-        desc = self.tag_to_string(div.find('p'))
-        self.log('\tFound article:', title, 'at', url)
-        self.log('\t\t', desc)
+        if div is not None:
+            self.log('Found section: Advice')
+            title = self.tag_to_string(div.find('h4'))
+            url = 'http://www.theatlantic.com'+div.find('a')['href']
+            desc = self.tag_to_string(div.find('p'))
+            self.log('\tFound article:', title, 'at', url)
+            self.log('\t\t', desc)
 
         feeds.append(('Advice', [{'title':title, 'url':url, 'description':desc,
                     'date':''}]))

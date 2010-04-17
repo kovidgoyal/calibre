@@ -1,0 +1,64 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+axxon.com.ar
+'''
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Axxon_news(BasicNewsRecipe):
+    title                 = 'Revista Axxon'
+    __author__            = 'Darko Miletic'
+    description           = 'Axxon, Ciencia Ficcion en Bits'
+    publisher             = 'Revista Axxon - Ciencia Ficcion'
+    category              = 'SF, Argentina'
+    oldest_article        = 31
+    delay                 = 1
+    max_articles_per_feed = 100
+    no_stylesheets        = False
+    use_embedded_content  = False
+    language              = 'es'
+    encoding              = 'utf-8'
+    publication_type      = 'magazine'
+    INDEX                 = 'http://axxon.com.ar/rev/'
+    extra_css             = ' body{font-family: Verdana,Arial,sans-serif} .editorial{font-family: serif} .posttitle{font-family: "Trebuchet MS","Lucida Grande",Verdana,Arial,sans-serif} .cuento{font-family: "Times New Roman", serif} .biografia{color: red; font-weight: bold; font-family: Verdana,Geneva,Arial,Helvetica,sans-serif} '
+
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : language
+                        }
+
+
+    keep_only_tags     = [dict(name='div', attrs={'class':'post'})]
+    remove_tags = [dict(name=['object','link','iframe','embed','img'])]
+    remove_tags_after = [dict(attrs={'class':['editorial','correo','biografia','articulo']})]
+    remove_attributes = ['width','height','font','border','align']
+
+    def parse_index(self):
+        articles = []
+        soup = self.index_to_soup(self.INDEX)
+
+        for item in soup.findAll('strong'):
+            description = ''
+            title_prefix = ''
+            feed_link = item.find('a')
+            if feed_link and feed_link.has_key('href') and feed_link['href'].startswith('?p='):
+                url   = self.INDEX + feed_link['href']
+                title = title_prefix + self.tag_to_string(feed_link)
+                date  = strftime(self.timefmt)
+                articles.append({
+                                  'title'      :title
+                                 ,'date'       :date
+                                 ,'url'        :url
+                                 ,'description':description
+                                })
+        return [(soup.head.title.string, articles)]
+
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return self.adeify_images(soup)
+

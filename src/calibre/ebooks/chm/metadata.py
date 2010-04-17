@@ -96,11 +96,16 @@ def _get_cover(soup, rdr):
         r = {}
         for img in soup('img'):
             try:
-                r[abs(float(img['height'])/float(img['width'])-1.25)] = img['src']
+                r[abs(float(re.search(r'[0-9.]+',
+                    img['height']).group())/float(re.search(r'[0-9.]+',
+                        img['width']).group())-1.25)] = img['src']
             except KeyError:
                 # interestingly, occasionally the only image without height
                 # or width attrs is the cover...
                 r[0] = img['src']
+            except:
+                # Probably invalid width, height aattributes, ignore
+                continue
         l = r.keys()
         l.sort()
         if l:

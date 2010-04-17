@@ -25,12 +25,14 @@ from calibre.utils.genshi.template import MarkupTemplate
 from calibre import fit_image, guess_type, prepare_string_for_xml, \
         strftime as _strftime
 from calibre.library import server_config as config
-from calibre.library.database2 import LibraryDatabase2, FIELD_MAP
+from calibre.library.database2 import LibraryDatabase2
 from calibre.utils.config import config_dir
 from calibre.utils.mdns import publish as publish_zeroconf, \
             stop_server as stop_zeroconf, get_external_ip
 from calibre.ebooks.metadata import fmt_sidx, title_sort
 from calibre.utils.date import now as nowf, fromtimestamp
+
+listen_on = '0.0.0.0'
 
 def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
     if not hasattr(dt, 'timetuple'):
@@ -353,14 +355,13 @@ class LibraryServer(object):
         path = P('content_server')
         self.build_time = fromtimestamp(os.stat(path).st_mtime)
         self.default_cover =  open(P('content_server/default_cover.jpg'), 'rb').read()
-
         cherrypy.config.update({
                                 'log.screen'             : opts.develop,
                                 'engine.autoreload_on'   : opts.develop,
                                 'tools.log_headers.on'   : opts.develop,
                                 'checker.on'             : opts.develop,
                                 'request.show_tracebacks': show_tracebacks,
-                                'server.socket_host'     : '0.0.0.0',
+                                'server.socket_host'     : listen_on,
                                 'server.socket_port'     : opts.port,
                                 'server.socket_timeout'  : opts.timeout, #seconds
                                 'server.thread_pool'     : opts.thread_pool, # number of threads
@@ -438,7 +439,10 @@ class LibraryServer(object):
                 cherrypy.log.error(traceback.format_exc())
 
     def exit(self):
-        cherrypy.engine.exit()
+        try:
+            cherrypy.engine.exit()
+        finally:
+            cherrypy.server.httpserver = None
 
     def get_cover(self, id, thumbnail=False):
         cover = self.db.cover(id, index_is_id=True, as_file=False)
@@ -512,18 +516,18 @@ class LibraryServer(object):
         if field == 'series':
             items.sort(cmp=self.seriescmp, reverse=not order)
         else:
-            field = FIELD_MAP[field]
+            field = self.db.FIELD_MAP[field]
             getter = operator.itemgetter(field)
             items.sort(cmp=lambda x, y: cmpf(getter(x), getter(y)), reverse=not order)
 
     def seriescmp(self, x, y):
-        si = FIELD_MAP['series']
+        si = self.db.FIELD_MAP['series']
         try:
             ans = cmp(x[si].lower(), y[si].lower())
         except AttributeError: # Some entries may be None
             ans = cmp(x[si], y[si])
         if ans != 0: return ans
-        return cmp(x[FIELD_MAP['series_index']], y[FIELD_MAP['series_index']])
+        return cmp(x[self.db.FIELD_MAP['series_index']], y[self.db.FIELD_MAP['series_index']])
 
 
     def last_modified(self, updated):
@@ -585,11 +589,11 @@ class LibraryServer(object):
             next_link = ('<link rel="next" title="Next" '
             'type="application/atom+xml" href="/stanza/?sortby=%s&amp;offset=%d"/>\n'
             ) % (sortby, next_offset)
-        return self.STANZA.generate(subtitle=subtitle, data=entries, FM=FIELD_MAP,
+        return self.STANZA.generate(subtitle=subtitle, data=entries, FM=self.db.FIELD_MAP,
                     updated=updated, id='urn:calibre:main', next_link=next_link).render('xml')
 
     def stanza_main(self, updated):
-        return self.STANZA_MAIN.generate(subtitle='', data=[], FM=FIELD_MAP,
+        return self.STANZA_MAIN.generate(subtitle='', data=[], FM=self.db.FIELD_MAP,
                     updated=updated, id='urn:calibre:main').render('xml')
 
     @expose
@@ -626,15 +630,18 @@ class LibraryServer(object):
 
         # Sort the record list
         if sortby == "bytitle" or authorid or tagid:
-            record_list.sort(lambda x, y: cmp(title_sort(x[FIELD_MAP['title']]),
-                title_sort(y[FIELD_MAP['title']])))
+            record_list.sort(lambda x, y:
+                    cmp(title_sort(x[self.db.FIELD_MAP['title']]),
+                        title_sort(y[self.db.FIELD_MAP['title']])))
         elif seriesid:
-            record_list.sort(lambda x, y: cmp(x[FIELD_MAP['series_index']], y[FIELD_MAP['series_index']]))
+            record_list.sort(lambda x, y:
+                    cmp(x[self.db.FIELD_MAP['series_index']],
+                        y[self.db.FIELD_MAP['series_index']]))
         else: # Sort by date
             record_list = reversed(record_list)
 
 
-        fmts = FIELD_MAP['formats']
+        fmts = self.db.FIELD_MAP['formats']
         pat = re.compile(r'EPUB|PDB', re.IGNORECASE)
         record_list = [x for x in record_list if x[0] in ids and
                 pat.search(x[fmts] if x[fmts] else '') is not None]
@@ -656,10 +663,10 @@ class LibraryServer(object):
             ) % '&amp;'.join(q)
 
         for record in nrecord_list:
-            r = record[FIELD_MAP['formats']]
+            r = record[self.db.FIELD_MAP['formats']]
             r = r.upper() if r else ''
 
-            z = record[FIELD_MAP['authors']]
+            z = record[self.db.FIELD_MAP['authors']]
             if not z:
                 z = _('Unknown')
             authors = ' & '.join([i.replace('|', ',') for i in
@@ -667,19 +674,19 @@ class LibraryServer(object):
 
             # Setup extra description
             extra = []
-            rating = record[FIELD_MAP['rating']]
+            rating = record[self.db.FIELD_MAP['rating']]
             if rating > 0:
                 rating = ''.join(repeat('&#9733;', rating))
                 extra.append('RATING: %s<br />'%rating)
-            tags = record[FIELD_MAP['tags']]
+            tags = record[self.db.FIELD_MAP['tags']]
             if tags:
                 extra.append('TAGS: %s<br />'%\
                         prepare_string_for_xml(', '.join(tags.split(','))))
-            series = record[FIELD_MAP['series']]
+            series = record[self.db.FIELD_MAP['series']]
             if series:
                 extra.append('SERIES: %s [%s]<br />'%\
                         (prepare_string_for_xml(series),
-                        fmt_sidx(float(record[FIELD_MAP['series_index']]))))
+                        fmt_sidx(float(record[self.db.FIELD_MAP['series_index']]))))
 
             fmt = 'epub' if 'EPUB' in r else 'pdb'
             mimetype = guess_type('dummy.'+fmt)[0]
@@ -692,17 +699,17 @@ class LibraryServer(object):
                     authors=authors,
                     tags=tags,
                     series=series,
-                    FM=FIELD_MAP,
+                    FM=self.db.FIELD_MAP,
                     extra='\n'.join(extra),
                     mimetype=mimetype,
                     fmt=fmt,
-                    urn=record[FIELD_MAP['uuid']],
+                    urn=record[self.db.FIELD_MAP['uuid']],
                     timestamp=strftime('%Y-%m-%dT%H:%M:%S+00:00', record[5])
                     )
             books.append(self.STANZA_ENTRY.generate(**data)\
                                         .render('xml').decode('utf8'))
 
-        return self.STANZA.generate(subtitle='', data=books, FM=FIELD_MAP,
+        return self.STANZA.generate(subtitle='', data=books, FM=self.db.FIELD_MAP,
                 next_link=next_link, updated=updated, id='urn:calibre:main').render('xml')
 
 
@@ -741,7 +748,7 @@ class LibraryServer(object):
             authors = '|'.join([i.replace('|', ',') for i in aus.split(',')])
             record[10] = fmt_sidx(float(record[10]))
             ts, pd = strftime('%Y/%m/%d %H:%M:%S', record[5]), \
-                strftime('%Y/%m/%d %H:%M:%S', record[FIELD_MAP['pubdate']])
+                strftime('%Y/%m/%d %H:%M:%S', record[self.db.FIELD_MAP['pubdate']])
             books.append(book.generate(r=record, authors=authors, timestamp=ts,
                 pubdate=pd).render('xml').decode('utf-8'))
         updated = self.db.last_modified()
@@ -788,7 +795,7 @@ class LibraryServer(object):
             authors = '|'.join([i.replace('|', ',') for i in aus.split(',')])
             record[10] = fmt_sidx(float(record[10]))
             ts, pd = strftime('%Y/%m/%d %H:%M:%S', record[5]), \
-                strftime('%Y/%m/%d %H:%M:%S', record[FIELD_MAP['pubdate']])
+                strftime('%Y/%m/%d %H:%M:%S', record[self.db.FIELD_MAP['pubdate']])
             books.append(book.generate(r=record, authors=authors, timestamp=ts,
                 pubdate=pd).render('xml').decode('utf-8'))
         updated = self.db.last_modified()

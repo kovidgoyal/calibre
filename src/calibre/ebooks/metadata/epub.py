@@ -51,6 +51,28 @@ class OCF(object):
     def __init__(self):
         raise NotImplementedError('Abstract base class')
 
+class Encryption(object):
+
+    OBFUSCATION_ALGORITHMS = frozenset(['http://ns.adobe.com/pdf/enc#RC',
+            'http://www.idpf.org/2008/embedding'])
+
+    def __init__(self, raw):
+        from lxml import etree
+        self.root = etree.fromstring(raw) if raw else None
+        self.entries = {}
+        if self.root is not None:
+            for em in self.root.xpath('descendant::*[contains(name(), "EncryptionMethod")]'):
+                algorithm = em.get('Algorithm', '')
+                cr = em.getparent().xpath('descendant::*[contains(name(), "CipherReference")]')
+                if cr:
+                    uri = cr[0].get('URI', '')
+                    if uri and algorithm:
+                        self.entries[uri] = algorithm
+
+    def is_encrypted(self, uri):
+        algo = self.entries.get(uri, None)
+        return algo is not None and algo not in self.OBFUSCATION_ALGORITHMS
+
 
 class OCFReader(OCF):
     def __init__(self):
@@ -72,6 +94,11 @@ class OCFReader(OCF):
                 self.opf = OPF(f, self.root, populate_spine=False)
         except KeyError:
             raise EPubException("missing OPF package file")
+        try:
+            with closing(self.open(self.ENCRYPTION_PATH)) as f:
+                self.encryption_meta = Encryption(f.read())
+        except:
+            self.encryption_meta = Encryption(None)
 
 
 class OCFZipReader(OCFReader):
@@ -98,7 +125,7 @@ class OCFDirReader(OCFReader):
     def open(self, path, *args, **kwargs):
         return open(os.path.join(self.root, path), *args, **kwargs)
 
-def get_cover(opf, opf_path, stream):
+def get_cover(opf, opf_path, stream, reader=None):
     import posixpath
     from calibre.ebooks import render_html_svg_workaround
     from calibre.utils.logging import default_log
@@ -106,6 +133,9 @@ def get_cover(opf, opf_path, stream):
     stream.seek(0)
     zf = ZipFile(stream)
     if raster_cover:
+        if reader is not None and \
+            reader.encryption_meta.is_encrypted(raster_cover):
+                return
         base = posixpath.dirname(opf_path)
         cpath = posixpath.normpath(posixpath.join(base, raster_cover))
         try:
@@ -121,6 +151,8 @@ def get_cover(opf, opf_path, stream):
 
     cpage = opf.first_spine_item()
     if not cpage:
+        return
+    if reader is not None and reader.encryption_meta.is_encrypted(cpage):
         return
 
     with TemporaryDirectory('_epub_meta') as tdir:
@@ -139,7 +171,7 @@ def get_metadata(stream, extract_cover=True):
     mi = MetaInformation(reader.opf)
     if extract_cover:
         try:
-            cdata = get_cover(reader.opf, reader.opf_path, stream)
+            cdata = get_cover(reader.opf, reader.opf_path, stream, reader=reader)
             if cdata is not None:
                 mi.cover_data = ('jpg', cdata)
         except:

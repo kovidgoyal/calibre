@@ -20,7 +20,9 @@ from calibre.utils.date import parse_date, isoformat
 global_lock = RLock()
 
 def convert_timestamp(val):
-    return parse_date(val, as_utc=False)
+    if val:
+        return parse_date(val, as_utc=False)
+    return None
 
 def adapt_datetime(dt):
     return isoformat(dt, sep=' ')
@@ -28,27 +30,32 @@ def adapt_datetime(dt):
 sqlite.register_adapter(datetime, adapt_datetime)
 sqlite.register_converter('timestamp', convert_timestamp)
 
+def convert_bool(val):
+    return bool(int(val))
+
+sqlite.register_adapter(bool, lambda x : 1 if x else 0)
+sqlite.register_converter('bool', convert_bool)
+
+
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
     def __init__(self, sep=','):
         self.sep = sep
-        self.ans = ''
+        self.ans = []
 
     def step(self, value):
         if value is not None:
-            self.ans += value + self.sep
+            self.ans.append(value)
 
     def finalize(self):
         if not self.ans:
             return None
-        if self.sep:
-            return self.ans[:-len(self.sep)]
-        return self.ans
+        return self.sep.join(self.ans)
 
 class SortedConcatenate(object):
     '''String concatenation aggregator for sqlite, sorted by supplied index'''
-    def __init__(self, sep=','):
-        self.sep = sep
+    sep = ','
+    def __init__(self):
         self.ans = {}
 
     def step(self, ndx, value):
@@ -59,6 +66,9 @@ class SortedConcatenate(object):
         if len(self.ans) == 0:
             return None
         return self.sep.join(map(self.ans.get, sorted(self.ans.keys())))
+
+class SafeSortedConcatenate(SortedConcatenate):
+    sep = '|'
 
 class Connection(sqlite.Connection):
 
@@ -92,6 +102,7 @@ class DBThread(Thread):
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
         self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
+        self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
         self.conn.create_function('title_sort', 1, title_sort)
         self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
 

@@ -48,5 +48,6 @@ class OEBOutput(OutputFormatPlugin):
                     os.makedirs(dir)
                 with open(path, 'wb') as f:
                     f.write(str(item))
+                item.unload_data_from_memory(memory=path)
 
 

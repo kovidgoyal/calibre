@@ -105,6 +105,7 @@ class HANLINV5(HANLINV3):
     MAIN_MEMORY_VOLUME_LABEL  = 'Hanlin V5 Internal Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Hanlin V5 Storage Card'
 
+    OSX_EJECT_COMMAND = ['diskutil', 'unmount', 'force']
 
 class BOOX(HANLINV3):
 

@@ -57,7 +57,8 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
-from calibre.library.database2 import LibraryDatabase2, CoverCache
+from calibre.library.database2 import LibraryDatabase2
+from calibre.library.caches import CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
 
 class SaveMenu(QMenu):
@@ -193,6 +194,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.donate_action  = self.system_tray_menu.addAction(
                 QIcon(I('donate.svg')), _('&Donate to support calibre'))
         self.donate_button.setDefaultAction(self.donate_action)
+        self.eject_action = self.system_tray_menu.addAction(
+                QIcon(I('eject.svg')), _('&Eject connected device'))
+        self.eject_action.setEnabled(False)
         if not config['show_donate_button']:
             self.donate_button.setVisible(False)
         self.addAction(self.quit_action)
@@ -233,6 +237,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(self.location_view,
                 SIGNAL('umount_device()'),
                         self.device_manager.umount_device)
+        self.eject_action.triggered.connect(self.device_manager.umount_device)
 
         ####################### Vanity ########################
         self.vanity_template  = _('<p>For help see the: <a href="%s">User Manual</a>'
@@ -513,7 +518,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             ('timestamp', Qt.DescendingOrder)))
         if not self.library_view.restore_column_widths():
             self.library_view.resizeColumnsToContents()
-        self.library_view.resizeRowsToContents()
         self.search.setFocus(Qt.OtherFocusReason)
         self.cover_cache = CoverCache(self.library_path)
         self.cover_cache.start()
@@ -622,6 +626,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.status_bar.tag_view_button.toggle()
 
         self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
+        v = self.library_view
+        if v.model().rowCount(None) > 1:
+            v.resizeRowToContents(0)
+            height = v.rowHeight(0)
+            self.library_view.verticalHeader().setDefaultSectionSize(height)
 
 
     def resizeEvent(self, ev):
@@ -889,6 +898,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     self.device_manager.device.card_prefix(),
                     self.device_manager.device)
             self.location_view.model().device_connected(self.device_manager.device)
+            self.eject_action.setEnabled(True)
         else:
             self.save_device_view_settings()
             self.device_connected = False
@@ -900,6 +910,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if self.current_view() != self.library_view:
                 self.status_bar.reset_info()
                 self.location_view.setCurrentIndex(self.location_view.model().index(0))
+            self.eject_action.setEnabled(False)
 
     def info_read(self, job):
         '''
@@ -944,7 +955,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             view.read_settings()
             if not view.restore_column_widths():
                 view.resizeColumnsToContents()
-            view.resizeRowsToContents()
             view.resize_on_select = not view.isVisible()
         self.sync_news()
         self.sync_catalogs()
@@ -2080,7 +2090,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.card_b_view if page == 3 else None
         if view:
             if view.resize_on_select:
-                view.resizeRowsToContents()
                 if not view.restore_column_widths():
                     view.resizeColumnsToContents()
                 view.resize_on_select = False
