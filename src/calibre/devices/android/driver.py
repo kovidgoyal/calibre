@@ -27,6 +27,9 @@ class ANDROID(USBMS):
 
             # Samsung
             0x04e8 : { 0x681d : [0x0222]},
+
+            # Acer
+            0x502 : { 0x3203 : [0x0100]},
             }
     EBOOK_DIR_MAIN = ['wordplayer/calibretransfer', 'eBooks/import', 'Books']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
@@ -34,9 +37,9 @@ class ANDROID(USBMS):
             'be used')
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(EBOOK_DIR_MAIN)
 
-    VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID']
+    VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
-            '__UMS_COMPOSITE', '_MB200']
+            '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE']
 
     OSX_MAIN_MEM = 'HTC Android Phone Media'
 
