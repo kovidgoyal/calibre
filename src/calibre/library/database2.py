@@ -170,8 +170,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
              'sort':11, 'author_sort':12, 'formats':13, 'isbn':14, 'path':15,
              'lccn':16, 'pubdate':17, 'flags':18, 'uuid':19}
 
-        for i, col in enumerate(custom_cols):
-            self.FIELD_MAP[col] = 19+1+i
+        base = max(self.FIELD_MAP.values())
+        for col in custom_cols:
+            self.FIELD_MAP[col] = base = base+1
+
+        self.FIELD_MAP['cover'] = base+1
 
         script = '''
         DROP VIEW IF EXISTS meta2;
