@@ -626,6 +626,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.status_bar.tag_view_button.toggle()
 
         self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
+        v = self.library_view
+        if v.model().rowCount(None) > 1:
+            v.resizeRowToContents(0)
+            height = v.rowHeight(0)
+            self.library_view.verticalHeader().setDefaultSectionSize(height)
 
 
     def resizeEvent(self, ev):
