@@ -206,4 +206,8 @@ class ELONEX(EB600):
     WINDOWS_MAIN_MEM = 'EBOOK'
     WINDOWS_CARD_A_MEM = 'EBOOK'
 
+    @classmethod
+    def can_handle(cls, dev, debug=False):
+        return dev[3] == 'Elonex' and dev[4] == 'eBook'
+
 
