@@ -514,7 +514,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             ('timestamp', Qt.DescendingOrder)))
         if not self.library_view.restore_column_widths():
             self.library_view.resizeColumnsToContents()
-        self.library_view.resizeRowsToContents()
         self.search.setFocus(Qt.OtherFocusReason)
         self.cover_cache = CoverCache(self.library_path)
         self.cover_cache.start()
@@ -945,7 +944,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             view.read_settings()
             if not view.restore_column_widths():
                 view.resizeColumnsToContents()
-            view.resizeRowsToContents()
             view.resize_on_select = not view.isVisible()
         self.sync_news()
         self.sync_catalogs()
@@ -2081,7 +2079,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.card_b_view if page == 3 else None
         if view:
             if view.resize_on_select:
-                view.resizeRowsToContents()
                 if not view.restore_column_widths():
                     view.resizeColumnsToContents()
                 view.resize_on_select = False
