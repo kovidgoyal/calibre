@@ -32,6 +32,8 @@ from calibre.utils.mdns import publish as publish_zeroconf, \
 from calibre.ebooks.metadata import fmt_sidx, title_sort
 from calibre.utils.date import now as nowf, fromtimestamp
 
+listen_on = '0.0.0.0'
+
 def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
     if not hasattr(dt, 'timetuple'):
         dt = nowf()
@@ -353,14 +355,13 @@ class LibraryServer(object):
         path = P('content_server')
         self.build_time = fromtimestamp(os.stat(path).st_mtime)
         self.default_cover =  open(P('content_server/default_cover.jpg'), 'rb').read()
-
         cherrypy.config.update({
                                 'log.screen'             : opts.develop,
                                 'engine.autoreload_on'   : opts.develop,
                                 'tools.log_headers.on'   : opts.develop,
                                 'checker.on'             : opts.develop,
                                 'request.show_tracebacks': show_tracebacks,
-                                'server.socket_host'     : '0.0.0.0',
+                                'server.socket_host'     : listen_on,
                                 'server.socket_port'     : opts.port,
                                 'server.socket_timeout'  : opts.timeout, #seconds
                                 'server.thread_pool'     : opts.thread_pool, # number of threads
@@ -438,7 +439,10 @@ class LibraryServer(object):
                 cherrypy.log.error(traceback.format_exc())
 
     def exit(self):
-        cherrypy.engine.exit()
+        try:
+            cherrypy.engine.exit()
+        finally:
+            cherrypy.server.httpserver = None
 
     def get_cover(self, id, thumbnail=False):
         cover = self.db.cover(id, index_is_id=True, as_file=False)
