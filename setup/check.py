@@ -106,6 +106,7 @@ class Check(Command):
         if os.path.exists(wn_path):
             sys.path.insert(0, wn_path)
             self.info('\tChecking Changelog...')
+            os.environ['DJANGO_SETTINGS_MODULE'] = 'calibre_servers.status.settings'
             import whats_new
             whats_new.test()
             sys.path.remove(wn_path)
