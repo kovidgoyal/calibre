@@ -76,6 +76,7 @@ class Device(DeviceConfig, DevicePlugin):
     # storage cards. Should be a regular expression that matches the
     # main memory mount point assigned by OS X
     OSX_MAIN_MEM_VOL_PAT = None
+    OSX_EJECT_COMMAND = ['diskutil', 'eject']
 
     MAIN_MEMORY_VOLUME_LABEL  = ''
     STORAGE_CARD_VOLUME_LABEL = ''
@@ -669,7 +670,7 @@ class Device(DeviceConfig, DevicePlugin):
             x = getattr(self, x, None)
             if x is not None:
                 try:
-                    subprocess.Popen(['diskutil', 'eject', x])
+                    subprocess.Popen(self.OSX_EJECT_COMMAND + [x])
                 except:
                     pass
 
