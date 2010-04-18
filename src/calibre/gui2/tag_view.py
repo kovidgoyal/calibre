@@ -8,11 +8,13 @@ Browsing book collection by tags.
 '''
 
 from itertools import izip
+from copy import copy
 
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
                      QFont, SIGNAL, QSize, QIcon, QPoint, \
                      QAbstractItemModel, QVariant, QModelIndex
 from calibre.gui2 import config, NONE
+from calibre.utils.config import prefs
 from calibre.utils.search_query_parser import saved_searches
 from calibre.library.database2 import Tag
 
@@ -27,16 +29,24 @@ class TagsView(QTreeView):
         self.setIconSize(QSize(30, 30))
         self.tag_match = None
 
-    def set_database(self, db, tag_match, popularity):
+    def set_database(self, db, tag_match, popularity, restriction):
         self._model = TagsModel(db, parent=self)
         self.popularity = popularity
+        self.restriction = restriction
         self.tag_match = tag_match
+        self.db = db
         self.setModel(self._model)
         self.connect(self, SIGNAL('clicked(QModelIndex)'), self.toggle)
         self.popularity.setChecked(config['sort_by_popularity'])
         self.connect(self.popularity, SIGNAL('stateChanged(int)'), self.sort_changed)
+        self.connect(self.restriction, SIGNAL('activated(const QString&)'), self.search_restriction_set)
         self.need_refresh.connect(self.recount, type=Qt.QueuedConnection)
         db.add_listener(self.database_changed)
+        self.saved_searches_changed(recount=False)
+
+    def create_tag_category(self, name, tag_list):
+        self._model.create_tag_category(name, tag_list)
+        self.recount()
 
     def database_changed(self, event, ids):
         self.need_refresh.emit()
@@ -48,6 +58,19 @@ class TagsView(QTreeView):
     def sort_changed(self, state):
         config.set('sort_by_popularity', state == Qt.Checked)
         self.model().refresh()
+        # self.search_restriction_set()
+
+    def search_restriction_set(self, s):
+        self.clear()
+        if len(s) == 0:
+            self.search_restriction = ''
+        else:
+            self.search_restriction = unicode(s)
+        self.model().set_search_restriction(self.search_restriction)
+        self.recount()
+        self.emit(SIGNAL('restriction_set(PyQt_PyObject)'), self.search_restriction)
+        self.emit(SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
+                         self._model.tokens(), self.match_all)
 
     def toggle(self, index):
         modifiers = int(QApplication.keyboardModifiers())
@@ -58,6 +81,20 @@ class TagsView(QTreeView):
 
     def clear(self):
         self.model().clear_state()
+
+    def saved_searches_changed(self, recount=True):
+        p = prefs['saved_searches'].keys()
+        p.sort()
+        t = self.restriction.currentText()
+        self.restriction.clear() # rebuild the restrictions combobox using current saved searches
+        self.restriction.addItem('')
+        for s in p:
+            self.restriction.addItem(s)
+        if t in p: # redo the current restriction, if there was one
+            self.restriction.setCurrentIndex(self.restriction.findText(t))
+            self.search_restriction_set(t)
+        if recount:
+            self.recount()
 
     def recount(self, *args):
         ci = self.currentIndex()
@@ -73,6 +110,15 @@ class TagsView(QTreeView):
             if idx.isValid():
                 self.setCurrentIndex(idx)
                 self.scrollTo(idx, QTreeView.PositionAtCenter)
+
+    '''
+    If the number of user categories changed, or if custom columns have come or gone,
+    we must rebuild the model. Reason: it is much easier to do that than to reconstruct
+    the browser tree.
+    '''
+    def set_new_model(self):
+        self._model = TagsModel(self.db, parent=self)
+        self.setModel(self._model)
 
 class TagTreeItem(object):
 
@@ -148,28 +194,90 @@ class TagTreeItem(object):
 
 
 class TagsModel(QAbstractItemModel):
-    categories = [_('Authors'), _('Series'), _('Formats'), _('Publishers'), _('News'), _('Tags'), _('Searches')]
-    row_map    = ['author', 'series', 'format', 'publisher', 'news', 'tag', 'search']
+    categories_orig = [_('Authors'), _('Series'), _('Formats'), _('Publishers'), _('News'), _('All tags')]
+    row_map_orig    = ['author', 'series', 'format', 'publisher', 'news', 'tag']
+    fixed_categories= 5
+    search_keys=['search', _('Searches')]
 
     def __init__(self, db, parent=None):
         QAbstractItemModel.__init__(self, parent)
-        self.cmap = tuple(map(QIcon, [I('user_profile.svg'),
+        self.cmap_orig = list(map(QIcon, [I('user_profile.svg'),
                 I('series.svg'), I('book.svg'), I('publisher.png'),
-                I('news.svg'), I('tags.svg'), I('search.svg')]))
+                I('news.svg')]))
         self.icon_map = [QIcon(), QIcon(I('plus.svg')),
                 QIcon(I('minus.svg'))]
         self.db = db
+        self.search_restriction = ''
+        self.user_categories = {}
         self.ignore_next_search = 0
+        data = self.get_node_tree(config['sort_by_popularity'])
         self.root_item = TagTreeItem()
-        data = self.db.get_categories(config['sort_by_popularity'])
-        data['search'] = self.get_search_nodes()
-
         for i, r in enumerate(self.row_map):
             c = TagTreeItem(parent=self.root_item,
                     data=self.categories[i], category_icon=self.cmap[i])
             for tag in data[r]:
                 TagTreeItem(parent=c, data=tag, icon_map=self.icon_map)
 
+    def set_search_restriction(self, s):
+        self.search_restriction = s
+
+    def get_node_tree(self, sort):
+        self.row_map = []
+        self.categories = []
+        self.cmap = self.cmap_orig[:]
+        self.user_categories = dict.copy(config['tag_categories'])
+        column_map = config['column_map']
+
+        for i in range(0, self.fixed_categories): # First the standard categories
+            self.row_map.append(self.row_map_orig[i])
+            self.categories.append(self.categories_orig[i])
+        if len(self.search_restriction):
+            data = self.db.get_categories(sort_on_count=sort,
+                        ids=self.db.search(self.search_restriction, return_matches=True))
+        else:
+            data = self.db.get_categories(sort_on_count=sort)
+
+        for i in data:  # now the custom columns
+            if i not in self.row_map_orig and i in column_map:
+                self.row_map.append(i)
+                self.categories.append(self.db.custom_column_label_map[i]['name'])
+                self.cmap.append(QIcon(I('column.svg')))
+
+        for i in self.row_map_orig:
+            if i not in self.user_categories:
+                self.user_categories[i] = {}
+        config['tag_categories'] = self.user_categories
+
+        taglist = {}   # Now the user-defined categories
+        for i in data:
+            taglist[i] = dict(map(lambda t:(t.name if i != 'author' else t.name.replace('|', ','), t), data[i]))
+        for k in self.row_map_orig:
+            if k not in self.user_categories:
+                continue
+            for i in sorted(self.user_categories[k].keys()): # now the tag categories
+                l = []
+                for t in self.user_categories[k][i]:
+                    if t in taglist[k]: # use same tag node as the complete category
+                        l.append(taglist[k][t])
+                    # else: eliminate nodes that have zero counts
+                data[i+'*'] = l
+                self.row_map.append(i+'*')
+                self.categories.append(i)
+                if k == 'tag':  # choose the icon
+                    self.cmap.append(QIcon(I('tags.svg')))
+                else:
+                    self.cmap.append(QIcon(self.cmap[self.row_map_orig.index(k)]))
+
+        # Now the rest of the normal tag categories
+        for i in range(self.fixed_categories, len(self.row_map_orig)):
+            self.row_map.append(self.row_map_orig[i])
+            self.categories.append(self.categories_orig[i])
+            self.cmap.append(QIcon(I('tags.svg')))
+        data['search'] = self.get_search_nodes()  # Add the search category
+        self.row_map.append(self.search_keys[0])
+        self.categories.append(self.search_keys[1])
+        self.cmap.append(QIcon(I('search.svg')))
+        return data
 
     def get_search_nodes(self):
         l = []
@@ -178,8 +286,7 @@ class TagsModel(QAbstractItemModel):
         return l
 
     def refresh(self):
-        data = self.db.get_categories(config['sort_by_popularity'])
-        data['search'] = self.get_search_nodes()
+        data = self.get_node_tree(config['sort_by_popularity']) # get category data
         for i, r in enumerate(self.row_map):
             category = self.root_item.children[i]
             names = [t.tag.name for t in category.children]
@@ -194,8 +301,6 @@ class TagsModel(QAbstractItemModel):
             if len(data[r]) > 0:
                 self.beginInsertRows(category_index, 0, len(data[r])-1)
                 for tag in data[r]:
-                    if r == 'author':
-                        tag.name = tag.name.replace('|', ',')
                     tag.state = state_map.get(tag.name, 0)
                     t = TagTreeItem(parent=category, data=tag, icon_map=self.icon_map)
                 self.endInsertRows()
@@ -273,16 +378,20 @@ class TagsModel(QAbstractItemModel):
         return len(parent_item.children)
 
     def reset_all_states(self, except_=None):
+        update_list = []
         for i in xrange(self.rowCount(QModelIndex())):
             category_index = self.index(i, 0, QModelIndex())
             for j in xrange(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = tag_index.internalPointer()
-                if tag_item is except_:
-                    continue
                 tag = tag_item.tag
-                if tag.state != 0:
+                if tag is except_:
+                    self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
+                            tag_index, tag_index)
+                    continue
+                if tag.state != 0 or tag in update_list:
                     tag.state = 0
+                    update_list.append(tag)
                     self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
                             tag_index, tag_index)
 
@@ -299,9 +408,9 @@ class TagsModel(QAbstractItemModel):
         if not index.isValid(): return False
         item = index.internalPointer()
         if item.type == TagTreeItem.TAG:
-            if exclusive:
-                self.reset_all_states(except_=item)
             item.toggle()
+            if exclusive:
+                self.reset_all_states(except_=item.tag)
             self.ignore_next_search = 2
             self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'), index, index)
             return True
@@ -309,14 +418,19 @@ class TagsModel(QAbstractItemModel):
 
     def tokens(self):
         ans = []
+        tags_seen = []
         for i, key in enumerate(self.row_map):
             category_item = self.root_item.children[i]
             for tag_item in category_item.children:
                 tag = tag_item.tag
-                category = key if key != 'news' else 'tag'
                 if tag.state > 0:
                     prefix = ' not ' if tag.state == 2 else ''
+                    category = key if not key.endswith('*') and \
+                                      key not in ['news', 'specialtags', 'normaltags'] \
+                                   else 'tag'
+                    if category == 'tag':
+                        if tag.name in tags_seen:
+                            continue
+                        tags_seen.append(tag.name)
                     ans.append('%s%s:"=%s"'%(prefix, category, tag.name))
         return ans
-
-

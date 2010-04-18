@@ -306,6 +306,12 @@
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
              <widget class="TagsView" name="tags_view">
+              <property name="maximumSize">
+               <size>
+                <width>256</width>
+                <height>16777215</height>
+               </size>
+              </property>
               <property name="tabKeyNavigation">
                <bool>true</bool>
               </property>
@@ -328,21 +334,59 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="tag_match">
-              <property name="currentIndex">
-               <number>0</number>
-              </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
               <item>
-               <property name="text">
-                <string>Match any</string>
-               </property>
+               <widget class="QComboBox" name="tag_match">
+                <property name="currentIndex">
+                 <number>0</number>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Match any</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Match all</string>
+                 </property>
+                </item>
+               </widget>
               </item>
               <item>
-               <property name="text">
-                <string>Match all</string>
-               </property>
+               <widget class="QPushButton" name="edit_categories">
+                <property name="text">
+                 <string>Manage tag categories</string>
+                </property>
+			    <property name="toolTip">
+			     <string>Create, edit, and delete tag categories</string>
+			    </property>
+               </widget>
               </item>
-             </widget>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="10,50">
+              <item>
+               <widget class="QLabel" name="restriction_label">
+                <property name="text">
+                 <string>Restrict display to:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="search_restriction">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                  <horstretch>50</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+			    <property name="toolTip">
+			     <string>Books display will be restricted to those matching the selected saved search</string>
+			    </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>

@@ -1,34 +1,36 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, textwrap, traceback, re, shutil
+import os, textwrap, traceback, re, shutil, functools
+
 from operator import attrgetter
 from math import cos, sin, pi
 from contextlib import closing
+from datetime import date
 
 from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
-                        QPen, QStyle, QPainter, \
+                        QPen, QStyle, QPainter, QIcon,\
                         QImage, QApplication, QMenu, \
-                        QStyledItemDelegate, QCompleter
+                        QStyledItemDelegate, QCompleter, QIntValidator, \
+                        QPlainTextEdit, QDoubleValidator, QCheckBox, QMessageBox
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
-                         SIGNAL, QObject, QSize, QModelIndex, QDate
+                         SIGNAL, QObject, QSize, QModelIndex, QDate, QRect
 
 from calibre import strftime
-from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.pyparsing import ParseException
-from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
-from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, \
-                         error_dialog
-from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
-from calibre.utils.search_query_parser import SearchQueryParser
+from calibre.ebooks.metadata import string_to_authors, fmt_sidx, authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
-from calibre.ebooks.metadata import string_to_authors, fmt_sidx, \
-                                    authors_to_string
-from calibre.utils.config import tweaks
+from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, error_dialog
+from calibre.gui2.dialogs.comments_dialog import CommentsDialog
+from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
+from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import dt_factory, qt_to_dt, isoformat
+from calibre.utils.pyparsing import ParseException
+from calibre.utils.search_query_parser import SearchQueryParser
 
-class LibraryDelegate(QItemDelegate):
+class RatingDelegate(QItemDelegate):
     COLOR    = QColor("blue")
     SIZE     = 16
     PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
@@ -54,7 +56,10 @@ class LibraryDelegate(QItemDelegate):
         return QSize(5*(self.SIZE), self.SIZE+4)
 
     def paint(self, painter, option, index):
-        num = index.model().data(index, Qt.DisplayRole).toInt()[0]
+        if index.model().data(index, Qt.DisplayRole) is None:
+            num = 0
+        else:
+            num = index.model().data(index, Qt.DisplayRole).toInt()[0]
         def draw_star():
             painter.save()
             painter.scale(self.factor, self.factor)
@@ -95,7 +100,6 @@ class LibraryDelegate(QItemDelegate):
         return sb
 
 class DateDelegate(QStyledItemDelegate):
-
     def displayText(self, val, locale):
         d = val.toDate()
         return d.toString('dd MMM yyyy')
@@ -111,7 +115,6 @@ class DateDelegate(QStyledItemDelegate):
         return qde
 
 class PubDateDelegate(QStyledItemDelegate):
-
     def displayText(self, val, locale):
         return val.toDate().toString('MMM yyyy')
 
@@ -123,7 +126,6 @@ class PubDateDelegate(QStyledItemDelegate):
         return qde
 
 class TextDelegate(QStyledItemDelegate):
-
     def __init__(self, parent):
         '''
         Delegate for text data. If auto_complete_function needs to return a list
@@ -147,7 +149,6 @@ class TextDelegate(QStyledItemDelegate):
         return editor
 
 class TagsDelegate(QStyledItemDelegate):
-
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
         self.db = None
@@ -157,17 +158,101 @@ class TagsDelegate(QStyledItemDelegate):
 
     def createEditor(self, parent, option, index):
         if self.db:
-            editor = TagsLineEdit(parent, self.db.all_tags())
+            col = index.model().column_map[index.column()]
+            if not index.model().is_custom_column(col):
+                editor = TagsLineEdit(parent, self.db.all_tags())
+            else:
+                editor = TagsLineEdit(parent, sorted(list(self.db.all_custom(label=col))))
+                return editor;
         else:
             editor = EnLineEdit(parent)
         return editor
+
+class CcTextDelegate(QStyledItemDelegate):
+    def __init__(self, parent):
+        '''
+        Delegate for text/int/float data.
+        '''
+        QStyledItemDelegate.__init__(self, parent)
+    def createEditor(self, parent, option, index):
+        m = index.model()
+        col = m.column_map[index.column()]
+        typ = m.custom_columns[col]['datatype']
+        editor = EnLineEdit(parent)
+        if typ == 'int':
+            editor.setValidator(QIntValidator(parent))
+        elif typ == 'float':
+            editor.setValidator(QDoubleValidator(parent))
+        else:
+            complete_items = sorted(list(m.db.all_custom(label=col)))
+            completer = QCompleter(complete_items, self)
+            completer.setCaseSensitivity(Qt.CaseInsensitive)
+            completer.setCompletionMode(QCompleter.PopupCompletion)
+            editor.setCompleter(completer)
+        return editor
+
+class CcCommentsDelegate(QStyledItemDelegate):
+    def __init__(self, parent):
+        '''
+        Delegate for comments data.
+        '''
+        QStyledItemDelegate.__init__(self, parent)
+        self.parent = parent
+
+    def createEditor(self, parent, option, index):
+        m = index.model()
+        col = m.column_map[index.column()]
+        # db col is not named for the field, but for the table number. To get it,
+        # gui column -> column label -> table number -> db column
+        text = m.db.data[index.row()][m.db.FIELD_MAP[m.custom_columns[col]['num']]]
+        editor = CommentsDialog(parent, text)
+        d = editor.exec_()
+        if d:
+            m.setData(index, QVariant(editor.textbox.toPlainText()), Qt.EditRole)
+        return None
+
+    def setModelData(self, editor, model, index):
+        model.setData(index, QVariant(editor.textbox.text()), Qt.EditRole)
+
+class CcBoolDelegate(QStyledItemDelegate):
+    def __init__(self, parent):
+        '''
+        Delegate for custom_column bool data.
+        '''
+        QStyledItemDelegate.__init__(self, parent)
+
+    def createEditor(self, parent, option, index):
+        m = index.model()
+        col = m.column_map[index.column()]
+        editor = QCheckBox(parent)
+        val = m.db.data[index.row()][m.db.FIELD_MAP[m.custom_columns[col]['num']]]
+        if tweaks['bool_custom_columns_are_tristate'] == 'no':
+            pass
+        else:
+            if tweaks['bool_custom_columns_are_tristate'] == 'yes':
+                editor.setTristate(True)
+        return editor
+
+    def setModelData(self, editor, model, index):
+        model.setData(index, QVariant(editor.checkState()), Qt.EditRole)
+
+    def setEditorData(self, editor, index):
+        m = index.model()
+        # db col is not named for the field, but for the table number. To get it,
+        # gui column -> column label -> table number -> db column
+        val = m.db.data[index.row()][m.db.FIELD_MAP[m.custom_columns[m.column_map[index.column()]]['num']]]
+        if tweaks['bool_custom_columns_are_tristate'] == 'no':
+            val = Qt.Unchecked if val is None or not val else Qt.Checked
+        else:
+            val = Qt.PartiallyChecked if val is None else Qt.Unchecked if not val else Qt.Checked
+        editor.setCheckState(val)
 
 class BooksModel(QAbstractTableModel):
 
     about_to_be_sorted = pyqtSignal(object, name='aboutToBeSorted')
     sorting_done       = pyqtSignal(object, name='sortingDone')
 
-    headers = {
+    orig_headers = {
                         'title'     : _("Title"),
                         'authors'   : _("Author(s)"),
                         'size'      : _("Size (MB)"),
@@ -182,15 +267,22 @@ class BooksModel(QAbstractTableModel):
     def __init__(self, parent=None, buffer=40):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
-        self.column_map = config['column_map']
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
                               'tags', 'series', 'timestamp', 'pubdate']
         self.default_image = QImage(I('book.svg'))
         self.sorted_on = ('timestamp', Qt.AscendingOrder)
+        self.sort_history = [self.sorted_on]
         self.last_search = '' # The last search performed on this model
-        self.read_config()
+        self.column_map = []
+        self.headers = {}
         self.buffer_size = buffer
         self.cover_cache = None
+        self.bool_yes_icon = QIcon(I('ok.svg'))
+        self.bool_no_icon = QIcon(I('list_remove.svg'))
+        self.bool_blank_icon = QIcon(I('blank.svg'))
+
+    def is_custom_column(self, cc_label):
+        return cc_label in self.custom_columns
 
     def clear_caches(self):
         if self.cover_cache:
@@ -198,15 +290,24 @@ class BooksModel(QAbstractTableModel):
 
     def read_config(self):
         self.use_roman_numbers = config['use_roman_numerals_for_series_number']
-        cols = config['column_map']
-        if cols != self.column_map:
-            self.column_map = cols
-            self.reset()
-            self.emit(SIGNAL('columns_sorted()'))
+        self.column_map = config['column_map'][:] # force a copy
+        self.headers = {}
+        for i in self.column_map: # take out any columns no longer in the db
+            if not i in self.orig_headers and not i in self.custom_columns:
+                self.column_map.remove(i)
+        for i in self.column_map:
+            if i in self.orig_headers:
+                self.headers[i] = self.orig_headers[i]
+            elif i in self.custom_columns:
+                self.headers[i] = self.custom_columns[i]['name']
+        self.reset()
+        self.emit(SIGNAL('columns_sorted()'))
 
     def set_database(self, db):
         self.db = db
+        self.custom_columns = self.db.custom_column_label_map
         self.build_data_convertors()
+        self.read_config()
 
     def refresh_ids(self, ids, current_row=-1):
         rows = self.db.refresh_ids(ids)
@@ -313,6 +414,8 @@ class BooksModel(QAbstractTableModel):
             self.clear_caches()
             self.reset()
         self.sorted_on = (self.column_map[col], order)
+        self.sort_history.insert(0, self.sorted_on)
+        del self.sort_history[3:] # clean up older searches
         self.sorting_done.emit(self.db.index)
 
     def refresh(self, reset=True):
@@ -320,10 +423,8 @@ class BooksModel(QAbstractTableModel):
             col = self.column_map.index(self.sorted_on[0])
         except:
             col = 0
-        self.db.refresh(field=self.column_map[col],
-                        ascending=self.sorted_on[1]==Qt.AscendingOrder)
-        if reset:
-            self.reset()
+        self.db.refresh(field=None)
+        self.sort(col, self.sorted_on[1], reset=reset)
 
     def resort(self, reset=True):
         try:
@@ -427,6 +528,7 @@ class BooksModel(QAbstractTableModel):
         return ans
 
     def get_metadata(self, rows, rows_are_ids=False, full_metadata=False):
+        # Should this add the custom columns? It doesn't at the moment
         metadata, _full_metadata = [], []
         if not rows_are_ids:
             rows = [self.db.id(row.row()) for row in rows]
@@ -559,75 +661,108 @@ class BooksModel(QAbstractTableModel):
         return img
 
     def build_data_convertors(self):
-
-        tidx = self.db.FIELD_MAP['title']
-        aidx = self.db.FIELD_MAP['authors']
-        sidx = self.db.FIELD_MAP['size']
-        ridx = self.db.FIELD_MAP['rating']
-        pidx = self.db.FIELD_MAP['publisher']
-        tmdx = self.db.FIELD_MAP['timestamp']
-        pddx = self.db.FIELD_MAP['pubdate']
-        srdx = self.db.FIELD_MAP['series']
-        tgdx = self.db.FIELD_MAP['tags']
-        siix = self.db.FIELD_MAP['series_index']
-
-        def authors(r):
-            au = self.db.data[r][aidx]
+        def authors(r, idx=-1):
+            au = self.db.data[r][idx]
             if au:
                 au = [a.strip().replace('|', ',') for a in au.split(',')]
-                return ' & '.join(au)
+                return QVariant(' & '.join(au))
+            else:
+                return None
 
-        def timestamp(r):
-            dt = self.db.data[r][tmdx]
-            if dt:
-                return QDate(dt.year, dt.month, dt.day)
-
-        def pubdate(r):
-            dt = self.db.data[r][pddx]
-            if dt:
-                return QDate(dt.year, dt.month, dt.day)
-
-        def rating(r):
-            r = self.db.data[r][ridx]
-            r = r/2 if r else 0
-            return r
-
-        def publisher(r):
-            pub = self.db.data[r][pidx]
-            if pub:
-                return pub
-
-        def tags(r):
-            tags = self.db.data[r][tgdx]
+        def tags(r, idx=-1):
+            tags = self.db.data[r][idx]
             if tags:
-                return ', '.join(sorted(tags.split(',')))
+                return QVariant(', '.join(sorted(tags.split(','))))
+            return None
 
-        def series(r):
-            series = self.db.data[r][srdx]
+        def series(r, idx=-1, siix=-1):
+            series = self.db.data[r][idx]
             if series:
                 idx = fmt_sidx(self.db.data[r][siix])
-                return series + ' [%s]'%idx
-        def size(r):
-            size = self.db.data[r][sidx]
+                return QVariant(series + ' [%s]'%idx)
+            return None
+
+        def size(r, idx=-1):
+            size = self.db.data[r][idx]
             if size:
-                return '%.1f'%(float(size)/(1024*1024))
+                return QVariant('%.1f'%(float(size)/(1024*1024)))
+            return None
+
+        def rating_type(r, idx=-1):
+            r = self.db.data[r][idx]
+            r = r/2 if r else 0
+            return QVariant(r)
+
+        def datetime_type(r, idx=-1):
+            val = self.db.data[r][idx]
+            if val is not None:
+                return QVariant(QDate(val))
+            else:
+                return QVariant(QDate())
+
+        def bool_type(r, idx=-1):
+            return None # displayed using a decorator
+
+        def bool_type_decorator(r, idx=-1):
+            val = self.db.data[r][idx]
+            if tweaks['bool_custom_columns_are_tristate'] == 'no':
+                if val is None or not val:
+                    return self.bool_no_icon
+            if val:
+                return self.bool_yes_icon
+            if val is None:
+                return self.bool_blank_icon
+            return self.bool_no_icon
+
+        def text_type(r, mult=False, idx=-1):
+            text = self.db.data[r][idx]
+            if text and mult:
+                return QVariant(', '.join(sorted(text.split('|'))))
+            return QVariant(text)
+
+        def number_type(r, idx=-1):
+            return QVariant(self.db.data[r][idx])
 
         self.dc = {
-                   'title'    : lambda r : self.db.data[r][tidx],
-                   'authors'  : authors,
-                   'size'     : size,
-                   'timestamp': timestamp,
-                   'pubdate' : pubdate,
-                   'rating'   : rating,
-                   'publisher': publisher,
-                   'tags'     : tags,
-                   'series'   : series,
+                   'title'    : functools.partial(text_type, idx=self.db.FIELD_MAP['title'], mult=False),
+                   'authors'  : functools.partial(authors, idx=self.db.FIELD_MAP['authors']),
+                   'size'     : functools.partial(size, idx=self.db.FIELD_MAP['size']),
+                   'timestamp': functools.partial(datetime_type, idx=self.db.FIELD_MAP['timestamp']),
+                   'pubdate'  : functools.partial(datetime_type, idx=self.db.FIELD_MAP['pubdate']),
+                   'rating'   : functools.partial(rating_type, idx=self.db.FIELD_MAP['rating']),
+                   'publisher': functools.partial(text_type, idx=self.db.FIELD_MAP['title'], mult=False),
+                   'tags'     : functools.partial(tags, idx=self.db.FIELD_MAP['tags']),
+                   'series'   : functools.partial(series, idx=self.db.FIELD_MAP['series'], siix=self.db.FIELD_MAP['series_index']),
                    }
+        self.dc_decorator = {}
+
+        # Add the custom columns to the data converters
+        for col in self.custom_columns:
+            idx = self.db.FIELD_MAP[self.custom_columns[col]['num']]
+            datatype = self.custom_columns[col]['datatype']
+            if datatype in ('text', 'comments'):
+                self.dc[col] = functools.partial(text_type, idx=idx, mult=self.custom_columns[col]['is_multiple'])
+            elif datatype in ('int', 'float'):
+                self.dc[col] = functools.partial(number_type, idx=idx)
+            elif datatype == 'datetime':
+                self.dc[col] = functools.partial(datetime_type, idx=idx)
+            elif datatype == 'bool':
+                self.dc[col] = functools.partial(bool_type, idx=idx)
+                self.dc_decorator[col] = functools.partial(bool_type_decorator, idx=idx)
+            elif datatype == 'rating':
+                self.dc[col] = functools.partial(rating_type, idx=idx)
+            else:
+                print 'What type is this?', col, datatype
 
     def data(self, index, role):
         if role in (Qt.DisplayRole, Qt.EditRole):
-            ans = self.dc[self.column_map[index.column()]](index.row())
-            return NONE if ans is None else QVariant(ans)
+            return self.dc[self.column_map[index.column()]](index.row())
+        elif role == Qt.DecorationRole:
+            if self.column_map[index.column()] in self.dc_decorator:
+                return self.dc_decorator[self.column_map[index.column()]](index.row())
+            return None
+        #elif role == Qt.SizeHintRole:
+        #    return QVariant(Qt.SizeHint(1, 23))
         #elif role == Qt.TextAlignmentRole and self.column_map[index.column()] in ('size', 'timestamp'):
         #    return QVariant(Qt.AlignVCenter | Qt.AlignCenter)
         #elif role == Qt.ToolTipRole and index.isValid():
@@ -636,6 +771,8 @@ class BooksModel(QAbstractTableModel):
         return NONE
 
     def headerData(self, section, orientation, role):
+        if role == Qt.ToolTipRole:
+            return QVariant(_('The lookup/search name is "{0}"').format(self.column_map[section]))
         if role != Qt.DisplayRole:
             return NONE
         if orientation == Qt.Horizontal:
@@ -646,54 +783,88 @@ class BooksModel(QAbstractTableModel):
     def flags(self, index):
         flags = QAbstractTableModel.flags(self, index)
         if index.isValid():
-            if self.column_map[index.column()] in self.editable_cols:
+            colhead = self.column_map[index.column()]
+            if colhead in self.editable_cols:
                 flags |= Qt.ItemIsEditable
+            elif self.is_custom_column(colhead):
+                if self.custom_columns[colhead]['editable']:
+                    flags |= Qt.ItemIsEditable
         return flags
+
+    def set_custom_column_data(self, row, colhead, value):
+        typ = self.custom_columns[colhead]['datatype']
+        if typ in ('text', 'comments'):
+            val = qstring_to_unicode(value.toString()).strip()
+            val = val if val else None
+        if typ == 'bool':
+            val = value.toInt()[0] # tristate checkboxes put unknown in the middle
+            val = None if val == 1 else False if val == 0 else True
+        elif typ == 'rating':
+            val = value.toInt()[0]
+            val = 0 if val < 0 else 5 if val > 5 else val
+            val *= 2
+        elif typ in ('int', 'float'):
+            val = qstring_to_unicode(value.toString()).strip()
+            if val is None or not val:
+                val = None
+        elif typ == 'datetime':
+            val = value.toDate()
+            if val.isNull() or not val.isValid():
+                return False
+            val = qt_to_dt(val, as_utc=False)
+        self.db.set_custom(self.db.id(row), val, label=colhead, num=None, append=False, notify=True)
+        return True
 
     def setData(self, index, value, role):
         if role == Qt.EditRole:
             row, col = index.row(), index.column()
             column = self.column_map[col]
-            if column not in self.editable_cols:
-                return False
-            val = int(value.toInt()[0]) if column == 'rating' else \
-                  value.toDate() if column in ('timestamp', 'pubdate') else \
-                  unicode(value.toString())
-            id = self.db.id(row)
-            if column == 'rating':
-                val = 0 if val < 0 else 5 if val > 5 else val
-                val *= 2
-                self.db.set_rating(id, val)
-            elif column == 'series':
-                val = val.strip()
-                pat = re.compile(r'\[([.0-9]+)\]')
-                match = pat.search(val)
-                if match is not None:
-                    self.db.set_series_index(id, float(match.group(1)))
-                    val = pat.sub('', val).strip()
-                elif val:
-                    if tweaks['series_index_auto_increment'] == 'next':
-                        ni = self.db.get_next_series_num_for(val)
-                        if ni != 1:
-                            self.db.set_series_index(id, ni)
-                if val:
-                    self.db.set_series(id, val)
-            elif column == 'timestamp':
-                if val.isNull() or not val.isValid():
+            if self.is_custom_column(column):
+                if not self.set_custom_column_data(row, column, value):
                     return False
-                self.db.set_timestamp(id, qt_to_dt(val, as_utc=False))
-            elif column == 'pubdate':
-                if val.isNull() or not val.isValid():
-                    return False
-                self.db.set_pubdate(id, qt_to_dt(val, as_utc=False))
             else:
-                self.db.set(row, column, val)
+                if column not in self.editable_cols:
+                    return False
+                val = int(value.toInt()[0]) if column == 'rating' else \
+                      value.toDate() if column in ('timestamp', 'pubdate') else \
+                      unicode(value.toString())
+                id = self.db.id(row)
+                if column == 'rating':
+                    val = 0 if val < 0 else 5 if val > 5 else val
+                    val *= 2
+                    self.db.set_rating(id, val)
+                elif column == 'series':
+                    val = val.strip()
+                    pat = re.compile(r'\[([.0-9]+)\]')
+                    match = pat.search(val)
+                    if match is not None:
+                        self.db.set_series_index(id, float(match.group(1)))
+                        val = pat.sub('', val).strip()
+                    elif val:
+                        if tweaks['series_index_auto_increment'] == 'next':
+                            ni = self.db.get_next_series_num_for(val)
+                            if ni != 1:
+                                self.db.set_series_index(id, ni)
+                    if val:
+                        self.db.set_series(id, val)
+                elif column == 'timestamp':
+                    if val.isNull() or not val.isValid():
+                        return False
+                    self.db.set_timestamp(id, qt_to_dt(val, as_utc=False))
+                elif column == 'pubdate':
+                    if val.isNull() or not val.isValid():
+                        return False
+                    self.db.set_pubdate(id, qt_to_dt(val, as_utc=False))
+                else:
+                    self.db.set(row, column, val)
             self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
                                 index, index)
             if column == self.sorted_on[0]:
                 self.resort()
-
         return True
+
+    def set_search_restriction(self, s):
+        self.db.data.set_search_restriction(s)
 
 class BooksView(TableView):
     TIME_FMT = '%d %b %Y'
@@ -711,13 +882,16 @@ class BooksView(TableView):
 
     def __init__(self, parent, modelcls=BooksModel):
         TableView.__init__(self, parent)
-        self.rating_delegate = LibraryDelegate(self)
+        self.rating_delegate = RatingDelegate(self)
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
         self.tags_delegate = TagsDelegate(self)
         self.authors_delegate = TextDelegate(self)
         self.series_delegate = TextDelegate(self)
         self.publisher_delegate = TextDelegate(self)
+        self.cc_text_delegate = CcTextDelegate(self)
+        self.cc_bool_delegate = CcBoolDelegate(self)
+        self.cc_comments_delegate = CcCommentsDelegate(self)
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
@@ -772,6 +946,25 @@ class BooksView(TableView):
             self.setItemDelegateForColumn(cm.index('publisher'), self.publisher_delegate)
         if 'series' in cm:
             self.setItemDelegateForColumn(cm.index('series'), self.series_delegate)
+        for colhead in cm:
+            if not self._model.is_custom_column(colhead):
+                continue
+            cc = self._model.custom_columns[colhead]
+            if cc['datatype'] == 'datetime':
+                self.setItemDelegateForColumn(cm.index(colhead), self.timestamp_delegate)
+            elif cc['datatype'] == 'comments':
+                self.setItemDelegateForColumn(cm.index(colhead), self.cc_comments_delegate)
+            elif cc['datatype'] == 'text':
+                if cc['is_multiple']:
+                    self.setItemDelegateForColumn(cm.index(colhead), self.tags_delegate)
+                else:
+                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
+            elif cc['datatype'] in ('int', 'float'):
+                self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
+            elif cc['datatype'] == 'bool':
+                self.setItemDelegateForColumn(cm.index(colhead), self.cc_bool_delegate)
+            elif cc['datatype'] == 'rating':
+                self.setItemDelegateForColumn(cm.index(colhead), self.rating_delegate)
 
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
                          save, open_folder, book_details, delete, similar_menu=None):
@@ -797,6 +990,16 @@ class BooksView(TableView):
     def contextMenuEvent(self, event):
         self.context_menu.popup(event.globalPos())
         event.accept()
+
+    def restore_sort_at_startup(self, saved_history):
+        if tweaks['sort_columns_at_startup'] is not None:
+            saved_history = tweaks['sort_columns_at_startup']
+
+        if saved_history is None:
+            return
+        for col,order in reversed(saved_history):
+            self.sortByColumn(col, order)
+        self.model().sort_history = saved_history
 
     def sortByColumn(self, colname, order):
         try:
@@ -833,7 +1036,6 @@ class BooksView(TableView):
         event.accept()
         self.emit(SIGNAL('files_dropped(PyQt_PyObject)'), paths)
 
-
     def set_database(self, db):
         self._model.set_database(db)
         self.tags_delegate.set_database(db)
@@ -853,6 +1055,10 @@ class BooksView(TableView):
         self._search_done = search_done
         self.connect(self._model, SIGNAL('searched(PyQt_PyObject)'),
                 self.search_done)
+
+    def connect_to_restriction_set(self, tv):
+        QObject.connect(tv, SIGNAL('restriction_set(PyQt_PyObject)'),
+                        self._model.set_search_restriction)
 
     def connect_to_book_display(self, bd):
         QObject.connect(self._model, SIGNAL('new_bookdisplay_data(PyQt_PyObject)'),
@@ -949,7 +1155,6 @@ class OnDeviceSearch(SearchQueryParser):
                         matches.add(index)
                         break
                 except ValueError: # Unicode errors
-                    import traceback
                     traceback.print_exc()
         return matches
 
@@ -1187,5 +1392,6 @@ class DeviceBooksModel(BooksModel):
     def set_editable(self, editable):
         self.editable = editable
 
-
+    def set_search_restriction(self, s):
+        pass
 

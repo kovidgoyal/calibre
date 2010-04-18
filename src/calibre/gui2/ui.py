@@ -60,6 +60,9 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.caches import CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.dialogs.tag_categories import TagCategories
+
+from datetime import datetime
 
 class SaveMenu(QMenu):
 
@@ -126,8 +129,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 pixmap_to_data(pixmap))
 
     def __init__(self, listener, opts, actions, parent=None):
+        self.last_time = datetime.now()
         self.preferences_action, self.quit_action = actions
         self.spare_servers = []
+        self.must_restart_before_config = False
         MainWindow.__init__(self, opts, parent)
         # Initialize fontconfig in a separate thread as this can be a lengthy
         # process if run for the first time on this machine
@@ -143,6 +148,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.setupUi(self)
         self.setWindowTitle(__appname__)
 
+        self.restriction_count_of_books_in_view = 0
+        self.restriction_count_of_books_in_library = 0
+        self.restriction_in_effect = False
         self.search.initialize('main_search_history', colorize=True,
                 help_text=_('Search (For Advanced Search click the button to the left)'))
         self.connect(self.clear_button, SIGNAL('clicked()'), self.search_clear)
@@ -320,7 +328,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(md.actions()[7], SIGNAL('triggered(bool)'),
                 self.__em6__)
 
-
         self.save_menu = QMenu()
         self.save_menu.addAction(_('Save to disk'))
         self.save_menu.addAction(_('Save to disk in a single directory'))
@@ -475,6 +482,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                                  self.search_done)),
                              ('connect_to_book_display',
                                  (self.status_bar.book_info.show_data,)),
+                             ('connect_to_restriction_set',
+                                 (self.tags_view,)),
                              ]:
             for view in (self.library_view, self.memory_view, self.card_a_view, self.card_b_view):
                 getattr(view, func)(*args)
@@ -514,8 +523,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 db = LibraryDatabase2(self.library_path)
         self.library_view.set_database(db)
         prefs['library_path'] = self.library_path
-        self.library_view.sortByColumn(*dynamic.get('sort_column',
-            ('timestamp', Qt.DescendingOrder)))
+        self.library_view.restore_sort_at_startup(dynamic.get('sort_history', [('timestamp', Qt.DescendingOrder)]))
         if not self.library_view.restore_column_widths():
             self.library_view.resizeColumnsToContents()
         self.search.setFocus(Qt.OtherFocusReason)
@@ -525,10 +533,20 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.tags_view.setVisible(False)
         self.tag_match.setVisible(False)
         self.popularity.setVisible(False)
-        self.tags_view.set_database(db, self.tag_match, self.popularity)
+        self.restriction_label.setVisible(False)
+        self.edit_categories.setVisible(False)
+        self.search_restriction.setVisible(False)
+        self.connect(self.edit_categories, SIGNAL('clicked()'), self.do_edit_categories)
+        self.tags_view.set_database(db, self.tag_match, self.popularity, self.search_restriction)
         self.connect(self.tags_view,
                 SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
                      self.search.search_from_tags)
+        self.connect(self.tags_view,
+                SIGNAL('restriction_set(PyQt_PyObject)'),
+                     self.saved_search.clear_to_help)
+        self.connect(self.tags_view,
+                SIGNAL('restriction_set(PyQt_PyObject)'),
+                     self.mark_restriction_set)
         self.connect(self.tags_view,
                 SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
                      self.saved_search.clear_to_help)
@@ -541,8 +559,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 SIGNAL('count_changed(int)'), self.location_view.count_changed)
         self.connect(self.library_view.model(), SIGNAL('count_changed(int)'),
                      self.tags_view.recount, Qt.QueuedConnection)
-        self.connect(self.search, SIGNAL('cleared()'), self.tags_view_clear)
-        self.connect(self.saved_search, SIGNAL('changed()'), self.tags_view.recount, Qt.QueuedConnection)
+        self.connect(self.library_view.model(), SIGNAL('count_changed(int)'),
+                     self.restriction_count_changed, Qt.QueuedConnection)
+        self.connect(self.search, SIGNAL('cleared()'), self.search_box_cleared)
+        self.connect(self.saved_search, SIGNAL('changed()'), self.tags_view.saved_searches_changed, Qt.QueuedConnection)
         if not gprefs.get('quick_start_guide_added', False):
             from calibre.ebooks.metadata import MetaInformation
             mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
@@ -592,7 +612,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.resize(self.width(), self._calculated_available_height)
         self.search.setMaximumWidth(self.width()-150)
 
-
         if config['autolaunch_server']:
             from calibre.library.server import start_threaded_server
             from calibre.library import server_config
@@ -632,6 +651,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             height = v.rowHeight(0)
             self.library_view.verticalHeader().setDefaultSectionSize(height)
 
+    def do_edit_categories(self):
+        d = TagCategories(self, self.library_view.model().db)
+        d.exec_()
+        if d.result() == d.Accepted:
+            self.tags_view.set_new_model()
+            self.tags_view.recount()
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
@@ -783,23 +808,68 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.tags_view.setVisible(True)
             self.tag_match.setVisible(True)
             self.popularity.setVisible(True)
+            self.restriction_label.setVisible(True)
+            self.edit_categories.setVisible(True)
+            self.search_restriction.setVisible(True)
             self.tags_view.setFocus(Qt.OtherFocusReason)
         else:
             self.tags_view.setVisible(False)
             self.tag_match.setVisible(False)
             self.popularity.setVisible(False)
+            self.restriction_label.setVisible(False)
+            self.edit_categories.setVisible(False)
+            self.search_restriction.setVisible(False)
 
-    def tags_view_clear(self):
-        self.search_count.setText(_("(all books)"))
+    '''
+    Handling of the count of books in a restricted view requires that
+    we capture the count after the initial restriction search. To so this,
+    we require that the restriction_set signal be issued before the search signal,
+    so that when the search_done happens and the count is displayed,
+    we can grab the count. This works because the search box is cleared
+    when a restriction is set, so that first search will find all books.
+
+    Adding and deleting books creates another complexity. When added, they are
+    displayed regardless of whether they match the restriction. However, if they
+    do not, they are removed at the next search. The counts must take this
+    behavior into effect.
+    '''
+
+    def restriction_count_changed(self, c):
+        self.restriction_count_of_books_in_view += c - self.restriction_count_of_books_in_library
+        self.restriction_count_of_books_in_library = c
+        if self.restriction_in_effect:
+            self.set_number_of_books_shown(all='not used', compute_count=False)
+
+    def mark_restriction_set(self, r):
+        self.restriction_in_effect = False if r is None or not r else True
+
+    def set_number_of_books_shown(self, all, compute_count):
+        if self.restriction_in_effect:
+            if compute_count:
+                self.restriction_count_of_books_in_view = self.current_view().row_count()
+            t = _("({0} of {1})").format(self.current_view().row_count(),
+                                         self.restriction_count_of_books_in_view)
+            self.search_count.setStyleSheet('QLabel { background-color: yellow; }')
+        else: # No restriction
+            if all == 'yes':
+                t = _("(all books)")
+            else:
+                t = _("({0} of all)").format(self.current_view().row_count())
+            self.search_count.setStyleSheet('QLabel { background-color: white; }')
+        self.search_count.setText(t)
+
+    def search_box_cleared(self):
+        self.set_number_of_books_shown(all='yes', compute_count=True)
         self.tags_view.clear()
+        self.saved_search.clear_to_help()
 
     def search_clear(self):
-        self.search_count.setText(_("(all books)"))
+        self.set_number_of_books_shown(all='yes', compute_count=True)
         self.search.clear()
 
     def search_done(self, view, ok):
         if view is self.current_view():
-            self.search_count.setText(_("(%d found)") % self.current_view().row_count())
+            self.set_number_of_books_shown(all='no', compute_count=False)
             self.search.search_done(ok)
 
     def sync_cf_to_listview(self, current, previous):
@@ -2028,7 +2098,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     _('Cannot configure while there are running jobs.'))
             d.exec_()
             return
-        d = ConfigDialog(self, self.library_view.model().db,
+        if self.must_restart_before_config:
+            d = error_dialog(self, _('Cannot configure'),
+                    _('Cannot configure before calibre is restarted.'))
+            d.exec_()
+            return
+        d = ConfigDialog(self, self.library_view.model(),
                 server=self.content_server)
         d.exec_()
         self.content_server = d.server
@@ -2043,14 +2118,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 _('Save only %s format to disk')%
                 prefs['output_format'].upper())
             self.library_view.model().read_config()
+            self.library_view.model().refresh()
+            self.library_view.model().research()
+            self.tags_view.set_new_model() # in case columns changed
+            self.tags_view.recount()
             self.create_device_menu()
-
 
             if not patheq(self.library_path, d.database_location):
                 newloc = d.database_location
                 move_library(self.library_path, newloc, self,
                         self.library_moved)
-
 
     def library_moved(self, newloc):
         if newloc is None: return
@@ -2226,7 +2303,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def write_settings(self):
         config.set('main_window_geometry', self.saveGeometry())
-        dynamic.set('sort_column', self.library_view.model().sorted_on)
+        dynamic.set('sort_history', self.library_view.model().sort_history)
         dynamic.set('tag_view_visible', self.tags_view.isVisible())
         dynamic.set('cover_flow_visible', self.cover_flow.isVisible())
         self.library_view.write_settings()

@@ -10,6 +10,7 @@ from PyQt4.Qt import QComboBox, SIGNAL, Qt, QLineEdit, QStringList, pyqtSlot
 from PyQt4.QtGui import QCompleter
 
 from calibre.gui2 import config
+from calibre.gui2.dialogs.confirm_delete import confirm
 
 class SearchLineEdit(QLineEdit):
 
@@ -278,6 +279,10 @@ class SavedSearchBox(QComboBox):
     # SIGNALed from the main UI
     def delete_search_button_clicked(self):
         #print 'in delete_search_button_clicked'
+        if not confirm('<p>'+_('The selected search will be '
+                       '<b>permanently deleted</b>. Are you sure?')
+                    +'</p>', 'saved_search_delete', self):
+            return
         idx = self.currentIndex
         if idx < 0:
             return
