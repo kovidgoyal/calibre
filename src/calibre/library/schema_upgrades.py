@@ -266,6 +266,6 @@ class SchemaUpgrade(object):
                     UNIQUE(label)
                 );
                 CREATE INDEX custom_columns_idx ON custom_columns (label);
-                CREATE INDEX formats_idx ON data (format);
+                CREATE INDEX IF NOT EXISTS formats_idx ON data (format);
         ''')
 
