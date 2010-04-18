@@ -212,7 +212,6 @@ class SearchQueryParser(object):
         location = argument[0]
         query = argument[1]
         if location.lower() == 'search':
-            # print "looking for named search " + query
             if query.startswith('='):
                 query = query[1:]
             try:

@@ -114,7 +114,6 @@ class TagCategories(QDialog, Ui_TagCategories):
                        '<b>permanently deleted</b>. Are you sure?')
                     +'</p>', 'tag_category_delete', self):
             return
-        print 'here', self.current_category
         if self.current_cat_name is not None:
             if self.current_cat_name == unicode(self.category_box.currentText()):
                 del self.categories[self.current_cat_label][self.current_cat_name]
