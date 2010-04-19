@@ -126,7 +126,6 @@ class TagTreeItem(object):
     TAG      = 1
     ROOT     = 2
 
-#    def __init__(self, data=None, tag=None, category_icon=None, icon_map=None, parent=None):
     def __init__(self, data=None, category_icon=None, icon_map=None, parent=None):
         self.parent = parent
         self.children = []
