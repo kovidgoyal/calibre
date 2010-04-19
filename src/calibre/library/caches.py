@@ -15,6 +15,7 @@ from PyQt4.QtGui import QImage
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import parse_date
 from calibre.utils.search_query_parser import SearchQueryParser
+from calibre.utils.pyparsing import ParseException
 
 class CoverCache(QThread):
 

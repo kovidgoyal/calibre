@@ -355,10 +355,10 @@
               <item>
                <widget class="QPushButton" name="edit_categories">
                 <property name="text">
-                 <string>Manage tag categories</string>
+                 <string>Manage user categories</string>
                 </property>
 			    <property name="toolTip">
-			     <string>Create, edit, and delete tag categories</string>
+			     <string>Create, edit, and delete user categories</string>
 			    </property>
                </widget>
               </item>

@@ -58,12 +58,13 @@ copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
 class Tag(object):
 
-    def __init__(self, name, id=None, count=0, state=0, tooltip=None):
+    def __init__(self, name, id=None, count=0, state=0, tooltip=None, icon=None):
         self.name = name
         self.id = id
         self.count = count
         self.state = state
         self.tooltip = tooltip
+        self.icon = icon
 
     def __unicode__(self):
         return u'%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state, self.tooltip)
@@ -574,7 +575,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def get_recipe(self, id):
         return self.conn.get('SELECT script FROM feeds WHERE id=?', (id,), all=False)
 
-    def get_categories(self, sort_on_count=False, ids=None):
+    def get_categories(self, sort_on_count=False, ids=None, icon_map=None):
 
         orig_category_columns = {'tags': ['tag', 'name'],
                                  'series': ['series', 'name'],
@@ -647,11 +648,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 query += ' ORDER BY {0} ASC'.format(cn[1])
             data = self.conn.get(query)
             category = cn[0]
+            icon = icon_map[category] if category in icon_map else icon_map['*custom']
             if ids is None: # no filtering
-                categories[category] = [Tag(r[1], count=r[2], id=r[0])
+                categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon)
                                         for r in data]
             else: # filter out zero-count tags
-                categories[category] = [Tag(r[1], count=r[2], id=r[0])
+                categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon)
                                         for r in data if r[2] > 0]
         categories['format'] = []
         for fmt in self.conn.get('SELECT DISTINCT format FROM data'):

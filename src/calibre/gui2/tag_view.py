@@ -126,7 +126,8 @@ class TagTreeItem(object):
     TAG      = 1
     ROOT     = 2
 
-    def __init__(self, data=None, tag=None, category_icon=None, icon_map=None, parent=None):
+#    def __init__(self, data=None, tag=None, category_icon=None, icon_map=None, parent=None):
+    def __init__(self, data=None, category_icon=None, icon_map=None, parent=None):
         self.parent = parent
         self.children = []
         if self.parent is not None:
@@ -142,13 +143,14 @@ class TagTreeItem(object):
             self.bold_font.setBold(True)
             self.bold_font = QVariant(self.bold_font)
         elif self.type == self.TAG:
-            self.tag, self.icon_map = data, list(map(QVariant, icon_map))
+            icon_map[0] = data.icon
+            self.tag, self.icon_state_map = data, list(map(QVariant, icon_map))
 
     def __str__(self):
         if self.type == self.ROOT:
             return 'ROOT'
         if self.type == self.CATEGORY:
-            return 'CATEGORY:'+self.name+':%d'%len(self.children)
+            return 'CATEGORY:'+str(QVariant.toString(self.name))+':%d'%len(self.children)
         return 'TAG:'+self.tag.name
 
     def row(self):
@@ -183,7 +185,7 @@ class TagTreeItem(object):
             else:
                 return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
         if role == Qt.DecorationRole:
-            return self.icon_map[self.tag.state]
+            return self.icon_state_map[self.tag.state]
         if role == Qt.ToolTipRole and self.tag.tooltip:
             return QVariant(self.tag.tooltip)
         return NONE
@@ -196,16 +198,20 @@ class TagTreeItem(object):
 class TagsModel(QAbstractItemModel):
     categories_orig = [_('Authors'), _('Series'), _('Formats'), _('Publishers'), _('News'), _('All tags')]
     row_map_orig    = ['author', 'series', 'format', 'publisher', 'news', 'tag']
-    fixed_categories= 5
+    tags_categories_start= 5
     search_keys=['search', _('Searches')]
 
     def __init__(self, db, parent=None):
         QAbstractItemModel.__init__(self, parent)
-        self.cmap_orig = list(map(QIcon, [I('user_profile.svg'),
+        self.cat_icon_map_orig = list(map(QIcon, [I('user_profile.svg'),
                 I('series.svg'), I('book.svg'), I('publisher.png'),
-                I('news.svg')]))
-        self.icon_map = [QIcon(), QIcon(I('plus.svg')),
-                QIcon(I('minus.svg'))]
+                I('news.svg'), I('tags.svg')]))
+        self.icon_state_map = [None, QIcon(I('plus.svg')), QIcon(I('minus.svg'))]
+        self.custcol_icon = QIcon(I('column.svg'))
+        self.search_icon = QIcon(I('search.svg'))
+        self.usercat_icon = QIcon(I('drawer.svg'))
+        self.label_to_icon_map = dict(map(None, self.row_map_orig, self.cat_icon_map_orig))
+        self.label_to_icon_map['*custom'] = self.custcol_icon
         self.db = db
         self.search_restriction = ''
         self.user_categories = {}
@@ -214,9 +220,9 @@ class TagsModel(QAbstractItemModel):
         self.root_item = TagTreeItem()
         for i, r in enumerate(self.row_map):
             c = TagTreeItem(parent=self.root_item,
-                    data=self.categories[i], category_icon=self.cmap[i])
+                    data=self.categories[i], category_icon=self.cat_icon_map[i])
             for tag in data[r]:
-                TagTreeItem(parent=c, data=tag, icon_map=self.icon_map)
+                TagTreeItem(parent=c, data=tag, icon_map=self.icon_state_map)
 
     def set_search_restriction(self, s):
         self.search_restriction = s
@@ -224,65 +230,58 @@ class TagsModel(QAbstractItemModel):
     def get_node_tree(self, sort):
         self.row_map = []
         self.categories = []
-        self.cmap = self.cmap_orig[:]
-        self.user_categories = dict.copy(config['tag_categories'])
+        self.cat_icon_map = self.cat_icon_map_orig[:-1]  # strip the tags icon. We will put it back later
+        self.user_categories = dict.copy(config['user_categories'])
         column_map = config['column_map']
 
-        for i in range(0, self.fixed_categories): # First the standard categories
+        for i in range(0, self.tags_categories_start): # First the standard categories
             self.row_map.append(self.row_map_orig[i])
             self.categories.append(self.categories_orig[i])
         if len(self.search_restriction):
-            data = self.db.get_categories(sort_on_count=sort,
+            data = self.db.get_categories(sort_on_count=sort, icon_map=self.label_to_icon_map,
                         ids=self.db.search(self.search_restriction, return_matches=True))
         else:
-            data = self.db.get_categories(sort_on_count=sort)
+            data = self.db.get_categories(sort_on_count=sort, icon_map=self.label_to_icon_map)
 
-        for i in data:  # now the custom columns
-            if i not in self.row_map_orig and i in column_map:
-                self.row_map.append(i)
-                self.categories.append(self.db.custom_column_label_map[i]['name'])
-                self.cmap.append(QIcon(I('column.svg')))
+        for c in data:  # now the custom columns
+            if c not in self.row_map_orig and c in column_map:
+                self.row_map.append(c)
+                self.categories.append(self.db.custom_column_label_map[c]['name'])
+                self.cat_icon_map.append(self.custcol_icon)
 
-        for i in self.row_map_orig:
-            if i not in self.user_categories:
-                self.user_categories[i] = {}
-        config['tag_categories'] = self.user_categories
+        # Now do the user-defined categories. There is a time/space tradeoff here.
+        # By converting the tags into a map, we can do the verification in the category
+        # loop much faster, at the cost of duplicating the categories lists.
+        taglist = {}
+        for c in self.row_map_orig:
+            taglist[c] = dict(map(lambda t:(t.name if c != 'author' else t.name.replace('|', ','), t), data[c]))
 
-        taglist = {}   # Now the user-defined categories
-        for i in data:
-            taglist[i] = dict(map(lambda t:(t.name if i != 'author' else t.name.replace('|', ','), t), data[i]))
-        for k in self.row_map_orig:
-            if k not in self.user_categories:
-                continue
-            for i in sorted(self.user_categories[k].keys()): # now the tag categories
-                l = []
-                for t in self.user_categories[k][i]:
-                    if t in taglist[k]: # use same tag node as the complete category
-                        l.append(taglist[k][t])
-                    # else: eliminate nodes that have zero counts
-                data[i+'*'] = l
-                self.row_map.append(i+'*')
-                self.categories.append(i)
-                if k == 'tag':  # choose the icon
-                    self.cmap.append(QIcon(I('tags.svg')))
-                else:
-                    self.cmap.append(QIcon(self.cmap[self.row_map_orig.index(k)]))
+        for c in self.user_categories:
+            l = []
+            for (name,label,ign) in self.user_categories[c]:
+                if name in taglist[label]: # use same node as the complete category
+                    l.append(taglist[label][name])
+                # else: do nothing, to eliminate nodes that have zero counts
+            data[c+'*'] = sorted(l, cmp=(lambda x, y: cmp(x.name.lower(), y.name.lower())))
+            self.row_map.append(c+'*')
+            self.categories.append(c)
+            self.cat_icon_map.append(self.usercat_icon)
 
         # Now the rest of the normal tag categories
-        for i in range(self.fixed_categories, len(self.row_map_orig)):
+        for i in range(self.tags_categories_start, len(self.row_map_orig)):
             self.row_map.append(self.row_map_orig[i])
             self.categories.append(self.categories_orig[i])
-            self.cmap.append(QIcon(I('tags.svg')))
-        data['search'] = self.get_search_nodes()  # Add the search category
+            self.cat_icon_map.append(self.cat_icon_map_orig[i])
+        data['search'] = self.get_search_nodes(self.search_icon)  # Add the search category
         self.row_map.append(self.search_keys[0])
         self.categories.append(self.search_keys[1])
-        self.cmap.append(QIcon(I('search.svg')))
+        self.cat_icon_map.append(self.search_icon)
         return data
 
-    def get_search_nodes(self):
+    def get_search_nodes(self, icon):
         l = []
         for i in saved_searches.names():
-            l.append(Tag(i, tooltip=saved_searches.lookup(i)))
+            l.append(Tag(i, tooltip=saved_searches.lookup(i), icon=icon))
         return l
 
     def refresh(self):
@@ -302,7 +301,7 @@ class TagsModel(QAbstractItemModel):
                 self.beginInsertRows(category_index, 0, len(data[r])-1)
                 for tag in data[r]:
                     tag.state = state_map.get(tag.name, 0)
-                    t = TagTreeItem(parent=category, data=tag, icon_map=self.icon_map)
+                    t = TagTreeItem(parent=category, data=tag, icon_map=self.icon_state_map)
                 self.endInsertRows()
 
     def columnCount(self, parent):
