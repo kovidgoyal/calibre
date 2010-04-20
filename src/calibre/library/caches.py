@@ -243,6 +243,13 @@ class ResultCache(SearchQueryParser):
         elif query == _('thismonth'):
             qd = now()
             field_count = 2
+        elif query.endswith(_('daysago')):
+            num = query[0:-len(_('daysago'))]
+            try:
+                qd = now() - timedelta(int(num))
+            except:
+                raise ParseException(query, len(query), 'Number conversion error', self)
+            field_count = 3
         else:
             try:
                 qd = parse_date(query)
