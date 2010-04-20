@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import collections, glob, os, re, itertools, functools
 from itertools import repeat
+from datetime import timedelta
 
 from PyQt4.QtCore import QThread, QReadWriteLock
 from PyQt4.QtGui import QImage
@@ -236,6 +237,12 @@ class ResultCache(SearchQueryParser):
         if query == _('today'):
             qd = now()
             field_count = 3
+        elif query == _('yesterday'):
+            qd = now() - timedelta(1)
+            field_count = 3
+        elif query == _('thismonth'):
+            qd = now()
+            field_count = 2
         else:
             try:
                 qd = parse_date(query)
