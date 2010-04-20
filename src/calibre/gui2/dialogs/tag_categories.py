@@ -146,15 +146,14 @@ class TagCategories(QDialog, Ui_TagCategories):
         return True
 
     def del_category(self):
-        if not confirm('<p>'+_('The current tag category will be '
-                       '<b>permanently deleted</b>. Are you sure?')
-                    +'</p>', 'tag_category_delete', self):
-            return
         if self.current_cat_name is not None:
-            if self.current_cat_name == unicode(self.category_box.currentText()):
-                del self.categories[self.current_cat_name]
-                self.current_category = None
-                self.category_box.removeItem(self.category_box.currentIndex())
+            if not confirm('<p>'+_('The current tag category will be '
+                           '<b>permanently deleted</b>. Are you sure?')
+                        +'</p>', 'tag_category_delete', self):
+                return
+            del self.categories[self.current_cat_name]
+            self.current_cat_name = None
+            self.category_box.removeItem(self.category_box.currentIndex())
 
     def select_category(self, idx):
         self.save_category()
@@ -164,7 +163,9 @@ class TagCategories(QDialog, Ui_TagCategories):
         else:
             self.current_cat_name  = None
         if self.current_cat_name:
-            self.applied_items = [tup[2] for tup in self.categories.get(self.current_cat_name, [])]
+            self.applied_items = [cat[2] for cat in self.categories.get(self.current_cat_name, [])]
+        else:
+            self.applied_items = []
         self.display_filtered_categories(None)
 
     def accept(self):

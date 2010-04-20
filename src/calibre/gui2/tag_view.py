@@ -229,7 +229,8 @@ class TagsModel(QAbstractItemModel):
     def get_node_tree(self, sort):
         self.row_map = []
         self.categories = []
-        self.cat_icon_map = self.cat_icon_map_orig[:-1]  # strip the tags icon. We will put it back later
+        # strip the icons after the 'standard' categories. We will put them back later
+        self.cat_icon_map = self.cat_icon_map_orig[:self.tags_categories_start-len(self.row_map_orig)]
         self.user_categories = dict.copy(config['user_categories'])
         column_map = config['column_map']
 
@@ -261,7 +262,10 @@ class TagsModel(QAbstractItemModel):
                 if name in taglist[label]: # use same node as the complete category
                     l.append(taglist[label][name])
                 # else: do nothing, to eliminate nodes that have zero counts
-            data[c+'*'] = sorted(l, cmp=(lambda x, y: cmp(x.name.lower(), y.name.lower())))
+            if config['sort_by_popularity']:
+                data[c+'*'] = sorted(l, cmp=(lambda x, y: cmp(x.count, y.count)))
+            else:
+                data[c+'*'] = sorted(l, cmp=(lambda x, y: cmp(x.name.lower(), y.name.lower())))
             self.row_map.append(c+'*')
             self.categories.append(c)
             self.cat_icon_map.append(self.usercat_icon)
@@ -418,14 +422,14 @@ class TagsModel(QAbstractItemModel):
         ans = []
         tags_seen = []
         for i, key in enumerate(self.row_map):
+            if key.endswith('*'): # User category, so skip it. The tag will be marked in its real category
+                continue
             category_item = self.root_item.children[i]
             for tag_item in category_item.children:
                 tag = tag_item.tag
                 if tag.state > 0:
                     prefix = ' not ' if tag.state == 2 else ''
-                    category = key if not key.endswith('*') and \
-                                      key not in ['news', 'specialtags', 'normaltags'] \
-                                   else 'tag'
+                    category = key if key != 'news' else 'tag'
                     if category == 'tag':
                         if tag.name in tags_seen:
                             continue

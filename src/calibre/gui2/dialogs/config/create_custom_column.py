@@ -75,7 +75,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         if col in self.standard_colnames:
             bad_col = True
         if bad_col:
-            self.parent.messagebox(_('The lookup name is already used'))
+            self.parent.messagebox(_('The lookup name %s is already used')%col)
             return
         bad_head = False
         for t in self.parent.custcols:

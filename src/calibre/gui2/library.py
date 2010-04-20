@@ -300,13 +300,13 @@ class BooksModel(QAbstractTableModel):
                 self.headers[i] = self.orig_headers[i]
             elif i in self.custom_columns:
                 self.headers[i] = self.custom_columns[i]['name']
+        self.build_data_convertors()
         self.reset()
         self.emit(SIGNAL('columns_sorted()'))
 
     def set_database(self, db):
         self.db = db
         self.custom_columns = self.db.custom_column_label_map
-        self.build_data_convertors()
         self.read_config()
 
     def refresh_ids(self, ids, current_row=-1):
@@ -703,9 +703,9 @@ class BooksModel(QAbstractTableModel):
         def bool_type(r, idx=-1):
             return None # displayed using a decorator
 
-        def bool_type_decorator(r, idx=-1):
+        def bool_type_decorator(r, idx=-1, bool_cols_are_tristate=True):
             val = self.db.data[r][idx]
-            if tweaks['bool_custom_columns_are_tristate'] == 'no':
+            if not bool_cols_are_tristate:
                 if val is None or not val:
                     return self.bool_no_icon
             if val:
@@ -748,21 +748,32 @@ class BooksModel(QAbstractTableModel):
                 self.dc[col] = functools.partial(datetime_type, idx=idx)
             elif datatype == 'bool':
                 self.dc[col] = functools.partial(bool_type, idx=idx)
-                self.dc_decorator[col] = functools.partial(bool_type_decorator, idx=idx)
+                self.dc_decorator[col] = functools.partial(
+                                            bool_type_decorator, idx=idx,
+                                            bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] == 'yes')
             elif datatype == 'rating':
                 self.dc[col] = functools.partial(rating_type, idx=idx)
             else:
                 print 'What type is this?', col, datatype
+        # build a index column to data converter map, to remove the string lookup in the data loop
+        self.column_to_dc_map = []
+        self.column_to_dc_decorator_map = []
+        for col in self.column_map:
+            self.column_to_dc_map.append(self.dc[col])
+            self.column_to_dc_decorator_map.append(self.dc_decorator.get(col, None))
 
     def data(self, index, role):
-        if role in (Qt.DisplayRole, Qt.EditRole):
-            return self.dc[self.column_map[index.column()]](index.row())
-        elif role == Qt.DecorationRole:
-            if self.column_map[index.column()] in self.dc_decorator:
-                return self.dc_decorator[self.column_map[index.column()]](index.row())
+        col = index.column()
+        # in obscure cases where custom columns are both edited and added, for a time
+        # the column map does not accurately represent the screen. In these cases,
+        # we will get asked to display columns we don't know about. Must test for this.
+        if col >= len(self.column_to_dc_map):
             return None
-        #elif role == Qt.SizeHintRole:
-        #    return QVariant(Qt.SizeHint(1, 23))
+        if role in (Qt.DisplayRole, Qt.EditRole):
+            return self.column_to_dc_map[col](index.row())
+        elif role == Qt.DecorationRole:
+            if self.column_to_dc_decorator_map[col] is not None:
+                return self.column_to_dc_decorator_map[index.column()](index.row())
         #elif role == Qt.TextAlignmentRole and self.column_map[index.column()] in ('size', 'timestamp'):
         #    return QVariant(Qt.AlignVCenter | Qt.AlignCenter)
         #elif role == Qt.ToolTipRole and index.isValid():
@@ -771,14 +782,18 @@ class BooksModel(QAbstractTableModel):
         return NONE
 
     def headerData(self, section, orientation, role):
-        if role == Qt.ToolTipRole:
-            return QVariant(_('The lookup/search name is "{0}"').format(self.column_map[section]))
-        if role != Qt.DisplayRole:
-            return NONE
         if orientation == Qt.Horizontal:
-            return QVariant(self.headers[self.column_map[section]])
-        else:
+            if section >= len(self.column_map): # same problem as in data, the column_map can be wrong
+                return None
+            if role == Qt.ToolTipRole:
+                return QVariant(_('The lookup/search name is "{0}"').format(self.column_map[section]))
+            if role == Qt.DisplayRole:
+                return QVariant(self.headers[self.column_map[section]])
+            return NONE
+        if role == Qt.DisplayRole: # orientation is vertical
             return QVariant(section+1)
+        return NONE
+
 
     def flags(self, index):
         flags = QAbstractTableModel.flags(self, index)

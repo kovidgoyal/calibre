@@ -650,7 +650,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             v.resizeRowToContents(0)
             height = v.rowHeight(0)
             self.library_view.verticalHeader().setDefaultSectionSize(height)
-        print datetime.now()
 
     def do_edit_categories(self):
         d = TagCategories(self, self.library_view.model().db)
