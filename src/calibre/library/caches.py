@@ -13,7 +13,7 @@ from PyQt4.QtCore import QThread, QReadWriteLock
 from PyQt4.QtGui import QImage
 
 from calibre.utils.config import tweaks, prefs
-from calibre.utils.date import parse_date
+from calibre.utils.date import parse_date, now
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
 
@@ -232,14 +232,19 @@ class ResultCache(SearchQueryParser):
             loc = self.FIELD_MAP[self.custom_column_label_map[location]['num']]
         else:
             loc = self.FIELD_MAP[{'date':'timestamp', 'pubdate':'pubdate'}[location]]
-        try:
-            qd = parse_date(query)
-        except:
-            raise ParseException(query, len(query), 'Date conversion error', self)
-        if '-' in query:
-            field_count = query.count('-') + 1
+
+        if query == _('today'):
+            qd = now()
+            field_count = 3
         else:
-            field_count = query.count('/') + 1
+            try:
+                qd = parse_date(query)
+            except:
+                raise ParseException(query, len(query), 'Date conversion error', self)
+            if '-' in query:
+                field_count = query.count('-') + 1
+            else:
+                field_count = query.count('/') + 1
         for item in self._data:
             if item is None or item[loc] is None: continue
             if relop(item[loc], qd, field_count):
