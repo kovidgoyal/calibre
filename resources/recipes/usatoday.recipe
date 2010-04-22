@@ -377,8 +377,9 @@ class USAToday(BasicNewsRecipe):
             if byline:
                 byline['class'] = 'byline'
                 # Replace comma with middot
-                byline.contents[0].replaceWith(re.sub(","," &middot;", byline.renderContents()))
-                return byline.renderContents()
+                byline.contents[0].replaceWith(re.sub(u",", u" &middot;",
+                    byline.renderContents(encoding=None)))
+                return byline.renderContents(encoding=None)
             else :
                 paras = soup.findAll(text=True)
                 for para in paras:
