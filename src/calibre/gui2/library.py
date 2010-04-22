@@ -7,9 +7,9 @@ from math import cos, sin, pi
 from contextlib import closing
 
 from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
-                        QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
-                        QPen, QStyle, QPainter, \
-                        QImage, QApplication, QMenu, \
+                        QPainterPath, QLinearGradient, QBrush, \
+                        QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
+                        QImage, QMenu, \
                         QStyledItemDelegate, QCompleter
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
                          SIGNAL, QObject, QSize, QModelIndex, QDate
@@ -28,14 +28,15 @@ from calibre.ebooks.metadata import string_to_authors, fmt_sidx, \
 from calibre.utils.config import tweaks
 from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 
-class LibraryDelegate(QItemDelegate):
+class LibraryDelegate(QStyledItemDelegate):
     COLOR    = QColor("blue")
     SIZE     = 16
     PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
 
     def __init__(self, parent):
-        QItemDelegate.__init__(self, parent)
+        QStyledItemDelegate.__init__(self, parent)
         self._parent = parent
+        self.dummy = QModelIndex()
         self.star_path = QPainterPath()
         self.star_path.moveTo(90, 50)
         for i in range(1, 5):
@@ -54,6 +55,9 @@ class LibraryDelegate(QItemDelegate):
         return QSize(5*(self.SIZE), self.SIZE+4)
 
     def paint(self, painter, option, index):
+        style = self._parent.style()
+        option = QStyleOptionViewItemV4(option)
+        self.initStyleOption(option, self.dummy)
         num = index.model().data(index, Qt.DisplayRole).toInt()[0]
         def draw_star():
             painter.save()
@@ -66,11 +70,10 @@ class LibraryDelegate(QItemDelegate):
 
         painter.save()
         if hasattr(QStyle, 'CE_ItemViewItem'):
-            QApplication.style().drawControl(QStyle.CE_ItemViewItem, option,
+            style.drawControl(QStyle.CE_ItemViewItem, option,
                     painter, self._parent)
         elif option.state & QStyle.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
-        self.drawFocus(painter, option, option.rect)
         try:
             painter.setRenderHint(QPainter.Antialiasing)
             painter.setClipRect(option.rect)
@@ -89,7 +92,7 @@ class LibraryDelegate(QItemDelegate):
         painter.restore()
 
     def createEditor(self, parent, option, index):
-        sb = QItemDelegate.createEditor(self, parent, option, index)
+        sb = QStyledItemDelegate.createEditor(self, parent, option, index)
         sb.setMinimum(0)
         sb.setMaximum(5)
         return sb
