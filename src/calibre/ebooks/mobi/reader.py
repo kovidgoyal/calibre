@@ -628,7 +628,7 @@ class MobiReader(object):
                     os.remove(ncover)
                 shutil.copyfile(cover, ncover)
                 cover_copied = os.path.abspath(ncover)
-            opf.cover = ncover.replace(os.sep, '/')
+                opf.cover = ncover.replace(os.sep, '/')
 
         manifest = [(htmlfile, 'application/xhtml+xml'),
             (os.path.abspath('styles.css'), 'text/css')]
