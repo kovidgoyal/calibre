@@ -399,38 +399,42 @@ def my_unichr(num):
     except ValueError:
         return u'?'
 
-def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
+def entity_to_unicode(match, exceptions=[], encoding='cp1252',
+        result_exceptions={}):
     '''
     @param match: A match object such that '&'+match.group(1)';' is the entity.
     @param exceptions: A list of entities to not convert (Each entry is the name of the entity, for e.g. 'apos' or '#1234'
     @param encoding: The encoding to use to decode numeric entities between 128 and 256.
     If None, the Unicode UCS encoding is used. A common encoding is cp1252.
     '''
+    def check(ch):
+        return result_exceptions.get(ch, ch)
+
     ent = match.group(1)
     if ent in exceptions:
         return '&'+ent+';'
     if ent == 'apos':
-        return "'"
+        return check("'")
     if ent == 'hellips':
         ent = 'hellip'
-    if ent.startswith(u'#x'):
+    if ent.lower().startswith(u'#x'):
         num = int(ent[2:], 16)
         if encoding is None or num > 255:
-            return my_unichr(num)
-        return chr(num).decode(encoding)
+            return check(my_unichr(num))
+        return check(chr(num).decode(encoding))
     if ent.startswith(u'#'):
         try:
             num = int(ent[1:])
         except ValueError:
             return '&'+ent+';'
         if encoding is None or num > 255:
-            return my_unichr(num)
+            return check(my_unichr(num))
         try:
-            return chr(num).decode(encoding)
+            return check(chr(num).decode(encoding))
         except UnicodeDecodeError:
-            return my_unichr(num)
+            return check(my_unichr(num))
     try:
-        return my_unichr(name2codepoint[ent])
+        return check(my_unichr(name2codepoint[ent]))
     except KeyError:
         return '&'+ent+';'
 
