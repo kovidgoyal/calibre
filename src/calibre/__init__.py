@@ -402,10 +402,17 @@ def my_unichr(num):
 def entity_to_unicode(match, exceptions=[], encoding='cp1252',
         result_exceptions={}):
     '''
-    @param match: A match object such that '&'+match.group(1)';' is the entity.
-    @param exceptions: A list of entities to not convert (Each entry is the name of the entity, for e.g. 'apos' or '#1234'
-    @param encoding: The encoding to use to decode numeric entities between 128 and 256.
+    :param match: A match object such that '&'+match.group(1)';' is the entity.
+
+    :param exceptions: A list of entities to not convert (Each entry is the name of the entity, for e.g. 'apos' or '#1234'
+
+    :param encoding: The encoding to use to decode numeric entities between 128 and 256.
     If None, the Unicode UCS encoding is used. A common encoding is cp1252.
+
+    :param result_exceptions: A mapping of characters to entities. If the result
+    is in result_exceptions, result_exception[result] is returned instead.
+    Convenient way to specify exception for things like < or > that can be
+    specified by various actual entities.
     '''
     def check(ch):
         return result_exceptions.get(ch, ch)
