@@ -194,6 +194,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.tool_bar2.insertSeparator(self.action_find_next)
         self.setFocusPolicy(Qt.StrongFocus)
         self.search = SearchBox2(self)
+        self.search.setMinimumContentsLength(20)
         self.search.initialize('viewer_search_history')
         self.search.setToolTip(_('Search for text in book'))
         self.search.setMinimumWidth(200)
