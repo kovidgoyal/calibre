@@ -11,7 +11,7 @@ from datetime import date
 from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
-                        QImage, QMenu, \
+                        QIcon, QImage, QMenu, \
                         QStyledItemDelegate, QCompleter, QIntValidator, \
                         QPlainTextEdit, QDoubleValidator, QCheckBox, QMessageBox
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
