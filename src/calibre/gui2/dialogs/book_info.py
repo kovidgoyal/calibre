@@ -3,9 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-'''
-'''
-import textwrap, os
+import textwrap, os, re
 
 from PyQt4.QtCore import QCoreApplication, SIGNAL, QModelIndex, QUrl, QTimer, Qt
 from PyQt4.QtGui import QDialog, QPixmap, QGraphicsScene, QIcon, QDesktopServices
@@ -97,7 +95,12 @@ class BookInfo(QDialog, Ui_BookInfo):
         info = self.view.model().get_book_info(row)
         self.setWindowTitle(info[_('Title')])
         self.title.setText('<b>'+info.pop(_('Title')))
-        self.comments.setText('<div>%s</div>' % info.pop(_('Comments'), ''))
+        comments = info.pop(_('Comments'), '')
+        if re.search(r'<[a-z]+>', comments) is None:
+            lines = comments.splitlines()
+            lines = [x if x.strip() else '<br><br>' for x in lines]
+            comments = '\n'.join(lines)
+        self.comments.setText('<div>%s</div>' % comments)
         cdata = info.pop('cover', '')
         self.cover_pixmap = QPixmap.fromImage(cdata)
         self.resize_cover()
