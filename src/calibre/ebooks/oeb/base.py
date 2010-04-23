@@ -430,7 +430,10 @@ class DirContainer(object):
             return f.write(data)
 
     def exists(self, path):
-        path = os.path.join(self.rootdir, urlunquote(path))
+        try:
+            path = os.path.join(self.rootdir, urlunquote(path))
+        except ValueError: #Happens if path contains quoted special chars
+            return False
         return os.path.isfile(path)
 
     def namelist(self):
