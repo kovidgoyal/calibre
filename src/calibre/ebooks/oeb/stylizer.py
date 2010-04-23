@@ -318,8 +318,8 @@ class Stylizer(object):
         if text == 'inherit':
             style['text-align'] = 'inherit'
         else:
-            if text in ('left', 'justify'):
-                val = 'left' if self.opts.dont_justify else 'justify'
+            if text in ('left', 'justify') and self.opts.change_justification in ('left', 'justify'):
+                val = self.opts.change_justification
                 style['text-align'] = val
             else:
                 style['text-align'] = text

@@ -138,8 +138,8 @@ class CSSFlattener(object):
                     float(self.context.margin_left))
             bs.append('margin-right : %fpt'%\
                     float(self.context.margin_right))
-            bs.append('text-align: '+ \
-                    ('left' if self.context.dont_justify else 'justify'))
+            if self.context.change_justification != 'original':
+                bs.append('text-align: '+ self.context.change_justification)
             body.set('style', '; '.join(bs))
             stylizer = Stylizer(html, item.href, self.oeb, self.context, profile,
                     user_css=self.context.extra_css,

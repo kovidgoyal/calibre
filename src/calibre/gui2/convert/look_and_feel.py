@@ -19,7 +19,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, 'look_and_feel',
-                ['dont_justify', 'extra_css', 'base_font_size',
+                ['change_justification', 'extra_css', 'base_font_size',
                     'font_size_mapping', 'line_height',
                     'linearize_tables',
                     'disable_font_rescaling', 'insert_blank_line',
