@@ -4,6 +4,55 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.49
+  date: 2010-04-23
+
+  new features:
+    - title: "Support for the SpringDesign Alex and the Nokia 5800XM"
+      tickets: [5215]
+
+    - title: "Justification control is now more sophisticated. You can choose to have either un-justified text,
+              justified text or leave the justification specified in the input document as is."
+      tickets: [4921]
+
+  bug fixes:
+    - title: "Fix regression that broke database integrity checking in 0.6.48"
+      tickets: [5329]
+
+    - title: "Conversion pipeline: Ignore links in the HTML that have quoted non-ASCII characters, since there is no way to decode them correctly."
+      tickets: [5354]
+
+    - title: "Make title casing more intelligent, based on the guidelines for the New York Times style manual"
+      tickets: [3086]
+
+    - title: "MOBI Input: Handle hexadecimal entities used to specify angle brackets"
+      tickets: [5336]
+
+    - title: "Fix rendering of ratings column in linux when using a 'fancy' style."
+
+    - title: "MOBI Input: Don't fail when the MOBI metadata species a cover that does not exist."
+      tickets: [5333]
+
+    - title: "Fix display of covers in the ebook viewer from MOBI and LIT files"
+      tickets: [5342]
+
+    - title: "MOBI Input: Fix regression that broke detection of covers in MOBI files when converting"
+
+    - title: "Restore blank lines in text only comments when displaying the detailed view for a book"
+
+  new recipes:
+    - title: The West Australian, Kurier, Virtual Shackles
+      author: Darko Miletic
+
+    - title: NPR Music Blogs
+      author: cix3
+
+  improved recipes:
+    - New York Review of Books
+    - USA Today
+    - Guardian
+    - La Republica
+
 - version: 0.6.48
   date: 2010-04-18
 

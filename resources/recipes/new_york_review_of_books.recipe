@@ -1,3 +1,4 @@
+
 #!/usr/bin/env  python
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
@@ -6,51 +7,81 @@ __docformat__ = 'restructuredtext en'
 '''
 nybooks.com
 '''
+import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from lxml import html
-from calibre.constants import preferred_encoding
 
 class NewYorkReviewOfBooks(BasicNewsRecipe):
-    
-    title = u'New York Review of Books'
+
+    title = u'New York Review of Books (no subscription)'
     description = u'Book reviews'
     language = 'en'
 
-    __author__ = 'Kovid Goyal' 
+    __author__ = 'Kovid Goyal'
+
+    no_stylesheets = True
+    no_javascript = True
     needs_subscription = True
-    remove_tags_before = {'id':'container'}
-    remove_tags = [{'class':['noprint', 'ad', 'footer']}, {'id':'right-content'}]
+
+    keep_only_tags = [dict(id='article-body')]
+    remove_tags = [dict(attrs={'class':['article-tools', 'article-links',
+        'center advertisement']})]
+
+    preprocess_regexps = [(re.compile(r'<head>.*?</head>', re.DOTALL), lambda
+        m:'<head></head>')]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
-        if self.username is not None and self.password is not None:
-            br.open('http://www.nybooks.com/register/')
-            br.select_form(name='login')
-            br['email']   = self.username
-            br['password'] = self.password
-            br.submit()
+        br.open('http://www.nybooks.com/account/signin/')
+        br.select_form(nr = 1)
+        br['username'] = self.username
+        br['password'] = self.password
+        br.submit()
         return br
-    
+
+    def print_version(self, url):
+        return url+'?pagination=false'
+
     def parse_index(self):
-        root = html.fromstring(self.browser.open('http://www.nybooks.com/current-issue').read())
-        date = root.xpath('//h4[@class = "date"]')[0]
-        self.timefmt = ' ['+date.text.encode(preferred_encoding)+']'
+        soup = self.index_to_soup('http://www.nybooks.com/current-issue')
+
+        # Find cover
+        sidebar = soup.find(id='sidebar')
+        if sidebar is not None:
+            a = sidebar.find('a', href=lambda x: x and 'view-photo' in x)
+            if a is not None:
+                psoup = self.index_to_soup('http://www.nybooks.com'+a['href'])
+                cover = psoup.find('img', src=True)
+                self.cover_url = cover['src']
+                self.log('Found cover at:', self.cover_url)
+
+        # Find date
+        div = soup.find(id='page-title')
+        if div is not None:
+            h5 = div.find('h5')
+            if h5 is not None:
+                text = self.tag_to_string(h5)
+                date = text.partition(u'\u2022')[0].strip()
+                self.timefmt = u' [%s]'%date
+                self.log('Issue date:', date)
+
+        # Find TOC
+        toc = soup.find('ul', attrs={'class':'issue-article-list'})
         articles = []
-        for tag in date.itersiblings():
-            if tag.tag == 'h4': break
-            if tag.tag == 'p':
-                if tag.get('class') == 'indented':
-                    articles[-1]['description'] += html.tostring(tag)
-                else:
-                    href = tag.xpath('descendant::a[@href]')[0].get('href')
-                    article = {
-                               'title': u''.join(tag.xpath('descendant::text()')),
-                               'date' : '',
-                               'url'  : 'http://www.nybooks.com'+href,
-                               'description': '',
-                               }
-                    articles.append(article)
-                    
+        for li in toc.findAll('li'):
+            h3 = li.find('h3')
+            title = self.tag_to_string(h3)
+            author = self.tag_to_string(li.find('h4'))
+            title = title + u' (%s)'%author
+            url = 'http://www.nybooks.com'+h3.find('a', href=True)['href']
+            desc = ''
+            for p in li.findAll('p'):
+                desc += self.tag_to_string(p)
+            self.log('Found article:', title)
+            self.log('\t', url)
+            self.log('\t', desc)
+            articles.append({'title':title, 'url':url, 'date':'',
+                'description':desc})
+
         return [('Current Issue', articles)]
-       
+

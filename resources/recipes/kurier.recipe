@@ -1,0 +1,50 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+kurier.at
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Kurier(BasicNewsRecipe):
+    title                 = 'Kurier'
+    __author__            = 'Darko Miletic'
+    description           = 'News from Austria'
+    publisher             = 'KURIER'
+    category              = 'news, politics, Austria'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'cp1252'
+    use_embedded_content  = False
+    language              = 'de_AT'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    extra_css             = ' body{font-family: Verdana,Helvetica,sans-serif } img{margin-bottom: 0.4em} .bild_us{font-size: x-small} '
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [dict(attrs={'class':['contenttabs','drucken','versenden','leserbrief','kommentieren','addthis_button']})]
+    keep_only_tags    = [dict(attrs={'id':'content'})]
+    remove_tags_after = dict(attrs={'id':'author'})
+    remove_attributes = ['width','height']
+
+    feeds = [
+               (u'Nachrichten', u'http://kurier.at/rss/nachrichten_nachrichten_rss.xml'   )
+              ,(u'Techno'     , u'http://kurier.at/rss/techno_techno_rss.xml'   )
+              ,(u'Wirtschaft' , u'http://kurier.at/rss/wirtschaft_wirtschaft_rss.xml'   )
+              ,(u'Kultur'     , u'http://kurier.at/rss/kultur_kultur_rss.xml'   )
+              ,(u'Freizeit'   , u'http://kurier.at/rss/freizeit_freizeit_rss.xml'   )
+              ,(u'Wetter'     , u'http://kurier.at/rss/oewetter_rss.xml'   )
+              ,(u'Verkehr'    , u'http://kurier.at/rss/verkehr_rss.xml'   )
+            ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return self.adeify_images(soup)

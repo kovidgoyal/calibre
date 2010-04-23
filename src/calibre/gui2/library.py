@@ -9,9 +9,9 @@ from contextlib import closing
 from datetime import date
 
 from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
-                        QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
-                        QPen, QStyle, QPainter, QIcon,\
-                        QImage, QApplication, QMenu, \
+                        QPainterPath, QLinearGradient, QBrush, \
+                        QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
+                        QImage, QMenu, \
                         QStyledItemDelegate, QCompleter, QIntValidator, \
                         QPlainTextEdit, QDoubleValidator, QCheckBox, QMessageBox
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
@@ -30,14 +30,15 @@ from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.utils.pyparsing import ParseException
 from calibre.utils.search_query_parser import SearchQueryParser
 
-class RatingDelegate(QItemDelegate):
+class LibraryDelegate(QStyledItemDelegate):
     COLOR    = QColor("blue")
     SIZE     = 16
     PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
 
     def __init__(self, parent):
-        QItemDelegate.__init__(self, parent)
+        QStyledItemDelegate.__init__(self, parent)
         self._parent = parent
+        self.dummy = QModelIndex()
         self.star_path = QPainterPath()
         self.star_path.moveTo(90, 50)
         for i in range(1, 5):
@@ -56,10 +57,10 @@ class RatingDelegate(QItemDelegate):
         return QSize(5*(self.SIZE), self.SIZE+4)
 
     def paint(self, painter, option, index):
-        if index.model().data(index, Qt.DisplayRole) is None:
-            num = 0
-        else:
-            num = index.model().data(index, Qt.DisplayRole).toInt()[0]
+        style = self._parent.style()
+        option = QStyleOptionViewItemV4(option)
+        self.initStyleOption(option, self.dummy)
+        num = index.model().data(index, Qt.DisplayRole).toInt()[0]
         def draw_star():
             painter.save()
             painter.scale(self.factor, self.factor)
@@ -71,11 +72,10 @@ class RatingDelegate(QItemDelegate):
 
         painter.save()
         if hasattr(QStyle, 'CE_ItemViewItem'):
-            QApplication.style().drawControl(QStyle.CE_ItemViewItem, option,
+            style.drawControl(QStyle.CE_ItemViewItem, option,
                     painter, self._parent)
         elif option.state & QStyle.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
-        self.drawFocus(painter, option, option.rect)
         try:
             painter.setRenderHint(QPainter.Antialiasing)
             painter.setClipRect(option.rect)
@@ -94,7 +94,7 @@ class RatingDelegate(QItemDelegate):
         painter.restore()
 
     def createEditor(self, parent, option, index):
-        sb = QItemDelegate.createEditor(self, parent, option, index)
+        sb = QStyledItemDelegate.createEditor(self, parent, option, index)
         sb.setMinimum(0)
         sb.setMaximum(5)
         return sb
@@ -897,7 +897,7 @@ class BooksView(TableView):
 
     def __init__(self, parent, modelcls=BooksModel):
         TableView.__init__(self, parent)
-        self.rating_delegate = RatingDelegate(self)
+        self.rating_delegate = LibraryDelegate(self)
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
         self.tags_delegate = TagsDelegate(self)

@@ -122,10 +122,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.is_case_sensitive = not iswindows and not isosx and \
             not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
         SchemaUpgrade.__init__(self)
-        CustomColumns.__init__(self)
         self.initialize_dynamic()
 
     def initialize_dynamic(self):
+        CustomColumns.__init__(self)
         template = '''\
                 (SELECT {query} FROM books_{table}_link AS link INNER JOIN
                     {table} ON(link.{link_col}={table}.id) WHERE link.book=books.id)
@@ -1490,6 +1490,7 @@ books_series_link      feeds
             os.remove(self.dbpath)
             shutil.copyfile(dest, self.dbpath)
             self.connect()
+            self.initialize_dynamic()
             self.refresh()
         if os.path.exists(dest):
             os.remove(dest)

@@ -56,3 +56,21 @@ class ANDROID(USBMS):
             dirs = [x.strip() for x in dirs.split(',')]
         self.EBOOK_DIR_MAIN = dirs
 
+class S60(USBMS):
+
+    name = 'S60 driver'
+    gui_name = 'S60 phone'
+    description    = _('Communicate with S60 phones.')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    VENDOR_ID = [0x421]
+    PRODUCT_ID = [0x156]
+    BCD = [0x100]
+
+    # For use with zxreader
+    FORMATS = ['fb2']
+    EBOOK_DIR_MAIN = 'FB2 Books'
+
+    VENDOR_NAME = 'NOKIA'
+    WINDOWS_MAIN_MEM = 'S60'

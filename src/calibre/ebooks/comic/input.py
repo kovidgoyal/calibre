@@ -322,7 +322,7 @@ class ComicInput(InputFormatPlugin):
         ('margin_bottom', 0, OptionRecommendation.HIGH),
         ('insert_blank_line', False, OptionRecommendation.HIGH),
         ('remove_paragraph_spacing',  False, OptionRecommendation.HIGH),
-        ('dont_justify', True, OptionRecommendation.HIGH),
+        ('change_justification', 'left', OptionRecommendation.HIGH),
         ('dont_split_on_pagebreaks', True, OptionRecommendation.HIGH),
         ('chapter', None, OptionRecommendation.HIGH),
         ('page_breaks_brefore', None, OptionRecommendation.HIGH),

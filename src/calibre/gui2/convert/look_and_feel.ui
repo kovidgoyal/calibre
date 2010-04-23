@@ -84,7 +84,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../resources/images.qrc">
+        <iconset>
          <normaloff>:/images/wizard.svg</normaloff>:/images/wizard.svg</iconset>
        </property>
        <property name="iconSize">
@@ -181,21 +181,7 @@
      </item>
     </layout>
    </item>
-   <item row="6" column="0">
-    <widget class="QCheckBox" name="opt_insert_blank_line">
-     <property name="text">
-      <string>Insert &amp;blank line</string>
-     </property>
-    </widget>
-   </item>
    <item row="7" column="0">
-    <widget class="QCheckBox" name="opt_dont_justify">
-     <property name="text">
-      <string>No text &amp;justification</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0">
     <widget class="QCheckBox" name="opt_linearize_tables">
      <property name="text">
       <string>&amp;Linearize tables</string>
@@ -219,6 +205,42 @@
        <widget class="QTextEdit" name="opt_extra_css"/>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QCheckBox" name="opt_insert_blank_line">
+     <property name="text">
+      <string>Insert &amp;blank line</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Text justification:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="2">
+    <widget class="QComboBox" name="opt_change_justification">
+     <property name="currentIndex">
+      <number>2</number>
+     </property>
+     <item>
+      <property name="text">
+       <string>justify</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>left</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>original</string>
+      </property>
+     </item>
     </widget>
    </item>
   </layout>

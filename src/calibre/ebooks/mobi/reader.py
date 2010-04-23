@@ -303,7 +303,12 @@ class MobiReader(object):
         for pat in ENCODING_PATS:
             self.processed_html = pat.sub('', self.processed_html)
         e2u = functools.partial(entity_to_unicode,
-            exceptions=['lt', 'gt', 'amp', 'apos', 'quot', '#60', '#62'])
+            result_exceptions={
+                '<' : u'&lt;',
+                '>' : u'&gt;',
+                '&' : u'&amp;',
+                '"' : u'&quot;',
+                "'" : u'&apos;'})
         self.processed_html = re.sub(r'&(\S+?);', e2u,
             self.processed_html)
         self.extract_images(processed_records, output_dir)
@@ -619,6 +624,7 @@ class MobiReader(object):
                 opf.cover = None
 
         cover = opf.cover
+        cover_copied = None
         if cover is not None:
             cover = cover.replace('/', os.sep)
             if os.path.exists(cover):
@@ -626,13 +632,19 @@ class MobiReader(object):
                 if os.path.exists(ncover):
                     os.remove(ncover)
                 shutil.copyfile(cover, ncover)
-            opf.cover = ncover.replace(os.sep, '/')
+                cover_copied = os.path.abspath(ncover)
+                opf.cover = ncover.replace(os.sep, '/')
 
         manifest = [(htmlfile, 'application/xhtml+xml'),
             (os.path.abspath('styles.css'), 'text/css')]
         bp = os.path.dirname(htmlfile)
+        added = set([])
         for i in getattr(self, 'image_names', []):
-            manifest.append((os.path.join(bp, 'images/', i), 'image/jpeg'))
+            path = os.path.join(bp, 'images', i)
+            added.add(path)
+            manifest.append((path, 'image/jpeg'))
+        if cover_copied is not None:
+            manifest.append((cover_copied, 'image/jpeg'))
 
         opf.create_manifest(manifest)
         opf.create_spine([os.path.basename(htmlfile)])
