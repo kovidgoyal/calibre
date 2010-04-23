@@ -303,6 +303,7 @@ class ResultCache(SearchQueryParser):
             IS_CUSTOM = []
             for x in range(len(self.FIELD_MAP)): # build a list containing '' the size of FIELD_MAP
                 IS_CUSTOM.append('')
+            IS_CUSTOM[self.FIELD_MAP['rating']] = 'rating'  # normal and custom ratings columns use the same code
             for x in self.custom_column_label_map: # add custom columns to MAP. Put the column's type into IS_CUSTOM
                 if self.custom_column_label_map[x]['datatype'] != "datetime":
                     MAP[x] = self.FIELD_MAP[self.custom_column_label_map[x]['num']]
@@ -368,11 +369,6 @@ class ResultCache(SearchQueryParser):
                             if item[loc].strip() == '':
                                 continue
                         matches.add(item[0])
-                        continue
-
-                    if rating_query:
-                        if (loc == MAP['rating'] and rating_query == int(item[loc])):
-                            matches.add(item[0])
                         continue
 
                     if IS_CUSTOM[loc] == 'rating':
