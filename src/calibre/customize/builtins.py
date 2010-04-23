@@ -444,7 +444,7 @@ from calibre.devices.eslick.driver import ESLICK
 from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
-from calibre.devices.hanvon.driver import N516, EB511
+from calibre.devices.hanvon.driver import N516, EB511, ALEX
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3
 from calibre.devices.sne.driver import SNE
@@ -526,7 +526,8 @@ plugins += [
     ELONEX,
     TECLAST_K3,
     EDGE,
-    SNE
+    SNE,
+    ALEX
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]

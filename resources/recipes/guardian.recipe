@@ -119,5 +119,7 @@ class Guardian(BasicNewsRecipe):
             raise NotImplementedError
 
 
+    def postprocess_html(self,soup,first):
+        return soup.findAll('html')[0]
 
 
