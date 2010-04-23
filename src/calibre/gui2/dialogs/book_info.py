@@ -96,7 +96,7 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.setWindowTitle(info[_('Title')])
         self.title.setText('<b>'+info.pop(_('Title')))
         comments = info.pop(_('Comments'), '')
-        if re.search(r'<[a-z]+>', comments) is None:
+        if re.search(r'<[a-zA-Z]+>', comments) is None:
             lines = comments.splitlines()
             lines = [x if x.strip() else '<br><br>' for x in lines]
             comments = '\n'.join(lines)
