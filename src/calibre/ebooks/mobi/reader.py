@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Read data from .mobi files
 '''
 
-import functools, shutil, os, re, struct, textwrap, cStringIO, sys
+import shutil, os, re, struct, textwrap, cStringIO, sys
 
 try:
     from PIL import Image as PILImage
@@ -14,7 +14,7 @@ except ImportError:
 
 from lxml import html, etree
 
-from calibre import entity_to_unicode, CurrentDir
+from calibre import xml_entity_to_unicode, CurrentDir, entity_to_unicode
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import parse_date
 from calibre.ptempfile import TemporaryDirectory
@@ -302,14 +302,7 @@ class MobiReader(object):
 
         for pat in ENCODING_PATS:
             self.processed_html = pat.sub('', self.processed_html)
-        e2u = functools.partial(entity_to_unicode,
-            result_exceptions={
-                '<' : u'&lt;',
-                '>' : u'&gt;',
-                '&' : u'&amp;',
-                '"' : u'&quot;',
-                "'" : u'&apos;'})
-        self.processed_html = re.sub(r'&(\S+?);', e2u,
+        self.processed_html = re.sub(r'&(\S+?);', xml_entity_to_unicode,
             self.processed_html)
         self.extract_images(processed_records, output_dir)
         self.replace_page_breaks()

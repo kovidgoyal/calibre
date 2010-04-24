@@ -7,6 +7,7 @@ import sys, os, re, logging, time, mimetypes, \
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
 from htmlentitydefs import name2codepoint
 from math import floor
+from functools import partial
 
 warnings.simplefilter('ignore', DeprecationWarning)
 
@@ -446,6 +447,12 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252',
         return '&'+ent+';'
 
 _ent_pat = re.compile(r'&(\S+?);')
+xml_entity_to_unicode = partial(entity_to_unicode, result_exceptions = {
+    '"' : '&quot;',
+    "'" : '&apos;',
+    '<' : '&lt;',
+    '>' : '&gt;',
+    '&' : '&amp;'})
 
 def prepare_string_for_xml(raw, attribute=False):
     raw = _ent_pat.sub(entity_to_unicode, raw)
