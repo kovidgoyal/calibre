@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-04-23 20:55+0000\n"
-"PO-Revision-Date: 2010-04-23 18:29+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-04-24 07:05+0000\n"
+"Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-04-24 03:51+0000\n"
+"X-Launchpad-Export-Date: 2010-04-25 03:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -461,7 +461,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:63
 msgid "Communicate with S60 phones."
-msgstr ""
+msgstr "Komuniciraj s S60 telefonima."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -515,7 +515,7 @@ msgstr "Uspostavi komunikaciju s Hanvon N520 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:41
 msgid "Communicate with the SpringDesign Alex eBook reader."
-msgstr ""
+msgstr "Komuniciraj sa SpringDesign Alex čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:56
 msgid "Communicate with the Elonex EB 511 eBook reader."
@@ -1286,6 +1286,11 @@ msgid ""
 "\"original\" (the default) does not change justification in the source file. "
 "Note that only some output formats support justification."
 msgstr ""
+"Promeni poravnanje teksta. Vrednost \"left\" prevodi sav i levo i desno "
+"poravnat tekst u levo poravnat (tj. neporavnat). Vrednost \"justify\" "
+"prevodi sav neporavnat tekst u tekst poravnat i levo i desno. Vrednost "
+"\"original\" ne menja poravnanje. Obratite pažnju da samo neki formati "
+"podržavaju poravnanje teksta."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:315
 msgid ""
@@ -3360,19 +3365,19 @@ msgstr "Ubaci &prazan red"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:143
 msgid "Text justification:"
-msgstr ""
+msgstr "Poravanje teksta:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:144
 msgid "justify"
-msgstr ""
+msgstr "poravnanje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:145
 msgid "left"
-msgstr ""
+msgstr "levo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:146
 msgid "original"
-msgstr ""
+msgstr "originalno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
