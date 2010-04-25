@@ -1,0 +1,85 @@
+#!/usr/bin/env  python
+
+# ebook-convert.exe c:\billorielly.recipe c:\test -vv
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class BillOReilly(BasicNewsRecipe):
+    cover_url             = 'http://images.billoreilly.com/images/headers/borbanner.jpg'
+    title          		    = u"Bill O'Reilly"
+    __author__ 	          = 'Rob Lammert - rob.lammert[at]gmail.com'
+    description		        = u"Articles from Bill O'Reilly's website and his Fox New's website"
+    oldest_article        = 7.0
+    max_articles_per_feed = 100
+    recursions            = 0
+    encoding              = 'utf8'
+    no_stylesheets        = True
+    remove_javascript     = True
+    #use_embedded_content  = False
+
+
+ #   feeds                 = [
+ #     ('Talking Points Memo', u'http://www.foxnews.com/xmlfeed/column/0,5184,19,00.rss'),
+ #     ('No Spin News', u'http://www.billoreilly.com/blog?rss=true&size=50&useBlurbs=true&categoryID=7')
+ #   ]
+
+    def parse_index(self):
+      feeds = []
+
+      articles_shows = self.bo_parse_shows('http://www.billoreilly.com/show?action=tvShowArchive')
+      articles_columns = self.bo_parse_columns('http://www.billoreilly.com/columns')
+
+      if articles_shows:
+        feeds.append(("O'Reilly Factor", articles_shows))
+
+      if articles_columns:
+        feeds.append(("Newspaper Column", articles_columns))
+
+      return feeds
+
+    def bo_parse_shows(self,url):
+      soup = self.index_to_soup(url)
+      links = soup.find(attrs={'class': 'showLinks'})
+
+      current_articles = []
+      counter = 0
+      for lnk in links.findAllNext(attrs={'class': ['showLinks']}):
+        if counter <= 5:
+          title = self.tag_to_string(lnk)
+          url = lnk.get('href', False)
+
+          if not url or not title:
+            continue
+
+          if url.startswith('/'):
+            url = 'http://www.billoreilly.com'+url+'&dest=/pg/jsp/community/tvshowprint.jsp'
+
+          self.log('\t\tFound article:', title)
+          self.log('\t\t\t', url)
+          current_articles.append({'title': title, 'url': url, 'description':'', 'date':''})
+          counter += 1
+      return current_articles
+
+    def bo_parse_columns(self,url):
+      soup = self.index_to_soup(url)
+      links = soup.find(attrs={'id': 'bold'})
+
+      current_articles = []
+      counter = 0
+      for lnk in links.findAllNext(attrs={'id': ['bold']}):
+        test = lnk.get('class', False)
+        if counter <= 5 and test == 'defaultLinks':
+          title = self.tag_to_string(lnk)
+          url = lnk.get('href', False)
+
+          if not url or not title:
+            continue
+
+          if url.startswith('/'):
+            url = 'http://www.billoreilly.com'+url+'&printerFriendly=true"'
+
+          self.log('\t\tFound article:', title)
+          self.log('\t\t\t', url)
+          current_articles.append({'title': title, 'url': url, 'description':'', 'date':''})
+          counter += 1
+      return current_articles
