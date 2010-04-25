@@ -13,7 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class NewYorkReviewOfBooks(BasicNewsRecipe):
 
-    title = u'New York Review of Books (no subscription)'
+    title = u'New York Review of Books'
     description = u'Book reviews'
     language = 'en'
 
