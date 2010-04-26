@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from calibre.utils.date import isoformat, now
+from calibre import guess_type
 
 def meta_info_to_oeb_metadata(mi, m, log):
     from calibre.ebooks.oeb.base import OPF
@@ -92,15 +93,16 @@ class MergeMetadata(object):
                                     scheme='uuid')
             self.oeb.uid = self.oeb.metadata.identifier[-1]
 
-
-
-
     def set_cover(self, mi, prefer_metadata_cover):
-        cdata = ''
+        cdata, ext = '', 'jpg'
         if mi.cover and os.access(mi.cover, os.R_OK):
             cdata = open(mi.cover, 'rb').read()
+            ext = mi.cover.rpartition('.')[-1].lower().strip()
         elif mi.cover_data and mi.cover_data[-1]:
             cdata = mi.cover_data[1]
+            ext = mi.cover_data[0]
+        if ext not in ('png', 'jpg', 'jpeg'):
+            ext = 'jpg'
         id = old_cover = None
         if 'cover' in self.oeb.guide:
             old_cover = self.oeb.guide['cover']
@@ -120,8 +122,8 @@ class MergeMetadata(object):
                 self.oeb.manifest.add(id, old_cover.href, 'image/jpeg')
                 return id
         if cdata:
-            id, href = self.oeb.manifest.generate('cover', 'cover.jpg')
-            self.oeb.manifest.add(id, href, 'image/jpeg', data=cdata)
+            id, href = self.oeb.manifest.generate('cover', 'cover.'+ext)
+            self.oeb.manifest.add(id, href, guess_type('cover.'+ext)[0], data=cdata)
             self.oeb.guide.add('cover', 'Cover', href)
         return id
 
