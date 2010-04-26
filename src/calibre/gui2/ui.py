@@ -1684,7 +1684,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 src_ids.append(id_)
                 dbfmts = m.db.formats(id_, index_is_id=True)
                 if dbfmts:
-                    for fmt in dbfmts:
+                    for fmt in dbfmts.split(','):
                         src_books.append(m.db.format_abspath(id_, fmt,
                             index_is_id=True))
         return [dest_id, src_books, src_ids]
