@@ -430,7 +430,10 @@ class DirContainer(object):
             return f.write(data)
 
     def exists(self, path):
-        path = os.path.join(self.rootdir, urlunquote(path))
+        try:
+            path = os.path.join(self.rootdir, urlunquote(path))
+        except ValueError: #Happens if path contains quoted special chars
+            return False
         return os.path.isfile(path)
 
     def namelist(self):
@@ -768,18 +771,12 @@ class Manifest(object):
                 % (self.id, self.href, self.media_type)
 
         def _parse_xml(self, data):
-            data = xml_to_unicode(data, strip_encoding_pats=True)[0]
+            data = xml_to_unicode(data, strip_encoding_pats=True,
+                    assume_utf8=True, resolve_entities=True)[0]
             if not data:
                 return None
             parser = etree.XMLParser(recover=True)
-            try:
-                return etree.fromstring(data, parser=parser)
-            except etree.XMLSyntaxError, err:
-                if getattr(err, 'code', 0) == 26 or str(err).startswith('Entity'):
-                    data = xml_to_unicode(data, strip_encoding_pats=True,
-                            resolve_entities=True)[0]
-                    return etree.fromstring(data)
-                raise
+            return etree.fromstring(data, parser=parser)
 
         def _parse_xhtml(self, data):
             self.oeb.log.debug('Parsing', self.href, '...')

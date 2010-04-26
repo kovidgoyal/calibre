@@ -274,6 +274,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         md.addAction(_('Download only covers'))
         md.addAction(_('Download only social metadata'))
         self.metadata_menu = md
+
+        mb = QMenu()
+        mb.addAction(_('Merge into first selected book - delete others'))
+        mb.addSeparator()
+        mb.addAction(_('Merge into first selected book - keep others'))
+        self.merge_menu = mb
+        self.action_merge.setMenu(mb)
+        md.addSeparator()
+        md.addAction(self.action_merge)
+
         self.add_menu = QMenu()
         self.add_menu.addAction(_('Add books from a single directory'))
         self.add_menu.addAction(_('Add books from directories, including '
@@ -320,6 +330,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(md.actions()[7], SIGNAL('triggered(bool)'),
                 self.__em6__)
 
+        QObject.connect(self.action_merge, SIGNAL("triggered(bool)"),
+                self.merge_books)
+        QObject.connect(mb.actions()[0], SIGNAL('triggered(bool)'),
+                self.merge_books)
+        self.__mb1__ = partial(self.merge_books, safe_merge=True)
+        QObject.connect(mb.actions()[2], SIGNAL('triggered(bool)'),
+                self.__mb1__)
 
         self.save_menu = QMenu()
         self.save_menu.addAction(_('Save to disk'))
@@ -362,6 +379,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 Qt.QueuedConnection)
         self.connect(self.action_open_containing_folder,
                 SIGNAL('triggered(bool)'), self.view_folder)
+
         self.delete_menu.actions()[0].triggered.connect(self.delete_books)
         self.delete_menu.actions()[1].triggered.connect(self.delete_selected_formats)
         self.delete_menu.actions()[2].triggered.connect(self.delete_all_but_selected_formats)
@@ -374,6 +392,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.create_device_menu()
         self.action_edit.setMenu(md)
         self.action_save.setMenu(self.save_menu)
+
         cm = QMenu()
         cm.addAction(_('Convert individually'))
         cm.addAction(_('Bulk convert'))
@@ -459,14 +478,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                                         self.action_save,
                                         self.action_open_containing_folder,
                                         self.action_show_book_details,
+                                        self.action_merge,
                                         self.action_del,
                                         similar_menu=similar_menu)
+
         self.memory_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del)
+                self.action_view, self.action_save, None, None, None, self.action_del)
         self.card_a_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del)
+                self.action_view, self.action_save, None, None, None, self.action_del)
         self.card_b_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del)
+                self.action_view, self.action_save, None, None, None, self.action_del)
+
         QObject.connect(self.library_view,
                 SIGNAL('files_dropped(PyQt_PyObject)'),
                         self.files_dropped, Qt.QueuedConnection)
@@ -850,7 +872,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.library_view.model().research()
         else:
             print msg
-
 
     def current_view(self):
         '''Convenience method that returns the currently visible view '''
@@ -1587,6 +1608,127 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################################################################
 
+    ############################### Merge books ##############################
+    def merge_books(self, safe_merge=False):
+        '''
+        Merge selected books in library.
+        '''
+        if self.stack.currentIndex() != 0:
+            return
+        rows = self.library_view.selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            return error_dialog(self, _('Cannot merge books'),
+                                _('No books selected'), show=True)
+        if len(rows) < 2:
+            return error_dialog(self, _('Cannot merge books'),
+                        _('At least two books must be selected for merging'),
+                        show=True)
+        dest_id, src_books, src_ids = self.books_to_merge(rows)
+        if safe_merge:
+            if not confirm('<p>'+_(
+                'All book formats and metadata from the selected books '
+                'will be added to the <b>first selected book.</b><br><br> '
+                'The second and subsequently selected books will not '
+                'be deleted or changed.<br><br>'
+                'Please confirm you want to proceed.')
+            +'</p>', 'merge_books_safe', self):
+                return
+            self.add_formats(dest_id, src_books)
+            self.merge_metadata(dest_id, src_ids)
+        else:
+            if not confirm('<p>'+_(
+                'All book formats and metadata from the selected books will be merged '
+                'into the <b>first selected book</b>.<br><br>'
+                'After merger the second and '
+                'subsequently selected books will be <b>deleted</b>. <br><br>'
+                'All book formats of the first selected book will be kept '
+                'and any duplicate formats in the second and subsequently selected books '
+                'will be permanently <b>deleted</b> from your computer.<br><br>  '
+                'Are you <b>sure</b> you want to proceed?')
+            +'</p>', 'merge_books', self):
+                return
+            if len(rows)>5:
+                if not confirm('<p>'+_('You are about to merge more than 5 books.  '
+                                        'Are you <b>sure</b> you want to proceed?')
+                                    +'</p>', 'merge_too_many_books', self):
+                    return
+            self.add_formats(dest_id, src_books)
+            self.merge_metadata(dest_id, src_ids)
+            self.delete_books_after_merge(src_ids)
+            # leave the selection highlight on first selected book
+            dest_row = rows[0].row()
+            for row in rows:
+                if row.row() < rows[0].row():
+                    dest_row -= 1
+            ci = self.library_view.model().index(dest_row, 0)
+            if ci.isValid():
+                self.library_view.setCurrentIndex(ci)
+
+    def add_formats(self, dest_id, src_books, replace=False):
+        for src_book in src_books:
+            if src_book:
+                fmt = os.path.splitext(src_book)[-1].replace('.', '').upper()
+                with open(src_book, 'rb') as f:
+                    self.db.add_format(dest_id, fmt, f, index_is_id=True,
+                            notify=False, replace=replace)
+
+    def books_to_merge(self, rows):
+        src_books = []
+        src_ids = []
+        m = self.library_view.model()
+        for i, row in enumerate(rows):
+            id_ = m.id(row)
+            if i == 0:
+                dest_id = id_
+            else:
+                src_ids.append(id_)
+                dbfmts = m.db.formats(id_, index_is_id=True)
+                if dbfmts:
+                    for fmt in dbfmts:
+                        src_books.append(m.db.format_abspath(id_, fmt,
+                            index_is_id=True))
+        return [dest_id, src_books, src_ids]
+
+    def delete_books_after_merge(self, ids_to_delete):
+        self.library_view.model().delete_books_by_id(ids_to_delete)
+
+    def merge_metadata(self, dest_id, src_ids):
+        db = self.library_view.model().db
+        dest_mi = db.get_metadata(dest_id, index_is_id=True, get_cover=True)
+        orig_dest_comments = dest_mi.comments
+        for src_id in src_ids:
+            src_mi = db.get_metadata(src_id, index_is_id=True, get_cover=True)
+            if src_mi.comments and orig_dest_comments != src_mi.comments:
+                if not dest_mi.comments or len(dest_mi.comments) == 0:
+                    dest_mi.comments = src_mi.comments
+                else:
+                    dest_mi.comments = unicode(dest_mi.comments) + u'\n\n' + unicode(src_mi.comments)
+            if src_mi.title and src_mi.title and (not dest_mi.title or
+                    dest_mi.title == _('Unknown')):
+                dest_mi.title = src_mi.title
+            if src_mi.title and (not dest_mi.authors or dest_mi.authors[0] ==
+                    _('Unknown')):
+                dest_mi.authors = src_mi.authors
+                dest_mi.author_sort = src_mi.author_sort
+            if src_mi.tags:
+                if not dest_mi.tags:
+                    dest_mi.tags = src_mi.tags
+                else:
+                    for tag in src_mi.tags:
+                        dest_mi.tags.append(tag)
+            if src_mi.cover and not dest_mi.cover:
+                dest_mi.cover = src_mi.cover
+            if not dest_mi.publisher:
+                dest_mi.publisher = src_mi.publisher
+            if not dest_mi.rating:
+                dest_mi.rating = src_mi.rating
+            if not dest_mi.series:
+                dest_mi.series = src_mi.series
+                dest_mi.series_index = src_mi.series_index
+        db.set_metadata(dest_id, dest_mi, ignore_errors=False)
+
+    ############################################################################
+
 
     ############################## Save to disk ################################
     def save_single_format_to_disk(self, checked):
@@ -2096,6 +2238,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.status_bar.reset_info()
         if location == 'library':
             self.action_edit.setEnabled(True)
+            self.action_merge.setEnabled(True)
             self.action_convert.setEnabled(True)
             self.view_menu.actions()[1].setEnabled(True)
             self.action_open_containing_folder.setEnabled(True)
@@ -2106,6 +2249,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 action.setEnabled(True)
         else:
             self.action_edit.setEnabled(False)
+            self.action_merge.setEnabled(False)
             self.action_convert.setEnabled(False)
             self.view_menu.actions()[1].setEnabled(False)
             self.action_open_containing_folder.setEnabled(False)

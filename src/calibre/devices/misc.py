@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import with_statement
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
+
+from calibre.devices.usbms.driver import USBMS
+
+class PALMPRE(USBMS):
+
+    name           = 'Palm Pre Device Interface'
+    gui_name       = 'Palm Pre'
+    description    = _('Communicate with the Palm Pre')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['mobi', 'prc', 'pdb', 'txt']
+
+    VENDOR_ID   = [0x0830]
+    PRODUCT_ID  = [0x8004, 0x8002]
+    BCD         = [0x0316]
+
+    VENDOR_NAME = 'PALM'
+    WINDOWS_MAIN_MEM = 'PRE'
+
+    EBOOK_DIR_MAIN = 'E-books'
+

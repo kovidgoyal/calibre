@@ -551,7 +551,8 @@ class LineEditECM(object):
         self.setText(unicode(self.text()).swapcase())
 
     def title_case(self):
-        self.setText(unicode(self.text()).title())
+        from calibre.utils.titlecase import titlecase
+        self.setText(titlecase(unicode(self.text())))
 
 
 class EnLineEdit(LineEditECM, QLineEdit):

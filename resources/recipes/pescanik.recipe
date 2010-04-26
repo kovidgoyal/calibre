@@ -6,6 +6,7 @@ pescanik.net
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Pescanik(BasicNewsRecipe):
     title                 = 'Pescanik'
@@ -13,32 +14,34 @@ class Pescanik(BasicNewsRecipe):
     description           = 'Pescanik'
     publisher             = 'Pescanik'
     category              = 'news, politics, Serbia'
-    oldest_article        = 5
+    oldest_article        = 10
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'
     language              = 'sr'
     publication_type      = 'newsportal'    
-    extra_css             = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} .article_description,body{font-family: Arial,"Lucida Grande",Tahoma,Verdana,sans1,sans-serif} .contentheading{font-size: x-large; font-weight: bold} .small{font-size: small} .createdate{font-size: x-small; font-weight: bold}'
+    extra_css             = ' @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} .article_description,body{font-family: Arial,"Lucida Grande",Tahoma,Verdana,sans1,sans-serif} .contentheading{font-size: x-large; font-weight: bold} .small{font-size: small} .createdate{font-size: x-small; font-weight: bold} '
 
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
-                        , 'linearize_tables' : True
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
                         }
 
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    
+    remove_attributes = ['valign','colspan','width','height','align','alt']
+    
+    remove_tags = [dict(name=['object','link','meta','script'])]
 
-    remove_tags = [
-                     dict(name='td'  , attrs={'class':'buttonheading'})
-                    ,dict(name='span', attrs={'class':'article_seperator'})
-                    ,dict(name=['object','link','h4','ul'])
-                  ]
-
+    keep_only_tags = [
+                         dict(attrs={'class':['contentheading','small','createdate']})
+                        ,dict(name='td', attrs={'valign':'top','colspan':'2'})                        
+                     ]
+                  
     feeds       = [(u'Pescanik Online', u'http://www.pescanik.net/index.php?option=com_rd_rss&id=12')]
 
     def print_version(self, url):
@@ -46,4 +49,12 @@ class Pescanik(BasicNewsRecipe):
         return nurl + '&pop=1&page=0'
 
     def preprocess_html(self, soup):
-        return self.adeify_images(soup)
+        st = soup.findAll('td')
+        for it in st:
+            it.name='p'
+        for pt in soup.findAll('img'):
+            brtag = Tag(soup,'br')
+            brtag2 = Tag(soup,'br')
+            pt.append(brtag)
+            pt.append(brtag2)
+        return soup

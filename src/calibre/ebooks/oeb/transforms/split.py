@@ -115,7 +115,7 @@ class Split(object):
         for i, x in enumerate(page_breaks):
             x.set('id', x.get('id', 'calibre_pb_%d'%i))
             id = x.get('id')
-            page_breaks_.append((XPath('//*[@id="%s"]'%id),
+            page_breaks_.append((XPath('//*[@id=%r]'%id),
                 x.get('pb_before', False)))
             page_break_ids.append(id)
 

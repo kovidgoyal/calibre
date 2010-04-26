@@ -130,7 +130,7 @@ class LRFOutput(OutputFormatPlugin):
     ])
 
     recommendations = set([
-        ('dont_justify', True, OptionRecommendation.HIGH),
+        ('change_justification', 'original', OptionRecommendation.HIGH),
         ])
 
     def convert_images(self, pages, opts, wide):

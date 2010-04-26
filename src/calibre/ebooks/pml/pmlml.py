@@ -86,7 +86,7 @@ class PMLMLizer(object):
         self.toc = {}
         for item in oeb_book.toc:
             href, mid, id = item.href.partition('#')
-            aid = self.get_anchor_id(href, id)
+            self.get_anchor_id(href, id)
             if not self.toc.get(href, None):
                 self.toc[href] = {}
             self.toc[href][id] = item.title

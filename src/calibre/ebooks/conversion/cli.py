@@ -124,7 +124,7 @@ def add_pipeline_options(parser, plumber):
                       'linearize_tables',
                       'extra_css',
                       'margin_top', 'margin_left', 'margin_right',
-                      'margin_bottom', 'dont_justify',
+                      'margin_bottom', 'change_justification',
                       'insert_blank_line', 'remove_paragraph_spacing','remove_paragraph_spacing_indent_size',
                       'asciiize', 'remove_header', 'header_regex',
                       'remove_footer', 'footer_regex',

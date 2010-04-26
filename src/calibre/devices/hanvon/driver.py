@@ -34,6 +34,22 @@ class N516(USBMS):
     EBOOK_DIR_MAIN = 'e_book'
     SUPPORTS_SUB_DIRS = True
 
+class ALEX(N516):
+
+    name = 'Alex driver'
+    gui_name = 'SpringDesign Alex'
+    description    = _('Communicate with the SpringDesign Alex eBook reader.')
+    author         = 'Kovid Goyal'
+
+    FORMATS     = ['epub', 'pdf']
+    VENDOR_NAME      = 'ALEX'
+    WINDOWS_MAIN_MEM = 'READER'
+
+    MAIN_MEMORY_VOLUME_LABEL  = 'Alex Internal Memory'
+
+    EBOOK_DIR_MAIN = 'eBooks'
+    SUPPORTS_SUB_DIRS = True
+
 class EB511(USBMS):
     name           = 'Elonex EB 511 driver'
     gui_name       = 'EB 511'

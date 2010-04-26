@@ -14,7 +14,7 @@
    <string>Schedule news download</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../resources/images.qrc">
+   <iconset>
     <normaloff>:/images/scheduler.svg</normaloff>:/images/scheduler.svg</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -79,7 +79,7 @@
           <x>0</x>
           <y>0</y>
           <width>375</width>
-          <height>500</height>
+          <height>502</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -371,7 +371,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Save</set>
      </property>
     </widget>
    </item>

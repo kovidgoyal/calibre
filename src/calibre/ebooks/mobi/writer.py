@@ -283,7 +283,7 @@ class Serializer(object):
                     if self.serialize_href(val, item):
                         continue
                 elif attr == 'src':
-                    href = item.abshref(val)
+                    href = urlnormalize(item.abshref(val))
                     if href in self.images:
                         index = self.images[href]
                         buffer.write('recindex="%05d"' % index)

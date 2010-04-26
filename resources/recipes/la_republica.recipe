@@ -22,21 +22,36 @@ class LaRepublica(BasicNewsRecipe):
     language       = 'it'
     timefmt        = '[%a, %d %b, %Y]'
 
-    oldest_article = 1
+    oldest_article = 5
     max_articles_per_feed = 100
     use_embedded_content  = False
     recursion             = 10
 
     remove_javascript = True
+    def get_article_url(self, article):
+        link = article.get('id', article.get('guid', None))
+        if link is None:
+            return article
+        return link
 
-    keep_only_tags     = [dict(name='div', attrs={'class':'articolo'})]
+    keep_only_tags     = [dict(name='div', attrs={'class':'articolo'}),
+                          dict(name='div', attrs={'class':'body-text'}),
+                          dict(name='div', attrs={'class':'page-content'}),
+                          dict(name='div', attrs={'id':'contA'})
+                         ]
+
 
     remove_tags        = [
                             dict(name=['object','link']),
                             dict(name='span',attrs={'class':'linkindice'}),
-                            dict(name='div',attrs={'class':'bottom-mobile'}),
-                            dict(name='div',attrs={'id':['rssdiv','blocco']})
+                            dict(name='div', attrs={'class':'bottom-mobile'}),
+                            dict(name='div', attrs={'id':['rssdiv','blocco']}),
+                            dict(name='div', attrs={'class':'utility'}),
+                            dict(name='div', attrs={'class':'generalbox'})
                          ]
+    remove_tags_after = [
+                            dict(name='div',attrs={'id':'ugc_linkUpload'})
+                        ]
 
     feeds          = [
                        (u'Repubblica Rilievo', u'http://www.repubblica.it/rss/homepage/rss2.0.xml'),
@@ -48,8 +63,12 @@ class LaRepublica(BasicNewsRecipe):
                        (u'Repubblica Tecnologia', u'http://www.repubblica.it/rss/tecnologia/rss2.0.xml'),
                        (u'Repubblica Scuola e Universita', u'http://www.repubblica.it/rss/scuola_e_universita/rss2.0.xml'),
                        (u'Repubblica Ambiente', u'http://www.repubblica.it/rss/ambiente/rss2.0.xml'),
-		       (u'Repubblica Cultura', u'http://www.repubblica.it/rss/spettacoli_e_cultura/rss2.0.xml'),
-		       (u'Repubblica Persone', u'http://www.repubblica.it/rss/persone/rss2.0.xml'),
-		       (u'Repubblica Sport', u'http://www.repubblica.it/rss/sport/rss2.0.xml'),
-		       (u'Repubblica Calcio', u'http://www.repubblica.it/rss/sport/calcio/rss2.0.xml')
-                     ]
+                       (u'Repubblica Cultura', u'http://www.repubblica.it/rss/spettacoli_e_cultura/rss2.0.xml'),
+                       (u'Repubblica Persone', u'http://www.repubblica.it/rss/persone/rss2.0.xml'),
+                       (u'Repubblica Sport', u'http://www.repubblica.it/rss/sport/rss2.0.xml'),
+                       (u'Repubblica Calcio', u'http://www.repubblica.it/rss/sport/calcio/rss2.0.xml'),
+                       (u'Repubblica Motori', u'http://www.repubblica.it/rss/motori/rss2.0.xml'),
+                       (u'Repubblica Roma', u'http://roma.repubblica.it/rss/rss2.0.xml'),
+                       (u'Repubblica Torino', u'http://torino.repubblica.it/rss/rss2.0.xml')
+                      ]
+

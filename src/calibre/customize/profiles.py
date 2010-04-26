@@ -215,6 +215,7 @@ input_profiles = [InputProfile, SonyReaderInput, SonyReader300Input,
         HanlinV5Input, CybookG3Input, CybookOpusInput, KindleInput, IlliadInput,
         IRexDR1000Input, IRexDR800Input, NookInput]
 
+input_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
 
 class OutputProfile(Plugin):
 
@@ -238,6 +239,14 @@ class OutputProfile(Plugin):
     @classmethod
     def tags_to_string(cls, tags):
         return ', '.join(tags)
+
+class iPadOutput(OutputProfile):
+
+    name = 'iPad'
+    short_name = 'ipad'
+    screen_size = (1024, 768)
+    comic_screen_size = (1024, 768)
+    dpi = 132.0
 
 class SonyReaderOutput(OutputProfile):
 
@@ -449,5 +458,8 @@ class NookOutput(OutputProfile):
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
+        iPadOutput,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
-        IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput]
+        IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,]
+
+output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))

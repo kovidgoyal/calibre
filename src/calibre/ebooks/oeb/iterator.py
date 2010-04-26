@@ -212,11 +212,12 @@ class EbookIterator(object):
 
         cover = self.opf.cover
         if self.ebook_ext in ('lit', 'mobi', 'prc', 'opf') and cover:
-            cfile = os.path.join(os.path.dirname(self.spine[0]),
-                    'calibre_iterator_cover.html')
-            chtml = (TITLEPAGE%cover).encode('utf-8')
+            cfile = os.path.join(self.base, 'calibre_iterator_cover.html')
+            chtml = (TITLEPAGE%os.path.relpath(cover, self.base).replace(os.sep,
+                '/')).encode('utf-8')
             open(cfile, 'wb').write(chtml)
-            self.spine[0:0] = [SpineItem(cfile)]
+            self.spine[0:0] = [SpineItem(cfile,
+                mime_type='application/xhtml+xml')]
             self.delete_on_exit.append(cfile)
 
         if self.opf.path_to_html_toc is not None and \

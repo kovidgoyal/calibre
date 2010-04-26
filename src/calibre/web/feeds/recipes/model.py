@@ -113,7 +113,7 @@ class NewsItem(NewsTreeItem):
         return NONE
 
     def __cmp__(self, other):
-        return cmp(self.title, getattr(other, 'title', ''))
+        return cmp(self.title.lower(), getattr(other, 'title', '').lower())
 
 class RecipeModel(QAbstractItemModel, SearchQueryParser):
 

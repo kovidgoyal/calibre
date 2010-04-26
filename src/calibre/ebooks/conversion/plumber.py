@@ -299,12 +299,16 @@ OptionRecommendation(name='margin_right',
         help=_('Set the right margin in pts. Default is %default. '
             'Note: 72 pts equals 1 inch')),
 
-OptionRecommendation(name='dont_justify',
-        recommended_value=False, level=OptionRecommendation.LOW,
-        help=_('Do not force text to be justified in output. Whether text '
-            'is actually displayed justified or not depends on whether '
-            'the ebook format and reading device support justification.')
-        ),
+OptionRecommendation(name='change_justification',
+        recommended_value='original', level=OptionRecommendation.LOW,
+        choices=['left','justify','original'],
+        help=_('Change text justification. A value of "left" converts all'
+            ' justified text in the source to left aligned (i.e. '
+            'unjustified) text. A value of "justify" converts all '
+            'unjustified text to justified. A value of "original" '
+            '(the default) does not change justification in the '
+            'source file. Note that only some output formats support '
+            'justification.')),
 
 OptionRecommendation(name='remove_paragraph_spacing',
         recommended_value=False, level=OptionRecommendation.LOW,

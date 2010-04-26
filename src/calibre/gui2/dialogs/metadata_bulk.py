@@ -19,6 +19,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.setupUi(self)
         self.db = db
         self.ids = [db.id(r) for r in rows]
+        self.groupBox.setTitle(_('Editing meta information for %d books') %
+                len(rows))
         self.write_series = False
         self.changed = False
         QObject.connect(self.button_box, SIGNAL("accepted()"), self.sync)

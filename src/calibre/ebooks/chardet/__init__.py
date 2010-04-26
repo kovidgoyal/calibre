@@ -43,11 +43,8 @@ def strip_encoding_declarations(raw):
     return raw
 
 def substitute_entites(raw):
-    from calibre import entity_to_unicode
-    from functools import partial
-    f = partial(entity_to_unicode, exceptions=
-                ['amp', 'apos', 'quot', 'lt', 'gt'])
-    return ENTITY_PATTERN.sub(f, raw)
+    from calibre import xml_entity_to_unicode
+    return ENTITY_PATTERN.sub(xml_entity_to_unicode, raw)
 
 _CHARSET_ALIASES = { "macintosh" : "mac-roman",
                         "x-sjis" : "shift-jis" }

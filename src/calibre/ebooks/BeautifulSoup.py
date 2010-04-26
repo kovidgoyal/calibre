@@ -1132,7 +1132,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
         self.pushTag(self)
 
     def popTag(self):
-        tag = self.tagStack.pop()
+        self.tagStack.pop()
         # Tags with just one string-owning child get the child as a
         # 'string' property, so that soup.tag.string is shorthand for
         # soup.tag.contents[0]
@@ -1727,7 +1727,7 @@ class UnicodeDammit:
             u = self._toUnicode(markup, proposed)
             self.markup = u
             self.originalEncoding = proposed
-        except Exception, e:
+        except Exception:
             #print "That didn't work!"
             #print e
             return None
