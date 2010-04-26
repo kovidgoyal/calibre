@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-04-23 20:55+0000\n"
-"PO-Revision-Date: 2010-04-24 09:07+0000\n"
-"Last-Translator: Bartosz Kaszubowski <gosimek@gmail.com>\n"
+"PO-Revision-Date: 2010-04-25 09:16+0000\n"
+"Last-Translator: B.J. Stobiecki <bjfs84@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-04-25 03:44+0000\n"
+"X-Launchpad-Export-Date: 2010-04-26 03:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -162,7 +162,7 @@ msgstr "Zapisywanie metadanych"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:263
 msgid "Catalog generator"
-msgstr "Generator katalogów"
+msgstr "Generator katalogu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:15
 msgid ""
