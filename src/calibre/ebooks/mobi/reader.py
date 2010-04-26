@@ -497,8 +497,8 @@ class MobiReader(object):
                 if ':' in x:
                     del tag.attrib[x]
             if tag.tag in ('country-region', 'place', 'placetype', 'placename',
-                'state', 'city', 'street', 'address', 'content'):
-                tag.tag = 'div' if tag.tag == 'content' else 'span'
+                'state', 'city', 'street', 'address', 'content', 'form'):
+                tag.tag = 'div' if tag.tag in ('content', 'form') else 'span'
                 for key in tag.attrib.keys():
                     tag.attrib.pop(key)
                 continue
