@@ -11,6 +11,7 @@ from PyQt4.QtGui import QDialog, QPixmap, QGraphicsScene, QIcon, QDesktopService
 from calibre.gui2.dialogs.book_info_ui import Ui_BookInfo
 from calibre.gui2 import dynamic
 from calibre import fit_image
+from calibre.library.comments import comments_to_html
 
 class BookInfo(QDialog, Ui_BookInfo):
 
@@ -96,6 +97,8 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.setWindowTitle(info[_('Title')])
         self.title.setText('<b>'+info.pop(_('Title')))
         comments = info.pop(_('Comments'), '')
+        if comments:
+            comments = comments_to_html(comments)
         if re.search(r'<[a-zA-Z]+>', comments) is None:
             lines = comments.splitlines()
             lines = [x if x.strip() else '<br><br>' for x in lines]

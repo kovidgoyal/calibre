@@ -320,14 +320,12 @@ class HTMLInput(InputFormatPlugin):
         if not metadata.title:
             oeb.logger.warn('Title not specified')
             metadata.add('title', self.oeb.translate(__('Unknown')))
-
         bookid = str(uuid.uuid4())
         metadata.add('identifier', bookid, id='uuid_id', scheme='uuid')
         for ident in metadata.identifier:
             if 'id' in ident.attrib:
                 self.oeb.uid = metadata.identifier[0]
                 break
-
 
         filelist = get_filelist(htmlpath, basedir, opts, log)
         filelist = [f for f in filelist if not f.is_binary]

@@ -11,6 +11,7 @@ from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.notify import get_notifier
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.library.comments import comments_to_html
 
 class BookInfoDisplay(QWidget):
 
@@ -133,6 +134,8 @@ class BookInfoDisplay(QWidget):
                 key = key.decode(preferred_encoding, 'replace')
             if isinstance(txt, str):
                 txt = txt.decode(preferred_encoding, 'replace')
+            if key == _('Comments'):
+                txt = comments_to_html(txt)
             rows += u'<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)
         self.book_data.setText(u'<table>'+rows+u'</table>')
 

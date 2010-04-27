@@ -231,7 +231,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             if mi.series_index is not None:
                 self.series_index.setValue(float(mi.series_index))
         if mi.comments and mi.comments.strip():
-            self.comments.setText(mi.comments)
+            self.comments.setPlainText(mi.comments)
 
 
     def set_cover(self):
@@ -590,7 +590,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                             prefix = unicode(self.comments.toPlainText())
                             if prefix:
                                 prefix += '\n'
-                            self.comments.setText(prefix + summ)
+                            self.comments.setPlainText(prefix + summ)
                         if book.rating is not None:
                             self.rating.setValue(int(book.rating))
                         if book.tags:
@@ -654,7 +654,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.db.set_series(self.id,
                     unicode(self.series.currentText()).strip(), notify=False)
             self.db.set_series_index(self.id, self.series_index.value(), notify=False)
-            self.db.set_comment(self.id, qstring_to_unicode(self.comments.toPlainText()), notify=False)
+            self.db.set_comment(self.id, unicode(self.comments.toPlainText()), notify=False)
             d = self.pubdate.date()
             d = qt_to_dt(d)
             self.db.set_pubdate(self.id, d, notify=False)
