@@ -1668,7 +1668,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if src_book:
                 fmt = os.path.splitext(src_book)[-1].replace('.', '').upper()
                 with open(src_book, 'rb') as f:
-                    self.db.add_format(dest_id, fmt, f, index_is_id=True,
+                    self.library_view.model().db.add_format(dest_id, fmt, f, index_is_id=True,
                             notify=False, replace=replace)
 
     def books_to_merge(self, rows):
