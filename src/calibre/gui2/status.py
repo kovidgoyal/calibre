@@ -127,6 +127,8 @@ class BookInfoDisplay(QWidget):
         keys.sort(cmp=lambda x, y: cmp(self.WEIGHTS[x], self.WEIGHTS[y]))
         for key in keys:
             txt = data[key]
+            if not txt or not txt.strip() or txt == 'None':
+                continue
             if isinstance(key, str):
                 key = key.decode(preferred_encoding, 'replace')
             if isinstance(txt, str):
