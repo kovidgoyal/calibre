@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-04-23 20:55+0000\n"
-"PO-Revision-Date: 2010-04-25 09:16+0000\n"
-"Last-Translator: B.J. Stobiecki <bjfs84@gmail.com>\n"
+"PO-Revision-Date: 2010-04-26 10:35+0000\n"
+"Last-Translator: Bartosz Kaszubowski <gosimek@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-04-26 03:40+0000\n"
+"X-Launchpad-Export-Date: 2010-04-27 03:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -8128,7 +8128,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:785
 msgid "Error: You must specify a field name, id and value"
-msgstr ""
+msgstr "Błąd: Musisz określić identyfikator, nazwę i wartość pola"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:804
 msgid ""
@@ -8141,11 +8141,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:811
 msgid "Show details for each column."
-msgstr ""
+msgstr "Pokaż szczegóły dla każdej kolumny."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:823
 msgid "You will lose all data in the column: %r. Are you sure (y/n)? "
-msgstr ""
+msgstr "Utracisz wszystkie dane z kolumny: %r. Jesteś pewien (y/n)? "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:831
 msgid ""
@@ -8159,11 +8159,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:839
 msgid "Do not ask for confirmation"
-msgstr ""
+msgstr "Nie pytaj o potwierdzenie"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:849
 msgid "Error: You must specify a column label"
-msgstr ""
+msgstr "Błąd: Musisz podać nagłówek kolumny"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:862
 msgid ""
@@ -8354,7 +8354,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server.py:890
 msgid "Write process PID to the specified file"
-msgstr ""
+msgstr "Zapisz identyfikator procesu do określonego pliku"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:48
 msgid "%sUsage%s: %s\n"
@@ -8421,7 +8421,7 @@ msgstr "Dodaj nowy format do istniejącego wpisu książki"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:678
 msgid "List of named saved searches"
-msgstr ""
+msgstr "Lista nazwanych zapisanych wyszukiwań"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -8597,7 +8597,7 @@ msgstr " z "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:666
 msgid "\tFailed links:"
-msgstr ""
+msgstr "\tNieprawidłowe linki:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:747
 msgid "Could not fetch article. Run with -vv to see the reason"
@@ -8609,7 +8609,7 @@ msgstr "Pobieram strumienie..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:773
 msgid "Got feeds from index page"
-msgstr ""
+msgstr "Pobierz strumienie ze strony głównej"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:779
 msgid "Trying to download cover..."

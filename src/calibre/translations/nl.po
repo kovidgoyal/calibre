@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-04-23 20:55+0000\n"
-"PO-Revision-Date: 2010-04-25 12:44+0000\n"
-"Last-Translator: ikkeffe <Unknown>\n"
+"PO-Revision-Date: 2010-04-26 23:23+0000\n"
+"Last-Translator: Kris Van Hees <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-04-26 03:40+0000\n"
+"X-Launchpad-Export-Date: 2010-04-27 03:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:353
@@ -1296,6 +1296,12 @@ msgid ""
 "\"original\" (the default) does not change justification in the source file. "
 "Note that only some output formats support justification."
 msgstr ""
+"Pas de uitlijning van de tekst aan. De waarde \"links\" veranderd alle "
+"uitgelijnde tekst in de bron naar links uitgelijnde tekst (dat is, niet "
+"uitgelijnd). De waarde \"uitlijnen\" veranderd alle niet uitgelijnde tekst "
+"naar uitgelijnd. De waarde \"origineel\" (de initiële waarde) veranderd de "
+"uitlijning in het bronbestand niet. Merk op dat maar een beperkt aantal "
+"output-formaten uitlijnen ondersteunen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:315
 msgid ""
@@ -2193,6 +2199,8 @@ msgstr "Deactiveer compressie van de bestands inhoud"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:40
 msgid "Tag marking book to be filed with Personal Docs"
 msgstr ""
+"Tag dat aangeeft dat het book bij de Persoonlijke documenten moet worden "
+"opgeslagen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:108
 msgid "All articles"
@@ -3399,11 +3407,11 @@ msgstr "Voeg lege regel toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:143
 msgid "Text justification:"
-msgstr ""
+msgstr "Uitlijnen van tekst:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:144
 msgid "justify"
-msgstr ""
+msgstr "uitlijnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:145
 msgid "left"
@@ -3633,11 +3641,11 @@ msgstr "Kindle opties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:73
 msgid "Periodical masthead font:"
-msgstr ""
+msgstr "lettertype voor titelkoppen van periodieken:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:74
 msgid "Personal Doc tag:"
-msgstr ""
+msgstr "Tag voor persoonlijk document:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -4058,7 +4066,7 @@ msgstr "Lees boeken lijst van apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:229
 msgid "Get annotations from device"
-msgstr ""
+msgstr "Haal annotaties uit apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:238
 msgid "Send metadata to device"
@@ -4124,7 +4132,7 @@ msgstr "Zend specifiek formaat naar opslag kaart B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:408
 msgid "Fetch annotations (experimental)"
-msgstr ""
+msgstr "Haal annoties op (experimenteel)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:518
 msgid "selected to send"
@@ -4850,6 +4858,9 @@ msgid ""
 "automatically sent for downloaded news to all email addresses that have Auto-"
 "send checked."
 msgstr ""
+"calibre kan boeken naar jou (of je reader) sturen via email. Emails worden "
+"automatisch gestuurd voor gedownload nieuws naar alle email adressen "
+"waarvoor automatisch opsturen is aangevinkt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:547
 msgid "&Maximum number of waiting worker processes (needs restart):"
@@ -5007,11 +5018,11 @@ msgstr "&Toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:125
 msgid "Create Tag-based Column"
-msgstr ""
+msgstr "Maak een tag-gebaseerde kolom aan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:126
 msgid "Lookup name"
-msgstr ""
+msgstr "Zoek naam op"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:127
 msgid "Column heading"
@@ -5019,15 +5030,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:128
 msgid "Column type"
-msgstr ""
+msgstr "Soort kolom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:129
 msgid "Use brackets"
-msgstr ""
+msgstr "Gebruik vierkante haakjes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:130
 msgid "Values can be edited"
-msgstr ""
+msgstr "Waarden kunnen worden aangepast"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:133
@@ -5045,7 +5056,7 @@ msgstr "Tekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:136
 msgid "Number"
-msgstr ""
+msgstr "Nummer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:177
@@ -5055,15 +5066,15 @@ msgstr "Datum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:138
 msgid "Tag on book"
-msgstr ""
+msgstr "Tag op boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:139
 msgid "Explanation text added in create_ct_column.py"
-msgstr ""
+msgstr "Verklarende tekst toegevoegd in create_ct_column.py"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:140
 msgid "Create and edit tag-based columns"
-msgstr ""
+msgstr "Maak en wijzig tag-gebaseerde kolommen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:21
 msgid "Getting debug information"
@@ -5311,7 +5322,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:168
 msgid "Automatically number books in this series"
-msgstr ""
+msgstr "Nummer de boeken in deze serie automatisch"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:123
 msgid "Not a valid picture"
@@ -5552,7 +5563,7 @@ msgstr "Voeg een persoonlijke nieuwsbron toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:314
 msgid "No internet connection"
-msgstr ""
+msgstr "Geen internetverbinding"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:315
 msgid "Cannot download news as no internet connection is active"
@@ -5732,11 +5743,13 @@ msgstr "Welke vergelijking gebruiken:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:121
 msgid "Contains: the word or phrase matches anywhere in the metadata"
-msgstr ""
+msgstr "Bevat: het woord of de uitdrukking komt ergens in de metadata voor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:122
 msgid "Equals: the word or phrase must match an entire metadata field"
 msgstr ""
+"Gelijk aan: het woord of the uitdrukken komt overeen met een compleet veld "
+"in de metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:123
 msgid ""
@@ -6387,7 +6400,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:370
 msgid "Copy current search text (instead of search name)"
-msgstr ""
+msgstr "Kopieer de huidige zoektekst (in plaats van zoeknaam)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:372
 msgid "Save current search under the name shown in the box"
@@ -6635,7 +6648,7 @@ msgstr "Uitgevers"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:151
 msgid "Searches"
-msgstr ""
+msgstr "Zoekopdrachten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:182
@@ -6690,7 +6703,7 @@ msgstr "Zoeken (Voor geavanceerd zoeken klik op de knop links)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:153
 msgid "Saved Searches"
-msgstr ""
+msgstr "Opgeslagen zoekopdrachten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:176
 msgid "Error communicating with device"
@@ -6706,7 +6719,7 @@ msgstr "Ondersteun calibre met een &Donatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:198
 msgid "&Eject connected device"
-msgstr ""
+msgstr "Aangesloten apparaat ontkoppelen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:203
 msgid "&Restart"
@@ -6846,11 +6859,11 @@ msgstr "Zoek op omslag afbeelding"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:793
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:797
 msgid "(all books)"
-msgstr ""
+msgstr "(alle boeken)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:802
 msgid "(%d found)"
-msgstr ""
+msgstr "(%d gevonden)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:893
 msgid "Device: "
@@ -6900,7 +6913,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:995
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1172
 msgid "Use library only"
-msgstr ""
+msgstr "Gebruik alleen de bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:996
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1173
@@ -8228,12 +8241,12 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Komma-gescheiden lijst van label woorden die aangeeft dat boek niet moet "
-"worden toegevoegd aan de uitvoer. Niet hoofdletter-gevoelig.\n"
-"--exclude-tags=overslaan will match 'skip this book' and 'Skip will like "
+"Komma-gescheiden lijst van tag woorden die aangeeft dat het boek uit de "
+"uitvoer moet gehouden worden.  Nit hoodletter-gevoelig.\n"
+"--exclude-tags=skip komt overeen met 'skip this book' en 'Skip will like "
 "this'\n"
 "Standaard: '%default'\n"
-"Betrekking tot: ePub, MOBI uitvoer formaten"
+"Is van toepassing op: ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:293
 msgid ""
