@@ -19,12 +19,13 @@ __builtin__.__dict__['__'] = lambda s: s
 from calibre.constants import iswindows, preferred_encoding, plugins
 
 _run_once = False
+winutil = winutilerror = None
+
 if not _run_once:
     _run_once = True
 
     ################################################################################
     # Platform specific modules
-    winutil = winutilerror = None
     if iswindows:
         winutil, winutilerror = plugins['winutil']
         if not winutil:
