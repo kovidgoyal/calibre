@@ -113,14 +113,27 @@ class Jacket(object):
                 jacket=escape(_('Book Jacket')), series=series,
                 tags=tags, rating=self.get_rating(mi.rating))
         id, href = self.oeb.manifest.generate('jacket', 'jacket.xhtml')
-        from calibre.ebooks.oeb.base import RECOVER_PARSER
+        from calibre.ebooks.oeb.base import RECOVER_PARSER, XPath
         try:
             root = etree.fromstring(generate_html(comments), parser=RECOVER_PARSER)
         except:
             root = etree.fromstring(generate_html(escape(orig_comments)),
                     parser=RECOVER_PARSER)
-        item = self.oeb.manifest.add(id, href, guess_type(href)[0], data=root)
-        self.oeb.spine.insert(0, item, True)
+        jacket = XPath('//h:meta[@name="calibre-content" and @content="jacket"]')
+        found = None
+        for item in list(self.oeb.spine)[:4]:
+            try:
+                if jacket(item.data):
+                    found = item
+                    break
+            except:
+                continue
+        if found is None:
+            item = self.oeb.manifest.add(id, href, guess_type(href)[0], data=root)
+            self.oeb.spine.insert(0, item, True)
+        else:
+            self.log('Found existing book jacket, replacing...')
+            found.data = root
 
 
     def __call__(self, oeb, opts, metadata):
