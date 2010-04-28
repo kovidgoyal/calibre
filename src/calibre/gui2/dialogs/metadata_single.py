@@ -555,7 +555,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         title  = qstring_to_unicode(self.title.text())
         try:
             author = string_to_authors(unicode(self.authors.text()))[0]
-        except IndexError:
+        except:
             author = ''
         publisher = qstring_to_unicode(self.publisher.currentText())
         if isbn or title or author or publisher:
