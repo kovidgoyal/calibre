@@ -822,7 +822,7 @@ def do_remove_custom_column(db, label, force):
     if not force:
         q = raw_input(_('You will lose all data in the column: %r.'
             ' Are you sure (y/n)? ')%label)
-        if q.lower().strip() != 'y':
+        if q.lower().strip() != _('y'):
             return
     db.delete_custom_column(label=label)
     prints('Column %r removed.'%label)
