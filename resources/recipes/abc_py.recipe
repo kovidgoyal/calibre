@@ -1,0 +1,49 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+abc.com.py
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ABC_py(BasicNewsRecipe):
+    title                 = 'ABC digital'
+    __author__            = 'Darko Miletic'
+    description           = 'Noticias de Paraguay y el resto del mundo'
+    publisher             = 'ABC'
+    category              = 'news, politics, Paraguay'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'cp1252'
+    use_embedded_content  = False
+    language              = 'es_PY'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} '
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags       = [dict(name=['form','iframe','embed','object','link','base','table']),dict(attrs={'class':'toolbox'})]
+    remove_tags_after = dict(attrs={'class':'date'})
+    keep_only_tags    = [dict(attrs={'class':'zcontent'})]
+
+
+    feeds = [
+               (u'Ultimo momento'      , u'http://www.abc.com.py/ultimo-momento.xml'      )
+              ,(u'Nacionales'          , u'http://www.abc.com.py/nacionales.xml'          )
+              ,(u'Internacionales'     , u'http://www.abc.com.py/internacionales.xml'     )
+              ,(u'Deportes'            , u'http://www.abc.com.py/deportes.xml'            )
+              ,(u'Espectaculos'        , u'http://www.abc.com.py/espectaculos.xml'        )
+              ,(u'Ciencia y Tecnologia', u'http://www.abc.com.py/ciencia-y-tecnologia.xml')
+            ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
