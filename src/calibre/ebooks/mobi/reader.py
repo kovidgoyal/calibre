@@ -61,7 +61,7 @@ class EXTHHeader(object):
                 # last update time
                 pass
             elif id == 503: # Long title
-                if not title or title == _('Unknown'):
+                if not title or title == _('Unknown') or 'USER_CONTENT' in title:
                     try:
                         title = content.decode(codec)
                     except:
