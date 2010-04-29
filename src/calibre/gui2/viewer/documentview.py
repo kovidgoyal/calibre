@@ -423,7 +423,7 @@ class DocumentView(QWebView):
         QWebView.__init__(self, *args)
         self.debug_javascript = False
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
-        self.self_closing_pat = re.compile(r'<([a-z]+)\s+([^>]+)/>',
+        self.self_closing_pat = re.compile(r'<([a-z1-6]+)\s+([^>]+)/>',
                 re.IGNORECASE)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         self._size_hint = QSize(510, 680)
