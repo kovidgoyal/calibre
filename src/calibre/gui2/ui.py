@@ -350,7 +350,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         self.view_menu = QMenu()
         self.view_menu.addAction(_('View'))
-        self.view_menu.addAction(_('View specific format'))
+        ac = self.view_menu.addAction(_('View specific format'))
+        ac.setShortcut(Qt.AltModifier+Qt.Key_V)
         self.action_view.setMenu(self.view_menu)
 
         self.delete_menu = QMenu()
