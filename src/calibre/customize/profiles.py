@@ -244,8 +244,8 @@ class iPadOutput(OutputProfile):
 
     name = 'iPad'
     short_name = 'ipad'
-    screen_size = (1024, 768)
-    comic_screen_size = (1024, 768)
+    screen_size = (768, 1024)
+    comic_screen_size = (768, 1024)
     dpi = 132.0
 
 class SonyReaderOutput(OutputProfile):
