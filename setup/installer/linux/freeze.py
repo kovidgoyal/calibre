@@ -153,7 +153,7 @@ class LinuxFreeze(Command):
         sys.resources_location = os.path.join(DIR_NAME, 'resources')
         dfv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
         if dfv and os.path.exists(dfv):
-            sys.path.insert(0, dfv)
+            sys.path.insert(0, os.path.abspath(dfv))
 
         executables = %(executables)s
 
