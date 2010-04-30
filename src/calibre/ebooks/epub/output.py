@@ -364,6 +364,12 @@ class EPUBOutput(OutputFormatPlugin):
         '''
         from calibre.ebooks.oeb.base import XPath, XHTML, OEB_STYLES, barename, urlunquote
 
+        stylesheet = None
+        for item in self.oeb.manifest:
+            if item.media_type.lower() in OEB_STYLES:
+                stylesheet = item
+                break
+
         # ADE cries big wet tears when it encounters an invalid fragment
         # identifier in the NCX toc.
         frag_pat = re.compile(r'[-A-Za-z0-9_:.]+$')
@@ -460,11 +466,17 @@ class EPUBOutput(OutputFormatPlugin):
                     elem.tail = special_chars.sub('', elem.tail)
                     elem.tail = elem.tail.replace(u'\u2011', '-')
 
-        stylesheet = None
-        for item in self.oeb.manifest:
-            if item.media_type.lower() in OEB_STYLES:
-                stylesheet = item
-                break
+            if stylesheet is not None:
+                # ADE doesn't render lists correctly if they have left margins
+                from cssutils.css import CSSRule
+                for lb in XPath('//h:ul[@class]|//h:ol[@class]')(root):
+                    sel = '.'+lb.get('class')
+                    for rule in stylesheet.data.cssRules.rulesOfType(CSSRule.STYLE_RULE):
+                        if sel == rule.selectorList.selectorText:
+                            val = rule.style.removeProperty('margin-left')
+                            pval = rule.style.getProperty('padding-left')
+                            if val and not pval:
+                                rule.style.setProperty('padding-left', val)
 
         if stylesheet is not None:
             stylesheet.data.add('a { color: inherit; text-decoration: inherit; '
