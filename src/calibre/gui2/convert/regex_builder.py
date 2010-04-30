@@ -7,12 +7,12 @@ __docformat__ = 'restructuredtext en'
 import re
 
 from PyQt4.QtCore import SIGNAL, Qt
-from PyQt4.QtGui import QDialog, QWidget, QDialogButtonBox, QFileDialog, \
+from PyQt4.QtGui import QDialog, QWidget, QDialogButtonBox, \
                         QBrush, QTextCursor, QTextEdit
 
 from calibre.gui2.convert.regex_builder_ui import Ui_RegexBuilder
 from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, choose_files
 from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 
@@ -94,9 +94,10 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 
     def button_clicked(self, button):
         if button == self.button_box.button(QDialogButtonBox.Open):
-            name = QFileDialog.getOpenFileName(self, _('Open book'), _('~'))
-            if name:
-                self.open_book(unicode(name))
+            files = choose_files(self, 'regexp tester dialog', _('Open book'),
+                    select_only_single_file=True)
+            if files:
+                self.open_book(files[0])
         if button == self.button_box.button(QDialogButtonBox.Ok):
             self.accept()
 
