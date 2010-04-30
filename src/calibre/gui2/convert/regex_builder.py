@@ -53,16 +53,16 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         if self.regex_valid():
             text = qstring_to_unicode(self.preview.toPlainText())
             regex = qstring_to_unicode(self.regex.text())
-
+            cursor = QTextCursor(self.preview.document())
+            extsel = QTextEdit.ExtraSelection()
+            extsel.cursor = cursor
+            extsel.format.setBackground(QBrush(Qt.yellow))
             try:
                 for match in re.finditer(regex, text):
-                    cursor = QTextCursor(self.preview.document())
-                    cursor.setPosition(match.start(), QTextCursor.MoveAnchor)
-                    cursor.setPosition(match.end(), QTextCursor.KeepAnchor)
-                    sel = QTextEdit.ExtraSelection()
-                    sel.cursor = cursor
-                    sel.format.setBackground(QBrush(Qt.yellow))
-                    selections.append(sel)
+                    es = QTextEdit.ExtraSelection(extsel)
+                    es.cursor.setPosition(match.start(), QTextCursor.MoveAnchor)
+                    es.cursor.setPosition(match.end(), QTextCursor.KeepAnchor)
+                    selections.append(es)
             except:
                 pass
         self.preview.setExtraSelections(selections)
