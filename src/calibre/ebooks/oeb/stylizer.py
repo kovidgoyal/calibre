@@ -96,6 +96,8 @@ class CSSSelector(etree.XPath):
             path = css_to_xpath(css)
         except UnicodeEncodeError: # Bug in css_to_xpath
             path = '/'
+        except NotImplementedError: # Probably a subselect like :hover
+            path = '/'
         path = self.LOCAL_NAME_RE.sub(r"local-name() = '", path)
         etree.XPath.__init__(self, path, namespaces=namespaces)
         self.css = css
@@ -534,6 +536,8 @@ class Style(object):
                 result = base
             else:
                 result = self._unit_convert(width, base=base)
+            if isinstance(result, (unicode, str, bytes)):
+                result = self._profile.width
             self._width = result
         return self._width
 
@@ -555,6 +559,8 @@ class Style(object):
                 result = base
             else:
                 result = self._unit_convert(height, base=base)
+            if isinstance(result, (unicode, str, bytes)):
+                result = self._profile.height
             self._height = result
         return self._height
 
