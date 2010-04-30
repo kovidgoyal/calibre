@@ -10,7 +10,7 @@ http://www.repubblica.it/
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class LaRepublica(BasicNewsRecipe):
+class LaRepubblica(BasicNewsRecipe):
     author        = 'Lorenzo Vigentini, based on Darko Miletic'
     description   = 'Italian daily newspaper'
 
@@ -54,21 +54,24 @@ class LaRepublica(BasicNewsRecipe):
                         ]
 
     feeds          = [
-                       (u'Repubblica Rilievo', u'http://www.repubblica.it/rss/homepage/rss2.0.xml'),
-                       (u'Repubblica Cronaca', u'http://www.repubblica.it/rss/cronaca/rss2.0.xml'),
-                       (u'Repubblica Esteri', u'http://www.repubblica.it/rss/esteri/rss2.0.xml'),
-                       (u'Repubblica Economia', u'http://www.repubblica.it/rss/economia/rss2.0.xml'),
-                       (u'Repubblica Politica', u'http://www.repubblica.it/rss/politica/rss2.0.xml'),
-                       (u'Repubblica Scienze', u'http://www.repubblica.it/rss/scienze/rss2.0.xml'),
-                       (u'Repubblica Tecnologia', u'http://www.repubblica.it/rss/tecnologia/rss2.0.xml'),
-                       (u'Repubblica Scuola e Universita', u'http://www.repubblica.it/rss/scuola_e_universita/rss2.0.xml'),
-                       (u'Repubblica Ambiente', u'http://www.repubblica.it/rss/ambiente/rss2.0.xml'),
-                       (u'Repubblica Cultura', u'http://www.repubblica.it/rss/spettacoli_e_cultura/rss2.0.xml'),
-                       (u'Repubblica Persone', u'http://www.repubblica.it/rss/persone/rss2.0.xml'),
-                       (u'Repubblica Sport', u'http://www.repubblica.it/rss/sport/rss2.0.xml'),
-                       (u'Repubblica Calcio', u'http://www.repubblica.it/rss/sport/calcio/rss2.0.xml'),
-                       (u'Repubblica Motori', u'http://www.repubblica.it/rss/motori/rss2.0.xml'),
-                       (u'Repubblica Roma', u'http://roma.repubblica.it/rss/rss2.0.xml'),
-                       (u'Repubblica Torino', u'http://torino.repubblica.it/rss/rss2.0.xml')
+                       (u'Rilievo', u'http://www.repubblica.it/rss/homepage/rss2.0.xml'),
+                       (u'Cronaca', u'http://www.repubblica.it/rss/cronaca/rss2.0.xml'),
+                       (u'Esteri', u'http://www.repubblica.it/rss/esteri/rss2.0.xml'),
+                       (u'Economia', u'http://www.repubblica.it/rss/economia/rss2.0.xml'),
+                       (u'Politica', u'http://www.repubblica.it/rss/politica/rss2.0.xml'),
+                       (u'Scienze', u'http://www.repubblica.it/rss/scienze/rss2.0.xml'),
+                       (u'Tecnologia', u'http://www.repubblica.it/rss/tecnologia/rss2.0.xml'),
+                       (u'Scuola e Universita', u'http://www.repubblica.it/rss/scuola_e_universita/rss2.0.xml'),
+                       (u'Ambiente', u'http://www.repubblica.it/rss/ambiente/rss2.0.xml'),
+                       (u'Cultura', u'http://www.repubblica.it/rss/spettacoli_e_cultura/rss2.0.xml'),
+                       (u'Persone', u'http://www.repubblica.it/rss/persone/rss2.0.xml'),
+                       (u'Sport', u'http://www.repubblica.it/rss/sport/rss2.0.xml'),
+                       (u'Calcio', u'http://www.repubblica.it/rss/sport/calcio/rss2.0.xml'),
+                       (u'Motori', u'http://www.repubblica.it/rss/motori/rss2.0.xml'),
+                       (u'Edizione Roma', u'http://roma.repubblica.it/rss/rss2.0.xml'),
+                       (u'Edizione Torino', u'http://torino.repubblica.it/rss/rss2.0.xml'),
+                       (u'Edizione Milano', u'feed://milano.repubblica.it/rss/rss2.0.xml'),
+                       (u'Edizione Napoli', u'feed://napoli.repubblica.it/rss/rss2.0.xml'),
+                       (u'Edizione Palermo', u'feed://palermo.repubblica.it/rss/rss2.0.xml')
                       ]
 

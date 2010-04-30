@@ -4,6 +4,97 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.50
+  date: 2010-04-30
+
+  new features:
+    - title: "Add merge book feature"
+      type: major
+      desc: >
+        "You can now merge multiple books into a single book, by clicking the arrow next to the edit meta information button.
+        Meta information from the books will be merged as well as individual book files in different formats"
+
+    - title: "Support for the Samsung Galaxy Spica and the Palm Pre"
+
+    - title: "Add a 'Go to' context menu to the ebook viewer"
+      tickets: [1230]
+
+    - title: "Show an asterisk next to version number when user is using CALIBRE_DEVELOP_FROM"
+      tickets: [5417]
+
+    - title: "Import ComicBookLover metadata from CBZ files"
+      tickets: [5402]
+
+    - title: "Add keyboard shortcut for viewing a specific format"
+      tickets: [5408]
+
+    - title: "EPUB Output: Add option to not use SVG for covers. Useful if you want to generate an EPUB for devices like the iPhone or JetBook Lite that don't support SVG covers"
+      tickets: [5409]
+
+    - title: "In the book info display area, only show series and tags if there are any. Move comments to the bottom."
+      tickets: [5391]
+
+  bug fixes:
+    - title: "E-book viewer: Use the Qt API to set document padding during next page operation, instead of javascript."
+      tickets: [5343]
+
+    - title: "E-book viewer: Handle self-closing heading tags in XHTML documents correctly."
+      tickets: [5413]
+
+    - title: "Conversion pipeline: Ignore CSS pseudo selectors"
+      tickets: [5337]
+
+    - title: "MOBI Input: Ignore form tags"
+      tickets: [5378]
+
+    - title: "Handle a scheduled custom recipe being deleted gracefully"
+      tickets: [5366]
+
+    - title: "ebook-convert: Don't rename PNG covers to JPG"
+      tickets: [5379]
+
+    - title: "Conversion pipeline: Respect width and height attributes in addition to width and height in CSS"
+
+    - title: "Fix regression which broke the use of HTML files in the regexp testing wizard"
+      tickets: [5341]
+
+    - title: "Fix match highlighting for multi-line regexps in the regexp testing wizard"
+      tickets: [5414]
+
+    - title: "EPUB Output: Workaround Adobe Digital Editions bug in rendering of lists with a left margin set."
+      tickets: [5415]
+
+    - title: "PRS 505/600/700/300 driver: Don't give an error message when editing metadata on SD card and cache directory does not exist"
+      tickets: [5410]
+
+    - title: "When converting EPUB to EPUB multiple times and creating book jacket from metadata, if an existing book jacket is found,
+             replace it. This will only work with EPUBs created with the current release onwards"
+
+    - title: "Correctly handle HTML in comments"
+      tickets: [5237]
+
+    - title: "Kindle driver: When transferring files whose names start witha  period, replace the period."
+      tickets: [5367]
+
+    - title: "Conversion pipeline: When decoding XML (but not XHTML) if no encoding is specified, assume utf-8. Make entity conversion more robust. When splitting html handle ids with quotes in them correctly"
+
+  new recipes:
+    - title: The Old New Thing, Berlingske, ABC, Ultima Hora, China Daily, Dani
+      author: Darko Miletic
+
+    - title: Observa Digital
+      author: yrvn
+
+    - title: "Bill O'Reilly and Sean Hannity"
+      author: Rob Lammert
+
+  improved recipes:
+    - PC Magazine
+    - Reuters
+    - Sueddeutsche Zeitung
+    - "il Sole 24 Ore"
+    - La Repubblica
+
 - version: 0.6.49
   date: 2010-04-23
 
