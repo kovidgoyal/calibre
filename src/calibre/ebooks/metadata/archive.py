@@ -64,3 +64,45 @@ class ArchiveExtract(FileTypePlugin):
                 of.write(zf.read(fname))
         return of.name
 
+def get_comic_book_info(d, mi):
+    series = d.get('series', '')
+    if series.strip():
+        mi.series = series
+        if d.get('volume', -1) > -1:
+            mi.series_index = float(d['volume'])
+    if d.get('rating', -1) > -1:
+        mi.rating = d['rating']
+    for x in ('title', 'publisher'):
+        y = d.get(x, '').strip()
+        if y:
+            setattr(mi, x, y)
+    tags = d.get('tags', [])
+    if tags:
+        mi.tags = tags
+    authors = []
+    for credit in d.get('credits', []):
+        if credit.get('role', '') in ('Writer', 'Artist', 'Cartoonist',
+                'Creator'):
+            x = credit.get('person', '')
+            if x:
+                x = ' '.join((reversed(x.split(', '))))
+                authors.append(x)
+    if authors:
+        mi.authors = authors
+
+
+
+def get_cbz_metadata(stream):
+    from calibre.utils.zipfile import ZipFile
+    from calibre.ebooks.metadata import MetaInformation
+    import json
+
+    zf = ZipFile(stream)
+    mi = MetaInformation(None, None)
+    if zf.comment:
+        m = json.loads(zf.comment)
+        if hasattr(m, 'keys'):
+            for cat in m.keys():
+                if cat.startswith('ComicBookInfo'):
+                    get_comic_book_info(m[cat], mi)
+    return mi

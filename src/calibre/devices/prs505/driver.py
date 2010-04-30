@@ -202,9 +202,11 @@ class PRS505(CLI, Device):
 
         def write_card_prefix(prefix, listid):
             if prefix is not None and hasattr(booklists[listid], 'write'):
-                if not os.path.exists(prefix):
-                    os.makedirs(prefix)
-                with open(prefix + self.__class__.CACHE_XML, 'wb') as f:
+                tgt  = os.path.join(prefix, *(self.CACHE_XML.split('/')))
+                base = os.path.dirname(tgt)
+                if not os.path.exists(base):
+                    os.makedirs(base)
+                with open(tgt, 'wb') as f:
                     booklists[listid].write(f)
         write_card_prefix(self._card_a_prefix, 1)
         write_card_prefix(self._card_b_prefix, 2)

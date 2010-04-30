@@ -81,12 +81,40 @@ class EPUBOutput(OutputFormatPlugin):
         OptionRecommendation(name='no_default_epub_cover', recommended_value=False,
             help=_('Normally, if the input file has no cover and you don\'t'
             ' specify one, a default cover is generated with the title, '
-            'authors, etc. This option disables the generation of this cover.')),
+            'authors, etc. This option disables the generation of this cover.')
+        ),
+
+        OptionRecommendation(name='no_svg_cover', recommended_value=False,
+            help=_('Do not use SVG for the book cover. Use this option if '
+                'your EPUB is going to be used ona  device that does not '
+                'support SVG, like the iPhone or the JetBook Lite. '
+                'Without this option, such devices will display the cover '
+                'as a blank page.')
+        ),
 
         ])
 
     recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
 
+    NONSVG_TITLEPAGE_COVER = '''\
+        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                <meta name="calibre:cover" content="true" />
+                <title>Cover</title>
+                <style type="text/css" title="override_css">
+                    @page {padding: 0pt; margin:0pt}
+                    body { text-align: center; padding:0pt; margin: 0pt; }
+                    div { padding:0pt; margin: 0pt; }
+                </style>
+            </head>
+            <body>
+                <div>
+                    <img src="%s" alt="cover" style="height: 100%%" />
+                </div>
+            </body>
+        </html>
+    '''
 
     TITLEPAGE_COVER = '''\
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -301,7 +329,9 @@ class EPUBOutput(OutputFormatPlugin):
             else:
                 href = self.default_cover()
             if href is not None:
-                tp = self.TITLEPAGE_COVER%unquote(href)
+                templ = self.NONSVG_TITLEPAGE_COVER if self.opts.no_svg_cover \
+                        else self.TITLEPAGE_COVER
+                tp = templ%unquote(href)
                 id, href = m.generate('titlepage', 'titlepage.xhtml')
                 item = m.add(id, href, guess_type('t.xhtml')[0],
                         data=etree.fromstring(tp))

@@ -7,7 +7,7 @@ import os
 import glob
 from calibre.customize import FileTypePlugin, MetadataReaderPlugin, MetadataWriterPlugin
 from calibre.constants import numeric_version
-from calibre.ebooks.metadata.archive import ArchiveExtract
+from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 
 class HTML2ZIP(FileTypePlugin):
     name = 'HTML to ZIP'
@@ -97,6 +97,12 @@ class ComicMetadataReader(MetadataReaderPlugin):
         from calibre.ebooks.metadata import MetaInformation
         ret = extract_first(stream)
         mi = MetaInformation(None, None)
+        stream.seek(0)
+        if ftype == 'cbz':
+            try:
+                mi.smart_update(get_cbz_metadata(stream))
+            except:
+                pass
         if ret is not None:
             path, data = ret
             ext = os.path.splitext(path)[1][1:]

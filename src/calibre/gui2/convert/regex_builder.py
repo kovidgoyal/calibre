@@ -8,7 +8,7 @@ import re
 
 from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QDialog, QWidget, QDialogButtonBox, QFileDialog, \
-    QBrush, QSyntaxHighlighter, QTextCharFormat
+                        QBrush, QTextCursor, QTextEdit
 
 from calibre.gui2.convert.regex_builder_ui import Ui_RegexBuilder
 from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
@@ -17,31 +17,6 @@ from calibre.gui2 import error_dialog
 from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 
-class RegexHighlighter(QSyntaxHighlighter):
-
-    def __init__(self, *args):
-        QSyntaxHighlighter.__init__(self, *args)
-
-        self.regex = u''
-
-    def update_regex(self, regex):
-        self.regex = regex
-        self.rehighlight()
-
-    def highlightBlock(self, text):
-        valid_regex = True
-        text = qstring_to_unicode(text)
-        format = QTextCharFormat()
-        format.setBackground(QBrush(Qt.yellow))
-
-        if self.regex:
-            try:
-                for mo in re.finditer(self.regex, text):
-                    self.setFormat(mo.start(), mo.end() - mo.start(), format)
-            except:
-                valid_regex = False
-        self.emit(SIGNAL('regex_valid(PyQt_PyObject)'), valid_regex)
-
 class RegexBuilder(QDialog, Ui_RegexBuilder):
 
     def __init__(self, db, book_id, regex, *args):
@@ -49,9 +24,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.setupUi(self)
 
         self.regex.setText(regex)
-        self.regex_valid(True)
-        self.highlighter = RegexHighlighter(self.preview.document())
-        self.highlighter.update_regex(regex)
+        self.regex_valid()
 
         if not db or not book_id:
             self.button_box.addButton(QDialogButtonBox.Open)
@@ -62,7 +35,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.connect(self.regex, SIGNAL('textChanged(QString)'), self.regex_valid)
         self.connect(self.test, SIGNAL('clicked()'), self.do_test)
 
-    def regex_valid(self, valid):
+    def regex_valid(self):
         regex = qstring_to_unicode(self.regex.text())
         if regex:
             try:
@@ -70,11 +43,29 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                 self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(0,255,0,20%); }')
             except:
                 self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgb(255,0,0,20%); }')
+                return False
         else:
             self.regex.setStyleSheet('QLineEdit { color: black; background-color: white; }')
+        return True
 
     def do_test(self):
-        self.highlighter.update_regex(qstring_to_unicode(self.regex.text()))
+        selections = []
+        if self.regex_valid():
+            text = qstring_to_unicode(self.preview.toPlainText())
+            regex = qstring_to_unicode(self.regex.text())
+
+            try:
+                for match in re.finditer(regex, text):
+                    cursor = QTextCursor(self.preview.document())
+                    cursor.setPosition(match.start(), QTextCursor.MoveAnchor)
+                    cursor.setPosition(match.end(), QTextCursor.KeepAnchor)
+                    sel = QTextEdit.ExtraSelection()
+                    sel.cursor = cursor
+                    sel.format.setBackground(QBrush(Qt.yellow))
+                    selections.append(sel)
+            except:
+                pass
+        self.preview.setExtraSelections(selections)
 
     def select_format(self, db, book_id):
         format = None

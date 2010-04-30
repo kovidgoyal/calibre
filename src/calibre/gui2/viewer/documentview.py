@@ -394,13 +394,14 @@ class Document(QWebPage):
         return self.mainFrame().contentsSize().width() # offsetWidth gives inaccurate results
 
     def set_bottom_padding(self, amount):
-        padding = '%dpx'%amount
-        try:
-            old_padding = unicode(self.javascript('$("body").css("padding-bottom")').toString())
-        except:
-            old_padding = ''
+        body = self.mainFrame().documentElement().findFirst('body')
+        if body.isNull():
+            return
+        old_padding = unicode(body.styleProperty('padding-bottom',
+            body.ComputedStyle)).strip()
+        padding = u'%dpx'%amount
         if old_padding != padding:
-            self.javascript('$("body").css("padding-bottom", "%s")' % padding)
+            body.setStyleProperty('padding-bottom', padding + ' !important')
 
 
 class EntityDeclarationProcessor(object):
@@ -423,7 +424,7 @@ class DocumentView(QWebView):
         QWebView.__init__(self, *args)
         self.debug_javascript = False
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
-        self.self_closing_pat = re.compile(r'<([a-z]+)\s+([^>]+)/>',
+        self.self_closing_pat = re.compile(r'<([a-z1-6]+)\s+([^>]+)/>',
                 re.IGNORECASE)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         self._size_hint = QSize(510, 680)
