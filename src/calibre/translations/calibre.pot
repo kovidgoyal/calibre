@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.6.50\n"
-"POT-Creation-Date: 2010-04-30 11:39+MDT\n"
-"PO-Revision-Date: 2010-04-30 11:39+MDT\n"
+"Project-Id-Version: calibre 0.6.51\n"
+"POT-Creation-Date: 2010-04-30 16:56+MDT\n"
+"PO-Revision-Date: 2010-04-30 16:56+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
