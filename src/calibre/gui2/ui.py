@@ -242,8 +242,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         ####################### Vanity ########################
         self.vanity_template  = _('<p>For help see the: <a href="%s">User Manual</a>'
                 '<br>')%'http://calibre-ebook.com/user_manual'
+        dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+        v = __version__
+        if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
+            v += '*'
         self.vanity_template += _('<b>%s</b>: %s by <b>Kovid Goyal '
-            '%%(version)s</b><br>%%(device)s</p>')%(__appname__, __version__)
+            '%%(version)s</b><br>%%(device)s</p>')%(__appname__, v)
         self.latest_version = ' '
         self.vanity.setText(self.vanity_template%dict(version=' ', device=' '))
         self.device_info = ' '
