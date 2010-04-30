@@ -254,6 +254,8 @@ class MobiReader(object):
             stream = open(filename_or_stream, 'rb')
 
         raw = stream.read()
+        if raw.startswith('TPZ'):
+            raise ValueError(_('This is an Amazon Topaz book. It cannot be processed.'))
 
         self.header   = raw[0:72]
         self.name     = self.header[:32].replace('\x00', '')
@@ -261,7 +263,7 @@ class MobiReader(object):
 
         self.ident = self.header[0x3C:0x3C + 8].upper()
         if self.ident not in ['BOOKMOBI', 'TEXTREAD']:
-            raise MobiError('Unknown book type: %s' % self.ident)
+            raise MobiError('Unknown book type: %s' % repr(self.ident))
 
         self.sections = []
         self.section_headers = []
