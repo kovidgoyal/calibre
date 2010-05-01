@@ -99,7 +99,7 @@ class Jacket(object):
             except:
                 tags = []
         if tags:
-            tags = '<b>Tags: </b>' + escape(self.opts.dest.tags_to_string(tags))
+            tags = '<b>Tags: </b>' + self.opts.dest.tags_to_string(tags)
         else:
             tags = ''
         try:

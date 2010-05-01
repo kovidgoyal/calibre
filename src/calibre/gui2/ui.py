@@ -2096,7 +2096,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 return
         for row in rows:
             path = self.library_view.model().db.abspath(row.row())
-            QDesktopServices.openUrl(QUrl('file:'+path))
+            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
 
     def view_book(self, triggered):
