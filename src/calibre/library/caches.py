@@ -8,12 +8,15 @@ __docformat__ = 'restructuredtext en'
 
 import collections, glob, os, re, itertools, functools
 from itertools import repeat
+from datetime import timedelta
 
 from PyQt4.QtCore import QThread, QReadWriteLock
 from PyQt4.QtGui import QImage
 
+from calibre.utils.config import tweaks
+from calibre.utils.date import parse_date, now
 from calibre.utils.search_query_parser import SearchQueryParser
-from calibre.utils.date import parse_date
+from calibre.utils.pyparsing import ParseException
 
 class CoverCache(QThread):
 
@@ -146,6 +149,14 @@ class ResultCache(SearchQueryParser):
     '''
     Stores sorted and filtered metadata in memory.
     '''
+    def __init__(self, FIELD_MAP, cc_label_map):
+        self.FIELD_MAP = FIELD_MAP
+        self.custom_column_label_map = cc_label_map
+        self._map = self._map_filtered = self._data = []
+        self.first_sort = True
+        self.search_restriction = ''
+        SearchQueryParser.__init__(self, [c for c in cc_label_map])
+        self.build_relop_dict()
 
     def build_relop_dict(self):
         '''
@@ -194,13 +205,6 @@ class ResultCache(SearchQueryParser):
         self.search_relops = {'=':[1, relop_eq],  '>':[1, relop_gt],  '<':[1, relop_lt], \
                               '!=':[2, relop_ne], '>=':[2, relop_ge], '<=':[2, relop_le]}
 
-    def __init__(self, FIELD_MAP):
-        self.FIELD_MAP = FIELD_MAP
-        self._map = self._map_filtered = self._data = []
-        self.first_sort = True
-        SearchQueryParser.__init__(self)
-        self.build_relop_dict()
-
     def __getitem__(self, row):
         return self._data[self._map_filtered[row]]
 
@@ -214,30 +218,63 @@ class ResultCache(SearchQueryParser):
     def universal_set(self):
         return set([i[0] for i in self._data if i is not None])
 
+    def get_matches_dates(self, location, query):
+        matches = set([])
+        if len(query) < 2:
+            return matches
+        relop = None
+        for k in self.search_relops.keys():
+            if query.startswith(k):
+                (p, relop) = self.search_relops[k]
+                query = query[p:]
+        if relop is None:
+                (p, relop) = self.search_relops['=']
+        if location in self.custom_column_label_map:
+            loc = self.FIELD_MAP[self.custom_column_label_map[location]['num']]
+        else:
+            loc = self.FIELD_MAP[{'date':'timestamp', 'pubdate':'pubdate'}[location]]
+
+        if query == _('today'):
+            qd = now()
+            field_count = 3
+        elif query == _('yesterday'):
+            qd = now() - timedelta(1)
+            field_count = 3
+        elif query == _('thismonth'):
+            qd = now()
+            field_count = 2
+        elif query.endswith(_('daysago')):
+            num = query[0:-len(_('daysago'))]
+            try:
+                qd = now() - timedelta(int(num))
+            except:
+                raise ParseException(query, len(query), 'Number conversion error', self)
+            field_count = 3
+        else:
+            try:
+                qd = parse_date(query)
+            except:
+                raise ParseException(query, len(query), 'Date conversion error', self)
+            if '-' in query:
+                field_count = query.count('-') + 1
+            else:
+                field_count = query.count('/') + 1
+        for item in self._data:
+            if item is None or item[loc] is None: continue
+            if relop(item[loc], qd, field_count):
+                matches.add(item[0])
+        return matches
+
     def get_matches(self, location, query):
         matches = set([])
         if query and query.strip():
             location = location.lower().strip()
 
             ### take care of dates special case
-            if location in ('pubdate', 'date'):
-                if len(query) < 2:
-                    return matches
-                relop = None
-                for k in self.search_relops.keys():
-                    if query.startswith(k):
-                        (p, relop) = self.search_relops[k]
-                        query = query[p:]
-                if relop is None:
-                    return matches
-                loc = self.FIELD_MAP[{'date':'timestamp', 'pubdate':'pubdate'}[location]]
-                qd = parse_date(query)
-                field_count = query.count('-') + 1
-                for item in self._data:
-                    if item is None: continue
-                    if relop(item[loc], qd, field_count):
-                        matches.add(item[0])
-                return matches
+            if (location in ('pubdate', 'date')) or \
+                    ((location in self.custom_column_label_map) and \
+                     self.custom_column_label_map[location]['datatype'] == 'datetime'):
+                return self.get_matches_dates(location, query)
 
             ### everything else
             matchkind = CONTAINS_MATCH
@@ -257,19 +294,39 @@ class ResultCache(SearchQueryParser):
                 query = query.decode('utf-8')
             if location in ('tag', 'author', 'format', 'comment'):
                 location += 's'
+
             all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series', 'formats', 'isbn', 'rating', 'cover')
             MAP = {}
-            for x in all:
+
+            for x in all: # get the db columns for the standard searchables
                 MAP[x] = self.FIELD_MAP[x]
+            IS_CUSTOM = []
+            for x in range(len(self.FIELD_MAP)): # build a list containing '' the size of FIELD_MAP
+                IS_CUSTOM.append('')
+            IS_CUSTOM[self.FIELD_MAP['rating']] = 'rating'  # normal and custom ratings columns use the same code
+            for x in self.custom_column_label_map: # add custom columns to MAP. Put the column's type into IS_CUSTOM
+                if self.custom_column_label_map[x]['datatype'] != "datetime":
+                    MAP[x] = self.FIELD_MAP[self.custom_column_label_map[x]['num']]
+                    IS_CUSTOM[MAP[x]] = self.custom_column_label_map[x]['datatype']
+
             EXCLUDE_FIELDS = [MAP['rating'], MAP['cover']]
             SPLITABLE_FIELDS = [MAP['authors'], MAP['tags'], MAP['formats']]
+            for x in self.custom_column_label_map:
+                if self.custom_column_label_map[x]['is_multiple']:
+                    SPLITABLE_FIELDS.append(MAP[x])
+
             location = [location] if location != 'all' else list(MAP.keys())
             for i, loc in enumerate(location):
                 location[i] = MAP[loc]
+
             try:
                 rating_query = int(query) * 2
             except:
                 rating_query = None
+
+            # get the tweak here so that the string lookup and compare aren't in the loop
+            bools_are_tristate = tweaks['bool_custom_columns_are_tristate'] == 'yes'
+
             for loc in location:
                 if loc == MAP['authors']:
                     q = query.replace(',', '|');  ### DB stores authors with commas changed to bars, so change query
@@ -278,14 +335,34 @@ class ResultCache(SearchQueryParser):
 
                 for item in self._data:
                     if item is None: continue
+
+                    if IS_CUSTOM[loc] == 'bool': # complexity caused by the two-/three-value tweak
+                        v = item[loc]
+                        if not bools_are_tristate:
+                            if v is None or not v: # item is None or set to false
+                                if q in [_('no'), _('unchecked'), 'false']:
+                                    matches.add(item[0])
+                            else: # item is explicitly set to true
+                                if q in [_('yes'), _('checked'), 'true']:
+                                    matches.add(item[0])
+                        else:
+                            if v is None:
+                                if q in [_('empty'), _('blank'), 'false']:
+                                    matches.add(item[0])
+                            elif not v: # is not None and false
+                                if q in [_('no'), _('unchecked'), 'true']:
+                                    matches.add(item[0])
+                            else: # item is not None and true
+                                if q in [_('yes'), _('checked'), 'true']:
+                                    matches.add(item[0])
+                        continue
+
                     if not item[loc]:
-                        if query == 'false':
-                            if isinstance(item[loc], basestring):
-                                if item[loc].strip() != '':
-                                    continue
+                        if q == 'false':
                             matches.add(item[0])
-                            continue
-                        continue    ### item is empty. No possible matches below
+                        continue     # item is empty. No possible matches below
+                    if q == 'false': # Field has something in it, so a false query does not match
+                        continue
 
                     if q == 'true':
                         if isinstance(item[loc], basestring):
@@ -293,12 +370,30 @@ class ResultCache(SearchQueryParser):
                                 continue
                         matches.add(item[0])
                         continue
-                    if rating_query and loc == MAP['rating'] and rating_query == int(item[loc]):
-                        matches.add(item[0])
+
+                    if IS_CUSTOM[loc] == 'rating':
+                        if rating_query and rating_query == int(item[loc]):
+                            matches.add(item[0])
                         continue
+
+                    try: # a conversion below might fail
+                        if IS_CUSTOM[loc] == 'float':
+                            if float(query) == item[loc]: # relationals not supported
+                                matches.add(item[0])
+                            continue
+                        if IS_CUSTOM[loc] == 'int':
+                            if int(query) == item[loc]:
+                                matches.add(item[0])
+                            continue
+                    except:
+                            continue  ## A conversion threw an exception. Because of the type, no further match possible
+
                     if loc not in EXCLUDE_FIELDS:
                         if loc in SPLITABLE_FIELDS:
-                            vals = item[loc].split(',') ### check individual tags/authors/formats, not the long string
+                            if IS_CUSTOM[loc]:
+                                vals = item[loc].split('|')
+                            else:
+                                vals = item[loc].split(',')
                         else:
                             vals = [item[loc]]          ### make into list to make _match happy
                         if _match(q, vals, matchkind):
@@ -342,8 +437,7 @@ class ResultCache(SearchQueryParser):
         '''
         for id in ids:
             try:
-                self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?',
-                        (id,))[0]
+                self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
                 self._data[id].append(db.has_cover(id, index_is_id=True))
             except IndexError:
                 return None
@@ -399,6 +493,12 @@ class ResultCache(SearchQueryParser):
                 asstr else cmp(self._data[x][loc], self._data[y][loc])
         except AttributeError: # Some entries may be None
             ans = cmp(self._data[x][loc], self._data[y][loc])
+        except TypeError: ## raised when a datetime is None
+            if self._data[x][loc] is None:
+                if self._data[y][loc] is None:
+                    return 0 # Both None. Return eq
+                return 1 # x is None, y not. Return gt
+            return -1 # x is not None and (therefore) y is. return lt
         if subsort and ans == 0:
             return cmp(self._data[x][11].lower(), self._data[y][11].lower())
         return ans
@@ -410,21 +510,35 @@ class ResultCache(SearchQueryParser):
         if   field == 'date': field = 'timestamp'
         elif field == 'title': field = 'sort'
         elif field == 'authors': field = 'author_sort'
+        as_string = field not in ('size', 'rating', 'timestamp')
+        if field in self.custom_column_label_map:
+            as_string = self.custom_column_label_map[field]['datatype'] in ('comments', 'text')
+            field = self.custom_column_label_map[field]['num']
+
         if self.first_sort:
             subsort = True
             self.first_sort = False
         fcmp = self.seriescmp if field == 'series' else \
             functools.partial(self.cmp, self.FIELD_MAP[field], subsort=subsort,
-                              asstr=field not in ('size', 'rating', 'timestamp'))
-
+                              asstr=as_string)
         self._map.sort(cmp=fcmp, reverse=not ascending)
         self._map_filtered = [id for id in self._map if id in self._map_filtered]
 
-    def search(self, query):
+    def search(self, query, return_matches = False):
         if not query or not query.strip():
+            q = self.search_restriction
+        else:
+            q = '%s (%s)' % (self.search_restriction, query)
+        if not q:
+            if return_matches:
+                return list(self.map) # when return_matches, do not update the maps!
             self._map_filtered = list(self._map)
-            return
-        matches = sorted(self.parse(query))
+            return []
+        matches = sorted(self.parse(q))
+        if return_matches:
+            return [id for id in self._map if id in matches]
         self._map_filtered = [id for id in self._map if id in matches]
+        return []
 
-
+    def set_search_restriction(self, s):
+        self.search_restriction = '' if not s else 'search:"%s"' % (s.strip())

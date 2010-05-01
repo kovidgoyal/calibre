@@ -24,6 +24,13 @@ class SafeLocalTimeZone(tzlocal):
             pass
         return False
 
+def compute_locale_info_for_parse_date():
+    dt = datetime.strptime('1/5/2000', "%x")
+    if dt.month == 5:
+        return True
+    return False
+
+parse_date_day_first = compute_locale_info_for_parse_date()
 utc_tz = _utc_tz = tzutc()
 local_tz = _local_tz = SafeLocalTimeZone()
 
@@ -44,7 +51,7 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
         func = datetime.utcnow if assume_utc else datetime.now
         default = func().replace(hour=0, minute=0, second=0, microsecond=0,
                 tzinfo=_utc_tz if assume_utc else _local_tz)
-    dt = parse(date_string, default=default)
+    dt = parse(date_string, default=default, dayfirst=parse_date_day_first)
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
