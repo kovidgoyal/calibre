@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, re, time, textwrap, sys, copy
+import os, re, time, textwrap, copy
 
 from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
                         QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit, \
@@ -17,7 +17,6 @@ from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
                          ALL_COLUMNS, NONE, info_dialog, choose_files, \
                          warning_dialog, ResizableDialog
 from calibre.utils.config import prefs
-from calibre.gui2.library import BooksModel
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
 from calibre.library import server_config
@@ -666,10 +665,10 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         return
 
     def add_custcol(self):
-        d = CreateCustomColumn(self, False, self.model.orig_headers, ALL_COLUMNS)
+        CreateCustomColumn(self, False, self.model.orig_headers, ALL_COLUMNS)
 
     def edit_custcol(self):
-        d = CreateCustomColumn(self, True, self.model.orig_headers, ALL_COLUMNS)
+        CreateCustomColumn(self, True, self.model.orig_headers, ALL_COLUMNS)
 
     def view_server_logs(self):
         from calibre.library.server import log_access_file, log_error_file

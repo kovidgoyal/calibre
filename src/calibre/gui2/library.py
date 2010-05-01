@@ -6,16 +6,15 @@ import os, textwrap, traceback, re, shutil, functools
 from operator import attrgetter
 from math import cos, sin, pi
 from contextlib import closing
-from datetime import date
 
 from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
                         QIcon, QImage, QMenu, \
                         QStyledItemDelegate, QCompleter, QIntValidator, \
-                        QPlainTextEdit, QDoubleValidator, QCheckBox, QMessageBox
+                        QDoubleValidator, QCheckBox
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
-                         SIGNAL, QObject, QSize, QModelIndex, QDate, QRect
+                         SIGNAL, QObject, QSize, QModelIndex, QDate
 
 from calibre import strftime
 from calibre.ebooks.metadata import string_to_authors, fmt_sidx, authors_to_string
@@ -25,7 +24,7 @@ from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.config import tweaks, prefs
+from calibre.utils.config import tweaks
 from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.utils.pyparsing import ParseException
 from calibre.utils.search_query_parser import SearchQueryParser
@@ -222,10 +221,7 @@ class CcBoolDelegate(QStyledItemDelegate):
         QStyledItemDelegate.__init__(self, parent)
 
     def createEditor(self, parent, option, index):
-        m = index.model()
-        col = m.column_map[index.column()]
         editor = QCheckBox(parent)
-        val = m.db.data[index.row()][m.db.FIELD_MAP[m.custom_columns[col]['num']]]
         if tweaks['bool_custom_columns_are_tristate'] == 'no':
             pass
         else:

@@ -10,7 +10,7 @@ import threading, Queue
 
 
 class DeviceManager(object):
-    
+
     def __init__(self):
         self.devices = []
         self.device_jobs = Queue(0)
@@ -21,19 +21,19 @@ class Job(object):
     def __init__(self, func, args):
         self.completed = False
         self.exception = None
-        
+
 
 class Worker(threading.Thread):
-    
-    def __init__(self, jobs):        
+
+    def __init__(self, jobs):
         self.jobs = jobs
         self.results = []
         threading.Thread.__init__(self)
         self.setDaemon(True)
-        
+
     def run(self):
         '''Thread loops taking jobs from the queue as they become available'''
         while True:
-            job = self.jobs.get(True, None)
+            self.jobs.get(True, None)
             # Do job
             self.jobs.task_done()

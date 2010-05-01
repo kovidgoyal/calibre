@@ -1,10 +1,9 @@
-#!/usr/bin/env  python
-__license__   = 'GPL v3'
+#!/usr/bin/env python
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
+__license__   = 'GPL v3'
 
 from PyQt4.Qt import QDialog
-from calibre.gui2 import ResizableDialog
 from calibre.gui2.dialogs.comments_dialog_ui import Ui_CommentsDialog
 
 class CommentsDialog(QDialog, Ui_CommentsDialog):

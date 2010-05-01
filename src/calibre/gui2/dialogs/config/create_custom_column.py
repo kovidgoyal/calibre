@@ -3,10 +3,9 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Dialog to create a new custom column'''
 
-from PyQt4.QtCore import SIGNAL, QObject
-from PyQt4.Qt import QDialog, Qt, QMessageBox, QListWidgetItem, QVariant
+from PyQt4.QtCore import SIGNAL
+from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant
 from calibre.gui2.dialogs.config.create_custom_column_ui import Ui_QCreateCustomColumn
-from calibre.gui2 import ALL_COLUMNS, qstring_to_unicode
 
 class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
     column_types = {
@@ -38,7 +37,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         if idx < 0:
             self.parent.messagebox(_('No column has been selected'))
             return
-        col = qstring_to_unicode(parent.columns.item(idx).data(Qt.UserRole).toString())
+        col = unicode(parent.columns.item(idx).data(Qt.UserRole).toString())
         if col not in parent.custcols:
             self.parent.messagebox(_('Selected column is not a user-defined column'))
             return
@@ -54,8 +53,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         self.exec_()
 
     def accept(self):
-        col = qstring_to_unicode(self.column_name_box.text())
-        col_heading = qstring_to_unicode(self.column_heading_box.text())
+        col = unicode(self.column_name_box.text())
+        col_heading = unicode(self.column_heading_box.text())
         col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
         if col_type == '*text':
             col_type='text'
@@ -88,8 +87,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         if bad_head:
             self.parent.messagebox(_('The heading %s is already used')%col_heading)
             return
-        if col.find(':') >= 0 or col.find(' ') >= 0 and \
-                (not is_alpha(col) or is_lower(col)):
+        if ':' in col or ' ' in col or col.lower() != col:
             self.parent.messagebox(_('The lookup name must be lower case and cannot contain ":"s or spaces'))
             return
 

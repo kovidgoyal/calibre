@@ -2,16 +2,12 @@ __license__   = 'GPL v3'
 
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from copy import copy
 
-from PyQt4.QtCore import SIGNAL, Qt, QVariant
-from PyQt4.QtGui import QDialog, QDialogButtonBox, QLineEdit, QComboBox, \
-                        QIcon, QListWidgetItem
-from PyQt4.Qt import QString
+from PyQt4.QtCore import SIGNAL, Qt
+from PyQt4.QtGui import QDialog, QIcon, QListWidgetItem
 
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
 from calibre.gui2 import qstring_to_unicode, config
-from calibre.gui2 import question_dialog, error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.constants import islinux
 

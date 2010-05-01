@@ -8,7 +8,6 @@ Browsing book collection by tags.
 '''
 
 from itertools import izip
-from copy import copy
 
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
                      QFont, SIGNAL, QSize, QIcon, QPoint, \

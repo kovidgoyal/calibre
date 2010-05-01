@@ -13,7 +13,7 @@ from datetime import timedelta
 from PyQt4.QtCore import QThread, QReadWriteLock
 from PyQt4.QtGui import QImage
 
-from calibre.utils.config import tweaks, prefs
+from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, now
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException

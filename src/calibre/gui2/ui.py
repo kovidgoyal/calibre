@@ -62,8 +62,6 @@ from calibre.library.caches import CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories import TagCategories
 
-from datetime import datetime
-
 class SaveMenu(QMenu):
 
     def __init__(self, parent):
@@ -129,7 +127,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 pixmap_to_data(pixmap))
 
     def __init__(self, listener, opts, actions, parent=None):
-        self.last_time = datetime.now()
+        self.last_time = datetime.datetime.now()
         self.preferences_action, self.quit_action = actions
         self.spare_servers = []
         self.must_restart_before_config = False
@@ -2167,7 +2165,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 return
         for row in rows:
             path = self.library_view.model().db.abspath(row.row())
-            QDesktopServices.openUrl(QUrl('file:'+path))
+            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
 
     def view_book(self, triggered):
