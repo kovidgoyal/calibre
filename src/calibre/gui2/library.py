@@ -162,17 +162,16 @@ class TagsDelegate(QStyledItemDelegate):
                 editor = TagsLineEdit(parent, self.db.all_tags())
             else:
                 editor = TagsLineEdit(parent, sorted(list(self.db.all_custom(label=col))))
-                return editor;
+                return editor
         else:
             editor = EnLineEdit(parent)
         return editor
 
 class CcTextDelegate(QStyledItemDelegate):
-    def __init__(self, parent):
-        '''
-        Delegate for text/int/float data.
-        '''
-        QStyledItemDelegate.__init__(self, parent)
+    '''
+    Delegate for text/int/float data.
+    '''
+
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
@@ -191,12 +190,9 @@ class CcTextDelegate(QStyledItemDelegate):
         return editor
 
 class CcCommentsDelegate(QStyledItemDelegate):
-    def __init__(self, parent):
-        '''
-        Delegate for comments data.
-        '''
-        QStyledItemDelegate.__init__(self, parent)
-        self.parent = parent
+    '''
+    Delegate for comments data.
+    '''
 
     def createEditor(self, parent, option, index):
         m = index.model()
@@ -211,7 +207,7 @@ class CcCommentsDelegate(QStyledItemDelegate):
         return None
 
     def setModelData(self, editor, model, index):
-        model.setData(index, QVariant(editor.textbox.text()), Qt.EditRole)
+        model.setData(index, QVariant(editor.textbox.toPlainText()), Qt.EditRole)
 
 class CcBoolDelegate(QStyledItemDelegate):
     def __init__(self, parent):
