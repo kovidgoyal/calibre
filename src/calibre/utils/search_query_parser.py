@@ -73,7 +73,7 @@ class SearchQueryParser(object):
     When no operator is specified between two tokens, `and` is assumed.
 
     Each token is a string of the form `location:query`. `location` is a string
-    from :member:`LOCATIONS`. It is optional. If it is omitted, it is assumed to
+    from :member:`DEFAULT_LOCATIONS`. It is optional. If it is omitted, it is assumed to
     be `all`. `query` is an arbitrary string that must not contain parentheses.
     If it contains whitespace, it should be quoted by enclosing it in `"` marks.
 
@@ -86,7 +86,7 @@ class SearchQueryParser(object):
       * `(author:Asimov or author:Hardy) and not tag:read` [search for unread books by Asimov or Hardy]
     '''
 
-    LOCATIONS = [
+    DEFAULT_LOCATIONS = [
         'tag',
         'title',
         'author',
@@ -116,10 +116,13 @@ class SearchQueryParser(object):
                 failed.append(test[0])
         return failed
 
-    def __init__(self, custcols=[], test=False):
+    def __init__(self, locations=None, test=False):
+        if locations is None:
+            locations = self.DEFAULT_LOCATIONS
         self._tests_failed = False
         # Define a token
-        standard_locations = map(lambda x : CaselessLiteral(x)+Suppress(':'), self.LOCATIONS+custcols)
+        standard_locations = map(lambda x : CaselessLiteral(x)+Suppress(':'),
+                locations)
         location = NoMatch()
         for l in standard_locations:
             location |= l
@@ -228,7 +231,7 @@ class SearchQueryParser(object):
         '''
         Should return the set of matches for :param:'location` and :param:`query`.
 
-        :param:`location` is one of the items in :member:`SearchQueryParser.LOCATIONS`.
+        :param:`location` is one of the items in :member:`SearchQueryParser.DEFAULT_LOCATIONS`.
         :param:`query` is a string literal.
         '''
         return set([])
