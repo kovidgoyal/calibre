@@ -205,19 +205,6 @@ class CoverFlowButton(QToolButton):
         self.setDisabled(True)
         self.setToolTip(_('<p>Browsing books by their covers is disabled.<br>Import of pictureflow module failed:<br>')+reason)
 
-class TagViewButton(QToolButton):
-
-    def __init__(self, parent=None):
-        QToolButton.__init__(self, parent)
-        self.setIconSize(QSize(80, 80))
-        self.setIcon(QIcon(I('tags.svg')))
-        self.setToolTip(_('Click to browse books by tags'))
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding))
-        self.setCursor(Qt.PointingHandCursor)
-        self.setCheckable(True)
-        self.setChecked(False)
-        self.setAutoRaise(True)
-
 
 class StatusBar(QStatusBar):
 
@@ -227,9 +214,7 @@ class StatusBar(QStatusBar):
         self.notifier = get_notifier(systray)
         self.movie_button = MovieButton(jobs_dialog)
         self.cover_flow_button = CoverFlowButton()
-        self.tag_view_button = TagViewButton()
         self.addPermanentWidget(self.cover_flow_button)
-        self.addPermanentWidget(self.tag_view_button)
         self.addPermanentWidget(self.movie_button)
         self.book_info = BookInfoDisplay(self.clearMessage)
         self.book_info.setAcceptDrops(True)
