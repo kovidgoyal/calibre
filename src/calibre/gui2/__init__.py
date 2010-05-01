@@ -13,6 +13,7 @@ from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from calibre import islinux, iswindows, isosx, isfreebsd
+from calibre.constants import preferred_encoding
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
@@ -95,6 +96,8 @@ def _config():
             help=_('Overwrite author and title with new metadata'))
     c.add_opt('enforce_cpu_limit', default=True,
             help=_('Limit max simultaneous jobs to number of CPUs'))
+    c.add_opt('user_categories', default={},
+            help=_('User-created tag browser categories'))
 
     return ConfigProxy(c)
 

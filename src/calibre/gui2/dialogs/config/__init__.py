@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, re, time, textwrap
+import os, re, time, textwrap, sys, copy
 
 from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
                         QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit, \
@@ -8,10 +8,11 @@ from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
                         SIGNAL, QThread, Qt, QSize, QVariant, QUrl, \
                         QModelIndex, QAbstractTableModel, \
                         QDialogButtonBox, QTabWidget, QBrush, QLineEdit, \
-                        QProgressDialog
+                        QProgressDialog, QMessageBox
 
-from calibre.constants import iswindows, isosx
+from calibre.constants import iswindows, isosx, preferred_encoding
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
+from calibre.gui2.dialogs.config.create_custom_column import CreateCustomColumn
 from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
                          ALL_COLUMNS, NONE, info_dialog, choose_files, \
                          warning_dialog, ResizableDialog
@@ -89,7 +90,6 @@ class ConfigTabs(QTabWidget):
                 return False
             widget.commit(save_defaults=True)
         return True
-
 
 class PluginModel(QAbstractItemModel):
 
@@ -328,14 +328,16 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
     def category_current_changed(self, n, p):
         self.stackedWidget.setCurrentIndex(n.row())
 
-    def __init__(self, window, db, server=None):
-        ResizableDialog.__init__(self, window)
+    def __init__(self, parent, model, server=None):
+        ResizableDialog.__init__(self, parent)
         self.ICON_SIZES = {0:QSize(48, 48), 1:QSize(32,32), 2:QSize(24,24)}
         self._category_model = CategoryModel()
 
         self.category_view.currentChanged = self.category_current_changed
         self.category_view.setModel(self._category_model)
-        self.db = db
+        self.parent = parent
+        self.model = model
+        self.db = model.db
         self.server = server
         path = prefs['library_path']
         self.location.setText(path if path else '')
@@ -359,15 +361,27 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.roman_numerals.setChecked(rn)
         self.new_version_notification.setChecked(config['new_version_notification'])
 
-        column_map = config['column_map']
-        for col in column_map + [i for i in ALL_COLUMNS if i not in column_map]:
-            item = QListWidgetItem(BooksModel.headers[col], self.columns)
+        # Set up columns
+        # Make copies of maps so that internal changes aren't put into the real maps
+        self.colmap = config['column_map'][:]
+        self.custcols = copy.deepcopy(self.db.custom_column_label_map)
+        cm = [c.decode(preferred_encoding, 'replace') for c in self.colmap]
+        ac = [c.decode(preferred_encoding, 'replace') for c in ALL_COLUMNS]
+        for col in cm + \
+                    [i for i in ac if i not in cm] + \
+                    [i for i in self.custcols if i not in cm]:
+            if col in ALL_COLUMNS:
+                item = QListWidgetItem(model.headers[col], self.columns)
+            else:
+                item = QListWidgetItem(self.custcols[col]['name'], self.columns)
             item.setData(Qt.UserRole, QVariant(col))
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
-            item.setCheckState(Qt.Checked if col in column_map else Qt.Unchecked)
-
+            item.setCheckState(Qt.Checked if col in self.colmap else Qt.Unchecked)
         self.connect(self.column_up, SIGNAL('clicked()'), self.up_column)
         self.connect(self.column_down, SIGNAL('clicked()'), self.down_column)
+        self.connect(self.del_custcol_button, SIGNAL('clicked()'), self.del_custcol)
+        self.connect(self.add_custcol_button, SIGNAL('clicked()'), self.add_custcol)
+        self.connect(self.edit_custcol_button, SIGNAL('clicked()'), self.edit_custcol)
 
         icons = config['toolbar_icon_size']
         self.toolbar_button_size.setCurrentIndex(0 if icons == self.ICON_SIZES[0] else 1 if icons == self.ICON_SIZES[1] else 2)
@@ -397,7 +411,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         items.sort(cmp=lambda x, y: cmp(x[1], y[1]))
         for item in items:
             self.language.addItem(item[1], QVariant(item[0]))
-
 
         exts = set([])
         for ext in BOOK_EXTENSIONS:
@@ -633,6 +646,31 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             self.columns.insertItem(idx+1, self.columns.takeItem(idx))
             self.columns.setCurrentRow(idx+1)
 
+    def del_custcol(self):
+        idx = self.columns.currentRow()
+        if idx < 0:
+            self.messagebox(_('You must select a column to delete it'))
+            return
+        col = qstring_to_unicode(self.columns.item(idx).data(Qt.UserRole).toString())
+        if col not in self.custcols:
+            self.messagebox(_('The selected column is not a custom column'))
+            return
+        ret = self.messagebox(_('Do you really want to delete column %s and all its data')%self.custcols[col]['name'],
+                         buttons=QMessageBox.Ok|QMessageBox.Cancel,
+                         defaultButton=QMessageBox.Cancel)
+        if ret != QMessageBox.Ok:
+            return
+        self.columns.item(idx).setCheckState(False)
+        self.columns.takeItem(idx)
+        self.custcols[col]['*deleteme'] = True
+        return
+
+    def add_custcol(self):
+        d = CreateCustomColumn(self, False, self.model.orig_headers, ALL_COLUMNS)
+
+    def edit_custcol(self):
+        d = CreateCustomColumn(self, True, self.model.orig_headers, ALL_COLUMNS)
+
     def view_server_logs(self):
         from calibre.library.server import log_access_file, log_error_file
         d = QDialog(self)
@@ -702,7 +740,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         if dir:
             self.location.setText(dir)
 
-
     def accept(self):
         mcs = unicode(self.max_cover_size.text()).strip()
         if not re.match(r'\d+x\d+', mcs):
@@ -720,17 +757,38 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             wl += 1
         config['worker_limit'] = wl
 
-
         config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
         prefs['network_timeout'] = int(self.timeout.value())
         path = qstring_to_unicode(self.location.text())
         input_cols = [unicode(self.input_order.item(i).data(Qt.UserRole).toString()) for i in range(self.input_order.count())]
         prefs['input_format_order'] = input_cols
-        cols = [unicode(self.columns.item(i).data(Qt.UserRole).toString()) for i in range(self.columns.count()) if self.columns.item(i).checkState()==Qt.Checked]
+
+        ####### Now deal with changes to columns
+        cols = [qstring_to_unicode(self.columns.item(i).data(Qt.UserRole).toString())\
+                 for i in range(self.columns.count()) \
+                    if self.columns.item(i).checkState()==Qt.Checked]
         if not cols:
             cols = ['title']
         config['column_map'] = cols
+        must_restart = False
+        for c in self.custcols:
+            if self.custcols[c]['num'] is None:
+                self.db.create_custom_column(
+                                label=c,
+                                name=self.custcols[c]['name'],
+                                datatype=self.custcols[c]['datatype'],
+                                is_multiple=self.custcols[c]['is_multiple'])
+                must_restart = True
+            elif '*deleteme' in self.custcols[c]:
+                self.db.delete_custom_column(label=c)
+                must_restart = True
+            elif '*edited' in self.custcols[c]:
+                cc = self.custcols[c]
+                self.db.set_custom_column_metadata(cc['num'], name=cc['name'], label=cc['label'])
+                if '*must_restart' in self.custcols[c]:
+                    must_restart = True
+
         config['toolbar_icon_size'] = self.ICON_SIZES[self.toolbar_button_size.currentIndex()]
         config['show_text_in_toolbar'] = bool(self.show_toolbar_text.isChecked())
         config['separate_cover_flow'] = bool(self.separate_cover_flow.isChecked())
@@ -771,7 +829,15 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             d.exec_()
         else:
             self.database_location = os.path.abspath(path)
+            if must_restart:
+                self.messagebox(_('The changes you made require that Calibre be restarted. Please restart as soon as practical.'))
+                self.parent.must_restart_before_config = True
             QDialog.accept(self)
+
+    # might want to substitute the standard calibre box. However, the copy_to_clipboard
+    # functionality has no purpose, so ???
+    def messagebox(self, m, buttons=QMessageBox.Ok, defaultButton=QMessageBox.Ok):
+                return QMessageBox.critical(None,'Calibre configuration', m, buttons, defaultButton)
 
 class VacThread(QThread):
 

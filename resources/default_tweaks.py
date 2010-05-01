@@ -25,3 +25,20 @@ series_index_auto_increment = 'next'
 #  copy  : copy author to author_sort without modification
 #  comma : use 'copy' if there is a ',' in the name, otherwise use 'invert'
 author_sort_copy_method = 'invert'
+
+
+# Set whether boolean custom columns are two- or three-valued.
+#  Two-values for true booleans
+#  three-values for yes/no/unknown
+# Set to 'yes' for three-values, 'no' for two-values
+bool_custom_columns_are_tristate = 'yes'
+
+
+# Provide a set of columns to be sorted on when calibre starts
+#  The argument is None of saved sort history is to be used
+#  otherwise it is a list of column,order pairs. Column is the
+#  lookup/search name, found using the tooltip for the column
+#  Order is 0 for ascending, 1 for descending
+# For example, set it to [('authors',0),('title',0)] to sort by
+# title within authors.
+sort_columns_at_startup = None

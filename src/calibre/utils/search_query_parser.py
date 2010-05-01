@@ -116,13 +116,12 @@ class SearchQueryParser(object):
                 failed.append(test[0])
         return failed
 
-    def __init__(self, test=False):
+    def __init__(self, custcols=[], test=False):
         self._tests_failed = False
         # Define a token
-        locations = map(lambda x : CaselessLiteral(x)+Suppress(':'),
-                        self.LOCATIONS)
+        standard_locations = map(lambda x : CaselessLiteral(x)+Suppress(':'), self.LOCATIONS+custcols)
         location = NoMatch()
-        for l in locations:
+        for l in standard_locations:
             location |= l
         location     = Optional(location, default='all')
         word_query   = CharsNotIn(string.whitespace + '()')
@@ -176,14 +175,20 @@ class SearchQueryParser(object):
 
     def parse(self, query):
         # empty the list of searches used for recursion testing
+        self.recurse_level = 0
         self.searches_seen = set([])
         return self._parse(query)
 
     # this parse is used internally because it doesn't clear the
-    # recursive search test list
+    # recursive search test list. However, we permit seeing the
+    # same search a few times because the search might appear within
+    # another search.
     def _parse(self, query):
+        self.recurse_level += 1
         res = self._parser.parseString(query)[0]
-        return self.evaluate(res)
+        t = self.evaluate(res)
+        self.recurse_level -= 1
+        return t
 
     def method(self, group_name):
         return getattr(self, 'evaluate_'+group_name)
@@ -207,13 +212,13 @@ class SearchQueryParser(object):
         location = argument[0]
         query = argument[1]
         if location.lower() == 'search':
-            # print "looking for named search " + query
             if query.startswith('='):
                 query = query[1:]
             try:
                 if query in self.searches_seen:
                     raise ParseException(query, len(query), 'undefined saved search', self)
-                self.searches_seen.add(query)
+                if self.recurse_level > 5:
+                    self.searches_seen.add(query)
                 return self._parse(saved_searches.lookup(query))
             except: # convert all exceptions (e.g., missing key) to a parse error
                 raise ParseException(query, len(query), 'undefined saved search', self)
