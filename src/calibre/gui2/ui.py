@@ -603,6 +603,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         self.library_view.model().count_changed()
 
+        ########################### Tags Browser ##############################
+        self.search_restriction.setSizeAdjustPolicy(self.search_restriction.AdjustToMinimumContentsLengthWithIcon)
+        self.search_restriction.setMinimumContentsLength(10)
+
+
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:

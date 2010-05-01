@@ -306,12 +306,6 @@
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
              <widget class="TagsView" name="tags_view">
-              <property name="maximumSize">
-               <size>
-                <width>256</width>
-                <height>16777215</height>
-               </size>
-              </property>
               <property name="tabKeyNavigation">
                <bool>true</bool>
               </property>
@@ -354,12 +348,12 @@
               </item>
               <item>
                <widget class="QPushButton" name="edit_categories">
-                <property name="text">
-                 <string>Manage user categories</string>
+                <property name="toolTip">
+                 <string>Create, edit, and delete user categories</string>
                 </property>
-			    <property name="toolTip">
-			     <string>Create, edit, and delete user categories</string>
-			    </property>
+                <property name="text">
+                 <string>Manage &amp;user categories</string>
+                </property>
                </widget>
               </item>
              </layout>
@@ -369,7 +363,10 @@
               <item>
                <widget class="QLabel" name="restriction_label">
                 <property name="text">
-                 <string>Restrict display to:</string>
+                 <string>&amp;Restrict display to:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>search_restriction</cstring>
                 </property>
                </widget>
               </item>
@@ -381,9 +378,9 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-			    <property name="toolTip">
-			     <string>Books display will be restricted to those matching the selected saved search</string>
-			    </property>
+                <property name="toolTip">
+                 <string>Books display will be restricted to those matching the selected saved search</string>
+                </property>
                </widget>
               </item>
              </layout>
