@@ -23,6 +23,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs, XMLConfig
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
+from calibre.constants import filesystem_encoding
 
 history = XMLConfig('history')
 
@@ -230,12 +231,21 @@ class LocationModel(QAbstractListModel):
         self.free = [-1, -1, -1]
         self.count = 0
         self.highlight_row = 0
+        self.library_tooltip = _('Click to see the books available on your computer')
         self.tooltips = [
-                         _('Click to see the books available on your computer'),
+                         self.library_tooltip,
                          _('Click to see the books in the main memory of your reader'),
                          _('Click to see the books on storage card A in your reader'),
                          _('Click to see the books on storage card B in your reader')
                          ]
+
+    def database_changed(self, db):
+        lp = db.library_path
+        if not isinstance(lp, unicode):
+            lp = lp.decode(filesystem_encoding, 'replace')
+        self.tooltips[0] = self.library_tooltip + '\n\n' + \
+                _('Books located at') + ' ' + lp
+        self.dataChanged.emit(self.index(0), self.index(0))
 
     def rowCount(self, *args):
         return 1 + len([i for i in self.free if i >= 0])

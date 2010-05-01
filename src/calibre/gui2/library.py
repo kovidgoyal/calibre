@@ -243,6 +243,7 @@ class BooksModel(QAbstractTableModel):
 
     about_to_be_sorted = pyqtSignal(object, name='aboutToBeSorted')
     sorting_done       = pyqtSignal(object, name='sortingDone')
+    database_changed   = pyqtSignal(object, name='databaseChanged')
 
     orig_headers = {
                         'title'     : _("Title"),
@@ -300,6 +301,7 @@ class BooksModel(QAbstractTableModel):
         self.db = db
         self.custom_columns = self.db.custom_column_label_map
         self.read_config()
+        self.database_changed.emit(db)
 
     def refresh_ids(self, ids, current_row=-1):
         rows = self.db.refresh_ids(ids)

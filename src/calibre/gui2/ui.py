@@ -602,6 +602,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.db_images.reset()
 
         self.library_view.model().count_changed()
+        self.location_view.model().database_changed(self.library_view.model().db)
+        self.library_view.model().database_changed.connect(self.location_view.model().database_changed,
+                type=Qt.QueuedConnection)
 
         ########################### Tags Browser ##############################
         self.search_restriction.setSizeAdjustPolicy(self.search_restriction.AdjustToMinimumContentsLengthWithIcon)
