@@ -29,7 +29,7 @@ from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.utils.pyparsing import ParseException
 from calibre.utils.search_query_parser import SearchQueryParser
 
-class LibraryDelegate(QStyledItemDelegate):
+class RatingDelegate(QStyledItemDelegate):
     COLOR    = QColor("blue")
     SIZE     = 16
     PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
@@ -162,17 +162,16 @@ class TagsDelegate(QStyledItemDelegate):
                 editor = TagsLineEdit(parent, self.db.all_tags())
             else:
                 editor = TagsLineEdit(parent, sorted(list(self.db.all_custom(label=col))))
-                return editor;
+                return editor
         else:
             editor = EnLineEdit(parent)
         return editor
 
 class CcTextDelegate(QStyledItemDelegate):
-    def __init__(self, parent):
-        '''
-        Delegate for text/int/float data.
-        '''
-        QStyledItemDelegate.__init__(self, parent)
+    '''
+    Delegate for text/int/float data.
+    '''
+
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
@@ -191,12 +190,9 @@ class CcTextDelegate(QStyledItemDelegate):
         return editor
 
 class CcCommentsDelegate(QStyledItemDelegate):
-    def __init__(self, parent):
-        '''
-        Delegate for comments data.
-        '''
-        QStyledItemDelegate.__init__(self, parent)
-        self.parent = parent
+    '''
+    Delegate for comments data.
+    '''
 
     def createEditor(self, parent, option, index):
         m = index.model()
@@ -211,7 +207,7 @@ class CcCommentsDelegate(QStyledItemDelegate):
         return None
 
     def setModelData(self, editor, model, index):
-        model.setData(index, QVariant(editor.textbox.text()), Qt.EditRole)
+        model.setData(index, QVariant(editor.textbox.toPlainText()), Qt.EditRole)
 
 class CcBoolDelegate(QStyledItemDelegate):
     def __init__(self, parent):
@@ -247,6 +243,7 @@ class BooksModel(QAbstractTableModel):
 
     about_to_be_sorted = pyqtSignal(object, name='aboutToBeSorted')
     sorting_done       = pyqtSignal(object, name='sortingDone')
+    database_changed   = pyqtSignal(object, name='databaseChanged')
 
     orig_headers = {
                         'title'     : _("Title"),
@@ -304,6 +301,7 @@ class BooksModel(QAbstractTableModel):
         self.db = db
         self.custom_columns = self.db.custom_column_label_map
         self.read_config()
+        self.database_changed.emit(db)
 
     def refresh_ids(self, ids, current_row=-1):
         rows = self.db.refresh_ids(ids)
@@ -893,7 +891,7 @@ class BooksView(TableView):
 
     def __init__(self, parent, modelcls=BooksModel):
         TableView.__init__(self, parent)
-        self.rating_delegate = LibraryDelegate(self)
+        self.rating_delegate = RatingDelegate(self)
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
         self.tags_delegate = TagsDelegate(self)

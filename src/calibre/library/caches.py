@@ -155,7 +155,9 @@ class ResultCache(SearchQueryParser):
         self._map = self._map_filtered = self._data = []
         self.first_sort = True
         self.search_restriction = ''
-        SearchQueryParser.__init__(self, [c for c in cc_label_map])
+        SearchQueryParser.__init__(self,
+            locations=SearchQueryParser.DEFAULT_LOCATIONS +
+            [c for c in cc_label_map])
         self.build_relop_dict()
 
     def build_relop_dict(self):

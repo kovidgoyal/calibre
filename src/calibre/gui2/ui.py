@@ -575,8 +575,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.tags_view,
                 SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
                      self.saved_search.clear_to_help)
-        self.connect(self.status_bar.tag_view_button,
-                SIGNAL('toggled(bool)'), self.toggle_tags_view)
         self.connect(self.search,
                 SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'),
                      self.tags_view.model().reinit)
@@ -602,6 +600,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.db_images.reset()
 
         self.library_view.model().count_changed()
+        self.location_view.model().database_changed(self.library_view.model().db)
+        self.library_view.model().database_changed.connect(self.location_view.model().database_changed,
+                type=Qt.QueuedConnection)
+
+        ########################### Tags Browser ##############################
+        self.search_restriction.setSizeAdjustPolicy(self.search_restriction.AdjustToMinimumContentsLengthWithIcon)
+        self.search_restriction.setMinimumContentsLength(10)
+
 
         ########################### Cover Flow ################################
         self.cover_flow = None
@@ -666,8 +672,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if self.cover_flow is not None and dynamic.get('cover_flow_visible', False):
             self.status_bar.cover_flow_button.toggle()
 
-        if dynamic.get('tag_view_visible', False):
-            self.status_bar.tag_view_button.toggle()
+        tb_state = dynamic.get('tag_browser_state', None)
+        if tb_state is not None:
+            self.horizontal_splitter.restoreState(tb_state)
+        self.toggle_tags_view(True)
 
         self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
         v = self.library_view
@@ -2323,7 +2331,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.view_menu.actions()[1].setEnabled(True)
             self.action_open_containing_folder.setEnabled(True)
             self.action_sync.setEnabled(True)
-            self.status_bar.tag_view_button.setEnabled(True)
             self.status_bar.cover_flow_button.setEnabled(True)
             for action in list(self.delete_menu.actions())[1:]:
                 action.setEnabled(True)
@@ -2334,7 +2341,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.view_menu.actions()[1].setEnabled(False)
             self.action_open_containing_folder.setEnabled(False)
             self.action_sync.setEnabled(False)
-            self.status_bar.tag_view_button.setEnabled(False)
             self.status_bar.cover_flow_button.setEnabled(False)
             for action in list(self.delete_menu.actions())[1:]:
                 action.setEnabled(False)
@@ -2451,8 +2457,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def write_settings(self):
         config.set('main_window_geometry', self.saveGeometry())
         dynamic.set('sort_history', self.library_view.model().sort_history)
-        dynamic.set('tag_view_visible', self.tags_view.isVisible())
         dynamic.set('cover_flow_visible', self.cover_flow.isVisible())
+        dynamic.set('tag_browser_state',
+                str(self.horizontal_splitter.saveState()))
         self.library_view.write_settings()
         if self.device_connected:
             self.save_device_view_settings()

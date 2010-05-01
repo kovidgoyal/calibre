@@ -301,17 +301,14 @@
       <widget class="QWidget" name="library">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
+         <widget class="QSplitter" name="horizontal_splitter">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <widget class="QWidget" name="layoutWidget">
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
              <widget class="TagsView" name="tags_view">
-              <property name="maximumSize">
-               <size>
-                <width>256</width>
-                <height>16777215</height>
-               </size>
-              </property>
               <property name="tabKeyNavigation">
                <bool>true</bool>
               </property>
@@ -354,12 +351,12 @@
               </item>
               <item>
                <widget class="QPushButton" name="edit_categories">
-                <property name="text">
-                 <string>Manage user categories</string>
+                <property name="toolTip">
+                 <string>Create, edit, and delete user categories</string>
                 </property>
-			    <property name="toolTip">
-			     <string>Create, edit, and delete user categories</string>
-			    </property>
+                <property name="text">
+                 <string>Manage &amp;user categories</string>
+                </property>
                </widget>
               </item>
              </layout>
@@ -369,7 +366,10 @@
               <item>
                <widget class="QLabel" name="restriction_label">
                 <property name="text">
-                 <string>Restrict display to:</string>
+                 <string>&amp;Restrict to:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>search_restriction</cstring>
                 </property>
                </widget>
               </item>
@@ -381,50 +381,48 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-			    <property name="toolTip">
-			     <string>Books display will be restricted to those matching the selected saved search</string>
-			    </property>
+                <property name="toolTip">
+                 <string>Books display will be restricted to those matching the selected saved search</string>
+                </property>
                </widget>
               </item>
              </layout>
             </item>
            </layout>
-          </item>
-          <item>
-           <widget class="BooksView" name="library_view">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>100</horstretch>
-              <verstretch>10</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="acceptDrops">
-             <bool>true</bool>
-            </property>
-            <property name="dragEnabled">
-             <bool>true</bool>
-            </property>
-            <property name="dragDropOverwriteMode">
-             <bool>false</bool>
-            </property>
-            <property name="dragDropMode">
-             <enum>QAbstractItemView::DragDrop</enum>
-            </property>
-            <property name="alternatingRowColors">
-             <bool>true</bool>
-            </property>
-            <property name="selectionBehavior">
-             <enum>QAbstractItemView::SelectRows</enum>
-            </property>
-            <property name="showGrid">
-             <bool>false</bool>
-            </property>
-            <property name="wordWrap">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
+          </widget>
+          <widget class="BooksView" name="library_view">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>100</horstretch>
+             <verstretch>10</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="dragEnabled">
+            <bool>true</bool>
+           </property>
+           <property name="dragDropOverwriteMode">
+            <bool>false</bool>
+           </property>
+           <property name="dragDropMode">
+            <enum>QAbstractItemView::DragDrop</enum>
+           </property>
+           <property name="alternatingRowColors">
+            <bool>true</bool>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+           <property name="showGrid">
+            <bool>false</bool>
+           </property>
+           <property name="wordWrap">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>

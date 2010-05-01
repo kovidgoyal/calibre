@@ -13,7 +13,6 @@ from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from calibre import islinux, iswindows, isosx, isfreebsd
-from calibre.constants import preferred_encoding
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats

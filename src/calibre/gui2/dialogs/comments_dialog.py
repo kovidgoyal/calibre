@@ -7,6 +7,7 @@ from PyQt4.Qt import QDialog
 from calibre.gui2.dialogs.comments_dialog_ui import Ui_CommentsDialog
 
 class CommentsDialog(QDialog, Ui_CommentsDialog):
+
     def __init__(self, parent, text):
         QDialog.__init__(self, parent)
         Ui_CommentsDialog.__init__(self)
