@@ -29,7 +29,7 @@ from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.utils.pyparsing import ParseException
 from calibre.utils.search_query_parser import SearchQueryParser
 
-class LibraryDelegate(QStyledItemDelegate):
+class RatingDelegate(QStyledItemDelegate):
     COLOR    = QColor("blue")
     SIZE     = 16
     PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
@@ -889,7 +889,7 @@ class BooksView(TableView):
 
     def __init__(self, parent, modelcls=BooksModel):
         TableView.__init__(self, parent)
-        self.rating_delegate = LibraryDelegate(self)
+        self.rating_delegate = RatingDelegate(self)
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
         self.tags_delegate = TagsDelegate(self)
