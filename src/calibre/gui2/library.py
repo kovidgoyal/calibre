@@ -718,15 +718,25 @@ class BooksModel(QAbstractTableModel):
             return QVariant(self.db.data[r][idx])
 
         self.dc = {
-                   'title'    : functools.partial(text_type, idx=self.db.FIELD_MAP['title'], mult=False),
-                   'authors'  : functools.partial(authors, idx=self.db.FIELD_MAP['authors']),
-                   'size'     : functools.partial(size, idx=self.db.FIELD_MAP['size']),
-                   'timestamp': functools.partial(datetime_type, idx=self.db.FIELD_MAP['timestamp']),
-                   'pubdate'  : functools.partial(datetime_type, idx=self.db.FIELD_MAP['pubdate']),
-                   'rating'   : functools.partial(rating_type, idx=self.db.FIELD_MAP['rating']),
-                   'publisher': functools.partial(text_type, idx=self.db.FIELD_MAP['title'], mult=False),
-                   'tags'     : functools.partial(tags, idx=self.db.FIELD_MAP['tags']),
-                   'series'   : functools.partial(series, idx=self.db.FIELD_MAP['series'], siix=self.db.FIELD_MAP['series_index']),
+                   'title'    : functools.partial(text_type,
+                                idx=self.db.FIELD_MAP['title'], mult=False),
+                   'authors'  : functools.partial(authors,
+                                idx=self.db.FIELD_MAP['authors']),
+                   'size'     : functools.partial(size,
+                                idx=self.db.FIELD_MAP['size']),
+                   'timestamp': functools.partial(datetime_type,
+                                idx=self.db.FIELD_MAP['timestamp']),
+                   'pubdate'  : functools.partial(datetime_type,
+                                idx=self.db.FIELD_MAP['pubdate']),
+                   'rating'   : functools.partial(rating_type,
+                                idx=self.db.FIELD_MAP['rating']),
+                   'publisher': functools.partial(text_type,
+                                idx=self.db.FIELD_MAP['publisher'], mult=False),
+                   'tags'     : functools.partial(tags,
+                                idx=self.db.FIELD_MAP['tags']),
+                   'series'   : functools.partial(series,
+                                idx=self.db.FIELD_MAP['series'],
+                                siix=self.db.FIELD_MAP['series_index']),
                    }
         self.dc_decorator = {}
 
