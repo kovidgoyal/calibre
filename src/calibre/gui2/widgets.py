@@ -7,9 +7,9 @@ import re, os, traceback
 from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
-                        QPixmap, QPalette, QTimer, QDialog, \
+                        QPixmap, QPalette, QTimer, QDialog, QSplitterHandle, \
                         QAbstractListModel, QVariant, Qt, SIGNAL, \
-                        QRegExp, QSettings, QSize, QModelIndex, \
+                        QRegExp, QSettings, QSize, QModelIndex, QSplitter, \
                         QAbstractButton, QPainter, QLineEdit, QComboBox, \
                         QMenu, QStringListModel, QCompleter, QStringList
 
@@ -951,3 +951,35 @@ class PythonHighlighter(QSyntaxHighlighter):
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         QSyntaxHighlighter.rehighlight(self)
         QApplication.restoreOverrideCursor()
+
+class SplitterHandle(QSplitterHandle):
+
+    def __init__(self, orientation, splitter):
+        QSplitterHandle.__init__(self, orientation, splitter)
+        splitter.splitterMoved.connect(self.splitter_moved,
+                type=Qt.QueuedConnection)
+        self.highlight = False
+
+    def splitter_moved(self, *args):
+        oh = self.highlight
+        self.highlight = 0 in self.splitter().sizes()
+        if oh != self.highlight:
+            self.update()
+
+    def paintEvent(self, ev):
+        QSplitterHandle.paintEvent(self, ev)
+        if self.highlight:
+            painter = QPainter(self)
+            painter.setClipRect(ev.rect())
+            painter.fillRect(self.rect(), Qt.yellow)
+
+class Splitter(QSplitter):
+
+    def createHandle(self):
+        return SplitterHandle(self.orientation(), self)
+
+    def initialize(self):
+        for i in range(self.count()):
+            h = self.handle(i)
+            if h is not None:
+                h.splitter_moved()
