@@ -184,7 +184,7 @@ class TagTreeItem(object):
                 return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
         if role == Qt.DecorationRole:
             return self.icon_state_map[self.tag.state]
-        if role == Qt.ToolTipRole and self.tag.tooltip:
+        if role == Qt.ToolTipRole and self.tag.tooltip is not None:
             return QVariant(self.tag.tooltip)
         return NONE
 
@@ -248,11 +248,17 @@ class TagsModel(QAbstractItemModel):
                 self.categories.append(self.db.custom_column_label_map[c]['name'])
                 self.cat_icon_map.append(self.custcol_icon)
 
+        # Now the rest of the normal tag categories
+        for i in range(self.tags_categories_start, len(self.row_map_orig)):
+            self.row_map.append(self.row_map_orig[i])
+            self.categories.append(self.categories_orig[i])
+            self.cat_icon_map.append(self.cat_icon_map_orig[i])
+
         # Now do the user-defined categories. There is a time/space tradeoff here.
         # By converting the tags into a map, we can do the verification in the category
         # loop much faster, at the cost of duplicating the categories lists.
         taglist = {}
-        for c in self.row_map_orig:
+        for c in self.row_map:
             taglist[c] = dict(map(lambda t:(t.name if c != 'author' else t.name.replace('|', ','), t), data[c]))
 
         for c in self.user_categories:
@@ -269,11 +275,6 @@ class TagsModel(QAbstractItemModel):
             self.categories.append(c)
             self.cat_icon_map.append(self.usercat_icon)
 
-        # Now the rest of the normal tag categories
-        for i in range(self.tags_categories_start, len(self.row_map_orig)):
-            self.row_map.append(self.row_map_orig[i])
-            self.categories.append(self.categories_orig[i])
-            self.cat_icon_map.append(self.cat_icon_map_orig[i])
         data['search'] = self.get_search_nodes(self.search_icon)  # Add the search category
         self.row_map.append(self.search_keys[0])
         self.categories.append(self.search_keys[1])

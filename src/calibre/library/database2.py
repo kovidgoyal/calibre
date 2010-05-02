@@ -648,9 +648,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 query += ' ORDER BY {0} ASC'.format(cn[1])
             data = self.conn.get(query)
             category = cn[0]
-            icon = icon_map[category] if category in icon_map else icon_map['*custom']
+            if category in icon_map:
+                icon = icon_map[category]
+                tooltip = ''
+            else:
+                icon = icon_map['*custom']
+                tooltip = self.custom_column_label_map[category]['name']
             if ids is None: # no filtering
-                categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon)
+                categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon, tooltip = tooltip)
                                         for r in data]
             else: # filter out zero-count tags
                 categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon)

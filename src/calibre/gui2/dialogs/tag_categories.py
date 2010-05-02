@@ -22,7 +22,7 @@ class Item:
         return 'name=%s, label=%s, index=%s, exists='%(self.name, self.label, self.index, self.exists)
 
 class TagCategories(QDialog, Ui_TagCategories):
-    category_labels =   ['', 'author', 'series', 'publisher', 'tag']
+    category_labels_orig =   ['', 'author', 'series', 'publisher', 'tag']
 
     def __init__(self, window, db, index=None):
         QDialog.__init__(self, window)
@@ -33,6 +33,9 @@ class TagCategories(QDialog, Ui_TagCategories):
         self.index = index
         self.applied_items = []
 
+        cc_icon = QIcon(I('column.svg'))
+
+        self.category_labels = self.category_labels_orig[:]
         category_icons  = [None, QIcon(I('user_profile.svg')), QIcon(I('series.svg')),
                            QIcon(I('publisher.png')), QIcon(I('tags.svg'))]
         category_values = [None,
@@ -42,6 +45,14 @@ class TagCategories(QDialog, Ui_TagCategories):
                            lambda: self.db.all_tags()
                           ]
         category_names  = ['', _('Authors'), _('Series'), _('Publishers'), _('Tags')]
+
+        cc_map = self.db.custom_column_label_map
+        for cc in cc_map:
+            if cc_map[cc]['datatype'] == 'text':
+                self.category_labels.append(cc)
+                category_icons.append(cc_icon)
+                category_values.append(lambda col=cc: self.db.all_custom(label=col))
+                category_names.append(cc_map[cc]['name'])
 
         self.all_items = []
         self.all_items_dict = {}
