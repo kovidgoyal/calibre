@@ -526,7 +526,7 @@ class ResultCache(SearchQueryParser):
         self._map.sort(cmp=fcmp, reverse=not ascending)
         self._map_filtered = [id for id in self._map if id in self._map_filtered]
 
-    def search(self, query, return_matches = False):
+    def search(self, query, return_matches=False):
         if not query or not query.strip():
             q = self.search_restriction
         else:

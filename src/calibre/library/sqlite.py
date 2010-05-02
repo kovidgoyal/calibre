@@ -36,6 +36,18 @@ def convert_bool(val):
 sqlite.register_adapter(bool, lambda x : 1 if x else 0)
 sqlite.register_converter('bool', convert_bool)
 
+class DynamicFilter(object):
+
+    def __init__(self, name):
+        self.name = name
+        self.ids = frozenset([])
+
+    def __call__(self, id_):
+        return int(id_ in self.ids)
+
+    def change(self, ids):
+        self.ids = frozenset(ids)
+
 
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
@@ -117,6 +129,13 @@ class DBThread(Thread):
                 if func == 'dump':
                     try:
                         ok, res = True, '\n'.join(self.conn.iterdump())
+                    except Exception, err:
+                        ok, res = False, (err, traceback.format_exc())
+                elif func == 'create_dynamic_filter':
+                    try:
+                        f = DynamicFilter(args[0])
+                        self.conn.create_function(args[0], 1, f)
+                        ok, res = True, f
                     except Exception, err:
                         ok, res = False, (err, traceback.format_exc())
                 else:
@@ -202,6 +221,9 @@ class ConnectionProxy(object):
 
     @proxy
     def dump(self): pass
+
+    @proxy
+    def create_dynamic_filter(self): pass
 
 def connect(dbpath, row_factory=None):
     conn = ConnectionProxy(DBThread(dbpath, row_factory))

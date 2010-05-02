@@ -269,3 +269,22 @@ class SchemaUpgrade(object):
                 CREATE INDEX IF NOT EXISTS formats_idx ON data (format);
         ''')
 
+    def upgrade_version_10(self):
+        'Add restricted Tag Browser views'
+        def create_tag_browser_view(table_name, column_name, view_column_name):
+            script = ('''
+                DROP VIEW IF EXISTS tag_browser_filtered_{tn};
+                CREATE VIEW tag_browser_filtered_{tn} AS SELECT
+                    id,
+                    {vcn},
+                    (SELECT COUNT(books_{tn}_link.id) FROM books_{tn}_link WHERE
+                        {cn}={tn}.id AND books_list_filter(book)) count
+                FROM {tn};
+                '''.format(tn=table_name, cn=column_name, vcn=view_column_name))
+            self.conn.executescript(script)
+
+        for tn, cn in self.tag_browser_categories.items():
+            if tn != 'news':
+                create_tag_browser_view(tn, cn[0], cn[1])
+
+
