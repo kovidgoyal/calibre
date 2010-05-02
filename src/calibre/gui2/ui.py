@@ -679,6 +679,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         bi_state = dynamic.get('book_info_state', None)
         if bi_state is not None:
             self.vertical_splitter.restoreState(bi_state)
+        self.horizontal_splitter.initialize()
+        self.vertical_splitter.initialize()
 
         self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
         v = self.library_view
