@@ -28,3 +28,24 @@ class PALMPRE(USBMS):
 
     EBOOK_DIR_MAIN = 'E-books'
 
+class KOBO(USBMS):
+
+    name = 'Kobo Reader Device Interface'
+    gui_name = 'Kobo Reader'
+    description = _('Communicate with the Kobo Reader')
+    author = 'Kovid Goyal'
+
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'pdf']
+
+    VENDOR_ID   = [0x2237]
+    PRODUCT_ID  = [0x4161]
+    BCD         = [0x0110]
+
+    VENDOR_NAME = 'KOBO_INC'
+    WINDOWS_MAIN_MEM = '.KOBOEREADER'
+
+    EBOOK_DIR_MAIN = 'e-books'
+
