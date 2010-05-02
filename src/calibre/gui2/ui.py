@@ -45,7 +45,6 @@ from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.main_ui import Ui_MainWindow
 from calibre.gui2.device import DeviceManager, DeviceMenu, DeviceGUI, Emailer
-from calibre.gui2.status import StatusBar
 from calibre.gui2.jobs import JobManager, JobsDialog
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
@@ -263,8 +262,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     SIGNAL('update_found(PyQt_PyObject)'), self.update_found)
             self.update_checker.start(2000)
         ####################### Status Bar #####################
-        self.status_bar = StatusBar(self.jobs_dialog, self.system_tray_icon)
-        self.setStatusBar(self.status_bar)
+        self.status_bar.initialize(self.jobs_dialog, self.system_tray_icon)
+        #self.setStatusBar(self.status_bar)
         QObject.connect(self.job_manager, SIGNAL('job_added(int)'),
                 self.status_bar.job_added, Qt.QueuedConnection)
         QObject.connect(self.job_manager, SIGNAL('job_done(int)'),
@@ -676,6 +675,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if tb_state is not None:
             self.horizontal_splitter.restoreState(tb_state)
         self.toggle_tags_view(True)
+
+        bi_state = dynamic.get('book_info_state', None)
+        if bi_state is not None:
+            self.vertical_splitter.restoreState(bi_state)
 
         self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
         v = self.library_view
@@ -2460,6 +2463,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         dynamic.set('cover_flow_visible', self.cover_flow.isVisible())
         dynamic.set('tag_browser_state',
                 str(self.horizontal_splitter.saveState()))
+        dynamic.set('book_info_state',
+                str(self.vertical_splitter.saveState()))
         self.library_view.write_settings()
         if self.device_connected:
             self.save_device_view_settings()

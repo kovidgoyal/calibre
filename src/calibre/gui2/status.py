@@ -4,7 +4,8 @@ import os, re, collections
 
 from PyQt4.QtGui import QStatusBar, QLabel, QWidget, QHBoxLayout, QPixmap, \
                         QVBoxLayout, QSizePolicy, QToolButton, QIcon, QScrollArea, QFrame
-from PyQt4.QtCore import Qt, QSize, SIGNAL, QCoreApplication
+from PyQt4.QtCore import Qt, QSize, SIGNAL, QCoreApplication, pyqtSignal
+
 from calibre import fit_image, preferred_encoding, isosx
 from calibre.gui2 import qstring_to_unicode, config
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
@@ -48,35 +49,41 @@ class BookInfoDisplay(QWidget):
 
     class BookCoverDisplay(QLabel):
 
-        WIDTH = 81
-        HEIGHT = 108
-
         def __init__(self, coverpath=I('book.svg')):
             QLabel.__init__(self)
-            self.default_pixmap = QPixmap(coverpath).scaled(self.__class__.WIDTH,
-                                                            self.__class__.HEIGHT,
+            self.setMaximumWidth(81)
+            self.setMaximumHeight(108)
+            self.default_pixmap = QPixmap(coverpath).scaled(self.maximumWidth(),
+                                                            self.maximumHeight(),
                                                             Qt.IgnoreAspectRatio,
                                                             Qt.SmoothTransformation)
             self.setScaledContents(True)
-            self.setMaximumHeight(self.HEIGHT)
+            self.statusbar_height = 120
             self.setPixmap(self.default_pixmap)
 
-
-        def setPixmap(self, pixmap):
-            width, height = fit_image(pixmap.width(), pixmap.height(),
-                                              self.WIDTH, self.HEIGHT)[1:]
+        def do_layout(self):
+            pixmap = self.pixmap()
+            pwidth, pheight = pixmap.width(), pixmap.height()
+            width, height = fit_image(pwidth, pheight,
+                                              pwidth, self.statusbar_height-12)[1:]
             self.setMaximumHeight(height)
-            self.setMaximumWidth(width)
-            QLabel.setPixmap(self, pixmap)
-
             try:
-                aspect_ratio = pixmap.width()/float(pixmap.height())
+                aspect_ratio = pwidth/float(pheight)
             except ZeroDivisionError:
                 aspect_ratio = 1
-            self.setMaximumWidth(int(aspect_ratio*self.HEIGHT))
+            self.setMaximumWidth(int(aspect_ratio*self.maximumHeight()))
+
+        def setPixmap(self, pixmap):
+            QLabel.setPixmap(self, pixmap)
+            self.do_layout()
+
 
         def sizeHint(self):
-            return QSize(self.__class__.WIDTH, self.__class__.HEIGHT)
+            return QSize(self.maximumWidth(), self.maximumHeight())
+
+        def relayout(self, statusbar_size):
+            self.statusbar_height = statusbar_size.height()
+            self.do_layout()
 
 
     class BookDataDisplay(QLabel):
@@ -208,8 +215,9 @@ class CoverFlowButton(QToolButton):
 
 class StatusBar(QStatusBar):
 
-    def __init__(self, jobs_dialog, systray=None):
-        QStatusBar.__init__(self)
+    resized = pyqtSignal(object)
+
+    def initialize(self, jobs_dialog, systray=None):
         self.systray = systray
         self.notifier = get_notifier(systray)
         self.movie_button = MovieButton(jobs_dialog)
@@ -220,7 +228,6 @@ class StatusBar(QStatusBar):
         self.book_info.setAcceptDrops(True)
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidget(self.book_info)
-        self.scroll_area.setMaximumHeight(120)
         self.scroll_area.setWidgetResizable(True)
         self.connect(self.book_info, SIGNAL('show_book_info()'), self.show_book_info)
         self.connect(self.book_info,
@@ -228,7 +235,11 @@ class StatusBar(QStatusBar):
                     self.files_dropped, Qt.QueuedConnection)
         self.addWidget(self.scroll_area, 100)
         self.setMinimumHeight(120)
-        self.setMaximumHeight(120)
+        self.resized.connect(self.book_info.cover_display.relayout)
+        self.book_info.cover_display.relayout(self.size())
+
+    def resizeEvent(self, ev):
+        self.resized.emit(self.size())
 
     def files_dropped(self, event, paths):
         self.emit(SIGNAL('files_dropped(PyQt_PyObject, PyQt_PyObject)'), event,
