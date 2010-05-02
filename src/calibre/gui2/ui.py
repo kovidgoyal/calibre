@@ -893,7 +893,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 t = _("(all books)")
             else:
                 t = _("({0} of all)").format(self.current_view().row_count())
-            self.search_count.setStyleSheet('QLabel { background-color: white; }')
+            self.search_count.setStyleSheet(
+                    'QLabel { background-color: transparent; }')
         self.search_count.setText(t)
 
     def search_box_cleared(self):
