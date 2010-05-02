@@ -8,7 +8,7 @@ from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
                         QPixmap, QPalette, QTimer, QDialog, QSplitterHandle, \
-                        QAbstractListModel, QVariant, Qt, SIGNAL, \
+                        QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal, \
                         QRegExp, QSettings, QSize, QModelIndex, QSplitter, \
                         QAbstractButton, QPainter, QLineEdit, QComboBox, \
                         QMenu, QStringListModel, QCompleter, QStringList
@@ -954,9 +954,13 @@ class PythonHighlighter(QSyntaxHighlighter):
 
 class SplitterHandle(QSplitterHandle):
 
+    double_clicked = pyqtSignal(object)
+
     def __init__(self, orientation, splitter):
         QSplitterHandle.__init__(self, orientation, splitter)
         splitter.splitterMoved.connect(self.splitter_moved,
+                type=Qt.QueuedConnection)
+        self.double_clicked.connect(splitter.double_clicked,
                 type=Qt.QueuedConnection)
         self.highlight = False
 
@@ -973,6 +977,9 @@ class SplitterHandle(QSplitterHandle):
             painter.setClipRect(ev.rect())
             painter.fillRect(self.rect(), Qt.yellow)
 
+    def mouseDoubleClickEvent(self, ev):
+        self.double_clicked.emit(self)
+
 class Splitter(QSplitter):
 
     def createHandle(self):
@@ -983,3 +990,18 @@ class Splitter(QSplitter):
             h = self.handle(i)
             if h is not None:
                 h.splitter_moved()
+
+    def double_clicked(self, handle):
+        sizes = list(self.sizes())
+        if 0 in sizes:
+            idx = sizes.index(0)
+            sizes[idx] = 80
+        else:
+            idx = 0 if self.orientation() == Qt.Horizontal else 1
+            sizes[idx] = 0
+        self.setSizes(sizes)
+        self.initialize()
+
+
+
+
