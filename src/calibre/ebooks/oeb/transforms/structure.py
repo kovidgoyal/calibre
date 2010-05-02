@@ -11,7 +11,7 @@ import re
 from lxml import etree
 from urlparse import urlparse
 
-from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML
+from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML, xml2text
 from calibre.ebooks import ConversionError
 
 def XPath(x):
@@ -79,8 +79,7 @@ class DetectStructure(object):
             page_break_before = 'display: block; page-break-before: always'
             page_break_after = 'display: block; page-break-after: always'
             for item, elem in self.detected_chapters:
-                text = u' '.join([t.strip() for t in elem.xpath('descendant::text()')])
-                text = text.strip()
+                text = xml2text(elem).strip()
                 self.log('\tDetected chapter:', text[:50])
                 if chapter_mark == 'none':
                     continue
@@ -120,8 +119,7 @@ class DetectStructure(object):
                     if frag:
                         href = '#'.join((href, frag))
                     if not self.oeb.toc.has_href(href):
-                        text = u' '.join([t.strip() for t in \
-                                a.xpath('descendant::text()')])
+                        text = xml2text(a)
                         text = text[:100].strip()
                         if not self.oeb.toc.has_text(text):
                             num += 1
@@ -135,7 +133,7 @@ class DetectStructure(object):
 
 
     def elem_to_link(self, item, elem, counter):
-        text = u' '.join([t.strip() for t in elem.xpath('descendant::text()')])
+        text = xml2text(elem)
         text = text[:100].strip()
         id = elem.get('id', 'calibre_toc_%d'%counter)
         elem.set('id', id)

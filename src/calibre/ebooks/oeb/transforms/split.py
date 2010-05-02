@@ -5,7 +5,7 @@ __docformat__ = 'restructuredtext en'
 
 '''
 Splitting of the XHTML flows. Splitting can happen on page boundaries or can be
-forces at "likely" locations to conform to size limitations. This transform
+forced at "likely" locations to conform to size limitations. This transform
 assumes a prior call to the flatcss transform.
 '''
 
@@ -385,12 +385,18 @@ class FlowSplitter(object):
             raise SplitError(self.item.href, root)
         self.log.debug('\t\t\tSplit point:', split_point.tag, tree.getpath(split_point))
 
-        for t in self.do_split(tree, split_point, before):
+        trees = self.do_split(tree, split_point, before)
+        sizes = [len(tostring(t.getroot())) for t in trees]
+        if min(sizes) < 5*1024:
+            self.log.debug('\t\t\tSplit tree too small')
+            self.split_to_size(tree)
+            return
+
+        for t, size in zip(trees, sizes):
             r = t.getroot()
             if self.is_page_empty(r):
                 continue
-            size = len(tostring(r))
-            if size <= self.max_flow_size:
+            elif size <= self.max_flow_size:
                 self.split_trees.append(t)
                 self.log.debug(
                     '\t\t\tCommitted sub-tree #%d (%d KB)'%(
