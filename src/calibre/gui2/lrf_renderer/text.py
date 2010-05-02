@@ -9,7 +9,6 @@ from PyQt4.QtGui import QFont, QColor, QPixmap, QGraphicsPixmapItem, \
 from calibre.ebooks.lrf.fonts import FONT_MAP
 from calibre.ebooks.BeautifulSoup import Tag
 from calibre.ebooks.hyphenate import hyphenate_word
-from calibre.gui2 import qstring_to_unicode
 
 WEIGHT_MAP = lambda wt : int((wt/10.)-1)
 NULL       = lambda a, b: a
@@ -527,12 +526,12 @@ class Line(QGraphicsItem):
             while True:
                 word = words.next()
                 word.highlight = False
-                if tokens[0] in qstring_to_unicode(word.string).lower():
+                if tokens[0] in unicode(word.string).lower():
                     matches.append(word)
                     for c in range(1, len(tokens)):
                         word = words.next()
                         print tokens[c], word.string
-                        if tokens[c] not in qstring_to_unicode(word.string):
+                        if tokens[c] not in unicode(word.string):
                             return None
                         matches.append(word)
                     for w in matches:
@@ -556,7 +555,7 @@ class Line(QGraphicsItem):
             if isinstance(tok, (int, float)):
                 s += ' '
             elif isinstance(tok, Word):
-                s += qstring_to_unicode(tok.string)
+                s += unicode(tok.string)
         return s
 
     def __str__(self):

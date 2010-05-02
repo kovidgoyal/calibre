@@ -14,7 +14,7 @@ from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QMenu, QStringListModel, QCompleter, QStringList
 
 from calibre.gui2 import human_readable, NONE, TableView, \
-                         qstring_to_unicode, error_dialog, pixmap_to_data
+                         error_dialog, pixmap_to_data
 from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
@@ -72,7 +72,7 @@ class FilenamePattern(QWidget, Ui_Form):
             error_dialog(self, _('Invalid regular expression'),
                          _('Invalid regular expression: %s')%err).exec_()
             return
-        mi = metadata_from_filename(qstring_to_unicode(self.filename.text()), pat)
+        mi = metadata_from_filename(unicode(self.filename.text()), pat)
         if mi.title:
             self.title.setText(mi.title)
         else:
@@ -96,7 +96,7 @@ class FilenamePattern(QWidget, Ui_Form):
 
 
     def pattern(self):
-        pat = qstring_to_unicode(self.re.text())
+        pat = unicode(self.re.text())
         return re.compile(pat)
 
     def commit(self):
@@ -158,7 +158,7 @@ class ImageView(QLabel):
         and represent files with extensions.
         '''
         if event.mimeData().hasFormat('text/uri-list'):
-            urls = [qstring_to_unicode(u.toLocalFile()) for u in event.mimeData().urls()]
+            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
             urls = [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
             return [u for u in urls if os.path.splitext(u)[1][1:].lower() in cls.DROPABBLE_EXTENSIONS]
 
@@ -630,13 +630,13 @@ class TagsLineEdit(EnLineEdit):
         self.completer.update_tags_cache(tags)
 
     def text_changed(self, text):
-        all_text = qstring_to_unicode(text)
+        all_text = unicode(text)
         text = all_text[:self.cursorPosition()]
         prefix = text.split(',')[-1].strip()
 
         text_tags = []
         for t in all_text.split(self.separator):
-            t1 = qstring_to_unicode(t).strip()
+            t1 = unicode(t).strip()
             if t1 != '':
                 text_tags.append(t)
         text_tags = list(set(text_tags))
@@ -646,8 +646,8 @@ class TagsLineEdit(EnLineEdit):
 
     def complete_text(self, text):
         cursor_pos = self.cursorPosition()
-        before_text = qstring_to_unicode(self.text())[:cursor_pos]
-        after_text = qstring_to_unicode(self.text())[cursor_pos:]
+        before_text = unicode(self.text())[:cursor_pos]
+        after_text = unicode(self.text())[cursor_pos:]
         prefix_len = len(before_text.split(',')[-1].strip())
         self.setText('%s%s%s %s' % (before_text[:cursor_pos - prefix_len],
             text, self.separator, after_text))

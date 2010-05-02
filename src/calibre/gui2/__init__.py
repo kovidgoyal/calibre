@@ -218,9 +218,6 @@ def info_dialog(parent, title, msg, det_msg='', show=False):
     return d
 
 
-def qstring_to_unicode(q):
-    return unicode(q)
-
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """
     divisor, suffix = 1, "B"
@@ -380,7 +377,7 @@ class FileIconProvider(QFileIconProvider):
         if fileinfo.isDir():
             key = 'dir'
         else:
-            ext = qstring_to_unicode(fileinfo.completeSuffix()).lower()
+            ext = unicode(fileinfo.completeSuffix()).lower()
             key = self.key_from_ext(ext)
         return self.cached_icon(key)
 

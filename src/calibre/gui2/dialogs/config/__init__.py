@@ -13,7 +13,7 @@ from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
 from calibre.constants import iswindows, isosx, preferred_encoding
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
 from calibre.gui2.dialogs.config.create_custom_column import CreateCustomColumn
-from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
+from calibre.gui2 import choose_dir, error_dialog, config, \
                          ALL_COLUMNS, NONE, info_dialog, choose_files, \
                          warning_dialog, ResizableDialog
 from calibre.utils.config import prefs
@@ -650,7 +650,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         if idx < 0:
             self.messagebox(_('You must select a column to delete it'))
             return
-        col = qstring_to_unicode(self.columns.item(idx).data(Qt.UserRole).toString())
+        col = unicode(self.columns.item(idx).data(Qt.UserRole).toString())
         if col not in self.custcols:
             self.messagebox(_('The selected column is not a custom column'))
             return
@@ -759,12 +759,12 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
         prefs['network_timeout'] = int(self.timeout.value())
-        path = qstring_to_unicode(self.location.text())
+        path = unicode(self.location.text())
         input_cols = [unicode(self.input_order.item(i).data(Qt.UserRole).toString()) for i in range(self.input_order.count())]
         prefs['input_format_order'] = input_cols
 
         ####### Now deal with changes to columns
-        cols = [qstring_to_unicode(self.columns.item(i).data(Qt.UserRole).toString())\
+        cols = [unicode(self.columns.item(i).data(Qt.UserRole).toString())\
                  for i in range(self.columns.count()) \
                     if self.columns.item(i).checkState()==Qt.Checked]
         if not cols:

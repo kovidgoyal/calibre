@@ -4,7 +4,6 @@ import re
 from PyQt4.QtGui import QDialog
 
 from calibre.gui2.dialogs.search_ui import Ui_Dialog
-from calibre.gui2 import qstring_to_unicode
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
 
 class SearchDialog(QDialog, Ui_Dialog):
@@ -48,11 +47,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         return ans
 
     def token(self):
-        txt = qstring_to_unicode(self.text.text()).strip()
+        txt = unicode(self.text.text()).strip()
         if txt:
             if self.negate.isChecked():
                 txt = '!'+txt
-            tok = self.FIELDS[qstring_to_unicode(self.field.currentText())]+txt
+            tok = self.FIELDS[unicode(self.field.currentText())]+txt
             if re.search(r'\s', tok):
                 tok = '"%s"'%tok
             return tok

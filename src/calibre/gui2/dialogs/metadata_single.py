@@ -14,7 +14,7 @@ import traceback
 from PyQt4.Qt import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDate, \
     QPixmap, QListWidgetItem, QDialog
 
-from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
+from calibre.gui2 import error_dialog, file_icon_provider, \
                            choose_files, choose_images, ResizableDialog, \
                            warning_dialog
 from calibre.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
@@ -552,12 +552,12 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def fetch_metadata(self):
         isbn   = re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text()))
-        title  = qstring_to_unicode(self.title.text())
+        title  = unicode(self.title.text())
         try:
             author = string_to_authors(unicode(self.authors.text()))[0]
         except:
             author = ''
-        publisher = qstring_to_unicode(self.publisher.currentText())
+        publisher = unicode(self.publisher.currentText())
         if isbn or title or author or publisher:
             d = FetchMetadata(self, isbn, title, author, publisher, self.timeout)
             self._fetch_metadata_scope = d
@@ -623,12 +623,12 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def remove_unused_series(self):
         self.db.remove_unused_series()
-        idx = qstring_to_unicode(self.series.currentText())
+        idx = unicode(self.series.currentText())
         self.series.clear()
         self.initialize_series()
         if idx:
             for i in range(self.series.count()):
-                if qstring_to_unicode(self.series.itemText(i)) == idx:
+                if unicode(self.series.itemText(i)) == idx:
                     self.series.setCurrentIndex(i)
                     break
 
@@ -648,7 +648,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.db.set_isbn(self.id,
                     re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text())), notify=False)
             self.db.set_rating(self.id, 2*self.rating.value(), notify=False)
-            self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.currentText()), notify=False)
+            self.db.set_publisher(self.id, unicode(self.publisher.currentText()), notify=False)
             self.db.set_tags(self.id, [x.strip() for x in
                 unicode(self.tags.text()).split(',')], notify=False)
             self.db.set_series(self.id,
