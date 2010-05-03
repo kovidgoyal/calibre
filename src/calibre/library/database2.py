@@ -636,7 +636,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon, tooltip = tooltip)
                                         for r in data]
             else: # filter out zero-count tags
-                categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon)
+                categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon, tooltip = tooltip)
                                         for r in data if r[2] > 0]
         categories['format'] = []
         for fmt in self.conn.get('SELECT DISTINCT format FROM data'):
