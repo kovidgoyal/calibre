@@ -1190,7 +1190,8 @@ class Manifest(object):
         if item in self.ids:
             item = self.ids[item]
         del self.ids[item.id]
-        del self.hrefs[item.href]
+        if item.href in self.hrefs:
+            del self.hrefs[item.href]
         self.items.remove(item)
         if item in self.oeb.spine:
             self.oeb.spine.remove(item)
