@@ -169,7 +169,7 @@ class TagTreeItem(object):
 
     def category_data(self, role):
         if role == Qt.DisplayRole:
-            return self.name
+            return QVariant(self.py_name + ' [%d]'%len(self.children))
         if role == Qt.DecorationRole:
             return self.icon
         if role == Qt.FontRole:
