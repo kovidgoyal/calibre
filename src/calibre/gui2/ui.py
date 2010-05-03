@@ -887,7 +887,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.restriction_count_of_books_in_view = self.current_view().row_count()
             t = _("({0} of {1})").format(self.current_view().row_count(),
                                          self.restriction_count_of_books_in_view)
-            self.search_count.setStyleSheet('QLabel { background-color: yellow; }')
+            self.search_count.setStyleSheet('QLabel { border-radius: 8px; background-color: yellow; }')
         else: # No restriction
             if all == 'yes':
                 t = _("(all books)")
