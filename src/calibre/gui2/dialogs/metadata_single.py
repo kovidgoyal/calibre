@@ -180,27 +180,34 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.formats_changed = True
 
     def get_selected_format_metadata(self):
-        row = self.formats.currentRow()
-        fmt = self.formats.item(row)
-        if fmt is None:
-            if self.formats.count() == 1:
-                fmt = self.formats.item(0)
-            if fmt is None:
-                error_dialog(self, _('No format selected'),
-                    _('No format selected')).exec_()
-                return None, None
-        ext = fmt.ext.lower()
-        if fmt.path is None:
-            stream = self.db.format(self.row, ext, as_file=True)
-        else:
-            stream = open(fmt.path, 'r+b')
+        old = prefs['read_file_metadata']
+        if not old:
+            prefs['read_file_metadata'] = True
         try:
-            mi = get_metadata(stream, ext)
-            return mi, ext
-        except:
-            error_dialog(self, _('Could not read metadata'),
-                         _('Could not read metadata from %s format')%ext).exec_()
-        return None, None
+            row = self.formats.currentRow()
+            fmt = self.formats.item(row)
+            if fmt is None:
+                if self.formats.count() == 1:
+                    fmt = self.formats.item(0)
+                if fmt is None:
+                    error_dialog(self, _('No format selected'),
+                        _('No format selected')).exec_()
+                    return None, None
+            ext = fmt.ext.lower()
+            if fmt.path is None:
+                stream = self.db.format(self.row, ext, as_file=True)
+            else:
+                stream = open(fmt.path, 'r+b')
+            try:
+                mi = get_metadata(stream, ext)
+                return mi, ext
+            except:
+                error_dialog(self, _('Could not read metadata'),
+                            _('Could not read metadata from %s format')%ext).exec_()
+            return None, None
+        finally:
+            if old != prefs['read_file_metadata']:
+                prefs['read_file_metadata'] = old
 
     def set_metadata_from_format(self):
         mi, ext = self.get_selected_format_metadata()
