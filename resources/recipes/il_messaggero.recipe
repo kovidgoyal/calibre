@@ -1,0 +1,56 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+__author__    = 'Gabriele Marini, based on Darko Miletic'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+description   = 'Italian daily newspaper - v1.01 (04, January 2010)'
+
+'''
+http://www.messaggero.it/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class IlMessaggero(BasicNewsRecipe):
+    __author__    = 'Gabriele Marini'
+    description   = 'Italian News'
+
+    cover_url      = 'http://www.ilmessaggero.it/img_tst/logomsgr.gif'
+    title          = u'Il Messaggero'
+    publisher      = 'Caltagirone Editore'
+    category       = 'News, politics, culture, economy, general interest'
+
+    language       = 'it'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article = 5
+    max_articles_per_feed = 100
+    use_embedded_content  = False
+    recursion             = 10
+
+    remove_javascript = True
+
+
+    keep_only_tags     = [dict(name='h1', attrs={'class':'titoloLettura2'}),
+                          dict(name='h2', attrs={'class':'sottotitLettura'}),
+                          dict(name='span', attrs={'class':'testoArticoloG'})
+                         ]
+
+
+
+    feeds          = [
+                       (u'HomePage', u'http://www.ilmessaggero.it/rss/home.xml'),
+                       (u'Primo Piano', u'http://www.ilmessaggero.it/rss/initalia_primopiano.xml'),
+                       (u'Cronaca Bianca', u'http://www.ilmessaggero.it/rss/initalia_cronacabianca.xml'),
+                       (u'Cronaca Nera', u'http://www.ilmessaggero.it/rss/initalia_cronacanera.xml'),
+                       (u'Economia e Finanza', u'http://www.ilmessaggero.it/rss/economia.xml'),
+                       (u'Politica', u'http://www.ilmessaggero.it/rss/initalia_politica.xml'),
+                       (u'Scienza e Tecnologia', u'http://www.ilmessaggero.it/rss/scienza.xml'),
+                       (u'Cinema', u'http://www.ilmessaggero.it/rss.php?refresh_ce#'),
+                       (u'Viaggi', u'http://www.ilmessaggero.it/rss.php?refresh_ce#'),
+                       (u'Roma', u'http://www.ilmessaggero.it/rss/roma.xml'),
+                       (u'Cultura e Tendenze', u'http://www.ilmessaggero.it/rss/roma_culturaspet.xml'),
+                       (u'Sport', u'http://www.ilmessaggero.it/rss/sport.xml'),
+                       (u'Calcio', u'http://www.ilmessaggero.it/rss/sport_calcio.xml'),
+                       (u'Motori', u'http://www.ilmessaggero.it/rss/sport_motori.xml')
+                      ]
+                     
