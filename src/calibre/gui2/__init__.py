@@ -193,11 +193,14 @@ def warning_dialog(parent, title, msg, det_msg='', show=False):
         return d.exec_()
     return d
 
-def error_dialog(parent, title, msg, det_msg='', show=False):
+def error_dialog(parent, title, msg, det_msg='', show=False,
+        show_copy_button=True):
     d = MessageBox(QMessageBox.Critical, 'ERROR: '+title, msg, QMessageBox.Ok,
                     parent, det_msg)
     d.setIconPixmap(QPixmap(I('dialog_error.svg')))
     d.setEscapeButton(QMessageBox.Ok)
+    if not show_copy_button:
+        d.cb.setVisible(False)
     if show:
         return d.exec_()
     return d
@@ -217,9 +220,6 @@ def info_dialog(parent, title, msg, det_msg='', show=False):
         return d.exec_()
     return d
 
-
-def qstring_to_unicode(q):
-    return unicode(q)
 
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """
@@ -380,7 +380,7 @@ class FileIconProvider(QFileIconProvider):
         if fileinfo.isDir():
             key = 'dir'
         else:
-            ext = qstring_to_unicode(fileinfo.completeSuffix()).lower()
+            ext = unicode(fileinfo.completeSuffix()).lower()
             key = self.key_from_ext(ext)
         return self.cached_icon(key)
 

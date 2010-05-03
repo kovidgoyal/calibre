@@ -19,7 +19,7 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
 from calibre import strftime
 from calibre.ebooks.metadata import string_to_authors, fmt_sidx, authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
-from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, error_dialog
+from calibre.gui2 import NONE, TableView, config, error_dialog
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
@@ -813,7 +813,7 @@ class BooksModel(QAbstractTableModel):
     def set_custom_column_data(self, row, colhead, value):
         typ = self.custom_columns[colhead]['datatype']
         if typ in ('text', 'comments'):
-            val = qstring_to_unicode(value.toString()).strip()
+            val = unicode(value.toString()).strip()
             val = val if val else None
         if typ == 'bool':
             val = value.toInt()[0] # tristate checkboxes put unknown in the middle
@@ -823,7 +823,7 @@ class BooksModel(QAbstractTableModel):
             val = 0 if val < 0 else 5 if val > 5 else val
             val *= 2
         elif typ in ('int', 'float'):
-            val = qstring_to_unicode(value.toString()).strip()
+            val = unicode(value.toString()).strip()
             if val is None or not val:
                 val = None
         elif typ == 'datetime':
@@ -1034,7 +1034,7 @@ class BooksView(TableView):
         and represent files with extensions.
         '''
         if event.mimeData().hasFormat('text/uri-list'):
-            urls = [qstring_to_unicode(u.toLocalFile()) for u in event.mimeData().urls()]
+            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
             return [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
 
     def dragEnterEvent(self, event):
@@ -1390,7 +1390,7 @@ class DeviceBooksModel(BooksModel):
             row, col = index.row(), index.column()
             if col in [2, 3]:
                 return False
-            val = qstring_to_unicode(value.toString()).strip()
+            val = unicode(value.toString()).strip()
             idx = self.map[row]
             if col == 0:
                 self.db[idx].title = val

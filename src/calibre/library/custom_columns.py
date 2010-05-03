@@ -45,6 +45,7 @@ class CustomColumns(object):
                     DROP TRIGGER IF EXISTS fkc_insert_{table};
                     DROP TRIGGER IF EXISTS fkc_delete_{table};
                     DROP VIEW    IF EXISTS tag_browser_{table};
+                    DROP VIEW    IF EXISTS tag_browser_filtered_{table};
                     DROP TABLE   IF EXISTS {table};
                     DROP TABLE   IF EXISTS {lt};
                     '''.format(table=table, lt=lt)
@@ -137,7 +138,14 @@ class CustomColumns(object):
                 'comments': lambda x,d: adapt_text(x, {'is_multiple':False}),
                 'datetime' : adapt_datetime,
                 'text':adapt_text
-                }
+        }
+
+        # Create Tag Browser categories for custom columns
+        for i, v in self.custom_column_num_map.items():
+            if v['normalized']:
+                tn = 'custom_column_{0}'.format(i)
+                self.tag_browser_categories[tn] = [v['label'], 'value']
+
 
     def get_custom(self, idx, label=None, num=None, index_is_id=False):
         if label is not None:
@@ -394,6 +402,13 @@ class CustomColumns(object):
                     id,
                     value,
                     (SELECT COUNT(id) FROM {lt} WHERE value={table}.id) count
+                FROM {table};
+
+                CREATE VIEW tag_browser_filtered_{table} AS SELECT
+                    id,
+                    value,
+                    (SELECT COUNT({lt}.id) FROM {lt} WHERE value={table}.id AND
+                    books_list_filter(book)) count
                 FROM {table};
 
                 '''.format(lt=lt, table=table),

@@ -4,7 +4,6 @@ from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QDialog
 
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
-from calibre.gui2 import qstring_to_unicode
 from calibre.gui2 import question_dialog, error_dialog
 from calibre.constants import islinux
 
@@ -57,26 +56,26 @@ class TagEditor(QDialog, Ui_TagEditor):
             error_dialog(self, 'No tags selected', 'You must select at least one tag from the list of Available tags.').exec_()
             return
         for item in items:
-            if self.db.is_tag_used(qstring_to_unicode(item.text())):
+            if self.db.is_tag_used(unicode(item.text())):
                 confirms.append(item)
             else:
                 deletes.append(item)
         if confirms:
-            ct = ', '.join([qstring_to_unicode(item.text()) for item in confirms])
+            ct = ', '.join([unicode(item.text()) for item in confirms])
             if question_dialog(self, _('Are your sure?'),
                 '<p>'+_('The following tags are used by one or more books. '
                     'Are you certain you want to delete them?')+'<br>'+ct):
                 deletes += confirms
 
         for item in deletes:
-            self.db.delete_tag(qstring_to_unicode(item.text()))
+            self.db.delete_tag(unicode(item.text()))
             self.available_tags.takeItem(self.available_tags.row(item))
 
 
     def apply_tags(self, item=None):
         items = self.available_tags.selectedItems() if item is None else [item]
         for item in items:
-            tag = qstring_to_unicode(item.text())
+            tag = unicode(item.text())
             self.tags.append(tag)
             self.available_tags.takeItem(self.available_tags.row(item))
 
@@ -90,7 +89,7 @@ class TagEditor(QDialog, Ui_TagEditor):
     def unapply_tags(self, item=None):
         items = self.applied_tags.selectedItems() if item is None else [item]
         for item in items:
-            tag = qstring_to_unicode(item.text())
+            tag = unicode(item.text())
             self.tags.remove(tag)
             self.available_tags.addItem(tag)
 
@@ -102,7 +101,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.available_tags.sortItems()
 
     def add_tag(self):
-        tags = qstring_to_unicode(self.add_tag_input.text()).split(',')
+        tags = unicode(self.add_tag_input.text()).split(',')
         for tag in tags:
             tag = tag.strip()
             for item in self.available_tags.findItems(tag, Qt.MatchFixedString):

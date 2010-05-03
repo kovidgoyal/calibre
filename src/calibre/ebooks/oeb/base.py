@@ -294,6 +294,9 @@ def xml2str(root, pretty_print=False, strip_comments=False):
 def xml2unicode(root, pretty_print=False):
     return etree.tostring(root, pretty_print=pretty_print)
 
+def xml2text(elem):
+    return etree.tostring(elem, method='text', encoding=unicode, with_tail=False)
+
 ASCII_CHARS   = set(chr(x) for x in xrange(128))
 UNIBYTE_CHARS = set(chr(x) for x in xrange(256))
 URL_SAFE      = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ'

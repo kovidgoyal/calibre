@@ -220,6 +220,10 @@ class Scheduler(QObject):
         self.cac = QAction(QIcon(I('user_profile.svg')), _('Add a custom news source'), self)
         self.connect(self.cac, SIGNAL('triggered(bool)'), self.customize_feeds)
         self.news_menu.addAction(self.cac)
+        self.news_menu.addSeparator()
+        self.all_action = self.news_menu.addAction(
+                _('Download all scheduled new sources'),
+                self.download_all_scheduled)
 
         self.timer = QTimer(self)
         self.timer.start(int(self.INTERVAL * 60000))
@@ -304,7 +308,11 @@ class Scheduler(QObject):
         if urn is not None:
             return self.download(urn)
         for urn in self.recipe_model.scheduled_urns():
-            self.download(urn)
+            if not self.download(urn):
+                break
+
+    def download_all_scheduled(self):
+        self.download_clicked(None)
 
     def download(self, urn):
         self.lock.lock()
@@ -316,12 +324,13 @@ class Scheduler(QObject):
                             'is active'))
                 d.setModal(False)
                 d.show()
-            return
+            return False
         self.internet_connection_failed = False
         doit = urn not in self.download_queue
         self.lock.unlock()
         if doit:
             self.do_download(urn)
+        return True
 
     def check(self):
         recipes = self.recipe_model.get_to_be_downloaded_recipes()

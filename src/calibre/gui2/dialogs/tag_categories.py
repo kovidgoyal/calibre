@@ -7,7 +7,7 @@ from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QDialog, QIcon, QListWidgetItem
 
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
-from calibre.gui2 import qstring_to_unicode, config
+from calibre.gui2 import config
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.constants import islinux
 
@@ -138,7 +138,7 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     def add_category(self):
         self.save_category()
-        cat_name = qstring_to_unicode(self.input_box.text()).strip()
+        cat_name = unicode(self.input_box.text()).strip()
         if cat_name == '':
             return False
         if cat_name not in self.categories:

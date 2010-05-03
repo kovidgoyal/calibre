@@ -106,6 +106,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.conn = connect(self.dbpath, self.row_factory)
         if self.user_version == 0:
             self.initialize_database()
+        self.books_list_filter = self.conn.create_dynamic_filter('books_list_filter')
 
     def __init__(self, library_path, row_factory=False):
         if not os.path.exists(library_path):
@@ -118,6 +119,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.dbpath)
         if isinstance(self.dbpath, unicode):
             self.dbpath = self.dbpath.encode(filesystem_encoding)
+
+        self.tag_browser_categories = {
+                'tags'      : ['tag', 'name'],
+                'series'    : ['series', 'name'],
+                'publishers': ['publisher', 'name'],
+                'authors'   : ['author', 'name'],
+                'news'      : ['news', 'name'],
+        }
+
         self.connect()
         self.is_case_sensitive = not iswindows and not isosx and \
             not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
@@ -125,6 +135,30 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.initialize_dynamic()
 
     def initialize_dynamic(self):
+        self.conn.executescript(u'''
+            CREATE TEMP VIEW IF NOT EXISTS tag_browser_news AS SELECT DISTINCT
+                id,
+                name,
+                (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id) count
+            FROM tags as x WHERE name!="{0}" AND id IN
+                (SELECT DISTINCT tag FROM books_tags_link WHERE book IN
+                    (SELECT DISTINCT book FROM books_tags_link WHERE tag IN
+                        (SELECT id FROM tags WHERE name="{0}")));
+            '''.format(_('News')))
+
+        self.conn.executescript(u'''
+            CREATE TEMP VIEW IF NOT EXISTS tag_browser_filtered_news AS SELECT DISTINCT
+                id,
+                name,
+                (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id and books_list_filter(book)) count
+            FROM tags as x WHERE name!="{0}" AND id IN
+                (SELECT DISTINCT tag FROM books_tags_link WHERE book IN
+                    (SELECT DISTINCT book FROM books_tags_link WHERE tag IN
+                        (SELECT id FROM tags WHERE name="{0}")));
+            '''.format(_('News')))
+        self.conn.commit()
+
+
         CustomColumns.__init__(self)
         template = '''\
                 (SELECT {query} FROM books_{table}_link AS link INNER JOIN
@@ -576,68 +610,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return self.conn.get('SELECT script FROM feeds WHERE id=?', (id,), all=False)
 
     def get_categories(self, sort_on_count=False, ids=None, icon_map=None):
-
-        orig_category_columns = {'tags': ['tag', 'name'],
-                                 'series': ['series', 'name'],
-                                 'publishers': ['publisher', 'name'],
-                                 'authors': ['author', 'name']} # 'news' is added below
-        cat_cols = {}
-
-        def create_filtered_views(self, ids):
-            def create_tag_browser_view(table_name, column_name, view_column_name):
-                script = ('''
-                    CREATE TEMP VIEW IF NOT EXISTS tag_browser_filtered_{tn} AS SELECT
-                        id,
-                        {vcn},
-                        (SELECT COUNT(books_{tn}_link.id) FROM books_{tn}_link WHERE {cn}={tn}.id and books_list_filter(book)) count
-                    FROM {tn};
-                    '''.format(tn=table_name, cn=column_name, vcn=view_column_name))
-                self.conn.executescript(script)
-
-            self.cat_cols = {}
-            for tn,cn in orig_category_columns.iteritems():
-                create_tag_browser_view(tn, cn[0], cn[1])
-                cat_cols[tn] = cn
-            for i,v in self.custom_column_num_map.iteritems():
-                if v['datatype'] == 'text':
-                    tn = 'custom_column_{0}'.format(i)
-                    create_tag_browser_view(tn, 'value', 'value')
-                    cat_cols[tn] = [v['label'], 'value']
-            cat_cols['news'] = ['news', 'name']
-
-            self.conn.executescript(u'''
-                CREATE TEMP VIEW IF NOT EXISTS tag_browser_news AS SELECT DISTINCT
-                    id,
-                    name,
-                    (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id) count
-                FROM tags as x WHERE name!="{0}" AND id IN
-                    (SELECT DISTINCT tag FROM books_tags_link WHERE book IN
-                        (SELECT DISTINCT book FROM books_tags_link WHERE tag IN
-                            (SELECT id FROM tags WHERE name="{0}")));
-                '''.format(_('News')))
-            self.conn.commit()
-
-            self.conn.executescript(u'''
-                CREATE TEMP VIEW IF NOT EXISTS tag_browser_filtered_news AS SELECT DISTINCT
-                    id,
-                    name,
-                    (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id and books_list_filter(book)) count
-                FROM tags as x WHERE name!="{0}" AND id IN
-                    (SELECT DISTINCT tag FROM books_tags_link WHERE book IN
-                        (SELECT DISTINCT book FROM books_tags_link WHERE tag IN
-                            (SELECT id FROM tags WHERE name="{0}")));
-                '''.format(_('News')))
-            self.conn.commit()
-
-        if ids is not None:
-            s_ids = set(ids)
-        else:
-            s_ids = None
-        self.conn.create_function('books_list_filter', 1, lambda(id): 1 if id in s_ids else 0)
-        create_filtered_views(self, ids)
+        self.books_list_filter.change([] if not ids else ids)
 
         categories = {}
-        for tn,cn in cat_cols.iteritems():
+        for tn, cn in self.tag_browser_categories.items():
             if ids is None:
                 query = 'SELECT id, {0}, count FROM tag_browser_{1}'.format(cn[1], tn)
             else:
@@ -648,12 +624,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 query += ' ORDER BY {0} ASC'.format(cn[1])
             data = self.conn.get(query)
             category = cn[0]
-            if category in icon_map:
-                icon = icon_map[category]
-                tooltip = ''
-            else:
-                icon = icon_map['*custom']
-                tooltip = self.custom_column_label_map[category]['name']
+            icon, tooltip = None, ''
+            if icon_map:
+                if category in icon_map:
+                    icon = icon_map[category]
+                    tooltip = ''
+                else:
+                    icon = icon_map['*custom']
+                    tooltip = self.custom_column_label_map[category]['name']
             if ids is None: # no filtering
                 categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon, tooltip = tooltip)
                                         for r in data]
@@ -666,14 +644,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if ids is not None:
                 count = self.conn.get('''SELECT COUNT(id)
                                        FROM data
-                                       WHERE format="%s" and books_list_filter(id)'''%fmt,
+                                       WHERE format="%s" AND books_list_filter(id)'''%fmt,
                                        all=False)
             else:
                 count = self.conn.get('''SELECT COUNT(id)
                                        FROM data
                                        WHERE format="%s"'''%fmt,
                                        all=False)
-            categories['format'].append(Tag(fmt, count=count))
+            if count > 0:
+                categories['format'].append(Tag(fmt, count=count))
 
         if sort_on_count:
             categories['format'].sort(cmp=lambda x,y:cmp(x.count, y.count),
@@ -1475,6 +1454,7 @@ books_series_link      feeds
             conn = ndb.conn
             conn.execute('create table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
             conn.commit()
+            conn.create_function(self.books_list_filter.name, 1, lambda x: 1)
             conn.executescript(sql)
             conn.commit()
             conn.execute('pragma user_version=%d'%user_version)

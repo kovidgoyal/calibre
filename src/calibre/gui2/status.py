@@ -7,7 +7,7 @@ from PyQt4.QtGui import QStatusBar, QLabel, QWidget, QHBoxLayout, QPixmap, \
 from PyQt4.QtCore import Qt, QSize, SIGNAL, QCoreApplication, pyqtSignal
 
 from calibre import fit_image, preferred_encoding, isosx
-from calibre.gui2 import qstring_to_unicode, config
+from calibre.gui2 import config
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.notify import get_notifier
@@ -260,7 +260,7 @@ class StatusBar(QStatusBar):
         return ret
 
     def jobs(self):
-        src = qstring_to_unicode(self.movie_button.jobs.text())
+        src = unicode(self.movie_button.jobs.text())
         return int(re.search(r'\d+', src).group())
 
     def show_book_info(self):
@@ -268,7 +268,7 @@ class StatusBar(QStatusBar):
 
     def job_added(self, nnum):
         jobs = self.movie_button.jobs
-        src = qstring_to_unicode(jobs.text())
+        src = unicode(jobs.text())
         num = self.jobs()
         text = src.replace(str(num), str(nnum))
         jobs.setText(text)
@@ -276,7 +276,7 @@ class StatusBar(QStatusBar):
 
     def job_done(self, nnum):
         jobs = self.movie_button.jobs
-        src = qstring_to_unicode(jobs.text())
+        src = unicode(jobs.text())
         num = self.jobs()
         text = src.replace(str(num), str(nnum))
         jobs.setText(text)

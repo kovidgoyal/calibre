@@ -113,7 +113,7 @@ Metadata download plugins
     When :meth:`fetch` is called, the `self` object will have the following
     useful attributes (each of which may be None)::
 
-        title, author, publisher, isbn, log, verbose and extra
+        title, book_author, publisher, isbn, log, verbose and extra
 
     Use these attributes to construct the search query. extra is reserved for
     future use.

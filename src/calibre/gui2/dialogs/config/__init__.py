@@ -8,14 +8,14 @@ from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
                         SIGNAL, QThread, Qt, QSize, QVariant, QUrl, \
                         QModelIndex, QAbstractTableModel, \
                         QDialogButtonBox, QTabWidget, QBrush, QLineEdit, \
-                        QProgressDialog, QMessageBox
+                        QProgressDialog
 
 from calibre.constants import iswindows, isosx, preferred_encoding
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
 from calibre.gui2.dialogs.config.create_custom_column import CreateCustomColumn
-from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
+from calibre.gui2 import choose_dir, error_dialog, config, \
                          ALL_COLUMNS, NONE, info_dialog, choose_files, \
-                         warning_dialog, ResizableDialog
+                         warning_dialog, ResizableDialog, question_dialog
 from calibre.utils.config import prefs
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
@@ -648,16 +648,15 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
     def del_custcol(self):
         idx = self.columns.currentRow()
         if idx < 0:
-            self.messagebox(_('You must select a column to delete it'))
-            return
-        col = qstring_to_unicode(self.columns.item(idx).data(Qt.UserRole).toString())
+            return error_dialog(self, '', _('You must select a column to delete it'),
+                    show=True)
+        col = unicode(self.columns.item(idx).data(Qt.UserRole).toString())
         if col not in self.custcols:
-            self.messagebox(_('The selected column is not a custom column'))
-            return
-        ret = self.messagebox(_('Do you really want to delete column %s and all its data')%self.custcols[col]['name'],
-                         buttons=QMessageBox.Ok|QMessageBox.Cancel,
-                         defaultButton=QMessageBox.Cancel)
-        if ret != QMessageBox.Ok:
+            return error_dialog(self, '',
+                    _('The selected column is not a custom column'), show=True)
+        if not question_dialog(self, _('Are you sure?'),
+            _('Do you really want to delete column %s and all its data?') %
+            self.custcols[col]['name']):
             return
         self.columns.item(idx).setCheckState(False)
         self.columns.takeItem(idx)
@@ -759,12 +758,12 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
         prefs['network_timeout'] = int(self.timeout.value())
-        path = qstring_to_unicode(self.location.text())
+        path = unicode(self.location.text())
         input_cols = [unicode(self.input_order.item(i).data(Qt.UserRole).toString()) for i in range(self.input_order.count())]
         prefs['input_format_order'] = input_cols
 
         ####### Now deal with changes to columns
-        cols = [qstring_to_unicode(self.columns.item(i).data(Qt.UserRole).toString())\
+        cols = [unicode(self.columns.item(i).data(Qt.UserRole).toString())\
                  for i in range(self.columns.count()) \
                     if self.columns.item(i).checkState()==Qt.Checked]
         if not cols:
@@ -829,14 +828,12 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         else:
             self.database_location = os.path.abspath(path)
             if must_restart:
-                self.messagebox(_('The changes you made require that Calibre be restarted. Please restart as soon as practical.'))
+                warning_dialog(self, _('Must restart'),
+                        _('The changes you made require that Calibre be '
+                            'restarted. Please restart as soon as practical.'),
+                        show=True)
                 self.parent.must_restart_before_config = True
             QDialog.accept(self)
-
-    # might want to substitute the standard calibre box. However, the copy_to_clipboard
-    # functionality has no purpose, so ???
-    def messagebox(self, m, buttons=QMessageBox.Ok, defaultButton=QMessageBox.Ok):
-                return QMessageBox.critical(None,'Calibre configuration', m, buttons, defaultButton)
 
 class VacThread(QThread):
 
