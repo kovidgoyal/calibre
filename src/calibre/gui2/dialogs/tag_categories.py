@@ -71,12 +71,16 @@ class TagCategories(QDialog, Ui_TagCategories):
             for item,l in enumerate(self.categories[cat]):
                 key = ':'.join([l[1], l[0]])
                 t = self.all_items_dict.get(key, None)
-                if t is None:
-                    t = Item(name=l[0], label=l[1], index=len(self.all_items),
-                             icon=category_icons[self.category_labels.index(l[1])], exists=False)
-                    self.all_items.append(t)
-                    self.all_items_dict[key] = t
-                l[2] = t.index
+                if l[1] in self.category_labels:
+                    if t is None:
+                        t = Item(name=l[0], label=l[1], index=len(self.all_items),
+                                 icon=category_icons[self.category_labels.index(l[1])], exists=False)
+                        self.all_items.append(t)
+                        self.all_items_dict[key] = t
+                    l[2] = t.index
+                else:
+                    # remove any references to a category that no longer exists
+                    del self.categories[cat][item]
 
         self.all_items_sorted = sorted(self.all_items, cmp=lambda x,y: cmp(x.name.lower(), y.name.lower()))
         self.display_filtered_categories(0)

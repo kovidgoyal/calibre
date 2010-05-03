@@ -634,9 +634,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     tooltip = self.custom_column_label_map[category]['name']
             if ids is None: # no filtering
                 categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon, tooltip = tooltip)
-                                        for r in data]
+                                        for r in data if r[2] > 0]
             else: # filter out zero-count tags
-                categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon)
+                categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon, tooltip = tooltip)
                                         for r in data if r[2] > 0]
         categories['format'] = []
         for fmt in self.conn.get('SELECT DISTINCT format FROM data'):
@@ -644,7 +644,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if ids is not None:
                 count = self.conn.get('''SELECT COUNT(id)
                                        FROM data
-                                       WHERE format="%s" AND books_list_filter(id)'''%fmt,
+                                       WHERE format="%s" AND
+                                       books_list_filter(book)'''%fmt,
                                        all=False)
             else:
                 count = self.conn.get('''SELECT COUNT(id)

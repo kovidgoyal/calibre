@@ -64,10 +64,10 @@ class TagsView(QTreeView):
         if len(s) == 0:
             self.search_restriction = ''
         else:
-            self.search_restriction = unicode(s)
+            self.search_restriction = 'search:"%s"' % unicode(s).strip()
         self.model().set_search_restriction(self.search_restriction)
-        self.recount()
         self.emit(SIGNAL('restriction_set(PyQt_PyObject)'), self.search_restriction)
+        self.recount() # Must happen after the emission of the restriction_set signal
         self.emit(SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
                          self._model.tokens(), self.match_all)
 
@@ -264,7 +264,7 @@ class TagsModel(QAbstractItemModel):
         for c in self.user_categories:
             l = []
             for (name,label,ign) in self.user_categories[c]:
-                if name in taglist[label]: # use same node as the complete category
+                if label in taglist and name in taglist[label]: # use same node as the complete category
                     l.append(taglist[label][name])
                 # else: do nothing, to eliminate nodes that have zero counts
             if config['sort_by_popularity']:

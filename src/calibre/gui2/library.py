@@ -1077,7 +1077,7 @@ class BooksView(TableView):
 
     def connect_to_restriction_set(self, tv):
         QObject.connect(tv, SIGNAL('restriction_set(PyQt_PyObject)'),
-                        self._model.set_search_restriction)
+                        self._model.set_search_restriction) # must be synchronous (not queued)
 
     def connect_to_book_display(self, bd):
         QObject.connect(self._model, SIGNAL('new_bookdisplay_data(PyQt_PyObject)'),
