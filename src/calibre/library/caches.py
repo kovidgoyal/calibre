@@ -543,4 +543,4 @@ class ResultCache(SearchQueryParser):
         return []
 
     def set_search_restriction(self, s):
-        self.search_restriction = '' if not s else 'search:"%s"' % (s.strip())
+        self.search_restriction = s
