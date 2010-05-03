@@ -632,11 +632,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 else:
                     icon = icon_map['*custom']
                     tooltip = self.custom_column_label_map[category]['name']
-            if ids is None: # no filtering
-                categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon, tooltip = tooltip)
-                                        for r in data if r[2] > 0]
-            else: # filter out zero-count tags
-                categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon, tooltip = tooltip)
+            categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon, tooltip = tooltip)
                                         for r in data if r[2] > 0]
         categories['format'] = []
         for fmt in self.conn.get('SELECT DISTINCT format FROM data'):
