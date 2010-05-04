@@ -160,7 +160,7 @@
       <item>
        <widget class="QLabel" name="restriction_label">
         <property name="text">
-         <string>&amp;Restrict to:</string>
+         <string>&amp;Restrict display to:</string>
         </property>
         <property name="buddy">
          <cstring>search_restriction</cstring>
