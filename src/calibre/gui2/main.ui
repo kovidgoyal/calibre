@@ -158,6 +158,30 @@
        <number>0</number>
       </property>
       <item>
+       <widget class="QLabel" name="restriction_label">
+        <property name="text">
+         <string>&amp;Restrict to:</string>
+        </property>
+        <property name="buddy">
+         <cstring>search_restriction</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="search_restriction">
+        <property name="toolTip">
+         <string>Books display will be restricted to those matching the selected saved search</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="search_count">
+        <property name="text">
+         <string>set in ui.py</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="advanced_search_button">
         <property name="toolTip">
          <string>Advanced search</string>
@@ -203,13 +227,6 @@
         </property>
         <property name="whatsThis">
          <string>&lt;p&gt;Search the list of books by title, author, publisher, tags, comments, etc.&lt;br&gt;&lt;br&gt;Words separated by spaces are ANDed</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="search_count">
-        <property name="text">
-         <string>set in ui.py</string>
         </property>
        </widget>
       </item>
@@ -336,69 +353,42 @@
                 </widget>
                </item>
                <item>
-                <widget class="QCheckBox" name="popularity">
-                 <property name="text">
-                  <string>Sort by &amp;popularity</string>
+                <item>
+                 <widget class="QCheckBox" name="popularity">
+                  <property name="text">
+                   <string>Sort by &amp;popularity</string>
+                  </property>
+                 </widget>
+                </item>
+               </item>
+               <item>
+                <widget class="QComboBox" name="tag_match">
+                 <property name="currentIndex">
+                  <number>0</number>
                  </property>
+                 <item>
+                  <property name="text">
+                   <string>Match any</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Match all</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_3">
-                 <item>
-                  <widget class="QComboBox" name="tag_match">
-                   <property name="currentIndex">
-                    <number>0</number>
-                   </property>
-                   <item>
-                    <property name="text">
-                     <string>Match any</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Match all</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="edit_categories">
-                   <property name="toolTip">
-                    <string>Create, edit, and delete user categories</string>
-                   </property>
-                   <property name="text">
-                    <string>Manage &amp;user categories</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="10,50">
-                 <item>
-                  <widget class="QLabel" name="restriction_label">
-                   <property name="text">
-                    <string>&amp;Restrict to:</string>
-                   </property>
-                   <property name="buddy">
-                    <cstring>search_restriction</cstring>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QComboBox" name="search_restriction">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                     <horstretch>50</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>Books display will be restricted to those matching the selected saved search</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
+                <item>
+                 <widget class="QPushButton" name="edit_categories">
+                  <property name="toolTip">
+                   <string>Create, edit, and delete user categories</string>
+                  </property>
+                  <property name="text">
+                   <string>Manage &amp;user categories</string>
+                  </property>
+                 </widget>
+                </item>
                </item>
               </layout>
              </widget>
