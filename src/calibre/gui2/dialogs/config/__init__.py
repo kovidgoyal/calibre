@@ -831,7 +831,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
                 warning_dialog(self, _('Must restart'),
                         _('The changes you made require that Calibre be '
                             'restarted. Please restart as soon as practical.'),
-                        show=True)
+                        show=True, show_copy_button=False)
                 self.parent.must_restart_before_config = True
             QDialog.accept(self)
 

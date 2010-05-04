@@ -184,11 +184,14 @@ class MessageBox(QMessageBox):
 
 
 
-def warning_dialog(parent, title, msg, det_msg='', show=False):
+def warning_dialog(parent, title, msg, det_msg='', show=False,
+        show_copy_button=True):
     d = MessageBox(QMessageBox.Warning, 'WARNING: '+title, msg, QMessageBox.Ok,
                     parent, det_msg)
     d.setEscapeButton(QMessageBox.Ok)
     d.setIconPixmap(QPixmap(I('dialog_warning.svg')))
+    if not show_copy_button:
+        d.cb.setVisible(False)
     if show:
         return d.exec_()
     return d
