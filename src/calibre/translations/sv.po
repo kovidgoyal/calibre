@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-04-30 23:45+0000\n"
-"PO-Revision-Date: 2010-04-30 17:47+0000\n"
-"Last-Translator: Merarom <Unknown>\n"
+"PO-Revision-Date: 2010-05-03 19:36+0000\n"
+"Last-Translator: Tumaini <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-01 03:53+0000\n"
+"X-Launchpad-Export-Date: 2010-05-04 03:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1546,6 +1546,10 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
+"Använd inte SVG för bokens omslag. Använd det här alternativet om din EPUB "
+"ska användas på en enhet som inte stödjer SVG, som iPhone eller JetBook "
+"Lite. Utan det här alternativet visar sådana enheter omslaget som en tom "
+"sida."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
@@ -2193,7 +2197,7 @@ msgstr "Alla artiklar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:258
 msgid "This is an Amazon Topaz book. It cannot be processed."
-msgstr ""
+msgstr "Det här är en Amazon Topaz-bok. Den kan inte hanteras."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1369
 msgid "Title Page"
@@ -3222,7 +3226,7 @@ msgstr "Inget standard &omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:49
 msgid "No &SVG cover"
-msgstr ""
+msgstr "Inget omslag i &SVG-format."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
@@ -8601,13 +8605,12 @@ msgid ""
 "show_metadata command.\n"
 msgstr ""
 "\n"
-"%prog set_metadata [alternativ] id / sökväg / till / metadata.opf\n"
-"\n"
-"Ange metadata lagrays i calibre databas för boken som identifieras med hjälp "
-"av id\n"
-"från OPF fil metadata.opf. ID är ett ID-nummer från listkommandot. Du\n"
-"kan få en snabb känsla för OPf format med hjälp av  --as-opf växel till\n"
-"show_metadata kommando.\n"
+"Ange metadata som lagras i Calibres databas för boken som identifieras med "
+"id\n"
+"från OPF-filen metadata.opf. id är ett ID-nummer från listkommandot. Du\n"
+"kan få en snabb känsla för OPF-formatet genom att använda växeln --as-opf "
+"med\n"
+"kommandot show_metadata.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:547
 msgid "You must specify an id and a metadata file"
@@ -9182,7 +9185,7 @@ msgstr "Engelska (Irland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "Spanish (Paraguay)"
-msgstr ""
+msgstr "Spanska (Paraguay)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "German (AT)"
