@@ -982,6 +982,12 @@ class SplitterHandle(QSplitterHandle):
 
 class Splitter(QSplitter):
 
+    state_changed = pyqtSignal(object)
+
+    def __init__(self, *args):
+        QSplitter.__init__(self, *args)
+        self.splitterMoved.connect(self.splitter_moved, type=Qt.QueuedConnection)
+
     def createHandle(self):
         return SplitterHandle(self.orientation(), self)
 
@@ -990,6 +996,22 @@ class Splitter(QSplitter):
             h = self.handle(i)
             if h is not None:
                 h.splitter_moved()
+        self.state_changed.emit(not self.is_side_index_hidden)
+
+    def splitter_moved(self, *args):
+        self.state_changed.emit(not self.is_side_index_hidden)
+
+    @property
+    def side_index(self):
+        return 0 if self.orientation() == Qt.Horizontal else 1
+
+    @property
+    def is_side_index_hidden(self):
+        sizes = list(self.sizes())
+        return sizes[self.side_index] == 0
+
+    def toggle_side_index(self):
+        self.double_clicked(None)
 
     def double_clicked(self, handle):
         sizes = list(self.sizes())
@@ -997,8 +1019,7 @@ class Splitter(QSplitter):
             idx = sizes.index(0)
             sizes[idx] = 80
         else:
-            idx = 0 if self.orientation() == Qt.Horizontal else 1
-            sizes[idx] = 0
+            sizes[self.side_index] = 0
         self.setSizes(sizes)
         self.initialize()
 
