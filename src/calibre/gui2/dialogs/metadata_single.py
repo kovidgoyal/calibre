@@ -180,27 +180,34 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.formats_changed = True
 
     def get_selected_format_metadata(self):
-        row = self.formats.currentRow()
-        fmt = self.formats.item(row)
-        if fmt is None:
-            if self.formats.count() == 1:
-                fmt = self.formats.item(0)
-            if fmt is None:
-                error_dialog(self, _('No format selected'),
-                    _('No format selected')).exec_()
-                return None, None
-        ext = fmt.ext.lower()
-        if fmt.path is None:
-            stream = self.db.format(self.row, ext, as_file=True)
-        else:
-            stream = open(fmt.path, 'r+b')
+        old = prefs['read_file_metadata']
+        if not old:
+            prefs['read_file_metadata'] = True
         try:
-            mi = get_metadata(stream, ext)
-            return mi, ext
-        except:
-            error_dialog(self, _('Could not read metadata'),
-                         _('Could not read metadata from %s format')%ext).exec_()
-        return None, None
+            row = self.formats.currentRow()
+            fmt = self.formats.item(row)
+            if fmt is None:
+                if self.formats.count() == 1:
+                    fmt = self.formats.item(0)
+                if fmt is None:
+                    error_dialog(self, _('No format selected'),
+                        _('No format selected')).exec_()
+                    return None, None
+            ext = fmt.ext.lower()
+            if fmt.path is None:
+                stream = self.db.format(self.row, ext, as_file=True)
+            else:
+                stream = open(fmt.path, 'r+b')
+            try:
+                mi = get_metadata(stream, ext)
+                return mi, ext
+            except:
+                error_dialog(self, _('Could not read metadata'),
+                            _('Could not read metadata from %s format')%ext).exec_()
+            return None, None
+        finally:
+            if old != prefs['read_file_metadata']:
+                prefs['read_file_metadata'] = old
 
     def set_metadata_from_format(self):
         mi, ext = self.get_selected_format_metadata()
@@ -231,7 +238,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             if mi.series_index is not None:
                 self.series_index.setValue(float(mi.series_index))
         if mi.comments and mi.comments.strip():
-            self.comments.setText(mi.comments)
+            self.comments.setPlainText(mi.comments)
 
 
     def set_cover(self):
@@ -555,7 +562,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         title  = qstring_to_unicode(self.title.text())
         try:
             author = string_to_authors(unicode(self.authors.text()))[0]
-        except IndexError:
+        except:
             author = ''
         publisher = qstring_to_unicode(self.publisher.currentText())
         if isbn or title or author or publisher:
@@ -590,7 +597,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                             prefix = unicode(self.comments.toPlainText())
                             if prefix:
                                 prefix += '\n'
-                            self.comments.setText(prefix + summ)
+                            self.comments.setPlainText(prefix + summ)
                         if book.rating is not None:
                             self.rating.setValue(int(book.rating))
                         if book.tags:
@@ -654,7 +661,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.db.set_series(self.id,
                     unicode(self.series.currentText()).strip(), notify=False)
             self.db.set_series_index(self.id, self.series_index.value(), notify=False)
-            self.db.set_comment(self.id, qstring_to_unicode(self.comments.toPlainText()), notify=False)
+            self.db.set_comment(self.id, unicode(self.comments.toPlainText()), notify=False)
             d = self.pubdate.date()
             d = qt_to_dt(d)
             self.db.set_pubdate(self.id, d, notify=False)

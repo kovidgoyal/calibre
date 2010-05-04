@@ -69,13 +69,15 @@ class PRS505(CLI, Device):
 
         def write_cache(prefix):
             try:
-                cachep = os.path.join(prefix, self.CACHE_XML)
+                cachep = os.path.join(prefix, *(self.CACHE_XML.split('/')))
                 if not os.path.exists(cachep):
-                    try:
-                        os.makedirs(os.path.dirname(cachep), mode=0777)
-                    except:
-                        time.sleep(5)
-                        os.makedirs(os.path.dirname(cachep), mode=0777)
+                    dname = os.path.dirname(cachep)
+                    if not os.path.exists(dname):
+                        try:
+                            os.makedirs(dname, mode=0777)
+                        except:
+                            time.sleep(5)
+                            os.makedirs(dname, mode=0777)
                     with open(cachep, 'wb') as f:
                         f.write(u'''<?xml version="1.0" encoding="UTF-8"?>
                             <cache xmlns="http://www.kinoma.com/FskCache/1">
@@ -202,9 +204,11 @@ class PRS505(CLI, Device):
 
         def write_card_prefix(prefix, listid):
             if prefix is not None and hasattr(booklists[listid], 'write'):
-                if not os.path.exists(prefix):
-                    os.makedirs(prefix)
-                with open(prefix + self.__class__.CACHE_XML, 'wb') as f:
+                tgt  = os.path.join(prefix, *(self.CACHE_XML.split('/')))
+                base = os.path.dirname(tgt)
+                if not os.path.exists(base):
+                    os.makedirs(base)
+                with open(tgt, 'wb') as f:
                     booklists[listid].write(f)
         write_card_prefix(self._card_a_prefix, 1)
         write_card_prefix(self._card_b_prefix, 2)

@@ -184,6 +184,8 @@ class EbookIterator(object):
 
         if processed or plumber.input_fmt.lower() in ('pdb', 'pdf', 'rb') and \
                 not hasattr(self.pathtoopf, 'manifest'):
+            if hasattr(self.pathtoopf, 'manifest'):
+                self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
             self.pathtoopf = create_oebbook(self.log, self.pathtoopf, plumber.opts,
                     plumber.input_plugin)
         if hasattr(self.pathtoopf, 'manifest'):

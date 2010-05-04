@@ -242,8 +242,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         ####################### Vanity ########################
         self.vanity_template  = _('<p>For help see the: <a href="%s">User Manual</a>'
                 '<br>')%'http://calibre-ebook.com/user_manual'
+        dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+        v = __version__
+        if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
+            v += '*'
         self.vanity_template += _('<b>%s</b>: %s by <b>Kovid Goyal '
-            '%%(version)s</b><br>%%(device)s</p>')%(__appname__, __version__)
+            '%%(version)s</b><br>%%(device)s</p>')%(__appname__, v)
         self.latest_version = ' '
         self.vanity.setText(self.vanity_template%dict(version=' ', device=' '))
         self.device_info = ' '
@@ -350,7 +354,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         self.view_menu = QMenu()
         self.view_menu.addAction(_('View'))
-        self.view_menu.addAction(_('View specific format'))
+        ac = self.view_menu.addAction(_('View specific format'))
+        ac.setShortcut(Qt.AltModifier+Qt.Key_V)
         self.action_view.setMenu(self.view_menu)
 
         self.delete_menu = QMenu()
@@ -478,16 +483,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                                         self.action_save,
                                         self.action_open_containing_folder,
                                         self.action_show_book_details,
-                                        self.action_merge,
                                         self.action_del,
                                         similar_menu=similar_menu)
 
         self.memory_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, None, self.action_del)
+                self.action_view, self.action_save, None, None, self.action_del)
         self.card_a_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, None, self.action_del)
+                self.action_view, self.action_save, None, None, self.action_del)
         self.card_b_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, None, self.action_del)
+                self.action_view, self.action_save, None, None, self.action_del)
 
         QObject.connect(self.library_view,
                 SIGNAL('files_dropped(PyQt_PyObject)'),
@@ -1669,7 +1673,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if src_book:
                 fmt = os.path.splitext(src_book)[-1].replace('.', '').upper()
                 with open(src_book, 'rb') as f:
-                    self.db.add_format(dest_id, fmt, f, index_is_id=True,
+                    self.library_view.model().db.add_format(dest_id, fmt, f, index_is_id=True,
                             notify=False, replace=replace)
 
     def books_to_merge(self, rows):
@@ -1684,7 +1688,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 src_ids.append(id_)
                 dbfmts = m.db.formats(id_, index_is_id=True)
                 if dbfmts:
-                    for fmt in dbfmts:
+                    for fmt in dbfmts.split(','):
                         src_books.append(m.db.format_abspath(id_, fmt,
                             index_is_id=True))
         return [dest_id, src_books, src_ids]
@@ -2092,7 +2096,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 return
         for row in rows:
             path = self.library_view.model().db.abspath(row.row())
-            QDesktopServices.openUrl(QUrl('file:'+path))
+            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
 
     def view_book(self, triggered):

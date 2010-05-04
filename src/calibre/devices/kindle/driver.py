@@ -62,7 +62,7 @@ class KINDLE(USBMS):
 
     def filename_callback(self, fname, mi):
         if fname.startswith('.'):
-            return fname[1:]
+            return 'x'+fname[1:]
         return fname
 
     def get_annotations(self, path_map):

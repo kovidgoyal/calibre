@@ -17,7 +17,8 @@ class PluginWidget(Widget, Ui_Form):
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, 'epub_output',
-                ['dont_split_on_page_breaks', 'flow_size', 'no_default_epub_cover']
+                ['dont_split_on_page_breaks', 'flow_size',
+                    'no_default_epub_cover', 'no_svg_cover']
                 )
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)

@@ -4,6 +4,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from itertools import izip
+from xml.sax.saxutils import escape
 
 from calibre.customize import Plugin as _Plugin
 
@@ -238,14 +239,14 @@ class OutputProfile(Plugin):
 
     @classmethod
     def tags_to_string(cls, tags):
-        return ', '.join(tags)
+        return escape(', '.join(tags))
 
 class iPadOutput(OutputProfile):
 
     name = 'iPad'
     short_name = 'ipad'
-    screen_size = (1024, 768)
-    comic_screen_size = (1024, 768)
+    screen_size = (768, 1024)
+    comic_screen_size = (768, 1024)
     dpi = 132.0
 
 class SonyReaderOutput(OutputProfile):
@@ -383,7 +384,8 @@ class KindleOutput(OutputProfile):
 
     @classmethod
     def tags_to_string(cls, tags):
-        return 'ttt '.join(tags)+'ttt '
+        return u'%s <br/><span style="color: white">%s</span>' % (', '.join(tags),
+                'ttt '.join(tags)+'ttt ')
 
 class KindleDXOutput(OutputProfile):
 
@@ -399,7 +401,8 @@ class KindleDXOutput(OutputProfile):
 
     @classmethod
     def tags_to_string(cls, tags):
-        return 'ttt '.join(tags)+'ttt '
+        return u'%s <br/><span style="color: white">%s</span>' % (', '.join(tags),
+                'ttt '.join(tags)+'ttt ')
 
 class IlliadOutput(OutputProfile):
 

@@ -11,12 +11,13 @@ http://www.ilsole24ore.com/
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class ilsole(BasicNewsRecipe):
+class ilsole24Ore(BasicNewsRecipe):
     author        = 'Lorenzo Vigentini & Edwin van Maastrigt'
     description   = 'Financial news daily paper'
 
-    cover_url      = 'http://www.ilsole24ore.com/img2009/header/t_logosole.gif'
-    title          = u'il Sole 24 Ore '
+    cover_url      = 'http://www.ilsole24ore.com/img2007/print_header.gif'
+
+    title          = u'il Sole 24 Ore New'
     publisher      = 'italiaNews'
     category       = 'News, finance, economy, politics'
 
@@ -35,12 +36,14 @@ class ilsole(BasicNewsRecipe):
 
     def print_version(self, url):
         link, sep, params = url.rpartition('?')
+        if link  is None:
+           return link.replace('_1.php', '_php')
         return link.replace('.shtml', '_PRN.shtml')
 
     keep_only_tags     = [
                             dict(name='div', attrs={'class':'txt'})
                         ]
-    remove_tags = [dict(name='br')]
+#    remove_tags = [dict(name='br')]
 
     feeds          = [
                        (u'Prima pagina', u'http://www.ilsole24ore.com/rss/primapagina.xml'),
@@ -52,13 +55,14 @@ class ilsole(BasicNewsRecipe):
                        (u'Tecnologia e business', u'http://www.ilsole24ore.com/rss/tecnologia-business.xml'),
                        (u'Cultura e tempo libero', u'http://www.ilsole24ore.com/rss/tempolibero-cultura.xml'),
                        (u'Sport', u'http://www.ilsole24ore.com/rss/sport.xml'),
-                       (u'Professionisti 24', u'http://www.ilsole24ore.com/rss/prof_home.xml')
+                       (u'Professionisti 24', u'http://www.ilsole24ore.com/rss/prof_home.xml'),
+                       (u'Ambiente e Sicurezza',u'http://www.ilsole24ore.com/rss/prof_as.xml')
                      ]
 
     extra_css = '''
-                html, body, table, tr, td, h1, h2, h3, h4, h5, h6, p, a, span, br, img {margin:0;padding:0;border:0;font-size:12px;font-family:Arial;}
+                html, body, table, tr, td, h1, h2, h3, h4, h5, h6, p, a, span, br, img {margin:0;padding:0;border:0;font-size:12px;font-family:"Georgia","Times New Roman";}
                 .linkHighlight {color:#0292c6;}
-                .txt {border-bottom:1px solid #7c7c7c;padding-bottom:20px;text-align:justify;}
+                .txt {border-bottom:1px solid #7c7c7c;padding-bottom:20px};text-align:justify;font-family:"serif"}
                 .txt p {line-height:18px;}
                 .txt span {line-height:22px;}
                 .title h3 {color:#7b7b7b;}

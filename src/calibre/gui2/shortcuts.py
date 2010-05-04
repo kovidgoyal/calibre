@@ -260,7 +260,10 @@ class ShortcutConfig(QWidget):
         self.view.setModel(model)
         self.delegate = Delegate()
         self.view.setItemDelegate(self.delegate)
-        self.delegate.sizeHintChanged.connect(self.view.scrollTo)
+        self.delegate.sizeHintChanged.connect(self.scrollTo)
+
+    def scrollTo(self, index):
+        self.view.scrollTo(index)
 
 
 if __name__ == '__main__':

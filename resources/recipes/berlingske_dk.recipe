@@ -1,0 +1,49 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+berlingske.dk
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Berlingske_dk(BasicNewsRecipe):
+    title                 = 'Berlingske Tidende'
+    __author__            = 'Darko Miletic'
+    description           = 'News from Denmark'
+    publisher             = 'berlingske.dk'
+    category              = 'news, politics, Denmark'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    remove_empty_feeds    = True
+    use_embedded_content  = False
+    publication_type      = 'newspaper'
+    encoding              = 'utf8'
+    language              = 'da'
+    masthead_url          = 'http://www.berlingske.dk/sites/all/themes/bm/img/layout/masthead_bg.gif'
+    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } h1,.manchet,.byline{font-family: Cambria,Georgia,Times,"Times New Roman",serif } '
+
+    conversion_options = {
+                          'comment'  : description
+                        , 'tags'     : category
+                        , 'publisher': publisher
+                        , 'language' : language
+                        }
+
+    feeds              = [
+                            (u'Breaking news' , u'http://www.berlingske.dk/breaking/rss'          )
+                           ,(u'Seneste nyt'   , u'http://www.berlingske.dk/seneste/rss'           )
+                           ,(u'Topnyheder'    , u'http://www.berlingske.dk/top/rss'               )
+                           ,(u'Danmark'       , u'http://www.berlingske.dk/danmark/seneste/rss'   )
+                           ,(u'Verden'        , u'http://www.berlingske.dk/verden/seneste/rss'    )
+                           ,(u'Klima'         , u'http://www.berlingske.dk/klima/seneste/rss'     )
+                           ,(u'Debat'         , u'http://www.berlingske.dk/debat/seneste/rss'     )
+                           ,(u'Koebenhavn'    , u'http://www.berlingske.dk/koebenhavn/seneste/rss')
+                           ,(u'Politik'       , u'http://www.berlingske.dk/politik/seneste/rss'   )
+                           ,(u'Kultur'        , u'http://www.berlingske.dk/kultur/seneste/rss'    )
+                          ]
+
+    keep_only_tags     = [dict(attrs={'class':['first','pt-article']})]
+    remove_tags        = [dict(name=['object','link','base','iframe','embed'])]
+

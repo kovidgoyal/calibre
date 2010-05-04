@@ -7,40 +7,14 @@ __docformat__ = 'restructuredtext en'
 import re
 
 from PyQt4.QtCore import SIGNAL, Qt
-from PyQt4.QtGui import QDialog, QWidget, QDialogButtonBox, QFileDialog, \
-    QBrush, QSyntaxHighlighter, QTextCharFormat
+from PyQt4.QtGui import QDialog, QWidget, QDialogButtonBox, \
+                        QBrush, QTextCursor, QTextEdit
 
 from calibre.gui2.convert.regex_builder_ui import Ui_RegexBuilder
 from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
-from calibre.gui2 import qstring_to_unicode
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, choose_files
 from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
-
-class RegexHighlighter(QSyntaxHighlighter):
-
-    def __init__(self, *args):
-        QSyntaxHighlighter.__init__(self, *args)
-
-        self.regex = u''
-
-    def update_regex(self, regex):
-        self.regex = regex
-        self.rehighlight()
-
-    def highlightBlock(self, text):
-        valid_regex = True
-        text = qstring_to_unicode(text)
-        format = QTextCharFormat()
-        format.setBackground(QBrush(Qt.yellow))
-
-        if self.regex:
-            try:
-                for mo in re.finditer(self.regex, text):
-                    self.setFormat(mo.start(), mo.end() - mo.start(), format)
-            except:
-                valid_regex = False
-        self.emit(SIGNAL('regex_valid(PyQt_PyObject)'), valid_regex)
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
 
@@ -49,9 +23,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.setupUi(self)
 
         self.regex.setText(regex)
-        self.regex_valid(True)
-        self.highlighter = RegexHighlighter(self.preview.document())
-        self.highlighter.update_regex(regex)
+        self.regex_valid()
 
         if not db or not book_id:
             self.button_box.addButton(QDialogButtonBox.Open)
@@ -62,19 +34,37 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.connect(self.regex, SIGNAL('textChanged(QString)'), self.regex_valid)
         self.connect(self.test, SIGNAL('clicked()'), self.do_test)
 
-    def regex_valid(self, valid):
-        regex = qstring_to_unicode(self.regex.text())
+    def regex_valid(self):
+        regex = unicode(self.regex.text())
         if regex:
             try:
                 re.compile(regex)
                 self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(0,255,0,20%); }')
             except:
                 self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgb(255,0,0,20%); }')
+                return False
         else:
             self.regex.setStyleSheet('QLineEdit { color: black; background-color: white; }')
+        return True
 
     def do_test(self):
-        self.highlighter.update_regex(qstring_to_unicode(self.regex.text()))
+        selections = []
+        if self.regex_valid():
+            text = unicode(self.preview.toPlainText())
+            regex = unicode(self.regex.text())
+            cursor = QTextCursor(self.preview.document())
+            extsel = QTextEdit.ExtraSelection()
+            extsel.cursor = cursor
+            extsel.format.setBackground(QBrush(Qt.yellow))
+            try:
+                for match in re.finditer(regex, text):
+                    es = QTextEdit.ExtraSelection(extsel)
+                    es.cursor.setPosition(match.start(), QTextCursor.MoveAnchor)
+                    es.cursor.setPosition(match.end(), QTextCursor.KeepAnchor)
+                    selections.append(es)
+            except:
+                pass
+        self.preview.setExtraSelections(selections)
 
     def select_format(self, db, book_id):
         format = None
@@ -104,9 +94,10 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 
     def button_clicked(self, button):
         if button == self.button_box.button(QDialogButtonBox.Open):
-            name = QFileDialog.getOpenFileName(self, _('Open book'), _('~'))
-            if name:
-                self.open_book(qstring_to_unicode(name))
+            files = choose_files(self, 'regexp tester dialog', _('Open book'),
+                    select_only_single_file=True)
+            if files:
+                self.open_book(files[0])
         if button == self.button_box.button(QDialogButtonBox.Ok):
             self.accept()
 

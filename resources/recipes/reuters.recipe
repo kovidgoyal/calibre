@@ -7,14 +7,31 @@ class Reuters(BasicNewsRecipe):
 
     title = 'Reuters'
     description = 'Global news'
-    __author__ = 'Kovid Goyal'
+    __author__ = 'Kovid Goyal and Sujata Raman'
     use_embedded_content   = False
     language = 'en'
 
     max_articles_per_feed = 10
+    no_stylesheets = True
+    remove_javascript = True
 
-    
-    preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
+    extra_css      = '''
+                         body{font-family:arial,helvetica,sans;}
+                        h1{ font-size:larger ; font-weight:bold;  }
+                        .byline{color:#006E97;font-size:x-small; font-weight:bold;}
+                        .location{font-size:x-small; font-weight:bold;}
+                        .timestamp{font-size:x-small; }
+                        '''
+
+    keep_only_tags = [dict(name='div', attrs={'class':'column2 gridPanel grid8'})]
+
+
+    remove_tags = [dict(name='div', attrs={'id':['recommendedArticles','relatedNews','relatedVideo','relatedFactboxes']}),
+                   dict(name='p', attrs={'class':['relatedTopics']}),
+                    dict(name='a', attrs={'id':['fullSizeLink']}),
+                   dict(name='div', attrs={'class':['photoNav','relatedTopicButtons','articleComments','gridPanel grid8','footerHalf gridPanel grid1','gridPanel grid2','gridPanel grid3']}),]
+
+    preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
 [
         ##(r'<HEAD>.*?</HEAD>' , lambda match : '<HEAD></HEAD>'),
         (r'<div id="apple-rss-sidebar-background">.*?<!-- start Entries -->', lambda match : ''),
@@ -24,10 +41,10 @@ class Reuters(BasicNewsRecipe):
         (r'<h3>Share:</h3>.*?</body>', lambda match : '<!-- END:: Shared Module id=36615 --></body>'),
         (r'<div id="atools" class="articleTools">.*?<div class="linebreak">', lambda match : '<div class="linebreak">'),
     ]
-    ]   
-     
+    ]
 
-  
+
+
     feeds = [ ('Top Stories', 'http://feeds.reuters.com/reuters/topNews?format=xml'),
                   ('US News', 'http://feeds.reuters.com/reuters/domesticNews?format=xml'),
                   ('World News', 'http://feeds.reuters.com/reuters/worldNews?format=xml'),
@@ -37,6 +54,4 @@ class Reuters(BasicNewsRecipe):
                   ('Technology News', 'http://feeds.reuters.com/reuters/technologyNews?format=xml'),
                   ('Oddly Enough News', 'http://feeds.reuters.com/reuters/oddlyEnoughNews?format=xml')
          ]
-         
-    def print_version(self, url):
-        return ('http://www.reuters.com/article/id' + url + '?sp=true')
+

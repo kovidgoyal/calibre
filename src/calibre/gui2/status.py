@@ -11,6 +11,7 @@ from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.notify import get_notifier
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.library.comments import comments_to_html
 
 class BookInfoDisplay(QWidget):
 
@@ -91,9 +92,9 @@ class BookInfoDisplay(QWidget):
     WEIGHTS = collections.defaultdict(lambda : 100)
     WEIGHTS[_('Path')] = 0
     WEIGHTS[_('Formats')] = 1
-    WEIGHTS[_('Comments')] = 2
-    WEIGHTS[_('Series')] = 3
-    WEIGHTS[_('Tags')] = 4
+    WEIGHTS[_('Comments')] = 4
+    WEIGHTS[_('Series')] = 2
+    WEIGHTS[_('Tags')] = 3
 
     def __init__(self, clear_message):
         QWidget.__init__(self)
@@ -127,10 +128,14 @@ class BookInfoDisplay(QWidget):
         keys.sort(cmp=lambda x, y: cmp(self.WEIGHTS[x], self.WEIGHTS[y]))
         for key in keys:
             txt = data[key]
+            if not txt or not txt.strip() or txt == 'None':
+                continue
             if isinstance(key, str):
                 key = key.decode(preferred_encoding, 'replace')
             if isinstance(txt, str):
                 txt = txt.decode(preferred_encoding, 'replace')
+            if key == _('Comments'):
+                txt = comments_to_html(txt)
             rows += u'<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)
         self.book_data.setText(u'<table>'+rows+u'</table>')
 

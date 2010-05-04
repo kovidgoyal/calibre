@@ -1379,5 +1379,5 @@ void PictureFlow::dataChanged() { d->dataChanged(); }
 void PictureFlow::emitcurrentChanged(int index) { emit currentChanged(index); }
 
 int FlowImages::count() { return 0; }
-QImage FlowImages::image(int index) { return QImage(); }
-QString FlowImages::caption(int index) {return QString(); }
+QImage FlowImages::image(int index) { index=0; return QImage(); }
+QString FlowImages::caption(int index) {index=0; return QString(); }

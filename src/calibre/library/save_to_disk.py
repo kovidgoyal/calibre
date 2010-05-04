@@ -27,7 +27,9 @@ FORMAT_ARG_DESCS = dict(
             'of the name use {author_sort[0]}'),
         tags=_('The tags'),
         series=_('The series'),
-        series_index=_('The series number. To get leading zeros use {series_index:0>3s}'),
+        series_index=_('The series number. '
+            'To get leading zeros use {series_index:0>3s} or '
+            '{series_index:>3s} for leading spaces'),
         rating=_('The rating'),
         isbn=_('The ISBN'),
         publisher=_('The publisher'),

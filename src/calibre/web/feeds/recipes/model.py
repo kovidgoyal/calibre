@@ -183,10 +183,6 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         lang_map = {}
         self.all_urns = set([])
         self.showing_count = 0
-        for x in self.scheduler_config.iter_recipes():
-            urn = x.get('id')
-            if ok(urn):
-                factory(NewsItem, scheduled, urn, x.get('title'))
         for x in self.custom_recipe_collection:
             urn = x.get('id')
             self.all_urns.add(urn)
@@ -202,6 +198,13 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
                     lang_map[lang] = factory(NewsCategory, new_root, lang)
                 factory(NewsItem, lang_map[lang], urn, x.get('title'))
                 self.showing_count += 1
+        for x in self.scheduler_config.iter_recipes():
+            urn = x.get('id')
+            if urn not in self.all_urns:
+                self.scheduler_config.un_schedule_recipe(urn)
+                continue
+            if ok(urn):
+                factory(NewsItem, scheduled, urn, x.get('title'))
         new_root.prune()
         new_root.sort()
         self.root = new_root

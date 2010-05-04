@@ -71,7 +71,7 @@ class MetadataWidget(Widget, Ui_Form):
         self.author_sort.setText(mi.author_sort if mi.author_sort else '')
         self.tags.setText(', '.join(mi.tags if mi.tags else []))
         self.tags.update_tags_cache(self.db.all_tags())
-        self.comment.setText(mi.comments if mi.comments else '')
+        self.comment.setPlainText(mi.comments if mi.comments else '')
         if mi.series:
             self.series.setCurrentIndex(self.series.findText(mi.series))
         if mi.series_index is not None:

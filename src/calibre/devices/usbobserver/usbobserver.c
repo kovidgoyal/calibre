@@ -25,6 +25,7 @@
 #include <stdio.h>
 
 #include <CoreFoundation/CFNumber.h>
+#include <CoreServices/CoreServices.h>
 #include <IOKit/usb/IOUSBLib.h>
 #include <IOKit/IOCFPlugIn.h>
 #include <IOKit/IOKitLib.h>
@@ -51,6 +52,28 @@
 #endif
 
 #define NUKE(x) Py_XDECREF(x); x = NULL;
+
+/* This function only works on 10.5 and later
+static PyObject* send2trash(PyObject *self, PyObject *args)
+{
+    UInt8 *utf8_chars;
+    FSRef fp;
+    OSStatus op_result;
+
+    if (!PyArg_ParseTuple(args, "es", "utf-8", &utf8_chars)) {
+        return NULL;
+    }
+
+    FSPathMakeRefWithOptions(utf8_chars, kFSPathMakeRefDoNotFollowLeafSymlink, &fp, NULL);
+    op_result = FSMoveObjectToTrashSync(&fp, NULL, kFSFileOperationDefaultOptions);
+    PyMem_Free(utf8_chars);
+    if (op_result != noErr) {
+        PyErr_SetString(PyExc_OSError, GetMacOSStatusCommentString(op_result));
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+*/
 
 static PyObject*
 usbobserver_get_iokit_string_property(io_service_t dev, CFStringRef prop) {

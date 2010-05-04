@@ -1,3 +1,4 @@
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class JerusalemPost(BasicNewsRecipe):
@@ -10,8 +11,6 @@ class JerusalemPost(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     max_articles_per_feed = 10
     no_stylesheets = True
-    remove_tags_before = {'class':'jp-grid-content'}
-    remove_tags_after = {'id':'body_val'}
 
     feeds =  [ ('Front Page', 'http://www.jpost.com/servlet/Satellite?pagename=JPost/Page/RSS&cid=1123495333346'),
                ('Israel News', 'http://www.jpost.com/servlet/Satellite?pagename=JPost/Page/RSS&cid=1178443463156'),
@@ -20,9 +19,24 @@ class JerusalemPost(BasicNewsRecipe):
                ('Editorials', 'http://www.jpost.com/servlet/Satellite?pagename=JPost/Page/RSS&cid=1123495333211'),
           ]
 
+    remove_tags = [
+            dict(id=lambda x: x and 'ads.' in x),
+            dict(attrs={'class':['printinfo', 'tt1']}),
+            dict(onclick='DoPrint()'),
+            dict(name='input'),
+            ]
+
+    conversion_options = {'linearize_tables':True}
+
     def preprocess_html(self, soup):
-        for x in soup.findAll(name=['form', 'input']):
-            x.name = 'div'
-        for x in soup.findAll('body', style=True):
-            del x['style']
+        for tag in soup.findAll('form'):
+            tag.name = 'div'
         return soup
+
+    def print_version(self, url):
+        m = re.search(r'(ID|id)=(\d+)', url)
+        if m is not None:
+            id_ = m.group(2)
+            return 'http://www.jpost.com/LandedPages/PrintArticle.aspx?id=%s'%id_
+        return url
+

@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 Input plugin for HTML or OPF ebooks.
 '''
 
-import os, re, sys, uuid
+import os, re, sys, uuid, tempfile
 from urlparse import urlparse, urlunparse
 from urllib import unquote
 from functools import partial
@@ -272,6 +272,7 @@ class HTMLInput(InputFormatPlugin):
 
     def convert(self, stream, opts, file_ext, log,
                 accelerators):
+        self._is_case_sensitive = None
         basedir = os.getcwd()
         self.opts = opts
 
@@ -289,6 +290,15 @@ class HTMLInput(InputFormatPlugin):
         from calibre.ebooks.conversion.plumber import create_oebbook
         return create_oebbook(log, stream.name, opts, self,
                 encoding=opts.input_encoding)
+
+    def is_case_sensitive(self, path):
+        if self._is_case_sensitive is not None:
+            return self._is_case_sensitive
+        if not path or not os.path.exists(path):
+            return islinux or isfreebsd
+        self._is_case_sensitive = os.path.exists(path.lower()) \
+                and os.path.exists(path.upper())
+        return self._is_case_sensitive
 
     def create_oebbook(self, htmlpath, basedir, opts, log, mi):
         from calibre.ebooks.conversion.plumber import create_oebbook
@@ -320,14 +330,12 @@ class HTMLInput(InputFormatPlugin):
         if not metadata.title:
             oeb.logger.warn('Title not specified')
             metadata.add('title', self.oeb.translate(__('Unknown')))
-
         bookid = str(uuid.uuid4())
         metadata.add('identifier', bookid, id='uuid_id', scheme='uuid')
         for ident in metadata.identifier:
             if 'id' in ident.attrib:
                 self.oeb.uid = metadata.identifier[0]
                 break
-
 
         filelist = get_filelist(htmlpath, basedir, opts, log)
         filelist = [f for f in filelist if not f.is_binary]
@@ -345,14 +353,16 @@ class HTMLInput(InputFormatPlugin):
 
         self.added_resources = {}
         self.log = log
+        self.log('Normalizing filename cases')
         for path, href in htmlfile_map.items():
-            if not (islinux or isfreebsd):
+            if not self.is_case_sensitive(path):
                 path = path.lower()
             self.added_resources[path] = href
         self.urlnormalize, self.DirContainer = urlnormalize, DirContainer
         self.urldefrag = urldefrag
         self.guess_type, self.BINARY_MIME = guess_type, BINARY_MIME
 
+        self.log('Rewriting HTML links')
         for f in filelist:
             path = f.path
             dpath = os.path.dirname(path)
@@ -417,7 +427,7 @@ class HTMLInput(InputFormatPlugin):
         if os.path.isdir(link):
             self.log.warn(link_, 'is a link to a directory. Ignoring.')
             return link_
-        if not (islinux or isfreebsd):
+        if not self.is_case_sensitive(tempfile.gettempdir()):
             link = link.lower()
         if link not in self.added_resources:
             bhref = os.path.basename(link)

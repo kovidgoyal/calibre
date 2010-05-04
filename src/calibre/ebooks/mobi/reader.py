@@ -61,7 +61,8 @@ class EXTHHeader(object):
                 # last update time
                 pass
             elif id == 503: # Long title
-                if not title or title == _('Unknown'):
+                if not title or title == _('Unknown') or \
+                        'USER_CONTENT' in title or title.startswith('dtp_'):
                     try:
                         title = content.decode(codec)
                     except:
@@ -253,6 +254,8 @@ class MobiReader(object):
             stream = open(filename_or_stream, 'rb')
 
         raw = stream.read()
+        if raw.startswith('TPZ'):
+            raise ValueError(_('This is an Amazon Topaz book. It cannot be processed.'))
 
         self.header   = raw[0:72]
         self.name     = self.header[:32].replace('\x00', '')
@@ -260,7 +263,7 @@ class MobiReader(object):
 
         self.ident = self.header[0x3C:0x3C + 8].upper()
         if self.ident not in ['BOOKMOBI', 'TEXTREAD']:
-            raise MobiError('Unknown book type: %s' % self.ident)
+            raise MobiError('Unknown book type: %s' % repr(self.ident))
 
         self.sections = []
         self.section_headers = []
@@ -497,8 +500,8 @@ class MobiReader(object):
                 if ':' in x:
                     del tag.attrib[x]
             if tag.tag in ('country-region', 'place', 'placetype', 'placename',
-                'state', 'city', 'street', 'address', 'content'):
-                tag.tag = 'div' if tag.tag == 'content' else 'span'
+                'state', 'city', 'street', 'address', 'content', 'form'):
+                tag.tag = 'div' if tag.tag in ('content', 'form') else 'span'
                 for key in tag.attrib.keys():
                     tag.attrib.pop(key)
                 continue

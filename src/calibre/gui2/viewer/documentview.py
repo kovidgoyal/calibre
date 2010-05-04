@@ -7,10 +7,12 @@ __docformat__ = 'restructuredtext en'
 '''
 import os, math, re, glob, sys
 from base64 import b64encode
+from functools import partial
+
 from PyQt4.Qt import QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
                      QColor, QPoint, QImage, QRegion, QVariant, QIcon, \
-                     QFont, pyqtSignature, QAction, QByteArray
+                     QFont, pyqtSignature, QAction, QByteArray, QMenu
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
@@ -392,13 +394,14 @@ class Document(QWebPage):
         return self.mainFrame().contentsSize().width() # offsetWidth gives inaccurate results
 
     def set_bottom_padding(self, amount):
-        padding = '%dpx'%amount
-        try:
-            old_padding = unicode(self.javascript('$("body").css("padding-bottom")').toString())
-        except:
-            old_padding = ''
+        body = self.mainFrame().documentElement().findFirst('body')
+        if body.isNull():
+            return
+        old_padding = unicode(body.styleProperty('padding-bottom',
+            body.ComputedStyle)).strip()
+        padding = u'%dpx'%amount
         if old_padding != padding:
-            self.javascript('$("body").css("padding-bottom", "%s")' % padding)
+            body.setStyleProperty('padding-bottom', padding + ' !important')
 
 
 class EntityDeclarationProcessor(object):
@@ -421,7 +424,7 @@ class DocumentView(QWebView):
         QWebView.__init__(self, *args)
         self.debug_javascript = False
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
-        self.self_closing_pat = re.compile(r'<([a-z]+)\s+([^>]+)/>',
+        self.self_closing_pat = re.compile(r'<([a-z1-6]+)\s+([^>]+)/>',
                 re.IGNORECASE)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         self._size_hint = QSize(510, 680)
@@ -449,6 +452,50 @@ class DocumentView(QWebView):
                 _('&Lookup in dictionary'), self)
         self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)
         self.dictionary_action.triggered.connect(self.lookup)
+        self.goto_location_action = QAction(_('Go to...'), self)
+        self.goto_location_menu = m = QMenu(self)
+        self.goto_location_actions = a = {
+                'Next Page': self.next_page,
+                'Previous Page': self.previous_page,
+                'Section Top' : partial(self.scroll_to, 0),
+                'Document Top': self.goto_document_start,
+                'Section Bottom':partial(self.scroll_to, 1),
+                'Document Bottom': self.goto_document_end,
+                'Next Section': self.goto_next_section,
+                'Previous Section': self.goto_previous_section,
+        }
+        for name, key in [(_('Next Section'), 'Next Section'),
+                (_('Previous Section'), 'Previous Section'),
+                (None, None),
+                (_('Document Start'), 'Document Top'),
+                (_('Document End'), 'Document Bottom'),
+                (None, None),
+                (_('Section Start'), 'Section Top'),
+                (_('Section End'), 'Section Bottom'),
+                (None, None),
+                (_('Next Page'), 'Next Page'),
+                (_('Previous Page'), 'Previous Page')]:
+            if key is None:
+                m.addSeparator()
+            else:
+                m.addAction(name, a[key], self.shortcuts.get_sequences(key)[0])
+        self.goto_location_action.setMenu(self.goto_location_menu)
+
+    def goto_next_section(self, *args):
+        if self.manager is not None:
+            self.manager.goto_next_section()
+
+    def goto_previous_section(self, *args):
+        if self.manager is not None:
+            self.manager.goto_previous_section()
+
+    def goto_document_start(self, *args):
+        if self.manager is not None:
+            self.manager.goto_start()
+
+    def goto_document_end(self, *args):
+        if self.manager is not None:
+            self.manager.goto_end()
 
     @property
     def copy_action(self):
@@ -488,6 +535,8 @@ class DocumentView(QWebView):
         text = unicode(self.selectedText())
         if text:
             menu.insertAction(list(menu.actions())[0], self.dictionary_action)
+        menu.addSeparator()
+        menu.addAction(self.goto_location_action)
         menu.exec_(ev.globalPos())
 
     def lookup(self, *args):
@@ -763,20 +812,9 @@ class DocumentView(QWebView):
 
     def keyPressEvent(self, event):
         key = self.shortcuts.get_match(event)
-        if key == 'Next Page':
-            self.next_page()
-        elif key == 'Previous Page':
-            self.previous_page()
-        elif key == 'Section Top':
-            self.scroll_to(0)
-        elif key == 'Document Top':
-            if self.manager is not None:
-                self.manager.goto_start()
-        elif key == 'Section Bottom':
-            self.scroll_to(1)
-        elif key == 'Document Bottom':
-            if self.manager is not None:
-                self.manager.goto_end()
+        func = self.goto_location_actions.get(key, None)
+        if func is not None:
+            func()
         elif key == 'Down':
             self.scroll_by(y=15)
         elif key == 'Up':
@@ -785,12 +823,6 @@ class DocumentView(QWebView):
             self.scroll_by(x=-15)
         elif key == 'Right':
             self.scroll_by(x=15)
-        elif key == 'Next Section':
-            if self.manager is not None:
-                self.manager.goto_next_section()
-        elif key == 'Previous Section':
-            if self.manager is not None:
-                self.manager.goto_previous_section()
         else:
             return QWebView.keyPressEvent(self, event)
 

@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = 'calibre'
-__version__   = '0.6.49'
+__version__   = '0.6.51'
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 
 import re
@@ -56,9 +56,18 @@ if plugins is None:
         plugin_path = sys.extensions_location
         sys.path.insert(0, plugin_path)
 
-        for plugin in ['pictureflow', 'lzx', 'msdes', 'podofo', 'cPalmdoc',
-            'fontconfig', 'pdfreflow', 'progress_indicator', 'chmlib',
-            'chm_extra'] + \
+        for plugin in [
+                'pictureflow',
+                'lzx',
+                'msdes',
+                'podofo',
+                'cPalmdoc',
+                'fontconfig',
+                'pdfreflow',
+                'progress_indicator',
+                'chmlib',
+                'chm_extra'
+            ] + \
                     (['winutil'] if iswindows else []) + \
                     (['usbobserver'] if isosx else []):
             try:

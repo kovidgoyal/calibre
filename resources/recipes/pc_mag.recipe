@@ -9,8 +9,9 @@ __description__ = 'PCMag (www.pcmag.com) delivers authoritative, labs-based comp
 '''
 http://www.pcmag.com/
 '''
-
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Comment
 
 class pcMag(BasicNewsRecipe):
     __author__     = 'Lorenzo Vigentini'
@@ -33,9 +34,6 @@ class pcMag(BasicNewsRecipe):
     remove_javascript     = True
     no_stylesheets = True
 
-    keep_only_tags     = [
-                            dict(name='div', attrs={'id':'articleContent'})
-                        ]
 
     feeds          = [
                        (u'Tech Commentary from the Editors of PC Magazine', u'http://rssnewsapps.ziffdavis.com/PCMAG_commentary.xml'),
@@ -49,8 +47,13 @@ class pcMag(BasicNewsRecipe):
                        (u'Technology News from Ziff Davis', u'http://rssnewsapps.ziffdavis.com/pcmagbreakingnews.xml')
                      ]
 
+    keep_only_tags = [dict(attrs={'class':'content-page'})]
     remove_tags         = [
-                            dict(name='div', attrs={'id':['microAd','intellitxt','articleDeckTalkback','inlineDigg','underArticleLinks','w_talkback']}),
-                            dict(name='span', attrs={'id':['highlights_content','yahooBuzzBadge-48558872521263350499378']})
-                          ]
+                            dict(attrs={'class':['control-side','comment','highlights_content','btn-holder','subscribe-panel',
+                                'grey-box comments-box']}),
+                            dict(id=['inlineDigg']),
+                            dict(text=lambda text:isinstance(text, Comment)),
+                            dict(name='img', width='1'),
+                        ]
+    preprocess_regexps = [(re.compile(r"<img '[^']+?'"), lambda m : '<img ')]
 

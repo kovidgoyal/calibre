@@ -14,7 +14,7 @@ from lxml import etree
 
 from calibre.ebooks.oeb.base import XPath, XPNSMAP
 from calibre import guess_type
-
+from calibre.library.comments import comments_to_html
 class Jacket(object):
     '''
     Book jacket manipulation. Remove first image and insert comments at start of
@@ -25,6 +25,7 @@ class Jacket(object):
     <html xmlns="%(xmlns)s">
         <head>
             <title>%(title)s</title>
+            <meta name="calibre-content" content="jacket"/>
         </head>
         <body>
             <div class="calibre_rescale_100">
@@ -83,7 +84,9 @@ class Jacket(object):
                 comments = ''
         if not comments.strip():
             comments = ''
-        comments = comments.replace('\r\n', '\n').replace('\n\n', '<br/><br/>')
+        orig_comments = comments
+        if comments:
+            comments = comments_to_html(comments)
         series = '<b>Series: </b>' + escape(mi.series if mi.series else '')
         if mi.series and mi.series_index is not None:
             series += escape(' [%s]'%mi.format_series_index())
@@ -96,21 +99,41 @@ class Jacket(object):
             except:
                 tags = []
         if tags:
-            tags = '<b>Tags: </b>' + escape(self.opts.dest.tags_to_string(tags))
+            tags = '<b>Tags: </b>' + self.opts.dest.tags_to_string(tags)
         else:
             tags = ''
         try:
             title = mi.title if mi.title else unicode(self.oeb.metadata.title[0])
         except:
             title = _('Unknown')
-        html = self.JACKET_TEMPLATE%dict(xmlns=XPNSMAP['h'],
-                title=escape(title), comments=escape(comments),
+
+        def generate_html(comments):
+            return self.JACKET_TEMPLATE%dict(xmlns=XPNSMAP['h'],
+                title=escape(title), comments=comments,
                 jacket=escape(_('Book Jacket')), series=series,
                 tags=tags, rating=self.get_rating(mi.rating))
         id, href = self.oeb.manifest.generate('jacket', 'jacket.xhtml')
-        root = etree.fromstring(html)
-        item = self.oeb.manifest.add(id, href, guess_type(href)[0], data=root)
-        self.oeb.spine.insert(0, item, True)
+        from calibre.ebooks.oeb.base import RECOVER_PARSER, XPath
+        try:
+            root = etree.fromstring(generate_html(comments), parser=RECOVER_PARSER)
+        except:
+            root = etree.fromstring(generate_html(escape(orig_comments)),
+                    parser=RECOVER_PARSER)
+        jacket = XPath('//h:meta[@name="calibre-content" and @content="jacket"]')
+        found = None
+        for item in list(self.oeb.spine)[:4]:
+            try:
+                if jacket(item.data):
+                    found = item
+                    break
+            except:
+                continue
+        if found is None:
+            item = self.oeb.manifest.add(id, href, guess_type(href)[0], data=root)
+            self.oeb.spine.insert(0, item, True)
+        else:
+            self.log('Found existing book jacket, replacing...')
+            found.data = root
 
 
     def __call__(self, oeb, opts, metadata):

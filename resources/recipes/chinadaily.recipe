@@ -1,0 +1,48 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.chinadaily.com.cn
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Pagina12(BasicNewsRecipe):
+    title                 = 'China Daily'
+    __author__            = 'Darko Miletic'
+    description           = 'Chinadaily.com.cn is the largest English portal in China, providing news, business information, BBS, learning materials.'
+    publisher             = 'China Daily Information Co.'
+    category              = 'news, politics, China'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'en_CN'
+    remove_empty_feeds    = True
+    publication_type      = 'newsportal'
+    masthead_url          = 'http://www.chinadaily.com.cn/15421.files/chinadailylogo_e_20100301.jpg'
+    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } '
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [dict(name=['object','embed','iframe','table'])]
+    keep_only_tags = [dict(attrs={'id':['Title_e','Content']})]
+
+
+    feeds = [
+              (u'China'   , u'http://www.chinadaily.com.cn/rss/china_rss.xml'   )
+             ,(u'Business', u'http://www.chinadaily.com.cn/rss/bizchina_rss.xml')
+             ,(u'World'   , u'http://www.chinadaily.com.cn/rss/world_rss.xml'   )
+             ,(u'Sports'  , u'http://www.chinadaily.com.cn/rss/sports_rss.xml'  )
+             ,(u'Opinions', u'http://www.chinadaily.com.cn/rss/opinion_rss.xml' )
+            ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup

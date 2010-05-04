@@ -7,7 +7,7 @@ import os
 import glob
 from calibre.customize import FileTypePlugin, MetadataReaderPlugin, MetadataWriterPlugin
 from calibre.constants import numeric_version
-from calibre.ebooks.metadata.archive import ArchiveExtract
+from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 
 class HTML2ZIP(FileTypePlugin):
     name = 'HTML to ZIP'
@@ -97,6 +97,12 @@ class ComicMetadataReader(MetadataReaderPlugin):
         from calibre.ebooks.metadata import MetaInformation
         ret = extract_first(stream)
         mi = MetaInformation(None, None)
+        stream.seek(0)
+        if ftype == 'cbz':
+            try:
+                mi.smart_update(get_cbz_metadata(stream))
+            except:
+                pass
         if ret is not None:
             path, data = ret
             ext = os.path.splitext(path)[1][1:]
@@ -448,7 +454,7 @@ from calibre.devices.hanvon.driver import N516, EB511, ALEX
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3
 from calibre.devices.sne.driver import SNE
-from calibre.devices.misc import PALMPRE
+from calibre.devices.misc import PALMPRE, KOBO
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
 from calibre.library.catalog import CSV_XML, EPUB_MOBI
@@ -530,7 +536,8 @@ plugins += [
     EDGE,
     SNE,
     ALEX,
-    PALMPRE
+    PALMPRE,
+    KOBO,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
