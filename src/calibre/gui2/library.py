@@ -283,16 +283,17 @@ class BooksModel(QAbstractTableModel):
 
     def read_config(self):
         self.use_roman_numbers = config['use_roman_numerals_for_series_number']
-        self.column_map = config['column_map'][:] # force a copy
+        cmap = config['column_map'][:] # force a copy
         self.headers = {}
-        for i in self.column_map: # take out any columns no longer in the db
-            if not i in self.orig_headers and not i in self.custom_columns:
-                self.column_map.remove(i)
-        for i in self.column_map:
-            if i in self.orig_headers:
-                self.headers[i] = self.orig_headers[i]
-            elif i in self.custom_columns:
-                self.headers[i] = self.custom_columns[i]['name']
+        self.column_map = []
+        for col in cmap: # take out any columns no longer in the db
+            if col in self.orig_headers or col in self.custom_columns:
+                self.column_map.append(col)
+        for col in self.column_map:
+            if col in self.orig_headers:
+                self.headers[col] = self.orig_headers[col]
+            elif col in self.custom_columns:
+                self.headers[col] = self.custom_columns[col]['name']
         self.build_data_convertors()
         self.reset()
         self.emit(SIGNAL('columns_sorted()'))
