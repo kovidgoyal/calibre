@@ -656,7 +656,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
                     _('The selected column is not a custom column'), show=True)
         if not question_dialog(self, _('Are you sure?'),
             _('Do you really want to delete column %s and all its data?') %
-            self.custcols[col]['name']):
+            self.custcols[col]['name'], show_copy_button=False):
             return
         self.columns.item(idx).setCheckState(False)
         self.columns.takeItem(idx)

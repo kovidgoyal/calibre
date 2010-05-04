@@ -20,7 +20,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Create a custom column</string>
+   <string>Create or edit custom columns</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -126,7 +126,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Create and edit custom columns</string>
+        <string>Create or edit custom columns</string>
        </property>
       </widget>
      </item>

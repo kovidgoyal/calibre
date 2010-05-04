@@ -205,11 +205,14 @@ def error_dialog(parent, title, msg, det_msg='', show=False,
         return d.exec_()
     return d
 
-def question_dialog(parent, title, msg, det_msg=''):
+def question_dialog(parent, title, msg, det_msg='', show_copy_button=True):
     d = MessageBox(QMessageBox.Question, title, msg, QMessageBox.Yes|QMessageBox.No,
                     parent, det_msg)
     d.setIconPixmap(QPixmap(I('dialog_information.svg')))
     d.setEscapeButton(QMessageBox.No)
+    if not show_copy_button:
+        d.cb.setVisible(False)
+
     return d.exec_() == QMessageBox.Yes
 
 def info_dialog(parent, title, msg, det_msg='', show=False):
