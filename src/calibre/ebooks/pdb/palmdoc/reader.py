@@ -49,7 +49,7 @@ class Reader(FormatReader):
     def decompress_text(self, number):
         if self.header_record.compression == 1:
             return self.section_data(number).decode('cp1252' if self.encoding is None else self.encoding)
-        if self.header_record.compression == 2:
+        if self.header_record.compression == 2 or self.header_record.compression == 258:
             from calibre.ebooks.compression.palmdoc import decompress_doc
             return decompress_doc(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
         return ''
