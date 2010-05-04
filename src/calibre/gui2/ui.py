@@ -262,16 +262,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     SIGNAL('update_found(PyQt_PyObject)'), self.update_found)
             self.update_checker.start(2000)
         ####################### Status Bar #####################
-        self.status_bar.initialize(self.jobs_dialog, self.system_tray_icon)
-        #self.setStatusBar(self.status_bar)
-        QObject.connect(self.job_manager, SIGNAL('job_added(int)'),
-                self.status_bar.job_added, Qt.QueuedConnection)
-        QObject.connect(self.job_manager, SIGNAL('job_done(int)'),
-                self.status_bar.job_done, Qt.QueuedConnection)
-        QObject.connect(self.status_bar, SIGNAL('show_book_info()'),
-                self.show_book_info)
-        QObject.connect(self.status_bar, SIGNAL('files_dropped(PyQt_PyObject,PyQt_PyObject)'),
-                self.files_dropped_on_book)
+        self.status_bar.initialize(self.system_tray_icon)
+        self.status_bar.show_book_info.connect(self.show_book_info)
+        self.status_bar.files_dropped.connect(self.files_dropped_on_book)
+
         ####################### Setup Toolbar #####################
         md = QMenu()
         md.addAction(_('Edit metadata individually'))
@@ -459,6 +453,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'),
                 self.do_advanced_search)
 
+        for ch in self.tool_bar.children():
+            if isinstance(ch, QToolButton):
+                ch.setCursor(Qt.PointingHandCursor)
+
         ####################### Library view ########################
         similar_menu = QMenu(_('Similar books...'))
         similar_menu.addAction(self.action_books_by_same_author)
@@ -554,12 +552,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.cover_cache = CoverCache(self.library_path)
         self.cover_cache.start()
         self.library_view.model().cover_cache = self.cover_cache
-        self.tags_view.setVisible(False)
-        self.tag_match.setVisible(False)
-        self.popularity.setVisible(False)
-        self.restriction_label.setVisible(False)
-        self.edit_categories.setVisible(False)
-        self.search_restriction.setVisible(False)
         self.connect(self.edit_categories, SIGNAL('clicked()'), self.do_edit_categories)
         self.tags_view.set_database(db, self.tag_match, self.popularity, self.search_restriction)
         self.connect(self.tags_view,
@@ -626,21 +618,27 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if not config['separate_cover_flow']:
                 self.library.layout().addWidget(self.cover_flow)
             self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
-            self.connect(self.status_bar.cover_flow_button,
-                         SIGNAL('toggled(bool)'), self.toggle_cover_flow)
-            self.connect(self.cover_flow, SIGNAL('stop()'),
-                         self.status_bar.cover_flow_button.toggle)
             self.library_view.selectionModel().currentRowChanged.connect(
                     self.sync_cf_to_listview)
             self.db_images = DatabaseImages(self.library_view.model())
             self.cover_flow.setImages(self.db_images)
-        else:
-            self.status_bar.cover_flow_button.disable(pictureflowerror)
 
         self._calculated_available_height = min(max_available_height()-15,
                 self.height())
         self.resize(self.width(), self._calculated_available_height)
         self.search.setMaximumWidth(self.width()-150)
+
+        ####################### Side Bar ###############################
+
+        self.sidebar.initialize(self.jobs_dialog, self.cover_flow,
+                self.toggle_cover_flow, pictureflowerror,
+                self.vertical_splitter, self.horizontal_splitter)
+        QObject.connect(self.job_manager, SIGNAL('job_added(int)'),
+                self.sidebar.job_added, Qt.QueuedConnection)
+        QObject.connect(self.job_manager, SIGNAL('job_done(int)'),
+                self.sidebar.job_done, Qt.QueuedConnection)
+
+
 
         if config['autolaunch_server']:
             from calibre.library.server import start_threaded_server
@@ -668,19 +666,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
 
-        if self.cover_flow is not None and dynamic.get('cover_flow_visible', False):
-            self.status_bar.cover_flow_button.toggle()
-
-        tb_state = dynamic.get('tag_browser_state', None)
-        if tb_state is not None:
-            self.horizontal_splitter.restoreState(tb_state)
-        self.toggle_tags_view(True)
-
-        bi_state = dynamic.get('book_info_state', None)
-        if bi_state is not None:
-            self.vertical_splitter.restoreState(bi_state)
-        self.horizontal_splitter.initialize()
-        self.vertical_splitter.initialize()
 
         self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
         v = self.library_view
@@ -782,11 +767,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if search:
             self.search.set_search_string(join.join(search))
 
-
-
-    def uncheck_cover_button(self, *args):
-        self.status_bar.cover_flow_button.setChecked(False)
-
     def toggle_cover_flow(self, show):
         if config['separate_cover_flow']:
             if show:
@@ -802,8 +782,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.cover_flow.setFocus(Qt.OtherFocusReason)
                 self.library_view.scrollTo(self.library_view.currentIndex())
                 d.show()
-                self.connect(d, SIGNAL('finished(int)'),
-                    self.uncheck_cover_button)
+                d.finished.connect(self.sidebar.external_cover_flow_finished)
                 self.cf_dialog = d
                 self.cover_flow_sync_timer.start(500)
             else:
@@ -825,8 +804,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         self.library_view.currentIndex())
                 self.cover_flow.setVisible(True)
                 self.cover_flow.setFocus(Qt.OtherFocusReason)
-                #self.status_bar.book_info.book_data.setMaximumHeight(100)
-                #self.status_bar.setMaximumHeight(120)
                 self.library_view.scrollTo(self.library_view.currentIndex())
                 self.cover_flow_sync_timer.start(500)
             else:
@@ -837,26 +814,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     sm = self.library_view.selectionModel()
                     sm.select(idx, sm.ClearAndSelect|sm.Rows)
                     self.library_view.setCurrentIndex(idx)
-                #self.status_bar.book_info.book_data.setMaximumHeight(1000)
-            #self.resize(self.width(), self._calculated_available_height)
-            #self.setMaximumHeight(available_height())
 
-    def toggle_tags_view(self, show):
-        if show:
-            self.tags_view.setVisible(True)
-            self.tag_match.setVisible(True)
-            self.popularity.setVisible(True)
-            self.restriction_label.setVisible(True)
-            self.edit_categories.setVisible(True)
-            self.search_restriction.setVisible(True)
-            self.tags_view.setFocus(Qt.OtherFocusReason)
-        else:
-            self.tags_view.setVisible(False)
-            self.tag_match.setVisible(False)
-            self.popularity.setVisible(False)
-            self.restriction_label.setVisible(False)
-            self.edit_categories.setVisible(False)
-            self.search_restriction.setVisible(False)
+
 
     '''
     Handling of the count of books in a restricted view requires that
@@ -887,7 +846,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.restriction_count_of_books_in_view = self.current_view().row_count()
             t = _("({0} of {1})").format(self.current_view().row_count(),
                                          self.restriction_count_of_books_in_view)
-            self.search_count.setStyleSheet('QLabel { background-color: yellow; }')
+            self.search_count.setStyleSheet('QLabel { border-radius: 8px; background-color: yellow; }')
         else: # No restriction
             if all == 'yes':
                 t = _("(all books)")
@@ -2330,6 +2289,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     view.resizeColumnsToContents()
                 view.resize_on_select = False
         self.status_bar.reset_info()
+        self.sidebar.location_changed(location)
         if location == 'library':
             self.action_edit.setEnabled(True)
             self.action_merge.setEnabled(True)
@@ -2337,7 +2297,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.view_menu.actions()[1].setEnabled(True)
             self.action_open_containing_folder.setEnabled(True)
             self.action_sync.setEnabled(True)
-            self.status_bar.cover_flow_button.setEnabled(True)
             for action in list(self.delete_menu.actions())[1:]:
                 action.setEnabled(True)
         else:
@@ -2347,7 +2306,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.view_menu.actions()[1].setEnabled(False)
             self.action_open_containing_folder.setEnabled(False)
             self.action_sync.setEnabled(False)
-            self.status_bar.cover_flow_button.setEnabled(False)
             for action in list(self.delete_menu.actions())[1:]:
                 action.setEnabled(False)
 
@@ -2463,11 +2421,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def write_settings(self):
         config.set('main_window_geometry', self.saveGeometry())
         dynamic.set('sort_history', self.library_view.model().sort_history)
-        dynamic.set('cover_flow_visible', self.cover_flow.isVisible())
-        dynamic.set('tag_browser_state',
-                str(self.horizontal_splitter.saveState()))
-        dynamic.set('book_info_state',
-                str(self.vertical_splitter.saveState()))
+        self.sidebar.save_state()
         self.library_view.write_settings()
         if self.device_connected:
             self.save_device_view_settings()

@@ -145,6 +145,8 @@ class CustomColumns(object):
             if v['normalized']:
                 tn = 'custom_column_{0}'.format(i)
                 self.tag_browser_categories[tn] = [v['label'], 'value']
+                if v['datatype'] == 'rating':
+                    self.tag_browser_formatters[tn] = lambda x:u'\u2605'*int(round(x/2.))
 
 
     def get_custom(self, idx, label=None, num=None, index_is_id=False):

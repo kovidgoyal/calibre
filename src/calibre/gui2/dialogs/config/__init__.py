@@ -656,7 +656,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
                     _('The selected column is not a custom column'), show=True)
         if not question_dialog(self, _('Are you sure?'),
             _('Do you really want to delete column %s and all its data?') %
-            self.custcols[col]['name']):
+            self.custcols[col]['name'], show_copy_button=False):
             return
         self.columns.item(idx).setCheckState(False)
         self.columns.takeItem(idx)
@@ -831,7 +831,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
                 warning_dialog(self, _('Must restart'),
                         _('The changes you made require that Calibre be '
                             'restarted. Please restart as soon as practical.'),
-                        show=True)
+                        show=True, show_copy_button=False)
                 self.parent.must_restart_before_config = True
             QDialog.accept(self)
 

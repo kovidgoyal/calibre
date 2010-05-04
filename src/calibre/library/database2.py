@@ -127,6 +127,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 'authors'   : ['author', 'name'],
                 'news'      : ['news', 'name'],
         }
+        self.tag_browser_formatters = {}
 
         self.connect()
         self.is_case_sensitive = not iswindows and not isosx and \
@@ -632,11 +633,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 else:
                     icon = icon_map['*custom']
                     tooltip = self.custom_column_label_map[category]['name']
-            if ids is None: # no filtering
-                categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon, tooltip = tooltip)
-                                        for r in data if r[2] > 0]
-            else: # filter out zero-count tags
-                categories[category] = [Tag(r[1], count=r[2], id=r[0], icon=icon, tooltip = tooltip)
+            formatter = self.tag_browser_formatters.get(tn, lambda x: x)
+            categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0], icon=icon, tooltip = tooltip)
                                         for r in data if r[2] > 0]
         categories['format'] = []
         for fmt in self.conn.get('SELECT DISTINCT format FROM data'):
