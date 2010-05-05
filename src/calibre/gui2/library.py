@@ -12,14 +12,14 @@ from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
                         QIcon, QImage, QMenu, \
                         QStyledItemDelegate, QCompleter, QIntValidator, \
-                        QDoubleValidator, QCheckBox
+                        QDoubleValidator, QComboBox
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
                          SIGNAL, QObject, QSize, QModelIndex, QDate
 
 from calibre import strftime
 from calibre.ebooks.metadata import string_to_authors, fmt_sidx, authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
-from calibre.gui2 import NONE, TableView, config, error_dialog
+from calibre.gui2 import NONE, TableView, config, error_dialog, UNDEFINED_DATE
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
@@ -28,6 +28,7 @@ from calibre.utils.config import tweaks
 from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.utils.pyparsing import ParseException
 from calibre.utils.search_query_parser import SearchQueryParser
+
 
 class RatingDelegate(QStyledItemDelegate):
     COLOR    = QColor("blue")
@@ -79,14 +80,14 @@ class RatingDelegate(QStyledItemDelegate):
             painter.setRenderHint(QPainter.Antialiasing)
             painter.setClipRect(option.rect)
             y = option.rect.center().y()-self.SIZE/2.
-            x = option.rect.right()  - self.SIZE
+            x = option.rect.left()
             painter.setPen(self.PEN)
             painter.setBrush(self.brush)
             painter.translate(x, y)
             i = 0
             while i < num:
                 draw_star()
-                painter.translate(-self.SIZE, 0)
+                painter.translate(self.SIZE, 0)
                 i += 1
         except:
             traceback.print_exc()
@@ -99,8 +100,11 @@ class RatingDelegate(QStyledItemDelegate):
         return sb
 
 class DateDelegate(QStyledItemDelegate):
+
     def displayText(self, val, locale):
         d = val.toDate()
+        if d == UNDEFINED_DATE:
+            return ''
         return d.toString('dd MMM yyyy')
 
     def createEditor(self, parent, option, index):
@@ -109,18 +113,24 @@ class DateDelegate(QStyledItemDelegate):
         if 'yyyy' not in stdformat:
             stdformat = stdformat.replace('yy', 'yyyy')
         qde.setDisplayFormat(stdformat)
-        qde.setMinimumDate(QDate(101,1,1))
+        qde.setMinimumDate(UNDEFINED_DATE)
+        qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
 
 class PubDateDelegate(QStyledItemDelegate):
+
     def displayText(self, val, locale):
-        return val.toDate().toString('MMM yyyy')
+        d = val.toDate()
+        if d == UNDEFINED_DATE:
+            return ''
+        return d.toString('MMM yyyy')
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
         qde.setDisplayFormat('MM yyyy')
-        qde.setMinimumDate(QDate(101,1,1))
+        qde.setMinimumDate(UNDEFINED_DATE)
+        qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
 
@@ -217,16 +227,19 @@ class CcBoolDelegate(QStyledItemDelegate):
         QStyledItemDelegate.__init__(self, parent)
 
     def createEditor(self, parent, option, index):
-        editor = QCheckBox(parent)
+        editor = QComboBox(parent)
+        items = [_('Y'), _('N'), ' ']
+        icons = [I('ok.svg'), I('list_remove.svg'), I('blank.svg')]
         if tweaks['bool_custom_columns_are_tristate'] == 'no':
-            pass
-        else:
-            if tweaks['bool_custom_columns_are_tristate'] == 'yes':
-                editor.setTristate(True)
+            items = items[:-1]
+            icons = icons[:-1]
+        for icon, text in zip(icons, items):
+            editor.addItem(QIcon(icon), text)
         return editor
 
     def setModelData(self, editor, model, index):
-        model.setData(index, QVariant(editor.checkState()), Qt.EditRole)
+        val = {0:True, 1:False, 2:None}[editor.currentIndex()]
+        model.setData(index, QVariant(val), Qt.EditRole)
 
     def setEditorData(self, editor, index):
         m = index.model()
@@ -234,10 +247,10 @@ class CcBoolDelegate(QStyledItemDelegate):
         # gui column -> column label -> table number -> db column
         val = m.db.data[index.row()][m.db.FIELD_MAP[m.custom_columns[m.column_map[index.column()]]['num']]]
         if tweaks['bool_custom_columns_are_tristate'] == 'no':
-            val = Qt.Unchecked if val is None or not val else Qt.Checked
+            val = 1 if not val else 0
         else:
-            val = Qt.PartiallyChecked if val is None else Qt.Unchecked if not val else Qt.Checked
-        editor.setCheckState(val)
+            val = 2 if val is None else 1 if not val else 0
+        editor.setCurrentIndex(val)
 
 class BooksModel(QAbstractTableModel):
 
@@ -693,7 +706,7 @@ class BooksModel(QAbstractTableModel):
             if val is not None:
                 return QVariant(QDate(val))
             else:
-                return QVariant(QDate())
+                return QVariant(UNDEFINED_DATE)
 
         def bool_type(r, idx=-1):
             return None # displayed using a decorator
@@ -817,8 +830,7 @@ class BooksModel(QAbstractTableModel):
             val = unicode(value.toString()).strip()
             val = val if val else None
         if typ == 'bool':
-            val = value.toInt()[0] # tristate checkboxes put unknown in the middle
-            val = None if val == 1 else False if val == 0 else True
+            val = value.toPyObject()
         elif typ == 'rating':
             val = value.toInt()[0]
             val = 0 if val < 0 else 5 if val > 5 else val

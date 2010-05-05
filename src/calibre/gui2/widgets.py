@@ -530,7 +530,7 @@ class BasicList(QListWidget):
 class LineEditECM(object):
 
     '''
-    Extend the contenxt menu of a QLineEdit to include more actions.
+    Extend the context menu of a QLineEdit to include more actions.
     '''
 
     def contextMenuEvent(self, event):
@@ -659,7 +659,7 @@ class EnComboBox(QComboBox):
     '''
     Enhanced QComboBox.
 
-    Includes an extended content menu.
+    Includes an extended context menu.
     '''
 
     def __init__(self, *args):

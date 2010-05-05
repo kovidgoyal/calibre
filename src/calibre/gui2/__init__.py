@@ -6,7 +6,7 @@ from threading import RLock
 
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
                          QByteArray, QTranslator, QCoreApplication, QThread, \
-                         QEvent, QTimer, pyqtSignal
+                         QEvent, QTimer, pyqtSignal, QDate
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView, QApplication, QDialog, QPushButton
 
@@ -21,6 +21,7 @@ from calibre.ebooks.metadata import MetaInformation
 gprefs = JSONConfig('gui')
 
 NONE = QVariant() #: Null value to return from the data function of item models
+UNDEFINED_DATE = QDate(101,1,1)
 
 ALL_COLUMNS = ['title', 'authors', 'size', 'timestamp', 'rating', 'publisher',
         'tags', 'series', 'pubdate']

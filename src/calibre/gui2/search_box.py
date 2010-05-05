@@ -73,7 +73,7 @@ class SearchBox2(QComboBox):
         self.setInsertPolicy(self.NoInsert)
         self.setMaxCount(self.MAX_COUNT)
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
-        self.setMinimumContentsLength(50)
+        self.setMinimumContentsLength(25)
 
     def initialize(self, opt_name, colorize=False,
             help_text=_('Search')):

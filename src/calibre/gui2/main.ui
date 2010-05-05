@@ -160,7 +160,7 @@
       <item>
        <widget class="QLabel" name="restriction_label">
         <property name="text">
-         <string>&amp;Restrict display to:</string>
+         <string>&amp;Restrict to:</string>
         </property>
         <property name="buddy">
          <cstring>search_restriction</cstring>
@@ -353,13 +353,11 @@
                 </widget>
                </item>
                <item>
-                <item>
                  <widget class="QCheckBox" name="popularity">
                   <property name="text">
                    <string>Sort by &amp;popularity</string>
                   </property>
                  </widget>
-                </item>
                </item>
                <item>
                 <widget class="QComboBox" name="tag_match">
@@ -379,7 +377,6 @@
                 </widget>
                </item>
                <item>
-                <item>
                  <widget class="QPushButton" name="edit_categories">
                   <property name="toolTip">
                    <string>Create, edit, and delete user categories</string>
@@ -388,7 +385,6 @@
                    <string>Manage &amp;user categories</string>
                   </property>
                  </widget>
-                </item>
                </item>
               </layout>
              </widget>

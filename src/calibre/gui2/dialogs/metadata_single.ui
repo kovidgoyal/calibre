@@ -43,8 +43,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>869</width>
-        <height>698</height>
+        <width>879</width>
+        <height>711</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -52,625 +52,639 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QWidget" name="central_widget" native="true">
+        <widget class="QTabWidget" name="central_widget">
          <property name="minimumSize">
           <size>
            <width>800</width>
            <height>665</height>
           </size>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <item>
-           <widget class="QSplitter" name="splitter">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <widget class="QWidget" name="layoutWidget">
-             <layout class="QVBoxLayout">
-              <item>
-               <widget class="QGroupBox" name="meta_box">
-                <property name="title">
-                 <string>Meta information</string>
-                </property>
-                <layout class="QGridLayout" name="gridLayout_3">
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="label">
-                   <property name="text">
-                    <string>&amp;Title: </string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                   <property name="buddy">
-                    <cstring>title</cstring>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="EnLineEdit" name="title">
-                   <property name="toolTip">
-                    <string>Change the title of this book</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="2" rowspan="2">
-                  <widget class="QToolButton" name="swap_button">
-                   <property name="toolTip">
-                    <string>Swap the author and title</string>
-                   </property>
-                   <property name="text">
-                    <string>...</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="../../../../resources/images.qrc">
-                     <normaloff>:/images/swap.svg</normaloff>:/images/swap.svg</iconset>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>16</width>
-                     <height>16</height>
-                    </size>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="label_2">
-                   <property name="text">
-                    <string>&amp;Author(s): </string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                   <property name="buddy">
-                    <cstring>authors</cstring>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="label_8">
-                   <property name="text">
-                    <string>Author S&amp;ort: </string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                   <property name="buddy">
-                    <cstring>author_sort</cstring>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="1" colspan="2">
-                  <layout class="QHBoxLayout" name="horizontalLayout">
-                   <item>
-                    <widget class="EnLineEdit" name="author_sort">
-                     <property name="toolTip">
-                      <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QToolButton" name="auto_author_sort">
-                     <property name="toolTip">
-                      <string>Automatically create the author sort entry based on the current author entry</string>
-                     </property>
-                     <property name="text">
-                      <string>...</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../../../../resources/images.qrc">
-                       <normaloff>:/images/auto_author_sort.svg</normaloff>:/images/auto_author_sort.svg</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item row="3" column="0">
-                  <widget class="QLabel" name="label_6">
-                   <property name="text">
-                    <string>&amp;Rating:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                   <property name="buddy">
-                    <cstring>rating</cstring>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="1" colspan="2">
-                  <widget class="QSpinBox" name="rating">
-                   <property name="toolTip">
-                    <string>Rating of this book. 0-5 stars</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Rating of this book. 0-5 stars</string>
-                   </property>
-                   <property name="buttonSymbols">
-                    <enum>QAbstractSpinBox::PlusMinus</enum>
-                   </property>
-                   <property name="suffix">
-                    <string> stars</string>
-                   </property>
-                   <property name="maximum">
-                    <number>5</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="0">
-                  <widget class="QLabel" name="label_3">
-                   <property name="text">
-                    <string>&amp;Publisher: </string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                   <property name="buddy">
-                    <cstring>publisher</cstring>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="5" column="0">
-                  <widget class="QLabel" name="label_4">
-                   <property name="text">
-                    <string>Ta&amp;gs: </string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                   <property name="buddy">
-                    <cstring>tags</cstring>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="5" column="1" colspan="2">
-                  <layout class="QHBoxLayout" name="_2">
-                   <item>
-                    <widget class="TagsLineEdit" name="tags">
-                     <property name="toolTip">
-                      <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QToolButton" name="tag_editor_button">
-                     <property name="toolTip">
-                      <string>Open Tag Editor</string>
-                     </property>
-                     <property name="text">
-                      <string>Open Tag Editor</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../../../../resources/images.qrc">
-                       <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item row="6" column="0">
-                  <widget class="QLabel" name="label_7">
-                   <property name="text">
-                    <string>&amp;Series:</string>
-                   </property>
-                   <property name="textFormat">
-                    <enum>Qt::PlainText</enum>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                   <property name="buddy">
-                    <cstring>series</cstring>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="6" column="1" colspan="2">
-                  <layout class="QHBoxLayout" name="_3">
-                   <property name="spacing">
-                    <number>5</number>
-                   </property>
-                   <item>
-                    <widget class="EnComboBox" name="series">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="toolTip">
-                      <string>List of known series. You can add new series.</string>
-                     </property>
-                     <property name="whatsThis">
-                      <string>List of known series. You can add new series.</string>
-                     </property>
-                     <property name="editable">
-                      <bool>true</bool>
-                     </property>
-                     <property name="insertPolicy">
-                      <enum>QComboBox::InsertAlphabetically</enum>
-                     </property>
-                     <property name="sizeAdjustPolicy">
-                      <enum>QComboBox::AdjustToContents</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QToolButton" name="remove_series_button">
-                     <property name="toolTip">
-                      <string>Remove unused series (Series that have no books)</string>
-                     </property>
-                     <property name="text">
-                      <string>...</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../../../../resources/images.qrc">
-                       <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item row="8" column="0">
-                  <widget class="QLabel" name="label_9">
-                   <property name="text">
-                    <string>IS&amp;BN:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                   <property name="buddy">
-                    <cstring>isbn</cstring>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="8" column="1" colspan="2">
-                  <widget class="QLineEdit" name="isbn"/>
-                 </item>
-                 <item row="10" column="0">
-                  <widget class="QLabel" name="label_10">
-                   <property name="text">
-                    <string>Publishe&amp;d:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                   <property name="buddy">
-                    <cstring>pubdate</cstring>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="1" colspan="2">
-                  <widget class="EnComboBox" name="publisher">
-                   <property name="editable">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="1" colspan="2">
-                  <widget class="QDoubleSpinBox" name="series_index">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="prefix">
-                    <string>Book </string>
-                   </property>
-                   <property name="maximum">
-                    <double>9999.989999999999782</double>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="10" column="1" colspan="2">
-                  <widget class="QDateEdit" name="pubdate">
-                   <property name="displayFormat">
-                    <string>MMM yyyy</string>
-                   </property>
-                   <property name="calendarPopup">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="1">
-                  <widget class="EnComboBox" name="authors">
-                   <property name="editable">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="9" column="1" colspan="2">
-                  <widget class="QDateEdit" name="date">
-                   <property name="displayFormat">
-                    <string>dd MMM yyyy</string>
-                   </property>
-                   <property name="calendarPopup">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="9" column="0">
-                  <widget class="QLabel" name="label_11">
-                   <property name="text">
-                    <string>&amp;Date:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                   <property name="buddy">
-                    <cstring>date</cstring>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="groupBox_2">
-                <property name="title">
-                 <string>&amp;Comments</string>
-                </property>
-                <layout class="QGridLayout" name="gridLayout_4">
-                 <item row="0" column="0">
-                  <widget class="QTextEdit" name="comments">
-                   <property name="acceptRichText">
-                    <bool>false</bool>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="fetch_metadata_button">
-                <property name="text">
-                 <string>&amp;Fetch metadata from server</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="central_tabWidgetPage1">
+          <attribute name="title">
+           <string>&amp;Basic metadata</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item>
+            <widget class="QSplitter" name="splitter">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <widget class="QWidget" name="layoutWidget">
+              <layout class="QVBoxLayout">
+               <item>
+                <widget class="QGroupBox" name="meta_box">
+                 <property name="title">
+                  <string>Meta information</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_3">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label">
+                    <property name="text">
+                     <string>&amp;Title: </string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>title</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="EnLineEdit" name="title">
+                    <property name="toolTip">
+                     <string>Change the title of this book</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="2" rowspan="2">
+                   <widget class="QToolButton" name="swap_button">
+                    <property name="toolTip">
+                     <string>Swap the author and title</string>
+                    </property>
+                    <property name="text">
+                     <string>...</string>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="../../../../resources/images.qrc">
+                      <normaloff>:/images/swap.svg</normaloff>:/images/swap.svg</iconset>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>16</width>
+                      <height>16</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_2">
+                    <property name="text">
+                     <string>&amp;Author(s): </string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>authors</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_8">
+                    <property name="text">
+                     <string>Author S&amp;ort: </string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>author_sort</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1" colspan="2">
+                   <layout class="QHBoxLayout" name="horizontalLayout">
+                    <item>
+                     <widget class="EnLineEdit" name="author_sort">
+                      <property name="toolTip">
+                       <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QToolButton" name="auto_author_sort">
+                      <property name="toolTip">
+                       <string>Automatically create the author sort entry based on the current author entry</string>
+                      </property>
+                      <property name="text">
+                       <string>...</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../../../resources/images.qrc">
+                        <normaloff>:/images/auto_author_sort.svg</normaloff>:/images/auto_author_sort.svg</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_6">
+                    <property name="text">
+                     <string>&amp;Rating:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>rating</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1" colspan="2">
+                   <widget class="QSpinBox" name="rating">
+                    <property name="toolTip">
+                     <string>Rating of this book. 0-5 stars</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>Rating of this book. 0-5 stars</string>
+                    </property>
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::PlusMinus</enum>
+                    </property>
+                    <property name="suffix">
+                     <string> stars</string>
+                    </property>
+                    <property name="maximum">
+                     <number>5</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="label_3">
+                    <property name="text">
+                     <string>&amp;Publisher: </string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>publisher</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="label_4">
+                    <property name="text">
+                     <string>Ta&amp;gs: </string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>tags</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1" colspan="2">
+                   <layout class="QHBoxLayout" name="_2">
+                    <item>
+                     <widget class="TagsLineEdit" name="tags">
+                      <property name="toolTip">
+                       <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QToolButton" name="tag_editor_button">
+                      <property name="toolTip">
+                       <string>Open Tag Editor</string>
+                      </property>
+                      <property name="text">
+                       <string>Open Tag Editor</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../../../resources/images.qrc">
+                        <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item row="6" column="0">
+                   <widget class="QLabel" name="label_7">
+                    <property name="text">
+                     <string>&amp;Series:</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::PlainText</enum>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>series</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1" colspan="2">
+                   <layout class="QHBoxLayout" name="_3">
+                    <property name="spacing">
+                     <number>5</number>
+                    </property>
+                    <item>
+                     <widget class="EnComboBox" name="series">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="toolTip">
+                       <string>List of known series. You can add new series.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>List of known series. You can add new series.</string>
+                      </property>
+                      <property name="editable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="insertPolicy">
+                       <enum>QComboBox::InsertAlphabetically</enum>
+                      </property>
+                      <property name="sizeAdjustPolicy">
+                       <enum>QComboBox::AdjustToContents</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QToolButton" name="remove_series_button">
+                      <property name="toolTip">
+                       <string>Remove unused series (Series that have no books)</string>
+                      </property>
+                      <property name="text">
+                       <string>...</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../../../resources/images.qrc">
+                        <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item row="8" column="0">
+                   <widget class="QLabel" name="label_9">
+                    <property name="text">
+                     <string>IS&amp;BN:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>isbn</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="8" column="1" colspan="2">
+                   <widget class="QLineEdit" name="isbn"/>
+                  </item>
+                  <item row="10" column="0">
+                   <widget class="QLabel" name="label_10">
+                    <property name="text">
+                     <string>Publishe&amp;d:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>pubdate</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1" colspan="2">
+                   <widget class="EnComboBox" name="publisher">
+                    <property name="editable">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="1" colspan="2">
+                   <widget class="QDoubleSpinBox" name="series_index">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="prefix">
+                     <string>Book </string>
+                    </property>
+                    <property name="maximum">
+                     <double>9999.989999999999782</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="10" column="1" colspan="2">
+                   <widget class="QDateEdit" name="pubdate">
+                    <property name="displayFormat">
+                     <string>MMM yyyy</string>
+                    </property>
+                    <property name="calendarPopup">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="EnComboBox" name="authors">
+                    <property name="editable">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="9" column="1" colspan="2">
+                   <widget class="QDateEdit" name="date">
+                    <property name="displayFormat">
+                     <string>dd MMM yyyy</string>
+                    </property>
+                    <property name="calendarPopup">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="9" column="0">
+                   <widget class="QLabel" name="label_11">
+                    <property name="text">
+                     <string>&amp;Date:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>date</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="groupBox_2">
+                 <property name="title">
+                  <string>&amp;Comments</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_4">
+                  <item row="0" column="0">
+                   <widget class="QTextEdit" name="comments">
+                    <property name="acceptRichText">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="fetch_metadata_button">
+                 <property name="text">
+                  <string>&amp;Fetch metadata from server</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="layoutWidget_2">
+              <layout class="QVBoxLayout" name="verticalLayout_2">
+               <item>
+                <widget class="QGroupBox" name="af_group_box">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="title">
+                  <string>Available Formats</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout">
+                  <item>
+                   <layout class="QGridLayout" name="gridLayout">
+                    <item row="0" column="1" rowspan="3">
+                     <widget class="FormatList" name="formats">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>130</height>
+                       </size>
+                      </property>
+                      <property name="dragDropMode">
+                       <enum>QAbstractItemView::DropOnly</enum>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>64</width>
+                        <height>64</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="2">
+                     <widget class="QToolButton" name="add_format_button">
+                      <property name="toolTip">
+                       <string>Add a new format for this book to the database</string>
+                      </property>
+                      <property name="text">
+                       <string>...</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../../../resources/images.qrc">
+                        <normaloff>:/images/add_book.svg</normaloff>:/images/add_book.svg</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>32</width>
+                        <height>32</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="2">
+                     <widget class="QToolButton" name="remove_format_button">
+                      <property name="toolTip">
+                       <string>Remove the selected formats for this book from the database.</string>
+                      </property>
+                      <property name="text">
+                       <string>...</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../../../resources/images.qrc">
+                        <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>32</width>
+                        <height>32</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="0">
+                     <widget class="QToolButton" name="button_set_cover">
+                      <property name="toolTip">
+                       <string>Set the cover for the book from the selected format</string>
+                      </property>
+                      <property name="text">
+                       <string>...</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../../../resources/images.qrc">
+                        <normaloff>:/images/book.svg</normaloff>:/images/book.svg</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>32</width>
+                        <height>32</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QToolButton" name="button_set_metadata">
+                      <property name="toolTip">
+                       <string>Update metadata from the metadata in the selected format</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../../../resources/images.qrc">
+                        <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>32</width>
+                        <height>32</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                 <zorder></zorder>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="bc_box">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>10</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="title">
+                  <string>Book Cover</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_4">
+                  <item>
+                   <widget class="ImageView" name="cover">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="pixmap">
+                     <pixmap resource="../../../../resources/images.qrc">:/images/book.svg</pixmap>
+                    </property>
+                    <property name="scaledContents">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QVBoxLayout" name="_4">
+                    <property name="spacing">
+                     <number>6</number>
+                    </property>
+                    <property name="sizeConstraint">
+                     <enum>QLayout::SetMaximumSize</enum>
+                    </property>
+                    <property name="margin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="label_5">
+                      <property name="text">
+                       <string>Change &amp;cover image:</string>
+                      </property>
+                      <property name="buddy">
+                       <cstring>cover_path</cstring>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <layout class="QHBoxLayout" name="_5">
+                      <property name="spacing">
+                       <number>6</number>
+                      </property>
+                      <property name="margin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="QLineEdit" name="cover_path">
+                        <property name="readOnly">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QToolButton" name="cover_button">
+                        <property name="toolTip">
+                         <string>Browse for an image to use as the cover of this book.</string>
+                        </property>
+                        <property name="text">
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../../../../resources/images.qrc">
+                          <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QToolButton" name="reset_cover">
+                        <property name="toolTip">
+                         <string>Reset cover to default</string>
+                        </property>
+                        <property name="text">
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../../../../resources/images.qrc">
+                          <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="_6">
+                    <item>
+                     <widget class="QPushButton" name="fetch_cover_button">
+                      <property name="text">
+                       <string>Download &amp;cover</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </widget>
-            <widget class="QWidget" name="layoutWidget_2">
-             <layout class="QVBoxLayout" name="verticalLayout_2">
-              <item>
-               <widget class="QGroupBox" name="af_group_box">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="title">
-                 <string>Available Formats</string>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout">
-                 <item>
-                  <layout class="QGridLayout" name="gridLayout">
-                   <item row="0" column="1" rowspan="3">
-                    <widget class="FormatList" name="formats">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>16777215</width>
-                       <height>130</height>
-                      </size>
-                     </property>
-                     <property name="dragDropMode">
-                      <enum>QAbstractItemView::DropOnly</enum>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>64</width>
-                       <height>64</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="2">
-                    <widget class="QToolButton" name="add_format_button">
-                     <property name="toolTip">
-                      <string>Add a new format for this book to the database</string>
-                     </property>
-                     <property name="text">
-                      <string>...</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../../../../resources/images.qrc">
-                       <normaloff>:/images/add_book.svg</normaloff>:/images/add_book.svg</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>32</width>
-                       <height>32</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="2">
-                    <widget class="QToolButton" name="remove_format_button">
-                     <property name="toolTip">
-                      <string>Remove the selected formats for this book from the database.</string>
-                     </property>
-                     <property name="text">
-                      <string>...</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../../../../resources/images.qrc">
-                       <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>32</width>
-                       <height>32</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="0">
-                    <widget class="QToolButton" name="button_set_cover">
-                     <property name="toolTip">
-                      <string>Set the cover for the book from the selected format</string>
-                     </property>
-                     <property name="text">
-                      <string>...</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../../../../resources/images.qrc">
-                       <normaloff>:/images/book.svg</normaloff>:/images/book.svg</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>32</width>
-                       <height>32</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QToolButton" name="button_set_metadata">
-                     <property name="toolTip">
-                      <string>Update metadata from the metadata in the selected format</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../../../../resources/images.qrc">
-                       <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>32</width>
-                       <height>32</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                </layout>
-                <zorder></zorder>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="bc_box">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>10</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="title">
-                 <string>Book Cover</string>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_4">
-                 <item>
-                  <widget class="ImageView" name="cover">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="pixmap">
-                    <pixmap resource="../../../../resources/images.qrc">:/images/book.svg</pixmap>
-                   </property>
-                   <property name="scaledContents">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="_4">
-                   <property name="spacing">
-                    <number>6</number>
-                   </property>
-                   <property name="sizeConstraint">
-                    <enum>QLayout::SetMaximumSize</enum>
-                   </property>
-                   <property name="margin">
-                    <number>0</number>
-                   </property>
-                   <item>
-                    <widget class="QLabel" name="label_5">
-                     <property name="text">
-                      <string>Change &amp;cover image:</string>
-                     </property>
-                     <property name="buddy">
-                      <cstring>cover_path</cstring>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="_5">
-                     <property name="spacing">
-                      <number>6</number>
-                     </property>
-                     <property name="margin">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="QLineEdit" name="cover_path">
-                       <property name="readOnly">
-                        <bool>true</bool>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QToolButton" name="cover_button">
-                       <property name="toolTip">
-                        <string>Browse for an image to use as the cover of this book.</string>
-                       </property>
-                       <property name="text">
-                        <string>...</string>
-                       </property>
-                       <property name="icon">
-                        <iconset resource="../../../../resources/images.qrc">
-                         <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QToolButton" name="reset_cover">
-                       <property name="toolTip">
-                        <string>Reset cover to default</string>
-                       </property>
-                       <property name="text">
-                        <string>...</string>
-                       </property>
-                       <property name="icon">
-                        <iconset resource="../../../../resources/images.qrc">
-                         <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="_6">
-                   <item>
-                    <widget class="QPushButton" name="fetch_cover_button">
-                     <property name="text">
-                      <string>Download &amp;cover</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </widget>
-          </item>
-         </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab">
+          <attribute name="title">
+           <string>&amp;Custom metadata</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_2"/>
+         </widget>
         </widget>
        </item>
       </layout>

@@ -11,8 +11,9 @@ import re
 import time
 import traceback
 
+import sip
 from PyQt4.Qt import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDate, \
-    QPixmap, QListWidgetItem, QDialog
+    QPixmap, QListWidgetItem, QDialog, QHBoxLayout, QGridLayout
 
 from calibre.gui2 import error_dialog, file_icon_provider, \
                            choose_files, choose_images, ResizableDialog, \
@@ -31,6 +32,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import qt_to_dt
 from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
 from calibre.gui2.dialogs.config.social import SocialMetadata
+from calibre.gui2.custom_column_widgets import populate_single_metadata_page
 
 class CoverFetcher(QThread):
 
@@ -405,6 +407,26 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 self.cover.setPixmap(pm)
             self.cover_data = cover
         self.original_series_name = unicode(self.series.text()).strip()
+        if len(db.custom_column_label_map) == 0:
+            self.central_widget.tabBar().setVisible(False)
+        else:
+            self.create_custom_column_editors()
+
+    def create_custom_column_editors(self):
+        w = self.central_widget.widget(1)
+        top_layout = QHBoxLayout()
+        top_layout.setSpacing(20)
+        left_layout = QGridLayout()
+        right_layout = QGridLayout()
+        top_layout.addLayout(left_layout)
+
+        self.custom_column_widgets, self.__cc_spacers = populate_single_metadata_page(
+                left_layout, right_layout, self.db, self.id, w)
+        top_layout.addLayout(right_layout)
+        sip.delete(w.layout())
+        w.setLayout(top_layout)
+        self.__custom_col_layouts = [top_layout, left_layout, right_layout]
+
 
     def validate_isbn(self, isbn):
         isbn = unicode(isbn).strip()
@@ -675,6 +697,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     self.db.set_cover(self.id, self.cover_data)
                 else:
                     self.db.remove_cover(self.id)
+            for w in getattr(self, 'custom_column_widgets', []):
+                w.commit(self.id)
         except IOError, err:
             if err.errno == 13: # Permission denied
                 fname = err.filename if err.filename else 'file'
