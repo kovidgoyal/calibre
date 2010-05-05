@@ -160,7 +160,7 @@ class Comments(Base):
         self._layout = QVBoxLayout()
         self._tb = QPlainTextEdit(self._box)
         self._tb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self._tb.setTabChangesFocus()
+        self._tb.setTabChangesFocus(True)
         self._layout.addWidget(self._tb)
         self._box.setLayout(self._layout)
         self.widgets = [self._box]
@@ -274,4 +274,7 @@ def populate_single_metadata_page(left, right, db, book_id, parent=None):
          right.setRowStretch(right.rowCount()-1, 100)
 
     return ans, items
+
+def populate_bulk_metadata_page(left, right, db, book_id, parent=None):
+    pass
 
