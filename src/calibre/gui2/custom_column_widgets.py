@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys
+from functools import partial
 
 from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
         QDate, QGroupBox, QVBoxLayout, QPlainTextEdit, QSizePolicy, \
@@ -18,10 +19,11 @@ from calibre.utils.config import tweaks
 
 class Base(object):
 
-    def __init__(self, db, col_id):
+    def __init__(self, db, col_id, parent=None):
         self.db, self.col_id = db, col_id
         self.col_metadata = db.custom_column_num_map[col_id]
         self.initial_val = None
+        self.setup_ui(parent)
 
     def initialize(self, book_id):
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
@@ -43,8 +45,7 @@ class Base(object):
 
 class Bool(Base):
 
-    def __init__(self, db, col_id, parent=None):
-        Base.__init__(self, db, col_id)
+    def setup_ui(self, parent):
         self.widgets = [QLabel('&'+self.col_metadata['name'], parent),
                 QComboBox(parent)]
         w = self.widgets[1]
@@ -69,8 +70,7 @@ class Bool(Base):
 
 class Int(Base):
 
-    def __init__(self, db, col_id, parent=None):
-        Base.__init__(self, db, col_id)
+    def setup_ui(self, parent):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QSpinBox(parent)]
         w = self.widgets[1]
@@ -93,8 +93,7 @@ class Int(Base):
 
 class Float(Int):
 
-    def __init__(self, db, col_id, parent=None):
-        Base.__init__(self, db, col_id)
+    def setup_ui(self, parent):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QDoubleSpinBox(parent)]
         w = self.widgets[1]
@@ -103,8 +102,8 @@ class Float(Int):
 
 class Rating(Int):
 
-    def __init__(self, db, col_id, parent=None):
-        Int.__init__(self, db, col_id)
+    def setup_ui(self, parent):
+        Int.setup_ui(self, parent)
         w = self.widgets[1]
         w.setRange(0, 5)
         w.setSuffix(' '+_('stars'))
@@ -125,8 +124,7 @@ class Rating(Int):
 
 class DateTime(Base):
 
-    def __init__(self, db, col_id, parent=None):
-        Base.__init__(self, db, col_id)
+    def setup_ui(self, parent):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QDateEdit(parent)]
         w = self.widgets[1]
@@ -153,8 +151,7 @@ class DateTime(Base):
 
 class Comments(Base):
 
-    def __init__(self, db, col_id, parent=None):
-        Base.__init__(self, db, col_id)
+    def setup_ui(self, parent):
         self._box = QGroupBox(parent)
         self._box.setTitle('&'+self.col_metadata['name'])
         self._layout = QVBoxLayout()
@@ -178,9 +175,8 @@ class Comments(Base):
 
 class Text(Base):
 
-    def __init__(self, db, col_id, parent=None):
-        Base.__init__(self, db, col_id)
-        values = self.all_values = list(self.db.all_custom(num=col_id))
+    def setup_ui(self, parent):
+        values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
         if self.col_metadata['is_multiple']:
             w = TagsLineEdit(parent, values)
@@ -238,16 +234,16 @@ widgets = {
         'comments': Comments,
 }
 
+def field_sort(y, z, x=None):
+    m1, m2 = x[y], x[z]
+    n1 = 'zzzzz' if m1['datatype'] == 'comments' else m1['name']
+    n2 = 'zzzzz' if m2['datatype'] == 'comments' else m2['name']
+    return cmp(n1.lower(), n2.lower())
+
 def populate_single_metadata_page(left, right, db, book_id, parent=None):
     x = db.custom_column_num_map
     cols = list(x)
-    def field_sort(y, z):
-        m1, m2 = x[y], x[z]
-        n1 = 'zzzzz' if m1['datatype'] == 'comments' else m1['name']
-        n2 = 'zzzzz' if m2['datatype'] == 'comments' else m2['name']
-        return cmp(n1.lower(), n2.lower())
-
-    cols.sort(cmp=field_sort)
+    cols.sort(cmp=partial(field_sort, x=x))
     ans = []
     for i, col in enumerate(cols):
         w = widgets[x[col]['datatype']](db, col, parent)
@@ -275,6 +271,91 @@ def populate_single_metadata_page(left, right, db, book_id, parent=None):
 
     return ans, items
 
-def populate_bulk_metadata_page(left, right, db, book_id, parent=None):
+class BulkBase(Base):
+
+    def get_initial_value(self, book_ids):
+        values = set([])
+        for book_id in book_ids:
+            val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+            if isinstance(val, list):
+                val = frozenset(val)
+            values.add(val)
+            if len(values) > 1:
+                break
+        ans = None
+        if len(values) == 1:
+            ans = iter(values).next()
+        if isinstance(ans, frozenset):
+            ans = list(ans)
+        return ans
+
+    def initialize(self, book_ids):
+        self.initial_val = val = self.get_initial_value(book_ids)
+        val = self.normalize_db_val(val)
+        self.setter(val)
+
+    def commit(self, book_ids, notify=False):
+        val = self.getter()
+        val = self.normalize_ui_val(val)
+        if val != self.initial_val:
+            for book_id in book_ids:
+                self.db.set_custom(book_id, val, num=self.col_id, notify=notify)
+
+class BulkBool(BulkBase, Bool):
     pass
+
+class BulkRating(BulkBase, Rating):
+    pass
+
+class BulkInt(BulkBase, Int):
+    pass
+
+class BulkFloat(BulkBase, Float):
+    pass
+
+class BulkRating(BulkBase, Rating):
+    pass
+
+class BulkDateTime(BulkBase, DateTime):
+    pass
+
+class BulkText(BulkBase, Text):
+    pass
+
+bulk_widgets = {
+        'bool' : BulkBool,
+        'rating' : BulkRating,
+        'int': BulkInt,
+        'float': BulkFloat,
+        'datetime': BulkDateTime,
+        'text' : BulkText,
+}
+
+def populate_bulk_metadata_page(layout, db, book_ids, parent=None):
+    x = db.custom_column_num_map
+    cols = list(x)
+    cols.sort(cmp=partial(field_sort, x=x))
+    ans = []
+    for i, col in enumerate(cols):
+        dt = x[col]['datatype']
+        if dt == 'comments':
+            continue
+        w = bulk_widgets[dt](db, col, parent)
+        ans.append(w)
+        w.initialize(book_ids)
+        row = layout.rowCount()
+        if len(w.widgets) == 1:
+            layout.addWidget(w.widgets[0], row, 0, 1, -1)
+        else:
+            w.widgets[0].setBuddy(w.widgets[1])
+            for c, widget in enumerate(w.widgets):
+                layout.addWidget(widget, row, c)
+    items = []
+    if len(ans) > 0:
+        items.append(QSpacerItem(10, 10, QSizePolicy.Minimum,
+            QSizePolicy.Expanding))
+        layout.addItem(items[-1], layout.rowCount(), 0, 1, 1)
+        layout.setRowStretch(layout.rowCount()-1, 100)
+
+    return ans, items
 

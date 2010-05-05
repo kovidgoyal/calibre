@@ -3,8 +3,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Dialog to edit metadata in bulk'''
 
+import sip
 from PyQt4.QtCore import SIGNAL, QObject
-from PyQt4.QtGui import QDialog
+from PyQt4.QtGui import QDialog, QGridLayout
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -48,7 +49,17 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.exec_()
 
     def create_custom_column_editors(self):
-        pass
+        w = self.central_widget.widget(1)
+        layout = QGridLayout()
+
+        self.custom_column_widgets, self.__cc_spacers = populate_bulk_metadata_page(
+                layout, self.db, self.ids, w)
+        #sip.delete(w.layout())
+        w.setLayout(layout)
+        self.__custom_col_layouts = [layout]
+        ans = self.custom_column_widgets
+        for i in range(len(ans)-1):
+            w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[-1])
 
     def initialize_combos(self):
         self.initalize_authors()
