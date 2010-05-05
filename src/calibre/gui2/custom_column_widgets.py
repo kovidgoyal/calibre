@@ -160,6 +160,7 @@ class Comments(Base):
         self._layout = QVBoxLayout()
         self._tb = QPlainTextEdit(self._box)
         self._tb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self._tb.setTabChangesFocus()
         self._layout.addWidget(self._tb)
         self._box.setLayout(self._layout)
         self.widgets = [self._box]
