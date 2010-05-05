@@ -258,9 +258,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.device_info = ' '
         if not opts.no_update_check:
             self.update_checker = CheckForUpdates(self)
-            QObject.connect(self.update_checker,
-                    SIGNAL('update_found(PyQt_PyObject)'), self.update_found)
-            self.update_checker.start(2000)
+            self.update_checker.update_found.connect(self.update_found,
+                    type=Qt.QueuedConnection)
+            self.update_checker.start()
         ####################### Status Bar #####################
         self.status_bar.initialize(self.system_tray_icon)
         self.status_bar.show_book_info.connect(self.show_book_info)
@@ -2493,7 +2493,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if write_settings:
             self.write_settings()
         self.check_messages_timer.stop()
-        self.update_checker.stop()
+        self.update_checker.terminate()
         self.listener.close()
         self.job_manager.server.close()
         while self.spare_servers:
