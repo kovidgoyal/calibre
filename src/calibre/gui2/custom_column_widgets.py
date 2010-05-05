@@ -320,7 +320,23 @@ class BulkDateTime(BulkBase, DateTime):
     pass
 
 class BulkText(BulkBase, Text):
-    pass
+
+    def initialize(self, book_ids):
+        val = self.get_initial_value(book_ids)
+        self.initial_val = val = self.normalize_db_val(val)
+        if self.col_metadata['is_multiple']:
+            self.setter(val)
+            self.widgets[1].update_tags_cache(self.all_values)
+        else:
+            idx = None
+            for i, c in enumerate(self.all_values):
+                if c == val:
+                    idx = i
+                self.widgets[1].addItem(c)
+            self.widgets[1].setEditText('')
+            if idx is not None:
+                self.widgets[1].setCurrentIndex(idx)
+
 
 bulk_widgets = {
         'bool' : BulkBool,

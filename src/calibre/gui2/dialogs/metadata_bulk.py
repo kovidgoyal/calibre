@@ -3,7 +3,6 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Dialog to edit metadata in bulk'''
 
-import sip
 from PyQt4.QtCore import SIGNAL, QObject
 from PyQt4.QtGui import QDialog, QGridLayout
 
@@ -54,7 +53,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         self.custom_column_widgets, self.__cc_spacers = populate_bulk_metadata_page(
                 layout, self.db, self.ids, w)
-        #sip.delete(w.layout())
         w.setLayout(layout)
         self.__custom_col_layouts = [layout]
         ans = self.custom_column_widgets
@@ -154,6 +152,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     self.db.set_authors(id, new_authors, notify=False)
 
             self.changed = True
+        for w in getattr(self, 'custom_column_widgets', []):
+            w.commit(self.ids)
+
 
     def series_changed(self):
         self.write_series = True
