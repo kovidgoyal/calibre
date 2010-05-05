@@ -273,6 +273,12 @@ class SchemaUpgrade(object):
         'Add restricted Tag Browser views'
         def create_tag_browser_view(table_name, column_name, view_column_name):
             script = ('''
+                DROP VIEW IF EXISTS tag_browser_{tn};
+                CREATE VIEW tag_browser_{tn} AS SELECT
+                    id,
+                    {vcn},
+                    (SELECT COUNT(id) FROM books_{tn}_link WHERE {cn}={tn}.id) count
+                FROM {tn};
                 DROP VIEW IF EXISTS tag_browser_filtered_{tn};
                 CREATE VIEW tag_browser_filtered_{tn} AS SELECT
                     id,
@@ -286,5 +292,3 @@ class SchemaUpgrade(object):
         for tn, cn in self.tag_browser_categories.items():
             if tn != 'news':
                 create_tag_browser_view(tn, cn[0], cn[1])
-
-

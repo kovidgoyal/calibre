@@ -126,8 +126,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 'publishers': ['publisher', 'name'],
                 'authors'   : ['author', 'name'],
                 'news'      : ['news', 'name'],
+                'ratings'   : ['rating', 'rating']
         }
-        self.tag_browser_formatters = {}
+        self.tag_browser_formatters = {'ratings': lambda x:u'\u2605'*int(round(x/2.))}
 
         self.connect()
         self.is_case_sensitive = not iswindows and not isosx and \
