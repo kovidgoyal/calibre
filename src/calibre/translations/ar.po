@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-04-30 23:45+0000\n"
-"PO-Revision-Date: 2010-04-30 17:04+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-05-04 18:08+0000\n"
+"Last-Translator: meshari alnaim <Unknown>\n"
 "Language-Team: Arabic <ar@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-01 03:51+0000\n"
+"X-Launchpad-Export-Date: 2010-05-05 03:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -537,7 +537,7 @@ msgstr "التواصل مع القارئ الكتاب الاليكترونى IRe
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:42
 msgid "Communicate with the IRex Digital Reader 800"
-msgstr ""
+msgstr "اﻹتصال مع الـ IRex Digital Reader 800"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iriver/driver.py:15
 msgid "Communicate with the Iriver Story reader."
@@ -561,7 +561,7 @@ msgstr "التواصل مع القارئ الكتاب الاليكترونى Kin
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:15
 msgid "Communicate with the Palm Pre"
-msgstr ""
+msgstr "الإتصال مع جهاز البالم بري"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -610,6 +610,8 @@ msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device. Possibilities include: "
 msgstr ""
+"ضع علامة الفاصلة للفصل بين مجموعة من البيانات الوصفية لكي تكون مجموعة في "
+"الجهاز . و تشمل الاحتمالات التالية: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:139
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:141
@@ -636,7 +638,7 @@ msgstr "التواصل مع قارئات الكتاب الاليكتروني س�
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
-msgstr ""
+msgstr "الإتصال مع جهاز قارئ الكتب الالكترونية Samsung SNE ."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3 reader."
@@ -652,11 +654,11 @@ msgstr "غير قادر على الكشف عن %s نقطة التحميل. حا�
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:490
 msgid "Unable to detect the %s disk drive."
-msgstr ""
+msgstr "غير قادر على اكتشاف عن الذاكرة"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:583
 msgid "Could not find mount helper: %s."
-msgstr ""
+msgstr "غير قادر على جلب المساعد : %s ."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:595
 msgid ""
@@ -728,7 +730,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:28
 msgid "Communicate with an eBook reader."
-msgstr ""
+msgstr "الاتصال مع جهاز قارئ إلكتروني ."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:36
 msgid "Get device information..."
@@ -737,7 +739,7 @@ msgstr "يجري إحصاء معلومات الجهاز..."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:132
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:140
 msgid "Adding books to device metadata listing..."
-msgstr ""
+msgstr "إضافة كتب لقائمة للبيانات الوصفية للجهاز"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:165
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:170
@@ -861,7 +863,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:286
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
-msgstr ""
+msgstr "حافظ على نسبة وضوح الصورة . افتراضياً يجب تملأ الشاشة ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:288
 msgid "Disable sharpening."
@@ -958,7 +960,7 @@ msgstr "خيارات الدخل"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:98
 msgid "Options to control the processing of the input %s file"
-msgstr ""
+msgstr "خيارات للتحكم في معالجة الملف المدخل %s ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:104
 msgid "OUTPUT OPTIONS"
@@ -966,11 +968,11 @@ msgstr "خيارات الخرج"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:105
 msgid "Options to control the processing of the output %s"
-msgstr ""
+msgstr "خيارات للتحكم في معالجة الملف المُخرج %s ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:119
 msgid "Options to control the look and feel of the output"
-msgstr ""
+msgstr "خيارات للتحكم في الشكل و المظهر للمُخرجات ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:135
 msgid "Control auto-detection of document structure."
@@ -985,23 +987,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:155
 msgid "Options to set metadata in the output"
-msgstr ""
+msgstr "خيارات لوضع البيانات الوصفية في المُخرجات ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:158
 msgid "Options to help with debugging the conversion"
-msgstr ""
+msgstr "خيارات للمساعدة في تصحيح التحويل ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:183
 msgid "List builtin recipes"
-msgstr ""
+msgstr "قائمة من الوصفات المدمجة"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:256
 msgid "Output saved to"
-msgstr ""
+msgstr "المخرجات حُفِظت في"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:94
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
-msgstr ""
+msgstr "مستوى الايضاح . حدد أوقات متعددة لزيادة الايضاح ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:101
 msgid ""
@@ -1009,6 +1011,8 @@ msgid ""
 "specified directory. Useful if you are unsure at which stage of the "
 "conversion process a bug is occurring."
 msgstr ""
+"احفظ المخرجات في مراحل مختلفة من عملية التحويل إلى الدليل المقصود . مفيدة "
+"إذا كنت لا تعلم في أي مرحلة من مراحل التحويل تظهر العلة ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:110
 msgid ""
