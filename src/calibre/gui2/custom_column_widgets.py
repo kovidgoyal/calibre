@@ -98,7 +98,7 @@ class Float(Int):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QDoubleSpinBox(parent)]
         w = self.widgets[1]
-        self.setRange(-100., float(sys.maxint))
+        w.setRange(-100., float(sys.maxint))
         w.setDecimals(2)
 
 class Rating(Int):
