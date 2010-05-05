@@ -636,7 +636,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     tooltip = self.custom_column_label_map[category]['name']
             formatter = self.tag_browser_formatters.get(tn, lambda x: x)
             categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0], icon=icon, tooltip = tooltip)
-                                        for r in data if r[2] > 0]
+                                        for r in data
+                                            if r[2] > 0 and (category != 'rating' or len(formatter(r[1])) > 0)]
         categories['format'] = []
         for fmt in self.conn.get('SELECT DISTINCT format FROM data'):
             fmt = fmt[0]

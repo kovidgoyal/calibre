@@ -281,6 +281,10 @@ class ResultCache(SearchQueryParser):
         matches = set([])
         if len(query) == 0:
             return matches
+        if query == 'false':
+            query = '0'
+        elif query == 'true':
+            query = '>0'
         relop = None
         for k in self.rating_search_relops.keys():
             if query.startswith(k):
@@ -298,8 +302,13 @@ class ResultCache(SearchQueryParser):
             loc = self.FIELD_MAP['rating']
 
         for item in self._data:
-            if item is None or item[loc] is None: continue
-            if relop(item[loc]/2, r):
+            if item is None:
+                continue
+            if not item[loc]:
+                i = 0
+            else:
+                i = item[loc]/2
+            if relop(i, r):
                 matches.add(item[0])
         return matches
 
@@ -312,13 +321,13 @@ class ResultCache(SearchQueryParser):
             if (location in ('pubdate', 'date')) or \
                     ((location in self.custom_column_label_map) and \
                      self.custom_column_label_map[location]['datatype'] == 'datetime'):
-                return self.get_dates_matches(location, query)
+                return self.get_dates_matches(location, query.lower())
 
             ### take care of ratings special case
             if location == 'rating' or \
                     ((location in self.custom_column_label_map) and \
                      self.custom_column_label_map[location]['datatype'] == 'rating'):
-                return self.get_ratings_matches(location, query)
+                return self.get_ratings_matches(location, query.lower())
 
             ### everything else
             matchkind = CONTAINS_MATCH
