@@ -98,7 +98,7 @@ class Float(Int):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QDoubleSpinBox(parent)]
         w = self.widgets[1]
-        self.setRange(-100., float(sys.maxint))
+        w.setRange(-100., float(sys.maxint))
         w.setDecimals(2)
 
 class Rating(Int):
@@ -160,6 +160,7 @@ class Comments(Base):
         self._layout = QVBoxLayout()
         self._tb = QPlainTextEdit(self._box)
         self._tb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self._tb.setTabChangesFocus()
         self._layout.addWidget(self._tb)
         self._box.setLayout(self._layout)
         self.widgets = [self._box]
@@ -240,7 +241,13 @@ widgets = {
 def populate_single_metadata_page(left, right, db, book_id, parent=None):
     x = db.custom_column_num_map
     cols = list(x)
-    cols.sort(cmp=lambda z,y: cmp(x[z]['name'].lower(), x[y]['name'].lower()))
+    def field_sort(y, z):
+        m1, m2 = x[y], x[z]
+        n1 = 'zzzzz' if m1['datatype'] == 'comments' else m1['name']
+        n2 = 'zzzzz' if m2['datatype'] == 'comments' else m2['name']
+        return cmp(n1.lower(), n2.lower())
+
+    cols.sort(cmp=field_sort)
     ans = []
     for i, col in enumerate(cols):
         w = widgets[x[col]['datatype']](db, col, parent)

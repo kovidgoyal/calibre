@@ -416,6 +416,9 @@
                  <layout class="QGridLayout" name="gridLayout_4">
                   <item row="0" column="0">
                    <widget class="QTextEdit" name="comments">
+                    <property name="tabChangesFocus">
+                     <bool>true</bool>
+                    </property>
                     <property name="acceptRichText">
                      <bool>false</bool>
                     </property>

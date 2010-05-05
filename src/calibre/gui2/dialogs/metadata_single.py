@@ -426,6 +426,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         sip.delete(w.layout())
         w.setLayout(top_layout)
         self.__custom_col_layouts = [top_layout, left_layout, right_layout]
+        ans = self.custom_column_widgets
+        for i in range(len(ans)-1):
+            w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[-1])
+
 
 
     def validate_isbn(self, isbn):
