@@ -240,7 +240,13 @@ widgets = {
 def populate_single_metadata_page(left, right, db, book_id, parent=None):
     x = db.custom_column_num_map
     cols = list(x)
-    cols.sort(cmp=lambda z,y: cmp(x[z]['name'].lower(), x[y]['name'].lower()))
+    def field_sort(y, z):
+        m1, m2 = x[y], x[z]
+        n1 = 'zzzzz' if m1['datatype'] == 'comments' else m1['name']
+        n2 = 'zzzzz' if m2['datatype'] == 'comments' else m2['name']
+        return cmp(n1.lower(), n2.lower())
+
+    cols.sort(cmp=field_sort)
     ans = []
     for i, col in enumerate(cols):
         w = widgets[x[col]['datatype']](db, col, parent)
