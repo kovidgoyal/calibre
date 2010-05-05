@@ -158,9 +158,10 @@ class ResultCache(SearchQueryParser):
         SearchQueryParser.__init__(self,
             locations=SearchQueryParser.DEFAULT_LOCATIONS +
             [c for c in cc_label_map])
-        self.build_relop_dict()
+        self.build_date_relop_dict()
+        self.build_rating_relop_dict()
 
-    def build_relop_dict(self):
+    def build_date_relop_dict(self):
         '''
         Because the database dates have time in them, we can't use direct
         comparisons even when field_count == 3. The query has time = 0, but
@@ -204,8 +205,17 @@ class ResultCache(SearchQueryParser):
         def relop_le(db, query, field_count):
             return not relop_gt(db, query, field_count)
 
-        self.search_relops = {'=':[1, relop_eq],  '>':[1, relop_gt],  '<':[1, relop_lt], \
+        self.date_search_relops = {'=':[1, relop_eq],  '>':[1, relop_gt],  '<':[1, relop_lt], \
                               '!=':[2, relop_ne], '>=':[2, relop_ge], '<=':[2, relop_le]}
+
+    def build_rating_relop_dict(self):
+        self.rating_search_relops = {
+                        '=':[1, lambda r, q: r == q],
+                        '>':[1, lambda r, q: r > q],
+                        '<':[1, lambda r, q: r < q],
+                        '!=':[2, lambda r, q: r != q],
+                        '>=':[2, lambda r, q: r >= q],
+                        '<=':[2, lambda r, q: r <= q]}
 
     def __getitem__(self, row):
         return self._data[self._map_filtered[row]]
@@ -220,17 +230,17 @@ class ResultCache(SearchQueryParser):
     def universal_set(self):
         return set([i[0] for i in self._data if i is not None])
 
-    def get_matches_dates(self, location, query):
+    def get_dates_matches(self, location, query):
         matches = set([])
         if len(query) < 2:
             return matches
         relop = None
-        for k in self.search_relops.keys():
+        for k in self.date_search_relops.keys():
             if query.startswith(k):
-                (p, relop) = self.search_relops[k]
+                (p, relop) = self.date_search_relops[k]
                 query = query[p:]
         if relop is None:
-                (p, relop) = self.search_relops['=']
+                (p, relop) = self.date_search_relops['=']
         if location in self.custom_column_label_map:
             loc = self.FIELD_MAP[self.custom_column_label_map[location]['num']]
         else:
@@ -267,6 +277,32 @@ class ResultCache(SearchQueryParser):
                 matches.add(item[0])
         return matches
 
+    def get_ratings_matches(self, location, query):
+        matches = set([])
+        if len(query) == 0:
+            return matches
+        relop = None
+        for k in self.rating_search_relops.keys():
+            if query.startswith(k):
+                (p, relop) = self.rating_search_relops[k]
+                query = query[p:]
+        if relop is None:
+                (p, relop) = self.rating_search_relops['=']
+        try:
+            r = int(query)
+        except:
+            return matches
+        if location in self.custom_column_label_map:
+            loc = self.FIELD_MAP[self.custom_column_label_map[location]['num']]
+        else:
+            loc = self.FIELD_MAP['rating']
+
+        for item in self._data:
+            if item is None or item[loc] is None: continue
+            if relop(item[loc]/2, r):
+                matches.add(item[0])
+        return matches
+
     def get_matches(self, location, query):
         matches = set([])
         if query and query.strip():
@@ -276,7 +312,13 @@ class ResultCache(SearchQueryParser):
             if (location in ('pubdate', 'date')) or \
                     ((location in self.custom_column_label_map) and \
                      self.custom_column_label_map[location]['datatype'] == 'datetime'):
-                return self.get_matches_dates(location, query)
+                return self.get_dates_matches(location, query)
+
+            ### take care of ratings special case
+            if location == 'rating' or \
+                    ((location in self.custom_column_label_map) and \
+                     self.custom_column_label_map[location]['datatype'] == 'rating'):
+                return self.get_ratings_matches(location, query)
 
             ### everything else
             matchkind = CONTAINS_MATCH
@@ -297,7 +339,8 @@ class ResultCache(SearchQueryParser):
             if location in ('tag', 'author', 'format', 'comment'):
                 location += 's'
 
-            all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series', 'formats', 'isbn', 'rating', 'cover')
+            all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series',
+                   'formats', 'isbn', 'rating', 'cover')
             MAP = {}
 
             for x in all: # get the db columns for the standard searchables
@@ -317,21 +360,22 @@ class ResultCache(SearchQueryParser):
                 if self.custom_column_label_map[x]['is_multiple']:
                     SPLITABLE_FIELDS.append(MAP[x])
 
-            location = [location] if location != 'all' else list(MAP.keys())
-            for i, loc in enumerate(location):
-                location[i] = MAP[loc]
-
             try:
                 rating_query = int(query) * 2
             except:
                 rating_query = None
+
+            location = [location] if location != 'all' else list(MAP.keys())
+            for i, loc in enumerate(location):
+                location[i] = MAP[loc]
 
             # get the tweak here so that the string lookup and compare aren't in the loop
             bools_are_tristate = tweaks['bool_custom_columns_are_tristate'] == 'yes'
 
             for loc in location:
                 if loc == MAP['authors']:
-                    q = query.replace(',', '|');  ### DB stores authors with commas changed to bars, so change query
+                    ### DB stores authors with commas changed to bars, so change query
+                    q = query.replace(',', '|');
                 else:
                     q = query
 
@@ -388,7 +432,8 @@ class ResultCache(SearchQueryParser):
                                 matches.add(item[0])
                             continue
                     except:
-                            continue  ## A conversion threw an exception. Because of the type, no further match possible
+                        # A conversion threw an exception. Because of the type, no further match possible
+                        continue
 
                     if loc not in EXCLUDE_FIELDS:
                         if loc in SPLITABLE_FIELDS:
@@ -397,7 +442,7 @@ class ResultCache(SearchQueryParser):
                             else:
                                 vals = item[loc].split(',')
                         else:
-                            vals = [item[loc]]          ### make into list to make _match happy
+                            vals = [item[loc]] ### make into list to make _match happy
                         if _match(q, vals, matchkind):
                             matches.add(item[0])
                             continue

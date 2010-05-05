@@ -194,15 +194,17 @@ class TagTreeItem(object):
 
 
 class TagsModel(QAbstractItemModel):
-    categories_orig = [_('Authors'), _('Series'), _('Formats'), _('Publishers'), _('News'), _('All tags')]
-    row_map_orig    = ['author', 'series', 'format', 'publisher', 'news', 'tag']
+    categories_orig = [_('Authors'), _('Series'), _('Formats'), _('Publishers'),
+                       _('Ratings'), _('News'), _('All tags')]
+    row_map_orig    = ['author', 'series', 'format', 'publisher', 'rating',
+                       'news', 'tag']
     tags_categories_start= 5
     search_keys=['search', _('Searches')]
 
     def __init__(self, db, parent=None):
         QAbstractItemModel.__init__(self, parent)
         self.cat_icon_map_orig = list(map(QIcon, [I('user_profile.svg'),
-                I('series.svg'), I('book.svg'), I('publisher.png'),
+                I('series.svg'), I('book.svg'), I('publisher.png'), I('star.png'),
                 I('news.svg'), I('tags.svg')]))
         self.icon_state_map = [None, QIcon(I('plus.svg')), QIcon(I('minus.svg'))]
         self.custcol_icon = QIcon(I('column.svg'))
@@ -430,9 +432,12 @@ class TagsModel(QAbstractItemModel):
                 if tag.state > 0:
                     prefix = ' not ' if tag.state == 2 else ''
                     category = key if key != 'news' else 'tag'
-                    if category == 'tag':
-                        if tag.name in tags_seen:
-                            continue
-                        tags_seen.append(tag.name)
-                    ans.append('%s%s:"=%s"'%(prefix, category, tag.name))
+                    if tag.name[0] == u'\u2605': # char is a star. Assume rating
+                        ans.append('%s%s:%s'%(prefix, category, len(tag.name)))
+                    else:
+                        if category == 'tag':
+                            if tag.name in tags_seen:
+                                continue
+                            tags_seen.append(tag.name)
+                        ans.append('%s%s:"=%s"'%(prefix, category, tag.name))
         return ans
