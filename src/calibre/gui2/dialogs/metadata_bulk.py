@@ -10,6 +10,7 @@ from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string, \
     authors_to_string
+from calibre.gui2.custom_column_widgets import populate_bulk_metadata_page
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
@@ -19,7 +20,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.setupUi(self)
         self.db = db
         self.ids = [db.id(r) for r in rows]
-        self.groupBox.setTitle(_('Editing meta information for %d books') %
+        self.box_title.setText('<p>' +
+                _('Editing meta information for <b>%d books</b>') %
                 len(rows))
         self.write_series = False
         self.changed = False
@@ -38,8 +40,15 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.series_changed)
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.series_changed)
         QObject.connect(self.tag_editor_button, SIGNAL('clicked()'), self.tag_editor)
+        if len(db.custom_column_label_map) == 0:
+            self.central_widget.tabBar().setVisible(False)
+        else:
+            self.create_custom_column_editors()
 
         self.exec_()
+
+    def create_custom_column_editors(self):
+        pass
 
     def initialize_combos(self):
         self.initalize_authors()

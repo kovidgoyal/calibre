@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>495</width>
-    <height>468</height>
+    <width>526</width>
+    <height>499</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,6 +19,16 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QLabel" name="box_title">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QVBoxLayout">
      <property name="spacing">
       <number>6</number>
@@ -27,239 +37,249 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="title">
-        <string>Meta information</string>
+      <widget class="QTabWidget" name="central_widget">
+       <property name="currentIndex">
+        <number>0</number>
        </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>&amp;Author(s): </string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="buddy">
-           <cstring>authors</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QCheckBox" name="auto_author_sort">
-          <property name="text">
-           <string>A&amp;utomatically set author sort</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_8">
-          <property name="text">
-           <string>Author s&amp;ort: </string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="buddy">
-           <cstring>author_sort</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1" colspan="2">
-         <widget class="EnLineEdit" name="author_sort">
-          <property name="toolTip">
-           <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>&amp;Rating:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="buddy">
-           <cstring>rating</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1" colspan="2">
-         <widget class="QSpinBox" name="rating">
-          <property name="toolTip">
-           <string>Rating of this book. 0-5 stars</string>
-          </property>
-          <property name="whatsThis">
-           <string>Rating of this book. 0-5 stars</string>
-          </property>
-          <property name="buttonSymbols">
-           <enum>QAbstractSpinBox::PlusMinus</enum>
-          </property>
-          <property name="specialValueText">
-           <string>No change</string>
-          </property>
-          <property name="suffix">
-           <string> stars</string>
-          </property>
-          <property name="minimum">
-           <number>-1</number>
-          </property>
-          <property name="maximum">
-           <number>5</number>
-          </property>
-          <property name="value">
-           <number>-1</number>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>&amp;Publisher: </string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="buddy">
-           <cstring>publisher</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="EnComboBox" name="publisher">
-          <property name="editable">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Add ta&amp;gs: </string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="buddy">
-           <cstring>tags</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="TagsLineEdit" name="tags">
-          <property name="toolTip">
-           <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="2">
-         <widget class="QToolButton" name="tag_editor_button">
-          <property name="toolTip">
-           <string>Open Tag Editor</string>
-          </property>
-          <property name="text">
-           <string>Open Tag Editor</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../../../../resources/images.qrc">
-            <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>&amp;Remove tags:</string>
-          </property>
-          <property name="buddy">
-           <cstring>remove_tags</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1" colspan="2">
-         <widget class="TagsLineEdit" name="remove_tags">
-          <property name="toolTip">
-           <string>Comma separated list of tags to remove from the books. </string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>&amp;Series:</string>
-          </property>
-          <property name="textFormat">
-           <enum>Qt::PlainText</enum>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="buddy">
-           <cstring>series</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="1">
-         <widget class="EnComboBox" name="series">
-          <property name="toolTip">
-           <string>List of known series. You can add new series.</string>
-          </property>
-          <property name="whatsThis">
-           <string>List of known series. You can add new series.</string>
-          </property>
-          <property name="editable">
-           <bool>true</bool>
-          </property>
-          <property name="insertPolicy">
-           <enum>QComboBox::InsertAlphabetically</enum>
-          </property>
-          <property name="sizeAdjustPolicy">
-           <enum>QComboBox::AdjustToContents</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Remove &amp;format:</string>
-          </property>
-          <property name="buddy">
-           <cstring>remove_format</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="1">
-         <widget class="QComboBox" name="remove_format"/>
-        </item>
-        <item row="0" column="1">
-         <widget class="EnComboBox" name="authors">
-          <property name="editable">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="0" colspan="2">
-         <widget class="QCheckBox" name="swap_title_and_author">
-          <property name="text">
-           <string>&amp;Swap title and author</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="1">
-         <widget class="QCheckBox" name="autonumber_series">
-          <property name="toolTip">
-           <string>Selected books will be automatically numbered,
+       <widget class="QWidget" name="tabWidgetPage1">
+        <attribute name="title">
+         <string>&amp;Basic metadata</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>&amp;Author(s): </string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="buddy">
+            <cstring>authors</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="auto_author_sort">
+           <property name="text">
+            <string>A&amp;utomatically set author sort</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Author s&amp;ort: </string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="buddy">
+            <cstring>author_sort</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" colspan="2">
+          <widget class="EnLineEdit" name="author_sort">
+           <property name="toolTip">
+            <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>&amp;Rating:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="buddy">
+            <cstring>rating</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" colspan="2">
+          <widget class="QSpinBox" name="rating">
+           <property name="toolTip">
+            <string>Rating of this book. 0-5 stars</string>
+           </property>
+           <property name="whatsThis">
+            <string>Rating of this book. 0-5 stars</string>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::PlusMinus</enum>
+           </property>
+           <property name="specialValueText">
+            <string>No change</string>
+           </property>
+           <property name="suffix">
+            <string> stars</string>
+           </property>
+           <property name="minimum">
+            <number>-1</number>
+           </property>
+           <property name="maximum">
+            <number>5</number>
+           </property>
+           <property name="value">
+            <number>-1</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>&amp;Publisher: </string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="buddy">
+            <cstring>publisher</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="EnComboBox" name="publisher">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Add ta&amp;gs: </string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="buddy">
+            <cstring>tags</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="TagsLineEdit" name="tags">
+           <property name="toolTip">
+            <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QToolButton" name="tag_editor_button">
+           <property name="toolTip">
+            <string>Open Tag Editor</string>
+           </property>
+           <property name="text">
+            <string>Open Tag Editor</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../../resources/images.qrc">
+             <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>&amp;Remove tags:</string>
+           </property>
+           <property name="buddy">
+            <cstring>remove_tags</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1" colspan="2">
+          <widget class="TagsLineEdit" name="remove_tags">
+           <property name="toolTip">
+            <string>Comma separated list of tags to remove from the books. </string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>&amp;Series:</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::PlainText</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="buddy">
+            <cstring>series</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="EnComboBox" name="series">
+           <property name="toolTip">
+            <string>List of known series. You can add new series.</string>
+           </property>
+           <property name="whatsThis">
+            <string>List of known series. You can add new series.</string>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <property name="insertPolicy">
+            <enum>QComboBox::InsertAlphabetically</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Remove &amp;format:</string>
+           </property>
+           <property name="buddy">
+            <cstring>remove_format</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="1">
+          <widget class="QComboBox" name="remove_format"/>
+         </item>
+         <item row="0" column="1">
+          <widget class="EnComboBox" name="authors">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0" colspan="2">
+          <widget class="QCheckBox" name="swap_title_and_author">
+           <property name="text">
+            <string>&amp;Swap title and author</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QCheckBox" name="autonumber_series">
+           <property name="toolTip">
+            <string>Selected books will be automatically numbered,
 in the order you selected them.
 So if you selected Book A and then Book B,
 Book A will have series number 1 and Book B series number 2.</string>
-          </property>
-          <property name="text">
-           <string>Automatically number books in this series</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+           </property>
+           <property name="text">
+            <string>Automatically number books in this series</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab">
+        <attribute name="title">
+         <string>&amp;Custom metadata</string>
+        </attribute>
+       </widget>
       </widget>
      </item>
     </layout>
@@ -339,22 +359,6 @@ Book A will have series number 1 and Book B series number 2.</string>
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>auto_author_sort</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>author_sort</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>240</x>
-     <y>95</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>240</x>
-     <y>113</y>
     </hint>
    </hints>
   </connection>
