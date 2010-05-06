@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, textwrap, traceback, re, shutil, functools
+import os, textwrap, traceback, re, shutil, functools, sys
 
 from operator import attrgetter
 from math import cos, sin, pi
@@ -10,7 +10,7 @@ from contextlib import closing
 from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
-                        QIcon, QImage, QMenu, \
+                        QIcon, QImage, QMenu, QSpinBox, QDoubleSpinBox, \
                         QStyledItemDelegate, QCompleter, QIntValidator, \
                         QDoubleValidator, QComboBox
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
@@ -186,12 +186,18 @@ class CcTextDelegate(QStyledItemDelegate):
         m = index.model()
         col = m.column_map[index.column()]
         typ = m.custom_columns[col]['datatype']
-        editor = EnLineEdit(parent)
         if typ == 'int':
-            editor.setValidator(QIntValidator(parent))
+            editor = QSpinBox(parent)
+            editor.setRange(-100, sys.maxint)
+            editor.setSpecialValueText(_('Undefined'))
+            editor.setSingleStep(1)
         elif typ == 'float':
-            editor.setValidator(QDoubleValidator(parent))
+            editor = QDoubleSpinBox(parent)
+            editor.setSpecialValueText(_('Undefined'))
+            editor.setRange(-100., float(sys.maxint))
+            editor.setDecimals(2)
         else:
+            editor = EnLineEdit(parent)
             complete_items = sorted(list(m.db.all_custom(label=col)))
             completer = QCompleter(complete_items, self)
             completer.setCaseSensitivity(Qt.CaseInsensitive)
