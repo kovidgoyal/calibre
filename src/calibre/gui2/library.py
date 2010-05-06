@@ -11,8 +11,8 @@ from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
                         QIcon, QImage, QMenu, QSpinBox, QDoubleSpinBox, \
-                        QStyledItemDelegate, QCompleter, QIntValidator, \
-                        QDoubleValidator, QComboBox
+                        QStyledItemDelegate, QCompleter, \
+                        QComboBox
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
                          SIGNAL, QObject, QSize, QModelIndex, QDate
 
