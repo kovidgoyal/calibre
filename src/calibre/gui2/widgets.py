@@ -14,7 +14,7 @@ from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QMenu, QStringListModel, QCompleter, QStringList
 
 from calibre.gui2 import human_readable, NONE, TableView, \
-                         error_dialog, pixmap_to_data
+                         error_dialog, pixmap_to_data, dynamic
 from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
@@ -991,7 +991,9 @@ class Splitter(QSplitter):
     def createHandle(self):
         return SplitterHandle(self.orientation(), self)
 
-    def initialize(self):
+    def initialize(self, name=None):
+        if name is not None:
+            self._name = name
         for i in range(self.count()):
             h = self.handle(i)
             if h is not None:
@@ -1014,13 +1016,23 @@ class Splitter(QSplitter):
         self.double_clicked(None)
 
     def double_clicked(self, handle):
+        visible = not self.is_side_index_hidden
         sizes = list(self.sizes())
         if 0 in sizes:
             idx = sizes.index(0)
             sizes[idx] = 80
         else:
             sizes[self.side_index] = 0
-        self.setSizes(sizes)
+
+        if visible:
+            dynamic.set(self._name + '_last_open_state', str(self.saveState()))
+            self.setSizes(sizes)
+        else:
+            state = dynamic.get(self._name+  '_last_open_state', None)
+            if state is not None:
+                self.restoreState(state)
+            else:
+                self.setSizes(sizes)
         self.initialize()
 
 
