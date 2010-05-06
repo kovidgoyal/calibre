@@ -186,6 +186,7 @@ class BooksModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
         self.column_map = config['column_map']
+        self.column_map = [x for x in self.column_map if x in self.headers]
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
                               'tags', 'series', 'timestamp', 'pubdate']
         self.default_image = QImage(I('book.svg'))
@@ -202,6 +203,7 @@ class BooksModel(QAbstractTableModel):
     def read_config(self):
         self.use_roman_numbers = config['use_roman_numerals_for_series_number']
         cols = config['column_map']
+        cols = [x for x in cols if x in self.headers]
         if cols != self.column_map:
             self.column_map = cols
             self.reset()
