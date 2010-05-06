@@ -39,7 +39,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         category_icons  = [None, QIcon(I('user_profile.svg')), QIcon(I('series.svg')),
                            QIcon(I('publisher.png')), QIcon(I('tags.svg'))]
         category_values = [None,
-                           lambda: [n for (id, n) in self.db.all_authors()],
+                           lambda: [n.replace('|', ',') for (id, n) in self.db.all_authors()],
                            lambda: [n for (id, n) in self.db.all_series()],
                            lambda: [n for (id, n) in self.db.all_publishers()],
                            lambda: self.db.all_tags()

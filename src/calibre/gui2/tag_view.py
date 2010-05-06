@@ -195,10 +195,10 @@ class TagTreeItem(object):
 
 class TagsModel(QAbstractItemModel):
     categories_orig = [_('Authors'), _('Series'), _('Formats'), _('Publishers'),
-                       _('Ratings'), _('News'), _('All tags')]
+                       _('Ratings'), _('News'), _('Tags')]
     row_map_orig    = ['author', 'series', 'format', 'publisher', 'rating',
                        'news', 'tag']
-    tags_categories_start= 5
+    tags_categories_start= 7
     search_keys=['search', _('Searches')]
 
     def __init__(self, db, parent=None):
@@ -231,7 +231,11 @@ class TagsModel(QAbstractItemModel):
         self.row_map = []
         self.categories = []
         # strip the icons after the 'standard' categories. We will put them back later
-        self.cat_icon_map = self.cat_icon_map_orig[:self.tags_categories_start-len(self.row_map_orig)]
+        if self.tags_categories_start < len(self.row_map_orig):
+            self.cat_icon_map = self.cat_icon_map_orig[:self.tags_categories_start-len(self.row_map_orig)]
+        else:
+            self.cat_icon_map = self.cat_icon_map_orig[:]
+
         self.user_categories = dict.copy(config['user_categories'])
         column_map = config['column_map']
 
@@ -256,12 +260,17 @@ class TagsModel(QAbstractItemModel):
             self.categories.append(self.categories_orig[i])
             self.cat_icon_map.append(self.cat_icon_map_orig[i])
 
+        # Clean up the author's tags, getting rid of the '|' characters
+        if data['author'] is not None:
+            for t in data['author']:
+                t.name = t.name.replace('|', ',')
+
         # Now do the user-defined categories. There is a time/space tradeoff here.
         # By converting the tags into a map, we can do the verification in the category
         # loop much faster, at the cost of duplicating the categories lists.
         taglist = {}
         for c in self.row_map:
-            taglist[c] = dict(map(lambda t:(t.name if c != 'author' else t.name.replace('|', ','), t), data[c]))
+            taglist[c] = dict(map(lambda t:(t.name, t), data[c]))
 
         for c in self.user_categories:
             l = []

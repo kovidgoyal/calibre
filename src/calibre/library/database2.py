@@ -128,7 +128,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 'news'      : ['news', 'name'],
                 'ratings'   : ['rating', 'rating']
         }
-        self.tag_browser_formatters = {'ratings': lambda x:u'\u2605'*int(round(x/2.))}
+        self.tag_browser_datatype = {
+                'tag'       : 'textmult',
+                'series'    : None,
+                'publisher' : 'text',
+                'author'    : 'text',
+                'news'      : None,
+                'rating'    : 'rating',
+        }
+
+        self.tag_browser_formatters = {'rating': lambda x:u'\u2605'*int(round(x/2.))}
 
         self.connect()
         self.is_case_sensitive = not iswindows and not isosx and \
@@ -630,14 +639,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if icon_map:
                 if category in icon_map:
                     icon = icon_map[category]
-                    tooltip = ''
                 else:
                     icon = icon_map['*custom']
                     tooltip = self.custom_column_label_map[category]['name']
-            formatter = self.tag_browser_formatters.get(tn, lambda x: x)
-            categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0], icon=icon, tooltip = tooltip)
-                                        for r in data
-                                            if r[2] > 0 and (category != 'rating' or len(formatter(r[1])) > 0)]
+            datatype = self.tag_browser_datatype[category]
+            formatter = self.tag_browser_formatters.get(datatype, lambda x: x)
+            categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0],
+                                        icon=icon, tooltip = tooltip)
+                                    for r in data
+                                        if r[2] > 0 and
+                                          (datatype != 'rating' or len(formatter(r[1])) > 0)]
         categories['format'] = []
         for fmt in self.conn.get('SELECT DISTINCT format FROM data'):
             fmt = fmt[0]
