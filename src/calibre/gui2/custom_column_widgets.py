@@ -375,14 +375,10 @@ class BulkText(BulkBase):
             ans = original_value
             vals = [v.strip() for v in unicode(self.adding_widget.text()).split(',')]
             for t in vals:
-                print 'adding', t
                 if t not in ans:
                     ans.append(t)
-            print ans
             vals = [v.strip() for v in unicode(self.removing_widget.text()).split(',')]
-            print 'removing', vals
             for t in vals:
-                print 'deleting', t
                 if t in ans:
                     ans.remove(t)
             return ans
