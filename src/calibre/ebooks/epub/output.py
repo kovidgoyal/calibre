@@ -171,6 +171,10 @@ class EPUBOutput(OutputFormatPlugin):
 
         self.workaround_sony_quirks()
 
+        if self.oeb.toc.count() == 0:
+            self.log.warn('This EPUB file has no Table of Contents. It will '
+                    'not validate via epubcheck')
+
         from calibre.ebooks.oeb.base import OPF
         identifiers = oeb.metadata['identifier']
         uuid = None
