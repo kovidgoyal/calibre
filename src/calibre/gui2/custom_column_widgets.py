@@ -294,17 +294,26 @@ class BulkBase(Base):
             ans = list(ans)
         return ans
 
+    def process_each_book(self):
+        return False
+
     def initialize(self, book_ids):
-        self.initial_val = val = self.get_initial_value(book_ids)
-        val = self.normalize_db_val(val)
-        self.setter(val)
+        if not self.process_each_book():
+            self.initial_val = val = self.get_initial_value(book_ids)
+            val = self.normalize_db_val(val)
+            self.setter(val)
 
     def commit(self, book_ids, notify=False):
-        val = self.getter()
-        val = self.normalize_ui_val(val)
-        if val != self.initial_val:
+        if self.process_each_book():
             for book_id in book_ids:
-                self.db.set_custom(book_id, val, num=self.col_id, notify=notify)
+                val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+                self.db.set_custom(book_id, self.getter(val), num=self.col_id, notify=notify)
+        else:
+            val = self.getter()
+            val = self.normalize_ui_val(val)
+            if val != self.initial_val:
+                for book_id in book_ids:
+                    self.db.set_custom(book_id, val, num=self.col_id, notify=notify)
 
 class BulkBool(BulkBase, Bool):
     pass
@@ -321,15 +330,34 @@ class BulkRating(BulkBase, Rating):
 class BulkDateTime(BulkBase, DateTime):
     pass
 
-class BulkText(BulkBase, Text):
+class BulkText(BulkBase):
+
+    def setup_ui(self, parent):
+        values = self.all_values = list(self.db.all_custom(num=self.col_id))
+        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        if self.col_metadata['is_multiple']:
+            w = TagsLineEdit(parent, values)
+            w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+            self.widgets = [QLabel('&'+self.col_metadata['name']+': (tags to add)', parent), w]
+            self.adding_widget = w
+
+            w = TagsLineEdit(parent, values)
+            w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+            self.widgets.append(QLabel('&'+self.col_metadata['name']+': (tags to remove)', parent))
+            self.widgets.append(w)
+            self.removing_widget = w
+        else:
+            w = EnComboBox(parent)
+            w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
+            w.setMinimumContentsLength(25)
+            self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
 
     def initialize(self, book_ids):
-        val = self.get_initial_value(book_ids)
-        self.initial_val = val = self.normalize_db_val(val)
         if self.col_metadata['is_multiple']:
-            self.setter(val)
             self.widgets[1].update_tags_cache(self.all_values)
         else:
+            val = self.get_initial_value(book_ids)
+            self.initial_val = val = self.normalize_db_val(val)
             idx = None
             for i, c in enumerate(self.all_values):
                 if c == val:
@@ -338,6 +366,26 @@ class BulkText(BulkBase, Text):
             self.widgets[1].setEditText('')
             if idx is not None:
                 self.widgets[1].setCurrentIndex(idx)
+
+    def process_each_book(self):
+        return self.col_metadata['is_multiple']
+
+    def getter(self, original_value = None):
+        if self.col_metadata['is_multiple']:
+            ans = original_value
+            vals = [v.strip() for v in unicode(self.adding_widget.text()).split(',')]
+            for t in vals:
+                if t not in ans:
+                    ans.append(t)
+            vals = [v.strip() for v in unicode(self.removing_widget.text()).split(',')]
+            for t in vals:
+                if t in ans:
+                    ans.remove(t)
+            return ans
+        val = unicode(self.widgets[1].currentText()).strip()
+        if not val:
+            val = None
+        return val
 
 
 bulk_widgets = {
@@ -365,9 +413,13 @@ def populate_bulk_metadata_page(layout, db, book_ids, parent=None):
         if len(w.widgets) == 1:
             layout.addWidget(w.widgets[0], row, 0, 1, -1)
         else:
-            w.widgets[0].setBuddy(w.widgets[1])
-            for c, widget in enumerate(w.widgets):
-                layout.addWidget(widget, row, c)
+            c = 0
+            while c < len(w.widgets):
+                w.widgets[c].setBuddy(w.widgets[c+1])
+                layout.addWidget(w.widgets[c], row, c%2)
+                layout.addWidget(w.widgets[c+1], row, (c+1)%2)
+                c += 2
+                row += 1
     items = []
     if len(ans) > 0:
         items.append(QSpacerItem(10, 10, QSizePolicy.Minimum,
