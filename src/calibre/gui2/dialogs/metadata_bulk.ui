@@ -253,7 +253,7 @@
            </property>
           </widget>
          </item>
-         <item row="10" column="0" colspan="2">
+         <item row="11" column="0" colspan="2">
           <widget class="QCheckBox" name="swap_title_and_author">
            <property name="text">
             <string>&amp;Swap title and author</string>
@@ -270,6 +270,18 @@ Book A will have series number 1 and Book B series number 2.</string>
            </property>
            <property name="text">
             <string>Automatically number books in this series</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0" colspan="2">
+          <widget class="QCheckBox" name="remove_conversion_settings">
+           <property name="toolTip">
+            <string>Remove stored conversion settings for the selected books.
+
+Future conversion of these books will use the default settings.</string>
+           </property>
+           <property name="text">
+            <string>Remove &amp;stored conversion settings for the selected books</string>
            </property>
           </widget>
          </item>

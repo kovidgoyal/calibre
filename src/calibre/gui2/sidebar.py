@@ -147,12 +147,21 @@ class SideBar(QToolBar):
         tb_state = dynamic.get('tag_browser_state', None)
         if tb_state is not None:
             self.horizontal_splitter.restoreState(tb_state)
+        tb_last_open_state = dynamic.get('tag_browser_last_open_state', None)
+        if tb_last_open_state is not None and \
+            not self.horizontal_splitter.is_side_index_hidden:
+                self.horizontal_splitter.restoreState(tb_last_open_state)
 
         bi_state = dynamic.get('book_info_state', None)
         if bi_state is not None:
             self.vertical_splitter.restoreState(bi_state)
-        self.horizontal_splitter.initialize()
-        self.vertical_splitter.initialize()
+        bi_last_open_state = dynamic.get('book_info_last_open_state', None)
+        if bi_last_open_state is not None and \
+            not self.vertical_splitter.is_side_index_hidden:
+                self.vertical_splitter.restoreState(bi_last_open_state)
+
+        self.horizontal_splitter.initialize(name='tag_browser')
+        self.vertical_splitter.initialize(name='book_info')
         self.view_status_changed('book_info', not
                 self.vertical_splitter.is_side_index_hidden)
         self.view_status_changed('tag_browser', not

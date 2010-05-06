@@ -151,6 +151,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     new_authors = string_to_authors(title)
                     self.db.set_authors(id, new_authors, notify=False)
 
+            if self.remove_conversion_settings.isChecked():
+                self.db.delete_conversion_options(id, 'PIPE')
+
             self.changed = True
         for w in getattr(self, 'custom_column_widgets', []):
             w.commit(self.ids)
