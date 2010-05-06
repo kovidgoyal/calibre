@@ -218,7 +218,10 @@ class Text(Base):
     def getter(self):
         if self.col_metadata['is_multiple']:
             val = unicode(self.widgets[1].text()).strip()
-            return [x.strip() for x in val.split(',')]
+            ans = [x.strip() for x in val.split(',') if x.strip()]
+            if not ans:
+                ans = None
+            return ans
         val = unicode(self.widgets[1].currentText()).strip()
         if not val:
             val = None
