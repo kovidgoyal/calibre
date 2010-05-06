@@ -99,6 +99,8 @@ class Float(Int):
         w = self.widgets[1]
         w.setRange(-100., float(sys.maxint))
         w.setDecimals(2)
+        w.setSpecialValueText(_('Undefined'))
+        w.setSingleStep(1)
 
 class Rating(Int):
 
@@ -106,7 +108,7 @@ class Rating(Int):
         Int.setup_ui(self, parent)
         w = self.widgets[1]
         w.setRange(0, 5)
-        w.setSuffix(' '+_('stars'))
+        w.setSuffix(' '+_('star(s)'))
         w.setSpecialValueText(_('Unrated'))
 
     def setter(self, val):
@@ -305,9 +307,6 @@ class BulkBase(Base):
                 self.db.set_custom(book_id, val, num=self.col_id, notify=notify)
 
 class BulkBool(BulkBase, Bool):
-    pass
-
-class BulkRating(BulkBase, Rating):
     pass
 
 class BulkInt(BulkBase, Int):
