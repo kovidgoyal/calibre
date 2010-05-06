@@ -361,7 +361,10 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
 
         column_map = config['column_map']
         for col in column_map + [i for i in ALL_COLUMNS if i not in column_map]:
-            item = QListWidgetItem(BooksModel.headers[col], self.columns)
+            try:
+                item = QListWidgetItem(BooksModel.headers[col], self.columns)
+            except KeyError:
+                continue
             item.setData(Qt.UserRole, QVariant(col))
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
             item.setCheckState(Qt.Checked if col in column_map else Qt.Unchecked)
