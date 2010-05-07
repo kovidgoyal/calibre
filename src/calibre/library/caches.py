@@ -159,7 +159,20 @@ class ResultCache(SearchQueryParser):
             locations=SearchQueryParser.DEFAULT_LOCATIONS +
             [c for c in cc_label_map])
         self.build_date_relop_dict()
-        self.build_rating_relop_dict()
+        self.build_numeric_relop_dict()
+
+    def __getitem__(self, row):
+        return self._data[self._map_filtered[row]]
+
+    def __len__(self):
+        return len(self._map_filtered)
+
+    def __iter__(self):
+        for id in self._map_filtered:
+            yield self._data[id]
+
+    def universal_set(self):
+        return set([i[0] for i in self._data if i is not None])
 
     def build_date_relop_dict(self):
         '''
@@ -205,30 +218,14 @@ class ResultCache(SearchQueryParser):
         def relop_le(db, query, field_count):
             return not relop_gt(db, query, field_count)
 
-        self.date_search_relops = {'=':[1, relop_eq],  '>':[1, relop_gt],  '<':[1, relop_lt], \
-                              '!=':[2, relop_ne], '>=':[2, relop_ge], '<=':[2, relop_le]}
-
-    def build_rating_relop_dict(self):
-        self.rating_search_relops = {
-                        '=':[1, lambda r, q: r == q],
-                        '>':[1, lambda r, q: r > q],
-                        '<':[1, lambda r, q: r < q],
-                        '!=':[2, lambda r, q: r != q],
-                        '>=':[2, lambda r, q: r >= q],
-                        '<=':[2, lambda r, q: r <= q]}
-
-    def __getitem__(self, row):
-        return self._data[self._map_filtered[row]]
-
-    def __len__(self):
-        return len(self._map_filtered)
-
-    def __iter__(self):
-        for id in self._map_filtered:
-            yield self._data[id]
-
-    def universal_set(self):
-        return set([i[0] for i in self._data if i is not None])
+        self.date_search_relops = {
+                            '=' :[1, relop_eq],
+                            '>' :[1, relop_gt],
+                            '<' :[1, relop_lt],
+                            '!=':[2, relop_ne],
+                            '>=':[2, relop_ge],
+                            '<=':[2, relop_le]
+                        }
 
     def get_dates_matches(self, location, query):
         matches = set([])
@@ -277,7 +274,17 @@ class ResultCache(SearchQueryParser):
                 matches.add(item[0])
         return matches
 
-    def get_ratings_matches(self, location, query):
+    def build_numeric_relop_dict(self):
+        self.numeric_search_relops = {
+                        '=':[1, lambda r, q: r == q],
+                        '>':[1, lambda r, q: r > q],
+                        '<':[1, lambda r, q: r < q],
+                        '!=':[2, lambda r, q: r != q],
+                        '>=':[2, lambda r, q: r >= q],
+                        '<=':[2, lambda r, q: r <= q]
+                    }
+
+    def get_numeric_matches(self, location, query):
         matches = set([])
         if len(query) == 0:
             return matches
@@ -286,20 +293,33 @@ class ResultCache(SearchQueryParser):
         elif query == 'true':
             query = '>0'
         relop = None
-        for k in self.rating_search_relops.keys():
+        for k in self.numeric_search_relops.keys():
             if query.startswith(k):
-                (p, relop) = self.rating_search_relops[k]
+                (p, relop) = self.numeric_search_relops[k]
                 query = query[p:]
         if relop is None:
-                (p, relop) = self.rating_search_relops['=']
-        try:
-            r = int(query)
-        except:
-            return matches
+                (p, relop) = self.numeric_search_relops['=']
         if location in self.custom_column_label_map:
             loc = self.FIELD_MAP[self.custom_column_label_map[location]['num']]
+            dt = self.custom_column_label_map[location]['datatype']
+            if dt == 'int':
+                cast = (lambda x: int (x))
+                adjust = lambda x: x
+            elif  dt == 'rating':
+                cast = (lambda x: int (x))
+                adjust = lambda x: x/2
+            elif dt == 'float':
+                cast = lambda x : float (x)
+                adjust = lambda x: x
         else:
             loc = self.FIELD_MAP['rating']
+            cast = (lambda x: int (x))
+            adjust = lambda x: x/2
+
+        try:
+            q = cast(query)
+        except:
+            return matches
 
         for item in self._data:
             if item is None:
@@ -307,8 +327,8 @@ class ResultCache(SearchQueryParser):
             if not item[loc]:
                 i = 0
             else:
-                i = item[loc]/2
-            if relop(i, r):
+                i = adjust(item[loc])
+            if relop(i, q):
                 matches.add(item[0])
         return matches
 
@@ -323,11 +343,12 @@ class ResultCache(SearchQueryParser):
                      self.custom_column_label_map[location]['datatype'] == 'datetime'):
                 return self.get_dates_matches(location, query.lower())
 
-            ### take care of ratings special case
+            ### take care of numerics special case
             if location == 'rating' or \
-                    ((location in self.custom_column_label_map) and \
-                     self.custom_column_label_map[location]['datatype'] == 'rating'):
-                return self.get_ratings_matches(location, query.lower())
+                    (location in self.custom_column_label_map and
+                     self.custom_column_label_map[location]['datatype'] in
+                                ('rating', 'int', 'float')):
+                return self.get_numeric_matches(location, query.lower())
 
             ### everything else
             matchkind = CONTAINS_MATCH
@@ -426,14 +447,15 @@ class ResultCache(SearchQueryParser):
                         matches.add(item[0])
                         continue
 
-                    if IS_CUSTOM[loc] == 'rating':
+                    if IS_CUSTOM[loc] == 'rating': # get here if 'all' query
                         if rating_query and rating_query == int(item[loc]):
                             matches.add(item[0])
                         continue
 
                     try: # a conversion below might fail
+                        # relationals not supported in 'all' queries
                         if IS_CUSTOM[loc] == 'float':
-                            if float(query) == item[loc]: # relationals not supported
+                            if float(query) == item[loc]:
                                 matches.add(item[0])
                             continue
                         if IS_CUSTOM[loc] == 'int':
@@ -441,7 +463,8 @@ class ResultCache(SearchQueryParser):
                                 matches.add(item[0])
                             continue
                     except:
-                        # A conversion threw an exception. Because of the type, no further match possible
+                        # A conversion threw an exception. Because of the type,
+                        # no further match is possible
                         continue
 
                     if loc not in EXCLUDE_FIELDS:
