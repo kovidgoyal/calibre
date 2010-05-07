@@ -4,6 +4,65 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.52
+  date: 2010-07-30
+
+  new features:
+    - title: "Support for the Kobo Reader and the HTC Desire"
+
+    - title: "PDB Input: Add support for PDB files created with incorrect encodings"
+
+    - title: "EPUB Output: Make the file size splitting algorithm more intelligent. If a split results in a tree that is very small, choose another split point."
+
+    - title: "Add an entry to the Fetch News menu to fetch all scheduled news"
+      tickets: [5436]
+
+    - title: "MOBI Output: When inserting metadata, hide the searchable version of the tags (append with ttt). They are still searchable, but not visible."
+
+  bug fixes:
+    - title: "HTML Input: Handle case sensitive file systems on OS X"
+      tickets: [5083]
+
+    - title: "EPUB Output: When rescaling PNG images, write out the rescaled data in PNG format as ADE cannot handle JPEG data in a PNG file"
+
+    - title: "SONY drivers: Fix corner case that could cause errors when transferring books with series to the device."
+      tickets: [5431]
+
+    - title: "Allow users to set the content server port to < 1025 (system ports) with a warning."
+      tickets: [5470]
+
+    - title: "Don't popup an error message when adding books if the cover is not a valid image"
+
+    - title: "SONY drivers: Fix bug that prevented detection SD cards that had the Sony Reader/database folders, but no cache.xml"
+
+    - title: "EPUB Input: Handle invalid EPUB files that have manifest entries pointing to non existent files"
+      tickets: [5444]
+
+    - title: "Fix the get cover/metadata from specific format buttons when the user has chosen to read metadata only from filenames"
+      tickets: [5445]
+
+    - title: "Conversion pipeline: More robust conversion of HTML tags to text when detecting structure"
+
+    - title: "Fix 'Open containing folder' does not work if the path name contains '#'"
+      tickets: [5424]
+
+
+  new recipes:
+    - title: The Old New Thing, Berlingske, ABC, Ultima Hora, China Daily, Dani
+      author: Darko Miletic
+
+    - title: Arbetaren, Ekot and Fria Tidningen
+      author: Joakim Lindskog
+
+    - title: Il Messaggero, Il Giornale and ADN Kronos
+      author: Gabriele Marini
+
+    - title: Onion AV Club
+      author: Stephen Williams
+
+  improved recipes:
+    - Jerusalem Post
+
 - version: 0.6.51
   date: 2010-04-30
 

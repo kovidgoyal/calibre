@@ -513,3 +513,23 @@ removed from the text it can throw off the paragraph unwrapping.
 Some limitations of PDF input is complex, multi-column, and image based documents are not supported.
 Extraction of vector images and tables from within the document is also not supported.
 
+Comic Book Collections
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A comic book collection is a .cbc file. A .cbc file is a zip file that contains other CBZ/CBR files. In addition the
+.cbc file must contain a simple text file called comics.txt, encoded in UTF-8. The comics.txt file must contain
+a list of the comics files inside the .cbc file, in the form filename:title, as shown below::
+
+    one.cbz:Chapter One
+    two.cbz:Chapter Two
+    three.cbz:Chapter Three
+
+The .cbc file will then contain::
+
+    comics.txt
+    one.cbz
+    two.cbz
+    three.cbz
+
+|app| will automatically convert this .cbc file into a e-book with a Table of Contents pointing to each entry in comics.txt.
+
