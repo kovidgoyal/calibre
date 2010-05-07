@@ -384,7 +384,7 @@ class BookList(_BookList):
             if not pl:
                 continue
             db_ids = [i.getAttribute('id') for i in pl.childNodes if hasattr(i, 'getAttribute')]
-            pl_book_ids = [self.book_by_id(i.getAttribute('id')).db_id for i in pl.childNodes  if hasattr(i, 'getAttribute')]
+            pl_book_ids = [getattr(self.book_by_id(i), 'db_id', None) for i in db_ids]
             map = {}
             for i, j in zip(pl_book_ids, db_ids):
                 map[i] = j
