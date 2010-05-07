@@ -177,6 +177,33 @@ class TagsDelegate(QStyledItemDelegate):
             editor = EnLineEdit(parent)
         return editor
 
+class CcDateDelegate(QStyledItemDelegate):
+    '''
+    Delegate for custom columns dates. Because this delegate stores the
+    format as an instance variable, a new instance must be created for each
+    column. This differs from all the other delegates.
+    '''
+
+    def set_format(self, format):
+        if not format:
+            self.format = 'dd MMM yyyy'
+        else:
+            self.format = format
+
+    def displayText(self, val, locale):
+        d = val.toDate()
+        if d == UNDEFINED_DATE:
+            return ''
+        return d.toString(self.format)
+
+    def createEditor(self, parent, option, index):
+        qde = QStyledItemDelegate.createEditor(self, parent, option, index)
+        qde.setDisplayFormat(self.format)
+        qde.setMinimumDate(UNDEFINED_DATE)
+        qde.setSpecialValueText(_('Undefined'))
+        qde.setCalendarPopup(True)
+        return qde
+
 class CcTextDelegate(QStyledItemDelegate):
     '''
     Delegate for text/int/float data.
@@ -989,7 +1016,9 @@ class BooksView(TableView):
                 continue
             cc = self._model.custom_columns[colhead]
             if cc['datatype'] == 'datetime':
-                self.setItemDelegateForColumn(cm.index(colhead), self.timestamp_delegate)
+                delegate = CcDateDelegate(self)
+                delegate.set_format(cc['display'].get('date_format',''))
+                self.setItemDelegateForColumn(cm.index(colhead), delegate)
             elif cc['datatype'] == 'comments':
                 self.setItemDelegateForColumn(cm.index(colhead), self.cc_comments_delegate)
             elif cc['datatype'] == 'text':
