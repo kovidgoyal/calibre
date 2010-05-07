@@ -835,20 +835,20 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.restriction_count_of_books_in_view += c - self.restriction_count_of_books_in_library
         self.restriction_count_of_books_in_library = c
         if self.restriction_in_effect:
-            self.set_number_of_books_shown(all='not used', compute_count=False)
+            self.set_number_of_books_shown(compute_count=False)
 
     def mark_restriction_set(self, r):
         self.restriction_in_effect = False if r is None or not r else True
 
-    def set_number_of_books_shown(self, all, compute_count):
-        if self.restriction_in_effect:
+    def set_number_of_books_shown(self, compute_count):
+        if self.current_view() == self.library_view and self.restriction_in_effect:
             if compute_count:
                 self.restriction_count_of_books_in_view = self.current_view().row_count()
             t = _("({0} of {1})").format(self.current_view().row_count(),
                                          self.restriction_count_of_books_in_view)
             self.search_count.setStyleSheet('QLabel { border-radius: 8px; background-color: yellow; }')
-        else: # No restriction
-            if all == 'yes':
+        else: # No restriction or not library view
+            if not self.search.in_a_search():
                 t = _("(all books)")
             else:
                 t = _("({0} of all)").format(self.current_view().row_count())
@@ -857,18 +857,18 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.search_count.setText(t)
 
     def search_box_cleared(self):
-        self.set_number_of_books_shown(all='yes', compute_count=True)
+        self.set_number_of_books_shown(compute_count=True)
         self.tags_view.clear()
         self.saved_search.clear_to_help()
 
     def search_clear(self):
-        self.set_number_of_books_shown(all='yes', compute_count=True)
+        self.set_number_of_books_shown(compute_count=True)
         self.search.clear()
 
     def search_done(self, view, ok):
         if view is self.current_view():
-            self.set_number_of_books_shown(all='no', compute_count=False)
             self.search.search_done(ok)
+            self.set_number_of_books_shown(compute_count=False)
 
     def sync_cf_to_listview(self, current, previous):
         if self.cover_flow_sync_flag and self.cover_flow.isVisible() and \
@@ -2297,6 +2297,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.view_menu.actions()[1].setEnabled(True)
             self.action_open_containing_folder.setEnabled(True)
             self.action_sync.setEnabled(True)
+            self.search_restriction.setEnabled(True)
             for action in list(self.delete_menu.actions())[1:]:
                 action.setEnabled(True)
         else:
@@ -2306,8 +2307,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.view_menu.actions()[1].setEnabled(False)
             self.action_open_containing_folder.setEnabled(False)
             self.action_sync.setEnabled(False)
+            self.search_restriction.setEnabled(False)
             for action in list(self.delete_menu.actions())[1:]:
                 action.setEnabled(False)
+        self.set_number_of_books_shown(compute_count=False)
 
 
     def device_job_exception(self, job):

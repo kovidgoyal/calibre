@@ -57,7 +57,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.__custom_col_layouts = [layout]
         ans = self.custom_column_widgets
         for i in range(len(ans)-1):
-            w.setTabOrder(ans[i].widgets[1], ans[i+1].widgets[1])
+            w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[1])
+            for c in range(2, len(ans[i].widgets), 2):
+                w.setTabOrder(ans[i].widgets[c-1], ans[i].widgets[c+1])
 
     def initialize_combos(self):
         self.initalize_authors()

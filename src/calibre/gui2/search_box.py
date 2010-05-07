@@ -74,6 +74,7 @@ class SearchBox2(QComboBox):
         self.setMaxCount(self.MAX_COUNT)
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
         self.setMinimumContentsLength(25)
+        self._in_a_search = False
 
     def initialize(self, opt_name, colorize=False,
             help_text=_('Search')):
@@ -93,6 +94,7 @@ class SearchBox2(QComboBox):
         self.help_state = False
 
     def clear_to_help(self):
+        self._in_a_search = False
         self.setEditText(self.help_text)
         self.line_edit.home(False)
         self.help_state = True
@@ -111,6 +113,7 @@ class SearchBox2(QComboBox):
     def search_done(self, ok):
         if not unicode(self.currentText()).strip():
             return self.clear_to_help()
+        self._in_a_search = ok
         col = 'rgba(0,255,0,20%)' if ok else 'rgb(255,0,0,20%)'
         if not self.colorize:
             col = self.normal_background
@@ -184,6 +187,8 @@ class SearchBox2(QComboBox):
     def search_as_you_type(self, enabled):
         self.as_you_type = enabled
 
+    def in_a_search(self):
+        return self._in_a_search
 
 class SavedSearchBox(QComboBox):
 

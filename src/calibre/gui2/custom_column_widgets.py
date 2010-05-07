@@ -46,7 +46,7 @@ class Base(object):
 class Bool(Base):
 
     def setup_ui(self, parent):
-        self.widgets = [QLabel('&'+self.col_metadata['name'], parent),
+        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QComboBox(parent)]
         w = self.widgets[1]
         items = [_('Yes'), _('No'), _('Undefined')]
@@ -56,7 +56,6 @@ class Bool(Base):
             icons = icons[:-1]
         for icon, text in zip(icons, items):
             w.addItem(QIcon(icon), text)
-
 
     def setter(self, val):
         val = {None: 2, False: 1, True: 0}[val]
@@ -338,12 +337,14 @@ class BulkText(BulkBase):
         if self.col_metadata['is_multiple']:
             w = TagsLineEdit(parent, values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-            self.widgets = [QLabel('&'+self.col_metadata['name']+': (tags to add)', parent), w]
+            self.widgets = [QLabel('&'+self.col_metadata['name']+': ' +
+                                   _('tags to add'), parent), w]
             self.adding_widget = w
 
             w = TagsLineEdit(parent, values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-            self.widgets.append(QLabel('&'+self.col_metadata['name']+': (tags to remove)', parent))
+            self.widgets.append(QLabel('&'+self.col_metadata['name']+': ' +
+                                       _('tags to remove'), parent))
             self.widgets.append(w)
             self.removing_widget = w
         else:
@@ -413,12 +414,10 @@ def populate_bulk_metadata_page(layout, db, book_ids, parent=None):
         if len(w.widgets) == 1:
             layout.addWidget(w.widgets[0], row, 0, 1, -1)
         else:
-            c = 0
-            while c < len(w.widgets):
+            for c in range(0, len(w.widgets), 2):
                 w.widgets[c].setBuddy(w.widgets[c+1])
-                layout.addWidget(w.widgets[c], row, c%2)
-                layout.addWidget(w.widgets[c+1], row, (c+1)%2)
-                c += 2
+                layout.addWidget(w.widgets[c], row, 0)
+                layout.addWidget(w.widgets[c+1], row, 1)
                 row += 1
     items = []
     if len(ans) > 0:
