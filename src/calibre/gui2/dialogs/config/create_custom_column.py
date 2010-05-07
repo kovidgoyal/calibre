@@ -50,16 +50,20 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         self.standard_colnames = standard_colnames
         for t in self.column_types:
             self.column_type_box.addItem(self.column_types[t]['text'])
+        self.column_type_box.currentIndexChanged.connect(self.datatype_changed)
         if not self.editing_col:
+            self.datatype_changed()
             self.exec_()
             return
         idx = parent.columns.currentRow()
         if idx < 0:
-            return self.simple_error(_('No column selected'),
+            self.simple_error(_('No column selected'),
                     _('No column has been selected'))
+            return
         col = unicode(parent.columns.item(idx).data(Qt.UserRole).toString())
         if col not in parent.custcols:
-            return self.simple_error('', _('Selected column is not a user-defined column'))
+            self.simple_error('', _('Selected column is not a user-defined column'))
+            return
 
         c = parent.custcols[col]
         self.column_name_box.setText(c['label'])
@@ -72,7 +76,18 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         self.column_type_box.setEnabled(False)
         if ct == 'datetime':
             self.date_format_box.setText(c['display'].get('date_format', ''))
+        self.datatype_changed()
         self.exec_()
+
+    def datatype_changed(self, *args):
+        try:
+            col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
+        except:
+            col_type = None
+        df_visible = col_type == 'datetime'
+        for x in ('box', 'default_label', 'label'):
+            getattr(self, 'date_format_'+x).setVisible(df_visible)
+
 
     def accept(self):
         col = unicode(self.column_name_box.text())

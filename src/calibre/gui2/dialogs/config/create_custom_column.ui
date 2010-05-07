@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>528</width>
-    <height>194</height>
+    <height>199</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -116,12 +116,17 @@
             </sizepolicy>
            </property>
            <property name="toolTip">
-            <string>Date format. Use 1-4 'd's for day, 1-4 'M's for month, and 1-2 'Y's for year.</string>
+            <string>&lt;p&gt;Date format. Use 1-4 'd's for day, 1-4 'M's for month, and 2 or 4 'y's for year.&lt;/p&gt;
+&lt;p&gt;For example:
+&lt;ul&gt;
+&lt;li&gt; ddd, d MMM yyyy gives Mon, 5 Jan 2010&lt;li&gt;
+&lt;li&gt;dd MMMM yy gives 05 January 10&lt;/li&gt;
+&lt;/ul&gt; </string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_5">
+          <widget class="QLabel" name="date_format_default_label">
            <property name="toolTip">
             <string>Use MMM yyyy for month + year, yyyy for year only</string>
            </property>
@@ -133,9 +138,9 @@
         </layout>
        </item>
        <item row="4" column="0">
-        <widget class="QLabel" name="label_4">
+        <widget class="QLabel" name="date_format_label">
          <property name="text">
-          <string>Format for dates</string>
+          <string>Format for &amp;dates</string>
          </property>
          <property name="buddy">
           <cstring>date_format_box</cstring>
