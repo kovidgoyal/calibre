@@ -261,6 +261,18 @@ class SonyReaderOutput(OutputProfile):
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
 
+class KoboReaderOutput(OutputProfile):
+
+    name = 'Kobo Reader'
+    short_name = 'kobo'
+
+    description = _('This profile is intended for the Kobo Reader.')
+
+    screen_size               = (590, 775)
+    dpi                       = 168.451
+    fbase                     = 12
+    fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+
 class SonyReader300Output(SonyReaderOutput):
 
     author      = 'John Schember'
@@ -461,7 +473,7 @@ class NookOutput(OutputProfile):
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
-        iPadOutput,
+        iPadOutput, KoboReaderOutput,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,]
 

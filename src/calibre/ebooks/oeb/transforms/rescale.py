@@ -37,6 +37,11 @@ class RescaleImages(object):
             page_height -= (self.opts.margin_top + self.opts.margin_bottom) * self.opts.dest.dpi/72.
         for item in self.oeb.manifest:
             if item.media_type.startswith('image'):
+                ext = item.media_type.split('/')[-1].upper()
+                if ext == 'JPG': ext = 'JPEG'
+                if ext not in ('PNG', 'JPEG'):
+                    ext = 'JPEG'
+
                 raw = item.data
                 if not raw: continue
                 if qt:
@@ -65,11 +70,11 @@ class RescaleImages(object):
                     if qt:
                         img = img.scaled(new_width, new_height,
                                 Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-                        data = pixmap_to_data(img)
+                        data = pixmap_to_data(img, format=ext)
                     else:
                         im = im.resize((int(new_width), int(new_height)), PILImage.ANTIALIAS)
                         of = cStringIO.StringIO()
-                        im.convert('RGB').save(of, 'JPEG')
+                        im.convert('RGB').save(of, ext)
                         data = of.getvalue()
                     if data is not None:
                         item.data = data
