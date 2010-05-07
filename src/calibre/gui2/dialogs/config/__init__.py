@@ -787,14 +787,17 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
                                 label=c,
                                 name=self.custcols[c]['name'],
                                 datatype=self.custcols[c]['datatype'],
-                                is_multiple=self.custcols[c]['is_multiple'])
+                                is_multiple=self.custcols[c]['is_multiple'],
+                                display = self.custcols[c]['display'])
                 must_restart = True
             elif '*deleteme' in self.custcols[c]:
                 self.db.delete_custom_column(label=c)
                 must_restart = True
             elif '*edited' in self.custcols[c]:
                 cc = self.custcols[c]
-                self.db.set_custom_column_metadata(cc['num'], name=cc['name'], label=cc['label'])
+                self.db.set_custom_column_metadata(cc['num'], name=cc['name'],
+                                                   label=cc['label'],
+                                                   display = self.custcols[c]['display'])
                 if '*must_restart' in self.custcols[c]:
                     must_restart = True
 

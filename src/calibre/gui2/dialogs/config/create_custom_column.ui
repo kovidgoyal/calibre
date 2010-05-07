@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>528</width>
-    <height>165</height>
+    <height>199</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -33,6 +33,9 @@
      </property>
      <item row="2" column="0">
       <layout class="QGridLayout" name="gridLayout">
+       <property name="margin">
+        <number>0</number>
+       </property>
        <item row="0" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
@@ -102,6 +105,48 @@
          </property>
         </widget>
        </item>
+       <item row="4" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLineEdit" name="date_format_box">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>&lt;p&gt;Date format. Use 1-4 'd's for day, 1-4 'M's for month, and 2 or 4 'y's for year.&lt;/p&gt;
+&lt;p&gt;For example:
+&lt;ul&gt;
+&lt;li&gt; ddd, d MMM yyyy gives Mon, 5 Jan 2010&lt;li&gt;
+&lt;li&gt;dd MMMM yy gives 05 January 10&lt;/li&gt;
+&lt;/ul&gt; </string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="date_format_default_label">
+           <property name="toolTip">
+            <string>Use MMM yyyy for month + year, yyyy for year only</string>
+           </property>
+           <property name="text">
+            <string>Default: dd MMM yyyy.</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="date_format_label">
+         <property name="text">
+          <string>Format for &amp;dates</string>
+         </property>
+         <property name="buddy">
+          <cstring>date_format_box</cstring>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item row="3" column="0">
@@ -138,6 +183,7 @@
   <tabstop>column_name_box</tabstop>
   <tabstop>column_heading_box</tabstop>
   <tabstop>column_type_box</tabstop>
+  <tabstop>date_format_box</tabstop>
   <tabstop>button_box</tabstop>
  </tabstops>
  <resources/>
