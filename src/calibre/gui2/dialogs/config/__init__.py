@@ -370,7 +370,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
                     [i for i in ac if i not in cm] + \
                     [i for i in self.custcols if i not in cm]:
             if col in ALL_COLUMNS:
-                item = QListWidgetItem(model.headers[col], self.columns)
+                item = QListWidgetItem(model.orig_headers[col], self.columns)
             else:
                 item = QListWidgetItem(self.custcols[col]['name'], self.columns)
             item.setData(Qt.UserRole, QVariant(col))
