@@ -284,7 +284,12 @@ class BookList(_BookList):
         plitems = []
         for pl in self.playlists():
             for c in pl.childNodes:
-                if hasattr(c, 'tagName')  and c.tagName.endswith('item'):
+                if hasattr(c, 'tagName') and c.tagName.endswith('item') and \
+                    hasattr(c, 'getAttribute'):
+                    try:
+                        c.getAttribute('id')
+                    except: # Unlinked node
+                        continue
                     plitems.append(c)
         return plitems
 

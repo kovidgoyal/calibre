@@ -202,7 +202,7 @@ def extract(path, dir):
 def get_proxies(debug=True):
     proxies = getproxies()
     for key, proxy in list(proxies.items()):
-        if not proxy:
+        if not proxy or '..' in proxy:
             del proxies[key]
             continue
         if proxy.startswith(key+'://'):
