@@ -4,6 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 import sys, os, re, logging, time, mimetypes, \
        __builtin__, warnings, multiprocessing
+from urllib import getproxies
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
 from htmlentitydefs import name2codepoint
 from math import floor
@@ -199,71 +200,54 @@ def extract(path, dir):
     extractor(path, dir)
 
 def get_proxies(debug=True):
-    proxies = {}
+    proxies = getproxies()
+    for key, proxy in list(proxies.items()):
+        if not proxy:
+            del proxies[key]
+            continue
+        if proxy.startswith(key+'://'):
+            proxy = proxy[len(key)+3:]
+        if proxy.endswith('/'):
+            proxy = proxy[:-1]
+        if len(proxy) > 4:
+            proxies[key] = proxy
+        else:
+            prints('Removing invalid', key, 'proxy:', proxy)
+            del proxies[key]
 
-    for q in ('http', 'ftp'):
-        proxy =  os.environ.get(q+'_proxy', None)
-        if not proxy: continue
-        if proxy.startswith(q+'://'):
-            proxy = proxy[7:]
-        proxies[q] = proxy
-
-    if iswindows:
-        try:
-            winreg = __import__('_winreg')
-            settings = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                                      'Software\\Microsoft\\Windows'
-                                      '\\CurrentVersion\\Internet Settings')
-            proxy = winreg.QueryValueEx(settings, "ProxyEnable")[0]
-            if proxy:
-                server = str(winreg.QueryValueEx(settings, 'ProxyServer')[0])
-                if ';' in server:
-                    for p in server.split(';'):
-                        protocol, address = p.split('=')
-                        proxies[protocol] = address
-                else:
-                    proxies['http'] = server
-                    proxies['ftp'] =  server
-            settings.Close()
-        except Exception, e:
-            prints('Unable to detect proxy settings: %s' % str(e))
-    for x in list(proxies):
-        if len(proxies[x]) < 5:
-            prints('Removing invalid', x, 'proxy:', proxies[x])
-            del proxies[x]
     if proxies and debug:
         prints('Using proxies:', proxies)
     return proxies
 
 def get_parsed_proxy(typ='http', debug=True):
     proxies = get_proxies(debug)
-    if typ not in proxies:
-        return
-    pattern = re.compile((
-        '(?:ptype://)?' \
-        '(?:(?P<user>\w+):(?P<pass>.*)@)?' \
-        '(?P<host>[\w\-\.]+)' \
-        '(?::(?P<port>\d+))?').replace('ptype', typ)
-    )
+    proxy = proxies.get(typ, None)
+    if proxy:
+        pattern = re.compile((
+            '(?:ptype://)?' \
+            '(?:(?P<user>\w+):(?P<pass>.*)@)?' \
+            '(?P<host>[\w\-\.]+)' \
+            '(?::(?P<port>\d+))?').replace('ptype', typ)
+        )
 
-    match = pattern.match(proxies['typ'])
-    if match:
-        try:
-            ans = {
-                    'host' : match.group('host'),
-                    'port' : match.group('port'),
-                    'user' : match.group('user'),
-                    'pass' : match.group('pass')
-                }
-            if ans['port']:
-                ans['port'] = int(ans['port'])
-        except:
-            if debug:
-                traceback.print_exc()
-            return
-        if debug:
-            prints('Using http proxy', ans)
-        return ans
+        match = pattern.match(proxies[typ])
+        if match:
+            try:
+                ans = {
+                        'host' : match.group('host'),
+                        'port' : match.group('port'),
+                        'user' : match.group('user'),
+                        'pass' : match.group('pass')
+                    }
+                if ans['port']:
+                    ans['port'] = int(ans['port'])
+            except:
+                if debug:
+                    traceback.print_exc()
+            else:
+                if debug:
+                    prints('Using http proxy', str(ans))
+                return ans
 
 
 def browser(honor_time=True, max_time=2, mobile_browser=False):
