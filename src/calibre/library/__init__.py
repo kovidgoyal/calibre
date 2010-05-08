@@ -26,3 +26,8 @@ def server_config(defaults=None):
             help=_('The maximum number of matches to return per OPDS query. '
             'This affects Stanza, WordPlayer, etc. integration.'))
     return c
+
+def db():
+    from calibre.library.database2 import LibraryDatabase2
+    from calibre.utils.config import prefs
+    return LibraryDatabase2(prefs['library_path'])
