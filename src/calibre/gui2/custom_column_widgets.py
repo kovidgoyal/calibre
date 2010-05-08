@@ -373,16 +373,15 @@ class BulkText(BulkBase):
 
     def getter(self, original_value = None):
         if self.col_metadata['is_multiple']:
-            ans = original_value
-            vals = [v.strip() for v in unicode(self.adding_widget.text()).split(',')]
-            for t in vals:
-                if t not in ans:
-                    ans.append(t)
-            vals = [v.strip() for v in unicode(self.removing_widget.text()).split(',')]
-            for t in vals:
-                if t in ans:
-                    ans.remove(t)
-            return ans
+            if self.removing_widget.text() == '*':
+                ans = set()
+            else:
+                ans = set(original_value)
+                ans -= set([v.strip() for v in
+                              unicode(self.removing_widget.text()).split(',')])
+            ans |= set([v.strip() for v in
+                              unicode(self.adding_widget.text()).split(',')])
+            return ans # returning a set instead of a list works, for now at least.
         val = unicode(self.widgets[1].currentText()).strip()
         if not val:
             val = None

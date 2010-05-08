@@ -25,7 +25,7 @@ from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks
-from calibre.utils.date import dt_factory, qt_to_dt, isoformat
+from calibre.utils.date import dt_factory, qt_to_dt, isoformat, now
 from calibre.utils.pyparsing import ParseException
 from calibre.utils.search_query_parser import SearchQueryParser
 
@@ -203,6 +203,15 @@ class CcDateDelegate(QStyledItemDelegate):
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
+
+    def setEditorData(self, editor, index):
+        m = index.model()
+        # db col is not named for the field, but for the table number. To get it,
+        # gui column -> column label -> table number -> db column
+        val = m.db.data[index.row()][m.db.FIELD_MAP[m.custom_columns[m.column_map[index.column()]]['num']]]
+        if val is None:
+            val = now()
+        editor.setDate(val)
 
 class CcTextDelegate(QStyledItemDelegate):
     '''
