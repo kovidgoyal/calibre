@@ -14,7 +14,7 @@ from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
 
 from calibre.utils.date import qt_to_dt
 from calibre.gui2.widgets import TagsLineEdit, EnComboBox
-from calibre.gui2 import UNDEFINED_DATE
+from calibre.gui2 import UNDEFINED_QDATE
 from calibre.utils.config import tweaks
 
 class Base(object):
@@ -123,15 +123,24 @@ class Rating(Int):
             val *= 2
         return val
 
+class DateEdit(QDateEdit):
+
+    def focusInEvent(self, x):
+        print 'focus in'
+        self.setSpecialValueText('')
+
+    def focusOutEvent(self, x):
+        self.setSpecialValueText(_('Undefined'))
+
 class DateTime(Base):
 
     def setup_ui(self, parent):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
-                QDateEdit(parent)]
+                DateEdit(parent)]
         w = self.widgets[1]
         w.setDisplayFormat('dd MMM yyyy')
         w.setCalendarPopup(True)
-        w.setMinimumDate(UNDEFINED_DATE)
+        w.setMinimumDate(UNDEFINED_QDATE)
         w.setSpecialValueText(_('Undefined'))
 
     def setter(self, val):
@@ -143,7 +152,7 @@ class DateTime(Base):
 
     def getter(self):
         val = self.widgets[1].date()
-        if val == UNDEFINED_DATE:
+        if val == UNDEFINED_QDATE:
             val = None
         else:
             val = qt_to_dt(val)

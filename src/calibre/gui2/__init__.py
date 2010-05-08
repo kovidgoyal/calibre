@@ -17,11 +17,12 @@ from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.ebooks.metadata import MetaInformation
+from calibre.utils.date import UNDEFINED_DATE
 
 gprefs = JSONConfig('gui')
 
 NONE = QVariant() #: Null value to return from the data function of item models
-UNDEFINED_DATE = QDate(101,1,1)
+UNDEFINED_QDATE = QDate(UNDEFINED_DATE)
 
 ALL_COLUMNS = ['title', 'authors', 'size', 'timestamp', 'rating', 'publisher',
         'tags', 'series', 'pubdate']
