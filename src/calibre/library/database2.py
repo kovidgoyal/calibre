@@ -1050,7 +1050,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             mi.pubdate = utcnow()
         self.set_metadata(id, mi)
         if cover is not None:
-            self.set_cover(id, cover)
+            try:
+                self.set_cover(id, cover)
+            except:
+                traceback.print_exc()
         return id
 
 

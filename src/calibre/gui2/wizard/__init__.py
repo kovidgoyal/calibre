@@ -92,6 +92,14 @@ class Sony505(Sony500):
     name = 'SONY Reader 6" and Touch Edition'
     id = 'prs505'
 
+class Kobo(Device):
+    name = 'Kobo Reader'
+    manufacturer = 'Kobo'
+    output_profile = 'kobo'
+    output_format = 'EPUB'
+    name = 'Kobo Reader'
+    id = 'kobo'
+
 class Sony300(Sony505):
 
     name = 'SONY Reader Pocket Edition'
@@ -124,6 +132,20 @@ class CybookOpus(CybookG3):
     output_format = 'EPUB'
     output_profile = 'cybook_opus'
     id = 'cybook_opus'
+
+class PocketBook360(CybookOpus):
+
+    manufacturer = 'PocketBook'
+    name = 'PocketBook 360'
+    id = 'pocketbook360'
+    output_profile = 'cybook_opus'
+
+class PocketBook(CybookG3):
+
+    manufacturer = 'PocketBook'
+    name = 'PocketBook 301/302'
+    id = 'pocketbook'
+    output_profile = 'cybookg3'
 
 class iPhone(Device):
 

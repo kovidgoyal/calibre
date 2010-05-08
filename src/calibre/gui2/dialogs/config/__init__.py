@@ -361,7 +361,10 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
 
         column_map = config['column_map']
         for col in column_map + [i for i in ALL_COLUMNS if i not in column_map]:
-            item = QListWidgetItem(BooksModel.headers[col], self.columns)
+            try:
+                item = QListWidgetItem(BooksModel.headers[col], self.columns)
+            except KeyError:
+                continue
             item.setData(Qt.UserRole, QVariant(col))
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
             item.setCheckState(Qt.Checked if col in column_map else Qt.Unchecked)
@@ -461,6 +464,17 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.opt_overwrite_author_title_metadata.setChecked(config['overwrite_author_title_metadata'])
         self.opt_enforce_cpu_limit.setChecked(config['enforce_cpu_limit'])
         self.device_detection_button.clicked.connect(self.debug_device_detection)
+        self.port.editingFinished.connect(self.check_port_value)
+
+    def check_port_value(self, *args):
+        port = self.port.value()
+        if port < 1025:
+            warning_dialog(self, _('System port selected'), '<p>'+
+                    _('The value <b>%d</b> you have chosen for the content '
+                        'server port is a system port. You operating '
+                        'system <b>may</b> not allow the server to run on this '
+                        'port. To be safe choose a port number larger than '
+                        '1024.')%port, show=True)
 
     def debug_device_detection(self):
         from calibre.gui2.dialogs.config.device_debug import DebugDevice
