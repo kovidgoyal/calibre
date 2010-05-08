@@ -117,6 +117,8 @@ class DBThread(Thread):
         self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
         self.conn.create_function('title_sort', 1, title_sort)
         self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
+        # Dummy functions for dynamically created filters
+        self.conn.create_function('books_list_filter', 1, lambda x: 1)
 
     def run(self):
         try:
