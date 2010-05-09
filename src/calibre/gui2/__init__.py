@@ -24,8 +24,8 @@ gprefs = JSONConfig('gui')
 NONE = QVariant() #: Null value to return from the data function of item models
 UNDEFINED_QDATE = QDate(UNDEFINED_DATE)
 
-ALL_COLUMNS = ['title', 'authors', 'size', 'timestamp', 'rating', 'publisher',
-        'tags', 'series', 'pubdate', 'ondevice']
+ALL_COLUMNS = ['title', 'ondevice', 'authors', 'size', 'timestamp', 'rating', 'publisher',
+        'tags', 'series', 'pubdate']
 
 def _config():
     c = Config('gui', 'preferences for the calibre GUI')
