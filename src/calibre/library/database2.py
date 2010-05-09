@@ -222,6 +222,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.FIELD_MAP[col] = base = base+1
 
         self.FIELD_MAP['cover'] = base+1
+        self.FIELD_MAP['ondevice'] = base+2
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -233,6 +234,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.executescript(script)
         self.conn.commit()
 
+        self.book_on_device_func = None
         self.data    = ResultCache(self.FIELD_MAP, self.custom_column_label_map)
         self.search  = self.data.search
         self.refresh = functools.partial(self.data.refresh, self)
@@ -467,6 +469,27 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 f = cStringIO.StringIO(data)
             im = PILImage.open(f)
             im.convert('RGB').save(path, 'JPEG')
+
+    def book_on_device(self, index):
+        if callable(self.book_on_device_func):
+            return self.book_on_device_func(index)
+        return None
+
+    def book_on_device_string(self, index):
+        loc = []
+        on = self.book_on_device(index)
+        if on is not None:
+            m, a, b = on
+            if m is not None:
+                loc.append(_('Main'))
+            if a is not None:
+                loc.append(_('Card A'))
+            if b is not None:
+                loc.append(_('Card B'))
+        return ', '.join(loc)
+
+    def set_book_on_device_func(self, func):
+        self.book_on_device_func = func
 
     def all_formats(self):
         formats = self.conn.get('SELECT DISTINCT format from data')

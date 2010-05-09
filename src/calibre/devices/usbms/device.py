@@ -784,8 +784,14 @@ class Device(DeviceConfig, DevicePlugin):
     def filename_callback(self, default, mi):
         '''
         Callback to allow drivers to change the default file name
-        set by :method:`create_upload_path`.
+        set by :method:`create_upload_path`. By default, add the DB_ID
+        to the end of the string. Helps with ondevice doc matching
         '''
+        if getattr(mi, 'application_id', None) is not None:
+            base = default.rpartition('.')[0]
+            suffix = '_%s'%mi.application_id
+            if not base.endswith(suffix):
+                default = base + suffix + '.' + default.rpartition('.')[-1]
         return default
 
     def sanitize_path_components(self, components):
@@ -826,7 +832,7 @@ class Device(DeviceConfig, DevicePlugin):
         if not isinstance(template, unicode):
             template = template.decode('utf-8')
         app_id = str(getattr(mdata, 'application_id', ''))
-        # The SONY readers need to have the db id in the created filename
+        # The db id will be in the created filename
         extra_components = get_components(template, mdata, fname,
                 length=250-len(app_id)-1)
         if not extra_components:
@@ -834,6 +840,9 @@ class Device(DeviceConfig, DevicePlugin):
                 mdata)))
         else:
             extra_components[-1] = sanitize(self.filename_callback(extra_components[-1]+ext, mdata))
+
+        if extra_components[-1] and extra_components[-1][0] in ('.', '_'):
+            extra_components[-1] = 'x' + extra_components[-1][1:]
 
         if special_tag is not None:
             name = extra_components[-1]

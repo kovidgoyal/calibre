@@ -319,11 +319,13 @@ class BooksModel(QAbstractTableModel):
                         'publisher' : _("Publisher"),
                         'tags'      : _("Tags"),
                         'series'    : _("Series"),
+                        'ondevice'   : _("On Device"),
                         }
 
     def __init__(self, parent=None, buffer=40):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
+        self.book_on_device = None
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
                               'tags', 'series', 'timestamp', 'pubdate']
         self.default_image = QImage(I('book.svg'))
@@ -361,6 +363,9 @@ class BooksModel(QAbstractTableModel):
         self.build_data_convertors()
         self.reset()
         self.emit(SIGNAL('columns_sorted()'))
+
+    def set_book_on_device_func(self, func):
+        self.book_on_device = func
 
     def set_database(self, db):
         self.db = db
@@ -802,6 +807,8 @@ class BooksModel(QAbstractTableModel):
                    'series'   : functools.partial(series,
                                 idx=self.db.FIELD_MAP['series'],
                                 siix=self.db.FIELD_MAP['series_index']),
+                   'ondevice' : functools.partial(text_type,
+                                idx=self.db.FIELD_MAP['ondevice'], mult=False),
                    }
         self.dc_decorator = {}
 
@@ -1258,6 +1265,7 @@ class DeviceBooksModel(BooksModel):
         self.marked_for_deletion = {}
         self.search_engine = OnDeviceSearch(self)
         self.editable = True
+        self.book_in_library = None
 
     def mark_for_deletion(self, job, rows):
         self.marked_for_deletion[job] = self.indices(rows)
@@ -1345,8 +1353,11 @@ class DeviceBooksModel(BooksModel):
         def tagscmp(x, y):
             x, y = ','.join(self.db[x].tags), ','.join(self.db[y].tags)
             return cmp(x, y)
+        def libcmp(x, y):
+            x, y = self.db[x].in_library, self.db[y].in_library
+            return cmp(x, y)
         fcmp = strcmp('title_sorter') if col == 0 else strcmp('authors') if col == 1 else \
-               sizecmp if col == 2 else datecmp if col == 3 else tagscmp
+               sizecmp if col == 2 else datecmp if col == 3 else tagscmp if col == 4 else libcmp
         self.map.sort(cmp=fcmp, reverse=descending)
         if len(self.map) == len(self.db):
             self.sorted_map = list(self.map)
@@ -1360,7 +1371,7 @@ class DeviceBooksModel(BooksModel):
     def columnCount(self, parent):
         if parent and parent.isValid():
             return 0
-        return 5
+        return 6
 
     def rowCount(self, parent):
         if parent and parent.isValid():
@@ -1401,7 +1412,6 @@ class DeviceBooksModel(BooksModel):
         '''
         return [ self.map[r.row()] for r in rows]
 
-
     def data(self, index, role):
         if role == Qt.DisplayRole or role == Qt.EditRole:
             row, col = index.row(), index.column()
@@ -1417,7 +1427,7 @@ class DeviceBooksModel(BooksModel):
                 if role == Qt.EditRole:
                     return QVariant(au)
                 authors = string_to_authors(au)
-                return QVariant("\n".join(authors))
+                return QVariant(" & ".join(authors))
             elif col == 2:
                 size = self.db[self.map[row]].size
                 return QVariant(BooksView.human_readable(size))
@@ -1429,6 +1439,9 @@ class DeviceBooksModel(BooksModel):
                 tags = self.db[self.map[row]].tags
                 if tags:
                     return QVariant(', '.join(tags))
+            elif col == 5:
+                return QVariant(_('Yes')) \
+                    if self.db[self.map[row]].in_library else QVariant(_('No'))
         elif role == Qt.TextAlignmentRole and index.column() in [2, 3]:
             return QVariant(Qt.AlignRight | Qt.AlignVCenter)
         elif role == Qt.ToolTipRole and index.isValid():
@@ -1449,6 +1462,7 @@ class DeviceBooksModel(BooksModel):
             elif section == 2: text = _("Size (MB)")
             elif section == 3: text = _("Date")
             elif section == 4: text = _("Tags")
+            elif section == 5: text = _("In Library")
             return QVariant(text)
         else:
             return QVariant(section+1)
@@ -1482,4 +1496,3 @@ class DeviceBooksModel(BooksModel):
 
     def set_search_restriction(self, s):
         pass
-

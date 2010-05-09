@@ -46,6 +46,12 @@ class Book(object):
         return self.title.encode('utf-8') + " by " + \
                self.authors.encode('utf-8') + " at " + self.path.encode('utf-8')
 
+    @property
+    def db_id(self):
+        '''The database id in the application database that this file corresponds to'''
+        match = re.search(r'_(\d+)$', self.rpath.rpartition('.')[0])
+        if match:
+            return int(match.group(1))
 
 class BookList(_BookList):
 

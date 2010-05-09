@@ -60,11 +60,6 @@ class KINDLE(USBMS):
                                                'replace')
         return mi
 
-    def filename_callback(self, fname, mi):
-        if fname.startswith('.'):
-            return 'x'+fname[1:]
-        return fname
-
     def get_annotations(self, path_map):
         MBP_FORMATS = [u'azw', u'mobi', u'prc', u'txt']
         mbp_formats = set(MBP_FORMATS)
