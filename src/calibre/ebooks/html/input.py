@@ -292,7 +292,7 @@ class HTMLInput(InputFormatPlugin):
                 encoding=opts.input_encoding)
 
     def is_case_sensitive(self, path):
-        if self._is_case_sensitive is not None:
+        if getattr(self, '_is_case_sensitive', None) is not None:
             return self._is_case_sensitive
         if not path or not os.path.exists(path):
             return islinux or isfreebsd

@@ -117,6 +117,8 @@ class DBThread(Thread):
         self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
         self.conn.create_function('title_sort', 1, title_sort)
         self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
+        # Dummy functions for dynamically created filters
+        self.conn.create_function('books_list_filter', 1, lambda x: 1)
 
     def run(self):
         try:
@@ -128,7 +130,7 @@ class DBThread(Thread):
                     break
                 if func == 'dump':
                     try:
-                        ok, res = True, '\n'.join(self.conn.iterdump())
+                        ok, res = True, tuple(self.conn.iterdump())
                     except Exception, err:
                         ok, res = False, (err, traceback.format_exc())
                 elif func == 'create_dynamic_filter':
