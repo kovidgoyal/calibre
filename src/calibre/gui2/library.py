@@ -778,6 +778,12 @@ class BooksModel(QAbstractTableModel):
                 return self.bool_blank_icon
             return self.bool_no_icon
 
+        def ondevice_decorator(r, idx=-1):
+            text = self.db.data[r][idx]
+            if text:
+                return self.bool_yes_icon
+            return self.bool_blank_icon
+
         def text_type(r, mult=False, idx=-1):
             text = self.db.data[r][idx]
             if text and mult:
@@ -810,7 +816,11 @@ class BooksModel(QAbstractTableModel):
                    'ondevice' : functools.partial(text_type,
                                 idx=self.db.FIELD_MAP['ondevice'], mult=False),
                    }
-        self.dc_decorator = {}
+
+        self.dc_decorator = {
+                'ondevice':functools.partial(ondevice_decorator,
+                    idx=self.db.FIELD_MAP['ondevice']),
+                    }
 
         # Add the custom columns to the data converters
         for col in self.custom_columns:

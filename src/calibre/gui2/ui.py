@@ -959,7 +959,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.status_bar.reset_info()
                 self.location_view.setCurrentIndex(self.location_view.model().index(0))
             self.eject_action.setEnabled(False)
-            self.refresh_ondevice_info (clear_info = True)
+            self.refresh_ondevice_info(clear_flags=True)
 
     def info_read(self, job):
         '''
@@ -1019,7 +1019,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################################################################
     ### Force the library view to refresh, taking into consideration books information
-    def refresh_ondevice_info(self, clear_flags = False):
+    def refresh_ondevice_info(self, clear_flags=False):
         self.book_on_device(None, reset=True)
         self.library_view.model().refresh()
     ############################################################################
