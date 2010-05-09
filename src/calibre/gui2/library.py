@@ -1268,6 +1268,8 @@ class DeviceBooksModel(BooksModel):
     def set_book_in_library_func(self, func, loc):
         self.book_in_library = func
         self.loc = loc
+        # Not convinced that this should be here ...
+        func(self.db)
 
     def mark_for_deletion(self, job, rows):
         self.marked_for_deletion[job] = self.indices(rows)
@@ -1356,7 +1358,7 @@ class DeviceBooksModel(BooksModel):
             x, y = ','.join(self.db[x].tags), ','.join(self.db[y].tags)
             return cmp(x, y)
         def libcmp(x, y):
-            x, y = self.book_in_library(self.map[x], self.loc), self.book_in_library(self.map[y], self.loc)
+            x, y = self.db[x].in_library, self.db[y].in_library
             return cmp(x, y)
         fcmp = strcmp('title_sorter') if col == 0 else strcmp('authors') if col == 1 else \
                sizecmp if col == 2 else datecmp if col == 3 else tagscmp if col == 4 else libcmp
@@ -1429,7 +1431,7 @@ class DeviceBooksModel(BooksModel):
                 if role == Qt.EditRole:
                     return QVariant(au)
                 authors = string_to_authors(au)
-                return QVariant("\n".join(authors))
+                return QVariant(" & ".join(authors))
             elif col == 2:
                 size = self.db[self.map[row]].size
                 return QVariant(BooksView.human_readable(size))
@@ -1442,9 +1444,8 @@ class DeviceBooksModel(BooksModel):
                 if tags:
                     return QVariant(', '.join(tags))
             elif col == 5:
-                if self.book_in_library:
-                    if self.book_in_library(self.map[row], self.loc) != None:
-                        return QVariant(_("True"))
+                return QVariant(_('Yes')) \
+                    if self.db[self.map[row]].in_library else QVariant(_('No'))
         elif role == Qt.TextAlignmentRole and index.column() in [2, 3]:
             return QVariant(Qt.AlignRight | Qt.AlignVCenter)
         elif role == Qt.ToolTipRole and index.isValid():

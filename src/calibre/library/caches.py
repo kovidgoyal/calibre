@@ -370,7 +370,7 @@ class ResultCache(SearchQueryParser):
                 location += 's'
 
             all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series',
-                   'formats', 'isbn', 'rating', 'cover')
+                   'formats', 'isbn', 'rating', 'cover', 'ondevice')
             MAP = {}
 
             for x in all: # get the db columns for the standard searchables

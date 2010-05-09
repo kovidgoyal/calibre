@@ -520,6 +520,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
         self.stack.setCurrentIndex(0)
+        self.book_on_device(None, reset=True)
         db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
@@ -993,13 +994,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             return
         mainlist, cardalist, cardblist = job.result
         self.memory_view.set_database(mainlist)
-        self.memory_view.model().set_book_in_library_func(self.book_in_library, 'main')
+        self.memory_view.model().set_book_in_library_func(self.set_books_in_library, 'main')
         self.memory_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         self.card_a_view.set_database(cardalist)
-        self.card_a_view.model().set_book_in_library_func(self.book_in_library, 'carda')
+        self.card_a_view.model().set_book_in_library_func(self.set_books_in_library, 'carda')
         self.card_a_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         self.card_b_view.set_database(cardblist)
-        self.card_b_view.model().set_book_in_library_func(self.book_in_library, 'cardb')
+        self.card_b_view.model().set_book_in_library_func(self.set_books_in_library, 'cardb')
         self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         for view in (self.memory_view, self.card_a_view, self.card_b_view):
             view.sortByColumn(3, Qt.DescendingOrder)
@@ -1007,6 +1008,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if not view.restore_column_widths():
                 view.resizeColumnsToContents()
             view.resize_on_select = not view.isVisible()
+            if view.model().rowCount(None) > 1:
+                view.resizeRowToContents(0)
+                height = view.rowHeight(0)
+                view.verticalHeader().setDefaultSectionSize(height)
         self.sync_news()
         self.sync_catalogs()
         self.refresh_ondevice_info()
@@ -1014,13 +1019,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     ############################################################################
     ### Force the library view to refresh, taking into consideration books information
     def refresh_ondevice_info(self, clear_flags = False):
-#        self.library_view.model().db.set_all_ondevice('')
-#        if not clear_flags:
-#            for id in self.library_view.model().db:
-#                self.library_view.model().db.set_book_on_device_string(id, index_is_id=True))
+        self.book_on_device(None, reset=True)
         self.library_view.model().refresh()
-    ############################################################################
-
     ############################################################################
 
     ######################### Fetch annotations ################################
@@ -2246,6 +2246,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def library_moved(self, newloc):
         if newloc is None: return
         db = LibraryDatabase2(newloc)
+        self.book_on_device(None, reset=True)
         db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
