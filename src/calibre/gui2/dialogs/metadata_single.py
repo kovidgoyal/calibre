@@ -313,6 +313,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cpixmap = None
         self.cover.setAcceptDrops(True)
         self.pubdate.setMinimumDate(QDate(100,1,1))
+        pubdate_format = tweaks['gui_pubdate_display_format']
+        if pubdate_format is not None:
+            self.pubdate.setDisplayFormat(pubdate_format)
         self.date.setMinimumDate(QDate(100,1,1))
 
         self.connect(self.cover, SIGNAL('cover_changed(PyQt_PyObject)'), self.cover_dropped)
