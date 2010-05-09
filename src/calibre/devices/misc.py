@@ -47,5 +47,5 @@ class KOBO(USBMS):
     VENDOR_NAME = 'KOBO_INC'
     WINDOWS_MAIN_MEM = '.KOBOEREADER'
 
-    EBOOK_DIR_MAIN = 'e-books'
+    EBOOK_DIR_MAIN = ''
 
