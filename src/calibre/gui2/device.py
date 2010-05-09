@@ -1,7 +1,7 @@
 from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, traceback, Queue, time, socket, cStringIO
+import os, traceback, Queue, time, socket, cStringIO, re
 from threading import Thread, RLock
 from itertools import repeat
 from functools import partial
@@ -978,3 +978,69 @@ class DeviceGUI(object):
             getattr(f, 'close', lambda : True)()
         if memory and memory[1]:
             self.library_view.model().delete_books_by_id(memory[1])
+
+    def book_on_device(self, index, format=None, reset=False):
+        loc = [None, None, None]
+
+        if reset:
+            self.book_on_device_cache = None
+            return
+
+        if self.book_on_device_cache is None:
+            self.book_on_device_cache = []
+            for i, l in enumerate(self.booklists()):
+                self.book_on_device_cache.append({})
+                for book in l:
+                    book_title = book.title.lower() if book.title else ''
+                    book_title = re.sub('(?u)\W|[_]', '', book_title)
+                    if book_title not in self.book_on_device_cache[i]:
+                        self.book_on_device_cache[i][book_title] = \
+                                        {'authors':set(), 'db_ids':set()}
+                    book_authors = authors_to_string(book.authors).lower()
+                    book_authors = re.sub('(?u)\W|[_]', '', book_authors)
+                    self.book_on_device_cache[i][book_title]['authors'].add(book_authors)
+                    self.book_on_device_cache[i][book_title]['db_ids'].add(book.db_id)
+
+        db_title = self.library_view.model().db.title(index, index_is_id=True).lower()
+        db_title = re.sub('(?u)\W|[_]', '', db_title)
+        au = self.library_view.model().db.authors(index, index_is_id=True)
+        db_authors = au.lower() if au else ''
+        db_authors = re.sub('(?u)\W|[_]', '', db_authors)
+        for i, l in enumerate(self.booklists()):
+            d = self.book_on_device_cache[i].get(db_title, None)
+            if d and (index in d['db_ids'] or db_authors in d['authors']):
+                loc[i] = True
+                break
+        return loc
+
+    def set_books_in_library(self, booklist, reset = False):
+        if reset:
+            self.book_in_library_cache = None
+            return
+
+        # First build a self.book_in_library_cache of the library, so the search isn't On**2
+        self.book_in_library_cache = {}
+        for id, title in self.library_view.model().db.all_titles():
+            title = re.sub('(?u)\W|[_]', '', title.lower())
+            if title not in self.book_in_library_cache:
+                self.book_in_library_cache[title] = {'authors':set(), 'db_ids':set()}
+            au = self.library_view.model().db.authors(id, index_is_id=True)
+            authors = au.lower() if au else ''
+            authors = re.sub('(?u)\W|[_]', '', authors)
+            self.book_in_library_cache[title]['authors'].add(authors)
+            self.book_in_library_cache[title]['db_ids'].add(id)
+
+        # Now iterate through all the books on the device, setting the in_library field
+        for book in booklist:
+            book_title = book.title.lower() if book.title else ''
+            book_title = re.sub('(?u)\W|[_]', '', book_title)
+            book.in_library = False
+            d = self.book_in_library_cache.get(book_title, None)
+            if d is not None:
+                if book.db_id in d['db_ids']:
+                    book.in_library = True
+                    continue
+                book_authors = authors_to_string(book.authors).lower() if book.authors else ''
+                book_authors = re.sub('(?u)\W|[_]', '', book_authors)
+                if book_authors in d['authors']:
+                    book.in_library = True

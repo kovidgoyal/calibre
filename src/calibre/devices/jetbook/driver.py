@@ -55,7 +55,13 @@ class JETBOOK(USBMS):
         au = mi.format_authors()
         if not au:
             au = 'Unknown'
-        return '%s#%s%s' % (au, title, fileext)
+        suffix = ''
+        if getattr(mi, 'application_id', None) is not None:
+            base = fname.rpartition('.')[0]
+            suffix = '_%s'%mi.application_id
+            if base.endswith(suffix):
+                suffix = ''
+        return '%s#%s%s%s' % (au, title, fileext, suffix)
 
     @classmethod
     def metadata_from_path(cls, path):

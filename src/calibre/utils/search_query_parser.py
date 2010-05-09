@@ -100,6 +100,7 @@ class SearchQueryParser(object):
         'search',
         'date',
         'pubdate',
+        'ondevice',
         'all',
                  ]
 
