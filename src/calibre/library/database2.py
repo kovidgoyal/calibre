@@ -470,14 +470,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             im = PILImage.open(f)
             im.convert('RGB').save(path, 'JPEG')
 
-    def book_on_device(self, index, index_is_id=False):
+    def book_on_device(self, index):
         if self.book_on_device_func:
-            return self.book_on_device_func(index, index_is_id)
+            return self.book_on_device_func(index)
         return None
 
-    def book_on_device_string(self, index, index_is_id=False):
+    def book_on_device_string(self, index):
         loc = []
-        on = self.book_on_device(index, index_is_id)
+        on = self.book_on_device(index)
         if on is not None:
             m, a, b = on
             if m is not None:

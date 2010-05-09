@@ -121,14 +121,6 @@ class PRS505(CLI, Device):
         self.report_progress(1.0, _('Getting list of books on device...'))
         return bl
 
-    def filename_callback(self, fname, mi):
-        if getattr(mi, 'application_id', None) is not None:
-            base = fname.rpartition('.')[0]
-            suffix = '_%s'%mi.application_id
-            if not base.endswith(suffix):
-                fname = base + suffix + '.' + fname.rpartition('.')[-1]
-        return fname
-
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
 

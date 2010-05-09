@@ -61,6 +61,11 @@ class KINDLE(USBMS):
         return mi
 
     def filename_callback(self, fname, mi):
+        if getattr(mi, 'application_id', None) is not None:
+            base = fname.rpartition('.')[0]
+            suffix = '_%s'%mi.application_id
+            if not base.endswith(suffix):
+                fname = base + suffix + '.' + fname.rpartition('.')[-1]
         if fname.startswith('.'):
             return 'x'+fname[1:]
         return fname

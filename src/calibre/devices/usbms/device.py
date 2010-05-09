@@ -784,8 +784,14 @@ class Device(DeviceConfig, DevicePlugin):
     def filename_callback(self, default, mi):
         '''
         Callback to allow drivers to change the default file name
-        set by :method:`create_upload_path`.
+        set by :method:`create_upload_path`. By default, add the DB_ID
+        to the end of the string. Helps with ondevice doc matching
         '''
+        if getattr(mi, 'application_id', None) is not None:
+            base = default.rpartition('.')[0]
+            suffix = '_%s'%mi.application_id
+            if not base.endswith(suffix):
+                default = base + suffix + '.' + default.rpartition('.')[-1]
         return default
 
     def sanitize_path_components(self, components):
