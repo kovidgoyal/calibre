@@ -1266,13 +1266,6 @@ class DeviceBooksModel(BooksModel):
         self.search_engine = OnDeviceSearch(self)
         self.editable = True
         self.book_in_library = None
-        self.loc = None
-
-    def set_book_in_library_func(self, func, loc):
-        self.book_in_library = func
-        self.loc = loc
-        # Not convinced that this should be here ...
-        func(self.db)
 
     def mark_for_deletion(self, job, rows):
         self.marked_for_deletion[job] = self.indices(rows)

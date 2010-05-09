@@ -1013,29 +1013,29 @@ class DeviceGUI(object):
                 break
         return loc
 
-    def set_books_in_library(self, booklist):
-        '''
-        Set the 'in_library' attribute for all books on a device to True if a
-        book on the device is in the library, else False
-        '''
-        # First build a cache of the library, so the search isn't On**2
-        cache = {}
+    def set_books_in_library(self, booklist, reset = False):
+        if reset:
+            self.book_in_library_cache = None
+            return
+
+        # First build a self.book_in_library_cache of the library, so the search isn't On**2
+        self.book_in_library_cache = {}
         for id, title in self.library_view.model().db.all_titles():
             title = re.sub('(?u)\W|[_]', '', title.lower())
-            if title not in cache:
-                cache[title] = {'authors':set(), 'db_ids':set()}
+            if title not in self.book_in_library_cache:
+                self.book_in_library_cache[title] = {'authors':set(), 'db_ids':set()}
             au = self.library_view.model().db.authors(id, index_is_id=True)
             authors = au.lower() if au else ''
             authors = re.sub('(?u)\W|[_]', '', authors)
-            cache[title]['authors'].add(authors)
-            cache[title]['db_ids'].add(id)
+            self.book_in_library_cache[title]['authors'].add(authors)
+            self.book_in_library_cache[title]['db_ids'].add(id)
 
         # Now iterate through all the books on the device, setting the in_library field
         for book in booklist:
             book_title = book.title.lower() if book.title else ''
             book_title = re.sub('(?u)\W|[_]', '', book_title)
             book.in_library = False
-            d = cache.get(book_title, None)
+            d = self.book_in_library_cache.get(book_title, None)
             if d is not None:
                 if book.db_id in d['db_ids']:
                     book.in_library = True

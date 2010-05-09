@@ -992,15 +992,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             else:
                 self.device_job_exception(job)
             return
+        self.set_books_in_library(None, reset=True)
         mainlist, cardalist, cardblist = job.result
         self.memory_view.set_database(mainlist)
-        self.memory_view.model().set_book_in_library_func(self.set_books_in_library, 'main')
+        self.set_books_in_library(mainlist)
         self.memory_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         self.card_a_view.set_database(cardalist)
-        self.card_a_view.model().set_book_in_library_func(self.set_books_in_library, 'carda')
+        self.set_books_in_library(cardalist)
         self.card_a_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         self.card_b_view.set_database(cardblist)
-        self.card_b_view.model().set_book_in_library_func(self.set_books_in_library, 'cardb')
+        self.set_books_in_library(cardblist)
         self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         for view in (self.memory_view, self.card_a_view, self.card_b_view):
             view.sortByColumn(3, Qt.DescendingOrder)
