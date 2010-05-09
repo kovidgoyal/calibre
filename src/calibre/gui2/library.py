@@ -339,6 +339,7 @@ class BooksModel(QAbstractTableModel):
         self.bool_yes_icon = QIcon(I('ok.svg'))
         self.bool_no_icon = QIcon(I('list_remove.svg'))
         self.bool_blank_icon = QIcon(I('blank.svg'))
+        self.device_connected = False
 
     def is_custom_column(self, cc_label):
         return cc_label in self.custom_columns
@@ -353,7 +354,10 @@ class BooksModel(QAbstractTableModel):
         self.headers = {}
         self.column_map = []
         for col in cmap: # take out any columns no longer in the db
-            if col in self.orig_headers or col in self.custom_columns:
+            if col == 'ondevice':
+                if self.device_connected:
+                    self.column_map.append(col)
+            elif col in self.orig_headers or col in self.custom_columns:
                 self.column_map.append(col)
         for col in self.column_map:
             if col in self.orig_headers:
@@ -363,6 +367,12 @@ class BooksModel(QAbstractTableModel):
         self.build_data_convertors()
         self.reset()
         self.emit(SIGNAL('columns_sorted()'))
+
+    def set_device_connected(self, is_connected):
+        self.device_connected = is_connected
+        self.read_config()
+        self.refresh(reset=True)
+        self.database_changed.emit(self.db)
 
     def set_book_on_device_func(self, func):
         self.book_on_device = func
