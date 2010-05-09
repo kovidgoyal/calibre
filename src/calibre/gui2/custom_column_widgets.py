@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
         QDate, QGroupBox, QVBoxLayout, QPlainTextEdit, QSizePolicy, \
-        QSpacerItem, QIcon
+        QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL
 
 from calibre.utils.date import qt_to_dt
 from calibre.gui2.widgets import TagsLineEdit, EnComboBox
@@ -337,6 +337,30 @@ class BulkRating(BulkBase, Rating):
 class BulkDateTime(BulkBase, DateTime):
     pass
 
+class RemoveTags(QWidget):
+
+    def __init__(self, parent, values):
+        QWidget.__init__(self, parent)
+        layout = QHBoxLayout()
+        layout.setSpacing(5)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        self.tags_box = TagsLineEdit(parent, values)
+        layout.addWidget(self.tags_box, stretch = 1)
+        # self.tags_box.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+
+        self.checkbox = QCheckBox(_('Remove all tags'), parent)
+        layout.addWidget(self.checkbox)
+        self.setLayout(layout)
+        self.connect(self.checkbox, SIGNAL('stateChanged(int)'), self.box_touched)
+
+    def box_touched(self, state):
+        if state:
+            self.tags_box.setText('')
+            self.tags_box.setEnabled(False)
+        else:
+            self.tags_box.setEnabled(True)
+
 class BulkText(BulkBase):
 
     def setup_ui(self, parent):
@@ -349,8 +373,7 @@ class BulkText(BulkBase):
                                    _('tags to add'), parent), w]
             self.adding_widget = w
 
-            w = TagsLineEdit(parent, values)
-            w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+            w = RemoveTags(parent, values)
             self.widgets.append(QLabel('&'+self.col_metadata['name']+': ' +
                                        _('tags to remove'), parent))
             self.widgets.append(w)
@@ -381,14 +404,14 @@ class BulkText(BulkBase):
 
     def getter(self, original_value = None):
         if self.col_metadata['is_multiple']:
-            if self.removing_widget.text() == '*':
+            if self.removing_widget.checkbox.isChecked():
                 ans = set()
             else:
                 ans = set(original_value)
                 ans -= set([v.strip() for v in
-                              unicode(self.removing_widget.text()).split(',')])
+                            unicode(self.removing_widget.tags_box.text()).split(',')])
             ans |= set([v.strip() for v in
-                              unicode(self.adding_widget.text()).split(',')])
+                            unicode(self.adding_widget.text()).split(',')])
             return ans # returning a set instead of a list works, for now at least.
         val = unicode(self.widgets[1].currentText()).strip()
         if not val:
