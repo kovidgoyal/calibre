@@ -634,6 +634,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             height = v.rowHeight(0)
             self.library_view.verticalHeader().setDefaultSectionSize(height)
 
+        self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
+
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
