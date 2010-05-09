@@ -390,8 +390,8 @@ class BooksModel(QAbstractTableModel):
             if row == current_row:
                 self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'),
                           self.get_book_display_info(row))
-            self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
-                      self.index(row, 0), self.index(row, self.columnCount(QModelIndex())-1))
+            self.dataChanged.emit(self.index(row, 0), self.index(row,
+                self.columnCount(QModelIndex())-1))
 
     def close(self):
         self.db.close()
@@ -723,6 +723,7 @@ class BooksModel(QAbstractTableModel):
         if img.isNull():
             img = self.default_image
         return img
+
 
     def build_data_convertors(self):
         def authors(r, idx=-1):

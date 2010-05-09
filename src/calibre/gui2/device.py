@@ -971,13 +971,29 @@ class DeviceGUI(object):
 
         self.upload_booklists()
 
+        books_to_be_deleted = []
+        if memory and memory[1]:
+            books_to_be_deleted = memory[1]
+            self.library_view.model().delete_books_by_id(books_to_be_deleted)
+
+        self.set_books_in_library(self.booklists(),
+                reset=bool(books_to_be_deleted))
+
         view = self.card_a_view if on_card == 'carda' else self.card_b_view if on_card == 'cardb' else self.memory_view
         view.model().resort(reset=False)
         view.model().research()
         for f in files:
             getattr(f, 'close', lambda : True)()
-        if memory and memory[1]:
-            self.library_view.model().delete_books_by_id(memory[1])
+
+        self.book_on_device(None, reset=True)
+        if metadata:
+            changed = set([])
+            for mi in metadata:
+                id_ = getattr(mi, 'application_id', None)
+                if id_ is not None:
+                    changed.add(id_)
+            if changed:
+                self.library_view.model().refresh_ids(list(changed))
 
     def book_on_device(self, index, format=None, reset=False):
         loc = [None, None, None]
@@ -1013,34 +1029,32 @@ class DeviceGUI(object):
                 break
         return loc
 
-    def set_books_in_library(self, booklist, reset = False):
+    def set_books_in_library(self, booklists, reset=False):
         if reset:
-            self.book_in_library_cache = None
-            return
-
-        # First build a self.book_in_library_cache of the library, so the search isn't On**2
-        self.book_in_library_cache = {}
-        for id, title in self.library_view.model().db.all_titles():
-            title = re.sub('(?u)\W|[_]', '', title.lower())
-            if title not in self.book_in_library_cache:
-                self.book_in_library_cache[title] = {'authors':set(), 'db_ids':set()}
-            au = self.library_view.model().db.authors(id, index_is_id=True)
-            authors = au.lower() if au else ''
-            authors = re.sub('(?u)\W|[_]', '', authors)
-            self.book_in_library_cache[title]['authors'].add(authors)
-            self.book_in_library_cache[title]['db_ids'].add(id)
+            # First build a self.book_in_library_cache of the library, so the search isn't On**2
+            self.book_in_library_cache = {}
+            for id, title in self.library_view.model().db.all_titles():
+                title = re.sub('(?u)\W|[_]', '', title.lower())
+                if title not in self.book_in_library_cache:
+                    self.book_in_library_cache[title] = {'authors':set(), 'db_ids':set()}
+                au = self.library_view.model().db.authors(id, index_is_id=True)
+                authors = au.lower() if au else ''
+                authors = re.sub('(?u)\W|[_]', '', authors)
+                self.book_in_library_cache[title]['authors'].add(authors)
+                self.book_in_library_cache[title]['db_ids'].add(id)
 
         # Now iterate through all the books on the device, setting the in_library field
-        for book in booklist:
-            book_title = book.title.lower() if book.title else ''
-            book_title = re.sub('(?u)\W|[_]', '', book_title)
-            book.in_library = False
-            d = self.book_in_library_cache.get(book_title, None)
-            if d is not None:
-                if book.db_id in d['db_ids']:
-                    book.in_library = True
-                    continue
-                book_authors = authors_to_string(book.authors).lower() if book.authors else ''
-                book_authors = re.sub('(?u)\W|[_]', '', book_authors)
-                if book_authors in d['authors']:
-                    book.in_library = True
+        for booklist in booklists:
+            for book in booklist:
+                book_title = book.title.lower() if book.title else ''
+                book_title = re.sub('(?u)\W|[_]', '', book_title)
+                book.in_library = False
+                d = self.book_in_library_cache.get(book_title, None)
+                if d is not None:
+                    if book.db_id in d['db_ids']:
+                        book.in_library = True
+                        continue
+                    book_authors = authors_to_string(book.authors).lower() if book.authors else ''
+                    book_authors = re.sub('(?u)\W|[_]', '', book_authors)
+                    if book_authors in d['authors']:
+                        book.in_library = True
