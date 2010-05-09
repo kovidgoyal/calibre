@@ -42,3 +42,22 @@ bool_custom_columns_are_tristate = 'yes'
 # For example, set it to [('authors',0),('title',0)] to sort by
 # title within authors.
 sort_columns_at_startup = None
+
+# Format to be used for publication date
+#  A string controlling how the publication date is displayed in the GUI
+#  d    the day as number without a leading zero (1 to 31)
+#  dd    the day as number with a leading zero (01 to 31)
+#  ddd    the abbreviated localized day name (e.g. 'Mon' to 'Sun').
+#  dddd    the long localized day name (e.g. 'Monday' to 'Qt::Sunday').
+#  M    the month as number without a leading zero (1-12)
+#  MM    the month as number with a leading zero (01-12)
+#  MMM    the abbreviated localized month name (e.g. 'Jan' to 'Dec').
+#  MMMM    the long localized month name (e.g. 'January' to 'December').
+#  yy    the year as two digit number (00-99)
+#  yyyy    the year as four digit number
+#  For example, given the date of 9 Jan 2010, the following formats show
+#  MMM yyyy ==> Jan 2010    yyyy ==> 2010       dd MMM yyyy ==> 09 Jan 2010
+#  MM/yyyy ==> 01/2010      d/M/yy ==> 9/1/10   yy ==> 10
+# default if not set: MMM yyyy
+gui_pubdate_display_format = 'MMM yyyy'
+
