@@ -149,7 +149,7 @@ Linux development environment
 
 |app| is primarily developed on linux. You have two choices in setting up the development environment. You can install the
 |app| binary as normal and use that as a runtime environment to do your development. This approach is similar to that
-used in windows and linux. Alternatively, you can install |app| from source. Instructions for setting up a development
+used in windows and OS X. Alternatively, you can install |app| from source. Instructions for setting up a development
 environment from source are in the INSTALL file in the source tree. Here we will address using the binary a runtime.
 
 Install the |app| using the binary installer. The opena  terminal and change to the previously checked out |app| code directory, for example::
