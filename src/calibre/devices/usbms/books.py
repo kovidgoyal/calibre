@@ -49,7 +49,7 @@ class Book(object):
     @property
     def db_id(self):
         '''The database id in the application database that this file corresponds to'''
-        match = re.search(r'_(\d+)$', self.rpath.rpartition('.')[0])
+        match = re.search(r'_(\d+)$', self.path.rpartition('.')[0])
         if match:
             return int(match.group(1))
 
