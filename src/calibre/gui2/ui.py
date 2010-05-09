@@ -947,6 +947,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     self.device_manager.device)
             self.location_view.model().device_connected(self.device_manager.device)
             self.eject_action.setEnabled(True)
+            self.refresh_ondevice_info (device_connected = True)
         else:
             self.save_device_view_settings()
             self.device_connected = False
@@ -959,7 +960,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.status_bar.reset_info()
                 self.location_view.setCurrentIndex(self.location_view.model().index(0))
             self.eject_action.setEnabled(False)
-            self.refresh_ondevice_info(clear_flags=True)
+            self.refresh_ondevice_info (device_connected = False)
 
     def info_read(self, job):
         '''
@@ -1012,13 +1013,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 view.verticalHeader().setDefaultSectionSize(height)
         self.sync_news()
         self.sync_catalogs()
-        self.refresh_ondevice_info()
+        self.refresh_ondevice_info(device_connected = True)
 
     ############################################################################
     ### Force the library view to refresh, taking into consideration books information
-    def refresh_ondevice_info(self, clear_flags=False):
+    def refresh_ondevice_info(self, device_connected):
         self.book_on_device(None, reset=True)
-        self.library_view.model().refresh()
+        self.library_view.model().set_device_connected(device_connected)
     ############################################################################
 
     ######################### Fetch annotations ################################
