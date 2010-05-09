@@ -1399,7 +1399,7 @@ books_series_link      feeds
     def check_integrity(self, callback):
         callback(0., _('Checking SQL integrity...'))
         user_version = self.user_version
-        sql = self.conn.dump()
+        sql = '\n'.join(self.conn.dump())
         self.conn.close()
         dest = self.dbpath+'.tmp'
         if os.path.exists(dest):

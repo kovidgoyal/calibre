@@ -116,7 +116,7 @@ class DBThread(Thread):
                     break
                 if func == 'dump':
                     try:
-                        ok, res = True, '\n'.join(self.conn.iterdump())
+                        ok, res = True, tuple(self.conn.iterdump())
                     except Exception, err:
                         ok, res = False, (err, traceback.format_exc())
                 else:

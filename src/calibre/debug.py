@@ -40,7 +40,7 @@ Run an embedded python interpreter.
 
     return parser
 
-def reinit_db(dbpath):
+def reinit_db(dbpath, callback=None):
     if not os.path.exists(dbpath):
         raise ValueError(dbpath + ' does not exist')
     from calibre.library.sqlite import connect
@@ -50,15 +50,26 @@ def reinit_db(dbpath):
     uv = conn.get('PRAGMA user_version;', all=False)
     conn.execute('PRAGMA writable_schema=ON')
     conn.commit()
-    sql = conn.dump()
+    sql_lines = conn.dump()
     conn.close()
     dest = dbpath + '.tmp'
     try:
         with closing(connect(dest, False)) as nconn:
             nconn.execute('create temporary table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
             nconn.commit()
-            nconn.executescript(sql)
-            nconn.commit()
+            if callable(callback):
+                callback(len(sql_lines), True)
+            for i, line in enumerate(sql_lines):
+                try:
+                    nconn.execute(line)
+                except:
+                    import traceback
+                    prints('SQL line %r failed with error:'%line)
+                    prints(traceback.format_exc())
+                    continue
+                finally:
+                    if callable(callback):
+                        callback(i, False)
             nconn.execute('pragma user_version=%d'%int(uv))
             nconn.commit()
         os.remove(dbpath)
