@@ -124,7 +124,10 @@ class PubDateDelegate(QStyledItemDelegate):
         d = val.toDate()
         if d == UNDEFINED_QDATE:
             return ''
-        return d.toString('MMM yyyy')
+        format = tweaks['gui_pubdate_display_format']
+        if format is None:
+            format = 'MMM yyyy'
+        return d.toString(format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
