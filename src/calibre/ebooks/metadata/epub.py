@@ -133,11 +133,11 @@ def get_cover(opf, opf_path, stream, reader=None):
     stream.seek(0)
     zf = ZipFile(stream)
     if raster_cover:
-        if reader is not None and \
-            reader.encryption_meta.is_encrypted(raster_cover):
-                return
         base = posixpath.dirname(opf_path)
         cpath = posixpath.normpath(posixpath.join(base, raster_cover))
+        if reader is not None and \
+            reader.encryption_meta.is_encrypted(cpath):
+                return
         try:
             member = zf.getinfo(cpath)
         except:
