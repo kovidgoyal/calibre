@@ -126,7 +126,6 @@ class Rating(Int):
 class DateEdit(QDateEdit):
 
     def focusInEvent(self, x):
-        print 'focus in'
         self.setSpecialValueText('')
 
     def focusOutEvent(self, x):
