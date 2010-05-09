@@ -1070,6 +1070,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return [ (i[0], i[1]) for i in \
                 self.conn.get('SELECT id, name FROM tags')]
 
+    def all_titles(self):
+        return [ (i[0], i[1]) for i in \
+                self.conn.get('SELECT id, title FROM books')]
 
     def conversion_options(self, id, format):
         data = self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (id, format.upper()), all=False)

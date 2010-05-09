@@ -543,7 +543,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             else:
                 self.library_path = dir
                 db = LibraryDatabase2(self.library_path)
+        db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
+        self.library_view.model().set_book_on_device_func(self.book_on_device)
         prefs['library_path'] = self.library_path
         self.library_view.restore_sort_at_startup(dynamic.get('sort_history', [('timestamp', Qt.DescendingOrder)]))
         if not self.library_view.restore_column_widths():
@@ -978,6 +980,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.status_bar.reset_info()
                 self.location_view.setCurrentIndex(self.location_view.model().index(0))
             self.eject_action.setEnabled(False)
+            self.refresh_ondevice_info (clear_info = True)
 
     def info_read(self, job):
         '''
@@ -1012,10 +1015,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             return
         mainlist, cardalist, cardblist = job.result
         self.memory_view.set_database(mainlist)
+        self.memory_view.model().set_book_in_library_func(self.book_in_library, 'main')
         self.memory_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         self.card_a_view.set_database(cardalist)
+        self.card_a_view.model().set_book_in_library_func(self.book_in_library, 'carda')
         self.card_a_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         self.card_b_view.set_database(cardblist)
+        self.card_b_view.model().set_book_in_library_func(self.book_in_library, 'cardb')
         self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         for view in (self.memory_view, self.card_a_view, self.card_b_view):
             view.sortByColumn(3, Qt.DescendingOrder)
@@ -1025,6 +1031,18 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             view.resize_on_select = not view.isVisible()
         self.sync_news()
         self.sync_catalogs()
+        self.refresh_ondevice_info()
+
+    ############################################################################
+    ### Force the library view to refresh, taking into consideration books information
+    def refresh_ondevice_info(self, clear_flags = False):
+#        self.library_view.model().db.set_all_ondevice('')
+#        if not clear_flags:
+#            for id in self.library_view.model().db:
+#                self.library_view.model().db.set_book_on_device_string(id, index_is_id=True))
+        self.library_view.model().refresh()
+    ############################################################################
+
     ############################################################################
 
     ######################### Fetch annotations ################################
@@ -2250,7 +2268,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def library_moved(self, newloc):
         if newloc is None: return
         db = LibraryDatabase2(newloc)
+        db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
+        self.library_view.model().set_book_on_device_func(self.book_on_device)
         self.status_bar.clearMessage()
         self.search.clear_to_help()
         self.status_bar.reset_info()

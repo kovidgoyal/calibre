@@ -1,7 +1,7 @@
 from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, traceback, Queue, time, socket, cStringIO
+import os, traceback, Queue, time, socket, cStringIO, re
 from threading import Thread, RLock
 from itertools import repeat
 from functools import partial
@@ -978,3 +978,55 @@ class DeviceGUI(object):
             getattr(f, 'close', lambda : True)()
         if memory and memory[1]:
             self.library_view.model().delete_books_by_id(memory[1])
+
+    def book_on_device(self, index, index_is_id=False, format=None):
+        loc = [None, None, None]
+
+        db_title = self.library_view.model().db.title(index, index_is_id).lower()
+        db_title = re.sub('(?u)\W|[_]', '', db_title)
+        au = self.library_view.model().db.authors(index, index_is_id)
+        db_authors = au.lower() if au else ''
+        db_authors = re.sub('(?u)\W|[_]', '', db_authors)
+
+        for i, l in enumerate(self.booklists()):
+            for book in l:
+                book_title = book.title.lower() if book.title else ''
+                book_title = re.sub('(?u)\W|[_]', '', book_title)
+                book_authors = authors_to_string(book.authors).lower()
+                book_authors = re.sub('(?u)\W|[_]', '', book_authors)
+                if book_title == db_title and book_authors == db_authors:
+                    loc[i] = True
+                    break
+        return loc
+
+    def book_in_library(self, index, oncard=None):
+        '''
+        Used to determine if a book on the device is in the library.
+        Returns the book's id in the library.
+        '''
+        bl = []
+        if oncard == 'carda':
+            bl = self.booklists()[1]
+        elif oncard == 'cardb':
+            bl = self.booklists()[2]
+        else:
+            bl = self.booklists()[0]
+
+        book = bl[index]
+        book_title = book.title.lower() if book.title else ''
+        book_title = re.sub('(?u)\W|[_]', '', book_title)
+        book_authors = authors_to_string(book.authors).lower() if book.authors else ''
+        book_authors = re.sub('(?u)\W|[_]', '', book_authors)
+
+#        if getattr(book, 'application_id', None) != None and self.library_view.model().db.has_id(book.application_id):
+#            if book.uuid and self.library_view.model().db.uuid(book.application_id, index_is_id=True) == book.uuid:
+#                return book.application_id
+        for id, title in self.library_view.model().db.all_titles():
+            title = re.sub('(?u)\W|[_]', '', title.lower())
+            if title == book_title:
+                au = self.library_view.model().db.authors(id, index_is_id=True)
+                authors = au.lower() if au else ''
+                authors = re.sub('(?u)\W|[_]', '', authors)
+                if authors == book_authors:
+                    return id
+        return None

@@ -518,6 +518,7 @@ class ResultCache(SearchQueryParser):
             try:
                 self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
                 self._data[id].append(db.has_cover(id, index_is_id=True))
+                self._data[id].append(db.book_on_device_string(id, index_is_id=True))
             except IndexError:
                 return None
         try:
@@ -533,6 +534,7 @@ class ResultCache(SearchQueryParser):
         for id in ids:
             self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
             self._data[id].append(db.has_cover(id, index_is_id=True))
+            self._data[id].append(db.book_on_device_string(id, index_is_id=True))
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -553,6 +555,7 @@ class ResultCache(SearchQueryParser):
         for item in self._data:
             if item is not None:
                 item.append(db.has_cover(item[0], index_is_id=True))
+                item.append(db.book_on_device_string(item[0], index_is_id=True))
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)
