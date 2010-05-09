@@ -284,7 +284,12 @@ class BookList(_BookList):
         plitems = []
         for pl in self.playlists():
             for c in pl.childNodes:
-                if hasattr(c, 'tagName')  and c.tagName.endswith('item'):
+                if hasattr(c, 'tagName') and c.tagName.endswith('item') and \
+                    hasattr(c, 'getAttribute'):
+                    try:
+                        c.getAttribute('id')
+                    except: # Unlinked node
+                        continue
                     plitems.append(c)
         return plitems
 
@@ -385,9 +390,9 @@ class BookList(_BookList):
                 continue
             db_ids = [i.getAttribute('id') for i in pl.childNodes if hasattr(i, 'getAttribute')]
             pl_book_ids = [getattr(self.book_by_id(i), 'db_id', None) for i in db_ids]
-            map = {}
+            imap = {}
             for i, j in zip(pl_book_ids, db_ids):
-                map[i] = j
+                imap[i] = j
             pl_book_ids = [i for i in pl_book_ids if i is not None]
             ordered_ids = [i for i in self.tag_order[title] if i in pl_book_ids]
 
@@ -399,7 +404,7 @@ class BookList(_BookList):
                 child.unlink()
             for id in ordered_ids:
                 item = self.document.createElement(self.prefix+'item')
-                item.setAttribute('id', str(map[id]))
+                item.setAttribute('id', str(imap[id]))
                 pl.appendChild(item)
 
 def fix_ids(main, carda, cardb):

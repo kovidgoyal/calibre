@@ -4,15 +4,18 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, time, socket, traceback
 from functools import partial
 
-from PyQt4.Qt import QCoreApplication, QIcon, QMessageBox
+from PyQt4.Qt import QCoreApplication, QIcon, QMessageBox, QObject, QTimer, \
+        QThread, pyqtSignal, Qt, QProgressDialog, QString
 
-from calibre import prints
-from calibre.constants import iswindows, __appname__, isosx
+from calibre import prints, plugins
+from calibre.constants import iswindows, __appname__, isosx, filesystem_encoding
 from calibre.utils.ipc import ADDRESS, RC
 from calibre.gui2 import ORG_NAME, APP_UID, initialize_file_icon_provider, \
-    Application
+    Application, choose_dir, error_dialog, question_dialog
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.utils.config import prefs, dynamic
+from calibre.library.database2 import LibraryDatabase2
+from calibre.library.sqlite import sqlite, DatabaseException
 
 def option_parser():
     parser = _option_parser('''\
@@ -48,25 +51,186 @@ def init_qt(args):
     app.setWindowIcon(QIcon(I('library.png')))
     return app, opts, args, actions
 
+def get_library_path():
+    library_path = prefs['library_path']
+    if library_path is None: # Need to migrate to new database layout
+        base = os.path.expanduser('~')
+        if iswindows:
+            base = plugins['winutil'][0].special_folder_path(
+                    plugins['winutil'][0].CSIDL_PERSONAL)
+            if not base or not os.path.exists(base):
+                from PyQt4.Qt import QDir
+                base = unicode(QDir.homePath()).replace('/', os.sep)
+        candidate = choose_dir(None, 'choose calibre library',
+                _('Choose a location for your calibre e-book library'),
+                default_dir=base)
+        if not candidate:
+            candidate = os.path.join(base, 'Calibre Library')
+        library_path = os.path.abspath(candidate)
+    if not os.path.exists(library_path):
+        try:
+            os.makedirs(library_path)
+        except:
+            error_dialog(None, _('Failed to create library'),
+                    _('Failed to create calibre library at: %r. Aborting.')%library_path,
+                    det_msg = traceback.print_exc(), show=True)
+            library_path = None
+    return library_path
+
+class DBRepair(QThread):
+
+    repair_done = pyqtSignal(object, object)
+    progress = pyqtSignal(object, object)
+
+    def __init__(self, library_path, parent, pd):
+        QThread.__init__(self, parent)
+        self.library_path = library_path
+        self.pd = pd
+        self.progress.connect(self._callback, type=Qt.QueuedConnection)
+
+    def _callback(self, num, is_length):
+        if is_length:
+            self.pd.setRange(0, num-1)
+            num = 0
+        self.pd.setValue(num)
+
+    def callback(self, num, is_length):
+        self.progress.emit(num, is_length)
+
+    def run(self):
+        from calibre.debug import reinit_db
+        try:
+            reinit_db(os.path.join(self.library_path, 'metadata.db'),
+                    self.callback)
+            db = LibraryDatabase2(self.library_path)
+            tb = None
+        except:
+            db, tb = None, traceback.format_exc()
+        self.repair_done.emit(db, tb)
+
+class GuiRunner(QObject):
+    '''Make sure an event loop is running before starting the main work of
+    initialization'''
+
+    def __init__(self, opts, args, actions, listener, app):
+        self.opts, self.args, self.listener, self.app = opts, args, listener, app
+        self.actions = actions
+        self.main = None
+        QObject.__init__(self)
+        self.timer = QTimer.singleShot(1, self.initialize)
+
+    def start_gui(self):
+        from calibre.gui2.ui import Main
+        main = Main(self.library_path, self.db, self.listener, self.opts, self.actions)
+        add_filesystem_book = partial(main.add_filesystem_book, allow_device=False)
+        sys.excepthook = main.unhandled_exception
+        if len(self.args) > 1:
+            p = os.path.abspath(self.args[1])
+            add_filesystem_book(p)
+        self.app.file_event_hook = add_filesystem_book
+        self.main = main
+
+    def initialization_failed(self):
+        print 'Catastrophic failure initializing GUI, bailing out...'
+        QCoreApplication.exit(1)
+        raise SystemExit(1)
+
+    def initialize_db_stage2(self, db, tb):
+        repair_pd = getattr(self, 'repair_pd', None)
+        if repair_pd is not None:
+            repair_pd.cancel()
+
+        if db is None and tb is not None:
+            # DB Repair failed
+            error_dialog(None, _('Repairing failed'),
+                    _('The database repair failed. Starting with '
+                        'a new empty library.'),
+                    det_msg=tb, show=True)
+        if db is None:
+            fname = _('Calibre Library')
+            if isinstance(fname, unicode):
+                try:
+                    fname = fname.encode(filesystem_encoding)
+                except:
+                    fname = 'Calibre Library'
+            x = os.path.expanduser('~'+os.sep+fname)
+            if not os.path.exists(x):
+                try:
+                    os.makedirs(x)
+                except:
+                    x = os.path.expanduser('~')
+            candidate = choose_dir(None, 'choose calibre library',
+                _('Choose a location for your new calibre e-book library'),
+                default_dir=x)
+
+            if not candidate:
+                self.initialization_failed()
+
+            try:
+                self.library_path = candidate
+                db = LibraryDatabase2(candidate)
+            except:
+                error_dialog(None, _('Bad database location'),
+                    _('Bad database location %r. calibre will now quit.'
+                     )%self.library_path,
+                    det_msg=traceback.format_exc(), show=True)
+                self.initialization_failed()
+
+        self.db = db
+        self.start_gui()
+
+    def initialize_db(self):
+        db = None
+        try:
+            db = LibraryDatabase2(self.library_path)
+        except (sqlite.Error, DatabaseException):
+            repair = question_dialog(None, _('Corrupted database'),
+                    _('Your calibre database appears to be corrupted. Do '
+                    'you want calibre to try and repair it automatically? '
+                    'If you say No, a new empty calibre library will be created.'),
+                    det_msg=traceback.format_exc()
+                    )
+            if repair:
+                self.repair_pd = QProgressDialog(_('Repairing database. This '
+                    'can take a very long time for a large collection'), QString(),
+                    0, 0)
+                self.repair_pd.setWindowModality(Qt.WindowModal)
+                self.repair_pd.show()
+
+                self.repair = DBRepair(self.library_path, self, self.repair_pd)
+                self.repair.repair_done.connect(self.initialize_db_stage2,
+                        type=Qt.QueuedConnection)
+                self.repair.start()
+                return
+        except:
+            error_dialog(None, _('Bad database location'),
+                    _('Bad database location %r. Will start with '
+                    ' a new, empty calibre library')%self.library_path,
+                    det_msg=traceback.format_exc(), show=True)
+
+        self.initialize_db_stage2(db, None)
+
+    def initialize(self, *args):
+        self.library_path = get_library_path()
+        if self.library_path is None:
+            self.initialization_failed()
+
+        self.initialize_db()
+
+
+
 def run_gui(opts, args, actions, listener, app):
-    from calibre.gui2.ui import Main
     initialize_file_icon_provider()
     if not dynamic.get('welcome_wizard_was_run', False):
         from calibre.gui2.wizard import wizard
         wizard().exec_()
         dynamic.set('welcome_wizard_was_run', True)
-    main = Main(listener, opts, actions)
-    add_filesystem_book = partial(main.add_filesystem_book, allow_device=False)
-    sys.excepthook = main.unhandled_exception
-    if len(args) > 1:
-        args[1] = os.path.abspath(args[1])
-        add_filesystem_book(args[1])
-    app.file_event_hook = add_filesystem_book
+    runner = GuiRunner(opts, args, actions, listener, app)
     ret = app.exec_()
-    if getattr(main, 'run_wizard_b4_shutdown', False):
+    if getattr(runner.main, 'run_wizard_b4_shutdown', False):
         from calibre.gui2.wizard import wizard
         wizard().exec_()
-    if getattr(main, 'restart_after_quit', False):
+    if getattr(runner.main, 'restart_after_quit', False):
         e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
         print 'Restarting with:', e, sys.argv
         if hasattr(sys, 'frameworks_dir'):
@@ -78,7 +242,7 @@ def run_gui(opts, args, actions, listener, app):
     else:
         if iswindows:
             try:
-                main.system_tray_icon.hide()
+                runner.main.system_tray_icon.hide()
             except:
                 pass
     return ret

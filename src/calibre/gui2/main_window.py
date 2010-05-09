@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import StringIO, traceback, sys
 
 from PyQt4.Qt import QMainWindow, QString, Qt, QFont, QCoreApplication, SIGNAL,\
-                     QAction, QMenu, QMenuBar, QIcon
+                     QAction, QMenu, QMenuBar, QIcon, pyqtSignal
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.utils.config import OptionParser
 from calibre.gui2 import error_dialog
@@ -41,6 +41,8 @@ class MainWindow(QMainWindow):
     ___menu     = None
     __actions   = []
 
+    keyboard_interrupt = pyqtSignal()
+
     @classmethod
     def create_application_menubar(cls):
         mb = QMenuBar(None)
@@ -76,6 +78,9 @@ class MainWindow(QMainWindow):
         print 'Received signal:', repr(signal)
 
     def unhandled_exception(self, type, value, tb):
+        if type == KeyboardInterrupt:
+            self.keyboard_interrupt.emit()
+            return
         try:
             sio = StringIO.StringIO()
             traceback.print_exception(type, value, tb, file=sio)

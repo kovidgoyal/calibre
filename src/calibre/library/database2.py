@@ -106,6 +106,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.conn = connect(self.dbpath, self.row_factory)
         if self.user_version == 0:
             self.initialize_database()
+        # remember to add any filter to the connect method in sqlite.py as well
+        # so that various code taht connects directly will not complain about
+        # missing functions
         self.books_list_filter = self.conn.create_dynamic_filter('books_list_filter')
 
     def __init__(self, library_path, row_factory=False):
@@ -1457,7 +1460,7 @@ books_series_link      feeds
     def check_integrity(self, callback):
         callback(0., _('Checking SQL integrity...'))
         user_version = self.user_version
-        sql = self.conn.dump()
+        sql = '\n'.join(self.conn.dump())
         self.conn.close()
         dest = self.dbpath+'.tmp'
         if os.path.exists(dest):
@@ -1469,7 +1472,6 @@ books_series_link      feeds
             conn = ndb.conn
             conn.execute('create table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
             conn.commit()
-            conn.create_function(self.books_list_filter.name, 1, lambda x: 1)
             conn.executescript(sql)
             conn.commit()
             conn.execute('pragma user_version=%d'%user_version)

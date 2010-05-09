@@ -34,8 +34,50 @@ Run an embedded python interpreter.
             help='Add a simple plugin (i.e. a plugin that consists of only a '
             '.py file), by specifying the path to the py file containing the '
             'plugin code.')
+    parser.add_option('--reinitialize-db', default=None,
+            help='Re-initialize the sqlite calibre database at the '
+            'specified path. Useful to recover from db corruption.')
 
     return parser
+
+def reinit_db(dbpath, callback=None):
+    if not os.path.exists(dbpath):
+        raise ValueError(dbpath + ' does not exist')
+    from calibre.library.sqlite import connect
+    from contextlib import closing
+    import shutil
+    conn = connect(dbpath, False)
+    uv = conn.get('PRAGMA user_version;', all=False)
+    conn.execute('PRAGMA writable_schema=ON')
+    conn.commit()
+    sql_lines = conn.dump()
+    conn.close()
+    dest = dbpath + '.tmp'
+    try:
+        with closing(connect(dest, False)) as nconn:
+            nconn.execute('create temporary table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
+            nconn.commit()
+            if callable(callback):
+                callback(len(sql_lines), True)
+            for i, line in enumerate(sql_lines):
+                try:
+                    nconn.execute(line)
+                except:
+                    import traceback
+                    prints('SQL line %r failed with error:'%line)
+                    prints(traceback.format_exc())
+                    continue
+                finally:
+                    if callable(callback):
+                        callback(i, False)
+            nconn.execute('pragma user_version=%d'%int(uv))
+            nconn.commit()
+        os.remove(dbpath)
+        shutil.copyfile(dest, dbpath)
+    finally:
+        if os.path.exists(dest):
+            os.remove(dest)
+    prints('Database successfully re-initialized')
 
 def migrate(old, new):
     from calibre.utils.config import prefs
@@ -122,6 +164,8 @@ def main(args=sys.argv):
         prints('CALIBRE_RESOURCES_PATH='+sys.resources_location)
         prints('CALIBRE_EXTENSIONS_PATH='+sys.extensions_location)
         prints('CALIBRE_PYTHON_PATH='+os.pathsep.join(sys.path))
+    elif opts.reinitialize_db is not None:
+        reinit_db(opts.reinitialize_db)
     else:
         from calibre import ipython
         ipython()

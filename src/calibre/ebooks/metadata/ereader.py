@@ -8,6 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import re
 import struct
 
 from calibre.ebooks.metadata import MetaInformation
@@ -44,12 +45,12 @@ def get_metadata(stream, extract_cover=True):
         if hr.compression in (2, 10) and hr.has_metadata == 1:
             try:
                 mdata = pheader.section_data(hr.metadata_offset)
-
+    
                 mdata = mdata.split('\x00')
-                mi.title = mdata[0]
-                mi.authors = [mdata[1]]
-                mi.publisher = mdata[3]
-                mi.isbn = mdata[4]
+                mi.title = re.sub(r'[^a-zA-Z0-9 \._=\+\-!\?,\'\"]', '', mdata[0])
+                mi.authors = [re.sub(r'[^a-zA-Z0-9 \._=\+\-!\?,\'\"]', '', mdata[1])]
+                mi.publisher = re.sub(r'[^a-zA-Z0-9 \._=\+\-!\?,\'\"]', '', mdata[3])
+                mi.isbn = re.sub(r'[^a-zA-Z0-9 \._=\+\-!\?,\'\"]', '', mdata[4])
             except:
                 pass
 
