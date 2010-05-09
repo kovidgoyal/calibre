@@ -19,13 +19,13 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
 from calibre import strftime
 from calibre.ebooks.metadata import string_to_authors, fmt_sidx, authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
-from calibre.gui2 import NONE, TableView, config, error_dialog, UNDEFINED_DATE
+from calibre.gui2 import NONE, TableView, config, error_dialog, UNDEFINED_QDATE
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks
-from calibre.utils.date import dt_factory, qt_to_dt, isoformat
+from calibre.utils.date import dt_factory, qt_to_dt, isoformat, now
 from calibre.utils.pyparsing import ParseException
 from calibre.utils.search_query_parser import SearchQueryParser
 
@@ -103,7 +103,7 @@ class DateDelegate(QStyledItemDelegate):
 
     def displayText(self, val, locale):
         d = val.toDate()
-        if d == UNDEFINED_DATE:
+        if d == UNDEFINED_QDATE:
             return ''
         return d.toString('dd MMM yyyy')
 
@@ -113,7 +113,7 @@ class DateDelegate(QStyledItemDelegate):
         if 'yyyy' not in stdformat:
             stdformat = stdformat.replace('yy', 'yyyy')
         qde.setDisplayFormat(stdformat)
-        qde.setMinimumDate(UNDEFINED_DATE)
+        qde.setMinimumDate(UNDEFINED_QDATE)
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
@@ -122,14 +122,14 @@ class PubDateDelegate(QStyledItemDelegate):
 
     def displayText(self, val, locale):
         d = val.toDate()
-        if d == UNDEFINED_DATE:
+        if d == UNDEFINED_QDATE:
             return ''
         return d.toString('MMM yyyy')
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
         qde.setDisplayFormat('MM yyyy')
-        qde.setMinimumDate(UNDEFINED_DATE)
+        qde.setMinimumDate(UNDEFINED_QDATE)
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
@@ -192,17 +192,32 @@ class CcDateDelegate(QStyledItemDelegate):
 
     def displayText(self, val, locale):
         d = val.toDate()
-        if d == UNDEFINED_DATE:
+        if d == UNDEFINED_QDATE:
             return ''
         return d.toString(self.format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
         qde.setDisplayFormat(self.format)
-        qde.setMinimumDate(UNDEFINED_DATE)
+        qde.setMinimumDate(UNDEFINED_QDATE)
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
+
+    def setEditorData(self, editor, index):
+        m = index.model()
+        # db col is not named for the field, but for the table number. To get it,
+        # gui column -> column label -> table number -> db column
+        val = m.db.data[index.row()][m.db.FIELD_MAP[m.custom_columns[m.column_map[index.column()]]['num']]]
+        if val is None:
+            val = now()
+        editor.setDate(val)
+
+    def setModelData(self, editor, model, index):
+        val = editor.date()
+        if val == UNDEFINED_QDATE:
+            val = None
+        model.setData(index, QVariant(val), Qt.EditRole)
 
 class CcTextDelegate(QStyledItemDelegate):
     '''
@@ -739,7 +754,7 @@ class BooksModel(QAbstractTableModel):
             if val is not None:
                 return QVariant(QDate(val))
             else:
-                return QVariant(UNDEFINED_DATE)
+                return QVariant(UNDEFINED_QDATE)
 
         def bool_type(r, idx=-1):
             return None # displayed using a decorator
@@ -874,9 +889,12 @@ class BooksModel(QAbstractTableModel):
                 val = None
         elif typ == 'datetime':
             val = value.toDate()
-            if val.isNull() or not val.isValid():
-                return False
-            val = qt_to_dt(val, as_utc=False)
+            if val.isNull():
+                val = None
+            else:
+                if not val.isValid():
+                    return False
+                val = qt_to_dt(val, as_utc=False)
         self.db.set_custom(self.db.id(row), val, label=colhead, num=None, append=False, notify=True)
         return True
 

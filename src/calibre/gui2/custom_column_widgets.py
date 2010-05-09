@@ -14,7 +14,7 @@ from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
 
 from calibre.utils.date import qt_to_dt
 from calibre.gui2.widgets import TagsLineEdit, EnComboBox
-from calibre.gui2 import UNDEFINED_DATE
+from calibre.gui2 import UNDEFINED_QDATE
 from calibre.utils.config import tweaks
 
 class Base(object):
@@ -123,15 +123,23 @@ class Rating(Int):
             val *= 2
         return val
 
+class DateEdit(QDateEdit):
+
+    def focusInEvent(self, x):
+        self.setSpecialValueText('')
+
+    def focusOutEvent(self, x):
+        self.setSpecialValueText(_('Undefined'))
+
 class DateTime(Base):
 
     def setup_ui(self, parent):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
-                QDateEdit(parent)]
+                DateEdit(parent)]
         w = self.widgets[1]
         w.setDisplayFormat('dd MMM yyyy')
         w.setCalendarPopup(True)
-        w.setMinimumDate(UNDEFINED_DATE)
+        w.setMinimumDate(UNDEFINED_QDATE)
         w.setSpecialValueText(_('Undefined'))
 
     def setter(self, val):
@@ -143,7 +151,7 @@ class DateTime(Base):
 
     def getter(self):
         val = self.widgets[1].date()
-        if val == UNDEFINED_DATE:
+        if val == UNDEFINED_QDATE:
             val = None
         else:
             val = qt_to_dt(val)
@@ -373,16 +381,15 @@ class BulkText(BulkBase):
 
     def getter(self, original_value = None):
         if self.col_metadata['is_multiple']:
-            ans = original_value
-            vals = [v.strip() for v in unicode(self.adding_widget.text()).split(',')]
-            for t in vals:
-                if t not in ans:
-                    ans.append(t)
-            vals = [v.strip() for v in unicode(self.removing_widget.text()).split(',')]
-            for t in vals:
-                if t in ans:
-                    ans.remove(t)
-            return ans
+            if self.removing_widget.text() == '*':
+                ans = set()
+            else:
+                ans = set(original_value)
+                ans -= set([v.strip() for v in
+                              unicode(self.removing_widget.text()).split(',')])
+            ans |= set([v.strip() for v in
+                              unicode(self.adding_widget.text()).split(',')])
+            return ans # returning a set instead of a list works, for now at least.
         val = unicode(self.widgets[1].currentText()).strip()
         if not val:
             val = None

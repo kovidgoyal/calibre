@@ -14,7 +14,7 @@ from PyQt4.QtCore import QThread, QReadWriteLock
 from PyQt4.QtGui import QImage
 
 from calibre.utils.config import tweaks
-from calibre.utils.date import parse_date, now
+from calibre.utils.date import parse_date, now, UNDEFINED_DATE
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
 
@@ -573,11 +573,13 @@ class ResultCache(SearchQueryParser):
         except AttributeError: # Some entries may be None
             ans = cmp(self._data[x][loc], self._data[y][loc])
         except TypeError: ## raised when a datetime is None
-            if self._data[x][loc] is None:
-                if self._data[y][loc] is None:
-                    return 0 # Both None. Return eq
-                return 1 # x is None, y not. Return gt
-            return -1 # x is not None and (therefore) y is. return lt
+            x = self._data[x][loc]
+            if x is None:
+                x = UNDEFINED_DATE
+            y = self._data[y][loc]
+            if y is None:
+                y = UNDEFINED_DATE
+            return cmp(x, y)
         if subsort and ans == 0:
             return cmp(self._data[x][11].lower(), self._data[y][11].lower())
         return ans

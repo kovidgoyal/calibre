@@ -40,6 +40,8 @@ parse_date_day_first = compute_locale_info_for_parse_date()
 utc_tz = _utc_tz = tzutc()
 local_tz = _local_tz = SafeLocalTimeZone()
 
+UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
+
 def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     '''
     Parse a date/time string into a timezone aware datetime object. The timezone

@@ -127,6 +127,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         if col_type == 'datetime':
             if self.date_format_box.text():
                 date_format = {'date_format':unicode(self.date_format_box.text())}
+            else:
+                date_format = {'date_format': None}
 
         if not self.editing_col:
             self.parent.custcols[col] = {
@@ -150,7 +152,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             item.setText(col_heading)
             self.parent.custcols[self.orig_column_name]['label'] = col
             self.parent.custcols[self.orig_column_name]['name'] = col_heading
-            self.parent.custcols[self.orig_column_name]['display'] = date_format
+            self.parent.custcols[self.orig_column_name]['display'].update(date_format)
             self.parent.custcols[self.orig_column_name]['*edited'] = True
             self.parent.custcols[self.orig_column_name]['*must_restart'] = True
         QDialog.accept(self)
