@@ -1420,11 +1420,11 @@ class DeviceBooksModel(BooksModel):
         '''
         Return indices into underlying database from rows
         '''
-        return [ self.map[r.row()] for r in rows]
+        return [self.map[r.row()] for r in rows]
 
     def data(self, index, role):
+        row, col = index.row(), index.column()
         if role == Qt.DisplayRole or role == Qt.EditRole:
-            row, col = index.row(), index.column()
             if col == 0:
                 text = self.db[self.map[row]].title
                 if not text:
@@ -1449,9 +1449,6 @@ class DeviceBooksModel(BooksModel):
                 tags = self.db[self.map[row]].tags
                 if tags:
                     return QVariant(', '.join(tags))
-            elif col == 5:
-                return QVariant(_('Yes')) \
-                    if self.db[self.map[row]].in_library else QVariant(_('No'))
         elif role == Qt.TextAlignmentRole and index.column() in [2, 3]:
             return QVariant(Qt.AlignRight | Qt.AlignVCenter)
         elif role == Qt.ToolTipRole and index.isValid():
@@ -1460,6 +1457,10 @@ class DeviceBooksModel(BooksModel):
             col = index.column()
             if col in [0, 1] or (col == 4 and self.db.supports_tags()):
                 return QVariant(_("Double click to <b>edit</b> me<br><br>"))
+        elif role == Qt.DecorationRole and col == 5:
+            if self.db[self.map[row]].in_library:
+                return QVariant(self.bool_yes_icon)
+
         return NONE
 
     def headerData(self, section, orientation, role):
