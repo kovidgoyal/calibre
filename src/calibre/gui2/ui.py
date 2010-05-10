@@ -1018,6 +1018,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     ############################################################################
     ### Force the library view to refresh, taking into consideration books information
     def refresh_ondevice_info(self, device_connected):
+        # Save current column widths because we might be turning on OnDevice
+        self.library_view.write_settings()
         self.book_on_device(None, reset=True)
         self.library_view.model().set_device_connected(device_connected)
     ############################################################################
@@ -2218,6 +2220,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             return
         d = ConfigDialog(self, self.library_view.model(),
                 server=self.content_server)
+        # Save current column widths in case columns are turned on or off
+        self.library_view.write_settings()
+
         d.exec_()
         self.content_server = d.server
         if d.result() == d.Accepted:

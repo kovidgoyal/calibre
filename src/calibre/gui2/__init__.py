@@ -303,17 +303,24 @@ class TableView(QTableView):
         self.read_settings()
 
     def read_settings(self):
-        self.cw = dynamic[self.__class__.__name__+'column widths']
+        self.cw = dynamic[self.__class__.__name__+'column width map']
 
     def write_settings(self):
-        dynamic[self.__class__.__name__+'column widths'] = \
-         tuple([int(self.columnWidth(i)) for i in range(self.model().columnCount(None))])
+        m = dynamic[self.__class__.__name__+'column width map']
+        if m is None:
+            m = {}
+        for i,c in enumerate(self.model().column_map):
+            m[c] = self.columnWidth(i)
+        dynamic[self.__class__.__name__+'column width map'] = m
+        self.cw = m
 
     def restore_column_widths(self):
         if self.cw and len(self.cw):
-            for i in range(len(self.cw)):
-                self.setColumnWidth(i, self.cw[i])
+            for i,c in enumerate(self.model().column_map):
+                if c in self.cw:
+                    self.setColumnWidth(i, self.cw[c])
             return True
+        return False
 
 class FileIconProvider(QFileIconProvider):
 

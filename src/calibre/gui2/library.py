@@ -1081,6 +1081,8 @@ class BooksView(TableView):
                 self.setItemDelegateForColumn(cm.index(colhead), self.cc_bool_delegate)
             elif cc['datatype'] == 'rating':
                 self.setItemDelegateForColumn(cm.index(colhead), self.rating_delegate)
+        if not self.restore_column_widths():
+            self.resizeColumnsToContents()
 
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
                          save, open_folder, book_details, delete, similar_menu=None):
@@ -1185,7 +1187,6 @@ class BooksView(TableView):
 
     def row_count(self):
         return self._model.count()
-
 
 class DeviceBooksView(BooksView):
 
