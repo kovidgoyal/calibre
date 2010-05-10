@@ -1,0 +1,28 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+izvestia.ru
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Izvestia(BasicNewsRecipe):
+    title                 = 'Izvestia'
+    __author__            = 'Darko Miletic'
+    description           = 'News from Russia'
+    publisher             = 'Izvestia'
+    category              = 'news, politics, Russia'
+    oldest_article        = 5
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'cp1251'
+    language              = 'ru'
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://images.izvestia.ru/izv/sys/logo.gif'
+    extra_css             = ' @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: Verdana,Arial,Helvetica,sans1,sans-serif} '
+    keep_only_tags     = [dict(name='div', attrs={'class':'newsFull'})]
+    remove_tags        = [dict(name=['iframe','object','img','link','base'])]
+    remove_tags_before = dict(name='h1', attrs={'class':'statya'})
+
+    feeds       = [(u'Daily edition', u'http://rss.feedsportal.com/c/32171/f/424076/index.rss')]
