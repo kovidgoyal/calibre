@@ -68,7 +68,7 @@ class PML2PMLZ(FileTypePlugin):
 
         of = self.temporary_file('_plugin_pml2pmlz.pmlz')
         pmlz = zipfile.ZipFile(of.name, 'w')
-        pmlz.write(pmlfile, os.path.basename(pmlfile))
+        pmlz.write(pmlfile, os.path.basename(pmlfile), zipfile.ZIP_DEFLATED)
 
         pml_img = os.path.splitext(pmlfile)[0] + '_img'
         i_img = os.path.join(os.path.dirname(pmlfile),'images')
