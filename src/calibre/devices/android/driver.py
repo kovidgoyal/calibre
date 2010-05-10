@@ -27,7 +27,7 @@ class ANDROID(USBMS):
             0x18d1 : { 0x4e11 : [0x0100, 0x226], 0x4e12: [0x0100, 0x226]},
 
             # Samsung
-            0x04e8 : { 0x681d : [0x0222], 0x681c : [0x0222]},
+            0x04e8 : { 0x681d : [0x0222], 0x681c : [0x0222, 0x0224]},
 
             # Acer
             0x502 : { 0x3203 : [0x0100]},
@@ -38,9 +38,9 @@ class ANDROID(USBMS):
             'be used')
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(EBOOK_DIR_MAIN)
 
-    VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER']
+    VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER', 'GT-I5700']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
-            '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE']
+            '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD']
 
     OSX_MAIN_MEM = 'HTC Android Phone Media'
 
