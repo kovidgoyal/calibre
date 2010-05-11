@@ -55,7 +55,7 @@ class Book(object):
 
     title        = book_metadata_field("title")
     authors      = book_metadata_field("author", \
-                            formatter=lambda x: x if x and x.strip() else _('Unknown'))
+                            formatter=lambda x: [x if x and x.strip() else _('Unknown')])
     mime         = book_metadata_field("mime")
     rpath        = book_metadata_field("path")
     id           = book_metadata_field("id", formatter=int)

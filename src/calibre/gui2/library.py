@@ -17,7 +17,7 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
                          SIGNAL, QObject, QSize, QModelIndex, QDate
 
 from calibre import strftime
-from calibre.ebooks.metadata import string_to_authors, fmt_sidx, authors_to_string
+from calibre.ebooks.metadata import fmt_sidx, authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.gui2 import NONE, TableView, config, error_dialog, UNDEFINED_QDATE
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
@@ -1248,7 +1248,7 @@ class OnDeviceSearch(SearchQueryParser):
         locations = ['title', 'author', 'tag', 'format'] if location == 'all' else [location]
         q = {
              'title' : lambda x : getattr(x, 'title').lower(),
-             'author': lambda x: getattr(x, 'authors').lower(),
+             'author': lambda x: ' & '.join(getattr(x, 'authors')).lower(),
              'tag':lambda x: ','.join(getattr(x, 'tags')).lower(),
              'format':lambda x: os.path.splitext(x.path)[1].lower()
              }
@@ -1447,9 +1447,8 @@ class DeviceBooksModel(BooksModel):
                 if not au:
                     au = self.unknown
                 if role == Qt.EditRole:
-                    return QVariant(au)
-                authors = string_to_authors(au)
-                return QVariant(" & ".join(authors))
+                    return QVariant(authors_to_string(au))
+                return QVariant(" & ".join(au))
             elif col == 2:
                 size = self.db[self.map[row]].size
                 return QVariant(BooksView.human_readable(size))
