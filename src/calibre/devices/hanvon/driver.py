@@ -50,6 +50,20 @@ class ALEX(N516):
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = True
 
+class AZBOOKA(ALEX):
+
+    name = 'Azbooka driver'
+    gui_name = 'Azbooka'
+    description = _('Communicate with the Azbooka')
+
+    VENDOR_NAME      = 'LINUX'
+    WINDOWS_MAIN_MEM = 'FILE-STOR_GADGET'
+
+    MAIN_MEMORY_VOLUME_LABEL  = 'Azbooka Internal Memory'
+
+    EBOOK_DIR_MAIN = ''
+
+
 class EB511(USBMS):
     name           = 'Elonex EB 511 driver'
     gui_name       = 'EB 511'
