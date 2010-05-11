@@ -533,3 +533,17 @@ The .cbc file will then contain::
 
 |app| will automatically convert this .cbc file into a e-book with a Table of Contents pointing to each entry in comics.txt.
 
+
+EPUB advanced formatting demo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Various advanced formatting for EPUB files is demonstrated in this `demo file <http://calibre-ebook.com/downloads/demos/demo.epub>`_.
+The file was created from hand coded HTML using calibre and is meant to be used as a template for your own EPUB creation efforts. 
+
+The source HTML it was created from is available `here <http://calibre-ebook.com/downloads/demos/demo.zip>`_. The settings used to create the
+EPUB from the ZIP file are::
+
+    ebook-convert demo.zip .epub -vv --authors "Kovid Goyal" --language en --level1-toc '//*[@class="title"]' --disable-font-rescaling --page-breaks-before / --no-default-epub-cover
+
+Note that because this file explores the potential of EPUB, most of the advanced formatting is not going to work on readers less capable than |app|'s builtin EPUB viewer. 
+
