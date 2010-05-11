@@ -11,6 +11,7 @@ import time
 from calibre.ebooks.metadata import MetaInformation
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.interface import BookList as _BookList
+from calibre.constants import filesystem_encoding
 
 class Book(MetaInformation):
 
@@ -51,7 +52,7 @@ class Book(MetaInformation):
                 spath = unicode(self.path)
             except:
                 try:
-                    spath = self.path.decode('utf-8')
+                    spath = self.path.decode(filesystem_encoding)
                 except:
                     spath = self.path
         if not isinstance(other.path, unicode):
@@ -59,7 +60,7 @@ class Book(MetaInformation):
                 opath = unicode(other.path)
             except:
                 try:
-                    opath = other.path.decode('utf-8')
+                    opath = other.path.decode(filesystem_encoding)
                 except:
                     opath = other.path
 

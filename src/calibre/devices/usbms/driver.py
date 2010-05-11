@@ -14,7 +14,6 @@ import os
 import re
 import json
 from itertools import cycle
-from calibre.utils.date import now
 
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
@@ -38,7 +37,6 @@ class USBMS(CLI, Device):
 
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
-        start_time = now()
         bl = BookList()
         metadata = BookList()
         need_sync = False
@@ -58,16 +56,13 @@ class USBMS(CLI, Device):
             self.EBOOK_DIR_CARD_B if oncard == 'cardb' else \
             self.get_main_ebook_dir()
 
-        #print 'after booklist get', now() - start_time
         bl, need_sync = self.parse_metadata_cache(prefix, self.METADATA_CACHE)
-        #print 'after parse_metadata_cache', now() - start_time
 
         # make a dict cache of paths so the lookup in the loop below is faster.
         bl_cache = {}
         for idx,b in enumerate(bl):
             bl_cache[b.path] = idx
         self.count_found_in_bl = 0
-        #print 'after make cache', now() - start_time
 
         def update_booklist(filename, path, prefix):
             changed = False
@@ -122,7 +117,6 @@ class USBMS(CLI, Device):
                 self.sync_booklists((metadata, None, None))
 
         self.report_progress(1.0, _('Getting list of books on device...'))
-        #print 'at return', now() - start_time
         return metadata
 
     def upload_books(self, files, names, on_card=None, end_session=True,
@@ -218,7 +212,6 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Removing books from device metadata listing...'))
 
     def sync_booklists(self, booklists, end_session=True):
-        print 'in sync_booklists'
         if not os.path.exists(self._main_prefix):
             os.makedirs(self._main_prefix)
 
@@ -270,7 +263,6 @@ class USBMS(CLI, Device):
 
     @classmethod
     def metadata_from_path(cls, path):
-        print 'here'
         return cls.metadata_from_formats([path])
 
     @classmethod

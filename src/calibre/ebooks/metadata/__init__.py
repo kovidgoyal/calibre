@@ -10,7 +10,7 @@ import os, mimetypes, sys, re
 from urllib import unquote, quote
 from urlparse import urlparse
 
-from calibre import relpath
+from calibre import relpath, prints
 
 from calibre.utils.config import tweaks
 from calibre.utils.date import isoformat
@@ -254,14 +254,13 @@ class MetaInformation(object):
             setattr(self, x, getattr(mi, x, None))
 
     def print_all_attributes(self):
-        print 'here'
         for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
                   'series', 'series_index', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
                   'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate',
                   'rights', 'publication_type', 'uuid',
                   ):
-            print x, getattr(self, x, 'None')
+            prints(x, getattr(self, x, 'None'))
 
     def smart_update(self, mi):
         '''

@@ -73,7 +73,7 @@ def get_library_path():
         except:
             error_dialog(None, _('Failed to create library'),
                     _('Failed to create calibre library at: %r. Aborting.')%library_path,
-                    det_msg = traceback.print_exc(), show=True)
+                    det_msg=traceback.format_exc(), show=True)
             library_path = None
     return library_path
 

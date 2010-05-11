@@ -4,7 +4,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
 from calibre.devices.usbms.driver import USBMS
 
 class HTC_TD2(USBMS):
@@ -13,7 +12,7 @@ class HTC_TD2(USBMS):
     gui_name       = 'HTC TD2'
     description    = _('Communicate with HTC TD2 phones.')
     author         = 'Charles Haley'
-    supported_platforms = ['windows']
+    supported_platforms = ['osx', 'linux']
 
     # Ordered list of supported formats
     FORMATS     = ['epub', 'pdf']
@@ -31,8 +30,7 @@ class HTC_TD2(USBMS):
     VENDOR_NAME      = ['']
     WINDOWS_MAIN_MEM = ['']
 
-#    OSX_MAIN_MEM = 'HTC TD2 Phone Media'
-#    MAIN_MEMORY_VOLUME_LABEL  = 'HTC Phone Internal Memory'
+    MAIN_MEMORY_VOLUME_LABEL  = 'HTC Phone Internal Memory'
 
     SUPPORTS_SUB_DIRS = True
 

@@ -17,7 +17,7 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
                          SIGNAL, QObject, QSize, QModelIndex, QDate
 
 from calibre import strftime
-from calibre.ebooks.metadata import string_to_authors, fmt_sidx, authors_to_string
+from calibre.ebooks.metadata import fmt_sidx, authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.gui2 import NONE, TableView, config, error_dialog, UNDEFINED_QDATE
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
