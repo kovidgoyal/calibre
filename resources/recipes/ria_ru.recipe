@@ -1,0 +1,43 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.rian.ru
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class RIANovosti(BasicNewsRecipe):
+    title                 = 'RIA Novosti - Russian'
+    __author__            = 'Darko Miletic'
+    description           = 'News from Russia'
+    publisher             = 'RIA'
+    category              = 'news, politics, Russia'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'utf8'
+    language              = 'ru'
+    publication_type      = 'newsportal'
+    masthead_url          = 'http://img.beta.rian.ru/images/22868/43/228684314.jpg'
+    extra_css             = ' @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: Arial,Helvetica,sans1,sans-serif} '
+    remove_tags_before = dict(name='h1')
+    remove_tags_after  = dict(name='div', attrs={'class':'text'})
+    remove_tags        = [dict(name=['iframe','object','link','img','base'])]
+
+    feeds       = [
+                     (u'Frontpage', u'http://www.rian.ru/export/rss2/lenta/index.xml')
+                    ,(u'Politics', u'http://www.rian.ru/export/rss2/politics/index.xml')
+                    ,(u'World', u'http://www.rian.ru/export/rss2/world/index.xml')
+                    ,(u'Economy', u'http://www.rian.ru/export/rss2/economy/index.xml')
+                    ,(u'Society', u'http://www.rian.ru/export/rss2/society/index.xml')
+                    ,(u'Moscow', u'http://www.rian.ru/export/rss2/moscow/index.xml')
+                    ,(u'Defense', u'http://www.rian.ru/export/rss2/defense_safety/index.xml')
+                    ,(u'Science', u'http://www.rian.ru/export/rss2/science/index.xml')
+                    ,(u'Turism', u'http://www.rian.ru/export/rss2/tourism/index.xml')
+                    ,(u'Culture', u'http://www.rian.ru/export/rss2/culture/index.xml')
+                  ]
+
+    def print_version(self, url):
+        return url.replace('.html','-print.html')
+

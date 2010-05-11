@@ -152,7 +152,7 @@ Linux development environment
 used in windows and OS X. Alternatively, you can install |app| from source. Instructions for setting up a development
 environment from source are in the INSTALL file in the source tree. Here we will address using the binary a runtime.
 
-Install the |app| using the binary installer. The opena  terminal and change to the previously checked out |app| code directory, for example::
+Install the |app| using the binary installer. Then open a terminal and change to the previously checked out |app| code directory, for example::
 
     cd /home/kovid/work/calibre
 

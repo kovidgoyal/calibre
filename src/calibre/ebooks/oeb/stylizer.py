@@ -176,6 +176,9 @@ class Stylizer(object):
         class_sel_pat = re.compile(r'\.[a-z]+', re.IGNORECASE)
         capital_sel_pat = re.compile(r'h|[A-Z]+')
         for _, _, cssdict, text, _ in rules:
+            fl = ':first-letter' in text
+            if fl:
+                text = text.replace(':first-letter', '')
             try:
                 selector = CSSSelector(text)
             except (AssertionError, ExpressionError, etree.XPathSyntaxError,
@@ -202,8 +205,21 @@ class Stylizer(object):
                 if found:
                     self.logger.warn('Ignoring case mismatches for CSS selector: %s in %s'
                         %(text, item.href))
-            for elem in matches:
-                self.style(elem)._update_cssdict(cssdict)
+            if fl:
+                from lxml.builder import ElementMaker
+                E = ElementMaker(namespace=XHTML_NS)
+                for elem in matches:
+                    for x in elem.iter():
+                        if x.text:
+                            span = E.span(x.text[0])
+                            span.tail = x.text[1:]
+                            x.text = None
+                            x.insert(0, span)
+                            self.style(span)._update_cssdict(cssdict)
+                            break
+            else:
+                for elem in matches:
+                    self.style(elem)._update_cssdict(cssdict)
         for elem in xpath(tree, '//h:img[@width or @height]'):
             base = elem.get('style', '').strip()
             if base:

@@ -313,7 +313,7 @@ class PostInstall:
             with open(os.path.join(base, '95-calibre.rules'), 'wb') as udev:
                 self.manifest.append(udev.name)
                 udev.write('''# Sony Reader PRS-500\n'''
-                        '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="%s"\n'''%(group,)
+                        '''SUBSYSTEMS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="%s"\n'''%(group,)
                         )
         except:
             if self.opts.fatal_errors:
