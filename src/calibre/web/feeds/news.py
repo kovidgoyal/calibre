@@ -1266,7 +1266,7 @@ class BasicNewsRecipe(Recipe):
                 feed = Feed()
                 msg = 'Failed feed: %s'%(title if title else url)
                 feed.populate_from_preparsed_feed(msg, [])
-                feed.description = unicode(err)
+                feed.description = repr(err)
                 parsed_feeds.append(feed)
                 self.log.exception(msg)
 
