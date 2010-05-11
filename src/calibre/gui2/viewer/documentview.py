@@ -384,25 +384,25 @@ class Document(QWebPage):
 
     @property
     def height(self):
-        ans = self.javascript('document.body.offsetHeight', 'int') # contentsSize gives inaccurate results
-        if ans == 0:
-            ans = self.mainFrame().contentsSize().height()
-        return ans
+        j = self.javascript('document.body.offsetHeight', 'int')
+        q = self.mainFrame().contentsSize().height()
+        if q == j:
+            return j
+        if min(j, q) <= 0:
+            return max(j, q)
+        window_height = self.window_height
+        if j == window_height:
+            return j if q < 1.2*j else q
+        return j
 
     @property
     def width(self):
         return self.mainFrame().contentsSize().width() # offsetWidth gives inaccurate results
 
     def set_bottom_padding(self, amount):
-        body = self.mainFrame().documentElement().findFirst('body')
-        if body.isNull():
-            return
-        old_padding = unicode(body.styleProperty('padding-bottom',
-            body.ComputedStyle)).strip()
-        padding = u'%dpx'%amount
-        if old_padding != padding:
-            body.setStyleProperty('padding-bottom', padding + ' !important')
-
+        s = QSize(-1, -1) if amount == 0 else QSize(self.width,
+                self.height+amount)
+        self.setPreferredContentsSize(s)
 
 class EntityDeclarationProcessor(object):
 
@@ -705,13 +705,21 @@ class DocumentView(QWebView):
 
     def next_page(self):
         window_height = self.document.window_height
+        document_height = self.document.height
+        ddelta = document_height - window_height
+        #print '\nWindow height:', window_height
+        #print 'Document height:', self.document.height
+
         delta_y = window_height - 25
-        if self.document.at_bottom:
+        if self.document.at_bottom or ddelta <= 0:
             if self.manager is not None:
                 self.manager.next_document()
+        elif ddelta < 25:
+            self.scroll_by(y=ddelta)
+            return
         else:
             oopos = self.document.ypos
-            #print '\nOriginal position:', oopos
+            #print 'Original position:', oopos
             self.document.set_bottom_padding(0)
             opos = self.document.ypos
             #print 'After set padding=0:', self.document.ypos
@@ -722,8 +730,14 @@ class DocumentView(QWebView):
             lower_limit = opos + delta_y # Max value of top y co-ord after scrolling
             max_y = self.document.height - window_height # The maximum possible top y co-ord
             if max_y < lower_limit:
+                padding = lower_limit - max_y
+                if padding == window_height:
+                    if self.manager is not None:
+                        self.manager.next_document()
+                    return
                 #print 'Setting padding to:', lower_limit - max_y
                 self.document.set_bottom_padding(lower_limit - max_y)
+            #print 'Document height:', self.document.height
             max_y = self.document.height - window_height
             lower_limit = min(max_y, lower_limit)
             #print 'Scroll to:', lower_limit
