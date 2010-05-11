@@ -253,6 +253,16 @@ class MetaInformation(object):
                   ):
             setattr(self, x, getattr(mi, x, None))
 
+    def print_all_attributes(self):
+        print 'here'
+        for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
+                  'series', 'series_index', 'rating', 'isbn', 'language',
+                  'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
+                  'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate',
+                  'rights', 'publication_type', 'uuid',
+                  ):
+            print x, getattr(self, x, 'None')
+
     def smart_update(self, mi):
         '''
         Merge the information in C{mi} into self. In case of conflicts, the information
