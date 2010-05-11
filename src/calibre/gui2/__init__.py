@@ -309,8 +309,10 @@ class TableView(QTableView):
         m = dynamic[self.__class__.__name__+'column width map']
         if m is None:
             m = {}
-        for i,c in enumerate(self.model().column_map):
-            m[c] = self.columnWidth(i)
+        cmap = getattr(self.model(), 'column_map', None)
+        if cmap is not None:
+            for i,c in enumerate(cmap):
+                m[c] = self.columnWidth(i)
         dynamic[self.__class__.__name__+'column width map'] = m
         self.cw = m
 
