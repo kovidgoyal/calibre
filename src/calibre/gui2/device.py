@@ -1043,29 +1043,37 @@ class DeviceGUI(object):
 
     def set_books_in_library(self, booklists, reset=False):
         if reset:
-            # First build a self.book_in_library_cache of the library, so the search isn't On**2
-            self.book_in_library_cache = {}
-            for id, title in self.library_view.model().db.all_titles():
-                title = re.sub('(?u)\W|[_]', '', title.lower())
-                if title not in self.book_in_library_cache:
-                    self.book_in_library_cache[title] = {'authors':set(), 'db_ids':set(), 'uuids':set()}
-                au = self.library_view.model().db.authors(id, index_is_id=True)
-                authors = au.lower() if au else ''
+            # First build a cache of the library, so the search isn't On**2
+            self.db_book_title_cache = {}
+            self.db_book_uuid_cache = set()
+            for idx in range(self.library_view.model().db.count()):
+                mi = self.library_view.model().db.get_metadata(idx, index_is_id=False)
+                title = re.sub('(?u)\W|[_]', '', mi.title.lower())
+                if title not in self.db_book_title_cache:
+                    self.db_book_title_cache[title] = {'authors':set(), 'db_ids':set()}
+                authors = authors_to_string(mi.authors).lower() if mi.authors else ''
                 authors = re.sub('(?u)\W|[_]', '', authors)
-                self.book_in_library_cache[title]['authors'].add(authors)
-                self.book_in_library_cache[title]['db_ids'].add(id)
-                self.book_in_library_cache[title]['uuids'].add(self.library_view.model().db.uuid(id, index_is_id=True))
+                self.db_book_title_cache[title]['authors'].add(authors)
+                self.db_book_title_cache[title]['db_ids'].add(id)
+                self.db_book_uuid_cache.add(mi.uuid)
 
         # Now iterate through all the books on the device, setting the in_library field
+        # Fastest and most accurate key is the uuid. Second is the application_id, which
+        # is really the db key, but as this can accidentally match across libraries we
+        # also verify the title. The db_id exists on Sony devices. Fallback is title
+        # and author match
         for booklist in booklists:
             for book in booklist:
+                if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
+                    self.book_in_library = True
+                    continue
+
                 book_title = book.title.lower() if book.title else ''
                 book_title = re.sub('(?u)\W|[_]', '', book_title)
                 book.in_library = False
-                d = self.book_in_library_cache.get(book_title, None)
+                d = self.db_book_title_cache.get(book_title, None)
                 if d is not None:
-                    if getattr(book, 'uuid', None) in d['uuids'] or \
-                            getattr(book, 'application_id', None) in d['db_ids']:
+                    if getattr(book, 'application_id', None) in d['db_ids']:
                         book.in_library = True
                         continue
                     if book.db_id in d['db_ids']:

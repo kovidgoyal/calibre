@@ -10,6 +10,7 @@ driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
 '''
 
+import posixpath
 import os
 import re
 import json
@@ -61,7 +62,7 @@ class USBMS(CLI, Device):
         # make a dict cache of paths so the lookup in the loop below is faster.
         bl_cache = {}
         for idx,b in enumerate(bl):
-            bl_cache[b.path] = idx
+            bl_cache[b.lpath] = idx
         self.count_found_in_bl = 0
 
         def update_booklist(filename, path, prefix):
@@ -71,9 +72,9 @@ class USBMS(CLI, Device):
                     lpath = os.path.join(path, filename).partition(prefix)[2]
                     if lpath.startswith(os.sep):
                         lpath = lpath[len(os.sep):]
-                    p = os.path.join(prefix, lpath)
-                    if p in bl_cache:
-                        item, changed = self.__class__.update_metadata_item(bl[bl_cache[p]])
+                    idx = bl_cache.get(lpath.replace('\\', '/'), None)
+                    if idx is not None:
+                        item, changed = self.__class__.update_metadata_item(bl[idx])
                         self.count_found_in_bl += 1
                     else:
                         item = self.__class__.book_from_path(prefix, lpath)
@@ -109,6 +110,7 @@ class USBMS(CLI, Device):
         # find on the device. If need_sync is True then there were either items
         # on the device that were not in bl or some of the items were changed.
         if self.count_found_in_bl != len(bl) or need_sync:
+            print 'resync'
             if oncard == 'cardb':
                 self.sync_booklists((None, None, metadata))
             elif oncard == 'carda':
@@ -173,7 +175,7 @@ class USBMS(CLI, Device):
             lpath = path.partition(prefix)[2]
             if lpath.startswith(os.sep):
                 lpath = lpath[len(os.sep):]
-
+            lpath = lpath.replace('\\', '/')
             book = Book(prefix, lpath, other=info)
 
             if book not in booklists[blist]:
