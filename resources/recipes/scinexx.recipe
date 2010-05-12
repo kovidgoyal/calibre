@@ -1,0 +1,35 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1265145870(BasicNewsRecipe):
+    title          = u'Scinexx.de'
+    language = 'de'
+    __author__ = 'JSuer'
+    cover_url    = 'http://www.g-o.de/grafiken/web_scinexx/head2.gif'
+    oldest_article = 14
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    use_embedded_content  = False
+    encoding = 'ISO-8859-1'
+
+    feeds          = [(u'Scinexx.de', u'http://feeds.feedburner.com/scinexx')]
+
+    remove_tags = [{'class':['text1fett']}]
+    remove_tags = [{'href':['javascript:window.print()']}]
+
+    extra_css = '''
+                    .text2normal{font-family:Verdana,Geneva,Kalimati,sans-serif; font-size:x-small;}
+                    .text1normalblau{font-family:Verdana,Geneva,Kalimati,sans-serif; font-size:small;}
+                    .text1fett{font-color:grey; font-size:small;}
+                    .titel1{font-family:Georgia,"Times New Roman",Times,serif; font-size:large;}
+                    .titel2{font-family:Georgia,"Times New Roman",Times,serif; }
+                    .titel3{font-family:Georgia,"Times New Roman",Times,serif; font-size:larger;}
+                    h1{font-size:large;}
+                    '''
+
+
+    def print_version(self, url):
+        id_start = url.rfind('2010') - 6
+        id_end = id_start +  5
+        id = url[id_start : id_end]
+        result = 'http://www.scinexx.de/inc/artikel_drucken.php?id=' + id + '&a_flag=1'
+        return result
