@@ -77,7 +77,6 @@ class PRS505(USBMS):
         return fname
 
     def sync_booklists(self, booklists, end_session=True):
-        print 'in sync_booklists'
         fix_ids(*booklists)
         if not os.path.exists(self._main_prefix):
             os.makedirs(self._main_prefix)

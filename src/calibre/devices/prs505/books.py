@@ -110,7 +110,7 @@ class BookList(_BookList):
                     return child
         return None
 
-    def add_book(self, book, collections):
+    def add_book(self, book, collections=None):
         if book in self:
             return
         """ Add a node into the DOM tree, representing a book """
@@ -266,6 +266,11 @@ class BookList(_BookList):
             if pli.getAttribute('id') == str(id):
                 pli.parentNode.removeChild(pli)
                 pli.unlink()
+
+    def set_tags(self, book, tags):
+        tags = [t for t in tags if t]
+        book.tags = tags
+        self.set_playlists(book.id, tags)
 
     def set_playlists(self, id, collections):
         self.remove_from_playlists(id)
