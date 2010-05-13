@@ -454,7 +454,7 @@ from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3
 from calibre.devices.sne.driver import SNE
-from calibre.devices.misc import PALMPRE, KOBO
+from calibre.devices.misc import PALMPRE, KOBO, AVANT
 from calibre.devices.htc_td2.driver import HTC_TD2
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
@@ -540,7 +540,8 @@ plugins += [
     PALMPRE,
     KOBO,
     AZBOOKA,
-    HTC_TD2
+    HTC_TD2,
+    AVANT,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]

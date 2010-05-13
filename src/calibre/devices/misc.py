@@ -49,3 +49,22 @@ class KOBO(USBMS):
 
     EBOOK_DIR_MAIN = ''
 
+class AVANT(USBMS):
+    name           = 'Booq Avant Device Interface'
+    gui_name       = 'Avant'
+    description    = _('Communicate with the Booq Avant')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'fb2', 'html', 'rtf', 'pdf', 'txt']
+
+    VENDOR_ID   = [0x0525]
+    PRODUCT_ID  = [0xa4a5]
+    BCD         = [0x0319]
+
+    VENDOR_NAME = 'E-BOOK'
+    WINDOWS_MAIN_MEM = 'READER'
+
+    EBOOK_DIR_MAIN = 'E-books'
+
