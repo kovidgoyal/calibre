@@ -31,6 +31,8 @@ class Book(MetaInformation):
         MetaInformation.__init__(self, '')
 
         self.path = os.path.join(prefix, lpath)
+        if os.sep == '\\':
+            self.path = self.path.replace('/', '\\')
         self.lpath = lpath
         self.mime = mime_type_ext(path_to_ext(lpath))
         self.size = os.stat(self.path).st_size if size == None else size

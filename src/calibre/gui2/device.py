@@ -999,44 +999,47 @@ class DeviceGUI(object):
         loc = [None, None, None]
 
         if reset:
-            self.book_on_device_cache = None
+            self.book_db_title_cache = None
+            self.book_db_uuid_cache = None
             return
 
-        if self.book_on_device_cache is None:
-            self.book_on_device_cache = []
+        if self.book_db_title_cache is None:
+            self.book_db_title_cache = []
+            self.book_db_uuid_cache = []
             for i, l in enumerate(self.booklists()):
-                self.book_on_device_cache.append({})
+                self.book_db_title_cache.append({})
+                self.book_db_uuid_cache.append(set())
                 for book in l:
                     book_title = book.title.lower() if book.title else ''
                     book_title = re.sub('(?u)\W|[_]', '', book_title)
-                    if book_title not in self.book_on_device_cache[i]:
-                        self.book_on_device_cache[i][book_title] = \
+                    if book_title not in self.book_db_title_cache[i]:
+                        self.book_db_title_cache[i][book_title] = \
                                 {'authors':set(), 'db_ids':set(), 'uuids':set()}
                     book_authors = authors_to_string(book.authors).lower()
                     book_authors = re.sub('(?u)\W|[_]', '', book_authors)
-                    self.book_on_device_cache[i][book_title]['authors'].add(book_authors)
+                    self.book_db_title_cache[i][book_title]['authors'].add(book_authors)
                     id = getattr(book, 'application_id', None)
                     if id is None:
                         id = book.db_id
                     if id is not None:
-                        self.book_on_device_cache[i][book_title]['db_ids'].add(id)
+                        self.book_db_title_cache[i][book_title]['db_ids'].add(id)
                     uuid = getattr(book, 'uuid', None)
-                    if uuid is None:
-                        self.book_on_device_cache[i][book_title]['uuids'].add(uuid)
+                    if uuid is not None:
+                        self.book_db_uuid_cache[i].add(uuid)
 
-        db = self.library_view.model().db
-        db_title = db.title(index, index_is_id=True).lower()
-        db_title = re.sub('(?u)\W|[_]', '', db_title)
-        db_authors = db.authors(index, index_is_id=True)
-        db_authors = db_authors.lower() if db_authors else ''
-        db_authors = re.sub('(?u)\W|[_]', '', db_authors)
-        db_uuid = db.uuid(index, index_is_id=True)
+        mi = self.library_view.model().db.get_metadata(index, index_is_id=True)
         for i, l in enumerate(self.booklists()):
-            d = self.book_on_device_cache[i].get(db_title, None)
-            if d:
-                if db_uuid in d['uuids'] or \
-                        index in d['db_ids'] or \
-                        db_authors in d['authors']:
+            if mi.uuid in self.book_db_uuid_cache[i]:
+                loc[i] = True
+                continue
+            db_title = re.sub('(?u)\W|[_]', '', mi.title.lower())
+            cache = self.book_db_title_cache[i].get(db_title, None)
+            if cache:
+                if index in cache['db_ids']:
+                    loc[i] = True
+                    break
+                if mi.authors and \
+                        re.sub('(?u)\W|[_]', '', mi.authors.lower()) in cache['authors']:
                     loc[i] = True
                     break
         return loc
@@ -1054,7 +1057,7 @@ class DeviceGUI(object):
                 authors = authors_to_string(mi.authors).lower() if mi.authors else ''
                 authors = re.sub('(?u)\W|[_]', '', authors)
                 self.db_book_title_cache[title]['authors'].add(authors)
-                self.db_book_title_cache[title]['db_ids'].add(id)
+                self.db_book_title_cache[title]['db_ids'].add(mi.application_id)
                 self.db_book_uuid_cache.add(mi.uuid)
 
         # Now iterate through all the books on the device, setting the in_library field
@@ -1065,7 +1068,7 @@ class DeviceGUI(object):
         for booklist in booklists:
             for book in booklist:
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
-                    self.book_in_library = True
+                    book.in_library = True
                     continue
 
                 book_title = book.title.lower() if book.title else ''

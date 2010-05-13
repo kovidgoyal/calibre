@@ -10,7 +10,6 @@ driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
 '''
 
-import posixpath
 import os
 import re
 import json
