@@ -229,7 +229,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.connect(self.action_previous_page, SIGNAL('triggered(bool)'),
                      lambda x:self.view.previous_page())
         self.connect(self.action_find_next, SIGNAL('triggered(bool)'),
-                     lambda x:self.find(unicode(self.search.text()), True, repeat=True))
+                     lambda x:self.find(self.search.smart_text, True, repeat=True))
+        self.connect(self.action_find_previous, SIGNAL('triggered(bool)'),
+                     lambda x:self.find(self.search.smart_text, True,
+                         repeat=True, backwards=True))
+
         self.connect(self.action_full_screen, SIGNAL('triggered(bool)'),
                      self.toggle_fullscreen)
         self.action_full_screen.setShortcuts([Qt.Key_F11, Qt.CTRL+Qt.SHIFT+Qt.Key_F])
@@ -420,13 +424,15 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.set_bookmarks(self.iterator.bookmarks)
 
 
-    def find(self, text, refinement, repeat=False):
+    def find(self, text, refinement, repeat=False, backwards=False):
         if not text:
+            self.view.search('')
             return self.search.search_done(False)
         if self.view.search(text):
             self.scrolled(self.view.scroll_fraction)
             return self.search.search_done(True)
-        index = self.iterator.search(text, self.current_index)
+        index = self.iterator.search(text, self.current_index,
+                backwards=backwards)
         if index is None:
             if self.current_index > 0:
                 index = self.iterator.search(text, 0)
@@ -444,10 +450,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.scrolled(self.view.scroll_fraction)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_F3:
-            text = unicode(self.search.text())
-            self.find(text, True, repeat=True)
-        elif event.key() == Qt.Key_Slash:
+        if event.key() == Qt.Key_Slash:
             self.search.setFocus(Qt.OtherFocusReason)
         else:
             return MainWindow.keyPressEvent(self, event)
