@@ -10,6 +10,7 @@ class PhysicsWorld(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
+    cover_url = 'http://images.iop.org/cws/icons/themes/phw/header-logo.png'
     use_embedded_content  = False
     remove_javascript     = True
     needs_subscription = True

@@ -66,5 +66,6 @@ class AVANT(USBMS):
     VENDOR_NAME = 'E-BOOK'
     WINDOWS_MAIN_MEM = 'READER'
 
-    EBOOK_DIR_MAIN = 'E-books'
+    EBOOK_DIR_MAIN = ''
+    SUPPORTS_SUB_DIRS = True
 
