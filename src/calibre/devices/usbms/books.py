@@ -33,7 +33,9 @@ class Book(MetaInformation):
         self.path = os.path.join(prefix, lpath)
         if os.sep == '\\':
             self.path = self.path.replace('/', '\\')
-        self.lpath = lpath
+            self.lpath = lpath.replace('\\', '/')
+        else:
+            self.lpath = lpath
         self.mime = mime_type_ext(path_to_ext(lpath))
         self.size = os.stat(self.path).st_size if size == None else size
         self.db_id = None

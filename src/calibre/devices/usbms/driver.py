@@ -31,32 +31,36 @@ class USBMS(CLI, Device):
     CAN_SET_METADATA = True
     METADATA_CACHE = 'metadata.calibre'
 
+    def initialize(self):
+        Device.initialize(self)
+        self.booklist_class = BookList
+
     def get_device_information(self, end_session=True):
         self.report_progress(1.0, _('Get device information...'))
         return (self.get_gui_name(), '', '', '')
 
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
-        bl = BookList()
-        metadata = BookList()
-        need_sync = False
 
         if oncard == 'carda' and not self._card_a_prefix:
             self.report_progress(1.0, _('Getting list of books on device...'))
-            return bl
+            return []
         elif oncard == 'cardb' and not self._card_b_prefix:
             self.report_progress(1.0, _('Getting list of books on device...'))
-            return bl
+            return []
         elif oncard and oncard != 'carda' and oncard != 'cardb':
             self.report_progress(1.0, _('Getting list of books on device...'))
-            return bl
+            return []
 
         prefix = self._card_a_prefix if oncard == 'carda' else self._card_b_prefix if oncard == 'cardb' else self._main_prefix
+        metadata = self.booklist_class(oncard, prefix)
+
         ebook_dirs = self.EBOOK_DIR_CARD_A if oncard == 'carda' else \
             self.EBOOK_DIR_CARD_B if oncard == 'cardb' else \
             self.get_main_ebook_dir()
 
-        bl, need_sync = self.parse_metadata_cache(prefix, self.METADATA_CACHE)
+        bl, need_sync = self.parse_metadata_cache(prefix, self.METADATA_CACHE,
+                                                  self.booklist_class(oncard, prefix))
 
         # make a dict cache of paths so the lookup in the loop below is faster.
         bl_cache = {}
@@ -109,7 +113,6 @@ class USBMS(CLI, Device):
         # find on the device. If need_sync is True then there were either items
         # on the device that were not in bl or some of the items were changed.
         if self.count_found_in_bl != len(bl) or need_sync:
-            print 'resync'
             if oncard == 'cardb':
                 self.sync_booklists((None, None, metadata))
             elif oncard == 'carda':
@@ -122,7 +125,6 @@ class USBMS(CLI, Device):
 
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
-
         path = self._sanity_check(on_card, files)
 
         paths = []
@@ -145,7 +147,6 @@ class USBMS(CLI, Device):
             self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
 
         self.report_progress(1.0, _('Transferring books to device...'))
-
         return zip(paths, cycle([on_card]))
 
     def upload_cover(self, path, filename, metadata):
@@ -174,11 +175,10 @@ class USBMS(CLI, Device):
             lpath = path.partition(prefix)[2]
             if lpath.startswith(os.sep):
                 lpath = lpath[len(os.sep):]
-            lpath = lpath.replace('\\', '/')
             book = Book(prefix, lpath, other=info)
-
-            if book not in booklists[blist]:
-                booklists[blist].append(book)
+            opts = self.settings()
+            collections = opts.extra_customization.split(',') if opts.extra_customization else []
+            booklists[blist].add_book(book, collections, *location[1:-1])
 
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
 
@@ -209,7 +209,7 @@ class USBMS(CLI, Device):
             for bl in booklists:
                 for book in bl:
                     if path.endswith(book.path):
-                        bl.remove(book)
+                        bl.remove_book(book)
         self.report_progress(1.0, _('Removing books from device metadata listing...'))
 
     def sync_booklists(self, booklists, end_session=True):
@@ -217,7 +217,7 @@ class USBMS(CLI, Device):
             os.makedirs(self._main_prefix)
 
         def write_prefix(prefix, listid):
-            if prefix is not None and isinstance(booklists[listid], BookList):
+            if prefix is not None and isinstance(booklists[listid], self.booklist_class):
                 if not os.path.exists(prefix):
                     os.makedirs(prefix)
                 js = [item.to_json() for item in booklists[listid]]
@@ -230,9 +230,8 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Sending metadata to device...'))
 
     @classmethod
-    def parse_metadata_cache(cls, prefix, name):
+    def parse_metadata_cache(cls, prefix, name, bl):
         js = []
-        bl = BookList()
         need_sync = False
         try:
             with open(os.path.join(prefix, name), 'rb') as f:
@@ -249,7 +248,7 @@ class USBMS(CLI, Device):
         except:
             import traceback
             traceback.print_exc()
-            bl = BookList()
+            bl = []
         return bl, need_sync
 
     @classmethod

@@ -821,7 +821,9 @@ class DeviceGUI(object):
 
     def sync_to_device(self, on_card, delete_from_library,
             specific_format=None, send_ids=None, do_auto_convert=True):
-        ids = [self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
+        ids = [self.library_view.model().id(r) \
+               for r in self.library_view.selectionModel().selectedRows()] \
+                                if send_ids is None else send_ids
         if not self.device_manager or not ids or len(ids) == 0:
             return
 
@@ -842,8 +844,7 @@ class DeviceGUI(object):
         ids = iter(ids)
         for mi in metadata:
             if mi.cover and os.access(mi.cover, os.R_OK):
-                mi.thumbnail = self.cover_to_thumbnail(open(mi.cover,
-                    'rb').read())
+                mi.thumbnail = self.cover_to_thumbnail(open(mi.cover, 'rb').read())
         imetadata = iter(metadata)
 
         files = [getattr(f, 'name', None) for f in _files]
@@ -890,7 +891,9 @@ class DeviceGUI(object):
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
 
         if auto != []:
-            format = specific_format if specific_format in list(set(settings.format_map).intersection(set(available_output_formats()))) else None
+            format = specific_format if specific_format in \
+                            list(set(settings.format_map).intersection(set(available_output_formats()))) \
+                            else None
             if not format:
                 for fmt in settings.format_map:
                     if fmt in list(set(settings.format_map).intersection(set(available_output_formats()))):
@@ -1039,7 +1042,8 @@ class DeviceGUI(object):
                     loc[i] = True
                     break
                 if mi.authors and \
-                        re.sub('(?u)\W|[_]', '', mi.authors.lower()) in cache['authors']:
+                        re.sub('(?u)\W|[_]', '', authors_to_string(mi.authors).lower()) \
+                        in cache['authors']:
                     loc[i] = True
                     break
         return loc

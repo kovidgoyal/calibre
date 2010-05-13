@@ -387,6 +387,9 @@ class BookList(list):
     __getslice__ = None
     __setslice__ = None
 
+    def __init__(self, oncard, prefix):
+        pass
+
     def supports_tags(self):
         ''' Return True if the the device supports tags (collections) for this book list. '''
         raise NotImplementedError()
@@ -399,3 +402,17 @@ class BookList(list):
         '''
         raise NotImplementedError()
 
+    def add_book(self, book, collections=None):
+        '''
+        Add the book to the booklist. Intent is to maintain any device-internal
+        metadata
+        '''
+        if book not in self:
+            self.append(book)
+
+    def remove_book(self, book):
+        '''
+        Remove a book from the booklist. Correct any device metadata at the
+        same time
+        '''
+        self.remove(book)
