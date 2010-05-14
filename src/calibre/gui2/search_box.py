@@ -141,6 +141,13 @@ class SearchBox2(QComboBox):
         if event.timerId() == self.timer:
             self.do_search()
 
+    @property
+    def smart_text(self):
+        text = unicode(self.currentText()).strip()
+        if not text or text == self.help_text:
+            return ''
+        return text
+
     def do_search(self):
         text = unicode(self.currentText()).strip()
         if not text or text == self.help_text:
