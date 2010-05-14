@@ -13,8 +13,7 @@ import os
 import re
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.devices.usbms.books import Book
-from calibre.devices.prs505.books import BookList, fix_ids
+from calibre.devices.prs505.books import BookList as PRS_BookList, fix_ids
 from calibre.devices.prs505 import MEDIA_XML
 from calibre.devices.prs505 import CACHE_XML
 from calibre import __appname__
@@ -27,6 +26,8 @@ class PRS505(USBMS):
     author         = 'Kovid Goyal and John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
     path_sep = '/'
+
+    booklist_class = PRS_BookList # See USBMS for some explanation of this
 
     FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
 
@@ -58,11 +59,6 @@ class PRS505(USBMS):
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['series', 'tags'])
 
     METADATA_CACHE = "database/cache/metadata.calibre"
-
-    def initialize(self):
-        USBMS.initialize(self) # Must be first, so _class vars are set right
-        self.booklist_class = BookList
-        self.book_class = Book
 
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id

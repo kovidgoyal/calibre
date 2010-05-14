@@ -27,17 +27,16 @@ class USBMS(CLI, Device):
     author         = _('John Schember')
     supported_platforms = ['windows', 'osx', 'linux']
 
+    # Store type instances of BookList and Book. We must do this because
+    # a) we need to override these classes in some device drivers, and
+    # b) the classmethods seem only to see real attributes declared in the
+    #    class, not attributes stored in the class
     booklist_class = BookList
     book_class = Book
 
     FORMATS = []
     CAN_SET_METADATA = True
     METADATA_CACHE = 'metadata.calibre'
-
-    def initialize(self):
-        Device.initialize(self)
-#        self.booklist_class = BookList
-#        self.book_class = Book
 
     def get_device_information(self, end_session=True):
         self.report_progress(1.0, _('Get device information...'))

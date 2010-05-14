@@ -291,7 +291,6 @@ class BookList(_BookList):
                     db_id = book.application_id
                     if db_id is None:
                         db_id = book.db_id
-                        print 'here', db_id
                     if db_id is not None:
                         imap[book.application_id] = sony_id
             # filter the list, removing books not on device but on playlist
