@@ -97,8 +97,17 @@ class Kobo(Device):
     manufacturer = 'Kobo'
     output_profile = 'kobo'
     output_format = 'EPUB'
-    name = 'Kobo Reader'
     id = 'kobo'
+
+class Booq(Device):
+    name = 'Booq Reader'
+    manufacturer = 'Booq'
+    output_profile = 'prs505'
+    output_format = 'EPUB'
+    id = 'booq'
+
+class Avant(Booq):
+    name = 'Booq Avant'
 
 class Sony300(Sony505):
 
