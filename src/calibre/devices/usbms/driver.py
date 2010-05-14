@@ -27,14 +27,17 @@ class USBMS(CLI, Device):
     author         = _('John Schember')
     supported_platforms = ['windows', 'osx', 'linux']
 
+    booklist_class = BookList
+    book_class = Book
+
     FORMATS = []
     CAN_SET_METADATA = True
     METADATA_CACHE = 'metadata.calibre'
 
     def initialize(self):
         Device.initialize(self)
-        self.booklist_class = BookList
-        self.book_class = Book
+#        self.booklist_class = BookList
+#        self.book_class = Book
 
     def get_device_information(self, end_session=True):
         self.report_progress(1.0, _('Get device information...'))
@@ -234,14 +237,15 @@ class USBMS(CLI, Device):
 
         self.report_progress(1.0, _('Sending metadata to device...'))
 
-    def parse_metadata_cache(self, prefix, name, bl):
+    @classmethod
+    def parse_metadata_cache(cls, prefix, name, bl):
         js = []
         need_sync = False
         try:
             with open(os.path.join(prefix, name), 'rb') as f:
                 js = json.load(f, encoding='utf-8')
             for item in js:
-                book = self.book_class(prefix, item.get('lpath', None))
+                book = cls.book_class(prefix, item.get('lpath', None))
                 for key in item.keys():
                     setattr(book, key, item[key])
                 bl.append(book)
@@ -252,30 +256,34 @@ class USBMS(CLI, Device):
             need_sync = True
         return bl, need_sync
 
-    def update_metadata_item(self, item):
+    @classmethod
+    def update_metadata_item(cls, item):
         changed = False
         size = os.stat(item.path).st_size
         if size != item.size:
             changed = True
-            mi = self.metadata_from_path(item.path)
+            mi = cls.metadata_from_path(item.path)
             item.smart_update(mi)
             item.size = size
         return item, changed
 
-    def metadata_from_path(self, path):
-        return self.metadata_from_formats([path])
+    @classmethod
+    def metadata_from_path(cls, path):
+        return cls.metadata_from_formats([path])
 
-    def metadata_from_formats(self, fmts):
+    @classmethod
+    def metadata_from_formats(cls, fmts):
         from calibre.ebooks.metadata.meta import metadata_from_formats
         from calibre.customize.ui import quick_metadata
         with quick_metadata:
             return metadata_from_formats(fmts)
 
-    def book_from_path(self, prefix, path):
+    @classmethod
+    def book_from_path(cls, prefix, path):
         from calibre.ebooks.metadata import MetaInformation
 
-        if self.settings().read_metadata or self.MUST_READ_METADATA:
-            mi = self.metadata_from_path(os.path.join(prefix, path))
+        if cls.settings().read_metadata or cls.MUST_READ_METADATA:
+            mi = cls.metadata_from_path(os.path.join(prefix, path))
         else:
             from calibre.ebooks.metadata.meta import metadata_from_filename
             mi = metadata_from_filename(os.path.basename(path),
@@ -285,5 +293,5 @@ class USBMS(CLI, Device):
             mi = MetaInformation(os.path.splitext(os.path.basename(path))[0],
                     [_('Unknown')])
         mi.size = os.stat(os.path.join(prefix, path)).st_size
-        book = self.book_class(prefix, path, other=mi)
+        book = cls.book_class(prefix, path, other=mi)
         return book

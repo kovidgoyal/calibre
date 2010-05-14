@@ -1022,11 +1022,11 @@ class DeviceGUI(object):
                     book_authors = authors_to_string(book.authors).lower()
                     book_authors = re.sub('(?u)\W|[_]', '', book_authors)
                     self.book_db_title_cache[i][book_title]['authors'].add(book_authors)
-                    id = getattr(book, 'application_id', None)
-                    if id is None:
-                        id = book.db_id
-                    if id is not None:
-                        self.book_db_title_cache[i][book_title]['db_ids'].add(id)
+                    db_id = getattr(book, 'application_id', None)
+                    if db_id is None:
+                        db_id = book.db_id
+                    if db_id is not None:
+                        self.book_db_title_cache[i][book_title]['db_ids'].add(db_id)
                     uuid = getattr(book, 'uuid', None)
                     if uuid is not None:
                         self.book_db_uuid_cache[i].add(uuid)
