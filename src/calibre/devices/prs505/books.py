@@ -8,7 +8,7 @@ import xml.dom.minidom as dom
 from base64 import b64encode as encode
 
 
-from calibre.devices.interface import BookList as _BookList
+from calibre.devices.usbms.books import BookList as _BookList
 from calibre.devices import strftime as _strftime
 from calibre.devices.usbms.books import Book as _Book
 from calibre.devices.prs505 import MEDIA_XML
@@ -30,36 +30,6 @@ def uuid():
 
 def sortable_title(title):
     return re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', title).rstrip()
-
-class book_metadata_field(object):
-    """ Represents metadata stored as an attribute """
-    def __init__(self, attr, formatter=None, setter=None):
-        self.attr = attr
-        self.formatter = formatter
-        self.setter = setter
-
-    def __get__(self, obj, typ=None):
-        """ Return a string. String may be empty if self.attr is absent """
-        return self.formatter(obj.elem.getAttribute(self.attr)) if \
-                           self.formatter else obj.elem.getAttribute(self.attr).strip()
-
-    def __set__(self, obj, val):
-        """ Set the attribute """
-        val = self.setter(val) if self.setter else val
-        if not isinstance(val, unicode):
-            val = unicode(val, 'utf8', 'replace')
-        obj.elem.setAttribute(self.attr, val)
-
-
-class Book(_Book):
-    @dynamic_property
-    def db_id(self):
-        doc = '''The database id in the application database that this file corresponds to'''
-        def fget(self):
-            match = re.search(r'_(\d+)$', self.rpath.rpartition('.')[0])
-            if match:
-                return int(match.group(1))
-        return property(fget=fget, doc=doc)
 
 class BookList(_BookList):
 
@@ -318,7 +288,12 @@ class BookList(_BookList):
             imap = {}
             for book, sony_id in zip(books, sony_ids):
                 if book is not None:
-                    imap[book.application_id] = sony_id
+                    db_id = book.application_id
+                    if db_id is None:
+                        db_id = book.db_id
+                        print 'here', db_id
+                    if db_id is not None:
+                        imap[book.application_id] = sony_id
             # filter the list, removing books not on device but on playlist
             books = [i for i in books if i is not None]
             # filter the order specification to the books we have

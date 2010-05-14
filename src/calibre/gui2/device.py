@@ -523,7 +523,8 @@ class DeviceGUI(object):
             d = ChooseFormatDialog(self, _('Choose format to send to device'),
                                 self.device_manager.device.settings().format_map)
             d.exec_()
-            fmt = d.format().lower()
+            if d.format():
+                fmt = d.format().lower()
         dest, sub_dest = dest.split(':')
         if dest in ('main', 'carda', 'cardb'):
             if not self.device_connected or not self.device_manager:
@@ -998,7 +999,7 @@ class DeviceGUI(object):
             if changed:
                 self.library_view.model().refresh_ids(list(changed))
 
-    def book_on_device(self, index, format=None, reset=False):
+    def book_on_device(self, id, format=None, reset=False):
         loc = [None, None, None]
 
         if reset:
@@ -1030,7 +1031,7 @@ class DeviceGUI(object):
                     if uuid is not None:
                         self.book_db_uuid_cache[i].add(uuid)
 
-        mi = self.library_view.model().db.get_metadata(index, index_is_id=True)
+        mi = self.library_view.model().db.get_metadata(id, index_is_id=True)
         for i, l in enumerate(self.booklists()):
             if mi.uuid in self.book_db_uuid_cache[i]:
                 loc[i] = True
@@ -1038,7 +1039,7 @@ class DeviceGUI(object):
             db_title = re.sub('(?u)\W|[_]', '', mi.title.lower())
             cache = self.book_db_title_cache[i].get(db_title, None)
             if cache:
-                if index in cache['db_ids']:
+                if id in cache['db_ids']:
                     loc[i] = True
                     break
                 if mi.authors and \
@@ -1057,11 +1058,11 @@ class DeviceGUI(object):
                 mi = self.library_view.model().db.get_metadata(idx, index_is_id=False)
                 title = re.sub('(?u)\W|[_]', '', mi.title.lower())
                 if title not in self.db_book_title_cache:
-                    self.db_book_title_cache[title] = {'authors':set(), 'db_ids':set()}
+                    self.db_book_title_cache[title] = {'authors':{}, 'db_ids':{}}
                 authors = authors_to_string(mi.authors).lower() if mi.authors else ''
                 authors = re.sub('(?u)\W|[_]', '', authors)
-                self.db_book_title_cache[title]['authors'].add(authors)
-                self.db_book_title_cache[title]['db_ids'].add(mi.application_id)
+                self.db_book_title_cache[title]['authors'][authors] = mi
+                self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
                 self.db_book_uuid_cache.add(mi.uuid)
 
         # Now iterate through all the books on the device, setting the in_library field
@@ -1069,6 +1070,7 @@ class DeviceGUI(object):
         # is really the db key, but as this can accidentally match across libraries we
         # also verify the title. The db_id exists on Sony devices. Fallback is title
         # and author match
+        resend_metadata = False
         for booklist in booklists:
             for book in booklist:
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
@@ -1082,11 +1084,20 @@ class DeviceGUI(object):
                 if d is not None:
                     if getattr(book, 'application_id', None) in d['db_ids']:
                         book.in_library = True
+                        book.smart_update(d['db_ids'][book.application_id])
+                        resend_metadata = True
                         continue
                     if book.db_id in d['db_ids']:
                         book.in_library = True
+                        book.smart_update(d['db_ids'][book.db_id])
+                        resend_metadata = True
                         continue
                     book_authors = authors_to_string(book.authors).lower() if book.authors else ''
                     book_authors = re.sub('(?u)\W|[_]', '', book_authors)
                     if book_authors in d['authors']:
                         book.in_library = True
+                        book.smart_update(d['authors'][book_authors])
+                        resend_metadata = True
+        if resend_metadata:
+            # Correcting metadata cache on device.
+            self.device_manager.sync_booklists(None, booklists)

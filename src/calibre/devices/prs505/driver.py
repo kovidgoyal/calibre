@@ -13,6 +13,7 @@ import os
 import re
 
 from calibre.devices.usbms.driver import USBMS
+from calibre.devices.usbms.books import Book
 from calibre.devices.prs505.books import BookList, fix_ids
 from calibre.devices.prs505 import MEDIA_XML
 from calibre.devices.prs505 import CACHE_XML
@@ -59,8 +60,9 @@ class PRS505(USBMS):
     METADATA_CACHE = "database/cache/metadata.calibre"
 
     def initialize(self):
-        USBMS.initialize(self)
+        USBMS.initialize(self) # Must be first, so _class vars are set right
         self.booklist_class = BookList
+        self.book_class = Book
 
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
