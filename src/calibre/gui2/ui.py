@@ -947,7 +947,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     self.device_manager.device)
             self.location_view.model().device_connected(self.device_manager.device)
             self.eject_action.setEnabled(True)
-            self.refresh_ondevice_info (device_connected = True)
+            # don't refresh_ondevice here. It will happen in metadata_downloaded
         else:
             self.save_device_view_settings()
             self.device_connected = False

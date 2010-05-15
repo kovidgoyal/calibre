@@ -547,6 +547,12 @@ class ResultCache(SearchQueryParser):
     def count(self):
         return len(self._map)
 
+    def refresh_ondevice(self, db):
+        ondevice_col = self.FIELD_MAP['ondevice']
+        for item in self._data:
+            if item is not None:
+                item[ondevice_col] = db.book_on_device_string(item[0])
+
     def refresh(self, db, field=None, ascending=True):
         temp = db.conn.get('SELECT * FROM meta2')
         self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []

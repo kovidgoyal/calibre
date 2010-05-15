@@ -58,8 +58,6 @@ class PRS505(USBMS):
                     'series, tags, authors'
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['series', 'tags'])
 
-    METADATA_CACHE = "database/cache/metadata.calibre"
-
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
 

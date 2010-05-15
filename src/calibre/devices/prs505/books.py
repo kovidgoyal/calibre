@@ -10,9 +10,8 @@ from base64 import b64encode as encode
 
 from calibre.devices.usbms.books import BookList as _BookList
 from calibre.devices import strftime as _strftime
-from calibre.devices.usbms.books import Book as _Book
-from calibre.devices.prs505 import MEDIA_XML
-from calibre.devices.prs505 import CACHE_XML
+from calibre.devices.prs505 import MEDIA_XML, CACHE_XML
+from calibre.devices.errors import PathError
 
 strftime = functools.partial(_strftime, zone=time.gmtime)
 
@@ -33,10 +32,14 @@ def sortable_title(title):
 
 class BookList(_BookList):
 
-    def __init__(self, oncard, prefix):
-        _BookList.__init__(self, oncard, prefix)
+    def __init__(self, oncard, prefix, settings):
+        _BookList.__init__(self, oncard, prefix, settings)
         if prefix is None:
             return
+        self.sony_id_cache = {}
+        self.books_lpath_cache = {}
+        opts = settings()
+        self.collections = opts.extra_customization.split(',') if opts.extra_customization else []
         db = CACHE_XML if oncard else MEDIA_XML
         xml_file = open(prefix + db, 'rb')
         xml_file.seek(0)
@@ -50,7 +53,20 @@ class BookList(_BookList):
             self.root_element = records[0]
         else:
             self.prefix = ''
+        for child in self.root_element.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("id"):
+                self.sony_id_cache[child.getAttribute('id')] = child.getAttribute('path')
+                # set the key to none. Will be filled in later when booklist is built
+                self.books_lpath_cache[child.getAttribute('path')] = None
         self.tag_order = {}
+
+        paths = self.purge_corrupted_files()
+        for path in paths:
+            try:
+                self.del_file(path, end_session=False)
+            except PathError: # Incase this is a refetch without a sync in between
+                continue
+
 
     def max_id(self):
         max = 0
@@ -73,22 +89,27 @@ class BookList(_BookList):
     def supports_tags(self):
         return True
 
-    def book_by_path(self, path):
-        for child in self.root_element.childNodes:
-            if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("path"):
-                if path == child.getAttribute('path'):
-                    return child
-        return None
-
-    def add_book(self, book, collections=None):
+    def add_book(self, book, replace_metadata):
+        # Add a node into the DOM tree, representing a book. Also add to booklist
         if book in self:
-            return
-        """ Add a node into the DOM tree, representing a book """
-        node = self.document.createElement(self.prefix + "text")
-        mime = MIME_MAP.get(book.lpath.rpartition('.')[-1].lower(), MIME_MAP['epub'])
+            # replacing metadata for book
+            self.delete_node(book.lpath)
+        else:
+            self.append(book)
+            if not replace_metadata:
+                if self.books_lpath_cache.has_key(book.lpath):
+                    self.books_lpath_cache[book.lpath] = book
+                    return
+        # Book not in metadata. Add it. Note that we don't need to worry about
+        # extra books in the Sony metadata. The reader deletes them for us when
+        # we disconnect. That said, if it becomes important one day, we can do
+        # it by scanning the books_lpath_cache for None entries and removing the
+        # corresponding nodes.
+        self.books_lpath_cache[book.lpath] = book
         cid = self.max_id()+1
-        book.sony_id = cid
-        self.append(book)
+        node = self.document.createElement(self.prefix + "text")
+        self.sony_id_cache[cid] = book.lpath
+        mime = MIME_MAP.get(book.lpath.rpartition('.')[-1].lower(), MIME_MAP['epub'])
         try:
             sourceid = str(self[0].sourceid) if len(self) else '1'
         except:
@@ -120,7 +141,7 @@ class BookList(_BookList):
         self.root_element.appendChild(node)
 
         tags = []
-        for item in collections:
+        for item in self.collections:
             item = item.strip()
             mitem = getattr(book, item, None)
             titems = []
@@ -141,6 +162,7 @@ class BookList(_BookList):
             if hasattr(book, 'tag_order'):
                 self.tag_order.update(book.tag_order)
             self.set_playlists(cid, tags)
+        return True  # metadata cache has changed. Must sync at end
 
     def _delete_node(self, node):
         nid = node.getAttribute('id')
@@ -162,7 +184,8 @@ class BookList(_BookList):
     def remove_book(self, book):
         '''
         Remove DOM node corresponding to book with C{path == path}.
-        Also remove book from any collections it is part of.
+        Also remove book from any collections it is part of, and remove
+        from the booklist
         '''
         self.remove(book)
         self.delete_node(book.lpath)
@@ -264,15 +287,6 @@ class BookList(_BookList):
         stream.write(src.replace("'", '&apos;'))
 
     def reorder_playlists(self):
-        sony_id_cache = {}
-        for child in self.root_element.childNodes:
-            if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("id"):
-                sony_id_cache[child.getAttribute('id')] = child.getAttribute('path')
-
-        books_lpath_cache = {}
-        for book in self:
-            books_lpath_cache[book.lpath] = book
-
         for title in self.tag_order.keys():
             pl = self.playlist_by_title(title)
             if not pl:
@@ -281,9 +295,9 @@ class BookList(_BookList):
             sony_ids = [id.getAttribute('id') \
                     for id in pl.childNodes if hasattr(id, 'getAttribute')]
             # convert IDs in playlist to a list of lpaths
-            sony_paths = [sony_id_cache[id] for id in sony_ids]
+            sony_paths = [self.sony_id_cache[id] for id in sony_ids]
             # create list of books containing lpaths
-            books = [books_lpath_cache.get(p, None) for p in sony_paths]
+            books = [self.books_lpath_cache.get(p, None) for p in sony_paths]
             # create dict of db_id -> sony_id
             imap = {}
             for book, sony_id in zip(books, sony_ids):

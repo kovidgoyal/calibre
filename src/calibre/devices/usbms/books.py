@@ -108,16 +108,19 @@ class Book(MetaInformation):
 
 class BookList(_BookList):
 
+    def __init__(self, oncard, prefix, settings):
+        pass
+
     def supports_tags(self):
         return True
 
     def set_tags(self, book, tags):
         book.tags = tags
 
-    def add_book(self, book, collections=None):
+    def add_book(self, book, replace_metadata):
         '''
         Add the book to the booklist. Intent is to maintain any device-internal
-        metadata
+        metadata. Return True if booklists must be sync'ed
         '''
         if book not in self:
             self.append(book)

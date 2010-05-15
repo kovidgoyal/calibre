@@ -58,19 +58,21 @@ class USBMS(CLI, Device):
         prefix = self._card_a_prefix if oncard == 'carda' else \
                                      self._card_b_prefix if oncard == 'cardb' \
                                                          else self._main_prefix
-        metadata = self.booklist_class(oncard, prefix)
 
         ebook_dirs = self.EBOOK_DIR_CARD_A if oncard == 'carda' else \
             self.EBOOK_DIR_CARD_B if oncard == 'cardb' else \
             self.get_main_ebook_dir()
 
-        bl, need_sync = self.parse_metadata_cache(prefix, self.METADATA_CACHE,
-                                                  self.booklist_class(oncard, prefix))
+        # build a temporary list of books from the metadata cache
+        bl, need_sync = self.parse_metadata_cache(prefix, self.METADATA_CACHE)
         # make a dict cache of paths so the lookup in the loop below is faster.
         bl_cache = {}
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
         self.count_found_in_bl = 0
+
+        # Make the real booklist that will be filled in below
+        metadata = self.booklist_class(oncard, prefix, self.settings)
 
         def update_booklist(filename, path, prefix):
             changed = False
@@ -86,7 +88,8 @@ class USBMS(CLI, Device):
                     else:
                         item = self.book_from_path(prefix, lpath)
                         changed = True
-                    metadata.append(item)
+                    if metadata.add_book(item, replace_metadata=False):
+                        changed = True
                 except: # Probably a filename encoding error
                     import traceback
                     traceback.print_exc()
@@ -183,10 +186,7 @@ class USBMS(CLI, Device):
             if book.size is None:
                 book.size = os.stat(path).st_size
 
-            opts = self.settings()
-            collections = opts.extra_customization.split(',') if opts.extra_customization else []
-            booklists[blist].add_book(book, collections, *location[1:-1])
-
+            booklists[blist].add_book(book, replace_metadata=True)
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
 
     def delete_books(self, paths, end_session=True):
@@ -237,7 +237,8 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Sending metadata to device...'))
 
     @classmethod
-    def parse_metadata_cache(cls, prefix, name, bl):
+    def parse_metadata_cache(cls, prefix, name):
+        bl = []
         js = []
         need_sync = False
         try:

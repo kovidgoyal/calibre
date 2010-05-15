@@ -371,7 +371,7 @@ class BooksModel(QAbstractTableModel):
     def set_device_connected(self, is_connected):
         self.device_connected = is_connected
         self.read_config()
-        self.refresh(reset=True)
+        self.db.refresh_ondevice()
         self.database_changed.emit(self.db)
 
     def set_book_on_device_func(self, func):

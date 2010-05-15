@@ -245,6 +245,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.has_id  = self.data.has_id
         self.count   = self.data.count
 
+        self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
+
         self.refresh()
         self.last_update_check = self.last_modified()
 
