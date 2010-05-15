@@ -32,9 +32,9 @@ class EPUBInput(InputFormatPlugin):
         key = None
         for item in opf.identifier_iter():
             scheme = None
-            for key in item.attrib.keys():
-                if key.endswith('scheme'):
-                    scheme = item.get(key)
+            for xkey in item.attrib.keys():
+                if xkey.endswith('scheme'):
+                    scheme = item.get(xkey)
             if (scheme and scheme.lower() == 'uuid') or \
                     (item.text and item.text.startswith('urn:uuid:')):
                 key = str(item.text).rpartition(':')[-1]
