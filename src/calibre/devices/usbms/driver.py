@@ -174,11 +174,19 @@ class USBMS(CLI, Device):
             blist = 2 if location[1] == 'cardb' else 1 if location[1] == 'carda' else 0
 
             if self._main_prefix:
+                # Normalize path and prefix
+                if self._main_prefix.find('\\') >= 0:
+                    path = path.replace('/', '\\')
+                else:
+                    path = path.replace('\\', '/')
                 prefix = self._main_prefix if path.startswith(self._main_prefix) else None
             if not prefix and self._card_a_prefix:
                 prefix = self._card_a_prefix if path.startswith(self._card_a_prefix) else None
             if not prefix and self._card_b_prefix:
                 prefix = self._card_b_prefix if path.startswith(self._card_b_prefix) else None
+            if prefix is None:
+                print 'in add_books_to_metadata. Prefix is None!', path, self._main_prefix
+                continue
             lpath = path.partition(prefix)[2]
             if lpath.startswith(os.sep):
                 lpath = lpath[len(os.sep):]
