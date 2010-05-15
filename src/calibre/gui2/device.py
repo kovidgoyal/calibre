@@ -1135,4 +1135,5 @@ class DeviceGUI(object):
                         resend_metadata = True
         if resend_metadata:
             # Correcting metadata cache on device.
-            self.device_manager.sync_booklists(None, booklists)
+            if self.device_manager.is_connected:
+                self.device_manager.sync_booklists(None, booklists)

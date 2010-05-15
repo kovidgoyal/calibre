@@ -948,6 +948,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         Called when a device is connected to the computer.
         '''
         if connected:
+            self._sync_menu.connect_to_folder_action.setEnabled(False)
+            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
             self.device_manager.get_device_information(\
                     Dispatcher(self.info_read))
             self.set_default_thumbnail(\
@@ -963,6 +965,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.eject_action.setEnabled(True)
             # don't refresh_ondevice here. It will happen in metadata_downloaded
         else:
+            self._sync_menu.connect_to_folder_action.setEnabled(True)
+            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
             self.save_device_view_settings()
             self.device_connected = False
             self._sync_menu.enable_device_actions(False)
