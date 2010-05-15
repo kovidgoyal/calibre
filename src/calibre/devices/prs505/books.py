@@ -41,9 +41,9 @@ class BookList(_BookList):
         opts = settings()
         self.collections = opts.extra_customization.split(',') if opts.extra_customization else []
         db = CACHE_XML if oncard else MEDIA_XML
-        xml_file = open(prefix + db, 'rb')
-        xml_file.seek(0)
-        self.document = dom.parse(xml_file)
+        with open(prefix + db, 'rb') as xml_file:
+            xml_file.seek(0)
+            self.document = dom.parse(xml_file)
         self.root_element = self.document.documentElement
         self.mountpath = prefix
         records = self.root_element.getElementsByTagName('records')

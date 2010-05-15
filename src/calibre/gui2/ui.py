@@ -949,7 +949,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         if connected:
             self._sync_menu.connect_to_folder_action.setEnabled(False)
-            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
             self.device_manager.get_device_information(\
                     Dispatcher(self.info_read))
             self.set_default_thumbnail(\
@@ -963,10 +962,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     self.device_manager.device)
             self.location_view.model().device_connected(self.device_manager.device)
             self.eject_action.setEnabled(True)
-            # don't refresh_ondevice here. It will happen in metadata_downloaded
+            self.refresh_ondevice_info (device_connected = True, reset_only = True)
         else:
             self._sync_menu.connect_to_folder_action.setEnabled(True)
-            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
             self.save_device_view_settings()
             self.device_connected = False
             self._sync_menu.enable_device_actions(False)
@@ -1035,10 +1033,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################################################################
     ### Force the library view to refresh, taking into consideration books information
-    def refresh_ondevice_info(self, device_connected):
-        # Save current column widths because we might be turning on OnDevice
-        self.library_view.write_settings()
+    def refresh_ondevice_info(self, device_connected, reset_only = False):
         self.book_on_device(None, reset=True)
+        if reset_only:
+            return
+        self.library_view.write_settings()
         self.library_view.model().set_device_connected(device_connected)
     ############################################################################
 
