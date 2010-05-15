@@ -666,6 +666,18 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         MainWindow.resizeEvent(self, ev)
         self.search.setMaximumWidth(self.width()-150)
 
+    def connect_to_folder(self):
+        dir = choose_dir(self, 'Select Device Folder', 'Select folder to open')
+        if dir is not None:
+            print dir
+            self.device_manager.connect_to_folder(dir)
+            self._sync_menu.connect_to_folder_action.setEnabled(False)
+            self._sync_menu.disconnect_from_folder_action.setEnabled(True)
+
+    def disconnect_from_folder(self):
+        self.device_manager.disconnect_folder()
+        self._sync_menu.connect_to_folder_action.setEnabled(True)
+        self._sync_menu.disconnect_from_folder_action.setEnabled(False)
 
     def create_device_menu(self):
         self._sync_menu = DeviceMenu(self)
@@ -676,6 +688,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.action_sync, SIGNAL('triggered(bool)'),
                 self._sync_menu.trigger_default)
         self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
+        self._sync_menu.connect_to_folder.connect(self.connect_to_folder)
+        self._sync_menu.disconnect_from_folder.connect(self.disconnect_from_folder)
 
     def add_spare_server(self, *args):
         self.spare_servers.append(Server(limit=int(config['worker_limit']/2.0)))

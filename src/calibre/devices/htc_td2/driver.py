@@ -19,7 +19,8 @@ class HTC_TD2(USBMS):
 
     VENDOR_ID   = {
             # HTC
-            0x0bb4 : { 0x0c30 : [0x000]},
+#            0x0bb4 : { 0x0c30 : [0x000]},
+            0xFbb4 : { 0x0c30 : [0x000]},
             }
     EBOOK_DIR_MAIN = ['EBooks']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '

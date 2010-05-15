@@ -25,6 +25,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
+from calibre.devices.folder_device.driver import FOLDER_DEVICE
 
 class DeviceJob(BaseJob):
 
@@ -207,6 +208,27 @@ class DeviceManager(Thread):
         return self.create_job(self._get_device_information, done,
                     description=_('Get device information'))
 
+    def connect_to_folder(self, path):
+        dev = FOLDER_DEVICE(path)
+        try:
+            dev.open()
+        except:
+            print 'Unable to open device', dev
+            traceback.print_exc()
+            return False
+        self.connected_device = dev
+        self.connected_slot(True)
+        return True
+
+    def disconnect_folder(self):
+        if self.connected_device is not None:
+            if hasattr(self.connected_device, 'disconnect_from_folder'):
+                self.connected_device.disconnect_from_folder()
+
+#    def connect_to_folder(self, path):
+#        return self.create_job(self._connect_to_folder, None,
+#                    description=_('Connect to folder'))
+
     def _books(self):
         '''Get metadata from device'''
         mainlist = self.device.books(oncard=None, end_session=False)
@@ -309,6 +331,8 @@ class DeviceAction(QAction):
 class DeviceMenu(QMenu):
 
     fetch_annotations = pyqtSignal()
+    connect_to_folder = pyqtSignal()
+    disconnect_from_folder = pyqtSignal()
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -410,6 +434,17 @@ class DeviceMenu(QMenu):
         annot.triggered.connect(lambda x :
                 self.fetch_annotations.emit())
         self.annotation_action = annot
+
+        mitem = self.addAction(_('Connect to folder (experimental)'))
+        mitem.setEnabled(True)
+        mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
+        self.connect_to_folder_action = mitem
+
+        mitem = self.addAction(_('Disconnect from folder (experimental)'))
+        mitem.setEnabled(False)
+        mitem.triggered.connect(lambda x : self.disconnect_from_folder.emit())
+        self.disconnect_from_folder_action = mitem
+
         self.enable_device_actions(False)
 
     def change_default_action(self, action):
