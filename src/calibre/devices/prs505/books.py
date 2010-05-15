@@ -357,6 +357,11 @@ def fix_ids(main, carda, cardb):
                 item.parentNode.removeChild(item)
                 item.unlink()
         db.reorder_playlists()
+        db.sony_id_cache = {}
+        for child in db.root_element.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("id"):
+                db.sony_id_cache[child.getAttribute('id')] = child.getAttribute('path')
+
 
     regen_ids(main)
     regen_ids(carda)
