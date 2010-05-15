@@ -37,6 +37,7 @@ class ChristianScienceMonitor(BasicNewsRecipe):
 
     preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
         [
+            (r'<!--.*?-->', lambda match : ''),
         (r'<body.*?<div id="story"', lambda match : '<body><div id="story"'),
         (r'<div class="pubdate">.*?</div>', lambda m: ''),
         (r'Full HTML version of this story which may include photos, graphics, and related links.*</body>',
@@ -79,7 +80,10 @@ class ChristianScienceMonitor(BasicNewsRecipe):
 
     remove_tags    = [
                         dict(name='div', attrs={'id':['story-tools','videoPlayer','storyRelatedBottom','enlarge-photo','photo-paginate']}),
-                        dict(name='div', attrs={'class':['storyToolbar cfx','podStoryRel','spacer3','divvy spacer7','comment','storyIncludeBottom']}),
+                        dict(name=['div','a'], attrs={'class':
+                            ['storyToolbar cfx','podStoryRel','spacer3',
+                                'divvy spacer7','comment','storyIncludeBottom',
+                                'hide', 'podBrdr']}),
                         dict(name='ul', attrs={'class':[ 'centerliststories']}) ,
                         dict(name='form', attrs={'id':[ 'commentform']}) ,
                     ]
