@@ -339,6 +339,7 @@ class FileIconProvider(QFileIconProvider):
              'tan'     : 'zero',
              'epub'    : 'epub',
              'fb2'     : 'fb2',
+             'rtf'     : 'rtf',
              }
 
     def __init__(self):
