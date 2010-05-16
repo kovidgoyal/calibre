@@ -248,6 +248,8 @@ class USBMS(CLI, Device):
 
     @classmethod
     def normalize_path(cls, path):
+        if path is None:
+            return None
         if os.sep == '\\':
             path = path.replace('/', '\\')
         else:

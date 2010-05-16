@@ -88,6 +88,9 @@ class FOLDER_DEVICE(USBMS):
     def get_main_ebook_dir(self):
         return ''
 
+    def eject(self):
+        self.is_connected = False
+
     @classmethod
     def settings(self):
         return FOLDER_DEVICE_FOR_CONFIG._config().parse()
