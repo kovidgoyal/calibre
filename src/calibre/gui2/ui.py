@@ -1523,6 +1523,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     sm = view.selectionModel()
                     sm.select(ci, sm.Select)
         else:
+            if not confirm('<p>'+_('The selected books will be '
+                                   '<b>permanently deleted</b> '
+                                   'from your device. Are you sure?')
+                                +'</p>', 'library_delete_books', self):
+                return
             if self.stack.currentIndex() == 1:
                 view = self.memory_view
             elif self.stack.currentIndex() == 2:
