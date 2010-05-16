@@ -4,36 +4,48 @@ Created on 15 May 2010
 @author: charles
 '''
 import os
-import time
 
-from calibre.customize.ui import available_output_formats
 from calibre.devices.usbms.driver import USBMS, BookList
-from calibre.devices.interface import DevicePlugin
-from calibre.devices.usbms.deviceconfig import DeviceConfig
-from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
+
+# This class is added to the standard device plugin chain, so that it can
+# be configured. It has invalid vendor_id etc, so it will never match a
+# device. The 'real' FOLDER_DEVICE will use the config from it.
+class FOLDER_DEVICE_FOR_CONFIG(USBMS):
+    name           = 'Folder Device Interface'
+    gui_name       = 'Folder Device'
+    description    = _('Use an arbitrary folder as a device.')
+    author         = 'John Schember/Charles Haley'
+    supported_platforms = ['windows', 'osx', 'linux']
+    FORMATS     = ['epub', 'fb2', 'mobi', 'lrf', 'tcr', 'pmlz', 'lit', 'rtf', 'rb', 'pdf', 'oeb', 'txt', 'pdb']
 
 class FOLDER_DEVICE(USBMS):
     type = _('Device Interface')
 
-    # Ordered list of supported formats
+    name           = 'Folder Device Interface'
+    gui_name       = 'Folder Device'
+    description    = _('Use an arbitrary folder as a device.')
+    author         = 'John Schember/Charles Haley'
+    supported_platforms = ['windows', 'osx', 'linux']
     FORMATS     = ['epub', 'fb2', 'mobi', 'lrf', 'tcr', 'pmlz', 'lit', 'rtf', 'rb', 'pdf', 'oeb', 'txt', 'pdb']
 
     THUMBNAIL_HEIGHT = 68 # Height for thumbnails on device
-    # Whether the metadata on books can be set via the GUI.
+
     CAN_SET_METADATA = True
     SUPPORTS_SUB_DIRS = True
-    DELETE_EXTS = []
-    #: Path separator for paths to books on device
-    path_sep = os.sep
+
     #: Icon for this device
-    icon = I('reader.svg')
+    icon = I('sd.svg')
     METADATA_CACHE = '.metadata.calibre'
 
-    _main_prefix = None
+    _main_prefix = ''
     _card_a_prefix = None
     _card_b_prefix = None
 
+    is_connected = False
+
     def __init__(self, path):
+        if not os.path.isdir(path):
+            raise IOError, 'Path is not a folder'
         self._main_prefix = path
         self.booklist_class = BookList
         self.is_connected = True
@@ -47,6 +59,7 @@ class FOLDER_DEVICE(USBMS):
         return cls.name
 
     def disconnect_from_folder(self):
+        self._main_prefix = ''
         self.is_connected = False
 
     def is_usb_connected(self, devices_on_system, debug=False,
@@ -54,8 +67,8 @@ class FOLDER_DEVICE(USBMS):
         return self.is_connected, self
 
     def open(self):
-        if self._main_prefix is None:
-            raise NotImplementedError()
+        if not self._main_prefix:
+            return False
         return True
 
     def set_progress_reporter(self, report_progress):
@@ -64,11 +77,9 @@ class FOLDER_DEVICE(USBMS):
     def card_prefix(self, end_session=True):
         return (None, None)
 
-    def total_space(self, end_session=True):
-       return (1024*1024*1024, 0, 0)
-
-    def free_space(self, end_session=True):
-       return (1024*1024*1024, 0, 0)
-
     def get_main_ebook_dir(self):
         return ''
+
+    @classmethod
+    def settings(self):
+        return FOLDER_DEVICE_FOR_CONFIG._config().parse()

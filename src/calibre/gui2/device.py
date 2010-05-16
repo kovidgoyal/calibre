@@ -428,23 +428,24 @@ class DeviceMenu(QMenu):
         if opts.accounts:
             self.addSeparator()
             self.addMenu(self.email_to_menu)
+
+        self.addSeparator()
+        mitem = self.addAction(_('Connect to folder'))
+        mitem.setEnabled(True)
+        mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
+        self.connect_to_folder_action = mitem
+
+        mitem = self.addAction(_('Disconnect from folder'))
+        mitem.setEnabled(False)
+        mitem.triggered.connect(lambda x : self.disconnect_from_folder.emit())
+        self.disconnect_from_folder_action = mitem
+
         self.addSeparator()
         annot = self.addAction(_('Fetch annotations (experimental)'))
         annot.setEnabled(False)
         annot.triggered.connect(lambda x :
                 self.fetch_annotations.emit())
         self.annotation_action = annot
-
-        mitem = self.addAction(_('Connect to folder (experimental)'))
-        mitem.setEnabled(True)
-        mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
-        self.connect_to_folder_action = mitem
-
-        mitem = self.addAction(_('Disconnect from folder (experimental)'))
-        mitem.setEnabled(False)
-        mitem.triggered.connect(lambda x : self.disconnect_from_folder.emit())
-        self.disconnect_from_folder_action = mitem
-
         self.enable_device_actions(False)
 
     def change_default_action(self, action):
@@ -1089,8 +1090,17 @@ class DeviceGUI(object):
             # First build a cache of the library, so the search isn't On**2
             self.db_book_title_cache = {}
             self.db_book_uuid_cache = set()
-            for idx in range(self.library_view.model().db.count()):
-                mi = self.library_view.model().db.get_metadata(idx, index_is_id=False)
+            db = self.library_view.model().db
+            # The following is a terrible hack, made necessary because the db
+            # result_cache will always use the results filtered by the current
+            # search. We need all the db entries here. Choice was to either
+            # cache the search results so we can use the entire db, to duplicate
+            # large parts of the get_metadata code, or to use db_ids and pay the
+            # large performance penalty of zillions of SQL queries. Choice:
+            # save/restore the search state.
+            state = db.get_state_before_scan()
+            for idx in range(db.count()):
+                mi = db.get_metadata(idx, index_is_id=False)
                 title = re.sub('(?u)\W|[_]', '', mi.title.lower())
                 if title not in self.db_book_title_cache:
                     self.db_book_title_cache[title] = {'authors':{}, 'db_ids':{}}
@@ -1099,12 +1109,13 @@ class DeviceGUI(object):
                 self.db_book_title_cache[title]['authors'][authors] = mi
                 self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
                 self.db_book_uuid_cache.add(mi.uuid)
+            db.restore_state_after_scan(state)
 
-        # Now iterate through all the books on the device, setting the in_library field
-        # Fastest and most accurate key is the uuid. Second is the application_id, which
-        # is really the db key, but as this can accidentally match across libraries we
-        # also verify the title. The db_id exists on Sony devices. Fallback is title
-        # and author match
+        # Now iterate through all the books on the device, setting the
+        # in_library field Fastest and most accurate key is the uuid. Second is
+        # the application_id, which is really the db key, but as this can
+        # accidentally match across libraries we also verify the title. The
+        # db_id exists on Sony devices. Fallback is title and author match
         resend_metadata = False
         for booklist in booklists:
             for book in booklist:
@@ -1135,5 +1146,5 @@ class DeviceGUI(object):
                         resend_metadata = True
         if resend_metadata:
             # Correcting metadata cache on device.
-            if self.device_manager.is_connected:
+            if self.device_manager.is_device_connected:
                 self.device_manager.sync_booklists(None, booklists)

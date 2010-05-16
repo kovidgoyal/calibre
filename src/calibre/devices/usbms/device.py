@@ -113,15 +113,17 @@ class Device(DeviceConfig, DevicePlugin):
     def _windows_space(cls, prefix):
         if not prefix:
             return 0, 0
+        if prefix.endswith(os.sep):
+            prefix = prefix[:-1]
         win32file = __import__('win32file', globals(), locals(), [], -1)
         try:
             sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
-                win32file.GetDiskFreeSpace(prefix[:-1])
+                win32file.GetDiskFreeSpace(prefix)
         except Exception, err:
             if getattr(err, 'args', [None])[0] == 21: # Disk not ready
                 time.sleep(3)
                 sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
-                    win32file.GetDiskFreeSpace(prefix[:-1])
+                    win32file.GetDiskFreeSpace(prefix)
             else: raise
         mult = sectors_per_cluster * bytes_per_sector
         return total_clusters * mult, free_clusters * mult

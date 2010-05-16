@@ -669,15 +669,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def connect_to_folder(self):
         dir = choose_dir(self, 'Select Device Folder', 'Select folder to open')
         if dir is not None:
-            print dir
             self.device_manager.connect_to_folder(dir)
-            self._sync_menu.connect_to_folder_action.setEnabled(False)
             self._sync_menu.disconnect_from_folder_action.setEnabled(True)
 
     def disconnect_from_folder(self):
         self.device_manager.disconnect_folder()
-        self._sync_menu.connect_to_folder_action.setEnabled(True)
-        self._sync_menu.disconnect_from_folder_action.setEnabled(False)
 
     def create_device_menu(self):
         self._sync_menu = DeviceMenu(self)
@@ -965,6 +961,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.refresh_ondevice_info (device_connected = True, reset_only = True)
         else:
             self._sync_menu.connect_to_folder_action.setEnabled(True)
+            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
             self.save_device_view_settings()
             self.device_connected = False
             self._sync_menu.enable_device_actions(False)

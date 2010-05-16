@@ -245,6 +245,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.has_id  = self.data.has_id
         self.count   = self.data.count
 
+        self.get_state_before_scan    = self.data.get_state_before_scan
+        self.restore_state_after_scan = self.data.restore_state_after_scan
         self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
 
         self.refresh()
