@@ -232,9 +232,9 @@ def info_dialog(parent, title, msg, det_msg='', show=False):
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """
     divisor, suffix = 1, "B"
-    for i, candidate in enumerate(('KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
-        if size < 1024**(i+2):
-            divisor, suffix = 1024**(i+1), candidate
+    for i, candidate in enumerate(('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
+        if size < 1024**(i+1):
+            divisor, suffix = 1024**(i), candidate
             break
     size = str(float(size)/divisor)
     if size.find(".") > -1:
