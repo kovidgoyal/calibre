@@ -15,6 +15,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import parse_date
 from calibre.utils.zipfile import ZipFile
 from calibre import extract, walk
+from calibre.constants import __version__
 
 DEBUG_README=u'''
 This debug directory contains snapshots of the e-book as it passes through the
@@ -711,6 +712,7 @@ OptionRecommendation(name='timestamp',
         if self.opts.verbose > 1:
             self.log.debug('Resolved conversion options')
             try:
+                self.log.debug('calibre version:', __version__)
                 self.log.debug(pprint.pformat(self.opts.__dict__))
             except:
                 self.log.exception('Failed to get resolved conversion options')
