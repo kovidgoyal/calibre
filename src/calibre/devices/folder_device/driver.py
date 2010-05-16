@@ -28,6 +28,10 @@ class FOLDER_DEVICE(USBMS):
     supported_platforms = ['windows', 'osx', 'linux']
     FORMATS     = ['epub', 'fb2', 'mobi', 'lrf', 'tcr', 'pmlz', 'lit', 'rtf', 'rb', 'pdf', 'oeb', 'txt', 'pdb']
 
+    VENDOR_ID   = 0xffff
+    PRODUCT_ID  = 0xffff
+    BCD         = 0xffff
+
     THUMBNAIL_HEIGHT = 68 # Height for thumbnails on device
 
     CAN_SET_METADATA = True

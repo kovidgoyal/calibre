@@ -225,10 +225,6 @@ class DeviceManager(Thread):
             if hasattr(self.connected_device, 'disconnect_from_folder'):
                 self.connected_device.disconnect_from_folder()
 
-#    def connect_to_folder(self, path):
-#        return self.create_job(self._connect_to_folder, None,
-#                    description=_('Connect to folder'))
-
     def _books(self):
         '''Get metadata from device'''
         mainlist = self.device.books(oncard=None, end_session=False)
