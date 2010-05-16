@@ -329,7 +329,7 @@ class EPUBMetadataWriter(MetadataWriterPlugin):
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.epub import set_metadata
-        set_metadata(stream, mi)
+        set_metadata(stream, mi, apply_null=self.apply_null)
 
 class LRFMetadataWriter(MetadataWriterPlugin):
 

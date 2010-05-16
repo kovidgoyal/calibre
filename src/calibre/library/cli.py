@@ -376,12 +376,35 @@ the directory related options below.
                       help=_('Process directories recursively'))
     parser.add_option('-d', '--duplicates', action='store_true', default=False,
                       help=_('Add books to database even if they already exist. Comparison is done based on book titles.'))
+    parser.add_option('-e', '--empty', action='store_true', default=False,
+                    help=_('Add an empty book (a book with no formats)'))
+    parser.add_option('-t', '--title', default=None,
+            help=_('Set the title of the added empty book'))
+    parser.add_option('-a', '--authors', default=None,
+            help=_('Set the authors of the added empty book'))
+    parser.add_option('-i', '--isbn', default=None,
+            help=_('Set the ISBN of the added empty book'))
+
     return parser
 
+def do_add_empty(db, title, authors, isbn):
+    from calibre.ebooks.metadata import MetaInformation, string_to_authors
+    mi = MetaInformation(None)
+    if title is not None:
+        mi.title = title
+    if authors:
+        mi.authors = string_to_authors(authors)
+    if isbn:
+        mi.isbn = isbn
+    db.import_book(mi, [])
+    send_message()
 
 def command_add(args, dbpath):
     parser = add_option_parser()
     opts, args = parser.parse_args(sys.argv[:1] + args)
+    if opts.empty:
+        do_add_empty(get_db(dbpath, opts), opts.title, opts.authors, opts.isbn)
+        return 0
     if len(args) < 2:
         parser.print_help()
         print
