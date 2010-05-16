@@ -171,6 +171,11 @@ class ResultCache(SearchQueryParser):
         for id in self._map_filtered:
             yield self._data[id]
 
+    def iterall(self):
+        for x in self._data:
+            if x is not None:
+                yield x
+
     def universal_set(self):
         return set([i[0] for i in self._data if i is not None])
 
