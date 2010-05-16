@@ -17,6 +17,10 @@ class FOLDER_DEVICE_FOR_CONFIG(USBMS):
     author         = 'John Schember/Charles Haley'
     supported_platforms = ['windows', 'osx', 'linux']
     FORMATS     = ['epub', 'fb2', 'mobi', 'lrf', 'tcr', 'pmlz', 'lit', 'rtf', 'rb', 'pdf', 'oeb', 'txt', 'pdb']
+    VENDOR_ID   = 0xffff
+    PRODUCT_ID  = 0xffff
+    BCD         = 0xffff
+
 
 class FOLDER_DEVICE(USBMS):
     type = _('Device Interface')
