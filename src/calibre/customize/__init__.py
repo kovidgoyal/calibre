@@ -236,6 +236,10 @@ class MetadataWriterPlugin(Plugin):
 
     type = _('Metadata writer')
 
+    def __init__(self, *args, **kwargs):
+        Plugin.__init__(self, *args, **kwargs)
+        self.apply_null = False
+
     def set_metadata(self, stream, mi, type):
         '''
         Set metadata for the file represented by stream (a file like object

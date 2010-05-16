@@ -182,13 +182,21 @@ def get_metadata(stream, extract_cover=True):
 def get_quick_metadata(stream):
     return get_metadata(stream, False)
 
-def set_metadata(stream, mi):
+def set_metadata(stream, mi, apply_null=False):
     stream.seek(0)
     reader = OCFZipReader(stream, root=os.getcwdu())
     mi = MetaInformation(mi)
     for x in ('guide', 'toc', 'manifest', 'spine'):
         setattr(mi, x, None)
     reader.opf.smart_update(mi)
+    if apply_null:
+        if not getattr(mi, 'series', None):
+            reader.opf.series = None
+        if not getattr(mi, 'tags', []):
+            reader.opf.tags = []
+        if not getattr(mi, 'isbn', None):
+            reader.opf.isbn = None
+
     newopf = StringIO(reader.opf.render())
     safe_replace(stream, reader.container[OPF.MIMETYPE], newopf)
 
