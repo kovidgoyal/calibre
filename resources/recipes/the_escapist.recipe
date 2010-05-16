@@ -15,7 +15,7 @@ class al(BasicNewsRecipe):
     description   = 'The Escapist Magazine'
 
     cover_url      = 'http://cdn.themis-media.com/themes/escapistmagazine/default/images/logo.png'
-    title          = u'the Escapist Magazine'
+    title          = u'The Escapist Magazine'
     publisher      = 'Themis media'
     category       = 'Video games news, lifestyle, gaming culture'
 
