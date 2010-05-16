@@ -232,12 +232,10 @@ def info_dialog(parent, title, msg, det_msg='', show=False):
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """
     divisor, suffix = 1, "B"
-    if size < 1024*1024:
-        divisor, suffix = 1024., "KB"
-    elif size < 1024*1024*1024:
-        divisor, suffix = 1024*1024, "MB"
-    elif size < 1024*1024*1024*1024:
-        divisor, suffix = 1024*1024*1024, "GB"
+    for i, candidate in enumerate(('KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
+        if size < 1024**(i+2):
+            divisor, suffix = 1024**(i+1), candidate
+            break
     size = str(float(size)/divisor)
     if size.find(".") > -1:
         size = size[:size.find(".")+2]
