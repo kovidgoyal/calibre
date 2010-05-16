@@ -48,6 +48,7 @@ class KOBO(USBMS):
     WINDOWS_MAIN_MEM = '.KOBOEREADER'
 
     EBOOK_DIR_MAIN = ''
+    SUPPORTS_SUB_DIRS = True
 
 class AVANT(USBMS):
     name           = 'Booq Avant Device Interface'
