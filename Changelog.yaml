@@ -4,6 +4,87 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.53
+  date: 2010-05-15
+
+  new features:
+    - title: "Clean up GUI initialization and add support for restoring corrupted databases automatically"
+
+    - title: "Make proxy detection more robust on windows and OS X. calibre now queries OS X Network Settigns if no environment variables are set. Also handle proxies with a trailing slash correctly"
+
+    - title: "Add EPUB advanced formatting demo to User Manual"
+
+    - title: "Support for the Booq Avant, Azbooka and the Samsung GT-I5700"
+
+    - title: "Backwards search in the E-book viewer"
+
+    - title: "calibredb: Add ability to create empty books in the database."
+      tickets: [5504]
+
+    - title: "Conversion pipeline: Support for the :first-letter pseudo selector"
+
+    - title: "Interpret a Keyboard interrupt (Ctrl+C) as a request to quit the main GUI"
+
+    - title: "CBC Input: Handle comics.txt encoded in UTF-16 with a BOM"
+
+  bug fixes:
+    - title: "HTML Input: Fix silly bug in case sensitivity detection"
+
+    - title: "Kobo driver: Show all sideloaded content on the device."
+      tickets: [5492]
+
+    - title: "EPUB metadata: Fix bug with relative apths in encryption detection when reading cover"
+      tickets: [5471]
+
+    - title: "E-book viewer: Fix next page scrolling when current document is just a little more than a screenfull. Also use a more robust method to insert blank space at the end of the document when the last screenfull is partially empty."
+
+    - title: "EPUB metadata: Allow deletion of series/tags/isbn from EPUB files when Saving to Disk"
+      tickets: [5518]
+
+    - title: "Fix regression that caused temporary blank line at the bottom of the books list when adding duplicates"
+      tickets: [5500]
+
+    - title: "Add icon for RTF"
+      tickets: [5503]
+
+    - title: "Amazon metadata: If ISBN is not found, don't report an error message."
+      tickets: [5501]
+
+    - title: "EPUB Input: Fix typo that caused incorrect processing of EPUB files with more than one identifier element and encrypted fonts"
+
+    - title: "Fix bug that caused send to device to send multiple copies to the device if you had previously used Prefrences"
+
+    - title: "Linux prs 500 udev rule: Use SUBSYSTEMS instead of the deprecated BUS"
+
+    - title: "PML2PMLZ plugin: Actually compress the PML file stored in the PMLZ archive"
+      tickets: [5511]
+
+    - title: "SONY drivers: Fix regression that broke collection ordering by series when sending to device. And fix another rare error condition."
+      tickets: [5487]
+
+    - title: "CHM Input: Regression that broke CHM conversion on OS X."
+      tickets: [5483]
+
+    - title: "Fix PDB created in Dropbook not convertable by Calibre"
+      tickets: [5441]
+
+
+  new recipes:
+    - title: APCOM, Leggo (it), Ansa and Punto Informatico
+      author: Gabriele Marini
+
+    - title: Scinexx.de
+      author: JSuer
+
+    - title: Various Russian news sources
+      author: Darko Miletic
+
+  improved recipes:
+    - Christian Science Monitor
+    - The Nation
+    - Physics World
+    - Discover Magazine
+
 - version: 0.6.52
   date: 2010-05-07
 
