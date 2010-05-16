@@ -563,14 +563,6 @@ class ResultCache(SearchQueryParser):
             if item is not None:
                 item[ondevice_col] = db.book_on_device_string(item[0])
 
-    def get_state_before_scan(self):
-        retval = self._map_filtered
-        self._map_filtered = self._map
-        return retval
-
-    def restore_state_after_scan(self, map_filtered):
-        self._map_filtered = map_filtered
-
     def refresh(self, db, field=None, ascending=True):
         temp = db.conn.get('SELECT * FROM meta2')
         self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []

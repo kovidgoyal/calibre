@@ -1091,16 +1091,8 @@ class DeviceGUI(object):
             self.db_book_title_cache = {}
             self.db_book_uuid_cache = set()
             db = self.library_view.model().db
-            # The following is a terrible hack, made necessary because the db
-            # result_cache will always use the results filtered by the current
-            # search. We need all the db entries here. Choice was to either
-            # cache the search results so we can use the entire db, to duplicate
-            # large parts of the get_metadata code, or to use db_ids and pay the
-            # large performance penalty of zillions of SQL queries. Choice:
-            # save/restore the search state.
-            state = db.get_state_before_scan()
-            for idx in range(db.count()):
-                mi = db.get_metadata(idx, index_is_id=False)
+            for id in db.data.iterallids():
+                mi = db.get_metadata(id, index_is_id=True)
                 title = re.sub('(?u)\W|[_]', '', mi.title.lower())
                 if title not in self.db_book_title_cache:
                     self.db_book_title_cache[title] = {'authors':{}, 'db_ids':{}}
@@ -1109,7 +1101,6 @@ class DeviceGUI(object):
                 self.db_book_title_cache[title]['authors'][authors] = mi
                 self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
                 self.db_book_uuid_cache.add(mi.uuid)
-            db.restore_state_after_scan(state)
 
         # Now iterate through all the books on the device, setting the
         # in_library field Fastest and most accurate key is the uuid. Second is

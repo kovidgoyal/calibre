@@ -190,8 +190,8 @@ class USBMS(CLI, Device):
                 print 'in add_books_to_metadata. Prefix is None!', path, self._main_prefix
                 continue
             lpath = path.partition(prefix)[2]
-            if lpath.startswith(os.sep):
-                lpath = lpath[len(os.sep):]
+            if lpath.startswith('/') or lpath.startswith('\\'):
+                lpath = lpath[1:]
             book = self.book_class(prefix, lpath, other=info)
             if book.size is None:
                 book.size = os.stat(self.normalize_path(path)).st_size
