@@ -14,9 +14,9 @@ from xml.parsers.expat import ExpatError
 from Queue import Queue, Empty
 from threading import Thread
 from functools import partial
-from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
+from PyQt4.Qt import Qt, SIGNAL, QObject, QUrl, QTimer, \
                      QModelIndex, QPixmap, QColor, QPainter, QMenu, QIcon, \
-                     QToolButton, QDialog, QDesktopServices, QFileDialog, \
+                     QToolButton, QDialog, QDesktopServices, \
                      QSystemTrayIcon, QApplication, QKeySequence, QAction, \
                      QMessageBox, QStackedLayout, QHelpEvent, QInputDialog,\
                      QThread, pyqtSignal
@@ -125,8 +125,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.default_thumbnail = (pixmap.width(), pixmap.height(),
                 pixmap_to_data(pixmap))
 
-    def __init__(self, listener, opts, actions, parent=None):
+    def __init__(self, library_path, db, listener, opts, actions, parent=None):
         self.preferences_action, self.quit_action = actions
+        self.library_path = library_path
         self.spare_servers = []
         MainWindow.__init__(self, opts, parent)
         # Initialize fontconfig in a separate thread as this can be a lengthy
@@ -395,6 +396,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.action_sync.setShortcut(Qt.Key_D)
         self.action_sync.setEnabled(True)
         self.create_device_menu()
+        self.connect(self.action_sync, SIGNAL('triggered(bool)'),
+                self._sync_action_triggered)
+
         self.action_edit.setMenu(md)
         self.action_save.setMenu(self.save_menu)
 
@@ -513,31 +517,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
         self.stack.setCurrentIndex(0)
-        try:
-            db = LibraryDatabase2(self.library_path)
-        except Exception:
-            import traceback
-            error_dialog(self, _('Bad database location'),
-                    _('Bad database location')+':'+self.library_path,
-                    det_msg=traceback.format_exc()).exec_()
-            fname = _('Calibre Library')
-            if isinstance(fname, unicode):
-                try:
-                    fname = fname.encode(filesystem_encoding)
-                except:
-                    fname = 'Calibre Library'
-            x = os.path.expanduser('~'+os.sep+fname)
-            if not os.path.exists(x):
-                os.makedirs(x)
-            dir = unicode(QFileDialog.getExistingDirectory(self,
-                            _('Choose a location for your ebook library.'),
-                            x))
-            if not dir:
-                QCoreApplication.exit(1)
-                raise SystemExit(1)
-            else:
-                self.library_path = dir
-                db = LibraryDatabase2(self.library_path)
         self.library_view.set_database(db)
         prefs['library_path'] = self.library_path
         self.library_view.sortByColumn(*dynamic.get('sort_column',
@@ -658,11 +637,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             height = v.rowHeight(0)
             self.library_view.verticalHeader().setDefaultSectionSize(height)
 
+        self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
+
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
         self.search.setMaximumWidth(self.width()-150)
 
+    def _sync_action_triggered(self, *args):
+        m = getattr(self, '_sync_menu', None)
+        if m is not None:
+            m.trigger_default()
 
     def create_device_menu(self):
         self._sync_menu = DeviceMenu(self)
@@ -670,8 +655,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self._sync_menu,
                 SIGNAL('sync(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                 self.dispatch_sync_event)
-        self.connect(self.action_sync, SIGNAL('triggered(bool)'),
-                self._sync_menu.trigger_default)
         self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
 
     def add_spare_server(self, *args):
@@ -2330,38 +2313,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         d.show()
         self._modeless_dialogs.append(d)
 
-
-    def initialize_database(self):
-        self.library_path = prefs['library_path']
-        if self.library_path is None: # Need to migrate to new database layout
-            base = os.path.expanduser('~')
-            if iswindows:
-                from calibre import plugins
-                from PyQt4.Qt import QDir
-                base = plugins['winutil'][0].special_folder_path(
-                        plugins['winutil'][0].CSIDL_PERSONAL)
-                if not base or not os.path.exists(base):
-                    base = unicode(QDir.homePath()).replace('/', os.sep)
-            dir = unicode(QFileDialog.getExistingDirectory(self,
-                        _('Choose a location for your ebook library.'), base))
-            if not dir:
-                dir = os.path.expanduser('~/Library')
-            self.library_path = os.path.abspath(dir)
-        if not os.path.exists(self.library_path):
-            try:
-                os.makedirs(self.library_path)
-            except:
-                self.library_path = os.path.expanduser('~/CalibreLibrary')
-                error_dialog(self, _('Invalid library location'),
-                     _('Could not access %s. Using %s as the library.')%
-                     (repr(self.library_path), repr(self.library_path))
-                             ).exec_()
-                if not os.path.exists(self.library_path):
-                    os.makedirs(self.library_path)
-
-
     def read_settings(self):
-        self.initialize_database()
         geometry = config['main_window_geometry']
         if geometry is not None:
             self.restoreGeometry(geometry)

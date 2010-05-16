@@ -69,9 +69,9 @@ class Economist(BasicNewsRecipe):
         key = None
         for tag in soup.findAll(['h1', 'h2']):
             text = ''.join(tag.findAll(text=True))
+            if tag.name in ('h1', 'h2') and 'Classified ads' in text:
+                break
             if tag.name == 'h1':
-                if 'Classified ads' in text:
-                    break
                 if 'The world this week' in text or 'The world this year' in text:
                     index_started = True
                 if not index_started:

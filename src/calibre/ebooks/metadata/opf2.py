@@ -404,6 +404,10 @@ class MetadataField(object):
 
     def __set__(self, obj, val):
         elem = obj.get_metadata_element(self.name)
+        if val is None:
+            if elem is not None:
+                elem.getparent().remove(elem)
+            return
         if elem is None:
             elem = obj.create_metadata_element(self.name, is_dc=self.is_dc)
         obj.set_text(elem, unicode(val))
@@ -722,6 +726,11 @@ class OPF(object):
 
         def fset(self, val):
             matches = self.isbn_path(self.metadata)
+            if val is None:
+                if matches:
+                    for x in matches:
+                        x.getparent().remove(x)
+                    return
             if not matches:
                 attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'ISBN'}
                 matches = [self.create_metadata_element('identifier',

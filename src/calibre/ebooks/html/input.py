@@ -292,12 +292,12 @@ class HTMLInput(InputFormatPlugin):
                 encoding=opts.input_encoding)
 
     def is_case_sensitive(self, path):
-        if self._is_case_sensitive is not None:
+        if getattr(self, '_is_case_sensitive', None) is not None:
             return self._is_case_sensitive
         if not path or not os.path.exists(path):
             return islinux or isfreebsd
-        self._is_case_sensitive = os.path.exists(path.lower()) \
-                and os.path.exists(path.upper())
+        self._is_case_sensitive = not (os.path.exists(path.lower()) \
+                and os.path.exists(path.upper()))
         return self._is_case_sensitive
 
     def create_oebbook(self, htmlpath, basedir, opts, log, mi):

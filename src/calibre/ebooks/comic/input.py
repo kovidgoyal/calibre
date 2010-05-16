@@ -341,8 +341,15 @@ class ComicInput(InputFormatPlugin):
             if not os.path.exists('comics.txt'):
                 raise ValueError('%s is not a valid comic collection'
                         %stream.name)
-            raw = open('comics.txt', 'rb').read().decode('utf-8')
-            raw.lstrip(unicode(codecs.BOM_UTF8, "utf8" ))
+            raw = open('comics.txt', 'rb').read()
+            if raw.startswith(codecs.BOM_UTF16_BE):
+                raw = raw.decode('utf-16-be')[1:]
+            elif raw.startswith(codecs.BOM_UTF16_LE):
+                raw = raw.decode('utf-16-le')[1:]
+            elif raw.startswith(codecs.BOM_UTF8):
+                raw = raw.decode('utf-8')[1:]
+            else:
+                raw = raw.decode('utf-8')
             for line in raw.splitlines():
                 line = line.strip()
                 if not line:

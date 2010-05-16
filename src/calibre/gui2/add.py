@@ -199,11 +199,11 @@ class DBAdder(Thread):
                     self.add_formats(id, formats)
             else:
                 id = self.db.create_book_entry(mi, cover=cover, add_duplicates=False)
-                self.number_of_books_added += 1
                 if id is None:
                     self.duplicates.append((mi, cover, orig_formats))
                 else:
                     self.add_formats(id, formats)
+                    self.number_of_books_added += 1
         else:
             self.names.append(name)
             self.paths.append(formats[0])

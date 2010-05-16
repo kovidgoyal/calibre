@@ -92,10 +92,10 @@ class EbookIterator(object):
         ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
         self.ebook_ext = ext
 
-    def search(self, text, index):
+    def search(self, text, index, backwards=False):
         text = text.lower()
         for i, path in enumerate(self.spine):
-            if i > index:
+            if (backwards and i < index) or (not backwards and i > index):
                 if text in open(path, 'rb').read().decode(path.encoding).lower():
                     return i
 

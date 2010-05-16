@@ -235,6 +235,7 @@ def save_book(task, library_path, path, recs, notification=lambda x,y:x):
     from calibre.library.database2 import LibraryDatabase2
     db = LibraryDatabase2(library_path)
     from calibre.library.save_to_disk import config, save_to_disk
+    from calibre.customize.ui import apply_null_metadata
     opts = config().parse()
     for name in recs:
         setattr(opts, name, recs[name])
@@ -244,5 +245,6 @@ def save_book(task, library_path, path, recs, notification=lambda x,y:x):
         notification((id, title, not failed, tb))
         return True
 
-    save_to_disk(db, task, path, opts, callback)
+    with apply_null_metadata:
+        save_to_disk(db, task, path, opts, callback)
 

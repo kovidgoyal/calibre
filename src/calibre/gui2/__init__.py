@@ -339,6 +339,7 @@ class FileIconProvider(QFileIconProvider):
              'tan'     : 'zero',
              'epub'    : 'epub',
              'fb2'     : 'fb2',
+             'rtf'     : 'rtf',
              }
 
     def __init__(self):
@@ -410,6 +411,7 @@ class FileDialog(QObject):
                        modal = True,
                        name = '',
                        mode = QFileDialog.ExistingFiles,
+                       default_dir='~'
                        ):
         QObject.__init__(self)
         ftext = ''
@@ -428,9 +430,10 @@ class FileDialog(QObject):
         self.selected_files = None
         self.fd = None
 
-        initial_dir = dynamic.get(self.dialog_name, os.path.expanduser('~'))
+        initial_dir = dynamic.get(self.dialog_name,
+                os.path.expanduser(default_dir))
         if not isinstance(initial_dir, basestring):
-            initial_dir = os.path.expanduser('~')
+            initial_dir = os.path.expanduser(default_dir)
         self.selected_files = []
         if mode == QFileDialog.AnyFile:
             f = unicode(QFileDialog.getSaveFileName(parent, title, initial_dir, ftext, ""))
@@ -465,9 +468,10 @@ class FileDialog(QObject):
         return tuple(self.selected_files)
 
 
-def choose_dir(window, name, title):
-    fd = FileDialog(title, [], False, window, name=name,
-                    mode=QFileDialog.DirectoryOnly)
+def choose_dir(window, name, title, default_dir='~'):
+    fd = FileDialog(title=title, filters=[], add_all_files_filter=False,
+            parent=window, name=name, mode=QFileDialog.DirectoryOnly,
+            default_dir=default_dir)
     dir = fd.get_files()
     if dir:
         return dir[0]

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Ebook Viewer</string>
+   <string>E-book Viewer</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../../../../resources/images.qrc">
@@ -142,6 +142,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="action_find_next"/>
+   <addaction name="action_find_previous"/>
   </widget>
   <action name="action_back">
    <property name="icon">
@@ -232,6 +233,12 @@
    <property name="text">
     <string>Find next</string>
    </property>
+   <property name="toolTip">
+    <string>Find next occurrence</string>
+   </property>
+   <property name="shortcut">
+    <string>F3</string>
+   </property>
   </action>
   <action name="action_copy">
    <property name="icon">
@@ -285,6 +292,21 @@
    </property>
    <property name="text">
     <string>Print</string>
+   </property>
+  </action>
+  <action name="action_find_previous">
+   <property name="icon">
+    <iconset resource="../../../../resources/images.qrc">
+     <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Find previous</string>
+   </property>
+   <property name="toolTip">
+    <string>Find previous occurrence</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+F3</string>
    </property>
   </action>
  </widget>
