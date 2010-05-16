@@ -78,7 +78,7 @@ class USBMS(CLI, Device):
             changed = False
             if path_to_ext(filename) in self.FORMATS:
                 try:
-                    lpath = os.path.join(path, filename).partition(prefix)[2]
+                    lpath = os.path.join(path, filename).partition(self.normalize_path(prefix))[2]
                     if lpath.startswith(os.sep):
                         lpath = lpath[len(os.sep):]
                     idx = bl_cache.get(lpath.replace('\\', '/'), None)
@@ -98,7 +98,9 @@ class USBMS(CLI, Device):
         if isinstance(ebook_dirs, basestring):
             ebook_dirs = [ebook_dirs]
         for ebook_dir in ebook_dirs:
-            ebook_dir = os.path.join(prefix, *(ebook_dir.split('/'))) if ebook_dir else prefix
+            ebook_dir = self.normalize_path( \
+                            os.path.join(prefix, *(ebook_dir.split('/'))) \
+                                    if ebook_dir else prefix)
             if not os.path.exists(ebook_dir): continue
             # Get all books in the ebook_dir directory
             if self.SUPPORTS_SUB_DIRS:
@@ -119,6 +121,7 @@ class USBMS(CLI, Device):
         # if count != len(bl) then there were items in it that we did not
         # find on the device. If need_sync is True then there were either items
         # on the device that were not in bl or some of the items were changed.
+        print "count found in cache: %d, count of files in cache: %d, must_sync_cache: %s" % (self.count_found_in_bl, len(bl), need_sync)
         if self.count_found_in_bl != len(bl) or need_sync:
             if oncard == 'cardb':
                 self.sync_booklists((None, None, metadata))
@@ -140,13 +143,12 @@ class USBMS(CLI, Device):
 
         for i, infile in enumerate(files):
             mdata, fname = metadata.next(), names.next()
-            filepath = self.create_upload_path(path, mdata, fname)
-
+            filepath = self.normalize_path(self.create_upload_path(path, mdata, fname))
             paths.append(filepath)
-
-            self.put_file(infile, filepath, replace_file=True)
+            self.put_file(self.normalize_path(infile), filepath, replace_file=True)
             try:
-                self.upload_cover(os.path.dirname(filepath), os.path.splitext(os.path.basename(filepath))[0], mdata)
+                self.upload_cover(os.path.dirname(filepath),
+                                  os.path.splitext(os.path.basename(filepath))[0], mdata)
             except: # Failure to upload cover is not catastrophic
                 import traceback
                 traceback.print_exc()
@@ -192,14 +194,14 @@ class USBMS(CLI, Device):
                 lpath = lpath[len(os.sep):]
             book = self.book_class(prefix, lpath, other=info)
             if book.size is None:
-                book.size = os.stat(path).st_size
-
+                book.size = os.stat(self.normalize_path(path)).st_size
             booklists[blist].add_book(book, replace_metadata=True)
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
 
     def delete_books(self, paths, end_session=True):
         for i, path in enumerate(paths):
             self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
+            path = self.normalize_path(path)
             if os.path.exists(path):
                 # Delete the ebook
                 os.unlink(path)
@@ -228,15 +230,15 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Removing books from device metadata listing...'))
 
     def sync_booklists(self, booklists, end_session=True):
-        if not os.path.exists(self._main_prefix):
-            os.makedirs(self._main_prefix)
+        if not os.path.exists(self.normalize_path(self._main_prefix)):
+            os.makedirs(self.normalize_path(self._main_prefix))
 
         def write_prefix(prefix, listid):
             if prefix is not None and isinstance(booklists[listid], self.booklist_class):
                 if not os.path.exists(prefix):
-                    os.makedirs(prefix)
+                    os.makedirs(self.normalize_path(prefix))
                 js = [item.to_json() for item in booklists[listid]]
-                with open(os.path.join(prefix, self.METADATA_CACHE), 'wb') as f:
+                with open(self.normalize_path(os.path.join(prefix, self.METADATA_CACHE)), 'wb') as f:
                     json.dump(js, f, indent=2, encoding='utf-8')
         write_prefix(self._main_prefix, 0)
         write_prefix(self._card_a_prefix, 1)
@@ -245,12 +247,20 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Sending metadata to device...'))
 
     @classmethod
+    def normalize_path(cls, path):
+        if os.sep == '\\':
+            path = path.replace('/', '\\')
+        else:
+            path = path.replace('\\', '/')
+        return path
+
+    @classmethod
     def parse_metadata_cache(cls, prefix, name):
         bl = []
         js = []
         need_sync = False
         try:
-            with open(os.path.join(prefix, name), 'rb') as f:
+            with open(cls.normalize_path(os.path.join(prefix, name)), 'rb') as f:
                 js = json.load(f, encoding='utf-8')
             for item in js:
                 book = cls.book_class(prefix, item.get('lpath', None))
@@ -267,7 +277,7 @@ class USBMS(CLI, Device):
     @classmethod
     def update_metadata_item(cls, item):
         changed = False
-        size = os.stat(item.path).st_size
+        size = os.stat(cls.normalize_path(item.path)).st_size
         if size != item.size:
             changed = True
             mi = cls.metadata_from_path(item.path)
@@ -291,15 +301,15 @@ class USBMS(CLI, Device):
         from calibre.ebooks.metadata import MetaInformation
 
         if cls.settings().read_metadata or cls.MUST_READ_METADATA:
-            mi = cls.metadata_from_path(os.path.join(prefix, path))
+            mi = cls.metadata_from_path(cls.normalize_path(os.path.join(prefix, path)))
         else:
             from calibre.ebooks.metadata.meta import metadata_from_filename
-            mi = metadata_from_filename(os.path.basename(path),
+            mi = metadata_from_filename(cls.normalize_path(os.path.basename(path)),
                 re.compile(r'^(?P<title>[ \S]+?)[ _]-[ _](?P<author>[ \S]+?)_+\d+'))
 
         if mi is None:
             mi = MetaInformation(os.path.splitext(os.path.basename(path))[0],
                     [_('Unknown')])
-        mi.size = os.stat(os.path.join(prefix, path)).st_size
+        mi.size = os.stat(cls.normalize_path(os.path.join(prefix, path))).st_size
         book = cls.book_class(prefix, path, other=mi)
         return book

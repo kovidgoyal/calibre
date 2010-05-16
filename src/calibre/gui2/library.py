@@ -1379,7 +1379,14 @@ class DeviceBooksModel(BooksModel):
             x, y = self.db[x].in_library, self.db[y].in_library
             return cmp(x, y)
         def authorcmp(x, y):
-            x, y = authors_to_string(self.db[x].authors), authors_to_string(self.db[y].authors)
+            ax = getattr(self.db[x], 'author_sort', None)
+            ay = getattr(self.db[y], 'author_sort', None)
+            if ax and ay:
+                x = ax
+                y = ay
+            else:
+                x, y = authors_to_string(self.db[x].authors), \
+                                authors_to_string(self.db[y].authors)
             return cmp(x, y)
         fcmp = strcmp('title_sorter') if col == 0 else authorcmp if col == 1 else \
                sizecmp if col == 2 else datecmp if col == 3 else tagscmp if col == 4 else libcmp

@@ -1144,6 +1144,10 @@ class DeviceGUI(object):
                         book.in_library = True
                         book.smart_update(d['authors'][book_authors])
                         resend_metadata = True
+                # Set author_sort if it isn't already
+                asort = getattr(book, 'author_sort', None)
+                if not asort:
+                    pass
         if resend_metadata:
             # Correcting metadata cache on device.
             if self.device_manager.is_device_connected:
