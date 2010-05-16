@@ -125,7 +125,7 @@ With recent reader iterations, SONY, in all its wisdom has decided to try to for
 use their software. If you install it, it auto-launches whenever you connect the reader.
 If you don't want to uninstall it altogether, there are a couple of tricks you can use. The
 simplest is to simply re-name the executable file that launches the library program. More detail
-`here <http://www.mobileread.com/forums/showthread.php?t=65809>`_.
+`in the forums <http://www.mobileread.com/forums/showthread.php?t=65809>`_.
 
 Can I use the collections feature of the SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -262,7 +262,7 @@ I want |app| to download news from my favorite news website.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you are reasonably proficient with computers, you can teach |app| to download news from any website of your choosing. To learn how to do this see :ref:`news`.
 
-Otherwise, you can register a request for a particular news site by adding a comment `here <http://bugs.calibre-ebook.com/ticket/405>`_.
+Otherwise, you can register a request for a particular news site by adding a comment `to this ticket <http://bugs.calibre-ebook.com/ticket/405>`_.
 
 Can I use web2disk to download an arbitrary website?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -335,6 +335,6 @@ You have two choices:
 
 Can I include |app| on a CD to be distributed with my product/magazine?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `here <http://code.google.com/p/calibre-ebook/downloads/list>`_.
+|app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `from googlecode <http://code.google.com/p/calibre-ebook/downloads/list>`_.
 
 
