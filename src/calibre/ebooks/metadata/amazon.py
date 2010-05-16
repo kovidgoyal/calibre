@@ -19,12 +19,18 @@ AWS_NS = 'http://webservices.amazon.com/AWSECommerceService/2005-10-05'
 def AWS(tag):
     return '{%s}%s'%(AWS_NS, tag)
 
-def check_for_errors(root):
+class ISBNNotFound(ValueError):
+    pass
+
+def check_for_errors(root, isbn):
     err = root.find('.//'+AWS('Error'))
     if err is not None:
+        text = etree.tostring(err, method='text', pretty_print=True,
+                    encoding=unicode)
+        if 'AWS.InvalidParameterValue'+isbn in text:
+            raise ISBNNotFound(isbn)
         raise Exception('Failed to get metadata with error: '\
-                + etree.tostring(err, method='text', pretty_print=True,
-                    encoding=unicode))
+                + text)
 
 def get_social_metadata(title, authors, publisher, isbn):
     mi = MetaInformation(title, authors)
@@ -32,7 +38,10 @@ def get_social_metadata(title, authors, publisher, isbn):
         br = browser()
         response_xml = br.open('http://status.calibre-ebook.com/aws/metadata/'+isbn).read()
         root = etree.fromstring(response_xml)
-        check_for_errors(root)
+        try:
+            check_for_errors(root, isbn)
+        except ISBNNotFound:
+            return mi
         mi.title = root.findtext('.//'+AWS('Title'))
         authors = [x.text for x in root.findall('.//'+AWS('Author'))]
         if authors:

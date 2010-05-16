@@ -187,6 +187,18 @@ class QuickMetadata(object):
 
 quick_metadata = QuickMetadata()
 
+class ApplyNullMetadata(object):
+
+    def __init__(self):
+        self.apply_null = False
+
+    def __enter__(self):
+        self.apply_null = True
+
+    def __exit__(self, *args):
+        self.apply_null = False
+
+apply_null_metadata = ApplyNullMetadata()
 
 def get_file_type_metadata(stream, ftype):
     mi = MetaInformation(None, None)
@@ -214,6 +226,7 @@ def set_file_type_metadata(stream, mi, ftype):
             if not is_disabled(plugin):
                 with plugin:
                     try:
+                        plugin.apply_null = apply_null_metadata.apply_null
                         plugin.set_metadata(stream, mi, ftype.lower().strip())
                         break
                     except:

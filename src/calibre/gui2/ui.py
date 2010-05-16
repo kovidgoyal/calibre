@@ -396,6 +396,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.action_sync.setShortcut(Qt.Key_D)
         self.action_sync.setEnabled(True)
         self.create_device_menu()
+        self.connect(self.action_sync, SIGNAL('triggered(bool)'),
+                self._sync_action_triggered)
+
         self.action_edit.setMenu(md)
         self.action_save.setMenu(self.save_menu)
 
@@ -675,14 +678,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def disconnect_from_folder(self):
         self.device_manager.disconnect_folder()
 
+    def _sync_action_triggered(self, *args):
+        m = getattr(self, '_sync_menu', None)
+        if m is not None:
+            m.trigger_default()
+
     def create_device_menu(self):
         self._sync_menu = DeviceMenu(self)
         self.action_sync.setMenu(self._sync_menu)
         self.connect(self._sync_menu,
                 SIGNAL('sync(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                 self.dispatch_sync_event)
-        self.connect(self.action_sync, SIGNAL('triggered(bool)'),
-                self._sync_menu.trigger_default)
         self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
         self._sync_menu.connect_to_folder.connect(self.connect_to_folder)
         self._sync_menu.disconnect_from_folder.connect(self.disconnect_from_folder)

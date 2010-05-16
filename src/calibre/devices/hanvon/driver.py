@@ -24,7 +24,7 @@ class N516(USBMS):
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0xa4a5]
-    BCD         = [0x323, 0x326]
+    BCD         = [0x323, 0x326, 0x399]
 
     VENDOR_NAME      = 'INGENIC'
     WINDOWS_MAIN_MEM = '_FILE-STOR_GADGE'

@@ -10,6 +10,7 @@ class PhysicsWorld(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
+    cover_url = 'http://images.iop.org/cws/icons/themes/phw/header-logo.png'
     use_embedded_content  = False
     remove_javascript     = True
     needs_subscription = True
@@ -27,7 +28,7 @@ class PhysicsWorld(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('http://physicsworld.com/cws/sign-in')
-            br.select_form(nr=1)
+            br.select_form(nr=2)
             br['username'] = self.username
             br['password'] = self.password
             br.submit()

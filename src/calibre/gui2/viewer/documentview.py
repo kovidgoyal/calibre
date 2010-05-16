@@ -585,7 +585,9 @@ class DocumentView(QWebView):
         def fset(self, val): self.document.current_language = val
         return property(fget=fget, fset=fset)
 
-    def search(self, text):
+    def search(self, text, backwards=False):
+        if backwards:
+            return self.findText(text, self.document.FindBackwards)
         return self.findText(text)
 
     def path(self):
