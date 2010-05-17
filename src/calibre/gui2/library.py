@@ -1418,9 +1418,12 @@ class DeviceBooksModel(BooksModel):
         data = {}
         item = self.db[self.map[current.row()]]
         cdata = item.thumbnail
-        if cdata:
+        if cdata is not None:
             img = QImage()
-            img.loadFromData(cdata)
+            if hasattr(cdata, 'image_path'):
+                img.load(cdata.image_path)
+            else:
+                img.loadFromData(cdata)
             if img.isNull():
                 img = self.default_image
             data['cover'] = img
