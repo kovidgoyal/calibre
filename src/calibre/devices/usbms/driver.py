@@ -82,13 +82,15 @@ class USBMS(CLI, Device):
                     lpath = os.path.join(path, filename).partition(self.normalize_path(prefix))[2]
                     if lpath.startswith(os.sep):
                         lpath = lpath[len(os.sep):]
-                    idx = bl_cache.get(lpath.replace('\\', '/'), None)
+                    lpath = lpath.replace('\\', '/')
+                    idx = bl_cache.get(lpath, None)
                     if idx is not None:
                         if self.update_metadata_item(bl[idx]):
                             #print 'update_metadata_item returned true'
                             changed = True
-                        bl_cache[lpath.replace('\\', '/')] = None
+                        bl_cache[lpath] = None
                     else:
+                        #print "adding new book", lpath
                         if bl.add_book(self.book_from_path(prefix, lpath),
                                               replace_metadata=False):
                             changed = True
@@ -125,10 +127,13 @@ class USBMS(CLI, Device):
                     if changed:
                         need_sync = True
 
-        for val in bl_cache.itervalues():
-            if val is not None:
+        # Remove books that are no longer in the filesystem. Cache contains
+        # indices into the booklist if book not in filesystem, None otherwise
+        # Do the operation in reverse order so indices remain valid
+        for idx in bl_cache.itervalues().reversed():
+            if idx is not None:
                 need_sync = True
-                del bl[val]
+                del bl[idx]
 
         #print "count found in cache: %d, count of files in metadata: %d, need_sync: %s" % \
         #      (len(bl_cache), len(bl), need_sync)
