@@ -2162,14 +2162,25 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             format = d.format()
             self.view_format(row, format)
 
+    def _view_check(self, num, max_=3):
+        if num <= max_:
+            return True
+        return question_dialog(self, _('Multiple Books Selected'),
+                _('You are attempting to open %d books. Opening too many '
+                'books at once can be slow and have a negative effect on the '
+                'responsiveness of your computer. Once started the process '
+                'cannot be stopped until complete. Do you wish to continue?'
+                ) % num)
+
     def view_folder(self, *args):
         rows = self.current_view().selectionModel().selectedRows()
-        if self.current_view() is self.library_view:
-            if not rows or len(rows) == 0:
-                d = error_dialog(self, _('Cannot open folder'),
-                        _('No book selected'))
-                d.exec_()
-                return
+        if not rows or len(rows) == 0:
+            d = error_dialog(self, _('Cannot open folder'),
+                    _('No book selected'))
+            d.exec_()
+            return
+        if not self._view_check(len(rows)):
+            return
         for row in rows:
             path = self.library_view.model().db.abspath(row.row())
             QDesktopServices.openUrl(QUrl.fromLocalFile(path))
@@ -2187,14 +2198,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self._launch_viewer()
             return
 
-        if len(rows) >= 3:
-            if not question_dialog(self, _('Multiple Books Selected'),
-                _('You are attempting to open %d books. Opening too many '
-                'books at once can be slow and have a negative effect on the '
-                'responsiveness of your computer. Once started the process '
-                'cannot be stopped until complete. Do you wish to continue?'
-                )% len(rows)):
-                    return
+        if not self._view_check(len(rows)):
+            return
 
         if self.current_view() is self.library_view:
             for row in rows:
