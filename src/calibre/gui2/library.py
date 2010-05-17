@@ -973,8 +973,8 @@ class BooksModel(QAbstractTableModel):
                     self.db.set(row, column, val)
             self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
                                 index, index)
-            if column == self.sorted_on[0]:
-                self.resort()
+            #if column == self.sorted_on[0]:
+            #    self.resort()
         return True
 
     def set_search_restriction(self, s):
