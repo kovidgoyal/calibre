@@ -19,7 +19,7 @@ from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
                                    pixmap_to_data, warning_dialog, \
                                    question_dialog
-from calibre.ebooks.metadata import authors_to_string
+from calibre.ebooks.metadata import authors_to_string, authors_to_sort_string
 from calibre import preferred_encoding
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
@@ -1133,9 +1133,11 @@ class DeviceGUI(object):
                         resend_metadata = True
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
-                if not asort:
-                    pass
+                if not asort and book.authors:
+                    book.author_sort = authors_to_sort_string(book.authors)
+                    resend_metadata = True
+
         if resend_metadata:
-            # Correcting metadata cache on device.
+            # Correct the metadata cache on device.
             if self.device_manager.is_device_connected:
                 self.device_manager.sync_booklists(None, booklists)
