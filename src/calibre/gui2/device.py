@@ -20,7 +20,7 @@ from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
                                    pixmap_to_data, warning_dialog, \
                                    question_dialog
 from calibre.ebooks.metadata import authors_to_string, authors_to_sort_string
-from calibre import preferred_encoding
+from calibre import preferred_encoding, prints
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
@@ -88,7 +88,7 @@ class DeviceManager(Thread):
         self.connected_device = None
         self.ejected_devices  = set([])
         self.connected_device_is_folder = False
-        self.folder_connection_path     = None
+        self.folder_connection_requests = Queue.Queue(0)
 
     def report_progress(self, *args):
         pass
@@ -175,15 +175,20 @@ class DeviceManager(Thread):
 
     def run(self):
         while self.keep_going:
-            if not self.is_device_connected and \
-                   self.folder_connection_path is not None:
-                f = self.folder_connection_path
-                self.folder_connection_path = None # Make sure we try this folder only once
+            folder_path = None
+            while True:
                 try:
-                    dev = FOLDER_DEVICE(f)
+                    folder_path = self.folder_connection_requests.get_nowait()
+                except Queue.Empty:
+                    break
+            if not folder_path or not os.access(folder_path, os.R_OK):
+                folder_path = None
+            if not self.is_device_connected and folder_path is not None:
+                try:
+                    dev = FOLDER_DEVICE(folder_path)
                     self.do_connect([[dev, None],], is_folder_device=True)
                 except:
-                    print 'Unable to open folder as device', f
+                    prints('Unable to open folder as device', folder_path)
                     traceback.print_exc()
             else:
                 self.detect_device()
@@ -226,7 +231,7 @@ class DeviceManager(Thread):
     # This will be called on the GUI thread. Because of this, we must store
     # information that the scanner thread will use to do the real work.
     def connect_to_folder(self, path):
-        self.folder_connection_path = path
+        self.folder_connection_requests.put(path)
 
     # This is called on the GUI thread. No problem here, because it calls the
     # device driver, telling it to tell the scanner when it passes by that the
