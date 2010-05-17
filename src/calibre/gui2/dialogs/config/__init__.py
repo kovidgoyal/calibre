@@ -109,6 +109,9 @@ class PluginModel(QAbstractItemModel):
                 self._data[plugin.type].append(plugin)
         self.categories = sorted(self._data.keys())
 
+        for plugins in self._data.values():
+            plugins.sort(cmp=lambda x, y: cmp(x.name.lower(), y.name.lower()))
+
     def index(self, row, column, parent):
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
