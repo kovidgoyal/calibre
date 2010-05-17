@@ -117,7 +117,7 @@ class BookList(_BookList):
     def add_book(self, book, replace_metadata):
         if book not in self:
             self.append(book)
-            return True
+        return False # subclasses return True if device metadata has changed
 
     def remove_book(self, book):
         self.remove(book)

@@ -54,7 +54,10 @@ class FOLDER_DEVICE(USBMS):
     def __init__(self, path):
         if not os.path.isdir(path):
             raise IOError, 'Path is not a folder'
-        self._main_prefix = path
+        if path.endswith(os.sep):
+            self._main_prefix = path
+        else:
+            self._main_prefix = path + os.sep
         self.booklist_class = BookList
         self.is_connected = True
 

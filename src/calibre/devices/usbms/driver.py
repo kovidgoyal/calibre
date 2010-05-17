@@ -90,6 +90,7 @@ class USBMS(CLI, Device):
                         self.count_found_in_bl += 1
                     else:
                         item = self.book_from_path(prefix, lpath)
+                        changed = True
                     if metadata.add_book(item, replace_metadata=False):
                         changed = True
                 except: # Probably a filename encoding error
@@ -106,12 +107,17 @@ class USBMS(CLI, Device):
             if not os.path.exists(ebook_dir): continue
             # Get all books in the ebook_dir directory
             if self.SUPPORTS_SUB_DIRS:
+                # build a list of files to check, so we can accurately report progress
+                flist = []
                 for path, dirs, files in os.walk(ebook_dir):
                     for filename in files:
-                        self.report_progress(0.5, _('Getting list of books on device...'))
-                        changed = update_booklist(filename, path, prefix)
-                        if changed:
-                            need_sync = True
+                        if filename != self.METADATA_CACHE:
+                            flist.append({'filename':filename, 'path': path})
+                for i, f in enumerate(flist):
+                    self.report_progress(i/float(len(flist)), _('Getting list of books on device...'))
+                    changed = update_booklist(f['filename'], f['path'], prefix)
+                    if changed:
+                        need_sync = True
             else:
                 paths = os.listdir(ebook_dir)
                 for i, filename in enumerate(paths):
@@ -123,7 +129,10 @@ class USBMS(CLI, Device):
         # if count != len(bl) then there were items in it that we did not
         # find on the device. If need_sync is True then there were either items
         # on the device that were not in bl or some of the items were changed.
-        #print "count found in cache: %d, count of files in cache: %d, must_sync_cache: %s" % (self.count_found_in_bl, len(bl), need_sync)
+
+        #print "count found in cache: %d, count of files in cache: %d, need_sync: %s, must_sync_cache: %s" % \
+        #    (self.count_found_in_bl, len(bl), need_sync,
+        #     need_sync or self.count_found_in_bl != len(bl))
         if self.count_found_in_bl != len(bl) or need_sync:
             if oncard == 'cardb':
                 self.sync_booklists((None, None, metadata))
