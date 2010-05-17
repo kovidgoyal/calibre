@@ -23,7 +23,7 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
     no_javascript = True
     needs_subscription = True
 
-    keep_only_tags = [dict(id='article-body')]
+    keep_only_tags = [dict(id=['article-body','page-title'])]
     remove_tags = [dict(attrs={'class':['article-tools', 'article-links',
         'center advertisement']})]
 
