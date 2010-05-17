@@ -25,6 +25,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
+from calibre.devices.folder_device.driver import FOLDER_DEVICE
 
 class DeviceJob(BaseJob):
 
@@ -207,6 +208,23 @@ class DeviceManager(Thread):
         return self.create_job(self._get_device_information, done,
                     description=_('Get device information'))
 
+    def connect_to_folder(self, path):
+        dev = FOLDER_DEVICE(path)
+        try:
+            dev.open()
+        except:
+            print 'Unable to open device', dev
+            traceback.print_exc()
+            return False
+        self.connected_device = dev
+        self.connected_slot(True)
+        return True
+
+    def disconnect_folder(self):
+        if self.connected_device is not None:
+            if hasattr(self.connected_device, 'disconnect_from_folder'):
+                self.connected_device.disconnect_from_folder()
+
     def _books(self):
         '''Get metadata from device'''
         mainlist = self.device.books(oncard=None, end_session=False)
@@ -309,6 +327,8 @@ class DeviceAction(QAction):
 class DeviceMenu(QMenu):
 
     fetch_annotations = pyqtSignal()
+    connect_to_folder = pyqtSignal()
+    disconnect_from_folder = pyqtSignal()
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -404,6 +424,18 @@ class DeviceMenu(QMenu):
         if opts.accounts:
             self.addSeparator()
             self.addMenu(self.email_to_menu)
+
+        self.addSeparator()
+        mitem = self.addAction(_('Connect to folder'))
+        mitem.setEnabled(True)
+        mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
+        self.connect_to_folder_action = mitem
+
+        mitem = self.addAction(_('Disconnect from folder'))
+        mitem.setEnabled(False)
+        mitem.triggered.connect(lambda x : self.disconnect_from_folder.emit())
+        self.disconnect_from_folder_action = mitem
+
         self.addSeparator()
         annot = self.addAction(_('Fetch annotations (experimental)'))
         annot.setEnabled(False)
@@ -523,7 +555,8 @@ class DeviceGUI(object):
             d = ChooseFormatDialog(self, _('Choose format to send to device'),
                                 self.device_manager.device.settings().format_map)
             d.exec_()
-            fmt = d.format().lower()
+            if d.format():
+                fmt = d.format().lower()
         dest, sub_dest = dest.split(':')
         if dest in ('main', 'carda', 'cardb'):
             if not self.device_connected or not self.device_manager:
@@ -821,7 +854,9 @@ class DeviceGUI(object):
 
     def sync_to_device(self, on_card, delete_from_library,
             specific_format=None, send_ids=None, do_auto_convert=True):
-        ids = [self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
+        ids = [self.library_view.model().id(r) \
+               for r in self.library_view.selectionModel().selectedRows()] \
+                                if send_ids is None else send_ids
         if not self.device_manager or not ids or len(ids) == 0:
             return
 
@@ -842,8 +877,7 @@ class DeviceGUI(object):
         ids = iter(ids)
         for mi in metadata:
             if mi.cover and os.access(mi.cover, os.R_OK):
-                mi.thumbnail = self.cover_to_thumbnail(open(mi.cover,
-                    'rb').read())
+                mi.thumbnail = self.cover_to_thumbnail(open(mi.cover, 'rb').read())
         imetadata = iter(metadata)
 
         files = [getattr(f, 'name', None) for f in _files]
@@ -890,7 +924,9 @@ class DeviceGUI(object):
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
 
         if auto != []:
-            format = specific_format if specific_format in list(set(settings.format_map).intersection(set(available_output_formats()))) else None
+            format = specific_format if specific_format in \
+                            list(set(settings.format_map).intersection(set(available_output_formats()))) \
+                            else None
             if not format:
                 for fmt in settings.format_map:
                     if fmt in list(set(settings.format_map).intersection(set(available_output_formats()))):
@@ -995,83 +1031,111 @@ class DeviceGUI(object):
             if changed:
                 self.library_view.model().refresh_ids(list(changed))
 
-    def book_on_device(self, index, format=None, reset=False):
+    def book_on_device(self, id, format=None, reset=False):
         loc = [None, None, None]
 
         if reset:
-            self.book_on_device_cache = None
+            self.book_db_title_cache = None
+            self.book_db_uuid_cache = None
             return
 
-        if self.book_on_device_cache is None:
-            self.book_on_device_cache = []
+        if self.book_db_title_cache is None:
+            self.book_db_title_cache = []
+            self.book_db_uuid_cache = []
             for i, l in enumerate(self.booklists()):
-                self.book_on_device_cache.append({})
+                self.book_db_title_cache.append({})
+                self.book_db_uuid_cache.append(set())
                 for book in l:
                     book_title = book.title.lower() if book.title else ''
                     book_title = re.sub('(?u)\W|[_]', '', book_title)
-                    if book_title not in self.book_on_device_cache[i]:
-                        self.book_on_device_cache[i][book_title] = \
+                    if book_title not in self.book_db_title_cache[i]:
+                        self.book_db_title_cache[i][book_title] = \
                                 {'authors':set(), 'db_ids':set(), 'uuids':set()}
                     book_authors = authors_to_string(book.authors).lower()
                     book_authors = re.sub('(?u)\W|[_]', '', book_authors)
-                    self.book_on_device_cache[i][book_title]['authors'].add(book_authors)
-                    id = getattr(book, 'application_id', None)
-                    if id is None:
-                        id = book.db_id
-                    if id is not None:
-                        self.book_on_device_cache[i][book_title]['db_ids'].add(id)
+                    self.book_db_title_cache[i][book_title]['authors'].add(book_authors)
+                    db_id = getattr(book, 'application_id', None)
+                    if db_id is None:
+                        db_id = book.db_id
+                    if db_id is not None:
+                        self.book_db_title_cache[i][book_title]['db_ids'].add(db_id)
                     uuid = getattr(book, 'uuid', None)
-                    if uuid is None:
-                        self.book_on_device_cache[i][book_title]['uuids'].add(uuid)
+                    if uuid is not None:
+                        self.book_db_uuid_cache[i].add(uuid)
 
-        db = self.library_view.model().db
-        db_title = db.title(index, index_is_id=True).lower()
-        db_title = re.sub('(?u)\W|[_]', '', db_title)
-        db_authors = db.authors(index, index_is_id=True)
-        db_authors = db_authors.lower() if db_authors else ''
-        db_authors = re.sub('(?u)\W|[_]', '', db_authors)
-        db_uuid = db.uuid(index, index_is_id=True)
+        mi = self.library_view.model().db.get_metadata(id, index_is_id=True)
         for i, l in enumerate(self.booklists()):
-            d = self.book_on_device_cache[i].get(db_title, None)
-            if d:
-                if db_uuid in d['uuids'] or \
-                        index in d['db_ids'] or \
-                        db_authors in d['authors']:
+            if mi.uuid in self.book_db_uuid_cache[i]:
+                loc[i] = True
+                continue
+            db_title = re.sub('(?u)\W|[_]', '', mi.title.lower())
+            cache = self.book_db_title_cache[i].get(db_title, None)
+            if cache:
+                if id in cache['db_ids']:
+                    loc[i] = True
+                    break
+                if mi.authors and \
+                        re.sub('(?u)\W|[_]', '', authors_to_string(mi.authors).lower()) \
+                        in cache['authors']:
                     loc[i] = True
                     break
         return loc
 
     def set_books_in_library(self, booklists, reset=False):
         if reset:
-            # First build a self.book_in_library_cache of the library, so the search isn't On**2
-            self.book_in_library_cache = {}
-            for id, title in self.library_view.model().db.all_titles():
-                title = re.sub('(?u)\W|[_]', '', title.lower())
-                if title not in self.book_in_library_cache:
-                    self.book_in_library_cache[title] = {'authors':set(), 'db_ids':set(), 'uuids':set()}
-                au = self.library_view.model().db.authors(id, index_is_id=True)
-                authors = au.lower() if au else ''
+            # First build a cache of the library, so the search isn't On**2
+            self.db_book_title_cache = {}
+            self.db_book_uuid_cache = set()
+            db = self.library_view.model().db
+            for id in db.data.iterallids():
+                mi = db.get_metadata(id, index_is_id=True)
+                title = re.sub('(?u)\W|[_]', '', mi.title.lower())
+                if title not in self.db_book_title_cache:
+                    self.db_book_title_cache[title] = {'authors':{}, 'db_ids':{}}
+                authors = authors_to_string(mi.authors).lower() if mi.authors else ''
                 authors = re.sub('(?u)\W|[_]', '', authors)
-                self.book_in_library_cache[title]['authors'].add(authors)
-                self.book_in_library_cache[title]['db_ids'].add(id)
-                self.book_in_library_cache[title]['uuids'].add(self.library_view.model().db.uuid(id, index_is_id=True))
+                self.db_book_title_cache[title]['authors'][authors] = mi
+                self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
+                self.db_book_uuid_cache.add(mi.uuid)
 
-        # Now iterate through all the books on the device, setting the in_library field
+        # Now iterate through all the books on the device, setting the
+        # in_library field Fastest and most accurate key is the uuid. Second is
+        # the application_id, which is really the db key, but as this can
+        # accidentally match across libraries we also verify the title. The
+        # db_id exists on Sony devices. Fallback is title and author match
+        resend_metadata = False
         for booklist in booklists:
             for book in booklist:
+                if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
+                    book.in_library = True
+                    continue
+
                 book_title = book.title.lower() if book.title else ''
                 book_title = re.sub('(?u)\W|[_]', '', book_title)
                 book.in_library = False
-                d = self.book_in_library_cache.get(book_title, None)
+                d = self.db_book_title_cache.get(book_title, None)
                 if d is not None:
-                    if getattr(book, 'uuid', None) in d['uuids'] or \
-                            getattr(book, 'application_id', None) in d['db_ids']:
+                    if getattr(book, 'application_id', None) in d['db_ids']:
                         book.in_library = True
+                        book.smart_update(d['db_ids'][book.application_id])
+                        resend_metadata = True
                         continue
                     if book.db_id in d['db_ids']:
                         book.in_library = True
+                        book.smart_update(d['db_ids'][book.db_id])
+                        resend_metadata = True
                         continue
                     book_authors = authors_to_string(book.authors).lower() if book.authors else ''
                     book_authors = re.sub('(?u)\W|[_]', '', book_authors)
                     if book_authors in d['authors']:
                         book.in_library = True
+                        book.smart_update(d['authors'][book_authors])
+                        resend_metadata = True
+                # Set author_sort if it isn't already
+                asort = getattr(book, 'author_sort', None)
+                if not asort:
+                    pass
+        if resend_metadata:
+            # Correcting metadata cache on device.
+            if self.device_manager.is_device_connected:
+                self.device_manager.sync_booklists(None, booklists)

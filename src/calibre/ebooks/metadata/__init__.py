@@ -254,11 +254,11 @@ class MetaInformation(object):
             setattr(self, x, getattr(mi, x, None))
 
     def print_all_attributes(self):
-        for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
-                  'series', 'series_index', 'rating', 'isbn', 'language',
+        for x in ('author', 'author_sort', 'title_sort', 'comments', 'category', 'publisher',
+                  'series', 'series_index', 'tags', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
                   'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate',
-                  'rights', 'publication_type', 'uuid',
+                  'rights', 'publication_type', 'uuid', 'tag_order',
                   ):
             prints(x, getattr(self, x, 'None'))
 
@@ -278,7 +278,7 @@ class MetaInformation(object):
                      'isbn', 'application_id', 'manifest', 'spine', 'toc',
                      'cover', 'language', 'guide', 'book_producer',
                      'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate', 'rights',
-                     'publication_type', 'uuid',):
+                     'publication_type', 'uuid', 'tag_order'):
             if hasattr(mi, attr):
                 val = getattr(mi, attr)
                 if val is not None:

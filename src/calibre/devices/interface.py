@@ -387,6 +387,9 @@ class BookList(list):
     __getslice__ = None
     __setslice__ = None
 
+    def __init__(self, oncard, prefix):
+        pass
+
     def supports_tags(self):
         ''' Return True if the the device supports tags (collections) for this book list. '''
         raise NotImplementedError()

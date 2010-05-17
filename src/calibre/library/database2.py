@@ -245,6 +245,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.has_id  = self.data.has_id
         self.count   = self.data.count
 
+        self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
+
         self.refresh()
         self.last_update_check = self.last_modified()
 
@@ -470,14 +472,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             im = PILImage.open(f)
             im.convert('RGB').save(path, 'JPEG')
 
-    def book_on_device(self, index):
+    def book_on_device(self, id):
         if callable(self.book_on_device_func):
-            return self.book_on_device_func(index)
+            return self.book_on_device_func(id)
         return None
 
-    def book_on_device_string(self, index):
+    def book_on_device_string(self, id):
         loc = []
-        on = self.book_on_device(index)
+        on = self.book_on_device(id)
         if on is not None:
             m, a, b = on
             if m is not None:

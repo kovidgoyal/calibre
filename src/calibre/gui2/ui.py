@@ -669,6 +669,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         MainWindow.resizeEvent(self, ev)
         self.search.setMaximumWidth(self.width()-150)
 
+    def connect_to_folder(self):
+        dir = choose_dir(self, 'Select Device Folder', 'Select folder to open')
+        if dir is not None:
+            self.device_manager.connect_to_folder(dir)
+            self._sync_menu.disconnect_from_folder_action.setEnabled(True)
+
+    def disconnect_from_folder(self):
+        self.device_manager.disconnect_folder()
+
     def _sync_action_triggered(self, *args):
         m = getattr(self, '_sync_menu', None)
         if m is not None:
@@ -681,6 +690,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 SIGNAL('sync(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                 self.dispatch_sync_event)
         self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
+        self._sync_menu.connect_to_folder.connect(self.connect_to_folder)
+        self._sync_menu.disconnect_from_folder.connect(self.disconnect_from_folder)
 
     def add_spare_server(self, *args):
         self.spare_servers.append(Server(limit=int(config['worker_limit']/2.0)))
@@ -939,6 +950,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         Called when a device is connected to the computer.
         '''
         if connected:
+            self._sync_menu.connect_to_folder_action.setEnabled(False)
             self.device_manager.get_device_information(\
                     Dispatcher(self.info_read))
             self.set_default_thumbnail(\
@@ -952,8 +964,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     self.device_manager.device)
             self.location_view.model().device_connected(self.device_manager.device)
             self.eject_action.setEnabled(True)
-            self.refresh_ondevice_info (device_connected = True)
+            self.refresh_ondevice_info (device_connected = True, reset_only = True)
         else:
+            self._sync_menu.connect_to_folder_action.setEnabled(True)
+            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
             self.save_device_view_settings()
             self.device_connected = False
             self._sync_menu.enable_device_actions(False)
@@ -1022,10 +1036,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################################################################
     ### Force the library view to refresh, taking into consideration books information
-    def refresh_ondevice_info(self, device_connected):
-        # Save current column widths because we might be turning on OnDevice
-        self.library_view.write_settings()
+    def refresh_ondevice_info(self, device_connected, reset_only = False):
         self.book_on_device(None, reset=True)
+        if reset_only:
+            return
+        self.library_view.write_settings()
         self.library_view.model().set_device_connected(device_connected)
     ############################################################################
 
@@ -1508,6 +1523,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     sm = view.selectionModel()
                     sm.select(ci, sm.Select)
         else:
+            if not confirm('<p>'+_('The selected books will be '
+                                   '<b>permanently deleted</b> '
+                                   'from your device. Are you sure?')
+                                +'</p>', 'library_delete_books', self):
+                return
             if self.stack.currentIndex() == 1:
                 view = self.memory_view
             elif self.stack.currentIndex() == 2:

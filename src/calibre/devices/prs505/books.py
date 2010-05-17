@@ -5,13 +5,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re, time, functools
 from uuid import uuid4 as _uuid
 import xml.dom.minidom as dom
-from base64 import b64decode as decode
 from base64 import b64encode as encode
 
 
-from calibre.devices.interface import BookList as _BookList
+from calibre.devices.usbms.books import BookList as _BookList
 from calibre.devices import strftime as _strftime
-from calibre.devices import strptime
+from calibre.devices.prs505 import MEDIA_XML, CACHE_XML
+from calibre.devices.errors import PathError
 
 strftime = functools.partial(_strftime, zone=time.gmtime)
 
@@ -30,127 +30,43 @@ def uuid():
 def sortable_title(title):
     return re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', title).rstrip()
 
-class book_metadata_field(object):
-    """ Represents metadata stored as an attribute """
-    def __init__(self, attr, formatter=None, setter=None):
-        self.attr = attr
-        self.formatter = formatter
-        self.setter = setter
-
-    def __get__(self, obj, typ=None):
-        """ Return a string. String may be empty if self.attr is absent """
-        return self.formatter(obj.elem.getAttribute(self.attr)) if \
-                           self.formatter else obj.elem.getAttribute(self.attr).strip()
-
-    def __set__(self, obj, val):
-        """ Set the attribute """
-        val = self.setter(val) if self.setter else val
-        if not isinstance(val, unicode):
-            val = unicode(val, 'utf8', 'replace')
-        obj.elem.setAttribute(self.attr, val)
-
-
-class Book(object):
-    """ Provides a view onto the XML element that represents a book """
-
-    title        = book_metadata_field("title")
-    authors      = book_metadata_field("author", \
-                            formatter=lambda x: [x if x and x.strip() else _('Unknown')])
-    mime         = book_metadata_field("mime")
-    rpath        = book_metadata_field("path")
-    id           = book_metadata_field("id", formatter=int)
-    sourceid     = book_metadata_field("sourceid", formatter=int)
-    size         = book_metadata_field("size", formatter=lambda x : int(float(x)))
-    # When setting this attribute you must use an epoch
-    datetime     = book_metadata_field("date", formatter=strptime, setter=strftime)
-
-    @dynamic_property
-    def title_sorter(self):
-        doc = '''String to sort the title. If absent, title is returned'''
-        def fget(self):
-            src = self.elem.getAttribute('titleSorter').strip()
-            if not src:
-                src = self.title
-            return src
-        def fset(self, val):
-            self.elem.setAttribute('titleSorter', sortable_title(unicode(val)))
-        return property(doc=doc, fget=fget, fset=fset)
-
-    @dynamic_property
-    def thumbnail(self):
-        doc = \
-        """
-        The thumbnail. Should be a height 68 image.
-        Setting is not supported.
-        """
-        def fget(self):
-            th = self.elem.getElementsByTagName(self.prefix + "thumbnail")
-            if not len(th):
-                th = self.elem.getElementsByTagName("cache:thumbnail")
-            if len(th):
-                for n in th[0].childNodes:
-                    if n.nodeType == n.ELEMENT_NODE:
-                        th = n
-                        break
-                rc = ""
-                for node in th.childNodes:
-                    if node.nodeType == node.TEXT_NODE:
-                        rc += node.data
-                return decode(rc)
-        return property(fget=fget, doc=doc)
-
-    @dynamic_property
-    def path(self):
-        doc = """ Absolute path to book on device. Setting not supported. """
-        def fget(self):
-            return self.mountpath + self.rpath
-        return property(fget=fget, doc=doc)
-
-    @dynamic_property
-    def db_id(self):
-        doc = '''The database id in the application database that this file corresponds to'''
-        def fget(self):
-            match = re.search(r'_(\d+)$', self.rpath.rpartition('.')[0])
-            if match:
-                return int(match.group(1))
-        return property(fget=fget, doc=doc)
-
-    def __init__(self, node, mountpath, tags, prefix=""):
-        self.elem      = node
-        self.prefix    = prefix
-        self.tags      = tags
-        self.mountpath = mountpath
-
-    def __str__(self):
-        """ Return a utf-8 encoded string with title author and path information """
-        return self.title.encode('utf-8') + " by " + \
-               self.authors.encode('utf-8') + " at " + self.path.encode('utf-8')
-
-
 class BookList(_BookList):
 
-    def __init__(self, xml_file, mountpath, report_progress=None):
-        _BookList.__init__(self)
-        xml_file.seek(0)
-        self.document = dom.parse(xml_file)
+    def __init__(self, oncard, prefix, settings):
+        _BookList.__init__(self, oncard, prefix, settings)
+        if prefix is None:
+            return
+        self.sony_id_cache = {}
+        self.books_lpath_cache = {}
+        opts = settings()
+        self.collections = opts.extra_customization.split(',') if opts.extra_customization else []
+        db = CACHE_XML if oncard else MEDIA_XML
+        with open(prefix + db, 'rb') as xml_file:
+            xml_file.seek(0)
+            self.document = dom.parse(xml_file)
         self.root_element = self.document.documentElement
-        self.mountpath = mountpath
+        self.mountpath = prefix
         records = self.root_element.getElementsByTagName('records')
-        self.tag_order = {}
 
         if records:
             self.prefix = 'xs1:'
             self.root_element = records[0]
         else:
             self.prefix = ''
+        for child in self.root_element.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("id"):
+                self.sony_id_cache[child.getAttribute('id')] = child.getAttribute('path')
+                # set the key to none. Will be filled in later when booklist is built
+                self.books_lpath_cache[child.getAttribute('path')] = None
+        self.tag_order = {}
 
-        nodes = self.root_element.childNodes
-        for i, book in enumerate(nodes):
-            if report_progress:
-                report_progress((i+1) / float(len(nodes)), _('Getting list of books on device...'))
-            if hasattr(book, 'tagName') and book.tagName.endswith('text'):
-                tags = [i.getAttribute('title') for i in self.get_playlists(book.getAttribute('id'))]
-                self.append(Book(book, mountpath, tags, prefix=self.prefix))
+        paths = self.purge_corrupted_files()
+        for path in paths:
+            try:
+                self.del_file(path, end_session=False)
+            except PathError: # Incase this is a refetch without a sync in between
+                continue
+
 
     def max_id(self):
         max = 0
@@ -173,39 +89,44 @@ class BookList(_BookList):
     def supports_tags(self):
         return True
 
-    def book_by_path(self, path):
-        for child in self.root_element.childNodes:
-            if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("path"):
-                if path == child.getAttribute('path'):
-                    return child
-        return None
-
-    def add_book(self, mi, name, collections, size, ctime):
-        """ Add a node into the DOM tree, representing a book """
-        book = self.book_by_path(name)
-        if book is not None:
-            self.remove_book(name)
-
-        node = self.document.createElement(self.prefix + "text")
-        mime = MIME_MAP.get(name.rpartition('.')[-1].lower(), MIME_MAP['epub'])
+    def add_book(self, book, replace_metadata):
+        # Add a node into the DOM tree, representing a book. Also add to booklist
+        if book in self:
+            # replacing metadata for book
+            self.delete_node(book.lpath)
+        else:
+            self.append(book)
+            if not replace_metadata:
+                if self.books_lpath_cache.has_key(book.lpath):
+                    self.books_lpath_cache[book.lpath] = book
+                    return
+        # Book not in metadata. Add it. Note that we don't need to worry about
+        # extra books in the Sony metadata. The reader deletes them for us when
+        # we disconnect. That said, if it becomes important one day, we can do
+        # it by scanning the books_lpath_cache for None entries and removing the
+        # corresponding nodes.
+        self.books_lpath_cache[book.lpath] = book
         cid = self.max_id()+1
+        node = self.document.createElement(self.prefix + "text")
+        self.sony_id_cache[cid] = book.lpath
+        mime = MIME_MAP.get(book.lpath.rpartition('.')[-1].lower(), MIME_MAP['epub'])
         try:
             sourceid = str(self[0].sourceid) if len(self) else '1'
         except:
             sourceid = '1'
         attrs = {
-                 "title"  : mi.title,
-                 'titleSorter' : sortable_title(mi.title),
-                 "author" : mi.format_authors() if mi.format_authors() else _('Unknown'),
+                 "title"  : book.title,
+                 'titleSorter' : sortable_title(book.title),
+                 "author" : book.format_authors() if book.format_authors() else _('Unknown'),
                  "page":"0", "part":"0", "scale":"0", \
                  "sourceid":sourceid,  "id":str(cid), "date":"", \
-                 "mime":mime, "path":name, "size":str(size)
+                 "mime":mime, "path":book.lpath, "size":str(book.size)
                  }
         for attr in attrs.keys():
             node.setAttributeNode(self.document.createAttribute(attr))
             node.setAttribute(attr, attrs[attr])
         try:
-            w, h, data = mi.thumbnail
+            w, h, data = book.thumbnail
         except:
             w, h, data = None, None, None
 
@@ -218,14 +139,11 @@ class BookList(_BookList):
             th.appendChild(jpeg)
             node.appendChild(th)
         self.root_element.appendChild(node)
-        book = Book(node, self.mountpath, [], prefix=self.prefix)
-        book.datetime = ctime
-        self.append(book)
 
         tags = []
-        for item in collections:
+        for item in self.collections:
             item = item.strip()
-            mitem = getattr(mi, item, None)
+            mitem = getattr(book, item, None)
             titems = []
             if mitem:
                 if isinstance(mitem, list):
@@ -241,37 +159,36 @@ class BookList(_BookList):
                 tags.extend(titems)
         if tags:
             tags = list(set(tags))
-            if hasattr(mi, 'tag_order'):
-                self.tag_order.update(mi.tag_order)
-            self.set_tags(book, tags)
+            if hasattr(book, 'tag_order'):
+                self.tag_order.update(book.tag_order)
+            self.set_playlists(cid, tags)
+        return True  # metadata cache has changed. Must sync at end
 
-    def _delete_book(self, node):
+    def _delete_node(self, node):
         nid = node.getAttribute('id')
         self.remove_from_playlists(nid)
         node.parentNode.removeChild(node)
         node.unlink()
 
-    def delete_book(self, cid):
+    def delete_node(self, lpath):
         '''
-        Remove DOM node corresponding to book with C{id == cid}.
+        Remove DOM node corresponding to book with lpath.
         Also remove book from any collections it is part of.
         '''
-        for book in self:
-            if str(book.id) == str(cid):
-                self.remove(book)
-                self._delete_book(book.elem)
-                break
+        for child in self.root_element.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("id"):
+                if child.getAttribute('path') == lpath:
+                    self._delete_node(child)
+                    break
 
-    def remove_book(self, path):
+    def remove_book(self, book):
         '''
         Remove DOM node corresponding to book with C{path == path}.
-        Also remove book from any collections it is part of.
+        Also remove book from any collections it is part of, and remove
+        from the booklist
         '''
-        for book in self:
-            if path.endswith(book.rpath):
-                self.remove(book)
-                self._delete_book(book.elem)
-                break
+        self.remove(book)
+        self.delete_node(book.lpath)
 
     def playlists(self):
         ans = []
@@ -358,15 +275,6 @@ class BookList(_BookList):
             item.setAttribute('id', str(id))
             coll.appendChild(item)
 
-    def get_playlists(self, bookid):
-        ans = []
-        for pl in self.playlists():
-            for item in pl.childNodes:
-                if hasattr(item, 'tagName') and item.tagName.endswith('item'):
-                    if item.getAttribute('id') == str(bookid):
-                        ans.append(pl)
-        return ans
-
     def next_id(self):
         return self.document.documentElement.getAttribute('nextID')
 
@@ -378,27 +286,36 @@ class BookList(_BookList):
         src = self.document.toxml('utf-8') + '\n'
         stream.write(src.replace("'", '&apos;'))
 
-    def book_by_id(self, id):
-        for book in self:
-            if str(book.id) == str(id):
-                return book
-
     def reorder_playlists(self):
         for title in self.tag_order.keys():
             pl = self.playlist_by_title(title)
             if not pl:
                 continue
-            db_ids = [i.getAttribute('id') for i in pl.childNodes if hasattr(i, 'getAttribute')]
-            pl_book_ids = [getattr(self.book_by_id(i), 'db_id', None) for i in db_ids]
+            # make a list of the ids
+            sony_ids = [id.getAttribute('id') \
+                    for id in pl.childNodes if hasattr(id, 'getAttribute')]
+            # convert IDs in playlist to a list of lpaths
+            sony_paths = [self.sony_id_cache[id] for id in sony_ids]
+            # create list of books containing lpaths
+            books = [self.books_lpath_cache.get(p, None) for p in sony_paths]
+            # create dict of db_id -> sony_id
             imap = {}
-            for i, j in zip(pl_book_ids, db_ids):
-                imap[i] = j
-            pl_book_ids = [i for i in pl_book_ids if i is not None]
-            ordered_ids = [i for i in self.tag_order[title] if i in pl_book_ids]
+            for book, sony_id in zip(books, sony_ids):
+                if book is not None:
+                    db_id = book.application_id
+                    if db_id is None:
+                        db_id = book.db_id
+                    if db_id is not None:
+                        imap[book.application_id] = sony_id
+            # filter the list, removing books not on device but on playlist
+            books = [i for i in books if i is not None]
+            # filter the order specification to the books we have
+            ordered_ids = [db_id for db_id in self.tag_order[title] if db_id in imap]
 
+            # rewrite the playlist in the correct order
             if len(ordered_ids) < len(pl.childNodes):
                 continue
-            children = [i for i in pl.childNodes  if hasattr(i, 'getAttribute')]
+            children = [i for i in pl.childNodes if hasattr(i, 'getAttribute')]
             for child in children:
                 pl.removeChild(child)
                 child.unlink()
@@ -439,8 +356,12 @@ def fix_ids(main, carda, cardb):
             except KeyError:
                 item.parentNode.removeChild(item)
                 item.unlink()
-
         db.reorder_playlists()
+        db.sony_id_cache = {}
+        for child in db.root_element.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("id"):
+                db.sony_id_cache[child.getAttribute('id')] = child.getAttribute('path')
+
 
     regen_ids(main)
     regen_ids(carda)

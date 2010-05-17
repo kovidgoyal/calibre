@@ -17,7 +17,7 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
                          SIGNAL, QObject, QSize, QModelIndex, QDate
 
 from calibre import strftime
-from calibre.ebooks.metadata import fmt_sidx, authors_to_string
+from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.gui2 import NONE, TableView, config, error_dialog, UNDEFINED_QDATE
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
@@ -371,7 +371,7 @@ class BooksModel(QAbstractTableModel):
     def set_device_connected(self, is_connected):
         self.device_connected = is_connected
         self.read_config()
-        self.refresh(reset=True)
+        self.db.refresh_ondevice()
         self.database_changed.emit(self.db)
 
     def set_book_on_device_func(self, func):
@@ -1378,7 +1378,17 @@ class DeviceBooksModel(BooksModel):
         def libcmp(x, y):
             x, y = self.db[x].in_library, self.db[y].in_library
             return cmp(x, y)
-        fcmp = strcmp('title_sorter') if col == 0 else strcmp('authors') if col == 1 else \
+        def authorcmp(x, y):
+            ax = getattr(self.db[x], 'author_sort', None)
+            ay = getattr(self.db[y], 'author_sort', None)
+            if ax and ay:
+                x = ax
+                y = ay
+            else:
+                x, y = authors_to_string(self.db[x].authors), \
+                                authors_to_string(self.db[y].authors)
+            return cmp(x, y)
+        fcmp = strcmp('title_sorter') if col == 0 else authorcmp if col == 1 else \
                sizecmp if col == 2 else datecmp if col == 3 else tagscmp if col == 4 else libcmp
         self.map.sort(cmp=fcmp, reverse=descending)
         if len(self.map) == len(self.db):
@@ -1446,9 +1456,9 @@ class DeviceBooksModel(BooksModel):
                 au = self.db[self.map[row]].authors
                 if not au:
                     au = self.unknown
-                if role == Qt.EditRole:
-                    return QVariant(authors_to_string(au))
-                return QVariant(" & ".join(au))
+#                if role == Qt.EditRole:
+#                    return QVariant(au)
+                return QVariant(authors_to_string(au))
             elif col == 2:
                 size = self.db[self.map[row]].size
                 return QVariant(BooksView.human_readable(size))
@@ -1501,7 +1511,7 @@ class DeviceBooksModel(BooksModel):
                 self.db[idx].title = val
                 self.db[idx].title_sorter = val
             elif col == 1:
-                self.db[idx].authors = val
+                self.db[idx].authors = string_to_authors(val)
             elif col == 4:
                 tags = [i.strip() for i in val.split(',')]
                 tags = [t for t in tags if t]

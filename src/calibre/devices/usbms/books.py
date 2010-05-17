@@ -31,14 +31,14 @@ class Book(MetaInformation):
         MetaInformation.__init__(self, '')
 
         self.path = os.path.join(prefix, lpath)
-        self.lpath = lpath
+        if os.sep == '\\':
+            self.path = self.path.replace('/', '\\')
+            self.lpath = lpath.replace('\\', '/')
+        else:
+            self.lpath = lpath
         self.mime = mime_type_ext(path_to_ext(lpath))
-        self.size = os.stat(self.path).st_size if size == None else size
-        self.db_id = None
-        try:
-            self.datetime = time.gmtime(os.path.getctime(self.path))
-        except ValueError:
-            self.datetime = time.gmtime()
+        self.size = None # will be set later
+        self.datetime = time.gmtime()
 
         if other:
             self.smart_update(other)
@@ -67,6 +67,16 @@ class Book(MetaInformation):
         return spath == opath
 
     @dynamic_property
+    def db_id(self):
+        doc = '''The database id in the application database that this file corresponds to'''
+        def fget(self):
+            match = re.search(r'_(\d+)$', self.lpath.rpartition('.')[0])
+            if match:
+                return int(match.group(1))
+            return None
+        return property(fget=fget, doc=doc)
+
+    @dynamic_property
     def title_sorter(self):
         doc = '''String to sort the title. If absent, title is returned'''
         def fget(self):
@@ -76,13 +86,6 @@ class Book(MetaInformation):
     @dynamic_property
     def thumbnail(self):
         return None
-
-#    def __str__(self):
-#        '''
-#        Return a utf-8 encoded string with title author and path information
-#        '''
-#        return self.title.encode('utf-8') + " by " + \
-#               self.authors.encode('utf-8') + " at " + self.path.encode('utf-8')
 
     def smart_update(self, other):
         '''
@@ -105,9 +108,26 @@ class Book(MetaInformation):
 
 class BookList(_BookList):
 
+    def __init__(self, oncard, prefix, settings):
+        pass
+
     def supports_tags(self):
         return True
 
     def set_tags(self, book, tags):
         book.tags = tags
 
+    def add_book(self, book, replace_metadata):
+        '''
+        Add the book to the booklist. Intent is to maintain any device-internal
+        metadata. Return True if booklists must be sync'ed
+        '''
+        if book not in self:
+            self.append(book)
+
+    def remove_book(self, book):
+        '''
+        Remove a book from the booklist. Correct any device metadata at the
+        same time
+        '''
+        self.remove(book)
