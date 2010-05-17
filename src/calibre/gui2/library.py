@@ -19,7 +19,7 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
 from calibre import strftime
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
-from calibre.gui2 import NONE, TableView, config, error_dialog, UNDEFINED_QDATE
+from calibre.gui2 import NONE, config, error_dialog, UNDEFINED_QDATE
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
@@ -30,6 +30,15 @@ from calibre.utils.pyparsing import ParseException
 from calibre.utils.search_query_parser import SearchQueryParser
 
 # Delegates {{{
+
+class DummyDelegate(QStyledItemDelegate):
+
+    def sizeHint(self, option, index):
+        return QSize(0, 0)
+
+    def paint(self, painter, option, index):
+        pass
+
 class RatingDelegate(QStyledItemDelegate):
     COLOR    = QColor("blue")
     SIZE     = 16
@@ -313,6 +322,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
     orig_headers = {
                         'title'     : _("Title"),
+                        'ondevice'   : _("On Device"),
                         'authors'   : _("Author(s)"),
                         'size'      : _("Size (MB)"),
                         'timestamp' : _("Date"),
@@ -321,7 +331,6 @@ class BooksModel(QAbstractTableModel): # {{{
                         'publisher' : _("Publisher"),
                         'tags'      : _("Tags"),
                         'series'    : _("Series"),
-                        'ondevice'   : _("On Device"),
                         }
 
     def __init__(self, parent=None, buffer=40):
@@ -342,6 +351,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.bool_no_icon = QIcon(I('list_remove.svg'))
         self.bool_blank_icon = QIcon(I('blank.svg'))
         self.device_connected = False
+        self.read_config()
 
     def is_custom_column(self, cc_label):
         return cc_label in self.custom_columns
@@ -352,29 +362,10 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def read_config(self):
         self.use_roman_numbers = config['use_roman_numerals_for_series_number']
-        cmap = config['column_map'][:] # force a copy
-        self.headers = {}
-        self.column_map = []
-        for col in cmap: # take out any columns no longer in the db
-            if col == 'ondevice':
-                if self.device_connected:
-                    self.column_map.append(col)
-            elif col in self.orig_headers or col in self.custom_columns:
-                self.column_map.append(col)
-        for col in self.column_map:
-            if col in self.orig_headers:
-                self.headers[col] = self.orig_headers[col]
-            elif col in self.custom_columns:
-                self.headers[col] = self.custom_columns[col]['name']
-        self.build_data_convertors()
-        self.reset()
-        self.emit(SIGNAL('columns_sorted()'))
 
     def set_device_connected(self, is_connected):
         self.device_connected = is_connected
-        self.read_config()
         self.db.refresh_ondevice()
-        self.database_changed.emit(self.db)
 
     def set_book_on_device_func(self, func):
         self.book_on_device = func
@@ -382,7 +373,24 @@ class BooksModel(QAbstractTableModel): # {{{
     def set_database(self, db):
         self.db = db
         self.custom_columns = self.db.custom_column_label_map
-        self.read_config()
+        self.column_map = list(self.orig_headers.keys()) + \
+                          list(self.custom_columns)
+        def col_idx(name):
+            if name == 'ondevice':
+                return -1
+            if name not in self.db.FIELD_MAP:
+                return 100000
+            return self.db.FIELD_MAP[name]
+
+        self.column_map.sort(cmp=lambda x,y: cmp(col_idx(x), col_idx(y)))
+        for col in self.column_map:
+            if col in self.orig_headers:
+                self.headers[col] = self.orig_headers[col]
+            elif col in self.custom_columns:
+                self.headers[col] = self.custom_columns[col]['name']
+
+        self.build_data_convertors()
+        self.reset()
         self.database_changed.emit(db)
 
     def refresh_ids(self, ids, current_row=-1):
@@ -982,7 +990,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
 # }}}
 
-class BooksView(TableView):
+class BooksView(QTableView): # {{{
     TIME_FMT = '%d %b %Y'
     wrapper = textwrap.TextWrapper(width=20)
 
@@ -997,7 +1005,7 @@ class BooksView(TableView):
         return ('%.'+str(precision)+'f') % ((size/(1024.*1024.)),)
 
     def __init__(self, parent, modelcls=BooksModel):
-        TableView.__init__(self, parent)
+        QTableView.__init__(self, parent)
         self.rating_delegate = RatingDelegate(self)
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
@@ -1005,6 +1013,7 @@ class BooksView(TableView):
         self.authors_delegate = TextDelegate(self)
         self.series_delegate = TextDelegate(self)
         self.publisher_delegate = TextDelegate(self)
+        self.text_delegate = TextDelegate(self)
         self.cc_text_delegate = CcTextDelegate(self)
         self.cc_bool_delegate = CcBoolDelegate(self)
         self.cc_comments_delegate = CcCommentsDelegate(self)
@@ -1013,13 +1022,9 @@ class BooksView(TableView):
         self.setModel(self._model)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
-        for i in range(10):
-            self.setItemDelegateForColumn(i, TextDelegate(self))
-        self.columns_sorted()
-        QObject.connect(self.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
-                        self._model.current_changed)
-        self.connect(self._model, SIGNAL('columns_sorted()'),
-                self.columns_sorted, Qt.QueuedConnection)
+        self.selectionModel().currentRowChanged.connect(self._model.current_changed)
+        self.column_header = self.horizontalHeader()
+        self._model.database_changed.connect(self.database_changed)
         hv = self.verticalHeader()
         hv.setClickable(True)
         hv.setCursor(Qt.PointingHandCursor)
@@ -1040,56 +1045,49 @@ class BooksView(TableView):
                 sm.select(idx, sm.Select|sm.Rows)
         self.selected_ids = []
 
-    def columns_sorted(self):
+    def set_ondevice_column_visibility(self):
+        m  = self._model
+        self.column_header.setSectionHidden(m.column_map.index('ondevice'),
+                not m.device_connected)
+
+    def set_device_connected(self, is_connected):
+        self._model.set_device_connected(is_connected)
+        self.set_ondevice_column_visibility()
+
+    def database_changed(self, db):
         for i in range(self.model().columnCount(None)):
             if self.itemDelegateForColumn(i) in (self.rating_delegate,
                     self.timestamp_delegate, self.pubdate_delegate):
                 self.setItemDelegateForColumn(i, self.itemDelegate())
 
         cm = self._model.column_map
+        self.set_ondevice_column_visibility()
 
-        if 'rating' in cm:
-            self.setItemDelegateForColumn(cm.index('rating'), self.rating_delegate)
-        if 'timestamp' in cm:
-            self.setItemDelegateForColumn(cm.index('timestamp'), self.timestamp_delegate)
-        if 'pubdate' in cm:
-            self.setItemDelegateForColumn(cm.index('pubdate'), self.pubdate_delegate)
-        if 'tags' in cm:
-            self.setItemDelegateForColumn(cm.index('tags'), self.tags_delegate)
-        if 'authors' in cm:
-            self.setItemDelegateForColumn(cm.index('authors'), self.authors_delegate)
-        if 'publisher' in cm:
-            self.setItemDelegateForColumn(cm.index('publisher'), self.publisher_delegate)
-        if 'series' in cm:
-            self.setItemDelegateForColumn(cm.index('series'), self.series_delegate)
         for colhead in cm:
-            if not self._model.is_custom_column(colhead):
-                continue
-            cc = self._model.custom_columns[colhead]
-            if cc['datatype'] == 'datetime':
-                delegate = CcDateDelegate(self)
-                delegate.set_format(cc['display'].get('date_format',''))
-                self.setItemDelegateForColumn(cm.index(colhead), delegate)
-            elif cc['datatype'] == 'comments':
-                self.setItemDelegateForColumn(cm.index(colhead), self.cc_comments_delegate)
-            elif cc['datatype'] == 'text':
-                if cc['is_multiple']:
-                    self.setItemDelegateForColumn(cm.index(colhead), self.tags_delegate)
-                else:
+            if self._model.is_custom_column(colhead):
+                cc = self._model.custom_columns[colhead]
+                if cc['datatype'] == 'datetime':
+                    delegate = CcDateDelegate(self)
+                    delegate.set_format(cc['display'].get('date_format',''))
+                    self.setItemDelegateForColumn(cm.index(colhead), delegate)
+                elif cc['datatype'] == 'comments':
+                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_comments_delegate)
+                elif cc['datatype'] == 'text':
+                    if cc['is_multiple']:
+                        self.setItemDelegateForColumn(cm.index(colhead), self.tags_delegate)
+                    else:
+                        self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
+                elif cc['datatype'] in ('int', 'float'):
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
-            elif cc['datatype'] in ('int', 'float'):
-                self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
-            elif cc['datatype'] == 'bool':
-                self.setItemDelegateForColumn(cm.index(colhead), self.cc_bool_delegate)
-            elif cc['datatype'] == 'rating':
-                self.setItemDelegateForColumn(cm.index(colhead), self.rating_delegate)
-        if not self.restore_column_widths():
-            self.resizeColumnsToContents()
-
-        sort_col = self._model.sorted_on[0]
-        if sort_col in cm:
-            idx = cm.index(sort_col)
-            self.horizontalHeader().setSortIndicator(idx, self._model.sorted_on[1])
+                elif cc['datatype'] == 'bool':
+                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_bool_delegate)
+                elif cc['datatype'] == 'rating':
+                    self.setItemDelegateForColumn(cm.index(colhead), self.rating_delegate)
+            else:
+                dattr = colhead+'_delegate'
+                delegate = colhead if hasattr(self, dattr) else 'text'
+                self.setItemDelegateForColumn(cm.index(colhead), getattr(self,
+                    delegate+'_delegate'))
 
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
                          save, open_folder, book_details, delete, similar_menu=None):
@@ -1131,7 +1129,7 @@ class BooksView(TableView):
             idx = self._model.column_map.index(colname)
         except ValueError:
             idx = 0
-        TableView.sortByColumn(self, idx, order)
+        QTableView.sortByColumn(self, idx, order)
 
     @classmethod
     def paths_from_event(cls, event):
@@ -1195,6 +1193,8 @@ class BooksView(TableView):
     def row_count(self):
         return self._model.count()
 
+# }}}
+
 class DeviceBooksView(BooksView):
 
     def __init__(self, parent):
@@ -1218,7 +1218,7 @@ class DeviceBooksView(BooksView):
         QObject.connect(self._model, SIGNAL('booklist_dirtied()'), slot)
 
     def sortByColumn(self, col, order):
-        TableView.sortByColumn(self, col, order)
+        QTableView.sortByColumn(self, col, order)
 
     def dropEvent(self, *args):
         error_dialog(self, _('Not allowed'),

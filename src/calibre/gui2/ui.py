@@ -535,8 +535,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.library_view.model().set_book_on_device_func(self.book_on_device)
         prefs['library_path'] = self.library_path
         self.library_view.restore_sort_at_startup(dynamic.get('sort_history', [('timestamp', Qt.DescendingOrder)]))
-        if not self.library_view.restore_column_widths():
-            self.library_view.resizeColumnsToContents()
         self.search.setFocus(Qt.OtherFocusReason)
         self.cover_cache = CoverCache(self.library_path)
         self.cover_cache.start()
@@ -943,7 +941,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def save_device_view_settings(self):
         model = self.location_view.model()
-        self.memory_view.write_settings()
+        return
+        #self.memory_view.write_settings()
         for x in range(model.rowCount()):
             if x > 1:
                 if model.location_for_row(x) == 'carda':
@@ -1030,10 +1029,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         for view in (self.memory_view, self.card_a_view, self.card_b_view):
             view.sortByColumn(3, Qt.DescendingOrder)
-            view.read_settings()
-            if not view.restore_column_widths():
-                view.resizeColumnsToContents()
-            view.resize_on_select = not view.isVisible()
             if view.model().rowCount(None) > 1:
                 view.resizeRowToContents(0)
                 height = view.rowHeight(0)
@@ -1048,8 +1043,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.book_on_device(None, reset=True)
         if reset_only:
             return
-        self.library_view.write_settings()
-        self.library_view.model().set_device_connected(device_connected)
+        self.library_view.set_device_connected(device_connected)
     ############################################################################
 
     ######################### Fetch annotations ################################
@@ -2262,8 +2256,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             return
         d = ConfigDialog(self, self.library_view.model(),
                 server=self.content_server)
-        # Save current column widths in case columns are turned on or off
-        self.library_view.write_settings()
 
         d.exec_()
         self.content_server = d.server
@@ -2328,14 +2320,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         page = 0 if location == 'library' else 1 if location == 'main' else 2 if location == 'carda' else 3
         self.stack.setCurrentIndex(page)
-        view = self.memory_view if page == 1 else \
-                self.card_a_view if page == 2 else \
-                self.card_b_view if page == 3 else None
-        if view:
-            if view.resize_on_select:
-                if not view.restore_column_widths():
-                    view.resizeColumnsToContents()
-                view.resize_on_select = False
         self.status_bar.reset_info()
         self.sidebar.location_changed(location)
         if location == 'library':
@@ -2442,9 +2426,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         config.set('main_window_geometry', self.saveGeometry())
         dynamic.set('sort_history', self.library_view.model().sort_history)
         self.sidebar.save_state()
-        self.library_view.write_settings()
-        if self.device_connected:
-            self.save_device_view_settings()
 
     def restart(self):
         self.quit(restart=True)
