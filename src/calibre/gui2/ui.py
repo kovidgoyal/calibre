@@ -348,6 +348,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.save_menu.addAction(_('Save to disk in a single directory'))
         self.save_menu.addAction(_('Save only %s format to disk')%
                 prefs['output_format'].upper())
+        self.save_menu.addAction(
+                _('Save only %s format to disk in a single directory')%
+                prefs['output_format'].upper())
+
         self.save_sub_menu = SaveMenu(self)
         self.save_menu.addMenu(self.save_sub_menu)
         self.connect(self.save_sub_menu, SIGNAL('save_fmt(PyQt_PyObject)'),
@@ -376,6 +380,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.save_to_single_dir)
         QObject.connect(self.save_menu.actions()[2], SIGNAL("triggered(bool)"),
                 self.save_single_format_to_disk)
+        QObject.connect(self.save_menu.actions()[3], SIGNAL("triggered(bool)"),
+                self.save_single_fmt_to_single_dir)
         QObject.connect(self.action_view, SIGNAL("triggered(bool)"),
                 self.view_book)
         QObject.connect(self.view_menu.actions()[0],
@@ -1810,6 +1816,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def save_to_single_dir(self, checked):
         self.save_to_disk(checked, True)
 
+    def save_single_fmt_to_single_dir(self, *args):
+        self.save_to_disk(False, single_dir=True,
+                single_format=prefs['output_format'])
+
     def save_to_disk(self, checked, single_dir=False, single_format=None):
         rows = self.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
@@ -2261,6 +2271,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                             Qt.ToolButtonIconOnly)
             self.save_menu.actions()[2].setText(
                 _('Save only %s format to disk')%
+                prefs['output_format'].upper())
+            self.save_menu.actions()[3].setText(
+                _('Save only %s format to disk in a single directory')%
                 prefs['output_format'].upper())
             self.library_view.model().read_config()
             self.library_view.model().refresh()
