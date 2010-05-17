@@ -45,15 +45,17 @@ class USBMS(CLI, Device):
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
 
+        dummy_bl = BookList(None, None, None)
+
         if oncard == 'carda' and not self._card_a_prefix:
             self.report_progress(1.0, _('Getting list of books on device...'))
-            return []
+            return dummy_bl
         elif oncard == 'cardb' and not self._card_b_prefix:
             self.report_progress(1.0, _('Getting list of books on device...'))
-            return []
+            return dummy_bl
         elif oncard and oncard != 'carda' and oncard != 'cardb':
             self.report_progress(1.0, _('Getting list of books on device...'))
-            return []
+            return dummy_bl
 
         prefix = self._card_a_prefix if oncard == 'carda' else \
                                      self._card_b_prefix if oncard == 'cardb' \
