@@ -61,6 +61,10 @@ class FOLDER_DEVICE(USBMS):
         self.booklist_class = BookList
         self.is_connected = True
 
+    def reset(self, key='-1', log_packets=False, report_progress=None,
+              detected_device=None):
+        pass
+
     def disconnect_from_folder(self):
         self._main_prefix = ''
         self.is_connected = False

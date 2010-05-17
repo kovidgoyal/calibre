@@ -86,7 +86,9 @@ class DeviceManager(Thread):
         self.current_job    = None
         self.scanner        = DeviceScanner()
         self.connected_device = None
-        self.ejected_devices = set([])
+        self.ejected_devices  = set([])
+        self.connected_device_is_folder = False
+        self.folder_connection_path     = None
 
     def report_progress(self, *args):
         pass
@@ -99,7 +101,7 @@ class DeviceManager(Thread):
     def device(self):
         return self.connected_device
 
-    def do_connect(self, connected_devices):
+    def do_connect(self, connected_devices, is_folder_device):
         for dev, detected_device in connected_devices:
             dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)
@@ -110,7 +112,8 @@ class DeviceManager(Thread):
                 traceback.print_exc()
                 continue
             self.connected_device = dev
-            self.connected_slot(True)
+            self.connected_device_is_folder = is_folder_device
+            self.connected_slot(True, is_folder_device)
             return True
         return False
 
@@ -128,7 +131,7 @@ class DeviceManager(Thread):
         if self.connected_device in self.ejected_devices:
             self.ejected_devices.remove(self.connected_device)
         else:
-            self.connected_slot(False)
+            self.connected_slot(False, self.connected_device_is_folder)
         self.connected_device = None
 
     def detect_device(self):
@@ -149,17 +152,19 @@ class DeviceManager(Thread):
                 if possibly_connected:
                     possibly_connected_devices.append((device, detected_device))
             if possibly_connected_devices:
-                if not self.do_connect(possibly_connected_devices):
+                if not self.do_connect(possibly_connected_devices,
+                                       is_folder_device=False):
                     print 'Connect to device failed, retrying in 5 seconds...'
                     time.sleep(5)
-                    if not self.do_connect(possibly_connected_devices):
+                    if not self.do_connect(possibly_connected_devices,
+                                       is_folder_device=False):
                         print 'Device connect failed again, giving up'
 
     def umount_device(self, *args):
         if self.is_device_connected:
             self.connected_device.eject()
             self.ejected_devices.add(self.connected_device)
-            self.connected_slot(False)
+            self.connected_slot(False, self.connected_device_is_folder)
 
     def next(self):
         if not self.jobs.empty():
@@ -170,7 +175,18 @@ class DeviceManager(Thread):
 
     def run(self):
         while self.keep_going:
-            self.detect_device()
+            if not self.is_device_connected and \
+                   self.folder_connection_path is not None:
+                f = self.folder_connection_path
+                self.folder_connection_path = None # Make sure we try this folder only once
+                try:
+                    dev = FOLDER_DEVICE(f)
+                    self.do_connect([[dev, None],], is_folder_device=True)
+                except:
+                    print 'Unable to open folder as device', f
+                    traceback.print_exc()
+            else:
+                self.detect_device()
             while True:
                 job = self.next()
                 if job is not None:
@@ -181,7 +197,6 @@ class DeviceManager(Thread):
                 else:
                     break
             time.sleep(self.sleep_time)
-
 
     def create_job(self, func, done, description, args=[], kwargs={}):
         job = DeviceJob(func, done, self.job_manager,
@@ -208,21 +223,19 @@ class DeviceManager(Thread):
         return self.create_job(self._get_device_information, done,
                     description=_('Get device information'))
 
+    # This will be called on the GUI thread. Because of this, we must store
+    # information that the scanner thread will use to do the real work.
     def connect_to_folder(self, path):
-        dev = FOLDER_DEVICE(path)
-        try:
-            dev.open()
-        except:
-            print 'Unable to open device', dev
-            traceback.print_exc()
-            return False
-        self.connected_device = dev
-        self.connected_slot(True)
-        return True
+        self.folder_connection_path = path
 
+    # This is called on the GUI thread. No problem here, because it calls the
+    # device driver, telling it to tell the scanner when it passes by that the
+    # folder has disconnected.
     def disconnect_folder(self):
         if self.connected_device is not None:
             if hasattr(self.connected_device, 'disconnect_from_folder'):
+                # As we are on the wrong thread, this call must *not* do
+                # anything besides set a flag that the right thread will see.
                 self.connected_device.disconnect_from_folder()
 
     def _books(self):
