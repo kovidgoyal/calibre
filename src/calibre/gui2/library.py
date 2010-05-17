@@ -29,7 +29,7 @@ from calibre.utils.date import dt_factory, qt_to_dt, isoformat, now
 from calibre.utils.pyparsing import ParseException
 from calibre.utils.search_query_parser import SearchQueryParser
 
-
+# Delegates {{{
 class RatingDelegate(QStyledItemDelegate):
     COLOR    = QColor("blue")
     SIZE     = 16
@@ -303,7 +303,9 @@ class CcBoolDelegate(QStyledItemDelegate):
             val = 2 if val is None else 1 if not val else 0
         editor.setCurrentIndex(val)
 
-class BooksModel(QAbstractTableModel):
+# }}}
+
+class BooksModel(QAbstractTableModel): # {{{
 
     about_to_be_sorted = pyqtSignal(object, name='aboutToBeSorted')
     sorting_done       = pyqtSignal(object, name='sortingDone')
@@ -973,12 +975,12 @@ class BooksModel(QAbstractTableModel):
                     self.db.set(row, column, val)
             self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
                                 index, index)
-            #if column == self.sorted_on[0]:
-            #    self.resort()
         return True
 
     def set_search_restriction(self, s):
         self.db.data.set_search_restriction(s)
+
+# }}}
 
 class BooksView(TableView):
     TIME_FMT = '%d %b %Y'
@@ -1083,6 +1085,11 @@ class BooksView(TableView):
                 self.setItemDelegateForColumn(cm.index(colhead), self.rating_delegate)
         if not self.restore_column_widths():
             self.resizeColumnsToContents()
+
+        sort_col = self._model.sorted_on[0]
+        if sort_col in cm:
+            idx = cm.index(sort_col)
+            self.horizontalHeader().setSortIndicator(idx, self._model.sorted_on[1])
 
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
                          save, open_folder, book_details, delete, similar_menu=None):
@@ -1418,9 +1425,12 @@ class DeviceBooksModel(BooksModel):
         data = {}
         item = self.db[self.map[current.row()]]
         cdata = item.thumbnail
-        if cdata:
+        if cdata is not None:
             img = QImage()
-            img.loadFromData(cdata)
+            if hasattr(cdata, 'image_path'):
+                img.load(cdata.image_path)
+            else:
+                img.loadFromData(cdata)
             if img.isNull():
                 img = self.default_image
             data['cover'] = img

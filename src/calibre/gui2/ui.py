@@ -348,6 +348,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.save_menu.addAction(_('Save to disk in a single directory'))
         self.save_menu.addAction(_('Save only %s format to disk')%
                 prefs['output_format'].upper())
+        self.save_menu.addAction(
+                _('Save only %s format to disk in a single directory')%
+                prefs['output_format'].upper())
+
         self.save_sub_menu = SaveMenu(self)
         self.save_menu.addMenu(self.save_sub_menu)
         self.connect(self.save_sub_menu, SIGNAL('save_fmt(PyQt_PyObject)'),
@@ -376,6 +380,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.save_to_single_dir)
         QObject.connect(self.save_menu.actions()[2], SIGNAL("triggered(bool)"),
                 self.save_single_format_to_disk)
+        QObject.connect(self.save_menu.actions()[3], SIGNAL("triggered(bool)"),
+                self.save_single_fmt_to_single_dir)
         QObject.connect(self.action_view, SIGNAL("triggered(bool)"),
                 self.view_book)
         QObject.connect(self.view_menu.actions()[0],
@@ -670,7 +676,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.search.setMaximumWidth(self.width()-150)
 
     def connect_to_folder(self):
-        dir = choose_dir(self, 'Select Device Folder', 'Select folder to open')
+        dir = choose_dir(self, 'Select Device Folder',
+                _('Select folder to open as device'))
         if dir is not None:
             self.device_manager.connect_to_folder(dir)
 
@@ -1809,6 +1816,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def save_to_single_dir(self, checked):
         self.save_to_disk(checked, True)
 
+    def save_single_fmt_to_single_dir(self, *args):
+        self.save_to_disk(False, single_dir=True,
+                single_format=prefs['output_format'])
+
     def save_to_disk(self, checked, single_dir=False, single_format=None):
         rows = self.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
@@ -2151,14 +2162,25 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             format = d.format()
             self.view_format(row, format)
 
+    def _view_check(self, num, max_=3):
+        if num <= max_:
+            return True
+        return question_dialog(self, _('Multiple Books Selected'),
+                _('You are attempting to open %d books. Opening too many '
+                'books at once can be slow and have a negative effect on the '
+                'responsiveness of your computer. Once started the process '
+                'cannot be stopped until complete. Do you wish to continue?'
+                ) % num)
+
     def view_folder(self, *args):
         rows = self.current_view().selectionModel().selectedRows()
-        if self.current_view() is self.library_view:
-            if not rows or len(rows) == 0:
-                d = error_dialog(self, _('Cannot open folder'),
-                        _('No book selected'))
-                d.exec_()
-                return
+        if not rows or len(rows) == 0:
+            d = error_dialog(self, _('Cannot open folder'),
+                    _('No book selected'))
+            d.exec_()
+            return
+        if not self._view_check(len(rows)):
+            return
         for row in rows:
             path = self.library_view.model().db.abspath(row.row())
             QDesktopServices.openUrl(QUrl.fromLocalFile(path))
@@ -2176,14 +2198,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self._launch_viewer()
             return
 
-        if len(rows) >= 3:
-            if not question_dialog(self, _('Multiple Books Selected'),
-                _('You are attempting to open %d books. Opening too many '
-                'books at once can be slow and have a negative effect on the '
-                'responsiveness of your computer. Once started the process '
-                'cannot be stopped until complete. Do you wish to continue?'
-                )% len(rows)):
-                    return
+        if not self._view_check(len(rows)):
+            return
 
         if self.current_view() is self.library_view:
             for row in rows:
@@ -2260,6 +2276,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                             Qt.ToolButtonIconOnly)
             self.save_menu.actions()[2].setText(
                 _('Save only %s format to disk')%
+                prefs['output_format'].upper())
+            self.save_menu.actions()[3].setText(
+                _('Save only %s format to disk in a single directory')%
                 prefs['output_format'].upper())
             self.library_view.model().read_config()
             self.library_view.model().refresh()

@@ -276,18 +276,22 @@ class USBMS(CLI, Device):
         # bl = cls.booklist_class()
         js = []
         need_sync = False
-        try:
-            with open(cls.normalize_path(os.path.join(prefix, name)), 'rb') as f:
-                js = json.load(f, encoding='utf-8')
-            for item in js:
-                book = cls.book_class(prefix, item.get('lpath', None))
-                for key in item.keys():
-                    setattr(book, key, item[key])
-                bl.append(book)
-        except:
-            import traceback
-            traceback.print_exc()
-            bl = []
+        cache_file = cls.normalize_path(os.path.join(prefix, name))
+        if os.access(cache_file, os.R_OK):
+            try:
+                with open(cache_file, 'rb') as f:
+                    js = json.load(f, encoding='utf-8')
+                for item in js:
+                    book = cls.book_class(prefix, item.get('lpath', None))
+                    for key in item.keys():
+                        setattr(book, key, item[key])
+                    bl.append(book)
+            except:
+                import traceback
+                traceback.print_exc()
+                bl = []
+                need_sync = True
+        else:
             need_sync = True
         return need_sync
 

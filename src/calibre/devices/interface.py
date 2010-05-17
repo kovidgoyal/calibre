@@ -380,7 +380,9 @@ class BookList(list):
       3. size (file size of the book)
       4. datetime (a UTC time tuple)
       5. path (path on the device to the book)
-      6. thumbnail (can be None)
+      6. thumbnail (can be None) thumbnail is either a str/bytes object with the
+         image data or it should have an attribute image_path that stores an
+         absolute (platform native) path to the image
       7. tags (a list of strings, can be empty).
     '''
 
