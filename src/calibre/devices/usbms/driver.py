@@ -66,16 +66,14 @@ class USBMS(CLI, Device):
             self.EBOOK_DIR_CARD_B if oncard == 'cardb' else \
             self.get_main_ebook_dir()
 
-        # build a temporary list of books from the metadata cache
-        bl, need_sync = self.parse_metadata_cache(prefix, self.METADATA_CACHE)
+        # get the metadata cache
+        bl = self.booklist_class(oncard, prefix, self.settings)
+        need_sync = self.parse_metadata_cache(bl, prefix, self.METADATA_CACHE)
+
         # make a dict cache of paths so the lookup in the loop below is faster.
         bl_cache = {}
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
-        self.count_found_in_bl = 0
-
-        # Make the real booklist that will be filled in below
-        metadata = self.booklist_class(oncard, prefix, self.settings)
 
         def update_booklist(filename, path, prefix):
             changed = False
@@ -86,13 +84,14 @@ class USBMS(CLI, Device):
                         lpath = lpath[len(os.sep):]
                     idx = bl_cache.get(lpath.replace('\\', '/'), None)
                     if idx is not None:
-                        item, changed = self.update_metadata_item(bl[idx])
-                        self.count_found_in_bl += 1
+                        if self.update_metadata_item(bl[idx]):
+                            #print 'update_metadata_item returned true'
+                            changed = True
+                        bl_cache[lpath.replace('\\', '/')] = None
                     else:
-                        item = self.book_from_path(prefix, lpath)
-                        changed = True
-                    if metadata.add_book(item, replace_metadata=False):
-                        changed = True
+                        if bl.add_book(self.book_from_path(prefix, lpath),
+                                              replace_metadata=False):
+                            changed = True
                 except: # Probably a filename encoding error
                     import traceback
                     traceback.print_exc()
@@ -126,23 +125,23 @@ class USBMS(CLI, Device):
                     if changed:
                         need_sync = True
 
-        # if count != len(bl) then there were items in it that we did not
-        # find on the device. If need_sync is True then there were either items
-        # on the device that were not in bl or some of the items were changed.
+        for val in bl_cache.itervalues():
+            if val is not None:
+                need_sync = True
+                del bl[val]
 
-        #print "count found in cache: %d, count of files in cache: %d, need_sync: %s, must_sync_cache: %s" % \
-        #    (self.count_found_in_bl, len(bl), need_sync,
-        #     need_sync or self.count_found_in_bl != len(bl))
-        if self.count_found_in_bl != len(bl) or need_sync:
+        #print "count found in cache: %d, count of files in metadata: %d, need_sync: %s" % \
+        #      (len(bl_cache), len(bl), need_sync)
+        if need_sync: #self.count_found_in_bl != len(bl) or need_sync:
             if oncard == 'cardb':
-                self.sync_booklists((None, None, metadata))
+                self.sync_booklists((None, None, bl))
             elif oncard == 'carda':
-                self.sync_booklists((None, metadata, None))
+                self.sync_booklists((None, bl, None))
             else:
-                self.sync_booklists((metadata, None, None))
+                self.sync_booklists((bl, None, None))
 
         self.report_progress(1.0, _('Getting list of books on device...'))
-        return metadata
+        return bl
 
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
@@ -273,8 +272,8 @@ class USBMS(CLI, Device):
         return path
 
     @classmethod
-    def parse_metadata_cache(cls, prefix, name):
-        bl = []
+    def parse_metadata_cache(cls, bl, prefix, name):
+        # bl = cls.booklist_class()
         js = []
         need_sync = False
         try:
@@ -290,18 +289,18 @@ class USBMS(CLI, Device):
             traceback.print_exc()
             bl = []
             need_sync = True
-        return bl, need_sync
+        return need_sync
 
     @classmethod
-    def update_metadata_item(cls, item):
+    def update_metadata_item(cls, book):
         changed = False
-        size = os.stat(cls.normalize_path(item.path)).st_size
-        if size != item.size:
+        size = os.stat(cls.normalize_path(book.path)).st_size
+        if size != book.size:
             changed = True
-            mi = cls.metadata_from_path(item.path)
-            item.smart_update(mi)
-            item.size = size
-        return item, changed
+            mi = cls.metadata_from_path(book.path)
+            book.smart_update(mi)
+            book.size = size
+        return changed
 
     @classmethod
     def metadata_from_path(cls, path):
