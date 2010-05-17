@@ -387,7 +387,7 @@ class BookList(list):
     __getslice__ = None
     __setslice__ = None
 
-    def __init__(self, oncard, prefix):
+    def __init__(self, oncard, prefix, settings):
         pass
 
     def supports_tags(self):
@@ -399,6 +399,20 @@ class BookList(list):
         Set the tags for C{book} to C{tags}.
         @param tags: A list of strings. Can be empty.
         @param book: A book object that is in this BookList.
+        '''
+        raise NotImplementedError()
+
+    def add_book(self, book, replace_metadata):
+        '''
+        Add the book to the booklist. Intent is to maintain any device-internal
+        metadata. Return True if booklists must be sync'ed
+        '''
+        raise NotImplementedError()
+
+    def remove_book(self, book):
+        '''
+        Remove a book from the booklist. Correct any device metadata at the
+        same time
         '''
         raise NotImplementedError()
 

@@ -108,9 +108,6 @@ class Book(MetaInformation):
 
 class BookList(_BookList):
 
-    def __init__(self, oncard, prefix, settings):
-        pass
-
     def supports_tags(self):
         return True
 
@@ -118,16 +115,9 @@ class BookList(_BookList):
         book.tags = tags
 
     def add_book(self, book, replace_metadata):
-        '''
-        Add the book to the booklist. Intent is to maintain any device-internal
-        metadata. Return True if booklists must be sync'ed
-        '''
         if book not in self:
             self.append(book)
+            return True
 
     def remove_book(self, book):
-        '''
-        Remove a book from the booklist. Correct any device metadata at the
-        same time
-        '''
         self.remove(book)
