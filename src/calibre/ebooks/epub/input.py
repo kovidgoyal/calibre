@@ -37,8 +37,13 @@ class EPUBInput(InputFormatPlugin):
                     scheme = item.get(xkey)
             if (scheme and scheme.lower() == 'uuid') or \
                     (item.text and item.text.startswith('urn:uuid:')):
-                key = str(item.text).rpartition(':')[-1]
-                key = list(map(ord, uuid.UUID(key).bytes))
+                try:
+                    key = str(item.text).rpartition(':')[-1]
+                    key = list(map(ord, uuid.UUID(key).bytes))
+                except:
+                    import traceback
+                    traceback.print_exc()
+                    key = None
 
         try:
             root = etree.parse(encfile)
@@ -49,7 +54,7 @@ class EPUBInput(InputFormatPlugin):
                 cr = em.getparent().xpath('descendant::*[contains(name(), "CipherReference")]')[0]
                 uri = cr.get('URI')
                 path = os.path.abspath(os.path.join(os.path.dirname(encfile), '..', *uri.split('/')))
-                if os.path.exists(path):
+                if key is not None and os.path.exists(path):
                     self._encrypted_font_uris.append(uri)
                     self.decrypt_font(key, path)
             return True
