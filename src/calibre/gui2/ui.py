@@ -670,10 +670,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.search.setMaximumWidth(self.width()-150)
 
     def connect_to_folder(self):
-        dir = choose_dir(self, 'Select Device Folder', 'Select folder to open')
+        dir = choose_dir(self, 'Select Device Folder',
+                _('Select folder to open as device'))
         if dir is not None:
             self.device_manager.connect_to_folder(dir)
-            self._sync_menu.disconnect_from_folder_action.setEnabled(True)
 
     def disconnect_from_folder(self):
         self.device_manager.disconnect_folder()
@@ -945,12 +945,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 elif model.location_for_row(x) == 'cardb':
                     self.card_b_view.write_settings()
 
-    def device_detected(self, connected):
+    def device_detected(self, connected, is_folder_device):
         '''
         Called when a device is connected to the computer.
         '''
         if connected:
             self._sync_menu.connect_to_folder_action.setEnabled(False)
+            if is_folder_device:
+                self._sync_menu.disconnect_from_folder_action.setEnabled(True)
             self.device_manager.get_device_information(\
                     Dispatcher(self.info_read))
             self.set_default_thumbnail(\
