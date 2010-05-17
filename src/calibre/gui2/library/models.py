@@ -1,324 +1,42 @@
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
 
-import os, textwrap, traceback, re, shutil, functools, sys
-
-from operator import attrgetter
-from math import cos, sin, pi
+import shutil, functools, re, os, traceback
 from contextlib import closing
+from operator import attrgetter
 
-from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
-                        QPainterPath, QLinearGradient, QBrush, \
-                        QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
-                        QIcon, QImage, QMenu, QSpinBox, QDoubleSpinBox, \
-                        QStyledItemDelegate, QCompleter, \
-                        QComboBox
-from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
-                         SIGNAL, QObject, QSize, QModelIndex, QDate
+from PyQt4.Qt import QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage, \
+        QModelIndex, QVariant, QDate
 
-from calibre import strftime
+from calibre.gui2 import NONE, config, UNDEFINED_QDATE
+from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
-from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
-from calibre.gui2 import NONE, config, error_dialog, UNDEFINED_QDATE
-from calibre.gui2.dialogs.comments_dialog import CommentsDialog
-from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
-from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks
-from calibre.utils.date import dt_factory, qt_to_dt, isoformat, now
-from calibre.utils.pyparsing import ParseException
+from calibre.utils.date import dt_factory, qt_to_dt, isoformat
+from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
+from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
+from calibre import strftime
 
-# Delegates {{{
+def human_readable(size, precision=1):
+    """ Convert a size in bytes into megabytes """
+    return ('%.'+str(precision)+'f') % ((size/(1024.*1024.)),)
 
-class DummyDelegate(QStyledItemDelegate):
-
-    def sizeHint(self, option, index):
-        return QSize(0, 0)
-
-    def paint(self, painter, option, index):
-        pass
-
-class RatingDelegate(QStyledItemDelegate):
-    COLOR    = QColor("blue")
-    SIZE     = 16
-    PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
-
-    def __init__(self, parent):
-        QStyledItemDelegate.__init__(self, parent)
-        self._parent = parent
-        self.dummy = QModelIndex()
-        self.star_path = QPainterPath()
-        self.star_path.moveTo(90, 50)
-        for i in range(1, 5):
-            self.star_path.lineTo(50 + 40 * cos(0.8 * i * pi), \
-                                  50 + 40 * sin(0.8 * i * pi))
-        self.star_path.closeSubpath()
-        self.star_path.setFillRule(Qt.WindingFill)
-        gradient = QLinearGradient(0, 0, 0, 100)
-        gradient.setColorAt(0.0, self.COLOR)
-        gradient.setColorAt(1.0, self.COLOR)
-        self.brush = QBrush(gradient)
-        self.factor = self.SIZE/100.
-
-    def sizeHint(self, option, index):
-        #num = index.model().data(index, Qt.DisplayRole).toInt()[0]
-        return QSize(5*(self.SIZE), self.SIZE+4)
-
-    def paint(self, painter, option, index):
-        style = self._parent.style()
-        option = QStyleOptionViewItemV4(option)
-        self.initStyleOption(option, self.dummy)
-        num = index.model().data(index, Qt.DisplayRole).toInt()[0]
-        def draw_star():
-            painter.save()
-            painter.scale(self.factor, self.factor)
-            painter.translate(50.0, 50.0)
-            painter.rotate(-20)
-            painter.translate(-50.0, -50.0)
-            painter.drawPath(self.star_path)
-            painter.restore()
-
-        painter.save()
-        if hasattr(QStyle, 'CE_ItemViewItem'):
-            style.drawControl(QStyle.CE_ItemViewItem, option,
-                    painter, self._parent)
-        elif option.state & QStyle.State_Selected:
-            painter.fillRect(option.rect, option.palette.highlight())
-        try:
-            painter.setRenderHint(QPainter.Antialiasing)
-            painter.setClipRect(option.rect)
-            y = option.rect.center().y()-self.SIZE/2.
-            x = option.rect.left()
-            painter.setPen(self.PEN)
-            painter.setBrush(self.brush)
-            painter.translate(x, y)
-            i = 0
-            while i < num:
-                draw_star()
-                painter.translate(self.SIZE, 0)
-                i += 1
-        except:
-            traceback.print_exc()
-        painter.restore()
-
-    def createEditor(self, parent, option, index):
-        sb = QStyledItemDelegate.createEditor(self, parent, option, index)
-        sb.setMinimum(0)
-        sb.setMaximum(5)
-        return sb
-
-class DateDelegate(QStyledItemDelegate):
-
-    def displayText(self, val, locale):
-        d = val.toDate()
-        if d == UNDEFINED_QDATE:
-            return ''
-        return d.toString('dd MMM yyyy')
-
-    def createEditor(self, parent, option, index):
-        qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        stdformat = unicode(qde.displayFormat())
-        if 'yyyy' not in stdformat:
-            stdformat = stdformat.replace('yy', 'yyyy')
-        qde.setDisplayFormat(stdformat)
-        qde.setMinimumDate(UNDEFINED_QDATE)
-        qde.setSpecialValueText(_('Undefined'))
-        qde.setCalendarPopup(True)
-        return qde
-
-class PubDateDelegate(QStyledItemDelegate):
-
-    def displayText(self, val, locale):
-        d = val.toDate()
-        if d == UNDEFINED_QDATE:
-            return ''
-        format = tweaks['gui_pubdate_display_format']
-        if format is None:
-            format = 'MMM yyyy'
-        return d.toString(format)
-
-    def createEditor(self, parent, option, index):
-        qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat('MM yyyy')
-        qde.setMinimumDate(UNDEFINED_QDATE)
-        qde.setSpecialValueText(_('Undefined'))
-        qde.setCalendarPopup(True)
-        return qde
-
-class TextDelegate(QStyledItemDelegate):
-    def __init__(self, parent):
-        '''
-        Delegate for text data. If auto_complete_function needs to return a list
-        of text items to auto-complete with. The funciton is None no
-        auto-complete will be used.
-        '''
-        QStyledItemDelegate.__init__(self, parent)
-        self.auto_complete_function = None
-
-    def set_auto_complete_function(self, f):
-        self.auto_complete_function = f
-
-    def createEditor(self, parent, option, index):
-        editor = EnLineEdit(parent)
-        if self.auto_complete_function:
-            complete_items = [i[1] for i in self.auto_complete_function()]
-            completer = QCompleter(complete_items, self)
-            completer.setCaseSensitivity(Qt.CaseInsensitive)
-            completer.setCompletionMode(QCompleter.InlineCompletion)
-            editor.setCompleter(completer)
-        return editor
-
-class TagsDelegate(QStyledItemDelegate):
-    def __init__(self, parent):
-        QStyledItemDelegate.__init__(self, parent)
-        self.db = None
-
-    def set_database(self, db):
-        self.db = db
-
-    def createEditor(self, parent, option, index):
-        if self.db:
-            col = index.model().column_map[index.column()]
-            if not index.model().is_custom_column(col):
-                editor = TagsLineEdit(parent, self.db.all_tags())
-            else:
-                editor = TagsLineEdit(parent, sorted(list(self.db.all_custom(label=col))))
-                return editor
-        else:
-            editor = EnLineEdit(parent)
-        return editor
-
-class CcDateDelegate(QStyledItemDelegate):
-    '''
-    Delegate for custom columns dates. Because this delegate stores the
-    format as an instance variable, a new instance must be created for each
-    column. This differs from all the other delegates.
-    '''
-
-    def set_format(self, format):
-        if not format:
-            self.format = 'dd MMM yyyy'
-        else:
-            self.format = format
-
-    def displayText(self, val, locale):
-        d = val.toDate()
-        if d == UNDEFINED_QDATE:
-            return ''
-        return d.toString(self.format)
-
-    def createEditor(self, parent, option, index):
-        qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat(self.format)
-        qde.setMinimumDate(UNDEFINED_QDATE)
-        qde.setSpecialValueText(_('Undefined'))
-        qde.setCalendarPopup(True)
-        return qde
-
-    def setEditorData(self, editor, index):
-        m = index.model()
-        # db col is not named for the field, but for the table number. To get it,
-        # gui column -> column label -> table number -> db column
-        val = m.db.data[index.row()][m.db.FIELD_MAP[m.custom_columns[m.column_map[index.column()]]['num']]]
-        if val is None:
-            val = now()
-        editor.setDate(val)
-
-    def setModelData(self, editor, model, index):
-        val = editor.date()
-        if val == UNDEFINED_QDATE:
-            val = None
-        model.setData(index, QVariant(val), Qt.EditRole)
-
-class CcTextDelegate(QStyledItemDelegate):
-    '''
-    Delegate for text/int/float data.
-    '''
-
-    def createEditor(self, parent, option, index):
-        m = index.model()
-        col = m.column_map[index.column()]
-        typ = m.custom_columns[col]['datatype']
-        if typ == 'int':
-            editor = QSpinBox(parent)
-            editor.setRange(-100, sys.maxint)
-            editor.setSpecialValueText(_('Undefined'))
-            editor.setSingleStep(1)
-        elif typ == 'float':
-            editor = QDoubleSpinBox(parent)
-            editor.setSpecialValueText(_('Undefined'))
-            editor.setRange(-100., float(sys.maxint))
-            editor.setDecimals(2)
-        else:
-            editor = EnLineEdit(parent)
-            complete_items = sorted(list(m.db.all_custom(label=col)))
-            completer = QCompleter(complete_items, self)
-            completer.setCaseSensitivity(Qt.CaseInsensitive)
-            completer.setCompletionMode(QCompleter.PopupCompletion)
-            editor.setCompleter(completer)
-        return editor
-
-class CcCommentsDelegate(QStyledItemDelegate):
-    '''
-    Delegate for comments data.
-    '''
-
-    def createEditor(self, parent, option, index):
-        m = index.model()
-        col = m.column_map[index.column()]
-        # db col is not named for the field, but for the table number. To get it,
-        # gui column -> column label -> table number -> db column
-        text = m.db.data[index.row()][m.db.FIELD_MAP[m.custom_columns[col]['num']]]
-        editor = CommentsDialog(parent, text)
-        d = editor.exec_()
-        if d:
-            m.setData(index, QVariant(editor.textbox.toPlainText()), Qt.EditRole)
-        return None
-
-    def setModelData(self, editor, model, index):
-        model.setData(index, QVariant(editor.textbox.toPlainText()), Qt.EditRole)
-
-class CcBoolDelegate(QStyledItemDelegate):
-    def __init__(self, parent):
-        '''
-        Delegate for custom_column bool data.
-        '''
-        QStyledItemDelegate.__init__(self, parent)
-
-    def createEditor(self, parent, option, index):
-        editor = QComboBox(parent)
-        items = [_('Y'), _('N'), ' ']
-        icons = [I('ok.svg'), I('list_remove.svg'), I('blank.svg')]
-        if tweaks['bool_custom_columns_are_tristate'] == 'no':
-            items = items[:-1]
-            icons = icons[:-1]
-        for icon, text in zip(icons, items):
-            editor.addItem(QIcon(icon), text)
-        return editor
-
-    def setModelData(self, editor, model, index):
-        val = {0:True, 1:False, 2:None}[editor.currentIndex()]
-        model.setData(index, QVariant(val), Qt.EditRole)
-
-    def setEditorData(self, editor, index):
-        m = index.model()
-        # db col is not named for the field, but for the table number. To get it,
-        # gui column -> column label -> table number -> db column
-        val = m.db.data[index.row()][m.db.FIELD_MAP[m.custom_columns[m.column_map[index.column()]]['num']]]
-        if tweaks['bool_custom_columns_are_tristate'] == 'no':
-            val = 1 if not val else 0
-        else:
-            val = 2 if val is None else 1 if not val else 0
-        editor.setCurrentIndex(val)
-
-# }}}
+TIME_FMT = '%d %b %Y'
 
 class BooksModel(QAbstractTableModel): # {{{
 
-    about_to_be_sorted = pyqtSignal(object, name='aboutToBeSorted')
-    sorting_done       = pyqtSignal(object, name='sortingDone')
-    database_changed   = pyqtSignal(object, name='databaseChanged')
+    about_to_be_sorted   = pyqtSignal(object, name='aboutToBeSorted')
+    sorting_done         = pyqtSignal(object, name='sortingDone')
+    database_changed     = pyqtSignal(object, name='databaseChanged')
+    new_bookdisplay_data = pyqtSignal(object)
+    count_changed_signal = pyqtSignal(int)
+    searched             = pyqtSignal(object)
 
     orig_headers = {
                         'title'     : _("Title"),
@@ -408,7 +126,7 @@ class BooksModel(QAbstractTableModel): # {{{
                 id = self.db.id(row)
                 self.cover_cache.refresh([id])
             if row == current_row:
-                self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'),
+                self.new_bookdisplay_data.emit(
                           self.get_book_display_info(row))
             self.dataChanged.emit(self.index(row, 0), self.index(row,
                 self.columnCount(QModelIndex())-1))
@@ -435,7 +153,7 @@ class BooksModel(QAbstractTableModel): # {{{
         return ret
 
     def count_changed(self, *args):
-        self.emit(SIGNAL('count_changed(int)'), self.db.count())
+        self.count_changed_signal.emit(self.db.count())
 
     def row_indices(self, index):
         ''' Return list indices of all cells in index.row()'''
@@ -478,14 +196,14 @@ class BooksModel(QAbstractTableModel): # {{{
         try:
             self.db.search(text)
         except ParseException:
-            self.emit(SIGNAL('searched(PyQt_PyObject)'), False)
+            self.searched.emit(False)
             return
         self.last_search = text
         if reset:
             self.clear_caches()
             self.reset()
         if self.last_search:
-            self.emit(SIGNAL('searched(PyQt_PyObject)'), True)
+            self.searched.emit(True)
 
 
     def sort(self, col, order, reset=True):
@@ -584,7 +302,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.set_cache(idx)
         data = self.get_book_display_info(idx)
         if emit_signal:
-            self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
+            self.new_bookdisplay_data.emit(data)
         else:
             return data
 
@@ -981,8 +699,7 @@ class BooksModel(QAbstractTableModel): # {{{
                     self.db.set_pubdate(id, qt_to_dt(val, as_utc=False))
                 else:
                     self.db.set(row, column, val)
-            self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
-                                index, index)
+            self.dataChanged.emit(index, index)
         return True
 
     def set_search_restriction(self, s):
@@ -990,241 +707,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
 # }}}
 
-class BooksView(QTableView): # {{{
-    TIME_FMT = '%d %b %Y'
-    wrapper = textwrap.TextWrapper(width=20)
-
-    @classmethod
-    def wrap(cls, s, width=20):
-        cls.wrapper.width = width
-        return cls.wrapper.fill(s)
-
-    @classmethod
-    def human_readable(cls, size, precision=1):
-        """ Convert a size in bytes into megabytes """
-        return ('%.'+str(precision)+'f') % ((size/(1024.*1024.)),)
-
-    def __init__(self, parent, modelcls=BooksModel):
-        QTableView.__init__(self, parent)
-        self.rating_delegate = RatingDelegate(self)
-        self.timestamp_delegate = DateDelegate(self)
-        self.pubdate_delegate = PubDateDelegate(self)
-        self.tags_delegate = TagsDelegate(self)
-        self.authors_delegate = TextDelegate(self)
-        self.series_delegate = TextDelegate(self)
-        self.publisher_delegate = TextDelegate(self)
-        self.text_delegate = TextDelegate(self)
-        self.cc_text_delegate = CcTextDelegate(self)
-        self.cc_bool_delegate = CcBoolDelegate(self)
-        self.cc_comments_delegate = CcCommentsDelegate(self)
-        self.display_parent = parent
-        self._model = modelcls(self)
-        self.setModel(self._model)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.setSortingEnabled(True)
-        self.selectionModel().currentRowChanged.connect(self._model.current_changed)
-        self.column_header = self.horizontalHeader()
-        self._model.database_changed.connect(self.database_changed)
-        hv = self.verticalHeader()
-        hv.setClickable(True)
-        hv.setCursor(Qt.PointingHandCursor)
-        self.selected_ids = []
-        self._model.about_to_be_sorted.connect(self.about_to_be_sorted)
-        self._model.sorting_done.connect(self.sorting_done)
-
-    def about_to_be_sorted(self, idc):
-        selected_rows = [r.row() for r in self.selectionModel().selectedRows()]
-        self.selected_ids = [idc(r) for r in selected_rows]
-
-    def sorting_done(self, indexc):
-        if self.selected_ids:
-            indices = [self.model().index(indexc(i), 0) for i in
-                    self.selected_ids]
-            sm = self.selectionModel()
-            for idx in indices:
-                sm.select(idx, sm.Select|sm.Rows)
-        self.selected_ids = []
-
-    def set_ondevice_column_visibility(self):
-        m  = self._model
-        self.column_header.setSectionHidden(m.column_map.index('ondevice'),
-                not m.device_connected)
-
-    def set_device_connected(self, is_connected):
-        self._model.set_device_connected(is_connected)
-        self.set_ondevice_column_visibility()
-
-    def database_changed(self, db):
-        for i in range(self.model().columnCount(None)):
-            if self.itemDelegateForColumn(i) in (self.rating_delegate,
-                    self.timestamp_delegate, self.pubdate_delegate):
-                self.setItemDelegateForColumn(i, self.itemDelegate())
-
-        cm = self._model.column_map
-        self.set_ondevice_column_visibility()
-
-        for colhead in cm:
-            if self._model.is_custom_column(colhead):
-                cc = self._model.custom_columns[colhead]
-                if cc['datatype'] == 'datetime':
-                    delegate = CcDateDelegate(self)
-                    delegate.set_format(cc['display'].get('date_format',''))
-                    self.setItemDelegateForColumn(cm.index(colhead), delegate)
-                elif cc['datatype'] == 'comments':
-                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_comments_delegate)
-                elif cc['datatype'] == 'text':
-                    if cc['is_multiple']:
-                        self.setItemDelegateForColumn(cm.index(colhead), self.tags_delegate)
-                    else:
-                        self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
-                elif cc['datatype'] in ('int', 'float'):
-                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
-                elif cc['datatype'] == 'bool':
-                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_bool_delegate)
-                elif cc['datatype'] == 'rating':
-                    self.setItemDelegateForColumn(cm.index(colhead), self.rating_delegate)
-            else:
-                dattr = colhead+'_delegate'
-                delegate = colhead if hasattr(self, dattr) else 'text'
-                self.setItemDelegateForColumn(cm.index(colhead), getattr(self,
-                    delegate+'_delegate'))
-
-    def set_context_menu(self, edit_metadata, send_to_device, convert, view,
-                         save, open_folder, book_details, delete, similar_menu=None):
-        self.setContextMenuPolicy(Qt.DefaultContextMenu)
-        self.context_menu = QMenu(self)
-        if edit_metadata is not None:
-            self.context_menu.addAction(edit_metadata)
-        if send_to_device is not None:
-            self.context_menu.addAction(send_to_device)
-        if convert is not None:
-            self.context_menu.addAction(convert)
-        self.context_menu.addAction(view)
-        self.context_menu.addAction(save)
-        if open_folder is not None:
-            self.context_menu.addAction(open_folder)
-        if delete is not None:
-            self.context_menu.addAction(delete)
-        if book_details is not None:
-            self.context_menu.addAction(book_details)
-        if similar_menu is not None:
-            self.context_menu.addMenu(similar_menu)
-
-    def contextMenuEvent(self, event):
-        self.context_menu.popup(event.globalPos())
-        event.accept()
-
-    def restore_sort_at_startup(self, saved_history):
-        if tweaks['sort_columns_at_startup'] is not None:
-            saved_history = tweaks['sort_columns_at_startup']
-
-        if saved_history is None:
-            return
-        for col,order in reversed(saved_history):
-            self.sortByColumn(col, order)
-        self.model().sort_history = saved_history
-
-    def sortByColumn(self, colname, order):
-        try:
-            idx = self._model.column_map.index(colname)
-        except ValueError:
-            idx = 0
-        QTableView.sortByColumn(self, idx, order)
-
-    @classmethod
-    def paths_from_event(cls, event):
-        '''
-        Accept a drop event and return a list of paths that can be read from
-        and represent files with extensions.
-        '''
-        if event.mimeData().hasFormat('text/uri-list'):
-            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
-            return [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
-
-    def dragEnterEvent(self, event):
-        if int(event.possibleActions() & Qt.CopyAction) + \
-           int(event.possibleActions() & Qt.MoveAction) == 0:
-            return
-        paths = self.paths_from_event(event)
-
-        if paths:
-            event.acceptProposedAction()
-
-    def dragMoveEvent(self, event):
-        event.acceptProposedAction()
-
-    def dropEvent(self, event):
-        paths = self.paths_from_event(event)
-        event.setDropAction(Qt.CopyAction)
-        event.accept()
-        self.emit(SIGNAL('files_dropped(PyQt_PyObject)'), paths)
-
-    def set_database(self, db):
-        self._model.set_database(db)
-        self.tags_delegate.set_database(db)
-        self.authors_delegate.set_auto_complete_function(db.all_authors)
-        self.series_delegate.set_auto_complete_function(db.all_series)
-        self.publisher_delegate.set_auto_complete_function(db.all_publishers)
-
-    def close(self):
-        self._model.close()
-
-    def set_editable(self, editable):
-        self._model.set_editable(editable)
-
-    def connect_to_search_box(self, sb, search_done):
-        QObject.connect(sb, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'),
-                        self._model.search)
-        self._search_done = search_done
-        self.connect(self._model, SIGNAL('searched(PyQt_PyObject)'),
-                self.search_done)
-
-    def connect_to_restriction_set(self, tv):
-        QObject.connect(tv, SIGNAL('restriction_set(PyQt_PyObject)'),
-                        self._model.set_search_restriction) # must be synchronous (not queued)
-
-    def connect_to_book_display(self, bd):
-        QObject.connect(self._model, SIGNAL('new_bookdisplay_data(PyQt_PyObject)'),
-                        bd)
-
-    def search_done(self, ok):
-        self._search_done(self, ok)
-
-    def row_count(self):
-        return self._model.count()
-
-# }}}
-
-class DeviceBooksView(BooksView):
-
-    def __init__(self, parent):
-        BooksView.__init__(self, parent, DeviceBooksModel)
-        self.columns_resized = False
-        self.resize_on_select = False
-        self.rating_delegate = None
-        for i in range(10):
-            self.setItemDelegateForColumn(i, TextDelegate(self))
-        self.setDragDropMode(self.NoDragDrop)
-        self.setAcceptDrops(False)
-
-    def set_database(self, db):
-        self._model.set_database(db)
-
-    def resizeColumnsToContents(self):
-        QTableView.resizeColumnsToContents(self)
-        self.columns_resized = True
-
-    def connect_dirtied_signal(self, slot):
-        QObject.connect(self._model, SIGNAL('booklist_dirtied()'), slot)
-
-    def sortByColumn(self, col, order):
-        QTableView.sortByColumn(self, col, order)
-
-    def dropEvent(self, *args):
-        error_dialog(self, _('Not allowed'),
-        _('Dropping onto a device is not supported. First add the book to the calibre library.')).exec_()
-
-class OnDeviceSearch(SearchQueryParser):
+class OnDeviceSearch(SearchQueryParser): # {{{
 
     def __init__(self, model):
         SearchQueryParser.__init__(self)
@@ -1282,8 +765,11 @@ class OnDeviceSearch(SearchQueryParser):
                     traceback.print_exc()
         return matches
 
+# }}}
 
-class DeviceBooksModel(BooksModel):
+class DeviceBooksModel(BooksModel): # {{{
+
+    booklist_dirtied = pyqtSignal()
 
     def __init__(self, parent):
         BooksModel.__init__(self, parent)
@@ -1300,7 +786,7 @@ class DeviceBooksModel(BooksModel):
         self.marked_for_deletion[job] = self.indices(rows)
         for row in rows:
             indices = self.row_indices(row)
-            self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), indices[0], indices[-1])
+            self.dataChanged.emit(indices[0], indices[-1])
 
     def deletion_done(self, job, succeeded=True):
         if not self.marked_for_deletion.has_key(job):
@@ -1309,7 +795,7 @@ class DeviceBooksModel(BooksModel):
         for row in rows:
             if not succeeded:
                 indices = self.row_indices(self.index(row, 0))
-                self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), indices[0], indices[-1])
+                self.dataChanged.emit(indices[0], indices[-1])
 
     def paths_deleted(self, paths):
         self.map = list(range(0, len(self.db)))
@@ -1339,7 +825,7 @@ class DeviceBooksModel(BooksModel):
             try:
                 matches = self.search_engine.parse(text)
             except ParseException:
-                self.emit(SIGNAL('searched(PyQt_PyObject)'), False)
+                self.searched.emit(False)
                 return
 
             self.map = []
@@ -1351,7 +837,7 @@ class DeviceBooksModel(BooksModel):
             self.reset()
         self.last_search = text
         if self.last_search:
-            self.emit(SIGNAL('searched(PyQt_PyObject)'), True)
+            self.searched.emit(False)
 
 
     def resort(self, reset):
@@ -1443,7 +929,7 @@ class DeviceBooksModel(BooksModel):
         dt = dt_factory(item.datetime, assume_utc=True)
         data[_('Timestamp')] = isoformat(dt, sep=' ', as_utc=False)
         data[_('Tags')] = ', '.join(item.tags)
-        self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
+        self.new_bookdisplay_data.emit(data)
 
     def paths(self, rows):
         return [self.db[self.map[r.row()]].path for r in rows ]
@@ -1471,11 +957,11 @@ class DeviceBooksModel(BooksModel):
                 return QVariant(authors_to_string(au))
             elif col == 2:
                 size = self.db[self.map[row]].size
-                return QVariant(BooksView.human_readable(size))
+                return QVariant(human_readable(size))
             elif col == 3:
                 dt = self.db[self.map[row]].datetime
                 dt = dt_factory(dt, assume_utc=True, as_utc=False)
-                return QVariant(strftime(BooksView.TIME_FMT, dt.timetuple()))
+                return QVariant(strftime(TIME_FMT, dt.timetuple()))
             elif col == 4:
                 tags = self.db[self.map[row]].tags
                 if tags:
@@ -1526,8 +1012,8 @@ class DeviceBooksModel(BooksModel):
                 tags = [i.strip() for i in val.split(',')]
                 tags = [t for t in tags if t]
                 self.db.set_tags(self.db[idx], tags)
-            self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), index, index)
-            self.emit(SIGNAL('booklist_dirtied()'))
+            self.dataChanged.emit(index, index)
+            self.booklist_dirtied.emit()
             if col == self.sorted_on[0]:
                 self.sort(col, self.sorted_on[1])
             done = True
@@ -1538,3 +1024,6 @@ class DeviceBooksModel(BooksModel):
 
     def set_search_restriction(self, s):
         pass
+
+# }}}
+

@@ -20,6 +20,7 @@ from calibre.library.database2 import Tag
 class TagsView(QTreeView):
 
     need_refresh = pyqtSignal()
+    restriction_set = pyqtSignal(object)
 
     def __init__(self, *args):
         QTreeView.__init__(self, *args)
@@ -66,7 +67,7 @@ class TagsView(QTreeView):
         else:
             self.search_restriction = 'search:"%s"' % unicode(s).strip()
         self.model().set_search_restriction(self.search_restriction)
-        self.emit(SIGNAL('restriction_set(PyQt_PyObject)'), self.search_restriction)
+        self.restriction_set.emit(self.search_restriction)
         self.recount() # Must happen after the emission of the restriction_set signal
         self.emit(SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
                          self._model.tokens(), self.match_all)

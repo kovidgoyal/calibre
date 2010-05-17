@@ -507,9 +507,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.card_b_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None, self.action_del)
 
-        QObject.connect(self.library_view,
-                SIGNAL('files_dropped(PyQt_PyObject)'),
-                        self.files_dropped, Qt.QueuedConnection)
+        self.library_view.files_dropped.connect(self.files_dropped, type=Qt.QueuedConnection)
         for func, args in [
                              ('connect_to_search_box', (self.search,
                                  self.search_done)),
@@ -544,24 +542,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.tags_view,
                 SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
                      self.search.search_from_tags)
-        self.connect(self.tags_view,
-                SIGNAL('restriction_set(PyQt_PyObject)'),
-                     self.saved_search.clear_to_help)
-        self.connect(self.tags_view,
-                SIGNAL('restriction_set(PyQt_PyObject)'),
-                     self.mark_restriction_set)
+        for x in (self.saved_search.clear_to_help, self.mark_restriction_set):
+            self.tags_view.restriction_set.connect(x)
         self.connect(self.tags_view,
                 SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
                      self.saved_search.clear_to_help)
-        self.connect(self.search,
-                SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'),
-                     self.tags_view.model().reinit)
-        self.connect(self.library_view.model(),
-                SIGNAL('count_changed(int)'), self.location_view.count_changed)
-        self.connect(self.library_view.model(), SIGNAL('count_changed(int)'),
-                     self.tags_view.recount, Qt.QueuedConnection)
-        self.connect(self.library_view.model(), SIGNAL('count_changed(int)'),
-                     self.restriction_count_changed, Qt.QueuedConnection)
+        self.search.search.connect(self.tags_view.model().reinit)
+        for x in (self.location_view.count_changed, self.tags_view.recount,
+                self.restriction_count_changed):
+            self.library_view.model().count_changed_signal.connect(x)
+
         self.connect(self.search, SIGNAL('cleared()'), self.search_box_cleared)
         self.connect(self.saved_search, SIGNAL('changed()'), self.tags_view.saved_searches_changed, Qt.QueuedConnection)
         if not gprefs.get('quick_start_guide_added', False):
