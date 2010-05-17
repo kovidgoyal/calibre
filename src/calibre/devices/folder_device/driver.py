@@ -58,14 +58,6 @@ class FOLDER_DEVICE(USBMS):
         self.booklist_class = BookList
         self.is_connected = True
 
-    @classmethod
-    def get_gui_name(cls):
-        if hasattr(cls, 'gui_name'):
-            return cls.gui_name
-        if hasattr(cls, '__name__'):
-            return cls.__name__
-        return cls.name
-
     def disconnect_from_folder(self):
         self._main_prefix = ''
         self.is_connected = False
@@ -84,9 +76,6 @@ class FOLDER_DEVICE(USBMS):
 
     def card_prefix(self, end_session=True):
         return (None, None)
-
-    def get_main_ebook_dir(self):
-        return ''
 
     def eject(self):
         self.is_connected = False
