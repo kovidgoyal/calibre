@@ -15,7 +15,7 @@ class LiberoNews(BasicNewsRecipe):
     description    = 'Italian daily newspaper'
 
     cover_url      = 'http://www.ilgiornale.it/img_v1/logo.gif'
-    title          = u'Libero '
+    title          = u'Libero'
     publisher      = 'EDITORIALE LIBERO s.r.l 2006'
     category       = 'News, politics, culture, economy, general interest'
 
@@ -48,7 +48,7 @@ class LiberoNews(BasicNewsRecipe):
              (u'Tecnologia', u'http://www.libero-news.it/rss.jsp?sezione=20'),
              (u'LifeStyle', u'http://www.libero-news.it/rss.jsp?sezione=22'),
              (u'Sport', u'http://www.libero-news.it/rss.jsp?sezione=23'),
-             (u'Costume e Società', u' http://www.libero-news.it/rss.jsp?sezione=24'),
+             (u'Costume e Societ\xc3\xa0', u' http://www.libero-news.it/rss.jsp?sezione=24'),
              (u'Milano', u'http://www.libero-news.it/rss.jsp?sezione=26'),
              (u'Roma', u'http://www.libero-news.it/rss.jsp?sezione=27'),
              (u'Alimentazione', u'http://www.libero-news.it/rss.jsp?sezione=29')
