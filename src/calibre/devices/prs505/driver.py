@@ -27,7 +27,7 @@ class PRS505(USBMS):
     supported_platforms = ['windows', 'osx', 'linux']
     path_sep = '/'
 
-    booklist_class = PRS_BookList # See USBMS for some explanation of this
+    booklist_class = PRS_BookList # See usbms.driver for some explanation of this
 
     FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
 

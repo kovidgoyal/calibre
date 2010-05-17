@@ -37,7 +37,7 @@ class Book(MetaInformation):
         else:
             self.lpath = lpath
         self.mime = mime_type_ext(path_to_ext(lpath))
-        self.size = None # will be set later
+        self.size = size # will be set later if None
         self.datetime = time.gmtime()
 
         if other:

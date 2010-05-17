@@ -15,6 +15,7 @@ import re
 import json
 from itertools import cycle
 
+from calibre import prints
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
@@ -122,7 +123,7 @@ class USBMS(CLI, Device):
         # if count != len(bl) then there were items in it that we did not
         # find on the device. If need_sync is True then there were either items
         # on the device that were not in bl or some of the items were changed.
-        print "count found in cache: %d, count of files in cache: %d, must_sync_cache: %s" % (self.count_found_in_bl, len(bl), need_sync)
+        #print "count found in cache: %d, count of files in cache: %d, must_sync_cache: %s" % (self.count_found_in_bl, len(bl), need_sync)
         if self.count_found_in_bl != len(bl) or need_sync:
             if oncard == 'cardb':
                 self.sync_booklists((None, None, metadata))
@@ -146,7 +147,9 @@ class USBMS(CLI, Device):
             mdata, fname = metadata.next(), names.next()
             filepath = self.normalize_path(self.create_upload_path(path, mdata, fname))
             paths.append(filepath)
-            self.put_file(self.normalize_path(infile), filepath, replace_file=True)
+            if not hasattr(infile, 'read'):
+                infile = self.normalize_path(infile)
+            self.put_file(infile, filepath, replace_file=True)
             try:
                 self.upload_cover(os.path.dirname(filepath),
                                   os.path.splitext(os.path.basename(filepath))[0], mdata)
@@ -188,7 +191,8 @@ class USBMS(CLI, Device):
             if not prefix and self._card_b_prefix:
                 prefix = self._card_b_prefix if path.startswith(self._card_b_prefix) else None
             if prefix is None:
-                print 'in add_books_to_metadata. Prefix is None!', path, self._main_prefix
+                prints('in add_books_to_metadata. Prefix is None!', path,
+                        self._main_prefix)
                 continue
             lpath = path.partition(prefix)[2]
             if lpath.startswith('/') or lpath.startswith('\\'):
@@ -238,7 +242,8 @@ class USBMS(CLI, Device):
             if prefix is not None and isinstance(booklists[listid], self.booklist_class):
                 if not os.path.exists(prefix):
                     os.makedirs(self.normalize_path(prefix))
-                js = [item.to_json() for item in booklists[listid]]
+                js = [item.to_json() for item in booklists[listid] if
+                        hasattr(item, 'to_json')]
                 with open(self.normalize_path(os.path.join(prefix, self.METADATA_CACHE)), 'wb') as f:
                     json.dump(js, f, indent=2, encoding='utf-8')
         write_prefix(self._main_prefix, 0)
@@ -314,6 +319,6 @@ class USBMS(CLI, Device):
         if mi is None:
             mi = MetaInformation(os.path.splitext(os.path.basename(path))[0],
                     [_('Unknown')])
-        mi.size = os.stat(cls.normalize_path(os.path.join(prefix, path))).st_size
-        book = cls.book_class(prefix, path, other=mi)
+        size = os.stat(cls.normalize_path(os.path.join(prefix, path))).st_size
+        book = cls.book_class(prefix, path, other=mi, size=size)
         return book
