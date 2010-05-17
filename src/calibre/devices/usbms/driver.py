@@ -89,7 +89,6 @@ class USBMS(CLI, Device):
                         self.count_found_in_bl += 1
                     else:
                         item = self.book_from_path(prefix, lpath)
-                        changed = True
                     if metadata.add_book(item, replace_metadata=False):
                         changed = True
                 except: # Probably a filename encoding error
@@ -108,7 +107,7 @@ class USBMS(CLI, Device):
             if self.SUPPORTS_SUB_DIRS:
                 for path, dirs, files in os.walk(ebook_dir):
                     for filename in files:
-                        self.report_progress(50.0, _('Getting list of books on device...'))
+                        self.report_progress(0.5, _('Getting list of books on device...'))
                         changed = update_booklist(filename, path, prefix)
                         if changed:
                             need_sync = True
@@ -250,6 +249,7 @@ class USBMS(CLI, Device):
 
     @classmethod
     def normalize_path(cls, path):
+        'Return path with platform native path separators'
         if path is None:
             return None
         if os.sep == '\\':
