@@ -426,12 +426,12 @@ class DeviceMenu(QMenu):
             self.addMenu(self.email_to_menu)
 
         self.addSeparator()
-        mitem = self.addAction(_('Connect to folder'))
+        mitem = self.addAction(QIcon(I('document_open.svg')), _('Connect to folder'))
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
         self.connect_to_folder_action = mitem
 
-        mitem = self.addAction(_('Disconnect from folder'))
+        mitem = self.addAction(QIcon(I('eject.svg')), _('Disconnect from folder'))
         mitem.setEnabled(False)
         mitem.triggered.connect(lambda x : self.disconnect_from_folder.emit())
         self.disconnect_from_folder_action = mitem
