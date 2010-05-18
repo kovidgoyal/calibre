@@ -142,6 +142,11 @@ class BooksView(QTableView): # {{{
                 sm.select(idx, sm.Select|sm.Rows)
         self.selected_ids = []
 
+    def scrollContentsBy(self, dx, dy):
+        # Needed as Qt bug causes headerview to not always update when scrolling
+        QTableView.scrollContentsBy(self, dx, dy)
+        self.column_header.update()
+
     def set_ondevice_column_visibility(self):
         m  = self._model
         self.column_header.setSectionHidden(m.column_map.index('ondevice'),
