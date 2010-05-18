@@ -22,6 +22,7 @@ from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre import strftime
+from calibre.gui2.library import DEFAULT_SORT
 
 def human_readable(size, precision=1):
     """ Convert a size in bytes into megabytes """
@@ -58,7 +59,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
                               'tags', 'series', 'timestamp', 'pubdate']
         self.default_image = QImage(I('book.svg'))
-        self.sorted_on = ('timestamp', Qt.AscendingOrder)
+        self.sorted_on = DEFAULT_SORT
         self.sort_history = [self.sorted_on]
         self.last_search = '' # The last search performed on this model
         self.column_map = []
@@ -217,7 +218,6 @@ class BooksModel(QAbstractTableModel): # {{{
             self.reset()
         self.sorted_on = (self.column_map[col], order)
         self.sort_history.insert(0, self.sorted_on)
-        del self.sort_history[3:] # clean up older searches
         self.sorting_done.emit(self.db.index)
 
     def refresh(self, reset=True):
@@ -776,7 +776,19 @@ class DeviceBooksModel(BooksModel): # {{{
         self.db  = []
         self.map = []
         self.sorted_map = []
+        self.sorted_on = DEFAULT_SORT
+        self.sort_history = [self.sorted_on]
         self.unknown = _('Unknown')
+        self.column_map = ['inlibrary', 'title', 'authors', 'timestamp', 'size',
+                'tags']
+        self.headers = {
+                'inlibrary'  : _('In Library'),
+                'title'      : _('Title'),
+                'authors'    : _('Author(s)'),
+                'timestamp'  : _('Date'),
+                'size'       : _('Size'),
+                'tags'       : _('Tags')
+                }
         self.marked_for_deletion = {}
         self.search_engine = OnDeviceSearch(self)
         self.editable = True
@@ -813,7 +825,8 @@ class DeviceBooksModel(BooksModel): # {{{
             return Qt.ItemIsUserCheckable  # Can't figure out how to get the disabled flag in python
         flags = QAbstractTableModel.flags(self, index)
         if index.isValid() and self.editable:
-            if index.column() in [0, 1] or (index.column() == 4 and self.db.supports_tags()):
+            cname = self.column_map[index.column()]
+            if cname in ('title', 'authors') or (cname == 'tags' and self.db.supports_tags()):
                 flags |= Qt.ItemIsEditable
         return flags
 
@@ -881,22 +894,30 @@ class DeviceBooksModel(BooksModel): # {{{
                 x, y = authors_to_string(self.db[x].authors), \
                                 authors_to_string(self.db[y].authors)
             return cmp(x, y)
-        fcmp = strcmp('title_sorter') if col == 0 else authorcmp if col == 1 else \
-               sizecmp if col == 2 else datecmp if col == 3 else tagscmp if col == 4 else libcmp
+        cname = self.column_map[col]
+        fcmp = {
+                'title': strcmp('title_sorter'),
+                'authors' : authorcmp,
+                'size' : sizecmp,
+                'timestamp': datecmp,
+                'tags': tagscmp,
+                'inlibrary': libcmp,
+                }[cname]
         self.map.sort(cmp=fcmp, reverse=descending)
         if len(self.map) == len(self.db):
             self.sorted_map = list(self.map)
         else:
             self.sorted_map = list(range(len(self.db)))
             self.sorted_map.sort(cmp=fcmp, reverse=descending)
-        self.sorted_on = (col, order)
+        self.sorted_on = (self.column_map[col], order)
+        self.sort_history.insert(0, self.sorted_on)
         if reset:
             self.reset()
 
     def columnCount(self, parent):
         if parent and parent.isValid():
             return 0
-        return 6
+        return len(self.column_map)
 
     def rowCount(self, parent):
         if parent and parent.isValid():
@@ -942,39 +963,35 @@ class DeviceBooksModel(BooksModel): # {{{
 
     def data(self, index, role):
         row, col = index.row(), index.column()
+        cname = self.column_map[col]
         if role == Qt.DisplayRole or role == Qt.EditRole:
-            if col == 0:
+            if cname == 'title':
                 text = self.db[self.map[row]].title
                 if not text:
                     text = self.unknown
                 return QVariant(text)
-            elif col == 1:
+            elif cname == 'authors':
                 au = self.db[self.map[row]].authors
                 if not au:
                     au = self.unknown
-#                if role == Qt.EditRole:
-#                    return QVariant(au)
                 return QVariant(authors_to_string(au))
-            elif col == 2:
+            elif cname == 'size':
                 size = self.db[self.map[row]].size
                 return QVariant(human_readable(size))
-            elif col == 3:
+            elif cname == 'timestamp':
                 dt = self.db[self.map[row]].datetime
                 dt = dt_factory(dt, assume_utc=True, as_utc=False)
                 return QVariant(strftime(TIME_FMT, dt.timetuple()))
-            elif col == 4:
+            elif cname == 'tags':
                 tags = self.db[self.map[row]].tags
                 if tags:
                     return QVariant(', '.join(tags))
-        elif role == Qt.TextAlignmentRole and index.column() in [2, 3]:
-            return QVariant(Qt.AlignRight | Qt.AlignVCenter)
         elif role == Qt.ToolTipRole and index.isValid():
-            if self.map[index.row()] in self.indices_to_be_deleted():
-                return QVariant('Marked for deletion')
-            col = index.column()
-            if col in [0, 1] or (col == 4 and self.db.supports_tags()):
+            if self.map[row] in self.indices_to_be_deleted():
+                return QVariant(_('Marked for deletion'))
+            if cname in ['title', 'authors'] or (cname == 'tags' and self.db.supports_tags()):
                 return QVariant(_("Double click to <b>edit</b> me<br><br>"))
-        elif role == Qt.DecorationRole and col == 5:
+        elif role == Qt.DecorationRole and cname == 'inlibrary':
             if self.db[self.map[row]].in_library:
                 return QVariant(self.bool_yes_icon)
 
@@ -983,14 +1000,9 @@ class DeviceBooksModel(BooksModel): # {{{
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
             return NONE
-        text = ""
         if orientation == Qt.Horizontal:
-            if   section == 0: text = _("Title")
-            elif section == 1: text = _("Author(s)")
-            elif section == 2: text = _("Size (MB)")
-            elif section == 3: text = _("Date")
-            elif section == 4: text = _("Tags")
-            elif section == 5: text = _("In Library")
+            cname = self.column_map[section]
+            text = self.headers[cname]
             return QVariant(text)
         else:
             return QVariant(section+1)
@@ -999,23 +1011,22 @@ class DeviceBooksModel(BooksModel): # {{{
         done = False
         if role == Qt.EditRole:
             row, col = index.row(), index.column()
-            if col in [2, 3]:
+            cname = self.column_map[col]
+            if cname in ('size', 'timestamp', 'inlibrary'):
                 return False
             val = unicode(value.toString()).strip()
             idx = self.map[row]
-            if col == 0:
+            if cname == 'title' :
                 self.db[idx].title = val
                 self.db[idx].title_sorter = val
-            elif col == 1:
+            elif cname == 'authors':
                 self.db[idx].authors = string_to_authors(val)
-            elif col == 4:
+            elif cname == 'tags':
                 tags = [i.strip() for i in val.split(',')]
                 tags = [t for t in tags if t]
                 self.db.set_tags(self.db[idx], tags)
             self.dataChanged.emit(index, index)
             self.booklist_dirtied.emit()
-            if col == self.sorted_on[0]:
-                self.sort(col, self.sorted_on[1])
             done = True
         return done
 

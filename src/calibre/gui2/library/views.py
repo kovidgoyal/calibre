@@ -15,7 +15,8 @@ from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
 from calibre.utils.config import tweaks
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, gprefs
+from calibre.gui2.library import DEFAULT_SORT
 
 
 class BooksView(QTableView): # {{{
@@ -72,11 +73,9 @@ class BooksView(QTableView): # {{{
         elif action == 'show':
             h.setSectionHidden(idx, False)
         elif action == 'ascending':
-            self._model.sort(idx, Qt.AscendingOrder)
-            h.setSortIndicator(idx, Qt.AscendingOrder)
+            self.sortByColumn(idx, Qt.AscendingOrder)
         elif action == 'descending':
-            self._model.sort(idx, Qt.DescendingOrder)
-            h.setSortIndicator(idx, Qt.DescendingOrder)
+            self.sortByColumn(idx, Qt.DescendingOrder)
 
         self.save_state()
 
@@ -143,12 +142,15 @@ class BooksView(QTableView): # {{{
         self._model.set_device_connected(is_connected)
         self.set_ondevice_column_visibility()
 
+    # Save/Restore State {{{
     def get_state(self):
         h = self.column_header
         cm = self.column_map
         state = {}
         state['hidden_columns'] = [cm[i] for i in  range(h.count())
                 if h.isSectionHidden(i) and cm[i] != 'ondevice']
+        state['sort_history'] = \
+            self.cleanup_sort_history(self.model().sort_history)
         state['column_positions'] = {}
         state['column_sizes'] = {}
         for i in range(h.count()):
@@ -156,22 +158,83 @@ class BooksView(QTableView): # {{{
             state['column_positions'][name] = h.visualIndex(i)
             if name != 'ondevice':
                 state['column_sizes'][name] = h.sectionSize(i)
-        import pprint
-        pprint.pprint(state)
         return state
 
     def save_state(self):
         # Only save if we have been initialized (set_database called)
         if len(self.column_map) > 0:
             state = self.get_state()
-            state
+            name = unicode(self.objectName())
+            if name:
+                gprefs.set(name + ' books view state', state)
+
+    def cleanup_sort_history(self, sort_history):
+        history = []
+        for col, order in sort_history:
+            if col in self.column_map and (not history or history[0][0] != col):
+                history.append([col, order])
+        return history
+
+    def apply_sort_history(self, saved_history):
+        if not saved_history:
+            return
+        for col, order in reversed(self.cleanup_sort_history(saved_history)[:3]):
+            self.sortByColumn(self.column_map.index(col), order)
+        #self.model().sort_history = saved_history
 
     def apply_state(self, state):
-        pass
+        h = self.column_header
+        cmap = {}
+        hidden = state.get('hidden_columns', [])
+        for i, c in enumerate(self.column_map):
+            cmap[c] = i
+            if c != 'ondevice':
+                h.setSectionHidden(i, c in hidden)
+
+        positions = state.get('column_positions', {})
+        pmap = {}
+        for col, pos in positions.items():
+            if col in cmap:
+                pmap[pos] = col
+        for pos in sorted(pmap.keys(), reverse=True):
+            col = pmap[pos]
+            idx = cmap[col]
+            current_pos = h.visualIndex(idx)
+            if current_pos != pos:
+                h.moveSection(current_pos, pos)
+
+        sizes = state.get('column_sizes', {})
+        for col, size in sizes.items():
+            if col in cmap:
+                h.resizeSection(cmap[col], sizes[col])
+        self.apply_sort_history(state.get('sort_history', None))
 
     def restore_state(self):
-        pass
+        name = unicode(self.objectName())
+        old_state = None
+        if name:
+            old_state = gprefs.get(name + ' books view state', None)
+        if old_state is None:
+            # Default layout
+            old_state = {'hidden_columns': [],
+                    'sort_history':[DEFAULT_SORT],
+                    'column_positions': {},
+                    'column_sizes': {}}
+            h = self.column_header
+            cm = self.column_map
+            for i in range(h.count()):
+                name = cm[i]
+                old_state['column_positions'][name] = h.logicalIndex(i)
+                if name != 'ondevice':
+                    old_state['column_sizes'][name] = \
+                        max(self.sizeHintForColumn(i), h.sectionSizeHint(i))
 
+        if tweaks['sort_columns_at_startup'] is not None:
+            old_state['sort_history'] = tweaks['sort_columns_at_startup']
+
+        self.apply_state(old_state)
+
+    # }}}
 
     @property
     def column_map(self):
@@ -239,22 +302,6 @@ class BooksView(QTableView): # {{{
         self.context_menu.popup(event.globalPos())
         event.accept()
 
-    def restore_sort_at_startup(self, saved_history):
-        if tweaks['sort_columns_at_startup'] is not None:
-            saved_history = tweaks['sort_columns_at_startup']
-
-        if saved_history is None:
-            return
-        for col,order in reversed(saved_history):
-            self.sortByColumn(col, order)
-        self.model().sort_history = saved_history
-
-    def sortByColumn(self, colname, order):
-        try:
-            idx = self._model.column_map.index(colname)
-        except ValueError:
-            idx = 0
-        QTableView.sortByColumn(self, idx, order)
 
     @classmethod
     def paths_from_event(cls, event):
@@ -339,9 +386,6 @@ class DeviceBooksView(BooksView): # {{{
 
     def connect_dirtied_signal(self, slot):
         self._model.booklist_dirtied.connect(slot)
-
-    def sortByColumn(self, col, order):
-        QTableView.sortByColumn(self, col, order)
 
     def dropEvent(self, *args):
         error_dialog(self, _('Not allowed'),

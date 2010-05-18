@@ -532,7 +532,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.library_view.set_database(db)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
         prefs['library_path'] = self.library_path
-        self.library_view.restore_sort_at_startup(dynamic.get('sort_history', [('timestamp', Qt.DescendingOrder)]))
         self.search.setFocus(Qt.OtherFocusReason)
         self.cover_cache = CoverCache(self.library_path)
         self.cover_cache.start()
@@ -1017,12 +1016,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.card_a_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         self.card_b_view.set_database(cardblist)
         self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
-        for view in (self.memory_view, self.card_a_view, self.card_b_view):
-            view.sortByColumn(3, Qt.DescendingOrder)
-            if view.model().rowCount(None) > 1:
-                view.resizeRowToContents(0)
-                height = view.rowHeight(0)
-                view.verticalHeader().setDefaultSectionSize(height)
         self.sync_news()
         self.sync_catalogs()
         self.refresh_ondevice_info(device_connected = True)
@@ -2284,7 +2277,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.status_bar.clearMessage()
         self.search.clear_to_help()
         self.status_bar.reset_info()
-        self.library_view.sortByColumn(3, Qt.DescendingOrder)
         self.library_view.model().count_changed()
 
     ############################################################################
