@@ -356,9 +356,9 @@ class DeviceMenu(QMenu):
         self.actions = []
         self._memory = []
 
-        self.set_default_menu = self.addMenu(_('Set default send to device'
-            ' action'))
-        self.addSeparator()
+        self.set_default_menu = QMenu(_('Set default send to device action'))
+        self.set_default_menu.setIcon(QIcon(I('config.svg')))
+
         opts = email_config().parse()
         default_account = None
         if opts.accounts:
@@ -470,6 +470,8 @@ class DeviceMenu(QMenu):
         mitem.triggered.connect(lambda x : self.disconnect_from_folder.emit())
         self.disconnect_from_folder_action = mitem
 
+        self.addSeparator()
+        self.addMenu(self.set_default_menu)
         self.addSeparator()
         annot = self.addAction(_('Fetch annotations (experimental)'))
         annot.setEnabled(False)
