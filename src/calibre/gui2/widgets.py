@@ -7,15 +7,15 @@ import re, os, traceback
 from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
-                        QPixmap, QPalette, QTimer, QDialog, QSplitterHandle, \
+                        QPixmap, QPalette, QSplitterHandle, \
                         QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal, \
                         QRegExp, QSettings, QSize, QModelIndex, QSplitter, \
                         QAbstractButton, QPainter, QLineEdit, QComboBox, \
                         QMenu, QStringListModel, QCompleter, QStringList
 
-from calibre.gui2 import human_readable, NONE, TableView, \
+from calibre.gui2 import human_readable, NONE, \
                          error_dialog, pixmap_to_data, dynamic
-from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
+
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
 from calibre.utils.fonts import fontconfig
@@ -399,41 +399,6 @@ class EjectButton(QAbstractButton):
         painter.drawPixmap(0, 0, image)
 
 
-class DetailView(QDialog, Ui_Dialog):
-
-    def __init__(self, parent, job):
-        QDialog.__init__(self, parent)
-        self.setupUi(self)
-        self.setWindowTitle(job.description)
-        self.job = job
-        self.next_pos = 0
-        self.update()
-        self.timer = QTimer(self)
-        self.connect(self.timer, SIGNAL('timeout()'), self.update)
-        self.timer.start(1000)
-
-
-    def update(self):
-        f = self.job.log_file
-        f.seek(self.next_pos)
-        more = f.read()
-        self.next_pos = f.tell()
-        if more:
-            self.log.appendPlainText(more.decode('utf-8', 'replace'))
-
-
-class JobsView(TableView):
-
-    def __init__(self, parent):
-        TableView.__init__(self, parent)
-        self.connect(self, SIGNAL('doubleClicked(QModelIndex)'), self.show_details)
-
-    def show_details(self, index):
-        row = index.row()
-        job = self.model().row_to_job(row)
-        d = DetailView(self, job)
-        d.exec_()
-        d.timer.stop()
 
 
 class FontFamilyModel(QAbstractListModel):

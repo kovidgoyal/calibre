@@ -8,7 +8,7 @@ from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSiz
                          QByteArray, QTranslator, QCoreApplication, QThread, \
                          QEvent, QTimer, pyqtSignal, QDate
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
-                        QIcon, QTableView, QApplication, QDialog, QPushButton
+                        QIcon, QApplication, QDialog, QPushButton
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
@@ -293,34 +293,6 @@ class GetMetadata(QObject):
         except:
             mi = MetaInformation('', [_('Unknown')])
         self.emit(SIGNAL('metadata(PyQt_PyObject, PyQt_PyObject)'), id, mi)
-
-class TableView(QTableView):
-
-    def __init__(self, parent):
-        QTableView.__init__(self, parent)
-        self.read_settings()
-
-    def read_settings(self):
-        self.cw = dynamic[self.__class__.__name__+'column width map']
-
-    def write_settings(self):
-        m = dynamic[self.__class__.__name__+'column width map']
-        if m is None:
-            m = {}
-        cmap = getattr(self.model(), 'column_map', None)
-        if cmap is not None:
-            for i,c in enumerate(cmap):
-                m[c] = self.columnWidth(i)
-        dynamic[self.__class__.__name__+'column width map'] = m
-        self.cw = m
-
-    def restore_column_widths(self):
-        if self.cw and len(self.cw):
-            for i,c in enumerate(self.model().column_map):
-                if c in self.cw:
-                    self.setColumnWidth(i, self.cw[c])
-            return True
-        return False
 
 class FileIconProvider(QFileIconProvider):
 

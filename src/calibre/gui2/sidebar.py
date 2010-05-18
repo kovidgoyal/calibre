@@ -33,16 +33,12 @@ class JobsButton(QFrame):
 
     def initialize(self, jobs_dialog):
         self.jobs_dialog = jobs_dialog
-        self.jobs_dialog.jobs_view.restore_column_widths()
 
     def mouseReleaseEvent(self, event):
         if self.jobs_dialog.isVisible():
-            self.jobs_dialog.jobs_view.write_settings()
             self.jobs_dialog.hide()
         else:
-            self.jobs_dialog.jobs_view.read_settings()
             self.jobs_dialog.show()
-            self.jobs_dialog.jobs_view.restore_column_widths()
 
     @property
     def is_running(self):
