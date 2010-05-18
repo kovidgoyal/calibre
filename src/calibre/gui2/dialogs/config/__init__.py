@@ -1,6 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, re, time, textwrap, copy
+
+import os, re, time, textwrap, copy, sys
 
 from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
                         QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit, \
@@ -10,7 +11,7 @@ from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
                         QDialogButtonBox, QTabWidget, QBrush, QLineEdit, \
                         QProgressDialog
 
-from calibre.constants import iswindows, isosx, preferred_encoding
+from calibre.constants import iswindows, isosx
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
 from calibre.gui2.dialogs.config.create_custom_column import CreateCustomColumn
 from calibre.gui2 import choose_dir, error_dialog, config, \
@@ -330,7 +331,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
     def category_current_changed(self, n, p):
         self.stackedWidget.setCurrentIndex(n.row())
 
-    def __init__(self, parent, model, server=None):
+    def __init__(self, parent, library_view, server=None):
         ResizableDialog.__init__(self, parent)
         self.ICON_SIZES = {0:QSize(48, 48), 1:QSize(32,32), 2:QSize(24,24)}
         self._category_model = CategoryModel()
@@ -338,8 +339,9 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.category_view.currentChanged = self.category_current_changed
         self.category_view.setModel(self._category_model)
         self.parent = parent
-        self.model = model
-        self.db = model.db
+        self.library_view = library_view
+        self.model = library_view.model()
+        self.db = self.model.db
         self.server = server
         path = prefs['library_path']
         self.location.setText(path if path else '')
@@ -364,26 +366,27 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.new_version_notification.setChecked(config['new_version_notification'])
 
         # Set up columns
-        # Make copies of maps so that internal changes aren't put into the real maps
-        self.colmap = config['column_map'][:]
+        colmap = list(self.model.column_map)
+        state = self.library_view.get_state()
+        hidden_cols = state['hidden_columns']
+        positions = state['column_positions']
+        colmap.sort(cmp=lambda x,y: cmp(positions[x], positions[y]))
         self.custcols = copy.deepcopy(self.db.custom_column_label_map)
-        cm = [c.decode(preferred_encoding, 'replace') for c in self.colmap]
-        ac = [c.decode(preferred_encoding, 'replace') for c in ALL_COLUMNS]
-        for col in cm + \
-                    [i for i in ac if i not in cm] + \
-                    [i for i in self.custcols if i not in cm]:
-            if col in ALL_COLUMNS:
-                item = QListWidgetItem(model.orig_headers[col], self.columns)
-            else:
-                item = QListWidgetItem(self.custcols[col]['name'], self.columns)
+        for col in colmap:
+            item = QListWidgetItem(self.model.headers[col], self.columns)
             item.setData(Qt.UserRole, QVariant(col))
-            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
-            item.setCheckState(Qt.Checked if col in self.colmap else Qt.Unchecked)
-        self.connect(self.column_up, SIGNAL('clicked()'), self.up_column)
-        self.connect(self.column_down, SIGNAL('clicked()'), self.down_column)
-        self.connect(self.del_custcol_button, SIGNAL('clicked()'), self.del_custcol)
-        self.connect(self.add_custcol_button, SIGNAL('clicked()'), self.add_custcol)
-        self.connect(self.edit_custcol_button, SIGNAL('clicked()'), self.edit_custcol)
+            flags = Qt.ItemIsEnabled|Qt.ItemIsSelectable
+            if col != 'ondevice':
+                flags |= Qt.ItemIsUserCheckable
+            item.setFlags(flags)
+            if col != 'ondevice':
+                item.setCheckState(Qt.Unchecked if col in hidden_cols else
+                        Qt.Checked)
+        self.column_up.clicked.connect(self.up_column)
+        self.column_down.clicked.connect(self.down_column)
+        self.del_custcol_button.clicked.connect(self.del_custcol)
+        self.add_custcol_button.clicked.connect(self.add_custcol)
+        self.edit_custcol_button.clicked.connect(self.edit_custcol)
 
         icons = config['toolbar_icon_size']
         self.toolbar_button_size.setCurrentIndex(0 if icons == self.ICON_SIZES[0] else 1 if icons == self.ICON_SIZES[1] else 2)
@@ -647,6 +650,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             self.input_order.insertItem(idx+1, self.input_order.takeItem(idx))
             self.input_order.setCurrentRow(idx+1)
 
+    # Column settings {{{
     def up_column(self):
         idx = self.columns.currentRow()
         if idx > 0:
@@ -682,6 +686,53 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
 
     def edit_custcol(self):
         CreateCustomColumn(self, True, self.model.orig_headers, ALL_COLUMNS)
+
+    def apply_custom_column_changes(self):
+        config_cols = [unicode(self.columns.item(i).data(Qt.UserRole).toString())\
+                 for i in range(self.columns.count())]
+        if not config_cols:
+            config_cols = ['title']
+        removed_cols = set(self.model.column_map) - set(config_cols)
+        hidden_cols = set([unicode(self.columns.item(i).data(Qt.UserRole).toString())\
+                 for i in range(self.columns.count()) \
+                 if self.columns.item(i).checkState()==Qt.Unchecked])
+        hidden_cols = hidden_cols.union(removed_cols) # Hide removed cols
+        hidden_cols = list(hidden_cols.intersection(set(self.model.column_map)))
+        if 'ondevice' in hidden_cols:
+            hidden_cols.remove('ondevice')
+        def col_pos(x, y):
+            xidx = config_cols.index(x) if x in config_cols else sys.maxint
+            yidx = config_cols.index(y) if y in config_cols else sys.maxint
+            return cmp(xidx, yidx)
+        positions = {}
+        for i, col in enumerate((sorted(self.model.column_map, cmp=col_pos))):
+            positions[col] = i
+        state = {'hidden_columns': hidden_cols, 'column_positions':positions}
+        self.library_view.apply_state(state)
+        self.library_view.save_state()
+
+        must_restart = False
+        for c in self.custcols:
+            if self.custcols[c]['num'] is None:
+                self.db.create_custom_column(
+                                label=c,
+                                name=self.custcols[c]['name'],
+                                datatype=self.custcols[c]['datatype'],
+                                is_multiple=self.custcols[c]['is_multiple'],
+                                display = self.custcols[c]['display'])
+                must_restart = True
+            elif '*deleteme' in self.custcols[c]:
+                self.db.delete_custom_column(label=c)
+                must_restart = True
+            elif '*edited' in self.custcols[c]:
+                cc = self.custcols[c]
+                self.db.set_custom_column_metadata(cc['num'], name=cc['name'],
+                                                   label=cc['label'],
+                                                   display = self.custcols[c]['display'])
+                if '*must_restart' in self.custcols[c]:
+                    must_restart = True
+        return must_restart
+    # }}}
 
     def view_server_logs(self):
         from calibre.library.server import log_access_file, log_error_file
@@ -776,33 +827,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         input_cols = [unicode(self.input_order.item(i).data(Qt.UserRole).toString()) for i in range(self.input_order.count())]
         prefs['input_format_order'] = input_cols
 
-        ####### Now deal with changes to columns
-        cols = [unicode(self.columns.item(i).data(Qt.UserRole).toString())\
-                 for i in range(self.columns.count()) \
-                    if self.columns.item(i).checkState()==Qt.Checked]
-        if not cols:
-            cols = ['title']
-        config['column_map'] = cols
-        must_restart = False
-        for c in self.custcols:
-            if self.custcols[c]['num'] is None:
-                self.db.create_custom_column(
-                                label=c,
-                                name=self.custcols[c]['name'],
-                                datatype=self.custcols[c]['datatype'],
-                                is_multiple=self.custcols[c]['is_multiple'],
-                                display = self.custcols[c]['display'])
-                must_restart = True
-            elif '*deleteme' in self.custcols[c]:
-                self.db.delete_custom_column(label=c)
-                must_restart = True
-            elif '*edited' in self.custcols[c]:
-                cc = self.custcols[c]
-                self.db.set_custom_column_metadata(cc['num'], name=cc['name'],
-                                                   label=cc['label'],
-                                                   display = self.custcols[c]['display'])
-                if '*must_restart' in self.custcols[c]:
-                    must_restart = True
+        must_restart = self.apply_custom_column_changes()
 
         config['toolbar_icon_size'] = self.ICON_SIZES[self.toolbar_button_size.currentIndex()]
         config['show_text_in_toolbar'] = bool(self.show_toolbar_text.isChecked())

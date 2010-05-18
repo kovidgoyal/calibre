@@ -2237,7 +2237,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     _('Cannot configure before calibre is restarted.'))
             d.exec_()
             return
-        d = ConfigDialog(self, self.library_view.model(),
+        d = ConfigDialog(self, self.library_view,
                 server=self.content_server)
 
         d.exec_()
@@ -2255,9 +2255,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.save_menu.actions()[3].setText(
                 _('Save only %s format to disk in a single directory')%
                 prefs['output_format'].upper())
-            self.library_view.model().read_config()
-            self.library_view.model().refresh()
-            self.library_view.model().research()
             self.tags_view.set_new_model() # in case columns changed
             self.tags_view.recount()
             self.create_device_menu()
