@@ -1011,6 +1011,12 @@ class DeviceBooksModel(BooksModel): # {{{
         elif role == Qt.DecorationRole and cname == 'inlibrary':
             if self.db[self.map[row]].in_library:
                 return QVariant(self.bool_yes_icon)
+        elif role == Qt.TextAlignmentRole:
+            cname = self.column_map[index.column()]
+            ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
+                'left')]
+            return QVariant(ans)
+
 
         return NONE
 

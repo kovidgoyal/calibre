@@ -44,6 +44,7 @@ class BooksView(QTableView): # {{{
         self.selectionModel().currentRowChanged.connect(self._model.current_changed)
 
         # {{{ Column Header setup
+        self.was_restored = False
         self.column_header = self.horizontalHeader()
         self.column_header.setMovable(True)
         self.column_header.sectionMoved.connect(self.save_state)
@@ -198,7 +199,7 @@ class BooksView(QTableView): # {{{
 
     def save_state(self):
         # Only save if we have been initialized (set_database called)
-        if len(self.column_map) > 0:
+        if len(self.column_map) > 0 and self.was_restored:
             state = self.get_state()
             name = unicode(self.objectName())
             if name:
@@ -287,6 +288,7 @@ class BooksView(QTableView): # {{{
             old_state['sort_history'] = tweaks['sort_columns_at_startup']
 
         self.apply_state(old_state)
+        self.was_restored = True
 
     # }}}
 
