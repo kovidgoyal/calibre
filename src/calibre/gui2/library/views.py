@@ -49,8 +49,8 @@ class BooksView(QTableView): # {{{
         self.column_header.sectionMoved.connect(self.save_state)
         self.column_header.setContextMenuPolicy(Qt.CustomContextMenu)
         self.column_header.customContextMenuRequested.connect(self.show_column_header_context_menu)
-
         # }}}
+
         self._model.database_changed.connect(self.database_changed)
         hv = self.verticalHeader()
         hv.setClickable(True)
@@ -76,6 +76,8 @@ class BooksView(QTableView): # {{{
             self.sortByColumn(idx, Qt.AscendingOrder)
         elif action == 'descending':
             self.sortByColumn(idx, Qt.DescendingOrder)
+        elif action == 'defaults':
+            self.apply_state(self.get_default_state())
 
         self.save_state()
 
@@ -117,6 +119,13 @@ class BooksView(QTableView): # {{{
                     m.addAction(name,
                         partial(self.column_header_context_handler,
                         action='show', column=col))
+
+            self.column_header_context_menu.addSeparator()
+            self.column_header_context_menu.addAction(
+                    _('Restore default layout'),
+                    partial(self.column_header_context_handler,
+                        action='defaults', column=col))
+
             self.column_header_context_menu.popup(self.column_header.mapToGlobal(pos))
 
 
@@ -209,25 +218,30 @@ class BooksView(QTableView): # {{{
                 h.resizeSection(cmap[col], sizes[col])
         self.apply_sort_history(state.get('sort_history', None))
 
+    def get_default_state(self):
+        old_state = {'hidden_columns': [],
+                'sort_history':[DEFAULT_SORT],
+                'column_positions': {},
+                'column_sizes': {}}
+        h = self.column_header
+        cm = self.column_map
+        for i in range(h.count()):
+            name = cm[i]
+            old_state['column_positions'][name] = h.logicalIndex(i)
+            if name != 'ondevice':
+                old_state['column_sizes'][name] = \
+                    max(self.sizeHintForColumn(i), h.sectionSizeHint(i))
+                if name == 'timestamp':
+                    old_state['column_sizes'][name] += 12
+        return old_state
+
     def restore_state(self):
         name = unicode(self.objectName())
         old_state = None
         if name:
             old_state = gprefs.get(name + ' books view state', None)
         if old_state is None:
-            # Default layout
-            old_state = {'hidden_columns': [],
-                    'sort_history':[DEFAULT_SORT],
-                    'column_positions': {},
-                    'column_sizes': {}}
-            h = self.column_header
-            cm = self.column_map
-            for i in range(h.count()):
-                name = cm[i]
-                old_state['column_positions'][name] = h.logicalIndex(i)
-                if name != 'ondevice':
-                    old_state['column_sizes'][name] = \
-                        max(self.sizeHintForColumn(i), h.sectionSizeHint(i))
+            old_state = self.get_default_state()
 
         if tweaks['sort_columns_at_startup'] is not None:
             old_state['sort_history'] = tweaks['sort_columns_at_startup']
@@ -379,6 +393,7 @@ class DeviceBooksView(BooksView): # {{{
 
     def set_database(self, db):
         self._model.set_database(db)
+        self.restore_state()
 
     def resizeColumnsToContents(self):
         QTableView.resizeColumnsToContents(self)

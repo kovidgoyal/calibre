@@ -2408,6 +2408,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         config.set('main_window_geometry', self.saveGeometry())
         dynamic.set('sort_history', self.library_view.model().sort_history)
         self.sidebar.save_state()
+        for view in ('library_view', 'memory_view', 'card_a_view',
+                'card_b_view'):
+            getattr(self, view).save_state()
 
     def restart(self):
         self.quit(restart=True)

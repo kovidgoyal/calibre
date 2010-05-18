@@ -231,7 +231,7 @@ class BooksModel(QAbstractTableModel): # {{{
     def resort(self, reset=True):
         try:
             col = self.column_map.index(self.sorted_on[0])
-        except:
+        except ValueError:
             col = 0
         self.sort(col, self.sorted_on[1], reset=reset)
 
@@ -852,9 +852,6 @@ class DeviceBooksModel(BooksModel): # {{{
         if self.last_search:
             self.searched.emit(False)
 
-
-    def resort(self, reset):
-        self.sort(self.sorted_on[0], self.sorted_on[1], reset=reset)
 
     def sort(self, col, order, reset=True):
         descending = order != Qt.AscendingOrder

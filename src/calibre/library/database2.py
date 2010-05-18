@@ -182,13 +182,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         columns = ['id', 'title',
             # col         table     link_col          query
             ('authors', 'authors', 'author', 'sortconcat(link.id, name)'),
-            ('publisher', 'publishers', 'publisher', 'name'),
-            ('rating', 'ratings', 'rating', 'ratings.rating'),
              'timestamp',
              '(SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size',
+            ('rating', 'ratings', 'rating', 'ratings.rating'),
             ('tags', 'tags', 'tag', 'group_concat(name)'),
              '(SELECT text FROM comments WHERE book=books.id) comments',
             ('series', 'series', 'series', 'name'),
+            ('publisher', 'publishers', 'publisher', 'name'),
              'series_index',
              'sort',
              'author_sort',
@@ -212,8 +212,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         custom_cols = list(sorted(custom_map.keys()))
         lines.extend([custom_map[x] for x in custom_cols])
 
-        self.FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'publisher':3, 'rating':4, 'timestamp':5,
-             'size':6, 'tags':7, 'comments':8, 'series':9, 'series_index':10,
+        self.FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'timestamp':3,
+             'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
+             'publisher':9, 'series_index':10,
              'sort':11, 'author_sort':12, 'formats':13, 'isbn':14, 'path':15,
              'lccn':16, 'pubdate':17, 'flags':18, 'uuid':19}
 
