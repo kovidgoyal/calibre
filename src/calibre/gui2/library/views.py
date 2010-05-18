@@ -145,7 +145,8 @@ class BooksView(QTableView): # {{{
     def scrollContentsBy(self, dx, dy):
         # Needed as Qt bug causes headerview to not always update when scrolling
         QTableView.scrollContentsBy(self, dx, dy)
-        self.column_header.update()
+        if dy != 0:
+            self.column_header.update()
 
     def set_ondevice_column_visibility(self):
         m  = self._model
@@ -220,7 +221,10 @@ class BooksView(QTableView): # {{{
         sizes = state.get('column_sizes', {})
         for col, size in sizes.items():
             if col in cmap:
-                h.resizeSection(cmap[col], sizes[col])
+                sz = sizes[col]
+                if sz < 3:
+                    sz = h.sectionSizeHint(cmap[col])
+                h.resizeSection(cmap[col], sz)
         self.apply_sort_history(state.get('sort_history', None))
 
     def get_default_state(self):
