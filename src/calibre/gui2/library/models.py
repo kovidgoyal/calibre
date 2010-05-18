@@ -30,6 +30,9 @@ def human_readable(size, precision=1):
 
 TIME_FMT = '%d %b %Y'
 
+ALIGNMENT_MAP = {'left': Qt.AlignLeft, 'right': Qt.AlignRight, 'center':
+        Qt.AlignHCenter}
+
 class BooksModel(QAbstractTableModel): # {{{
 
     about_to_be_sorted   = pyqtSignal(object, name='aboutToBeSorted')
@@ -64,6 +67,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.last_search = '' # The last search performed on this model
         self.column_map = []
         self.headers = {}
+        self.alignment_map = {}
         self.buffer_size = buffer
         self.cover_cache = None
         self.bool_yes_icon = QIcon(I('ok.svg'))
@@ -71,6 +75,19 @@ class BooksModel(QAbstractTableModel): # {{{
         self.bool_blank_icon = QIcon(I('blank.svg'))
         self.device_connected = False
         self.read_config()
+
+    def change_alignment(self, colname, alignment):
+        if colname in self.column_map and alignment in ('left', 'right', 'center'):
+            old = self.alignment_map.get(colname, 'left')
+            if old == alignment:
+                return
+            self.alignment_map.pop(colname, None)
+            if alignment != 'left':
+                self.alignment_map[colname] = alignment
+            col = self.column_map.index(colname)
+            for row in xrange(self.rowCount(QModelIndex())):
+                self.dataChanged.emit(self.index(row, col), self.index(row,
+                    col))
 
     def is_custom_column(self, cc_label):
         return cc_label in self.custom_columns
@@ -593,14 +610,17 @@ class BooksModel(QAbstractTableModel): # {{{
         # the column map does not accurately represent the screen. In these cases,
         # we will get asked to display columns we don't know about. Must test for this.
         if col >= len(self.column_to_dc_map):
-            return None
+            return NONE
         if role in (Qt.DisplayRole, Qt.EditRole):
             return self.column_to_dc_map[col](index.row())
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
                 return self.column_to_dc_decorator_map[index.column()](index.row())
-        #elif role == Qt.TextAlignmentRole and self.column_map[index.column()] in ('size', 'timestamp'):
-        #    return QVariant(Qt.AlignVCenter | Qt.AlignCenter)
+        elif role == Qt.TextAlignmentRole:
+            cname = self.column_map[index.column()]
+            ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
+                'left')]
+            return QVariant(ans)
         #elif role == Qt.ToolTipRole and index.isValid():
         #    if self.column_map[index.column()] in self.editable_cols:
         #        return QVariant(_("Double click to <b>edit</b> me<br><br>"))
