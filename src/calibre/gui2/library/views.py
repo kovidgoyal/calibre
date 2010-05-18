@@ -99,19 +99,28 @@ class BooksView(QTableView): # {{{
                         column=col))
             m = self.column_header_context_menu.addMenu(
                     _('Sort on %s')  % name)
-            m.addAction(_('Ascending'),
+            a = m.addAction(_('Ascending'),
                     partial(self.column_header_context_handler,
                         action='ascending', column=col))
-            m.addAction(_('Descending'),
+            d = m.addAction(_('Descending'),
                     partial(self.column_header_context_handler,
                         action='descending', column=col))
+            if self._model.sorted_on[0] == col:
+                ac = a if self._model.sorted_on[1] == Qt.AscendingOrder else d
+                ac.setCheckable(True)
+                ac.setChecked(True)
             m = self.column_header_context_menu.addMenu(
                     _('Change text alignment for %s') % name)
+            al = self._model.alignment_map.get(col, 'left')
             for x, t in (('left', _('Left')), ('right', _('Right')), ('center',
                 _('Center'))):
-                    m.addAction(t,
+                    a = m.addAction(t,
                         partial(self.column_header_context_handler,
                         action='align_'+x, column=col))
+                    if al == x:
+                        a.setCheckable(True)
+                        a.setChecked(True)
+
 
 
             hidden_cols = [self.column_map[i] for i in
