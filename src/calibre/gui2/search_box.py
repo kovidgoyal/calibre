@@ -6,7 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QComboBox, SIGNAL, Qt, QLineEdit, QStringList, pyqtSlot
+from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, \
+    pyqtSignal, SIGNAL
 from PyQt4.QtGui import QCompleter
 
 from calibre.gui2 import config
@@ -55,6 +56,8 @@ class SearchBox2(QComboBox):
 
     INTERVAL = 1500 #: Time to wait before emitting search signal
     MAX_COUNT = 25
+
+    search = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
@@ -108,7 +111,7 @@ class SearchBox2(QComboBox):
 
     def clear(self):
         self.clear_to_help()
-        self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), '', False)
+        self.search.emit('', False)
 
     def search_done(self, ok):
         if not unicode(self.currentText()).strip():
@@ -155,7 +158,7 @@ class SearchBox2(QComboBox):
         self.help_state = False
         refinement = text.startswith(self.prev_search) and ':' not in text
         self.prev_search = text
-        self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), text, refinement)
+        self.search.emit(text, refinement)
 
         idx = self.findText(text, Qt.MatchFixedString)
         self.block_signals(True)
@@ -187,7 +190,7 @@ class SearchBox2(QComboBox):
     def set_search_string(self, txt):
         self.normalize_state()
         self.setEditText(txt)
-        self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), txt, False)
+        self.search.emit(txt, False)
         self.line_edit.end(False)
         self.initial_state = False
 

@@ -32,8 +32,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.search.setMinimumContentsLength(25)
         self.search.initialize('scheduler_search_history')
         self.recipe_box.layout().insertWidget(0, self.search)
-        self.connect(self.search, SIGNAL('search(PyQt_PyObject,PyQt_PyObject)'),
-                self.recipe_model.search)
+        self.search.search.connect(self.recipe_model.search)
         self.connect(self.recipe_model,  SIGNAL('searched(PyQt_PyObject)'),
                 self.search.search_done)
         self.connect(self.recipe_model,  SIGNAL('searched(PyQt_PyObject)'),

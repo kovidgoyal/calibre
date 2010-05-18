@@ -793,7 +793,7 @@
   <customwidget>
    <class>BooksView</class>
    <extends>QTableView</extends>
-   <header>library.h</header>
+   <header>calibre/gui2/library/views.h</header>
   </customwidget>
   <customwidget>
    <class>LocationView</class>
@@ -803,7 +803,7 @@
   <customwidget>
    <class>DeviceBooksView</class>
    <extends>QTableView</extends>
-   <header>library.h</header>
+   <header>calibre/gui2/library/views.h</header>
   </customwidget>
   <customwidget>
    <class>TagsView</class>

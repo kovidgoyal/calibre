@@ -81,7 +81,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.search = SearchBox2(self)
         self.search.initialize('lrf_viewer_search_history')
         self.search_action = self.tool_bar.addWidget(self.search)
-        QObject.connect(self.search, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), self.find)
+        self.search.search.connect(self.find)
 
         self.action_next_page.setShortcuts([QKeySequence.MoveToNextPage, QKeySequence(Qt.Key_Space)])
         self.action_previous_page.setShortcuts([QKeySequence.MoveToPreviousPage, QKeySequence(Qt.Key_Backspace)])
