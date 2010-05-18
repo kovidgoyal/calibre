@@ -59,6 +59,7 @@ class BooksView(QTableView): # {{{
         self._model.about_to_be_sorted.connect(self.about_to_be_sorted)
         self._model.sorting_done.connect(self.sorting_done)
 
+    # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None):
         if not action or not column:
             return
@@ -78,6 +79,9 @@ class BooksView(QTableView): # {{{
             self.sortByColumn(idx, Qt.DescendingOrder)
         elif action == 'defaults':
             self.apply_state(self.get_default_state())
+        elif action.startswith('align_'):
+            alignment = action.partition('_')[-1]
+            self._model.change_alignment(column, alignment)
 
         self.save_state()
 
@@ -93,14 +97,22 @@ class BooksView(QTableView): # {{{
                         name,
                     partial(self.column_header_context_handler, action='hide',
                         column=col))
-            self.column_header_context_menu.addAction(
-                    _('Sort on column %s (ascending)') % name,
+            m = self.column_header_context_menu.addMenu(
+                    _('Sort on %s')  % name)
+            m.addAction(_('Ascending'),
                     partial(self.column_header_context_handler,
                         action='ascending', column=col))
-            self.column_header_context_menu.addAction(
-                    _('Sort on column %s (descending)') % name,
+            m.addAction(_('Descending'),
                     partial(self.column_header_context_handler,
                         action='descending', column=col))
+            m = self.column_header_context_menu.addMenu(
+                    _('Change text alignment for %s') % name)
+            for x, t in (('left', _('Left')), ('right', _('Right')), ('center',
+                _('Center'))):
+                    m.addAction(t,
+                        partial(self.column_header_context_handler,
+                        action='align_'+x, column=col))
+
 
             hidden_cols = [self.column_map[i] for i in
                     range(self.column_header.count()) if
@@ -120,6 +132,7 @@ class BooksView(QTableView): # {{{
                         partial(self.column_header_context_handler,
                         action='show', column=col))
 
+
             self.column_header_context_menu.addSeparator()
             self.column_header_context_menu.addAction(
                     _('Restore default layout'),
@@ -127,8 +140,9 @@ class BooksView(QTableView): # {{{
                         action='defaults', column=col))
 
             self.column_header_context_menu.popup(self.column_header.mapToGlobal(pos))
+    # }}}
 
-
+    # Sorting {{{
     def about_to_be_sorted(self, idc):
         selected_rows = [r.row() for r in self.selectionModel().selectedRows()]
         self.selected_ids = [idc(r) for r in selected_rows]
@@ -141,13 +155,9 @@ class BooksView(QTableView): # {{{
             for idx in indices:
                 sm.select(idx, sm.Select|sm.Rows)
         self.selected_ids = []
+    # }}}
 
-    def scrollContentsBy(self, dx, dy):
-        # Needed as Qt bug causes headerview to not always update when scrolling
-        QTableView.scrollContentsBy(self, dx, dy)
-        if dy != 0:
-            self.column_header.update()
-
+    # Ondevice column {{{
     def set_ondevice_column_visibility(self):
         m  = self._model
         self.column_header.setSectionHidden(m.column_map.index('ondevice'),
@@ -156,6 +166,7 @@ class BooksView(QTableView): # {{{
     def set_device_connected(self, is_connected):
         self._model.set_device_connected(is_connected)
         self.set_ondevice_column_visibility()
+    # }}}
 
     # Save/Restore State {{{
     def get_state(self):
@@ -168,6 +179,7 @@ class BooksView(QTableView): # {{{
             self.cleanup_sort_history(self.model().sort_history)
         state['column_positions'] = {}
         state['column_sizes'] = {}
+        state['column_alignment'] = self._model.alignment_map
         for i in range(h.count()):
             name = cm[i]
             state['column_positions'][name] = h.visualIndex(i)
@@ -211,7 +223,7 @@ class BooksView(QTableView): # {{{
         for col, pos in positions.items():
             if col in cmap:
                 pmap[pos] = col
-        for pos in sorted(pmap.keys(), reverse=True):
+        for pos in sorted(pmap.keys()):
             col = pmap[pos]
             idx = cmap[col]
             current_pos = h.visualIndex(idx)
@@ -225,18 +237,28 @@ class BooksView(QTableView): # {{{
                 if sz < 3:
                     sz = h.sectionSizeHint(cmap[col])
                 h.resizeSection(cmap[col], sz)
+
         self.apply_sort_history(state.get('sort_history', None))
 
+        for col, alignment in state.get('column_alignment', {}).items():
+            self._model.change_alignment(col, alignment)
+
     def get_default_state(self):
-        old_state = {'hidden_columns': [],
+        old_state = {
+                'hidden_columns': [],
                 'sort_history':[DEFAULT_SORT],
                 'column_positions': {},
-                'column_sizes': {}}
+                'column_sizes': {},
+                'column_alignment': {
+                    'size':'center',
+                    'timestamp':'center',
+                    'pubdate':'center'},
+                }
         h = self.column_header
         cm = self.column_map
         for i in range(h.count()):
             name = cm[i]
-            old_state['column_positions'][name] = h.logicalIndex(i)
+            old_state['column_positions'][name] = i
             if name != 'ondevice':
                 old_state['column_sizes'][name] = \
                     max(self.sizeHintForColumn(i), h.sectionSizeHint(i))
@@ -259,9 +281,15 @@ class BooksView(QTableView): # {{{
 
     # }}}
 
-    @property
-    def column_map(self):
-        return self._model.column_map
+    # Initialization/Delegate Setup {{{
+
+    def set_database(self, db):
+        self.save_state()
+        self._model.set_database(db)
+        self.tags_delegate.set_database(db)
+        self.authors_delegate.set_auto_complete_function(db.all_authors)
+        self.series_delegate.set_auto_complete_function(db.all_series)
+        self.publisher_delegate.set_auto_complete_function(db.all_publishers)
 
     def database_changed(self, db):
         for i in range(self.model().columnCount(None)):
@@ -299,7 +327,9 @@ class BooksView(QTableView): # {{{
 
         self.restore_state()
         self.set_ondevice_column_visibility()
+        #}}}
 
+    # Context Menu {{{
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
                          save, open_folder, book_details, delete, similar_menu=None):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
@@ -324,8 +354,9 @@ class BooksView(QTableView): # {{{
     def contextMenuEvent(self, event):
         self.context_menu.popup(event.globalPos())
         event.accept()
+    # }}}
 
-
+    # Drag 'n Drop {{{
     @classmethod
     def paths_from_event(cls, event):
         '''
@@ -354,13 +385,17 @@ class BooksView(QTableView): # {{{
         event.accept()
         self.files_dropped.emit(paths)
 
-    def set_database(self, db):
-        self.save_state()
-        self._model.set_database(db)
-        self.tags_delegate.set_database(db)
-        self.authors_delegate.set_auto_complete_function(db.all_authors)
-        self.series_delegate.set_auto_complete_function(db.all_series)
-        self.publisher_delegate.set_auto_complete_function(db.all_publishers)
+    # }}}
+
+    @property
+    def column_map(self):
+        return self._model.column_map
+
+    def scrollContentsBy(self, dx, dy):
+        # Needed as Qt bug causes headerview to not always update when scrolling
+        QTableView.scrollContentsBy(self, dx, dy)
+        if dy != 0:
+            self.column_header.update()
 
     def close(self):
         self._model.close()
