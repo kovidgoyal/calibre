@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
+from functools import partial
 
 from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal
 
@@ -40,7 +41,15 @@ class BooksView(QTableView): # {{{
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
         self.selectionModel().currentRowChanged.connect(self._model.current_changed)
+
+        # {{{ Column Header setup
         self.column_header = self.horizontalHeader()
+        self.column_header.setMovable(True)
+        self.column_header.sectionMoved.connect(self.save_state)
+        self.column_header.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.column_header.customContextMenuRequested.connect(self.show_column_header_context_menu)
+
+        # }}}
         self._model.database_changed.connect(self.database_changed)
         hv = self.verticalHeader()
         hv.setClickable(True)
@@ -48,6 +57,69 @@ class BooksView(QTableView): # {{{
         self.selected_ids = []
         self._model.about_to_be_sorted.connect(self.about_to_be_sorted)
         self._model.sorting_done.connect(self.sorting_done)
+
+    def column_header_context_handler(self, action=None, column=None):
+        if not action or not column:
+            return
+        try:
+            idx = self.column_map.index(column)
+        except:
+            return
+        h = self.column_header
+
+        if action == 'hide':
+            h.setSectionHidden(idx, True)
+        elif action == 'show':
+            h.setSectionHidden(idx, False)
+        elif action == 'ascending':
+            self._model.sort(idx, Qt.AscendingOrder)
+            h.setSortIndicator(idx, Qt.AscendingOrder)
+        elif action == 'descending':
+            self._model.sort(idx, Qt.DescendingOrder)
+            h.setSortIndicator(idx, Qt.DescendingOrder)
+
+        self.save_state()
+
+    def show_column_header_context_menu(self, pos):
+        idx = self.column_header.logicalIndexAt(pos)
+        if idx > -1 and idx < len(self.column_map):
+            col = self.column_map[idx]
+            name = unicode(self.model().headerData(idx, Qt.Horizontal,
+                    Qt.DisplayRole).toString())
+            self.column_header_context_menu = QMenu(self)
+            if col != 'ondevice':
+                self.column_header_context_menu.addAction(_('Hide column %s') %
+                        name,
+                    partial(self.column_header_context_handler, action='hide',
+                        column=col))
+            self.column_header_context_menu.addAction(
+                    _('Sort on column %s (ascending)') % name,
+                    partial(self.column_header_context_handler,
+                        action='ascending', column=col))
+            self.column_header_context_menu.addAction(
+                    _('Sort on column %s (descending)') % name,
+                    partial(self.column_header_context_handler,
+                        action='descending', column=col))
+
+            hidden_cols = [self.column_map[i] for i in
+                    range(self.column_header.count()) if
+                    self.column_header.isSectionHidden(i)]
+            try:
+                hidden_cols.remove('ondevice')
+            except:
+                pass
+            if hidden_cols:
+                self.column_header_context_menu.addSeparator()
+                m = self.column_header_context_menu.addMenu(_('Show column'))
+                for col in hidden_cols:
+                    hidx = self.column_map.index(col)
+                    name = unicode(self.model().headerData(hidx, Qt.Horizontal,
+                            Qt.DisplayRole).toString())
+                    m.addAction(name,
+                        partial(self.column_header_context_handler,
+                        action='show', column=col))
+            self.column_header_context_menu.popup(self.column_header.mapToGlobal(pos))
+
 
     def about_to_be_sorted(self, idc):
         selected_rows = [r.row() for r in self.selectionModel().selectedRows()]
@@ -71,14 +143,47 @@ class BooksView(QTableView): # {{{
         self._model.set_device_connected(is_connected)
         self.set_ondevice_column_visibility()
 
+    def get_state(self):
+        h = self.column_header
+        cm = self.column_map
+        state = {}
+        state['hidden_columns'] = [cm[i] for i in  range(h.count())
+                if h.isSectionHidden(i) and cm[i] != 'ondevice']
+        state['column_positions'] = {}
+        state['column_sizes'] = {}
+        for i in range(h.count()):
+            name = cm[i]
+            state['column_positions'][name] = h.visualIndex(i)
+            if name != 'ondevice':
+                state['column_sizes'][name] = h.sectionSize(i)
+        import pprint
+        pprint.pprint(state)
+        return state
+
+    def save_state(self):
+        # Only save if we have been initialized (set_database called)
+        if len(self.column_map) > 0:
+            state = self.get_state()
+            state
+
+    def apply_state(self, state):
+        pass
+
+    def restore_state(self):
+        pass
+
+
+    @property
+    def column_map(self):
+        return self._model.column_map
+
     def database_changed(self, db):
         for i in range(self.model().columnCount(None)):
             if self.itemDelegateForColumn(i) in (self.rating_delegate,
                     self.timestamp_delegate, self.pubdate_delegate):
                 self.setItemDelegateForColumn(i, self.itemDelegate())
 
-        cm = self._model.column_map
-        self.set_ondevice_column_visibility()
+        cm = self.column_map
 
         for colhead in cm:
             if self._model.is_custom_column(colhead):
@@ -105,6 +210,9 @@ class BooksView(QTableView): # {{{
                 delegate = colhead if hasattr(self, dattr) else 'text'
                 self.setItemDelegateForColumn(cm.index(colhead), getattr(self,
                     delegate+'_delegate'))
+
+        self.restore_state()
+        self.set_ondevice_column_visibility()
 
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
                          save, open_folder, book_details, delete, similar_menu=None):
@@ -177,6 +285,7 @@ class BooksView(QTableView): # {{{
         self.files_dropped.emit(paths)
 
     def set_database(self, db):
+        self.save_state()
         self._model.set_database(db)
         self.tags_delegate.set_database(db)
         self.authors_delegate.set_auto_complete_function(db.all_authors)
