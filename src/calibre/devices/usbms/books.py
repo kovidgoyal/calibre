@@ -11,7 +11,8 @@ import time
 from calibre.ebooks.metadata import MetaInformation
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.interface import BookList as _BookList
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, preferred_encoding
+from calibre import isbytestring
 
 class Book(MetaInformation):
 
@@ -105,7 +106,11 @@ class Book(MetaInformation):
     def to_json(self):
         json = {}
         for attr in self.JSON_ATTRS:
-            json[attr] = getattr(self, attr)
+            val = getattr(self, attr)
+            if isbytestring(val):
+                enc = filesystem_encoding if attr == 'lpath' else preferred_encoding
+                val = val.decode(enc, 'replace')
+            json[attr] = val
         return json
 
 class BookList(_BookList):
