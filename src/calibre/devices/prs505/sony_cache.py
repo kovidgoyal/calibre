@@ -144,7 +144,7 @@ class XMLCache(object):
         self.ensure_unique_playlist_titles()
         self.prune_empty_playlists()
         for i, root in self.record_roots.items():
-            ans[i] = {}
+            ans[i] = []
             for playlist in root.xpath('//*[local-name()="playlist"]'):
                 items = []
                 for item in playlist:
@@ -153,7 +153,7 @@ class XMLCache(object):
                         '//*[local-name()="text" and @id="%s"]'%id_)
                     if records:
                         items.append(records[0])
-                ans[i] = {playlist.get('title'):items}
+                ans[i].append((playlist.get('title'), items))
         return ans
 
     def get_or_create_playlist(self, bl_idx, title):
@@ -256,6 +256,16 @@ class XMLCache(object):
         if bl_index not in self.record_roots:
             return
         root = self.record_roots[bl_index]
+        pmap = self.get_playlist_map()[bl_index]
+        playlist_map = {}
+        for title, records in pmap:
+            for record in records:
+                path = record.get('path', None)
+                if path:
+                    if path not in playlist_map:
+                        playlist_map[path] = []
+                    playlist_map[path].append(title)
+
         for book in bl:
             record = self.book_by_lpath(book.lpath, root)
             if record is not None:
@@ -282,6 +292,15 @@ class XMLCache(object):
                             book.thumbnail = raw
                             break
                     break
+                if book.lpath in playlist_map:
+                    tags = playlist_map[book.lpath]
+                    if tags:
+                        if DEBUG:
+                            prints('Adding tags:', tags, 'to', book.title)
+                        if not book.tags:
+                            book.tags = []
+                        book.tags = list(book.tags)
+                        book.tags += tags
     # }}}
 
     # Update XML from JSON {{{
