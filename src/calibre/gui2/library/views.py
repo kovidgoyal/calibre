@@ -44,6 +44,7 @@ class BooksView(QTableView): # {{{
         self.selectionModel().currentRowChanged.connect(self._model.current_changed)
 
         # {{{ Column Header setup
+        self.was_restored = False
         self.column_header = self.horizontalHeader()
         self.column_header.setMovable(True)
         self.column_header.sectionMoved.connect(self.save_state)
@@ -99,19 +100,28 @@ class BooksView(QTableView): # {{{
                         column=col))
             m = self.column_header_context_menu.addMenu(
                     _('Sort on %s')  % name)
-            m.addAction(_('Ascending'),
+            a = m.addAction(_('Ascending'),
                     partial(self.column_header_context_handler,
                         action='ascending', column=col))
-            m.addAction(_('Descending'),
+            d = m.addAction(_('Descending'),
                     partial(self.column_header_context_handler,
                         action='descending', column=col))
+            if self._model.sorted_on[0] == col:
+                ac = a if self._model.sorted_on[1] == Qt.AscendingOrder else d
+                ac.setCheckable(True)
+                ac.setChecked(True)
             m = self.column_header_context_menu.addMenu(
                     _('Change text alignment for %s') % name)
+            al = self._model.alignment_map.get(col, 'left')
             for x, t in (('left', _('Left')), ('right', _('Right')), ('center',
                 _('Center'))):
-                    m.addAction(t,
+                    a = m.addAction(t,
                         partial(self.column_header_context_handler,
                         action='align_'+x, column=col))
+                    if al == x:
+                        a.setCheckable(True)
+                        a.setChecked(True)
+
 
 
             hidden_cols = [self.column_map[i] for i in
@@ -189,7 +199,7 @@ class BooksView(QTableView): # {{{
 
     def save_state(self):
         # Only save if we have been initialized (set_database called)
-        if len(self.column_map) > 0:
+        if len(self.column_map) > 0 and self.was_restored:
             state = self.get_state()
             name = unicode(self.objectName())
             if name:
@@ -278,6 +288,7 @@ class BooksView(QTableView): # {{{
             old_state['sort_history'] = tweaks['sort_columns_at_startup']
 
         self.apply_state(old_state)
+        self.was_restored = True
 
     # }}}
 

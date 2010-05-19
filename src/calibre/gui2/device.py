@@ -327,15 +327,17 @@ class DeviceManager(Thread):
 
 class DeviceAction(QAction):
 
+    a_s = pyqtSignal(object)
+
     def __init__(self, dest, delete, specific, icon_path, text, parent=None):
-        if delete:
-            text += ' ' + _('and delete from library')
         QAction.__init__(self, QIcon(icon_path), text, parent)
         self.dest = dest
         self.delete = delete
         self.specific = specific
-        self.connect(self, SIGNAL('triggered(bool)'),
-                lambda x : self.emit(SIGNAL('a_s(QAction)'), self))
+        self.triggered.connect(self.emit_triggered)
+
+    def emit_triggered(self, *args):
+        self.a_s.emit(self)
 
     def __repr__(self):
         return self.__class__.__name__ + ':%s:%s:%s'%(self.dest, self.delete,
@@ -354,8 +356,9 @@ class DeviceMenu(QMenu):
         self.actions = []
         self._memory = []
 
-        self.set_default_menu = self.addMenu(_('Set default send to device'
-            ' action'))
+        self.set_default_menu = QMenu(_('Set default send to device action'))
+        self.set_default_menu.setIcon(QIcon(I('config.svg')))
+
         opts = email_config().parse()
         default_account = None
         if opts.accounts:
@@ -379,51 +382,65 @@ class DeviceMenu(QMenu):
                 self.connect(action2, SIGNAL('a_s(QAction)'),
                             self.action_triggered)
 
-        _actions = [
+        basic_actions = [
                 ('main:', False, False,  I('reader.svg'),
                     _('Send to main memory')),
                 ('carda:0', False, False, I('sd.svg'),
                     _('Send to storage card A')),
                 ('cardb:0', False, False, I('sd.svg'),
                     _('Send to storage card B')),
-                '-----',
+        ]
+
+        delete_actions = [
                 ('main:', True, False,   I('reader.svg'),
-                    _('Send to main memory')),
+                    _('Main Memory')),
                 ('carda:0', True, False,  I('sd.svg'),
-                    _('Send to storage card A')),
+                    _('Storage Card A')),
                 ('cardb:0', True, False,  I('sd.svg'),
-                    _('Send to storage card B')),
-                '-----',
+                    _('Storage Card B')),
+        ]
+
+        specific_actions = [
                 ('main:', False, True,  I('reader.svg'),
-                    _('Send specific format to main memory')),
+                    _('Main Memory')),
                 ('carda:0', False, True, I('sd.svg'),
-                    _('Send specific format to storage card A')),
+                    _('Storage Card A')),
                 ('cardb:0', False, True, I('sd.svg'),
-                    _('Send specific format to storage card B')),
+                    _('Storage Card B')),
+        ]
 
-                ]
+
         if default_account is not None:
-            _actions.insert(2, default_account)
-            _actions.insert(6, list(default_account))
-            _actions[6][1] = True
-        for round in (0, 1):
-            for dest, delete, specific, icon, text in _actions:
-                if dest == '-':
-                    (self.set_default_menu if round else self).addSeparator()
-                    continue
-                action = DeviceAction(dest, delete, specific, icon, text, self)
-                self._memory.append(action)
-                if round == 1:
-                    action.setCheckable(True)
-                    action.setText(action.text())
-                    self.group.addAction(action)
-                    self.set_default_menu.addAction(action)
-                else:
-                    self.connect(action, SIGNAL('a_s(QAction)'),
-                            self.action_triggered)
-                    self.actions.append(action)
-                    self.addAction(action)
+            for x in (basic_actions, delete_actions):
+                ac = list(default_account)
+                if x is delete_actions:
+                    ac[1] = True
+                x.insert(1, tuple(ac))
 
+        for menu in (self, self.set_default_menu):
+            for actions, desc in (
+                    (basic_actions, ''),
+                    (delete_actions, _('Send and delete from library')),
+                    (specific_actions, _('Send specific format'))
+                    ):
+                mdest = menu
+                if actions is not basic_actions:
+                    mdest = menu.addMenu(desc)
+                    self._memory.append(mdest)
+
+                for dest, delete, specific, icon, text in actions:
+                    action = DeviceAction(dest, delete, specific, icon, text, self)
+                    self._memory.append(action)
+                    if menu is self.set_default_menu:
+                        action.setCheckable(True)
+                        action.setText(action.text())
+                        self.group.addAction(action)
+                    else:
+                        action.a_s.connect(self.action_triggered)
+                        self.actions.append(action)
+                    mdest.addAction(action)
+                if actions is not specific_actions:
+                    menu.addSeparator()
 
         da = config['default_send_to_device_action']
         done = False
@@ -437,8 +454,7 @@ class DeviceMenu(QMenu):
             action.setChecked(True)
             config['default_send_to_device_action'] = repr(action)
 
-        self.connect(self.group, SIGNAL('triggered(QAction*)'),
-                self.change_default_action)
+        self.group.triggered.connect(self.change_default_action)
         if opts.accounts:
             self.addSeparator()
             self.addMenu(self.email_to_menu)
@@ -454,6 +470,8 @@ class DeviceMenu(QMenu):
         mitem.triggered.connect(lambda x : self.disconnect_from_folder.emit())
         self.disconnect_from_folder_action = mitem
 
+        self.addSeparator()
+        self.addMenu(self.set_default_menu)
         self.addSeparator()
         annot = self.addAction(_('Fetch annotations (experimental)'))
         annot.setEnabled(False)

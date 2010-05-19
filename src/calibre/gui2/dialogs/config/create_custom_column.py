@@ -123,7 +123,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         if ':' in col or ' ' in col or col.lower() != col:
             return self.simple_error('', _('The lookup name must be lower case and cannot contain ":"s or spaces'))
 
-        date_format = None
+        date_format = {}
         if col_type == 'datetime':
             if self.date_format_box.text():
                 date_format = {'date_format':unicode(self.date_format_box.text())}

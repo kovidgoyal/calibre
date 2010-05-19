@@ -14,12 +14,12 @@
    <string>Active Jobs</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../work/calibre/resources/images.qrc">
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/jobs.svg</normaloff>:/images/jobs.svg</iconset>
   </property>
   <layout class="QVBoxLayout">
    <item>
-    <widget class="JobsView" name="jobs_view">
+    <widget class="QTableView" name="jobs_view">
      <property name="contextMenuPolicy">
       <enum>Qt::NoContextMenu</enum>
      </property>
@@ -66,15 +66,8 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>JobsView</class>
-   <extends>QTableView</extends>
-   <header>widgets.h</header>
-  </customwidget>
- </customwidgets>
  <resources>
-  <include location="../../../work/calibre/resources/images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -42,7 +42,7 @@ class FOLDER_DEVICE(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     #: Icon for this device
-    icon = I('sd.svg')
+    icon = I('devices/folder.svg')
     METADATA_CACHE = '.metadata.calibre'
 
     _main_prefix = ''

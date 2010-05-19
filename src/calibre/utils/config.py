@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Manage application-wide preferences.
 '''
-import os, re, cPickle, textwrap, traceback, plistlib, json
+import os, re, cPickle, textwrap, traceback, plistlib, json, base64
 from copy import deepcopy
 from functools import partial
 from optparse import OptionParser as _OptionParser
@@ -636,11 +636,31 @@ class JSONConfig(XMLConfig):
 
     EXTENSION = '.json'
 
+    def to_json(self, obj):
+        if isinstance(obj, bytearray):
+            return {'__class__': 'bytearray',
+                    '__value__': base64.standard_b64encode(bytes(obj))}
+        raise TypeError(repr(obj) + ' is not JSON serializable')
+
+    def from_json(self, obj):
+        if '__class__' in obj:
+            if obj['__class__'] == 'bytearray':
+                return bytearray(base64.standard_b64decode(obj['__value__']))
+        return obj
+
     def raw_to_object(self, raw):
-        return json.loads(raw.decode('utf-8'))
+        return json.loads(raw.decode('utf-8'), object_hook=self.from_json)
 
     def to_raw(self):
-        return json.dumps(self, indent=2)
+        return json.dumps(self, indent=2, default=self.to_json)
+
+    def __getitem__(self, key):
+        return dict.__getitem__(self, key)
+
+    def __setitem__(self, key, val):
+        dict.__setitem__(self, key, val)
+        self.commit()
+
 
 
 def _prefs():
