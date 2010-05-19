@@ -112,7 +112,8 @@ class USBMS(CLI, Device):
                 for path, dirs, files in os.walk(ebook_dir):
                     for filename in files:
                         if filename != self.METADATA_CACHE:
-                            flist.append({'filename':filename, 'path': path})
+                            flist.append({'filename':unicode(filename),
+                                          'path':unicode(path)})
                 for i, f in enumerate(flist):
                     self.report_progress(i/float(len(flist)), _('Getting list of books on device...'))
                     changed = update_booklist(f['filename'], f['path'], prefix)
@@ -122,7 +123,7 @@ class USBMS(CLI, Device):
                 paths = os.listdir(ebook_dir)
                 for i, filename in enumerate(paths):
                     self.report_progress((i+1) / float(len(paths)), _('Getting list of books on device...'))
-                    changed = update_booklist(filename, ebook_dir, prefix)
+                    changed = update_booklist(unicode(filename), ebook_dir, prefix)
                     if changed:
                         need_sync = True
 
@@ -188,20 +189,22 @@ class USBMS(CLI, Device):
         for i, location in enumerate(locations):
             self.report_progress((i+1) / float(len(locations)), _('Adding books to device metadata listing...'))
             info = metadata.next()
-            path = location[0]
             blist = 2 if location[1] == 'cardb' else 1 if location[1] == 'carda' else 0
 
+            # Extract the correct prefix from the pathname. To do this correctly,
+            # we must ensure that both the prefix and the path are normalized
+            # so that the comparison will work. Book's __init__ will fix up
+            # lpath, so we don't need to worry about that here.
+            path = self.normalize_path(location[0])
             if self._main_prefix:
-                # Normalize path and prefix
-                if self._main_prefix.find('\\') >= 0:
-                    path = path.replace('/', '\\')
-                else:
-                    path = path.replace('\\', '/')
-                prefix = self._main_prefix if path.startswith(self._main_prefix) else None
+                prefix = self._main_prefix if \
+                           path.startswith(self.normalize_path(self._main_prefix)) else None
             if not prefix and self._card_a_prefix:
-                prefix = self._card_a_prefix if path.startswith(self._card_a_prefix) else None
+                prefix = self._card_a_prefix if \
+                           path.startswith(self.normalize_path(self._card_a_prefix)) else None
             if not prefix and self._card_b_prefix:
-                prefix = self._card_b_prefix if path.startswith(self._card_b_prefix) else None
+                prefix = self._card_b_prefix if \
+                           path.startswith(self.normalize_path(self._card_b_prefix)) else None
             if prefix is None:
                 prints('in add_books_to_metadata. Prefix is None!', path,
                         self._main_prefix)
@@ -273,7 +276,7 @@ class USBMS(CLI, Device):
             path = path.replace('/', '\\')
         else:
             path = path.replace('\\', '/')
-        return path
+        return unicode(path)
 
     @classmethod
     def parse_metadata_cache(cls, bl, prefix, name):
