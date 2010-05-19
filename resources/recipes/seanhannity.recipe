@@ -8,6 +8,7 @@ class SeanHannity(BasicNewsRecipe):
     __author__ 	          = 'Rob Lammert - rob.lammert[at]gmail.com'
     description		        = u"Articles from Sean Hannity's website, www.hannity.com"
     oldest_article        = 7.0
+    language = 'en'
     max_articles_per_feed = 100
     recursions            = 0
     encoding              = 'utf8'
