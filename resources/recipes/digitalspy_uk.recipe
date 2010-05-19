@@ -31,7 +31,7 @@ class DigitalSpyUK(BasicNewsRecipe):
 
     remove_tags       = [dict(name=['link'])]
     remove_attributes = ['height','width']
-    keep_only_tags    = [dict(name='div',attrs={'id':'article'})]
+    keep_only_tags    = [dict(name='div',attrs={'id':'content'})]
 
     feeds = [
               (u'News'          , u'http://www.digitalspy.co.uk/rss/zones/gb/all.xml'          )
