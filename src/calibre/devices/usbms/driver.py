@@ -90,7 +90,6 @@ class USBMS(CLI, Device):
                             #print 'update_metadata_item returned true'
                             changed = True
                     else:
-                        #print "adding new book", lpath
                         if bl.add_book(self.book_from_path(prefix, lpath),
                                               replace_metadata=False):
                             changed = True
