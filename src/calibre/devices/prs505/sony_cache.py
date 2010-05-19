@@ -61,6 +61,7 @@ class XMLCache(object):
 
     def __init__(self, paths, prefixes):
         if DEBUG:
+            prints('Building XMLCache...')
             pprint(paths)
         self.paths = paths
         self.prefixes = prefixes
@@ -117,7 +118,7 @@ class XMLCache(object):
             for playlist in root.xpath('//*[local-name()="playlist"]'):
                 if len(playlist) == 0 or not playlist.get('title', None):
                     if DEBUG:
-                        prints('Removing playlist:', playlist.get('id', None),
+                        prints('Removing playlist id:', playlist.get('id', None),
                                 playlist.get('title', None))
                     playlist.getparent().remove(playlist)
 
@@ -160,6 +161,8 @@ class XMLCache(object):
         for playlist in root.xpath('//*[local-name()="playlist"]'):
             if playlist.get('title', None) == title:
                 return playlist
+        if DEBUG:
+            prints('Creating playlist:', title)
         ans = root.makeelement('{%s}playlist'%self.namespaces[bl_idx],
                 nsmap=root.nsmap, attrib={
                     'uuid' : uuid(),
@@ -218,7 +221,7 @@ class XMLCache(object):
                 new = base + i
                 if old != new:
                     item.set('id', str(new))
-                    idmap[old] = str(new)
+                    idmap[str(old)] = str(new)
             return idmap
 
         self.prune_empty_playlists()
