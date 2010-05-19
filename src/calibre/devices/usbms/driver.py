@@ -16,6 +16,7 @@ import json
 from itertools import cycle
 
 from calibre import prints
+from calibre.constants import filesystem_encoding
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
@@ -87,7 +88,6 @@ class USBMS(CLI, Device):
                     if idx is not None:
                         bl_cache[lpath] = None
                         if self.update_metadata_item(bl[idx]):
-                            #print 'update_metadata_item returned true'
                             changed = True
                     else:
                         if bl.add_book(self.book_from_path(prefix, lpath),
@@ -112,8 +112,8 @@ class USBMS(CLI, Device):
                 for path, dirs, files in os.walk(ebook_dir):
                     for filename in files:
                         if filename != self.METADATA_CACHE:
-                            flist.append({'filename':unicode(filename),
-                                          'path':unicode(path)})
+                            flist.append({'filename':self.path_to_unicode(filename),
+                                          'path':self.path_to_unicode(path)})
                 for i, f in enumerate(flist):
                     self.report_progress(i/float(len(flist)), _('Getting list of books on device...'))
                     changed = update_booklist(f['filename'], f['path'], prefix)
@@ -123,7 +123,8 @@ class USBMS(CLI, Device):
                 paths = os.listdir(ebook_dir)
                 for i, filename in enumerate(paths):
                     self.report_progress((i+1) / float(len(paths)), _('Getting list of books on device...'))
-                    changed = update_booklist(unicode(filename), ebook_dir, prefix)
+                    changed = update_booklist(self.path_to_unicode(filename),
+                                              ebook_dir, prefix)
                     if changed:
                         need_sync = True
 
@@ -268,15 +269,21 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Sending metadata to device...'))
 
     @classmethod
+    def path_to_unicode(cls, path):
+        if isinstance(path, str): ## bytes is synonym for str as of python 2.6
+            print 'p2u: isString', path
+            return unicode(path, filesystem_encoding)
+        return path
+
+    @classmethod
     def normalize_path(cls, path):
         'Return path with platform native path separators'
         if path is None:
             return None
         if os.sep == '\\':
-            path = path.replace('/', '\\')
+            return cls.path_to_unicode(path.replace('/', '\\'))
         else:
-            path = path.replace('\\', '/')
-        return unicode(path)
+            return cls.path_to_unicode(path.replace('\\', '/'))
 
     @classmethod
     def parse_metadata_cache(cls, bl, prefix, name):
