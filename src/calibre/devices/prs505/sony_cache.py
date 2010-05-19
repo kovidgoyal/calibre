@@ -161,10 +161,6 @@ class XMLCache(object):
                     'id'   : str(self.max_id(root)+1),
                     'sourceid': '1'
                     })
-        tail = '\n\t\t' if bl_idx == 0 else '\n\t'
-        ans.tail = tail
-        if len(root) > 0:
-            root.iterchildren(reversed=True).next().tail = tail
         root.append(ans)
         return ans
     # }}}
@@ -296,10 +292,6 @@ class XMLCache(object):
                 self.update_playlists(i, root, booklist, bl_pmap,
                         collections_attributes)
 
-            tail = '\n\t' if i == 0 else '\n'
-            if len(root) > 0:
-                root.iterchildren(reversed=True).next().tail = tail
-
         self.fix_ids()
 
     def update_playlists(self, bl_index, root, booklist, playlist_map,
@@ -332,15 +324,12 @@ class XMLCache(object):
                 playlist.remove(item)
 
             extra_ids = [x for x in playlist_ids if x not in ids]
-            tail = '\n\t\t\t' if bl_index == 0 else '\n\t\t'
-            playlist.tail = tail
             for id_ in ids + extra_ids:
                 item = playlist.makeelement(
                         '{%s}item'%self.namespaces[bl_index],
                         nsmap=playlist.nsmap, attrib={'id':id_})
-                item.tail = tail
-            if len(playlist) > 0:
-                root.iterchildren(reversed=True).next().tail = tail[:-1]
+                playlist.append(item)
+
 
 
     def create_text_record(self, root, bl_id, lpath):
@@ -350,18 +339,19 @@ class XMLCache(object):
                 'page':'0', 'part':'0','pageOffset':'0','scale':'0',
                 'id':str(id_), 'sourceid':'1', 'path':lpath}
         ans = root.makeelement('{%s}text'%namespace, attrib=attrib, nsmap=root.nsmap)
-        tail = '\n\t\t' if bl_id == 0 else '\n\t'
-        ans.tail = tail
-        if len(root) > 0:
-            root.iterchildren(reversed=True).next().tail = tail
         root.append(ans)
         return ans
 
     def update_text_record(self, record, book, path, bl_index):
-        timestamp = 'ctime' if bl_index == 0 else 'mtime'
-        timestamp = getattr(os.path, 'get'+timestamp)(path)
+        timestamp = os.path.getctime(path)
         date = strftime(timestamp)
-        record.set('date', date)
+        if date != record.get('date', None):
+            if DEBUG:
+                prints('Changing date of', path, 'from',
+                        record.get('date', ''), 'to', date)
+                prints('\tctime', strftime(os.path.getctime(path)))
+                prints('\tmtime', strftime(os.path.getmtime(path)))
+            record.set('date', date)
         record.set('size', str(os.stat(path).st_size))
         record.set('title', book.title)
         record.set('author', authors_to_string(book.authors))
@@ -380,12 +370,31 @@ class XMLCache(object):
             record.set('id', str(num+1))
     # }}}
 
+    # Writing the XML files {{{
+    def cleanup_whitespace(self, bl_index):
+        root = self.record_roots[bl_index]
+        level = 2 if bl_index == 0 else 1
+        if len(root) > 0:
+            root.text = '\n'+'\t'*level
+            for child in root:
+                child.tail = '\n'+'\t'*level
+                if len(child) > 0:
+                    child.text = '\n'+'\t'*(level+1)
+                    for gc in child:
+                        gc.tail = '\n'+'\t'*(level+1)
+                    child.iterchildren(reversed=True).next().tail = '\n'+'\t'*level
+            root.iterchildren(reversed=True).next().tail = '\n'+'\t'*(level-1)
+
     def write(self):
         for i, path in self.paths.items():
+            self.cleanup_whitespace(i)
             raw = etree.tostring(self.roots[i], encoding='UTF-8',
                     xml_declaration=True)
+            raw = raw.replace("<?xml version='1.0' encoding='UTF-8'?>",
+                    '<?xml version="1.0" encoding="UTF-8"?>')
             with open(path, 'wb') as f:
                 f.write(raw)
+    # }}}
 
     def book_by_lpath(self, lpath, root):
         matches = root.xpath(u'//*[local-name()="text" and @path="%s"]'%lpath)
