@@ -1,4 +1,4 @@
-from calibre.wb.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe
 
 class PolitiFactCom(BasicNewsRecipe):
     title          = u'Politifact'
