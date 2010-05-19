@@ -102,8 +102,7 @@ class USBMS(CLI, Device):
         if isinstance(ebook_dirs, basestring):
             ebook_dirs = [ebook_dirs]
         for ebook_dir in ebook_dirs:
-            if isbytestring(ebook_dir):
-                ebook_dir = ebook_dir.decode(filesystem_encoding)
+            ebook_dir = self.path_to_unicode(filesystem_encoding)
             ebook_dir = self.normalize_path( \
                             os.path.join(prefix, *(ebook_dir.split('/'))) \
                                     if ebook_dir else prefix)
@@ -115,8 +114,8 @@ class USBMS(CLI, Device):
                 for path, dirs, files in os.walk(ebook_dir):
                     for filename in files:
                         if filename != self.METADATA_CACHE:
-                            flist.append({'filename':filename,
-                                          'path':path})
+                            flist.append({'filename': self.path_to_unicode(filename),
+                                          'path':self.path_to_unicode(path)})
                 for i, f in enumerate(flist):
                     self.report_progress(i/float(len(flist)), _('Getting list of books on device...'))
                     changed = update_booklist(f['filename'], f['path'], prefix)
@@ -126,7 +125,7 @@ class USBMS(CLI, Device):
                 paths = os.listdir(ebook_dir)
                 for i, filename in enumerate(paths):
                     self.report_progress((i+1) / float(len(paths)), _('Getting list of books on device...'))
-                    changed = update_booklist(filename, ebook_dir, prefix)
+                    changed = update_booklist(self.path_to_unicode(filename), ebook_dir, prefix)
                     if changed:
                         need_sync = True
 
@@ -271,6 +270,12 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Sending metadata to device...'))
 
     @classmethod
+    def path_to_unicode(cls, path):
+        if isbytestring(path):
+            path = path.decode(filesystem_encoding)
+        return path
+
+    @classmethod
     def normalize_path(cls, path):
         'Return path with platform native path separators'
         if path is None:
@@ -279,9 +284,7 @@ class USBMS(CLI, Device):
             path = path.replace('/', '\\')
         else:
             path = path.replace('\\', '/')
-        if isbytestring(path):
-            path = path.decode(filesystem_encoding)
-        return path
+        return cls.path_to_unicode(path)
 
     @classmethod
     def parse_metadata_cache(cls, bl, prefix, name):
