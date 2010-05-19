@@ -173,7 +173,7 @@ class XMLCache(object):
 
         def ensure_numeric_ids(root):
             idmap = {}
-            for x in root.xpath('//*[@id]'):
+            for x in root.xpath('child::*[@id]'):
                 id_ = x.get('id')
                 try:
                     id_ = int(id_)
@@ -206,7 +206,9 @@ class XMLCache(object):
             for item in root.xpath('//*[@sourceid]'):
                 sid = pl_sourceid if item.tag.endswith('playlist') else sourceid
                 item.set('sourceid', str(sid))
-            items = root.xpath('//*[@id]')
+            # Only rebase ids of nodes that are immediate children of the
+            # record root (that way playlist/itemnodes are unaffected
+            items = root.xpath('child::*[@id]')
             items.sort(cmp=lambda x,y:cmp(int(x.get('id')), int(y.get('id'))))
             idmap = {}
             for i, item in enumerate(items):
@@ -214,13 +216,13 @@ class XMLCache(object):
                 new = base + i
                 if old != new:
                     item.set('id', str(new))
-                idmap[old] = str(new)
+                    idmap[old] = str(new)
             return idmap
 
         self.prune_empty_playlists()
 
         for i in sorted(self.roots.keys()):
-            root = self.roots[i]
+            root = self.record_roots[i]
             if i == 0:
                 ensure_media_xml_base_ids(root)
 
@@ -281,6 +283,8 @@ class XMLCache(object):
         playlist_map = self.get_playlist_map()
 
         for i, booklist in booklists.items():
+            if DEBUG:
+                prints('Updating booklist:', i)
             root = self.record_roots[i]
             for book in booklist:
                 path = os.path.join(self.prefixes[i], *(book.lpath.split('/')))
@@ -378,7 +382,7 @@ class XMLCache(object):
 
     def write(self):
         for i, path in self.paths.items():
-            raw = etree.tostring(self.roots[i], encoding='utf-8',
+            raw = etree.tostring(self.roots[i], encoding='UTF-8',
                     xml_declaration=True)
             with open(path, 'wb') as f:
                 f.write(raw)
