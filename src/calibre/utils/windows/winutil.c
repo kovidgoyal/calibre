@@ -560,6 +560,7 @@ get_device_ancestors(HDEVINFO hDevInfo, DWORD index, PyObject *candidates, BOOL 
         return NULL;
     }
     interfaceDetailData->cbSize = sizeof (SP_INTERFACE_DEVICE_DETAIL_DATA);
+    devInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
 
     status = SetupDiGetDeviceInterfaceDetail (
                   hDevInfo,                 // Interface Device info handle
