@@ -137,6 +137,7 @@ class XMLCache(object):
         self.ensure_unique_playlist_titles()
         self.prune_empty_playlists()
         for i, root in self.record_roots.items():
+            ans[i] = {}
             for playlist in root.xpath('//*[local-name()="playlist"]'):
                 items = []
                 for item in playlist:
@@ -153,7 +154,7 @@ class XMLCache(object):
         for playlist in root.xpath('//*[local-name()="playlist"]'):
             if playlist.get('title', None) == title:
                 return playlist
-        ans = root.makelement('{%s}playlist'%self.namespaces[bl_idx],
+        ans = root.makeelement('{%s}playlist'%self.namespaces[bl_idx],
                 nsmap=root.nsmap, attrib={
                     'uuid' : uuid(),
                     'title': title,
@@ -286,7 +287,7 @@ class XMLCache(object):
                 record = self.book_by_lpath(book.lpath, root)
                 if record is None:
                     record = self.create_text_record(root, i, book.lpath)
-                self.update_record(record, book, path, i)
+                self.update_text_record(record, book, path, i)
                 bl_pmap = playlist_map[i]
                 self.update_playlists(i, root, booklist, bl_pmap,
                         collections_attributes)
@@ -300,8 +301,8 @@ class XMLCache(object):
     def update_playlists(self, bl_index, root, booklist, playlist_map,
             collections_attributes):
         collections = booklist.get_collections(collections_attributes)
-        for category, books in collections:
-            records = [self.book_by_lpath(b.lpath) for b in books]
+        for category, books in collections.items():
+            records = [self.book_by_lpath(b.lpath, root) for b in books]
             # Remove any books that were not found, although this
             # *should* never happen
             if DEBUG and None in records:
@@ -357,7 +358,7 @@ class XMLCache(object):
         timestamp = getattr(os.path, 'get'+timestamp)(path)
         date = strftime(timestamp)
         record.set('date', date)
-        record.set('size', os.stat(path).st_size)
+        record.set('size', str(os.stat(path).st_size))
         record.set('title', book.title)
         record.set('author', authors_to_string(book.authors))
         ext = os.path.splitext(path)[1]
