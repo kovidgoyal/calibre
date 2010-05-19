@@ -807,7 +807,7 @@ class DeviceBooksModel(BooksModel): # {{{
                 'authors'    : _('Author(s)'),
                 'timestamp'  : _('Date'),
                 'size'       : _('Size'),
-                'tags'       : _('Tags')
+                'tags'       : _('Collections')
                 }
         self.marked_for_deletion = {}
         self.search_engine = OnDeviceSearch(self)
@@ -1000,7 +1000,7 @@ class DeviceBooksModel(BooksModel): # {{{
                 dt = dt_factory(dt, assume_utc=True, as_utc=False)
                 return QVariant(strftime(TIME_FMT, dt.timetuple()))
             elif cname == 'tags':
-                tags = self.db[self.map[row]].tags
+                tags = self.db[self.map[row]].device_collections
                 if tags:
                     return QVariant(', '.join(tags))
         elif role == Qt.ToolTipRole and index.isValid():
@@ -1047,7 +1047,7 @@ class DeviceBooksModel(BooksModel): # {{{
             elif cname == 'tags':
                 tags = [i.strip() for i in val.split(',')]
                 tags = [t for t in tags if t]
-                self.db.set_tags(self.db[idx], tags)
+                self.db[idx].device_collections = tags
             self.dataChanged.emit(index, index)
             self.booklist_dirtied.emit()
             done = True

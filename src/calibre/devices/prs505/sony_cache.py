@@ -101,16 +101,25 @@ class XMLCache(object):
 
     # Playlist management {{{
     def purge_broken_playlist_items(self, root):
-        for item in root.xpath(
-            '//*[local-name()="playlist"]/*[local-name()="item"]'):
-            id_ = item.get('id', None)
-            if id_ is None or not root.xpath(
-                '//*[local-name()!="item" and @id="%s"]'%id_):
-                if DEBUG:
-                    prints('Purging broken playlist item:',
-                            etree.tostring(item, with_tail=False))
-                item.getparent().remove(item)
-
+        for pl in root.xpath('//*[local-name()="playlist"]'):
+            seen = set([])
+            for item in list(pl):
+                id_ = item.get('id', None)
+                if id_ is None or id_ in seen or not root.xpath(
+                    '//*[local-name()!="item" and @id="%s"]'%id_):
+                    if DEBUG:
+                        if id_ is None:
+                            cause = 'invalid id'
+                        elif id_ in seen:
+                            cause = 'duplicate item'
+                        else:
+                            cause = 'id not found'
+                        prints('Purging broken playlist item:',
+                                id_, 'from playlist:', pl.get('title', None),
+                                'because:', cause)
+                    item.getparent().remove(item)
+                    continue
+                seen.add(id_)
 
     def prune_empty_playlists(self):
         for i, root in self.record_roots.items():
@@ -175,6 +184,8 @@ class XMLCache(object):
     # }}}
 
     def fix_ids(self): # {{{
+        if DEBUG:
+            prints('Running fix_ids()')
 
         def ensure_numeric_ids(root):
             idmap = {}
@@ -294,13 +305,8 @@ class XMLCache(object):
                     break
                 if book.lpath in playlist_map:
                     tags = playlist_map[book.lpath]
-                    if tags:
-                        if DEBUG:
-                            prints('Adding tags:', tags, 'to', book.title)
-                        if not book.tags:
-                            book.tags = []
-                        book.tags = list(book.tags)
-                        book.tags += tags
+                    book.device_collections = tags
+
     # }}}
 
     # Update XML from JSON {{{
@@ -359,7 +365,25 @@ class XMLCache(object):
                         nsmap=playlist.nsmap, attrib={'id':id_})
                 playlist.append(item)
 
-
+        # Delete playlist entries not in collections
+        for playlist in root.xpath('//*[local-name()="playlist"]'):
+            title = playlist.get('title', None)
+            if title not in collections:
+                if DEBUG:
+                    prints('Deleting playlist:', playlist.get('title', ''))
+                playlist.getparent().remove(playlist)
+                continue
+            books = collections[title]
+            records = [self.book_by_lpath(b.lpath, root) for b in books]
+            records = [x for x in records if x is not None]
+            ids = [x.get('id', None) for x in records]
+            ids = [x for x in ids if x is not None]
+            for item in list(playlist):
+                if item.get('id', None) not in ids:
+                    if DEBUG:
+                        prints('Deleting item:', item.get('id', ''),
+                                'from playlist:', playlist.get('title', ''))
+                    playlist.remove(item)
 
     def create_text_record(self, root, bl_id, lpath):
         namespace = self.namespaces[bl_id]
@@ -414,8 +438,19 @@ class XMLCache(object):
                     child.iterchildren(reversed=True).next().tail = '\n'+'\t'*level
             root.iterchildren(reversed=True).next().tail = '\n'+'\t'*(level-1)
 
+    def move_playlists_to_bottom(self):
+        for root in self.record_roots.values():
+            seen = []
+            for pl in root.xpath('//*[local-name()="playlist"]'):
+                pl.getparent().remove(pl)
+                seen.append(pl)
+            for pl in seen:
+                root.append(pl)
+
+
     def write(self):
         for i, path in self.paths.items():
+            self.move_playlists_to_bottom()
             self.cleanup_whitespace(i)
             raw = etree.tostring(self.roots[i], encoding='UTF-8',
                     xml_declaration=True)

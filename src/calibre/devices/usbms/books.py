@@ -14,14 +14,14 @@ from calibre import isbytestring
 
 class Book(MetaInformation):
 
-    BOOK_ATTRS = ['lpath', 'size', 'mime']
+    BOOK_ATTRS = ['lpath', 'size', 'mime', 'device_collections']
 
     JSON_ATTRS = [
         'lpath', 'title', 'authors', 'mime', 'size', 'tags', 'author_sort',
         'title_sort', 'comments', 'category', 'publisher', 'series',
         'series_index', 'rating', 'isbn', 'language', 'application_id',
         'book_producer', 'lccn', 'lcc', 'ddc', 'rights', 'publication_type',
-        'uuid'
+        'uuid',
     ]
 
     def __init__(self, prefix, lpath, size=None, other=None):
@@ -29,6 +29,7 @@ class Book(MetaInformation):
 
         MetaInformation.__init__(self, '')
 
+        self.device_collections = []
         self.path = os.path.join(prefix, lpath)
         if os.sep == '\\':
             self.path = self.path.replace('/', '\\')
@@ -45,27 +46,7 @@ class Book(MetaInformation):
             self.smart_update(other)
 
     def __eq__(self, other):
-        spath = self.path
-        opath = other.path
-
-        if not isinstance(self.path, unicode):
-            try:
-                spath = unicode(self.path)
-            except:
-                try:
-                    spath = self.path.decode(filesystem_encoding)
-                except:
-                    spath = self.path
-        if not isinstance(other.path, unicode):
-            try:
-                opath = unicode(other.path)
-            except:
-                try:
-                    opath = other.path.decode(filesystem_encoding)
-                except:
-                    opath = other.path
-
-        return spath == opath
+        return self.path == getattr(other, 'path', None)
 
     @dynamic_property
     def db_id(self):
@@ -119,9 +100,6 @@ class BookList(_BookList):
     def supports_tags(self):
         return True
 
-    def set_tags(self, book, tags):
-        book.tags = tags
-
     def add_book(self, book, replace_metadata):
         if book not in self:
             self.append(book)
@@ -134,6 +112,7 @@ class BookList(_BookList):
     def get_collections(self, collection_attributes):
         collections = {}
         series_categories = set([])
+        collection_attributes = list(collection_attributes)+['device_collections']
         for attr in collection_attributes:
             for book in self:
                 val = getattr(book, attr, None)
@@ -147,9 +126,12 @@ class BookList(_BookList):
                 for category in val:
                     if category not in collections:
                         collections[category] = []
-                    collections[category].append(book)
-                    if attr == 'series':
-                        series_categories.add(category)
+                    if book not in collections[category]:
+                        collections[category].append(book)
+                        if attr == 'series':
+                            series_categories.add(category)
+
+        # Sort collections
         for category, books in collections.items():
             def tgetter(x):
                 return getattr(x, 'title_sort', 'zzzz')

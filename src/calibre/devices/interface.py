@@ -396,14 +396,6 @@ class BookList(list):
         ''' Return True if the the device supports tags (collections) for this book list. '''
         raise NotImplementedError()
 
-    def set_tags(self, book, tags):
-        '''
-        Set the tags for C{book} to C{tags}.
-        @param tags: A list of strings. Can be empty.
-        @param book: A book object that is in this BookList.
-        '''
-        raise NotImplementedError()
-
     def add_book(self, book, replace_metadata):
         '''
         Add the book to the booklist. Intent is to maintain any device-internal
