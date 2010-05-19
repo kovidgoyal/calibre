@@ -13,9 +13,9 @@ import os
 import re
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.devices.prs505.books import BookList as PRS_BookList, fix_ids
 from calibre.devices.prs505 import MEDIA_XML
 from calibre.devices.prs505 import CACHE_XML
+from calibre.devices.prs505.sony_cache import XMLCache
 from calibre import __appname__
 
 class PRS505(USBMS):
@@ -26,8 +26,6 @@ class PRS505(USBMS):
     author         = 'Kovid Goyal and John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
     path_sep = '/'
-
-    booklist_class = PRS_BookList # See usbms.driver for some explanation of this
 
     FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
 
@@ -72,23 +70,34 @@ class PRS505(USBMS):
                 fname = base + suffix + '.' + fname.rpartition('.')[-1]
         return fname
 
-    def sync_booklists(self, booklists, end_session=True):
-        fix_ids(*booklists)
-        if not os.path.exists(self._main_prefix):
-            os.makedirs(self._main_prefix)
-        with open(self._main_prefix + MEDIA_XML, 'wb') as f:
-            booklists[0].write(f)
+    def initialize_XML_cache(self):
+        paths = {}
+        for prefix, path, source_id in [
+                ('main', MEDIA_XML, 0),
+                ('card_a', CACHE_XML, 1),
+                ('card_b', CACHE_XML, 2)
+                ]:
+            prefix = getattr(self, '_%s_prefix'%prefix)
+            if prefix is not None and os.path.exists(prefix):
+                paths[source_id] = os.path.join(prefix, *(path.split('/')))
+                d = os.path.dirname(paths[source_id])
+                if not os.path.exists(d):
+                    os.makedirs(d)
+        return XMLCache(paths)
 
-        def write_card_prefix(prefix, listid):
-            if prefix is not None and hasattr(booklists[listid], 'write'):
-                tgt  = os.path.join(prefix, *(CACHE_XML.split('/')))
-                base = os.path.dirname(tgt)
-                if not os.path.exists(base):
-                    os.makedirs(base)
-                with open(tgt, 'wb') as f:
-                    booklists[listid].write(f)
-        write_card_prefix(self._card_a_prefix, 1)
-        write_card_prefix(self._card_b_prefix, 2)
+    def books(self, oncard=None, end_session=True):
+        bl = USBMS.books(self, oncard=oncard, end_session=end_session)
+        c = self.initialize_XML_cache()
+        c.update_booklist(bl, {'carda':1, 'cardb':2}.get(oncard, 0))
+        return bl
+
+    def sync_booklists(self, booklists, end_session=True):
+        c = self.initialize_XML_cache()
+        blists = {}
+        for i in c.paths:
+            blists[i] = booklists[i]
+        c.update(blists)
+        c.write()
 
         USBMS.sync_booklists(self, booklists, end_session)
 
