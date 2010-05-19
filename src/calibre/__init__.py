@@ -445,6 +445,9 @@ def prepare_string_for_xml(raw, attribute=False):
         raw = raw.replace('"', '&quot;').replace("'", '&apos;')
     return raw
 
+def isbytestring(obj):
+    return isinstance(obj, (str, bytes))
+
 if isosx:
     import glob, shutil
     fdir = os.path.expanduser('~/.fonts')

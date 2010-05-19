@@ -5,9 +5,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, re, collections
 
 from calibre.utils.config import prefs
-
+from calibre.constants import filesystem_encoding
 from calibre.ebooks.metadata.opf2 import OPF
-
+from calibre import isbytestring
 from calibre.customize.ui import get_file_type_metadata, set_file_type_metadata
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
@@ -131,6 +131,8 @@ def set_metadata(stream, mi, stream_type='lrf'):
 
 
 def metadata_from_filename(name, pat=None):
+    if isbytestring(name):
+        name = name.decode(filesystem_encoding, 'replace')
     name = name.rpartition('.')[0]
     mi = MetaInformation(None, None)
     if pat is None:
