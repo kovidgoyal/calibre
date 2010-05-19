@@ -184,8 +184,7 @@ class XMLCache(object):
                             'descendant::*[local-name()="png"]'):
                         if img.text:
                             raw = b64decode(img.text.strip())
-                            ext = img.tag.split('}')[-1]
-                            book.cover_data = [ext, raw]
+                            book.thumbnail = raw
                             break
                     break
     # }}}
