@@ -18,6 +18,7 @@ from calibre.constants import DEBUG
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
 
+# Utility functions {{{
 EMPTY_CARD_CACHE = '''\
 <?xml version="1.0" encoding="UTF-8"?>
 <cache xmlns="http://www.kinoma.com/FskCache/1">
@@ -54,6 +55,8 @@ def strftime(epoch, zone=time.gmtime):
 def uuid():
     return str(uuid4()).replace('-', '', 1).upper()
 
+# }}}
+
 class XMLCache(object):
 
     def __init__(self, paths, prefixes):
@@ -61,6 +64,8 @@ class XMLCache(object):
             pprint(paths)
         self.paths = paths
         self.prefixes = prefixes
+
+        # Parse XML files {{{
         parser = etree.XMLParser(recover=True)
         self.roots = {}
         for source_id, path in paths.items():
@@ -79,6 +84,7 @@ class XMLCache(object):
                         raw, strip_encoding_pats=True, assume_utf8=True,
                         verbose=DEBUG)[0],
                         parser=parser)
+        # }}}
 
         recs = self.roots[0].xpath('//*[local-name()="records"]')
         if not recs:
@@ -242,7 +248,8 @@ class XMLCache(object):
         self.roots[0].set('nextID', str(max_id+1))
     # }}}
 
-    def update_booklist(self, bl, bl_index): # {{{
+    # Update JSON from XML {{{
+    def update_booklist(self, bl, bl_index):
         if bl_index not in self.record_roots:
             return
         root = self.record_roots[bl_index]
@@ -274,7 +281,7 @@ class XMLCache(object):
                     break
     # }}}
 
-    # Update XML Cache {{{
+    # Update XML from JSON {{{
     def update(self, booklists, collections_attributes):
         playlist_map = self.get_playlist_map()
 
@@ -396,6 +403,7 @@ class XMLCache(object):
                 f.write(raw)
     # }}}
 
+    # Utility methods {{{
     def book_by_lpath(self, lpath, root):
         matches = root.xpath(u'//*[local-name()="text" and @path="%s"]'%lpath)
         if matches:
@@ -441,4 +449,5 @@ class XMLCache(object):
             pprint(self.nsmaps)
             prints('Found namespaces:')
             pprint(self.namespaces)
+    # }}}
 
