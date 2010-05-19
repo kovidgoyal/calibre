@@ -7,14 +7,14 @@ description   = 'Italian daily newspaper - v1.01 (04, January 2010)'
 '''
 http://www.messaggero.it/
 '''
-
+import time
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class IlMessaggero(BasicNewsRecipe):
     __author__    = 'Gabriele Marini'
     description   = 'Italian News'
 
-    cover_url      = 'http://www.ilmessaggero.it/img_tst/logomsgr.gif'
+#    cover_url      = 'http://www.ilmessaggero.it/img_tst/logomsgr.gif'
     title          = u'Il Messaggero'
     publisher      = 'Caltagirone Editore'
     category       = 'News, politics, culture, economy, general interest'
@@ -34,6 +34,21 @@ class IlMessaggero(BasicNewsRecipe):
                           dict(name='h2', attrs={'class':'sottotitLettura'}),
                           dict(name='span', attrs={'class':'testoArticoloG'})
                          ]
+    def get_cover_url(self):
+        cover = None
+        st = time.localtime()
+        year = str(st.tm_year)
+        month = "%.2d" % st.tm_mon
+        day = "%.2d" % st.tm_mday
+        cover='http://carta.ilmessaggero.it/' + year +  month + day + '/jpeg/MSGR_20_CITTA_1.jpg'
+        br = BasicNewsRecipe.get_browser()
+        try:
+            br.open(cover)
+        except:
+            self.log("\nCover unavailable")
+            cover = 'http://www.ilmessaggero.it/img_tst/logomsgr.gif'
+
+        return cover
 
 
 
@@ -53,4 +68,4 @@ class IlMessaggero(BasicNewsRecipe):
                        (u'Calcio', u'http://www.ilmessaggero.it/rss/sport_calcio.xml'),
                        (u'Motori', u'http://www.ilmessaggero.it/rss/sport_motori.xml')
                       ]
-                     
+

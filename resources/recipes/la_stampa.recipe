@@ -1,0 +1,67 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+__author__    = 'Gabriele Marini, based on Darko Miletic'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__description__ = 'La Stampa 05/05/2010'
+
+'''
+http://www.lastampa.it/
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class LaStampa(BasicNewsRecipe):
+
+ title                 = u'La Stampa'
+ language = 'it'
+ __author__ = 'Gabriele Marini'
+ oldest_article        = 15
+ max_articles_per_feed = 50
+ recursion             = 100
+ cover_url             = 'http://www.lastampa.it/edicola/PDF/1.pdf'
+ use_embedded_content  = False
+ remove_javascript     = True
+ no_stylesheets        = True
+
+ conversion_options = {'linearize_tables':True}
+ remove_attributes = ['colspan']
+
+ extra_css = ' .boxocchiello2{font-size: small} .catenaccio{font-style: italic} .titoloRub{font-size: xx-large; font-weight: bold } .titologir{font-size: xx-large; font-weight: bold } .sezione{font-weight: bold} '
+
+
+ def get_article_url(self, article):
+    link = article.get('links')
+    if link:
+       return link[0]['href']
+
+ keep_only_tags = [dict(attrs={'class':['boxocchiello2','titoloRub','titologir','catenaccio','sezione','articologirata']}),
+                   dict(name='div', attrs={'id':'corpoarticolo'})
+                  ]
+
+ remove_tags = [dict(name='div', attrs={'id':'menutop'}),
+                dict(name='div', attrs={'id':'fwnetblocco'}),
+                dict(name='table', attrs={'id':'strumenti'}),
+                dict(name='table', attrs={'id':'imgesterna'}),
+                dict(name='a', attrs={'class':'linkblu'}),
+                dict(name='a', attrs={'class':'link'}),
+                dict(name='span', attrs={'class':['boxocchiello','boxocchiello2','sezione']})
+               ]
+
+ feeds    = [
+             (u'Home', u'http://www.lastampa.it/redazione/rss_home.xml'),
+             (u'Editoriali', u'http://www.lastampa.it/cmstp/rubriche/oggetti/rss.asp?ID_blog=25'),
+             (u'Politica', u'http://www.lastampa.it/redazione/cmssezioni/politica/rss_politica.xml'),
+             (u'ArciItaliana', u'http://www.lastampa.it/cmstp/rubriche/oggetti/rss.asp?ID_blog=14'),
+             (u'Cronache', u'http://www.lastampa.it/redazione/cmssezioni/cronache/rss_cronache.xml'),
+             (u'Esteri', u'http://www.lastampa.it/redazione/cmssezioni/esteri/rss_esteri.xml'),
+             (u'Danni Collaterali', u'http://www.lastampa.it/cmstp/rubriche/oggetti/rss.asp?ID_blog=90'),
+             (u'Economia', u'http://www.lastampa.it/redazione/cmssezioni/economia/rss_economia.xml'),
+             (u'Tecnologia ', u'http://www.lastampa.it/cmstp/rubriche/oggetti/rss.asp?ID_blog=30'),
+             (u'Spettacoli', u'http://www.lastampa.it/redazione/cmssezioni/spettacoli/rss_spettacoli.xml'),
+             (u'Sport', u'http://www.lastampa.it/sport/rss_home.xml'),
+             (u'Torino', u'http://rss.feedsportal.com/c/32418/f/466938/index.rss'),
+             (u'Motori', u'http://www.lastampa.it/cmstp/rubriche/oggetti/rss.asp?ID_blog=57'),
+             (u'Scienza', u'http://www.lastampa.it/cmstp/rubriche/oggetti/rss.asp?ID_blog=38'),
+             (u'Fotografia', u'http://rss.feedsportal.com/c/32418/f/478449/index.rss'),
+             (u'Scuola', u'http://www.lastampa.it/cmstp/rubriche/oggetti/rss.asp?ID_blog=60'),
+             (u'Tempo Libero', u'http://www.lastampa.it/tempolibero/rss_home.xml')
+            ]

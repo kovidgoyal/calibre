@@ -418,3 +418,16 @@ class BookList(list):
         '''
         raise NotImplementedError()
 
+    def get_collections(self, collection_attributes):
+        '''
+        Return a dictionary of collections created from collection_attributes.
+        Each entry in the dictionary is of the form collection name:[list of
+        books]
+
+        The list of books is sorted by book title, except for collections
+        created from series, in which case series_index is used.
+
+        :param collection_attributes: A list of attributes of the Book object
+        '''
+        raise NotImplementedError()
+

@@ -4,9 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os
-import re
-import time
+import os, re, time, sys
 
 from calibre.ebooks.metadata import MetaInformation
 from calibre.devices.mime import mime_type_ext
@@ -110,6 +108,9 @@ class Book(MetaInformation):
             if isbytestring(val):
                 enc = filesystem_encoding if attr == 'lpath' else preferred_encoding
                 val = val.decode(enc, 'replace')
+            elif isinstance(val, (list, tuple)):
+                val = [x.decode(preferred_encoding, 'replace') if
+                        isbytestring(x) else x for x in val]
             json[attr] = val
         return json
 
@@ -129,3 +130,34 @@ class BookList(_BookList):
 
     def remove_book(self, book):
         self.remove(book)
+
+    def get_collections(self, collection_attributes):
+        collections = {}
+        series_categories = set([])
+        for attr in collection_attributes:
+            for book in self:
+                val = getattr(book, attr, None)
+                if not val: continue
+                if isbytestring(val):
+                    val = val.decode(preferred_encoding, 'replace')
+                if isinstance(val, (list, tuple)):
+                    val = list(val)
+                elif isinstance(val, unicode):
+                    val = [val]
+                for category in val:
+                    if category not in collections:
+                        collections[category] = []
+                    collections[category].append(book)
+                    if attr == 'series':
+                        series_categories.add(category)
+        for category, books in collections.items():
+            def tgetter(x):
+                return getattr(x, 'title_sort', 'zzzz')
+            books.sort(cmp=lambda x,y:cmp(tgetter(x), tgetter(y)))
+            if category in series_categories:
+                # Ensures books are sub sorted by title
+                def getter(x):
+                    return getattr(x, 'series_index', sys.maxint)
+                books.sort(cmp=lambda x,y:cmp(getter(x), getter(y)))
+        return collections
+

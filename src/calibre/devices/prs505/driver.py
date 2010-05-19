@@ -71,7 +71,7 @@ class PRS505(USBMS):
         return fname
 
     def initialize_XML_cache(self):
-        paths = {}
+        paths, prefixes = {}, {}
         for prefix, path, source_id in [
                 ('main', MEDIA_XML, 0),
                 ('card_a', CACHE_XML, 1),
@@ -80,10 +80,11 @@ class PRS505(USBMS):
             prefix = getattr(self, '_%s_prefix'%prefix)
             if prefix is not None and os.path.exists(prefix):
                 paths[source_id] = os.path.join(prefix, *(path.split('/')))
+                prefixes[source_id] = prefix
                 d = os.path.dirname(paths[source_id])
                 if not os.path.exists(d):
                     os.makedirs(d)
-        return XMLCache(paths)
+        return XMLCache(paths, prefixes)
 
     def books(self, oncard=None, end_session=True):
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
@@ -95,11 +96,17 @@ class PRS505(USBMS):
         c = self.initialize_XML_cache()
         blists = {}
         for i in c.paths:
-            blists[i] = booklists[i]
-        c.update(blists)
+            if booklists[i] is not None:
+                blists[i] = booklists[i]
+        opts = self.settings()
+        collections = ['series', 'tags']
+        if opts.extra_customization:
+            collections = opts.extra_customization.split(',')
+
+        c.update(blists, collections)
         c.write()
 
-        USBMS.sync_booklists(self, booklists, end_session)
+        USBMS.sync_booklists(self, booklists, end_session=end_session)
 
 class PRS700(PRS505):
 

@@ -98,11 +98,10 @@ class USBMS(CLI, Device):
                     import traceback
                     traceback.print_exc()
             return changed
-
         if isinstance(ebook_dirs, basestring):
             ebook_dirs = [ebook_dirs]
         for ebook_dir in ebook_dirs:
-            ebook_dir = self.path_to_unicode(filesystem_encoding)
+            ebook_dir = self.path_to_unicode(ebook_dir)
             ebook_dir = self.normalize_path( \
                             os.path.join(prefix, *(ebook_dir.split('/'))) \
                                     if ebook_dir else prefix)
