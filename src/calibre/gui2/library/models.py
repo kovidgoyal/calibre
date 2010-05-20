@@ -102,6 +102,9 @@ class BooksModel(QAbstractTableModel): # {{{
     def set_device_connected(self, is_connected):
         self.device_connected = is_connected
         self.db.refresh_ondevice()
+        if is_connected and self.sorted_on[0] == 'ondevice':
+            self.resort()
+
 
     def set_book_on_device_func(self, func):
         self.book_on_device = func
