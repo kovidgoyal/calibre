@@ -102,6 +102,9 @@ class BooksModel(QAbstractTableModel): # {{{
     def set_device_connected(self, is_connected):
         self.device_connected = is_connected
         self.db.refresh_ondevice()
+        if is_connected and self.sorted_on[0] == 'ondevice':
+            self.resort()
+
 
     def set_book_on_device_func(self, func):
         self.book_on_device = func
@@ -340,9 +343,6 @@ class BooksModel(QAbstractTableModel): # {{{
         ans = []
         for id in ids:
             mi = self.db.get_metadata(id, index_is_id=True, get_cover=True)
-            if mi.series is not None:
-                mi.tag_order = { mi.series: self.db.books_in_series_of(id,
-                    index_is_id=True)}
             ans.append(mi)
         return ans
 
@@ -807,7 +807,7 @@ class DeviceBooksModel(BooksModel): # {{{
                 'authors'    : _('Author(s)'),
                 'timestamp'  : _('Date'),
                 'size'       : _('Size'),
-                'tags'       : _('Tags')
+                'tags'       : _('Collections')
                 }
         self.marked_for_deletion = {}
         self.search_engine = OnDeviceSearch(self)
@@ -896,7 +896,8 @@ class DeviceBooksModel(BooksModel): # {{{
             x, y = int(self.db[x].size), int(self.db[y].size)
             return cmp(x, y)
         def tagscmp(x, y):
-            x, y = ','.join(self.db[x].tags), ','.join(self.db[y].tags)
+            x = ','.join(self.db[x].device_collections)
+            y = ','.join(self.db[y].device_collections)
             return cmp(x, y)
         def libcmp(x, y):
             x, y = self.db[x].in_library, self.db[y].in_library
@@ -966,7 +967,7 @@ class DeviceBooksModel(BooksModel): # {{{
         data[_('Path')] = item.path
         dt = dt_factory(item.datetime, assume_utc=True)
         data[_('Timestamp')] = isoformat(dt, sep=' ', as_utc=False)
-        data[_('Tags')] = ', '.join(item.tags)
+        data[_('Collections')] = ', '.join(item.device_collections)
         self.new_bookdisplay_data.emit(data)
 
     def paths(self, rows):
@@ -1000,7 +1001,7 @@ class DeviceBooksModel(BooksModel): # {{{
                 dt = dt_factory(dt, assume_utc=True, as_utc=False)
                 return QVariant(strftime(TIME_FMT, dt.timetuple()))
             elif cname == 'tags':
-                tags = self.db[self.map[row]].tags
+                tags = self.db[self.map[row]].device_collections
                 if tags:
                     return QVariant(', '.join(tags))
         elif role == Qt.ToolTipRole and index.isValid():
@@ -1047,7 +1048,7 @@ class DeviceBooksModel(BooksModel): # {{{
             elif cname == 'tags':
                 tags = [i.strip() for i in val.split(',')]
                 tags = [t for t in tags if t]
-                self.db.set_tags(self.db[idx], tags)
+                self.db[idx].device_collections = tags
             self.dataChanged.emit(index, index)
             self.booklist_dirtied.emit()
             done = True

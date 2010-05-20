@@ -578,12 +578,14 @@ class ResultCache(SearchQueryParser):
         self._map_filtered = list(self._map)
 
     def seriescmp(self, x, y):
+        sidx = self.FIELD_MAP['series']
         try:
-            ans = cmp(self._data[x][9].lower(), self._data[y][9].lower())
+            ans = cmp(self._data[x][sidx].lower(), self._data[y][sidx].lower())
         except AttributeError: # Some entries may be None
-            ans = cmp(self._data[x][9], self._data[y][9])
+            ans = cmp(self._data[x][sidx], self._data[y][sidx])
         if ans != 0: return ans
-        return cmp(self._data[x][10], self._data[y][10])
+        sidx = self.FIELD_MAP['series_index']
+        return cmp(self._data[x][sidx], self._data[y][sidx])
 
     def cmp(self, loc, x, y, asstr=True, subsort=False):
         try:

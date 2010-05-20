@@ -293,8 +293,7 @@ class DevicePlugin(Plugin):
         put the book. len(metadata) == len(files). Apart from the regular
         cover (path to cover), there may also be a thumbnail attribute, which should
         be used in preference. The thumbnail attribute is of the form
-        (width, height, cover_data as jpeg). In addition the MetaInformation
-        objects can have a tag_order attribute.
+        (width, height, cover_data as jpeg).
         '''
         raise NotImplementedError()
 
@@ -394,14 +393,6 @@ class BookList(list):
 
     def supports_tags(self):
         ''' Return True if the the device supports tags (collections) for this book list. '''
-        raise NotImplementedError()
-
-    def set_tags(self, book, tags):
-        '''
-        Set the tags for C{book} to C{tags}.
-        @param tags: A list of strings. Can be empty.
-        @param book: A book object that is in this BookList.
-        '''
         raise NotImplementedError()
 
     def add_book(self, book, replace_metadata):

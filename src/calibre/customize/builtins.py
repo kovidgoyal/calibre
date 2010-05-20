@@ -442,7 +442,7 @@ from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.nook.driver import NOOK
-from calibre.devices.prs505.driver import PRS505, PRS700
+from calibre.devices.prs505.driver import PRS505
 from calibre.devices.android.driver import ANDROID, S60
 from calibre.devices.nokia.driver import N770, N810
 from calibre.devices.eslick.driver import ESLICK
@@ -510,7 +510,6 @@ plugins += [
     KINDLE_DX,
     NOOK,
     PRS505,
-    PRS700,
     ANDROID,
     S60,
     N770,
