@@ -636,16 +636,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.download_scheduled_recipe, Qt.QueuedConnection)
         self.library_view.verticalHeader().sectionClicked.connect(self.view_specific_book)
 
-        if self.library_view.model().rowCount(None) > 1:
-            self.library_view.resizeRowToContents(0)
-            height = self.library_view.rowHeight(0)
-        else:
-            height = None
         for view in ('library', 'memory', 'card_a', 'card_b'):
             view = getattr(self, view+'_view')
             view.verticalHeader().sectionDoubleClicked.connect(self.view_specific_book)
-            if height is not None:
-                view.verticalHeader().setDefaultSectionSize(height)
 
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
 

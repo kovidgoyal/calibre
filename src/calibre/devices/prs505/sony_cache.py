@@ -16,7 +16,8 @@ from calibre import prints, guess_type
 from calibre.devices.errors import DeviceError
 from calibre.constants import DEBUG
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.ebooks.metadata import string_to_authors, authors_to_string
+from calibre.ebooks.metadata import string_to_authors, authors_to_string, \
+    title_sort
 
 # Utility functions {{{
 EMPTY_CARD_CACHE = '''\
@@ -325,6 +326,7 @@ class XMLCache(object):
                 if record is None:
                     record = self.create_text_record(root, i, book.lpath)
                 self.update_text_record(record, book, path, i)
+
             bl_pmap = playlist_map[i]
             self.update_playlists(i, root, booklist, bl_pmap,
                     collections_attributes)
@@ -339,15 +341,12 @@ class XMLCache(object):
             collections_attributes):
         collections = booklist.get_collections(collections_attributes)
         for category, books in collections.items():
-            for b in books:
-                if self.book_by_lpath(b.lpath, root) is None:
-                    print b.lpath
             records = [self.book_by_lpath(b.lpath, root) for b in books]
             # Remove any books that were not found, although this
             # *should* never happen
             if DEBUG and None in records:
                 prints('WARNING: Some elements in the JSON cache were not'
-                        'found in the XML cache')
+                        ' found in the XML cache')
             records = [x for x in records if x is not None]
             for rec in records:
                 if rec.get('id', None) is None:
@@ -416,6 +415,10 @@ class XMLCache(object):
             record.set('date', date)
         record.set('size', str(os.stat(path).st_size))
         record.set('title', book.title)
+        ts = book.title_sort
+        if not ts:
+            ts = title_sort(book.title)
+        record.set('titleSorter', ts)
         record.set('author', authors_to_string(book.authors))
         ext = os.path.splitext(path)[1]
         if ext:

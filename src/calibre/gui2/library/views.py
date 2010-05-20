@@ -8,7 +8,8 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal
+from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, \
+    QModelIndex
 
 from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
     TextDelegate, DateDelegate, TagsDelegate, CcTextDelegate, \
@@ -110,17 +111,21 @@ class BooksView(QTableView): # {{{
                 ac = a if self._model.sorted_on[1] == Qt.AscendingOrder else d
                 ac.setCheckable(True)
                 ac.setChecked(True)
-            m = self.column_header_context_menu.addMenu(
-                    _('Change text alignment for %s') % name)
-            al = self._model.alignment_map.get(col, 'left')
-            for x, t in (('left', _('Left')), ('right', _('Right')), ('center',
-                _('Center'))):
-                    a = m.addAction(t,
-                        partial(self.column_header_context_handler,
-                        action='align_'+x, column=col))
-                    if al == x:
-                        a.setCheckable(True)
-                        a.setChecked(True)
+            if col not in ('ondevice', 'rating', 'inlibrary') and \
+                    (not self.model().is_custom_column(col) or \
+                    self.model().custom_columns[col]['datatype'] not in ('bool',
+                        'rating')):
+                m = self.column_header_context_menu.addMenu(
+                        _('Change text alignment for %s') % name)
+                al = self._model.alignment_map.get(col, 'left')
+                for x, t in (('left', _('Left')), ('right', _('Right')), ('center',
+                    _('Center'))):
+                        a = m.addAction(t,
+                            partial(self.column_header_context_handler,
+                            action='align_'+x, column=col))
+                        if al == x:
+                            a.setCheckable(True)
+                            a.setChecked(True)
 
 
 
@@ -288,6 +293,12 @@ class BooksView(QTableView): # {{{
             old_state['sort_history'] = tweaks['sort_columns_at_startup']
 
         self.apply_state(old_state)
+
+        # Resize all rows to have the correct height
+        if self.model().rowCount(QModelIndex()) > 0:
+            self.resizeRowToContents(0)
+            self.verticalHeader().setDefaultSectionSize(self.rowHeight(0))
+
         self.was_restored = True
 
     # }}}
