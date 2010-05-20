@@ -391,8 +391,8 @@ class BookList(list):
     def __init__(self, oncard, prefix, settings):
         pass
 
-    def supports_tags(self):
-        ''' Return True if the the device supports tags (collections) for this book list. '''
+    def supports_collections(self):
+        ''' Return True if the the device supports collections for this book list. '''
         raise NotImplementedError()
 
     def add_book(self, book, replace_metadata):
