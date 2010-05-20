@@ -101,7 +101,8 @@ class PRS505(USBMS):
         opts = self.settings()
         collections = ['series', 'tags']
         if opts.extra_customization:
-            collections = opts.extra_customization.split(',')
+            collections = [x.strip() for x in
+                    opts.extra_customization.split(',')]
 
         c.update(blists, collections)
         c.write()

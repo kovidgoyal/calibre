@@ -114,6 +114,7 @@ class BookList(_BookList):
         series_categories = set([])
         collection_attributes = list(collection_attributes)+['device_collections']
         for attr in collection_attributes:
+            attr = attr.strip()
             for book in self:
                 val = getattr(book, attr, None)
                 if not val: continue
