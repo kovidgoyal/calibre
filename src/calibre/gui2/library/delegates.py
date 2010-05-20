@@ -17,7 +17,7 @@ from PyQt4.Qt import QColor, Qt, QModelIndex, QSize, \
 
 from calibre.gui2 import UNDEFINED_QDATE
 from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
-from calibre.utils.date import now
+from calibre.utils.date import now, format_date
 from calibre.utils.config import tweaks
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 
@@ -98,7 +98,7 @@ class DateDelegate(QStyledItemDelegate): # {{{
         d = val.toDate()
         if d == UNDEFINED_QDATE:
             return ''
-        return d.toString('dd MMM yyyy')
+        return format_date(d.toPyDate(), 'dd MMM yyyy')
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
@@ -121,7 +121,7 @@ class PubDateDelegate(QStyledItemDelegate): # {{{
         format = tweaks['gui_pubdate_display_format']
         if format is None:
             format = 'MMM yyyy'
-        return d.toString(format)
+        return format_date(d.toPyDate(), format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
@@ -195,7 +195,7 @@ class CcDateDelegate(QStyledItemDelegate): # {{{
         d = val.toDate()
         if d == UNDEFINED_QDATE:
             return ''
-        return d.toString(self.format)
+        return format_date(d.toPyDate(), self.format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
