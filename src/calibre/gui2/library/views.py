@@ -111,17 +111,21 @@ class BooksView(QTableView): # {{{
                 ac = a if self._model.sorted_on[1] == Qt.AscendingOrder else d
                 ac.setCheckable(True)
                 ac.setChecked(True)
-            m = self.column_header_context_menu.addMenu(
-                    _('Change text alignment for %s') % name)
-            al = self._model.alignment_map.get(col, 'left')
-            for x, t in (('left', _('Left')), ('right', _('Right')), ('center',
-                _('Center'))):
-                    a = m.addAction(t,
-                        partial(self.column_header_context_handler,
-                        action='align_'+x, column=col))
-                    if al == x:
-                        a.setCheckable(True)
-                        a.setChecked(True)
+            if col not in ('ondevice', 'rating', 'inlibrary') and \
+                    (not self.model().is_custom_column(col) or \
+                    self.model().custom_columns[col]['datatype'] not in ('bool',
+                        'rating')):
+                m = self.column_header_context_menu.addMenu(
+                        _('Change text alignment for %s') % name)
+                al = self._model.alignment_map.get(col, 'left')
+                for x, t in (('left', _('Left')), ('right', _('Right')), ('center',
+                    _('Center'))):
+                        a = m.addAction(t,
+                            partial(self.column_header_context_handler,
+                            action='align_'+x, column=col))
+                        if al == x:
+                            a.setCheckable(True)
+                            a.setChecked(True)
 
 
 
