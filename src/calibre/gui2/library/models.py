@@ -899,7 +899,8 @@ class DeviceBooksModel(BooksModel): # {{{
             x, y = int(self.db[x].size), int(self.db[y].size)
             return cmp(x, y)
         def tagscmp(x, y):
-            x, y = ','.join(self.db[x].tags), ','.join(self.db[y].tags)
+            x = ','.join(self.db[x].device_collections)
+            y = ','.join(self.db[y].device_collections)
             return cmp(x, y)
         def libcmp(x, y):
             x, y = self.db[x].in_library, self.db[y].in_library
@@ -969,7 +970,7 @@ class DeviceBooksModel(BooksModel): # {{{
         data[_('Path')] = item.path
         dt = dt_factory(item.datetime, assume_utc=True)
         data[_('Timestamp')] = isoformat(dt, sep=' ', as_utc=False)
-        data[_('Tags')] = ', '.join(item.tags)
+        data[_('Collections')] = ', '.join(item.device_collections)
         self.new_bookdisplay_data.emit(data)
 
     def paths(self, rows):
