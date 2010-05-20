@@ -124,6 +124,9 @@ class BookList(_BookList):
                 elif isinstance(val, unicode):
                     val = [val]
                 for category in val:
+                    if attr == 'tags' and len(category) > 1 and \
+                            category[0] == '[' and category[-1] == ']':
+                        continue
                     if category not in collections:
                         collections[category] = []
                     if book not in collections[category]:
