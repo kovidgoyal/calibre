@@ -258,7 +258,7 @@ class MetaInformation(object):
                   'series', 'series_index', 'tags', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
                   'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate',
-                  'rights', 'publication_type', 'uuid', 'tag_order',
+                  'rights', 'publication_type', 'uuid'
                   ):
             prints(x, getattr(self, x, 'None'))
 
@@ -278,7 +278,7 @@ class MetaInformation(object):
                      'isbn', 'application_id', 'manifest', 'spine', 'toc',
                      'cover', 'language', 'guide', 'book_producer',
                      'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate', 'rights',
-                     'publication_type', 'uuid', 'tag_order'):
+                     'publication_type', 'uuid'):
             if hasattr(mi, attr):
                 val = getattr(mi, attr)
                 if val is not None:

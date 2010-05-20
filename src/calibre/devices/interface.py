@@ -293,8 +293,7 @@ class DevicePlugin(Plugin):
         put the book. len(metadata) == len(files). Apart from the regular
         cover (path to cover), there may also be a thumbnail attribute, which should
         be used in preference. The thumbnail attribute is of the form
-        (width, height, cover_data as jpeg). In addition the MetaInformation
-        objects can have a tag_order attribute.
+        (width, height, cover_data as jpeg).
         '''
         raise NotImplementedError()
 
