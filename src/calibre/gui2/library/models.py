@@ -986,7 +986,7 @@ class DeviceBooksModel(BooksModel): # {{{
 
         tags = getattr(item, 'tags', None)
         if tags:
-            tags = ', '.join(tags)
+            tags = u', '.join(tags)
         else:
             tags = _('None')
         data[_('Tags')] = tags
