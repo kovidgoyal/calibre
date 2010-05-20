@@ -35,6 +35,8 @@ def read_metadata_(task, tdir, notification=lambda x,y:x):
             if mi.cover_data:
                 cdata = mi.cover_data[-1]
             mi.cover_data = None
+            if not mi.application_id:
+                mi.application_id = '__calibre_dummy__'
             with open(os.path.join(tdir, '%s.opf'%id), 'wb') as f:
                 f.write(metadata_to_opf(mi))
             if cdata:
