@@ -729,6 +729,17 @@ class BooksModel(QAbstractTableModel): # {{{
 
 class OnDeviceSearch(SearchQueryParser): # {{{
 
+    DEFAULT_LOCATIONS = [
+        'collections',
+        'title',
+        'author',
+        'format',
+        'search',
+        'date',
+        'all',
+                 ]
+
+
     def __init__(self, model):
         SearchQueryParser.__init__(self)
         self.model = model
@@ -738,6 +749,8 @@ class OnDeviceSearch(SearchQueryParser): # {{{
 
     def get_matches(self, location, query):
         location = location.lower().strip()
+        if location == 'authors':
+            location = 'author'
 
         matchkind = CONTAINS_MATCH
         if len(query) > 1:
@@ -752,14 +765,15 @@ class OnDeviceSearch(SearchQueryParser): # {{{
         if matchkind != REGEXP_MATCH: ### leave case in regexps because it can be significant e.g. \S \W \D
             query = query.lower()
 
-        if location not in ('title', 'author', 'tag', 'all', 'format'):
+        if location not in self.DEFAULT_LOCATIONS:
             return set([])
         matches = set([])
-        locations = ['title', 'author', 'tag', 'format'] if location == 'all' else [location]
+        all_locs = set(self.DEFAULT_LOCATIONS) - set(['all'])
+        locations = all_locs if location == 'all' else [location]
         q = {
              'title' : lambda x : getattr(x, 'title').lower(),
              'author': lambda x: ' & '.join(getattr(x, 'authors')).lower(),
-             'tag':lambda x: ','.join(getattr(x, 'tags')).lower(),
+             'collections':lambda x: ','.join(getattr(x, 'device_collections')).lower(),
              'format':lambda x: os.path.splitext(x.path)[1].lower()
              }
         for index, row in enumerate(self.model.db):
@@ -774,7 +788,7 @@ class OnDeviceSearch(SearchQueryParser): # {{{
                     else:
                         m = matchkind
 
-                    if locvalue == 'tag':
+                    if locvalue == 'collections':
                         vals = accessor(row).split(',')
                     else:
                         vals = [accessor(row)]
@@ -800,14 +814,14 @@ class DeviceBooksModel(BooksModel): # {{{
         self.sort_history = [self.sorted_on]
         self.unknown = _('Unknown')
         self.column_map = ['inlibrary', 'title', 'authors', 'timestamp', 'size',
-                'tags']
+                'collections']
         self.headers = {
-                'inlibrary'  : _('In Library'),
-                'title'      : _('Title'),
-                'authors'    : _('Author(s)'),
-                'timestamp'  : _('Date'),
-                'size'       : _('Size'),
-                'tags'       : _('Collections')
+                'inlibrary'   : _('In Library'),
+                'title'       : _('Title'),
+                'authors'     : _('Author(s)'),
+                'timestamp'   : _('Date'),
+                'size'        : _('Size'),
+                'collections' : _('Collections')
                 }
         self.marked_for_deletion = {}
         self.search_engine = OnDeviceSearch(self)
@@ -846,7 +860,8 @@ class DeviceBooksModel(BooksModel): # {{{
         flags = QAbstractTableModel.flags(self, index)
         if index.isValid() and self.editable:
             cname = self.column_map[index.column()]
-            if cname in ('title', 'authors') or (cname == 'tags' and self.db.supports_tags()):
+            if cname in ('title', 'authors') or (cname == 'collection' and \
+                    self.db.supports_collections()):
                 flags |= Qt.ItemIsEditable
         return flags
 
@@ -918,7 +933,7 @@ class DeviceBooksModel(BooksModel): # {{{
                 'authors' : authorcmp,
                 'size' : sizecmp,
                 'timestamp': datecmp,
-                'tags': tagscmp,
+                'collections': tagscmp,
                 'inlibrary': libcmp,
                 }[cname]
         self.map.sort(cmp=fcmp, reverse=descending)
@@ -1000,14 +1015,15 @@ class DeviceBooksModel(BooksModel): # {{{
                 dt = self.db[self.map[row]].datetime
                 dt = dt_factory(dt, assume_utc=True, as_utc=False)
                 return QVariant(strftime(TIME_FMT, dt.timetuple()))
-            elif cname == 'tags':
+            elif cname == 'collections':
                 tags = self.db[self.map[row]].device_collections
                 if tags:
                     return QVariant(', '.join(tags))
         elif role == Qt.ToolTipRole and index.isValid():
             if self.map[row] in self.indices_to_be_deleted():
                 return QVariant(_('Marked for deletion'))
-            if cname in ['title', 'authors'] or (cname == 'tags' and self.db.supports_tags()):
+            if cname in ['title', 'authors'] or (cname == 'collections' and \
+                    self.db.supports_collections()):
                 return QVariant(_("Double click to <b>edit</b> me<br><br>"))
         elif role == Qt.DecorationRole and cname == 'inlibrary':
             if self.db[self.map[row]].in_library:

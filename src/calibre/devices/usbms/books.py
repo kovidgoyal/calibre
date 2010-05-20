@@ -97,8 +97,8 @@ class Book(MetaInformation):
 
 class BookList(_BookList):
 
-    def supports_tags(self):
-        return True
+    def supports_collections(self):
+        return False
 
     def add_book(self, book, replace_metadata):
         if book not in self:
@@ -108,6 +108,15 @@ class BookList(_BookList):
 
     def remove_book(self, book):
         self.remove(book)
+
+    def get_collections(self):
+        return {}
+
+
+class CollectionsBookList(BookList):
+
+    def supports_collections(self):
+        return True
 
     def get_collections(self, collection_attributes):
         collections = {}

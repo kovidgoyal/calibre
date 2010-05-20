@@ -222,7 +222,6 @@ class BooksView(QTableView): # {{{
             return
         for col, order in reversed(self.cleanup_sort_history(saved_history)[:3]):
             self.sortByColumn(self.column_map.index(col), order)
-        #self.model().sort_history = saved_history
 
     def apply_state(self, state):
         h = self.column_header
