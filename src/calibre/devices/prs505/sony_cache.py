@@ -325,9 +325,9 @@ class XMLCache(object):
                 if record is None:
                     record = self.create_text_record(root, i, book.lpath)
                 self.update_text_record(record, book, path, i)
-                bl_pmap = playlist_map[i]
-                self.update_playlists(i, root, booklist, bl_pmap,
-                        collections_attributes)
+            bl_pmap = playlist_map[i]
+            self.update_playlists(i, root, booklist, bl_pmap,
+                    collections_attributes)
 
         self.fix_ids()
 
@@ -339,6 +339,9 @@ class XMLCache(object):
             collections_attributes):
         collections = booklist.get_collections(collections_attributes)
         for category, books in collections.items():
+            for b in books:
+                if self.book_by_lpath(b.lpath, root) is None:
+                    print b.lpath
             records = [self.book_by_lpath(b.lpath, root) for b in books]
             # Remove any books that were not found, although this
             # *should* never happen
