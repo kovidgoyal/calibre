@@ -983,6 +983,23 @@ class DeviceBooksModel(BooksModel): # {{{
         dt = dt_factory(item.datetime, assume_utc=True)
         data[_('Timestamp')] = isoformat(dt, sep=' ', as_utc=False)
         data[_('Collections')] = ', '.join(item.device_collections)
+
+        tags = getattr(item, 'tags', None)
+        if tags:
+            tags = u', '.join(tags)
+        else:
+            tags = _('None')
+        data[_('Tags')] = tags
+        comments = getattr(item, 'comments', None)
+        if not comments:
+            comments = _('None')
+        data[_('Comments')] = comments
+        series = getattr(item, 'series', None)
+        if series:
+            sidx = getattr(item, 'series_index', 0)
+            sidx = fmt_sidx(sidx, use_roman = self.use_roman_numbers)
+            data[_('Series')] = _('Book <font face="serif">%s</font> of %s.')%(sidx, series)
+
         self.new_bookdisplay_data.emit(data)
 
     def paths(self, rows):
@@ -1061,7 +1078,7 @@ class DeviceBooksModel(BooksModel): # {{{
                 self.db[idx].title_sorter = val
             elif cname == 'authors':
                 self.db[idx].authors = string_to_authors(val)
-            elif cname == 'tags':
+            elif cname == 'collections':
                 tags = [i.strip() for i in val.split(',')]
                 tags = [t for t in tags if t]
                 self.db[idx].device_collections = tags
