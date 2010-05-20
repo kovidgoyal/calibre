@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 HTTP server for remote access to the calibre database.
 '''
 
-import sys, textwrap, operator, os, re, logging, cStringIO
+import sys, textwrap, operator, os, re, logging, cStringIO, copy
 import __builtin__
 from itertools import repeat
 from logging.handlers import RotatingFileHandler
@@ -63,21 +63,21 @@ class LibraryServer(object):
 
     BOOK = textwrap.dedent('''\
         <book xmlns:py="http://genshi.edgewall.org/"
-            id="${r[0]}"
-            title="${r[1]}"
-            sort="${r[11]}"
-            author_sort="${r[12]}"
+            id="${r[FM['id']]}"
+            title="${r[FM['title']]}"
+            sort="${r[FM['sort']]}"
+            author_sort="${r[FM['author_sort']]}"
             authors="${authors}"
-            rating="${r[4]}"
+            rating="${r[FM['rating']]}"
             timestamp="${timestamp}"
             pubdate="${pubdate}"
-            size="${r[6]}"
-            isbn="${r[14] if r[14] else ''}"
-            formats="${r[13] if r[13] else ''}"
-            series = "${r[9] if r[9] else ''}"
-            series_index="${r[10]}"
-            tags="${r[7] if r[7] else ''}"
-            publisher="${r[3] if r[3] else ''}">${r[8] if r[8] else ''}
+            size="${r[FM['size']]}"
+            isbn="${r[FM['isbn']] if r[FM['isbn']] else ''}"
+            formats="${r[FM['formats']] if r[FM['formats']] else ''}"
+            series = "${r[FM['series']] if r[FM['series']] else ''}"
+            series_index="${r[FM['series_index']]}"
+            tags="${r[FM['tags']] if r[FM['tags']] else ''}"
+            publisher="${r[FM['publisher']] if r[FM['publisher']] else ''}">${r[FM['comments']] if r[FM['comments']] else ''}
             </book>
         ''')
 
@@ -86,13 +86,13 @@ class LibraryServer(object):
     MOBILE_BOOK = textwrap.dedent('''\
     <tr xmlns:py="http://genshi.edgewall.org/">
     <td class="thumbnail">
-        <img type="image/jpeg" src="/get/thumb/${r[0]}" border="0"/>
+        <img type="image/jpeg" src="/get/thumb/${r[FM['id']]}" border="0"/>
     </td>
     <td>
-        <py:for each="format in r[13].split(',')">
-            <span class="button"><a href="/get/${format}/${authors}-${r[1]}_${r[0]}.${format}">${format.lower()}</a></span>&nbsp;
+        <py:for each="format in r[FM['formats']].split(',')">
+            <span class="button"><a href="/get/${format}/${authors}-${r[FM['title']]}_${r[FM['id']]}.${format}">${format.lower()}</a></span>&nbsp;
         </py:for>
-       ${r[1]}${(' ['+r[9]+'-'+r[10]+']') if r[9] else ''} by ${authors} - ${r[6]/1024}k - ${r[3] if r[3] else ''} ${pubdate} ${'['+r[7]+']' if r[7] else ''}
+       ${r[FM['title']]}${(' ['+r[FM['series']]+'-'+r[FM['series_index']]+']') if r[FM['series']] else ''} by ${authors} - ${r[FM['size']]/1024}k - ${r[FM['publisher']] if r[FM['publisher']] else ''} ${pubdate} ${'['+r[FM['tags']]+']' if r[FM['tags']] else ''}
     </td>
     </tr>
     ''')
@@ -628,22 +628,23 @@ class LibraryServer(object):
             ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
         record_list = list(iter(self.db))
 
+        FM = self.db.FIELD_MAP
         # Sort the record list
         if sortby == "bytitle" or authorid or tagid:
             record_list.sort(lambda x, y:
-                    cmp(title_sort(x[self.db.FIELD_MAP['title']]),
-                        title_sort(y[self.db.FIELD_MAP['title']])))
+                    cmp(title_sort(x[FM['title']]),
+                        title_sort(y[FM['title']])))
         elif seriesid:
             record_list.sort(lambda x, y:
-                    cmp(x[self.db.FIELD_MAP['series_index']],
-                        y[self.db.FIELD_MAP['series_index']]))
+                    cmp(x[FM['series_index']],
+                        y[FM['series_index']]))
         else: # Sort by date
             record_list = reversed(record_list)
 
 
-        fmts = self.db.FIELD_MAP['formats']
+        fmts = FM['formats']
         pat = re.compile(r'EPUB|PDB', re.IGNORECASE)
-        record_list = [x for x in record_list if x[0] in ids and
+        record_list = [x for x in record_list if x[FM['id']] in ids and
                 pat.search(x[fmts] if x[fmts] else '') is not None]
         next_offset = offset + self.max_stanza_items
         nrecord_list = record_list[offset:next_offset]
@@ -663,10 +664,10 @@ class LibraryServer(object):
             ) % '&amp;'.join(q)
 
         for record in nrecord_list:
-            r = record[self.db.FIELD_MAP['formats']]
+            r = record[FM['formats']]
             r = r.upper() if r else ''
 
-            z = record[self.db.FIELD_MAP['authors']]
+            z = record[FM['authors']]
             if not z:
                 z = _('Unknown')
             authors = ' & '.join([i.replace('|', ',') for i in
@@ -674,19 +675,19 @@ class LibraryServer(object):
 
             # Setup extra description
             extra = []
-            rating = record[self.db.FIELD_MAP['rating']]
+            rating = record[FM['rating']]
             if rating > 0:
                 rating = ''.join(repeat('&#9733;', rating))
                 extra.append('RATING: %s<br />'%rating)
-            tags = record[self.db.FIELD_MAP['tags']]
+            tags = record[FM['tags']]
             if tags:
                 extra.append('TAGS: %s<br />'%\
                         prepare_string_for_xml(', '.join(tags.split(','))))
-            series = record[self.db.FIELD_MAP['series']]
+            series = record[FM['series']]
             if series:
                 extra.append('SERIES: %s [%s]<br />'%\
                         (prepare_string_for_xml(series),
-                        fmt_sidx(float(record[self.db.FIELD_MAP['series_index']]))))
+                        fmt_sidx(float(record[FM['series_index']]))))
 
             fmt = 'epub' if 'EPUB' in r else 'pdb'
             mimetype = guess_type('dummy.'+fmt)[0]
@@ -699,17 +700,18 @@ class LibraryServer(object):
                     authors=authors,
                     tags=tags,
                     series=series,
-                    FM=self.db.FIELD_MAP,
+                    FM=FM,
                     extra='\n'.join(extra),
                     mimetype=mimetype,
                     fmt=fmt,
-                    urn=record[self.db.FIELD_MAP['uuid']],
-                    timestamp=strftime('%Y-%m-%dT%H:%M:%S+00:00', record[5])
+                    urn=record[FM['uuid']],
+                    timestamp=strftime('%Y-%m-%dT%H:%M:%S+00:00',
+                        record[FM['timestamp']])
                     )
             books.append(self.STANZA_ENTRY.generate(**data)\
                                         .render('xml').decode('utf8'))
 
-        return self.STANZA.generate(subtitle='', data=books, FM=self.db.FIELD_MAP,
+        return self.STANZA.generate(subtitle='', data=books, FM=FM,
                 next_link=next_link, updated=updated, id='urn:calibre:main').render('xml')
 
 
@@ -734,23 +736,25 @@ class LibraryServer(object):
             raise cherrypy.HTTPError(400, 'num: %s is not an integer'%num)
         ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
         ids = sorted(ids)
-        items = [r for r in iter(self.db) if r[0] in ids]
+        FM = self.db.FIELD_MAP
+        items = copy.deepcopy([r for r in iter(self.db) if r[FM['id']] in ids])
         if sort is not None:
             self.sort(items, sort, (order.lower().strip() == 'ascending'))
 
         book, books = MarkupTemplate(self.MOBILE_BOOK), []
         for record in items[(start-1):(start-1)+num]:
-            if record[13] is None:
-                record[13] = ''
-            if record[6] is None:
-                record[6] = 0
-            aus = record[2] if record[2] else __builtin__._('Unknown')
+            if record[FM['formats']] is None:
+                record[FM['formats']] = ''
+            if record[FM['size']] is None:
+                record[FM['size']] = 0
+            aus = record[FM['authors']] if record[FM['authors']] else __builtin__._('Unknown')
             authors = '|'.join([i.replace('|', ',') for i in aus.split(',')])
-            record[10] = fmt_sidx(float(record[10]))
-            ts, pd = strftime('%Y/%m/%d %H:%M:%S', record[5]), \
-                strftime('%Y/%m/%d %H:%M:%S', record[self.db.FIELD_MAP['pubdate']])
+            record[FM['series_index']] = \
+                    fmt_sidx(float(record[FM['series_index']]))
+            ts, pd = strftime('%Y/%m/%d %H:%M:%S', record[FM['timestamp']]), \
+                strftime('%Y/%m/%d %H:%M:%S', record[FM['pubdate']])
             books.append(book.generate(r=record, authors=authors, timestamp=ts,
-                pubdate=pd).render('xml').decode('utf-8'))
+                pubdate=pd, FM=FM).render('xml').decode('utf-8'))
         updated = self.db.last_modified()
 
         cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf-8'
@@ -759,8 +763,9 @@ class LibraryServer(object):
 
         url_base = "/mobile?search=" + search+";order="+order+";sort="+sort+";num="+str(num)
 
-        return self.MOBILE.generate(books=books, start=start, updated=updated, search=search, sort=sort, order=order, num=num,
-                                     total=len(ids), url_base=url_base).render('html')
+        return self.MOBILE.generate(books=books, start=start, updated=updated,
+                search=search, sort=sort, order=order, num=num, FM=FM,
+                total=len(ids), url_base=url_base).render('html')
 
 
     @expose
@@ -785,25 +790,27 @@ class LibraryServer(object):
         order = order.lower().strip() == 'ascending'
         ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
         ids = sorted(ids)
-        items = [r for r in iter(self.db) if r[0] in ids]
+        FM = self.db.FIELD_MAP
+        items = copy.deepcopy([r for r in iter(self.db) if r[FM['id']] in ids])
         if sort is not None:
             self.sort(items, sort, order)
 
         book, books = MarkupTemplate(self.BOOK), []
         for record in items[start:start+num]:
-            aus = record[2] if record[2] else __builtin__._('Unknown')
+            aus = record[FM['authors']] if record[FM['authors']] else __builtin__._('Unknown')
             authors = '|'.join([i.replace('|', ',') for i in aus.split(',')])
-            record[10] = fmt_sidx(float(record[10]))
-            ts, pd = strftime('%Y/%m/%d %H:%M:%S', record[5]), \
-                strftime('%Y/%m/%d %H:%M:%S', record[self.db.FIELD_MAP['pubdate']])
+            record[FM['series_index']] = \
+                fmt_sidx(float(record[FM['series_index']]))
+            ts, pd = strftime('%Y/%m/%d %H:%M:%S', record[FM['timestamp']]), \
+                strftime('%Y/%m/%d %H:%M:%S', record[FM['pubdate']])
             books.append(book.generate(r=record, authors=authors, timestamp=ts,
-                pubdate=pd).render('xml').decode('utf-8'))
+                pubdate=pd, FM=FM).render('xml').decode('utf-8'))
         updated = self.db.last_modified()
 
         cherrypy.response.headers['Content-Type'] = 'text/xml'
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         return self.LIBRARY.generate(books=books, start=start, updated=updated,
-                                     total=len(ids)).render('xml')
+                                     total=len(ids), FM=FM).render('xml')
 
     @expose
     def index(self, **kwargs):
