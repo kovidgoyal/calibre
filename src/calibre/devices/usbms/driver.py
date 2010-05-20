@@ -37,7 +37,7 @@ class USBMS(CLI, Device):
     book_class = Book
 
     FORMATS = []
-    CAN_SET_METADATA = True
+    CAN_SET_METADATA = False
     METADATA_CACHE = 'metadata.calibre'
 
     def get_device_information(self, end_session=True):
