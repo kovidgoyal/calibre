@@ -141,7 +141,10 @@ def prints(*args, **kwargs):
                             raise
                         arg = repr(arg)
 
-        file.write(arg)
+        try:
+            file.write(arg)
+        except:
+            file.write(repr(arg))
         if i != len(args)-1:
             file.write(sep)
     file.write(end)
