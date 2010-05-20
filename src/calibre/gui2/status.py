@@ -101,9 +101,10 @@ class BookInfoDisplay(QWidget):
     WEIGHTS = collections.defaultdict(lambda : 100)
     WEIGHTS[_('Path')] = 0
     WEIGHTS[_('Formats')] = 1
-    WEIGHTS[_('Comments')] = 4
-    WEIGHTS[_('Series')] = 2
-    WEIGHTS[_('Tags')] = 3
+    WEIGHTS[_('Collections')] = 2
+    WEIGHTS[_('Series')] = 3
+    WEIGHTS[_('Tags')] = 4
+    WEIGHTS[_('Comments')] = 5
 
     show_book_info = pyqtSignal()
 

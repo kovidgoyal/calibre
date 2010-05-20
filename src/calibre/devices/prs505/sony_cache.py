@@ -288,14 +288,16 @@ class XMLCache(object):
                     if DEBUG:
                         prints('Renaming title', book.title, 'to', title)
                     book.title = title
-                authors = record.get('author', None)
-                if authors is not None:
-                    authors = string_to_authors(authors)
-                    if authors != book.authors:
-                        if DEBUG:
-                            prints('Renaming authors', book.authors, 'to',
-                                    authors)
-                        book.authors = authors
+# We shouldn't do this for Sonys, because the reader strips
+# all but the first author.
+#                authors = record.get('author', None)
+#                if authors is not None:
+#                    authors = string_to_authors(authors)
+#                    if authors != book.authors:
+#                        if DEBUG:
+#                            prints('Renaming authors', book.authors, 'to',
+#                                    authors)
+#                        book.authors = authors
                 for thumbnail in record.xpath(
                         'descendant::*[local-name()="thumbnail"]'):
                     for img in thumbnail.xpath(
