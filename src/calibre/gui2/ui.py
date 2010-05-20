@@ -642,13 +642,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
 
-
         self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
-        v = self.library_view
-        if v.model().rowCount(None) > 1:
-            v.resizeRowToContents(0)
-            height = v.rowHeight(0)
-            self.library_view.verticalHeader().setDefaultSectionSize(height)
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
 
     def do_edit_categories(self):

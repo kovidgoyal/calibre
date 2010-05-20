@@ -8,7 +8,8 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal
+from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, \
+    QModelIndex
 
 from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
     TextDelegate, DateDelegate, TagsDelegate, CcTextDelegate, \
@@ -288,6 +289,12 @@ class BooksView(QTableView): # {{{
             old_state['sort_history'] = tweaks['sort_columns_at_startup']
 
         self.apply_state(old_state)
+
+        # Resize all rows to have the correct height
+        if self.model().rowCount(QModelIndex()) > 0:
+            self.resizeRowToContents(0)
+            self.verticalHeader().setDefaultSectionSize(self.rowHeight(0))
+
         self.was_restored = True
 
     # }}}

@@ -6,6 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import re
 from datetime import datetime
 
 from dateutil.parser import parse
@@ -113,3 +114,27 @@ def utcnow():
 
 def utcfromtimestamp(stamp):
     return datetime.utcfromtimestamp(stamp).replace(tzinfo=_utc_tz)
+
+def format_date(dt, format):
+    ''' Return a date formatted as a string using a subset of Qt's formatting codes '''
+    def format_day(mo):
+        l = len(mo.group(0))
+        if l == 1: return '%d'%dt.day
+        if l == 2: return '%02d'%dt.day
+        if l == 3: return dt.strftime('%a')
+        return dt.strftime('%A')
+
+    def format_month(mo):
+        l = len(mo.group(0))
+        if l == 1: return '%d'%dt.month
+        if l == 2: return '%02d'%dt.month
+        if l == 3: return dt.strftime('%b')
+        return dt.strftime('%B')
+
+    def format_year(mo):
+        if len(mo.group(0)) == 2: return '%02d'%(dt.year % 100)
+        return '%04d'%dt.year
+
+    format = re.sub('d{1,4}', format_day, format)
+    format = re.sub('M{1,4}', format_month, format)
+    return re.sub('yyyy|yy', format_year, format)
