@@ -161,7 +161,7 @@ class DeviceManager(Thread):
                         print 'Device connect failed again, giving up'
 
     def umount_device(self, *args):
-        if self.is_device_connected:
+        if self.is_device_connected and not self.job_manager.has_device_jobs():
             self.connected_device.eject()
             self.ejected_devices.add(self.connected_device)
             self.connected_slot(False, self.connected_device_is_folder)
