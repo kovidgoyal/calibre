@@ -266,6 +266,8 @@ class XMLCache(object):
     def update_booklist(self, bl, bl_index):
         if bl_index not in self.record_roots:
             return
+        if DEBUG:
+            prints('Updating JSON cache:', bl_index)
         root = self.record_roots[bl_index]
         pmap = self.get_playlist_map()[bl_index]
         playlist_map = {}
@@ -315,7 +317,7 @@ class XMLCache(object):
 
         for i, booklist in booklists.items():
             if DEBUG:
-                prints('Updating booklist:', i)
+                prints('Updating XML Cache:', i)
             root = self.record_roots[i]
             for book in booklist:
                 path = os.path.join(self.prefixes[i], *(book.lpath.split('/')))
@@ -328,6 +330,10 @@ class XMLCache(object):
                         collections_attributes)
 
         self.fix_ids()
+
+        # This is needed to update device_collections
+        for i, booklist in booklists.items():
+            self.update_booklist(booklist, i)
 
     def update_playlists(self, bl_index, root, booklist, playlist_map,
             collections_attributes):
