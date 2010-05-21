@@ -734,8 +734,6 @@ class OnDeviceSearch(SearchQueryParser): # {{{
         'title',
         'author',
         'format',
-        'search',
-        'date',
         'all',
                  ]
 
@@ -867,6 +865,7 @@ class DeviceBooksModel(BooksModel): # {{{
 
 
     def search(self, text, refinement, reset=True):
+        traceback.print_stack()
         if not text or not text.strip():
             self.map = list(range(len(self.db)))
         else:
