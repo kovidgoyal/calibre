@@ -14,10 +14,31 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
+   <item row="0" column="0">
     <widget class="QCheckBox" name="opt_dont_split_on_page_breaks">
      <property name="text">
       <string>Do not &amp;split on page breaks</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QCheckBox" name="opt_no_default_epub_cover">
+     <property name="text">
+      <string>No default &amp;cover</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QCheckBox" name="opt_no_svg_cover">
+     <property name="text">
+      <string>No &amp;SVG cover</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="opt_preserve_cover_aspect_ratio">
+     <property name="text">
+      <string>Preserve cover &amp;aspect ratio</string>
      </property>
     </widget>
    </item>
@@ -60,22 +81,25 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="0">
-    <widget class="QCheckBox" name="opt_no_default_epub_cover">
-     <property name="text">
-      <string>No default &amp;cover</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="opt_no_svg_cover">
-     <property name="text">
-      <string>No &amp;SVG cover</string>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>opt_no_svg_cover</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>opt_preserve_cover_aspect_ratio</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>81</x>
+     <y>73</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>237</x>
+     <y>68</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

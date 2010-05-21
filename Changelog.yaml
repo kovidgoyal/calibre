@@ -4,6 +4,70 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.54
+  date: 2010-05-21
+
+  new features:
+    - title: "EPUB Output: Add option to toggle preserving the aspect ratio of the cover."
+      type: major 
+      description: >
+        "By default calibre creates an SVG based cover that scales with the screen size of the reader used to view it. Previosuly this scaling
+        was limited to preserve the aspect ratio of the image. This would often result in white borders at the sides or top and bottom of the image.
+        No, by default, calibre will setup the cover to not preserve aspect ratio, doing away with the white borders. The downside is that if the
+        aspect ratio of the cover is very different from the reader, it will look distorted. The old behavior can be restored via 
+        Preferences->Conversion->EPUB Output."
+
+    - title: "Conversion pipeline: calibre will now automatically replace all ligatures in the input document."
+      type: major
+      description: >
+        "Conversion pipeline: calibre will now automatically replace all ligatures in the input document with the normal character
+        sequence they are meant to represent. This is because most readers lack the font support to display ligatures.
+        This can be turned off via an option under Look & Feel, in the Conversion settings."
+
+    - title: "Support for the iPapyrus and Newsmy readers and the Sony Ericsson XPERIA X10"
+
+    - title: "PDF Output: Set the first page to the cover."
+      tickets: [5581]
+
+  bug fixes:
+    - title: "Conversion pipeline: Handle input documents with no text. Allows conversion of MOBI files tha are only a sequence of images."
+      tickets: [5554]
+
+    - title: "Fix text justification control not working with translated version of calibre"
+      tickets: [5551]
+
+    - title: "HTML Input: Encoding detection fixed for <meta> tags that have newlines in their content attributes"
+      tickets: [5567]
+
+    - title: "EPUB Input: Handle malformed UUID in EPUB with obfuscated fonts."
+      tickets: [5552]
+
+    - title: "Don't resort when editing columns in the main GUI"
+
+    - title: "Fix regression in Kobo driver that caused it to only detect books in the root directory of the device"
+
+  new recipes:
+    - title: La Stampa and Libero 
+      author: Gabriele Marini
+
+    - title: Der Tagesspiegel
+      author: ipaschke
+
+    - title: EMG and Agro Gerilla
+      author: Darko Miletic
+
+    - title: American Prospect, FactCheck and PolitiFact
+      author: Michael Heinz
+
+  improved recipes:
+    - Times Online
+    - The Atlantic
+    - Il Messagero
+    - Leggo
+    - Instapaper
+    - New York Review of Books
+    - NIN Online
+
 - version: 0.6.53
   date: 2010-05-15
 
@@ -157,7 +221,7 @@
   new features:
     - title: "Add merge book feature"
       type: major
-      desc: >
+      description: >
         "You can now merge multiple books into a single book, by clicking the arrow next to the edit meta information button.
         Meta information from the books will be merged as well as individual book files in different formats"
 

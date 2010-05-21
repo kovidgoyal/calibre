@@ -1179,6 +1179,8 @@ class BasicNewsRecipe(Recipe):
                             body.insert(len(body.contents), elem)
                             with open(last, 'wb') as fi:
                                 fi.write(unicode(soup).encode('utf-8'))
+        if len(feeds) == 0:
+            raise Exception('All feeds are empty, aborting.')
 
         if len(feeds) > 1:
             for i, f in enumerate(feeds):

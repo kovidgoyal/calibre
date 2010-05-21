@@ -15,7 +15,7 @@ class Economist(BasicNewsRecipe):
             ' Much slower than the subscription based version.')
 
     oldest_article = 7.0
-    cover_url = 'http://www.economist.com/images/covers/currentcovereu_large.jpg'
+    cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
     remove_tags = [dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
             dict(attrs={'class':['dblClkTrk']})]
     remove_tags_before = dict(name=lambda tag: tag.name=='title' and tag.parent.name=='body')
