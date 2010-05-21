@@ -427,8 +427,8 @@ class XMLCache(object):
             mime = MIME_MAP.get(ext, None)
             if mime is None:
                 mime = guess_type('a.'+ext)[0]
-                if mime is not None:
-                    record.set('mime', mime)
+            if mime is not None:
+                record.set('mime', mime)
         if 'sourceid' not in record.attrib:
             record.set('sourceid', '1')
         if 'id' not in record.attrib:

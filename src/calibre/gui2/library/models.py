@@ -729,19 +729,17 @@ class BooksModel(QAbstractTableModel): # {{{
 
 class OnDeviceSearch(SearchQueryParser): # {{{
 
-    DEFAULT_LOCATIONS = [
+    USABLE_LOCATIONS = [
         'collections',
         'title',
         'author',
         'format',
-        'search',
-        'date',
         'all',
-                 ]
+    ]
 
 
     def __init__(self, model):
-        SearchQueryParser.__init__(self)
+        SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
         self.model = model
 
     def universal_set(self):
@@ -765,10 +763,10 @@ class OnDeviceSearch(SearchQueryParser): # {{{
         if matchkind != REGEXP_MATCH: ### leave case in regexps because it can be significant e.g. \S \W \D
             query = query.lower()
 
-        if location not in self.DEFAULT_LOCATIONS:
+        if location not in self.USABLE_LOCATIONS:
             return set([])
         matches = set([])
-        all_locs = set(self.DEFAULT_LOCATIONS) - set(['all'])
+        all_locs = set(self.USABLE_LOCATIONS) - set(['all'])
         locations = all_locs if location == 'all' else [location]
         q = {
              'title' : lambda x : getattr(x, 'title').lower(),
@@ -1055,6 +1053,8 @@ class DeviceBooksModel(BooksModel): # {{{
         return NONE
 
     def headerData(self, section, orientation, role):
+        if role == Qt.ToolTipRole:
+            return QVariant(_('The lookup/search name is "{0}"').format(self.column_map[section]))
         if role != Qt.DisplayRole:
             return NONE
         if orientation == Qt.Horizontal:
