@@ -32,7 +32,7 @@ def detect(aBuf):
 ENCODING_PATS = [
                  re.compile(r'<\?[^<>]+encoding=[\'"](.*?)[\'"][^<>]*>',
                             re.IGNORECASE),
-                 re.compile(r'<meta.*?content=[\'"].*?charset=([^\s\'"]+).*?[\'"].*?>',
+                 re.compile(r'''<meta\s+?[^<>]+?content=['"][^'"]*?charset=([-a-z0-9]+)[^'"]*?['"][^<>]*>''',
                             re.IGNORECASE)
                  ]
 ENTITY_PATTERN = re.compile(r'&(\S+?);')
