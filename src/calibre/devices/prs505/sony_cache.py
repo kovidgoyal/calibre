@@ -16,8 +16,7 @@ from calibre import prints, guess_type
 from calibre.devices.errors import DeviceError
 from calibre.constants import DEBUG
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.ebooks.metadata import string_to_authors, authors_to_string, \
-    title_sort
+from calibre.ebooks.metadata import authors_to_string, title_sort
 
 # Utility functions {{{
 EMPTY_CARD_CACHE = '''\
