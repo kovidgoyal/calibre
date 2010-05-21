@@ -11,18 +11,18 @@
     - title: "EPUB Output: Add option to toggle preserving the aspect ratio of the cover."
       type: major 
       description: >
-      "By default calibre creates an SVG based cover that scales with the screen size of the reader used to view it. Previosuly this scaling
-      was limited to preserve the aspect ratio of the image. This would often result in white borders at the sides or top and bottom of the image.
-      No, by default, calibre will setup the cover to not preserve aspect ratio, doing away with the white borders. The downside is that if the
-      aspect ratio of the cover is very different from the reader, it will look distorted. The old behavior can be restored via 
-      Preferences->Conversion->EPUB Output."
+        "By default calibre creates an SVG based cover that scales with the screen size of the reader used to view it. Previosuly this scaling
+        was limited to preserve the aspect ratio of the image. This would often result in white borders at the sides or top and bottom of the image.
+        No, by default, calibre will setup the cover to not preserve aspect ratio, doing away with the white borders. The downside is that if the
+        aspect ratio of the cover is very different from the reader, it will look distorted. The old behavior can be restored via 
+        Preferences->Conversion->EPUB Output."
 
     - title: "Conversion pipeline: calibre will now automatically replace all ligatures in the input document."
       type: major
       description: >
-      "Conversion pipeline: calibre will now automatically replace all ligatures in the input document with the normal character
-       sequence they are meant to represent. This is because most readers lack the font support to display ligatures.
-       This can be turned off via an option under Look & Feel, in the Conversion settings."
+        "Conversion pipeline: calibre will now automatically replace all ligatures in the input document with the normal character
+        sequence they are meant to represent. This is because most readers lack the font support to display ligatures.
+        This can be turned off via an option under Look & Feel, in the Conversion settings."
 
     - title: "Support for the iPapyrus and Newsmy readers and the Sony Ericsson XPERIA X10"
 
@@ -221,7 +221,7 @@
   new features:
     - title: "Add merge book feature"
       type: major
-      desc: >
+      description: >
         "You can now merge multiple books into a single book, by clicking the arrow next to the edit meta information button.
         Meta information from the books will be merged as well as individual book files in different formats"
 
