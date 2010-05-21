@@ -24,7 +24,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
                     'linearize_tables',
                     'disable_font_rescaling', 'insert_blank_line',
                     'remove_paragraph_spacing', 'remove_paragraph_spacing_indent_size','input_encoding',
-                    'asciiize']
+                    'asciiize', 'keep_ligatures']
                 )
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
