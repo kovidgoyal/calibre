@@ -729,18 +729,19 @@ class BooksModel(QAbstractTableModel): # {{{
 
 class OnDeviceSearch(SearchQueryParser): # {{{
 
-    DEFAULT_LOCATIONS = [
+    USABLE_LOCATIONS = set([
         'collections',
         'title',
         'author',
         'format',
         'all',
-                 ]
+                 ])
 
 
     def __init__(self, model):
         SearchQueryParser.__init__(self)
         self.model = model
+        self.DEFAULT_LOCATIONS = set(self.DEFAULT_LOCATIONS) | self.USABLE_LOCATIONS
 
     def universal_set(self):
         return set(range(0, len(self.model.db)))
@@ -763,10 +764,10 @@ class OnDeviceSearch(SearchQueryParser): # {{{
         if matchkind != REGEXP_MATCH: ### leave case in regexps because it can be significant e.g. \S \W \D
             query = query.lower()
 
-        if location not in self.DEFAULT_LOCATIONS:
+        if location not in self.USABLE_LOCATIONS:
             return set([])
         matches = set([])
-        all_locs = set(self.DEFAULT_LOCATIONS) - set(['all'])
+        all_locs = set(self.USABLE_LOCATIONS) - set(['all'])
         locations = all_locs if location == 'all' else [location]
         q = {
              'title' : lambda x : getattr(x, 'title').lower(),
