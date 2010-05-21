@@ -76,8 +76,7 @@ class Timesonline(BasicNewsRecipe):
         soup = self.index_to_soup(index)
         link_item = soup.find(name = 'div',attrs ={'class': "float-left margin-right-15"})
         if link_item:
-           cover_url = 'http://www.timesonline.co.uk' + link_item.img['src']
-           print cover_url
+           cover_url = link_item.img['src']
         return cover_url
 
     def get_article_url(self, article):
@@ -85,9 +84,9 @@ class Timesonline(BasicNewsRecipe):
 
 
     def preprocess_html(self, soup):
-        soup.html['xml:lang'] = self.lang
-        soup.html['lang']     = self.lang
-        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        soup.html['xml:lang'] = self.language
+        soup.html['lang']     = self.language
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.language)])
         mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=ISO-8859-1")])
         soup.head.insert(0,mlang)
         soup.head.insert(1,mcharset)
