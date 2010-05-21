@@ -9,20 +9,14 @@ import os, re, time, sys
 from calibre.ebooks.metadata import MetaInformation
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.interface import BookList as _BookList
-from calibre.constants import filesystem_encoding, preferred_encoding
+from calibre.devices.metadata_serializer import MetadataSerializer
+from calibre.constants import preferred_encoding
 from calibre import isbytestring
 
-class Book(MetaInformation):
+class Book(MetaInformation, MetadataSerializer):
 
     BOOK_ATTRS = ['lpath', 'size', 'mime', 'device_collections']
 
-    JSON_ATTRS = [
-        'lpath', 'title', 'authors', 'mime', 'size', 'tags', 'author_sort',
-        'title_sort', 'comments', 'category', 'publisher', 'series',
-        'series_index', 'rating', 'isbn', 'language', 'application_id',
-        'book_producer', 'lccn', 'lcc', 'ddc', 'rights', 'publication_type',
-        'uuid',
-    ]
 
     def __init__(self, prefix, lpath, size=None, other=None):
         from calibre.ebooks.metadata.meta import path_to_ext
@@ -81,19 +75,6 @@ class Book(MetaInformation):
             if hasattr(other, attr):
                 val = getattr(other, attr, None)
                 setattr(self, attr, val)
-
-    def to_json(self):
-        json = {}
-        for attr in self.JSON_ATTRS:
-            val = getattr(self, attr)
-            if isbytestring(val):
-                enc = filesystem_encoding if attr == 'lpath' else preferred_encoding
-                val = val.decode(enc, 'replace')
-            elif isinstance(val, (list, tuple)):
-                val = [x.decode(preferred_encoding, 'replace') if
-                        isbytestring(x) else x for x in val]
-            json[attr] = val
-        return json
 
 class BookList(_BookList):
 

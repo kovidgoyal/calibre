@@ -17,6 +17,7 @@ from itertools import cycle
 
 from calibre import prints, isbytestring
 from calibre.constants import filesystem_encoding
+from calibre.devices.metadata_serializer import metadata_serializer as ms
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
@@ -260,8 +261,7 @@ class USBMS(CLI, Device):
                     os.makedirs(self.normalize_path(prefix))
                 js = [item.to_json() for item in booklists[listid] if
                         hasattr(item, 'to_json')]
-                with open(self.normalize_path(os.path.join(prefix, self.METADATA_CACHE)), 'wb') as f:
-                    json.dump(js, f, indent=2, encoding='utf-8')
+                ms.write_json(js, self.normalize_path(os.path.join(prefix, self.METADATA_CACHE)))
         write_prefix(self._main_prefix, 0)
         write_prefix(self._card_a_prefix, 1)
         write_prefix(self._card_b_prefix, 2)
@@ -293,8 +293,7 @@ class USBMS(CLI, Device):
         cache_file = cls.normalize_path(os.path.join(prefix, name))
         if os.access(cache_file, os.R_OK):
             try:
-                with open(cache_file, 'rb') as f:
-                    js = json.load(f, encoding='utf-8')
+                js = ms.read_json(cache_file)
                 for item in js:
                     book = cls.book_class(prefix, item.get('lpath', None))
                     for key in item.keys():
