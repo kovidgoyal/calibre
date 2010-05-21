@@ -53,3 +53,14 @@ class NEWSMY(TECLAST_K3):
     def windows_sort_drives(self, drives):
         return drives
 
+class IPAPYRUS(TECLAST_K3):
+
+    name = 'iPapyrus device interface'
+    gui_name = 'iPapyrus'
+    description    = _('Communicate with the iPapyrus reader.')
+
+    FORMATS = ['epub', 'pdf', 'txt']
+
+    VENDOR_NAME      = 'E_READER'
+    WINDOWS_MAIN_MEM = ''
+
