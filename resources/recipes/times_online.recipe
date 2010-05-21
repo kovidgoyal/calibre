@@ -5,6 +5,7 @@ __copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 timesonline.co.uk
 '''
+import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
@@ -25,6 +26,8 @@ class Timesonline(BasicNewsRecipe):
     language = 'en_GB'
     recursions = 9
     match_regexps = [r'http://www.timesonline.co.uk/.*page=[2-9]']
+
+    preprocess_regexps = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
 
     keep_only_tags =  [
                         dict(name='div', attrs= {'id':['region-column1and2-layout2']}),
