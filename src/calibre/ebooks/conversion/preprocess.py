@@ -18,6 +18,24 @@ convert_entities = functools.partial(entity_to_unicode, exceptions=['quot',
     'apos', 'lt', 'gt', 'amp', '#60', '#62'])
 _span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
 
+LIGATURES = {
+        u'\u00c6': u'AE',
+        u'\u00e6': u'ae',
+        u'\u0152': u'OE',
+        u'\u0153': u'oe',
+        u'\u0132': u'IJ',
+        u'\u0133': u'ij',
+        u'\u1D6B': u'ue',
+        u'\uFB00': u'ff',
+        u'\uFB01': u'fi',
+        u'\uFB02': u'fl',
+        u'\uFB03': u'ffi',
+        u'\uFB04': u'ffl',
+        u'\uFB05': u'ft',
+        u'\uFB06': u'st',
+        }
+
+_ligpat = re.compile(u'|'.join(LIGATURES))
 
 def sanitize_head(match):
     x = match.group(1)
@@ -227,6 +245,9 @@ class HTMLPreProcessor(object):
             rules = self.PDFTOHTML
         else:
             rules = []
+
+        if not self.extra_opts.keep_ligatures:
+            html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)
 
         end_rules = []
         if getattr(self.extra_opts, 'remove_header', None):

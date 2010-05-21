@@ -164,7 +164,10 @@ class CSSFlattener(object):
             body = html.find(XHTML('body'))
             fsize = self.context.source.fbase
             self.baseline_node(body, stylizer, sizes, fsize)
-        sbase = max(sizes.items(), key=operator.itemgetter(1))[0]
+        try:
+            sbase = max(sizes.items(), key=operator.itemgetter(1))[0]
+        except:
+            sbase = 12.0
         self.oeb.logger.info(
             "Source base font size is %0.05fpt" % sbase)
         return sbase

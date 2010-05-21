@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import SIGNAL, QVariant
 
 from calibre.gui2.convert.look_and_feel_ui import Ui_Form
 from calibre.gui2.convert import Widget
@@ -24,8 +24,14 @@ class LookAndFeelWidget(Widget, Ui_Form):
                     'linearize_tables',
                     'disable_font_rescaling', 'insert_blank_line',
                     'remove_paragraph_spacing', 'remove_paragraph_spacing_indent_size','input_encoding',
-                    'asciiize']
+                    'asciiize', 'keep_ligatures']
                 )
+        for val, text in [
+                ('original', _('Original')),
+                ('left', _('Left align')),
+                ('justify', _('Justify text'))
+                ]:
+            self.opt_change_justification.addItem(text, QVariant(val))
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
         self.opt_disable_font_rescaling.toggle()
@@ -34,6 +40,21 @@ class LookAndFeelWidget(Widget, Ui_Form):
                 self.font_key_wizard)
         self.opt_remove_paragraph_spacing.toggle()
         self.opt_remove_paragraph_spacing.toggle()
+
+    def get_value_handler(self, g):
+        if g is self.opt_change_justification:
+            ans = unicode(g.itemData(g.currentIndex()).toString())
+            return ans
+        return Widget.get_value_handler(self, g)
+
+    def set_value_handler(self, g, val):
+        if g is self.opt_change_justification:
+            for i in range(g.count()):
+                c = unicode(g.itemData(i).toString())
+                if val == c:
+                    g.setCurrentIndex(i)
+                    break
+            return True
 
     def font_key_wizard(self):
         from calibre.gui2.convert.font_key import FontKeyChooser
