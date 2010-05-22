@@ -118,12 +118,8 @@ def utcnow():
 def utcfromtimestamp(stamp):
     return datetime.utcfromtimestamp(stamp).replace(tzinfo=_utc_tz)
 
-def format_date(dt, format, assume_utc=False, as_utc=False):
+def format_date(dt, format):
     ''' Return a date formatted as a string using a subset of Qt's formatting codes '''
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=_utc_tz if assume_utc else
-                _local_tz)
-    dt = dt.astimezone(_utc_tz if as_utc else _local_tz)
     strf = partial(strftime, t=dt.timetuple())
 
     def format_day(mo):
