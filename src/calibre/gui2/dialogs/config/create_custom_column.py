@@ -10,7 +10,7 @@ from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant
 
 from calibre.gui2.dialogs.config.create_custom_column_ui import Ui_QCreateCustomColumn
 from calibre.gui2 import error_dialog
-from calibre.ebooks.metadata.book import RESERVED_METADATA_FIELDS
+from calibre.ebooks.metadata.book.base import RESERVED_FIELD_NAMES
 
 class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
@@ -103,7 +103,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             return self.simple_error('', _('No lookup name was provided'))
         if not col_heading:
             return self.simple_error('', _('No column heading was provided'))
-        if col in RESERVED_METADATA_FIELDS:
+        if col in RESERVED_FIELD_NAMES:
             return self.simple_error('', _('The lookup name %s is reserved and cannot be used')%col)
         bad_col = False
         if col in self.parent.custcols:

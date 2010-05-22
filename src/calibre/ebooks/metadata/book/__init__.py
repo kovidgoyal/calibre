@@ -6,7 +6,8 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 '''
-All fields must have a NULL value represented as None
+All fields must have a NULL value represented as None for simple types,
+an empty list/dictionary for complex types and (None, None) for cover_data
 '''
 
 SOCIAL_METADATA_FIELDS = frozenset([
@@ -61,7 +62,7 @@ PUBLICATION_METADATA_FIELDS = frozenset([
     ])
 
 BOOK_STRUCTURE_FIELDS = frozenset([
-    # These are used by code
+    # These are used by code, Null values are None.
     'toc', 'spine', 'guide', 'manifest',
     ])
 
