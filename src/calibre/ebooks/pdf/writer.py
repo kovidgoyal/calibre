@@ -18,10 +18,69 @@ from calibre.ebooks.metadata import authors_to_string
 
 from PyQt4 import QtCore
 from PyQt4.Qt import QUrl, QEventLoop, SIGNAL, QObject, \
-    QPrinter, QMetaObject, QSizeF, Qt
+    QPrinter, QMetaObject, QSizeF, Qt, QPainter
 from PyQt4.QtWebKit import QWebView
 
 from pyPdf import PdfFileWriter, PdfFileReader
+
+def get_custom_size(opts):
+    custom_size = None
+    if opts.custom_size != None:
+        width, sep, height = opts.custom_size.partition('x')
+        if height != '':
+            try:
+                width = int(width)
+                height = int(height)
+                custom_size = (width, height)
+            except:
+                custom_size = None
+    return custom_size
+
+def get_pdf_page_size(opts):
+    from calibre.gui2 import is_ok_to_use_qt
+    if not is_ok_to_use_qt():
+        raise Exception('Not OK to use Qt')
+
+    printer = QPrinter(QPrinter.HighResolution)
+    custom_size = get_custom_size(opts)
+
+    if opts.output_profile.short_name == 'default':
+        if custom_size is None:
+            printer.setPaperSize(paper_size(opts.paper_size))
+        else:
+            printer.setPaperSize(QSizeF(custom_size[0], custom_size[1]), unit(opts.unit))
+    else:
+        printer.setPaperSize(QSizeF(opts.output_profile.width / opts.output_profile.dpi,
+            opts.output_profile.height / opts.output_profile.dpi), QPrinter.Inch)
+
+    printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
+    printer.setOrientation(orientation(opts.orientation))
+    printer.setOutputFormat(QPrinter.PdfFormat)
+
+    size = printer.paperSize(QPrinter.Millimeter)
+
+    return size.width() / 10, size.height() / 10
+
+def get_imagepdf_page_size(opts):
+    printer = QPrinter(QPrinter.HighResolution)
+    custom_size = get_custom_size(opts)
+
+    if opts.output_profile.short_name == 'default':
+        if custom_size == None:
+            printer.setPaperSize(paper_size(opts.paper_size))
+        else:
+            printer.setPaperSize(QSizeF(custom_size[0], custom_size[1]), unit(opts.unit))
+    else:
+        printer.setPaperSize(QSizeF(opts.output_profile.comic_screen_size[0] / opts.output_profile.dpi,
+            opts.output_profile.comic_screen_size[1] / opts.output_profile.dpi), QPrinter.Inch)
+
+    printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
+    printer.setOrientation(orientation(opts.orientation))
+    printer.setOutputFormat(QPrinter.PdfFormat)
+
+    size = printer.paperSize(QPrinter.Millimeter)
+
+    return size.width() / 10, size.height() / 10
 
 class PDFMetadata(object):
     def __init__(self, oeb_metadata=None):
@@ -36,6 +95,7 @@ class PDFMetadata(object):
 
 
 class PDFWriter(QObject):
+
     def __init__(self, opts, log):
         from calibre.gui2 import is_ok_to_use_qt
         if not is_ok_to_use_qt():
@@ -46,25 +106,15 @@ class PDFWriter(QObject):
 
         self.loop = QEventLoop()
         self.view = QWebView()
+        self.view.setRenderHints(QPainter.Antialiasing|QPainter.TextAntialiasing|QPainter.SmoothPixmapTransform)
         self.connect(self.view, SIGNAL('loadFinished(bool)'), self._render_html)
         self.render_queue = []
         self.combine_queue = []
         self.tmp_path = PersistentTemporaryDirectory('_pdf_output_parts')
 
-        self.custom_size = None
-        if opts.custom_size != None:
-            width, sep, height = opts.custom_size.partition('x')
-            if height != '':
-                try:
-                    width = int(width)
-                    height = int(height)
-                    self.custom_size = (width, height)
-                except:
-                    self.custom_size = None
-
         self.opts = opts
 
-        self.size = self._size()
+        self.size = get_pdf_page_size(opts)
 
     def dump(self, items, out_stream, pdf_metadata):
         self.metadata = pdf_metadata
@@ -77,27 +127,6 @@ class PDFWriter(QObject):
         QMetaObject.invokeMethod(self, "_render_book", Qt.QueuedConnection)
         self.loop.exec_()
 
-    def _size(self):
-        '''
-        The size of a pdf page in cm.
-        '''
-        printer = QPrinter(QPrinter.HighResolution)
-
-        if self.opts.output_profile.short_name == 'default':
-            if self.custom_size == None:
-                printer.setPaperSize(paper_size(self.opts.paper_size))
-            else:
-                printer.setPaperSize(QSizeF(self.custom_size[0], self.custom_size[1]), unit(self.opts.unit))
-        else:
-            printer.setPaperSize(QSizeF(self.opts.output_profile.width / self.opts.output_profile.dpi, self.opts.output_profile.height / self.opts.output_profile.dpi), QPrinter.Inch)
-
-        printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
-        printer.setOrientation(orientation(self.opts.orientation))
-        printer.setOutputFormat(QPrinter.PdfFormat)
-
-        size = printer.paperSize(QPrinter.Millimeter)
-
-        return size.width() / 10, size.height() / 10
 
     @QtCore.pyqtSignature('_render_book()')
     def _render_book(self):
@@ -151,6 +180,10 @@ class PDFWriter(QObject):
 
 class ImagePDFWriter(PDFWriter):
 
+    def __init__(self, opts, log):
+        PDFWriter.__init__(self, opts, log)
+        self.size = get_imagepdf_page_size(opts)
+
     def _render_next(self):
         item = str(self.render_queue.pop(0))
         self.combine_queue.append(os.path.join(self.tmp_path, '%i.pdf' % (len(self.combine_queue) + 1)))
@@ -163,22 +196,4 @@ class ImagePDFWriter(PDFWriter):
 
         self.view.setHtml(html)
 
-    def _size(self):
-            printer = QPrinter(QPrinter.HighResolution)
-
-            if self.opts.output_profile.short_name == 'default':
-                if self.custom_size == None:
-                    printer.setPaperSize(paper_size(self.opts.paper_size))
-                else:
-                    printer.setPaperSize(QSizeF(self.custom_size[0], self.custom_size[1]), unit(self.opts.unit))
-            else:
-                printer.setPaperSize(QSizeF(self.opts.output_profile.comic_screen_size[0] / self.opts.output_profile.dpi, self.opts.output_profile.comic_screen_size[1] / self.opts.output_profile.dpi), QPrinter.Inch)
-
-            printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
-            printer.setOrientation(orientation(self.opts.orientation))
-            printer.setOutputFormat(QPrinter.PdfFormat)
-
-            size = printer.paperSize(QPrinter.Millimeter)
-
-            return size.width() / 10, size.height() / 10
 

@@ -135,7 +135,6 @@ class SearchBox2(QComboBox):
 
     def text_edited_slot(self, text):
         if self.as_you_type:
-            text = unicode(text)
             self.timer = self.startTimer(self.__class__.INTERVAL)
 
     def timerEvent(self, event):

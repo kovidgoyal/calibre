@@ -15,11 +15,39 @@ from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks.pdf.writer import PDFWriter, ImagePDFWriter, PDFMetadata
+from calibre.ebooks.pdf.writer import PDFWriter, ImagePDFWriter, PDFMetadata, \
+    get_pdf_page_size
 from calibre.ebooks.pdf.pageoptions import UNITS, PAPER_SIZES, \
     ORIENTATIONS
+from calibre.ebooks.epub.output import CoverManager
 
-class PDFOutput(OutputFormatPlugin):
+class CoverManagerPDF(CoverManager):
+
+    def setup_cover(self, opts):
+        width, height = get_pdf_page_size(opts)
+        factor = opts.output_profile.dpi
+        self.NONSVG_TITLEPAGE_COVER = '''\
+        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                <meta name="calibre:cover" content="true" />
+                <title>Cover</title>
+                <style type="text/css" title="override_css">
+                    @page {padding: 0pt; margin:0pt}
+                    body { text-align: center; padding:0pt; margin: 0pt; }
+                    div { padding:0pt; margin: 0pt; }
+                </style>
+            </head>
+            <body>
+                <div>
+                    <img src="%%s" alt="cover" width="%d" height="%d" />
+                </div>
+            </body>
+        </html>
+        '''%(int(width*factor), int(height*factor)-5)
+
+
+class PDFOutput(OutputFormatPlugin, CoverManagerPDF):
 
     name = 'PDF Output'
     author = 'John Schember'
@@ -47,6 +75,7 @@ class PDFOutput(OutputFormatPlugin):
                  ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        self.oeb = oeb_book
         self.input_plugin, self.opts, self.log = input_plugin, opts, log
         self.output_path = output_path
         self.metadata = oeb_book.metadata
@@ -63,6 +92,10 @@ class PDFOutput(OutputFormatPlugin):
 
     def convert_text(self, oeb_book):
         self.log.debug('Serializing oeb input to disk for processing...')
+        self.opts.no_svg_cover = True
+        self.opts.no_default_epub_cover = True
+        self.setup_cover(self.opts)
+        self.insert_cover()
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format
             oeb_output = plugin_for_output_format('oeb')
