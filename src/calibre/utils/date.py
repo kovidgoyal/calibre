@@ -8,9 +8,12 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from datetime import datetime
+from functools import partial
 
 from dateutil.parser import parse
 from dateutil.tz import tzlocal, tzutc
+
+from calibre import strftime
 
 class SafeLocalTimeZone(tzlocal):
     '''
@@ -115,21 +118,27 @@ def utcnow():
 def utcfromtimestamp(stamp):
     return datetime.utcfromtimestamp(stamp).replace(tzinfo=_utc_tz)
 
-def format_date(dt, format):
+def format_date(dt, format, assume_utc=False, as_utc=False):
     ''' Return a date formatted as a string using a subset of Qt's formatting codes '''
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=_utc_tz if assume_utc else
+                _local_tz)
+    dt = dt.astimezone(_utc_tz if as_utc else _local_tz)
+    strf = partial(strftime, t=dt.timetuple())
+
     def format_day(mo):
         l = len(mo.group(0))
         if l == 1: return '%d'%dt.day
         if l == 2: return '%02d'%dt.day
-        if l == 3: return dt.strftime('%a')
-        return dt.strftime('%A')
+        if l == 3: return strf('%a')
+        return strf('%A')
 
     def format_month(mo):
         l = len(mo.group(0))
         if l == 1: return '%d'%dt.month
         if l == 2: return '%02d'%dt.month
-        if l == 3: return dt.strftime('%b')
-        return dt.strftime('%B')
+        if l == 3: return strf('%b')
+        return strf('%B')
 
     def format_year(mo):
         if len(mo.group(0)) == 2: return '%02d'%(dt.year % 100)
