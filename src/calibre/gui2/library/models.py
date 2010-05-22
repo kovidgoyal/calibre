@@ -883,7 +883,7 @@ class DeviceBooksModel(BooksModel): # {{{
             self.reset()
         self.last_search = text
         if self.last_search:
-            self.searched.emit(False)
+            self.searched.emit(True)
 
 
     def sort(self, col, order, reset=True):
