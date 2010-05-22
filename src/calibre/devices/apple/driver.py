@@ -23,9 +23,6 @@ class iDevice(DevicePlugin):
     def is_usb_connected(self, device_on_system):
         return True
 
-    def can_handle(self, device_info):
-        # Return True if iTunes installed
-
     def can_handle_windows(self, device_id, debug=False):
         '''
         Optional method to perform further checks on a device to see if this driver
