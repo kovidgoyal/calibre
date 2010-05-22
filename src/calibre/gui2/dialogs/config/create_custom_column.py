@@ -10,7 +10,7 @@ from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant
 
 from calibre.gui2.dialogs.config.create_custom_column_ui import Ui_QCreateCustomColumn
 from calibre.gui2 import error_dialog
-from calibre.metadata.book import RESERVED_METADATA_FIELDS
+from calibre.ebooks.metadata.book import RESERVED_METADATA_FIELDS
 
 class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
