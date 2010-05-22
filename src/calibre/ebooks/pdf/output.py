@@ -94,7 +94,7 @@ class PDFOutput(OutputFormatPlugin, CoverManagerPDF):
         self.log.debug('Serializing oeb input to disk for processing...')
         self.opts.no_svg_cover = True
         self.opts.no_default_epub_cover = True
-        self.opts.preserve_cover_aspect_ratio= False
+        self.opts.preserve_cover_aspect_ratio = False
         self.setup_cover(self.opts)
         self.insert_cover()
         with TemporaryDirectory('_pdf_out') as oeb_dir:
