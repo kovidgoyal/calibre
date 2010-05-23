@@ -1,0 +1,148 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
+__docformat__ = 'restructuredtext en'
+
+'''
+http://www.guardian.co.uk/theobserver
+'''
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Guardian(BasicNewsRecipe):
+
+    title = u'The Observer'
+    __author__ = 'jbambridge'
+    language = 'en_GB'
+    simultaneous_downloads = 5
+
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_javascript = True
+
+    timefmt = ' [%a, %d %b %Y]'
+
+    filter_regexps = [r'r\.kelkoo\.com']
+
+    keep_only_tags = [
+                      dict(name='div', attrs={'id':["content","article_header","main-article-info",]}),
+                           ]
+    remove_tags = [
+                        dict(name='div', attrs={'class':["video-content","videos-third-column"]}),
+                        dict(name='div', attrs={'id':["article-toolbox","subscribe-feeds",]}),
+                        dict(name='div', attrs={'class':["promo-component bookshop-books-promo bookshop-books"]}),
+                        dict(name='ul', attrs={'class':["pagination"]}),
+                        dict(name='ul', attrs={'id':["content-actions"]}),
+                        dict(name='li', attrs={'id':["product-image"]}),
+                        ]
+    use_embedded_content    = False
+
+    no_stylesheets = True
+    extra_css = '''
+                    .article-attributes{font-size: x-small; font-family:Arial,Helvetica,sans-serif;}
+                    .h1{font-size: large ;font-family:georgia,serif; font-weight:bold;}
+                    .stand-first-alone{color:#666666; font-size:small; font-family:Arial,Helvetica,sans-serif;}
+                    .caption{color:#666666; font-size:x-small; font-family:Arial,Helvetica,sans-serif;}
+                    #article-wrapper{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
+                    .main-article-info{font-family:Arial,Helvetica,sans-serif;}
+                    #full-contents{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
+                    #match-stats-summary{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
+                '''
+
+    feeds = [
+      (u'Main Section', u'feed://www.guardian.co.uk/theobserver/news/uknews/rss'),
+      (u'News', u'feed://www.guardian.co.uk/theobserver/news/rss'),
+      (u'World News', u'feed://www.guardian.co.uk/theobserver/news/worldnews/rss'),
+      (u'In Focus', u'feed://www.guardian.co.uk/theobserver/news/focus/rss'),
+      (u'7 Days', u'feed://www.guardian.co.uk/theobserver/news/7days/rss'),
+      (u'Seven Days', u'feed://www.guardian.co.uk/theobserver/news/seven-days/rss'),
+      (u'Media', u'feed://www.guardian.co.uk/theobserver/news/media/rss'),
+      (u'Business', u'feed://www.guardian.co.uk/theobserver/businessandmedia/rss'),
+      (u'Cash', u'feed://www.guardian.co.uk/theobserver/news/cash/rss'),
+      (u'Money', u'feed://feeds.guardian.co.uk/theguardian/money/rss'),
+      (u'Comment', u'feed://www.guardian.co.uk/theobserver/news/comment/rss'),
+      (u'Travel', u'feed://www.guardian.co.uk/theobserver/escape/rss'),
+      (u'Culture', u'feed://www.guardian.co.uk/theobserver/review/rss'),
+      (u'Money', u'feed://feeds.guardian.co.uk/theguardian/money/rss'),
+      (u'TV & Radio', u'feed://www.guardian.co.uk/tv-and-radio/rss'),
+      (u'New Review', u'feed://www.guardian.co.uk/theobserver/new-review/rss'),
+      (u'Agenda', u'feed://www.guardian.co.uk/theobserver/new-review/agenda/rss'),
+      (u'Critics', u'feed://www.guardian.co.uk/theobserver/new-review/critics/rss'),
+      (u'Features', u'feed://www.guardian.co.uk/theobserver/new-review/features/rss'),
+      (u'Discover', u'feed://www.guardian.co.uk/theobserver/new-review/discover/rss'),
+      (u'Books', u'feed://www.guardian.co.uk/theobserver/new-review/books/rss'),
+      (u'Magazine', u'feed://www.guardian.co.uk/theobserver/magazine/rss'),
+      (u'Regulars', u'feed://www.guardian.co.uk/theobserver/magazine/regulars/rss'),
+      (u'Life & Style', u'feed://www.guardian.co.uk/theobserver/magazine/life-and-style/rss'),
+      (u'Mag Features', u'feed://www.guardian.co.uk/theobserver/magazine/features2/rss'),
+      (u'Sport', u'feed://www.guardian.co.uk/theobserver/sport/rss')
+    ]
+
+    def get_article_url(self, article):
+          url = article.get('guid', None)
+          if '/video/' in url or '/flyer/' in url or '/quiz/' in url or \
+              '/gallery/' in url  or 'ivebeenthere' in url or \
+              'pickthescore' in url or 'audioslideshow' in url :
+              url = None
+          return url
+
+    def preprocess_html(self, soup):
+
+          for item in soup.findAll(style=True):
+              del item['style']
+
+          for item in soup.findAll(face=True):
+              del item['face']
+          for tag in soup.findAll(name=['ul','li']):
+                tag.name = 'div'
+
+          return soup
+
+    def find_sections(self):
+        soup = self.index_to_soup('http://www.guardian.co.uk/theobserver')
+        # find cover pic
+        img = soup.find( 'img',attrs ={'alt':'Guardian digital edition'})
+        if img is not None:
+            self.cover_url = img['src']
+        # end find cover pic
+
+        idx = soup.find('div', id='book-index')
+        for s in idx.findAll('strong', attrs={'class':'book'}):
+            a = s.find('a', href=True)
+            yield (self.tag_to_string(a), a['href'])
+
+    def find_articles(self, url):
+        soup = self.index_to_soup(url)
+        div = soup.find('div', attrs={'class':'book-index'})
+        for ul in div.findAll('ul', attrs={'class':'trailblock'}):
+            for li in ul.findAll('li'):
+                a = li.find(href=True)
+                if not a:
+                    continue
+                title = self.tag_to_string(a)
+                url = a['href']
+                if not title or not url:
+                    continue
+                tt = li.find('div', attrs={'class':'trailtext'})
+                if tt is not None:
+                    for da in tt.findAll('a'): da.extract()
+                    desc = self.tag_to_string(tt).strip()
+                yield {
+                        'title': title, 'url':url, 'description':desc,
+                        'date' : strftime('%a, %d %b'),
+                        }
+
+    def parse_index(self):
+        try:
+            feeds = []
+            for title, href in self.find_sections():
+                feeds.append((title, list(self.find_articles(href))))
+            return feeds
+        except:
+            raise NotImplementedError
+
+
+    def postprocess_html(self,soup,first):
+        return soup.findAll('html')[0]
+
+

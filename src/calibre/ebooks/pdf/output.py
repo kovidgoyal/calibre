@@ -15,42 +15,14 @@ from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks.pdf.writer import PDFWriter, ImagePDFWriter, PDFMetadata, \
-    get_pdf_page_size
+from calibre.ebooks.pdf.writer import PDFWriter, ImagePDFWriter, PDFMetadata
 from calibre.ebooks.pdf.pageoptions import UNITS, PAPER_SIZES, \
     ORIENTATIONS
-from calibre.ebooks.epub.output import CoverManager
 
-class CoverManagerPDF(CoverManager):
-
-    def setup_cover(self, opts):
-        width, height = get_pdf_page_size(opts)
-        factor = opts.output_profile.dpi
-        self.NONSVG_TITLEPAGE_COVER = '''\
-        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-            <head>
-                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                <meta name="calibre:cover" content="true" />
-                <title>Cover</title>
-                <style type="text/css" title="override_css">
-                    @page {padding: 0pt; margin:0pt}
-                    body { text-align: center; padding:0pt; margin: 0pt; }
-                    div { padding:0pt; margin: 0pt; }
-                </style>
-            </head>
-            <body>
-                <div>
-                    <img src="%%s" alt="cover" width="%d" height="%d" />
-                </div>
-            </body>
-        </html>
-        '''%(int(width*factor), int(height*factor)-5)
-
-
-class PDFOutput(OutputFormatPlugin, CoverManagerPDF):
+class PDFOutput(OutputFormatPlugin):
 
     name = 'PDF Output'
-    author = 'John Schember'
+    author = 'John Schember and Kovid Goyal'
     file_type = 'pdf'
 
     options = set([
@@ -72,6 +44,12 @@ class PDFOutput(OutputFormatPlugin, CoverManagerPDF):
                         level=OptionRecommendation.LOW, choices=ORIENTATIONS.keys(),
                         help=_('The orientation of the page. Default is portrait. Choices '
                         'are %s') % ORIENTATIONS.keys()),
+                    OptionRecommendation(name='preserve_cover_aspect_ratio',
+                        recommended_value=False,
+                        help=_('Preserve the aspect ratio of the cover, instead'
+                            ' of stretching it to fill the ull first page of the'
+                            ' generated pdf.')
+                        ),
                  ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
@@ -79,6 +57,7 @@ class PDFOutput(OutputFormatPlugin, CoverManagerPDF):
         self.input_plugin, self.opts, self.log = input_plugin, opts, log
         self.output_path = output_path
         self.metadata = oeb_book.metadata
+        self.cover_data = None
 
         if input_plugin.is_image_collection:
             log.debug('Converting input as an image collection...')
@@ -90,13 +69,20 @@ class PDFOutput(OutputFormatPlugin, CoverManagerPDF):
     def convert_images(self, images):
         self.write(ImagePDFWriter, images)
 
+    def get_cover_data(self):
+        g, m = self.oeb.guide, self.oeb.manifest
+        if 'titlepage' not in g:
+            if 'cover' in g:
+                href = g['cover'].href
+                from calibre.ebooks.oeb.base import urlnormalize
+                for item in m:
+                    if item.href == urlnormalize(href):
+                        self.cover_data = item.data
+
     def convert_text(self, oeb_book):
         self.log.debug('Serializing oeb input to disk for processing...')
-        self.opts.no_svg_cover = True
-        self.opts.no_default_epub_cover = True
-        self.opts.preserve_cover_aspect_ratio= False
-        self.setup_cover(self.opts)
-        self.insert_cover()
+        self.get_cover_data()
+
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format
             oeb_output = plugin_for_output_format('oeb')
@@ -108,7 +94,7 @@ class PDFOutput(OutputFormatPlugin, CoverManagerPDF):
             self.write(PDFWriter, [s.path for s in opf.spine])
 
     def write(self, Writer, items):
-        writer = Writer(self.opts, self.log)
+        writer = Writer(self.opts, self.log, cover_data=self.cover_data)
 
         close = False
         if not hasattr(self.output_path, 'write'):
