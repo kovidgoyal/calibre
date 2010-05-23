@@ -430,7 +430,7 @@ from calibre.ebooks.txt.output import TXTOutput
 
 from calibre.customize.profiles import input_profiles, output_profiles
 
-
+from calibre.devices.apple.driver import ITUNES
 from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK
@@ -495,6 +495,7 @@ plugins += [
 ]
 # Order here matters. The first matched device is the one used.
 plugins += [
+    ITUNES,
     HANLINV3,
     HANLINV5,
     BLACKBERRY,
