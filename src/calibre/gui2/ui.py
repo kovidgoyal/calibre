@@ -538,14 +538,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.library_view.model().cover_cache = self.cover_cache
         self.connect(self.edit_categories, SIGNAL('clicked()'), self.do_edit_categories)
         self.tags_view.set_database(db, self.tag_match, self.popularity, self.search_restriction)
-        self.connect(self.tags_view,
-                SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
-                     self.search.search_from_tags)
+        self.tags_view.tags_marked.connect(self.search.search_from_tags)
         for x in (self.saved_search.clear_to_help, self.mark_restriction_set):
             self.tags_view.restriction_set.connect(x)
-        self.connect(self.tags_view,
-                SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
-                     self.saved_search.clear_to_help)
+        self.tags_view.tags_marked.connect(self.saved_search.clear_to_help)
         self.search.search.connect(self.tags_view.model().reinit)
         for x in (self.location_view.count_changed, self.tags_view.recount,
                 self.restriction_count_changed):
