@@ -5,12 +5,13 @@
 
     22 May 2010
 '''
-import datetime
+import datetime, re
 
 from calibre.constants import isosx, iswindows
 from calibre.devices.interface import DevicePlugin
-#from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import Config
+from calibre.utils.date import parse_date
 
 if isosx:
     print "running in OSX"
@@ -35,7 +36,7 @@ class ITUNES(DevicePlugin):
     PRODUCT_ID = [0x129a,0x1292]
     BCD = [0x01]
 
-    app = None
+    it = None
     is_connected = False
 
 
@@ -65,12 +66,32 @@ class ITUNES(DevicePlugin):
         """
         print "ITUNES:books(oncard=%s)" % oncard
         if not oncard:
-            myBooks = BookList()
-            book = Book()
+            # Fetch a list of books from iTunes
+            if isosx:
+                names = [s.name() for s in self.it.sources()]
+                kinds = [s.kind() for s in self.it.sources()]
+                sources = dict(zip(kinds,names))
 
-            myBooks.add_book(book, False)
-            print "len(myBooks): %d" % len(myBooks)
-            return myBooks
+                lib = self.it.sources['Library']
+
+                if 'Books' in lib.playlists.name():
+                    booklist = BookList()
+                    it_books = lib.playlists['Books'].file_tracks()
+                    for it_book in it_books:
+                        this_book = Book(it_book.name(), it_book.artist())
+                        this_book.datetime = parse_date(str(it_book.date_added())).timetuple()
+                        this_book.db_id = None
+                        this_book.device_collections = []
+                        this_book.path = 'iTunes/Books/%s.epub' % it_book.name()
+                        this_book.size = it_book.size()
+                        this_book.thumbnail = None
+                        booklist.add_book(this_book, False)
+                    return booklist
+
+                else:
+                    return []
+
+
         else:
             return []
 
@@ -80,8 +101,9 @@ class ITUNES(DevicePlugin):
 
         :param device_info: Is a tupe of (vid, pid, bcd, manufacturer, product,
         serial number)
+        This gets called ~1x/second while device is sensed
         '''
-        print "ITUNES:can_handle()"
+        # print "ITUNES:can_handle()"
         return True
 
     def can_handle_windows(self, device_id, debug=False):
@@ -176,10 +198,11 @@ class ITUNES(DevicePlugin):
             running_apps = appscript.app('System Events')
             if not 'iTunes' in running_apps.processes.name():
                 print " launching iTunes"
-                app = appscript.app('iTunes', hide=True)
+                it = appscript.app('iTunes', hide=True)
                 app.run()
-                self.app = app
-                # May need to set focus back to calibre here?
+                self.it = it
+            else:
+                self.it = appscript.app('iTunes')
 
     def post_yank_cleanup(self):
         '''
@@ -284,14 +307,6 @@ class ITUNES(DevicePlugin):
 
     # Private methods
 
-    def _get_source(self):
-        '''
-        Get iTunes sources (Library, iPod, Radio ...)
-        '''
-        sources = self._app.sources()
-        names = [s.name() for s in sources]
-        kinds = [s.kind() for s in sources]
-        return dict(zip(kinds,names))
 
 class BookList(list):
     '''
@@ -345,20 +360,20 @@ class BookList(list):
         '''
         return {}
 
-class Book(object):
+class Book(MetaInformation):
     '''
     A simple class describing a book in the iTunes Books Library.
-    These seem to be the minimum Book attributes needed.
+    Q's:
+    - Should thumbnail come from calibre if available?
+    - See ebooks.metadata.__init__ for all fields
     '''
-    def __init__(self):
-        setattr(self,'title','A Book Title')
-        setattr(self,'authors',['John Doe'])
-        setattr(self,'path','some/path.epub')
-        setattr(self,'size',1234567)
-        setattr(self,'datetime',datetime.datetime.now().timetuple())
-        setattr(self,'thumbnail',None)
-        setattr(self,'db_id',0)
-        setattr(self,'device_collections',[])
-        setattr(self,'tags',['Genre'])
+    def __init__(self,title,author):
 
+        MetaInformation.__init__(self, title, authors=[author])
 
+    @dynamic_property
+    def title_sorter(self):
+        doc = '''String to sort the title. If absent, title is returned'''
+        def fget(self):
+            return re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', self.title).rstrip()
+        return property(doc=doc, fget=fget)
