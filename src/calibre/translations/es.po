@@ -11,14 +11,30 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-05-21 22:47+0000\n"
-"PO-Revision-Date: 2010-05-21 07:09+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-05-23 00:32+0000\n"
+"Last-Translator: errotaburu <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-22 03:58+0000\n"
+"X-Launchpad-Export-Date: 2010-05-23 03:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
+
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:310
+msgid ""
+"This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
+"landscape mode. Mainly useful for comics."
+msgstr ""
+"Este perfil está pensado para la línea PRS de SONY. Los 500/505/700, etc., "
+"en modo apaisado. Útil principalmente para cómics."
+
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:408
+msgid "This profile is intended for the Amazon Kindle DX."
+msgstr "Este perfil está pensado para el Kindle DX de Amazon."
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
+msgid "Installed plugins"
+msgstr "Complementos instalados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
@@ -374,10 +390,11 @@ msgstr ""
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
 msgstr ""
+"Pensado para el Ipad y dispositivos similares con una resolución de 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:271
 msgid "This profile is intended for the Kobo Reader."
-msgstr ""
+msgstr "Este perfil está pensado para el lector Kobo"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:283
 msgid "This profile is intended for the SONY PRS-300."
@@ -386,22 +403,6 @@ msgstr "Este perfil está pensado para el SONY PRS-300."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:301
 msgid "This profile is intended for the 5-inch JetBook."
 msgstr "Este perfil está pensado para el JetBook de 5 pulgadas."
-
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:310
-msgid ""
-"This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
-"landscape mode. Mainly useful for comics."
-msgstr ""
-"Este perfil está pensado para la línea PRS de SONY. Los 500/505/700, etc., "
-"en modo apaisado. Útil principalmente para cómics."
-
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:408
-msgid "This profile is intended for the Amazon Kindle DX."
-msgstr "Este perfil está pensado para el Kindle DX de Amazon."
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
-msgid "Installed plugins"
-msgstr "Complementos instalados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
@@ -539,7 +540,7 @@ msgstr "Comunicar con el lector Alex de SpringDesign."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:57
 msgid "Communicate with the Azbooka"
-msgstr ""
+msgstr "Comunicarse con el Azbooka"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:70
 msgid "Communicate with the Elonex EB 511 eBook reader."
@@ -593,11 +594,11 @@ msgstr "Comunicar con Palm Pre."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:35
 msgid "Communicate with the Kobo Reader"
-msgstr ""
+msgstr "Comunicarse con el Kobo Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:56
 msgid "Communicate with the Booq Avant"
-msgstr ""
+msgstr "Comunicarse con el Booq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -682,11 +683,11 @@ msgstr "Comunicar con el lector Teclast K3."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:45
 msgid "Communicate with the Newsmy reader."
-msgstr ""
+msgstr "Comunicarse con el lector Newsmy"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:60
 msgid "Communicate with the iPapyrus reader."
-msgstr ""
+msgstr "Comunicarse con el lector iPapyrus"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:252
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1618,6 +1619,12 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
+"Cuando se use una portada SVG esta opción podrá causar que la portada se "
+"escale para cubrir el área disponible de pantalla, pero conservara su "
+"relación de aspecto (la relación entre la anchura y la altura). Esto supone "
+"que puede haber margenes blancos a los lados o arriba y abajo de la imagen, "
+"pero la imagen no sera distorsionada. Sin esta opción la imagen puede estar "
+"ligeramente distorsionada pero no tendrá margenes en blanco."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
@@ -3308,7 +3315,7 @@ msgstr "&Sin portada SVG"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:52
 msgid "Preserve cover &aspect ratio"
-msgstr ""
+msgstr "Conservar la portada y la proporción de aspecto."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:53
 msgid "Split files &larger than:"
@@ -3430,15 +3437,15 @@ msgstr "Controlar la apariencia de la salida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:30
 msgid "Original"
-msgstr ""
+msgstr "Original"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:31
 msgid "Left align"
-msgstr ""
+msgstr "Alineación izquierda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:32
 msgid "Justify text"
-msgstr ""
+msgstr "Justifiar texto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:120
 msgid "&Disable font size rescaling"
@@ -3497,7 +3504,7 @@ msgstr "C&SS adicional"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:136
 msgid "&Transliterate unicode characters to ASCII"
-msgstr ""
+msgstr "&Transliterar los caracteres unicode mediante ASCII"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:137
 msgid "Insert &blank line"
@@ -3505,7 +3512,7 @@ msgstr "Insertar línea en &blanco"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:138
 msgid "Keep &ligatures"
-msgstr ""
+msgstr "Mantener &ligaduras"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -4541,7 +4548,7 @@ msgstr "nueva dirección de correo electrónico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:472
 msgid "System port selected"
-msgstr ""
+msgstr "Puerto de sistema seleccionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:473
 msgid ""
@@ -4549,6 +4556,10 @@ msgid ""
 "port. You operating system <b>may</b> not allow the server to run on this "
 "port. To be safe choose a port number larger than 1024."
 msgstr ""
+"El valor <b>%d</b> que ha escogido para el puerto del servidor de contenidos "
+"es un puerto de sistema. Su sistema operativo <b>podría</b> no permitir al "
+"servidor utilizar ese puerto. Para estar seguros, elija un número de puerto "
+"superior a 1024."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:492
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:837
@@ -6465,15 +6476,15 @@ msgstr "No comprobar actualizaciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:65
 msgid "Choose a location for your calibre e-book library"
-msgstr ""
+msgstr "Escoja una ubicación para su biblioteca de libros de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:74
 msgid "Failed to create library"
-msgstr ""
+msgstr "Error en la creación de la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:75
 msgid "Failed to create calibre library at: %r. Aborting."
-msgstr ""
+msgstr "Error en la creación de la biblioteca de calibre en: %r. Cancelando."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:145
 msgid "Repairing failed"
@@ -6482,6 +6493,8 @@ msgstr "Reparación fallida"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:146
 msgid "The database repair failed. Starting with a new empty library."
 msgstr ""
+"La reparación de la base de datos falló. Comenzando con una nueva biblioteca "
+"vacía."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:594
@@ -6490,7 +6503,7 @@ msgstr "Biblioteca de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:163
 msgid "Choose a location for your new calibre e-book library"
-msgstr ""
+msgstr "Escoja una ubicación para su nueva biblioteca de libros de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:206
@@ -6500,10 +6513,11 @@ msgstr "Ubicación de la base de datos incorrecta"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:174
 msgid "Bad database location %r. calibre will now quit."
 msgstr ""
+"Ubicación de la base de datos %r errónea. Calibre se cerrará a continuación."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:187
 msgid "Corrupted database"
-msgstr ""
+msgstr "Base de datos corrupta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:188
 msgid ""
@@ -6511,16 +6525,23 @@ msgid ""
 "and repair it automatically? If you say No, a new empty calibre library will "
 "be created."
 msgstr ""
+"Su base de datos de calibre parece estar corrompida. ¿Quiere que calibre "
+"intente repararla automáticamente? Si escoge \"No\", se creará una nueva "
+"biblioteca de calibre vacía"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:194
 msgid ""
 "Repairing database. This can take a very long time for a large collection"
 msgstr ""
+"Reparando la base de datos. Esto puede requerir mucho tiempo si la colección "
+"es grande."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:207
 msgid ""
 "Bad database location %r. Will start with  a new, empty calibre library"
 msgstr ""
+"Ubicación de la base de datos %r errónea. Se comenzará con una biblioteca de "
+"calibre nueva y vacía"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:250
 msgid "If you are sure it is not running"
@@ -7950,7 +7971,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:184
 msgid "E-book Viewer"
-msgstr ""
+msgstr "Visor de libros electrónicos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:185
 msgid "Close dictionary"
@@ -8014,7 +8035,7 @@ msgstr "Buscar anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:207
 msgid "Find previous occurrence"
-msgstr ""
+msgstr "Encontrar incidencia anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:208
 msgid "Shift+F3"
@@ -8749,19 +8770,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:380
 msgid "Add an empty book (a book with no formats)"
-msgstr ""
+msgstr "Añadir libro en blanco (sin formato)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:382
 msgid "Set the title of the added empty book"
-msgstr ""
+msgstr "Introduzca el título del libro en blanco añadido"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:384
 msgid "Set the authors of the added empty book"
-msgstr ""
+msgstr "Introduzca el autor del libro en blanco añadido"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:386
 msgid "Set the ISBN of the added empty book"
-msgstr ""
+msgstr "Introduzca el ISBN del libro en blanco añadido"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:411
 msgid "You must specify at least one file to add"
@@ -9461,7 +9482,7 @@ msgstr "Inglés (Irlanda)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (China)"
-msgstr ""
+msgstr "Ingles (Chino)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "Spanish (Paraguay)"
