@@ -6,17 +6,23 @@ __docformat__ = 'restructuredtext en'
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Freakonomics(BasicNewsRecipe):
-    
+
     title = 'Freakonomics Blog'
     description = 'The Hidden side of everything'
-    __author__ = 'Kovid Goyal'
+    __author__ = 'Starson17'
     language = 'en'
+    cover_url           = 'http://ilkerugur.files.wordpress.com/2009/04/freakonomics.jpg'
 
-    
-    feeds = [('Blog', 'http://freakonomics.blogs.nytimes.com/feed/atom/')]
-    
-    def get_article_url(self, article):
-        return article.get('feedburner_origlink', None)
-        
-    def print_version(self, url):
-        return url + '?pagemode=print'
+    feeds = [('Blog', 'http://feeds.feedburner.com/freakonomicsblog')]
+
+    keep_only_tags     = [dict(name='div', attrs={'id':'header'}),
+                          dict(name='h1'),
+                          dict(name='h2'),
+                          dict(name='div', attrs={'class':'entry-content'}),
+                          ]
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+		'''
