@@ -617,8 +617,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
 
         if config['autolaunch_server']:
-            from calibre.library.server import start_threaded_server
-            from calibre.library import server_config
+            from calibre.library.server.main import start_threaded_server
+            from calibre.library.server import server_config
             self.content_server = start_threaded_server(
                     db, server_config().parse())
             self.test_server_timer = QTimer.singleShot(10000, self.test_server)
