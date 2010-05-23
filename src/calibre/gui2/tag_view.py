@@ -199,8 +199,8 @@ class TagsModel(QAbstractItemModel): # {{{
 
     categories_orig = [_('Authors'), _('Series'), _('Formats'), _('Publishers'),
                        _('Ratings'), _('News'), _('Tags')]
-    row_map_orig    = ['author', 'series', 'format', 'publisher', 'rating',
-                       'news', 'tag']
+    row_map_orig    = ['authors', 'series', 'formats', 'publishers', 'ratings',
+                       'news', 'tags']
     tags_categories_start= 7
     search_keys=['search', _('Searches')]
 
@@ -264,8 +264,8 @@ class TagsModel(QAbstractItemModel): # {{{
             self.cat_icon_map.append(self.cat_icon_map_orig[i])
 
         # Clean up the author's tags, getting rid of the '|' characters
-        if data['author'] is not None:
-            for t in data['author']:
+        if data['authors'] is not None:
+            for t in data['authors']:
                 t.name = t.name.replace('|', ',')
 
         # Now do the user-defined categories. There is a time/space tradeoff here.

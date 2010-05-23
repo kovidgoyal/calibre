@@ -33,6 +33,7 @@ from calibre.customize.ui import run_plugins_on_import
 
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
+from calibre.utils.ordered_dict import OrderedDict
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 
 if iswindows:
@@ -123,22 +124,25 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if isinstance(self.dbpath, unicode):
             self.dbpath = self.dbpath.encode(filesystem_encoding)
 
-        self.tag_browser_categories = {
-                'tags'      : ['tag', 'name'],
-                'series'    : ['series', 'name'],
-                'publishers': ['publisher', 'name'],
-                'authors'   : ['author', 'name'],
-                'news'      : ['news', 'name'],
-                'ratings'   : ['rating', 'rating']
-        }
-        self.tag_browser_datatype = {
-                'tag'       : 'textmult',
-                'series'    : None,
-                'publisher' : 'text',
-                'author'    : 'text',
-                'news'      : None,
-                'rating'    : 'rating',
-        }
+        # Order as has been customary in the tags pane.
+        self.tag_browser_categories = OrderedDict([
+                ('authors',   {'table':'authors', 'column':'name', 'type':'text', 'name':_('Authors')}),
+                ('series',    {'table':'series', 'column':'name', 'type':None, 'name':_('Series')}),
+                ('formats',   {'table':None, 'column':None, 'type':None, 'name':_('Formats')}),
+                ('publishers',{'table':'publishers', 'column':'name', 'type':'text', 'name':_('Publishers')}),
+                ('ratings',   {'table':'ratings', 'column':'rating', 'type':'rating', 'name':_('Ratings')}),
+                ('news',      {'table':'news', 'column':'name', 'type':None, 'name':_('News')}),
+                ('tags',      {'table':'tags', 'column':'name', 'type':'textmult', 'name':_('Tags')}),
+        ])
+
+#        self.tag_browser_datatype = {
+#                'tag'       : 'textmult',
+#                'series'    : None,
+#                'publisher' : 'text',
+#                'author'    : 'text',
+#                'news'      : None,
+#                'rating'    : 'rating',
+#        }
 
         self.tag_browser_formatters = {'rating': lambda x:u'\u2605'*int(round(x/2.))}
 
@@ -653,17 +657,22 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.books_list_filter.change([] if not ids else ids)
 
         categories = {}
-        for tn, cn in self.tag_browser_categories.items():
+        for category in self.tag_browser_categories.keys():
+            tn = self.tag_browser_categories[category]['table']
+            categories[category] = []  #reserve the position in the ordered list
+            if tn is None:
+                continue
+            cn = self.tag_browser_categories[category]['column']
             if ids is None:
-                query = 'SELECT id, {0}, count FROM tag_browser_{1}'.format(cn[1], tn)
+                query = 'SELECT id, {0}, count FROM tag_browser_{1}'.format(cn, tn)
             else:
-                query = 'SELECT id, {0}, count FROM tag_browser_filtered_{1}'.format(cn[1], tn)
+                query = 'SELECT id, {0}, count FROM tag_browser_filtered_{1}'.format(cn, tn)
             if sort_on_count:
                 query += ' ORDER BY count DESC'
             else:
-                query += ' ORDER BY {0} ASC'.format(cn[1])
+                query += ' ORDER BY {0} ASC'.format(cn)
             data = self.conn.get(query)
-            category = cn[0]
+            # category = cn[0]
             icon, tooltip = None, ''
             if icon_map:
                 if category in icon_map:
@@ -671,14 +680,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 else:
                     icon = icon_map['*custom']
                     tooltip = self.custom_column_label_map[category]['name']
-            datatype = self.tag_browser_datatype[category]
+            datatype = self.tag_browser_categories[category]['type']
             formatter = self.tag_browser_formatters.get(datatype, lambda x: x)
             categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0],
                                         icon=icon, tooltip = tooltip)
                                     for r in data
                                         if r[2] > 0 and
                                           (datatype != 'rating' or len(formatter(r[1])) > 0)]
-        categories['format'] = []
+        categories['formats'] = []
         for fmt in self.conn.get('SELECT DISTINCT format FROM data'):
             fmt = fmt[0]
             if ids is not None:
@@ -693,13 +702,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                        WHERE format="%s"'''%fmt,
                                        all=False)
             if count > 0:
-                categories['format'].append(Tag(fmt, count=count))
+                categories['formats'].append(Tag(fmt, count=count))
 
         if sort_on_count:
-            categories['format'].sort(cmp=lambda x,y:cmp(x.count, y.count),
+            categories['formats'].sort(cmp=lambda x,y:cmp(x.count, y.count),
                     reverse=True)
         else:
-            categories['format'].sort(cmp=lambda x,y:cmp(x.name, y.name))
+            categories['formats'].sort(cmp=lambda x,y:cmp(x.name, y.name))
         return categories
 
     def tags_older_than(self, tag, delta):

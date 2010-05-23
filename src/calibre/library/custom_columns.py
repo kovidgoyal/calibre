@@ -144,8 +144,8 @@ class CustomColumns(object):
         for i, v in self.custom_column_num_map.items():
             if v['normalized']:
                 tn = 'custom_column_{0}'.format(i)
-                self.tag_browser_categories[tn] = [v['label'], 'value']
-                self.tag_browser_datatype[v['label']] = v['datatype']
+                self.tag_browser_categories[v['label']] = {'table':tn, 'column':'value', 'type':v['datatype'], 'name':v['name']}
+                #self.tag_browser_datatype[v['label']] = v['datatype']
 
     def get_custom(self, idx, label=None, num=None, index_is_id=False):
         if label is not None:
