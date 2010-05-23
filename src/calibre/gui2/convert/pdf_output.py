@@ -18,7 +18,8 @@ class PluginWidget(Widget, Ui_Form):
     HELP = _('Options specific to')+' PDF '+_('output')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'pdf_output', ['paper_size', 'orientation'])
+        Widget.__init__(self, parent, 'pdf_output', ['paper_size',
+            'orientation', 'preserve_cover_aspect_ratio'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
 

@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-05-16 04:18+0000\n"
-"PO-Revision-Date: 2010-05-10 22:16+0000\n"
+"POT-Creation-Date: 2010-05-21 22:47+0000\n"
+"PO-Revision-Date: 2010-05-21 07:14+0000\n"
 "Last-Translator: Jeroen Hellingman <jeroen@bohol.ph>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-20 05:15+0000\n"
+"X-Launchpad-Export-Date: 2010-05-22 03:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:359
@@ -101,8 +101,8 @@ msgstr "Doet helemaal niets"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:63
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:81
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:82
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:28
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:29
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:87
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:88
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:233
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:235
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:279
@@ -141,7 +141,7 @@ msgstr "Doet helemaal niets"
 #: /home/kovid/work/calibre/src/calibre/library/server.py:671
 #: /home/kovid/work/calibre/src/calibre/library/server.py:747
 #: /home/kovid/work/calibre/src/calibre/library/server.py:794
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:114
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -282,7 +282,7 @@ msgstr ""
 "niets over het invoer document weet."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:57
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:256
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:258
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
@@ -293,62 +293,62 @@ msgid "This profile is intended for the SONY PRS 300."
 msgstr "Dit profiel is bedoeld voor de SONY PRS 300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:78
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:290
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:292
 msgid "This profile is intended for the SONY PRS-900."
 msgstr "Dit profiel is bedoeld voor de SONY PRS-900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:86
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:320
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:322
 msgid "This profile is intended for the Microsoft Reader."
 msgstr "Dit profiel is bedoeld voor de Microsoft Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:97
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:331
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:333
 msgid "This profile is intended for the Mobipocket books."
 msgstr "Dit profiel is bedoeld voor de Mobipocket boeken."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:110
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:344
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:346
 msgid "This profile is intended for the Hanlin V3 and its clones."
 msgstr "Dit profiel is bedoeld voor de Hanlin V3 en zijn afgeleiden."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:122
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:356
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:358
 msgid "This profile is intended for the Hanlin V5 and its clones."
 msgstr "Dit profiel is bedoeld voor de Hanlin V5 en zijn afgeleiden."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:132
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:364
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:366
 msgid "This profile is intended for the Cybook G3."
 msgstr "Dit profiel is bedoeld voor de Cybook G3."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:145
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:377
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:379
 msgid "This profile is intended for the Cybook Opus."
 msgstr "Dit profiel is bedoeld voor de Cybook Opus."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:157
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:388
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:390
 msgid "This profile is intended for the Amazon Kindle."
 msgstr "Dit profiel is bedoeld voor de Amazon Kindle."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:169
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:423
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:425
 msgid "This profile is intended for the Irex Illiad."
 msgstr "Dit profiel is bedoeld voor de Irex Illiad."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:181
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:436
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:438
 msgid "This profile is intended for the IRex Digital Reader 1000."
 msgstr "Dit profiel is bedoeld voor de IRex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:194
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:450
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:452
 msgid "This profile is intended for the IRex Digital Reader 800."
 msgstr "Dit profiel is bestemd voor de IRex Digital Reader 800."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:206
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:464
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:466
 msgid "This profile is intended for the B&N Nook."
 msgstr "Dit profiel is bedoeld voor de B&N Nook."
 
@@ -365,19 +365,24 @@ msgstr ""
 "Dit profiel probeert zinnige instellingen te gebruiken, en is handig om een "
 "document te maken dat op een computer of meedere apparaten gelezen wordt."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:269
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:248
+msgid ""
+"Intended for the iPad and similar devices with a resolution of 768x1024"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:271
 msgid "This profile is intended for the Kobo Reader."
 msgstr "Dit profiel is bedoeld voor de Kobo Reader."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:281
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:283
 msgid "This profile is intended for the SONY PRS-300."
 msgstr "Dit profiel is bedoeld voor de SONY PRS-300"
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:299
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:301
 msgid "This profile is intended for the 5-inch JetBook."
 msgstr "Dit profiel is bedoeld voor de 5-inch JetBook."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:308
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:310
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
@@ -385,7 +390,7 @@ msgstr ""
 "Dit profiel is bedoeld voor de SONY PRS reeks. De 300/600 etc, in "
 "landschapsmodus. Vooral handig voor stripboeken."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:406
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:408
 msgid "This profile is intended for the Amazon Kindle DX."
 msgstr "Dit profiel is bedoeld voor de Amazon Kindle DX."
 
@@ -460,7 +465,7 @@ msgstr "Deactiveer de genoemde plugin"
 msgid "Communicate with Android phones."
 msgstr "Communiceer met Android telefoons."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:36
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:39
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -468,7 +473,7 @@ msgstr ""
 "Komma-gescheiden lijst van folders om e-boeken naar toe te sturen op het "
 "apparaat. De eerste die wordt gevonden zal worden gebruikt."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:64
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:67
 msgid "Communicate with S60 phones."
 msgstr "Communiceert met S60 telefoons"
 
@@ -584,7 +589,7 @@ msgstr "Communiceer met de Palm Pre"
 msgid "Communicate with the Kobo Reader"
 msgstr "Communiceer met de Kobo Reader"
 
-#: /home/kovid/work/calibre/src/calibre/devices/misc.py:55
+#: /home/kovid/work/calibre/src/calibre/devices/misc.py:56
 msgid "Communicate with the Booq Avant"
 msgstr ""
 
@@ -668,6 +673,14 @@ msgstr "Communiceert met de Samsung SNE eBook reader"
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3 reader."
 msgstr "Communicatie met Telecast K3 Reader"
+
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:45
+msgid "Communicate with the Newsmy reader."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:60
+msgid "Communicate with the iPapyrus reader."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:252
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1069,12 +1082,12 @@ msgstr "Laat ingebouwde recepten zien"
 msgid "Output saved to"
 msgstr "Uitvoer opgeslagen op"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:94
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:95
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
 msgstr ""
 "Niveau van informatie. Speficeer meerdere malen voor meer informatie."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:101
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:102
 msgid ""
 "Save the output from different stages of the conversion pipeline to the "
 "specified directory. Useful if you are unsure at which stage of the "
@@ -1084,7 +1097,7 @@ msgstr ""
 "opgegeven folder. Handig als je er niet zeker van bent tijdens welke stap in "
 "het conversie proces een fout optreedt."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:110
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:111
 msgid ""
 "Specify the input profile. The input profile gives the conversion system "
 "information on how to interpret various information in the input document. "
@@ -1096,7 +1109,7 @@ msgstr ""
 "document dient te worden geinterpreteerd. Bijvoorbeeld, resolutie-"
 "afhankelijke lengtes (bv. lengte in pixels). keuzes zijn:"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:121
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:122
 msgid ""
 "Specify the output profile. The output profile tells the conversion system "
 "how to optimize the created document for the specified device. In some "
@@ -1109,7 +1122,7 @@ msgstr ""
 "documenten te creëren die werken op een apparaat. Bijvoorbeeld EPUB voor de "
 "SONY lezer. Keuzes zijn:"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:132
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:133
 msgid ""
 "The base font size in pts. All font sizes in the produced book will be "
 "rescaled based on this size. By choosing a larger size you can make the "
@@ -1122,7 +1135,7 @@ msgstr ""
 "Standaard de basic letter grootte is gebaseerd op het u itvoer profiel dat "
 "gekozen is."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:142
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:143
 msgid ""
 "Mapping from CSS font names to font sizes in pts. An example setting is "
 "12,12,14,16,18,20,22,24. These are the mappings for the sizes xx-small to xx-"
@@ -1137,11 +1150,11 @@ msgstr ""
 "letters intelligent aan te passen. Standaard worden de instellingen gebruikt "
 "van het uitvoer profiel dat je kiest."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:154
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:155
 msgid "Disable all rescaling of font sizes."
 msgstr "Geen Herschaling van lettertypen."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:161
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:162
 msgid ""
 "The line height in pts. Controls spacing between consecutive lines of text. "
 "By default no line height manipulation is performed."
@@ -1149,7 +1162,7 @@ msgstr ""
 "De regelhoogte in pts. Heef tinvloed op de spatiering tussen regels tekst "
 "die elkaar volgens. Standaard word de regel hoogte niet gemanipuleerd."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:169
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:170
 msgid ""
 "Some badly designed documents use tables to control the layout of text on "
 "the page. When converted these documents often have text that runs off the "
@@ -1162,7 +1175,7 @@ msgstr ""
 "vreemde vertoningen. Deze optie zal de inhoud uit te tabellen extraheren, en "
 "deze in een lineair formaat presenteren."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:179
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:180
 msgid ""
 "XPath expression that specifies all tags that should be added to the Table "
 "of Contents at level one. If this is specified, it takes precedence over "
@@ -1172,7 +1185,7 @@ msgstr ""
 "aan de inhoudsopgave op niveau één. Als dit is opgegeven, dan heeft het "
 "prioriteit over andere vormen van auto-detectie."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:188
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:189
 msgid ""
 "XPath expression that specifies all tags that should be added to the Table "
 "of Contents at level two. Each entry is added under the previous level one "
@@ -1182,7 +1195,7 @@ msgstr ""
 "aan de inhoudsopgave op niveau twee. Iedere regel zal worden toegevoegd "
 "onder de vorige niveau één regel."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:196
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:197
 msgid ""
 "XPath expression that specifies all tags that should be added to the Table "
 "of Contents at level three. Each entry is added under the previous level two "
@@ -1192,7 +1205,7 @@ msgstr ""
 "aan de inhoudsopgave op niveau drie. Iedere regel zal worden toegevoegd "
 "onder de vorige niveau twee regel."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:204
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:205
 msgid ""
 "Normally, if the source file already has a Table of Contents, it is used in "
 "preference to the auto-generated one. With this option, the auto-generated "
@@ -1202,12 +1215,12 @@ msgstr ""
 "zal deze worden gebruikt in plaats van de auto-gegenereerde versie. Met deze "
 "optie zal de auto-gegenereerde versie altijd worden gebruikt."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:212
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:213
 msgid "Don't add auto-detected chapters to the Table of Contents."
 msgstr ""
 "Voeg geen automatisch gedetecteerde hoofdstukken toe aan de Inhoudstafel"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:219
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:220
 msgid ""
 "If fewer than this number of chapters is detected, then links are added to "
 "the Table of Contents. Default: %default"
@@ -1215,7 +1228,7 @@ msgstr ""
 "Als minder dan dit aantal hoofdstukken word gedetecteerd, dan zullen links "
 "worden toegevoegd aan de inhoudsopgave. Standaard: %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:226
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:227
 msgid ""
 "Maximum number of links to insert into the TOC. Set to 0 to disable. Default "
 "is: %default. Links are only added to the TOC if less than the threshold "
@@ -1226,7 +1239,7 @@ msgstr ""
 "inhoudsopgave als minder dan het drempel number aan hoofdstukken werd "
 "gedetecteerd."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:234
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:235
 msgid ""
 "Remove entries from the Table of Contents whose titles match the specified "
 "regular expression. Matching entries and all their children are removed."
@@ -1235,7 +1248,7 @@ msgstr ""
 "opgegeven reguliere expressie. Overeenkomende regels en al hun kinderen "
 "worden verwijderd."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:245
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:246
 msgid ""
 "An XPath expression to detect chapter titles. The default is to consider "
 "<h1> or <h2> tags that contain the words \"chapter\",\"book\",\"section\" or "
@@ -1252,7 +1265,7 @@ msgstr ""
 "\"/\". Zie de XPath handleiding in het calibre Gebruikers Handboek voor meer "
 "help betreffende deze functionaliteit."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:259
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:260
 msgid ""
 "Specify how to mark detected chapters. A value of \"pagebreak\" will insert "
 "page breaks before chapters. A value of \"rule\" will insert a line before "
@@ -1265,7 +1278,7 @@ msgstr ""
 "\"none\" zal hoofdstuk markering uitschakelen, en een waarde \"both\" zal "
 "zowel pagina einden als strepen gebruiken om hoofdstukken te markeren."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:269
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:270
 msgid ""
 "Either the path to a CSS stylesheet or raw CSS. This CSS will be appended to "
 "the style rules from the source file, so it can be used to override those "
@@ -1275,42 +1288,42 @@ msgstr ""
 "toegevoegd aan de style regels van het invoer bestand, zodat het kan worden "
 "gebruikt om deze voorrang te geven"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:278
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:279
 msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements."
 msgstr ""
 "Een XPath expressie. Pagina overgangen worden ingevoegd voor de "
 "gespecificeerde elementen."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:284
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:285
 msgid ""
 "Set the top margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
 "Zet de boven marge in pts. Standaard is %default. Let op: 72 pts is gelijk "
 "aan 1 inch"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:289
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:290
 msgid ""
 "Set the bottom margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
 "Zet de onder marge in pts. Standaard is %default. Let op: 72 pts is gelijk "
 "aan 1 inch"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:294
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:295
 msgid ""
 "Set the left margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
 "Zet de linker marge in pts. Standaard is %default. Let op: 72 pts is gelijk "
 "aan 1 inch"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:299
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:300
 msgid ""
 "Set the right margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
 "Zet de rechter marge in pts. Standaard is %default. Let op: 72 pts is gelijk "
 "aan 1 inch"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:305
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:306
 msgid ""
 "Change text justification. A value of \"left\" converts all justified text "
 "in the source to left aligned (i.e. unjustified) text. A value of "
@@ -1325,7 +1338,7 @@ msgstr ""
 "uitlijning in het bronbestand niet. Merk op dat maar een beperkt aantal "
 "output-formaten uitlijnen ondersteunen."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:315
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:316
 msgid ""
 "Remove spacing between paragraphs. Also sets an indent on paragraphs of "
 "1.5em. Spacing removal will not work if the source file does not use "
@@ -1335,7 +1348,7 @@ msgstr ""
 "paragraden. witregel verwijdering werkt niet als het invoer bestand geen "
 "paragrafen gebruikt (<p> of <div> tags)."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:322
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:323
 msgid ""
 "When calibre removes inter paragraph spacing, it automatically sets a "
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
@@ -1345,7 +1358,7 @@ msgstr ""
 "indentatie toe om ervoor te zorgen dat paragrafen duidelijk zichtbaar zijn. "
 "Deze optie stelt de breedte van deze indentatie in."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:329
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:330
 msgid ""
 "Use the cover detected from the source file in preference to the specified "
 "cover."
@@ -1353,7 +1366,7 @@ msgstr ""
 "Gebruik de in het bronbestand gedetecteerde omslag en niet de opgegeven "
 "omslag"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:335
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:336
 msgid ""
 "Insert a blank line between paragraphs. Will not work if the source file "
 "does not use paragraphs (<p> or <div> tags)."
@@ -1361,7 +1374,7 @@ msgstr ""
 "Voeg een lege regel toe tussen paragrafen. Dit werkt niet als het invoer "
 "bestand geen paragrafen gebruikt (<p> of <div> tags)."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:342
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:343
 msgid ""
 "Remove the first image from the input ebook. Useful if the first image in "
 "the source file is a cover and you are specifying an external cover."
@@ -1370,7 +1383,7 @@ msgstr ""
 "afbeelding van het invoer bestand een omslag afbeelding is, en een externe "
 "kaft is opgegeven."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:350
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:351
 msgid ""
 "Insert the book metadata at the start of the book. This is useful if your "
 "ebook reader does not support displaying/searching metadata directly."
@@ -1378,7 +1391,7 @@ msgstr ""
 "Voeg metadata toe in aan het begin van het boek. This is handig als uw eboek "
 "lezer het weergeven/zoeken van metadata niet direct ondersteund."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:358
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:359
 msgid ""
 "Attempt to detect and correct hard line breaks and other problems in the "
 "source file. This may make things worse, so use with care."
@@ -1387,27 +1400,27 @@ msgstr ""
 "problemen met het bron bestand. Dit kan sommige situatie erger maker, dus "
 "wees voorzichtig met gebruik."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:366
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:367
 msgid "Use a regular expression to try and remove the header."
 msgstr ""
 "Gebruik een reguliere expressie om te proberen de koptekst te verwijderen"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:373
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:374
 msgid "The regular expression to use to remove the header."
 msgstr ""
 "De reguliere expressie die wordt gebruikt om de koptekst te verwijderen"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:379
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:380
 msgid "Use a regular expression to try and remove the footer."
 msgstr ""
 "Gebruik een reguliere expressie om te proberen de voetnoot te vinden en "
 "verwijderen."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:386
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:387
 msgid "The regular expression to use to remove the footer."
 msgstr "De reguliere expressie te gebruiken om de voetnoot de verwijderen"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:393
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:394
 msgid ""
 "Read metadata from the specified OPF file. Metadata read from this file will "
 "override any metadata in the source file."
@@ -1415,7 +1428,7 @@ msgstr ""
 "Lees metadata van het opgegeven OPF bestand. Metadata die hier word gelezen "
 "krijgt voorrang over metadata in het invoer bestand."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:400
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:401
 msgid ""
 "Transliterate unicode characters to an ASCII representation. Use with care "
 "because this will replace unicode characters with ASCII. For instance it "
@@ -1431,109 +1444,119 @@ msgstr ""
 "word gebruikt bij de grootste groep zal worden gebruikt. (In het voorgaande "
 "voorbeeld zal dat Chinees zijn)"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:415
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:416
+msgid ""
+"Preserve ligatures present in the input document. A ligature is a special "
+"rendering of a pair of characters like ff, fi, fl et cetera. Most readers do "
+"not have support for ligatures in their default fonts, so they are unlikely "
+"to render correctly. By default, calibre will turn a ligature into the "
+"corresponding pair of normal characters. This option will preserve them "
+"instead."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
 msgid "Set the title."
 msgstr "Geef de titel op."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:419
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:432
 msgid "Set the authors. Multiple authors should be separated by ampersands."
 msgstr ""
 "Geef de auteurs op. Meerdere auteurs moete van elkaar worden gescheiden door "
 "het &-teken."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:424
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:437
 msgid "The version of the title to be used for sorting. "
 msgstr "De versie van de titel die word gebruikt bij het sorteren. "
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:441
 msgid "String to be used when sorting by author. "
 msgstr "Regel te gebruiken bij het sorteren op auteur. "
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:432
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:445
 msgid "Set the cover to the specified file or URL"
 msgstr "Stel de omslag in met het ingevoerde bestand of de URL"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:436
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:449
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
 msgid "Set the ebook description."
 msgstr "Gebruik de omschrijving."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:440
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:453
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:56
 msgid "Set the ebook publisher."
 msgstr "Geef de uitgever op."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:444
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:457
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:60
 msgid "Set the series this ebook belongs to."
 msgstr "Geef de serie op waar dit eboek tot behoord."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:448
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:461
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:62
 msgid "Set the index of the book in this series."
 msgstr "Geef de index van dit boek in de serie op."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:452
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:465
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:64
 msgid "Set the rating. Should be a number between 1 and 5."
 msgstr "Zet de waardering. Moet een nummer zijn tussen 1 en 5."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:456
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:469
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:66
 msgid "Set the ISBN of the book."
 msgstr "Geef het ISBN van het boek."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:460
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:473
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:68
 msgid "Set the tags for the book. Should be a comma separated list."
 msgstr ""
 "Stel de labels voor het boek in. Dient komma gescheiden lijst te zijn."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:464
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:477
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:70
 msgid "Set the book producer."
 msgstr "Bepaal de boekproducent"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:468
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:481
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:72
 msgid "Set the language."
 msgstr "De taal instellen."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:472
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:485
 msgid "Set the publication date."
 msgstr "Zet de publicatie datum."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:476
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:489
 msgid "Set the book timestamp (used by the date column in calibre)."
 msgstr "Zet boek tijdstempel (voor de datum kolom in Calibre)."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:576
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:589
 msgid "Could not find an ebook inside the archive"
 msgstr "Geen ebook in archief gevonden"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:634
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:647
 msgid "Values of series index and rating must be numbers. Ignoring"
 msgstr ""
 "Waarden van de serie index en waarderingen moeten nummers zijn. Negeer"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:641
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:654
 msgid "Failed to parse date/time"
 msgstr "Geen geldige datum/tijd gevonden"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:788
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:802
 msgid "Converting input to HTML..."
 msgstr "Converteer invoer naar HTML..."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:815
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:829
 msgid "Running transforms on ebook..."
 msgstr "Transformaties worden toegepast op eboek..."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:902
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:916
 msgid "Creating"
 msgstr "Aanmaken"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:58
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:205
 msgid ""
 "Extract the contents of the generated EPUB file to the specified directory. "
 "The contents of the directory are first deleted, so be careful."
@@ -1542,7 +1565,7 @@ msgstr ""
 "folder. De inhoud van de folder zal eerst worden verwijderd, dus wees "
 "voorzichtig."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:64
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:211
 msgid ""
 "Turn off splitting at page breaks. Normally, input files are automatically "
 "split at every page break into two files. This gives an output ebook that "
@@ -1557,7 +1580,7 @@ msgstr ""
 "je bron bestand een groot aantal paginas bevat dan kun je deze splitsing "
 "uitschakelen."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:75
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:222
 msgid ""
 "Split all HTML files larger than this size (in KB). This is necessary as "
 "most EPUB readers cannot handle large file sizes. The default of %defaultKB "
@@ -1568,7 +1591,7 @@ msgstr ""
 "kunnen. De standaard van %defaultKB is de grootte die nodig is voor Adobe "
 "Digital Editions."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:82
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:229
 msgid ""
 "Normally, if the input file has no cover and you don't specify one, a "
 "default cover is generated with the title, authors, etc. This option "
@@ -1578,7 +1601,7 @@ msgstr ""
 "niet expliciet een is opgegeven, dan zal er een standaard omslag worden "
 "gegenereert met daarop de titel, auteurs, etc.  Deze optie schakelt dit uit."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:88
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:235
 msgid ""
 "Do not use SVG for the book cover. Use this option if your EPUB is going to "
 "be used ona  device that does not support SVG, like the iPhone or the "
@@ -1589,6 +1612,15 @@ msgstr ""
 "gebruikt gaat worden op een apparaat dat geen SVG ondersteunt, zoals de "
 "iPhone of de JetBook Lite. Zonder deze optie zullen dergelijke apparaten de "
 "omslag weergeven als een lege pagina."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:243
+msgid ""
+"When using an SVG cover, this option will cause the cover to scale to cover "
+"the available screen area, but still preserve its aspect ratio (ratio of "
+"width to height). That means there may be white borders at the sides or top "
+"and bottom of the image, but the image will never be distorted. Without this "
+"option the image may be slightly distorted, but there will be no borders."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
@@ -2633,7 +2665,7 @@ msgstr ""
 msgid "Split Options:"
 msgstr "Splits Opties:"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:31
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:59
 msgid ""
 "The unit of measure. Default is inch. Choices are %s Note: This does not "
 "override the unit for margins!"
@@ -2641,7 +2673,7 @@ msgstr ""
 "De meeteenheid. Standaard is inch (2.54 cm). Keuzes zijn %s Note: Dit neemt "
 "geen voorrang over de kantlijn eenheden!"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:36
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:64
 msgid ""
 "The size of the paper. This size will be overridden when an output profile "
 "is used. Default is letter. Choices are %s"
@@ -2649,7 +2681,7 @@ msgstr ""
 "Papier grootte. Deze zal vervallen indien een uitvoer profiel wordt "
 "gebruikt. Standaard is Letter. Keuzes zijn %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:40
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:68
 msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
@@ -2658,7 +2690,7 @@ msgstr ""
 "bijvoorbeels `123x321` om de breedte en hoogte te specificeren. Dit neemt "
 "voorrang over een gespecificeerd papier formaat."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:45
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:73
 msgid "The orientation of the page. Default is portrait. Choices are %s"
 msgstr ""
 "De orientatie van de pagina. Standaard is Portrait (Staand). Keuzes zijn %s"
@@ -2990,10 +3022,10 @@ msgstr "uitvoer"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:49
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:44
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:28
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:125
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:119
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:66
@@ -3208,7 +3240,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:53
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:171
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:76
@@ -3260,25 +3292,29 @@ msgstr ""
 msgid "EPUB Output"
 msgstr "EPUB Uitvoer"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:45
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:49
 msgid "Do not &split on page breaks"
 msgstr "&Splits niet op pagina einden"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:46
-msgid "Split files &larger than:"
-msgstr "Splits bestanden groter dan: &l"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:47
-msgid " KB"
-msgstr " KB"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:48
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:50
 msgid "No default &cover"
 msgstr "Geen standaard omslag afbeelding"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:49
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:51
 msgid "No &SVG cover"
 msgstr "Geen &SVG omslag"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:52
+msgid "Preserve cover &aspect ratio"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:53
+msgid "Split files &larger than:"
+msgstr "Splits bestanden groter dan: &l"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:54
+msgid " KB"
+msgstr " KB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
@@ -3343,15 +3379,15 @@ msgid "&Base font size:"
 msgstr "&Basis letter grootte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:105
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:129
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:123
 msgid "Font size &key:"
 msgstr "Letter grootte toets:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:112
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:128
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:118
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:125
@@ -3390,35 +3426,47 @@ msgstr "Uiterlijk & gedrag"
 msgid "Control the look and feel of the output"
 msgstr "Beheers de visualisatie van de uitvoer"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:126
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:30
+msgid "Original"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:31
+msgid "Left align"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:32
+msgid "Justify text"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:120
 msgid "&Disable font size rescaling"
 msgstr "Annuleer letter grootte instelling"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:127
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:121
 msgid "Base &font size:"
 msgstr "Basis &Letter grootte"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:130
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:124
 msgid "Wizard to help you choose an appropriate font size key"
 msgstr "Wizard om je te helpen een geschikte lettergrootte te kiezen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:126
 msgid "Line &height:"
 msgstr "regel &hoogte:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:134
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:128
 msgid "Input character &encoding:"
 msgstr "Invoer karakter &encodering:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:129
 msgid "Remove &spacing between paragraphs"
 msgstr "Verwijder &spaties tussen paragrafen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:136
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:130
 msgid "Indent size:"
 msgstr "Indentatie grootte:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:137
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:131
 msgid ""
 "<p>When calibre removes inter paragraph spacing, it automatically sets a "
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
@@ -3428,41 +3476,33 @@ msgstr ""
 "automatisch een indentatie, om ervoor te zorgen dat deze makkelijk "
 "herkenbaar is. Deze optie beinvloed de breedte van die indentatie."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:138
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:132
 msgid " em"
 msgstr " em"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:139
-msgid "&Linearize tables"
-msgstr "Split tabellen in regels"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:140
-msgid "&Transliterate unicode characters to ASCII."
-msgstr "Converteer unicode karakters naar ASCII"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:141
-msgid "Extra &CSS"
-msgstr "Extra CSS"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:142
-msgid "Insert &blank line"
-msgstr "Voeg lege regel toe"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:143
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:133
 msgid "Text justification:"
 msgstr "Uitlijnen van tekst:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:144
-msgid "justify"
-msgstr "uitlijnen"
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:134
+msgid "&Linearize tables"
+msgstr "Split tabellen in regels"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:145
-msgid "left"
-msgstr "links"
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:135
+msgid "Extra &CSS"
+msgstr "Extra CSS"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:146
-msgid "original"
-msgstr "origineel"
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:136
+msgid "&Transliterate unicode characters to ASCII"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:137
+msgid "Insert &blank line"
+msgstr "Voeg lege regel toe"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:138
+msgid "Keep &ligatures"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -9331,18 +9371,22 @@ msgid "English (Ireland)"
 msgstr "Engels (Ierland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
+msgid "English (China)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "Spanish (Paraguay)"
 msgstr "Spaans (Paraguay)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "German (AT)"
 msgstr "Duits (AT)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
 msgid "Dutch (NL)"
 msgstr "Nederlands (NL)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
 msgid "Dutch (BE)"
 msgstr "Nederlands (BE)"
 
@@ -9366,13 +9410,13 @@ msgstr "Authenticatie met server mislukt: %s"
 msgid "Control email delivery"
 msgstr "Wijzig email verzending"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:102
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:124
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:113
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:135
 msgid "Unknown feed"
 msgstr "Onbekende feed"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:142
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:165
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:153
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:178
 msgid "Untitled article"
 msgstr "Artikel zonder naam"
 
@@ -9475,19 +9519,19 @@ msgstr "Colofon plaatje gedownload"
 msgid "Untitled Article"
 msgstr "Artikel zonder Naam"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1228
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1230
 msgid "Article downloaded: %s"
 msgstr "Artikel gedownload: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1239
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1241
 msgid "Article download failed: %s"
 msgstr "Artikel download mislukt: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1256
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1258
 msgid "Fetching feed"
 msgstr "Downloading feed"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1403
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1405
 msgid ""
 "Failed to log in, check your username and password for the calibre "
 "Periodicals service."
@@ -9495,7 +9539,7 @@ msgstr ""
 "Inloggen niet gelukt. Controleer je gebruikersnaam en wachtwoord voor de "
 "calibre periodiekendienst."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1419
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1421
 msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
@@ -10689,6 +10733,9 @@ msgstr "Download geen CSS stylesheets"
 #~ msgid "No text &justification"
 #~ msgstr "Geen tekst uitlijning"
 
+#~ msgid "&Transliterate unicode characters to ASCII."
+#~ msgstr "Converteer unicode karakters naar ASCII"
+
 #~ msgid "~"
 #~ msgstr "~"
 
@@ -10768,3 +10815,12 @@ msgstr "Download geen CSS stylesheets"
 
 #~ msgid "Masthead font:"
 #~ msgstr "Colofon lettertype:"
+
+#~ msgid "left"
+#~ msgstr "links"
+
+#~ msgid "original"
+#~ msgstr "origineel"
+
+#~ msgid "justify"
+#~ msgstr "uitlijnen"

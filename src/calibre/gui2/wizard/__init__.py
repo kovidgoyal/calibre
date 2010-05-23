@@ -331,7 +331,7 @@ class StanzaPage(QWizardPage, StanzaUI):
 
         p = self.set_port()
         if p is not None:
-            from calibre.library import server_config
+            from calibre.library.server import server_config
             c = server_config()
             c.set('port', p)
 
