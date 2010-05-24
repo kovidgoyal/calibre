@@ -100,6 +100,13 @@ class Booq(Device):
     output_format = 'EPUB'
     id = 'booq'
 
+class TheBook(Device):
+    name = 'The Book'
+    manufacturer = 'Augen'
+    output_profile = 'prs505'
+    output_format = 'EPUB'
+    id = 'thebook'
+
 class Avant(Booq):
     name = 'Booq Avant'
 
