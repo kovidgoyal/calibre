@@ -24,7 +24,7 @@ class N516(USBMS):
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0xa4a5]
-    BCD         = [0x323, 0x326, 0x399]
+    BCD         = [0x323, 0x326]
 
     VENDOR_NAME      = 'INGENIC'
     WINDOWS_MAIN_MEM = '_FILE-STOR_GADGE'
@@ -33,6 +33,16 @@ class N516(USBMS):
 
     EBOOK_DIR_MAIN = 'e_book'
     SUPPORTS_SUB_DIRS = True
+
+class THEBOOK(N516):
+    name = 'The Book driver'
+    gui_name = 'The Book'
+    description    = _('Communicate with The Book reader.')
+    author         = 'Kovid Goyal'
+
+    BCD = [0x399]
+    MAIN_MEMORY_VOLUME_LABEL  = 'The Book Main Memory'
+    EBOOK_DIR_MAIN = 'My books'
 
 class ALEX(N516):
 

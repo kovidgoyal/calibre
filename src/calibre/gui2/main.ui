@@ -601,7 +601,7 @@
      <normaloff>:/images/merge_books.svg</normaloff>:/images/merge_books.svg</iconset>
    </property>
    <property name="text">
-    <string>Merge books</string>
+    <string>Merge book records</string>
    </property>
    <property name="shortcut">
     <string>M</string>

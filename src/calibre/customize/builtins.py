@@ -450,9 +450,9 @@ from calibre.devices.eslick.driver import ESLICK
 from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
-from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA
+from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
 from calibre.devices.edge.driver import EDGE
-from calibre.devices.teclast.driver import TECLAST_K3
+from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import PALMPRE, KOBO, AVANT
 
@@ -530,9 +530,12 @@ plugins += [
     EB600,
     README,
     N516,
+    THEBOOK,
     EB511,
     ELONEX,
     TECLAST_K3,
+    NEWSMY,
+    IPAPYRUS,
     EDGE,
     SNE,
     ALEX,

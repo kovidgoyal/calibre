@@ -318,7 +318,6 @@ class Styles:
             Try to add the number to dictionary entry tabs-left, or tabs-right, etc.
             If the dictionary entry doesn't exist, create one.
         """
-        type = 'tabs-%s' % self.__tab_type
         try:
             if self.__leader_found:
                 self.__styles_dict['par'][self.__styles_num]['tabs']\
@@ -362,7 +361,6 @@ class Styles:
         leader = self.__tab_type_dict.get(self.__token_info)
         if leader != None:
             leader += '^'
-            type = 'tabs-%s' % self.__tab_type
             try:
                 self.__styles_dict['par'][self.__styles_num]['tabs'] += ':%s;' % leader
             except KeyError:

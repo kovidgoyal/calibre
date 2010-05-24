@@ -354,7 +354,6 @@ if another paragraph_def is found, the state changes to collect_tokens.
     def __tab_stop_func(self, line):
         """
         """
-        type = 'tabs-%s' % self.__tab_type
         self.__att_val_dict['tabs'] += '%s:' % self.__tab_type
         self.__att_val_dict['tabs'] += '%s;' % line[20:-1]
         self.__tab_type = 'left'
@@ -373,7 +372,6 @@ if another paragraph_def is found, the state changes to collect_tokens.
         """
         leader = self.__tab_type_dict.get(self.__token_info)
         if leader != None:
-            type = 'tabs-%s' % self.__tab_type
             self.__att_val_dict['tabs'] += '%s^' % leader
         else:
             if self.__run_level > 3:

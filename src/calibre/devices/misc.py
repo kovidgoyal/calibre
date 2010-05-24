@@ -17,10 +17,10 @@ class PALMPRE(USBMS):
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['mobi', 'prc', 'pdb', 'txt']
+    FORMATS     = ['epub', 'mobi', 'prc', 'pdb', 'txt']
 
     VENDOR_ID   = [0x0830]
-    PRODUCT_ID  = [0x8004, 0x8002]
+    PRODUCT_ID  = [0x8004, 0x8002, 0x0101]
     BCD         = [0x0316]
 
     VENDOR_NAME = 'PALM'
@@ -48,6 +48,7 @@ class KOBO(USBMS):
     WINDOWS_MAIN_MEM = '.KOBOEREADER'
 
     EBOOK_DIR_MAIN = ''
+    SUPPORTS_SUB_DIRS = True
 
 class AVANT(USBMS):
     name           = 'Booq Avant Device Interface'

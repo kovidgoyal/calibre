@@ -50,6 +50,7 @@ class Newsweek(BasicNewsRecipe):
         'articlecontent','photoBox', 'article columnist first']}, ]
     recursions = 1
     match_regexps = [r'http://www.newsweek.com/id/\S+/page/\d+']
+    preprocess_regexps = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
 
     def find_title(self, section):
         d = {'scope':'Scope', 'thetake':'The Take', 'features':'Features',

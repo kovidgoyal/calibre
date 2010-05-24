@@ -245,6 +245,8 @@ class iPadOutput(OutputProfile):
 
     name = 'iPad'
     short_name = 'ipad'
+    description = _('Intended for the iPad and similar devices with a '
+            'resolution of 768x1024')
     screen_size = (768, 1024)
     comic_screen_size = (768, 1024)
     dpi = 132.0

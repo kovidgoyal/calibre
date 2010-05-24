@@ -15,6 +15,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import parse_date
 from calibre.utils.zipfile import ZipFile
 from calibre import extract, walk
+from calibre.constants import __version__
 
 DEBUG_README=u'''
 This debug directory contains snapshots of the e-book as it passes through the
@@ -410,6 +411,18 @@ OptionRecommendation(name='asciiize',
 )
         ),
 
+OptionRecommendation(name='keep_ligatures',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Preserve ligatures present in the input document. '
+                'A ligature is a special rendering of a pair of '
+                'characters like ff, fi, fl et cetera. '
+                'Most readers do not have support for '
+                'ligatures in their default fonts, so they are '
+                'unlikely to render correctly. By default, calibre '
+                'will turn a ligature into the corresponding pair of normal '
+                'characters. This option will preserve them instead.')
+        ),
+
 OptionRecommendation(name='title',
     recommended_value=None, level=OptionRecommendation.LOW,
     help=_('Set the title.')),
@@ -711,6 +724,7 @@ OptionRecommendation(name='timestamp',
         if self.opts.verbose > 1:
             self.log.debug('Resolved conversion options')
             try:
+                self.log.debug('calibre version:', __version__)
                 self.log.debug(pprint.pformat(self.opts.__dict__))
             except:
                 self.log.exception('Failed to get resolved conversion options')

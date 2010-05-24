@@ -18,10 +18,10 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.zipfile import safe_replace, ZipFile
 from calibre.utils.config import DynamicConfig
 from calibre.utils.logging import Log
-from calibre.ebooks.epub.output import EPUBOutput
 from calibre import guess_type, prints
+from calibre.ebooks.oeb.transforms.cover import CoverManager
 
-TITLEPAGE = EPUBOutput.TITLEPAGE_COVER.decode('utf-8')
+TITLEPAGE = CoverManager.SVG_TEMPLATE.decode('utf-8').replace('__ar__', 'none')
 
 def character_count(html):
     '''

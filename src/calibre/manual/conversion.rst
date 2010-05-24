@@ -491,9 +491,9 @@ TXT input supports a number of options to differentiate how paragraphs are detec
     :guilabel:`Process using markdown`
         |app| also supports running TXT input though a transformation preprocessor known as markdown. Markdown
         allows for basic formatting to be added to TXT documents, such as bold, italics, section headings, tables,
-        loists, a Table of Contents, etc. Marking chapter headings with a leading # and setting the chapter XPath detection
+        lists, a Table of Contents, etc. Marking chapter headings with a leading # and setting the chapter XPath detection
         expression to "//h:h1" is the easiest way to have a proper table of contents generated from a TXT document.
-        You can learn more about the markdown syntax at http://daringfireball.net/projects/markdown/syntax.
+        You can learn more about the markdown syntax `here <http://daringfireball.net/projects/markdown/syntax>`_.
 
 
 Convert PDF documents

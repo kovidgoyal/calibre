@@ -4,7 +4,7 @@ __author__      = 'Lorenzo Vigentini'
 __copyright__   = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
 __version__     = 'v1.01'
 __date__        = '10, January 2010'
-__description__ = 'Monthly Italian edition of Scientific American'
+__description__ = 'Monthly Italian edition of Scientific American, 16.05.2010 new version'
 
 '''
 http://lescienze.espresso.repubblica.it/
@@ -13,22 +13,22 @@ http://lescienze.espresso.repubblica.it/
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class leScienze(BasicNewsRecipe):
-    author        = 'Lorenzo Vigentini'
+    __author__        = 'Lorenzo Vigentini, Gabriele Marini'
     description   = 'Monthly Italian edition of Scientific American'
 
     cover_url      = 'http://lescienze.espresso.repubblica.it/images/logo_lescienze.gif'
     title          = 'le Scienze'
-    publisher      = 'Gruppo editoriale lEspresso'
+    publisher      = 'Gruppo editoriale L\'Espresso'
     category       = 'Science, general interest'
 
     language       = 'it'
-    encoding       = 'cp1252'
+#    encoding       = 'cp1252'
     timefmt        = '[%a, %d %b, %Y]'
 
-    oldest_article        = 31
-    max_articles_per_feed = 20
+    oldest_article        = 100
+    max_articles_per_feed = 100
     use_embedded_content  = False
-    recursion             = 10
+    recursion             = 20
 
     remove_javascript     = True
     no_stylesheets        = True
@@ -46,6 +46,8 @@ class leScienze(BasicNewsRecipe):
     remove_tags_after = [dict(name='div',attrs={'class':'box-commenti'})]
 
     feeds          = [
+
+                       (u'Home', u'http://data.kataweb.it/rss/scienze'),
                        (u'Antropologia', u'http://data.kataweb.it/rss/scienze/antropologia'),
                        (u'Archeologia', u'http://data.kataweb.it/rss/scienze/archeologia'),
                        (u'Arte e Musica', u'http://data.kataweb.it/rss/scienze/arte_e_musica'),
@@ -71,19 +73,4 @@ class leScienze(BasicNewsRecipe):
                        (u'Statistica', u'http://data.kataweb.it/rss/scienze/statistica'),
                        (u'Storia della scienza', u'http://data.kataweb.it/rss/scienze/storia_della_scienza')
                      ]
-
-    extra_css = '''
-                h1 {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:20px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:18px;}
-                h2 {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:18px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:16px; }
-                h3 {color:#333333;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px;}
-                h4 {color:#333333; font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; }
-                h5 {color:#333333; font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:12px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; text-transform:uppercase;}
-                .occhiello {color:#666666;display:block;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:13px;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant:normal;font-weight:bold;line-height:15px;}
-                .titolo {font-weight:bold;}
-                .label {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:12px;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant:normal;font-weight:bold;height:15px;line-height:15px;text-transform:uppercase;}
-                .firma {color:#333333;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;font-size:12px; font-size-adjust:none; font-stretch:normal; font-style:italic; font-variant:normal; font-weight:bold; line-height:15px; text-decoration:none;}
-                .testo {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:10px;}
-                '''
-
-
 

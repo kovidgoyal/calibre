@@ -39,4 +39,28 @@ class TECLAST_K3(USBMS):
 
         return drives
 
+class NEWSMY(TECLAST_K3):
+    name = 'Newsmy device interface'
+    gui_name = 'Newsmy'
+    description    = _('Communicate with the Newsmy reader.')
+
+    FORMATS = ['epub', 'fb2', 'pdb', 'html', 'pdf', 'txt', 'skt']
+
+    VENDOR_NAME      = ''
+    WINDOWS_MAIN_MEM = 'NEWSMY'
+    WINDOWS_CARD_A_MEM = 'USBDISK____SD'
+
+    def windows_sort_drives(self, drives):
+        return drives
+
+class IPAPYRUS(TECLAST_K3):
+
+    name = 'iPapyrus device interface'
+    gui_name = 'iPapyrus'
+    description    = _('Communicate with the iPapyrus reader.')
+
+    FORMATS = ['epub', 'pdf', 'txt']
+
+    VENDOR_NAME      = 'E_READER'
+    WINDOWS_MAIN_MEM = ''
 

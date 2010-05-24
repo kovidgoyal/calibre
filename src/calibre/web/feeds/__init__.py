@@ -49,6 +49,17 @@ class Article(object):
         self.date = published
         self.utctime = dt_factory(self.date, assume_utc=True, as_utc=True)
         self.localtime = self.utctime.astimezone(local_tz)
+        self._formatted_date = None
+
+    @dynamic_property
+    def formatted_date(self):
+        def fget(self):
+            if self._formatted_date is None:
+                self._formatted_date = self.localtime.strftime(" [%a, %d %b %H:%M]")
+            return self._formatted_date
+        def fset(self, val):
+            self._formatted_date = val
+        return property(fget=fget, fset=fset)
 
     @dynamic_property
     def title(self):
@@ -150,6 +161,8 @@ class Feed(object):
                 self.articles.append(article)
             else:
                 self.logger.debug('Skipping article %s (%s) from feed %s as it is too old.'%(title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title))
+            d = item.get('date', '')
+            article.formatted_date = d
 
 
     def parse_article(self, item):
