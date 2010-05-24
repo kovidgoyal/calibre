@@ -5,15 +5,102 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, hashlib
 from itertools import repeat
+from functools import partial
 
 import cherrypy
+from lxml import etree
+from lxml.builder import ElementMaker
 
 from calibre.utils.genshi.template import MarkupTemplate
 from calibre.library.server.utils import strftime, expose
 from calibre.ebooks.metadata import fmt_sidx, title_sort
 from calibre import guess_type, prepare_string_for_xml
+from calibre.constants import __appname__
+
+# Vocabulary for building OPDS feeds {{{
+E = ElementMaker(namespace='http://www.w3.org/2005/Atom',
+                 nsmap={
+                     None   : 'http://www.w3.org/2005/Atom',
+                     'dc'   : 'http://purl.org/dc/terms/',
+                     'opds' : 'http://opds-spec.org/2010/catalog',
+                     })
+
+
+FEED    = E.feed
+TITLE   = E.title
+ID      = E.id
+
+def UPDATED(dt, *args, **kwargs):
+    return E.updated(dt.strftime('%Y-%m-%dT%H:%M:%S+00:00'), *args, **kwargs)
+
+LINK = partial(E.link, type='application/atom+xml')
+NAVLINK = partial(E.link,
+        type='application/atom+xml;type=feed;profile=opds-catalog')
+
+def SEARCH(base_href, *args, **kwargs):
+    kwargs['rel'] = 'search'
+    kwargs['title'] = 'Search'
+    kwargs['href'] = base_href+'/?search={searchTerms}'
+    return LINK(*args, **kwargs)
+
+def AUTHOR(name, uri=None):
+    args = [E.name(name)]
+    if uri is not None:
+        args.append(E.uri(uri))
+    return E.author(*args)
+
+SUBTITLE = E.subtitle
+
+def NAVCATALOG_ENTRY(base_href, updated, title, description, query_data):
+    data = [u'%s=%s'%(key, val) for key, val in query_data.items()]
+    data = '&'.join(data)
+    href = base_href+'/?'+data
+    id_ = 'calibre-subcatalog:'+str(hashlib.sha1(href).hexdigest())
+    return E.entry(
+        TITLE(title),
+        ID(id_),
+        UPDATED(updated),
+        E.content(description, type='text'),
+        NAVLINK(href=href)
+    )
+
+# }}}
+
+class Feed(object):
+
+    def __str__(self):
+        return etree.tostring(self.root, pretty_print=True, encoding='utf-8',
+                xml_declaration=True)
+
+class TopLevel(Feed):
+
+    def __init__(self,
+            updated,  # datetime object in UTC
+            categories,
+            id_       = 'urn:calibre:main',
+            base_href = '/stanza'
+            ):
+        self.base_href = base_href
+        subc = partial(NAVCATALOG_ENTRY, base_href, updated)
+
+        subcatalogs = [subc('By '+title,
+            'Books sorted by '+desc, {'sortby':q}) for title, desc, q in
+            categories]
+
+        self.root = \
+            FEED(
+                    TITLE(__appname__ + ' ' + _('Library')),
+                    ID(id_),
+                    UPDATED(updated),
+                    SEARCH(base_href),
+                    AUTHOR(__appname__, uri='http://calibre-ebook.com'),
+                    SUBTITLE(_('Books in your library')),
+                    *subcatalogs
+                )
+
+
 
 # Templates {{{
 
@@ -42,6 +129,7 @@ STANZA_SUBCATALOG_ENTRY=MarkupTemplate('''\
 </entry>
 ''')
 
+# Feed of books
 STANZA = MarkupTemplate('''\
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:py="http://genshi.edgewall.org/">
@@ -63,61 +151,19 @@ STANZA = MarkupTemplate('''\
 </feed>
 ''')
 
-STANZA_MAIN = MarkupTemplate('''\
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom" xmlns:py="http://genshi.edgewall.org/">
-    <title>calibre Library</title>
-    <id>$id</id>
-    <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-    <link rel="search" title="Search" type="application/atom+xml" href="/stanza/?search={searchTerms}"/>
-    <author>
-    <name>calibre</name>
-    <uri>http://calibre-ebook.com</uri>
-    </author>
-    <subtitle>
-        ${subtitle}
-    </subtitle>
-    <entry>
-    <title>By Author</title>
-    <id>urn:uuid:fc000fa0-8c23-11de-a31d-0002a5d5c51b</id>
-    <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-    <link type="application/atom+xml" href="/stanza/?sortby=byauthor" />
-    <content type="text">Books sorted by Author</content>
-    </entry>
-    <entry>
-    <title>By Title</title>
-    <id>urn:uuid:1df4fe40-8c24-11de-b4c6-0002a5d5c51b</id>
-    <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-    <link type="application/atom+xml" href="/stanza/?sortby=bytitle" />
-    <content type="text">Books sorted by Title</content>
-    </entry>
-    <entry>
-    <title>By Newest</title>
-    <id>urn:uuid:3c6d4940-8c24-11de-a4d7-0002a5d5c51b</id>
-    <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-    <link type="application/atom+xml" href="/stanza/?sortby=bynewest" />
-    <content type="text">Books sorted by Date</content>
-    </entry>
-    <entry>
-    <title>By Tag</title>
-    <id>urn:uuid:824921e8-db8a-4e61-7d38-f1ce41502853</id>
-    <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-    <link type="application/atom+xml" href="/stanza/?sortby=bytag" />
-    <content type="text">Books sorted by Tags</content>
-    </entry>
-    <entry>
-    <title>By Series</title>
-    <id>urn:uuid:512a5e50-a88f-f6b8-82aa-8f129c719f61</id>
-    <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-    <link type="application/atom+xml" href="/stanza/?sortby=byseries" />
-    <content type="text">Books sorted by Series</content>
-    </entry>
-</feed>
-''')
 
 # }}}
 
 class OPDSServer(object):
+
+    def build_top_level(self, updated, base_href='/stanza'):
+        categories = self.categories_cache
+        categories = [(x.capitalize(), x.capitalize(), x) for x in
+                categories.keys()]
+        categories.append(('Title', 'Title', '|title|'))
+        categories.append(('Newest', 'Newest', '|newest|'))
+
+        return TopLevel(updated, categories, base_href=base_href)
 
     def get_matches(self, location, query):
         base = self.db.data.get_matches(location, query)
@@ -173,10 +219,6 @@ class OPDSServer(object):
         return STANZA.generate(subtitle=subtitle, data=entries, FM=self.db.FIELD_MAP,
                     updated=updated, id='urn:calibre:main', next_link=next_link).render('xml')
 
-    def stanza_main(self, updated):
-        return STANZA_MAIN.generate(subtitle='', data=[], FM=self.db.FIELD_MAP,
-                    updated=updated, id='urn:calibre:main').render('xml')
-
     @expose
     def stanza(self, search=None, sortby=None, authorid=None, tagid=None,
             seriesid=None, offset=0):
@@ -186,9 +228,11 @@ class OPDSServer(object):
         offset = int(offset)
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         cherrypy.response.headers['Content-Type'] = 'text/xml'
-        # Main feed
+
+        # Top Level feed
         if not sortby and not search and not authorid and not tagid and not seriesid:
-            return self.stanza_main(updated)
+            return str(self.build_top_level(updated))
+
         if sortby in ('byseries', 'byauthor', 'bytag'):
             return self.stanza_sortby_subcategory(updated, sortby, offset)
 
@@ -296,5 +340,8 @@ class OPDSServer(object):
                 next_link=next_link, updated=updated, id='urn:calibre:main').render('xml')
 
 
-
+if __name__ == '__main__':
+    from datetime import datetime
+    f = TopLevel(datetime.utcnow())
+    print f
 

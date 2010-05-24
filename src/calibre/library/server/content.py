@@ -16,7 +16,7 @@ except ImportError:
 
 from calibre import fit_image, guess_type
 from calibre.utils.date import fromtimestamp
-from calibre.library.server.utils import expose
+
 
 class ContentServer(object):
 
@@ -24,6 +24,13 @@ class ContentServer(object):
     Handles actually serving content files/covers. Also has
     a few utility methods.
     '''
+
+    def add_routes(self, connect):
+        connect('root', '/', self.index)
+        connect('get', '/get/{what}/{id}', self.get,
+                conditions=dict(method=["GET", "HEAD"]))
+        connect('static', '/static/{name}', self.static,
+                conditions=dict(method=["GET", "HEAD"]))
 
     # Utility methods {{{
     def last_modified(self, updated):
@@ -68,8 +75,7 @@ class ContentServer(object):
     # }}}
 
 
-    @expose
-    def get(self, what, id, *args, **kwargs):
+    def get(self, what, id):
         'Serves files, covers, thumbnails from the calibre database'
         try:
             id = int(id)
@@ -87,7 +93,6 @@ class ContentServer(object):
             return self.get_cover(id)
         return self.get_format(id, what)
 
-    @expose
     def static(self, name):
         'Serves static content'
         name = name.lower()
@@ -108,7 +113,6 @@ class ContentServer(object):
             cherrypy.response.headers['Last-Modified'] = self.last_modified(lm)
         return open(path, 'rb').read()
 
-    @expose
     def index(self, **kwargs):
         'The / URL'
         ua = cherrypy.request.headers.get('User-Agent', '').strip()

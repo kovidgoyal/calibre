@@ -11,7 +11,7 @@ import __builtin__
 import cherrypy
 
 from calibre.utils.genshi.template import MarkupTemplate
-from calibre.library.server.utils import strftime, expose
+from calibre.library.server.utils import strftime
 from calibre.ebooks.metadata import fmt_sidx
 
 # Templates {{{
@@ -173,7 +173,9 @@ class MobileServer(object):
 
     MOBILE_UA = re.compile('(?i)(?:iPhone|Opera Mini|NetFront|webOS|Mobile|Android|imode|DoCoMo|Minimo|Blackberry|MIDP|Symbian|HD2)')
 
-    @expose
+    def add_routes(self, connect):
+        connect('mobile', '/mobile', self.mobile)
+
     def mobile(self, start='1', num='25', sort='date', search='',
                 _=None, order='descending'):
         '''
