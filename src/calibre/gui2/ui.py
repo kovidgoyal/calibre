@@ -183,7 +183,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
         self.tb_wrapper = textwrap.TextWrapper(width=40)
-        self.device_connected = False
+        self.device_connected = None
         self.viewers = collections.deque()
         self.content_server = None
         self.system_tray_icon = SystemTrayIcon(QIcon(I('library.png')), self)
@@ -675,6 +675,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
         self._sync_menu.connect_to_folder.connect(self.connect_to_folder)
         self._sync_menu.disconnect_from_folder.connect(self.disconnect_from_folder)
+        if self.device_connected:
+            self._sync_menu.connect_to_folder_action.setEnabled(False)
+            if self.device_connected == 'folder':
+                self._sync_menu.disconnect_from_folder_action.setEnabled(True)
+            else:
+                self._sync_menu.disconnect_from_folder_action.setEnabled(False)
+        else:
+            self._sync_menu.connect_to_folder_action.setEnabled(True)
+            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
 
     def add_spare_server(self, *args):
         self.spare_servers.append(Server(limit=int(config['worker_limit']/2.0)))
@@ -944,7 +953,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.status_bar.showMessage(_('Device: ')+\
                 self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
-            self.device_connected = True
+            self.device_connected = 'device' if not is_folder_device else 'folder'
             self._sync_menu.enable_device_actions(True,
                     self.device_manager.device.card_prefix(),
                     self.device_manager.device)
@@ -955,7 +964,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self._sync_menu.connect_to_folder_action.setEnabled(True)
             self._sync_menu.disconnect_from_folder_action.setEnabled(False)
             self.save_device_view_settings()
-            self.device_connected = False
+            self.device_connected = None
             self._sync_menu.enable_device_actions(False)
             self.location_view.model().update_devices()
             self.vanity.setText(self.vanity_template%\

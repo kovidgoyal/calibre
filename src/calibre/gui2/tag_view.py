@@ -201,29 +201,34 @@ class TagsModel(QAbstractItemModel): # {{{
                        _('Ratings'), _('News'), _('Tags')]
     row_map_orig    = ['authors', 'series', 'formats', 'publishers', 'ratings',
                        'news', 'tags']
-    tags_categories_start= 7
     search_keys=['search', _('Searches')]
+
 
     def __init__(self, db, parent=None):
         QAbstractItemModel.__init__(self, parent)
-        self.cat_icon_map_orig = list(map(QIcon, [I('user_profile.svg'),
-                I('series.svg'), I('book.svg'), I('publisher.png'), I('star.png'),
-                I('news.svg'), I('tags.svg')]))
+
+        # must do this here because 'QPixmap: Must construct a QApplication
+        # before a QPaintDevice'
+        self.category_icon_map = {'authors': QIcon(I('user_profile.svg')),
+                    'series': QIcon(I('series.svg')),
+                    'formats':QIcon(I('book.svg')),
+                    'publishers': QIcon(I('publisher.png')),
+                    'ratings':QIcon(I('star.png')),
+                    'news':QIcon(I('news.svg')),
+                    'tags':QIcon(I('tags.svg')),
+                    '*custom':QIcon(I('column.svg')),
+                    '*user':QIcon(I('drawer.svg')),
+                    'search':QIcon(I('search.svg'))}
         self.icon_state_map = [None, QIcon(I('plus.svg')), QIcon(I('minus.svg'))]
-        self.custcol_icon = QIcon(I('column.svg'))
-        self.search_icon = QIcon(I('search.svg'))
-        self.usercat_icon = QIcon(I('drawer.svg'))
-        self.label_to_icon_map = dict(map(None, self.row_map_orig, self.cat_icon_map_orig))
-        self.label_to_icon_map['*custom'] = self.custcol_icon
         self.db = db
         self.search_restriction = ''
-        self.user_categories = {}
         self.ignore_next_search = 0
         data = self.get_node_tree(config['sort_by_popularity'])
         self.root_item = TagTreeItem()
         for i, r in enumerate(self.row_map):
             c = TagTreeItem(parent=self.root_item,
-                    data=self.categories[i], category_icon=self.cat_icon_map[i])
+                    data=self.categories[i],
+                    category_icon=self.category_icon_map[r])
             for tag in data[r]:
                 TagTreeItem(parent=c, data=tag, icon_map=self.icon_state_map)
 
@@ -233,66 +238,19 @@ class TagsModel(QAbstractItemModel): # {{{
     def get_node_tree(self, sort):
         self.row_map = []
         self.categories = []
-        # strip the icons after the 'standard' categories. We will put them back later
-        if self.tags_categories_start < len(self.row_map_orig):
-            self.cat_icon_map = self.cat_icon_map_orig[:self.tags_categories_start-len(self.row_map_orig)]
-        else:
-            self.cat_icon_map = self.cat_icon_map_orig[:]
 
-        self.user_categories = dict.copy(config['user_categories'])
-        column_map = config['column_map']
-
-        for i in range(0, self.tags_categories_start): # First the standard categories
-            self.row_map.append(self.row_map_orig[i])
-            self.categories.append(self.categories_orig[i])
         if len(self.search_restriction):
-            data = self.db.get_categories(sort_on_count=sort, icon_map=self.label_to_icon_map,
+            data = self.db.get_categories(sort_on_count=sort, icon_map=self.category_icon_map,
                         ids=self.db.search(self.search_restriction, return_matches=True))
         else:
-            data = self.db.get_categories(sort_on_count=sort, icon_map=self.label_to_icon_map)
+            data = self.db.get_categories(sort_on_count=sort, icon_map=self.category_icon_map)
 
-        for c in data:  # now the custom columns
-            if c not in self.row_map_orig and c in column_map:
-                self.row_map.append(c)
-                self.categories.append(self.db.custom_column_label_map[c]['name'])
-                self.cat_icon_map.append(self.custcol_icon)
+        tb_categories = self.db.get_tag_browser_categories()
+        for category in tb_categories.iterkeys():
+            if category in data: # They should always be there, but ...
+                self.row_map.append(category)
+                self.categories.append(tb_categories[category]['name'])
 
-        # Now the rest of the normal tag categories
-        for i in range(self.tags_categories_start, len(self.row_map_orig)):
-            self.row_map.append(self.row_map_orig[i])
-            self.categories.append(self.categories_orig[i])
-            self.cat_icon_map.append(self.cat_icon_map_orig[i])
-
-        # Clean up the author's tags, getting rid of the '|' characters
-        if data['authors'] is not None:
-            for t in data['authors']:
-                t.name = t.name.replace('|', ',')
-
-        # Now do the user-defined categories. There is a time/space tradeoff here.
-        # By converting the tags into a map, we can do the verification in the category
-        # loop much faster, at the cost of duplicating the categories lists.
-        taglist = {}
-        for c in self.row_map:
-            taglist[c] = dict(map(lambda t:(t.name, t), data[c]))
-
-        for c in self.user_categories:
-            l = []
-            for (name,label,ign) in self.user_categories[c]:
-                if label in taglist and name in taglist[label]: # use same node as the complete category
-                    l.append(taglist[label][name])
-                # else: do nothing, to eliminate nodes that have zero counts
-            if config['sort_by_popularity']:
-                data[c+'*'] = sorted(l, cmp=(lambda x, y: cmp(x.count, y.count)))
-            else:
-                data[c+'*'] = sorted(l, cmp=(lambda x, y: cmp(x.name.lower(), y.name.lower())))
-            self.row_map.append(c+'*')
-            self.categories.append(c)
-            self.cat_icon_map.append(self.usercat_icon)
-
-        data['search'] = self.get_search_nodes(self.search_icon)  # Add the search category
-        self.row_map.append(self.search_keys[0])
-        self.categories.append(self.search_keys[1])
-        self.cat_icon_map.append(self.search_icon)
         return data
 
     def get_search_nodes(self, icon):

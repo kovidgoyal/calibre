@@ -34,6 +34,8 @@ from calibre.customize.ui import run_plugins_on_import
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.utils.ordered_dict import OrderedDict
+from calibre.utils.config import prefs
+from calibre.utils.search_query_parser import saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 
 if iswindows:
@@ -125,26 +127,32 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.dbpath = self.dbpath.encode(filesystem_encoding)
 
         # Order as has been customary in the tags pane.
-        self.tag_browser_categories = OrderedDict([
-                ('authors',   {'table':'authors', 'column':'name', 'type':'text', 'name':_('Authors')}),
-                ('series',    {'table':'series', 'column':'name', 'type':None, 'name':_('Series')}),
-                ('formats',   {'table':None, 'column':None, 'type':None, 'name':_('Formats')}),
-                ('publishers',{'table':'publishers', 'column':'name', 'type':'text', 'name':_('Publishers')}),
-                ('ratings',   {'table':'ratings', 'column':'rating', 'type':'rating', 'name':_('Ratings')}),
-                ('news',      {'table':'news', 'column':'name', 'type':None, 'name':_('News')}),
-                ('tags',      {'table':'tags', 'column':'name', 'type':'textmult', 'name':_('Tags')}),
-        ])
-
-#        self.tag_browser_datatype = {
-#                'tag'       : 'textmult',
-#                'series'    : None,
-#                'publisher' : 'text',
-#                'author'    : 'text',
-#                'news'      : None,
-#                'rating'    : 'rating',
-#        }
-
-        self.tag_browser_formatters = {'rating': lambda x:u'\u2605'*int(round(x/2.))}
+        tag_browser_categories_items = [
+                ('authors',   {'table':'authors', 'column':'name',
+                               'type':'text', 'is_multiple':False,
+                               'kind':'standard', 'name':_('Authors')}),
+                ('series',    {'table':'series', 'column':'name',
+                               'type':None, 'is_multiple':False,
+                               'kind':'standard', 'name':_('Series')}),
+                ('formats',   {'table':None, 'column':None,
+                               'type':None, 'is_multiple':False,
+                               'kind':'standard', 'name':_('Formats')}),
+                ('publishers',{'table':'publishers', 'column':'name',
+                               'type':'text', 'is_multiple':False,
+                               'kind':'standard', 'name':_('Publishers')}),
+                ('ratings',   {'table':'ratings', 'column':'rating',
+                               'type':'rating', 'is_multiple':False,
+                               'kind':'standard', 'name':_('Ratings')}),
+                ('news',      {'table':'news', 'column':'name',
+                               'type':None, 'is_multiple':False,
+                               'kind':'standard', 'name':_('News')}),
+                ('tags',      {'table':'tags', 'column':'name',
+                               'type':'text', 'is_multiple':True,
+                               'kind':'standard', 'name':_('Tags')}),
+        ]
+        self.tag_browser_categories = OrderedDict()
+        for k,v in tag_browser_categories_items:
+            self.tag_browser_categories[k] = v
 
         self.connect()
         self.is_case_sensitive = not iswindows and not isosx and \
@@ -653,14 +661,19 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def get_recipe(self, id):
         return self.conn.get('SELECT script FROM feeds WHERE id=?', (id,), all=False)
 
+    def get_tag_browser_categories(self):
+        return self.tag_browser_categories
+
     def get_categories(self, sort_on_count=False, ids=None, icon_map=None):
         self.books_list_filter.change([] if not ids else ids)
 
         categories = {}
+
+        #### First, build the standard and custom-column categories ####
         for category in self.tag_browser_categories.keys():
             tn = self.tag_browser_categories[category]['table']
-            categories[category] = []  #reserve the position in the ordered list
-            if tn is None:
+            categories[category] = []   #reserve the position in the ordered list
+            if tn is None:              # Nothing to do for the moment
                 continue
             cn = self.tag_browser_categories[category]['column']
             if ids is None:
@@ -672,22 +685,41 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 query += ' ORDER BY {0} ASC'.format(cn)
             data = self.conn.get(query)
-            # category = cn[0]
+
+            # icon_map is not None if get_categories is to store an icon and
+            # possibly a tooltip in the tag structure.
             icon, tooltip = None, ''
             if icon_map:
-                if category in icon_map:
-                    icon = icon_map[category]
-                else:
+                if self.tag_browser_categories[category]['kind'] == 'standard':
+                    if category in icon_map:
+                        icon = icon_map[category]
+                elif self.tag_browser_categories[category]['kind'] == 'custom':
                     icon = icon_map['*custom']
+                    icon_map[category] = icon_map['*custom']
                     tooltip = self.custom_column_label_map[category]['name']
+
             datatype = self.tag_browser_categories[category]['type']
-            formatter = self.tag_browser_formatters.get(datatype, lambda x: x)
+            if datatype == 'rating':
+                item_zero_func = (lambda x: len(formatter(r[1])) > 0)
+                formatter = (lambda x:u'\u2605'*int(round(x/2.)))
+            elif category == 'authors':
+                item_zero_func = (lambda x: x[2] > 0)
+                # Clean up the authors strings to human-readable form
+                formatter = (lambda x: x.replace('|', ','))
+            else:
+                item_zero_func = (lambda x: x[2] > 0)
+                formatter = (lambda x:x)
+
             categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0],
                                         icon=icon, tooltip = tooltip)
-                                    for r in data
-                                        if r[2] > 0 and
-                                          (datatype != 'rating' or len(formatter(r[1])) > 0)]
+                                    for r in data if item_zero_func(r)]
+
+        # We delayed computing the standard formats category because it does not
+        # use a view, but is computed dynamically
         categories['formats'] = []
+        icon = None
+        if icon_map and 'formats' in icon_map:
+                icon = icon_map['formats']
         for fmt in self.conn.get('SELECT DISTINCT format FROM data'):
             fmt = fmt[0]
             if ids is not None:
@@ -702,13 +734,70 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                        WHERE format="%s"'''%fmt,
                                        all=False)
             if count > 0:
-                categories['formats'].append(Tag(fmt, count=count))
+                categories['formats'].append(Tag(fmt, count=count, icon=icon))
 
         if sort_on_count:
             categories['formats'].sort(cmp=lambda x,y:cmp(x.count, y.count),
                     reverse=True)
         else:
             categories['formats'].sort(cmp=lambda x,y:cmp(x.name, y.name))
+
+        #### Now do the user-defined categories. ####
+        user_categories = dict.copy(prefs['user_categories'])
+
+        # remove all user categories from tag_browser_categories. They can
+        # easily come and go. We will add all the existing ones in below.
+        for k in self.tag_browser_categories.keys():
+            if self.tag_browser_categories[k]['kind'] in ['user', 'search']:
+                del self.tag_browser_categories[k]
+
+        # We want to use same node in the user category as in the source
+        # category. To do that, we need to find the original Tag node. There is
+        # a time/space tradeoff here. By converting the tags into a map, we can
+        # do the verification in the category loop much faster, at the cost of
+        # temporarily duplicating the categories lists.
+        taglist = {}
+        for c in categories.keys():
+            taglist[c] = dict(map(lambda t:(t.name, t), categories[c]))
+
+        for user_cat in sorted(user_categories.keys()):
+            items = []
+            for (name,label,ign) in user_categories[user_cat]:
+                if label in taglist and name in taglist[label]:
+                    items.append(taglist[label][name])
+                # else: do nothing, to not include nodes w zero counts
+            if len(items):
+                cat_name = user_cat+'*' # add the * to avoid name collision
+                self.tag_browser_categories[cat_name] = {
+                                'table':None,  'column':None,
+                                'type':None,   'is_multiple':False,
+                                'kind':'user', 'name':user_cat}
+                # Not a problem if we accumulate entries in the icon map
+                if icon_map is not None:
+                    icon_map[cat_name] = icon_map['*user']
+                if sort_on_count:
+                    categories[cat_name] = \
+                        sorted(items, cmp=(lambda x, y: cmp(y.count, x.count)))
+                else:
+                    categories[cat_name] = \
+                        sorted(items, cmp=(lambda x, y: cmp(x.name.lower(), y.name.lower())))
+
+        #### Finally, the saved searches category ####
+        items = []
+        icon = None
+        if icon_map and 'search' in icon_map:
+                icon = icon_map['search']
+        for srch in saved_searches.names():
+            items.append(Tag(srch, tooltip=saved_searches.lookup(srch), icon=icon))
+        if len(items):
+            self.tag_browser_categories['search'] = {
+                            'table':None,    'column':None,
+                            'type':None,     'is_multiple':False,
+                            'kind':'search', 'name':_('Searches')}
+            if icon_map is not None:
+                icon_map['search'] = icon_map['search']
+            categories['search'] = items
+
         return categories
 
     def tags_older_than(self, tag, delta):
