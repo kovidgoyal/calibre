@@ -35,7 +35,7 @@ bool_custom_columns_are_tristate = 'yes'
 
 
 # Provide a set of columns to be sorted on when calibre starts
-#  The argument is None of saved sort history is to be used
+#  The argument is None if saved sort history is to be used
 #  otherwise it is a list of column,order pairs. Column is the
 #  lookup/search name, found using the tooltip for the column
 #  Order is 0 for ascending, 1 for descending

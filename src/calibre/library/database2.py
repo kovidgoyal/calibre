@@ -743,7 +743,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             categories['formats'].sort(cmp=lambda x,y:cmp(x.name, y.name))
 
         #### Now do the user-defined categories. ####
-        user_categories = dict.copy(prefs['user_categories'])
+        user_categories = prefs['user_categories']
 
         # remove all user categories from tag_browser_categories. They can
         # easily come and go. We will add all the existing ones in below.
