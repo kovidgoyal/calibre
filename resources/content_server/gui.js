@@ -123,7 +123,7 @@ function fetch_library_books(start, num, timeout, sort, order, search) {
 
     current_library_request = $.ajax({
       type: "GET",
-      url: "library",
+      url: "xml",
       data: data,
       cache: false,
       timeout: timeout, //milliseconds

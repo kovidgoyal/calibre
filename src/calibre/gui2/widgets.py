@@ -13,11 +13,10 @@ from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QAbstractButton, QPainter, QLineEdit, QComboBox, \
                         QMenu, QStringListModel, QCompleter, QStringList
 
-from calibre.gui2 import human_readable, NONE, \
-                         error_dialog, pixmap_to_data, dynamic
+from calibre.gui2 import NONE, error_dialog, pixmap_to_data, dynamic
 
 from calibre.gui2.filename_pattern_ui import Ui_Form
-from calibre import fit_image
+from calibre import fit_image, human_readable
 from calibre.utils.fonts import fontconfig
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.meta import metadata_from_filename

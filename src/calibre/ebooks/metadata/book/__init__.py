@@ -89,8 +89,11 @@ CALIBRE_METADATA_FIELDS = frozenset([
 )
 
 CALIBRE_RESERVED_LABELS = frozenset([
-    # reserved for saved searches
-    'search',
+    'search',  # reserved for saved searches
+    'date',
+    'all',
+    'ondevice',
+    'inlibrary',
     ]
 )
 
