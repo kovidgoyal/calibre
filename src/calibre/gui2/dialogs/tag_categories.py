@@ -7,7 +7,7 @@ from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QDialog, QIcon, QListWidgetItem
 
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
-from calibre.gui2 import config
+from calibre.utils.config import prefs
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.constants import islinux
 
@@ -22,7 +22,7 @@ class Item:
         return 'name=%s, label=%s, index=%s, exists='%(self.name, self.label, self.index, self.exists)
 
 class TagCategories(QDialog, Ui_TagCategories):
-    category_labels_orig =   ['', 'author', 'series', 'publisher', 'tag']
+    category_labels_orig =   ['', 'authors', 'series', 'publishers', 'tags']
 
     def __init__(self, window, db, index=None):
         QDialog.__init__(self, window)
@@ -64,7 +64,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                 self.all_items.append(t)
                 self.all_items_dict[label+':'+n] = t
 
-        self.categories = dict.copy(config['user_categories'])
+        self.categories = dict.copy(prefs['user_categories'])
         if self.categories is None:
             self.categories = {}
         for cat in self.categories:
@@ -181,7 +181,7 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     def accept(self):
         self.save_category()
-        config['user_categories'] = self.categories
+        prefs['user_categories'] = self.categories
         QDialog.accept(self)
 
     def save_category(self):
