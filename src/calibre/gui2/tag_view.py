@@ -200,13 +200,6 @@ class TagTreeItem(object): # {{{
 
 class TagsModel(QAbstractItemModel): # {{{
 
-    categories_orig = [_('Authors'), _('Series'), _('Formats'), _('Publishers'),
-                       _('Ratings'), _('News'), _('Tags')]
-    row_map_orig    = ['authors', 'series', 'formats', 'publishers', 'ratings',
-                       'news', 'tags']
-    search_keys=['search', _('Searches')]
-
-
     def __init__(self, db, parent=None):
         QAbstractItemModel.__init__(self, parent)
 
@@ -256,12 +249,6 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.categories.append(tb_categories[category]['name'])
 
         return data
-
-    def get_search_nodes(self, icon):
-        l = []
-        for i in saved_searches.names():
-            l.append(Tag(i, tooltip=saved_searches.lookup(i), icon=icon))
-        return l
 
     def refresh(self):
         data = self.get_node_tree(config['sort_by_popularity']) # get category data
