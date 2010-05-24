@@ -139,38 +139,25 @@ class ITUNES(DevicePlugin):
         '''
         # print "ITUNES:can_handle()"
         if isosx:
-            # Launch iTunes if not already running
-            if not self.iTunes:
-                if self.verbose:
-                    print "ITUNES:can_handle(): Instantiating iTunes"
-                running_apps = appscript.app('System Events')
-                if not 'iTunes' in running_apps.processes.name():
+            if self.iTunes:
+                # Check for connected book-capable device
+                names = [s.name() for s in self.iTunes.sources()]
+                kinds = [str(s.kind()).rpartition('.')[2] for s in self.iTunes.sources()]
+                self.sources = sources = dict(zip(kinds,names))
+                if 'iPod' in sources:
                     if self.verbose:
-                        print "ITUNES:can_handle(): Launching iTunes"
-                    self.iTunes = iTunes= appscript.app('iTunes', hide=True)
-                    iTunes.run()
-                    if self.verbose:
-                        print "%s - %s (launched)" % (self.iTunes.name(), self.iTunes.version())
+                        sys.stdout.write('.')
+                        sys.stdout.flush()
+                    return True
                 else:
-                    self.iTunes = appscript.app('iTunes')
                     if self.verbose:
-                        print " %s - %s (already running)" % (self.iTunes.name(), self.iTunes.version())
-
-            # Check for connected book-capable device
-            names = [s.name() for s in self.iTunes.sources()]
-            kinds = [str(s.kind()).rpartition('.')[2] for s in self.iTunes.sources()]
-            self.sources = sources = dict(zip(kinds,names))
-            if 'iPod' in sources:
-                if self.verbose:
-                    sys.stdout.write('.')
-                    sys.stdout.flush()
-                return True
+                        print "ITUNES.can_handle(): device not connected"
+                    return False
             else:
-                if self.verbose:
-                    print "ITUNES.can_handle(): device not connected"
-                    self.iTunes = None
-                    self.sources = None
-                return False
+                # can_handle() is called once before open(), so need to return True
+                # to keep things going
+                print "ITUNES:can_handle(): iTunes not yet instantiated"
+                return True
 
     def can_handle_windows(self, device_id, debug=False):
         '''
@@ -236,7 +223,6 @@ class ITUNES(DevicePlugin):
                     print "ITUNES:delete_books(): Deleting '%s - %s'" % (title, author)
                 self.iTunes.delete(book)
 
-
     def eject(self):
         '''
         Un-mount / eject the device from the OS. This does not check if there
@@ -294,7 +280,22 @@ class ITUNES(DevicePlugin):
         this function that should serve as a good example for USB Mass storage
         devices.
         '''
-        print "ITUNES.open()"
+        if isosx:
+            # Launch iTunes if not already running
+            if self.verbose:
+                print "ITUNES:open(): Instantiating iTunes"
+            running_apps = appscript.app('System Events')
+            if not 'iTunes' in running_apps.processes.name():
+                if self.verbose:
+                    print "ITUNES:open(): Launching iTunes"
+                self.iTunes = iTunes= appscript.app('iTunes', hide=True)
+                iTunes.run()
+                if self.verbose:
+                    print "%s - %s (launched)" % (self.iTunes.name(), self.iTunes.version())
+            else:
+                self.iTunes = appscript.app('iTunes')
+                if self.verbose:
+                    print " %s - %s (already running)" % (self.iTunes.name(), self.iTunes.version())
 
     def post_yank_cleanup(self):
         '''
@@ -373,7 +374,16 @@ class ITUNES(DevicePlugin):
         @return: A 3 element list with total space in bytes of (1, 2, 3). If a
         particular device doesn't have any of these locations it should return 0.
         """
-        print "ITUNES:total_space()"
+        if self.verbose:
+            print "ITUNES:total_space()"
+        capacity = 0
+        if isosx:
+            if 'iPod' in self.sources:
+                connected_device = self.sources['iPod']
+                capacity = self.iTunes.sources[connected_device].capacity()
+
+        return (capacity,-1,-1)
+
 
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
@@ -396,9 +406,6 @@ class ITUNES(DevicePlugin):
         (width, height, cover_data as jpeg).
         '''
         raise NotImplementedError()
-
-    # Private methods
-
 
 class BookList(list):
     '''
