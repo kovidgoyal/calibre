@@ -39,6 +39,7 @@ class ITUNES(DevicePlugin):
     BCD = [0x01]
 
     # Properties
+    cached_paths = {}
     iTunes= None
     sources = None
     verbose = True
@@ -98,16 +99,22 @@ class ITUNES(DevicePlugin):
                     device = self.sources['iPod']
                     if 'Books' in self.iTunes.sources[device].playlists.name():
                         booklist = BookList()
+                        cached_paths = {}
                         books = self.iTunes.sources[device].playlists['Books'].file_tracks()
                         for book in books:
                             this_book = Book(book.name(), book.artist())
                             this_book.datetime = parse_date(str(book.date_added())).timetuple()
                             this_book.db_id = None
                             this_book.device_collections = []
-                            this_book.path = '%s.epub' % book.name()
+                            this_book.path = 'iTunes/%s - %s.epub' % (book.name(), book.artist())
                             this_book.size = book.size()
                             this_book.thumbnail = None
                             booklist.add_book(this_book, False)
+                            cached_paths[this_book.path] = { 'title':book.name(),
+                                                            'author':book.artist(),
+                                                              'book':book}
+                        self.cached_paths = cached_paths
+                        print self.cached_paths
                         return booklist
                     else:
                         # No books installed on this device
@@ -202,8 +209,33 @@ class ITUNES(DevicePlugin):
     def delete_books(self, paths, end_session=True):
         '''
         Delete books at paths on device.
+        Since we're deleting through iTunes, we'll use the cached handle to the book
         '''
-        raise NotImplementedError()
+        for path in paths:
+            title = self.cached_paths[path]['title']
+            author = self.cached_paths[path]['author']
+            book = self.cached_paths[path]['book']
+            print "ITUNES.delete_books(): Searching for '%s - %s'" % (title,author)
+            if True:
+                results = self.iTunes.playlists['library'].file_tracks[
+                    (appscript.its.name == title).AND
+                    (appscript.its.artist == author).AND
+                    (appscript.its.kind == 'Book')].get()
+                if len(results) == 1:
+                    book_to_delete = results[0]
+                    print "book_to_delete: %s" % book_to_delete
+                    if self.verbose:
+                        print "ITUNES:delete_books(): Deleting '%s - %s'" % (title, author)
+                    self.iTunes.delete(results[0])
+                elif len(results) > 1:
+                    print "ITUNES.delete_books(): More than one book matches '%s - %s'" % (title, author)
+                else:
+                    print "ITUNES.delete_books(): No book '%s - %s' found in iTunes" % (title, author)
+            else:
+                if self.verbose:
+                    print "ITUNES:delete_books(): Deleting '%s - %s'" % (title, author)
+                self.iTunes.delete(book)
+
 
     def eject(self):
         '''
@@ -279,7 +311,7 @@ class ITUNES(DevicePlugin):
                                 (L{books}(oncard=None), L{books}(oncard='carda'),
                                 L{books}(oncard='cardb')).
         '''
-        raise NotImplementedError()
+        print "ITUNES.remove_books_from_metadata(): need to implement"
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None) :
