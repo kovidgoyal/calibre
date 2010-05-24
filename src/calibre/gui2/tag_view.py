@@ -126,7 +126,7 @@ class TagTreeItem(object): # {{{
     TAG      = 1
     ROOT     = 2
 
-    def __init__(self, data=None, category_icon=None, icon_map=None, parent=None):
+    def __init__(self, data=None, category_icon=None, icon_map=None, parent=None, tooltip=None):
         self.parent = parent
         self.children = []
         if self.parent is not None:
@@ -144,6 +144,7 @@ class TagTreeItem(object): # {{{
         elif self.type == self.TAG:
             icon_map[0] = data.icon
             self.tag, self.icon_state_map = data, list(map(QVariant, icon_map))
+        self.tooltip = tooltip
 
     def __str__(self):
         if self.type == self.ROOT:
@@ -175,6 +176,8 @@ class TagTreeItem(object): # {{{
             return self.icon
         if role == Qt.FontRole:
             return self.bold_font
+        if role == Qt.ToolTipRole and self.tooltip is not None:
+            return QVariant(self.tooltip)
         return NONE
 
     def tag_data(self, role):
@@ -228,7 +231,8 @@ class TagsModel(QAbstractItemModel): # {{{
         for i, r in enumerate(self.row_map):
             c = TagTreeItem(parent=self.root_item,
                     data=self.categories[i],
-                    category_icon=self.category_icon_map[r])
+                    category_icon=self.category_icon_map[r],
+                    tooltip=_('The lookup/search name is "{0}"').format(r))
             for tag in data[r]:
                 TagTreeItem(parent=c, data=tag, icon_map=self.icon_state_map)
 
