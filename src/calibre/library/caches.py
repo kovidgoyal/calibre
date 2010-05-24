@@ -628,14 +628,13 @@ class ResultCache(SearchQueryParser):
 
     def search(self, query, return_matches=False,
             ignore_search_restriction=False):
+        q = ''
         if not query or not query.strip():
-            q = ''
             if not ignore_search_restriction:
                 q = self.search_restriction
         else:
-            if ignore_search_restriction:
-                q = u'%s' % query
-            else:
+            q = query
+            if not ignore_search_restriction:
                 q = u'%s (%s)' % (self.search_restriction, query)
         if not q:
             if return_matches:
