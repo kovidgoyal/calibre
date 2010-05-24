@@ -22,7 +22,7 @@ from calibre.ebooks.pdf.pageoptions import UNITS, PAPER_SIZES, \
 class PDFOutput(OutputFormatPlugin):
 
     name = 'PDF Output'
-    author = 'John Schember'
+    author = 'John Schember and Kovid Goyal'
     file_type = 'pdf'
 
     options = set([
@@ -44,12 +44,20 @@ class PDFOutput(OutputFormatPlugin):
                         level=OptionRecommendation.LOW, choices=ORIENTATIONS.keys(),
                         help=_('The orientation of the page. Default is portrait. Choices '
                         'are %s') % ORIENTATIONS.keys()),
+                    OptionRecommendation(name='preserve_cover_aspect_ratio',
+                        recommended_value=False,
+                        help=_('Preserve the aspect ratio of the cover, instead'
+                            ' of stretching it to fill the ull first page of the'
+                            ' generated pdf.')
+                        ),
                  ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        self.oeb = oeb_book
         self.input_plugin, self.opts, self.log = input_plugin, opts, log
         self.output_path = output_path
         self.metadata = oeb_book.metadata
+        self.cover_data = None
 
         if input_plugin.is_image_collection:
             log.debug('Converting input as an image collection...')
@@ -61,8 +69,20 @@ class PDFOutput(OutputFormatPlugin):
     def convert_images(self, images):
         self.write(ImagePDFWriter, images)
 
+    def get_cover_data(self):
+        g, m = self.oeb.guide, self.oeb.manifest
+        if 'titlepage' not in g:
+            if 'cover' in g:
+                href = g['cover'].href
+                from calibre.ebooks.oeb.base import urlnormalize
+                for item in m:
+                    if item.href == urlnormalize(href):
+                        self.cover_data = item.data
+
     def convert_text(self, oeb_book):
         self.log.debug('Serializing oeb input to disk for processing...')
+        self.get_cover_data()
+
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format
             oeb_output = plugin_for_output_format('oeb')
@@ -74,7 +94,7 @@ class PDFOutput(OutputFormatPlugin):
             self.write(PDFWriter, [s.path for s in opf.spine])
 
     def write(self, Writer, items):
-        writer = Writer(self.opts, self.log)
+        writer = Writer(self.opts, self.log, cover_data=self.cover_data)
 
         close = False
         if not hasattr(self.output_path, 'write'):

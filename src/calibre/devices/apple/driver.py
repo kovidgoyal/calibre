@@ -5,7 +5,7 @@
 
     22 May 2010
 '''
-import datetime, re
+import datetime, re, sys
 
 from calibre.constants import isosx, iswindows
 from calibre.devices.interface import DevicePlugin
@@ -32,12 +32,16 @@ class ITUNES(DevicePlugin):
     FORMATS = ['epub']
 
     VENDOR_ID = [0x05ac]
-    # 0x129a:iPad  0x1292:iPhone 3G
+    # Product IDs:
+    #  0x129a:iPad
+    #  0x1292:iPhone 3G
     PRODUCT_ID = [0x129a,0x1292]
     BCD = [0x01]
 
-    it = None
-    is_connected = False
+    # Properties
+    iTunes= None
+    sources = None
+    verbose = True
 
 
     # Public methods
@@ -66,13 +70,12 @@ class ITUNES(DevicePlugin):
         """
         print "ITUNES:books(oncard=%s)" % oncard
         if not oncard:
-            # Fetch a list of books from iTunes
+            # Fetch a list of books from iPod device connected to iTunes
             if isosx:
-                names = [s.name() for s in self.it.sources()]
-                kinds = [s.kind() for s in self.it.sources()]
-                sources = dict(zip(kinds,names))
-
-                lib = self.it.sources['Library']
+                '''
+                print "self.sources: %s" % self.sources
+                print "self.sources['library']: %s" % self.sources['library']
+                lib = self.iTunes.sources['library']
 
                 if 'Books' in lib.playlists.name():
                     booklist = BookList()
@@ -90,7 +93,25 @@ class ITUNES(DevicePlugin):
 
                 else:
                     return []
-
+                '''
+                if 'iPod' in self.sources:
+                    device = self.sources['iPod']
+                    if 'Books' in self.iTunes.sources[device].playlists.name():
+                        booklist = BookList()
+                        books = self.iTunes.sources[device].playlists['Books'].file_tracks()
+                        for book in books:
+                            this_book = Book(book.name(), book.artist())
+                            this_book.datetime = parse_date(str(book.date_added())).timetuple()
+                            this_book.db_id = None
+                            this_book.device_collections = []
+                            this_book.path = '%s.epub' % book.name()
+                            this_book.size = book.size()
+                            this_book.thumbnail = None
+                            booklist.add_book(this_book, False)
+                        return booklist
+                    else:
+                        # No books installed on this device
+                        return []
 
         else:
             return []
@@ -101,10 +122,48 @@ class ITUNES(DevicePlugin):
 
         :param device_info: Is a tupe of (vid, pid, bcd, manufacturer, product,
         serial number)
-        This gets called ~1x/second while device is sensed
+
+        Confirm that:
+            - iTunes is running
+            - there is an iPod-type device connected
+        This gets called first when the device fingerprint is read, so it needs to
+        instantate iTunes if necessary
+        This gets called ~1x/second while device fingerprint is sensed
         '''
         # print "ITUNES:can_handle()"
-        return True
+        if isosx:
+            # Launch iTunes if not already running
+            if not self.iTunes:
+                if self.verbose:
+                    print "ITUNES:can_handle(): Instantiating iTunes"
+                running_apps = appscript.app('System Events')
+                if not 'iTunes' in running_apps.processes.name():
+                    if self.verbose:
+                        print "ITUNES:can_handle(): Launching iTunes"
+                    self.iTunes = iTunes= appscript.app('iTunes', hide=True)
+                    iTunes.run()
+                    if self.verbose:
+                        print "%s - %s (launched)" % (self.iTunes.name(), self.iTunes.version())
+                else:
+                    self.iTunes = appscript.app('iTunes')
+                    if self.verbose:
+                        print " %s - %s (already running)" % (self.iTunes.name(), self.iTunes.version())
+
+            # Check for connected book-capable device
+            names = [s.name() for s in self.iTunes.sources()]
+            kinds = [str(s.kind()).rpartition('.')[2] for s in self.iTunes.sources()]
+            self.sources = sources = dict(zip(kinds,names))
+            if 'iPod' in sources:
+                if self.verbose:
+                    sys.stdout.write('.')
+                    sys.stdout.flush()
+                return True
+            else:
+                if self.verbose:
+                    print "ITUNES.can_handle(): device not connected"
+                    self.iTunes = None
+                    self.sources = None
+                return False
 
     def can_handle_windows(self, device_id, debug=False):
         '''
@@ -151,7 +210,11 @@ class ITUNES(DevicePlugin):
         Un-mount / eject the device from the OS. This does not check if there
         are pending GUI jobs that need to communicate with the device.
         '''
-        print "ITUNES:eject()"
+        if self.verbose:
+            print "ITUNES:eject(): ejecting '%s'" % self.sources['iPod']
+        self.iTunes.eject(self.sources['iPod'])
+        self.iTunes = None
+        self.sources = None
 
     def free_space(self, end_session=True):
         """
@@ -164,7 +227,14 @@ class ITUNES(DevicePlugin):
         particular device doesn't have any of these locations it should return -1.
         """
         print "ITUNES:free_space()"
-        return (0,-1,-1)
+
+        free_space = 0
+        if isosx:
+            if 'iPod' in self.sources:
+                connected_device = self.sources['iPod']
+                free_space = self.iTunes.sources[connected_device].free_space()
+
+        return (free_space,-1,-1)
 
     def get_device_information(self, end_session=True):
         """
@@ -193,16 +263,6 @@ class ITUNES(DevicePlugin):
         devices.
         '''
         print "ITUNES.open()"
-        if isosx:
-            # Launch iTunes if not already running
-            running_apps = appscript.app('System Events')
-            if not 'iTunes' in running_apps.processes.name():
-                print " launching iTunes"
-                it = appscript.app('iTunes', hide=True)
-                app.run()
-                self.it = it
-            else:
-                self.it = appscript.app('iTunes')
 
     def post_yank_cleanup(self):
         '''

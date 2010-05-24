@@ -20,7 +20,7 @@ from calibre.gui2 import choose_dir, error_dialog, config, \
 from calibre.utils.config import prefs
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
-from calibre.library import server_config
+from calibre.library.server import server_config
 from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
                                  disable_plugin, customize_plugin, \
                                  plugin_customization, add_plugin, \
@@ -770,7 +770,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
 
     def start_server(self):
         self.set_server_options()
-        from calibre.library.server import start_threaded_server
+        from calibre.library.server.main import start_threaded_server
         self.server = start_threaded_server(self.db, server_config().parse())
         while not self.server.is_running and self.server.exception is None:
             time.sleep(1)
@@ -783,7 +783,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.stop.setEnabled(True)
 
     def stop_server(self):
-        from calibre.library.server import stop_threaded_server
+        from calibre.library.server.main import stop_threaded_server
         stop_threaded_server(self.server)
         self.server = None
         self.start.setEnabled(True)

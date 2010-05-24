@@ -7,12 +7,10 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, shutil, re
-from urllib import unquote
 
 from calibre.customize.conversion import OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
-from calibre.constants import __appname__, __version__
-from calibre import guess_type, CurrentDir
+from calibre import CurrentDir
 from calibre.customize.conversion import OptionRecommendation
 from calibre.constants import filesystem_encoding
 
@@ -92,51 +90,21 @@ class EPUBOutput(OutputFormatPlugin):
                 'as a blank page.')
         ),
 
+        OptionRecommendation(name='preserve_cover_aspect_ratio',
+            recommended_value=False, help=_(
+            'When using an SVG cover, this option will cause the cover to scale '
+            'to cover the available screen area, but still preserve its aspect ratio '
+            '(ratio of width to height). That means there may be white borders '
+            'at the sides or top and bottom of the image, but the image will '
+            'never be distorted. Without this option the image may be slightly '
+            'distorted, but there will be no borders.'
+            )
+        ),
+
         ])
 
     recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
 
-    NONSVG_TITLEPAGE_COVER = '''\
-        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-            <head>
-                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                <meta name="calibre:cover" content="true" />
-                <title>Cover</title>
-                <style type="text/css" title="override_css">
-                    @page {padding: 0pt; margin:0pt}
-                    body { text-align: center; padding:0pt; margin: 0pt; }
-                    div { padding:0pt; margin: 0pt; }
-                </style>
-            </head>
-            <body>
-                <div>
-                    <img src="%s" alt="cover" style="height: 100%%" />
-                </div>
-            </body>
-        </html>
-    '''
-
-    TITLEPAGE_COVER = '''\
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta name="calibre:cover" content="true" />
-        <title>Cover</title>
-        <style type="text/css" title="override_css">
-            @page {padding: 0pt; margin:0pt}
-            body { text-align: center; padding:0pt; margin: 0pt; }
-        </style>
-    </head>
-    <body>
-        <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            width="100%%" height="100%%" viewBox="0 0 600 800"
-            preserveAspectRatio="xMidYMid meet">
-            <image width="600" height="800" xlink:href="%s"/>
-        </svg>
-    </body>
-</html>
-'''
 
     def workaround_webkit_quirks(self):
         from calibre.ebooks.oeb.base import XPath
@@ -167,7 +135,12 @@ class EPUBOutput(OutputFormatPlugin):
                 )
         split(self.oeb, self.opts)
 
-        self.insert_cover()
+        from calibre.ebooks.oeb.transforms.cover import CoverManager
+        cm = CoverManager(
+                no_default_cover=self.opts.no_default_epub_cover,
+                no_svg_cover=self.opts.no_svg_cover,
+                preserve_aspect_ratio=self.opts.preserve_cover_aspect_ratio)
+        cm(self.oeb, self.opts, self.log)
 
         self.workaround_sony_quirks()
 
@@ -258,97 +231,6 @@ class EPUBOutput(OutputFormatPlugin):
                     ans += (u'\n'.join(fonts)).encode('utf-8')
                     ans += '\n</encryption>'
                     return ans
-
-    def default_cover(self):
-        '''
-        Create a generic cover for books that dont have a cover
-        '''
-        from calibre.utils.pil_draw import draw_centered_text
-        from calibre.ebooks.metadata import authors_to_string
-        if self.opts.no_default_epub_cover:
-            return None
-        self.log('Generating default cover')
-        m = self.oeb.metadata
-        title = unicode(m.title[0])
-        authors = [unicode(x) for x in m.creator if x.role == 'aut']
-
-        import cStringIO
-        cover_file = cStringIO.StringIO()
-        try:
-            try:
-                from PIL import Image, ImageDraw, ImageFont
-                Image, ImageDraw, ImageFont
-            except ImportError:
-                import Image, ImageDraw, ImageFont
-            font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
-            app = '['+__appname__ +' '+__version__+']'
-
-            COVER_WIDTH, COVER_HEIGHT = 590, 750
-            img = Image.new('RGB', (COVER_WIDTH, COVER_HEIGHT), 'white')
-            draw = ImageDraw.Draw(img)
-            # Title
-            font = ImageFont.truetype(font_path, 44)
-            bottom = draw_centered_text(img, draw, font, title, 15, ysep=9)
-            # Authors
-            bottom += 14
-            font = ImageFont.truetype(font_path, 32)
-            authors = authors_to_string(authors)
-            bottom = draw_centered_text(img, draw, font, authors, bottom, ysep=7)
-            # Vanity
-            font = ImageFont.truetype(font_path, 28)
-            width, height = draw.textsize(app, font=font)
-            left = max(int((COVER_WIDTH - width)/2.), 0)
-            top = COVER_HEIGHT - height - 15
-            draw.text((left, top), app, fill=(0,0,0), font=font)
-            # Logo
-            logo = Image.open(I('library.png'), 'r')
-            width, height = logo.size
-            left = max(int((COVER_WIDTH - width)/2.), 0)
-            top = max(int((COVER_HEIGHT - height)/2.), 0)
-            img.paste(logo, (left, max(bottom, top)))
-            img = img.convert('RGB').convert('P', palette=Image.ADAPTIVE)
-
-            img.convert('RGB').save(cover_file, 'JPEG')
-            cover_file.flush()
-            id, href = self.oeb.manifest.generate('cover_image', 'cover_image.jpg')
-            item = self.oeb.manifest.add(id, href, guess_type('t.jpg')[0],
-                        data=cover_file.getvalue())
-            m.clear('cover')
-            m.add('cover', item.id)
-
-            return item.href
-        except:
-            self.log.exception('Failed to generate default cover')
-        return None
-
-
-    def insert_cover(self):
-        from calibre.ebooks.oeb.base import urldefrag
-        from calibre import guess_type
-        g, m = self.oeb.guide, self.oeb.manifest
-        item = None
-        if 'titlepage' not in g:
-            if 'cover' in g:
-                href = g['cover'].href
-            else:
-                href = self.default_cover()
-            if href is not None:
-                templ = self.NONSVG_TITLEPAGE_COVER if self.opts.no_svg_cover \
-                        else self.TITLEPAGE_COVER
-                tp = templ%unquote(href)
-                id, href = m.generate('titlepage', 'titlepage.xhtml')
-                item = m.add(id, href, guess_type('t.xhtml')[0],
-                        data=etree.fromstring(tp))
-        else:
-            item = self.oeb.manifest.hrefs[
-                    urldefrag(self.oeb.guide['titlepage'].href)[0]]
-        if item is not None:
-            self.oeb.spine.insert(0, item, True)
-            if 'cover' not in self.oeb.guide.refs:
-                self.oeb.guide.add('cover', 'Title Page', 'a')
-            self.oeb.guide.refs['cover'].href = item.href
-            if 'titlepage' in self.oeb.guide.refs:
-                self.oeb.guide.refs['titlepage'].href = item.href
 
     def condense_ncx(self, ncx_path):
         if not self.opts.pretty_print:

@@ -145,7 +145,7 @@ First perform the following steps in |app|
 
 For an iPad:
 
-Install the ReadMe app on your iPad using iTunes. Open Safari and browse to::
+Install the ReadMe app on your iPad using iTunes. Open the Readme builtin browser and browse to::
 
     http://192.168.1.2:8080/
 

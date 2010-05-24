@@ -10,17 +10,18 @@ Browsing book collection by tags.
 from itertools import izip
 
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
-                     QFont, SIGNAL, QSize, QIcon, QPoint, \
+                     QFont, QSize, QIcon, QPoint, \
                      QAbstractItemModel, QVariant, QModelIndex
 from calibre.gui2 import config, NONE
 from calibre.utils.config import prefs
 from calibre.utils.search_query_parser import saved_searches
 from calibre.library.database2 import Tag
 
-class TagsView(QTreeView):
+class TagsView(QTreeView): # {{{
 
-    need_refresh = pyqtSignal()
+    need_refresh    = pyqtSignal()
     restriction_set = pyqtSignal(object)
+    tags_marked     = pyqtSignal(object, object)
 
     def __init__(self, *args):
         QTreeView.__init__(self, *args)
@@ -36,10 +37,10 @@ class TagsView(QTreeView):
         self.tag_match = tag_match
         self.db = db
         self.setModel(self._model)
-        self.connect(self, SIGNAL('clicked(QModelIndex)'), self.toggle)
+        self.clicked.connect(self.toggle)
         self.popularity.setChecked(config['sort_by_popularity'])
-        self.connect(self.popularity, SIGNAL('stateChanged(int)'), self.sort_changed)
-        self.connect(self.restriction, SIGNAL('activated(const QString&)'), self.search_restriction_set)
+        self.popularity.stateChanged.connect(self.sort_changed)
+        self.restriction.activated[str].connect(self.search_restriction_set)
         self.need_refresh.connect(self.recount, type=Qt.QueuedConnection)
         db.add_listener(self.database_changed)
         self.saved_searches_changed(recount=False)
@@ -69,15 +70,13 @@ class TagsView(QTreeView):
         self.model().set_search_restriction(self.search_restriction)
         self.restriction_set.emit(self.search_restriction)
         self.recount() # Must happen after the emission of the restriction_set signal
-        self.emit(SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
-                         self._model.tokens(), self.match_all)
+        self.tags_marked.emit(self._model.tokens(), self.match_all)
 
     def toggle(self, index):
         modifiers = int(QApplication.keyboardModifiers())
         exclusive = modifiers not in (Qt.CTRL, Qt.SHIFT)
         if self._model.toggle(index, exclusive):
-            self.emit(SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
-                      self._model.tokens(), self.match_all)
+            self.tags_marked.emit(self._model.tokens(), self.match_all)
 
     def clear(self):
         self.model().clear_state()
@@ -119,8 +118,9 @@ class TagsView(QTreeView):
     def set_new_model(self):
         self._model = TagsModel(self.db, parent=self)
         self.setModel(self._model)
+    # }}}
 
-class TagTreeItem(object):
+class TagTreeItem(object): # {{{
 
     CATEGORY = 0
     TAG      = 1
@@ -193,8 +193,10 @@ class TagTreeItem(object):
         if self.type == self.TAG:
             self.tag.state = (self.tag.state + 1)%3
 
+    # }}}
 
-class TagsModel(QAbstractItemModel):
+class TagsModel(QAbstractItemModel): # {{{
+
     categories_orig = [_('Authors'), _('Series'), _('Formats'), _('Publishers'),
                        _('Ratings'), _('News'), _('Tags')]
     row_map_orig    = ['author', 'series', 'format', 'publisher', 'rating',
@@ -400,14 +402,12 @@ class TagsModel(QAbstractItemModel):
                 tag_item = tag_index.internalPointer()
                 tag = tag_item.tag
                 if tag is except_:
-                    self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
-                            tag_index, tag_index)
+                    self.dataChanged.emit(tag_index, tag_index)
                     continue
                 if tag.state != 0 or tag in update_list:
                     tag.state = 0
                     update_list.append(tag)
-                    self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
-                            tag_index, tag_index)
+                    self.dataChanged.emit(tag_index, tag_index)
 
     def clear_state(self):
         self.reset_all_states()
@@ -426,7 +426,7 @@ class TagsModel(QAbstractItemModel):
             if exclusive:
                 self.reset_all_states(except_=item.tag)
             self.ignore_next_search = 2
-            self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'), index, index)
+            self.dataChanged.emit(index, index)
             return True
         return False
 
@@ -451,3 +451,6 @@ class TagsModel(QAbstractItemModel):
                             tags_seen.append(tag.name)
                         ans.append('%s%s:"=%s"'%(prefix, category, tag.name))
         return ans
+
+    # }}}
+

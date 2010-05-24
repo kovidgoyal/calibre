@@ -15,13 +15,82 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.pdf.pageoptions import unit, paper_size, \
     orientation
 from calibre.ebooks.metadata import authors_to_string
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre import __appname__, __version__, fit_image
 
 from PyQt4 import QtCore
-from PyQt4.Qt import QUrl, QEventLoop, SIGNAL, QObject, \
-    QPrinter, QMetaObject, QSizeF, Qt
+from PyQt4.Qt import QUrl, QEventLoop, QObject, \
+    QPrinter, QMetaObject, QSizeF, Qt, QPainter, QPixmap
 from PyQt4.QtWebKit import QWebView
 
 from pyPdf import PdfFileWriter, PdfFileReader
+
+def get_pdf_printer():
+    return QPrinter(QPrinter.HighResolution)
+
+
+def get_custom_size(opts):
+    custom_size = None
+    if opts.custom_size != None:
+        width, sep, height = opts.custom_size.partition('x')
+        if height != '':
+            try:
+                width = int(width)
+                height = int(height)
+                custom_size = (width, height)
+            except:
+                custom_size = None
+    return custom_size
+
+def setup_printer(opts, for_comic=False):
+    from calibre.gui2 import is_ok_to_use_qt
+    if not is_ok_to_use_qt():
+        raise Exception('Not OK to use Qt')
+
+    printer = get_pdf_printer()
+    custom_size = get_custom_size(opts)
+
+    if opts.output_profile.short_name == 'default':
+        if custom_size is None:
+            printer.setPaperSize(paper_size(opts.paper_size))
+        else:
+            printer.setPaperSize(QSizeF(custom_size[0], custom_size[1]), unit(opts.unit))
+    else:
+        w = opts.output_profile.comic_screen_size[0] if for_comic else \
+                opts.output_profile.width
+        h = opts.output_profile.comic_screen_size[1] if for_comic else \
+                opts.output_profile.height
+        dpi = opts.output_profile.dpi
+        printer.setPaperSize(QSizeF(float(w) / dpi, float(h)/dpi), QPrinter.Inch)
+
+    printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
+    printer.setOrientation(orientation(opts.orientation))
+    printer.setOutputFormat(QPrinter.PdfFormat)
+    return printer
+
+def get_printer_page_size(opts, for_comic=False):
+    printer = setup_printer(opts, for_comic=for_comic)
+    size =  printer.paperSize(QPrinter.Millimeter)
+    return size.width() / 10., size.height() / 10.
+
+def draw_image_page(printer, painter, p, preserve_aspect_ratio=True):
+    page_rect = printer.pageRect()
+    if preserve_aspect_ratio:
+        aspect_ratio = float(p.width())/p.height()
+        nw, nh = page_rect.width(), page_rect.height()
+        if aspect_ratio > 1:
+            nh = int(page_rect.width()/aspect_ratio)
+        else: # Width is smaller than height
+            nw = page_rect.height()*aspect_ratio
+        __, nnw, nnh = fit_image(nw, nh, page_rect.width(),
+                page_rect.height())
+        dx = int((page_rect.width() - nnw)/2.)
+        dy = int((page_rect.height() - nnh)/2.)
+        page_rect.moveTo(dx, dy)
+        page_rect.setHeight(nnh)
+        page_rect.setWidth(nnw)
+    painter.drawPixmap(page_rect, p, p.rect())
+
 
 class PDFMetadata(object):
     def __init__(self, oeb_metadata=None):
@@ -35,8 +104,9 @@ class PDFMetadata(object):
                 self.author = authors_to_string([x.value for x in oeb_metadata.creator])
 
 
-class PDFWriter(QObject):
-    def __init__(self, opts, log):
+class PDFWriter(QObject): # {{{
+
+    def __init__(self, opts, log, cover_data=None):
         from calibre.gui2 import is_ok_to_use_qt
         if not is_ok_to_use_qt():
             raise Exception('Not OK to use Qt')
@@ -46,25 +116,16 @@ class PDFWriter(QObject):
 
         self.loop = QEventLoop()
         self.view = QWebView()
-        self.connect(self.view, SIGNAL('loadFinished(bool)'), self._render_html)
+        self.view.setRenderHints(QPainter.Antialiasing|QPainter.TextAntialiasing|QPainter.SmoothPixmapTransform)
+        self.view.loadFinished.connect(self._render_html,
+                type=Qt.QueuedConnection)
         self.render_queue = []
         self.combine_queue = []
         self.tmp_path = PersistentTemporaryDirectory('_pdf_output_parts')
 
-        self.custom_size = None
-        if opts.custom_size != None:
-            width, sep, height = opts.custom_size.partition('x')
-            if height != '':
-                try:
-                    width = int(width)
-                    height = int(height)
-                    self.custom_size = (width, height)
-                except:
-                    self.custom_size = None
-
         self.opts = opts
-
-        self.size = self._size()
+        self.size = get_printer_page_size(opts)
+        self.cover_data = cover_data
 
     def dump(self, items, out_stream, pdf_metadata):
         self.metadata = pdf_metadata
@@ -77,27 +138,6 @@ class PDFWriter(QObject):
         QMetaObject.invokeMethod(self, "_render_book", Qt.QueuedConnection)
         self.loop.exec_()
 
-    def _size(self):
-        '''
-        The size of a pdf page in cm.
-        '''
-        printer = QPrinter(QPrinter.HighResolution)
-
-        if self.opts.output_profile.short_name == 'default':
-            if self.custom_size == None:
-                printer.setPaperSize(paper_size(self.opts.paper_size))
-            else:
-                printer.setPaperSize(QSizeF(self.custom_size[0], self.custom_size[1]), unit(self.opts.unit))
-        else:
-            printer.setPaperSize(QSizeF(self.opts.output_profile.width / self.opts.output_profile.dpi, self.opts.output_profile.height / self.opts.output_profile.dpi), QPrinter.Inch)
-
-        printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
-        printer.setOrientation(orientation(self.opts.orientation))
-        printer.setOutputFormat(QPrinter.PdfFormat)
-
-        size = printer.paperSize(QPrinter.Millimeter)
-
-        return size.width() / 10, size.height() / 10
 
     @QtCore.pyqtSignature('_render_book()')
     def _render_book(self):
@@ -114,17 +154,20 @@ class PDFWriter(QObject):
 
         self.view.load(QUrl.fromLocalFile(item))
 
+    def get_printer(self):
+        printer = get_pdf_printer()
+        printer.setPaperSize(QSizeF(self.size[0] * 10, self.size[1] * 10), QPrinter.Millimeter)
+        printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
+        printer.setOrientation(orientation(self.opts.orientation))
+        printer.setOutputFormat(QPrinter.PdfFormat)
+        printer.setFullPage(True)
+        return printer
+
     def _render_html(self, ok):
         if ok:
             item_path = os.path.join(self.tmp_path, '%i.pdf' % len(self.combine_queue))
-
             self.logger.debug('\tRendering item %s as %i' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue)))
-
-            printer = QPrinter(QPrinter.HighResolution)
-            printer.setPaperSize(QSizeF(self.size[0] * 10, self.size[1] * 10), QPrinter.Millimeter)
-            printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
-            printer.setOrientation(orientation(self.opts.orientation))
-            printer.setOutputFormat(QPrinter.PdfFormat)
+            printer = self.get_printer()
             printer.setOutputFileName(item_path)
             self.view.print_(printer)
         self._render_book()
@@ -134,8 +177,26 @@ class PDFWriter(QObject):
             shutil.rmtree(self.tmp_path, True)
             self.tmp_path = PersistentTemporaryDirectory('_pdf_output_parts')
 
+    def insert_cover(self):
+        if self.cover_data is None:
+            return
+        item_path = os.path.join(self.tmp_path, 'cover.pdf')
+        printer = self.get_printer()
+        printer.setOutputFileName(item_path)
+        self.combine_queue.insert(0, item_path)
+        p = QPixmap()
+        p.loadFromData(self.cover_data)
+        if not p.isNull():
+            painter = QPainter(printer)
+            draw_image_page(printer, painter, p,
+                    preserve_aspect_ratio=self.opts.preserve_cover_aspect_ratio)
+            painter.end()
+
+
     def _write(self):
         self.logger.debug('Combining individual PDF parts...')
+
+        self.insert_cover()
 
         try:
             outPDF = PdfFileWriter(title=self.metadata.title, author=self.metadata.author)
@@ -148,37 +209,50 @@ class PDFWriter(QObject):
             self._delete_tmpdir()
             self.loop.exit(0)
 
+# }}}
 
-class ImagePDFWriter(PDFWriter):
+class ImagePDFWriter(object):
 
-    def _render_next(self):
-        item = str(self.render_queue.pop(0))
-        self.combine_queue.append(os.path.join(self.tmp_path, '%i.pdf' % (len(self.combine_queue) + 1)))
+    def __init__(self, opts, log, cover_data=None):
+        self.opts = opts
+        self.log = log
+        self.size = get_printer_page_size(opts, for_comic=True)
 
-        self.logger.debug('Processing %s...' % item)
+    def dump(self, items, out_stream, pdf_metadata):
+        f = PersistentTemporaryFile('_comic2pdf.pdf')
+        f.close()
+        try:
+            self.render_images(f.name, pdf_metadata, items)
+            with open(f.name, 'rb') as x:
+                shutil.copyfileobj(x, out_stream)
+        finally:
+            os.remove(f.name)
 
-        height = 'height: %fcm;' % (self.size[1] * 1.3)
+    def render_images(self, outpath, mi, items):
+        printer = get_pdf_printer()
+        printer.setPaperSize(QSizeF(self.size[0] * 10, self.size[1] * 10), QPrinter.Millimeter)
+        printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
+        printer.setOrientation(orientation(self.opts.orientation))
+        printer.setOutputFormat(QPrinter.PdfFormat)
+        printer.setOutputFileName(outpath)
+        printer.setDocName(mi.title)
+        printer.setCreator(u'%s [%s]'%(__appname__, __version__))
+        # Seems to be no way to set author
+        printer.setFullPage(True)
 
-        html = '<html><body style="margin: 0;"><img src="%s" style="%s display: block; margin-left: auto; margin-right: auto; padding: 0px;" /></body></html>' % (item, height)
+        painter = QPainter(printer)
+        painter.setRenderHints(QPainter.Antialiasing|QPainter.SmoothPixmapTransform)
 
-        self.view.setHtml(html)
-
-    def _size(self):
-            printer = QPrinter(QPrinter.HighResolution)
-
-            if self.opts.output_profile.short_name == 'default':
-                if self.custom_size == None:
-                    printer.setPaperSize(paper_size(self.opts.paper_size))
-                else:
-                    printer.setPaperSize(QSizeF(self.custom_size[0], self.custom_size[1]), unit(self.opts.unit))
+        for i, imgpath in enumerate(items):
+            self.log('Rendering image:', i)
+            p = QPixmap()
+            p.load(imgpath)
+            if not p.isNull():
+                if i > 0:
+                    printer.newPage()
+                draw_image_page(printer, painter, p)
             else:
-                printer.setPaperSize(QSizeF(self.opts.output_profile.comic_screen_size[0] / self.opts.output_profile.dpi, self.opts.output_profile.comic_screen_size[1] / self.opts.output_profile.dpi), QPrinter.Inch)
+                self.log.warn('Failed to load image', i)
+        painter.end()
 
-            printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
-            printer.setOrientation(orientation(self.opts.orientation))
-            printer.setOutputFormat(QPrinter.PdfFormat)
-
-            size = printer.paperSize(QPrinter.Millimeter)
-
-            return size.width() / 10, size.height() / 10
 

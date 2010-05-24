@@ -160,7 +160,7 @@ class FeedTemplate(Template):
             <li id="${'article_%d'%i}" py:if="getattr(article, 'downloaded',
             False)" style="padding-bottom:0.5em" class="calibre_rescale_100">
                 <a class="article calibre_rescale_120" href="${article.url}">${article.title}</a>
-                <span class="article_date">${article.localtime.strftime(" [%a, %d %b %H:%M]")}</span>
+                <span class="article_date">${article.formatted_date}</span>
                 <div class="article_description calibre_rescale_70" py:if="article.summary">
                     ${Markup(cutoff(article.text_summary))}
                 </div>

@@ -135,13 +135,12 @@ class SearchBox2(QComboBox):
 
     def text_edited_slot(self, text):
         if self.as_you_type:
-            text = unicode(text)
-            self.prev_text = text
             self.timer = self.startTimer(self.__class__.INTERVAL)
 
     def timerEvent(self, event):
         self.killTimer(event.timerId())
         if event.timerId() == self.timer:
+            self.timer = None
             self.do_search()
 
     @property
@@ -190,6 +189,9 @@ class SearchBox2(QComboBox):
     def set_search_string(self, txt):
         self.normalize_state()
         self.setEditText(txt)
+        if self.timer is not None: # Turn off any timers that got started in setEditText
+            self.killTimer(self.timer)
+            self.timer = None
         self.search.emit(txt, False)
         self.line_edit.end(False)
         self.initial_state = False
