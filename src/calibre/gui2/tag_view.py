@@ -14,8 +14,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
                      QAbstractItemModel, QVariant, QModelIndex
 from calibre.gui2 import config, NONE
 from calibre.utils.config import prefs
-from calibre.utils.search_query_parser import saved_searches
-from calibre.library.database2 import Tag
+from calibre.ebooks.metadata.book import RESERVED_METADATA_FIELDS
 
 class TagsView(QTreeView): # {{{
 
@@ -204,17 +203,22 @@ class TagsModel(QAbstractItemModel): # {{{
         QAbstractItemModel.__init__(self, parent)
 
         # must do this here because 'QPixmap: Must construct a QApplication
-        # before a QPaintDevice'
-        self.category_icon_map = {'authors': QIcon(I('user_profile.svg')),
-                    'series': QIcon(I('series.svg')),
-                    'formats':QIcon(I('book.svg')),
-                    'publishers': QIcon(I('publisher.png')),
-                    'ratings':QIcon(I('star.png')),
-                    'news':QIcon(I('news.svg')),
-                    'tags':QIcon(I('tags.svg')),
-                    '*custom':QIcon(I('column.svg')),
-                    '*user':QIcon(I('drawer.svg')),
-                    'search':QIcon(I('search.svg'))}
+        # before a QPaintDevice'. The ':' in front avoids polluting either the
+        # user-defined categories (':' at end) or columns namespaces (no ':').
+        self.category_icon_map = {
+                    'authors'   : QIcon(I('user_profile.svg')),
+                    'series'    : QIcon(I('series.svg')),
+                    'formats'   : QIcon(I('book.svg')),
+                    'publisher' : QIcon(I('publisher.png')),
+                    'rating'    : QIcon(I('star.png')),
+                    'news'      : QIcon(I('news.svg')),
+                    'tags'      : QIcon(I('tags.svg')),
+                    ':custom'   : QIcon(I('column.svg')),
+                    ':user'     : QIcon(I('drawer.svg')),
+                    'search'    : QIcon(I('search.svg'))}
+        for k in self.category_icon_map.keys():
+            if not k.startswith(':') and k not in RESERVED_METADATA_FIELDS:
+                raise ValueError('Tag category [%s] is not a reserved word.' %(k))
         self.icon_state_map = [None, QIcon(I('plus.svg')), QIcon(I('minus.svg'))]
         self.db = db
         self.search_restriction = ''
@@ -381,9 +385,9 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def tokens(self):
         ans = []
-        tags_seen = []
+        tags_seen = set()
         for i, key in enumerate(self.row_map):
-            if key.endswith('*'): # User category, so skip it. The tag will be marked in its real category
+            if key.endswith(':'): # User category, so skip it. The tag will be marked in its real category
                 continue
             category_item = self.root_item.children[i]
             for tag_item in category_item.children:
@@ -394,10 +398,10 @@ class TagsModel(QAbstractItemModel): # {{{
                     if tag.name[0] == u'\u2605': # char is a star. Assume rating
                         ans.append('%s%s:%s'%(prefix, category, len(tag.name)))
                     else:
-                        if category == 'tag':
+                        if category == 'tags':
                             if tag.name in tags_seen:
                                 continue
-                            tags_seen.append(tag.name)
+                            tags_seen.add(tag.name)
                         ans.append('%s%s:"=%s"'%(prefix, category, tag.name))
         return ans
 

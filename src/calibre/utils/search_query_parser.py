@@ -22,7 +22,7 @@ from calibre.utils.pyparsing import Keyword, Group, Forward, CharsNotIn, Suppres
                       OneOrMore, oneOf, CaselessLiteral, Optional, NoMatch, ParseException
 from calibre.constants import preferred_encoding
 from calibre.utils.config import prefs
-
+from calibre.ebooks.metadata.book import RESERVED_METADATA_FIELDS
 
 '''
 This class manages access to the preference holding the saved search queries.
@@ -87,21 +87,25 @@ class SearchQueryParser(object):
     '''
 
     DEFAULT_LOCATIONS = [
-        'tag',
-        'title',
-        'author',
+        'all',
+        'author',       # compatibility
+        'authors',
+        'comment',      # compatibility
+        'comments',
+        'cover',
+        'date',
+        'format',       # compatibility
+        'formats',
+        'isbn',
+        'ondevice',
+        'pubdate',
         'publisher',
+        'search',
         'series',
         'rating',
-        'cover',
-        'comments',
-        'format',
-        'isbn',
-        'search',
-        'date',
-        'pubdate',
-        'ondevice',
-        'all',
+        'tag',          # compatibility
+        'tags',
+        'title',
                  ]
 
     @staticmethod
@@ -118,6 +122,9 @@ class SearchQueryParser(object):
         return failed
 
     def __init__(self, locations=None, test=False):
+        for k in self.DEFAULT_LOCATIONS:
+            if k not in RESERVED_METADATA_FIELDS:
+                raise ValueError('Search location [%s] is not a reserved word.' %(k))
         if locations is None:
             locations = self.DEFAULT_LOCATIONS
         self._tests_failed = False
