@@ -97,8 +97,6 @@ def _config():
             help=_('Overwrite author and title with new metadata'))
     c.add_opt('enforce_cpu_limit', default=True,
             help=_('Limit max simultaneous jobs to number of CPUs'))
-    c.add_opt('user_categories', default={},
-            help=_('User-created tag browser categories'))
 
     return ConfigProxy(c)
 
@@ -229,19 +227,6 @@ def info_dialog(parent, title, msg, det_msg='', show=False):
     return d
 
 
-def human_readable(size):
-    """ Convert a size in bytes into a human readable form """
-    divisor, suffix = 1, "B"
-    for i, candidate in enumerate(('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
-        if size < 1024**(i+1):
-            divisor, suffix = 1024**(i), candidate
-            break
-    size = str(float(size)/divisor)
-    if size.find(".") > -1:
-        size = size[:size.find(".")+2]
-    if size.endswith('.0'):
-        size = size[:-2]
-    return size + " " + suffix
 
 class Dispatcher(QObject):
     '''Convenience class to ensure that a function call always happens in the

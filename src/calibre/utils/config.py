@@ -694,8 +694,10 @@ def _prefs():
             help=_('Add new formats to existing book records'))
     c.add_opt('installation_uuid', default=None, help='Installation UUID')
 
-    # this is here instead of the gui preferences because calibredb can execute searches
+    # these are here instead of the gui preferences because calibredb and
+    # calibre server can execute searches
     c.add_opt('saved_searches', default={}, help=_('List of named saved searches'))
+    c.add_opt('user_categories', default={}, help=_('User-created tag browser categories'))
 
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c

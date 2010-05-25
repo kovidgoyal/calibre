@@ -14,14 +14,46 @@ import cherrypy
 from calibre.constants import __appname__, __version__
 from calibre.utils.date import fromtimestamp
 from calibre.library.server import listen_on, log_access_file, log_error_file
+from calibre.library.server.utils import expose
 from calibre.utils.mdns import publish as publish_zeroconf, \
             stop_server as stop_zeroconf, get_external_ip
 from calibre.library.server.content import ContentServer
 from calibre.library.server.mobile import MobileServer
 from calibre.library.server.xml import XMLServer
 from calibre.library.server.opds import OPDSServer
+from calibre.library.server.cache import Cache
 
-class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer):
+
+class DispatchController(object): # {{{
+
+    def __init__(self):
+        self.dispatcher = cherrypy.dispatch.RoutesDispatcher()
+        self.funcs = []
+        self.seen = set([])
+
+    def __call__(self, name, route, func, **kwargs):
+        if name in self.seen:
+            raise NameError('Route name: '+ repr(name) + ' already used')
+        self.seen.add(name)
+        kwargs['action'] = 'f_%d'%len(self.funcs)
+        self.dispatcher.connect(name, route, self, **kwargs)
+        self.funcs.append(expose(func))
+
+    def __getattr__(self, attr):
+        if not attr.startswith('f_'):
+            raise AttributeError(attr + ' not found')
+        num = attr.rpartition('_')[-1]
+        try:
+            num = int(num)
+        except:
+            raise AttributeError(attr + ' not found')
+        if num < 0 or num >= len(self.funcs):
+            raise AttributeError(attr + ' not found')
+        return self.funcs[num]
+
+# }}}
+
+class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache):
 
     server_name = __appname__ + '/' + __version__
 
@@ -88,8 +120,16 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer):
 
     def start(self):
         self.is_running = False
+        d = DispatchController()
+        for x in self.__class__.__bases__:
+            if hasattr(x, 'add_routes'):
+                x.add_routes(self, d)
+        root_conf = self.config.get('/', {})
+        root_conf['request.dispatch'] = d.dispatcher
+        self.config['/'] = root_conf
+
         self.setup_loggers()
-        cherrypy.tree.mount(self, '', config=self.config)
+        cherrypy.tree.mount(root=None, config=self.config)
         try:
             try:
                 cherrypy.engine.start()

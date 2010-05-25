@@ -626,20 +626,24 @@ class ResultCache(SearchQueryParser):
         self._map.sort(cmp=fcmp, reverse=not ascending)
         self._map_filtered = [id for id in self._map if id in self._map_filtered]
 
-    def search(self, query, return_matches=False):
+    def search(self, query, return_matches=False,
+            ignore_search_restriction=False):
         if not query or not query.strip():
-            q = self.search_restriction
-        else:
-            q = '%s (%s)' % (self.search_restriction, query)
+            q = ''
+            if not ignore_search_restriction:
+                q = self.search_restriction
+        elif not ignore_search_restriction:
+            q = u'%s (%s)' % (self.search_restriction, query)
         if not q:
             if return_matches:
-                return list(self.map) # when return_matches, do not update the maps!
+                return list(self._map) # when return_matches, do not update the maps!
             self._map_filtered = list(self._map)
             return []
         matches = sorted(self.parse(q))
+        ans = [id for id in self._map if id in matches]
         if return_matches:
-            return [id for id in self._map if id in matches]
-        self._map_filtered = [id for id in self._map if id in matches]
+            return ans
+        self._map_filtered = ans
         return []
 
     def set_search_restriction(self, s):

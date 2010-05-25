@@ -2,207 +2,193 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-from calibre.utils.genshi.template import MarkupTemplate
-from calibre import preferred_encoding, strftime
 
+from lxml import html, etree
+from lxml.html.builder import HTML, HEAD, TITLE, STYLE, DIV, BODY, \
+        STRONG, BR, H1, SPAN, A, HR, UL, LI, H2, IMG, P as PT
 
-class Template(MarkupTemplate):
+from calibre import preferred_encoding, strftime, isbytestring
+
+def CLASS(*args, **kwargs): # class is a reserved word in Python
+    kwargs['class'] = ' '.join(args)
+    return kwargs
+
+class Template(object):
+
+    IS_HTML = True
 
     def generate(self, *args, **kwargs):
         if not kwargs.has_key('style'):
             kwargs['style'] = ''
         for key in kwargs.keys():
-            if isinstance(kwargs[key], basestring) and not isinstance(kwargs[key], unicode):
-                kwargs[key] = unicode(kwargs[key], 'utf-8', 'replace')
-        for arg in args:
-            if isinstance(arg, basestring) and not isinstance(arg, unicode):
-                arg = unicode(arg, 'utf-8', 'replace')
+            if isbytestring(kwargs[key]):
+                kwargs[key] = kwargs[key].decode('utf-8', 'replace')
+            if kwargs[key] is None:
+                kwargs[key] = u''
+        args = list(args)
+        for i in range(len(args)):
+            if isbytestring(args[i]):
+                args[i] = args[i].decode('utf-8', 'replace')
+            if args[i] is None:
+                args[i] = u''
 
-        return MarkupTemplate.generate(self, *args, **kwargs)
+        self._generate(*args, **kwargs)
+
+        return self
+
+    def render(self, *args, **kwargs):
+        if self.IS_HTML:
+            return html.tostring(self.root, encoding='utf-8',
+                    include_meta_content_type=True, pretty_print=True)
+        return etree.tostring(self.root, encoding='utf-8', xml_declaration=True,
+                pretty_print=True)
 
 class NavBarTemplate(Template):
 
-    def __init__(self):
-        Template.__init__(self, u'''\
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xml:lang="en"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      xmlns:py="http://genshi.edgewall.org/"
-
->
-    <head>
-        <style py:if="extra_css" type="text/css">
-        ${extra_css}
-        </style>
-    </head>
-    <body>
-        <div class="calibre_navbar calibre_rescale_70" style="text-align:${'center' if center else 'left'};">
-            <hr py:if="bottom" />
-            <p py:if="bottom" style="text-align:left">
-                This article was downloaded by <b>${__appname__}</b> from <a href="${url}">${url}</a>
-            </p>
-            <br py:if="bottom" /><br py:if="bottom" />
-            <py:if test="art != num - 1 and not bottom">
-            | <a href="${prefix}../article_${str(art+1)}/index.html">Next</a>
-            </py:if>
-            <py:if test="art == num - 1 and not bottom">
-            | <a href="${prefix}../../feed_${str(feed+1)}/index.html">Next</a>
-            </py:if>
-            | <a href="${prefix}../index.html#article_${str(art)}">Section menu</a>
-            <py:if test="two_levels">
-            | <a href="${prefix}../../index.html#feed_${str(feed)}">Main menu</a>
-            </py:if>
-            <py:if test="art != 0 and not bottom">
-            | <a href="${prefix}../article_${str(art-1)}/index.html">Previous</a>
-            </py:if>
-            |
-            <hr py:if="not bottom" />
-        </div>
-    </body>
-</html>
-''')
-
-    def generate(self, bottom, feed, art, number_of_articles_in_feed,
+    def _generate(self, bottom, feed, art, number_of_articles_in_feed,
                  two_levels, url, __appname__, prefix='', center=True,
-                 extra_css=None):
+                 extra_css=None, style=None):
+        head = HEAD(TITLE('navbar'))
+        if style:
+            head.append(STYLE(style, type='text/css'))
+        if extra_css:
+            head.append(STYLE(extra_css, type='text/css'))
+
         if prefix and not prefix.endswith('/'):
             prefix += '/'
-        return Template.generate(self, bottom=bottom, art=art, feed=feed,
-                                 num=number_of_articles_in_feed,
-                                 two_levels=two_levels, url=url,
-                                 __appname__=__appname__, prefix=prefix,
-                                 center=center, extra_css=extra_css)
+        align = 'center' if center else 'left'
+        navbar = DIV(CLASS('calibre_navbar', 'calibre_rescale_70',
+            style='text-align:'+align))
+        if bottom:
+            navbar.append(HR())
+            text = 'This article was downloaded by '
+            p = PT(text, STRONG(__appname__), A(url, href=url), style='text-align:left')
+            p[0].tail = ' from '
+            navbar.append(BR())
+            navbar.append(BR())
+        else:
+            next = 'feed_%d'%(feed+1) if art == number_of_articles_in_feed - 1 \
+                    else 'article_%d'%(art+1)
+            up = '../..' if art == number_of_articles_in_feed - 1 else '..'
+            href = '%s%s/%s/index.html'%(prefix, up, next)
+            navbar.text = '| '
+            navbar.append(A('Next', href=href))
+        href = '%s../index.html#article_%d'%(prefix, art)
+        navbar.iterchildren(reversed=True).next().tail = ' | '
+        navbar.append(A('Section Menu', href=href))
+        href = '%s../../index.html#feed_%d'%(prefix, feed)
+        navbar.iterchildren(reversed=True).next().tail = ' | '
+        navbar.append(A('Main Menu', href=href))
+        if art > 0 and not bottom:
+            href = '%s../article_%d/index.html'%(prefix, art-1)
+            navbar.iterchildren(reversed=True).next().tail = ' | '
+            navbar.append(A('Previous', href=href))
+        navbar.iterchildren(reversed=True).next().tail = ' | '
+        if not bottom:
+            navbar.append(HR())
+
+        self.root = HTML(head, BODY(navbar))
+
+
 
 
 class IndexTemplate(Template):
 
-    def __init__(self):
-        Template.__init__(self, u'''\
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xml:lang="en"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      xmlns:py="http://genshi.edgewall.org/"
-
->
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>${title}</title>
-        <style py:if="style" type="text/css">
-            ${style}
-        </style>
-        <style py:if="extra_css" type="text/css">
-            ${extra_css}
-        </style>
-    </head>
-    <body>
-        <div class="calibre_rescale_100">
-            <h1 class="calibre_recipe_title calibre_rescale_180">${title}</h1>
-            <p style="text-align:right">${date}</p>
-            <ul class="calibre_feed_list">
-                <py:for each="i, feed in enumerate(feeds)">
-                <li py:if="feed" id="feed_${str(i)}">
-                    <a class="feed calibre_rescale_120" href="${'feed_%d/index.html'%i}">${feed.title}</a>
-                </li>
-                </py:for>
-            </ul>
-        </div>
-    </body>
-</html>
-''')
-
-    def generate(self, title, datefmt, feeds, extra_css=None):
+    def _generate(self, title, datefmt, feeds, extra_css=None, style=None):
         if isinstance(datefmt, unicode):
             datefmt = datefmt.encode(preferred_encoding)
         date = strftime(datefmt)
-        return Template.generate(self, title=title, date=date, feeds=feeds,
-                                 extra_css=extra_css)
-
+        head = HEAD(TITLE(title))
+        if style:
+            head.append(STYLE(style, type='text/css'))
+        if extra_css:
+            head.append(STYLE(extra_css, type='text/css'))
+        ul = UL(CLASS('calibre_feed_list'))
+        for i, feed in enumerate(feeds):
+            if feed:
+                li = LI(A(feed.title, CLASS('feed', 'calibre_rescale_120',
+                    href='feed_%d/index.html'%i)), id='feed_%d'%i)
+                ul.append(li)
+        div = DIV(
+                H1(title, CLASS('calibre_recipe_title', 'calibre_rescale_180')),
+                PT(date, style='text-align:right'),
+                ul,
+                CLASS('calibre_rescale_100'))
+        self.root = HTML(head, BODY(div))
 
 class FeedTemplate(Template):
 
-    def __init__(self):
-        Template.__init__(self, u'''\
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xml:lang="en"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      xmlns:py="http://genshi.edgewall.org/"
+    def _generate(self, feed, cutoff, extra_css=None, style=None):
+        head = HEAD(TITLE(feed.title))
+        if style:
+            head.append(STYLE(style, type='text/css'))
+        if extra_css:
+            head.append(STYLE(extra_css, type='text/css'))
+        body = BODY(style='page-break-before:always')
+        div = DIV(
+                H2(feed.title,
+                    CLASS('calibre_feed_title', 'calibre_rescale_160')),
+                CLASS('calibre_rescale_100')
+              )
+        body.append(div)
+        if getattr(feed, 'image', None):
+            div.append(DIV(IMG(
+                alt = feed.image_alt if feed.image_alt else '',
+                src = feed.image_url
+                ),
+                CLASS('calibre_feed_image')))
+        if getattr(feed, 'description', None):
+            d = DIV(feed.description, CLASS('calibre_feed_description',
+                'calibre_rescale_80'))
+            d.append(BR())
+            div.append(d)
+        ul = UL(CLASS('calibre_article_list'))
+        for i, article in enumerate(feed.articles):
+            if not getattr(article, 'downloaded', False):
+                continue
+            li = LI(
+                    A(article.title, CLASS('article calibre_rescale_120',
+                                    href=article.url)),
+                    SPAN(article.formatted_date, CLASS('article_date')),
+                    CLASS('calibre_rescale_100', id='article_%d'%i,
+                            style='padding-bottom:0.5em')
+                    )
+            if article.summary:
+                li.append(DIV(cutoff(article.text_summary),
+                    CLASS('article_description', 'calibre_rescale_70')))
+            ul.append(li)
+        div.append(ul)
+        navbar = DIV('| ', CLASS('calibre_navbar', 'calibre_rescale_70'))
+        link = A('Up one level', href="../index.html")
+        link.tail = ' |'
+        navbar.append(link)
+        div.append(navbar)
 
->
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>${feed.title}</title>
-        <style py:if="style" type="text/css">
-            ${style}
-        </style>
-        <style py:if="extra_css" type="text/css">
-            ${extra_css}
-        </style>
-    </head>
-    <body style="page-break-before:always">
-    <div class="calibre_rescale_100">
-        <h2 class="calibre_feed_title calibre_rescale_160">${feed.title}</h2>
-        <py:if test="getattr(feed, 'image', None)">
-        <div class="calibre_feed_image">
-            <img alt="${feed.image_alt}" src="${feed.image_url}" />
-        </div>
-        </py:if>
-        <div class="calibre_feed_description calibre_rescale_80" py:if="getattr(feed, 'description', None)">
-            ${feed.description}<br />
-        </div>
-        <ul class="calibre_article_list">
-            <py:for each="i, article in enumerate(feed.articles)">
-            <li id="${'article_%d'%i}" py:if="getattr(article, 'downloaded',
-            False)" style="padding-bottom:0.5em" class="calibre_rescale_100">
-                <a class="article calibre_rescale_120" href="${article.url}">${article.title}</a>
-                <span class="article_date">${article.formatted_date}</span>
-                <div class="article_description calibre_rescale_70" py:if="article.summary">
-                    ${Markup(cutoff(article.text_summary))}
-                </div>
-            </li>
-            </py:for>
-        </ul>
-        <div class="calibre_navbar calibre_rescale_70">
-            | <a href="../index.html">Up one level</a> |
-        </div>
-        </div>
-    </body>
-</html>
-''')
+        self.root = HTML(head, body)
 
-    def generate(self, feed, cutoff, extra_css=None):
-        return Template.generate(self, feed=feed, cutoff=cutoff,
-                                 extra_css=extra_css)
 
 class EmbeddedContent(Template):
 
-    def __init__(self):
-        Template.__init__(self, u'''\
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xml:lang="en"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      xmlns:py="http://genshi.edgewall.org/"
+    def _generate(self, article, style=None, extra_css=None):
+        content = article.content if article.content else ''
+        summary = article.summary if article.summary else ''
+        text = content if len(content) > len(summary) else summary
+        head = HEAD(TITLE(article.title))
+        if style:
+            head.append(STYLE(style, type='text/css'))
+        if extra_css:
+            head.append(STYLE(extra_css, type='text/css'))
 
->
-    <head>
-        <title>${article.title}</title>
-    </head>
+        if isbytestring(text):
+            text = text.decode('utf-8', 'replace')
+        elements = html.fragments_fromstring(text)
+        self.root = HTML(head,
+                BODY(H2(article.title), DIV()))
+        div = self.root.find('body').find('div')
+        if elements and isinstance(elements[0], unicode):
+            div.text = elements[0]
+            elements = list(elements)[1:]
+        for elem in elements:
+            elem.getparent().remove(elem)
+            div.append(elem)
 
-    <body>
-        <h2>${article.title}</h2>
-        <div>
-            ${Markup(article.content if len(article.content if article.content else '') > len(article.summary if article.summary else '') else article.summary)}
-        </div>
-    </body>
-</html>
-''')
-
-    def generate(self, article):
-        return Template.generate(self, article=article)
