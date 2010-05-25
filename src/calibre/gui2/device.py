@@ -37,6 +37,7 @@ class DeviceJob(BaseJob):
         self.exception = None
         self.job_manager = job_manager
         self._details = _('No details available.')
+        self._aborted = False
 
     def start_work(self):
         self.start_time = time.time()
@@ -55,13 +56,23 @@ class DeviceJob(BaseJob):
         self.start_work()
         try:
             self.result = self.func(*self.args, **self.kwargs)
+            if self._aborted:
+                return
         except (Exception, SystemExit), err:
+            if self._aborted:
+                return
             self.failed = True
             self._details = unicode(err) + '\n\n' + \
                 traceback.format_exc()
             self.exception = err
         finally:
             self.job_done()
+
+    def abort(self, err):
+        self._aborted = True
+        self.failed = True
+        self._details = unicode(err)
+        self.exception = err
 
     @property
     def log_file(self):
