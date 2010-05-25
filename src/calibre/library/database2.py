@@ -37,6 +37,7 @@ from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.config import prefs
 from calibre.utils.search_query_parser import saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
+from calibre.ebooks.metadata.book import RESERVED_METADATA_FIELDS
 
 if iswindows:
     import calibre.utils.winshell as winshell
@@ -137,10 +138,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 ('formats',   {'table':None, 'column':None,
                                'type':None, 'is_multiple':False,
                                'kind':'standard', 'name':_('Formats')}),
-                ('publishers',{'table':'publishers', 'column':'name',
+                ('publisher', {'table':'publishers', 'column':'name',
                                'type':'text', 'is_multiple':False,
                                'kind':'standard', 'name':_('Publishers')}),
-                ('ratings',   {'table':'ratings', 'column':'rating',
+                ('rating',    {'table':'ratings', 'column':'rating',
                                'type':'rating', 'is_multiple':False,
                                'kind':'standard', 'name':_('Ratings')}),
                 ('news',      {'table':'news', 'column':'name',
@@ -152,6 +153,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ]
         self.tag_browser_categories = OrderedDict()
         for k,v in tag_browser_categories_items:
+            if k not in RESERVED_METADATA_FIELDS:
+                raise ValueError('Tag category [%s] is not a reserved word.' %(k))
             self.tag_browser_categories[k] = v
 
         self.connect()
@@ -694,25 +697,25 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     if category in icon_map:
                         icon = icon_map[category]
                 elif self.tag_browser_categories[category]['kind'] == 'custom':
-                    icon = icon_map['*custom']
-                    icon_map[category] = icon_map['*custom']
+                    icon = icon_map[':custom']
+                    icon_map[category] = icon
                     tooltip = self.custom_column_label_map[category]['name']
 
             datatype = self.tag_browser_categories[category]['type']
             if datatype == 'rating':
-                item_zero_func = (lambda x: len(formatter(r[1])) > 0)
+                item_not_zero_func = (lambda x: x[1] > 0 and x[2] > 0)
                 formatter = (lambda x:u'\u2605'*int(round(x/2.)))
             elif category == 'authors':
-                item_zero_func = (lambda x: x[2] > 0)
+                item_not_zero_func = (lambda x: x[2] > 0)
                 # Clean up the authors strings to human-readable form
                 formatter = (lambda x: x.replace('|', ','))
             else:
-                item_zero_func = (lambda x: x[2] > 0)
+                item_not_zero_func = (lambda x: x[2] > 0)
                 formatter = (lambda x:x)
 
             categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0],
                                         icon=icon, tooltip = tooltip)
-                                    for r in data if item_zero_func(r)]
+                                    for r in data if item_not_zero_func(r)]
 
         # We delayed computing the standard formats category because it does not
         # use a view, but is computed dynamically
@@ -767,14 +770,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     items.append(taglist[label][name])
                 # else: do nothing, to not include nodes w zero counts
             if len(items):
-                cat_name = user_cat+'*' # add the * to avoid name collision
+                cat_name = user_cat+':' # add the ':' to avoid name collision
                 self.tag_browser_categories[cat_name] = {
                                 'table':None,  'column':None,
                                 'type':None,   'is_multiple':False,
                                 'kind':'user', 'name':user_cat}
                 # Not a problem if we accumulate entries in the icon map
                 if icon_map is not None:
-                    icon_map[cat_name] = icon_map['*user']
+                    icon_map[cat_name] = icon_map[':user']
                 if sort_on_count:
                     categories[cat_name] = \
                         sorted(items, cmp=(lambda x, y: cmp(y.count, x.count)))
