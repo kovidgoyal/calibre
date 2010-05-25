@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-05-21 22:47+0000\n"
-"PO-Revision-Date: 2010-05-23 08:50+0000\n"
+"PO-Revision-Date: 2010-05-24 18:37+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-24 03:44+0000\n"
+"X-Launchpad-Export-Date: 2010-05-25 03:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1638,6 +1638,13 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
+"Lors de l'utilisation d'une image SVG en couverture, cette option va "
+"entrainer une mise à l'échelle permettant de couvrir tout l'écran, mais va "
+"toujours garder les proportions (ratio hauteur/largeur) de l'image "
+"d'origine. Ceci signifie qu'il peut y avoir des bordures blanches sur les "
+"cotés, en haut ou en bas de l'image, mais que celle-ci ne sera jamais "
+"distordue. Sans cette option l'image peut être légèrement distordue, mais il "
+"n'y aura pas de bordures."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
@@ -2712,9 +2719,9 @@ msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
 msgstr ""
-"Taille personnalisée de document. Utiliser le format largeurxhauteur, par "
-"exemple `123x321` pour spécifier la largeur et la hauteur. Cela écrasera "
-"n'importe quelle taille de papier spécifiée."
+"Taille de document personnalisée. Utiliser le format largeur x hauteur, c.-à-"
+"d. `123x321` pour spécifier la largeur et la hauteur. Ceci outrepassera "
+"toute taille de papier spécifiée."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:73
 msgid "The orientation of the page. Default is portrait. Choices are %s"
@@ -3413,7 +3420,7 @@ msgstr "Taille de &base de la police:"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:123
 msgid "Font size &key:"
-msgstr "Taille de la police &key:"
+msgstr "Taille de la police &clé:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:110

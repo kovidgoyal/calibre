@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.51\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-05-21 22:47+0000\n"
-"PO-Revision-Date: 2010-05-22 17:11+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-05-24 19:01+0000\n"
+"Last-Translator: D Iordanov <Unknown>\n"
 "Language-Team: bg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-23 03:55+0000\n"
+"X-Launchpad-Export-Date: 2010-05-25 03:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -384,6 +384,8 @@ msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
+"Този профил е предназначен за SONY PRS линия продукти. Модел 500/505/700 и "
+"т.н., landscape формат. Основно използван за комикси."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:408
 msgid "This profile is intended for the Amazon Kindle DX."
@@ -395,19 +397,19 @@ msgstr "Инсталирани приставки"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
-msgstr ""
+msgstr "Съответствия за плъгини за вида файл"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:33
 msgid "Local plugin customization"
-msgstr ""
+msgstr "Настройка на локалните плъгини."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Disabled plugins"
-msgstr "Изключени приставки"
+msgstr "Изключени плъгини"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:77
 msgid "No valid plugin found in "
-msgstr ""
+msgstr "Валидни плъгини не са открити в "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:278
 msgid "Initialization of plugin %s failed with traceback:"
@@ -441,15 +443,15 @@ msgstr "Списък на инсталираните приставки"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:447
 msgid "Enable the named plugin"
-msgstr ""
+msgstr "Активирай избрания плъгин"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:449
 msgid "Disable the named plugin"
-msgstr ""
+msgstr "Дективирай избрания плъгин"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
-msgstr ""
+msgstr "Комуникирай с Android устройства"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:39
 msgid ""
@@ -459,15 +461,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:67
 msgid "Communicate with S60 phones."
-msgstr ""
+msgstr "Комуникирай със S60 устройства"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr ""
+msgstr "Комуникирай с Binatone Readme eBook устройство"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
-msgstr ""
+msgstr "Комуникирай Blackberry устройство"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
@@ -477,15 +479,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr ""
+msgstr "Комуникирай с Cybook Gen 3 / Opus eBook устройство"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
 msgid "Communicate with the EB600 eBook reader."
-msgstr ""
+msgstr "Комуникирай с EB600 eBook устройство"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr ""
+msgstr "Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
@@ -493,15 +495,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr ""
+msgstr "Комуникирай с ESlick eBook устройство"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
-msgstr ""
+msgstr "Комуникирай с Hanlin V3 eBook устройство"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:95
 msgid "Communicate with Hanlin V5 eBook readers."
-msgstr ""
+msgstr "Комуникирай с Hanlin V5 eBook устройство"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:114
 msgid "Communicate with the BOOX eBook reader."
