@@ -17,10 +17,14 @@ class Cache(object):
     def search_cache(self, search):
         old = self._search_cache.get(search, None)
         if old is None or old[0] <= self.db.last_modified():
-            matches = self.db.data.search(search)
-            self._search_cache[search] = frozenset(matches)
+            matches = self.db.data.search(search, return_matches=True,
+                    ignore_search_restriction=True)
+            if not matches:
+                matches = []
+            self._search_cache[search] = (utcnow(), frozenset(matches))
             if len(self._search_cache) > 10:
                 self._search_cache.popitem(last=False)
+        return self._search_cache[search][1]
 
 
     def categories_cache(self, restrict_to=frozenset([])):
