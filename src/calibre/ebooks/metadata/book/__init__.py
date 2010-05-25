@@ -90,7 +90,6 @@ CALIBRE_METADATA_FIELDS = frozenset([
 
 CALIBRE_RESERVED_LABELS = frozenset([
     'all',          # search term
-    'author_sort',  # can appear in device collection customization
     'date',         # search term
     'formats',      # search term
     'inlibrary',    # search term
