@@ -66,7 +66,6 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache):
         self.embedded = embedded
         self.max_cover_width, self.max_cover_height = \
                         map(int, self.opts.max_cover.split('x'))
-        self.max_stanza_items = opts.max_opds_items
         path = P('content_server')
         self.build_time = fromtimestamp(os.stat(path).st_mtime)
         self.default_cover =  open(P('content_server/default_cover.jpg'), 'rb').read()

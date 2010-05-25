@@ -36,10 +36,10 @@ def UPDATED(dt, *args, **kwargs):
     return E.updated(dt.strftime('%Y-%m-%dT%H:%M:%S+00:00'), *args, **kwargs)
 
 LINK = partial(E.link, type='application/atom+xml')
-NAVLINK = partial(E.link,
+NAVLINK = partial(E.link, rel='subsection',
         type='application/atom+xml;type=feed;profile=opds-catalog')
 
-def SEARCH(base_href, *args, **kwargs):
+def SEARCH_LINK(base_href, *args, **kwargs):
     kwargs['rel'] = 'search'
     kwargs['title'] = 'Search'
     kwargs['href'] = base_href+'/search/{searchTerms}'
@@ -64,42 +64,104 @@ def NAVCATALOG_ENTRY(base_href, updated, title, description, query):
         NAVLINK(href=href)
     )
 
+START_LINK = partial(NAVLINK, rel='start')
+UP_LINK = partial(NAVLINK, rel='up')
+FIRST_LINK = partial(NAVLINK, rel='first')
+LAST_LINK  = partial(NAVLINK, rel='last')
+NEXT_LINK  = partial(NAVLINK, rel='next')
+PREVIOUS_LINK  = partial(NAVLINK, rel='previous')
+
 # }}}
 
 class Feed(object):
+
+    def __init__(self, id_, updated, version, subtitle=None,
+            title=__appname__ + ' ' + _('Library'),
+            up_link=None, first_link=None, last_link=None,
+            next_link=None, previous_link=None):
+        self.base_href = BASE_HREFS[version]
+
+        self.root = \
+            FEED(
+                    TITLE(title),
+                    AUTHOR(__appname__, uri='http://calibre-ebook.com'),
+                    ID(id_),
+                    UPDATED(updated),
+                    SEARCH_LINK(self.base_href),
+                    START_LINK(self.base_href)
+                )
+        if up_link:
+            self.root.append(UP_LINK(up_link))
+        if first_link:
+            self.root.append(FIRST_LINK(first_link))
+        if last_link:
+            self.root.append(LAST_LINK(last_link))
+        if next_link:
+            self.root.append(NEXT_LINK(next_link))
+        if previous_link:
+            self.root.append(PREVIOUS_LINK(previous_link))
+        if subtitle:
+            self.root.insert(1, SUBTITLE(subtitle))
 
     def __str__(self):
         return etree.tostring(self.root, pretty_print=True, encoding='utf-8',
                 xml_declaration=True)
 
-class TopLevel(Feed):
+class TopLevel(Feed): # {{{
 
     def __init__(self,
             updated,  # datetime object in UTC
             categories,
             version,
             id_       = 'urn:calibre:main',
+            subtitle  = _('Books in your library')
             ):
-        base_href = BASE_HREFS[version]
-        self.base_href = base_href
-        subc = partial(NAVCATALOG_ENTRY, base_href, updated)
+        Feed.__init__(self, id_, updated, version, subtitle=subtitle)
 
+        subc = partial(NAVCATALOG_ENTRY, self.base_href, updated)
         subcatalogs = [subc(_('By ')+title,
             _('Books sorted by ') + desc, q) for title, desc, q in
             categories]
+        for x in subcatalogs:
+            self.root.append(x)
+# }}}
 
-        self.root = \
-            FEED(
-                    TITLE(__appname__ + ' ' + _('Library')),
-                    ID(id_),
-                    UPDATED(updated),
-                    SEARCH(base_href),
-                    AUTHOR(__appname__, uri='http://calibre-ebook.com'),
-                    SUBTITLE(_('Books in your library')),
-                    *subcatalogs
-                )
+class AcquisitionFeed(Feed):
+
+    def __init__(self, updated, id_, items, offsets, page_url, up_url, version):
+        kwargs = {'up_link': up_url}
+        kwargs['first_link'] = page_url
+        kwargs['last_link']  = page_url+'?offset=%d'%offsets.last_offset
+        if offsets.offset > 0:
+            kwargs['previous_link'] = \
+                page_url+'?offset=%d'%offsets.previous_offset
+        if offsets.next_offset > -1:
+            kwargs['next_offset'] = \
+                page_url+'?offset=%d'%offsets.next_offset
+        Feed.__init__(self, id_, updated, version, **kwargs)
 
 STANZA_FORMATS = frozenset(['epub', 'pdb'])
+
+class OPDSOffsets(object):
+
+    def __init__(self, offset, delta, total):
+        if offset < 0:
+            offset = 0
+        if offset >= total:
+            raise cherrypy.HTTPError(404, 'Invalid offset: %r'%offset)
+        self.offset = offset
+        self.next_offset = offset + delta
+        if self.next_offset >= total:
+            self.next_offset = -1
+        if self.next_offset >= total:
+            self.next_offset = -1
+        self.previous_offset = self.offset - delta
+        if self.previous_offset < 0:
+            self.previous_offset = 0
+        self.last_offset = total - delta
+        if self.last_offset < 0:
+            self.last_offset = 0
+
 
 class OPDSServer(object):
 
@@ -110,18 +172,39 @@ class OPDSServer(object):
             connect(base, base_href, self.opds, version=version)
             connect('opdsnavcatalog_'+base, base_href+'/navcatalog/{which}',
                     self.opds_navcatalog, version=version)
-            connect('opdssearch_'+base, base_href+'/search/{terms}',
+            connect('opdssearch_'+base, base_href+'/search/{query}',
                     self.opds_search, version=version)
 
     def get_opds_allowed_ids_for_version(self, version):
         search = '' if version > 0 else ' '.join(['format:='+x for x in
             STANZA_FORMATS])
-        self.seach_cache(search)
+        self.search_cache(search)
 
-    def opds_search(self, terms=None, version=0):
-        version = int(version)
-        if not terms or version not in BASE_HREFS:
+    def get_opds_acquisition_feed(self, ids, offset, page_url, up_url, id_,
+            sort_by='title', ascending=True, version=0):
+        idx = self.db.FIELD_MAP['id']
+        ids &= self.get_opds_allowed_ids_for_version(version)
+        items = [x for x in self.db.data.iterall() if x[idx] in ids]
+        self.sort(items, sort_by, ascending)
+        max_items = self.opts.max_opds_items
+        offsets = OPDSOffsets(offset, max_items, len(items))
+        items = items[offsets.offset:offsets.next_offset]
+        return str(AcquisitionFeed(self.db.last_modified(), id_, items, offsets, page_url, up_url, version))
+
+    def opds_search(self, query=None, version=0, offset=0):
+        try:
+            offset = int(offset)
+            version = int(version)
+        except:
             raise cherrypy.HTTPError(404, 'Not found')
+        if query is None or version not in BASE_HREFS:
+            raise cherrypy.HTTPError(404, 'Not found')
+        try:
+            ids = self.search_cache(query)
+        except:
+            raise cherrypy.HTTPError(404, 'Search: %r not understood'%query)
+        return self.get_opds_acquisition_feed(ids,
+                sort_by='title', version=version)
 
     def opds_navcatalog(self, which=None, version=0):
         version = int(version)
