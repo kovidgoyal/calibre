@@ -386,7 +386,7 @@ class ResultCache(SearchQueryParser):
             for x in self.tag_browser_categories:
                 if (len(self.tag_browser_categories[x]['search_labels']) and \
                         self.tag_browser_categories[x]['kind'] in ['standard', 'not_cat']):
-                    MAP[x] = self.FIELD_MAP[self.tag_browser_categories.get_label(x)]
+                    MAP[x] = self.FIELD_MAP[self.tag_browser_categories.get_field_label(x)]
 
             # add custom columns to MAP. Put the column's type into IS_CUSTOM
             IS_CUSTOM = []

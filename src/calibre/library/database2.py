@@ -670,7 +670,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # icon_map is not None if get_categories is to store an icon and
             # possibly a tooltip in the tag structure.
             icon, tooltip = None, ''
-            label = tb_cats.get_label(category)
+            label = tb_cats.get_field_label(category)
             if icon_map:
                 if cat['kind'] == 'standard':
                     if category in icon_map:
@@ -769,7 +769,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for srch in saved_searches.names():
             items.append(Tag(srch, tooltip=saved_searches.lookup(srch), icon=icon))
         if len(items):
-            tb_cats.add_user_category(field_name='search', name=_('Searches'))
+            tb_cats.add_search_category(field_name='search', name=_('Searches'))
             if icon_map is not None:
                 icon_map['search'] = icon_map['search']
             categories['search'] = items

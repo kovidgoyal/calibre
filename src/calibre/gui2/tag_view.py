@@ -224,10 +224,14 @@ class TagsModel(QAbstractItemModel): # {{{
         data = self.get_node_tree(config['sort_by_popularity'])
         self.root_item = TagTreeItem()
         for i, r in enumerate(self.row_map):
+            if self.db.get_tag_browser_categories()[r]['kind'] != 'user':
+                tt = _('The lookup/search name is "{0}"').format(r)
+            else:
+                tt = ''
             c = TagTreeItem(parent=self.root_item,
                     data=self.categories[i],
                     category_icon=self.category_icon_map[r],
-                    tooltip=_('The lookup/search name is "{0}"').format(r))
+                    tooltip=tt)
             for tag in data[r]:
                 TagTreeItem(parent=c, data=tag, icon_map=self.icon_state_map)
 

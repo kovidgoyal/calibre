@@ -88,73 +88,77 @@ class TagsMetadata(dict, DictMixin):
                     ]
 
     def __init__(self):
-        self.tb_cats_ = OrderedDict()
+        self._tb_cats = OrderedDict()
         for k,v in self.category_items_:
-            self.tb_cats_[k] = v
-
-    def __getattr__(self, name):
-        if name in self.tb_cats_:
-            return self.tb_cats_[name]
-        return None
-
-#    def __setattr__(self, name, val):
-#        dict.__setattr__(self, name, val)
+            self._tb_cats[k] = v
+        self._custom_fields = []
+        self.custom_field_prefix = '#'
 
     def __getitem__(self, key):
-        return self.tb_cats_[key]
+        return self._tb_cats[key]
 
-#    def __setitem__(self, key, val):
-#        print 'setitem', key, val
-#        self.tb_cats_[key] = val
+    def __setitem__(self, key, val):
+        raise AttributeError('Assigning to this object is forbidden')
 
     def __delitem__(self, key):
-        del self.tb_cats_[key]
+        del self._tb_cats[key]
 
     def __iter__(self):
-        for key in self.tb_cats_:
+        for key in self._tb_cats:
             yield key
 
     def keys(self):
-        return self.tb_cats_.keys()
+        return self._tb_cats.keys()
 
     def iterkeys(self):
-        for key in self.tb_cats_:
+        for key in self._tb_cats:
             yield key
 
     def iteritems(self):
-        for key in self.tb_cats_:
-            yield (key, self.tb_cats_[key])
+        for key in self._tb_cats:
+            yield (key, self._tb_cats[key])
 
-    def get_label(self, key):
-        if 'label' not in self.tb_cats_[key]:
+    def is_custom_field(self, label):
+        return label.startswith(self.custom_field_prefix) or label in self._custom_fields
+
+    def get_field_label(self, key):
+        if 'label' not in self._tb_cats[key]:
             return key
-        return self.tb_cats_[key]['label']
+        return self._tb_cats[key]['label']
+
+    def get_search_label(self, key):
+        if 'label' in self._tb_cats:
+            return key
+        if self.is_custom_field(key):
+            return self.custom_field_prefix+key
+        raise ValueError('Unknown key [%s]'%(key))
 
     def get_custom_fields(self):
-        return [l for l in self.tb_cats_ if self.tb_cats_[l]['kind'] == 'custom']
+        return [l for l in self._tb_cats if self._tb_cats[l]['kind'] == 'custom']
 
     def add_custom_field(self, field_name, table, column, datatype, is_multiple, number, name):
-        fn = '#' + field_name
-        if fn in self.tb_cats_:
+        fn = self.custom_field_prefix + field_name
+        if fn in self._tb_cats:
             raise ValueError('Duplicate custom field [%s]'%(field_name))
-        self.tb_cats_[fn] = {'table':table,       'column':column,
+        self._custom_fields.append(field_name)
+        self._tb_cats[fn] = {'table':table,       'column':column,
                              'datatype':datatype, 'is_multiple':is_multiple,
                              'kind':'custom',     'name':name,
                              'search_labels':[fn],'label':field_name,
                              'colnum':number}
 
     def add_user_category(self, field_name, name):
-        if field_name in self.tb_cats_:
+        if field_name in self._tb_cats:
             raise ValueError('Duplicate user field [%s]'%(field_name))
-        self.tb_cats_[field_name] = {'table':None,        'column':None,
+        self._tb_cats[field_name] = {'table':None,        'column':None,
                                      'datatype':None,     'is_multiple':False,
                                      'kind':'user',       'name':name,
                                      'search_labels':[]}
 
     def add_search_category(self, field_name, name):
-        if field_name in self.tb_cats_:
+        if field_name in self._tb_cats:
             raise ValueError('Duplicate user field [%s]'%(field_name))
-        self.tb_cats_[field_name] = {'table':None,        'column':None,
+        self._tb_cats[field_name] = {'table':None,        'column':None,
                                      'datatype':None,     'is_multiple':False,
                                      'kind':'search',     'name':name,
                                      'search_labels':[]}
@@ -184,7 +188,7 @@ class TagsMetadata(dict, DictMixin):
 
     def get_search_labels(self):
         s_labels = []
-        for v in self.tb_cats_.itervalues():
+        for v in self._tb_cats.itervalues():
             map((lambda x:s_labels.append(x)), v['search_labels'])
         for v in self.search_items:
             s_labels.append(v)
