@@ -5,7 +5,7 @@
 
     22 May 2010
 '''
-import datetime, re, sys
+import datetime, re, sys, time
 
 from calibre.constants import isosx, iswindows
 from calibre.devices.interface import DevicePlugin
@@ -23,7 +23,18 @@ if iswindows:
 
 class UserInteractionRequired(Exception):
     print "UserInteractionRequired() exception"
-    #pass
+    pass
+
+class UserFeedback(Exception):
+   INFO = 0
+   WARN = 1
+   ERROR = 2
+
+   def __init__(self, msg, details, level):
+       Exception.__init__(self, msg)
+       self.level = level
+       self.details = details
+       self.msg = msg
 
 class ITUNES(DevicePlugin):
     name = 'Apple device interface'
@@ -46,8 +57,8 @@ class ITUNES(DevicePlugin):
 
     # Properties
     cached_books = {}
-    ejected = False
     iTunes= None
+    needs_update = False
     path_template = 'iTunes/%s - %s.epub'
     sources = None
     verbose = True
@@ -66,7 +77,20 @@ class ITUNES(DevicePlugin):
                                 (L{books}(oncard=None), L{books}(oncard='carda'),
                                 L{books}(oncard='cardb')).
         '''
-        raise NotImplementedError
+        print "ITUNES.add_books_to_metadata()"
+        if locations:
+            for location in locations:
+                print " location: %s" % location
+
+        print "metadata:"
+        for md in metadata:
+            print md
+        print
+
+        print "booklists[0]:"
+        for book in booklists[0]:
+            print " book: '%s'" % book.path
+        print
 
     def books(self, oncard=None, end_session=True):
         """
@@ -90,31 +114,15 @@ class ITUNES(DevicePlugin):
             if isosx:
 
                 # Fetch Library|Books
-                lib = self.iTunes.sources['library']
-                if 'Books' in lib.playlists.name():
-                    lib_books = lib.playlists['Books'].file_tracks()
-                    library_books = {}
-                    for book in lib_books:
-                        path = self.path_template % (book.name(), book.artist())
-                        library_books[path] = book
+                library_books = self._get_library_books()
 
-                # Fetch iPod|Books, ignore iPod|Purchased books
                 if 'iPod' in self.sources:
                     device = self.sources['iPod']
-                    if 'Purchased' in self.iTunes.sources[device].playlists.name():
-                        purchased_book_ids = [pb.database_ID() for pb in self.iTunes.sources[device].playlists['Purchased'].file_tracks()]
-                    else:
-                        purchased_books_ids = []
-
                     if 'Books' in self.iTunes.sources[device].playlists.name():
                         booklist = BookList()
                         cached_books = {}
-                        device_books = self.iTunes.sources[device].playlists['Books'].file_tracks()
+                        device_books = self._get_device_books()
                         for book in device_books:
-                            if book.database_ID() in purchased_book_ids:
-                                if self.verbose:
-                                    print " skipping purchased book '%s'" % book.name()
-                                continue
                             this_book = Book(book.name(), book.artist())
                             this_book.datetime = parse_date(str(book.date_added())).timetuple()
                             this_book.db_id = None
@@ -144,6 +152,9 @@ class ITUNES(DevicePlugin):
                         # No books installed on this device
                         return []
 
+
+
+
         else:
             return []
 
@@ -158,15 +169,11 @@ class ITUNES(DevicePlugin):
             - iTunes is running
             - there is an iPod-type device connected
         This gets called first when the device fingerprint is read, so it needs to
-        instantate iTunes if necessary
+        instantiate iTunes if necessary
         This gets called ~1x/second while device fingerprint is sensed
         '''
-        # print "ITUNES:can_handle()"
-        if isosx:
-            if self.ejected:
-                print "ITUNES:can_handle(): device detected, but ejected from iTunes"
-                return False
 
+        if isosx:
             if self.iTunes:
                 # Check for connected book-capable device
                 names = [s.name() for s in self.iTunes.sources()]
@@ -179,7 +186,7 @@ class ITUNES(DevicePlugin):
                     return True
                 else:
                     if self.verbose:
-                        print "ITUNES.can_handle(): device not connected"
+                        print "ITUNES.can_handle(): device ejected"
                     return False
             else:
                 # can_handle() is called once before open(), so need to return True
@@ -225,18 +232,26 @@ class ITUNES(DevicePlugin):
         '''
         Delete books at paths on device.
         iTunes doesn't let us directly delete a book on the device.
-        Delete the path(s) from the library, then update iPad
+        If the requested paths are deletable (i.e., it's in the Library|Books list),
+        delete the paths from the library, then update iPad
 
         '''
+        undeletable_titles = []
         for path in paths:
-            title = self.cached_books[path]['title']
-            author = self.cached_books[path]['author']
-            dev_book = self.cached_books[path]['dev_book']
-            lib_book = self.cached_books[path]['lib_book']
-            if self.verbose:
-                print "ITUNES:delete_books(): Deleting '%s' from iTunes library" % (path)
-            self.iTunes.delete(lib_book)
-        self._update_device()
+            if self.cached_books[path]['lib_book']:
+                title = self.cached_books[path]['title']
+                author = self.cached_books[path]['author']
+                dev_book = self.cached_books[path]['dev_book']
+                lib_book = self.cached_books[path]['lib_book']
+                if self.verbose:
+                    print "ITUNES:delete_books(): Deleting '%s' from iTunes library" % (path)
+                self.iTunes.delete(lib_book)
+                self.needs_update = True
+            else:
+                undeletable_titles.append(self.cached_books[path]['title'])
+
+        if undeletable_titles:
+            raise UserFeedback(_('You cannot delete purchased books. To do so delete them from the device itself. The books that could not be deleted are:'), details='\n'.join(undeletable_titles), level=UserFeedback.WARN)
 
     def eject(self):
         '''
@@ -275,6 +290,7 @@ class ITUNES(DevicePlugin):
         @return: (device name, device version, software version on device, mime type)
         """
         print "ITUNES:get_device_information()"
+
         return ('iPad','hw v1.0','sw v1.0', 'mime type')
 
     def get_file(self, path, outfile, end_session=True):
@@ -295,6 +311,7 @@ class ITUNES(DevicePlugin):
         this function that should serve as a good example for USB Mass storage
         devices.
         '''
+
         if isosx:
             # Launch iTunes if not already running
             if self.verbose:
@@ -319,13 +336,18 @@ class ITUNES(DevicePlugin):
             kinds = [str(s.kind()).rpartition('.')[2] for s in self.iTunes.sources()]
             self.sources = sources = dict(zip(kinds,names))
 
-            # If we're running, but 'iPod' is not a listed source, device was
-            # previously ejected but not physically removed.  can_handle() needs to know this
-            if not 'iPod' in self.sources:
-                self.ejected = True
-
-            else:
-                print "ITUNES:open(): check for presync here ..."
+            # Check to see if Library|Books out of sync with Device|Books
+            if 'iPod' in self.sources:
+                lb_count = len(self._get_library_books())
+                db_count = len(self._get_device_books())
+                pb_count = len(self._get_purchased_book_ids())
+                if db_count != lb_count + pb_count:
+                    if self.verbose:
+                        print "ITUNES.open(): pre-syncing iTunes with device"
+                        print " Library|Books         : %d" % len(self._get_library_books())
+                        print " Devices|iPad|Books    : %d" % len(self._get_device_books())
+                        print " Devices|iPad|Purchased: %d" % len(self._get_purchased_book_ids())
+                    self._update_device(msg="Presyncing iTunes with device, mismatched book count")
 
     def post_yank_cleanup(self):
         '''
@@ -344,12 +366,14 @@ class ITUNES(DevicePlugin):
         '''
         print "ITUNES.remove_books_from_metadata():"
         for path in paths:
-            print " Removing '%s' from calibre booklist, index: %d" % (path, self.cached_books[path]['bl_index'])
-            booklists[0].pop(self.cached_books[path]['bl_index'])
+            if self.cached_books[path]['lib_book']:
+                print " Removing '%s' from calibre booklist, index: %d" % (path, self.cached_books[path]['bl_index'])
+                booklists[0].pop(self.cached_books[path]['bl_index'])
 
-            print " Removing '%s' from self.cached_books" % path
-            self.cached_books.pop(path)
-
+                print " Removing '%s' from self.cached_books" % path
+                self.cached_books.pop(path)
+            else:
+                print " Skipping non-Library book, can't removed via automation interface"
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None) :
@@ -400,6 +424,9 @@ class ITUNES(DevicePlugin):
                                 L{books}(oncard='cardb')).
         '''
         print "ITUNES:sync_booklists():"
+        if self.needs_update:
+            self._update_device(msg="sync_booklists responding to self.needs_update")
+            self.needs_update = False
 
     def total_space(self, end_session=True):
         """
@@ -442,16 +469,88 @@ class ITUNES(DevicePlugin):
         be used in preference. The thumbnail attribute is of the form
         (width, height, cover_data as jpeg).
         '''
-        raise NotImplementedError()
+        if self.verbose:
+            print
+            print "ITUNES.upload_books():"
+            for file in files:
+                print "file: %s" % file
+            print
+
+            print "names:"
+            for name in names:
+                print "name: %s" % name
+            print
+
+            print "metadata:"
+            for md in metadata:
+                print "       title: %s" % md.title
+                print "  title_sort: %s" % md.title_sort
+                print "      author: %s" % md.author[0]
+                print " author_sort: %s" % md.author_sort
+                print "        tags: %s" % md.tags
+                print "      rating: %s" % md.rating
+                print "       cover: %s" % md.cover
+                #print "  cover_data: %s" % repr(md.cover_data)
+                #print "thumbnail: %s" % repr(md.thumbnail)
+
+                print
+            print
+
+        if isosx:
+            for (i,file) in enumerate(files):
+                path = self.path_template % (metadata[i].title, metadata[i].author[0])
+                print " path: %s" % path
+                if path in self.cached_books:
+                    print " '%s' already exists in Library" % path
+                    #delete_book, do not sync
+                else:
+                    print " adding '%s' to Library" % path
+
+        # return (list of added books, [], [])
 
     # Private methods
-    def _update_device(self):
+    def _get_library_books(self):
+        lib = self.iTunes.sources['library']
+        library_books = {}
+        if 'Books' in lib.playlists.name():
+            lib_books = lib.playlists['Books'].file_tracks()
+            for book in lib_books:
+                path = self.path_template % (book.name(), book.artist())
+                library_books[path] = book
+        return library_books
+
+    def _get_device_books(self):
+        if 'iPod' in self.sources:
+            device = self.sources['iPod']
+            device_books = []
+            if 'Books' in self.iTunes.sources[device].playlists.name():
+                return self.iTunes.sources[device].playlists['Books'].file_tracks()
+
+    def _get_purchased_book_ids(self):
+        if 'iPod' in self.sources:
+            device = self.sources['iPod']
+            purchased_book_ids = []
+            if 'Purchased' in self.iTunes.sources[device].playlists.name():
+                return [pb.database_ID() for pb in self.iTunes.sources[device].playlists['Purchased'].file_tracks()]
+
+
+    def _update_device(self, msg='', wait=True):
         '''
         This probably needs a job spinner
         '''
         if self.verbose:
-            print "ITUNES:_update_device(): Syncing device with iTunes Library"
+            print "ITUNES:_update_device(): %s" % msg
         self.iTunes.update()
+
+        if wait:
+            # This works if iTunes has books not yet synced to iPad.
+            print "Waiting for iPad sync to complete ...",
+            while len(self._get_device_books()) != (len(self._get_library_books()) + len(self._get_purchased_book_ids())):
+                sys.stdout.write('.')
+                sys.stdout.flush()
+                time.sleep(2)
+            print
+
 
 class BookList(list):
     '''
