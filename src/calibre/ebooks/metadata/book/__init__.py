@@ -89,17 +89,6 @@ CALIBRE_METADATA_FIELDS = frozenset([
 )
 
 CALIBRE_RESERVED_LABELS = frozenset([
-    'all',          # search term
-    'date',         # search term
-    'formats',      # search term
-    'inlibrary',    # search term
-    'news',         # search term
-    'ondevice',     # search term
-    'search',       # search term
-    'format',       # The next four are here for backwards compatibility
-    'tag',          # with searching. The terms can be used without the
-    'author',       # trailing 's'.
-    'comment',      # Sigh ...
     ]
 )
 

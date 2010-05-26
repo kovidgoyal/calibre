@@ -14,7 +14,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
                      QAbstractItemModel, QVariant, QModelIndex
 from calibre.gui2 import config, NONE
 from calibre.utils.config import prefs
-from calibre.ebooks.metadata.book import RESERVED_METADATA_FIELDS
+from calibre.library.tag_categories import TagsIcons
 
 class TagsView(QTreeView): # {{{
 
@@ -205,7 +205,7 @@ class TagsModel(QAbstractItemModel): # {{{
         # must do this here because 'QPixmap: Must construct a QApplication
         # before a QPaintDevice'. The ':' in front avoids polluting either the
         # user-defined categories (':' at end) or columns namespaces (no ':').
-        self.category_icon_map = {
+        self.category_icon_map = TagsIcons({
                     'authors'   : QIcon(I('user_profile.svg')),
                     'series'    : QIcon(I('series.svg')),
                     'formats'   : QIcon(I('book.svg')),
@@ -215,10 +215,8 @@ class TagsModel(QAbstractItemModel): # {{{
                     'tags'      : QIcon(I('tags.svg')),
                     ':custom'   : QIcon(I('column.svg')),
                     ':user'     : QIcon(I('drawer.svg')),
-                    'search'    : QIcon(I('search.svg'))}
-        for k in self.category_icon_map.keys():
-            if not k.startswith(':') and k not in RESERVED_METADATA_FIELDS:
-                raise ValueError('Tag category [%s] is not a reserved word.' %(k))
+                    'search'    : QIcon(I('search.svg'))})
+
         self.icon_state_map = [None, QIcon(I('plus.svg')), QIcon(I('minus.svg'))]
         self.db = db
         self.search_restriction = ''
@@ -247,7 +245,7 @@ class TagsModel(QAbstractItemModel): # {{{
             data = self.db.get_categories(sort_on_count=sort, icon_map=self.category_icon_map)
 
         tb_categories = self.db.get_tag_browser_categories()
-        for category in tb_categories.iterkeys():
+        for category in tb_categories:
             if category in data: # They should always be there, but ...
                 self.row_map.append(category)
                 self.categories.append(tb_categories[category]['name'])
