@@ -380,29 +380,26 @@ class ResultCache(SearchQueryParser):
             if location in ('tag', 'author', 'format', 'comment'):
                 location += 's'
 
-#            all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series',
-#                   'formats', 'isbn', 'rating', 'cover', 'ondevice')
             MAP = {}
 
             # get the db columns for the standard searchables
             for x in self.tag_browser_categories:
                 if (len(self.tag_browser_categories[x]['search_labels']) and \
                         self.tag_browser_categories[x]['kind'] in ['standard', 'not_cat']):
-#                        self.tag_browser_categories[x]['kind'] == 'standard') \
-#                     or self.tag_browser_categories[x]['kind'] == 'not_cat':
                     MAP[x] = self.FIELD_MAP[self.tag_browser_categories.get_label(x)]
 
+            # add custom columns to MAP. Put the column's type into IS_CUSTOM
             IS_CUSTOM = []
             for x in range(len(self.FIELD_MAP)):
                 IS_CUSTOM.append('')
-            IS_CUSTOM[self.FIELD_MAP['rating']] = 'rating'  # normal and custom ratings columns use the same code
-
-            # add custom columns to MAP. Put the column's type into IS_CUSTOM
+            # normal and custom ratings columns use the same code
+            IS_CUSTOM[self.FIELD_MAP['rating']] = 'rating'
             for x in self.tag_browser_categories.get_custom_fields():
                 if self.tag_browser_categories[x]['datatype'] != "datetime":
                     MAP[x] = self.FIELD_MAP[self.tag_browser_categories[x]['colnum']]
                     IS_CUSTOM[MAP[x]] = self.tag_browser_categories[x]['datatype']
 
+            # Some fields not used when matching against contents
             EXCLUDE_FIELDS = [MAP['rating'], MAP['cover']]
             SPLITABLE_FIELDS = [MAP['authors'], MAP['tags'], MAP['formats']]
             for x in self.tag_browser_categories.get_custom_fields():
