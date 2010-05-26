@@ -80,7 +80,7 @@ START_LINK = partial(NAVLINK, rel='start')
 UP_LINK = partial(NAVLINK, rel='up')
 FIRST_LINK = partial(NAVLINK, rel='first')
 LAST_LINK  = partial(NAVLINK, rel='last')
-NEXT_LINK  = partial(NAVLINK, rel='next')
+NEXT_LINK  = partial(NAVLINK, rel='next', title='Next')
 PREVIOUS_LINK  = partial(NAVLINK, rel='previous')
 
 def html_to_lxml(raw):
@@ -123,7 +123,7 @@ def ACQUISITION_ENTRY(item, version, FM, updated):
     id_ = 'urn:%s:%s'%(idm, item[FM['uuid']])
     ans = E.entry(TITLE(title), E.author(E.name(authors)), ID(id_),
             UPDATED(updated))
-    if extra:
+    if len(extra):
         ans.append(E.content(extra, type='xhtml'))
     formats = item[FM['formats']]
     if formats:
@@ -163,18 +163,18 @@ class Feed(object): # {{{
                     ID(id_),
                     UPDATED(updated),
                     SEARCH_LINK(self.base_href),
-                    START_LINK(self.base_href)
+                    START_LINK(href=self.base_href)
                 )
         if up_link:
-            self.root.append(UP_LINK(up_link))
+            self.root.append(UP_LINK(href=up_link))
         if first_link:
-            self.root.append(FIRST_LINK(first_link))
+            self.root.append(FIRST_LINK(href=first_link))
         if last_link:
-            self.root.append(LAST_LINK(last_link))
+            self.root.append(LAST_LINK(href=last_link))
         if next_link:
-            self.root.append(NEXT_LINK(next_link))
+            self.root.append(NEXT_LINK(href=next_link))
         if previous_link:
-            self.root.append(PREVIOUS_LINK(previous_link))
+            self.root.append(PREVIOUS_LINK(href=previous_link))
         if subtitle:
             self.root.insert(1, SUBTITLE(subtitle))
 
@@ -233,16 +233,16 @@ class OPDSOffsets(object):
             offset = 0
         if offset >= total:
             raise cherrypy.HTTPError(404, 'Invalid offset: %r'%offset)
+        last_allowed_index = total - 1
+        last_current_index = offset + delta - 1
         self.offset = offset
-        self.next_offset = offset + delta
-        if self.next_offset >= total:
-            self.next_offset = -1
-        if self.next_offset >= total:
+        self.next_offset = last_current_index + 1
+        if self.next_offset > last_allowed_index:
             self.next_offset = -1
         self.previous_offset = self.offset - delta
         if self.previous_offset < 0:
             self.previous_offset = 0
-        self.last_offset = total - delta
+        self.last_offset = last_allowed_index - delta
         if self.last_offset < 0:
             self.last_offset = 0
 
@@ -273,7 +273,8 @@ class OPDSServer(object):
         self.sort(items, sort_by, ascending)
         max_items = self.opts.max_opds_items
         offsets = OPDSOffsets(offset, max_items, len(items))
-        items = items[offsets.offset:offsets.next_offset]
+        items = items[offsets.offset:offsets.offset+max_items]
+        print 111, (len(items))
         return str(AcquisitionFeed(self.db.last_modified(), id_, items, offsets,
             page_url, up_url, version, self.db.FIELD_MAP))
 
@@ -289,7 +290,8 @@ class OPDSServer(object):
             ids = self.search_cache(query)
         except:
             raise cherrypy.HTTPError(404, 'Search: %r not understood'%query)
-        return self.get_opds_acquisition_feed(ids, offset, '/search/'+query,
+        page_url = url_for('opdssearch', version, query=query)
+        return self.get_opds_acquisition_feed(ids, offset, page_url,
                 url_for('opds', version), 'calibre-search:'+query,
                 version=version)
 

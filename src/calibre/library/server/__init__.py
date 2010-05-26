@@ -40,3 +40,6 @@ def server_config(defaults=None):
             'This affects Stanza, WordPlayer, etc. integration.'))
     return c
 
+def main():
+    from calibre.library.server.main import main
+    return main()
