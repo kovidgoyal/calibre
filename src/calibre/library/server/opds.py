@@ -12,6 +12,7 @@ from itertools import repeat
 from lxml import etree, html
 from lxml.builder import ElementMaker
 import cherrypy
+import routes
 
 from calibre.constants import __appname__
 from calibre.ebooks.metadata import fmt_sidx
@@ -24,6 +25,11 @@ BASE_HREFS = {
 }
 
 STANZA_FORMATS = frozenset(['epub', 'pdb'])
+
+def url_for(name, version, **kwargs):
+    if not name.endswith('_'):
+        name += '_'
+    return routes.url_for(name+str(version), **kwargs)
 
 # Vocabulary for building OPDS feeds {{{
 E = ElementMaker(namespace='http://www.w3.org/2005/Atom',
@@ -42,7 +48,7 @@ def UPDATED(dt, *args, **kwargs):
     return E.updated(dt.strftime('%Y-%m-%dT%H:%M:%S+00:00'), *args, **kwargs)
 
 LINK = partial(E.link, type='application/atom+xml')
-NAVLINK = partial(E.link, rel='subsection',
+NAVLINK = partial(E.link,
         type='application/atom+xml;type=feed;profile=opds-catalog')
 
 def SEARCH_LINK(base_href, *args, **kwargs):
@@ -59,7 +65,7 @@ def AUTHOR(name, uri=None):
 
 SUBTITLE = E.subtitle
 
-def NAVCATALOG_ENTRY(base_href, updated, title, description, query):
+def NAVCATALOG_ENTRY(base_href, updated, title, description, query, version=0):
     href = base_href+'/navcatalog/'+binascii.hexlify(query)
     id_ = 'calibre-navcatalog:'+str(hashlib.sha1(href).hexdigest())
     return E.entry(
@@ -148,7 +154,7 @@ class Feed(object): # {{{
             title=__appname__ + ' ' + _('Library'),
             up_link=None, first_link=None, last_link=None,
             next_link=None, previous_link=None):
-        self.base_href = BASE_HREFS[version]
+        self.base_href = url_for('opds', version)
 
         self.root = \
             FEED(
@@ -188,7 +194,8 @@ class TopLevel(Feed): # {{{
             ):
         Feed.__init__(self, id_, updated, version, subtitle=subtitle)
 
-        subc = partial(NAVCATALOG_ENTRY, self.base_href, updated)
+        subc = partial(NAVCATALOG_ENTRY, self.base_href, updated,
+                version=version)
         subcatalogs = [subc(_('By ')+title,
             _('Books sorted by ') + desc, q) for title, desc, q in
             categories]
@@ -206,7 +213,7 @@ class NavFeed(Feed):
             kwargs['previous_link'] = \
                 page_url+'?offset=%d'%offsets.previous_offset
         if offsets.next_offset > -1:
-            kwargs['next_offset'] = \
+            kwargs['next_link'] = \
                 page_url+'?offset=%d'%offsets.next_offset
         Feed.__init__(self, id_, updated, version, **kwargs)
 
@@ -243,13 +250,13 @@ class OPDSOffsets(object):
 class OPDSServer(object):
 
     def add_routes(self, connect):
-        for base in ('stanza', 'opds'):
-            version = 0 if base == 'stanza' else 1
+        for version in (0, 1):
             base_href = BASE_HREFS[version]
-            connect(base, base_href, self.opds, version=version)
-            connect('opdsnavcatalog_'+base, base_href+'/navcatalog/{which}',
+            ver = str(version)
+            connect('opds_'+ver, base_href, self.opds, version=version)
+            connect('opdsnavcatalog_'+ver, base_href+'/navcatalog/{which}',
                     self.opds_navcatalog, version=version)
-            connect('opdssearch_'+base, base_href+'/search/{query}',
+            connect('opdssearch_'+ver, base_href+'/search/{query}',
                     self.opds_search, version=version)
 
     def get_opds_allowed_ids_for_version(self, version):
@@ -283,18 +290,36 @@ class OPDSServer(object):
         except:
             raise cherrypy.HTTPError(404, 'Search: %r not understood'%query)
         return self.get_opds_acquisition_feed(ids, offset, '/search/'+query,
-                BASE_HREFS[version], 'calibre-search:'+query,
+                url_for('opds', version), 'calibre-search:'+query,
                 version=version)
 
-    def opds_navcatalog(self, which=None, version=0):
+    def get_opds_all_books(self, which, page_url, up_url, version=0, offset=0):
+        try:
+            offset = int(offset)
+            version = int(version)
+        except:
+            raise cherrypy.HTTPError(404, 'Not found')
+        if which not in ('title', 'newest') or version not in BASE_HREFS:
+            raise cherrypy.HTTPError(404, 'Not found')
+        sort = 'timestamp' if which == 'newest' else 'title'
+        ascending = which == 'title'
+        ids = self.get_opds_allowed_ids_for_version(version)
+        return self.get_opds_acquisition_feed(ids, offset, page_url, up_url,
+                id_='calibre-all:'+sort, sort_by=sort, ascending=ascending,
+                version=version)
+
+    def opds_navcatalog(self, which=None, version=0, offset=0):
         version = int(version)
         if not which or version not in BASE_HREFS:
             raise cherrypy.HTTPError(404, 'Not found')
+        page_url = url_for('opdsnavcatalog', version, which=which)
+        up_url = url_for('opds', version)
         which = binascii.unhexlify(which)
         type_ = which[0]
         which = which[1:]
         if type_ == 'O':
-            return self.get_opds_all_books(which)
+            return self.get_opds_all_books(which, page_url, up_url,
+                    version=version, offset=offset)
         elif type_ == 'N':
             return self.get_opds_navcatalog(which)
         raise cherrypy.HTTPError(404, 'Not found')
