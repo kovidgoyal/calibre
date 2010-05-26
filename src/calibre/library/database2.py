@@ -20,7 +20,7 @@ from PyQt4.QtGui import QImage
 
 from calibre.ebooks.metadata import title_sort
 from calibre.library.database import LibraryDatabase
-from calibre.library.tag_categories import TagsMetadata, TagsIcons
+from calibre.library.field_metadata import FieldMetadata, TagsIcons
 from calibre.library.schema_upgrades import SchemaUpgrade
 from calibre.library.caches import ResultCache
 from calibre.library.custom_columns import CustomColumns
@@ -116,7 +116,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.books_list_filter = self.conn.create_dynamic_filter('books_list_filter')
 
     def __init__(self, library_path, row_factory=False):
-        self.tag_browser_categories = TagsMetadata() #.get_tag_browser_categories()
+        self.tag_browser_categories = FieldMetadata() #.get_tag_browser_categories()
         if not os.path.exists(library_path):
             os.makedirs(library_path)
         self.listeners = set([])
@@ -204,12 +204,21 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
              'sort':11, 'author_sort':12, 'formats':13, 'isbn':14, 'path':15,
              'lccn':16, 'pubdate':17, 'flags':18, 'uuid':19}
 
+        for k,v in self.FIELD_MAP.iteritems():
+            self.tag_browser_categories.set_field_record_index(k, v, prefer_custom=False)
+
         base = max(self.FIELD_MAP.values())
         for col in custom_cols:
             self.FIELD_MAP[col] = base = base+1
+            self.tag_browser_categories.set_field_record_index(
+                                        self.custom_column_num_map[col]['label'],
+                                        base,
+                                        prefer_custom=True)
 
         self.FIELD_MAP['cover'] = base+1
+        self.tag_browser_categories.set_field_record_index('cover', base+1, prefer_custom=False)
         self.FIELD_MAP['ondevice'] = base+2
+        self.tag_browser_categories.set_field_record_index('ondevice', base+2, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -672,10 +681,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             icon, tooltip = None, ''
             label = tb_cats.get_field_label(category)
             if icon_map:
-                if cat['kind'] == 'standard':
+                if not tb_cats.is_custom_field(category):
                     if category in icon_map:
                         icon = icon_map[label]
-                elif cat['kind'] == 'custom':
+                else:
                     icon = icon_map[':custom']
                     icon_map[category] = icon
                     tooltip = self.custom_column_label_map[label]['name']

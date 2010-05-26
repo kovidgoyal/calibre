@@ -14,7 +14,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
                      QAbstractItemModel, QVariant, QModelIndex
 from calibre.gui2 import config, NONE
 from calibre.utils.config import prefs
-from calibre.library.tag_categories import TagsIcons
+from calibre.library.field_metadata import TagsIcons
 
 class TagsView(QTreeView): # {{{
 

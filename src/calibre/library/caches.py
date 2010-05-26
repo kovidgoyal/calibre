@@ -17,7 +17,7 @@ from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
-from calibre.library.tag_categories import TagsMetadata
+# from calibre.library.field_metadata import FieldMetadata
 
 class CoverCache(QThread):
 
@@ -387,9 +387,9 @@ class ResultCache(SearchQueryParser):
 
             # get the db columns for the standard searchables
             for x in self.tag_browser_categories:
-                if (len(self.tag_browser_categories[x]['search_labels']) and \
-                        self.tag_browser_categories[x]['kind'] in ['standard', 'not_cat']):
-                    MAP[x] = self.FIELD_MAP[self.tag_browser_categories.get_field_label(x)]
+                if len(self.tag_browser_categories[x]['search_labels']) and \
+                         not self.tag_browser_categories.is_custom_field(x):
+                    MAP[x] = self.tag_browser_categories[x]['rec_index']
                     if self.tag_browser_categories[x]['datatype'] != 'text':
                         EXCLUDE_FIELDS.append(MAP[x])
 
