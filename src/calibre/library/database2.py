@@ -759,7 +759,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 # else: do nothing, to not include nodes w zero counts
             if len(items):
                 cat_name = user_cat+':' # add the ':' to avoid name collision
-                tb_cats.add_user_category(field_name=cat_name, name=user_cat)
+                tb_cats.add_user_category(label=cat_name, name=user_cat)
                 # Not a problem if we accumulate entries in the icon map
                 if icon_map is not None:
                     icon_map[cat_name] = icon_map[':user']
@@ -778,7 +778,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for srch in saved_searches.names():
             items.append(Tag(srch, tooltip=saved_searches.lookup(srch), icon=icon))
         if len(items):
-            tb_cats.add_search_category(field_name='search', name=_('Searches'))
+            tb_cats.add_search_category(label='search', name=_('Searches'))
             if icon_map is not None:
                 icon_map['search'] = icon_map['search']
             categories['search'] = items
