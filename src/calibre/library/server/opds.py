@@ -274,7 +274,6 @@ class OPDSServer(object):
         max_items = self.opts.max_opds_items
         offsets = OPDSOffsets(offset, max_items, len(items))
         items = items[offsets.offset:offsets.offset+max_items]
-        print 111, (len(items))
         return str(AcquisitionFeed(self.db.last_modified(), id_, items, offsets,
             page_url, up_url, version, self.db.FIELD_MAP))
 
