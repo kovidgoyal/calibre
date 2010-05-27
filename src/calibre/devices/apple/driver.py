@@ -5,17 +5,22 @@
 
     22 May 2010
 '''
-import datetime, re, sys, time
+import cStringIO, datetime, os, re, shutil, sys, time
 
+from calibre import fit_image
 from calibre.constants import isosx, iswindows
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import MetaInformation
+from calibre.library.server.utils import strftime
 from calibre.utils.config import Config
 from calibre.utils.date import parse_date
 
+from PIL import Image as PILImage
+
+
 if isosx:
     print "running in OSX"
-    import appscript
+    import appscript, osax
 
 if iswindows:
     print "running in Windows"
@@ -58,15 +63,19 @@ class ITUNES(DevicePlugin):
     # Properties
     cached_books = {}
     iTunes= None
-    needs_update = False
     path_template = 'iTunes/%s - %s.epub'
+    presync = True
+    purge_list = None
     sources = None
+    update_msg = None
+    update_needed = False
+    use_thumbnail_as_cover = False
     verbose = True
 
 
     # Public methods
 
-    def add_books_to_metadata(cls, locations, metadata, booklists):
+    def add_books_to_metadata(self, locations, metadata, booklists):
         '''
         Add locations to the booklists. This function must not communicate with
         the device.
@@ -78,19 +87,22 @@ class ITUNES(DevicePlugin):
                                 L{books}(oncard='cardb')).
         '''
         print "ITUNES.add_books_to_metadata()"
-        if locations:
-            for location in locations:
-                print " location: %s" % location
 
-        print "metadata:"
-        for md in metadata:
-            print md
-        print
+        self._dump_booklist(booklists[0])
+        # Delete any obsolete copies of the book from the booklist
+        if self.purge_list:
+            if self.verbose:
+                print " purging updated books"
+            for library_id in self.purge_list:
+                for i,book in enumerate(booklists[0]):
+                    if book.library_id == library_id:
+                        booklists[0].pop(i)
+            self.purge_list = []
 
-        print "booklists[0]:"
-        for book in booklists[0]:
-            print " book: '%s'" % book.path
-        print
+        # Add new books to booklists[0]
+        for new_book in locations[0]:
+            booklists[0].append(new_book)
+        self._dump_booklist(booklists[0])
 
     def books(self, oncard=None, end_session=True):
         """
@@ -124,19 +136,22 @@ class ITUNES(DevicePlugin):
                         device_books = self._get_device_books()
                         for book in device_books:
                             this_book = Book(book.name(), book.artist())
+                            this_book.path = self.path_template % (book.name(), book.artist())
                             this_book.datetime = parse_date(str(book.date_added())).timetuple()
                             this_book.db_id = None
                             this_book.device_collections = []
-                            this_book.path = self.path_template % (book.name(), book.artist())
+                            this_book.library_id = library_books[this_book.path] if this_book.path in library_books else None
                             this_book.size = book.size()
-                            this_book.thumbnail = None
-                            cached_books[this_book.path] = { 'title':book.name(),
-                                                            'author':book.artist(),
-                                                          'lib_book':library_books[this_book.path] if this_book.path in library_books else None,
-                                                          'dev_book':book,
-                                                          'bl_index':len(booklist)
-                                                           }
+                            this_book.thumbnail = self._generate_thumbnail(book)
+
                             booklist.add_book(this_book, False)
+
+                            cached_books[this_book.path] = {
+                             'title':book.name(),
+                             'author':book.artist(),
+                             'lib_book':library_books[this_book.path] if this_book.path in library_books else None
+                             }
+
 
                         if self.verbose:
                             print
@@ -151,10 +166,6 @@ class ITUNES(DevicePlugin):
                     else:
                         # No books installed on this device
                         return []
-
-
-
-
         else:
             return []
 
@@ -239,14 +250,13 @@ class ITUNES(DevicePlugin):
         undeletable_titles = []
         for path in paths:
             if self.cached_books[path]['lib_book']:
-                title = self.cached_books[path]['title']
-                author = self.cached_books[path]['author']
-                dev_book = self.cached_books[path]['dev_book']
-                lib_book = self.cached_books[path]['lib_book']
                 if self.verbose:
                     print "ITUNES:delete_books(): Deleting '%s' from iTunes library" % (path)
-                self.iTunes.delete(lib_book)
-                self.needs_update = True
+                self._remove_iTunes_dir(self.cached_books[path])
+                self.iTunes.delete(self.cached_books[path]['lib_book'])
+                self.update_needed = True
+                self.update_msg = "Deleted books from device"
+
             else:
                 undeletable_titles.append(self.cached_books[path]['title'])
 
@@ -337,7 +347,7 @@ class ITUNES(DevicePlugin):
             self.sources = sources = dict(zip(kinds,names))
 
             # Check to see if Library|Books out of sync with Device|Books
-            if 'iPod' in self.sources:
+            if 'iPod' in self.sources and self.presync:
                 lb_count = len(self._get_library_books())
                 db_count = len(self._get_device_books())
                 pb_count = len(self._get_purchased_book_ids())
@@ -348,6 +358,9 @@ class ITUNES(DevicePlugin):
                         print " Devices|iPad|Books    : %d" % len(self._get_device_books())
                         print " Devices|iPad|Purchased: %d" % len(self._get_purchased_book_ids())
                     self._update_device(msg="Presyncing iTunes with device, mismatched book count")
+            else:
+                if self.verbose:
+                    print "Skipping pre-sync check"
 
     def post_yank_cleanup(self):
         '''
@@ -367,13 +380,19 @@ class ITUNES(DevicePlugin):
         print "ITUNES.remove_books_from_metadata():"
         for path in paths:
             if self.cached_books[path]['lib_book']:
-                print " Removing '%s' from calibre booklist, index: %d" % (path, self.cached_books[path]['bl_index'])
-                booklists[0].pop(self.cached_books[path]['bl_index'])
+                # Remove from the booklist
+                for i,book in enumerate(booklists[0]):
+                    if book.path == path:
+                        print " removing '%s' from calibre booklist, index: %d" % (path, i)
+                        booklists[0].pop(i)
+                        break
 
+                # Remove from cached_books
                 print " Removing '%s' from self.cached_books" % path
                 self.cached_books.pop(path)
+
             else:
-                print " Skipping non-Library book, can't removed via automation interface"
+                print " skipping purchased book, can't remove via automation interface"
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None) :
@@ -424,9 +443,9 @@ class ITUNES(DevicePlugin):
                                 L{books}(oncard='cardb')).
         '''
         print "ITUNES:sync_booklists():"
-        if self.needs_update:
-            self._update_device(msg="sync_booklists responding to self.needs_update")
-            self.needs_update = False
+        if self.update_needed:
+            self._update_device(msg=self.update_msg)
+            self.update_needed = False
 
     def total_space(self, end_session=True):
         """
@@ -469,19 +488,20 @@ class ITUNES(DevicePlugin):
         be used in preference. The thumbnail attribute is of the form
         (width, height, cover_data as jpeg).
         '''
-        if self.verbose:
+        if False:
             print
             print "ITUNES.upload_books():"
             for file in files:
-                print "file: %s" % file
+                print "        file: %s" % file
             print
 
             print "names:"
             for name in names:
-                print "name: %s" % name
+                print "        name: %s" % name
             print
 
             print "metadata:"
+            print dir(metadata[0])
             for md in metadata:
                 print "       title: %s" % md.title
                 print "  title_sort: %s" % md.title_sort
@@ -496,19 +516,108 @@ class ITUNES(DevicePlugin):
                 print
             print
 
+        #print "thumbnail: width: %d height: %d" % (metadata[0].thumbnail[0], metadata[0].thumbnail[1])
+        #self._hexdump(metadata[0].thumbnail[2])
+
+        new_booklist = []
+        self.purge_list = []
+
         if isosx:
+
             for (i,file) in enumerate(files):
                 path = self.path_template % (metadata[i].title, metadata[i].author[0])
-                print " path: %s" % path
-                if path in self.cached_books:
-                    print " '%s' already exists in Library" % path
-                    #delete_book, do not sync
-                else:
-                    print " adding '%s' to Library" % path
 
-        # return (list of added books, [], [])
+                # Delete existing from Library|Books, add to self.purge_list
+                # for deletion from booklist[0] during add_books_to_metadata
+                if path in self.cached_books:
+                    self.purge_list.append(self.cached_books[path])
+
+                    if self.verbose:
+                        print " deleting existing '%s' at\n %s" % (path,self.cached_books[path]['lib_book'])
+                    self._remove_iTunes_dir(self.cached_books[path])
+                    self.iTunes.delete(self.cached_books[path]['lib_book'])
+
+                # Add to iTunes Library|Books
+                added = self.iTunes.add(appscript.mactypes.File(files[i]))
+
+                thumb = None
+                if self.use_thumbnail_as_cover:
+                    # Use thumbnail data as artwork
+                    added.artworks[1].data_.set(metadata[i].thumbnail[2])
+                    thumb = metadata[i].thumbnail[2]
+                else:
+                    # Use cover data as artwork
+                    cover_data = open(metadata[i].cover,'rb')
+                    added.artworks[1].data_.set(cover_data.read())
+
+                    # Resize for thumb
+                    width = metadata[i].thumbnail[0]
+                    height = metadata[i].thumbnail[1]
+                    im = PILImage.open(metadata[i].cover)
+                    im = im.resize((width, height), PILImage.ANTIALIAS)
+                    of = cStringIO.StringIO()
+                    im.convert('RGB').save(of, 'JPEG')
+                    thumb = of.getvalue()
+
+
+                # Create a new Book
+                this_book = Book(metadata[i].title, metadata[i].author[0])
+                this_book.datetime = parse_date(str(added.date_added())).timetuple()
+                this_book.db_id = None
+                this_book.device_collections = []
+                this_book.library_id = added
+                this_book.path = path
+                this_book.size = added.size()  # GwR this is wrong, needs to come from device or fake it
+                this_book.thumbnail = thumb
+                this_book.iTunes_id = added
+
+                new_booklist.append(this_book)
+
+                # Flesh out the iTunes metadata
+                added.comment.set("added by calibre %s" % strftime('%Y-%m-%d %H:%M:%S'))
+                added.rating.set(metadata[i].rating*10)
+                added.sort_artist.set(metadata[i].author_sort)
+                added.sort_name.set(this_book.title_sorter)
+                # Set genre from metadata
+                # iTunes grabs the first dc:subject from the opf metadata,
+                # But we can manually override
+                # added.genre.set(metadata[i].tags[0])
+
+                # Add new_book to self.cached_paths
+                self.cached_books[this_book.path] = {
+                 'title': this_book.title,
+                 'author': this_book.author,
+                 'lib_book': this_book.library_id
+                 }
+
+
+            # Tell sync_booklists we need a re-sync
+            self.update_needed = True
+            self.update_msg = "Added books to device"
+
+        return (new_booklist, [], [])
 
     # Private methods
+    def _dump_booklist(self,booklist, header="booklists[0]"):
+        print
+        print header
+        print "%s" % ('-' * len(header))
+        for i,book in enumerate(booklist):
+            print "%2d %-25.25s %s" % (i,book.title, book.library_id)
+        print
+
+    def _hexdump(self, src, length=16):
+        # Diagnostic
+        FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
+        N=0; result=''
+        while src:
+           s,src = src[:length],src[length:]
+           hexa = ' '.join(["%02X"%ord(x) for x in s])
+           s = s.translate(FILTER)
+           result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
+           N+=length
+        print result
+
     def _get_library_books(self):
         lib = self.iTunes.sources['library']
         library_books = {}
@@ -526,12 +635,57 @@ class ITUNES(DevicePlugin):
             if 'Books' in self.iTunes.sources[device].playlists.name():
                 return self.iTunes.sources[device].playlists['Books'].file_tracks()
 
+    def _generate_thumbnail(self, book):
+        '''
+        Convert iTunes artwork to thumbnail
+        Cache generated thumbnails
+        '''
+        print "ITUNES._generate_thumbnail()"
+
+        try:
+            n = len(book.artworks())
+            print "Library '%s' has %d artwork items" % (book.name(),n)
+#             for art in book.artworks():
+#                 print "description: %s" % art.description()
+#                 if str(art.description()) == 'calibre_thumb':
+#                     print "using cached thumb"
+#                     return art.raw_data().data
+
+
+            # Resize the cover
+            data = book.artworks[1].raw_data().data
+            #self._hexdump(data[:256])
+            im = PILImage.open(cStringIO.StringIO(data))
+            scaled, width, height = fit_image(im.size[0],im.size[1], 60, 80)
+            im = im.resize((int(width),int(height)), PILImage.ANTIALIAS)
+            thumb = cStringIO.StringIO()
+            im.convert('RGB').save(thumb,'JPEG')
+
+            # Cache the tagged thumb
+#             print "caching thumb"
+#             book.artworks[n+1].data_.set(thumb.getvalue())
+#             book.artworks[n+1].description.set(u'calibre_thumb')
+            return thumb.getvalue()
+        except:
+            print "Can't generate thumb for '%s'" % book.name()
+            return None
+
     def _get_purchased_book_ids(self):
         if 'iPod' in self.sources:
             device = self.sources['iPod']
             purchased_book_ids = []
             if 'Purchased' in self.iTunes.sources[device].playlists.name():
                 return [pb.database_ID() for pb in self.iTunes.sources[device].playlists['Purchased'].file_tracks()]
+
+    def _remove_iTunes_dir(self, cached_book):
+        '''
+        iTunes does not delete books from storage when removing from database
+        '''
+        storage_path = os.path.split(cached_book['lib_book'].location().path)
+        if self.verbose:
+            print "ITUNES._remove_iTunes_dir():"
+            print " removing storage_path: %s" % storage_path[0]
+        shutil.rmtree(storage_path[0])
 
 
     def _update_device(self, msg='', wait=True):

@@ -7,17 +7,23 @@ __docformat__ = 'restructuredtext en'
 
 import hashlib, binascii
 from functools import partial
+from itertools import repeat
 
-from lxml import etree
+from lxml import etree, html
 from lxml.builder import ElementMaker
 import cherrypy
 
 from calibre.constants import __appname__
+from calibre.ebooks.metadata import fmt_sidx
+from calibre.library.comments import comments_to_html
+from calibre import guess_type
 
 BASE_HREFS = {
         0 : '/stanza',
         1 : '/opds',
 }
+
+STANZA_FORMATS = frozenset(['epub', 'pdb'])
 
 # Vocabulary for building OPDS feeds {{{
 E = ElementMaker(namespace='http://www.w3.org/2005/Atom',
@@ -71,9 +77,72 @@ LAST_LINK  = partial(NAVLINK, rel='last')
 NEXT_LINK  = partial(NAVLINK, rel='next')
 PREVIOUS_LINK  = partial(NAVLINK, rel='previous')
 
+def html_to_lxml(raw):
+    raw = u'<div>%s</div>'%raw
+    root = html.fragment_fromstring(raw)
+    root.set('xmlns', "http://www.w3.org/1999/xhtml")
+    raw = etree.tostring(root, encoding=None)
+    return etree.fromstring(raw)
+
+def ACQUISITION_ENTRY(item, version, FM, updated):
+    title = item[FM['title']]
+    if not title:
+        title = _('Unknown')
+    authors = item[FM['authors']]
+    if not authors:
+        authors = _('Unknown')
+    authors = ' & '.join([i.replace('|', ',') for i in
+                                    authors.split(',')])
+    extra = []
+    rating = item[FM['rating']]
+    if rating > 0:
+        rating = u''.join(repeat(u'\u2605', int(rating/2.)))
+        extra.append(_('RATING: %s<br />')%rating)
+    tags = item[FM['tags']]
+    if tags:
+        extra.append(_('TAGS: %s<br />')%\
+                ', '.join(tags.split(',')))
+    series = item[FM['series']]
+    if series:
+        extra.append(_('SERIES: %s [%s]<br />')%\
+                (series,
+                fmt_sidx(float(item[FM['series_index']]))))
+    comments = item[FM['comments']]
+    if comments:
+        comments = comments_to_html(comments)
+        extra.append(comments)
+    if extra:
+        extra = html_to_lxml('\n'.join(extra))
+    idm = 'calibre' if version == 0 else 'uuid'
+    id_ = 'urn:%s:%s'%(idm, item[FM['uuid']])
+    ans = E.entry(TITLE(title), E.author(E.name(authors)), ID(id_),
+            UPDATED(updated))
+    if extra:
+        ans.append(E.content(extra, type='xhtml'))
+    formats = item[FM['formats']]
+    if formats:
+        for fmt in formats.split(','):
+            fmt = fmt.lower()
+            mt = guess_type('a.'+fmt)[0]
+            href = '/get/%s/%s'%(fmt, item[FM['id']])
+            if mt:
+                link = E.link(type=mt, href=href)
+                if version > 0:
+                    link.set('rel', "http://opds-spec.org/acquisition")
+                ans.append(link)
+    ans.append(E.link(type='image/jpeg', href='/get/cover/%s'%item[FM['id']],
+        rel="x-stanza-cover-image" if version == 0 else
+        "http://opds-spec.org/cover"))
+    ans.append(E.link(type='image/jpeg', href='/get/thumb/%s'%item[FM['id']],
+        rel="x-stanza-cover-image-thumbnail" if version == 0 else
+        "http://opds-spec.org/thumbnail"))
+
+    return ans
+
+
 # }}}
 
-class Feed(object):
+class Feed(object): # {{{
 
     def __init__(self, id_, updated, version, subtitle=None,
             title=__appname__ + ' ' + _('Library'),
@@ -106,6 +175,7 @@ class Feed(object):
     def __str__(self):
         return etree.tostring(self.root, pretty_print=True, encoding='utf-8',
                 xml_declaration=True)
+    # }}}
 
 class TopLevel(Feed): # {{{
 
@@ -126,9 +196,9 @@ class TopLevel(Feed): # {{{
             self.root.append(x)
 # }}}
 
-class AcquisitionFeed(Feed):
+class NavFeed(Feed):
 
-    def __init__(self, updated, id_, items, offsets, page_url, up_url, version):
+    def __init__(self, id_, updated, version, offsets, page_url, up_url):
         kwargs = {'up_link': up_url}
         kwargs['first_link'] = page_url
         kwargs['last_link']  = page_url+'?offset=%d'%offsets.last_offset
@@ -140,7 +210,14 @@ class AcquisitionFeed(Feed):
                 page_url+'?offset=%d'%offsets.next_offset
         Feed.__init__(self, id_, updated, version, **kwargs)
 
-STANZA_FORMATS = frozenset(['epub', 'pdb'])
+class AcquisitionFeed(NavFeed):
+
+    def __init__(self, updated, id_, items, offsets, page_url, up_url, version,
+            FM):
+        NavFeed.__init__(self, id_, updated, version, offsets, page_url, up_url)
+        for item in items:
+            self.root.append(ACQUISITION_ENTRY(item, version, FM, updated))
+
 
 class OPDSOffsets(object):
 
@@ -176,9 +253,10 @@ class OPDSServer(object):
                     self.opds_search, version=version)
 
     def get_opds_allowed_ids_for_version(self, version):
-        search = '' if version > 0 else ' '.join(['format:='+x for x in
+        search = '' if version > 0 else ' or '.join(['format:='+x for x in
             STANZA_FORMATS])
-        self.search_cache(search)
+        ids = self.search_cache(search)
+        return ids
 
     def get_opds_acquisition_feed(self, ids, offset, page_url, up_url, id_,
             sort_by='title', ascending=True, version=0):
@@ -189,7 +267,8 @@ class OPDSServer(object):
         max_items = self.opts.max_opds_items
         offsets = OPDSOffsets(offset, max_items, len(items))
         items = items[offsets.offset:offsets.next_offset]
-        return str(AcquisitionFeed(self.db.last_modified(), id_, items, offsets, page_url, up_url, version))
+        return str(AcquisitionFeed(self.db.last_modified(), id_, items, offsets,
+            page_url, up_url, version, self.db.FIELD_MAP))
 
     def opds_search(self, query=None, version=0, offset=0):
         try:
@@ -203,8 +282,9 @@ class OPDSServer(object):
             ids = self.search_cache(query)
         except:
             raise cherrypy.HTTPError(404, 'Search: %r not understood'%query)
-        return self.get_opds_acquisition_feed(ids,
-                sort_by='title', version=version)
+        return self.get_opds_acquisition_feed(ids, offset, '/search/'+query,
+                BASE_HREFS[version], 'calibre-search:'+query,
+                version=version)
 
     def opds_navcatalog(self, which=None, version=0):
         version = int(version)

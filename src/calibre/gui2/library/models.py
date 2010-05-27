@@ -631,7 +631,10 @@ class BooksModel(QAbstractTableModel): # {{{
             if section >= len(self.column_map): # same problem as in data, the column_map can be wrong
                 return None
             if role == Qt.ToolTipRole:
-                return QVariant(_('The lookup/search name is "{0}"').format(self.column_map[section]))
+                ht = self.column_map[section]
+                if ht == 'timestamp': # change help text because users know this field as 'date'
+                    ht = 'date'
+                return QVariant(_('The lookup/search name is "{0}"').format(ht))
             if role == Qt.DisplayRole:
                 return QVariant(self.headers[self.column_map[section]])
             return NONE
@@ -730,11 +733,13 @@ class BooksModel(QAbstractTableModel): # {{{
 class OnDeviceSearch(SearchQueryParser): # {{{
 
     USABLE_LOCATIONS = [
-        'collections',
-        'title',
-        'author',
-        'format',
         'all',
+        'author',
+        'authors',
+        'collections',
+        'format',
+        'formats',
+        'title',
     ]
 
 
