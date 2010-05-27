@@ -88,35 +88,6 @@ CALIBRE_METADATA_FIELDS = frozenset([
     ]
 )
 
-CALIBRE_RESERVED_LABELS = frozenset([
-    'all',          # search term
-    'date',         # search term
-    'formats',      # search term
-    'inlibrary',    # search term
-    'news',         # search term
-    'ondevice',     # search term
-    'search',       # search term
-    'format',       # The next four are here for backwards compatibility
-    'tag',          # with searching. The terms can be used without the
-    'author',       # trailing 's'.
-    'comment',      # Sigh ...
-    ]
-)
-
-RESERVED_METADATA_FIELDS = SOCIAL_METADATA_FIELDS.union(
-                           PUBLICATION_METADATA_FIELDS).union(
-                           BOOK_STRUCTURE_FIELDS).union(
-                           USER_METADATA_FIELDS).union(
-                           DEVICE_METADATA_FIELDS).union(
-                           CALIBRE_METADATA_FIELDS).union(
-                           CALIBRE_RESERVED_LABELS)
-
-assert len(RESERVED_METADATA_FIELDS) == sum(map(len, (
-    SOCIAL_METADATA_FIELDS, PUBLICATION_METADATA_FIELDS,
-    BOOK_STRUCTURE_FIELDS, USER_METADATA_FIELDS,
-    DEVICE_METADATA_FIELDS, CALIBRE_METADATA_FIELDS,
-    CALIBRE_RESERVED_LABELS
-    )))
 
 SERIALIZABLE_FIELDS = SOCIAL_METADATA_FIELDS.union(
                       USER_METADATA_FIELDS).union(

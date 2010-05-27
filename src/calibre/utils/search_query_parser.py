@@ -22,7 +22,6 @@ from calibre.utils.pyparsing import Keyword, Group, Forward, CharsNotIn, Suppres
                       OneOrMore, oneOf, CaselessLiteral, Optional, NoMatch, ParseException
 from calibre.constants import preferred_encoding
 from calibre.utils.config import prefs
-from calibre.ebooks.metadata.book import RESERVED_METADATA_FIELDS
 
 '''
 This class manages access to the preference holding the saved search queries.
@@ -86,27 +85,6 @@ class SearchQueryParser(object):
       * `(author:Asimov or author:Hardy) and not tag:read` [search for unread books by Asimov or Hardy]
     '''
 
-    DEFAULT_LOCATIONS = [
-        'all',
-        'author',       # compatibility
-        'authors',
-        'comment',      # compatibility
-        'comments',
-        'cover',
-        'date',
-        'format',       # compatibility
-        'formats',
-        'isbn',
-        'ondevice',
-        'pubdate',
-        'publisher',
-        'search',
-        'series',
-        'rating',
-        'tag',          # compatibility
-        'tags',
-        'title',
-                 ]
 
     @staticmethod
     def run_tests(parser, result, tests):
@@ -121,12 +99,7 @@ class SearchQueryParser(object):
                 failed.append(test[0])
         return failed
 
-    def __init__(self, locations=None, test=False):
-        for k in self.DEFAULT_LOCATIONS:
-            if k not in RESERVED_METADATA_FIELDS:
-                raise ValueError('Search location [%s] is not a reserved word.' %(k))
-        if locations is None:
-            locations = self.DEFAULT_LOCATIONS
+    def __init__(self, locations, test=False):
         self._tests_failed = False
         # Define a token
         standard_locations = map(lambda x : CaselessLiteral(x)+Suppress(':'),

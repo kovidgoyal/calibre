@@ -144,12 +144,14 @@ class CustomColumns(object):
         for k in sorted(self.custom_column_label_map.keys()):
             v = self.custom_column_label_map[k]
             if v['normalized']:
-                tn = 'custom_column_{0}'.format(v['num'])
-                self.tag_browser_categories[v['label']] = {
-                        'table':tn, 'column':'value',
-                        'type':v['datatype'], 'is_multiple':v['is_multiple'],
-                        'kind':'custom', 'name':v['name']
-                    }
+                searchable = True
+            else:
+                searchable = False
+            tn = 'custom_column_{0}'.format(v['num'])
+            self.tag_browser_categories.add_custom_field(label=v['label'],
+                    table=tn, column='value', datatype=v['datatype'],
+                    is_multiple=v['is_multiple'], colnum=v['num'],
+                    name=v['name'], searchable=searchable)
 
     def get_custom(self, idx, label=None, num=None, index_is_id=False):
         if label is not None:
