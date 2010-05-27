@@ -5,7 +5,7 @@ Device scanner that fetches list of devices on system ina  platform dependent
 manner.
 '''
 
-import sys, os
+import sys, os, re
 from threading import RLock
 
 from calibre import iswindows, isosx, plugins, islinux
@@ -22,6 +22,14 @@ elif isosx:
         osx_scanner = plugins['usbobserver'][0].get_usb_devices
     except:
         raise RuntimeError('Failed to load the usbobserver plugin: %s'%plugins['usbobserver'][1])
+
+class Drive(str):
+
+    def __new__(self, val, order=0):
+        typ = str.__new__(self, val)
+        typ.order = order
+        return typ
+
 
 class WinPNPScanner(object):
 
@@ -45,6 +53,13 @@ class WinPNPScanner(object):
             finally:
                 win32api.SetErrorMode(oldError)
 
+    def drive_order(self, pnp_id):
+        order = 0
+        match = re.search(r'REV_.*?&(\d+)', pnp_id)
+        if match is not None:
+            order = int(pnp_id)
+        return order
+
     def __call__(self, debug=False):
         if self.scanner is None:
             return {}
@@ -66,7 +81,7 @@ class WinPNPScanner(object):
             val = [x.upper() for x in val]
             val = [x for x in val if 'USBSTOR' in x]
             if val:
-                ans[key+':\\'] = val[-1]
+                ans[Drive(key+':\\', order=self.drive_order(val[-1]))] = val[-1]
         return ans
 
 win_pnp_drives = WinPNPScanner()

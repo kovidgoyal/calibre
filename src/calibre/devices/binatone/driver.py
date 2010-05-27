@@ -35,15 +35,6 @@ class README(USBMS):
 
     SUPPORTS_SUB_DIRS = True
 
-    def windows_sort_drives(self, drives):
-        main = drives.get('main', None)
-        card = drives.get('carda', None)
-        if card and main and card < main:
-            drives['main'] = card
-            drives['carda'] = main
-
-        return drives
-
     def linux_swap_drives(self, drives):
         if len(drives) < 2: return drives
         drives = list(drives)

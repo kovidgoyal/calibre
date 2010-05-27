@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Device drivers.
 '''
 
-import sys, time, pprint
+import sys, time, pprint, operator
 from functools import partial
 from StringIO import StringIO
 
@@ -54,7 +54,9 @@ def debug(ioreg_to_tmp=False, buf=None):
         if iswindows:
             drives = win_pnp_drives(debug=True)
             out('Drives detected:')
-            out(pprint.pformat(drives))
+            for drive in sorted(drives.keys(),
+                    key=operator.attrgetter('order')):
+                prints(u'\t(%d)'%drive.order, drive, '~', drives[drive])
 
         ioreg = None
         if isosx:
