@@ -92,8 +92,10 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
     def accept(self):
         col = unicode(self.column_name_box.text()).lower()
-        if not col.isalnum():
-            return self.simple_error('', _('The label must contain only letters and digits'))
+        if not col:
+            return self.simple_error('', _('No lookup name was provided'))
+        if not col.isalnum() or not col[0].isalpha():
+            return self.simple_error('', _('The label must contain only letters and digits, and start with a letter'))
         col_heading = unicode(self.column_heading_box.text())
         col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
         if col_type == '*text':
@@ -101,8 +103,6 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             is_multiple = True
         else:
             is_multiple = False
-        if not col:
-            return self.simple_error('', _('No lookup name was provided'))
         if not col_heading:
             return self.simple_error('', _('No column heading was provided'))
         bad_col = False
