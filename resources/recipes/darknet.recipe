@@ -23,7 +23,8 @@ class darknet(BasicNewsRecipe):
 
     remove_tags = [dict(id='navi_top'),
 		   dict(id='navi_bottom'),
-		   dict(id='logo'),
+		   dict(id='nav'),
+		   dict(id='top-ad'),
 		   dict(id='login_suche'),
 		   dict(id='navi_login'),
 		   dict(id='breadcrumb'),
@@ -32,13 +33,14 @@ class darknet(BasicNewsRecipe):
 		   dict(name='span', attrs={'class':'rsaquo'}),
 		   dict(name='span', attrs={'class':'next'}),
 		   dict(name='span', attrs={'class':'prev'}),
+		   dict(name='span', attrs={'class':'comments'}),
 		   dict(name='div', attrs={'class':'news_logo'}),
 		   dict(name='div', attrs={'class':'nextprev'}),
+		   dict(name='div', attrs={'class':'tags'}),
+		   dict(name='div', attrs={'class':'Nav'}),
 		   dict(name='p', attrs={'class':'news_option'}),
 		   dict(name='p', attrs={'class':'news_foren'})]
-    remove_tags_after = [dict(name='div', attrs={'class':'entrybody'})]
+    remove_tags_after = [dict(name='div', attrs={'class':'meta-footer'})]
 
     feeds =  [ ('darknet', 'http://feedproxy.google.com/darknethackers') ]
-
-
 
