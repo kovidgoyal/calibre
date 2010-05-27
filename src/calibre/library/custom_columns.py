@@ -154,8 +154,9 @@ class CustomColumns(object):
             tn = 'custom_column_{0}'.format(v['num'])
             self.field_metadata.add_custom_field(label=v['label'],
                     table=tn, column='value', datatype=v['datatype'],
-                    is_multiple=is_m, colnum=v['num'], name=v['name'],
-                    is_category=is_category)
+                    colnum=v['num'], name=v['name'], display=v['display'],
+                    is_multiple=is_m, is_category=is_category,
+                    is_editable=v['editable'])
 
     def get_custom(self, idx, label=None, num=None, index_is_id=False):
         if label is not None:

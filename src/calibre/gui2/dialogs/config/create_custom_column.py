@@ -69,13 +69,14 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         self.column_name_box.setText(c['label'])
         self.column_heading_box.setText(c['name'])
         ct = c['datatype'] if not c['is_multiple'] else '*text'
-        self.orig_column_number = c['num']
+        self.orig_column_number = c['colnum']
         self.orig_column_name = col
         column_numbers = dict(map(lambda x:(self.column_types[x]['datatype'], x), self.column_types))
         self.column_type_box.setCurrentIndex(column_numbers[ct])
         self.column_type_box.setEnabled(False)
         if ct == 'datetime':
-            self.date_format_box.setText(c['display'].get('date_format', ''))
+            if c['display'].get('date_format', None):
+                self.date_format_box.setText(c['display'].get('date_format', ''))
         self.datatype_changed()
         self.exec_()
 
@@ -90,7 +91,9 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
 
     def accept(self):
-        col = unicode(self.column_name_box.text())
+        col = unicode(self.column_name_box.text()).lower()
+        if not col.isalnum():
+            return self.simple_error('', _('The label must contain only letters and digits'))
         col_heading = unicode(self.column_heading_box.text())
         col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
         if col_type == '*text':
@@ -104,14 +107,14 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             return self.simple_error('', _('No column heading was provided'))
         bad_col = False
         if col in self.parent.custcols:
-            if not self.editing_col or self.parent.custcols[col]['num'] != self.orig_column_number:
+            if not self.editing_col or self.parent.custcols[col]['colnum'] != self.orig_column_number:
                 bad_col = True
         if bad_col:
             return self.simple_error('', _('The lookup name %s is already used')%col)
         bad_head = False
         for t in self.parent.custcols:
             if self.parent.custcols[t]['name'] == col_heading:
-                if not self.editing_col or self.parent.custcols[t]['num'] != self.orig_column_number:
+                if not self.editing_col or self.parent.custcols[t]['colnum'] != self.orig_column_number:
                     bad_head = True
         for t in self.standard_colheads:
             if self.standard_colheads[t] == col_heading:
@@ -129,14 +132,15 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 date_format = {'date_format': None}
 
         if not self.editing_col:
-            self.parent.custcols[col] = {
+            self.parent.db.field_metadata
+            self.parent.custcols[self.parent.db.field_metadata.custom_field_prefix+col] = {
                     'label':col,
                     'name':col_heading,
                     'datatype':col_type,
                     'editable':True,
                     'display':date_format,
                     'normalized':None,
-                    'num':None,
+                    'colnum':None,
                     'is_multiple':is_multiple,
                 }
             item = QListWidgetItem(col_heading, self.parent.columns)

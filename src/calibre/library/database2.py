@@ -232,8 +232,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.commit()
 
         self.book_on_device_func = None
-        self.data    = ResultCache(self.FIELD_MAP, self.custom_column_label_map,
-                                   self.field_metadata)
+        self.data    = ResultCache(self.FIELD_MAP, self.field_metadata)
         self.search  = self.data.search
         self.refresh = functools.partial(self.data.refresh, self)
         self.sort    = self.data.sort

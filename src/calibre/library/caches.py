@@ -150,9 +150,8 @@ class ResultCache(SearchQueryParser):
     '''
     Stores sorted and filtered metadata in memory.
     '''
-    def __init__(self, FIELD_MAP, cc_label_map, field_metadata):
+    def __init__(self, FIELD_MAP, field_metadata):
         self.FIELD_MAP = FIELD_MAP
-        self.custom_column_label_map = cc_label_map
         self._map = self._map_filtered = self._data = []
         self.first_sort = True
         self.search_restriction = ''
@@ -598,9 +597,9 @@ class ResultCache(SearchQueryParser):
         elif field == 'title': field = 'sort'
         elif field == 'authors': field = 'author_sort'
         as_string = field not in ('size', 'rating', 'timestamp')
-        if field in self.custom_column_label_map:
-            as_string = self.custom_column_label_map[field]['datatype'] in ('comments', 'text')
-            field = self.custom_column_label_map[field]['num']
+        if self.field_metadata[field]['is_custom']:
+            as_string = self.field_metadata[field]['datatype'] in ('comments', 'text')
+            field = self.field_metadata[field]['colnum']
 
         if self.first_sort:
             subsort = True

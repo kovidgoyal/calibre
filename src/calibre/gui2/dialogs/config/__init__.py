@@ -371,7 +371,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         hidden_cols = state['hidden_columns']
         positions = state['column_positions']
         colmap.sort(cmp=lambda x,y: cmp(positions[x], positions[y]))
-        self.custcols = copy.deepcopy(self.db.custom_column_label_map)
+        self.custcols = copy.deepcopy(self.db.field_metadata.get_custom_field_metadata())
         for col in colmap:
             item = QListWidgetItem(self.model.headers[col], self.columns)
             item.setData(Qt.UserRole, QVariant(col))
@@ -713,20 +713,20 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
 
         must_restart = False
         for c in self.custcols:
-            if self.custcols[c]['num'] is None:
+            if self.custcols[c]['colnum'] is None:
                 self.db.create_custom_column(
-                                label=c,
+                                label=self.custcols[c]['label'],
                                 name=self.custcols[c]['name'],
                                 datatype=self.custcols[c]['datatype'],
                                 is_multiple=self.custcols[c]['is_multiple'],
                                 display = self.custcols[c]['display'])
                 must_restart = True
             elif '*deleteme' in self.custcols[c]:
-                self.db.delete_custom_column(label=c)
+                self.db.delete_custom_column(label=self.custcols[c]['label'])
                 must_restart = True
             elif '*edited' in self.custcols[c]:
                 cc = self.custcols[c]
-                self.db.set_custom_column_metadata(cc['num'], name=cc['name'],
+                self.db.set_custom_column_metadata(cc['colnum'], name=cc['name'],
                                                    label=cc['label'],
                                                    display = self.custcols[c]['display'])
                 if '*must_restart' in self.custcols[c]:

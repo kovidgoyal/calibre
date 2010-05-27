@@ -282,7 +282,9 @@ class FieldMetadata(dict):
         self.custom_label_to_key_map = {}
         for k,v in self._field_metadata:
             self._tb_cats[k] = v
-            self._tb_cats[k]['label'] = k # saved some typing above...
+            self._tb_cats[k]['label'] = k
+            self._tb_cats[k]['display'] = {}
+            self._tb_cats[k]['is_editable'] = True
             self._add_search_terms_to_map(k, self._tb_cats[k]['search_terms'])
         self.custom_field_prefix = '#'
         self.get = self._tb_cats.get
@@ -300,11 +302,11 @@ class FieldMetadata(dict):
         for key in self._tb_cats:
             yield key
 
-    def has_key(self, key):
-        return key in self._tb_cats
-
     def __contains__(self, key):
         return self.has_key(key)
+
+    def has_key(self, key):
+        return key in self._tb_cats
 
     def keys(self):
         return self._tb_cats.keys()
@@ -339,8 +341,15 @@ class FieldMetadata(dict):
     def get_custom_fields(self):
         return [l for l in self._tb_cats if self._tb_cats[l]['is_custom']]
 
-    def add_custom_field(self, label, table, column, datatype, colnum,
-                               name, is_multiple, is_category):
+    def get_custom_field_metadata(self):
+        l = {}
+        for k in self._tb_cats:
+            if self._tb_cats[k]['is_custom']:
+                l[k] = self._tb_cats[k]
+        return l
+
+    def add_custom_field(self, label, table, column, datatype, colnum, name,
+                               display, is_editable, is_multiple, is_category):
         key = self.custom_field_prefix + label
         if key in self._tb_cats:
             raise ValueError('Duplicate custom field [%s]'%(label))
@@ -348,8 +357,9 @@ class FieldMetadata(dict):
                              'datatype':datatype,  'is_multiple':is_multiple,
                              'kind':'field',       'name':name,
                              'search_terms':[key], 'label':label,
-                             'colnum':colnum,      'is_custom':True,
-                             'is_category':is_category}
+                             'colnum':colnum,      'display':display,
+                             'is_custom':True,     'is_category':is_category,
+                             'is_editable': is_editable,}
         self._add_search_terms_to_map(key, [key])
         self.custom_label_to_key_map[label] = key
 

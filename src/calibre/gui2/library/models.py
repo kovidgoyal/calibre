@@ -111,15 +111,15 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_database(self, db):
         self.db = db
-        self.custom_columns = self.db.custom_column_label_map
+        self.custom_columns = self.db.field_metadata.get_custom_field_metadata()
         self.column_map = list(self.orig_headers.keys()) + \
                           list(self.custom_columns)
         def col_idx(name):
             if name == 'ondevice':
                 return -1
-            if name not in self.db.FIELD_MAP:
+            if name not in self.db.field_metadata:
                 return 100000
-            return self.db.FIELD_MAP[name]
+            return self.db.field_metadata[name]['rec_index']
 
         self.column_map.sort(cmp=lambda x,y: cmp(col_idx(x), col_idx(y)))
         for col in self.column_map:
@@ -232,11 +232,12 @@ class BooksModel(QAbstractTableModel): # {{{
             return
         self.about_to_be_sorted.emit(self.db.id)
         ascending = order == Qt.AscendingOrder
-        self.db.sort(self.column_map[col], ascending)
+        label = self.column_map[col]
+        self.db.sort(label, ascending)
         if reset:
             self.clear_caches()
             self.reset()
-        self.sorted_on = (self.column_map[col], order)
+        self.sorted_on = (label, order)
         self.sort_history.insert(0, self.sorted_on)
         self.sorting_done.emit(self.db.index)
 
@@ -551,36 +552,36 @@ class BooksModel(QAbstractTableModel): # {{{
 
         self.dc = {
                    'title'    : functools.partial(text_type,
-                                idx=self.db.FIELD_MAP['title'], mult=False),
+                                idx=self.db.field_metadata['title']['rec_index'], mult=False),
                    'authors'  : functools.partial(authors,
-                                idx=self.db.FIELD_MAP['authors']),
+                                idx=self.db.field_metadata['authors']['rec_index']),
                    'size'     : functools.partial(size,
-                                idx=self.db.FIELD_MAP['size']),
+                                idx=self.db.field_metadata['size']['rec_index']),
                    'timestamp': functools.partial(datetime_type,
-                                idx=self.db.FIELD_MAP['timestamp']),
+                                idx=self.db.field_metadata['timestamp']['rec_index']),
                    'pubdate'  : functools.partial(datetime_type,
-                                idx=self.db.FIELD_MAP['pubdate']),
+                                idx=self.db.field_metadata['pubdate']['rec_index']),
                    'rating'   : functools.partial(rating_type,
-                                idx=self.db.FIELD_MAP['rating']),
+                                idx=self.db.field_metadata['rating']['rec_index']),
                    'publisher': functools.partial(text_type,
-                                idx=self.db.FIELD_MAP['publisher'], mult=False),
+                                idx=self.db.field_metadata['publisher']['rec_index'], mult=False),
                    'tags'     : functools.partial(tags,
-                                idx=self.db.FIELD_MAP['tags']),
+                                idx=self.db.field_metadata['tags']['rec_index']),
                    'series'   : functools.partial(series,
-                                idx=self.db.FIELD_MAP['series'],
-                                siix=self.db.FIELD_MAP['series_index']),
+                                idx=self.db.field_metadata['series']['rec_index'],
+                                siix=self.db.field_metadata['series_index']['rec_index']),
                    'ondevice' : functools.partial(text_type,
-                                idx=self.db.FIELD_MAP['ondevice'], mult=False),
+                                idx=self.db.field_metadata['ondevice']['rec_index'], mult=False),
                    }
 
         self.dc_decorator = {
                 'ondevice':functools.partial(ondevice_decorator,
-                    idx=self.db.FIELD_MAP['ondevice']),
+                    idx=self.db.field_metadata['ondevice']['rec_index']),
                     }
 
         # Add the custom columns to the data converters
         for col in self.custom_columns:
-            idx = self.db.FIELD_MAP[self.custom_columns[col]['num']]
+            idx = self.custom_columns[col]['rec_index']
             datatype = self.custom_columns[col]['datatype']
             if datatype in ('text', 'comments'):
                 self.dc[col] = functools.partial(text_type, idx=idx, mult=self.custom_columns[col]['is_multiple'])
@@ -632,8 +633,6 @@ class BooksModel(QAbstractTableModel): # {{{
                 return None
             if role == Qt.ToolTipRole:
                 ht = self.column_map[section]
-                if self.is_custom_column(self.column_map[section]):
-                    ht = self.db.field_metadata.custom_field_prefix + ht
                 if ht == 'timestamp': # change help text because users know this field as 'date'
                     ht = 'date'
                 return QVariant(_('The lookup/search name is "{0}"').format(ht))
@@ -652,7 +651,7 @@ class BooksModel(QAbstractTableModel): # {{{
             if colhead in self.editable_cols:
                 flags |= Qt.ItemIsEditable
             elif self.is_custom_column(colhead):
-                if self.custom_columns[colhead]['editable']:
+                if self.custom_columns[colhead]['is_editable']:
                     flags |= Qt.ItemIsEditable
         return flags
 
@@ -679,7 +678,9 @@ class BooksModel(QAbstractTableModel): # {{{
                 if not val.isValid():
                     return False
                 val = qt_to_dt(val, as_utc=False)
-        self.db.set_custom(self.db.id(row), val, label=colhead, num=None, append=False, notify=True)
+        self.db.set_custom(self.db.id(row), val,
+                           label=self.db.field_metadata.key_to_label(colhead),
+                           num=None, append=False, notify=True)
         return True
 
     def setData(self, index, value, role):
