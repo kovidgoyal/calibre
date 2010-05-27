@@ -131,9 +131,10 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             else:
                 date_format = {'date_format': None}
 
+        key = self.parent.db.field_metadata.custom_field_prefix+col
         if not self.editing_col:
             self.parent.db.field_metadata
-            self.parent.custcols[self.parent.db.field_metadata.custom_field_prefix+col] = {
+            self.parent.custcols[key] = {
                     'label':col,
                     'name':col_heading,
                     'datatype':col_type,
@@ -144,13 +145,13 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     'is_multiple':is_multiple,
                 }
             item = QListWidgetItem(col_heading, self.parent.columns)
-            item.setData(Qt.UserRole, QVariant(col))
+            item.setData(Qt.UserRole, QVariant(key))
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
             item.setCheckState(Qt.Checked)
         else:
             idx = self.parent.columns.currentRow()
             item = self.parent.columns.item(idx)
-            item.setData(Qt.UserRole, QVariant(col))
+            item.setData(Qt.UserRole, QVariant(key))
             item.setText(col_heading)
             self.parent.custcols[self.orig_column_name]['label'] = col
             self.parent.custcols[self.orig_column_name]['name'] = col_heading
