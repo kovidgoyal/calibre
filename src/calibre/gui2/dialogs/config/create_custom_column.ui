@@ -65,7 +65,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Used for searching the column. Must be lower case and not contain spaces or colons.</string>
+          <string>Used for searching the column. Must contain only digits and lower case letters.</string>
          </property>
         </widget>
        </item>

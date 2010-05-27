@@ -116,7 +116,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.books_list_filter = self.conn.create_dynamic_filter('books_list_filter')
 
     def __init__(self, library_path, row_factory=False):
-        self.tag_browser_categories = FieldMetadata() #.get_tag_browser_categories()
+        self.field_metadata = FieldMetadata()
         if not os.path.exists(library_path):
             os.makedirs(library_path)
         self.listeners = set([])
@@ -206,20 +206,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
              'lccn':16, 'pubdate':17, 'flags':18, 'uuid':19}
 
         for k,v in self.FIELD_MAP.iteritems():
-            self.tag_browser_categories.set_field_record_index(k, v, prefer_custom=False)
+            self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
 
         base = max(self.FIELD_MAP.values())
         for col in custom_cols:
             self.FIELD_MAP[col] = base = base+1
-            self.tag_browser_categories.set_field_record_index(
+            self.field_metadata.set_field_record_index(
                                         self.custom_column_num_map[col]['label'],
                                         base,
                                         prefer_custom=True)
 
         self.FIELD_MAP['cover'] = base+1
-        self.tag_browser_categories.set_field_record_index('cover', base+1, prefer_custom=False)
+        self.field_metadata.set_field_record_index('cover', base+1, prefer_custom=False)
         self.FIELD_MAP['ondevice'] = base+2
-        self.tag_browser_categories.set_field_record_index('ondevice', base+2, prefer_custom=False)
+        self.field_metadata.set_field_record_index('ondevice', base+2, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -232,8 +232,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.commit()
 
         self.book_on_device_func = None
-        self.data    = ResultCache(self.FIELD_MAP, self.custom_column_label_map,
-                                   self.tag_browser_categories)
+        self.data    = ResultCache(self.FIELD_MAP, self.field_metadata)
         self.search  = self.data.search
         self.refresh = functools.partial(self.data.refresh, self)
         self.sort    = self.data.sort
@@ -646,9 +645,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def get_recipe(self, id):
         return self.conn.get('SELECT script FROM feeds WHERE id=?', (id,), all=False)
 
-    def get_tag_browser_categories(self):
-        return self.tag_browser_categories
-
     def get_categories(self, sort_on_count=False, ids=None, icon_map=None):
         self.books_list_filter.change([] if not ids else ids)
 
@@ -656,11 +652,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if icon_map is not None and type(icon_map) != TagsIcons:
             raise TypeError('icon_map passed to get_categories must be of type TagIcons')
 
+        tb_cats = self.field_metadata
+
+        # remove all user categories from field_metadata. They can
+        # easily come and go. We will add all the existing ones in below.
+        for k in tb_cats.keys():
+            if tb_cats[k]['kind'] in ['user', 'search']:
+                del tb_cats[k]
+
         #### First, build the standard and custom-column categories ####
-        tb_cats = self.tag_browser_categories
         for category in tb_cats.keys():
             cat = tb_cats[category]
-            if cat['kind'] == 'not_cat':
+            if not cat['is_category']:
                 continue
             tn = cat['table']
             categories[category] = []   #reserve the position in the ordered list
@@ -680,7 +683,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # icon_map is not None if get_categories is to store an icon and
             # possibly a tooltip in the tag structure.
             icon, tooltip = None, ''
-            label = tb_cats.get_field_label(category)
+            label = tb_cats.key_to_label(category)
             if icon_map:
                 if not tb_cats.is_custom_field(category):
                     if category in icon_map:
@@ -736,12 +739,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         #### Now do the user-defined categories. ####
         user_categories = prefs['user_categories']
-
-        # remove all user categories from tag_browser_categories. They can
-        # easily come and go. We will add all the existing ones in below.
-        for k in tb_cats.keys():
-            if tb_cats[k]['kind'] in ['user', 'search']:
-                del tb_cats[k]
 
         # We want to use same node in the user category as in the source
         # category. To do that, we need to find the original Tag node. There is
