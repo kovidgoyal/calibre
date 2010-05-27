@@ -290,9 +290,5 @@ class SchemaUpgrade(object):
             self.conn.executescript(script)
 
         for field in self.field_metadata.itervalues():
-            if field['is_category'] and not field['is_custom'] and \
-                    field['table'] != 'news' and field['table'] is not None:
-                cn = field['table'][:-1]
-                if cn == 'serie':
-                    cn += 's'
-                create_tag_browser_view(field['table'], cn, field['column'])
+            if field['is_category'] and not field['is_custom'] and 'link_column' in field:
+                create_tag_browser_view(field['table'], field['link_column'], field['column'])

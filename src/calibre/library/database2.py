@@ -231,6 +231,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.executescript(script)
         self.conn.commit()
 
+        # Reconstruct the user categories, putting them into field_metadata
+        # Assumption is that someone else will fix them if they change.
+        tb_cats = self.field_metadata
+        for k in tb_cats.keys():
+            if tb_cats[k]['kind'] in ['user', 'search']:
+                del tb_cats[k]
+        for user_cat in sorted(prefs['user_categories'].keys()):
+            cat_name = user_cat+':' # add the ':' to avoid name collision
+            tb_cats.add_user_category(label=cat_name, name=user_cat)
+        if len(saved_searches.names()):
+            tb_cats.add_search_category(label='search', name=_('Searches'))
+
         self.book_on_device_func = None
         self.data    = ResultCache(self.FIELD_MAP, self.field_metadata)
         self.search  = self.data.search
@@ -653,17 +665,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             raise TypeError('icon_map passed to get_categories must be of type TagIcons')
 
         tb_cats = self.field_metadata
-
-        # remove all user categories from field_metadata. They can
-        # easily come and go. We will add all the existing ones in below.
-        for k in tb_cats.keys():
-            if tb_cats[k]['kind'] in ['user', 'search']:
-                del tb_cats[k]
-
         #### First, build the standard and custom-column categories ####
         for category in tb_cats.keys():
             cat = tb_cats[category]
-            if not cat['is_category']:
+            if not cat['is_category'] or not cat['kind'] == 'field':
                 continue
             tn = cat['table']
             categories[category] = []   #reserve the position in the ordered list
@@ -757,7 +762,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 # else: do nothing, to not include nodes w zero counts
             if len(items):
                 cat_name = user_cat+':' # add the ':' to avoid name collision
-                tb_cats.add_user_category(label=cat_name, name=user_cat)
                 # Not a problem if we accumulate entries in the icon map
                 if icon_map is not None:
                     icon_map[cat_name] = icon_map[':user']
@@ -776,7 +780,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for srch in saved_searches.names():
             items.append(Tag(srch, tooltip=saved_searches.lookup(srch), icon=icon))
         if len(items):
-            tb_cats.add_search_category(label='search', name=_('Searches'))
             if icon_map is not None:
                 icon_map['search'] = icon_map['search']
             categories['search'] = items
