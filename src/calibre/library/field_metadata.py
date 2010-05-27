@@ -135,6 +135,8 @@ class FieldMetadata(dict, DictMixin):
             self._tb_cats[k] = v
         self.custom_field_prefix = '#'
 
+        self.get = self._tb_cats.get
+
     def __getitem__(self, key):
         return self._tb_cats[key]
 
