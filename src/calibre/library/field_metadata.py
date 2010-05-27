@@ -122,6 +122,7 @@ class FieldMetadata(dict):
                            'is_category':True}),
             ('tags',      {'table':'tags',
                            'column':'name',
+                           'link_column': 'tag',
                            'datatype':'text',
                            'is_multiple':',',
                            'kind':'field',
