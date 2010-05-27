@@ -195,6 +195,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             lines.append(line)
 
         custom_map = self.custom_columns_in_meta()
+        # custom col labels are numbers (the id in the custom_columns table)
         custom_cols = list(sorted(custom_map.keys()))
         lines.extend([custom_map[x] for x in custom_cols])
 

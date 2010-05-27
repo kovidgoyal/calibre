@@ -133,8 +133,9 @@ class FieldMetadata(dict, DictMixin):
         self._tb_cats = OrderedDict()
         for k,v in self.category_items_:
             self._tb_cats[k] = v
-        self._custom_fields = []
         self.custom_field_prefix = '#'
+
+        self.get = self._tb_cats.get
 
     def __getitem__(self, key):
         return self._tb_cats[key]
@@ -161,7 +162,7 @@ class FieldMetadata(dict, DictMixin):
             yield (key, self._tb_cats[key])
 
     def is_custom_field(self, key):
-        return key.startswith(self.custom_field_prefix) or key in self._custom_fields
+        return key.startswith(self.custom_field_prefix)
 
     def get_field_label(self, key):
         if 'label' not in self._tb_cats[key]:
@@ -183,7 +184,6 @@ class FieldMetadata(dict, DictMixin):
         fn = self.custom_field_prefix + label
         if fn in self._tb_cats:
             raise ValueError('Duplicate custom field [%s]'%(label))
-        self._custom_fields.append(label)
         if searchable:
             sl = [fn]
             kind = 'standard'
