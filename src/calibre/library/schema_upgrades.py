@@ -289,6 +289,10 @@ class SchemaUpgrade(object):
                 '''.format(tn=table_name, cn=column_name, vcn=view_column_name))
             self.conn.executescript(script)
 
-        for tn, cn in self.field_metadata.items():
-            if tn != 'news':
-                create_tag_browser_view(tn, cn[0], cn[1])
+        for field in self.field_metadata.itervalues():
+            if field['is_category'] and not field['is_custom'] and \
+                    field['table'] != 'news' and field['table'] is not None:
+                cn = field['table'][:-1]
+                if cn == 'serie':
+                    cn += 's'
+                create_tag_browser_view(field['table'], cn, field['column'])

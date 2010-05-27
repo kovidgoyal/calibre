@@ -315,9 +315,18 @@ class FieldMetadata(dict):
         for key in self._tb_cats:
             yield key
 
+    def itervalues(self):
+        return self._tb_cats.itervalues()
+
+    def values(self):
+        return self._tb_cats.values()
+
     def iteritems(self):
         for key in self._tb_cats:
             yield (key, self._tb_cats[key])
+
+    def items(self):
+        return list(self.iteritems())
 
     def is_custom_field(self, key):
         return key.startswith(self.custom_field_prefix)
