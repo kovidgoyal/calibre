@@ -43,7 +43,8 @@ class FieldMetadata(dict):
 
     is_category: is a tag browser category. If true, then:
        table: name of the db table used to construct item list
-       column: name of the column in the connection table to join on
+       column: name of the column in the normalized table to join on
+       link_column: name of the column in the connection table to join on
        If these are None, then the category constructor must know how
        to build the item list (e.g., formats).
        The order below is the order that the categories will
