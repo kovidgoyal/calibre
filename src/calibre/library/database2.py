@@ -668,7 +668,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         #### First, build the standard and custom-column categories ####
         for category in tb_cats.keys():
             cat = tb_cats[category]
-            if not cat['is_category'] or not cat['kind'] == 'field':
+            if not cat['is_category'] or cat['kind'] in ['user', 'search']:
                 continue
             tn = cat['table']
             categories[category] = []   #reserve the position in the ordered list
