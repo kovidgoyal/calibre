@@ -656,11 +656,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if icon_map is not None and type(icon_map) != TagsIcons:
             raise TypeError('icon_map passed to get_categories must be of type TagIcons')
 
-        #### First, build the standard and custom-column categories ####
         tb_cats = self.tag_browser_categories
+
+        # remove all user categories from tag_browser_categories. They can
+        # easily come and go. We will add all the existing ones in below.
+        for k in tb_cats.keys():
+            if tb_cats[k]['kind'] in ['user', 'search']:
+                del tb_cats[k]
+
+        #### First, build the standard and custom-column categories ####
         for category in tb_cats.keys():
             cat = tb_cats[category]
-            if cat['kind'] == 'not_cat':
+            if not cat['is_category']:
                 continue
             tn = cat['table']
             categories[category] = []   #reserve the position in the ordered list
@@ -680,7 +687,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # icon_map is not None if get_categories is to store an icon and
             # possibly a tooltip in the tag structure.
             icon, tooltip = None, ''
-            label = tb_cats.get_field_label(category)
+            label = tb_cats.key_to_label(category)
             if icon_map:
                 if not tb_cats.is_custom_field(category):
                     if category in icon_map:
@@ -736,12 +743,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         #### Now do the user-defined categories. ####
         user_categories = prefs['user_categories']
-
-        # remove all user categories from tag_browser_categories. They can
-        # easily come and go. We will add all the existing ones in below.
-        for k in tb_cats.keys():
-            if tb_cats[k]['kind'] in ['user', 'search']:
-                del tb_cats[k]
 
         # We want to use same node in the user category as in the source
         # category. To do that, we need to find the original Tag node. There is

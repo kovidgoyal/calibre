@@ -4,7 +4,6 @@ Created on 25 May 2010
 @author: charles
 '''
 
-from UserDict import DictMixin
 from calibre.utils.ordered_dict import OrderedDict
 
 class TagsIcons(dict):
@@ -22,7 +21,7 @@ class TagsIcons(dict):
                 raise ValueError('Missing category icon [%s]'%a)
             self[a] = icon_dict[a]
 
-class FieldMetadata(dict, DictMixin):
+class FieldMetadata(dict):
 
     # kind == standard: is tag category. May be a search label. Is db col
     #                   or is specially handled (e.g., news)
@@ -41,86 +40,86 @@ class FieldMetadata(dict, DictMixin):
             ('authors',   {'table':'authors', 'column':'name',
                            'datatype':'text', 'is_multiple':False,
                            'kind':'standard', 'name':_('Authors'),
-                           'search_labels':['authors', 'author'],
-                           'is_custom':False}),
+                           'search_keys':['authors', 'author'],
+                           'is_custom':False, 'is_category':True}),
             ('series',    {'table':'series', 'column':'name',
                            'datatype':'text', 'is_multiple':False,
                            'kind':'standard', 'name':_('Series'),
-                           'search_labels':['series'],
-                           'is_custom':False}),
+                           'search_keys':['series'],
+                           'is_custom':False, 'is_category':True}),
             ('formats',   {'table':None, 'column':None,
                            'datatype':'text', 'is_multiple':False, # must think what type this is!
                            'kind':'standard', 'name':_('Formats'),
-                           'search_labels':['formats', 'format'],
-                           'is_custom':False}),
+                           'search_keys':['formats', 'format'],
+                           'is_custom':False, 'is_category':True}),
             ('publisher', {'table':'publishers', 'column':'name',
                            'datatype':'text', 'is_multiple':False,
                            'kind':'standard', 'name':_('Publishers'),
-                           'search_labels':['publisher'],
-                           'is_custom':False}),
+                           'search_keys':['publisher'],
+                           'is_custom':False, 'is_category':True}),
             ('rating',    {'table':'ratings', 'column':'rating',
                            'datatype':'rating', 'is_multiple':False,
                            'kind':'standard', 'name':_('Ratings'),
-                           'search_labels':['rating'],
-                           'is_custom':False}),
+                           'search_keys':['rating'],
+                           'is_custom':False, 'is_category':True}),
             ('news',      {'table':'news', 'column':'name',
                            'datatype':None, 'is_multiple':False,
                            'kind':'standard', 'name':_('News'),
-                           'search_labels':[],
-                           'is_custom':False}),
+                           'search_keys':[],
+                           'is_custom':False, 'is_category':True}),
             ('tags',      {'table':'tags', 'column':'name',
                            'datatype':'text', 'is_multiple':True,
                            'kind':'standard', 'name':_('Tags'),
-                           'search_labels':['tags', 'tag'],
-                           'is_custom':False}),
+                           'search_keys':['tags', 'tag'],
+                           'is_custom':False, 'is_category':True}),
             ('author_sort',{'table':None, 'column':None, 'datatype':'text',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':[], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':[], 'is_custom':False, 'is_category':False}),
             ('comments',  {'table':None, 'column':None, 'datatype':'text',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':['comments', 'comment'], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':['comments', 'comment'], 'is_custom':False, 'is_category':False}),
             ('cover',     {'table':None, 'column':None, 'datatype':None,
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':['cover'], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':['cover'], 'is_custom':False, 'is_category':False}),
             ('flags',     {'table':None, 'column':None, 'datatype':'text',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':[], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':[], 'is_custom':False, 'is_category':False}),
             ('id',        {'table':None, 'column':None, 'datatype':'int',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':[], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':[], 'is_custom':False, 'is_category':False}),
             ('isbn',      {'table':None, 'column':None, 'datatype':'text',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':['isbn'], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':['isbn'], 'is_custom':False, 'is_category':False}),
             ('lccn',      {'table':None, 'column':None, 'datatype':'text',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':[], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':[], 'is_custom':False, 'is_category':False}),
             ('ondevice',  {'table':None, 'column':None, 'datatype':'bool',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':[], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':[], 'is_custom':False, 'is_category':False}),
             ('path',      {'table':None, 'column':None, 'datatype':'text',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':[], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':[], 'is_custom':False, 'is_category':False}),
             ('pubdate',   {'table':None, 'column':None, 'datatype':'datetime',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':['pubdate'], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':['pubdate'], 'is_custom':False, 'is_category':False}),
             ('series_index',{'table':None, 'column':None, 'datatype':'float',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':[], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':[], 'is_custom':False, 'is_category':False}),
             ('sort',      {'table':None, 'column':None, 'datatype':'text',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':[], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':[], 'is_custom':False, 'is_category':False}),
             ('size',      {'table':None, 'column':None, 'datatype':'float',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':[], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':[], 'is_custom':False, 'is_category':False}),
             ('timestamp', {'table':None, 'column':None, 'datatype':'datetime',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':['date'], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':['date'], 'is_custom':False, 'is_category':False}),
             ('title',     {'table':None, 'column':None, 'datatype':'text',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':['title'], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':['title'], 'is_custom':False, 'is_category':False}),
             ('uuid',      {'table':None, 'column':None, 'datatype':'text',
-                           'is_multiple':False, 'kind':'not_cat', 'name':None,
-                           'search_labels':[], 'is_custom':False}),
+                           'is_multiple':False, 'kind':'standard', 'name':None,
+                           'search_keys':[], 'is_custom':False, 'is_category':False}),
             ]
 
     # search labels that are not db columns
@@ -150,6 +149,12 @@ class FieldMetadata(dict, DictMixin):
         for key in self._tb_cats:
             yield key
 
+    def has_key(self, key):
+        return key in self._tb_cats
+
+    def __contains__(self, key):
+        return self.has_key(key)
+
     def keys(self):
         return self._tb_cats.keys()
 
@@ -164,12 +169,12 @@ class FieldMetadata(dict, DictMixin):
     def is_custom_field(self, key):
         return key.startswith(self.custom_field_prefix)
 
-    def get_field_label(self, key):
+    def key_to_label(self, key):
         if 'label' not in self._tb_cats[key]:
             return key
         return self._tb_cats[key]['label']
 
-    def get_search_label(self, label):
+    def label_to_key(self, label, prefer_custom=False):
         if 'label' in self._tb_cats:
             return label
         if self.is_custom_field(label):
@@ -179,22 +184,17 @@ class FieldMetadata(dict, DictMixin):
     def get_custom_fields(self):
         return [l for l in self._tb_cats if self._tb_cats[l]['is_custom']]
 
-    def add_custom_field(self, label, table, column, datatype,
-                               is_multiple, colnum, name, searchable):
+    def add_custom_field(self, label, table, column, datatype, colnum,
+                               name, is_multiple, is_category):
         fn = self.custom_field_prefix + label
         if fn in self._tb_cats:
             raise ValueError('Duplicate custom field [%s]'%(label))
-        if searchable:
-            sl = [fn]
-            kind = 'standard'
-        else:
-            sl = []
-            kind = 'not_cat'
         self._tb_cats[fn] = {'table':table,       'column':column,
                              'datatype':datatype, 'is_multiple':is_multiple,
-                             'kind':kind,         'name':name,
-                             'search_labels':sl,  'label':label,
-                             'colnum':colnum,     'is_custom':True}
+                             'kind':'standard',   'name':name,
+                             'search_keys':[fn],  'label':label,
+                             'colnum':colnum,     'is_custom':True,
+                             'is_category':is_category}
 
     def set_field_record_index(self, label, index, prefer_custom=False):
         if prefer_custom:
@@ -214,7 +214,8 @@ class FieldMetadata(dict, DictMixin):
         self._tb_cats[label] = {'table':None,        'column':None,
                                 'datatype':None,     'is_multiple':False,
                                 'kind':'user',       'name':name,
-                                'search_labels':[],  'is_custom':False}
+                                'search_keys':[],    'is_custom':False,
+                                'is_category':True}
 
     def add_search_category(self, label, name):
         if label in self._tb_cats:
@@ -222,7 +223,8 @@ class FieldMetadata(dict, DictMixin):
         self._tb_cats[label] = {'table':None,        'column':None,
                                 'datatype':None,     'is_multiple':False,
                                 'kind':'search',     'name':name,
-                                'search_labels':[],  'is_custom':False}
+                                'search_keys':[],    'is_custom':False,
+                                'is_category':True}
 
 #    DEFAULT_LOCATIONS = frozenset([
 #        'all',
@@ -247,13 +249,13 @@ class FieldMetadata(dict, DictMixin):
 #                 ])
 
 
-    def get_search_labels(self):
-        s_labels = []
+    def get_search_keys(self):
+        s_keys = []
         for v in self._tb_cats.itervalues():
-            map((lambda x:s_labels.append(x)), v['search_labels'])
+            map((lambda x:s_keys.append(x)), v['search_keys'])
         for v in self.search_items:
-            s_labels.append(v)
-#        if set(s_labels) != self.DEFAULT_LOCATIONS:
+            s_keys.append(v)
+#        if set(s_keys) != self.DEFAULT_LOCATIONS:
 #            print 'search labels and default_locations do not match:'
-#            print set(s_labels) ^ self.DEFAULT_LOCATIONS
-        return s_labels
+#            print set(s_keys) ^ self.DEFAULT_LOCATIONS
+        return s_keys
