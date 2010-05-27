@@ -331,7 +331,7 @@ class OPDSServer(object):
             raise cherrypy.HTTPError(404, 'Not found')
         categories = self.categories_cache(
                 self.get_opds_allowed_ids_for_version(version))
-        category_meta = self.db.get_tag_browser_categories()
+        category_meta = self.db.field_metadata
         cats = [
                 (_('Newest'), _('Date'), 'Onewest'),
                 (_('Title'), _('Title'), 'Otitle'),

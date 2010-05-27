@@ -633,7 +633,7 @@ class BooksModel(QAbstractTableModel): # {{{
             if role == Qt.ToolTipRole:
                 ht = self.column_map[section]
                 if self.is_custom_column(self.column_map[section]):
-                    ht = self.db.tag_browser_categories.custom_field_prefix + ht
+                    ht = self.db.field_metadata.custom_field_prefix + ht
                 if ht == 'timestamp': # change help text because users know this field as 'date'
                     ht = 'date'
                 return QVariant(_('The lookup/search name is "{0}"').format(ht))

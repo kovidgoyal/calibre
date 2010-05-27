@@ -289,6 +289,6 @@ class SchemaUpgrade(object):
                 '''.format(tn=table_name, cn=column_name, vcn=view_column_name))
             self.conn.executescript(script)
 
-        for tn, cn in self.tag_browser_categories.items():
+        for tn, cn in self.field_metadata.items():
             if tn != 'news':
                 create_tag_browser_view(tn, cn[0], cn[1])

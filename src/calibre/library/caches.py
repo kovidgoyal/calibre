@@ -150,14 +150,14 @@ class ResultCache(SearchQueryParser):
     '''
     Stores sorted and filtered metadata in memory.
     '''
-    def __init__(self, FIELD_MAP, cc_label_map, tag_browser_categories):
+    def __init__(self, FIELD_MAP, cc_label_map, field_metadata):
         self.FIELD_MAP = FIELD_MAP
         self.custom_column_label_map = cc_label_map
         self._map = self._map_filtered = self._data = []
         self.first_sort = True
         self.search_restriction = ''
-        self.tag_browser_categories = tag_browser_categories
-        self.all_search_locations = tag_browser_categories.get_search_keys()
+        self.field_metadata = field_metadata
+        self.all_search_locations = field_metadata.get_search_terms()
         SearchQueryParser.__init__(self, self.all_search_locations)
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
@@ -252,7 +252,7 @@ class ResultCache(SearchQueryParser):
 
         if location == 'date':
             location = 'timestamp'
-        loc = self.tag_browser_categories[location]['rec_index']
+        loc = self.field_metadata[location]['rec_index']
 
         if query == _('today'):
             qd = now()
@@ -311,8 +311,8 @@ class ResultCache(SearchQueryParser):
         if relop is None:
                 (p, relop) = self.numeric_search_relops['=']
 
-        loc = self.tag_browser_categories[location]['rec_index']
-        dt = self.tag_browser_categories[location]['datatype']
+        loc = self.field_metadata[location]['rec_index']
+        dt = self.field_metadata[location]['datatype']
         if dt == 'int':
             cast = (lambda x: int (x))
             adjust = lambda x: x
@@ -342,23 +342,21 @@ class ResultCache(SearchQueryParser):
     def get_matches(self, location, query):
         matches = set([])
         if query and query.strip():
-            location = location.lower().strip()
-            if location in ('tag', 'author', 'format', 'comment'):
-                location += 's'
+            # get metadata key associated with the search term. Eliminates
+            # dealing with plurals and other aliases
+            location = self.field_metadata.search_term_to_key(location.lower().strip())
 
-            ### take care of dates special case
-            if (location in ('pubdate', 'date')) or \
-                    (location in self.tag_browser_categories and \
-                     self.tag_browser_categories[location]['datatype'] == 'datetime'):
+            # take care of dates special case
+            if location in self.field_metadata and \
+                     self.field_metadata[location]['datatype'] == 'datetime':
                 return self.get_dates_matches(location, query.lower())
 
-            ### take care of numbers special case
-            if location in self.tag_browser_categories and \
-                    self.tag_browser_categories[location]['datatype'] in \
-                                ('rating', 'int', 'float'):
+            # take care of numbers special case
+            if location in self.field_metadata and \
+                    self.field_metadata[location]['datatype'] in ('rating', 'int', 'float'):
                 return self.get_numeric_matches(location, query.lower())
 
-            ### everything else, or 'all' matches
+            # everything else, or 'all' matches
             matchkind = CONTAINS_MATCH
             if (len(query) > 1):
                 if query.startswith('\\'):
@@ -377,25 +375,18 @@ class ResultCache(SearchQueryParser):
                 query = query.decode('utf-8')
 
             db_col = {}
-            # fields to not check when matching against text.
-            exclude_fields = []
+            exclude_fields = [] # fields to not check when matching against text.
             col_datatype = []
+            is_multiple_cols = {}
             for x in range(len(self.FIELD_MAP)):
                 col_datatype.append('')
-            for x in self.tag_browser_categories:
-                if len(self.tag_browser_categories[x]['search_keys']):
-                    db_col[x] = self.tag_browser_categories[x]['rec_index']
-                    if self.tag_browser_categories[x]['datatype'] not in ['text', 'comments']:
+            for x in self.field_metadata:
+                if len(self.field_metadata[x]['search_terms']):
+                    db_col[x] = self.field_metadata[x]['rec_index']
+                    if self.field_metadata[x]['datatype'] not in ['text', 'comments']:
                         exclude_fields.append(db_col[x])
-                    if self.tag_browser_categories.is_custom_field(x):
-                        col_datatype[db_col[x]] = self.tag_browser_categories[x]['datatype']
-            # normal and custom ratings columns use the same code
-            col_datatype[self.FIELD_MAP['rating']] = 'rating'
-
-            splitable_fields = [db_col['authors'], db_col['tags'], db_col['formats']]
-            for x in self.tag_browser_categories.get_custom_fields():
-                if self.tag_browser_categories[x]['is_multiple']:
-                    splitable_fields.append(db_col[x])
+                    col_datatype[db_col[x]] = self.field_metadata[x]['datatype']
+                    is_multiple_cols[db_col[x]] = self.field_metadata[x]['is_multiple']
 
             try:
                 rating_query = int(query) * 2
@@ -409,7 +400,7 @@ class ResultCache(SearchQueryParser):
             # get the tweak here so that the string lookup and compare aren't in the loop
             bools_are_tristate = tweaks['bool_custom_columns_are_tristate'] == 'yes'
 
-            for loc in location:
+            for loc in location: # location is now an array of field indices
                 if loc == db_col['authors']:
                     ### DB stores authors with commas changed to bars, so change query
                     q = query.replace(',', '|');
@@ -460,7 +451,7 @@ class ResultCache(SearchQueryParser):
                         continue
 
                     try: # a conversion below might fail
-                        # relationals not supported in 'all' queries
+                        # relationals are not supported in 'all' queries
                         if col_datatype[loc] == 'float':
                             if float(query) == item[loc]:
                                 matches.add(item[0])
@@ -474,12 +465,9 @@ class ResultCache(SearchQueryParser):
                         # no further match is possible
                         continue
 
-                    if loc not in exclude_fields:
-                        if loc in splitable_fields:
-                            if col_datatype[loc]:
-                                vals = item[loc].split('|')
-                            else:
-                                vals = item[loc].split(',')
+                    if loc not in exclude_fields: # time for text matching
+                        if is_multiple_cols[loc] is not None:
+                            vals = item[loc].split(is_multiple_cols[loc])
                         else:
                             vals = [item[loc]] ### make into list to make _match happy
                         if _match(q, vals, matchkind):

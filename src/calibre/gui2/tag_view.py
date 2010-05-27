@@ -224,7 +224,7 @@ class TagsModel(QAbstractItemModel): # {{{
         data = self.get_node_tree(config['sort_by_popularity'])
         self.root_item = TagTreeItem()
         for i, r in enumerate(self.row_map):
-            if self.db.get_tag_browser_categories()[r]['kind'] != 'user':
+            if self.db.field_metadata[r]['kind'] != 'user':
                 tt = _('The lookup/search name is "{0}"').format(r)
             else:
                 tt = ''
@@ -248,7 +248,7 @@ class TagsModel(QAbstractItemModel): # {{{
         else:
             data = self.db.get_categories(sort_on_count=sort, icon_map=self.category_icon_map)
 
-        tb_categories = self.db.get_tag_browser_categories()
+        tb_categories = self.db.field_metadata
         for category in tb_categories:
             if category in data: # They should always be there, but ...
                 self.row_map.append(category)

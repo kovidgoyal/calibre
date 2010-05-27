@@ -147,11 +147,15 @@ class CustomColumns(object):
                 is_category = True
             else:
                 is_category = False
+            if v['is_multiple']:
+                is_m = '|'
+            else:
+                is_m = None
             tn = 'custom_column_{0}'.format(v['num'])
-            self.tag_browser_categories.add_custom_field(label=v['label'],
+            self.field_metadata.add_custom_field(label=v['label'],
                     table=tn, column='value', datatype=v['datatype'],
-                    is_multiple=v['is_multiple'], colnum=v['num'],
-                    name=v['name'], is_category=is_category)
+                    is_multiple=is_m, colnum=v['num'], name=v['name'],
+                    is_category=is_category)
 
     def get_custom(self, idx, label=None, num=None, index_is_id=False):
         if label is not None:
