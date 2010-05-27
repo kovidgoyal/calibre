@@ -779,8 +779,10 @@ class OnDeviceSearch(SearchQueryParser): # {{{
              'title' : lambda x : getattr(x, 'title').lower(),
              'author': lambda x: ' & '.join(getattr(x, 'authors')).lower(),
              'collections':lambda x: ','.join(getattr(x, 'device_collections')).lower(),
-             'format':lambda x: os.path.splitext(x.path)[1].lower()
+             'format':lambda x: os.path.splitext(x.path)[1].lower(),
              }
+        for x in ('author', 'format'):
+            q[x+'s'] = q[x]
         for index, row in enumerate(self.model.db):
             for locvalue in locations:
                 accessor = q[locvalue]
