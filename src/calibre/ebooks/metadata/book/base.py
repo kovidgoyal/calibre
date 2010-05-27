@@ -69,13 +69,6 @@ class Metadata(object):
             self.__dict__[field] = val
 
     @property
-    def reserved_names(self):
-        'The set of names you cannot use for your own purposes on this object'
-        _data = object.__getattribute__(self, '_data')
-        return frozenset(RESERVED_FIELD_NAMES).union(frozenset(
-            _data['user_metadata'].iterkeys()))
-
-    @property
     def user_metadata_names(self):
         'The set of user metadata names this object knows about'
         _data = object.__getattribute__(self, '_data')
@@ -120,10 +113,8 @@ class Metadata(object):
 
     # }}}
 
-_m = Metadata()
-RESERVED_FIELD_NAMES = \
-        frozenset(_m.__dict__.iterkeys()).union( # _data
-        RESERVED_METADATA_FIELDS).union(
-        frozenset(Metadata.__dict__.iterkeys())) # methods defined in Metadata
-del _m
+# We don't need reserved field names for this object any more. Lets just use a
+# protocol like the last char of a user field label should be _ when using this
+# object
+# So mi.tags returns the builtin tags and mi.tags_ returns the user tags
 

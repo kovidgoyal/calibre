@@ -632,6 +632,8 @@ class BooksModel(QAbstractTableModel): # {{{
                 return None
             if role == Qt.ToolTipRole:
                 ht = self.column_map[section]
+                if self.is_custom_column(self.column_map[section]):
+                    ht = self.db.tag_browser_categories.custom_field_prefix + ht
                 if ht == 'timestamp': # change help text because users know this field as 'date'
                     ht = 'date'
                 return QVariant(_('The lookup/search name is "{0}"').format(ht))
@@ -777,8 +779,10 @@ class OnDeviceSearch(SearchQueryParser): # {{{
              'title' : lambda x : getattr(x, 'title').lower(),
              'author': lambda x: ' & '.join(getattr(x, 'authors')).lower(),
              'collections':lambda x: ','.join(getattr(x, 'device_collections')).lower(),
-             'format':lambda x: os.path.splitext(x.path)[1].lower()
+             'format':lambda x: os.path.splitext(x.path)[1].lower(),
              }
+        for x in ('author', 'format'):
+            q[x+'s'] = q[x]
         for index, row in enumerate(self.model.db):
             for locvalue in locations:
                 accessor = q[locvalue]

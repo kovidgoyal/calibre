@@ -81,7 +81,7 @@ class KindleDX(Kindle):
 class Sony505(Device):
 
     output_profile = 'sony'
-    name = 'SONY Reader 6" and Touch Editions'
+    name = 'All other SONY devices'
     output_format = 'EPUB'
     manufacturer = 'SONY'
     id = 'prs505'

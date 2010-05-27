@@ -17,6 +17,7 @@ from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
+# from calibre.library.field_metadata import FieldMetadata
 
 class CoverCache(QThread):
 
@@ -149,15 +150,15 @@ class ResultCache(SearchQueryParser):
     '''
     Stores sorted and filtered metadata in memory.
     '''
-    def __init__(self, FIELD_MAP, cc_label_map):
+    def __init__(self, FIELD_MAP, cc_label_map, tag_browser_categories):
         self.FIELD_MAP = FIELD_MAP
         self.custom_column_label_map = cc_label_map
         self._map = self._map_filtered = self._data = []
         self.first_sort = True
         self.search_restriction = ''
-        SearchQueryParser.__init__(self,
-            locations=SearchQueryParser.DEFAULT_LOCATIONS +
-            [c for c in cc_label_map])
+        self.tag_browser_categories = tag_browser_categories
+        self.all_search_locations = tag_browser_categories.get_search_labels()
+        SearchQueryParser.__init__(self, self.all_search_locations)
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
 
@@ -379,25 +380,33 @@ class ResultCache(SearchQueryParser):
             if location in ('tag', 'author', 'format', 'comment'):
                 location += 's'
 
-            all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series',
-                   'formats', 'isbn', 'rating', 'cover', 'ondevice')
             MAP = {}
+            # Fields not used when matching against text contents. These are
+            # the non-text fields
+            EXCLUDE_FIELDS = []
 
-            for x in all: # get the db columns for the standard searchables
-                MAP[x] = self.FIELD_MAP[x]
+            # get the db columns for the standard searchables
+            for x in self.tag_browser_categories:
+                if len(self.tag_browser_categories[x]['search_labels']) and \
+                         not self.tag_browser_categories.is_custom_field(x):
+                    MAP[x] = self.tag_browser_categories[x]['rec_index']
+                    if self.tag_browser_categories[x]['datatype'] != 'text':
+                        EXCLUDE_FIELDS.append(MAP[x])
+
+            # add custom columns to MAP. Put the column's type into IS_CUSTOM
             IS_CUSTOM = []
-            for x in range(len(self.FIELD_MAP)): # build a list containing '' the size of FIELD_MAP
+            for x in range(len(self.FIELD_MAP)):
                 IS_CUSTOM.append('')
-            IS_CUSTOM[self.FIELD_MAP['rating']] = 'rating'  # normal and custom ratings columns use the same code
-            for x in self.custom_column_label_map: # add custom columns to MAP. Put the column's type into IS_CUSTOM
-                if self.custom_column_label_map[x]['datatype'] != "datetime":
-                    MAP[x] = self.FIELD_MAP[self.custom_column_label_map[x]['num']]
-                    IS_CUSTOM[MAP[x]] = self.custom_column_label_map[x]['datatype']
+            # normal and custom ratings columns use the same code
+            IS_CUSTOM[self.FIELD_MAP['rating']] = 'rating'
+            for x in self.tag_browser_categories.get_custom_fields():
+                if self.tag_browser_categories[x]['datatype'] != "datetime":
+                    MAP[x] = self.FIELD_MAP[self.tag_browser_categories[x]['colnum']]
+                    IS_CUSTOM[MAP[x]] = self.tag_browser_categories[x]['datatype']
 
-            EXCLUDE_FIELDS = [MAP['rating'], MAP['cover']]
             SPLITABLE_FIELDS = [MAP['authors'], MAP['tags'], MAP['formats']]
-            for x in self.custom_column_label_map:
-                if self.custom_column_label_map[x]['is_multiple']:
+            for x in self.tag_browser_categories.get_custom_fields():
+                if self.tag_browser_categories[x]['is_multiple']:
                     SPLITABLE_FIELDS.append(MAP[x])
 
             try:
