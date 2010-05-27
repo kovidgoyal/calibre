@@ -257,7 +257,7 @@ class CustomColumns(object):
                             'SELECT id FROM %s WHERE value=?'%table, (ex,), all=False)
                     if ex != x:
                         self.conn.execute(
-                                'UPDATE %s SET value=? WHERE id=?', (x, xid))
+                                'UPDATE %s SET value=? WHERE id=?'%table, (x, xid))
                 else:
                     xid = self.conn.execute(
                             'INSERT INTO %s(value) VALUES(?)'%table, (x,)).lastrowid

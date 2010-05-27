@@ -322,8 +322,16 @@ class OPDSServer(object):
             return self.get_opds_all_books(which, page_url, up_url,
                     version=version, offset=offset)
         elif type_ == 'N':
-            return self.get_opds_navcatalog(which)
+            return self.get_opds_navcatalog(which, version=version, offset=offset)
         raise cherrypy.HTTPError(404, 'Not found')
+
+    def get_opds_navcatalog(self, which, version=0, offset=0):
+        categories = self.categories_cache(
+                self.get_opds_allowed_ids_for_version(version))
+        if which not in categories:
+            raise cherrypy.HTTPError(404, 'Category %r not found'%which)
+
+
 
     def opds(self, version=0):
         version = int(version)
