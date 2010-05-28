@@ -682,8 +682,13 @@ class ITUNES(DevicePlugin):
         '''
         Fetch the size of a book stored on the device
         '''
+        if DEBUG:
+            self.log.info("ITUNES._get_device_book_size(): looking for title: '%s' author: %s" % (title,author))
+
         device_books = self._get_device_books()
         for d_book in device_books:
+            if DEBUG:
+                self.log.info(" evaluating title: '%s' author: '%s'" % (d_book.name(), d_book.artist()))
             if d_book.name() == title and d_book.artist() == author:
                 return d_book.size()
         else:
