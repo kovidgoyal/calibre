@@ -251,7 +251,7 @@ class Device(DeviceConfig, DevicePlugin):
         if self.WINDOWS_MAIN_MEM in (self.WINDOWS_CARD_A_MEM,
                 self.WINDOWS_CARD_B_MEM) or \
                 self.WINDOWS_CARD_A_MEM == self.WINDOWS_CARD_B_MEM:
-            letters = sorted(drives.values(), key=operator.itemgetter('order'))
+            letters = sorted(drives.values(), key=operator.attrgetter('order'))
             drives = {}
             for which, letter in zip(['main', 'carda', 'cardb'], letters):
                 drives[which] = letter
