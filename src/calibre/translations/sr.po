@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-21 22:47+0000\n"
-"PO-Revision-Date: 2010-05-21 07:13+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-05-22 09:40+0000\n"
+"Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-22 03:58+0000\n"
+"X-Launchpad-Export-Date: 2010-05-23 03:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -366,7 +366,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:248
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr ""
+msgstr "Namenjeno za iPad i slične uređaje sa rezolucijom 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:271
 msgid "This profile is intended for the Kobo Reader."
@@ -673,11 +673,11 @@ msgstr "Uspostavi komunikaciju s Teclast K3 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:45
 msgid "Communicate with the Newsmy reader."
-msgstr ""
+msgstr "Uspostavi komunikaciju s Newsmy čitačem"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:60
 msgid "Communicate with the iPapyrus reader."
-msgstr ""
+msgstr "Uspostavi komunikaciju s iPapyrus čitačem"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:252
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1437,6 +1437,11 @@ msgid ""
 "corresponding pair of normal characters. This option will preserve them "
 "instead."
 msgstr ""
+"Sačuvaj ligature u ulaznom dokumentu. Ligatura je poseban način za "
+"prikazivanje parova slova kao što su ff, fi, fl, itd. Većina čitača ne "
+"podržava ligature u podrazumevanoj vrsti slova i malo je verovatno da će ih "
+"ispravno prikazati. U podrazumevanom stanju calibre će pretvoriti ligature u "
+"parove običnih slova. Ova opcija će ih sačuvati nepromenjene."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
@@ -1601,6 +1606,11 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
+"Kada se koristi SVG omot ova opcija će mu promeniti veličinu srazmerno "
+"raspoloživoj veličini ekrana, čuvajući originalne razmere (odnos širine i "
+"visine). Ovo znači da će se možda pojaviti beline u vrhu, ili na dnu strane, "
+"ali slika neće biti izobličena. Bez ove opcije slika može biti delimično "
+"izibličena, ali neće biti belina po ivicama."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
@@ -3264,7 +3274,7 @@ msgstr "Bez &SVG omota"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:52
 msgid "Preserve cover &aspect ratio"
-msgstr ""
+msgstr "Sačuvaj r&azmere omota"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:53
 msgid "Split files &larger than:"
@@ -3384,15 +3394,15 @@ msgstr "Kontrola izgleda izlaznog dokumenta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:30
 msgid "Original"
-msgstr ""
+msgstr "Originalno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:31
 msgid "Left align"
-msgstr ""
+msgstr "Levo poravnanje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:32
 msgid "Justify text"
-msgstr ""
+msgstr "Poravnanje sa obe strane"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:120
 msgid "&Disable font size rescaling"
@@ -3451,7 +3461,7 @@ msgstr "Dodatni &CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:136
 msgid "&Transliterate unicode characters to ASCII"
-msgstr ""
+msgstr "&Prevedi UNICODE znake u ASCII"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:137
 msgid "Insert &blank line"
@@ -3459,7 +3469,7 @@ msgstr "Ubaci &prazan red"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:138
 msgid "Keep &ligatures"
-msgstr ""
+msgstr "Sačuvaj &ligature"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -9362,7 +9372,7 @@ msgstr "Engleski (Irska)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (China)"
-msgstr ""
+msgstr "Engleski (Kina)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "Spanish (Paraguay)"
