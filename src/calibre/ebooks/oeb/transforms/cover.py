@@ -5,10 +5,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap
+import textwrap, cStringIO
 from urllib import unquote
 
 from lxml import etree
+try:
+    from PIL import Image as PILImage
+    PILImage
+except ImportError:
+    import Image as PILImage
 
 from calibre import __appname__, __version__, guess_type
 
@@ -28,9 +33,9 @@ class CoverManager(object):
             <body>
                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
                     xmlns:xlink="http://www.w3.org/1999/xlink"
-                    width="100%%" height="100%%" viewBox="0 0 600 800"
+                    width="100%%" height="100%%" viewBox="__viewbox__"
                     preserveAspectRatio="__ar__">
-                    <image width="600" height="800" xlink:href="%s"/>
+                    <image width="__width__" height="__height__" xlink:href="%s"/>
                 </svg>
             </body>
         </html>
@@ -93,7 +98,6 @@ class CoverManager(object):
         title = unicode(m.title[0])
         authors = [unicode(x) for x in m.creator if x.role == 'aut']
 
-        import cStringIO
         cover_file = cStringIO.StringIO()
         try:
             try:
@@ -142,6 +146,18 @@ class CoverManager(object):
             self.log.exception('Failed to generate default cover')
         return None
 
+    def inspect_cover(self, href):
+        from calibre.ebooks.oeb.base import urlnormalize
+        for x in self.oeb.manifest:
+            if x.href == urlnormalize(href):
+                try:
+                    raw = x.data
+                    f = cStringIO.StringIO(raw)
+                    im = PILImage.open(f)
+                    return im.size
+                except:
+                    self.log.exception('Failed to read image dimensions')
+        return None, None
 
     def insert_cover(self):
         from calibre.ebooks.oeb.base import urldefrag
@@ -152,6 +168,19 @@ class CoverManager(object):
                 href = g['cover'].href
             else:
                 href = self.default_cover()
+            width, height = self.inspect_cover(href)
+            if width is None or height is None:
+                self.log.warning('Failed to read cover dimensions')
+                width, height = 600, 800
+            if self.preserve_aspect_ratio:
+                width, height = 600, 800
+            self.svg_template = self.svg_template.replace('__viewbox__',
+                    '0 0 %d %d'%(width, height))
+            self.svg_template = self.svg_template.replace('__width__',
+                    str(width))
+            self.svg_template = self.svg_template.replace('__height__',
+                    str(height))
+
             if href is not None:
                 templ = self.non_svg_template if self.no_svg_cover \
                         else self.svg_template
