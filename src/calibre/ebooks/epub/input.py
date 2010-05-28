@@ -146,6 +146,10 @@ class EPUBInput(InputFormatPlugin):
         self.rationalize_cover(opf, log)
 
         self.optimize_opf_parsing = opf
+        for x in opf.itermanifest():
+            if x.get('media-type', '') == 'application/x-dtbook+xml':
+                raise ValueError(
+                    'EPUB files with DTBook markup are not supported')
 
         with open('content.opf', 'wb') as nopf:
             nopf.write(opf.render())
