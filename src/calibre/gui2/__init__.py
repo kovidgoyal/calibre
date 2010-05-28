@@ -556,6 +556,7 @@ class Application(QApplication):
                         border-radius: 10px;
                         opacity: 200;
                         background-color: #e1e1ff;
+                        color: black;
                     }
             ''')
 
