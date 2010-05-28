@@ -251,12 +251,12 @@ class ITUNES(DevicePlugin):
                 self.iTunes.delete(self.cached_books[path]['lib_book'])
                 self.update_needed = True
                 self.update_msg = "Deleted books from device"
-
             else:
                 undeletable_titles.append(self.cached_books[path]['title'])
 
         if undeletable_titles:
-            raise UserFeedback(_('You cannot delete purchased books. To do so delete them from the device itself. The books that could not be deleted are:'), details='\n'.join(undeletable_titles), level=UserFeedback.WARN)
+            raise UserFeedback(_('These books must be deleted on the device:'),
+                                  details='\n'.join(undeletable_titles), level=UserFeedback.WARN)
 
     def eject(self):
         '''
