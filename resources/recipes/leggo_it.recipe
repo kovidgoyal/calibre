@@ -57,9 +57,13 @@ class LeggoIT(BasicNewsRecipe):
         try:
             br.open(cover)
         except:
-            self.log("\nCover unavailable")
-            cover = 'http://www.leggo.it/img/logo-leggo2.gif'
-
+            cover='http://www.leggo.it/'+ year +  month + day + '/jpeg/LEGGO_ROMA_3.jpg'
+            br = BasicNewsRecipe.get_browser()
+            try:
+                br.open(cover)
+            except:
+                self.log("\nCover unavailable")
+                cover = 'http://www.leggo.it/img/logo-leggo2.gif'
         return cover
 
 
