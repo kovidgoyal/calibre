@@ -1,38 +1,47 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
-bbc.co.uk
+news.bbc.co.uk
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class BBC(BasicNewsRecipe):
-    title          = u'The BBC'
-    __author__     = 'Kovid Goyal ans Sujata Raman'
-    description    = 'Global news and current affairs from the British Broadcasting Corporation'
-    language = 'en'
+    title                  = 'The BBC'
+    __author__             = 'Darko Miletic'
+    description            = 'Global news and current affairs from the British Broadcasting Corporation'
+    oldest_article         = 2
+    max_articles_per_feed  = 100
+    no_stylesheets         = True
+    #delay                  = 1
+    use_embedded_content   = False
+    encoding               = 'utf8'
+    publisher              = 'BBC'
+    category               = 'news, UK, world'
+    language               = 'en_GB'
+    publication_type       = 'newsportal'
+    extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+    preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
 
-    no_stylesheets = True
-    remove_tags    = [dict(name='div', attrs={'class':'footer'}),
-                      {'id' : ['popstory','blq-footer']},
-                      {'class' : ['arrup','links','relatedbbcsites','arr','promobottombg','bbccom_visibility_hidden', 'sharesb', 'sib606', 'mvtb', 'storyextra', 'sidebar1', 'bbccom_text','promotopbg', 'gppromo','promotopbg','bbccom_display_none']},
-                        	]
+    conversion_options = {
+                             'comments'        : description
+                            ,'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                            ,'linearize_tables': True
+                         }
 
-    keep_only_tags = [dict(name='div', attrs={'class':'mainwrapper'})]
-
-    extra_css      = '''
-                        body{font-family:Arial,Helvetica,sans-serif; font-size:small; align:left}
-                        h1{font-size:large;}
-                        .sh{font-size:large; font-weight:bold}
-                        .cap{font-size:xx-small; }
-                        .lu{font-size:xx-small; }
-                        .ds{font-size:xx-small; }
-                        .mvb{font-size:xx-small;}
-                        .by1{font-size:x-small;  color:#666666}
-                        .byd{font-size:x-small;}
-                     '''
+    keep_only_tags    = [
+                           dict(attrs={'id'   :['meta-information','story-body']})
+                          ,dict(attrs={'class':['mxb'             ,'storybody' ]})
+                        ]
+    remove_tags       = [
+                           dict(name=['object','link','table'])
+                          ,dict(attrs={'class':['caption','caption full-width','story-actions','hidden','sharesb','audioInStoryC']})
+                        ]
+    remove_tags_after = dict(attrs={'class':'sharesb'})
+    remove_attributes = ['width','height']
 
     feeds          = [
                       ('News Front Page', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml'),
@@ -49,23 +58,4 @@ class BBC(BasicNewsRecipe):
                       ('Asia-Pacific', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/asia-pacific/rss.xml'),
                       ('Africa', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/africa/rss.xml'),
                     ]
-
-    def postprocess_html(self, soup, first):
-
-            for tag in soup.findAll(name= 'img', alt=""):
-                    tag.extract()
-
-            for item in soup.findAll(align = "right"):
-                del item['align']
-
-            for tag in soup.findAll(name=['table', 'tr', 'td']):
-                tag.name = 'div'
-
-            return soup
-
-
-
-  #  def print_version(self, url):
-  #      return url.replace('http://', 'http://newsvote.bbc.co.uk/mpapps/pagetools/print/')
-
 
