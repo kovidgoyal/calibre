@@ -106,7 +106,7 @@ class EPUBOutput(OutputFormatPlugin):
     recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
 
 
-    def workaround_webkit_quirks(self):
+    def workaround_webkit_quirks(self): # {{{
         from calibre.ebooks.oeb.base import XPath
         for x in self.oeb.spine:
             root = x.data
@@ -120,8 +120,9 @@ class EPUBOutput(OutputFormatPlugin):
             for pre in XPath('//h:pre')(body):
                 if not pre.text and len(pre) == 0:
                     pre.tag = 'div'
+    # }}}
 
-    def upshift_markup(self):
+    def upshift_markup(self): # {{{
         'Upgrade markup to comply with XHTML 1.1 where possible'
         from calibre.ebooks.oeb.base import XPath
         for x in self.oeb.spine:
@@ -135,6 +136,7 @@ class EPUBOutput(OutputFormatPlugin):
             for u in XPath('//h:u')(root):
                 u.tag = 'span'
                 u.set('style', 'text-decoration:underline')
+    # }}}
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
@@ -161,8 +163,10 @@ class EPUBOutput(OutputFormatPlugin):
         self.workaround_sony_quirks()
 
         if self.oeb.toc.count() == 0:
-            self.log.warn('This EPUB file has no Table of Contents. It will '
-                    'not validate via epubcheck')
+            self.log.warn('This EPUB file has no Table of Contents. '
+                    'Creating a default TOC')
+            first = iter(self.oeb.spine).next()
+            self.oeb.toc.add(_('Start'), first.href)
 
         from calibre.ebooks.oeb.base import OPF
         identifiers = oeb.metadata['identifier']
@@ -202,7 +206,7 @@ class EPUBOutput(OutputFormatPlugin):
                 self.log.info('EPUB extracted to', opts.extract_to)
             epub.close()
 
-    def encrypt_fonts(self, uris, tdir, uuid):
+    def encrypt_fonts(self, uris, tdir, uuid): # {{{
         from binascii import unhexlify
 
         key = re.sub(r'[^a-fA-F0-9]', '', uuid)
@@ -247,6 +251,7 @@ class EPUBOutput(OutputFormatPlugin):
                     ans += (u'\n'.join(fonts)).encode('utf-8')
                     ans += '\n</encryption>'
                     return ans
+    # }}}
 
     def condense_ncx(self, ncx_path):
         if not self.opts.pretty_print:
@@ -259,7 +264,7 @@ class EPUBOutput(OutputFormatPlugin):
             compressed = etree.tostring(tree.getroot(), encoding='utf-8')
             open(ncx_path, 'wb').write(compressed)
 
-    def workaround_ade_quirks(self):
+    def workaround_ade_quirks(self): # {{{
         '''
         Perform various markup transforms to get the output to render correctly
         in the quirky ADE.
@@ -388,8 +393,9 @@ class EPUBOutput(OutputFormatPlugin):
         else:
             self.oeb.log.warn('No stylesheet found')
 
+    # }}}
 
-    def workaround_sony_quirks(self):
+    def workaround_sony_quirks(self): # {{{
         '''
         Perform toc link transforms to alleviate slow loading.
         '''
@@ -436,3 +442,6 @@ class EPUBOutput(OutputFormatPlugin):
 
         if self.oeb.toc:
             simplify_toc_entry(self.oeb.toc)
+
+    # }}}
+

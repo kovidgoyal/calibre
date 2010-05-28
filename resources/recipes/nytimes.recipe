@@ -9,14 +9,13 @@ import re
 import time
 from calibre import entity_to_unicode
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString, \
-Comment, BeautifulStoneSoup
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString, Comment
 
 class NYTimes(BasicNewsRecipe):
 
     title       = 'New York Times Top Stories'
     __author__  = 'GRiker'
-    language = 'en'
+    language = _('English')
     description = 'Top Stories from the New York Times'
 
     # List of sections typically included in Top Stories.  Use a keyword from the
@@ -257,6 +256,7 @@ class NYTimes(BasicNewsRecipe):
         # Fetch the outer table
         table = soup.find('table')
         previousTable = table
+        contentTable = None
 
         # Find the deepest table containing the stories
         while True :
@@ -388,6 +388,10 @@ class NYTimes(BasicNewsRecipe):
         return ans
 
     def preprocess_html(self, soup):
+        # Skip ad pages before actual article
+        skip_tag = soup.find(True, {'name':'skip'})
+        if skip_tag is not None:
+            soup = self.index_to_soup(skip_tag.parent['href'])
         return self.strip_anchors(soup)
 
     def postprocess_html(self,soup, True):

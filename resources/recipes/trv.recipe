@@ -1,0 +1,31 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Vadim Dyadkin dyadkin@lns.pnpi.spb.ru'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Trv(BasicNewsRecipe):
+
+
+     title          = u'\u0422\u0440\u043e\u0438\u0446\u043a\u0438\u0439 \u0432\u0430\u0440\u0438\u0430\u043d\u0442'
+     language = 'ru'
+     __author__ = 'Vadim Dyadkin'
+     oldest_article = 30
+     max_articles_per_feed = 100
+     recursion = 4
+     no_stylesheets = True
+     simultaneous_downloads = 1
+
+     keep_only_tags = [dict(name='h1'),
+                       dict(name='div', attrs={'id' : 'content'})
+                      ]
+
+     remove_tags = [dict(name='div', attrs={'class' : ['dateright',
+ 'postmeta', 'adsense-post', 'comments', 'nocomments', 'widgetarea',
+ 'breadcrumb']}), {'id' : ['sidebar', 'l_sidebar', 'r_sidebar', 'footer',
+ 'homepageright0']}, {'style' : 'clear:both;'},
+                    dict(name='ul'),
+                    dict(name='h2')
+                 ]
+
+     feeds          = [(u'\u0422\u0440\u043e\u0438\u0446\u043a\u0438\u0439 \u0432\u0430\u0440\u0438\u0430\u043d\u0442',
+                         u'http://trv-science.ru/feed/')]

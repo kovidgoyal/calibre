@@ -117,7 +117,7 @@ class EPUBInput(InputFormatPlugin):
         encfile = os.path.abspath(os.path.join('META-INF', 'encryption.xml'))
         opf = None
         for f in walk(u'.'):
-            if f.lower().endswith('.opf'):
+            if f.lower().endswith('.opf') and '__MACOSX' not in f:
                 opf = os.path.abspath(f)
                 break
         path = getattr(stream, 'name', 'stream')
@@ -146,6 +146,10 @@ class EPUBInput(InputFormatPlugin):
         self.rationalize_cover(opf, log)
 
         self.optimize_opf_parsing = opf
+        for x in opf.itermanifest():
+            if x.get('media-type', '') == 'application/x-dtbook+xml':
+                raise ValueError(
+                    'EPUB files with DTBook markup are not supported')
 
         with open('content.opf', 'wb') as nopf:
             nopf.write(opf.render())
