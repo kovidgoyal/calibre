@@ -117,7 +117,7 @@ class EPUBInput(InputFormatPlugin):
         encfile = os.path.abspath(os.path.join('META-INF', 'encryption.xml'))
         opf = None
         for f in walk(u'.'):
-            if f.lower().endswith('.opf'):
+            if f.lower().endswith('.opf') and '__MACOSX' not in f:
                 opf = os.path.abspath(f)
                 break
         path = getattr(stream, 'name', 'stream')
