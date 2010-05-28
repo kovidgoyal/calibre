@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-21 22:47+0000\n"
-"PO-Revision-Date: 2010-05-21 09:40+0000\n"
-"Last-Translator: pontios <Unknown>\n"
+"PO-Revision-Date: 2010-05-22 17:30+0000\n"
+"Last-Translator: MasterCom7 <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-22 03:56+0000\n"
+"X-Launchpad-Export-Date: 2010-05-23 03:55+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -181,6 +181,8 @@ msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
+"Κωδικοποίηση χαρακτήρων για τα εισαγόμενα αρχεία HTML. Συνήθεις επιλογές "
+"συμπεριλαμβάνουν : cp1252, latin1, iso-8859-1 και utf-8"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:57
 msgid ""
@@ -188,10 +190,12 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
+"Δημιουργία μιας αρχειοθήκης PMLZ που περιέχει το αρχείο PML και όλες τις "
+"εικόνες στον κατάλογο pmlname_img ή images"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:89
 msgid "Extract cover from comic files"
-msgstr ""
+msgstr "Εξαγωγή εξωφύλλου από αρχεία κόμικς"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:116
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
@@ -212,15 +216,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:296
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:306
 msgid "Read metadata from %s files"
-msgstr ""
+msgstr "Ανάγνωση συνδεδομένων από αρχεία %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:265
 msgid "Read metadata from ebooks in RAR archives"
-msgstr ""
+msgstr "Ανάγνωση συνδεδομένων από ηλεκτρονικά βιβλία μέσα σε αρχειοθήκες RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:317
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr ""
+msgstr "Ανάγνωση συνδεδομένων από ηλεκτρονικά βιβλία μέσα σε αρχειοθήκες ZIP"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:328
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:338
@@ -229,15 +233,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:381
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:391
 msgid "Set metadata in %s files"
-msgstr ""
+msgstr "Καθορισμός συνδεδομένων σε αρχεία %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:359
 msgid "Set metadata from %s files"
-msgstr ""
+msgstr "Καθορισμός συνδεδομένων από αρχεία %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr ""
+msgstr "Είσοδος μετατροπής"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:125
 msgid ""
@@ -246,100 +250,113 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
+"Προσδιορισμός κωδικοποίησης χαρακτήρων του εισαγόμενου εγγράφου. Αυτή η "
+"επιλογή, αν καθορισθεί, θα έχει προτεραιότητα έναντι οποιασδήποτε άλλης "
+"κωδικοποίησης που έχει δηλωθεί από το ίδιο το έγγραφο. Ιδιαιτέρως χρήσιμο "
+"για έγγραφα που δεν δηλώνουν κωδικοποίηση ή διαθέτουν εσφαλμένη δήλωση "
+"κωδικοποίησης."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:241
 msgid "Conversion Output"
-msgstr ""
+msgstr "Έξοδος μετατροπής"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:255
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
+"Αν προσδιορισθεί, το πρόσθετο εξόδου θα προσπαθήσει να δημιουργήσει "
+"εξαγόμενα όσο το δυνατόν ανθρωπίνως αναγνώσιμα. Για ορισμένα πρόσθετα εξόδου "
+"μπορεί να μην έχει κανένα αποτέλεσμα."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:45
 msgid "Input profile"
-msgstr ""
+msgstr "Περίγραμμα εισόδου"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
 msgstr ""
+"Αυτό το περίγραμμα προσπαθεί να παρέχει λογικά προτερόθετα (αρχικές τιμές) "
+"και είναι χρήσιμο αν δε γνωρίζετε τίποτα για το εισαγόμενο έγγραφο."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:57
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:258
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
+"Αυτό το περίγραμμα προορίζεται για τη σειρά SONY PRS. Τα 500/505/600/700 κλπ."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:69
 msgid "This profile is intended for the SONY PRS 300."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για το SONY PRS 300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:78
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:292
 msgid "This profile is intended for the SONY PRS-900."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για το SONY PRS-900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:86
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:322
 msgid "This profile is intended for the Microsoft Reader."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για το Microsoft Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:97
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:333
 msgid "This profile is intended for the Mobipocket books."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για τα βιβλία Mobipocket."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:110
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:346
 msgid "This profile is intended for the Hanlin V3 and its clones."
 msgstr ""
+"Αυτό το περίγραμμα προορίζεται για το Hanlin V3 και τους κλώνους του."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:122
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:358
 msgid "This profile is intended for the Hanlin V5 and its clones."
 msgstr ""
+"Αυτό το περίγραμμα προορίζεται για το Hanlin V5 και τους κλώνους του."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:132
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:366
 msgid "This profile is intended for the Cybook G3."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για το Cybook G3."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:145
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:379
 msgid "This profile is intended for the Cybook Opus."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για το Cybook Opus."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:157
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:390
 msgid "This profile is intended for the Amazon Kindle."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για το Amazon Kindle."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:169
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:425
 msgid "This profile is intended for the Irex Illiad."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για το Irex Illiad."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:181
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:438
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για το IRex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:194
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:452
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για το IRex Digital Reader 800."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:206
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:466
 msgid "This profile is intended for the B&N Nook."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για το B&N Nook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:226
 msgid "Output profile"
-msgstr ""
+msgstr "Περίγραμμα εξόδου"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:230
 msgid ""
@@ -347,57 +364,62 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
+"Αυτό το περίγραμμα προσπαθεί να παρέχει λογικά προτερόθετα (αρχικές τιμές) "
+"και είναι χρήσιμο για την παραγωγή εγγράφων που προορίζονται να διαβαστούν "
+"σε Η/Υ ή σε μια ποικιλία συσκευών."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:248
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr ""
+msgstr "Προορίζεται για το iPad και παρόμοιες συσκευές με ανάλυση 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:271
 msgid "This profile is intended for the Kobo Reader."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για το Kobo Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:283
 msgid "This profile is intended for the SONY PRS-300."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για το SONY PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:301
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για το JetBook 5 ιντσών."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:310
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
+"Αυτό το περίγραμμα προορίζεται για τη σειρά SONY PRS. Τα 500/505/700 κλπ., "
+"σε οριζόντια διάταξη (landscape). Χρήσιμο κυρίως για κόμικς."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:408
 msgid "This profile is intended for the Amazon Kindle DX."
-msgstr ""
+msgstr "Αυτό το περίγραμμα προορίζεται για το Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
-msgstr ""
+msgstr "Εγκατεστημένα πρόσθετα"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
-msgstr ""
+msgstr "Απεικόνιση για πρόσθετα αρχειοτύπων"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:33
 msgid "Local plugin customization"
-msgstr ""
+msgstr "Τοπική εξατομίκευση προσθέτων"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Disabled plugins"
-msgstr ""
+msgstr "Απενεργοποιημένα πρόσθετα"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:77
 msgid "No valid plugin found in "
-msgstr ""
+msgstr "Δεν βρέθηκε έγκυρο πρόσθετο "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:278
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr ""
+msgstr "Η αρχικοποίηση του πρόσθετου %s απέτυχε με traceback:"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:433
 msgid ""
@@ -406,20 +428,30 @@ msgid ""
 "    Customize calibre by loading external plugins.\n"
 "    "
 msgstr ""
+"    Επιλογές %prog\n"
+"\n"
+"    Εξατομίκευση του calibre με φόρτωση εξωτερικών προσθέτων.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:439
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr ""
+"Προσθήκη ενός προσθέτου με προσδιορισμό της διεύθυνσης (path) του αρχείου "
+"zip που το περιέχει."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:441
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
 msgstr ""
+"Αφαίρεση εξατομικευμένων προσθέτων, ονομαστικά. Δεν επηρεάζει τα "
+"ενσωματωμένα πρόσθετα"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:443
 msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
 msgstr ""
+"Εξατομίκευση προσθέτου. Προσδιόρισε όνομα προσθέτου και στοιχειοσειρά "
+"εξατομίκευσης χωρισμένα με κόμμα."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:445
 msgid "List all installed plugins"
@@ -427,33 +459,35 @@ msgstr "Εμφάνιση όλων των εγκατεστημένων πρόσθ
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:447
 msgid "Enable the named plugin"
-msgstr ""
+msgstr "Ενεργοποίηση του ονομαζόμενου προσθέτου"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:449
 msgid "Disable the named plugin"
-msgstr ""
+msgstr "Απενεργοποίηση του ονομαζόμενου προσθέτου"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
-msgstr ""
+msgstr "Επικοινωνία με τηλέφωνα Android."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:39
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
+"Σειρά καταλόγων στη συσκευή, χωρισμένων με κόμμα, προς αποστολή ηλεκτρονικών "
+"βιβλίων. Ο πρώτος στη σειρά θα χρησιμοποιηθεί."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:67
 msgid "Communicate with S60 phones."
-msgstr ""
+msgstr "Επικοινωνία με τηλέφωνα S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το Binatone Readme eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
-msgstr ""
+msgstr "Επικοινωνία με το «έξυπνο» τηλέφωνο Blackberry."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
@@ -463,113 +497,113 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το Cybook Gen 3 / Opus eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
 msgid "Communicate with the EB600 eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με τον ηλ.αναγνώστη EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr ""
+msgstr "Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr ""
+msgstr "Επικοινωνία με το Entourage Edge."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με τον ηλ.αναγνώστη ESlick."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
-msgstr ""
+msgstr "Επικοινωνία με τους ηλ.αναγνώστες Hanlin V3."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:95
 msgid "Communicate with Hanlin V5 eBook readers."
-msgstr ""
+msgstr "Επικοινωνία με τους ηλ.αναγνώστες Hanlin V5."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:114
 msgid "Communicate with the BOOX eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με τον ηλ.αναγνώστη BOOX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:18
 msgid "Communicate with the Hanvon N520 eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με τον ηλ.αναγνώστη Hanvon N520."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:41
 msgid "Communicate with the SpringDesign Alex eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με τον ηλ.αναγνώστη SpringDesign Alex."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:57
 msgid "Communicate with the Azbooka"
-msgstr ""
+msgstr "Επικοινωνία με το Azbooka"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:70
 msgid "Communicate with the Elonex EB 511 eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το Elonex EB 511 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το IRex Iliad eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:29
 msgid "John Schember"
-msgstr ""
+msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:23
 msgid "Device Interface"
-msgstr ""
+msgstr "Διεπαφή συσκευής"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το ηλ.αναγνωστήριο IRex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:42
 msgid "Communicate with the IRex Digital Reader 800"
-msgstr ""
+msgstr "Επικοινωνία με το IRex Digital Reader 800"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iriver/driver.py:15
 msgid "Communicate with the Iriver Story reader."
-msgstr ""
+msgstr "Επικοινωνία με το Iriver Story reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:20
 msgid "Communicate with the JetBook eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το JetBook eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:21
 msgid "Communicate with the Kindle eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το Kindle eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:152
 msgid "Communicate with the Kindle 2 eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το Kindle 2 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:162
 msgid "Communicate with the Kindle DX eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το Kindle DX eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:15
 msgid "Communicate with the Palm Pre"
-msgstr ""
+msgstr "Επικοινωνία με το Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:35
 msgid "Communicate with the Kobo Reader"
-msgstr ""
+msgstr "Επικοινωνία με το Kobo Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:56
 msgid "Communicate with the Booq Avant"
-msgstr ""
+msgstr "Επικοινωνία με το Booq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr ""
+msgstr "Επικοινωνία με το Nokia 770 internet tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810 internet tablet."
-msgstr ""
+msgstr "Επικοινωνία με το Nokia 810 internet tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
@@ -577,15 +611,15 @@ msgstr "The Nook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:21
 msgid "Communicate with the Nook eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το Nook eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το Nuut2 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:89
 msgid "Communicate with the Sony PRS-500 eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το Sony PRS-500 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:150
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:104
@@ -599,24 +633,26 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:80
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:89
 msgid "Getting list of books on device..."
-msgstr "Λήψη λίστας βιβλίων στη συσκευή..."
+msgstr "Λήψη καταλόγου βιβλίων στη συσκευή..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
 msgid "Communicate with the Sony PRS-300/505/500 eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το Sony PRS-300/505/500 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:58
 msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device. Possibilities include: "
 msgstr ""
+"Κατάλογος πεδίων συνδεδομένων, χωρισμένων με κόμμα, στη συσκευή, προς "
+"μετατροπή σε συλλογές. Οι πιθανότητες συμπεριλαμβάνουν: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:149
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:151
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:115
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:117
 msgid "Transferring books to device..."
-msgstr "Μεταφορά βιβλίων στη συεκυή..."
+msgstr "Μεταφορά βιβλίων στη συσκευή..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:189
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:196
@@ -628,71 +664,74 @@ msgstr "Αφαίρεση βιβλίων από τη συσκευή..."
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:224
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:176
 msgid "Sending metadata to device..."
-msgstr ""
+msgstr "Αποστολή συνδεδομένων στη συσκευή..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:230
 msgid "Communicate with the Sony PRS-600/700/900 eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το Sony PRS-600/700/900 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με το Samsung SNE eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3 reader."
-msgstr ""
+msgstr "Επικοινωνία με το Teclast K3 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:45
 msgid "Communicate with the Newsmy reader."
-msgstr ""
+msgstr "Επικοινωνία με το Newsmy reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:60
 msgid "Communicate with the iPapyrus reader."
-msgstr ""
+msgstr "Επικοινωνία με το iPapyrus reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:252
 msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr ""
+msgstr "Αδύνατον να εντοπιστεί ο σκληρός δίσκος %s. Δοκιμάστε επανεκκίνηση."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:425
 msgid "Unable to detect the %s mount point. Try rebooting."
 msgstr ""
+"Αδύνατον να εντοπιστεί το σημείο εφαρμογής %s. Δοκιμάστε επανεκκίνηση."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:490
 msgid "Unable to detect the %s disk drive."
-msgstr ""
+msgstr "Αδύνατον να εντοπιστεί ο σκληρός δίσκος %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:583
 msgid "Could not find mount helper: %s."
-msgstr ""
+msgstr "Δεν βρέθηκε ο βοηθός εφαρμογής: %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:595
 msgid ""
 "Unable to detect the %s disk drive. Your  kernel is probably exporting a "
 "deprecated version of SYSFS."
 msgstr ""
+"Αδύνατον να εντοπιστεί ο σκληρός δίσκος %s. Είναι πιθανό ο πυρήνας σας "
+"(kernel) να εξαγάγει μια παρωχημένη έκδοση του SYSFS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:603
 msgid "Unable to mount main memory (Error code: %d)"
-msgstr ""
+msgstr "Αδύνατον να εφαρμοστεί η κύρια μνήμη (Κώδικας σφάλματος : %d)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:740
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:742
 msgid "The reader has no storage card in this slot."
-msgstr ""
+msgstr "Δεν υπάρχει κάρτα αποθήκευσης στην υποδοχή του αναγνώστη."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:744
 msgid "Selected slot: %s is not supported."
-msgstr ""
+msgstr "Η επιλεγμένη υποδοχή: %s δεν υποστηρίζεται."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:777
 msgid "There is insufficient free space in main memory"
-msgstr ""
+msgstr "Δεν υπάρχει αρκετός χώρος στην κύρια μνήμη."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:779
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:781
 msgid "There is insufficient free space on the storage card"
-msgstr ""
+msgstr "Δεν υπάρχει αρκετός χώρος στην κάρτα αποθήκευσης"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:811
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:817
@@ -710,114 +749,116 @@ msgstr "Ρύθμιση συσκευής"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:28
 msgid "settings for device drivers"
-msgstr ""
+msgstr "Ρυθμίσεις για οδηγούς συσκευών"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:30
 msgid "Ordered list of formats the device will accept"
 msgstr ""
+"Ταξινομημένος κατάλογος των μορφοτύπων (format) που δέχεται η συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:32
 msgid "Place files in sub directories if the device supports them"
-msgstr ""
+msgstr "Βάλε τα αρχεία σε υποφακέλους, αν υποστηρίζονται από τη συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:78
 msgid "Read metadata from files on device"
-msgstr ""
+msgstr "Ανάγνωση συνδεδομένων από τα αρχεία της συσκευής"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:36
 msgid "Template to control how books are saved"
-msgstr ""
+msgstr "Σχεδιότυπο που ελέγχει πως αποθηκεύονται τα βιβλία"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:80
 msgid "Extra customization"
-msgstr ""
+msgstr "Πρόσθετη εξατομίκευση"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:28
 msgid "Communicate with an eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με έναν ηλ.αναγνώστη"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:36
 msgid "Get device information..."
-msgstr "Λήψη πληροφοριών συσκευής..."
+msgstr "Λήψη στοιχείων συσκευής"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:132
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:140
 msgid "Adding books to device metadata listing..."
-msgstr ""
+msgstr "Προσθήκη βιβλίων στον κατάλογο συνδεδομένων της συσκευής..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:165
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:170
 msgid "Removing books from device metadata listing..."
-msgstr ""
+msgstr "Αφαίρεση βιβλίων από τον κατάλογο συνδεδομένων της συσκευής..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:41
 msgid "%prog [options] mybook.chm"
-msgstr ""
+msgstr "%prog [επιλογές] mybook.chm"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:42
 msgid "Output directory. Defaults to current directory"
-msgstr ""
+msgstr "Κατάλογος εξόδου. Αρχικά έχει οριστεί ο τρέχων κατάλογος"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:45
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
 msgid "Set the book title"
-msgstr ""
+msgstr "Καθορισμός τίτλου βιβλίου"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:47
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
 msgid "Set sort key for the title"
-msgstr ""
+msgstr "Καθορισμός κλειδιού ταξινόμησης για τον τίτλο"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
 msgid "Set the author"
-msgstr ""
+msgstr "Καθορισμός συγγραφέα"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:51
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 msgid "Set sort key for the author"
-msgstr ""
+msgstr "Καθορισμός κλειδιού ταξινόμησης για τον συγγραφέα"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:53
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:597
 msgid "The category this book belongs to. E.g.: History"
-msgstr ""
+msgstr "Κατηγορία στην οποία ανήκει αυτό το βιβλίο. π.χ.: Ιστορία"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:56
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:600
 msgid "Path to a graphic that will be set as this files' thumbnail"
 msgstr ""
+"Διεύθυνση εικόνας που θα χρησιμοποιηθεί ως εικονίδιο αυτού του αρχείου"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:59
 msgid "Path to a txt file containing a comment."
-msgstr ""
+msgstr "Διεύθυνση αρχείοου txt που περιέχει κάποιο σχόλιο"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:62
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
 msgid "Extract thumbnail from LRF file"
-msgstr ""
+msgstr "Εξαγωγή εικονιδίου από αρχείο LRF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:63
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:608
 msgid "Set the publisher"
-msgstr ""
+msgstr "Καθορισμός εκδότη"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:64
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:609
 msgid "Set the book classification"
-msgstr ""
+msgstr "Καθορισμός κατηγοριοποίησης βιβλίου"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:65
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:610
 msgid "Set the book creator"
-msgstr ""
+msgstr "Καθορισμός δημιουργού του βιβλίου"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:66
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:611
 msgid "Set the book producer"
-msgstr ""
+msgstr "Καθορισμός παραγωγού του βιβλίου"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:68
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:613
@@ -825,19 +866,22 @@ msgid ""
 "Extract cover from LRF file. Note that the LRF format has no defined cover, "
 "so we use some heuristics to guess the cover."
 msgstr ""
+"Εξαγωγή εξωφύλλου από αρχείο LRF. Σημειώστε ότι τα αρχεία LRF δεν έχουν "
+"προκαθορισμένο εξώφυλλο, γι'αυτό χρησιμοποιούμε ευρετικές μεθόδους "
+"(heuristics) για να μαντέψουμε το εξώφυλλο."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:70
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:615
 msgid "Set book ID"
-msgstr ""
+msgstr "Καθορισμός ταυτότητας (ID) του βιβλίου"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:72
 msgid "Set font delta"
-msgstr ""
+msgstr "Καθορισμός του δέλτα της γραμματοσειράς"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:201
 msgid "Rendered %s"
-msgstr ""
+msgstr "%s επεξεργάσθηκε"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:204
 msgid "Failed %s"
@@ -849,6 +893,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Αποτυχία στην επεξεργασία του κόμικ: \n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:279
 msgid ""
@@ -856,53 +903,74 @@ msgid ""
 "of less than 256 may result in blurred text on your device if you are "
 "creating your comics in EPUB format."
 msgstr ""
+"Αριθμός χρωμάτων για μετατροπή α/μ εικόνας (grayscale) . Αρχική τιμή: "
+"%default. Αν οι τιμή είναι μικρότερη από 256 μπορεί το κείμενο στη συσκευή "
+"σας να εμφανίζεται θολό αν δημιουργείτε τα κόμικς σας σε μορφότυπο EPUB."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:283
 msgid ""
 "Disable normalize (improve contrast) color range for pictures. Default: False"
 msgstr ""
+"Απενεργοποίηση κανονικοποίησης (βελτίωση της αντίθεσης) της χρωματικής "
+"κλίμακας των εικόνων. Αρχική τιμή: Μη Αληθές"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:286
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
 msgstr ""
+"Διατήρηση των αναλογιών της εικόνας. Αρχική τιμή: να καταλαμβάνει όλη την "
+"οθόνη"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:288
 msgid "Disable sharpening."
-msgstr ""
+msgstr "Απενεργοποίηση όξυνσης"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:290
 msgid ""
 "Disable trimming of comic pages. For some comics, trimming might remove "
 "content as well as borders."
 msgstr ""
+"Απενεργοποίηση ψαλιδίσματος των σελίδων κόμικς. Σε κάποια κόμικς το "
+"ψαλίδισμα ενδέχεται να αφαιρέσει μέρος του περιεχομένου μαζί με τα περιθώρια"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:293
 msgid "Don't split landscape images into two portrait images"
 msgstr ""
+"Να μη διασπώνται οι οριζόντιες εικόνες (landscape) σε δύο κάθετες εικόνες "
+"(portrait)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:295
 msgid ""
 "Keep aspect ratio and scale image using screen height as image width for "
 "viewing in landscape mode."
 msgstr ""
+"Διατήρηση των αναλογιών των εικόνων και κλιμάκωση τους χρησιμοποιώντας για "
+"πλάτος της εικόνας το ύψος της οθόνης, όταν η θέαση είναι οριζόντια "
+"(landscape)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:298
 msgid ""
 "Used for right-to-left publications like manga. Causes landscape pages to be "
 "split into portrait pages from right to left."
 msgstr ""
+"Χρησιμοποιείται για έντυπα όπου η ανάγνωση γίνεται από δεξιά προς αριστερά, "
+"όπως τα μάνγκα. Προκαλεί διάσπαση των οριζόντιων σελίδων (landscape) σε "
+"κάθετες σελίδες (portrait), από δεξιά προς αριστερά."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:302
 msgid ""
 "Enable Despeckle. Reduces speckle noise. May greatly increase processing "
 "time."
 msgstr ""
+"Ενεργοποίηση Αποκηλίδωσης. Μειώνει το θόρυβο από μικροκηλίδες. Ο χρόνος "
+"επεξεργασίας μπορεί να αυξηθεί κατά πολύ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:305
 msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
 msgstr ""
+"Να μην ταξινομούνται ονομαστικά τα αρχεία που βρίσκονται σε ένα κόμικ. "
+"Αντ'αυτού να χρησιμοποιείται η σειρά με την οποία προστέθηκαν στο κόμικ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:309
 msgid ""
@@ -910,14 +978,17 @@ msgid ""
 "experiment to see which format gives you optimal size and look on your "
 "device."
 msgstr ""
+"Το μορφότυπο (format) στο οποίο μετατρέπονται οι εικόνες στο δημιουργηθέν "
+"ηλ.βιβλίο. Μπορείτε να πειραματιστείτε για το ποιό μορφότυπο αποδίδει το "
+"βέλτιστο μέγεθος και εμφάνιση στη συσκευή σας."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:313
 msgid "Apply no processing to the image"
-msgstr ""
+msgstr "Να μην επεξεργαστεί η εικόνα"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:315
 msgid "Do not convert the image to grayscale (black and white)"
-msgstr ""
+msgstr "Να μην μετατραπεί η εικόνα σε α/μ (grayscale)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:452
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:463
@@ -5279,7 +5350,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:124
 msgid " "
-msgstr ""
+msgstr " "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:125
 msgid ""
