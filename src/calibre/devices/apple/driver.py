@@ -17,6 +17,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import Config, config_dir
 from calibre.utils.date import parse_date
 from calibre.utils.logging import Log
+from calibre.devices.errors import UserFeedback
 
 from PIL import Image as PILImage
 
@@ -26,30 +27,18 @@ if isosx:
 #if iswindows:
 #    import win32com.client
 
-class UserInteractionRequired(Exception):
-    pass
-
-class UserFeedback(Exception):
-   INFO = 0
-   WARN = 1
-   ERROR = 2
-
-   def __init__(self, msg, details, level):
-       Exception.__init__(self, msg)
-       self.level = level
-       self.details = details
-       self.msg = msg
-
 class ITUNES(DevicePlugin):
+
     name = 'Apple device interface'
     gui_name = 'Apple device'
     icon = I('devices/ipad.png')
     description    = _('Communicate with iBooks through iTunes.')
-    supported_platforms = ['windows','osx']
+    supported_platforms = ['osx']
     author = 'GRiker'
     driver_version = '0.1'
 
-    OPEN_FEEDBACK_MESSAGE = _('Apple device detected, launching iTunes')
+    OPEN_FEEDBACK_MESSAGE = _(
+        'Apple device detected, launching iTunes, please wait...')
 
     FORMATS = ['epub']
 

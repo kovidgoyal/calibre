@@ -22,8 +22,19 @@ class DeviceError(ProtocolError):
     """ Raised when device is not found """
     def __init__(self, msg=None):
         if msg is None:
-            msg = "Unable to find SONY Reader. Is it connected?" 
+            msg = "Unable to find SONY Reader. Is it connected?"
         ProtocolError.__init__(self, msg)
+
+class UserFeedback(DeviceError):
+   INFO = 0
+   WARN = 1
+   ERROR = 2
+
+   def __init__(self, msg, details, level):
+       Exception.__init__(self, msg)
+       self.level = level
+       self.details = details
+       self.msg = msg
 
 class DeviceBusy(ProtocolError):
     """ Raised when device is busy """
@@ -57,8 +68,8 @@ class ControlError(ProtocolError):
         self.query = query
         self.response = response
         ProtocolError.__init__(self, desc)
-    
-    def __str__(self):    
+
+    def __str__(self):
         if self.query and self.response:
             return "Got unexpected response:\n" + \
            "query:\n"+str(self.query.query)+"\n"+\

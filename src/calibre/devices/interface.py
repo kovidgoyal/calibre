@@ -47,6 +47,10 @@ class DevicePlugin(Plugin):
     # Used by gui2.ui:annotations_fetched() and devices.kindle.driver:get_annotations()
     UserAnnotation = namedtuple('Annotation','type, value')
 
+    #: GUI displays this as a message if not None. Useful if opening can take a
+    #: long time
+    OPEN_FEEDBACK_MESSAGE = None
+
     @classmethod
     def get_gui_name(cls):
         if hasattr(cls, 'gui_name'):
