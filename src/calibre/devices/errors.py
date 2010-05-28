@@ -27,7 +27,7 @@ class DeviceError(ProtocolError):
 
 class UserFeedback(DeviceError):
    INFO = 0
-   WARN = 1
+   WARN = WARNING = 1
    ERROR = 2
 
    def __init__(self, msg, details, level):
