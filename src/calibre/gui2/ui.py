@@ -234,9 +234,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         ####################### Setup device detection ########################
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
-                self.job_manager)
-        self.device_manager.open_feedback.connect(self.status.showMessage,
-                type=Qt.QueuedConnection)
+                self.job_manager, Dispatcher(self.status_bar.showMessage))
         self.device_manager.start()
 
 
