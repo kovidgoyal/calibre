@@ -81,6 +81,8 @@ class DeviceJob(BaseJob):
 
 class DeviceManager(Thread):
 
+    open_feedback = pyqtSignal(object)
+
     def __init__(self, connected_slot, job_manager, sleep_time=2):
         '''
         :sleep_time: Time to sleep between device probes in secs
@@ -114,6 +116,8 @@ class DeviceManager(Thread):
 
     def do_connect(self, connected_devices, is_folder_device):
         for dev, detected_device in connected_devices:
+            if dev.OPEN_FEEDBACK_MESSAGE is not None:
+                self.open_feedback.emit(dev.OPEN_FEEDBACK_MESSAGE)
             dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)
             try:

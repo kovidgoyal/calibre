@@ -16,13 +16,15 @@ class Wired(BasicNewsRecipe):
     publisher             = 'Conde Nast Digital'
     category              = 'news, games, IT, gadgets'
     oldest_article        = 32
+    delay                 = 1
     max_articles_per_feed = 100
     no_stylesheets        = True
     encoding              = 'utf-8'
     use_embedded_content  = False
     masthead_url          = 'http://www.wired.com/images/home/wired_logo.gif'
     language              = 'en'
-    extra_css             = ' body{font-family: sans-serif} .entryDescription li {display: inline; list-style-type: none} '
+    publication_type      = 'magazine'
+    extra_css             = ' body{font-family: Arial,Verdana,sans-serif} .entryDescription li {display: inline; list-style-type: none} '
     index                 = 'http://www.wired.com/magazine/'
 
     preprocess_regexps = [(re.compile(r'<meta name="Title".*<title>', re.DOTALL|re.IGNORECASE),lambda match: '<title>')]
@@ -38,6 +40,8 @@ class Wired(BasicNewsRecipe):
     remove_tags = [
                      dict(name=['object','embed','iframe','link'])
                     ,dict(name='div', attrs={'class':['podcast_storyboard','tweetmeme_button']})
+                    ,dict(attrs={'id':'ff_bottom_nav'})
+                    ,dict(name='a',attrs={'href':'http://www.wired.com/app'})
                   ]
     remove_attributes = ['height','width']
 
@@ -72,17 +76,18 @@ class Wired(BasicNewsRecipe):
            farticles = []
            for item in features.findAll('div',attrs={'class':'section'}):
                divurl = item.find('div',attrs={'class':'feature-header'})
-               divdesc = item.find('div',attrs={'class':'feature-text'})
-               url   = 'http://www.wired.com' + divurl.a['href']
-               title = self.tag_to_string(divurl.a)
-               description = self.tag_to_string(divdesc)
-               date  = strftime(self.timefmt)
-               farticles.append({
-                                  'title'      :title
-                                 ,'date'       :date
-                                 ,'url'        :url
-                                 ,'description':description
-                                })
+               if divurl:
+                   divdesc = item.find('div',attrs={'class':'feature-text'})
+                   url   = 'http://www.wired.com' + divurl.a['href']
+                   title = self.tag_to_string(divurl.a)
+                   description = self.tag_to_string(divdesc)
+                   date  = strftime(self.timefmt)
+                   farticles.append({
+                                      'title'      :title
+                                     ,'date'       :date
+                                     ,'url'        :url
+                                     ,'description':description
+                                    })
            totalfeeds.append(('Featured Articles', farticles))
         #department feeds
         departments = ['rants','start','test','play','found']

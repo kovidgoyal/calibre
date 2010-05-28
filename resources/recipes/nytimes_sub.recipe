@@ -82,6 +82,7 @@ class NYTimes(BasicNewsRecipe):
                             'articleExtras',
                             'articleInline',
                             'blog_sidebar',
+                            'businessSearchBar',
                             'cCol',
                             'entertainmentSearchBar',
                             'footer',
@@ -286,9 +287,14 @@ class NYTimes(BasicNewsRecipe):
         raw = self.browser.open('http://www.nytimes.com'+content).read()
         return BeautifulSoup(raw.decode('cp1252', 'replace'))
         '''
+        # Skip ad pages before actual article
+        skip_tag = soup.find(True, {'name':'skip'})
+        if skip_tag is not None:
+            soup = self.index_to_soup(skip_tag.parent['href'])
         return self.strip_anchors(soup)
 
     def postprocess_html(self,soup, True):
+        print "\npostprocess_html()\n"
 
         if self.one_picture_per_article:
             # Remove all images after first
@@ -411,6 +417,7 @@ class NYTimes(BasicNewsRecipe):
         return soup
 
     def postprocess_book(self, oeb, opts, log) :
+        print "\npostprocess_book()\n"
 
         def extract_byline(href) :
             # <meta name="byline" content=

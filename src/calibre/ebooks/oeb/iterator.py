@@ -21,7 +21,9 @@ from calibre.utils.logging import Log
 from calibre import guess_type, prints
 from calibre.ebooks.oeb.transforms.cover import CoverManager
 
-TITLEPAGE = CoverManager.SVG_TEMPLATE.decode('utf-8').replace('__ar__', 'none')
+TITLEPAGE = CoverManager.SVG_TEMPLATE.decode('utf-8').replace(\
+        '__ar__', 'none').replace('__viewbox__', '0 0 600 800'
+        ).replace('__width__', '600').replace('__height__', '800')
 
 def character_count(html):
     '''

@@ -30,6 +30,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.utils.search_query_parser import saved_searches
+from calibre.devices.errors import UserFeedback
 from calibre.gui2 import warning_dialog, choose_files, error_dialog, \
                            question_dialog,\
                            pixmap_to_data, choose_dir, \
@@ -234,6 +235,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         ####################### Setup device detection ########################
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
                 self.job_manager)
+        self.device_manager.open_feedback.connect(self.status.showMessage,
+                type=Qt.QueuedConnection)
         self.device_manager.start()
 
 
@@ -2327,6 +2330,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         Handle exceptions in threaded device jobs.
         '''
+        if isinstance(getattr(job, 'exception', None), UserFeedback):
+            ex = job.exception
+            func = {UserFeedback.ERROR:error_dialog,
+                    UserFeedback.WARNING:warning_dialog,
+                    UserFeedback.INFO:info_dialog}[ex.level]
+            return func(self, _('Failed'), ex.msg, det_msg=ex.details if
+                    ex.details else '', show=True)
+
         try:
             if 'Could not read 32 bytes on the control bus.' in \
                     unicode(job.details):
