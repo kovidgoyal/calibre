@@ -22,6 +22,7 @@ if isosx:
     import appscript, osax
 
 if iswindows:
+    print "ITUNES: Running under windows"
     import win32com.client
 
 class UserInteractionRequired(Exception):

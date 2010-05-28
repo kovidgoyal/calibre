@@ -144,14 +144,19 @@ class CustomColumns(object):
         for k in sorted(self.custom_column_label_map.keys()):
             v = self.custom_column_label_map[k]
             if v['normalized']:
-                searchable = True
+                is_category = True
             else:
-                searchable = False
+                is_category = False
+            if v['is_multiple']:
+                is_m = '|'
+            else:
+                is_m = None
             tn = 'custom_column_{0}'.format(v['num'])
-            self.tag_browser_categories.add_custom_field(label=v['label'],
+            self.field_metadata.add_custom_field(label=v['label'],
                     table=tn, column='value', datatype=v['datatype'],
-                    is_multiple=v['is_multiple'], colnum=v['num'],
-                    name=v['name'], searchable=searchable)
+                    colnum=v['num'], name=v['name'], display=v['display'],
+                    is_multiple=is_m, is_category=is_category,
+                    is_editable=v['editable'])
 
     def get_custom(self, idx, label=None, num=None, index_is_id=False):
         if label is not None:
@@ -257,7 +262,7 @@ class CustomColumns(object):
                             'SELECT id FROM %s WHERE value=?'%table, (ex,), all=False)
                     if ex != x:
                         self.conn.execute(
-                                'UPDATE %s SET value=? WHERE id=?', (x, xid))
+                                'UPDATE %s SET value=? WHERE id=?'%table, (x, xid))
                 else:
                     xid = self.conn.execute(
                             'INSERT INTO %s(value) VALUES(?)'%table, (x,)).lastrowid

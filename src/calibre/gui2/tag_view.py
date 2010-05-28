@@ -15,6 +15,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
 from calibre.gui2 import config, NONE
 from calibre.utils.config import prefs
 from calibre.library.field_metadata import TagsIcons
+from calibre.utils.search_query_parser import saved_searches
 
 class TagsView(QTreeView): # {{{
 
@@ -221,10 +222,22 @@ class TagsModel(QAbstractItemModel): # {{{
         self.db = db
         self.search_restriction = ''
         self.ignore_next_search = 0
+
+        # Reconstruct the user categories, putting them into metadata
+        tb_cats = self.db.field_metadata
+        for k in tb_cats.keys():
+            if tb_cats[k]['kind'] in ['user', 'search']:
+                del tb_cats[k]
+        for user_cat in sorted(prefs['user_categories'].keys()):
+            cat_name = user_cat+':' # add the ':' to avoid name collision
+            tb_cats.add_user_category(label=cat_name, name=user_cat)
+        if len(saved_searches.names()):
+            tb_cats.add_search_category(label='search', name=_('Searches'))
+
         data = self.get_node_tree(config['sort_by_popularity'])
         self.root_item = TagTreeItem()
         for i, r in enumerate(self.row_map):
-            if self.db.get_tag_browser_categories()[r]['kind'] != 'user':
+            if self.db.field_metadata[r]['kind'] != 'user':
                 tt = _('The lookup/search name is "{0}"').format(r)
             else:
                 tt = ''
@@ -248,7 +261,7 @@ class TagsModel(QAbstractItemModel): # {{{
         else:
             data = self.db.get_categories(sort_on_count=sort, icon_map=self.category_icon_map)
 
-        tb_categories = self.db.get_tag_browser_categories()
+        tb_categories = self.db.field_metadata
         for category in tb_categories:
             if category in data: # They should always be there, but ...
                 self.row_map.append(category)

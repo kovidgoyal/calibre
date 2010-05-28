@@ -9,6 +9,9 @@ from calibre.constants import islinux
 
 class TagEditor(QDialog, Ui_TagEditor):
 
+    def tag_cmp(self, x, y):
+        return cmp(x.lower(), y.lower())
+
     def __init__(self, window, db, index=None):
         QDialog.__init__(self, window)
         Ui_TagEditor.__init__(self)
@@ -22,7 +25,7 @@ class TagEditor(QDialog, Ui_TagEditor):
             tags = []
         if tags:
             tags = [tag.strip() for tag in tags.split(',') if tag.strip()]
-            tags.sort()
+            tags.sort(cmp=self.tag_cmp)
             for tag in tags:
                 self.applied_tags.addItem(tag)
         else:
@@ -32,7 +35,7 @@ class TagEditor(QDialog, Ui_TagEditor):
 
         all_tags = [tag for tag in self.db.all_tags()]
         all_tags = list(set(all_tags))
-        all_tags.sort()
+        all_tags.sort(cmp=self.tag_cmp)
         for tag in all_tags:
             if tag not in tags:
                 self.available_tags.addItem(tag)
@@ -79,7 +82,7 @@ class TagEditor(QDialog, Ui_TagEditor):
             self.tags.append(tag)
             self.available_tags.takeItem(self.available_tags.row(item))
 
-        self.tags.sort()
+        self.tags.sort(cmp=self.tag_cmp)
         self.applied_tags.clear()
         for tag in self.tags:
             self.applied_tags.addItem(tag)
@@ -93,12 +96,17 @@ class TagEditor(QDialog, Ui_TagEditor):
             self.tags.remove(tag)
             self.available_tags.addItem(tag)
 
-        self.tags.sort()
+        self.tags.sort(cmp=self.tag_cmp)
         self.applied_tags.clear()
         for tag in self.tags:
             self.applied_tags.addItem(tag)
 
-        self.available_tags.sortItems()
+        items = [unicode(self.available_tags.item(x).text()) for x in
+                range(self.available_tags.count())]
+        items.sort(cmp=self.tag_cmp)
+        self.available_tags.clear()
+        for item in items:
+            self.available_tags.addItem(item)
 
     def add_tag(self):
         tags = unicode(self.add_tag_input.text()).split(',')
@@ -109,7 +117,7 @@ class TagEditor(QDialog, Ui_TagEditor):
             if tag not in self.tags:
                 self.tags.append(tag)
 
-        self.tags.sort()
+        self.tags.sort(cmp=self.tag_cmp)
         self.applied_tags.clear()
         for tag in self.tags:
             self.applied_tags.addItem(tag)

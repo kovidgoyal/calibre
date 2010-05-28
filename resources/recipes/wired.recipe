@@ -39,7 +39,7 @@ class Wired(BasicNewsRecipe):
                      dict(name=['object','embed','iframe','link'])
                     ,dict(name='div', attrs={'class':['podcast_storyboard','tweetmeme_button']})
                   ]
-    remove_attributes = ['height','width']              
+    remove_attributes = ['height','width']
 
 
     def parse_index(self):

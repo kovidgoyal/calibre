@@ -39,23 +39,6 @@ class HANLINV3(USBMS):
 
     SUPPORTS_SUB_DIRS = True
 
-    def windows_sort_drives(self, drives):
-        main = drives.get('main', None)
-        card = drives.get('carda', None)
-        if card and main and card > main:
-            drives['main'] = card
-            drives['carda'] = main
-
-        if card and not main:
-            drives['main'] = card
-            drives['carda'] = None
-
-        return drives
-
-    def windows_open_callback(self, drives):
-        if 'main' not in drives and 'carda' in drives:
-            drives['main'] = drives.pop('carda')
-        return drives
 
     def osx_sort_names(self, names):
         main = names.get('main', None)
@@ -128,14 +111,5 @@ class BOOX(HANLINV3):
     EBOOK_DIR_MAIN = 'MyBooks'
     EBOOK_DIR_CARD_A = 'MyBooks'
 
-
-    def windows_sort_drives(self, drives):
-        main = drives.get('main', None)
-        card = drives.get('carda', None)
-        if card and main and card < main:
-            drives['main'] = card
-            drives['carda'] = main
-
-        return drives
 
 

@@ -77,14 +77,6 @@ class NOOK(USBMS):
         with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
             coverfile.write(coverdata)
 
-    def windows_sort_drives(self, drives):
-        main = drives.get('main', None)
-        card = drives.get('carda', None)
-        if card and main and card < main:
-            drives['main'] = card
-            drives['carda'] = main
-
-        return drives
 
     def sanitize_path_components(self, components):
         return [x.replace('#', '_') for x in components]

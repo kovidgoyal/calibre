@@ -171,7 +171,8 @@ class TagsDelegate(QStyledItemDelegate): # {{{
             if not index.model().is_custom_column(col):
                 editor = TagsLineEdit(parent, self.db.all_tags())
             else:
-                editor = TagsLineEdit(parent, sorted(list(self.db.all_custom(label=col))))
+                editor = TagsLineEdit(parent,
+                        sorted(list(self.db.all_custom(label=self.db.field_metadata.key_to_label(col)))))
                 return editor
         else:
             editor = EnLineEdit(parent)
@@ -209,7 +210,7 @@ class CcDateDelegate(QStyledItemDelegate): # {{{
         m = index.model()
         # db col is not named for the field, but for the table number. To get it,
         # gui column -> column label -> table number -> db column
-        val = m.db.data[index.row()][m.db.FIELD_MAP[m.custom_columns[m.column_map[index.column()]]['num']]]
+        val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
         if val is None:
             val = now()
         editor.setDate(val)
@@ -243,7 +244,7 @@ class CcTextDelegate(QStyledItemDelegate): # {{{
             editor.setDecimals(2)
         else:
             editor = EnLineEdit(parent)
-            complete_items = sorted(list(m.db.all_custom(label=col)))
+            complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))))
             completer = QCompleter(complete_items, self)
             completer.setCaseSensitivity(Qt.CaseInsensitive)
             completer.setCompletionMode(QCompleter.PopupCompletion)
@@ -260,9 +261,7 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
-        # db col is not named for the field, but for the table number. To get it,
-        # gui column -> column label -> table number -> db column
-        text = m.db.data[index.row()][m.db.FIELD_MAP[m.custom_columns[col]['num']]]
+        text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
         editor = CommentsDialog(parent, text)
         d = editor.exec_()
         if d:
@@ -297,9 +296,7 @@ class CcBoolDelegate(QStyledItemDelegate): # {{{
 
     def setEditorData(self, editor, index):
         m = index.model()
-        # db col is not named for the field, but for the table number. To get it,
-        # gui column -> column label -> table number -> db column
-        val = m.db.data[index.row()][m.db.FIELD_MAP[m.custom_columns[m.column_map[index.column()]]['num']]]
+        val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
         if tweaks['bool_custom_columns_are_tristate'] == 'no':
             val = 1 if not val else 0
         else:

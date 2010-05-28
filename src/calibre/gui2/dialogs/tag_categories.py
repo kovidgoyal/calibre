@@ -49,7 +49,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         cc_map = self.db.custom_column_label_map
         for cc in cc_map:
             if cc_map[cc]['datatype'] == 'text':
-                self.category_labels.append(db.tag_browser_categories.get_search_label(cc))
+                self.category_labels.append(db.field_metadata.label_to_key(cc))
                 category_icons.append(cc_icon)
                 category_values.append(lambda col=cc: self.db.all_custom(label=col))
                 category_names.append(cc_map[cc]['name'])
