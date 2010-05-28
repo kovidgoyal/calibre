@@ -55,7 +55,8 @@ class ITUNES(DevicePlugin):
     # Product IDs:
     #  0x129a:iPad
     #  0x1292:iPhone 3G
-    PRODUCT_ID = [0x129a,0x1292]
+    #PRODUCT_ID = [0x129a,0x1292]
+    PRODUCT_ID = [0x129a]
     BCD = [0x01]
 
     # Properties
