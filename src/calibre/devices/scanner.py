@@ -57,7 +57,7 @@ class WinPNPScanner(object):
         order = 0
         match = re.search(r'REV_.*?&(\d+)', pnp_id)
         if match is not None:
-            order = int(pnp_id)
+            order = int(match.group(1))
         return order
 
     def __call__(self, debug=False):
