@@ -335,7 +335,9 @@ Future conversion of these books will use the default settings.</string>
   <tabstop>tags</tabstop>
   <tabstop>remove_tags</tabstop>
   <tabstop>series</tabstop>
+  <tabstop>autonumber_series</tabstop>
   <tabstop>remove_format</tabstop>
+  <tabstop>swap_title_and_author</tabstop>
   <tabstop>button_box</tabstop>
  </tabstops>
  <resources>
