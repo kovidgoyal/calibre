@@ -255,7 +255,7 @@ class ITUNES(DevicePlugin):
                 undeletable_titles.append(self.cached_books[path]['title'])
 
         if undeletable_titles:
-            raise UserFeedback(_('These books must be deleted on the device:'),
+            raise UserFeedback(_('These books may only be deleted on the device in iBooks:'),
                                   details='\n'.join(undeletable_titles), level=UserFeedback.WARN)
 
     def eject(self):
