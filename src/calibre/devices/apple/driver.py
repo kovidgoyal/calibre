@@ -5,13 +5,14 @@
 
     22 May 2010
 '''
-import cStringIO, datetime, os, re, shutil, sys, time, zipfile
+import atexit, cStringIO, datetime, os, re, shutil, sys, time, zipfile
 
 from calibre import fit_image
 from calibre.constants import isosx, iswindows
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import MetaInformation
 from calibre.library.server.utils import strftime
+from calibre.ptempfile import PersistentTemporaryFile, cleanup
 from calibre.utils.config import Config, config_dir
 from calibre.utils.date import parse_date
 from calibre.utils.logging import Log
@@ -559,6 +560,7 @@ class ITUNES(DevicePlugin):
         if isosx:
 
             for (i,file) in enumerate(files):
+
                 path = self.path_template % (metadata[i].title, metadata[i].author[0])
 
                 # Delete existing from Library|Books, add to self.update_list
@@ -573,7 +575,10 @@ class ITUNES(DevicePlugin):
                     self.iTunes.delete(self.cached_books[path]['lib_book'])
 
                 # Add to iTunes Library|Books
-                added = self.iTunes.add(appscript.mactypes.File(files[i]))
+                if isinstance(file,PersistentTemporaryFile):
+                    added = self.iTunes.add(appscript.mactypes.File(file._name))
+                else:
+                    added = self.iTunes.add(appscript.mactypes.File(file))
 
                 thumb = None
                 try:
@@ -621,8 +626,9 @@ class ITUNES(DevicePlugin):
 
                 # Flesh out the iTunes metadata
                 added.comment.set("added by calibre %s" % strftime('%Y-%m-%d %H:%M:%S'))
-                added.rating.set(metadata[i].rating*10)
-                added.sort_artist.set(metadata[i].author_sort)
+                if metadata[i].rating:
+                    added.rating.set(metadata[i].rating*10)
+                added.sort_artist.set(metadata[i].author_sort.title())
                 added.sort_name.set(this_book.title_sorter)
 
                 # Set genre from metadata
@@ -696,8 +702,13 @@ class ITUNES(DevicePlugin):
         '''
         Fetch the size of a book stored on the device
         '''
+        if self.verbose:
+            self.log.info("ITUNES._get_device_book_size(): looking for title: '%s' author: %s" % (title,author))
+
         device_books = self._get_device_books()
         for d_book in device_books:
+            if self.verbose:
+                self.log.info(" evaluating title: '%s' author: '%s'" % (d_book.name(), d_book.artist()))
             if d_book.name() == title and d_book.artist() == author:
                 return d_book.size()
         else:
