@@ -1,11 +1,11 @@
-'''
-    Device driver for iTunes
+# -*- coding: utf-8 -*-
 
-    GRiker
+__license__   = 'GPL v3'
+__copyright__ = '2010, Gregory Riker'
+__docformat__ = 'restructuredtext en'
 
-    22 May 2010
-'''
-import atexit, cStringIO, datetime, os, re, shutil, sys, time, zipfile
+
+import cStringIO, os, re, shutil, sys, time, zipfile
 
 from calibre.constants import DEBUG
 from calibre import fit_image
@@ -13,18 +13,18 @@ from calibre.constants import isosx, iswindows
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import MetaInformation
 from calibre.library.server.utils import strftime
-from calibre.ptempfile import PersistentTemporaryFile, cleanup
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import Config, config_dir
 from calibre.utils.date import parse_date
 from calibre.utils.logging import Log
 
-from PIL import Image as PILImage, TarIO
+from PIL import Image as PILImage
 
 if isosx:
-    import appscript, osax
+    import appscript
 
-if iswindows:
-    import win32com.client
+#if iswindows:
+#    import win32com.client
 
 class UserInteractionRequired(Exception):
     pass
@@ -356,7 +356,7 @@ class ITUNES(DevicePlugin):
             # Init the iTunes source list
             names = [s.name() for s in self.iTunes.sources()]
             kinds = [str(s.kind()).rpartition('.')[2] for s in self.iTunes.sources()]
-            self.sources = sources = dict(zip(kinds,names))
+            self.sources = dict(zip(kinds,names))
 
             # Check to see if Library|Books out of sync with Device|Books
             if 'iPod' in self.sources and self.presync:
@@ -711,7 +711,6 @@ class ITUNES(DevicePlugin):
         '''
         if 'iPod' in self.sources:
             device = self.sources['iPod']
-            device_books = []
             if 'Books' in self.iTunes.sources[device].playlists.name():
                 return self.iTunes.sources[device].playlists['Books'].file_tracks()
 
