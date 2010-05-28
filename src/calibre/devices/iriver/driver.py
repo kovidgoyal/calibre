@@ -36,12 +36,4 @@ class IRIVER_STORY(USBMS):
 
     SUPPORTS_SUB_DIRS = True
 
-    def windows_open_callback(self, drives):
-        main = drives.get('main', None)
-        card = drives.get('carda', None)
-        if card and main and card < main:
-            drives['main'] = card
-            drives['carda'] = main
-
-        return drives
 

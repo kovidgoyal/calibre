@@ -121,11 +121,27 @@ class EPUBOutput(OutputFormatPlugin):
                 if not pre.text and len(pre) == 0:
                     pre.tag = 'div'
 
+    def upshift_markup(self):
+        'Upgrade markup to comply with XHTML 1.1 where possible'
+        from calibre.ebooks.oeb.base import XPath
+        for x in self.oeb.spine:
+            root = x.data
+            body = XPath('//h:body')(root)
+            if body:
+                body = body[0]
+
+            if not hasattr(body, 'xpath'):
+                continue
+            for u in XPath('//h:u')(root):
+                u.tag = 'span'
+                u.set('style', 'text-decoration:underline')
+
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
 
         self.workaround_ade_quirks()
         self.workaround_webkit_quirks()
+        self.upshift_markup()
         from calibre.ebooks.oeb.transforms.rescale import RescaleImages
         RescaleImages()(oeb, opts)
 

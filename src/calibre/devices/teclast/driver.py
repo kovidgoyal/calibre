@@ -30,14 +30,6 @@ class TECLAST_K3(USBMS):
     EBOOK_DIR_CARD_A = ''
     SUPPORTS_SUB_DIRS = True
 
-    def windows_sort_drives(self, drives):
-        main = drives.get('main', None)
-        card = drives.get('carda', None)
-        if card and main and card < main:
-            drives['main'] = card
-            drives['carda'] = main
-
-        return drives
 
 class NEWSMY(TECLAST_K3):
     name = 'Newsmy device interface'
@@ -49,9 +41,6 @@ class NEWSMY(TECLAST_K3):
     VENDOR_NAME      = ''
     WINDOWS_MAIN_MEM = 'NEWSMY'
     WINDOWS_CARD_A_MEM = 'USBDISK____SD'
-
-    def windows_sort_drives(self, drives):
-        return drives
 
 class IPAPYRUS(TECLAST_K3):
 
