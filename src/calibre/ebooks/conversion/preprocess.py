@@ -252,7 +252,7 @@ class HTMLPreProcessor(object):
         end_rules = []
         if getattr(self.extra_opts, 'remove_header', None):
             try:
-                end_rules.append(
+                rules.insert(0,
                     (re.compile(self.extra_opts.header_regex), lambda match : '')
                 )
             except:
@@ -262,7 +262,7 @@ class HTMLPreProcessor(object):
 
         if getattr(self.extra_opts, 'remove_footer', None):
             try:
-                end_rules.append(
+                rules.insert(0
                     (re.compile(self.extra_opts.footer_regex), lambda match : '')
                 )
             except:
