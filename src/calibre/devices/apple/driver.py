@@ -22,7 +22,6 @@ if isosx:
     import appscript, osax
 
 if iswindows:
-    print "ITUNES: Running under windows"
     import win32com.client
 
 class UserInteractionRequired(Exception):
@@ -59,19 +58,18 @@ class ITUNES(DevicePlugin):
     BCD = [0x01]
 
     # Properties
-    add_list = None
     cached_books = {}
     cache_dir = os.path.join(config_dir, 'caches', 'itunes')
     iTunes= None
     log = Log()
     path_template = 'iTunes/%s - %s.epub'
-    presync = True
+    presync = False
     update_list = None
     sources = None
     update_msg = None
     update_needed = False
     use_thumbnail_as_cover = False
-    verbose = False
+    verbose = True
 
     # Public methods
     def add_books_to_metadata(self, locations, metadata, booklists):
@@ -183,17 +181,22 @@ class ITUNES(DevicePlugin):
         if isosx:
             if self.iTunes:
                 # Check for connected book-capable device
-                names = [s.name() for s in self.iTunes.sources()]
-                kinds = [str(s.kind()).rpartition('.')[2] for s in self.iTunes.sources()]
-                self.sources = sources = dict(zip(kinds,names))
-                if 'iPod' in sources:
-                    if self.verbose:
-                        sys.stdout.write('.')
-                        sys.stdout.flush()
-                    return True
-                else:
-                    if self.verbose:
-                        self.log.info("ITUNES.can_handle(): device ejected")
+                try:
+                    names = [s.name() for s in self.iTunes.sources()]
+                    kinds = [str(s.kind()).rpartition('.')[2] for s in self.iTunes.sources()]
+                    self.sources = sources = dict(zip(kinds,names))
+                    if 'iPod' in sources:
+                        if self.verbose:
+                            sys.stdout.write('.')
+                            sys.stdout.flush()
+                        return True
+                    else:
+                        if self.verbose:
+                            self.log.info("ITUNES.can_handle(): device ejected")
+                        return False
+                except:
+                    # iTunes connection failed, probably not running anymore
+                    self.log.error("ITUNES.can_handle(): lost connection to iTunes")
                     return False
             else:
                 # can_handle() is called once before open(), so need to return True
@@ -214,9 +217,16 @@ class ITUNES(DevicePlugin):
         :param device_info: On windows a device ID string. On Unix a tuple of
         ``(vendor_id, product_id, bcd)``.
         '''
-        if self.verbose:
-            self.log.info("ITUNES:can_handle_windows()")
-        return True
+
+        if self.iTunes:
+            sys.exit(1)
+
+        else:
+            # can_handle() is called once before open(), so need to return True
+            # to keep things going
+            if self.verbose:
+                self.log.info("ITUNES:can_handle(): iTunes not yet instantiated")
+            return True
 
     def card_prefix(self, end_session=True):
         '''
@@ -309,7 +319,9 @@ class ITUNES(DevicePlugin):
         Read the file at C{path} on the device and write it to outfile.
         @param outfile: file object like C{sys.stdout} or the result of an C{open} call
         '''
-        raise NotImplementedError()
+        if self.verbose:
+            self.log.info("ITUNES.get_file(): exporting '%s'" % path)
+        outfile.write(open(self.cached_books[path]['lib_book'].location().path).read())
 
     def open(self):
         '''
@@ -379,6 +391,11 @@ class ITUNES(DevicePlugin):
             else:
                 if self.verbose:
                     self.log.info(" existing thumb cache at '%s'" % archive_path)
+
+        if iswindows:
+            # Launch iTunes if not already running
+            if self.verbose:
+                self.log.info("ITUNES:open(): Instantiating iTunes")
 
     def post_yank_cleanup(self):
         '''
@@ -538,7 +555,6 @@ class ITUNES(DevicePlugin):
 
         new_booklist = []
         self.update_list = []
-        self.add_list = []
 
         if isosx:
 
@@ -549,15 +565,12 @@ class ITUNES(DevicePlugin):
                 # for deletion from booklist[0] during add_books_to_metadata
                 if path in self.cached_books:
                     self.update_list.append(self.cached_books[path])
-                    self.add_list.append({'title':metadata[i].title,'author':metadata[i].author[0]})
 
                     if self.verbose:
                         self.log.info("ITUNES.upload_books():")
                         self.log.info( " deleting existing '%s'" % (path))
                     self._remove_iTunes_dir(self.cached_books[path])
                     self.iTunes.delete(self.cached_books[path]['lib_book'])
-                else:
-                    self.add_list.append({'title':metadata[i].title,'author':metadata[i].author[0]})
 
                 # Add to iTunes Library|Books
                 added = self.iTunes.add(appscript.mactypes.File(files[i]))
