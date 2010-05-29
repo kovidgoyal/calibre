@@ -57,6 +57,9 @@ class ITUNES(DevicePlugin):
     log = Log()
     path_template = 'iTunes/%s - %s.epub'
     presync = False
+    problem_titles = []
+    problem_msg = None
+    report_progress = None
     update_list = []
     sources = None
     update_msg = None
@@ -93,8 +96,11 @@ class ITUNES(DevicePlugin):
                 else:
                     self.log.error("ITUNES.add_books_to_metadata(): update_list item '%s' not found in booklists[0]" % p_book['title'])
 
-                self.report_progress(j+1/task_count, _('Updating device metadata listing...'))
-            self.report_progress(1.0, _('Updating device metadata listing...'))
+                if self.report_progress is not None:
+                    self.report_progress(j+1/task_count, _('Updating device metadata listing...'))
+
+            if self.report_progress is not None:
+                self.report_progress(1.0, _('Updating device metadata listing...'))
 
         # Add new books to booklists[0]
         for new_book in locations[0]:
@@ -140,8 +146,11 @@ class ITUNES(DevicePlugin):
                             this_book.device_collections = []
                             this_book.library_id = library_books[this_book.path] if this_book.path in library_books else None
                             this_book.size = book.size()
-                            this_book.thumbnail = self._generate_thumbnail(this_book.path, book)
-
+                            # Hack to discover if we're running in GUI environment
+                            if self.report_progress is not None:
+                                this_book.thumbnail = self._generate_thumbnail(this_book.path, book)
+                            else:
+                                this_book.thumbnail = None
                             booklist.add_book(this_book, False)
 
                             cached_books[this_book.path] = {
@@ -150,9 +159,11 @@ class ITUNES(DevicePlugin):
                              'lib_book':library_books[this_book.path] if this_book.path in library_books else None
                              }
 
-                            self.report_progress(i+1/book_count, _('%d of %d' % (i+1, book_count)))
+                            if self.report_progress is not None:
+                                self.report_progress(i+1/book_count, _('%d of %d' % (i+1, book_count)))
 
-                        self.report_progress(1.0, _('finished'))
+                        if self.report_progress is not None:
+                            self.report_progress(1.0, _('finished'))
                         self.cached_books = cached_books
                         if DEBUG:
                             self._dump_cached_books()
@@ -242,7 +253,9 @@ class ITUNES(DevicePlugin):
         delete the paths from the library, then update iPad
 
         '''
-        undeletable_titles = []
+        self.problem_titles = []
+        self.problem_msg = _("Certain books may only be deleted from within the iBooks app.\n"
+                                 "Click 'Show Details' for a list.")
         for path in paths:
             if self.cached_books[path]['lib_book']:
                 if DEBUG:
@@ -252,13 +265,8 @@ class ITUNES(DevicePlugin):
                 self.update_needed = True
                 self.update_msg = "Deleted books from device"
             else:
-                undeletable_titles.append("'%s' by %s" %
+                self.problem_titles.append("'%s' by %s" %
                  (self.cached_books[path]['title'],self.cached_books[path]['author']))
-
-        if undeletable_titles:
-            raise UserFeedback(_("Certain books may only be deleted using iBooks.\n"
-                                 "Click 'Show Details' for a list."),
-                                  details='\n'.join(undeletable_titles), level=UserFeedback.WARN)
 
     def eject(self):
         '''
@@ -335,14 +343,14 @@ class ITUNES(DevicePlugin):
                     self.log.info( "ITUNES:open(): Launching iTunes" )
                 self.iTunes = iTunes= appscript.app('iTunes', hide=True)
                 iTunes.run()
-                if DEBUG:
-                    self.log.info( "%s - %s (launched), driver version %s" % \
-                        (self.iTunes.name(), self.iTunes.version(), self.driver_version))
+                initial_status = 'launched'
             else:
                 self.iTunes = appscript.app('iTunes')
-                if DEBUG:
-                    self.log.info( " %s - %s (already running), driver version %s" % \
-                        (self.iTunes.name(), self.iTunes.version(), self.driver_version))
+                initial_status = 'already running'
+
+            if DEBUG:
+                self.log.info( " %s - %s (%s), driver version %s" %
+                 (self.iTunes.name(), self.iTunes.version(), self.driver_version, initial_status))
 
             # Init the iTunes source list
             names = [s.name() for s in self.iTunes.sources()]
@@ -350,7 +358,7 @@ class ITUNES(DevicePlugin):
             self.sources = dict(zip(kinds,names))
 
             # Check to see if Library|Books out of sync with Device|Books
-            if 'iPod' in self.sources and self.presync:
+            if self.presync and 'iPod' in self.sources :
                 lb_count = len(self._get_library_books())
                 db_count = len(self._get_device_books())
                 pb_count = len(self._get_purchased_book_ids())
@@ -361,11 +369,8 @@ class ITUNES(DevicePlugin):
                         self.log.info( " Devices|iPad|Books    : %d" % db_count)
                         self.log.info( " Devices|iPad|Purchased: %d" % pb_count)
                     self._update_device(msg="Presyncing iTunes with device, mismatched book count")
-            else:
-                if DEBUG:
-                    self.log.info( "Skipping pre-sync check")
 
-            # Create thumbs archive
+            # Confirm/create thumbs archive
             archive_path = os.path.join(self.cache_dir, "thumbs.zip")
 
             if not os.path.exists(self.cache_dir):
@@ -386,6 +391,15 @@ class ITUNES(DevicePlugin):
             # Launch iTunes if not already running
             if DEBUG:
                 self.log.info("ITUNES:open(): Instantiating iTunes")
+
+            # Instantiate iTunes
+
+            # Init the iTunes source list
+
+            # Check to see if Library|Books out of sync with Device|Books
+
+            # Confirm/create thumbs archive
+
 
     def remove_books_from_metadata(self, paths, booklists):
         '''
@@ -490,6 +504,13 @@ class ITUNES(DevicePlugin):
                     self.log.error("ITUNES:sync_booklists(): could not find '%s' on device" % updated_book['title'])
             self.update_list = []
 
+        # Inform user of any problem books
+        if self.problem_titles:
+            raise UserFeedback(self.problem_msg,
+                                  details='\n'.join(self.problem_titles), level=UserFeedback.WARN)
+        self.problem_titles = []
+        self.problem_msg = None
+
     def total_space(self, end_session=True):
         """
         Get total space available on the mountpoints:
@@ -533,10 +554,14 @@ class ITUNES(DevicePlugin):
 
         new_booklist = []
         self.update_list = []
+        strip_tags = re.compile(r'<[^<]*?/?>')
 
         if isosx:
 
             file_count = float(len(files))
+            self.problem_titles = []
+            self.problem_msg = _("Some cover art could not be converted.\n"
+                                     "Click 'Show Details' for a list.")
             for (i,file) in enumerate(files):
 
                 path = self.path_template % (metadata[i].title, metadata[i].author[0])
@@ -578,7 +603,7 @@ class ITUNES(DevicePlugin):
                         im.convert('RGB').save(of, 'JPEG')
                         thumb = of.getvalue()
 
-                    # Cache the thumbnail always, could be updated
+                    # Refresh the thumbnail cache
                     if DEBUG:
                         self.log.info( " refreshing cached thumb for '%s'" % metadata[i].title)
                     archive_path = os.path.join(self.cache_dir, "thumbs.zip")
@@ -587,6 +612,7 @@ class ITUNES(DevicePlugin):
                     zfw.writestr(thumb_path, thumb)
                     zfw.close()
                 except:
+                    self.problem_titles.append("'%s' by %s" % (metadata[i].title, metadata[i].author[0]))
                     self.log.error("ITUNES.upload_books(): error converting '%s' to thumb for '%s'" % (metadata[i].cover,metadata[i].title))
 
                 # Create a new Book
@@ -603,7 +629,8 @@ class ITUNES(DevicePlugin):
                 new_booklist.append(this_book)
 
                 # Flesh out the iTunes metadata
-                added.comment.set("added by calibre %s" % strftime('%Y-%m-%d %H:%M:%S'))
+                added.description.set("added by calibre %s" % strftime('%Y-%m-%d %H:%M:%S'))
+                added.comment.set(strip_tags.sub('',metadata[i].comments))
                 if metadata[i].rating:
                     added.rating.set(metadata[i].rating*10)
                 added.sort_artist.set(metadata[i].author_sort.title())
@@ -625,9 +652,11 @@ class ITUNES(DevicePlugin):
                  }
 
                 # Report progress
-                self.report_progress(i+1/file_count, _('%d of %d' % (i+1, file_count)))
+                if self.report_progress is not None:
+                    self.report_progress(i+1/file_count, _('%d of %d' % (i+1, file_count)))
 
-            self.report_progress(1.0, _('finished'))
+            if self.report_progress is not None:
+                self.report_progress(1.0, _('finished'))
 
             # Tell sync_booklists we need a re-sync
             self.update_needed = True
@@ -711,6 +740,7 @@ class ITUNES(DevicePlugin):
         Cache generated thumbnails
         cache_dir = os.path.join(config_dir, 'caches', 'itunes')
         '''
+
         archive_path = os.path.join(self.cache_dir, "thumbs.zip")
         thumb_path = book_path.rpartition('.')[0] + '.jpg'
 
