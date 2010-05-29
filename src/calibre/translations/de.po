@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-05-21 22:47+0000\n"
-"PO-Revision-Date: 2010-05-21 07:32+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-05-25 19:29+0000\n"
+"Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-22 03:56+0000\n"
+"X-Launchpad-Export-Date: 2010-05-26 03:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -371,6 +371,7 @@ msgstr ""
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
 msgstr ""
+"Geeignet für das iPad und ähnliche Geräte mit einer Auflösung von 768 x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:271
 msgid "This profile is intended for the Kobo Reader."
@@ -536,7 +537,7 @@ msgstr "Kommunikation mit dem SpringDesign Alex eBook Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:57
 msgid "Communicate with the Azbooka"
-msgstr ""
+msgstr "kommuniziere mit Azooka"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:70
 msgid "Communicate with the Elonex EB 511 eBook reader."
@@ -594,7 +595,7 @@ msgstr "Kommunikation mit dem Kobo Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:56
 msgid "Communicate with the Booq Avant"
-msgstr ""
+msgstr "Kommunikation mit dem Booq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -679,11 +680,11 @@ msgstr "Kommunikation mit dem Teclast K3 Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:45
 msgid "Communicate with the Newsmy reader."
-msgstr ""
+msgstr "Kommunikation mit dem Newsmy Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:60
 msgid "Communicate with the iPapyrus reader."
-msgstr ""
+msgstr "Kommunikation mit dem iPapyrus Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:252
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1461,6 +1462,12 @@ msgid ""
 "corresponding pair of normal characters. This option will preserve them "
 "instead."
 msgstr ""
+"Ligaturen im Eingabe-Dokument erhalten. Eine Ligatur ist eine besondere Form "
+"von einem Zeichenpaar wie ff, fi, fl, usw. Die meisten Lesegeräte haben "
+"keine Unterstützung für Ligaturen in ihren Standard-Schriftarten, so dass "
+"sie sie kaum korrekt wiedergeben. Standardmäßig wird Calibre eine Ligatur in "
+"das entsprechende normale Zeichenpaar verwandeln. Diese Einstellung ist dazu "
+"da, sie stattdessen zu erhalten."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
@@ -1634,6 +1641,13 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
+"Bei Verwendung eines SVG Umschlagbildes führt diese Einstellung dazu, dass "
+"das Umschlagbild auf die verfügbare Bildschirmgröße skaliert wird, aber "
+"dennoch sein Seitenverhältnis (Verhältnis von Breite zu Höhe) erhalten "
+"bleibt. Das heißt, es können weiße Ränder an den Seiten oder oben und unten "
+"auf dem Bild sein, aber das Bild wird nie verzerrt werden. Ohne diese "
+"Einstellung kann das Bild leicht verzerrt sein, aber es gibt dafür keine "
+"Ränder."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
@@ -2287,7 +2301,7 @@ msgstr "Komprimierung der Datei-Inhalte ausschalten."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:40
 msgid "Tag marking book to be filed with Personal Docs"
-msgstr ""
+msgstr "Etikett, das ein Buch markiert, welches persönliche Daten enthält"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:108
 msgid "All articles"
@@ -3340,7 +3354,7 @@ msgstr "Kein &SVG Umschlagbild"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:52
 msgid "Preserve cover &aspect ratio"
-msgstr ""
+msgstr "Seitenverhältnis des Umschl&agbildes beibehalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:53
 msgid "Split files &larger than:"
@@ -3462,15 +3476,15 @@ msgstr "Kontrolle des Layouts der Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:30
 msgid "Original"
-msgstr ""
+msgstr "Original"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:31
 msgid "Left align"
-msgstr ""
+msgstr "Linksbündig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:32
 msgid "Justify text"
-msgstr ""
+msgstr "Text ausrichten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:120
 msgid "&Disable font size rescaling"
@@ -3531,7 +3545,7 @@ msgstr "Extra &CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:136
 msgid "&Transliterate unicode characters to ASCII"
-msgstr ""
+msgstr "Unicode Schriftzeichen in ASCII umse&tzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:137
 msgid "Insert &blank line"
@@ -3539,7 +3553,7 @@ msgstr "&Leerzeile einfügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:138
 msgid "Keep &ligatures"
-msgstr ""
+msgstr "&Ligaturen behalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -4570,7 +4584,7 @@ msgstr "Neue eMail-Adresse"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:472
 msgid "System port selected"
-msgstr ""
+msgstr "System-Port ausgewählt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:473
 msgid ""
@@ -4578,6 +4592,9 @@ msgid ""
 "port. You operating system <b>may</b> not allow the server to run on this "
 "port. To be safe choose a port number larger than 1024."
 msgstr ""
+"Der für den Content-Server gewählte Port <b>%d</b> ist ein System-Port. Ihr "
+"Betriebssystem <b>könnte</b> nicht zulassen, dass der Server auf diesem Port "
+"läuft. Um sicher zu gehen, wählen Sie eine Port-Nummer größer als 1024."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:492
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:837
@@ -5218,7 +5235,7 @@ msgstr "Datum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:138
 msgid "Tag on book"
-msgstr ""
+msgstr "Etikett (Tag) auf Buch"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:139
 msgid "Explanation text added in create_ct_column.py"
@@ -5728,7 +5745,7 @@ msgstr "Neue individuelle Nachrichtenquelle hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:225
 msgid "Download all scheduled new sources"
-msgstr ""
+msgstr "Alle geplanten Nachrichtenquellen laden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:322
 msgid "No internet connection"
@@ -6503,23 +6520,25 @@ msgstr "Nicht nach Updates suchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:65
 msgid "Choose a location for your calibre e-book library"
-msgstr ""
+msgstr "Wählen Sie einen Ort für Ihre Calibre eBook Bibliothek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:74
 msgid "Failed to create library"
-msgstr ""
+msgstr "Das Erstellen der Bibliothek schlug fehl"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:75
 msgid "Failed to create calibre library at: %r. Aborting."
-msgstr ""
+msgstr "Das Erstellen der Bibliothek schlug fehl in: %r. Abbruch."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:145
 msgid "Repairing failed"
-msgstr ""
+msgstr "Reparatur schlug fehl"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:146
 msgid "The database repair failed. Starting with a new empty library."
 msgstr ""
+"Die Reparatur der Datenbank schlug fehl. Es erfolgt ein Start mit einer "
+"neuen, leeren Bibliothek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:594
@@ -6528,7 +6547,7 @@ msgstr "Calibre Bibliothek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:163
 msgid "Choose a location for your new calibre e-book library"
-msgstr ""
+msgstr "Wählen Sie einen Ort für Ihre neue Calibre eBook Bibliothek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:206
@@ -6537,11 +6556,11 @@ msgstr "Schlechter Datenbank Standort"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:174
 msgid "Bad database location %r. calibre will now quit."
-msgstr ""
+msgstr "Ungültiger Datenbank-Ort %r. Calibre beendet sich jetzt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:187
 msgid "Corrupted database"
-msgstr ""
+msgstr "Beschädigte Datenbank"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:188
 msgid ""
@@ -6549,16 +6568,23 @@ msgid ""
 "and repair it automatically? If you say No, a new empty calibre library will "
 "be created."
 msgstr ""
+"Ihre Calibre Datenbank scheint beschädigt zu sein. Soll Calibre versuchen, "
+"es automatisch zu reparieren? Wenn Sie Nein sagen, wird eine neue, leere "
+"Calibre Bibliothek erstellt werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:194
 msgid ""
 "Repairing database. This can take a very long time for a large collection"
 msgstr ""
+"Repariere Datenbank. Dies kann für eine große Büchersammlung einige Zeit "
+"dauern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:207
 msgid ""
 "Bad database location %r. Will start with  a new, empty calibre library"
 msgstr ""
+"Ungültiger Datenbank-Ort %r. Starte mit einer neuen, leeren Calibre "
+"Bibliothek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:250
 msgid "If you are sure it is not running"
@@ -7990,7 +8016,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:184
 msgid "E-book Viewer"
-msgstr ""
+msgstr "E-book Viewer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:185
 msgid "Close dictionary"
@@ -8022,11 +8048,11 @@ msgstr "Weitersuchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:198
 msgid "Find next occurrence"
-msgstr ""
+msgstr "Finde nächste Stelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:199
 msgid "F3"
-msgstr ""
+msgstr "F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:200
 msgid "Copy to clipboard"
@@ -8050,15 +8076,15 @@ msgstr "Drucken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Find previous"
-msgstr ""
+msgstr "Finde vorherige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:207
 msgid "Find previous occurrence"
-msgstr ""
+msgstr "Finde vorherige Stelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:208
 msgid "Shift+F3"
-msgstr ""
+msgstr "Shift+F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:114
 msgid "Print eBook"
@@ -8793,19 +8819,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:380
 msgid "Add an empty book (a book with no formats)"
-msgstr ""
+msgstr "Ein leeres Buch hinzufügen (ein Buch ohne Formate)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:382
 msgid "Set the title of the added empty book"
-msgstr ""
+msgstr "Titel des hinzugefügten leeren Buches angeben"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:384
 msgid "Set the authors of the added empty book"
-msgstr ""
+msgstr "Autoren des hinzugefügten leeren Buches angeben"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:386
 msgid "Set the ISBN of the added empty book"
-msgstr ""
+msgstr "ISBN des hinzugefügten leeren Buches angeben"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:411
 msgid "You must specify at least one file to add"
@@ -8974,22 +9000,33 @@ msgid ""
 "column.\n"
 "datatype is one of: {0}\n"
 msgstr ""
+"%prog add_custom_column [options] Beschriftung Name Datentyp\n"
+"\n"
+"Erstellt eine benutzerdefinierte Spalte. Beschriftung ist der "
+"maschinefreundliche Name der Spalte. Sollte\n"
+"keine Leerzeichen oder Doppelpunkte enthalten. Name ist der "
+"benutzerfreundliche Name der Spalte.\n"
+"Datentyp ist einer von : {0}\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:654
 msgid ""
 "This column stores tag like data (i.e. multiple comma separated values). "
 "Only applies if datatype is text."
 msgstr ""
+"Diese Spalte speichert Etiketten wie Daten (z.B. mehrere durch Kommata "
+"getrennte Werte). Gilt nur, wenn der Datentyp Text ist."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:658
 msgid ""
 "A dictionary of options to customize how the data in this column will be "
 "interpreted."
 msgstr ""
+"Ein Wörterbuch von Einstellungen zum Anpassen, wie die Daten in dieser "
+"Spalte interpretiert werden."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:671
 msgid "You must specify label, name and datatype"
-msgstr ""
+msgstr "Sie müssen Beschriftung, Name und Datentyp angeben"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:729
 msgid ""
@@ -9050,16 +9087,28 @@ msgid ""
 "    command.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog set_custom [options] column id value\n"
+"\n"
+"    Geben Sie den Wert einer benutzerdefinierten Spalte für das durch die ID "
+"identifizierte Buch an.\n"
+"    Sie erhalten eine Liste der IDs mit Hilfe des list Befehls.\n"
+"    Sie erhalten eine Liste der Namen von benutzerdefinierten Spalten mit "
+"Hilfe des custom_columns\n"
+"    Befehls.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:797
 msgid ""
 "If the column stores multiple values, append the specified values to the "
 "existing ones, instead of replacing them."
 msgstr ""
+"Wenn die Spalte mehrere Werte speichert, sollen die angegebenen Werte zu den "
+"bestehenden hinzugefügt werden, anstatt sie zu ersetzen."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:808
 msgid "Error: You must specify a field name, id and value"
-msgstr ""
+msgstr "Fehler: Sie müssen einen Feldnamen, eine ID und einen Wert angeben"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:827
 msgid ""
@@ -9069,6 +9118,12 @@ msgid ""
 "    List available custom columns. Shows column labels and ids.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog custom_columns [options]\n"
+"\n"
+"    Listet verfügbare benutzerdefinierte Spalten auf. Zeigt "
+"Spaltenbeschriftung und IDs.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:834
 msgid "Show details for each column."
@@ -9092,6 +9147,13 @@ msgid ""
 "    columns with the custom_columns command.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog remove_custom_column [options] Beschriftung\n"
+"\n"
+"    Entfernt die durch die Beschriftung identifizierten benutzerdefinierten "
+"Spalten. Sie können die verfügbaren\n"
+"    Spalten mit dem custom_columns Befehl anzeigen lassen.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:862
 msgid "Do not ask for confirmation"
@@ -9099,7 +9161,7 @@ msgstr "Nicht nach einer Bestätigung fragen"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:872
 msgid "Error: You must specify a column label"
-msgstr ""
+msgstr "Fehler: Sie müssen eine Spaltenbeschriftung angeben"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:885
 msgid ""
@@ -9471,7 +9533,7 @@ msgstr "Englisch"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (China)"
-msgstr ""
+msgstr "Englisch (China)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "Spanish (Paraguay)"

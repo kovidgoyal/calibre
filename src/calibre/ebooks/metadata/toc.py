@@ -1,13 +1,30 @@
 #!/usr/bin/env  python
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+__copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
+
 import os, glob, re
 from urlparse import urlparse
 from urllib import unquote
+from uuid import uuid4
 
-from calibre import __appname__
+from lxml import etree
+from lxml.builder import ElementMaker
+
+from calibre.constants import __appname__, __version__
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
+
+NCX_NS = "http://www.daisy.org/z3986/2005/ncx/"
+CALIBRE_NS = "http://calibre.kovidgoyal.net/2009/metadata"
+NSMAP = {
+            None: NCX_NS,
+            'calibre':CALIBRE_NS
+            }
+
+
+E = ElementMaker(namespace=NCX_NS, nsmap=NSMAP)
+
+C = ElementMaker(namespace=CALIBRE_NS, nsmap=NSMAP)
 
 class NCXSoup(BeautifulStoneSoup):
 
@@ -208,10 +225,46 @@ class TOC(list):
                 self.add_item(href, fragment, txt)
 
     def render(self, stream, uid):
-        from calibre.utils.genshi.template import MarkupTemplate
-        ncx_template = open(P('templates/ncx.xml'), 'rb').read()
-        doctype = ('ncx', "-//NISO//DTD ncx 2005-1//EN", "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd")
-        template = MarkupTemplate(ncx_template)
-        raw = template.generate(uid=uid, toc=self, __appname__=__appname__)
-        raw = raw.render(doctype=doctype)
+        root = E.ncx(
+                E.head(
+                    E.meta(name='dtb:uid', content=str(uid)),
+                    E.meta(name='dtb:depth', content=str(self.depth())),
+                    E.meta(name='dtb:generator', content='%s (%s)'%(__appname__,
+                        __version__)),
+                    E.meta(name='dtb:totalPageCount', content='0'),
+                    E.meta(name='dtb:maxPageNumber', content='0'),
+                ),
+                E.docTitle(E.text('Table of Contents')),
+        )
+        navmap = E.navMap()
+        root.append(navmap)
+        root.set('{http://www.w3.org/XML/1998/namespace}lang', 'en')
+
+        def navpoint(parent, np):
+            text = np.text
+            if not text:
+                text = ''
+            elem = E.navPoint(
+                    E.navLabel(E.text(re.sub(r'\s+', ' ', text))),
+                    E.content(src=unicode(np.href)+(('#' + unicode(np.fragment))
+                        if np.fragment else '')),
+                    id=str(uuid4()),
+                    playOrder=str(np.play_order)
+            )
+            au = getattr(np, 'author', None)
+            if au:
+                au = re.sub(r'\s+', ' ', au)
+                elem.append(C.meta(au, name='author'))
+            desc = getattr(np, 'description', None)
+            if desc:
+                desc = re.sub(r'\s+', ' ', desc)
+                elem.append(C.meta(desc, name='description'))
+            parent.append(elem)
+            for np2 in np:
+                navpoint(elem, np2)
+
+        for np in self:
+            navpoint(navmap, np)
+        raw = etree.tostring(root, encoding='utf-8', xml_declaration=True,
+                pretty_print=True)
         stream.write(raw)

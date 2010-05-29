@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-05-21 22:47+0000\n"
-"PO-Revision-Date: 2010-05-21 07:14+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-05-24 18:37+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-22 03:56+0000\n"
+"X-Launchpad-Export-Date: 2010-05-25 03:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -369,6 +369,7 @@ msgstr ""
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
 msgstr ""
+"Prévu pour l'iPad et les appareils semblables avec une résolution de 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:271
 msgid "This profile is intended for the Kobo Reader."
@@ -676,11 +677,11 @@ msgstr "Communiquer avec le lecteur Teclast K3."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:45
 msgid "Communicate with the Newsmy reader."
-msgstr ""
+msgstr "Communiquer avec le lecteur Newsmy"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:60
 msgid "Communicate with the iPapyrus reader."
-msgstr ""
+msgstr "Communiquer avec le lecteur iPapyrus"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:252
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -914,7 +915,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:286
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
-msgstr "Maintient le ratio pour l'image. Par défaut : Plein écran."
+msgstr "Maintient les proportions de l'image. Par défaut : Plein écran."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:288
 msgid "Disable sharpening."
@@ -938,8 +939,8 @@ msgid ""
 "Keep aspect ratio and scale image using screen height as image width for "
 "viewing in landscape mode."
 msgstr ""
-"Garde la proportion d'image et redimensionne en utilisant la hauteur d'écran "
-"comme largeur d'image en mode paysage."
+"Garde les proportions de l'image et la redimensionne en utilisant la hauteur "
+"de l'écran comme largeur d'image pour une visualisation en mode paysage."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:298
 msgid ""
@@ -1463,6 +1464,12 @@ msgid ""
 "corresponding pair of normal characters. This option will preserve them "
 "instead."
 msgstr ""
+"Conserver les ligatures présentes dans le document d'entrée. Une ligature "
+"est d'une paire de caractères comme oe, ae et caetera. La plupart des fontes "
+"par défaut des lecteurs ne supportent pas les ligatures, aussi un rendu "
+"correct de celles-ci semble improbable sur le lecteur. Par défaut, calibre "
+"va transformer une ligature en la paire de caractères correspondants. A "
+"l'opposé, cette option va conserver la ligature."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
@@ -1631,6 +1638,13 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
+"Lors de l'utilisation d'une image SVG en couverture, cette option va "
+"entrainer une mise à l'échelle permettant de couvrir tout l'écran, mais va "
+"toujours garder les proportions (ratio hauteur/largeur) de l'image "
+"d'origine. Ceci signifie qu'il peut y avoir des bordures blanches sur les "
+"cotés, en haut ou en bas de l'image, mais que celle-ci ne sera jamais "
+"distordue. Sans cette option l'image peut être légèrement distordue, mais il "
+"n'y aura pas de bordures."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
@@ -2705,9 +2719,9 @@ msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
 msgstr ""
-"Taille personnalisée de document. Utiliser le format largeurxhauteur, par "
-"exemple `123x321` pour spécifier la largeur et la hauteur. Cela écrasera "
-"n'importe quelle taille de papier spécifiée."
+"Taille de document personnalisée. Utiliser le format largeur x hauteur, c.-à-"
+"d. `123x321` pour spécifier la largeur et la hauteur. Ceci outrepassera "
+"toute taille de papier spécifiée."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:73
 msgid "The orientation of the page. Default is portrait. Choices are %s"
@@ -3332,7 +3346,7 @@ msgstr "Pas de couverture &SVG"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:52
 msgid "Preserve cover &aspect ratio"
-msgstr ""
+msgstr "Conserver les &proportions de la couverture"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:53
 msgid "Split files &larger than:"
@@ -3406,7 +3420,7 @@ msgstr "Taille de &base de la police:"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:123
 msgid "Font size &key:"
-msgstr "Taille de la police &key:"
+msgstr "Taille de la police &clé:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:110
@@ -3453,15 +3467,15 @@ msgstr "Contrôler l'apparence de la sortie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:30
 msgid "Original"
-msgstr ""
+msgstr "Original"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:31
 msgid "Left align"
-msgstr ""
+msgstr "Aligner à gauche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:32
 msgid "Justify text"
-msgstr ""
+msgstr "Justifier le texte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:120
 msgid "&Disable font size rescaling"
@@ -3519,7 +3533,7 @@ msgstr "&CSS complémentaire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:136
 msgid "&Transliterate unicode characters to ASCII"
-msgstr ""
+msgstr "&Translittérer les caractères unicode en représentation ASCII"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:137
 msgid "Insert &blank line"
@@ -3527,7 +3541,7 @@ msgstr "Insérer une ligne blanche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:138
 msgid "Keep &ligatures"
-msgstr ""
+msgstr "Conserver les ligatures"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -9534,7 +9548,7 @@ msgstr "Anglais (Irlande)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (China)"
-msgstr ""
+msgstr "Anglais (Chine)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "Spanish (Paraguay)"
