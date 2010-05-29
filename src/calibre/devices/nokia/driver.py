@@ -45,3 +45,25 @@ class N810(N770):
     WINDOWS_MAIN_MEM = 'N810'
 
     MAIN_MEMORY_VOLUME_LABEL = 'N810 Main Memory'
+
+class E71X(USBMS):
+
+    name           = 'Nokia E71X device interface'
+    gui_name       = 'Nokia E71X'
+    description    = 'Communicate with the Nokia E71X'
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'linux', 'osx']
+
+    VENDOR_ID   = [0x421]
+    PRODUCT_ID  = [0x1a0]
+    BCD         = [0x100]
+
+
+    FORMATS = ['mobi', 'prc']
+
+    EBOOK_DIR_MAIN = 'eBooks'
+    SUPPORTS_SUB_DIRS = True
+
+    VENDOR_NAME      = 'NOKIA'
+    WINDOWS_MAIN_MEM = 'S60'
+

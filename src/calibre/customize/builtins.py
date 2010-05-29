@@ -445,7 +445,7 @@ from calibre.devices.nook.driver import NOOK
 from calibre.devices.prs500.driver import PRS500
 from calibre.devices.prs505.driver import PRS505, PRS700
 from calibre.devices.android.driver import ANDROID, S60
-from calibre.devices.nokia.driver import N770, N810
+from calibre.devices.nokia.driver import N770, N810, E71X
 from calibre.devices.eslick.driver import ESLICK
 from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
@@ -454,7 +454,8 @@ from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS
 from calibre.devices.sne.driver import SNE
-from calibre.devices.misc import PALMPRE, KOBO, AVANT
+from calibre.devices.misc import PALMPRE, AVANT
+from calibre.devices.kobo.driver import KOBO
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
 from calibre.library.catalog import CSV_XML, EPUB_MOBI
@@ -515,6 +516,7 @@ plugins += [
     ANDROID,
     S60,
     N770,
+    E71X,
     N810,
     COOL_ER,
     ESLICK,

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-21 22:47+0000\n"
-"PO-Revision-Date: 2010-05-21 07:09+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-05-24 14:04+0000\n"
+"Last-Translator: Uriel <Unknown>\n"
 "Language-Team: Hebrew <he@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-22 03:56+0000\n"
+"X-Launchpad-Export-Date: 2010-05-25 03:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -257,18 +257,20 @@ msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
+"אם מוגדר ,רכיב ההמרה ינסה ליצור קובץ קריא ככל האפשר.עלול לא להשפיע כלל עבור "
+"רכיבים מסויימים."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:45
 msgid "Input profile"
-msgstr ""
+msgstr "פרופיל קלט"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
 msgstr ""
-"פרופיל זה מנסה להגדיר הגדרות תקינות והוא יעיל עם אינך יודע דבר אודות מקור "
-"המסמך."
+"פרופיל זה מנסה להגדיר ברירות מחדל סבירות והוא יעיל אם אינך יודע דבר אודות "
+"מקור המסמך."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:57
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:258
@@ -333,7 +335,7 @@ msgstr "פרופיל זה מיועד עבור IRex Digital Reader 1000."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:194
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:452
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr ""
+msgstr "פרופיל זה מיועד עבור IRex Digital Reader 800"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:206
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:466
@@ -342,7 +344,7 @@ msgstr "פרופיל זה מיועד עבור B&N Nook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:226
 msgid "Output profile"
-msgstr ""
+msgstr "פרופיל פלט"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:230
 msgid ""
@@ -350,17 +352,17 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
-"פרופיל זה מנסה לבצע המרה תקינה ויעיל במידה ואתה רוצה להפיק מסמך שנועד להקרא "
-"במחשב או על מגוון מכשירים."
+"פרופיל זה מנסה לת ברירות מחדל סבירות והוא יעיל במידה ואתה רוצה להפיק מסמך "
+"שנועד להקרא במחשב או על מגוון מכשירים."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:248
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr ""
+msgstr "מיועד ל-iPad ומכשירים דומים עם רזולוציה של 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:271
 msgid "This profile is intended for the Kobo Reader."
-msgstr ""
+msgstr "פרופיל זה מיועד ל-Kobo Reader"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:283
 msgid "This profile is intended for the SONY PRS-300."
@@ -478,11 +480,11 @@ msgstr "מחליף נתונים עם EB600 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr ""
+msgstr "Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr ""
+msgstr "מתקשר עם מכשיר Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
@@ -506,11 +508,11 @@ msgstr "מחליף נתונים עם Hanvon N520 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:41
 msgid "Communicate with the SpringDesign Alex eBook reader."
-msgstr ""
+msgstr "מתקשר עם  SpringDesign Alex eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:57
 msgid "Communicate with the Azbooka"
-msgstr ""
+msgstr "מתקשר עם מכשיר Azbooka"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:70
 msgid "Communicate with the Elonex EB 511 eBook reader."
@@ -528,11 +530,11 @@ msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:23
 msgid "Device Interface"
-msgstr "מימשק המכשיר"
+msgstr "ממשק המכשיר"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
-msgstr ""
+msgstr "מתקשר עם - IRex Digital Reader 1000 eBook reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:42
 msgid "Communicate with the IRex Digital Reader 800"
@@ -580,15 +582,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
-msgstr ""
+msgstr "מכשיר ה-Nook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:21
 msgid "Communicate with the Nook eBook reader."
-msgstr ""
+msgstr "מתקשר עם Nook eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
-msgstr ""
+msgstr "מתקשר עם Nuut2 eBook reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:89
 msgid "Communicate with the Sony PRS-500 eBook reader."
@@ -606,11 +608,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:80
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:89
 msgid "Getting list of books on device..."
-msgstr ""
+msgstr "קורא את רשימת הספרים מההתקן..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
 msgid "Communicate with the Sony PRS-300/505/500 eBook reader."
-msgstr ""
+msgstr "מתקשר עם Sony PRS-300/505/500 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:58
 msgid ""
@@ -681,7 +683,7 @@ msgstr "לא מצליח למצוא את כונן %s. המעבד מיצא גרס�
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:603
 msgid "Unable to mount main memory (Error code: %d)"
-msgstr ""
+msgstr "לא מצליח להעלות זכרון ראשי (קוד שגיאה: %d)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:740
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:742
@@ -717,11 +719,11 @@ msgstr "קבע תצורת מכשיר"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:28
 msgid "settings for device drivers"
-msgstr ""
+msgstr "הגדרות דרייברים למכשיר."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:30
 msgid "Ordered list of formats the device will accept"
-msgstr "רשימת סוגי קבצים שהמכשיר יקבל."
+msgstr "רשימת סוגי קבצים שהמכשיר מסוגל לקבל."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:32
 msgid "Place files in sub directories if the device supports them"
@@ -743,7 +745,7 @@ msgstr "הגדרות נוספות"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:28
 msgid "Communicate with an eBook reader."
-msgstr ""
+msgstr "מחליף נתונים עם eBook reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:36
 msgid "Get device information..."
@@ -765,17 +767,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:42
 msgid "Output directory. Defaults to current directory"
-msgstr ""
+msgstr "תיקיה לפלט (ברירת מחדל - תיקייה נוכחית)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:45
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
 msgid "Set the book title"
-msgstr "כתוב את כותרת הספר"
+msgstr "קבע את כותרת הספר"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:47
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
 msgid "Set sort key for the title"
-msgstr ""
+msgstr "הגדר מפתח למיון הכותרות"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
@@ -785,7 +787,7 @@ msgstr "כתוב את שם ההמחבר"
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:51
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 msgid "Set sort key for the author"
-msgstr "הגדר מקש מיון למחבר"
+msgstr "הגדר מפתח מיון למחבר"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:53
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:597
@@ -795,7 +797,7 @@ msgstr "הקטגוריה אליה הספר שייך. לדוגמה : היסטור
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:56
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:600
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr "חלק מהתמונה שישמר כתמונה ממוזערת"
+msgstr "כתובת לקובץ גראפי שישמש כתמונה מוקטנת"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:59
 msgid "Path to a txt file containing a comment."
@@ -832,6 +834,7 @@ msgid ""
 "Extract cover from LRF file. Note that the LRF format has no defined cover, "
 "so we use some heuristics to guess the cover."
 msgstr ""
+"חלץ את העטיפה מתוך קובץ ה-LRF. (משתמש בכללי אצבע לקביעת תמונת העטיפה)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:70
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:615
@@ -848,7 +851,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:204
 msgid "Failed %s"
-msgstr ""
+msgstr "%s נכשל"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:261
 msgid ""
@@ -863,29 +866,31 @@ msgid ""
 "of less than 256 may result in blurred text on your device if you are "
 "creating your comics in EPUB format."
 msgstr ""
+"מספר גווני אפור להמרת התמונה. ברירת מחדל: %default. ערכים קטנים מ-256 עלולים "
+"לגרום למריחה בקומיקס בפורמט EPUB."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:283
 msgid ""
 "Disable normalize (improve contrast) color range for pictures. Default: False"
-msgstr ""
+msgstr "בטל נורמליזציה של תחום הצבעים (שיפור ניגודיות). ברירת מחדל: לא"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:286
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
-msgstr ""
+msgstr "שמור על יחסי מידות התמונה. ברירת מחדל: מילוי המסך."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:288
 msgid "Disable sharpening."
-msgstr ""
+msgstr "בטל חידוד התמונה."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:290
 msgid ""
 "Disable trimming of comic pages. For some comics, trimming might remove "
 "content as well as borders."
-msgstr ""
+msgstr "ביטול של קיצוץ קצות עמודי קומיקס. עלול לקצוץ תוכן מהתמונה."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:293
 msgid "Don't split landscape images into two portrait images"
-msgstr ""
+msgstr "אל תפצל תמונת \"נוף\" לשתי תמונות \"פורטרט\""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:295
 msgid ""
@@ -897,19 +902,19 @@ msgstr ""
 msgid ""
 "Used for right-to-left publications like manga. Causes landscape pages to be "
 "split into portrait pages from right to left."
-msgstr ""
+msgstr "פיצול של תמונה לשתי תמונות מימין לשמאל."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:302
 msgid ""
 "Enable Despeckle. Reduces speckle noise. May greatly increase processing "
 "time."
-msgstr ""
+msgstr "אפשר הורדת רעש בתמונה. עלול להגדיל בהרבה את זמן העיבוד."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:305
 msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
-msgstr ""
+msgstr "מיין תמונות קומיקס לפי סדר ההוספה שלהם ולא לפי שם."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:309
 msgid ""
@@ -917,14 +922,15 @@ msgid ""
 "experiment to see which format gives you optimal size and look on your "
 "device."
 msgstr ""
+"הפורמט אליו יומרו התמונות ב-eBook. ניתן לבדוק פורמטים שונים לתוצאה אופטימלית."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:313
 msgid "Apply no processing to the image"
-msgstr ""
+msgstr "אל תפעיל עיבוד על התמונה."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:315
 msgid "Do not convert the image to grayscale (black and white)"
-msgstr ""
+msgstr "לא להמיר לגווני אפור (המרה לשחור לבן)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:452
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:463
@@ -8648,13 +8654,14 @@ msgstr ""
 msgid ""
 "Minimum interval in seconds between consecutive fetches. Default is %default "
 "s"
-msgstr ""
+msgstr "פרק הזמן בין הורדות. ברירת המחדל היא %default שניות."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:487
 msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
 msgstr ""
+"קידוד האותיות של האתר להורדה. ברירת המחדל תנסה לנחש את הקידוד המתאים."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:489
 msgid ""

@@ -85,7 +85,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 
     def open_book(self, pathtoebook):
         self.iterator = EbookIterator(pathtoebook)
-        self.iterator.__enter__(processed=True)
+        self.iterator.__enter__(only_input_plugin=True)
         text = [u'']
         for path in self.iterator.spine:
             html = open(path, 'rb').read().decode('utf-8', 'replace')

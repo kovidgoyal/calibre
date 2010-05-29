@@ -11,13 +11,7 @@ intended to be subclassed with the relevant parts implemented for a particular
 device. This class handles device detection.
 '''
 
-import os
-import subprocess
-import time
-import re
-import sys
-import glob
-
+import os, subprocess, time, re, sys, glob, operator
 from itertools import repeat
 
 from calibre.devices.interface import DevicePlugin
@@ -62,6 +56,8 @@ class Device(DeviceConfig, DevicePlugin):
     BCD         = None
 
     VENDOR_NAME = None
+
+    # These can be None, string, list of strings or compiled regex
     WINDOWS_MAIN_MEM = None
     WINDOWS_CARD_A_MEM = None
     WINDOWS_CARD_B_MEM = None
@@ -245,20 +241,25 @@ class Device(DeviceConfig, DevicePlugin):
                 drives.get('main', None) is None:
             drives['main'] = drives.pop('carda')
 
-        drives = self.windows_open_callback(drives)
-
         if drives.get('main', None) is None:
             raise DeviceError(
                 _('Unable to detect the %s disk drive. Try rebooting.') %
                 self.__class__.__name__)
 
+        # Sort drives by their PNP drive numbers if the CARD and MAIN
+        # MEM strings are identical
+        if self.WINDOWS_MAIN_MEM in (self.WINDOWS_CARD_A_MEM,
+                self.WINDOWS_CARD_B_MEM) or \
+                self.WINDOWS_CARD_A_MEM == self.WINDOWS_CARD_B_MEM:
+            letters = sorted(drives.values(), key=operator.attrgetter('order'))
+            drives = {}
+            for which, letter in zip(['main', 'carda', 'cardb'], letters):
+                drives[which] = letter
+
         drives = self.windows_sort_drives(drives)
         self._main_prefix = drives.get('main')
         self._card_a_prefix = drives.get('carda', None)
         self._card_b_prefix = drives.get('cardb', None)
-
-    def windows_open_callback(self, drives):
-        return drives
 
     @classmethod
     def run_ioreg(cls, raw=None):
