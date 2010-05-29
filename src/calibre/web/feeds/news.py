@@ -14,7 +14,7 @@ from contextlib import nested, closing
 
 
 from calibre import browser, __appname__, iswindows, \
-                    strftime, __version__, preferred_encoding
+                    strftime, preferred_encoding
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre import entity_to_unicode
@@ -949,47 +949,13 @@ class BasicNewsRecipe(Recipe):
         Create a generic cover for recipes that dont have a cover
         '''
         try:
-            try:
-                from PIL import Image, ImageDraw, ImageFont
-                Image, ImageDraw, ImageFont
-            except ImportError:
-                import Image, ImageDraw, ImageFont
-            font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
+            from calibre.utils.magick_draw import create_cover_page, TextLine
             title = self.title if isinstance(self.title, unicode) else \
                     self.title.decode(preferred_encoding, 'replace')
             date = strftime(self.timefmt)
-            app = '['+__appname__ +' '+__version__+']'
-
-            COVER_WIDTH, COVER_HEIGHT = 590, 750
-            img = Image.new('RGB', (COVER_WIDTH, COVER_HEIGHT), 'white')
-            draw = ImageDraw.Draw(img)
-            # Title
-            font = ImageFont.truetype(font_path, 44)
-            width, height = draw.textsize(title, font=font)
-            left = max(int((COVER_WIDTH - width)/2.), 0)
-            top = 15
-            draw.text((left, top), title, fill=(0,0,0), font=font)
-            bottom = top + height
-            # Date
-            font = ImageFont.truetype(font_path, 32)
-            width, height = draw.textsize(date, font=font)
-            left = max(int((COVER_WIDTH - width)/2.), 0)
-            draw.text((left, bottom+15), date, fill=(0,0,0), font=font)
-            # Vanity
-            font = ImageFont.truetype(font_path, 28)
-            width, height = draw.textsize(app, font=font)
-            left = max(int((COVER_WIDTH - width)/2.), 0)
-            top = COVER_HEIGHT - height - 15
-            draw.text((left, top), app, fill=(0,0,0), font=font)
-            # Logo
-            logo = Image.open(I('library.png'), 'r')
-            width, height = logo.size
-            left = max(int((COVER_WIDTH - width)/2.), 0)
-            top = max(int((COVER_HEIGHT - height)/2.), 0)
-            img.paste(logo, (left, top))
-            img = img.convert('RGB').convert('P', palette=Image.ADAPTIVE)
-
-            img.convert('RGB').save(cover_file, 'JPEG')
+            lines = [TextLine(title, 44), TextLine(date, 32)]
+            img_data = create_cover_page(lines, I('library.png'), output_format='jpg')
+            cover_file.write(img_data)
             cover_file.flush()
         except:
             self.log.exception('Failed to generate default cover')

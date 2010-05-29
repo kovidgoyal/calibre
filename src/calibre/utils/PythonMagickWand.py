@@ -596,15 +596,22 @@ IndexChannel = ChannelType(32)
 AllChannels = ChannelType(255)
 DefaultChannels = ChannelType(247)
 
-class DistortImageMethod(ctypes.c_int): pass
-UndefinedDistortion = DistortImageMethod(0)
-AffineDistortion = DistortImageMethod(1)
-AffineProjectionDistortion = DistortImageMethod(2)
-ArcDistortion = DistortImageMethod(3)
-BilinearDistortion = DistortImageMethod(4)
-PerspectiveDistortion = DistortImageMethod(5)
-PerspectiveProjectionDistortion = DistortImageMethod(6)
-ScaleRotateTranslateDistortion = DistortImageMethod(7)
+UndefinedDistortion = 0
+AffineDistortion = 1
+AffineProjectionDistortion = 2
+ScaleRotateTranslateDistortion = 3
+PerspectiveDistortion = 4
+BilinearForwardDistortion = 5
+BilinearDistortion = 6
+BilinearReverseDistortion = 7
+PolynomialDistortion = 8
+ArcDistortion = 9
+PolarDistortion = 10
+DePolarDistortion = 11
+BarrelDistortion = 12
+BarrelInverseDistortion = 13
+ShepardsDistortion = 14
+SentinelDistortion = 15
 
 class FillRule(ctypes.c_int): pass
 UndefinedRule = FillRule(0)
@@ -2254,7 +2261,7 @@ else:
 #   MagickDistortImage
 try:
     _magick.MagickDistortImage.restype = MagickBooleanType
-    _magick.MagickDistortImage.argtypes = (MagickWand,DistortImageMethod,ctypes.c_ulong,ctypes.POINTER(ctypes.c_double),MagickBooleanType)
+    _magick.MagickDistortImage.argtypes = (MagickWand,ctypes.c_int,ctypes.c_ulong,ctypes.POINTER(ctypes.c_double),MagickBooleanType)
 except AttributeError,e:
     pass
 else:
