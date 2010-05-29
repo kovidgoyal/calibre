@@ -6,14 +6,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-21 22:47+0000\n"
-"PO-Revision-Date: 2010-05-24 18:37+0000\n"
-"Last-Translator: sengian <Unknown>\n"
+"POT-Creation-Date: 2010-05-28 23:31+0000\n"
+"PO-Revision-Date: 2010-05-28 22:56+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-25 03:41+0000\n"
+"X-Launchpad-Export-Date: 2010-05-29 03:50+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -55,7 +55,7 @@ msgstr "Ne fait strictement rien"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:120
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:329
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:444
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:912
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:921
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdb.py:39
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:28
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pml.py:23
@@ -97,8 +97,8 @@ msgstr "Ne fait strictement rien"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:63
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:81
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:82
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:87
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:88
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:97
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:98
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:233
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:235
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:279
@@ -516,11 +516,11 @@ msgstr "Communiquer avec le lecteur d'ebook ESlick."
 msgid "Communicate with Hanlin V3 eBook readers."
 msgstr "Communiquer avec les lecteurs d'ebook Hanlin V3."
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:95
+#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:78
 msgid "Communicate with Hanlin V5 eBook readers."
 msgstr "Communiquer avec les lecteurs d'ebook Hanlin V5."
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:114
+#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:97
 msgid "Communicate with the BOOX eBook reader."
 msgstr "Communiquer avec le lecteur d'ebook BOOX."
 
@@ -528,15 +528,19 @@ msgstr "Communiquer avec le lecteur d'ebook BOOX."
 msgid "Communicate with the Hanvon N520 eBook reader."
 msgstr "Communiquer avec le lecteur d'ebook Hanvon N520."
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:41
+#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:40
+msgid "Communicate with The Book reader."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:51
 msgid "Communicate with the SpringDesign Alex eBook reader."
 msgstr "Communiquer avec le lecteur d'ebook Alex de SpringDesign"
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:57
+#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:67
 msgid "Communicate with the Azbooka"
 msgstr "Communiquer avec l'Azbooka"
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:70
+#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:80
 msgid "Communicate with the Elonex EB 511 eBook reader."
 msgstr "Communiquer avec le lecteur d'ebook Elonex EB 511."
 
@@ -582,15 +586,15 @@ msgstr "Communiquer avec le lecteur d'ebook Kindle 2."
 msgid "Communicate with the Kindle DX eBook reader."
 msgstr "Communiquer avec le lecteur d'ebook Kindle DX."
 
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:14
+msgid "Communicate with the Kobo Reader"
+msgstr "Communiquer avec le lecteur Kobo"
+
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:15
 msgid "Communicate with the Palm Pre"
 msgstr "Communiquer avec le Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:35
-msgid "Communicate with the Kobo Reader"
-msgstr "Communiquer avec le lecteur Kobo"
-
-#: /home/kovid/work/calibre/src/calibre/devices/misc.py:56
 msgid "Communicate with the Booq Avant"
 msgstr "Communiquer avec le Booq Avant"
 
@@ -675,33 +679,33 @@ msgstr "Communiquer avec le lecteur d'eBook Samsung SNE."
 msgid "Communicate with the Teclast K3 reader."
 msgstr "Communiquer avec le lecteur Teclast K3."
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:45
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:37
 msgid "Communicate with the Newsmy reader."
 msgstr "Communiquer avec le lecteur Newsmy"
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:60
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:49
 msgid "Communicate with the iPapyrus reader."
 msgstr "Communiquer avec le lecteur iPapyrus"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:252
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:246
 msgid "Unable to detect the %s disk drive. Try rebooting."
 msgstr "Impossible de détecter le disque %s. Essayer de redémarrer"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:425
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:426
 msgid "Unable to detect the %s mount point. Try rebooting."
 msgstr ""
 "Impossible de détecter le point de montage %s. Essayez de redémarrer le "
 "poste."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:490
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:491
 msgid "Unable to detect the %s disk drive."
 msgstr "Impossible de monter le disque %s."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:583
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:584
 msgid "Could not find mount helper: %s."
 msgstr "Impossible de trouver l'assistant de montage: %s."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:595
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:596
 msgid ""
 "Unable to detect the %s disk drive. Your  kernel is probably exporting a "
 "deprecated version of SYSFS."
@@ -709,31 +713,31 @@ msgstr ""
 "Impossible de détecter le disque dur %s. Votre noyau doit probablement "
 "exporter une version obsolète de SYSFS."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:603
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:604
 msgid "Unable to mount main memory (Error code: %d)"
 msgstr "Impossible de monter la mémoire principale (Code d'erreur: %d)"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:740
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:742
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:741
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:743
 msgid "The reader has no storage card in this slot."
 msgstr "Le lecteur n'a aucune carte mémoire dans cette fente."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:744
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:745
 msgid "Selected slot: %s is not supported."
 msgstr "La fente choisie %s n'est pas supportée."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:777
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:778
 msgid "There is insufficient free space in main memory"
 msgstr "Espace insuffisant dans la mémoire principale"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:779
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:781
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:780
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:782
 msgid "There is insufficient free space on the storage card"
 msgstr "Espace insuffisant sur la carte mémoire"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:811
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:817
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:842
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:812
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:818
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:843
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:240
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:151
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:589
@@ -1574,7 +1578,7 @@ msgstr "Démarrage les transformations de l'ebook...."
 msgid "Creating"
 msgstr "Création"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:205
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:56
 msgid ""
 "Extract the contents of the generated EPUB file to the specified directory. "
 "The contents of the directory are first deleted, so be careful."
@@ -1582,7 +1586,7 @@ msgstr ""
 "Extraire le contenu du fichier EPUB généré vers le répertoire spécifié. Le "
 "contenu du répertoire sera d'abord effacé, donc faites attention."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:211
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:62
 msgid ""
 "Turn off splitting at page breaks. Normally, input files are automatically "
 "split at every page break into two files. This gives an output ebook that "
@@ -1597,7 +1601,7 @@ msgstr ""
 "lent, donc il est recommandé de désactiver le sectionnement si le fichier "
 "d'entrée contient de nombreux sauts de page."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:222
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:73
 msgid ""
 "Split all HTML files larger than this size (in KB). This is necessary as "
 "most EPUB readers cannot handle large file sizes. The default of %defaultKB "
@@ -1608,7 +1612,7 @@ msgstr ""
 "grande taille. Par défaut %default Ko est la taille requise par Adobe "
 "Digital Editions."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:229
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:80
 msgid ""
 "Normally, if the input file has no cover and you don't specify one, a "
 "default cover is generated with the title, authors, etc. This option "
@@ -1618,7 +1622,7 @@ msgstr ""
 "avez pas spécifié une, une couverture par défaut est générée avec le titre, "
 "les auteurs, etc. Cette option désactive la génération de cette couverture."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:235
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
 "Do not use SVG for the book cover. Use this option if your EPUB is going to "
 "be used ona  device that does not support SVG, like the iPhone or the "
@@ -1630,7 +1634,7 @@ msgstr ""
 "l'iPhone ou le Jetbook Lite. Sans cette option, ces appareils afficheront la "
 "couverture comme une page vide."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:243
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
 "When using an SVG cover, this option will cause the cover to scale to cover "
 "the available screen area, but still preserve its aspect ratio (ratio of "
@@ -1645,6 +1649,10 @@ msgstr ""
 "cotés, en haut ou en bas de l'image, mais que celle-ci ne sera jamais "
 "distordue. Sans cette option l'image peut être légèrement distordue, mais il "
 "n'y aura pas de bordures."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:169
+msgid "Start"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
@@ -2264,7 +2272,7 @@ msgstr ""
 "Chercher une image de couverture du livre identifié par ISBN sur "
 "LibraryThing.com\n"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1103
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1112
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1372
 msgid "Cover"
 msgstr "Couverture"
@@ -2377,7 +2385,7 @@ msgstr "Préface"
 msgid "Main Text"
 msgstr "Texte principal"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:39
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:41
 msgid "%s format books are not supported"
 msgstr "Les livres au format %s ne sont pas supportés"
 
@@ -2698,7 +2706,7 @@ msgstr ""
 msgid "Split Options:"
 msgstr "Options de division:"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:59
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:31
 msgid ""
 "The unit of measure. Default is inch. Choices are %s Note: This does not "
 "override the unit for margins!"
@@ -2706,7 +2714,7 @@ msgstr ""
 "L'unité de mesure. Par défaut: pouce (inch). Les choix sont %s. Note: Cela "
 "n'écrase pas l'unité des marges!"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:64
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:36
 msgid ""
 "The size of the paper. This size will be overridden when an output profile "
 "is used. Default is letter. Choices are %s"
@@ -2714,7 +2722,7 @@ msgstr ""
 "La taille du papier. Cette taille sera écrasée si un profil de sortie est "
 "utilisé. Par défaut: lettre (letter). Les choix sont %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:68
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:40
 msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
@@ -2723,9 +2731,15 @@ msgstr ""
 "d. `123x321` pour spécifier la largeur et la hauteur. Ceci outrepassera "
 "toute taille de papier spécifiée."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:73
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:45
 msgid "The orientation of the page. Default is portrait. Choices are %s"
 msgstr "L'orientation de la page. Par défaut : portrait. Les choix sont %s"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:49
+msgid ""
+"Preserve the aspect ratio of the cover, instead of stretching it to fill the "
+"ull first page of the generated pdf."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:55
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -2933,7 +2947,7 @@ msgstr ""
 "Limiter le nombre maximum de travaux simultanés au nombre de processeurs."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:135
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:475
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:482
 msgid "Copied"
 msgstr "Copié"
 
@@ -3071,7 +3085,7 @@ msgstr "sortie"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:35
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:38
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:62
@@ -3842,13 +3856,17 @@ msgstr "Pas d'&Images"
 msgid "PDF Output"
 msgstr "Sortie PDF"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:40
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:43
 msgid "&Paper Size:"
 msgstr "Taille du &Papier:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:41
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:44
 msgid "&Orientation:"
 msgstr "&Orientation:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:45
+msgid "Preserve &aspect ratio of cover"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
@@ -4673,7 +4691,7 @@ msgid "Failed to start content server"
 msgstr "A échoué lors du démarrage du serveur de contenu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:715
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:586
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:593
 msgid "Select location for books"
 msgstr "Sélectionner l'emplacement pour les livres"
 
@@ -6545,7 +6563,7 @@ msgstr ""
 "bibliothèque vide."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:150
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:594
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:601
 msgid "Calibre Library"
 msgstr "Librairie calibre"
 
@@ -8192,7 +8210,7 @@ msgstr "Basculer la casse"
 msgid "Title Case"
 msgstr "Casse du titre"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:366
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:373
 msgid ""
 "If you use the WordPlayer e-book app on your Android phone, you can access "
 "your calibre book collection directly on the device. To do this you have to "
@@ -8203,7 +8221,7 @@ msgstr ""
 "votre appareil. Pour pouvoir le faire, vous devez démarrer le serveur de "
 "contenu."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:370
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:377
 msgid ""
 "Remember to leave calibre running as the server only runs as long as calibre "
 "is running."
@@ -8211,7 +8229,7 @@ msgstr ""
 "Rappelez-vous de laisser calibre fonctionner car le serveur ne fonctionne "
 "que lorsque calibre fonctionne."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:372
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:379
 msgid ""
 "You have to add the URL http://myhostname:8080 as your calibre library in "
 "WordPlayer. Here myhostname should be the fully qualified hostname or the IP "
@@ -8221,20 +8239,20 @@ msgstr ""
 "WordPlayer. Ici nomhote doit être le nom d'hôte complet ou l'adresse IP du "
 "l'ordinateur où calibre est démarré."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:449
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:456
 msgid "Moving library..."
 msgstr "Déplace la librairie..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:465
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:466
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:473
 msgid "Failed to move library"
 msgstr "Le déplacement de la librairie a échoué."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:520
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:527
 msgid "Invalid database"
 msgstr "Base de données invalide"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:521
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:528
 msgid ""
 "<p>An invalid library already exists at %s, delete it before trying to move "
 "the existing library.<br>Error: %s"
@@ -8242,11 +8260,11 @@ msgstr ""
 "<p>Une librairie invalide existe à %s,  la supprimer avant d'essayer de "
 "déplacer la librairie existante.<br>Erreur: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:539
 msgid "Could not move library"
 msgstr "Impossible de déplacer la librairie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:661
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:668
 msgid "welcome wizard"
 msgstr "assistant de bienvenue"
 

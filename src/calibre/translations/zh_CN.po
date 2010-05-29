@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-05-21 22:47+0000\n"
-"PO-Revision-Date: 2010-05-22 17:13+0000\n"
+"POT-Creation-Date: 2010-05-28 23:31+0000\n"
+"PO-Revision-Date: 2010-05-28 23:31+0000\n"
 "Last-Translator: Thruth Wang <wanglihao@gmail.com>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-23 03:56+0000\n"
+"X-Launchpad-Export-Date: 2010-05-29 03:52+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -57,7 +57,7 @@ msgstr "不做任何处理"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:120
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:329
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:444
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:912
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:921
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdb.py:39
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:28
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pml.py:23
@@ -99,8 +99,8 @@ msgstr "不做任何处理"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:63
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:81
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:82
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:87
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:88
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:97
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:98
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:233
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:235
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:279
@@ -489,11 +489,11 @@ msgstr "与 ESlick eBook reader 通信。"
 msgid "Communicate with Hanlin V3 eBook readers."
 msgstr "与翰林 V3 电子书通信。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:95
+#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:78
 msgid "Communicate with Hanlin V5 eBook readers."
 msgstr "与翰林 V5 电子书通信。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:114
+#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:97
 msgid "Communicate with the BOOX eBook reader."
 msgstr "与 BOOX eBook reader 通信。"
 
@@ -501,15 +501,19 @@ msgstr "与 BOOX eBook reader 通信。"
 msgid "Communicate with the Hanvon N520 eBook reader."
 msgstr "与 Hanvon N520 eBook reader 通信。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:41
+#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:40
+msgid "Communicate with The Book reader."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:51
 msgid "Communicate with the SpringDesign Alex eBook reader."
 msgstr "与 SpringDesign Alex 通信。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:57
+#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:67
 msgid "Communicate with the Azbooka"
 msgstr "与 Azbooka 通信"
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:70
+#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:80
 msgid "Communicate with the Elonex EB 511 eBook reader."
 msgstr "与 Elonex EB 511 eBook reader 通信。"
 
@@ -555,15 +559,15 @@ msgstr "与 Kindle 2 eBook reader 通信。"
 msgid "Communicate with the Kindle DX eBook reader."
 msgstr "与 Kindle DX 通信。"
 
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:14
+msgid "Communicate with the Kobo Reader"
+msgstr "与 Kobo Reader 通信"
+
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:15
 msgid "Communicate with the Palm Pre"
 msgstr "与 Palm Pre 通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:35
-msgid "Communicate with the Kobo Reader"
-msgstr "与 Kobo Reader 通信"
-
-#: /home/kovid/work/calibre/src/calibre/devices/misc.py:56
 msgid "Communicate with the Booq Avant"
 msgstr "与  通信"
 
@@ -646,61 +650,61 @@ msgstr "与三星 SNE 通信。"
 msgid "Communicate with the Teclast K3 reader."
 msgstr "与 Teclast K3 通信。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:45
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:37
 msgid "Communicate with the Newsmy reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:60
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:49
 msgid "Communicate with the iPapyrus reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:252
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:246
 msgid "Unable to detect the %s disk drive. Try rebooting."
 msgstr "无法检测到 %s 磁盘，请重启后重试。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:425
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:426
 msgid "Unable to detect the %s mount point. Try rebooting."
 msgstr "无法检测 %s 挂载点。请尝试重启。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:490
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:491
 msgid "Unable to detect the %s disk drive."
 msgstr "无检测测到 %s 磁盘。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:583
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:584
 msgid "Could not find mount helper: %s."
 msgstr "无法找到帮助程序：%s。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:595
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:596
 msgid ""
 "Unable to detect the %s disk drive. Your  kernel is probably exporting a "
 "deprecated version of SYSFS."
 msgstr "无法检测到 %s 磁盘驱动器。您的内核可能正在输出已经废弃的 SYSFS 版本。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:603
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:604
 msgid "Unable to mount main memory (Error code: %d)"
 msgstr "无法装载主存储器（错误代码：%d）"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:740
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:742
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:741
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:743
 msgid "The reader has no storage card in this slot."
 msgstr "设备中未插入存储卡."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:744
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:745
 msgid "Selected slot: %s is not supported."
 msgstr "选定的插槽：%s 未被支持。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:777
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:778
 msgid "There is insufficient free space in main memory"
 msgstr "设备内置存储空间不足"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:779
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:781
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:780
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:782
 msgid "There is insufficient free space on the storage card"
 msgstr "存储卡空间不足"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:811
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:817
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:842
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:812
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:818
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:843
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:240
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:151
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:589
@@ -1391,13 +1395,13 @@ msgstr "正在对电子书籍进行转换..."
 msgid "Creating"
 msgstr "正在创建"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:205
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:56
 msgid ""
 "Extract the contents of the generated EPUB file to the specified directory. "
 "The contents of the directory are first deleted, so be careful."
 msgstr "将生成EPUB文件的内容解压缩到指定文件夹. 请注意该文件夹会先被清空."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:211
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:62
 msgid ""
 "Turn off splitting at page breaks. Normally, input files are automatically "
 "split at every page break into two files. This gives an output ebook that "
@@ -1408,7 +1412,7 @@ msgstr ""
 "关闭按分页符切割. 默认情况下, 程序会按分页符将输入文件切切分为多个文件. 由此程序可以使用较少的计算机资源来解析和输出结果. "
 "当然切分操作会增加处理时间, 如果输入文件含有较多的分页符, 请关闭此功能."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:222
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:73
 msgid ""
 "Split all HTML files larger than this size (in KB). This is necessary as "
 "most EPUB readers cannot handle large file sizes. The default of %defaultKB "
@@ -1417,14 +1421,14 @@ msgstr ""
 "将大于该大小 (以KB为单位) 的HTML文件切分. 由于很多EPUB阅读器无法打开巨大的文件, 故此功能十分有用. 默认值 %defaultKB "
 "是Adobe Digital Editions 的文件大小要求."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:229
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:80
 msgid ""
 "Normally, if the input file has no cover and you don't specify one, a "
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr "正常情况下，如果输入文件没有封面，您也未指定，会生成一个默认封面带有标题、作者等信息。选定此选项可以禁用生成默认封面。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:235
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
 "Do not use SVG for the book cover. Use this option if your EPUB is going to "
 "be used ona  device that does not support SVG, like the iPhone or the "
@@ -1432,13 +1436,17 @@ msgid ""
 "blank page."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:243
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
 "When using an SVG cover, this option will cause the cover to scale to cover "
 "the available screen area, but still preserve its aspect ratio (ratio of "
 "width to height). That means there may be white borders at the sides or top "
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:169
+msgid "Start"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
@@ -2007,7 +2015,7 @@ msgstr ""
 "\n"
 "通过书籍的ISBN从LibraryThing.com获得书籍的封面图片\n"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1103
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1112
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1372
 msgid "Cover"
 msgstr "封面"
@@ -2114,7 +2122,7 @@ msgstr "序言"
 msgid "Main Text"
 msgstr "正文"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:39
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:41
 msgid "%s format books are not supported"
 msgstr "不支持 %s 格式电子书"
 
@@ -2417,27 +2425,33 @@ msgstr ""
 msgid "Split Options:"
 msgstr "切分选项："
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:59
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:31
 msgid ""
 "The unit of measure. Default is inch. Choices are %s Note: This does not "
 "override the unit for margins!"
 msgstr "尺寸单位. 默认使用英寸. 可选项有 %s 注意: 该选项不能覆盖页边界的单位!"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:64
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:36
 msgid ""
 "The size of the paper. This size will be overridden when an output profile "
 "is used. Default is letter. Choices are %s"
 msgstr "纸张大小. 该选项将覆盖输出配置文件中的值. 默认值为letter. 可用选项有 %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:68
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:40
 msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
 msgstr "修改页面尺寸. 格式为 宽度x高度, 例如 `123x321` 来设定页面宽度和高度. 该设置将覆盖其他相同设置."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:73
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:45
 msgid "The orientation of the page. Default is portrait. Choices are %s"
 msgstr "设置页面方向. 默认为纵向页面. 可选项有 %s"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:49
+msgid ""
+"Preserve the aspect ratio of the cover, instead of stretching it to fill the "
+"ull first page of the generated pdf."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:55
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -2612,7 +2626,7 @@ msgid "Limit max simultaneous jobs to number of CPUs"
 msgstr "将并发任务最大值限制为 CPU 数量"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:135
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:475
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:482
 msgid "Copied"
 msgstr "已复制"
 
@@ -2745,7 +2759,7 @@ msgstr "输出"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:35
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:38
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:62
@@ -3476,13 +3490,17 @@ msgstr "无图像(&I)"
 msgid "PDF Output"
 msgstr "PDF 输出"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:40
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:43
 msgid "&Paper Size:"
 msgstr "纸张大小(&P)："
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:41
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:44
 msgid "&Orientation:"
 msgstr "纸张方向(&O)："
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:45
+msgid "Preserve &aspect ratio of cover"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
@@ -4268,7 +4286,7 @@ msgid "Failed to start content server"
 msgstr "无法启动内容服务器"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:715
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:586
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:593
 msgid "Select location for books"
 msgstr "选择书籍位置"
 
@@ -6010,7 +6028,7 @@ msgid "The database repair failed. Starting with a new empty library."
 msgstr "修复数据库失败。开始新建空白数据库。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:150
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:594
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:601
 msgid "Calibre Library"
 msgstr "Calibre 书库"
 
@@ -7567,7 +7585,7 @@ msgstr "转换大小写"
 msgid "Title Case"
 msgstr "标题大写"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:366
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:373
 msgid ""
 "If you use the WordPlayer e-book app on your Android phone, you can access "
 "your calibre book collection directly on the device. To do this you have to "
@@ -7575,13 +7593,13 @@ msgid ""
 msgstr ""
 "若您使用 Android 手机上的 WordPlayer 电子书程序，您可以用设备直接访问您的 Calibre 书库。这需要您打开内容服务器。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:370
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:377
 msgid ""
 "Remember to leave calibre running as the server only runs as long as calibre "
 "is running."
 msgstr "请记住保持 Calibre 运行，如此它才能一直提供服务。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:372
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:379
 msgid ""
 "You have to add the URL http://myhostname:8080 as your calibre library in "
 "WordPlayer. Here myhostname should be the fully qualified hostname or the IP "
@@ -7590,30 +7608,30 @@ msgstr ""
 "您需要将 URL http://myhostname:8080 添加到您 WordPlayer 中的 Calibre 书库。此处 myhostname "
 "应为有效主机名或者您运行 Calibre 电脑的 IP 地址。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:449
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:456
 msgid "Moving library..."
 msgstr "正在移动书库..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:465
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:466
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:473
 msgid "Failed to move library"
 msgstr "移动书库错误"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:520
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:527
 msgid "Invalid database"
 msgstr "无效数据库"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:521
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:528
 msgid ""
 "<p>An invalid library already exists at %s, delete it before trying to move "
 "the existing library.<br>Error: %s"
 msgstr "<p>在 %s 已有无效书库，在试图移动现有书库前删除它。<br>错误：%s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:539
 msgid "Could not move library"
 msgstr "无法移动书库"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:661
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:668
 msgid "welcome wizard"
 msgstr "欢迎向导"
 

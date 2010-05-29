@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-05-21 22:47+0000\n"
-"PO-Revision-Date: 2010-05-27 05:50+0000\n"
-"Last-Translator: Devilinside <Unknown>\n"
+"POT-Creation-Date: 2010-05-28 23:31+0000\n"
+"PO-Revision-Date: 2010-05-28 23:29+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-28 03:38+0000\n"
+"X-Launchpad-Export-Date: 2010-05-29 03:51+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -55,7 +55,7 @@ msgstr "Semmit nem csinál"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:120
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:329
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:444
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:912
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:921
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdb.py:39
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:28
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pml.py:23
@@ -97,8 +97,8 @@ msgstr "Semmit nem csinál"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:63
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:81
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:82
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:87
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:88
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:97
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:98
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:233
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:235
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:279
@@ -514,11 +514,11 @@ msgstr "Kapcsolódás ESlick olvasóhoz."
 msgid "Communicate with Hanlin V3 eBook readers."
 msgstr "Kommunikáció a Hanlin V3 eBook olvasókkal."
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:95
+#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:78
 msgid "Communicate with Hanlin V5 eBook readers."
 msgstr "A Hanlin V5 eBook olvasókkal kommunikál."
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:114
+#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:97
 msgid "Communicate with the BOOX eBook reader."
 msgstr "Kapcsolódás BOOX eBook olvasóhoz"
 
@@ -526,15 +526,19 @@ msgstr "Kapcsolódás BOOX eBook olvasóhoz"
 msgid "Communicate with the Hanvon N520 eBook reader."
 msgstr "A Hanvon N520 eBook olvasóval kommunikál."
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:41
+#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:40
+msgid "Communicate with The Book reader."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:51
 msgid "Communicate with the SpringDesign Alex eBook reader."
 msgstr "Kapcsolódás SpringDesign Alex eBook olvasóhoz"
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:57
+#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:67
 msgid "Communicate with the Azbooka"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:70
+#: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:80
 msgid "Communicate with the Elonex EB 511 eBook reader."
 msgstr "Az Elonex EB 511 eBook olvasóval kommunikál."
 
@@ -580,15 +584,15 @@ msgstr "Kapcsolódás Kindle 2 olvasóhoz."
 msgid "Communicate with the Kindle DX eBook reader."
 msgstr "Kapcsolódás Kindle DX eBook olvasóhoz"
 
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:14
+msgid "Communicate with the Kobo Reader"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:15
 msgid "Communicate with the Palm Pre"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:35
-msgid "Communicate with the Kobo Reader"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/devices/misc.py:56
 msgid "Communicate with the Booq Avant"
 msgstr ""
 
@@ -673,33 +677,33 @@ msgstr ""
 msgid "Communicate with the Teclast K3 reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:45
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:37
 msgid "Communicate with the Newsmy reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:60
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:49
 msgid "Communicate with the iPapyrus reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:252
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:246
 msgid "Unable to detect the %s disk drive. Try rebooting."
 msgstr ""
 "Nem tudtam érzékelni a %s lemezmeghajtót. Próbálkozzon újraindítással!"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:425
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:426
 msgid "Unable to detect the %s mount point. Try rebooting."
 msgstr ""
 "A következő csatolási pont nem található: %s. Próbálja meg újraindítani."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:490
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:491
 msgid "Unable to detect the %s disk drive."
 msgstr "A(z) %s meghajtó nem található"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:583
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:584
 msgid "Could not find mount helper: %s."
 msgstr "Nem található felcsatlakozást segítő: %s"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:595
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:596
 msgid ""
 "Unable to detect the %s disk drive. Your  kernel is probably exporting a "
 "deprecated version of SYSFS."
@@ -707,31 +711,31 @@ msgstr ""
 "Nem lehet felismerni a %s meghajtót. A kernel egy érvénytelen verziójú SYSFS-"
 "t támogat. http://calibre.kovidgoyal.net/user_manual/faq.html#id21"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:603
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:604
 msgid "Unable to mount main memory (Error code: %d)"
 msgstr "A belső memória nem felismerhető. (Hiba kód: %d)"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:740
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:742
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:741
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:743
 msgid "The reader has no storage card in this slot."
 msgstr "Ebben csatlakozóban nincs memóriakártya"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:744
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:745
 msgid "Selected slot: %s is not supported."
 msgstr "A következő kártyahely nem támogatott: %s"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:777
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:778
 msgid "There is insufficient free space in main memory"
 msgstr "Nincs elég hely a fő memóriában"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:779
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:781
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:780
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:782
 msgid "There is insufficient free space on the storage card"
 msgstr "Nincs elég hely a memóriakártyán."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:811
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:817
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:842
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:812
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:818
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:843
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:240
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:151
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:589
@@ -1524,7 +1528,7 @@ msgstr "Átalakítások futtatatása a könyvön..."
 msgid "Creating"
 msgstr "Létrehozás"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:205
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:56
 msgid ""
 "Extract the contents of the generated EPUB file to the specified directory. "
 "The contents of the directory are first deleted, so be careful."
@@ -1532,7 +1536,7 @@ msgstr ""
 "A létrehozott EPUB fájl tartalmának kibontása a megadott mappába. FGYELEM! A "
 "mappa tartalma törölve lesz a művelet előtt."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:211
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:62
 msgid ""
 "Turn off splitting at page breaks. Normally, input files are automatically "
 "split at every page break into two files. This gives an output ebook that "
@@ -1546,7 +1550,7 @@ msgstr ""
 "beolvasni. Ez a művelet azonban lassú, és ha a forrásfájl sok oldaltörést "
 "tartalmaz, akkor érdemes alkalmazni ezt az opciót."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:222
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:73
 msgid ""
 "Split all HTML files larger than this size (in KB). This is necessary as "
 "most EPUB readers cannot handle large file sizes. The default of %defaultKB "
@@ -1556,7 +1560,7 @@ msgstr ""
 "EPUB olvasó nem tud nagy fájlokat kezelni. Az alapértelmezett %defaultKB "
 "méret az Adobe Digital Editions által megkövetelt."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:229
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:80
 msgid ""
 "Normally, if the input file has no cover and you don't specify one, a "
 "default cover is generated with the title, authors, etc. This option "
@@ -1566,7 +1570,7 @@ msgstr ""
 "egyet, akkor egy generált borító készül a könyvhöz a címmel, szerzővel stb. "
 "Ez az opció letiltja ezt az automatikusan generált borítót."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:235
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
 "Do not use SVG for the book cover. Use this option if your EPUB is going to "
 "be used ona  device that does not support SVG, like the iPhone or the "
@@ -1578,7 +1582,7 @@ msgstr ""
 "támogatja az SVG formátumot. Ezeken az eszközökön az opció használata nélkül "
 "a borító helyett üres oldalt fog látni."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:243
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
 "When using an SVG cover, this option will cause the cover to scale to cover "
 "the available screen area, but still preserve its aspect ratio (ratio of "
@@ -1591,6 +1595,10 @@ msgstr ""
 "borító széleinél margó látható esetenként, de a kép nem lesz torzított. Ha "
 "nem használja ezt az opciót, akkor a borító kitölti a képernyőt, de enyhén "
 "torz lehet."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:169
+msgid "Start"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
@@ -2191,7 +2199,7 @@ msgstr ""
 "\n"
 "Töltse le a könyv ISBN által megadott borítóját a LibraryThing.com-ról\n"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1103
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1112
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1372
 msgid "Cover"
 msgstr "Borító"
@@ -2301,7 +2309,7 @@ msgstr "Előszó (szerk.)"
 msgid "Main Text"
 msgstr "Fő szöveg"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:39
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:41
 msgid "%s format books are not supported"
 msgstr "A %s formátumú könyvek sajnos nem támogatottak"
 
@@ -2620,7 +2628,7 @@ msgstr ""
 msgid "Split Options:"
 msgstr "Darabolás beállításai:"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:59
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:31
 msgid ""
 "The unit of measure. Default is inch. Choices are %s Note: This does not "
 "override the unit for margins!"
@@ -2628,7 +2636,7 @@ msgstr ""
 "Mértékegység. Alapértelmezett az inch. A lehetőségek: %s. Figyelem: ez nem "
 "írja felül a margók mértékegységét!"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:64
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:36
 msgid ""
 "The size of the paper. This size will be overridden when an output profile "
 "is used. Default is letter. Choices are %s"
@@ -2636,7 +2644,7 @@ msgstr ""
 "Papírméret. Ezt felülírja, ha kimeneti profilt használsz. Alapértelmezett: "
 "'letter'. A lehetőségek: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:68
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:40
 msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
@@ -2645,9 +2653,15 @@ msgstr ""
 "a szélesség és a magasság beállításához. Ez minden beállított papírméretet "
 "felülbírál."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:73
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:45
 msgid "The orientation of the page. Default is portrait. Choices are %s"
 msgstr "A lap tájolása. Alapértelmezett: álló. Lehetőségek: %s"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:49
+msgid ""
+"Preserve the aspect ratio of the cover, instead of stretching it to fill the "
+"ull first page of the generated pdf."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:55
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -2842,7 +2856,7 @@ msgstr ""
 "processzorok számára"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:135
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:475
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:482
 msgid "Copied"
 msgstr "Másolva"
 
@@ -2978,7 +2992,7 @@ msgstr "kimenet"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:35
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:38
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:62
@@ -3727,13 +3741,17 @@ msgstr "Képek nélkül"
 msgid "PDF Output"
 msgstr "PDF kimenet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:40
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:43
 msgid "&Paper Size:"
 msgstr "&Papírméret:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:41
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:44
 msgid "&Orientation:"
 msgstr "Lap tájolása:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:45
+msgid "Preserve &aspect ratio of cover"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
@@ -4530,7 +4548,7 @@ msgid "Failed to start content server"
 msgstr "A tartalomkiszolgáló indítása nem sikerült"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:715
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:586
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:593
 msgid "Select location for books"
 msgstr "Könyvek helyének kiválasztása"
 
@@ -6312,7 +6330,7 @@ msgid "The database repair failed. Starting with a new empty library."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:150
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:594
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:601
 msgid "Calibre Library"
 msgstr "Calibre Library"
 
@@ -7916,7 +7934,7 @@ msgstr "Kisbetű - nagybetű váltás"
 msgid "Title Case"
 msgstr "Minden Szó Nagybetűvel Kezdődik"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:366
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:373
 msgid ""
 "If you use the WordPlayer e-book app on your Android phone, you can access "
 "your calibre book collection directly on the device. To do this you have to "
@@ -7926,14 +7944,14 @@ msgstr ""
 "calibre adatbázis hálózaton keresztül is elérhető lesz, ha bekapcsolja a "
 "tartalomkiszolgálót."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:370
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:377
 msgid ""
 "Remember to leave calibre running as the server only runs as long as calibre "
 "is running."
 msgstr ""
 "Ne felejtse el futva hagyni a calibre-t, mert a szerver csak így működik."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:372
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:379
 msgid ""
 "You have to add the URL http://myhostname:8080 as your calibre library in "
 "WordPlayer. Here myhostname should be the fully qualified hostname or the IP "
@@ -7943,20 +7961,20 @@ msgstr ""
 "a WordPlayerben. A 'myhostname' helyére a calibre-t futtató számítógép "
 "teljes neve, vagy IP címe kerüljön."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:449
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:456
 msgid "Moving library..."
 msgstr "Adatbázis áthelyezése..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:465
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:466
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:473
 msgid "Failed to move library"
 msgstr "Adatbázis áthelyezése nem sikerült"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:520
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:527
 msgid "Invalid database"
 msgstr "Érvénytelen adatbázis"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:521
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:528
 msgid ""
 "<p>An invalid library already exists at %s, delete it before trying to move "
 "the existing library.<br>Error: %s"
@@ -7964,11 +7982,11 @@ msgstr ""
 "<p>Egy érvénytelen adatbázis már van a következő helyen: %s. Ezt törölnie "
 "kell mielőtt ide áthelyezi a meglévő adatbázist. <br>Hibakód: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:539
 msgid "Could not move library"
 msgstr "Nem lehet áthelyezni az adatbázist"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:661
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:668
 msgid "welcome wizard"
 msgstr "beállítás varázsló"
 
