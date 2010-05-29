@@ -252,10 +252,12 @@ class ITUNES(DevicePlugin):
                 self.update_needed = True
                 self.update_msg = "Deleted books from device"
             else:
-                undeletable_titles.append(self.cached_books[path]['title'])
+                undeletable_titles.append("'%s' by %s" %
+                 (self.cached_books[path]['title'],self.cached_books[path]['author']))
 
         if undeletable_titles:
-            raise UserFeedback(_('These books may only be deleted on the device in iBooks:'),
+            raise UserFeedback(_("Certain books may only be deleted using iBooks.\n"
+                                 "Click 'Show Details' for a list."),
                                   details='\n'.join(undeletable_titles), level=UserFeedback.WARN)
 
     def eject(self):
