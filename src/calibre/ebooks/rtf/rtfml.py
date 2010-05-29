@@ -19,6 +19,8 @@ except ImportError:
 
 import cStringIO
 
+from lxml import etree
+
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, \
     OEB_RASTER_IMAGES
 from calibre.ebooks.oeb.stylizer import Stylizer
@@ -118,12 +120,22 @@ class RTFMLizer(object):
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to RTF markup...' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
-            output += self.dump_text(item.data.find(XHTML('body')), stylizer)
+            content = unicode(etree.tostring(item.data.find(XHTML('body')), encoding=unicode))
+            content = self.remove_newlines(content)
+            output += self.dump_text(etree.fromstring(content), stylizer)
         output += self.footer()
         output = self.insert_images(output)
         output = self.clean_text(output)
 
         return output
+
+    def remove_newlines(self, text):
+        self.log.debug('\tRemove newlines for processing...')
+        text = text.replace('\r\n', ' ')
+        text = text.replace('\n', ' ')
+        text = text.replace('\r', ' ')
+
+        return text
 
     def header(self):
         return u'{\\rtf1{\\info{\\title %s}{\\author %s}}\\ansi\\ansicpg1252\\deff0\\deflang1033' % (self.oeb_book.metadata.title[0].value, authors_to_string([x.value for x in self.oeb_book.metadata.creator]))
