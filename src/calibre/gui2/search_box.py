@@ -297,9 +297,11 @@ class SavedSearchBox(QComboBox):
         if idx < 0:
             return
         ss = self.saved_searches.lookup(unicode(self.currentText()))
+        if ss is None:
+            return
         self.saved_searches.delete(unicode(self.currentText()))
         self.clear_to_help()
-        self.search_box.set_search_string(ss)
+        self.search_box.clear_to_help()
         self.emit(SIGNAL('changed()'))
 
     # SIGNALed from the main UI
