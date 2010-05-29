@@ -966,6 +966,7 @@ class DeviceBooksModel(BooksModel): # {{{
         return len(self.map)
 
     def set_database(self, db):
+        self.custom_columns = {}
         self.db = db
         self.map = list(range(0, len(db)))
 
