@@ -42,3 +42,13 @@ class README(USBMS):
         drives[0] = drives[1]
         drives[1] = t
         return tuple(drives)
+
+    def windows_sort_drives(self, drives):
+        if len(drives) < 2: return drives
+        main = drives.get('main', None)
+        carda = drives.get('carda', None)
+        if main and carda:
+            drives['main'] = carda
+            drives['carda'] = main
+        return drives
+
