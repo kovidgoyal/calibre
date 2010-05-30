@@ -8,7 +8,8 @@ import os
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
-    separate_paragraphs_single_line, separate_paragraphs_print_formatted
+    separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
+    preserve_spaces
 
 class TXTInput(InputFormatPlugin):
 
@@ -28,6 +29,9 @@ class TXTInput(InputFormatPlugin):
                 'an indent (either a tab or 2+ spaces) represents a paragraph. '
                 'Paragraphs end when the next line that starts with an indent '
                 'is reached.')),
+        OptionRecommendation(name='preserve_spaces', recommended_value=False,
+            help=_('Normally extra spaces are condensed into a single space. '
+                'With this option all spaces will be displayed.')),
         OptionRecommendation(name='markdown', recommended_value=False,
             help=_('Run the text input through the markdown pre-processor. To '
                 'learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
@@ -48,6 +52,8 @@ class TXTInput(InputFormatPlugin):
             txt = separate_paragraphs_single_line(txt)
         if options.print_formatted_paras:
             txt = separate_paragraphs_print_formatted(txt)
+        if options.preserve_spaces:
+            txt = preserve_spaces(txt)
 
         if options.markdown:
             log.debug('Running text though markdown conversion...')
