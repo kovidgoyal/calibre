@@ -24,6 +24,9 @@ def convert_basic(txt, title=''):
     for line in txt.splitlines():
         lines.append(line.strip())
     txt = '\n'.join(lines)
+    
+    # Condense redundant spaces
+    txt = re.sub('[ ]{2,}', ' ', txt)
 
     # Remove blank lines from the beginning and end of the document.
     txt = re.sub('^\s+(?=.)', '', txt)
@@ -54,6 +57,11 @@ def separate_paragraphs_single_line(txt):
 
 def separate_paragraphs_print_formatted(txt):
     txt = re.sub('(?miu)^(\t+|[ ]{2,})(?=.)', '\n\t', txt)
+    return txt
+
+def preserve_spaces(txt):
+    txt = txt.replace(' ', '&nbsp;')
+    txt = txt.replace('\t', '&#09;')
     return txt
 
 def opf_writer(path, opf_name, manifest, spine, mi):
