@@ -471,7 +471,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         if port < 1025:
             warning_dialog(self, _('System port selected'), '<p>'+
                     _('The value <b>%d</b> you have chosen for the content '
-                        'server port is a system port. You operating '
+                        'server port is a system port. Your operating '
                         'system <b>may</b> not allow the server to run on this '
                         'port. To be safe choose a port number larger than '
                         '1024.')%port, show=True)
