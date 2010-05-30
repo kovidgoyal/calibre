@@ -71,6 +71,18 @@ class HANLINV3(USBMS):
         drives[1] = t
         return tuple(drives)
 
+    def windows_sort_drives(self, drives):
+        if len(drives) < 2: return drives
+        main = drives.get('main', None)
+        carda = drives.get('carda', None)
+        if main and carda:
+            drives['main'] = carda
+            drives['carda'] = main
+        return drives
+
+
+
+
 
 class HANLINV5(HANLINV3):
     name           = 'Hanlin V5 driver'
