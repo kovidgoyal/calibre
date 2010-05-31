@@ -657,6 +657,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def get_recipe(self, id):
         return self.conn.get('SELECT script FROM feeds WHERE id=?', (id,), all=False)
 
+    def get_books_for_category(self, category, id_):
+        ans = set([])
+
+        if category not in self.field_metadata:
+            return ans
+
+        field = self.field_metadata[category]
+        ans = self.conn.get(
+                'SELECT book FROM books_{tn}_link WHERE {col}=?'.format(
+                    tn=field['table'], col=field['link_column']), (id_,))
+        return set(x[0] for x in ans)
+
     def get_categories(self, sort_on_count=False, ids=None, icon_map=None):
         self.books_list_filter.change([] if not ids else ids)
 

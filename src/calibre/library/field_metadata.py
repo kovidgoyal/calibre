@@ -374,6 +374,7 @@ class FieldMetadata(dict):
                              'search_terms':[key], 'label':label,
                              'colnum':colnum,      'display':display,
                              'is_custom':True,     'is_category':is_category,
+                             'link_column':'value',
                              'is_editable': is_editable,}
         self._add_search_terms_to_map(key, [key])
         self.custom_label_to_key_map[label] = key
