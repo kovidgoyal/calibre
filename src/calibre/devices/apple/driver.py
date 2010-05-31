@@ -51,7 +51,7 @@ class ITUNES(DevicePlugin):
     description    = _('Communicate with iBooks through iTunes.')
     supported_platforms = ['osx','windows']
     author = 'GRiker'
-    driver_version = '0.1'
+    driver_version = '0.2'
 
     OPEN_FEEDBACK_MESSAGE = _(
         'Apple device detected, launching iTunes, please wait...')
@@ -1133,7 +1133,7 @@ class ITUNES(DevicePlugin):
             if 'iPod' in self.sources:
                 connected_device = self.sources['iPod']
                 if 'Books' in self.iTunes.sources[connected_device].playlists.name():
-                    return self.iTunes.sources[device].playlists['Books'].file_tracks()
+                    return self.iTunes.sources[connected_device].playlists['Books'].file_tracks()
             return []
 
         elif iswindows:
@@ -1183,7 +1183,7 @@ class ITUNES(DevicePlugin):
             connected_device = self.sources['iPod']
             if isosx:
                 if 'Purchased' in self.iTunes.sources[connected_device].playlists.name():
-                    return [pb.database_ID() for pb in self.iTunes.sources[device].playlists['Purchased'].file_tracks()]
+                    return [pb.database_ID() for pb in self.iTunes.sources[connected_device].playlists['Purchased'].file_tracks()]
                 else:
                     return []
             elif iswindows:
