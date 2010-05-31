@@ -15,7 +15,7 @@ try:
 except ImportError:
     import Image as PILImage
 
-from calibre import __appname__, __version__, guess_type
+from calibre import guess_type
 
 class CoverManager(object):
 
@@ -89,7 +89,6 @@ class CoverManager(object):
         '''
         Create a generic cover for books that dont have a cover
         '''
-        from calibre.utils.pil_draw import draw_centered_text
         from calibre.ebooks.metadata import authors_to_string
         if self.no_default_cover:
             return None
@@ -98,46 +97,15 @@ class CoverManager(object):
         title = unicode(m.title[0])
         authors = [unicode(x) for x in m.creator if x.role == 'aut']
 
-        cover_file = cStringIO.StringIO()
         try:
-            try:
-                from PIL import Image, ImageDraw, ImageFont
-                Image, ImageDraw, ImageFont
-            except ImportError:
-                import Image, ImageDraw, ImageFont
-            font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
-            app = '['+__appname__ +' '+__version__+']'
-
-            COVER_WIDTH, COVER_HEIGHT = 590, 750
-            img = Image.new('RGB', (COVER_WIDTH, COVER_HEIGHT), 'white')
-            draw = ImageDraw.Draw(img)
-            # Title
-            font = ImageFont.truetype(font_path, 44)
-            bottom = draw_centered_text(img, draw, font, title, 15, ysep=9)
-            # Authors
-            bottom += 14
-            font = ImageFont.truetype(font_path, 32)
-            authors = authors_to_string(authors)
-            bottom = draw_centered_text(img, draw, font, authors, bottom, ysep=7)
-            # Vanity
-            font = ImageFont.truetype(font_path, 28)
-            width, height = draw.textsize(app, font=font)
-            left = max(int((COVER_WIDTH - width)/2.), 0)
-            top = COVER_HEIGHT - height - 15
-            draw.text((left, top), app, fill=(0,0,0), font=font)
-            # Logo
-            logo = Image.open(I('library.png'), 'r')
-            width, height = logo.size
-            left = max(int((COVER_WIDTH - width)/2.), 0)
-            top = max(int((COVER_HEIGHT - height)/2.), 0)
-            img.paste(logo, (left, max(bottom, top)))
-            img = img.convert('RGB').convert('P', palette=Image.ADAPTIVE)
-
-            img.convert('RGB').save(cover_file, 'JPEG')
-            cover_file.flush()
-            id, href = self.oeb.manifest.generate('cover_image', 'cover_image.jpg')
-            item = self.oeb.manifest.add(id, href, guess_type('t.jpg')[0],
-                        data=cover_file.getvalue())
+            from calibre.utils.magick_draw import create_cover_page, TextLine
+            lines = [TextLine(title, 44), TextLine(authors_to_string(authors),
+                32)]
+            img_data = create_cover_page(lines, I('library.png'))
+            id, href = self.oeb.manifest.generate('cover_image',
+                    'cover_image.png')
+            item = self.oeb.manifest.add(id, href, guess_type('t.png')[0],
+                        data=img_data)
             m.clear('cover')
             m.add('cover', item.id)
 

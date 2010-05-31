@@ -15,23 +15,27 @@ class Cache(object):
         self._search_cache = OrderedDict()
 
     def search_cache(self, search):
-        old = self._search_cache.get(search, None)
+        old = self._search_cache.pop(search, None)
         if old is None or old[0] <= self.db.last_modified():
             matches = self.db.data.search(search, return_matches=True,
                     ignore_search_restriction=True)
             if not matches:
                 matches = []
             self._search_cache[search] = (utcnow(), frozenset(matches))
-            if len(self._search_cache) > 10:
+            if len(self._search_cache) > 50:
                 self._search_cache.popitem(last=False)
+        else:
+            self._search_cache[search] = old
         return self._search_cache[search][1]
 
 
     def categories_cache(self, restrict_to=frozenset([])):
-        old = self._category_cache.get(frozenset(restrict_to), None)
+        old = self._category_cache.pop(frozenset(restrict_to), None)
         if old is None or old[0] <= self.db.last_modified():
             categories = self.db.get_categories(ids=restrict_to)
             self._category_cache[restrict_to] = (utcnow(), categories)
-            if len(self._category_cache) > 10:
+            if len(self._category_cache) > 20:
                 self._category_cache.popitem(last=False)
+        else:
+            self._category_cache[frozenset(restrict_to)] = old
         return self._category_cache[restrict_to][1]

@@ -148,6 +148,9 @@ class RecursiveFetcher(object):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(self.preprocess_regexps)
         nmassage += [(re.compile(r'<!DOCTYPE .+?>', re.DOTALL), lambda m: '')] # Some websites have buggy doctype declarations that mess up beautifulsoup
+        # Remove comments as they can leave detritus when extracting tags leaves
+        # multiple nested comments
+        nmassage.append((re.compile(r'<!--.*?-->', re.DOTALL), lambda m: ''))
         soup = BeautifulSoup(xml_to_unicode(src, self.verbose, strip_encoding_pats=True)[0], markupMassage=nmassage)
 
         if self.keep_only_tags:

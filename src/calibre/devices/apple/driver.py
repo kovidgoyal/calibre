@@ -54,15 +54,14 @@ class ITUNES(DevicePlugin):
     driver_version = '0.2'
 
     OPEN_FEEDBACK_MESSAGE = _(
-        'Apple device detected, launching iTunes, please wait...')
+        'Apple device detected, launching iTunes, please wait ...')
 
     FORMATS = ['epub']
 
-    VENDOR_ID = [0x05ac]
     # Product IDs:
-    #  0x129a:iPad
     #  0x1292:iPhone 3G
-    #PRODUCT_ID = [0x129a,0x1292]
+    #  0x129a:iPad
+    VENDOR_ID = [0x05ac]
     PRODUCT_ID = [0x129a]
     BCD = [0x01]
 

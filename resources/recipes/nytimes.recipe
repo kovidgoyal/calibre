@@ -10,7 +10,7 @@ import time
 from calibre import entity_to_unicode
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString, \
-    Comment, BeautifulStoneSoup
+Comment, BeautifulStoneSoup
 
 class NYTimes(BasicNewsRecipe):
 
@@ -86,6 +86,7 @@ class NYTimes(BasicNewsRecipe):
                             'relatedSearchesModule',
                             'side_tool',
                             'singleAd',
+                            'subNavigation tabContent active',
                             'subNavigation tabContent active clearfix',
                             ]}),
                    dict(id=[
@@ -94,6 +95,7 @@ class NYTimes(BasicNewsRecipe):
                             'articleExtras',
                             'articleInline',
                             'blog_sidebar',
+                            'businessSearchBar',
                             'cCol',
                             'entertainmentSearchBar',
                             'footer',
@@ -101,6 +103,7 @@ class NYTimes(BasicNewsRecipe):
                             'header_search',
                             'login',
                             'masthead',
+                            'masthead-nav',
                             'memberTools',
                             'navigation',
                             'portfolioInline',

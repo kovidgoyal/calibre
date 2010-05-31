@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>470</width>
     <height>300</height>
    </rect>
   </property>
@@ -52,7 +52,7 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="6" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -65,10 +65,17 @@
      </property>
     </spacer>
    </item>
+   <item row="5" column="0">
+    <widget class="QCheckBox" name="opt_preserve_spaces">
+     <property name="text">
+      <string>Preserve &amp;spaces</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>
-<connections>
+ <connections>
   <connection>
    <sender>opt_markdown</sender>
    <signal>toggled(bool)</signal>
