@@ -237,6 +237,9 @@ class OutputProfile(Plugin):
     # If True the MOBI renderer on the device supports MOBI indexing
     supports_mobi_indexing = False
 
+    # Device supports displaying a nested TOC
+    supports_nested_toc = True
+
     @classmethod
     def tags_to_string(cls, tags):
         return escape(', '.join(tags))
@@ -250,6 +253,7 @@ class iPadOutput(OutputProfile):
     screen_size = (768, 1024)
     comic_screen_size = (768, 1024)
     dpi = 132.0
+    supports_nested_toc = False
 
 class SonyReaderOutput(OutputProfile):
 
