@@ -160,7 +160,8 @@ class ITUNES(DevicePlugin):
                              }
 
                             if self.report_progress is not None:
-                                self.report_progress(i+1/book_count, _('%d of %d' % (i+1, book_count)))
+                                self.report_progress(i+1/book_count,
+                                        _('%d of %d') % (i+1, book_count))
 
                         if self.report_progress is not None:
                             self.report_progress(1.0, _('finished'))
@@ -653,7 +654,8 @@ class ITUNES(DevicePlugin):
 
                 # Report progress
                 if self.report_progress is not None:
-                    self.report_progress(i+1/file_count, _('%d of %d' % (i+1, file_count)))
+                    self.report_progress(i+1/file_count,
+                            _('%d of %d') % (i+1, file_count))
 
             if self.report_progress is not None:
                 self.report_progress(1.0, _('finished'))
