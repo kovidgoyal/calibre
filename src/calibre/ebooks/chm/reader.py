@@ -132,6 +132,9 @@ class CHMReader(CHMFile):
             lpath = os.path.join(output_dir, path)
             self._ensure_dir(lpath)
             data = self.GetFile(path)
+            if lpath.find(';') != -1:
+                # fix file names with ";<junk>" at the end, see _reformat()
+                lpath = lpath.split(';')[0]
             with open(lpath, 'wb') as f:
                 if guess_mimetype(path)[0] == ('text/html'):
                     data = self._reformat(data)
@@ -158,14 +161,26 @@ class CHMReader(CHMFile):
         # cos they really fuck with the flow of things and generally waste space
         # since we can't use [a,b] syntax to select arbitrary items from a list
         # we'll have to do this manually...
+        # only remove the tables, if they have an image with an alt attribute
+        # containing prev, next or team
         t = soup('table')
         if t:
             if (t[0].previousSibling is None
               or t[0].previousSibling.previousSibling is None):
-                t[0].extract()
+                try:
+                    alt = t[0].img['alt'].lower()
+                    if alt.find('prev') != -1 or alt.find('next') != -1 or alt.find('team') != -1:
+                        t[0].extract()
+                except:
+                    pass
             if (t[-1].nextSibling is None
               or t[-1].nextSibling.nextSibling is None):
-                t[-1].extract()
+                try:
+                    alt = t[-1].img['alt'].lower()
+                    if alt.find('prev') != -1 or alt.find('next') != -1 or alt.find('team') != -1:
+                        t[-1].extract()
+                except:
+                    pass
         # for some very odd reason each page's content appears to be in a table
         # too. and this table has sub-tables for random asides... grr.
 
@@ -185,8 +200,24 @@ class CHMReader(CHMFile):
             except KeyError:
                 # and some don't even have a src= ?!
                 pass
-        # now give back some pretty html.
-        return soup.prettify('utf-8')
+        try:
+            # if there is only a single table with a single element
+            # in the body, replace it by the contents of this single element
+            tables = soup.body.findAll('table', recursive=False)
+            if tables and len(tables) == 1:
+                trs = tables[0].findAll('tr', recursive=False)
+                if trs and len(trs) == 1:
+                    tds = trs[0].findAll('td', recursive=False)
+                    if tds and len(tds) == 1:
+                        tdContents = tds[0].contents
+                        tableIdx = soup.body.contents.index(tables[0])
+                        tables[0].extract()
+                        while tdContents:
+                            soup.body.insert(tableIdx, tdContents.pop())
+        except:
+            pass
+        # do not prettify, it would reformat the <pre> tags!
+        return str(soup)
 
     def Contents(self):
         if self._contents is not None:
