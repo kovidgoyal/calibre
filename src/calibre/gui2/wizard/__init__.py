@@ -78,18 +78,12 @@ class KindleDX(Kindle):
     name = 'Kindle DX'
     id = 'kindledx'
 
-class Sony500(Device):
+class Sony505(Device):
 
     output_profile = 'sony'
-    name = 'SONY PRS 500'
-    output_format = 'LRF'
-    manufacturer = 'SONY'
-    id = 'prs500'
-
-class Sony505(Sony500):
-
+    name = 'All other SONY devices'
     output_format = 'EPUB'
-    name = 'SONY Reader 6" and Touch Edition'
+    manufacturer = 'SONY'
     id = 'prs505'
 
 class Kobo(Device):
@@ -344,7 +338,7 @@ class StanzaPage(QWizardPage, StanzaUI):
 
         p = self.set_port()
         if p is not None:
-            from calibre.library import server_config
+            from calibre.library.server import server_config
             c = server_config()
             c.set('port', p)
 

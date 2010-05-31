@@ -430,7 +430,7 @@ from calibre.ebooks.txt.output import TXTOutput
 
 from calibre.customize.profiles import input_profiles, output_profiles
 
-
+from calibre.devices.apple.driver import ITUNES
 from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK
@@ -442,8 +442,7 @@ from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.nook.driver import NOOK
-from calibre.devices.prs500.driver import PRS500
-from calibre.devices.prs505.driver import PRS505, PRS700
+from calibre.devices.prs505.driver import PRS505
 from calibre.devices.android.driver import ANDROID, S60
 from calibre.devices.nokia.driver import N770, N810, E71X
 from calibre.devices.eslick.driver import ESLICK
@@ -455,6 +454,7 @@ from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import PALMPRE, AVANT
+from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
@@ -496,6 +496,7 @@ plugins += [
 ]
 # Order here matters. The first matched device is the one used.
 plugins += [
+    ITUNES,
     HANLINV3,
     HANLINV5,
     BLACKBERRY,
@@ -511,8 +512,6 @@ plugins += [
     KINDLE_DX,
     NOOK,
     PRS505,
-    PRS700,
-    PRS500,
     ANDROID,
     S60,
     N770,
@@ -544,6 +543,7 @@ plugins += [
     PALMPRE,
     KOBO,
     AZBOOKA,
+    FOLDER_DEVICE_FOR_CONFIG,
     AVANT,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \

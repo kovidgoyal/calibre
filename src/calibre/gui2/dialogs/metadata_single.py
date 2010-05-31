@@ -11,10 +11,11 @@ import re
 import time
 import traceback
 
+import sip
 from PyQt4.Qt import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDate, \
-    QPixmap, QListWidgetItem, QDialog
+    QPixmap, QListWidgetItem, QDialog, QHBoxLayout, QGridLayout
 
-from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
+from calibre.gui2 import error_dialog, file_icon_provider, \
                            choose_files, choose_images, ResizableDialog, \
                            warning_dialog
 from calibre.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
@@ -31,6 +32,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import qt_to_dt
 from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
 from calibre.gui2.dialogs.config.social import SocialMetadata
+from calibre.gui2.custom_column_widgets import populate_single_metadata_page
 
 class CoverFetcher(QThread):
 
@@ -311,6 +313,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cpixmap = None
         self.cover.setAcceptDrops(True)
         self.pubdate.setMinimumDate(QDate(100,1,1))
+        pubdate_format = tweaks['gui_pubdate_display_format']
+        if pubdate_format is not None:
+            self.pubdate.setDisplayFormat(pubdate_format)
         self.date.setMinimumDate(QDate(100,1,1))
 
         self.connect(self.cover, SIGNAL('cover_changed(PyQt_PyObject)'), self.cover_dropped)
@@ -405,6 +410,30 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 self.cover.setPixmap(pm)
             self.cover_data = cover
         self.original_series_name = unicode(self.series.text()).strip()
+        if len(db.custom_column_label_map) == 0:
+            self.central_widget.tabBar().setVisible(False)
+        else:
+            self.create_custom_column_editors()
+
+    def create_custom_column_editors(self):
+        w = self.central_widget.widget(1)
+        top_layout = QHBoxLayout()
+        top_layout.setSpacing(20)
+        left_layout = QGridLayout()
+        right_layout = QGridLayout()
+        top_layout.addLayout(left_layout)
+
+        self.custom_column_widgets, self.__cc_spacers = populate_single_metadata_page(
+                left_layout, right_layout, self.db, self.id, w)
+        top_layout.addLayout(right_layout)
+        sip.delete(w.layout())
+        w.setLayout(top_layout)
+        self.__custom_col_layouts = [top_layout, left_layout, right_layout]
+        ans = self.custom_column_widgets
+        for i in range(len(ans)-1):
+            w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[-1])
+
+
 
     def validate_isbn(self, isbn):
         isbn = unicode(isbn).strip()
@@ -559,12 +588,12 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def fetch_metadata(self):
         isbn   = re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text()))
-        title  = qstring_to_unicode(self.title.text())
+        title  = unicode(self.title.text())
         try:
             author = string_to_authors(unicode(self.authors.text()))[0]
         except:
             author = ''
-        publisher = qstring_to_unicode(self.publisher.currentText())
+        publisher = unicode(self.publisher.currentText())
         if isbn or title or author or publisher:
             d = FetchMetadata(self, isbn, title, author, publisher, self.timeout)
             self._fetch_metadata_scope = d
@@ -630,12 +659,12 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def remove_unused_series(self):
         self.db.remove_unused_series()
-        idx = qstring_to_unicode(self.series.currentText())
+        idx = unicode(self.series.currentText())
         self.series.clear()
         self.initialize_series()
         if idx:
             for i in range(self.series.count()):
-                if qstring_to_unicode(self.series.itemText(i)) == idx:
+                if unicode(self.series.itemText(i)) == idx:
                     self.series.setCurrentIndex(i)
                     break
 
@@ -655,7 +684,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.db.set_isbn(self.id,
                     re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text())), notify=False)
             self.db.set_rating(self.id, 2*self.rating.value(), notify=False)
-            self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.currentText()), notify=False)
+            self.db.set_publisher(self.id, unicode(self.publisher.currentText()), notify=False)
             self.db.set_tags(self.id, [x.strip() for x in
                 unicode(self.tags.text()).split(',')], notify=False)
             self.db.set_series(self.id,
@@ -675,6 +704,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     self.db.set_cover(self.id, self.cover_data)
                 else:
                     self.db.remove_cover(self.id)
+            for w in getattr(self, 'custom_column_widgets', []):
+                w.commit(self.id)
         except IOError, err:
             if err.errno == 13: # Permission denied
                 fname = err.filename if err.filename else 'file'

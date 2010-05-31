@@ -1,53 +1,56 @@
-# -*- coding: utf-8 -*-
-
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
-                '2009, John Schember <john at nachtimwald.com>'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 '''
-Device driver for the SONY PRS-505
+Device driver for the SONY devices
 '''
 
 import os
 import re
-import time
-from itertools import cycle
 
-from calibre.devices.usbms.cli import CLI
-from calibre.devices.usbms.device import Device
-from calibre.devices.prs505.books import BookList, fix_ids
+from calibre.devices.usbms.driver import USBMS
+from calibre.devices.prs505 import MEDIA_XML
+from calibre.devices.prs505 import CACHE_XML
+from calibre.devices.prs505.sony_cache import XMLCache
 from calibre import __appname__
+from calibre.devices.usbms.books import CollectionsBookList
 
-class PRS505(CLI, Device):
+class PRS505(USBMS):
 
-    name           = 'PRS-300/505 Device Interface'
+    name           = 'SONY Device Interface'
     gui_name       = 'SONY Reader'
-    description    = _('Communicate with the Sony PRS-300/505/500 eBook reader.')
-    author         = 'Kovid Goyal and John Schember'
+    description    = _('Communicate with all the Sony eBook readers.')
+    author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     path_sep = '/'
+    booklist_class = CollectionsBookList
+
 
     FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
+    CAN_SET_METADATA = True
 
     VENDOR_ID    = [0x054c]   #: SONY Vendor Id
-    PRODUCT_ID   = [0x031e]   #: Product Id for the PRS 300/505/new 500
-    BCD          = [0x229, 0x1000, 0x22a]
+    PRODUCT_ID   = [0x031e]
+    BCD          = [0x229, 0x1000, 0x22a, 0x31a]
 
     VENDOR_NAME        = 'SONY'
-    WINDOWS_MAIN_MEM   = re.compile('PRS-(505|300|500)')
-    WINDOWS_CARD_A_MEM = re.compile(r'PRS-(505|500)[#/]\S+:MS')
-    WINDOWS_CARD_B_MEM = re.compile(r'PRS-(505|500)[#/]\S+:SD')
+    WINDOWS_MAIN_MEM   = re.compile(
+            r'(PRS-(505|300|500))|'
+            r'(PRS-((700[#/])|((6|9)00&)))'
+            )
+    WINDOWS_CARD_A_MEM = re.compile(
+            r'(PRS-(505|500)[#/]\S+:MS)|'
+            r'(PRS-((700[/#]\S+:)|((6|9)00[#_]))MS)'
+            )
+    WINDOWS_CARD_B_MEM = re.compile(
+            r'(PRS-(505|500)[#/]\S+:SD)|'
+            r'(PRS-((700[/#]\S+:)|((6|9)00[#_]))SD)'
+            )
 
-    OSX_MAIN_MEM   = re.compile(r'Sony PRS-(((505|300|500)/[^:]+)|(300)) Media')
-    OSX_CARD_A_MEM = re.compile(r'Sony PRS-(505|500)/[^:]+:MS Media')
-    OSX_CARD_B_MEM = re.compile(r'Sony PRS-(505|500)/[^:]+:SD Media')
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Sony Reader Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Sony Reader Storage Card'
-
-    MEDIA_XML    = 'database/cache/media.xml'
-    CACHE_XML    = 'Sony Reader/database/cache.xml'
 
     CARD_PATH_PREFIX          = __appname__
 
@@ -63,63 +66,8 @@ class PRS505(CLI, Device):
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
 
-    def open(self):
-        self.report_progress = lambda x, y: x
-        Device.open(self)
-
-        def write_cache(prefix):
-            try:
-                cachep = os.path.join(prefix, *(self.CACHE_XML.split('/')))
-                if not os.path.exists(cachep):
-                    dname = os.path.dirname(cachep)
-                    if not os.path.exists(dname):
-                        try:
-                            os.makedirs(dname, mode=0777)
-                        except:
-                            time.sleep(5)
-                            os.makedirs(dname, mode=0777)
-                    with open(cachep, 'wb') as f:
-                        f.write(u'''<?xml version="1.0" encoding="UTF-8"?>
-                            <cache xmlns="http://www.kinoma.com/FskCache/1">
-                            </cache>
-                            '''.encode('utf8'))
-                return True
-            except:
-                import traceback
-                traceback.print_exc()
-            return False
-
-        if self._card_a_prefix is not None:
-            if not write_cache(self._card_a_prefix):
-                self._card_a_prefix = None
-        if self._card_b_prefix is not None:
-            if not write_cache(self._card_b_prefix):
-                self._card_b_prefix = None
-
     def get_device_information(self, end_session=True):
         return (self.gui_name, '', '', '')
-
-    def books(self, oncard=None, end_session=True):
-        if oncard == 'carda' and not self._card_a_prefix:
-            self.report_progress(1.0, _('Getting list of books on device...'))
-            return []
-        elif oncard == 'cardb' and not self._card_b_prefix:
-            self.report_progress(1.0, _('Getting list of books on device...'))
-            return []
-        elif oncard and oncard != 'carda' and oncard != 'cardb':
-            self.report_progress(1.0, _('Getting list of books on device...'))
-            return []
-
-        db = self.__class__.CACHE_XML if oncard else self.__class__.MEDIA_XML
-        prefix = self._card_a_prefix if oncard == 'carda' else self._card_b_prefix if oncard == 'cardb' else self._main_prefix
-        bl = BookList(open(prefix + db, 'rb'), prefix, self.report_progress)
-        paths = bl.purge_corrupted_files()
-        for path in paths:
-            path = os.path.join(prefix, path)
-            if os.path.exists(path):
-                os.unlink(path)
-        self.report_progress(1.0, _('Getting list of books on device...'))
-        return bl
 
     def filename_callback(self, fname, mi):
         if getattr(mi, 'application_id', None) is not None:
@@ -129,117 +77,43 @@ class PRS505(CLI, Device):
                 fname = base + suffix + '.' + fname.rpartition('.')[-1]
         return fname
 
-    def upload_books(self, files, names, on_card=None, end_session=True,
-                     metadata=None):
+    def initialize_XML_cache(self):
+        paths, prefixes = {}, {}
+        for prefix, path, source_id in [
+                ('main', MEDIA_XML, 0),
+                ('card_a', CACHE_XML, 1),
+                ('card_b', CACHE_XML, 2)
+                ]:
+            prefix = getattr(self, '_%s_prefix'%prefix)
+            if prefix is not None and os.path.exists(prefix):
+                paths[source_id] = os.path.join(prefix, *(path.split('/')))
+                prefixes[source_id] = prefix
+                d = os.path.dirname(paths[source_id])
+                if not os.path.exists(d):
+                    os.makedirs(d)
+        return XMLCache(paths, prefixes)
 
-        path = self._sanity_check(on_card, files)
-
-        paths, ctimes, sizes = [], [], []
-        names = iter(names)
-        metadata = iter(metadata)
-        for i, infile in enumerate(files):
-            mdata, fname = metadata.next(), names.next()
-            filepath = self.create_upload_path(path, mdata, fname)
-
-            paths.append(filepath)
-            self.put_file(infile, paths[-1], replace_file=True)
-            ctimes.append(os.path.getctime(paths[-1]))
-            sizes.append(os.stat(paths[-1]).st_size)
-
-            self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
-
-        self.report_progress(1.0, _('Transferring books to device...'))
-
-        return zip(paths, sizes, ctimes, cycle([on_card]))
-
-    def add_books_to_metadata(self, locations, metadata, booklists):
-        if not locations or not metadata:
-            return
-
-        metadata = iter(metadata)
-        for location in locations:
-            info = metadata.next()
-            path = location[0]
-            oncard = location[3]
-            blist = 2 if oncard == 'cardb' else 1 if oncard == 'carda' else 0
-
-            if self._main_prefix and path.startswith(self._main_prefix):
-                name = path.replace(self._main_prefix, '')
-            elif self._card_a_prefix and path.startswith(self._card_a_prefix):
-                name = path.replace(self._card_a_prefix, '')
-            elif self._card_b_prefix and path.startswith(self._card_b_prefix):
-                name = path.replace(self._card_b_prefix, '')
-
-            name = name.replace('\\', '/')
-            name = name.replace('//', '/')
-            if name.startswith('/'):
-                name = name[1:]
-
-            opts = self.settings()
-            collections = opts.extra_customization.split(',') if opts.extra_customization else []
-            booklist = booklists[blist]
-            if not hasattr(booklist, 'add_book'):
-                raise ValueError(('Incorrect upload location %s. Did you choose the'
-                        ' correct card A or B, to send books to?')%oncard)
-            booklist.add_book(info, name, collections, *location[1:-1])
-        fix_ids(*booklists)
-
-    def delete_books(self, paths, end_session=True):
-        for i, path in enumerate(paths):
-            self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
-            if os.path.exists(path):
-                os.unlink(path)
-                try:
-                    os.removedirs(os.path.dirname(path))
-                except:
-                    pass
-        self.report_progress(1.0, _('Removing books from device...'))
-
-    @classmethod
-    def remove_books_from_metadata(cls, paths, booklists):
-        for path in paths:
-            for bl in booklists:
-                if hasattr(bl, 'remove_book'):
-                    bl.remove_book(path)
-        fix_ids(*booklists)
+    def books(self, oncard=None, end_session=True):
+        bl = USBMS.books(self, oncard=oncard, end_session=end_session)
+        c = self.initialize_XML_cache()
+        c.update_booklist(bl, {'carda':1, 'cardb':2}.get(oncard, 0))
+        return bl
 
     def sync_booklists(self, booklists, end_session=True):
-        fix_ids(*booklists)
-        if not os.path.exists(self._main_prefix):
-            os.makedirs(self._main_prefix)
-        with open(self._main_prefix + self.__class__.MEDIA_XML, 'wb') as f:
-            booklists[0].write(f)
+        c = self.initialize_XML_cache()
+        blists = {}
+        for i in c.paths:
+            if booklists[i] is not None:
+                blists[i] = booklists[i]
+        opts = self.settings()
+        collections = ['series', 'tags']
+        if opts.extra_customization:
+            collections = [x.strip() for x in
+                    opts.extra_customization.split(',')]
 
-        def write_card_prefix(prefix, listid):
-            if prefix is not None and hasattr(booklists[listid], 'write'):
-                tgt  = os.path.join(prefix, *(self.CACHE_XML.split('/')))
-                base = os.path.dirname(tgt)
-                if not os.path.exists(base):
-                    os.makedirs(base)
-                with open(tgt, 'wb') as f:
-                    booklists[listid].write(f)
-        write_card_prefix(self._card_a_prefix, 1)
-        write_card_prefix(self._card_b_prefix, 2)
+        c.update(blists, collections)
+        c.write()
 
-        self.report_progress(1.0, _('Sending metadata to device...'))
-
-
-class PRS700(PRS505):
-
-    name           = 'PRS-600/700/900 Device Interface'
-    description    = _('Communicate with the Sony PRS-600/700/900 eBook reader.')
-    author         = 'Kovid Goyal and John Schember'
-    gui_name       = 'SONY Reader'
-    supported_platforms = ['windows', 'osx', 'linux']
-
-    BCD          = [0x31a]
-
-    WINDOWS_MAIN_MEM = re.compile('PRS-((700[#/])|((6|9)00&))')
-    WINDOWS_CARD_A_MEM = re.compile(r'PRS-((700[/#]\S+:)|((6|9)00[#_]))MS')
-    WINDOWS_CARD_B_MEM = re.compile(r'PRS-((700[/#]\S+:)|((6|9)00[#_]))SD')
-
-    OSX_MAIN_MEM   = re.compile(r'Sony PRS-((700/[^:]+)|((6|9)00)) Media')
-    OSX_CARD_A_MEM = re.compile(r'Sony PRS-((700/[^:]+:)|((6|9)00 ))MS Media')
-    OSX_CARD_B_MEM = re.compile(r'Sony PRS-((700/[^:]+:)|((6|9)00 ))SD Media')
+        USBMS.sync_booklists(self, booklists, end_session=end_session)
 
 

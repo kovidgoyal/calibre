@@ -6,9 +6,9 @@ from threading import RLock
 
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
                          QByteArray, QTranslator, QCoreApplication, QThread, \
-                         QEvent, QTimer, pyqtSignal
+                         QEvent, QTimer, pyqtSignal, QDate
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
-                        QIcon, QTableView, QApplication, QDialog, QPushButton
+                        QIcon, QApplication, QDialog, QPushButton
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
@@ -17,12 +17,14 @@ from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.ebooks.metadata import MetaInformation
+from calibre.utils.date import UNDEFINED_DATE
 
 gprefs = JSONConfig('gui')
 
 NONE = QVariant() #: Null value to return from the data function of item models
+UNDEFINED_QDATE = QDate(UNDEFINED_DATE)
 
-ALL_COLUMNS = ['title', 'authors', 'size', 'timestamp', 'rating', 'publisher',
+ALL_COLUMNS = ['title', 'ondevice', 'authors', 'size', 'timestamp', 'rating', 'publisher',
         'tags', 'series', 'pubdate']
 
 def _config():
@@ -182,29 +184,38 @@ class MessageBox(QMessageBox):
 
 
 
-def warning_dialog(parent, title, msg, det_msg='', show=False):
+def warning_dialog(parent, title, msg, det_msg='', show=False,
+        show_copy_button=True):
     d = MessageBox(QMessageBox.Warning, 'WARNING: '+title, msg, QMessageBox.Ok,
                     parent, det_msg)
     d.setEscapeButton(QMessageBox.Ok)
     d.setIconPixmap(QPixmap(I('dialog_warning.svg')))
+    if not show_copy_button:
+        d.cb.setVisible(False)
     if show:
         return d.exec_()
     return d
 
-def error_dialog(parent, title, msg, det_msg='', show=False):
+def error_dialog(parent, title, msg, det_msg='', show=False,
+        show_copy_button=True):
     d = MessageBox(QMessageBox.Critical, 'ERROR: '+title, msg, QMessageBox.Ok,
                     parent, det_msg)
     d.setIconPixmap(QPixmap(I('dialog_error.svg')))
     d.setEscapeButton(QMessageBox.Ok)
+    if not show_copy_button:
+        d.cb.setVisible(False)
     if show:
         return d.exec_()
     return d
 
-def question_dialog(parent, title, msg, det_msg=''):
+def question_dialog(parent, title, msg, det_msg='', show_copy_button=True):
     d = MessageBox(QMessageBox.Question, title, msg, QMessageBox.Yes|QMessageBox.No,
                     parent, det_msg)
     d.setIconPixmap(QPixmap(I('dialog_information.svg')))
     d.setEscapeButton(QMessageBox.No)
+    if not show_copy_button:
+        d.cb.setVisible(False)
+
     return d.exec_() == QMessageBox.Yes
 
 def info_dialog(parent, title, msg, det_msg='', show=False):
@@ -216,24 +227,6 @@ def info_dialog(parent, title, msg, det_msg='', show=False):
     return d
 
 
-def qstring_to_unicode(q):
-    return unicode(q)
-
-def human_readable(size):
-    """ Convert a size in bytes into a human readable form """
-    divisor, suffix = 1, "B"
-    if size < 1024*1024:
-        divisor, suffix = 1024., "KB"
-    elif size < 1024*1024*1024:
-        divisor, suffix = 1024*1024, "MB"
-    elif size < 1024*1024*1024*1024:
-        divisor, suffix = 1024*1024*1024, "GB"
-    size = str(float(size)/divisor)
-    if size.find(".") > -1:
-        size = size[:size.find(".")+2]
-    if size.endswith('.0'):
-        size = size[:-2]
-    return size + " " + suffix
 
 class Dispatcher(QObject):
     '''Convenience class to ensure that a function call always happens in the
@@ -285,25 +278,6 @@ class GetMetadata(QObject):
         except:
             mi = MetaInformation('', [_('Unknown')])
         self.emit(SIGNAL('metadata(PyQt_PyObject, PyQt_PyObject)'), id, mi)
-
-class TableView(QTableView):
-
-    def __init__(self, parent):
-        QTableView.__init__(self, parent)
-        self.read_settings()
-
-    def read_settings(self):
-        self.cw = dynamic[self.__class__.__name__+'column widths']
-
-    def write_settings(self):
-        dynamic[self.__class__.__name__+'column widths'] = \
-         tuple([int(self.columnWidth(i)) for i in range(self.model().columnCount(None))])
-
-    def restore_column_widths(self):
-        if self.cw and len(self.cw):
-            for i in range(len(self.cw)):
-                self.setColumnWidth(i, self.cw[i])
-            return True
 
 class FileIconProvider(QFileIconProvider):
 
@@ -379,7 +353,7 @@ class FileIconProvider(QFileIconProvider):
         if fileinfo.isDir():
             key = 'dir'
         else:
-            ext = qstring_to_unicode(fileinfo.completeSuffix()).lower()
+            ext = unicode(fileinfo.completeSuffix()).lower()
             key = self.key_from_ext(ext)
         return self.cached_icon(key)
 

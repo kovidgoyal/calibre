@@ -1,0 +1,291 @@
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
+
+import re
+import __builtin__
+
+import cherrypy
+from lxml import html
+from lxml.html.builder import HTML, HEAD, TITLE, STYLE, LINK, DIV, IMG, BODY, \
+        OPTION, SELECT, INPUT, FORM, SPAN, TABLE, TR, TD, A, HR
+
+from calibre.library.server.utils import strftime
+from calibre.ebooks.metadata import fmt_sidx
+from calibre.constants import __appname__
+from calibre import human_readable
+
+def CLASS(*args, **kwargs): # class is a reserved word in Python
+    kwargs['class'] = ' '.join(args)
+    return kwargs
+
+
+def build_search_box(num, search, sort, order): # {{{
+    div = DIV(id='search_box')
+    form = FORM('Show ', method='get', action='mobile')
+    div.append(form)
+
+    num_select = SELECT(name='num')
+    for option in (5, 10, 25, 100):
+        kwargs = {'value':str(option)}
+        if option == num:
+            kwargs['SELECTED'] = 'SELECTED'
+        num_select.append(OPTION(str(option), **kwargs))
+    num_select.tail = ' books matching '
+    form.append(num_select)
+
+    searchf = INPUT(name='search', id='s', value=search if search else '')
+    searchf.tail = ' sorted by '
+    form.append(searchf)
+
+    sort_select = SELECT(name='sort')
+    for option in ('date','author','title','rating','size','tags','series'):
+        kwargs = {'value':option}
+        if option == sort:
+            kwargs['SELECTED'] = 'SELECTED'
+        sort_select.append(OPTION(option, **kwargs))
+    form.append(sort_select)
+
+    order_select = SELECT(name='order')
+    for option in ('ascending','descending'):
+        kwargs = {'value':option}
+        if option == order:
+            kwargs['SELECTED'] = 'SELECTED'
+        order_select.append(OPTION(option, **kwargs))
+    form.append(order_select)
+
+    form.append(INPUT(id='go', type='submit', value='Search'))
+
+    return div
+    # }}}
+
+def build_navigation(start, num, total, url_base): # {{{
+    end = min((start+num-1), total)
+    tagline = SPAN('Books %d to %d of %d'%(start, end, total),
+            style='display: block; text-align: center;')
+    left_buttons = TD(CLASS('button', style='text-align:left'))
+    right_buttons = TD(CLASS('button', style='text-align:right'))
+
+    if start > 1:
+        for t,s in [('First', 1), ('Previous', max(start-(num+1),1))]:
+            left_buttons.append(A(t, href='%s;start=%d'%(url_base, s)))
+
+    if total > start + num:
+        for t,s in [('Next', start+num), ('Last', total-num+1)]:
+            right_buttons.append(A(t, href='%s;start=%d'%(url_base, s)))
+
+    buttons = TABLE(
+            TR(left_buttons, right_buttons),
+            CLASS('buttons'))
+    return DIV(tagline, buttons, CLASS('navigation'))
+
+    # }}}
+
+def build_index(books, num, search, sort, order, start, total, url_base):
+    logo = DIV(IMG(src='/static/calibre.png', alt=__appname__), id='logo')
+
+    search_box = build_search_box(num, search, sort, order)
+    navigation = build_navigation(start, num, total, url_base)
+    bookt = TABLE(id='listing')
+
+    body = BODY(
+        logo,
+        search_box,
+        navigation,
+        HR(CLASS('spacer')),
+        bookt
+    )
+
+    # Book list {{{
+    for book in books:
+        thumbnail = TD(
+                IMG(type='image/jpeg', border='0', src='/get/thumb/%s' %
+                            book['id']),
+                CLASS('thumbnail'))
+
+        data = TD()
+        last = None
+        for fmt in book['formats'].split(','):
+            s = SPAN(
+                A(
+                    fmt.lower(),
+                    href='/get/%s/%s-%s_%d.%s' % (fmt, book['authors'],
+                        book['title'], book['id'], fmt)
+                ),
+                CLASS('button'))
+            s.tail = u'\u202f' # &nbsp;
+            last = s
+            data.append(s)
+
+        series = u'[%s - %s]'%(book['series'], book['series_index']) \
+                if book['series'] else ''
+        tags = u'[%s]'%book['tags'] if book['tags'] else ''
+
+        text = u'\u202f%s %s by %s - %s - %s %s' % (book['title'], series,
+                book['authors'], book['size'], book['timestamp'], tags)
+
+        if last is None:
+            data.text = text
+        else:
+            last.tail += text
+
+        bookt.append(TR(thumbnail, data))
+    # }}}
+
+    return HTML(
+        HEAD(
+            TITLE(__appname__ + ' Library'),
+            LINK(rel='icon', href='http://calibre-ebook.com/favicon.ico',
+                type='image/x-icon'),
+            STYLE( # {{{
+                '''
+.navigation table.buttons {
+    width: 100%;
+}
+.navigation .button {
+    width: 50%;
+}
+.button a, .button:visited a {
+    padding: 0.5em;
+    font-size: 1.25em;
+    border: 1px solid black;
+    text-color: black;
+    background-color: #ddd;
+    border-top: 1px solid ThreeDLightShadow;
+    border-right: 1px solid ButtonShadow;
+    border-bottom: 1px solid ButtonShadow;
+    border-left: 1 px solid ThreeDLightShadow;
+    -moz-border-radius: 0.25em;
+    -webkit-border-radius: 0.25em;
+}
+
+.button:hover a {
+    border-top: 1px solid #666;
+    border-right: 1px solid #CCC;
+    border-bottom: 1 px solid #CCC;
+    border-left: 1 px solid #666;
+
+
+}
+div.navigation {
+    padding-bottom: 1em;
+    clear: both;
+}
+
+#search_box {
+    border: 1px solid #393;
+    -moz-border-radius: 0.5em;
+    -webkit-border-radius: 0.5em;
+    padding: 1em;
+    margin-bottom: 0.5em;
+    float: right;
+}
+
+#listing {
+    width: 100%;
+    border-collapse: collapse;
+}
+#listing td {
+    padding: 0.25em;
+}
+
+#listing td.thumbnail {
+    height: 60px;
+    width: 60px;
+}
+
+#listing tr:nth-child(even) {
+
+    background: #eee;
+}
+
+#listing .button a{
+    display: inline-block;
+    width: 2.5em;
+    padding-left: 0em;
+    padding-right: 0em;
+    overflow: hidden;
+    text-align: center;
+}
+
+#logo {
+    float: left;
+}
+#spacer {
+    clear: both;
+}
+
+                ''', type='text/css') # }}}
+        ), # End head
+        body
+    ) # End html
+
+
+class MobileServer(object):
+    'A view optimized for browsers in mobile devices'
+
+    MOBILE_UA = re.compile('(?i)(?:iPhone|Opera Mini|NetFront|webOS|Mobile|Android|imode|DoCoMo|Minimo|Blackberry|MIDP|Symbian|HD2)')
+
+    def add_routes(self, connect):
+        connect('mobile', '/mobile', self.mobile)
+
+    def mobile(self, start='1', num='25', sort='date', search='',
+                _=None, order='descending'):
+        '''
+        Serves metadata from the calibre database as XML.
+
+        :param sort: Sort results by ``sort``. Can be one of `title,author,rating`.
+        :param search: Filter results by ``search`` query. See :class:`SearchQueryParser` for query syntax
+        :param start,num: Return the slice `[start:start+num]` of the sorted and filtered results
+        :param _: Firefox seems to sometimes send this when using XMLHttpRequest with no caching
+        '''
+        try:
+            start = int(start)
+        except ValueError:
+            raise cherrypy.HTTPError(400, 'start: %s is not an integer'%start)
+        try:
+            num = int(num)
+        except ValueError:
+            raise cherrypy.HTTPError(400, 'num: %s is not an integer'%num)
+        ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
+        FM = self.db.FIELD_MAP
+        items = [r for r in iter(self.db) if r[FM['id']] in ids]
+        if sort is not None:
+            self.sort(items, sort, (order.lower().strip() == 'ascending'))
+
+        books = []
+        for record in items[(start-1):(start-1)+num]:
+            book = {'formats':record[FM['formats']], 'size':record[FM['size']]}
+            if not book['formats']:
+                book['formats'] = ''
+            if not book['size']:
+                book['size'] = 0
+            book['size'] = human_readable(book['size'])
+
+            aus = record[FM['authors']] if record[FM['authors']] else __builtin__._('Unknown')
+            authors = '|'.join([i.replace('|', ',') for i in aus.split(',')])
+            book['authors'] = authors
+            book['series_index'] = fmt_sidx(float(record[FM['series_index']]))
+            book['series'] = record[FM['series']]
+            book['tags'] = record[FM['tags']]
+            book['title'] = record[FM['title']]
+            for x in ('timestamp', 'pubdate'):
+                book[x] = strftime('%Y/%m/%d %H:%M:%S', record[FM[x]])
+            book['id'] = record[FM['id']]
+            books.append(book)
+        updated = self.db.last_modified()
+
+        cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf-8'
+        cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
+
+
+        url_base = "/mobile?search=" + search+";order="+order+";sort="+sort+";num="+str(num)
+
+        return html.tostring(build_index(books, num, search, sort, order,
+                             start, len(ids), url_base),
+                             encoding='utf-8', include_meta_content_type=True,
+                             pretty_print=True)
+

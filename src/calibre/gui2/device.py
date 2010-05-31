@@ -1,7 +1,7 @@
 from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, traceback, Queue, time, socket, cStringIO
+import os, traceback, Queue, time, socket, cStringIO, re
 from threading import Thread, RLock
 from itertools import repeat
 from functools import partial
@@ -19,12 +19,13 @@ from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
                                    pixmap_to_data, warning_dialog, \
                                    question_dialog
-from calibre.ebooks.metadata import authors_to_string
-from calibre import preferred_encoding
+from calibre.ebooks.metadata import authors_to_string, authors_to_sort_string
+from calibre import preferred_encoding, prints
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
+from calibre.devices.folder_device.driver import FOLDER_DEVICE
 
 class DeviceJob(BaseJob):
 
@@ -36,6 +37,7 @@ class DeviceJob(BaseJob):
         self.exception = None
         self.job_manager = job_manager
         self._details = _('No details available.')
+        self._aborted = False
 
     def start_work(self):
         self.start_time = time.time()
@@ -54,13 +56,23 @@ class DeviceJob(BaseJob):
         self.start_work()
         try:
             self.result = self.func(*self.args, **self.kwargs)
+            if self._aborted:
+                return
         except (Exception, SystemExit), err:
+            if self._aborted:
+                return
             self.failed = True
             self._details = unicode(err) + '\n\n' + \
                 traceback.format_exc()
             self.exception = err
         finally:
             self.job_done()
+
+    def abort(self, err):
+        self._aborted = True
+        self.failed = True
+        self._details = unicode(err)
+        self.exception = err
 
     @property
     def log_file(self):
@@ -69,7 +81,7 @@ class DeviceJob(BaseJob):
 
 class DeviceManager(Thread):
 
-    def __init__(self, connected_slot, job_manager, sleep_time=2):
+    def __init__(self, connected_slot, job_manager, open_feedback_slot, sleep_time=2):
         '''
         :sleep_time: Time to sleep between device probes in secs
         '''
@@ -85,7 +97,10 @@ class DeviceManager(Thread):
         self.current_job    = None
         self.scanner        = DeviceScanner()
         self.connected_device = None
-        self.ejected_devices = set([])
+        self.ejected_devices  = set([])
+        self.connected_device_is_folder = False
+        self.folder_connection_requests = Queue.Queue(0)
+        self.open_feedback_slot = open_feedback_slot
 
     def report_progress(self, *args):
         pass
@@ -98,8 +113,10 @@ class DeviceManager(Thread):
     def device(self):
         return self.connected_device
 
-    def do_connect(self, connected_devices):
+    def do_connect(self, connected_devices, is_folder_device):
         for dev, detected_device in connected_devices:
+            if dev.OPEN_FEEDBACK_MESSAGE is not None:
+                self.open_feedback_slot(dev.OPEN_FEEDBACK_MESSAGE)
             dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)
             try:
@@ -109,7 +126,8 @@ class DeviceManager(Thread):
                 traceback.print_exc()
                 continue
             self.connected_device = dev
-            self.connected_slot(True)
+            self.connected_device_is_folder = is_folder_device
+            self.connected_slot(True, is_folder_device)
             return True
         return False
 
@@ -127,7 +145,7 @@ class DeviceManager(Thread):
         if self.connected_device in self.ejected_devices:
             self.ejected_devices.remove(self.connected_device)
         else:
-            self.connected_slot(False)
+            self.connected_slot(False, self.connected_device_is_folder)
         self.connected_device = None
 
     def detect_device(self):
@@ -148,17 +166,19 @@ class DeviceManager(Thread):
                 if possibly_connected:
                     possibly_connected_devices.append((device, detected_device))
             if possibly_connected_devices:
-                if not self.do_connect(possibly_connected_devices):
+                if not self.do_connect(possibly_connected_devices,
+                                       is_folder_device=False):
                     print 'Connect to device failed, retrying in 5 seconds...'
                     time.sleep(5)
-                    if not self.do_connect(possibly_connected_devices):
+                    if not self.do_connect(possibly_connected_devices,
+                                       is_folder_device=False):
                         print 'Device connect failed again, giving up'
 
     def umount_device(self, *args):
-        if self.is_device_connected:
+        if self.is_device_connected and not self.job_manager.has_device_jobs():
             self.connected_device.eject()
             self.ejected_devices.add(self.connected_device)
-            self.connected_slot(False)
+            self.connected_slot(False, self.connected_device_is_folder)
 
     def next(self):
         if not self.jobs.empty():
@@ -169,7 +189,23 @@ class DeviceManager(Thread):
 
     def run(self):
         while self.keep_going:
-            self.detect_device()
+            folder_path = None
+            while True:
+                try:
+                    folder_path = self.folder_connection_requests.get_nowait()
+                except Queue.Empty:
+                    break
+            if not folder_path or not os.access(folder_path, os.R_OK):
+                folder_path = None
+            if not self.is_device_connected and folder_path is not None:
+                try:
+                    dev = FOLDER_DEVICE(folder_path)
+                    self.do_connect([[dev, None],], is_folder_device=True)
+                except:
+                    prints('Unable to open folder as device', folder_path)
+                    traceback.print_exc()
+            else:
+                self.detect_device()
             while True:
                 job = self.next()
                 if job is not None:
@@ -180,7 +216,6 @@ class DeviceManager(Thread):
                 else:
                     break
             time.sleep(self.sleep_time)
-
 
     def create_job(self, func, done, description, args=[], kwargs={}):
         job = DeviceJob(func, done, self.job_manager,
@@ -206,6 +241,21 @@ class DeviceManager(Thread):
         '''Get device information and free space on device'''
         return self.create_job(self._get_device_information, done,
                     description=_('Get device information'))
+
+    # This will be called on the GUI thread. Because of this, we must store
+    # information that the scanner thread will use to do the real work.
+    def connect_to_folder(self, path):
+        self.folder_connection_requests.put(path)
+
+    # This is called on the GUI thread. No problem here, because it calls the
+    # device driver, telling it to tell the scanner when it passes by that the
+    # folder has disconnected.
+    def disconnect_folder(self):
+        if self.connected_device is not None:
+            if hasattr(self.connected_device, 'disconnect_from_folder'):
+                # As we are on the wrong thread, this call must *not* do
+                # anything besides set a flag that the right thread will see.
+                self.connected_device.disconnect_from_folder()
 
     def _books(self):
         '''Get metadata from device'''
@@ -291,15 +341,17 @@ class DeviceManager(Thread):
 
 class DeviceAction(QAction):
 
+    a_s = pyqtSignal(object)
+
     def __init__(self, dest, delete, specific, icon_path, text, parent=None):
-        if delete:
-            text += ' ' + _('and delete from library')
         QAction.__init__(self, QIcon(icon_path), text, parent)
         self.dest = dest
         self.delete = delete
         self.specific = specific
-        self.connect(self, SIGNAL('triggered(bool)'),
-                lambda x : self.emit(SIGNAL('a_s(QAction)'), self))
+        self.triggered.connect(self.emit_triggered)
+
+    def emit_triggered(self, *args):
+        self.a_s.emit(self)
 
     def __repr__(self):
         return self.__class__.__name__ + ':%s:%s:%s'%(self.dest, self.delete,
@@ -309,6 +361,8 @@ class DeviceAction(QAction):
 class DeviceMenu(QMenu):
 
     fetch_annotations = pyqtSignal()
+    connect_to_folder = pyqtSignal()
+    disconnect_from_folder = pyqtSignal()
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -316,8 +370,9 @@ class DeviceMenu(QMenu):
         self.actions = []
         self._memory = []
 
-        self.set_default_menu = self.addMenu(_('Set default send to device'
-            ' action'))
+        self.set_default_menu = QMenu(_('Set default send to device action'))
+        self.set_default_menu.setIcon(QIcon(I('config.svg')))
+
         opts = email_config().parse()
         default_account = None
         if opts.accounts:
@@ -341,51 +396,65 @@ class DeviceMenu(QMenu):
                 self.connect(action2, SIGNAL('a_s(QAction)'),
                             self.action_triggered)
 
-        _actions = [
+        basic_actions = [
                 ('main:', False, False,  I('reader.svg'),
                     _('Send to main memory')),
                 ('carda:0', False, False, I('sd.svg'),
                     _('Send to storage card A')),
                 ('cardb:0', False, False, I('sd.svg'),
                     _('Send to storage card B')),
-                '-----',
+        ]
+
+        delete_actions = [
                 ('main:', True, False,   I('reader.svg'),
-                    _('Send to main memory')),
+                    _('Main Memory')),
                 ('carda:0', True, False,  I('sd.svg'),
-                    _('Send to storage card A')),
+                    _('Storage Card A')),
                 ('cardb:0', True, False,  I('sd.svg'),
-                    _('Send to storage card B')),
-                '-----',
+                    _('Storage Card B')),
+        ]
+
+        specific_actions = [
                 ('main:', False, True,  I('reader.svg'),
-                    _('Send specific format to main memory')),
+                    _('Main Memory')),
                 ('carda:0', False, True, I('sd.svg'),
-                    _('Send specific format to storage card A')),
+                    _('Storage Card A')),
                 ('cardb:0', False, True, I('sd.svg'),
-                    _('Send specific format to storage card B')),
+                    _('Storage Card B')),
+        ]
 
-                ]
+
         if default_account is not None:
-            _actions.insert(2, default_account)
-            _actions.insert(6, list(default_account))
-            _actions[6][1] = True
-        for round in (0, 1):
-            for dest, delete, specific, icon, text in _actions:
-                if dest == '-':
-                    (self.set_default_menu if round else self).addSeparator()
-                    continue
-                action = DeviceAction(dest, delete, specific, icon, text, self)
-                self._memory.append(action)
-                if round == 1:
-                    action.setCheckable(True)
-                    action.setText(action.text())
-                    self.group.addAction(action)
-                    self.set_default_menu.addAction(action)
-                else:
-                    self.connect(action, SIGNAL('a_s(QAction)'),
-                            self.action_triggered)
-                    self.actions.append(action)
-                    self.addAction(action)
+            for x in (basic_actions, delete_actions):
+                ac = list(default_account)
+                if x is delete_actions:
+                    ac[1] = True
+                x.insert(1, tuple(ac))
 
+        for menu in (self, self.set_default_menu):
+            for actions, desc in (
+                    (basic_actions, ''),
+                    (delete_actions, _('Send and delete from library')),
+                    (specific_actions, _('Send specific format'))
+                    ):
+                mdest = menu
+                if actions is not basic_actions:
+                    mdest = menu.addMenu(desc)
+                    self._memory.append(mdest)
+
+                for dest, delete, specific, icon, text in actions:
+                    action = DeviceAction(dest, delete, specific, icon, text, self)
+                    self._memory.append(action)
+                    if menu is self.set_default_menu:
+                        action.setCheckable(True)
+                        action.setText(action.text())
+                        self.group.addAction(action)
+                    else:
+                        action.a_s.connect(self.action_triggered)
+                        self.actions.append(action)
+                    mdest.addAction(action)
+                if actions is not specific_actions:
+                    menu.addSeparator()
 
         da = config['default_send_to_device_action']
         done = False
@@ -399,11 +468,24 @@ class DeviceMenu(QMenu):
             action.setChecked(True)
             config['default_send_to_device_action'] = repr(action)
 
-        self.connect(self.group, SIGNAL('triggered(QAction*)'),
-                self.change_default_action)
+        self.group.triggered.connect(self.change_default_action)
         if opts.accounts:
             self.addSeparator()
             self.addMenu(self.email_to_menu)
+
+        self.addSeparator()
+        mitem = self.addAction(QIcon(I('document_open.svg')), _('Connect to folder'))
+        mitem.setEnabled(True)
+        mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
+        self.connect_to_folder_action = mitem
+
+        mitem = self.addAction(QIcon(I('eject.svg')), _('Disconnect from folder'))
+        mitem.setEnabled(False)
+        mitem.triggered.connect(lambda x : self.disconnect_from_folder.emit())
+        self.disconnect_from_folder_action = mitem
+
+        self.addSeparator()
+        self.addMenu(self.set_default_menu)
         self.addSeparator()
         annot = self.addAction(_('Fetch annotations (experimental)'))
         annot.setEnabled(False)
@@ -523,7 +605,8 @@ class DeviceGUI(object):
             d = ChooseFormatDialog(self, _('Choose format to send to device'),
                                 self.device_manager.device.settings().format_map)
             d.exec_()
-            fmt = d.format().lower()
+            if d.format():
+                fmt = d.format().lower()
         dest, sub_dest = dest.split(':')
         if dest in ('main', 'carda', 'cardb'):
             if not self.device_connected or not self.device_manager:
@@ -821,7 +904,9 @@ class DeviceGUI(object):
 
     def sync_to_device(self, on_card, delete_from_library,
             specific_format=None, send_ids=None, do_auto_convert=True):
-        ids = [self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
+        ids = [self.library_view.model().id(r) \
+               for r in self.library_view.selectionModel().selectedRows()] \
+                                if send_ids is None else send_ids
         if not self.device_manager or not ids or len(ids) == 0:
             return
 
@@ -842,8 +927,7 @@ class DeviceGUI(object):
         ids = iter(ids)
         for mi in metadata:
             if mi.cover and os.access(mi.cover, os.R_OK):
-                mi.thumbnail = self.cover_to_thumbnail(open(mi.cover,
-                    'rb').read())
+                mi.thumbnail = self.cover_to_thumbnail(open(mi.cover, 'rb').read())
         imetadata = iter(metadata)
 
         files = [getattr(f, 'name', None) for f in _files]
@@ -890,7 +974,9 @@ class DeviceGUI(object):
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
 
         if auto != []:
-            format = specific_format if specific_format in list(set(settings.format_map).intersection(set(available_output_formats()))) else None
+            format = specific_format if specific_format in \
+                            list(set(settings.format_map).intersection(set(available_output_formats()))) \
+                            else None
             if not format:
                 for fmt in settings.format_map:
                     if fmt in list(set(settings.format_map).intersection(set(available_output_formats()))):
@@ -971,10 +1057,137 @@ class DeviceGUI(object):
 
         self.upload_booklists()
 
+        books_to_be_deleted = []
+        if memory and memory[1]:
+            books_to_be_deleted = memory[1]
+            self.library_view.model().delete_books_by_id(books_to_be_deleted)
+
+        self.set_books_in_library(self.booklists(),
+                reset=bool(books_to_be_deleted))
+
         view = self.card_a_view if on_card == 'carda' else self.card_b_view if on_card == 'cardb' else self.memory_view
         view.model().resort(reset=False)
         view.model().research()
         for f in files:
             getattr(f, 'close', lambda : True)()
-        if memory and memory[1]:
-            self.library_view.model().delete_books_by_id(memory[1])
+
+        self.book_on_device(None, reset=True)
+        if metadata:
+            changed = set([])
+            for mi in metadata:
+                id_ = getattr(mi, 'application_id', None)
+                if id_ is not None:
+                    changed.add(id_)
+            if changed:
+                self.library_view.model().refresh_ids(list(changed))
+
+    def book_on_device(self, id, format=None, reset=False):
+        loc = [None, None, None]
+
+        if reset:
+            self.book_db_title_cache = None
+            self.book_db_uuid_cache = None
+            return
+
+        if self.book_db_title_cache is None:
+            self.book_db_title_cache = []
+            self.book_db_uuid_cache = []
+            for i, l in enumerate(self.booklists()):
+                self.book_db_title_cache.append({})
+                self.book_db_uuid_cache.append(set())
+                for book in l:
+                    book_title = book.title.lower() if book.title else ''
+                    book_title = re.sub('(?u)\W|[_]', '', book_title)
+                    if book_title not in self.book_db_title_cache[i]:
+                        self.book_db_title_cache[i][book_title] = \
+                                {'authors':set(), 'db_ids':set(), 'uuids':set()}
+                    book_authors = authors_to_string(book.authors).lower()
+                    book_authors = re.sub('(?u)\W|[_]', '', book_authors)
+                    self.book_db_title_cache[i][book_title]['authors'].add(book_authors)
+                    db_id = getattr(book, 'application_id', None)
+                    if db_id is None:
+                        db_id = book.db_id
+                    if db_id is not None:
+                        self.book_db_title_cache[i][book_title]['db_ids'].add(db_id)
+                    uuid = getattr(book, 'uuid', None)
+                    if uuid is not None:
+                        self.book_db_uuid_cache[i].add(uuid)
+
+        mi = self.library_view.model().db.get_metadata(id, index_is_id=True)
+        for i, l in enumerate(self.booklists()):
+            if mi.uuid in self.book_db_uuid_cache[i]:
+                loc[i] = True
+                continue
+            db_title = re.sub('(?u)\W|[_]', '', mi.title.lower())
+            cache = self.book_db_title_cache[i].get(db_title, None)
+            if cache:
+                if id in cache['db_ids']:
+                    loc[i] = True
+                    break
+                if mi.authors and \
+                        re.sub('(?u)\W|[_]', '', authors_to_string(mi.authors).lower()) \
+                        in cache['authors']:
+                    loc[i] = True
+                    break
+        return loc
+
+    def set_books_in_library(self, booklists, reset=False):
+        if reset:
+            # First build a cache of the library, so the search isn't On**2
+            self.db_book_title_cache = {}
+            self.db_book_uuid_cache = set()
+            db = self.library_view.model().db
+            for id in db.data.iterallids():
+                mi = db.get_metadata(id, index_is_id=True)
+                title = re.sub('(?u)\W|[_]', '', mi.title.lower())
+                if title not in self.db_book_title_cache:
+                    self.db_book_title_cache[title] = {'authors':{}, 'db_ids':{}}
+                authors = authors_to_string(mi.authors).lower() if mi.authors else ''
+                authors = re.sub('(?u)\W|[_]', '', authors)
+                self.db_book_title_cache[title]['authors'][authors] = mi
+                self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
+                self.db_book_uuid_cache.add(mi.uuid)
+
+        # Now iterate through all the books on the device, setting the
+        # in_library field Fastest and most accurate key is the uuid. Second is
+        # the application_id, which is really the db key, but as this can
+        # accidentally match across libraries we also verify the title. The
+        # db_id exists on Sony devices. Fallback is title and author match
+        resend_metadata = False
+        for booklist in booklists:
+            for book in booklist:
+                if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
+                    book.in_library = True
+                    continue
+
+                book_title = book.title.lower() if book.title else ''
+                book_title = re.sub('(?u)\W|[_]', '', book_title)
+                book.in_library = False
+                d = self.db_book_title_cache.get(book_title, None)
+                if d is not None:
+                    if getattr(book, 'application_id', None) in d['db_ids']:
+                        book.in_library = True
+                        book.smart_update(d['db_ids'][book.application_id])
+                        resend_metadata = True
+                        continue
+                    if book.db_id in d['db_ids']:
+                        book.in_library = True
+                        book.smart_update(d['db_ids'][book.db_id])
+                        resend_metadata = True
+                        continue
+                    book_authors = authors_to_string(book.authors).lower() if book.authors else ''
+                    book_authors = re.sub('(?u)\W|[_]', '', book_authors)
+                    if book_authors in d['authors']:
+                        book.in_library = True
+                        book.smart_update(d['authors'][book_authors])
+                        resend_metadata = True
+                # Set author_sort if it isn't already
+                asort = getattr(book, 'author_sort', None)
+                if not asort and book.authors:
+                    book.author_sort = authors_to_sort_string(book.authors)
+                    resend_metadata = True
+
+        if resend_metadata:
+            # Correct the metadata cache on device.
+            if self.device_manager.is_device_connected:
+                self.device_manager.sync_booklists(None, booklists)

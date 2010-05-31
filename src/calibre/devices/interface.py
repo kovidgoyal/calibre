@@ -47,6 +47,10 @@ class DevicePlugin(Plugin):
     # Used by gui2.ui:annotations_fetched() and devices.kindle.driver:get_annotations()
     UserAnnotation = namedtuple('Annotation','type, value')
 
+    #: GUI displays this as a message if not None. Useful if opening can take a
+    #: long time
+    OPEN_FEEDBACK_MESSAGE = None
+
     @classmethod
     def get_gui_name(cls):
         if hasattr(cls, 'gui_name'):
@@ -293,8 +297,7 @@ class DevicePlugin(Plugin):
         put the book. len(metadata) == len(files). Apart from the regular
         cover (path to cover), there may also be a thumbnail attribute, which should
         be used in preference. The thumbnail attribute is of the form
-        (width, height, cover_data as jpeg). In addition the MetaInformation
-        objects can have a tag_order attribute.
+        (width, height, cover_data as jpeg).
         '''
         raise NotImplementedError()
 
@@ -380,22 +383,46 @@ class BookList(list):
       3. size (file size of the book)
       4. datetime (a UTC time tuple)
       5. path (path on the device to the book)
-      6. thumbnail (can be None)
+      6. thumbnail (can be None) thumbnail is either a str/bytes object with the
+         image data or it should have an attribute image_path that stores an
+         absolute (platform native) path to the image
       7. tags (a list of strings, can be empty).
     '''
 
     __getslice__ = None
     __setslice__ = None
 
-    def supports_tags(self):
-        ''' Return True if the the device supports tags (collections) for this book list. '''
+    def __init__(self, oncard, prefix, settings):
+        pass
+
+    def supports_collections(self):
+        ''' Return True if the the device supports collections for this book list. '''
         raise NotImplementedError()
 
-    def set_tags(self, book, tags):
+    def add_book(self, book, replace_metadata):
         '''
-        Set the tags for C{book} to C{tags}.
-        @param tags: A list of strings. Can be empty.
-        @param book: A book object that is in this BookList.
+        Add the book to the booklist. Intent is to maintain any device-internal
+        metadata. Return True if booklists must be sync'ed
+        '''
+        raise NotImplementedError()
+
+    def remove_book(self, book):
+        '''
+        Remove a book from the booklist. Correct any device metadata at the
+        same time
+        '''
+        raise NotImplementedError()
+
+    def get_collections(self, collection_attributes):
+        '''
+        Return a dictionary of collections created from collection_attributes.
+        Each entry in the dictionary is of the form collection name:[list of
+        books]
+
+        The list of books is sorted by book title, except for collections
+        created from series, in which case series_index is used.
+
+        :param collection_attributes: A list of attributes of the Book object
         '''
         raise NotImplementedError()
 

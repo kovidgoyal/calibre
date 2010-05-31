@@ -9,98 +9,17 @@ Command line interface to the calibre database.
 
 import sys, os, cStringIO
 from textwrap import TextWrapper
-from urllib import quote
 
 from calibre import terminal_controller, preferred_encoding, prints
 from calibre.utils.config import OptionParser, prefs
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.library.database2 import LibraryDatabase2
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
-from calibre.utils.genshi.template import MarkupTemplate
 from calibre.utils.date import isoformat
 
 FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
     'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
     'formats', 'isbn', 'uuid', 'pubdate', 'cover'])
-
-XML_TEMPLATE = '''\
-<?xml version="1.0"  encoding="UTF-8"?>
-<calibredb xmlns:py="http://genshi.edgewall.org/">
-<py:for each="record in data">
-    <record>
-        <id>${record['id']}</id>
-        <uuid>${record['uuid']}</uuid>
-        <title>${record['title']}</title>
-        <authors sort="${record['author_sort']}">
-        <py:for each="author in record['authors']">
-            <author>$author</author>
-        </py:for>
-        </authors>
-        <publisher>${record['publisher']}</publisher>
-        <rating>${record['rating']}</rating>
-        <date>${record['timestamp'].isoformat()}</date>
-        <pubdate>${record['pubdate'].isoformat()}</pubdate>
-        <size>${record['size']}</size>
-        <tags py:if="record['tags']">
-        <py:for each="tag in record['tags']">
-            <tag>$tag</tag>
-        </py:for>
-        </tags>
-        <comments>${record['comments']}</comments>
-        <series py:if="record['series']" index="${record['series_index']}">${record['series']}</series>
-        <isbn>${record['isbn']}</isbn>
-        <cover py:if="record['cover']">${record['cover'].replace(os.sep, '/')}</cover>
-        <formats py:if="record['formats']">
-        <py:for each="path in record['formats']">
-            <format>${path.replace(os.sep, '/')}</format>
-        </py:for>
-        </formats>
-    </record>
-</py:for>
-</calibredb>
-'''
-
-STANZA_TEMPLATE='''\
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom" xmlns:py="http://genshi.edgewall.org/">
-  <title>calibre Library</title>
-  <author>
-    <name>calibre</name>
-    <uri>http://calibre-ebook.com</uri>
-  </author>
-  <id>$id</id>
-  <updated>${updated.isoformat()}</updated>
-  <subtitle>
-        ${subtitle}
-  </subtitle>
-  <py:for each="record in data">
-  <entry>
-      <title>${record['title']}</title>
-      <id>urn:calibre:${record['uuid']}</id>
-      <author><name>${record['author_sort']}</name></author>
-      <updated>${record['timestamp'].isoformat()}</updated>
-      <link type="application/epub+zip" href="${quote(record['fmt_epub'].replace(sep, '/'))}"/>
-      <link py:if="record['cover']" rel="x-stanza-cover-image" type="image/png" href="${quote(record['cover'].replace(sep, '/'))}"/>
-      <link py:if="record['cover']" rel="x-stanza-cover-image-thumbnail" type="image/png" href="${quote(record['cover'].replace(sep, '/'))}"/>
-      <content type="xhtml">
-          <div xmlns="http://www.w3.org/1999/xhtml">
-              <py:for each="f in ('authors', 'publisher', 'rating', 'tags', 'series', 'isbn')">
-              <py:if test="record[f]">
-              ${f.capitalize()}:${unicode(', '.join(record[f]) if f=='tags' else record[f])}
-              <py:if test="f =='series'"># ${str(record['series_index'])}</py:if>
-              <br/>
-              </py:if>
-              </py:for>
-              <py:if test="record['comments']">
-              <br/>
-              ${record['comments']}
-              </py:if>
-          </div>
-      </content>
-  </entry>
-  </py:for>
-</feed>
-'''
 
 def send_message(msg=''):
     prints('Notifying calibre of the change')
@@ -130,81 +49,67 @@ def get_db(dbpath, options):
     return LibraryDatabase2(dbpath)
 
 def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, separator,
-            prefix, output_format, subtitle='Books in the calibre database'):
+            prefix, subtitle='Books in the calibre database'):
     if sort_by:
         db.sort(sort_by, ascending)
     if search_text:
         db.search(search_text)
-    authors_to_string = output_format in ['stanza', 'text']
-    data = db.get_data_as_dict(prefix, authors_as_string=authors_to_string)
+    data = db.get_data_as_dict(prefix, authors_as_string=True)
     fields = ['id'] + fields
     title_fields = fields
     fields = [db.custom_column_label_map[x[1:]]['num'] if x[0]=='*'
             else x for x in fields]
-    if output_format == 'text':
-        for f in data:
-            fmts = [x for x in f['formats'] if x is not None]
-            f['formats'] = u'[%s]'%u','.join(fmts)
-        widths = list(map(lambda x : 0, fields))
-        for record in data:
-            for f in record.keys():
-                if hasattr(record[f], 'isoformat'):
-                    record[f] = isoformat(record[f], as_utc=False)
-                else:
-                    record[f] = unicode(record[f])
-                record[f] = record[f].replace('\n', ' ')
-        for i in data:
-            for j, field in enumerate(fields):
-                widths[j] = max(widths[j], len(unicode(i[field])))
 
-        screen_width = terminal_controller.COLS if line_width < 0 else line_width
-        if not screen_width:
-            screen_width = 80
-        field_width = screen_width//len(fields)
-        base_widths = map(lambda x: min(x+1, field_width), widths)
+    for f in data:
+        fmts = [x for x in f['formats'] if x is not None]
+        f['formats'] = u'[%s]'%u','.join(fmts)
+    widths = list(map(lambda x : 0, fields))
+    for record in data:
+        for f in record.keys():
+            if hasattr(record[f], 'isoformat'):
+                record[f] = isoformat(record[f], as_utc=False)
+            else:
+                record[f] = unicode(record[f])
+            record[f] = record[f].replace('\n', ' ')
+    for i in data:
+        for j, field in enumerate(fields):
+            widths[j] = max(widths[j], len(unicode(i[field])))
 
-        while sum(base_widths) < screen_width:
-            adjusted = False
-            for i in range(len(widths)):
-                if base_widths[i] < widths[i]:
-                    base_widths[i] += min(screen_width-sum(base_widths), widths[i]-base_widths[i])
-                    adjusted = True
-                    break
-            if not adjusted:
+    screen_width = terminal_controller.COLS if line_width < 0 else line_width
+    if not screen_width:
+        screen_width = 80
+    field_width = screen_width//len(fields)
+    base_widths = map(lambda x: min(x+1, field_width), widths)
+
+    while sum(base_widths) < screen_width:
+        adjusted = False
+        for i in range(len(widths)):
+            if base_widths[i] < widths[i]:
+                base_widths[i] += min(screen_width-sum(base_widths), widths[i]-base_widths[i])
+                adjusted = True
                 break
+        if not adjusted:
+            break
 
-        widths = list(base_widths)
-        titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator),
-                widths, title_fields)
-        print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
+    widths = list(base_widths)
+    titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator),
+            widths, title_fields)
+    print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
 
-        wrappers = map(lambda x: TextWrapper(x-1), widths)
-        o = cStringIO.StringIO()
+    wrappers = map(lambda x: TextWrapper(x-1), widths)
+    o = cStringIO.StringIO()
 
-        for record in data:
-            text = [wrappers[i].wrap(unicode(record[field]).encode('utf-8')) for i, field in enumerate(fields)]
-            lines = max(map(len, text))
-            for l in range(lines):
-                for i, field in enumerate(text):
-                    ft = text[i][l] if l < len(text[i]) else ''
-                    filler = '%*s'%(widths[i]-len(ft)-1, '')
-                    o.write(ft)
-                    o.write(filler+separator)
-                print >>o
-        return o.getvalue()
-    elif output_format == 'xml':
-        template = MarkupTemplate(XML_TEMPLATE)
-        return template.generate(data=data, os=os).render('xml')
-    elif output_format == 'stanza':
-        data = [i for i in data if i.has_key('fmt_epub')]
-        for x in data:
-            if isinstance(x['fmt_epub'], unicode):
-                x['fmt_epub'] = x['fmt_epub'].encode('utf-8')
-            if isinstance(x['cover'], unicode):
-                x['cover'] = x['cover'].encode('utf-8')
-        template = MarkupTemplate(STANZA_TEMPLATE)
-        return template.generate(id="urn:calibre:main", data=data, subtitle=subtitle,
-                sep=os.sep, quote=quote, updated=db.last_modified()).render('xml')
+    for record in data:
+        text = [wrappers[i].wrap(unicode(record[field]).encode('utf-8')) for i, field in enumerate(fields)]
+        lines = max(map(len, text))
+        for l in range(lines):
+            for i, field in enumerate(text):
+                ft = text[i][l] if l < len(text[i]) else ''
+                filler = '%*s'%(widths[i]-len(ft)-1, '')
+                o.write(ft)
+                o.write(filler+separator)
+            print >>o
+    return o.getvalue()
 
 def list_option_parser(db=None):
     fields = set(FIELDS)
@@ -236,9 +141,6 @@ List the books available in the calibre database.
                       help=_('The maximum width of a single line in the output. Defaults to detecting screen size.'))
     parser.add_option('--separator', default=' ', help=_('The string used to separate fields. Default is a space.'))
     parser.add_option('--prefix', default=None, help=_('The prefix for all file paths. Default is the absolute path to the library folder.'))
-    of = ['text', 'xml', 'stanza']
-    parser.add_option('--output-format', choices=of, default='text',
-                      help=_('The format in which to output the data. Available choices: %s. Defaults is text.')%of)
     return parser
 
 
@@ -272,7 +174,7 @@ def command_list(args, dbpath):
         return 1
 
     print do_list(db, fields, afields, opts.sort_by, opts.ascending, opts.search, opts.line_width, opts.separator,
-            opts.prefix, opts.output_format)
+            opts.prefix)
     return 0
 
 

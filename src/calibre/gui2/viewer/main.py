@@ -244,7 +244,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pos.editingFinished.connect(self.goto_page_num)
         self.connect(self.vertical_scrollbar, SIGNAL('valueChanged(int)'),
                      lambda x: self.goto_page(x/100.))
-        self.connect(self.search, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), self.find)
+        self.search.search.connect(self.find)
         self.connect(self.toc, SIGNAL('clicked(QModelIndex)'), self.toc_clicked)
         self.connect(self.reference, SIGNAL('goto(PyQt_PyObject)'), self.goto)
 

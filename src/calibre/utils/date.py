@@ -6,10 +6,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import re
 from datetime import datetime
+from functools import partial
 
 from dateutil.parser import parse
 from dateutil.tz import tzlocal, tzutc
+
+from calibre import strftime
 
 class SafeLocalTimeZone(tzlocal):
     '''
@@ -24,8 +28,23 @@ class SafeLocalTimeZone(tzlocal):
             pass
         return False
 
+def compute_locale_info_for_parse_date():
+    try:
+        dt = datetime.strptime('1/5/2000', "%x")
+    except ValueError:
+        try:
+            dt = datetime.strptime('1/5/01', '%x')
+        except:
+            return False
+    if dt.month == 5:
+        return True
+    return False
+
+parse_date_day_first = compute_locale_info_for_parse_date()
 utc_tz = _utc_tz = tzutc()
 local_tz = _local_tz = SafeLocalTimeZone()
+
+UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
 
 def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     '''
@@ -44,7 +63,7 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
         func = datetime.utcnow if assume_utc else datetime.now
         default = func().replace(hour=0, minute=0, second=0, microsecond=0,
                 tzinfo=_utc_tz if assume_utc else _local_tz)
-    dt = parse(date_string, default=default)
+    dt = parse(date_string, default=default, dayfirst=parse_date_day_first)
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
@@ -98,3 +117,34 @@ def utcnow():
 
 def utcfromtimestamp(stamp):
     return datetime.utcfromtimestamp(stamp).replace(tzinfo=_utc_tz)
+
+def format_date(dt, format, assume_utc=False, as_utc=False):
+    ''' Return a date formatted as a string using a subset of Qt's formatting codes '''
+    if hasattr(dt, 'tzinfo'):
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=_utc_tz if assume_utc else
+                    _local_tz)
+        dt = dt.astimezone(_utc_tz if as_utc else _local_tz)
+    strf = partial(strftime, t=dt.timetuple())
+
+    def format_day(mo):
+        l = len(mo.group(0))
+        if l == 1: return '%d'%dt.day
+        if l == 2: return '%02d'%dt.day
+        if l == 3: return strf('%a')
+        return strf('%A')
+
+    def format_month(mo):
+        l = len(mo.group(0))
+        if l == 1: return '%d'%dt.month
+        if l == 2: return '%02d'%dt.month
+        if l == 3: return strf('%b')
+        return strf('%B')
+
+    def format_year(mo):
+        if len(mo.group(0)) == 2: return '%02d'%(dt.year % 100)
+        return '%04d'%dt.year
+
+    format = re.sub('d{1,4}', format_day, format)
+    format = re.sub('M{1,4}', format_month, format)
+    return re.sub('yyyy|yy', format_year, format)

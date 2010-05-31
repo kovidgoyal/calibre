@@ -7,22 +7,22 @@ import re, os, traceback
 from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
-                        QPixmap, QPalette, QTimer, QDialog, \
-                        QAbstractListModel, QVariant, Qt, SIGNAL, \
-                        QRegExp, QSettings, QSize, QModelIndex, \
+                        QPixmap, QPalette, QSplitterHandle, \
+                        QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal, \
+                        QRegExp, QSettings, QSize, QModelIndex, QSplitter, \
                         QAbstractButton, QPainter, QLineEdit, QComboBox, \
                         QMenu, QStringListModel, QCompleter, QStringList
 
-from calibre.gui2 import human_readable, NONE, TableView, \
-                         qstring_to_unicode, error_dialog, pixmap_to_data
-from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
+from calibre.gui2 import NONE, error_dialog, pixmap_to_data, dynamic
+
 from calibre.gui2.filename_pattern_ui import Ui_Form
-from calibre import fit_image
+from calibre import fit_image, human_readable
 from calibre.utils.fonts import fontconfig
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs, XMLConfig
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
+from calibre.constants import filesystem_encoding
 
 history = XMLConfig('history')
 
@@ -71,7 +71,7 @@ class FilenamePattern(QWidget, Ui_Form):
             error_dialog(self, _('Invalid regular expression'),
                          _('Invalid regular expression: %s')%err).exec_()
             return
-        mi = metadata_from_filename(qstring_to_unicode(self.filename.text()), pat)
+        mi = metadata_from_filename(unicode(self.filename.text()), pat)
         if mi.title:
             self.title.setText(mi.title)
         else:
@@ -95,7 +95,7 @@ class FilenamePattern(QWidget, Ui_Form):
 
 
     def pattern(self):
-        pat = qstring_to_unicode(self.re.text())
+        pat = unicode(self.re.text())
         return re.compile(pat)
 
     def commit(self):
@@ -157,7 +157,7 @@ class ImageView(QLabel):
         and represent files with extensions.
         '''
         if event.mimeData().hasFormat('text/uri-list'):
-            urls = [qstring_to_unicode(u.toLocalFile()) for u in event.mimeData().urls()]
+            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
             urls = [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
             return [u for u in urls if os.path.splitext(u)[1][1:].lower() in cls.DROPABBLE_EXTENSIONS]
 
@@ -230,12 +230,21 @@ class LocationModel(QAbstractListModel):
         self.free = [-1, -1, -1]
         self.count = 0
         self.highlight_row = 0
+        self.library_tooltip = _('Click to see the books available on your computer')
         self.tooltips = [
-                         _('Click to see the books available on your computer'),
+                         self.library_tooltip,
                          _('Click to see the books in the main memory of your reader'),
                          _('Click to see the books on storage card A in your reader'),
                          _('Click to see the books on storage card B in your reader')
                          ]
+
+    def database_changed(self, db):
+        lp = db.library_path
+        if not isinstance(lp, unicode):
+            lp = lp.decode(filesystem_encoding, 'replace')
+        self.tooltips[0] = self.library_tooltip + '\n\n' + \
+                _('Books located at') + ' ' + lp
+        self.dataChanged.emit(self.index(0), self.index(0))
 
     def rowCount(self, *args):
         return 1 + len([i for i in self.free if i >= 0])
@@ -389,41 +398,6 @@ class EjectButton(QAbstractButton):
         painter.drawPixmap(0, 0, image)
 
 
-class DetailView(QDialog, Ui_Dialog):
-
-    def __init__(self, parent, job):
-        QDialog.__init__(self, parent)
-        self.setupUi(self)
-        self.setWindowTitle(job.description)
-        self.job = job
-        self.next_pos = 0
-        self.update()
-        self.timer = QTimer(self)
-        self.connect(self.timer, SIGNAL('timeout()'), self.update)
-        self.timer.start(1000)
-
-
-    def update(self):
-        f = self.job.log_file
-        f.seek(self.next_pos)
-        more = f.read()
-        self.next_pos = f.tell()
-        if more:
-            self.log.appendPlainText(more.decode('utf-8', 'replace'))
-
-
-class JobsView(TableView):
-
-    def __init__(self, parent):
-        TableView.__init__(self, parent)
-        self.connect(self, SIGNAL('doubleClicked(QModelIndex)'), self.show_details)
-
-    def show_details(self, index):
-        row = index.row()
-        job = self.model().row_to_job(row)
-        d = DetailView(self, job)
-        d.exec_()
-        d.timer.stop()
 
 
 class FontFamilyModel(QAbstractListModel):
@@ -520,7 +494,7 @@ class BasicList(QListWidget):
 class LineEditECM(object):
 
     '''
-    Extend the contenxt menu of a QLineEdit to include more actions.
+    Extend the context menu of a QLineEdit to include more actions.
     '''
 
     def contextMenuEvent(self, event):
@@ -620,13 +594,13 @@ class TagsLineEdit(EnLineEdit):
         self.completer.update_tags_cache(tags)
 
     def text_changed(self, text):
-        all_text = qstring_to_unicode(text)
+        all_text = unicode(text)
         text = all_text[:self.cursorPosition()]
         prefix = text.split(',')[-1].strip()
 
         text_tags = []
         for t in all_text.split(self.separator):
-            t1 = qstring_to_unicode(t).strip()
+            t1 = unicode(t).strip()
             if t1 != '':
                 text_tags.append(t)
         text_tags = list(set(text_tags))
@@ -636,8 +610,8 @@ class TagsLineEdit(EnLineEdit):
 
     def complete_text(self, text):
         cursor_pos = self.cursorPosition()
-        before_text = qstring_to_unicode(self.text())[:cursor_pos]
-        after_text = qstring_to_unicode(self.text())[cursor_pos:]
+        before_text = unicode(self.text())[:cursor_pos]
+        after_text = unicode(self.text())[cursor_pos:]
         prefix_len = len(before_text.split(',')[-1].strip())
         self.setText('%s%s%s %s' % (before_text[:cursor_pos - prefix_len],
             text, self.separator, after_text))
@@ -649,7 +623,7 @@ class EnComboBox(QComboBox):
     '''
     Enhanced QComboBox.
 
-    Includes an extended content menu.
+    Includes an extended context menu.
     '''
 
     def __init__(self, *args):
@@ -941,3 +915,90 @@ class PythonHighlighter(QSyntaxHighlighter):
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         QSyntaxHighlighter.rehighlight(self)
         QApplication.restoreOverrideCursor()
+
+class SplitterHandle(QSplitterHandle):
+
+    double_clicked = pyqtSignal(object)
+
+    def __init__(self, orientation, splitter):
+        QSplitterHandle.__init__(self, orientation, splitter)
+        splitter.splitterMoved.connect(self.splitter_moved,
+                type=Qt.QueuedConnection)
+        self.double_clicked.connect(splitter.double_clicked,
+                type=Qt.QueuedConnection)
+        self.highlight = False
+
+    def splitter_moved(self, *args):
+        oh = self.highlight
+        self.highlight = 0 in self.splitter().sizes()
+        if oh != self.highlight:
+            self.update()
+
+    def paintEvent(self, ev):
+        QSplitterHandle.paintEvent(self, ev)
+        if self.highlight:
+            painter = QPainter(self)
+            painter.setClipRect(ev.rect())
+            painter.fillRect(self.rect(), Qt.yellow)
+
+    def mouseDoubleClickEvent(self, ev):
+        self.double_clicked.emit(self)
+
+class Splitter(QSplitter):
+
+    state_changed = pyqtSignal(object)
+
+    def __init__(self, *args):
+        QSplitter.__init__(self, *args)
+        self.splitterMoved.connect(self.splitter_moved, type=Qt.QueuedConnection)
+
+    def createHandle(self):
+        return SplitterHandle(self.orientation(), self)
+
+    def initialize(self, name=None):
+        if name is not None:
+            self._name = name
+        for i in range(self.count()):
+            h = self.handle(i)
+            if h is not None:
+                h.splitter_moved()
+        self.state_changed.emit(not self.is_side_index_hidden)
+
+    def splitter_moved(self, *args):
+        self.state_changed.emit(not self.is_side_index_hidden)
+
+    @property
+    def side_index(self):
+        return 0 if self.orientation() == Qt.Horizontal else 1
+
+    @property
+    def is_side_index_hidden(self):
+        sizes = list(self.sizes())
+        return sizes[self.side_index] == 0
+
+    def toggle_side_index(self):
+        self.double_clicked(None)
+
+    def double_clicked(self, handle):
+        visible = not self.is_side_index_hidden
+        sizes = list(self.sizes())
+        if 0 in sizes:
+            idx = sizes.index(0)
+            sizes[idx] = 80
+        else:
+            sizes[self.side_index] = 0
+
+        if visible:
+            dynamic.set(self._name + '_last_open_state', str(self.saveState()))
+            self.setSizes(sizes)
+        else:
+            state = dynamic.get(self._name+  '_last_open_state', None)
+            if state is not None:
+                self.restoreState(state)
+            else:
+                self.setSizes(sizes)
+        self.initialize()
+
+
+
+

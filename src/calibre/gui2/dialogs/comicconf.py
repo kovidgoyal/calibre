@@ -6,18 +6,17 @@ __docformat__ = 'restructuredtext en'
 ''''''
 from PyQt4.QtGui import QDialog
 from calibre.gui2.dialogs.comicconf_ui import Ui_Dialog
-from calibre.gui2 import qstring_to_unicode
 from calibre.ebooks.lrf.comic.convert_from import config, PROFILES
 
 def set_conversion_defaults(window):
     d = ComicConf(window)
     d.exec_()
-    
+
 def get_bulk_conversion_options(window):
     d = ComicConf(window, config_defaults=config(None).as_string())
     if d.exec_() == QDialog.Accepted:
         return d.config.parse()
-    
+
 def get_conversion_options(window, defaults, title, author):
     if defaults is None:
         defaults = config(None).as_string()
@@ -26,10 +25,10 @@ def get_conversion_options(window, defaults, title, author):
     if d.exec_() == QDialog.Accepted:
         return d.config.parse(), d.config.src
     return None, None
-    
+
 
 class ComicConf(QDialog, Ui_Dialog):
-    
+
     def __init__(self, window, config_defaults=None, generic=True,
                  title=_('Set defaults for conversion of comics (CBR/CBZ files)')):
         QDialog.__init__(self, window)
@@ -63,12 +62,12 @@ class ComicConf(QDialog, Ui_Dialog):
         self.opt_despeckle.setChecked(opts.despeckle)
         self.opt_wide.setChecked(opts.wide)
         self.opt_right2left.setChecked(opts.right2left)
-        
+
         for opt in self.config.option_set.preferences:
             g = getattr(self, 'opt_'+opt.name, False)
             if opt.help and g:
                 g.setToolTip(opt.help)
-                
+
     def accept(self):
         for opt in self.config.option_set.preferences:
             g = getattr(self, 'opt_'+opt.name, False)
@@ -78,9 +77,9 @@ class ComicConf(QDialog, Ui_Dialog):
             elif hasattr(g, 'value'):
                 val = g.value()
             elif hasattr(g, 'itemText'):
-                val = qstring_to_unicode(g.itemText(g.currentIndex()))
+                val = unicode(g.itemText(g.currentIndex()))
             elif hasattr(g, 'text'):
-                val = qstring_to_unicode(g.text())
+                val = unicode(g.text())
             else:
                 raise Exception('Bad coding')
             self.config.set(opt.name, val)

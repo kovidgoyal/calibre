@@ -20,6 +20,7 @@ from PyQt4.QtGui import QImage
 
 from calibre.ebooks.metadata import title_sort
 from calibre.library.database import LibraryDatabase
+from calibre.library.field_metadata import FieldMetadata, TagsIcons
 from calibre.library.schema_upgrades import SchemaUpgrade
 from calibre.library.caches import ResultCache
 from calibre.library.custom_columns import CustomColumns
@@ -33,7 +34,10 @@ from calibre.customize.ui import run_plugins_on_import
 
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
+from calibre.utils.config import prefs
+from calibre.utils.search_query_parser import saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
+
 
 if iswindows:
     import calibre.utils.winshell as winshell
@@ -56,16 +60,15 @@ def delete_tree(path, permanent=False):
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
-
-
 class Tag(object):
 
-    def __init__(self, name, id=None, count=0, state=0, tooltip=None):
+    def __init__(self, name, id=None, count=0, state=0, tooltip=None, icon=None):
         self.name = name
         self.id = id
         self.count = count
         self.state = state
         self.tooltip = tooltip
+        self.icon = icon
 
     def __unicode__(self):
         return u'%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state, self.tooltip)
@@ -107,8 +110,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.conn = connect(self.dbpath, self.row_factory)
         if self.user_version == 0:
             self.initialize_database()
+        # remember to add any filter to the connect method in sqlite.py as well
+        # so that various code taht connects directly will not complain about
+        # missing functions
+        self.books_list_filter = self.conn.create_dynamic_filter('books_list_filter')
 
     def __init__(self, library_path, row_factory=False):
+        self.field_metadata = FieldMetadata()
         if not os.path.exists(library_path):
             os.makedirs(library_path)
         self.listeners = set([])
@@ -119,6 +127,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.dbpath)
         if isinstance(self.dbpath, unicode):
             self.dbpath = self.dbpath.encode(filesystem_encoding)
+
         self.connect()
         self.is_case_sensitive = not iswindows and not isosx and \
             not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
@@ -126,6 +135,30 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.initialize_dynamic()
 
     def initialize_dynamic(self):
+        self.conn.executescript(u'''
+            CREATE TEMP VIEW IF NOT EXISTS tag_browser_news AS SELECT DISTINCT
+                id,
+                name,
+                (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id) count
+            FROM tags as x WHERE name!="{0}" AND id IN
+                (SELECT DISTINCT tag FROM books_tags_link WHERE book IN
+                    (SELECT DISTINCT book FROM books_tags_link WHERE tag IN
+                        (SELECT id FROM tags WHERE name="{0}")));
+            '''.format(_('News')))
+
+        self.conn.executescript(u'''
+            CREATE TEMP VIEW IF NOT EXISTS tag_browser_filtered_news AS SELECT DISTINCT
+                id,
+                name,
+                (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id and books_list_filter(book)) count
+            FROM tags as x WHERE name!="{0}" AND id IN
+                (SELECT DISTINCT tag FROM books_tags_link WHERE book IN
+                    (SELECT DISTINCT book FROM books_tags_link WHERE tag IN
+                        (SELECT id FROM tags WHERE name="{0}")));
+            '''.format(_('News')))
+        self.conn.commit()
+
+
         CustomColumns.__init__(self)
         template = '''\
                 (SELECT {query} FROM books_{table}_link AS link INNER JOIN
@@ -135,13 +168,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         columns = ['id', 'title',
             # col         table     link_col          query
             ('authors', 'authors', 'author', 'sortconcat(link.id, name)'),
-            ('publisher', 'publishers', 'publisher', 'name'),
-            ('rating', 'ratings', 'rating', 'ratings.rating'),
              'timestamp',
              '(SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size',
+            ('rating', 'ratings', 'rating', 'ratings.rating'),
             ('tags', 'tags', 'tag', 'group_concat(name)'),
              '(SELECT text FROM comments WHERE book=books.id) comments',
             ('series', 'series', 'series', 'name'),
+            ('publisher', 'publishers', 'publisher', 'name'),
              'series_index',
              'sort',
              'author_sort',
@@ -162,19 +195,31 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             lines.append(line)
 
         custom_map = self.custom_columns_in_meta()
+        # custom col labels are numbers (the id in the custom_columns table)
         custom_cols = list(sorted(custom_map.keys()))
         lines.extend([custom_map[x] for x in custom_cols])
 
-        self.FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'publisher':3, 'rating':4, 'timestamp':5,
-             'size':6, 'tags':7, 'comments':8, 'series':9, 'series_index':10,
+        self.FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'timestamp':3,
+             'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
+             'publisher':9, 'series_index':10,
              'sort':11, 'author_sort':12, 'formats':13, 'isbn':14, 'path':15,
              'lccn':16, 'pubdate':17, 'flags':18, 'uuid':19}
+
+        for k,v in self.FIELD_MAP.iteritems():
+            self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
 
         base = max(self.FIELD_MAP.values())
         for col in custom_cols:
             self.FIELD_MAP[col] = base = base+1
+            self.field_metadata.set_field_record_index(
+                                        self.custom_column_num_map[col]['label'],
+                                        base,
+                                        prefer_custom=True)
 
         self.FIELD_MAP['cover'] = base+1
+        self.field_metadata.set_field_record_index('cover', base+1, prefer_custom=False)
+        self.FIELD_MAP['ondevice'] = base+2
+        self.field_metadata.set_field_record_index('ondevice', base+2, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -186,7 +231,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.executescript(script)
         self.conn.commit()
 
-        self.data    = ResultCache(self.FIELD_MAP)
+        # Reconstruct the user categories, putting them into field_metadata
+        # Assumption is that someone else will fix them if they change.
+        tb_cats = self.field_metadata
+        for k in tb_cats.keys():
+            if tb_cats[k]['kind'] in ['user', 'search']:
+                del tb_cats[k]
+        for user_cat in sorted(prefs['user_categories'].keys()):
+            cat_name = user_cat+':' # add the ':' to avoid name collision
+            tb_cats.add_user_category(label=cat_name, name=user_cat)
+        if len(saved_searches.names()):
+            tb_cats.add_search_category(label='search', name=_('Searches'))
+
+        self.book_on_device_func = None
+        self.data    = ResultCache(self.FIELD_MAP, self.field_metadata)
         self.search  = self.data.search
         self.refresh = functools.partial(self.data.refresh, self)
         self.sort    = self.data.sort
@@ -195,6 +253,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.row     = self.data.row
         self.has_id  = self.data.has_id
         self.count   = self.data.count
+
+        self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
 
         self.refresh()
         self.last_update_check = self.last_modified()
@@ -421,6 +481,27 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             im = PILImage.open(f)
             im.convert('RGB').save(path, 'JPEG')
 
+    def book_on_device(self, id):
+        if callable(self.book_on_device_func):
+            return self.book_on_device_func(id)
+        return None
+
+    def book_on_device_string(self, id):
+        loc = []
+        on = self.book_on_device(id)
+        if on is not None:
+            m, a, b = on
+            if m is not None:
+                loc.append(_('Main'))
+            if a is not None:
+                loc.append(_('Card A'))
+            if b is not None:
+                loc.append(_('Card B'))
+        return ', '.join(loc)
+
+    def set_book_on_device_func(self, func):
+        self.book_on_device_func = func
+
     def all_formats(self):
         formats = self.conn.get('SELECT DISTINCT format from data')
         if not formats:
@@ -576,42 +657,144 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def get_recipe(self, id):
         return self.conn.get('SELECT script FROM feeds WHERE id=?', (id,), all=False)
 
-    def get_categories(self, sort_on_count=False):
-        self.conn.executescript(u'''
-            CREATE TEMP VIEW IF NOT EXISTS tag_browser_news AS SELECT DISTINCT
-                id,
-                name,
-                (SELECT COUNT(id) FROM books_tags_link WHERE tag=x.id) count
-            FROM tags as x WHERE name!="{0}" AND id IN
-                (SELECT DISTINCT tag FROM books_tags_link WHERE book IN
-                    (SELECT DISTINCT book FROM books_tags_link WHERE tag IN
-                        (SELECT id FROM tags WHERE name="{0}")));
-            '''.format(_('News')))
-        self.conn.commit()
+    def get_books_for_category(self, category, id_):
+        ans = set([])
+
+        if category not in self.field_metadata:
+            return ans
+
+        field = self.field_metadata[category]
+        ans = self.conn.get(
+                'SELECT book FROM books_{tn}_link WHERE {col}=?'.format(
+                    tn=field['table'], col=field['link_column']), (id_,))
+        return set(x[0] for x in ans)
+
+    def get_categories(self, sort_on_count=False, ids=None, icon_map=None):
+        self.books_list_filter.change([] if not ids else ids)
 
         categories = {}
-        for x in ('tags', 'series', 'news', 'publishers', 'authors'):
-            query = 'SELECT id,name,count FROM tag_browser_'+x
+        if icon_map is not None and type(icon_map) != TagsIcons:
+            raise TypeError('icon_map passed to get_categories must be of type TagIcons')
+
+        tb_cats = self.field_metadata
+        #### First, build the standard and custom-column categories ####
+        for category in tb_cats.keys():
+            cat = tb_cats[category]
+            if not cat['is_category'] or cat['kind'] in ['user', 'search']:
+                continue
+            tn = cat['table']
+            categories[category] = []   #reserve the position in the ordered list
+            if tn is None:              # Nothing to do for the moment
+                continue
+            cn = cat['column']
+            if ids is None:
+                query = 'SELECT id, {0}, count FROM tag_browser_{1}'.format(cn, tn)
+            else:
+                query = 'SELECT id, {0}, count FROM tag_browser_filtered_{1}'.format(cn, tn)
             if sort_on_count:
                 query += ' ORDER BY count DESC'
             else:
-                query += ' ORDER BY name ASC'
+                query += ' ORDER BY {0} ASC'.format(cn)
             data = self.conn.get(query)
-            category = x if x in ('series', 'news') else x[:-1]
-            categories[category] = [Tag(r[1], count=r[2], id=r[0]) for r in data]
 
-        categories['format'] = []
+            # icon_map is not None if get_categories is to store an icon and
+            # possibly a tooltip in the tag structure.
+            icon, tooltip = None, ''
+            label = tb_cats.key_to_label(category)
+            if icon_map:
+                if not tb_cats.is_custom_field(category):
+                    if category in icon_map:
+                        icon = icon_map[label]
+                else:
+                    icon = icon_map[':custom']
+                    icon_map[category] = icon
+                    tooltip = self.custom_column_label_map[label]['name']
+
+            datatype = cat['datatype']
+            if datatype == 'rating':
+                item_not_zero_func = (lambda x: x[1] > 0 and x[2] > 0)
+                formatter = (lambda x:u'\u2605'*int(round(x/2.)))
+            elif category == 'authors':
+                item_not_zero_func = (lambda x: x[2] > 0)
+                # Clean up the authors strings to human-readable form
+                formatter = (lambda x: x.replace('|', ','))
+            else:
+                item_not_zero_func = (lambda x: x[2] > 0)
+                formatter = (lambda x:unicode(x))
+
+            categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0],
+                                        icon=icon, tooltip = tooltip)
+                                    for r in data if item_not_zero_func(r)]
+
+        # We delayed computing the standard formats category because it does not
+        # use a view, but is computed dynamically
+        categories['formats'] = []
+        icon = None
+        if icon_map and 'formats' in icon_map:
+                icon = icon_map['formats']
         for fmt in self.conn.get('SELECT DISTINCT format FROM data'):
             fmt = fmt[0]
-            count = self.conn.get('SELECT COUNT(id) FROM data WHERE format="%s"'%fmt,
-                    all=False)
-            categories['format'].append(Tag(fmt, count=count))
+            if ids is not None:
+                count = self.conn.get('''SELECT COUNT(id)
+                                       FROM data
+                                       WHERE format="%s" AND
+                                       books_list_filter(book)'''%fmt,
+                                       all=False)
+            else:
+                count = self.conn.get('''SELECT COUNT(id)
+                                       FROM data
+                                       WHERE format="%s"'''%fmt,
+                                       all=False)
+            if count > 0:
+                categories['formats'].append(Tag(fmt, count=count, icon=icon))
 
         if sort_on_count:
-            categories['format'].sort(cmp=lambda x,y:cmp(x.count, y.count),
+            categories['formats'].sort(cmp=lambda x,y:cmp(x.count, y.count),
                     reverse=True)
         else:
-            categories['format'].sort(cmp=lambda x,y:cmp(x.name, y.name))
+            categories['formats'].sort(cmp=lambda x,y:cmp(x.name, y.name))
+
+        #### Now do the user-defined categories. ####
+        user_categories = prefs['user_categories']
+
+        # We want to use same node in the user category as in the source
+        # category. To do that, we need to find the original Tag node. There is
+        # a time/space tradeoff here. By converting the tags into a map, we can
+        # do the verification in the category loop much faster, at the cost of
+        # temporarily duplicating the categories lists.
+        taglist = {}
+        for c in categories.keys():
+            taglist[c] = dict(map(lambda t:(t.name, t), categories[c]))
+
+        for user_cat in sorted(user_categories.keys()):
+            items = []
+            for (name,label,ign) in user_categories[user_cat]:
+                if label in taglist and name in taglist[label]:
+                    items.append(taglist[label][name])
+                # else: do nothing, to not include nodes w zero counts
+            if len(items):
+                cat_name = user_cat+':' # add the ':' to avoid name collision
+                # Not a problem if we accumulate entries in the icon map
+                if icon_map is not None:
+                    icon_map[cat_name] = icon_map[':user']
+                if sort_on_count:
+                    categories[cat_name] = \
+                        sorted(items, cmp=(lambda x, y: cmp(y.count, x.count)))
+                else:
+                    categories[cat_name] = \
+                        sorted(items, cmp=(lambda x, y: cmp(x.name.lower(), y.name.lower())))
+
+        #### Finally, the saved searches category ####
+        items = []
+        icon = None
+        if icon_map and 'search' in icon_map:
+                icon = icon_map['search']
+        for srch in saved_searches.names():
+            items.append(Tag(srch, tooltip=saved_searches.lookup(srch), icon=icon))
+        if len(items):
+            if icon_map is not None:
+                icon_map['search'] = icon_map['search']
+            categories['search'] = items
 
         return categories
 

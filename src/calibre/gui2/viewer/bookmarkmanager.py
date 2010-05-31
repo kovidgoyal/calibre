@@ -9,7 +9,7 @@ from PyQt4.Qt import Qt, QDialog, QAbstractTableModel, QVariant, SIGNAL, \
     QModelIndex, QInputDialog, QLineEdit, QFileDialog
 
 from calibre.gui2.viewer.bookmarkmanager_ui import Ui_BookmarkManager
-from calibre.gui2 import NONE, qstring_to_unicode
+from calibre.gui2 import NONE
 
 class BookmarkManager(QDialog, Ui_BookmarkManager):
     def __init__(self, parent, bookmarks):
@@ -111,7 +111,7 @@ class BookmarkTableModel(QAbstractTableModel):
 
     def setData(self, index, value, role):
         if role == Qt.EditRole:
-            self.bookmarks[index.row()] = (qstring_to_unicode(value.toString()).strip(), self.bookmarks[index.row()][1])
+            self.bookmarks[index.row()] = (unicode(value.toString()).strip(), self.bookmarks[index.row()][1])
             self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), index, index)
             return True
         return False
