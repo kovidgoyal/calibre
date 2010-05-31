@@ -250,6 +250,7 @@ class iPadOutput(OutputProfile):
     screen_size = (768, 1024)
     comic_screen_size = (768, 1024)
     dpi = 132.0
+    supports_nested_toc = False
 
 class SonyReaderOutput(OutputProfile):
 
