@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.6.95\n"
-"POT-Creation-Date: 2010-05-30 22:56+MDT\n"
-"PO-Revision-Date: 2010-05-30 22:56+MDT\n"
+"Project-Id-Version: calibre 0.6.55\n"
+"POT-Creation-Date: 2010-05-31 10:04+MDT\n"
+"PO-Revision-Date: 2010-05-31 10:04+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -247,7 +247,7 @@ msgid "This profile tries to provide sane defaults and is useful if you know not
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:57
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:258
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:262
 msgid "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
 
@@ -256,62 +256,62 @@ msgid "This profile is intended for the SONY PRS 300."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:78
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:292
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:296
 msgid "This profile is intended for the SONY PRS-900."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:86
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:322
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:326
 msgid "This profile is intended for the Microsoft Reader."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:97
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:333
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:337
 msgid "This profile is intended for the Mobipocket books."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:110
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:346
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:350
 msgid "This profile is intended for the Hanlin V3 and its clones."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:122
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:358
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:362
 msgid "This profile is intended for the Hanlin V5 and its clones."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:132
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:366
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:370
 msgid "This profile is intended for the Cybook G3."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:145
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:379
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:383
 msgid "This profile is intended for the Cybook Opus."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:157
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:390
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:394
 msgid "This profile is intended for the Amazon Kindle."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:169
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:425
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:429
 msgid "This profile is intended for the Irex Illiad."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:181
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:438
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:442
 msgid "This profile is intended for the IRex Digital Reader 1000."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:194
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:452
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:456
 msgid "This profile is intended for the IRex Digital Reader 800."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:206
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:466
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:470
 msgid "This profile is intended for the B&N Nook."
 msgstr ""
 
@@ -323,27 +323,27 @@ msgstr ""
 msgid "This profile tries to provide sane defaults and is useful if you want to produce a document intended to be read at a computer or on a range of devices."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:248
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:251
 msgid "Intended for the iPad and similar devices with a resolution of 768x1024"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:271
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:275
 msgid "This profile is intended for the Kobo Reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:283
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:287
 msgid "This profile is intended for the SONY PRS-300."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:301
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:305
 msgid "This profile is intended for the 5-inch JetBook."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:310
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:314
 msgid "This profile is intended for the SONY PRS line. The 500/505/700 etc, in landscape mode. Mainly useful for comics."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:408
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:412
 msgid "This profile is intended for the Amazon Kindle DX."
 msgstr ""
 
@@ -415,46 +415,50 @@ msgstr ""
 msgid "Communicate with S60 phones."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:35
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:51
 msgid "Communicate with iBooks through iTunes."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:40
-msgid "Apple device detected, launching iTunes, please wait..."
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:56
+msgid "Apple device detected, launching iTunes, please wait ..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:100
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:103
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:114
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:132
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:135
 msgid "Updating device metadata listing..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:164
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:658
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:195
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:226
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:793
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:930
 msgid "%d of %d"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:167
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:661
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:232
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:935
 msgid "finished"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:258
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:349
 msgid ""
-"Certain books may only be deleted from within the iBooks app.\n"
+"Some books not found in iTunes database.\n"
+"Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:468
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:588
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:28
 msgid "settings for device drivers"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:470
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:590
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:30
 msgid "Ordered list of formats the device will accept"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:564
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:704
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."

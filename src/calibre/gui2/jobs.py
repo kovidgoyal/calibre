@@ -312,7 +312,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
 
     def show_details(self):
         for index in self.jobs_view.selectedIndexes():
-            self.jobs_view.show_details(index)
+            self.show_job_details(index)
             return
 
     def kill_all_jobs(self):
