@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-31 16:18+0000\n"
-"PO-Revision-Date: 2010-06-01 03:38+0000\n"
+"PO-Revision-Date: 2010-06-01 04:13+0000\n"
 "Last-Translator: Saverio Palmieri <Unknown>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-01 03:38+0000\n"
+"X-Launchpad-Export-Date: 2010-06-02 03:32+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -2079,7 +2079,7 @@ msgstr "Nenhuma capa foi encontrada"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:33
 msgid "Metadata download"
-msgstr ""
+msgstr "Baixar metadados"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:110
 msgid "ratings"
@@ -2099,11 +2099,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:136
 msgid "Downloads metadata from Google Books"
-msgstr ""
+msgstr "Obter metadados do Google Books"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:152
 msgid "Downloads metadata from isbndb.com"
-msgstr ""
+msgstr "Obter metadados do isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:180
 msgid ""
@@ -2113,7 +2113,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:188
 msgid "Downloads social metadata from amazon.com"
-msgstr ""
+msgstr "Obter metadados sociais da amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:94
 msgid ""
@@ -2741,11 +2741,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:95
 msgid "Download social metadata (tags/rating/etc.)"
-msgstr ""
+msgstr "Obter metadados sociais (rótulos/avaliações/etc.)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:97
 msgid "Overwrite author and title with new metadata"
-msgstr ""
+msgstr "Sobrescrever autor e título com os novos metadados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:99
 msgid "Limit max simultaneous jobs to number of CPUs"
@@ -3845,7 +3845,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:62
 msgid "Insert &metadata as page at start of book"
-msgstr ""
+msgstr "Inserir &metadados como uma página no início do livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:63
 msgid "&Preprocess input file to possibly improve structure detection"
@@ -4698,11 +4698,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:117
 msgid "Update &metadata in saved copies"
-msgstr ""
+msgstr "Atualizar &metadados nas copias salvas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:118
 msgid "Save metadata in &OPF file"
-msgstr ""
+msgstr "Salvar metadados no arquivo &OPF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:119
 msgid "Convert non-English characters to &English equivalents"
@@ -4761,11 +4761,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:529
 msgid "Download &social metadata (tags/ratings/etc.) by default"
-msgstr ""
+msgstr "Obter metadados &sociais (rótulos/avaliações/etc.) por padrão"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:530
 msgid "&Overwrite author and title by default when fetching metadata"
-msgstr ""
+msgstr "S&obrescrever autor e título por padrão quando obter metadados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:531
 msgid "Default network &timeout:"
@@ -5256,7 +5256,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/social.py:34
 msgid "Downloading social metadata, please wait..."
-msgstr ""
+msgstr "Obtendo metadados sociais, aguarde por favor..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:50
 msgid "&Show this warning again"
@@ -5276,15 +5276,17 @@ msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:165
 msgid "Finding metadata..."
-msgstr ""
+msgstr "Localizando metadados..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:179
 msgid "Could not find metadata"
-msgstr ""
+msgstr "Não foi possível encontrar metadados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:180
 msgid "The metadata download seems to have stalled. Try again later."
 msgstr ""
+"O processo de obtenção de metadados parece estar travada. Tente novamente em "
+"instantes."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:189
 msgid "Warning"
@@ -5302,6 +5304,7 @@ msgstr "Não foram encontrados metadados"
 msgid ""
 "No metadata found, try adjusting the title and author or the ISBN key."
 msgstr ""
+"Nenhum metadado encontrado, tente ajustar o título e autor ou a chave ISBN."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:85
 msgid "Fetch metadata"
@@ -5335,6 +5338,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:91
 msgid "Download &social metadata (tags/rating/etc.) for the selected book"
 msgstr ""
+"Obter metadados &sociais (rótulos/avaliações/etc.) para o livro selecionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:92
 msgid "Overwrite author and title with author and title of selected book"
@@ -5457,12 +5461,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:188
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:412
 msgid "&Basic metadata"
-msgstr ""
+msgstr "Metadados &básicos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:189
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:413
 msgid "&Custom metadata"
-msgstr ""
+msgstr "Metadados &customizados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:125
 msgid "Not a valid picture"
@@ -5492,11 +5496,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:207
 msgid "Could not read metadata"
-msgstr ""
+msgstr "Não foi possível ler metadados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:208
 msgid "Could not read metadata from %s format"
-msgstr ""
+msgstr "Não foi possível ler metadados o formato %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:256
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:262
@@ -5561,11 +5565,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:611
 msgid "There were errors downloading social metadata"
-msgstr ""
+msgstr "Ocorreram erros na obtenção dos metadados sociais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:640
 msgid "Cannot fetch metadata"
-msgstr ""
+msgstr "Não foi possível obter metadados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:641
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
@@ -5649,6 +5653,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:404
 msgid "Update metadata from the metadata in the selected format"
 msgstr ""
+"Atualizar metadados a partir dos metadados contidos no formato selecionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:409
 msgid "Reset cover to default"
@@ -7046,19 +7051,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:274
 msgid "Edit metadata individually"
-msgstr ""
+msgstr "Editar metadados individualmente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:276
 msgid "Edit metadata in bulk"
-msgstr ""
+msgstr "Editar metadados em lote"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:278
 msgid "Download metadata and covers"
-msgstr "Baixar metadados e capas"
+msgstr "Obter metadados e capas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:279
 msgid "Download only metadata"
-msgstr "Baixar apenas os metadados"
+msgstr "Obter apenas os metadados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:280
 msgid "Download only covers"
@@ -7066,7 +7071,7 @@ msgstr "Baixar apenas as capas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:281
 msgid "Download only social metadata"
-msgstr ""
+msgstr "Obter somente os metadados sociais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:285
 msgid "Merge into first selected book - delete others"
@@ -7328,11 +7333,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1404
 msgid "Failed to read metadata"
-msgstr ""
+msgstr "Falhou na leitura dos metadados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1405
 msgid "Failed to read metadata from the following"
-msgstr ""
+msgstr "Falhou na leitura dos metadados vindos de"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1425
 msgid "Cannot delete"
@@ -7370,11 +7375,11 @@ msgstr "Eliminar livros do dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1557
 msgid "Cannot download metadata"
-msgstr ""
+msgstr "Não foi possível obter metadados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1573
 msgid "social metadata"
-msgstr ""
+msgstr "metadados sociais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1575
 msgid "covers"
@@ -7390,15 +7395,15 @@ msgstr "Baixando %s para %d livro(s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1599
 msgid "Failed to download some metadata"
-msgstr "Falha ao obter alguns metadados"
+msgstr "Falhou ao obter alguns metadados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1600
 msgid "Failed to download metadata for the following:"
-msgstr ""
+msgstr "Falhou ao obter metadados para os seguintes:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1603
 msgid "Failed to download metadata:"
-msgstr ""
+msgstr "Falhou em obter metadados:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1614
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1652
@@ -9251,6 +9256,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:692
 msgid "Swap author first and last names when reading metadata"
 msgstr ""
+"Inverter o primeiro nome e sobrenomes do autor quando estiver lendo metadados"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:694
 msgid "Add new formats to existing book records"
@@ -9346,11 +9352,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (China)"
-msgstr ""
+msgstr "Inglês (China)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "Spanish (Paraguay)"
-msgstr ""
+msgstr "Espanhol (Paraguai)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "German (AT)"
@@ -9374,15 +9380,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:68
 msgid "Failed to negotiate SSH session: "
-msgstr ""
+msgstr "Falhou na negociação de sessão SSH: "
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:71
 msgid "Failed to authenticate with server: %s"
-msgstr ""
+msgstr "Falhou na autenticação com o servidor: %s"
 
 #: /home/kovid/work/calibre/src/calibre/utils/smtp.py:234
 msgid "Control email delivery"
-msgstr ""
+msgstr "Controlar envio de email"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:113
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:135
