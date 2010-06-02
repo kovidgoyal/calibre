@@ -391,10 +391,14 @@ class NYTimes(BasicNewsRecipe):
         return ans
 
     def preprocess_html(self, soup):
-        # Skip ad pages before actual article
+        # Skip ad pages served before actual article
         skip_tag = soup.find(True, {'name':'skip'})
         if skip_tag is not None:
-            soup = self.index_to_soup(skip_tag.parent['href'])
+            self.log.error("Found forwarding link: %s" % skip_tag.parent['href'])
+            url = 'http://www.nytimes.com' + re.sub(r'\?.*', '', skip_tag.parent['href'])
+            url += '?pagewanted=all'
+            self.log.error("Skipping ad to article at '%s'" % url)
+            soup = self.index_to_soup(url)
         return self.strip_anchors(soup)
 
     def postprocess_html(self,soup, True):

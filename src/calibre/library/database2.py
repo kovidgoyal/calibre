@@ -725,6 +725,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0],
                                         icon=icon, tooltip = tooltip)
                                     for r in data if item_not_zero_func(r)]
+            if category == 'series':
+                categories[category].sort(cmp=lambda x,y:cmp(title_sort(x.name),
+                    title_sort(y.name)))
 
         # We delayed computing the standard formats category because it does not
         # use a view, but is computed dynamically

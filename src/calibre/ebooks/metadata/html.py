@@ -11,7 +11,7 @@ import re
 
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.chardet import xml_to_unicode
-
+from calibre import entity_to_unicode
 
 def get_metadata(stream):
     src = stream.read()
@@ -43,6 +43,10 @@ def get_metadata_(src, encoding=None):
     if match:
         author = match.group(2).replace(',', ';')
 
+    ent_pat = re.compile(r'&(\S+)?;')
+    title = ent_pat.sub(entity_to_unicode, title)
+    if author:
+        author = ent_pat.sub(entity_to_unicode, author)
     mi = MetaInformation(title, [author] if author else None)
 
     # Publisher

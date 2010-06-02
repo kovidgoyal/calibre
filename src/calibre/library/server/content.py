@@ -16,7 +16,7 @@ except ImportError:
 
 from calibre import fit_image, guess_type
 from calibre.utils.date import fromtimestamp
-
+from calibre.ebooks.metadata import title_sort
 
 class ContentServer(object):
 
@@ -67,7 +67,7 @@ class ContentServer(object):
     def seriescmp(self, x, y):
         si = self.db.FIELD_MAP['series']
         try:
-            ans = cmp(x[si].lower(), y[si].lower())
+            ans = cmp(title_sort(x[si].lower()), title_sort(y[si].lower()))
         except AttributeError: # Some entries may be None
             ans = cmp(x[si], y[si])
         if ans != 0: return ans
