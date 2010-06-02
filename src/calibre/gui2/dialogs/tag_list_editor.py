@@ -37,6 +37,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.connect(self.available_tags, SIGNAL('itemChanged(QListWidgetItem *)'), self.finish_editing)
 
     def finish_editing(self, item):
+        if not item.text():
+                error_dialog(self, 'Tag is blank',
+                             'A tag cannot be set to nothing. Delete it instead.'%(item.text())).exec_()
+                item.setText(self.item_before_editing.text())
+                return
         if item.text() != self.item_before_editing.text():
             if item.text() in self.all_tags.keys() or item.text() in self.to_rename.keys():
                 error_dialog(self, 'Tag already used',
