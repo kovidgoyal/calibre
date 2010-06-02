@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 from PyQt4.QtCore import SIGNAL, Qt
-from PyQt4.QtGui import QDialog
+from PyQt4.QtGui import QDialog, QListWidgetItem
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2 import question_dialog, error_dialog
@@ -19,11 +19,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.to_rename = {}
         self.to_delete = []
         self.db = db
-        all_tags = [tag for tag in self.db.all_tags()]
-        all_tags = list(set(all_tags))
-        all_tags.sort(cmp=self.tag_cmp)
-        for tag in all_tags:
-            self.available_tags.addItem(tag)
+        self.all_tags = {}
+        for k,v in db.get_tags_with_ids():
+            self.all_tags[v] = k
+        for tag in sorted(self.all_tags.keys(), cmp=self.tag_cmp):
+            item = QListWidgetItem(tag)
+            item.setData(Qt.UserRole, self.all_tags[tag])
+            self.available_tags.addItem(item)
 
         items = self.available_tags.findItems(tag_to_match, Qt.MatchExactly)
         if len(items) == 1:
@@ -35,8 +37,14 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.connect(self.available_tags, SIGNAL('itemChanged(QListWidgetItem *)'), self.finish_editing)
 
     def finish_editing(self, item):
-        if item.text() != self.item_before_editing:
-            self.to_rename[self.item_before_editing] = item.text()
+        if item.text() != self.item_before_editing.text():
+            if item.text() in self.all_tags.keys() or item.text() in self.to_rename.keys():
+                error_dialog(self, 'Tag already used',
+                             'The tag %s is already used.'%(item.text())).exec_()
+                item.setText(self.item_before_editing.text())
+                return
+            id,ign = self.item_before_editing.data(Qt.UserRole).toInt()
+            self.to_rename[item.text()] = id
 
     def rename_tag(self):
         item = self.available_tags.currentItem()
@@ -46,7 +54,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         if item is None:
             error_dialog(self, 'No tag selected', 'You must select one tag from the list of Available tags.').exec_()
             return
-        self.item_before_editing = item.text()
+        self.item_before_editing = item.clone()
         item.setFlags (item.flags() | Qt.ItemIsEditable);
         self.available_tags.editItem(item)
 
@@ -73,8 +81,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.available_tags.takeItem(self.available_tags.row(item))
 
     def accept(self):
-        for item in self.to_rename:
-            self.db.rename_tag(old=unicode(item), new=unicode(self.to_rename[item]))
+        for text in self.to_rename:
+            self.db.rename_tag(self.to_rename[text], unicode(text))
         for item in self.to_delete:
             self.db.delete_tag(unicode(item.text()))
         QDialog.accept(self)
