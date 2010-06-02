@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Tag Editor</string>
+   <string>Saved Search Editor</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -137,7 +137,11 @@
     </layout>
    </item>
    <item row="1" column="0">
-    <widget class="QPlainTextEdit" name="search_text"/>
+    <widget class="QPlainTextEdit" name="search_text">
+     <property name="toolTip">
+      <string>Change the contents of the saved search</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

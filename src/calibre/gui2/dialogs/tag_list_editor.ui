@@ -63,6 +63,12 @@
             <iconset>
              <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
            </property>
+           <property name="iconSize">
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
           </widget>
          </item>
          <item>
@@ -76,6 +82,15 @@
            <property name="icon">
             <iconset>
              <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="shortcut">
+            <string>Ctrl+S</string>
            </property>
           </widget>
          </item>
