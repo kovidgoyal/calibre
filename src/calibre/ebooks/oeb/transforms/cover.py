@@ -136,6 +136,8 @@ class CoverManager(object):
                 href = g['cover'].href
             else:
                 href = self.default_cover()
+            if href is None:
+                return
             width, height = self.inspect_cover(href)
             if width is None or height is None:
                 self.log.warning('Failed to read cover dimensions')

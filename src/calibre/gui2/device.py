@@ -1123,12 +1123,12 @@ class DeviceGUI(object):
             if cache:
                 if id in cache['db_ids']:
                     loc[i] = True
-                    break
+                    continue
                 if mi.authors and \
                         re.sub('(?u)\W|[_]', '', authors_to_string(mi.authors).lower()) \
                         in cache['authors']:
                     loc[i] = True
-                    break
+                    continue
         return loc
 
     def set_books_in_library(self, booklists, reset=False):

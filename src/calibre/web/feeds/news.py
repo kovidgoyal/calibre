@@ -146,7 +146,7 @@ class BasicNewsRecipe(Recipe):
     #: If True empty feeds are removed from the output.
     #: This option has no effect if parse_index is overriden in
     #: the sub class. It is meant only for recipes that return a list
-    #: of feeds using :member:`feeds` or :method:`get_feeds`.
+    #: of feeds using `feeds` or :method:`get_feeds`.
     remove_empty_feeds = False
 
     #: List of regular expressions that determines which links to follow
@@ -256,7 +256,7 @@ class BasicNewsRecipe(Recipe):
 
     #: The CSS that is used to styles the templates, i.e., the navigation bars and
     #: the Tables of Contents. Rather than overriding this variable, you should
-    #: use :member:`extra_css` in your recipe to customize look and feel.
+    #: use `extra_css` in your recipe to customize look and feel.
     template_css = u'''
             .article_date {
                 color: gray; font-family: monospace;
@@ -506,7 +506,7 @@ class BasicNewsRecipe(Recipe):
 
     def get_obfuscated_article(self, url):
         '''
-        If you set :member:`articles_are_obfuscated` this method is called with
+        If you set `articles_are_obfuscated` this method is called with
         every article URL. It should return the path to a file on the filesystem
         that contains the article HTML. That file is processed by the recursive
         HTML fetching engine, so it can contain links to pages/images on the web.

@@ -133,7 +133,7 @@ Can I use the collections feature of the SONY reader?
 turned into a collection on the reader. Note that the PRS-500 does not support collections for books stored on the SD card. The PRS-505 does. 
 
 How do I use |app| with my iPad/iPhone/iTouch?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can access your calibre library on a iPad/iPhone/iTouch over the air using the calibre content server. 
 
