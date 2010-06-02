@@ -9,7 +9,8 @@ from PyQt4.Qt import QCoreApplication, QIcon, QMessageBox, QObject, QTimer, \
         QSplashScreen, QApplication
 
 from calibre import prints, plugins
-from calibre.constants import iswindows, __appname__, isosx, filesystem_encoding
+from calibre.constants import iswindows, __appname__, isosx, DEBUG, \
+        filesystem_encoding
 from calibre.utils.ipc import ADDRESS, RC
 from calibre.gui2 import ORG_NAME, APP_UID, initialize_file_icon_provider, \
     Application, choose_dir, error_dialog, question_dialog, gprefs
@@ -114,12 +115,15 @@ class GuiRunner(QObject):
     initialization'''
 
     def __init__(self, opts, args, actions, listener, app):
+        self.startup_time = time.time()
         self.opts, self.args, self.listener, self.app = opts, args, listener, app
         self.actions = actions
         self.main = None
         QObject.__init__(self)
         self.splash_screen = None
         self.timer = QTimer.singleShot(1, self.initialize)
+        if DEBUG:
+            prints('Starting up...')
 
     def start_gui(self):
         from calibre.gui2.ui import Main
@@ -128,6 +132,8 @@ class GuiRunner(QObject):
             self.splash_screen.showMessage(_('Initializing user interface...'))
             self.splash_screen.finish(main)
         main.initialize(self.library_path, self.db, self.listener, self.actions)
+        if DEBUG:
+            prints('Started up in', time.time() - self.startup_time)
         add_filesystem_book = partial(main.add_filesystem_book, allow_device=False)
         sys.excepthook = main.unhandled_exception
         if len(self.args) > 1:
@@ -230,7 +236,6 @@ class GuiRunner(QObject):
         if gprefs.get('show_splash_screen', True):
             self.show_splash_screen()
 
-        time.sleep(10)
         self.library_path = get_library_path()
         if self.library_path is None:
             self.initialization_failed()
