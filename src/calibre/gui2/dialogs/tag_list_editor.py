@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 from PyQt4.QtCore import SIGNAL, Qt
-from PyQt4.QtGui import QDialog
+from PyQt4.QtGui import QDialog, QListWidgetItem
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2 import question_dialog, error_dialog
@@ -9,7 +9,7 @@ from calibre.gui2 import question_dialog, error_dialog
 class TagListEditor(QDialog, Ui_TagListEditor):
 
     def tag_cmp(self, x, y):
-        return cmp(x.lower(), y.lower())
+        return cmp(x.text().lower(), y.text().lower())
 
     def __init__(self, window, db, tag_to_match):
         QDialog.__init__(self, window)
@@ -19,11 +19,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.to_rename = {}
         self.to_delete = []
         self.db = db
-        all_tags = [tag for tag in self.db.all_tags()]
-        all_tags = list(set(all_tags))
-        all_tags.sort(cmp=self.tag_cmp)
-        for tag in all_tags:
-            self.available_tags.addItem(tag)
+        all_tags = db.get_tags_and_ids()
+        for tag in sorted(all_tags.keys()):
+            item = QListWidgetItem(tag)
+            item.setData(all_tags[tag])
+            self.available_tags.addItem(item)
 
         items = self.available_tags.findItems(tag_to_match, Qt.MatchExactly)
         if len(items) == 1:

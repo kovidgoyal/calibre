@@ -51,6 +51,8 @@ class FontMetrics(object):
 
 
 def get_font_metrics(image, d_wand, text):
+    if isinstance(text, unicode):
+        text = text.encode('utf-8')
     ret = p.MagickQueryFontMetrics(image, d_wand, text)
     return FontMetrics(ret)
 

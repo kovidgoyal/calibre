@@ -91,7 +91,7 @@ class TagsView(QTreeView): # {{{
             return
         try:
             if action == 'manage_tags':
-                self.tag_list_edit.emit(category);
+                self.tag_list_edit.emit(category)
                 return
             if action == 'manage_categories':
                 self.user_category_edit.emit(category)
@@ -122,12 +122,12 @@ class TagsView(QTreeView): # {{{
         if item.type == TagTreeItem.CATEGORY:
             category = unicode(item.name.toString())
             self.context_menu = QMenu(self)
-            self.context_menu.addAction(_('Hide column %s') % category,
+            self.context_menu.addAction(_('Hide %s') % category,
                 partial(self.context_menu_handler, action='hide', category=category))
 
             if self.hidden_categories:
                 self.context_menu.addSeparator()
-                m = self.context_menu.addMenu(_('Show column'))
+                m = self.context_menu.addMenu(_('Show category'))
                 for col in self.hidden_categories:
                     m.addAction(col,
                         partial(self.context_menu_handler, action='show', category=col))
@@ -154,7 +154,7 @@ class TagsView(QTreeView): # {{{
                             category=tag_name))
 
             self.context_menu.popup(self.mapToGlobal(point))
-        return True;
+        return True
 
     def clear(self):
         self.model().clear_state()
@@ -315,7 +315,7 @@ class TagsModel(QAbstractItemModel): # {{{
         data = self.get_node_tree(config['sort_by_popularity'])
         self.root_item = TagTreeItem()
         for i, r in enumerate(self.row_map):
-            if self.categories[i]in self.hidden_categories:
+            if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
             if self.db.field_metadata[r]['kind'] != 'user':
                 tt = _('The lookup/search name is "{0}"').format(r)
@@ -351,9 +351,9 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def refresh(self):
         data = self.get_node_tree(config['sort_by_popularity']) # get category data
-        row_index = -1;
+        row_index = -1
         for i, r in enumerate(self.row_map):
-            if self.categories[i] in self.hidden_categories:
+            if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
             row_index += 1
             category = self.root_item.children[row_index]
@@ -485,9 +485,9 @@ class TagsModel(QAbstractItemModel): # {{{
     def tokens(self):
         ans = []
         tags_seen = set()
-        row_index = -1;
+        row_index = -1
         for i, key in enumerate(self.row_map):
-            if self.categories[i] in self.hidden_categories:
+            if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
             row_index += 1
             if key.endswith(':'): # User category, so skip it. The tag will be marked in its real category
@@ -498,7 +498,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 if tag.state > 0:
                     prefix = ' not ' if tag.state == 2 else ''
                     category = key if key != 'news' else 'tag'
-                    if tag.name[0] == u'\u2605': # char is a star. Assume rating
+                    if tag.name and tag.name[0] == u'\u2605': # char is a star. Assume rating
                         ans.append('%s%s:%s'%(prefix, category, len(tag.name)))
                     else:
                         if category == 'tags':

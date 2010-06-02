@@ -648,6 +648,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.execute(st%dict(ltable='publishers', table='publishers', ltable_col='publisher'))
         self.conn.execute(st%dict(ltable='tags', table='tags', ltable_col='tag'))
         self.conn.execute(st%dict(ltable='series', table='series', ltable_col='series'))
+        for id_, tag in self.conn.get('SELECT id, name FROM tags', all=True):
+            if not tag.strip():
+                self.conn.execute('DELETE FROM books_tags_link WHERE tag=?',
+                        (id_,))
+                self.conn.execute('DELETE FROM tags WHERE id=?', (id_,))
         self.clean_custom()
         self.conn.commit()
 
@@ -980,8 +985,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if notify:
                 self.notify('metadata', [id])
 
+    def get_tags_and_ids(self):
+        result = self.conn.get('SELECT * FROM tags')
+        if not result:
+            return {}
+        r = {}
+        for k,v in result:
+            r[v] = k
+        return r
+
     def rename_tag(self, old, new):
         self.conn.execute('UPDATE tags SET name=? WHERE name=?', (new, old))
+        self.conn.commit()
 
     def get_tags(self, id):
         result = self.conn.get(

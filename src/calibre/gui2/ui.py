@@ -129,13 +129,18 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 pixmap_to_data(pixmap))
 
         self.last_time = datetime.datetime.now()
-    def __init__(self, library_path, db, listener, opts, actions, parent=None):
+
+    def __init__(self, opts, parent=None):
+        MainWindow.__init__(self, opts, parent)
+        self.opts = opts
+
+    def initialize(self, library_path, db, listener, actions):
+        opts = self.opts
         self.last_time = datetime.datetime.now()
         self.preferences_action, self.quit_action = actions
         self.library_path = library_path
         self.spare_servers = []
         self.must_restart_before_config = False
-        MainWindow.__init__(self, opts, parent)
         # Initialize fontconfig in a separate thread as this can be a lengthy
         # process if run for the first time on this machine
         from calibre.utils.fonts import fontconfig
