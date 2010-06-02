@@ -254,7 +254,7 @@ class BasicNewsRecipe(Recipe):
     #: will remove everythong from `<!--Article ends here-->` to `</body>`.
     preprocess_regexps    = []
 
-    #: The CSS that is used to styles the templates, i.e., the navigation bars and
+    #: The CSS that is used to style the templates, i.e., the navigation bars and
     #: the Tables of Contents. Rather than overriding this variable, you should
     #: use :member:`extra_css` in your recipe to customize look and feel.
     template_css = u'''
@@ -517,6 +517,21 @@ class BasicNewsRecipe(Recipe):
         '''
         raise NotImplementedError
 
+    def extract_author(self, soup):
+        '''
+        Parse downloaded articles for author, add to OEBBook object.
+        :param soup:
+        '''
+        return None
+
+    def extract_description(self, soup):
+        '''
+        Parse downloaded articles for description, add to OEBBook object.
+        :param soup:
+        '''
+        return None
+
+
     def postprocess_book(self, oeb, opts, log):
         '''
         Run any needed post processing on the parsed downloaded e-book.
@@ -544,6 +559,8 @@ class BasicNewsRecipe(Recipe):
         self.username = options.username
         self.password = options.password
         self.lrf = options.lrf
+        self.output_profile = options.output_profile.name
+        self.touchscreen = getattr(options.output_profile,'touchscreen',False)
 
         self.output_dir = os.path.abspath(self.output_dir)
         if options.test:
@@ -597,7 +614,7 @@ class BasicNewsRecipe(Recipe):
         if self.delay > 0:
             self.simultaneous_downloads = 1
 
-        self.navbar = templates.NavBarTemplate()
+        self.navbar = templates.TouchscreenNavBarTemplate() if self.touchscreen else templates.NavBarTemplate()
         self.failed_downloads = []
         self.partial_failures = []
 
@@ -674,7 +691,11 @@ class BasicNewsRecipe(Recipe):
     def feeds2index(self, feeds):
         templ = templates.IndexTemplate()
         css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
-        return templ.generate(self.title, self.timefmt, feeds,
+        timefmt = self.timefmt
+        if self.touchscreen:
+            templ = templates.TouchscreenIndexTemplate()
+            timefmt = '%A, %d %b %Y'
+        return templ.generate(self.title, "mastheadImage.jpg", timefmt, feeds,
                               extra_css=css).render(doctype='xhtml')
 
     @classmethod
@@ -727,6 +748,44 @@ class BasicNewsRecipe(Recipe):
 
         templ = templates.FeedTemplate()
         css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
+
+        if self.touchscreen:
+            touchscreen_css = u'''
+                    .summary_headline {
+                        font-size:large; font-weight:bold; margin-top:0px; margin-bottom:0px;
+                    }
+
+                    .summary_byline {
+                        font-size:small; margin-top:0px; margin-bottom:0px;
+                    }
+
+                    .summary_text {
+                        margin-top:0px; margin-bottom:0px;
+                    }
+
+                    .feed {
+                        font-family:sans-serif; font-weight:bold; font-size:larger;
+                    }
+
+                    .calibre_navbar {
+                        font-family:monospace;
+                    }
+                    hr {
+                        border-color:gray;
+                        border-style:solid;
+                        border-width:thin;
+                    }
+
+                    table.toc {
+                        font-size:large;
+                    }
+                    td.article_count {
+                        text-align:right;
+                    }
+            '''
+
+            templ = templates.TouchscreenFeedTemplate()
+            css = touchscreen_css + '\n\n' + (self.extra_css if self.extra_css else '')
         return templ.generate(feed, self.description_limiter,
                               extra_css=css).render(doctype='xhtml')
 
@@ -868,9 +927,41 @@ class BasicNewsRecipe(Recipe):
 
         #feeds.restore_duplicates()
 
+        # GwR Populate any missing author/description fields in feed
         for f, feed in enumerate(feeds):
-            html = self.feed2index(feed)
             feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
+            for article in feed.articles:
+                if article.summary == '' or article.author == '':
+                    file = os.path.join(self.output_dir,feed_dir, article.url)
+                    if os.path.exists(file):
+                        with open(file, 'rb') as fi:
+                            src = fi.read().decode('utf-8')
+                            soup = BeautifulSoup(src)
+                            if article.author == '':
+                                    author = self.extract_author(soup)
+                                    if author and not isinstance(author, unicode):
+                                        author = author.decode('utf-8', 'replace')
+                                    article.author = author
+
+                            if article.summary == '':
+                                summary = article.summary = self.extract_description(soup)
+                                if summary and not isinstance(summary, unicode):
+                                    summary = summary.decode('utf-8', 'replace')
+                                if summary and '<' in summary:
+                                    try:
+                                        s = html.fragment_fromstring(summary, create_parent=True)
+                                        summary = html.tostring(s, method='text', encoding=unicode)
+                                    except:
+                                        print 'Failed to process article summary, deleting:'
+                                        print summary.encode('utf-8')
+                                        traceback.print_exc()
+                                        summary = u''
+                                article.text_summary = summary
+
+
+        for f, feed in enumerate(feeds):
+            feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
+            html = self.feed2index(feed)
             with open(os.path.join(feed_dir, 'index.html'), 'wb') as fi:
                 fi.write(html)
         self.create_opf(feeds)
@@ -949,13 +1040,47 @@ class BasicNewsRecipe(Recipe):
         Create a generic cover for recipes that dont have a cover
         '''
         try:
-            from calibre.utils.magick_draw import create_cover_page, TextLine
+            try:
+                from PIL import Image, ImageDraw, ImageFont
+                Image, ImageDraw, ImageFont
+            except ImportError:
+                import Image, ImageDraw, ImageFont
+            font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
             title = self.title if isinstance(self.title, unicode) else \
                     self.title.decode(preferred_encoding, 'replace')
             date = strftime(self.timefmt)
-            lines = [TextLine(title, 44), TextLine(date, 32)]
-            img_data = create_cover_page(lines, I('library.png'), output_format='jpg')
-            cover_file.write(img_data)
+            app = '['+__appname__ +' '+__version__+']'
+
+            COVER_WIDTH, COVER_HEIGHT = 590, 750
+            img = Image.new('RGB', (COVER_WIDTH, COVER_HEIGHT), 'white')
+            draw = ImageDraw.Draw(img)
+            # Title
+            font = ImageFont.truetype(font_path, 44)
+            width, height = draw.textsize(title, font=font)
+            left = max(int((COVER_WIDTH - width)/2.), 0)
+            top = 15
+            draw.text((left, top), title, fill=(0,0,0), font=font)
+            bottom = top + height
+            # Date
+            font = ImageFont.truetype(font_path, 32)
+            width, height = draw.textsize(date, font=font)
+            left = max(int((COVER_WIDTH - width)/2.), 0)
+            draw.text((left, bottom+15), date, fill=(0,0,0), font=font)
+            # Vanity
+            font = ImageFont.truetype(font_path, 28)
+            width, height = draw.textsize(app, font=font)
+            left = max(int((COVER_WIDTH - width)/2.), 0)
+            top = COVER_HEIGHT - height - 15
+            draw.text((left, top), app, fill=(0,0,0), font=font)
+            # Logo
+            logo = Image.open(I('library.png'), 'r')
+            width, height = logo.size
+            left = max(int((COVER_WIDTH - width)/2.), 0)
+            top = max(int((COVER_HEIGHT - height)/2.), 0)
+            img.paste(logo, (left, top))
+            img = img.convert('RGB').convert('P', palette=Image.ADAPTIVE)
+
+            img.convert('RGB').save(cover_file, 'JPEG')
             cover_file.flush()
         except:
             self.log.exception('Failed to generate default cover')
@@ -1048,16 +1173,21 @@ class BasicNewsRecipe(Recipe):
                 pw.DestroyMagickWand(x)
 
     def create_opf(self, feeds, dir=None):
+
         if dir is None:
             dir = self.output_dir
         mi = MetaInformation(self.short_title() + strftime(self.timefmt), [__appname__])
-        mi.publisher = __appname__
         mi.author_sort = __appname__
+        if self.output_profile == 'iPad':
+            mi = MetaInformation(self.short_title(), [strftime('%A, %d %B %Y')])
+            mi.author_sort = strftime('%Y-%m-%d')
+        mi.publisher = __appname__
         mi.publication_type = 'periodical:'+self.publication_type
         mi.timestamp = nowf()
         mi.comments = self.description
         if not isinstance(mi.comments, unicode):
             mi.comments = mi.comments.decode('utf-8', 'replace')
+        mi.tags = ['News']
         mi.pubdate = nowf()
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
@@ -1100,7 +1230,7 @@ class BasicNewsRecipe(Recipe):
 
         entries = ['index.html']
         toc = TOC(base_path=dir)
-        self.play_order_counter = 0
+        self.play_order_counter = 1
         self.play_order_map = {}
 
         def feed_index(num, parent):
@@ -1212,6 +1342,7 @@ class BasicNewsRecipe(Recipe):
         Create a list of articles from the list of feeds returned by :meth:`BasicNewsRecipe.get_feeds`.
         Return a list of :class:`Feed` objects.
         '''
+        print "\nweb.feeds.news:parse_feeds()\n"
         feeds = self.get_feeds()
         parsed_feeds = []
         for obj in feeds:
