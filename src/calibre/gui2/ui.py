@@ -655,8 +655,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.tags_view.set_new_model()
             self.tags_view.recount()
 
-    def do_tags_list_edit(self):
-        d = TagListEditor(self, self.library_view.model().db)
+    def do_tags_list_edit(self, tag):
+        d = TagListEditor(self, self.library_view.model().db, tag)
         d.exec_()
         if d.result() == d.Accepted:
             self.tags_view.set_new_model()

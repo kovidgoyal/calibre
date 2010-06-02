@@ -980,6 +980,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if notify:
                 self.notify('metadata', [id])
 
+    def rename_tag(self, old, new):
+        self.conn.execute('UPDATE tags SET name=? WHERE name=?', (new, old))
+
     def get_tags(self, id):
         result = self.conn.get(
         'SELECT name FROM tags WHERE id IN (SELECT tag FROM books_tags_link WHERE book=?)',

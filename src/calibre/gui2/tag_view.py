@@ -24,7 +24,7 @@ class TagsView(QTreeView): # {{{
     restriction_set     = pyqtSignal(object)
     tags_marked         = pyqtSignal(object, object)
     user_category_edit  = pyqtSignal(object)
-    tag_list_edit       = pyqtSignal()
+    tag_list_edit       = pyqtSignal(object)
     saved_search_edit   = pyqtSignal(object)
 
     def __init__(self, *args):
@@ -91,7 +91,7 @@ class TagsView(QTreeView): # {{{
             return
         try:
             if action == 'manage_tags':
-                self.tag_list_edit.emit();
+                self.tag_list_edit.emit(category);
                 return
             if action == 'manage_categories':
                 self.user_category_edit.emit(category)
@@ -137,7 +137,8 @@ class TagsView(QTreeView): # {{{
 
             self.context_menu.addSeparator()
             self.context_menu.addAction(_('Manage Tags'),
-                        partial(self.context_menu_handler, action='manage_tags'))
+                        partial(self.context_menu_handler, action='manage_tags',
+                                category=tag_name))
 
             if category in prefs['user_categories'].keys():
                 self.context_menu.addAction(_('Manage User Categories'),
@@ -148,14 +149,9 @@ class TagsView(QTreeView): # {{{
                         partial(self.context_menu_handler, action='manage_categories',
                                 category=None))
 
-            if tag_name in saved_searches.names():
-                self.context_menu.addAction(_('Manage Saved Searches'),
-                        partial(self.context_menu_handler, action='manage_searches',
-                                category=tag_name))
-            else:
-                self.context_menu.addAction(_('Manage Saved Searches'),
-                        partial(self.context_menu_handler, action='manage_searches',
-                                category=None))
+            self.context_menu.addAction(_('Manage Saved Searches'),
+                    partial(self.context_menu_handler, action='manage_searches',
+                            category=tag_name))
 
             self.context_menu.popup(self.mapToGlobal(point))
         return True;
