@@ -5,13 +5,15 @@ import sys, os, time, socket, traceback
 from functools import partial
 
 from PyQt4.Qt import QCoreApplication, QIcon, QMessageBox, QObject, QTimer, \
-        QThread, pyqtSignal, Qt, QProgressDialog, QString
+        QThread, pyqtSignal, Qt, QProgressDialog, QString, QPixmap, \
+        QSplashScreen, QApplication
 
 from calibre import prints, plugins
-from calibre.constants import iswindows, __appname__, isosx, filesystem_encoding
+from calibre.constants import iswindows, __appname__, isosx, DEBUG, \
+        filesystem_encoding
 from calibre.utils.ipc import ADDRESS, RC
 from calibre.gui2 import ORG_NAME, APP_UID, initialize_file_icon_provider, \
-    Application, choose_dir, error_dialog, question_dialog
+    Application, choose_dir, error_dialog, question_dialog, gprefs
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.utils.config import prefs, dynamic
 from calibre.library.database2 import LibraryDatabase2
@@ -113,16 +115,25 @@ class GuiRunner(QObject):
     initialization'''
 
     def __init__(self, opts, args, actions, listener, app):
+        self.startup_time = time.time()
         self.opts, self.args, self.listener, self.app = opts, args, listener, app
         self.actions = actions
         self.main = None
         QObject.__init__(self)
+        self.splash_screen = None
         self.timer = QTimer.singleShot(1, self.initialize)
+        if DEBUG:
+            prints('Starting up...')
 
     def start_gui(self):
         from calibre.gui2.ui import Main
         main = Main(self.opts)
+        if self.splash_screen is not None:
+            self.splash_screen.showMessage(_('Initializing user interface...'))
+            self.splash_screen.finish(main)
         main.initialize(self.library_path, self.db, self.listener, self.actions)
+        if DEBUG:
+            prints('Started up in', time.time() - self.startup_time)
         add_filesystem_book = partial(main.add_filesystem_book, allow_device=False)
         sys.excepthook = main.unhandled_exception
         if len(self.args) > 1:
@@ -143,7 +154,7 @@ class GuiRunner(QObject):
 
         if db is None and tb is not None:
             # DB Repair failed
-            error_dialog(None, _('Repairing failed'),
+            error_dialog(self.splash_screen, _('Repairing failed'),
                     _('The database repair failed. Starting with '
                         'a new empty library.'),
                     det_msg=tb, show=True)
@@ -160,7 +171,7 @@ class GuiRunner(QObject):
                     os.makedirs(x)
                 except:
                     x = os.path.expanduser('~')
-            candidate = choose_dir(None, 'choose calibre library',
+            candidate = choose_dir(self.splash_screen, 'choose calibre library',
                 _('Choose a location for your new calibre e-book library'),
                 default_dir=x)
 
@@ -171,7 +182,7 @@ class GuiRunner(QObject):
                 self.library_path = candidate
                 db = LibraryDatabase2(candidate)
             except:
-                error_dialog(None, _('Bad database location'),
+                error_dialog(self.splash_screen, _('Bad database location'),
                     _('Bad database location %r. calibre will now quit.'
                      )%self.library_path,
                     det_msg=traceback.format_exc(), show=True)
@@ -185,7 +196,7 @@ class GuiRunner(QObject):
         try:
             db = LibraryDatabase2(self.library_path)
         except (sqlite.Error, DatabaseException):
-            repair = question_dialog(None, _('Corrupted database'),
+            repair = question_dialog(self.splash_screen, _('Corrupted database'),
                     _('Your calibre database appears to be corrupted. Do '
                     'you want calibre to try and repair it automatically? '
                     'If you say No, a new empty calibre library will be created.'),
@@ -204,14 +215,27 @@ class GuiRunner(QObject):
                 self.repair.start()
                 return
         except:
-            error_dialog(None, _('Bad database location'),
+            error_dialog(self.splash_screen, _('Bad database location'),
                     _('Bad database location %r. Will start with '
                     ' a new, empty calibre library')%self.library_path,
                     det_msg=traceback.format_exc(), show=True)
 
         self.initialize_db_stage2(db, None)
 
+    def show_splash_screen(self):
+        self.splash_pixmap = QPixmap()
+        self.splash_pixmap.load(I('library.png'))
+        self.splash_screen = QSplashScreen(self.splash_pixmap,
+            Qt.SplashScreen|Qt.WindowStaysOnTopHint)
+        self.splash_screen.showMessage(_('Starting %s: Loading books...') %
+                __appname__)
+        self.splash_screen.show()
+        QApplication.instance().processEvents()
+
     def initialize(self, *args):
+        if gprefs.get('show_splash_screen', True):
+            self.show_splash_screen()
+
         self.library_path = get_library_path()
         if self.library_path is None:
             self.initialization_failed()

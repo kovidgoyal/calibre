@@ -985,17 +985,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if notify:
                 self.notify('metadata', [id])
 
-    def get_tags_and_ids(self):
+    # Convenience method for tags_list_editor
+    def get_tags_with_ids(self):
         result = self.conn.get('SELECT * FROM tags')
         if not result:
             return {}
-        r = {}
+        r = []
         for k,v in result:
-            r[v] = k
+            r.append((k,v))
         return r
 
-    def rename_tag(self, old, new):
-        self.conn.execute('UPDATE tags SET name=? WHERE name=?', (new, old))
+    def rename_tag(self, id, new):
+        self.conn.execute('UPDATE tags SET name=? WHERE id=?', (new, id))
         self.conn.commit()
 
     def get_tags(self, id):
