@@ -121,7 +121,8 @@ class GuiRunner(QObject):
 
     def start_gui(self):
         from calibre.gui2.ui import Main
-        main = Main(self.library_path, self.db, self.listener, self.opts, self.actions)
+        main = Main(self.opts)
+        main.initialize(self.library_path, self.db, self.listener, self.actions)
         add_filesystem_book = partial(main.add_filesystem_book, allow_device=False)
         sys.excepthook = main.unhandled_exception
         if len(self.args) > 1:
