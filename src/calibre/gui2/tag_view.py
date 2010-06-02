@@ -36,7 +36,7 @@ class TagsView(QTreeView): # {{{
 
     def set_database(self, db, tag_match, popularity, restriction):
         self.hidden_categories = config['tag_browser_hidden_categories']
-        self._model = TagsModel(db, parent=self, hidden_columns=self.hidden_categories)
+        self._model = TagsModel(db, parent=self, hidden_categories=self.hidden_categories)
         self.popularity = popularity
         self.restriction = restriction
         self.tag_match = tag_match
