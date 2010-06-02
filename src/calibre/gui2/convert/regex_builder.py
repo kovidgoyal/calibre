@@ -14,6 +14,7 @@ from calibre.gui2.convert.regex_builder_ui import Ui_RegexBuilder
 from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
 from calibre.gui2 import error_dialog, choose_files
 from calibre.ebooks.oeb.iterator import EbookIterator
+from calibre.ebooks.conversion.preprocess import convert_entities
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
@@ -87,8 +88,10 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.iterator = EbookIterator(pathtoebook)
         self.iterator.__enter__(only_input_plugin=True)
         text = [u'']
+        ent_pat = re.compile(r'&(\S+?);')
         for path in self.iterator.spine:
             html = open(path, 'rb').read().decode('utf-8', 'replace')
+            html = ent_pat.sub(convert_entities, html)
             text.append(html)
         self.preview.setPlainText('\n---\n'.join(text))
 
