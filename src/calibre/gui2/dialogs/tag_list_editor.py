@@ -1,11 +1,12 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
+from functools import partial
 from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QDialog, QListWidgetItem
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2 import question_dialog, error_dialog
-
 from calibre.ebooks.metadata import title_sort
 
 class TagListEditor(QDialog, Ui_TagListEditor):
@@ -28,6 +29,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             compare = (lambda x,y:cmp(title_sort(x).lower(), title_sort(y).lower()))
         elif category == 'publisher':
             result = db.get_publishers_with_ids()
+            compare = (lambda x,y:cmp(x.lower(), y.lower()))
+        else: # should be a custom field
+            self.cc_label = db.field_metadata[category]['label']
+            print 'here', self.cc_label
+            result = self.db.get_custom_items_with_ids(label=self.cc_label)
             compare = (lambda x,y:cmp(x.lower(), y.lower()))
 
         for k,v in result:
@@ -101,6 +107,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         elif self.category == 'publisher':
             rename_func = self.db.rename_publisher
             delete_func = self.db.delete_publisher_using_id
+        else:
+            rename_func = partial(self.db.rename_custom_item, label=self.cc_label)
+            delete_func = partial(self.db.delete_custom_item_using_id, label=self.cc_label)
 
         work_done = False
         if rename_func:

@@ -94,21 +94,16 @@ class TagsView(QTreeView): # {{{
         if self._model.toggle(index, exclusive):
             self.tags_marked.emit(self._model.tokens(), self.match_all)
 
-    def context_menu_handler(self, action=None, category=None, index=None):
+    def context_menu_handler(self, action=None, category=None,
+                             key=None, index=None):
         if not action:
             return
         try:
             if action == 'edit_item':
                 self.edit(index)
                 return
-            if action == 'manage_tags':
-                self.tag_list_edit.emit(category, 'tags')
-                return
-            if action == 'manage_series':
-                self.tag_list_edit.emit(category, 'series')
-                return
-            if action == 'manage_publishers':
-                self.tag_list_edit.emit(category, 'publisher')
+            if action == 'open_editor':
+                self.tag_list_edit.emit(category, key)
                 return
             if action == 'manage_categories':
                 self.user_category_edit.emit(category)
@@ -139,10 +134,13 @@ class TagsView(QTreeView): # {{{
             item = item.parent
         if item.type == TagTreeItem.CATEGORY:
             category = unicode(item.name.toString())
+            key = item.category_key
             self.context_menu = QMenu(self)
             # If the user right-clicked on a tag/series/publisher, then offer
             # the possibility of renaming that item
-            if tag_name and item.category_key in ['authors', 'tags', 'series', 'publisher', 'search']:
+            if tag_name and \
+                    (key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
+                     self.db.field_metadata[key]['is_custom']):
                 self.context_menu.addAction(_('Rename item') + " '" + tag_name + "'",
                         partial(self.context_menu_handler, action='edit_item',
                                 category=tag_item, index=index))
@@ -160,21 +158,14 @@ class TagsView(QTreeView): # {{{
 
             # Offer specific editors for tags/series/publishers/saved searches
             self.context_menu.addSeparator()
-            if category == _('Tags'):
-                self.context_menu.addAction(_('Manage Tags'),
-                        partial(self.context_menu_handler, action='manage_tags',
-                                category=tag_name))
-            elif category == _('Searches'):
+            if key in ['tags', 'publisher', 'series'] or \
+                        self.db.field_metadata[key]['is_custom']:
+                self.context_menu.addAction(_('Manage ') + category,
+                        partial(self.context_menu_handler, action='open_editor',
+                                category=tag_name, key=key))
+            elif key == 'search':
                 self.context_menu.addAction(_('Manage Saved Searches'),
                     partial(self.context_menu_handler, action='manage_searches',
-                            category=tag_name))
-            elif category == _('Publishers'):
-                self.context_menu.addAction(_('Manage Publishers'),
-                    partial(self.context_menu_handler, action='manage_publishers',
-                            category=tag_name))
-            elif category == _('Series'):
-                self.context_menu.addAction(_('Manage Series'),
-                    partial(self.context_menu_handler, action='manage_series',
                             category=tag_name))
 
             # Always show the user categories editor
@@ -441,27 +432,24 @@ class TagsModel(QAbstractItemModel): # {{{
             error_dialog(self.tags_view, 'Duplicate item',
                         _('The name %s is already used.')%val).exec_()
             return False
-        if key == 'series':
-            self.db.rename_series(item.tag.id, val)
-            item.tag.name = val
-            self.tags_view.tag_item_renamed.emit()
-        elif key == 'publisher':
-            self.db.rename_publisher(item.tag.id, val)
-            item.tag.name = val
-            self.tags_view.tag_item_renamed.emit()
-        elif key == 'tags':
-            self.db.rename_tag(item.tag.id, val)
-            item.tag.name = val
-            self.tags_view.tag_item_renamed.emit()
-        elif key == 'search':
+        if key == 'search':
             saved_searches.rename(unicode(item.data(role).toString()), val)
-            item.tag.name = val
             self.tags_view.search_item_renamed.emit()
-        elif key == 'authors':
-            self.db.rename_author(item.tag.id, val)
-            item.tag.name = val
+        else:
+            if key == 'series':
+                self.db.rename_series(item.tag.id, val)
+            elif key == 'publisher':
+                self.db.rename_publisher(item.tag.id, val)
+            elif key == 'tags':
+                self.db.rename_tag(item.tag.id, val)
+            elif key == 'authors':
+                self.db.rename_author(item.tag.id, val)
+            elif self.db.field_metadata[key]['is_custom']:
+                self.db.rename_custom_item(item.tag.id, val,
+                                    label=self.db.field_metadata[key]['label'])
             self.tags_view.tag_item_renamed.emit()
-        self.dataChanged.emit(index, index)
+        item.tag.name = val
+        self.refresh()
         return True
 
     def headerData(self, *args):
