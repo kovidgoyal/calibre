@@ -453,7 +453,7 @@ as HTML and then convert the resulting HTML file with |app|. When saving as HTML
 
 There is a Word macro package that can automate the conversion of Word documents using |app|. It also makes
 generating the Table of Contents much simpler. It is called BookCreator and is available for free
-`here <http://www.mobileread.com/forums/showthread.php?t=28313>`_.
+at `mobileread <http://www.mobileread.com/forums/showthread.php?t=28313>`_.
 
 Convert TXT documents
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -493,7 +493,7 @@ TXT input supports a number of options to differentiate how paragraphs are detec
         allows for basic formatting to be added to TXT documents, such as bold, italics, section headings, tables,
         lists, a Table of Contents, etc. Marking chapter headings with a leading # and setting the chapter XPath detection
         expression to "//h:h1" is the easiest way to have a proper table of contents generated from a TXT document.
-        You can learn more about the markdown syntax `here <http://daringfireball.net/projects/markdown/syntax>`_.
+        You can learn more about the markdown syntax at `daringfireball <http://daringfireball.net/projects/markdown/syntax>`_.
 
 
 Convert PDF documents
@@ -540,7 +540,7 @@ EPUB advanced formatting demo
 Various advanced formatting for EPUB files is demonstrated in this `demo file <http://calibre-ebook.com/downloads/demos/demo.epub>`_.
 The file was created from hand coded HTML using calibre and is meant to be used as a template for your own EPUB creation efforts. 
 
-The source HTML it was created from is available `here <http://calibre-ebook.com/downloads/demos/demo.zip>`_. The settings used to create the
+The source HTML it was created from is available `demo.zip <http://calibre-ebook.com/downloads/demos/demo.zip>`_. The settings used to create the
 EPUB from the ZIP file are::
 
     ebook-convert demo.zip .epub -vv --authors "Kovid Goyal" --language en --level1-toc '//*[@class="title"]' --disable-font-rescaling --page-breaks-before / --no-default-epub-cover

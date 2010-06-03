@@ -8,10 +8,11 @@ Browsing book collection by tags.
 '''
 
 from itertools import izip
+from functools import partial
 
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
                      QFont, QSize, QIcon, QPoint, \
-                     QAbstractItemModel, QVariant, QModelIndex
+                     QAbstractItemModel, QVariant, QModelIndex, QMenu
 from calibre.gui2 import config, NONE
 from calibre.utils.config import prefs
 from calibre.library.field_metadata import TagsIcons
@@ -19,9 +20,12 @@ from calibre.utils.search_query_parser import saved_searches
 
 class TagsView(QTreeView): # {{{
 
-    need_refresh    = pyqtSignal()
-    restriction_set = pyqtSignal(object)
-    tags_marked     = pyqtSignal(object, object)
+    need_refresh        = pyqtSignal()
+    restriction_set     = pyqtSignal(object)
+    tags_marked         = pyqtSignal(object, object)
+    user_category_edit  = pyqtSignal(object)
+    tag_list_edit       = pyqtSignal(object)
+    saved_search_edit   = pyqtSignal(object)
 
     def __init__(self, *args):
         QTreeView.__init__(self, *args)
@@ -31,23 +35,22 @@ class TagsView(QTreeView): # {{{
         self.tag_match = None
 
     def set_database(self, db, tag_match, popularity, restriction):
-        self._model = TagsModel(db, parent=self)
+        self.hidden_categories = config['tag_browser_hidden_categories']
+        self._model = TagsModel(db, parent=self, hidden_categories=self.hidden_categories)
         self.popularity = popularity
         self.restriction = restriction
         self.tag_match = tag_match
         self.db = db
         self.setModel(self._model)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.clicked.connect(self.toggle)
+        self.customContextMenuRequested.connect(self.show_context_menu)
         self.popularity.setChecked(config['sort_by_popularity'])
         self.popularity.stateChanged.connect(self.sort_changed)
         self.restriction.activated[str].connect(self.search_restriction_set)
         self.need_refresh.connect(self.recount, type=Qt.QueuedConnection)
         db.add_listener(self.database_changed)
         self.saved_searches_changed(recount=False)
-
-    def create_tag_category(self, name, tag_list):
-        self._model.create_tag_category(name, tag_list)
-        self.recount()
 
     def database_changed(self, event, ids):
         self.need_refresh.emit()
@@ -72,11 +75,86 @@ class TagsView(QTreeView): # {{{
         self.recount() # Must happen after the emission of the restriction_set signal
         self.tags_marked.emit(self._model.tokens(), self.match_all)
 
+    def mouseReleaseEvent(self, event):
+        # Swallow everything except leftButton so context menus work correctly
+        if event.button() == Qt.LeftButton:
+            QTreeView.mouseReleaseEvent(self, event)
+
     def toggle(self, index):
         modifiers = int(QApplication.keyboardModifiers())
         exclusive = modifiers not in (Qt.CTRL, Qt.SHIFT)
         if self._model.toggle(index, exclusive):
             self.tags_marked.emit(self._model.tokens(), self.match_all)
+
+    def context_menu_handler(self, action=None, category=None):
+        if not action:
+            return
+        try:
+            if action == 'manage_tags':
+                self.tag_list_edit.emit(category)
+                return
+            if action == 'manage_categories':
+                self.user_category_edit.emit(category)
+                return
+            if action == 'manage_searches':
+                self.saved_search_edit.emit(category)
+                return
+            if action == 'hide':
+                self.hidden_categories.add(category)
+            elif action == 'show':
+                self.hidden_categories.discard(category)
+            elif action == 'defaults':
+                self.hidden_categories.clear()
+            config.set('tag_browser_hidden_categories', self.hidden_categories)
+            self.set_new_model()
+        except:
+            return
+
+    def show_context_menu(self, point):
+        index = self.indexAt(point)
+        if not index.isValid():
+            return False
+        item = index.internalPointer()
+        tag_name = ''
+        if item.type == TagTreeItem.TAG:
+            tag_name = item.tag.name
+            item = item.parent
+        if item.type == TagTreeItem.CATEGORY:
+            category = unicode(item.name.toString())
+            self.context_menu = QMenu(self)
+            self.context_menu.addAction(_('Hide %s') % category,
+                partial(self.context_menu_handler, action='hide', category=category))
+
+            if self.hidden_categories:
+                self.context_menu.addSeparator()
+                m = self.context_menu.addMenu(_('Show category'))
+                for col in self.hidden_categories:
+                    m.addAction(col,
+                        partial(self.context_menu_handler, action='show', category=col))
+                self.context_menu.addSeparator()
+                self.context_menu.addAction(_('Restore defaults'),
+                            partial(self.context_menu_handler, action='defaults'))
+
+            self.context_menu.addSeparator()
+            self.context_menu.addAction(_('Manage Tags'),
+                        partial(self.context_menu_handler, action='manage_tags',
+                                category=tag_name))
+
+            if category in prefs['user_categories'].keys():
+                self.context_menu.addAction(_('Manage User Categories'),
+                        partial(self.context_menu_handler, action='manage_categories',
+                                category=category))
+            else:
+                self.context_menu.addAction(_('Manage User Categories'),
+                        partial(self.context_menu_handler, action='manage_categories',
+                                category=None))
+
+            self.context_menu.addAction(_('Manage Saved Searches'),
+                    partial(self.context_menu_handler, action='manage_searches',
+                            category=tag_name))
+
+            self.context_menu.popup(self.mapToGlobal(point))
+        return True
 
     def clear(self):
         self.model().clear_state()
@@ -110,13 +188,12 @@ class TagsView(QTreeView): # {{{
                 self.setCurrentIndex(idx)
                 self.scrollTo(idx, QTreeView.PositionAtCenter)
 
-    '''
-    If the number of user categories changed, or if custom columns have come or gone,
-    we must rebuild the model. Reason: it is much easier to do that than to reconstruct
-    the browser tree.
-    '''
+    # If the number of user categories changed,  if custom columns have come or
+    # gone, or if columns have been hidden or restored, we must rebuild the
+    # model. Reason: it is much easier than reconstructing the browser tree.
     def set_new_model(self):
-        self._model = TagsModel(self.db, parent=self)
+        self._model = TagsModel(self.db, parent=self,
+                                hidden_categories=self.hidden_categories)
         self.setModel(self._model)
     # }}}
 
@@ -200,7 +277,7 @@ class TagTreeItem(object): # {{{
 
 class TagsModel(QAbstractItemModel): # {{{
 
-    def __init__(self, db, parent=None):
+    def __init__(self, db, parent=None, hidden_categories=None):
         QAbstractItemModel.__init__(self, parent)
 
         # must do this here because 'QPixmap: Must construct a QApplication
@@ -220,6 +297,7 @@ class TagsModel(QAbstractItemModel): # {{{
 
         self.icon_state_map = [None, QIcon(I('plus.svg')), QIcon(I('minus.svg'))]
         self.db = db
+        self.hidden_categories = hidden_categories
         self.search_restriction = ''
         self.ignore_next_search = 0
 
@@ -237,6 +315,8 @@ class TagsModel(QAbstractItemModel): # {{{
         data = self.get_node_tree(config['sort_by_popularity'])
         self.root_item = TagTreeItem()
         for i, r in enumerate(self.row_map):
+            if self.hidden_categories and self.categories[i] in self.hidden_categories:
+                continue
             if self.db.field_metadata[r]['kind'] != 'user':
                 tt = _('The lookup/search name is "{0}"').format(r)
             else:
@@ -271,12 +351,16 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def refresh(self):
         data = self.get_node_tree(config['sort_by_popularity']) # get category data
+        row_index = -1
         for i, r in enumerate(self.row_map):
-            category = self.root_item.children[i]
+            if self.hidden_categories and self.categories[i] in self.hidden_categories:
+                continue
+            row_index += 1
+            category = self.root_item.children[row_index]
             names = [t.tag.name for t in category.children]
             states = [t.tag.state for t in category.children]
             state_map = dict(izip(names, states))
-            category_index = self.index(i, 0, QModelIndex())
+            category_index = self.index(row_index, 0, QModelIndex())
             if len(category.children) > 0:
                 self.beginRemoveRows(category_index, 0,
                         len(category.children)-1)
@@ -401,16 +485,20 @@ class TagsModel(QAbstractItemModel): # {{{
     def tokens(self):
         ans = []
         tags_seen = set()
+        row_index = -1
         for i, key in enumerate(self.row_map):
+            if self.hidden_categories and self.categories[i] in self.hidden_categories:
+                continue
+            row_index += 1
             if key.endswith(':'): # User category, so skip it. The tag will be marked in its real category
                 continue
-            category_item = self.root_item.children[i]
+            category_item = self.root_item.children[row_index]
             for tag_item in category_item.children:
                 tag = tag_item.tag
                 if tag.state > 0:
                     prefix = ' not ' if tag.state == 2 else ''
                     category = key if key != 'news' else 'tag'
-                    if tag.name[0] == u'\u2605': # char is a star. Assume rating
+                    if tag.name and tag.name[0] == u'\u2605': # char is a star. Assume rating
                         ans.append('%s%s:%s'%(prefix, category, len(tag.name)))
                     else:
                         if category == 'tags':

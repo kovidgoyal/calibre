@@ -120,6 +120,7 @@ class TouchscreenNavBarTemplate(Template):
             href = '%s%s/%s/index.html'%(prefix, up, next)
             navbar.text = '| '
             navbar.append(A('Next', href=href))
+
         href = '%s../index.html#article_%d'%(prefix, art)
         navbar.iterchildren(reversed=True).next().tail = ' | '
         navbar.append(A('Section Menu', href=href))
@@ -130,6 +131,7 @@ class TouchscreenNavBarTemplate(Template):
             href = '%s../article_%d/index.html'%(prefix, art-1)
             navbar.iterchildren(reversed=True).next().tail = ' | '
             navbar.append(A('Previous', href=href))
+
         navbar.iterchildren(reversed=True).next().tail = ' | '
         if not bottom:
             navbar.append(HR())
@@ -165,8 +167,14 @@ class TouchscreenIndexTemplate(Template):
     def _generate(self, title, masthead, datefmt, feeds, extra_css=None, style=None):
         if isinstance(datefmt, unicode):
             datefmt = datefmt.encode(preferred_encoding)
-        date = strftime(datefmt)
-        masthead_img = IMG(src=masthead,alt="masthead")
+        date = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
+        masthead_p = etree.Element("p")
+        masthead_p.set("style","text-align:center")
+        masthead_img = etree.Element("img")
+        masthead_img.set("src",masthead)
+        masthead_img.set("alt","masthead")
+        masthead_p.append(masthead_img)
+
         head = HEAD(TITLE(title))
         if style:
             head.append(STYLE(style, type='text/css'))
@@ -178,11 +186,11 @@ class TouchscreenIndexTemplate(Template):
             if feed:
                 tr = TR()
                 tr.append(TD( CLASS('toc_item'), A(feed.title, href='feed_%d/index.html'%i)))
-                tr.append(TD( CLASS('article_count'),'%d' % len(feed.articles)))
+                tr.append(TD( CLASS('article_count'),'%3.3s' % len(feed.articles)))
                 toc.append(tr)
 
         div = DIV(
-                PT(masthead_img,style='text-align:center'),
+                masthead_p,
                 PT(date, style='text-align:center'),
                 toc,
                 CLASS('calibre_rescale_100'))

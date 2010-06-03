@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import struct, array, zlib, cStringIO, collections, re
 
 from calibre.ebooks.lrf import LRFParseError, PRS500_PROFILE
-from calibre import entity_to_unicode
+from calibre import entity_to_unicode, prepare_string_for_xml
 from calibre.ebooks.lrf.tags import Tag
 
 ruby_tags = {
@@ -870,7 +870,7 @@ class Text(LRFStream):
         open_containers = collections.deque()
         for c in self.content:
             if isinstance(c, basestring):
-                s += c
+                s += prepare_string_for_xml(c)
             elif c is None:
                 if open_containers:
                     p = open_containers.pop()

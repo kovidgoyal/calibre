@@ -240,6 +240,9 @@ class OutputProfile(Plugin):
     # Device supports displaying a nested TOC
     supports_nested_toc = True
 
+    # If True output should be optimized for a touchscreen interface
+    touchscreen = False
+
     @classmethod
     def tags_to_string(cls, tags):
         return escape(', '.join(tags))

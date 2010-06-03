@@ -329,7 +329,7 @@ class RecursiveFetcher(object):
             try:
                 data = self.fetch_url(iurl)
                 if data == 'GIF89a\x01':
-                    # Skip empty GIF files
+                    # Skip empty GIF files as PIL errors on them anyway
                     continue
             except Exception:
                 self.log.exception('Could not fetch image %s'% iurl)

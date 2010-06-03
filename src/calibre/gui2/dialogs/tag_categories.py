@@ -24,13 +24,12 @@ class Item:
 class TagCategories(QDialog, Ui_TagCategories):
     category_labels_orig =   ['', 'authors', 'series', 'publishers', 'tags']
 
-    def __init__(self, window, db, index=None):
+    def __init__(self, window, db, on_category=None):
         QDialog.__init__(self, window)
         Ui_TagCategories.__init__(self)
         self.setupUi(self)
 
         self.db = db
-        self.index = index
         self.applied_items = []
 
         cc_icon = QIcon(I('column.svg'))
@@ -102,8 +101,10 @@ class TagCategories(QDialog, Ui_TagCategories):
         self.connect(self.applied_items_box,   SIGNAL('itemActivated(QListWidgetItem*)'), self.unapply_tags)
 
         self.populate_category_list()
-        return
-        self.select_category(0)
+        if on_category is not None:
+            l = self.category_box.findText(on_category)
+            if l >= 0:
+                self.category_box.setCurrentIndex(l)
 
     def make_list_widget(self, item):
         n = item.name if item.exists else item.name + _(' (not on any book)')
