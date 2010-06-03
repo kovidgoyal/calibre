@@ -48,14 +48,14 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def finish_editing(self, item):
         if not item.text():
-                error_dialog(self, 'Item is blank',
-                             'An item cannot be set to nothing. Delete it instead.'%(item.text())).exec_()
+                error_dialog(self, _('Item is blank'),
+                             _('An item cannot be set to nothing. Delete it instead.')).exec_()
                 item.setText(self.item_before_editing.text())
                 return
         if item.text() != self.item_before_editing.text():
             if item.text() in self.all_tags.keys() or item.text() in self.to_rename.keys():
-                error_dialog(self, 'Item already used',
-                             'The item %s is already used.'%(item.text())).exec_()
+                error_dialog(self, _('Item already used'),
+                             _('The item %s is already used.')%(item.text())).exec_()
                 item.setText(self.item_before_editing.text())
                 return
             (id,ign) = self.item_before_editing.data(Qt.UserRole).toInt()
@@ -67,7 +67,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def _rename_tag(self, item):
         if item is None:
-            error_dialog(self, 'No item selected', 'You must select one item from the list of Available items.').exec_()
+            error_dialog(self, _('No item selected'),
+                         _('You must select one item from the list of Available items.')).exec_()
             return
         self.item_before_editing = item.clone()
         item.setFlags (item.flags() | Qt.ItemIsEditable);
@@ -76,7 +77,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
     def delete_tags(self, item=None):
         deletes = self.available_tags.selectedItems() if item is None else [item]
         if not deletes:
-            error_dialog(self, 'No items selected', 'You must select at least one items from the list.').exec_()
+            error_dialog(self, _('No items selected'),
+                         _('You must select at least one items from the list.')).exec_()
             return
         ct = ', '.join([unicode(item.text()) for item in deletes])
         if not question_dialog(self, _('Are your sure?'),
@@ -112,4 +114,3 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             QDialog.reject(self)
         else:
             QDialog.accept(self)
-

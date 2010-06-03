@@ -17,6 +17,7 @@ from calibre.gui2 import config, NONE
 from calibre.utils.config import prefs
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.search_query_parser import saved_searches
+from calibre.gui2 import error_dialog
 
 class TagsView(QTreeView): # {{{
 
@@ -141,7 +142,7 @@ class TagsView(QTreeView): # {{{
             self.context_menu = QMenu(self)
             # If the user right-clicked on a tag/series/publisher, then offer
             # the possibility of renaming that item
-            if tag_name and item.category_key in ['tags', 'series', 'publisher', 'search']:
+            if tag_name and item.category_key in ['authors', 'tags', 'series', 'publisher', 'search']:
                 self.context_menu.addAction(_('Rename item') + " '" + tag_name + "'",
                         partial(self.context_menu_handler, action='edit_item',
                                 category=tag_item, index=index))
@@ -381,8 +382,12 @@ class TagsModel(QAbstractItemModel): # {{{
             data = self.db.get_categories(sort_on_count=sort, icon_map=self.category_icon_map)
 
         tb_categories = self.db.field_metadata
+        self.category_items = {}
         for category in tb_categories:
             if category in data: # They should always be there, but ...
+                # make a map of sets of names per category for duplicate
+                # checking when editing
+                self.category_items[category] = [tag.name for tag in data[category]]
                 self.row_map.append(category)
                 self.categories.append(tb_categories[category]['name'])
 
@@ -425,23 +430,37 @@ class TagsModel(QAbstractItemModel): # {{{
         if not index.isValid():
             return NONE
         val = unicode(value.toString())
+        if not val:
+            error_dialog(self.tags_view, _('Item is blank'),
+                        _('An item cannot be set to nothing. Delete it instead.')).exec_()
+            return False
+
         item = index.internalPointer()
-        if item.parent.category_key == 'series':
+        key = item.parent.category_key
+        if val in self.category_items[key]:
+            error_dialog(self.tags_view, 'Duplicate item',
+                        _('The name %s is already used.')%val).exec_()
+            return False
+        if key == 'series':
             self.db.rename_series(item.tag.id, val)
             item.tag.name = val
             self.tags_view.tag_item_renamed.emit()
-        elif item.parent.category_key == 'publisher':
+        elif key == 'publisher':
             self.db.rename_publisher(item.tag.id, val)
             item.tag.name = val
             self.tags_view.tag_item_renamed.emit()
-        elif item.parent.category_key == 'tags':
+        elif key == 'tags':
             self.db.rename_tag(item.tag.id, val)
             item.tag.name = val
             self.tags_view.tag_item_renamed.emit()
-        elif item.parent.category_key == 'search':
+        elif key == 'search':
             saved_searches.rename(unicode(item.data(role).toString()), val)
             item.tag.name = val
             self.tags_view.search_item_renamed.emit()
+        elif key == 'authors':
+            self.db.rename_author(item.tag.id, val)
+            item.tag.name = val
+            self.tags_view.tag_item_renamed.emit()
         self.dataChanged.emit(index, index)
         return True
 

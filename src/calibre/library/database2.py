@@ -993,8 +993,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return result
 
     def rename_tag(self, id, new_name):
-        self.conn.execute('UPDATE tags SET name=? WHERE id=?', (new_name, id))
-        self.conn.commit()
+        if id:
+            self.conn.execute('UPDATE tags SET name=? WHERE id=?', (new_name, id))
+            self.conn.commit()
 
     def delete_tag_using_id(self, id):
         if id:
@@ -1009,8 +1010,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return result
 
     def rename_series(self, id, new_name):
-        self.conn.execute('UPDATE series SET name=? WHERE id=?', (new_name, id))
-        self.conn.commit()
+        if id:
+            self.conn.execute('UPDATE series SET name=? WHERE id=?', (new_name, id))
+            self.conn.commit()
 
     def delete_series_using_id(self, id):
         if id:
@@ -1028,14 +1030,40 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return result
 
     def rename_publisher(self, id, new_name):
-        self.conn.execute('UPDATE publishers SET name=? WHERE id=?', (new_name, id))
-        self.conn.commit()
+        if id:
+            self.conn.execute('UPDATE publishers SET name=? WHERE id=?', (new_name, id))
+            self.conn.commit()
 
     def delete_publisher_using_id(self, id):
         if id:
             self.conn.execute('DELETE FROM books_publishers_link WHERE publisher=?', (id,))
             self.conn.execute('DELETE FROM publishers WHERE id=?', (id,))
             self.conn.commit()
+
+    def rename_author(self, id, new_name):
+        if id:
+            # Make sure that any commas in new_name are changed to '|'!
+            new_name = new_name.replace(',', '|')
+            self.conn.execute('UPDATE authors SET name=? WHERE id=?', (new_name, id))
+            self.conn.commit()
+            # now must fix up the books
+            books = self.conn.get('SELECT book from books_authors_link WHERE author=?', (id,))
+            for (book_id,) in books:
+                # First, must refresh the cache to see the new authors
+                self.data.refresh_ids(self, [book_id])
+                # now fix the filesystem paths
+                self.set_path(book_id, index_is_id=True)
+                # Next fix the author sort. Reset it to the default
+                authors = self.conn.get('''
+                    SELECT authors.name
+                    FROM authors, books_authors_link as bl
+                    WHERE bl.book = ? and bl.author = authors.id
+                ''' , (book_id,))
+                # unpack the double-list structure
+                for i,aut in enumerate(authors):
+                    authors[i] = aut[0]
+                ss = authors_to_sort_string(authors)
+                self.conn.execute('UPDATE books SET author_sort=? WHERE id=?', (ss, id))
 
     # end convenience methods
 
