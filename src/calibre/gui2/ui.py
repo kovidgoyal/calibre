@@ -61,6 +61,8 @@ from calibre.library.database2 import LibraryDatabase2
 from calibre.library.caches import CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories import TagCategories
+from calibre.gui2.dialogs.tag_list_editor import TagListEditor
+from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 
 class SaveMenu(QMenu):
 
@@ -542,19 +544,23 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.cover_cache = CoverCache(self.library_path)
         self.cover_cache.start()
         self.library_view.model().cover_cache = self.cover_cache
-        self.connect(self.edit_categories, SIGNAL('clicked()'), self.do_edit_categories)
+        self.connect(self.edit_categories, SIGNAL('clicked()'), self.do_user_categories_edit)
         self.tags_view.set_database(db, self.tag_match, self.popularity, self.search_restriction)
         self.tags_view.tags_marked.connect(self.search.search_from_tags)
         for x in (self.saved_search.clear_to_help, self.mark_restriction_set):
             self.tags_view.restriction_set.connect(x)
         self.tags_view.tags_marked.connect(self.saved_search.clear_to_help)
+        self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
+        self.tags_view.user_category_edit.connect(self.do_user_categories_edit)
+        self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
         self.search.search.connect(self.tags_view.model().reinit)
         for x in (self.location_view.count_changed, self.tags_view.recount,
                 self.restriction_count_changed):
             self.library_view.model().count_changed_signal.connect(x)
 
         self.connect(self.search, SIGNAL('cleared()'), self.search_box_cleared)
-        self.connect(self.saved_search, SIGNAL('changed()'), self.tags_view.saved_searches_changed, Qt.QueuedConnection)
+        self.connect(self.saved_search, SIGNAL('changed()'),
+                     self.tags_view.saved_searches_changed, Qt.QueuedConnection)
         if not gprefs.get('quick_start_guide_added', False):
             from calibre.ebooks.metadata import MetaInformation
             mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
@@ -647,12 +653,27 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
 
-    def do_edit_categories(self):
-        d = TagCategories(self, self.library_view.model().db)
+    def do_user_categories_edit(self, on_category=None):
+        d = TagCategories(self, self.library_view.model().db, on_category)
         d.exec_()
         if d.result() == d.Accepted:
             self.tags_view.set_new_model()
             self.tags_view.recount()
+
+    def do_tags_list_edit(self, tag):
+        d = TagListEditor(self, self.library_view.model().db, tag)
+        d.exec_()
+        if d.result() == d.Accepted:
+            self.tags_view.set_new_model()
+            self.tags_view.recount()
+            self.library_view.model().refresh()
+
+    def do_saved_search_edit(self, search):
+        d = SavedSearchEditor(self, search)
+        d.exec_()
+        if d.result() == d.Accepted:
+            self.tags_view.saved_searches_changed(recount=True)
+            self.saved_search.clear_to_help()
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
