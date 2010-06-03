@@ -145,7 +145,7 @@ class TagsView(QTreeView): # {{{
             if tag_name and \
                     (key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
                      self.db.field_metadata[key]['is_custom']):
-                self.context_menu.addAction(_('Rename item') + " '" + tag_name + "'",
+                self.context_menu.addAction(_('Rename') + " '" + tag_name + "'",
                         partial(self.context_menu_handler, action='edit_item',
                                 category=tag_item, index=index))
                 self.context_menu.addSeparator()
