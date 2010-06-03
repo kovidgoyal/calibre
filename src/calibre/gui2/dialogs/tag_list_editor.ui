@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Tag Editor</string>
+   <string>Category Editor</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -25,7 +25,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>Tags in use</string>
+          <string>Items in use</string>
          </property>
          <property name="buddy">
           <cstring>available_tags</cstring>
@@ -54,7 +54,7 @@
          <item>
           <widget class="QToolButton" name="delete_button">
            <property name="toolTip">
-            <string>Delete tag from database. This will unapply the tag from all books and then remove it from the database.</string>
+            <string>Delete item from database. This will unapply the item from all books and then remove it from the database.</string>
            </property>
            <property name="text">
             <string>...</string>
@@ -74,7 +74,7 @@
          <item>
           <widget class="QToolButton" name="rename_button">
            <property name="toolTip">
-            <string>Rename the tag everywhere it is used.</string>
+            <string>Rename the item in every book where it is used.</string>
            </property>
            <property name="text">
             <string>...</string>
