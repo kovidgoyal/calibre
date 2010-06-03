@@ -222,6 +222,8 @@ class DBAdder(Thread):
 
 class Adder(QObject):
 
+    ADD_TIMEOUT = 600 # seconds
+
     def __init__(self, parent, db, callback, spare_server=None):
         QObject.__init__(self, parent)
         self.pd = ProgressDialog(_('Adding...'), parent=parent)
@@ -328,7 +330,7 @@ class Adder(QObject):
         except Empty:
             pass
 
-        if (time.time() - self.last_added_at) > 300:
+        if (time.time() - self.last_added_at) > self.ADD_TIMEOUT:
             self.timer.stop()
             self.pd.hide()
             self.db_adder.end = True
