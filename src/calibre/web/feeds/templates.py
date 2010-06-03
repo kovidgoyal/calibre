@@ -186,7 +186,7 @@ class TouchscreenIndexTemplate(Template):
             if feed:
                 tr = TR()
                 tr.append(TD( CLASS('toc_item'), A(feed.title, href='feed_%d/index.html'%i)))
-                tr.append(TD( CLASS('article_count'),'%3.3s' % len(feed.articles)))
+                tr.append(TD( '%s' % len(feed.articles), style="text-align:right"))
                 toc.append(tr)
 
         div = DIV(

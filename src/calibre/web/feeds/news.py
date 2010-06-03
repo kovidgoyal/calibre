@@ -785,9 +785,6 @@ class BasicNewsRecipe(Recipe):
                     table.toc {
                         font-size:large;
                     }
-                    td.article_count {
-                        text-align:right;
-                    }
             '''
 
             templ = templates.TouchscreenFeedTemplate()
