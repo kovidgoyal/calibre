@@ -20,12 +20,14 @@ from calibre.utils.search_query_parser import saved_searches
 
 class TagsView(QTreeView): # {{{
 
-    need_refresh        = pyqtSignal()
+    refresh_required    = pyqtSignal()
     restriction_set     = pyqtSignal(object)
     tags_marked         = pyqtSignal(object, object)
     user_category_edit  = pyqtSignal(object)
     tag_list_edit       = pyqtSignal(object, object)
     saved_search_edit   = pyqtSignal(object)
+    tag_item_renamed    = pyqtSignal()
+    search_item_renamed = pyqtSignal()
 
     def __init__(self, *args):
         QTreeView.__init__(self, *args)
@@ -36,7 +38,8 @@ class TagsView(QTreeView): # {{{
 
     def set_database(self, db, tag_match, popularity, restriction):
         self.hidden_categories = config['tag_browser_hidden_categories']
-        self._model = TagsModel(db, parent=self, hidden_categories=self.hidden_categories)
+        self._model = TagsModel(db, parent=self,
+                                hidden_categories=self.hidden_categories)
         self.popularity = popularity
         self.restriction = restriction
         self.tag_match = tag_match
@@ -48,12 +51,12 @@ class TagsView(QTreeView): # {{{
         self.popularity.setChecked(config['sort_by_popularity'])
         self.popularity.stateChanged.connect(self.sort_changed)
         self.restriction.activated[str].connect(self.search_restriction_set)
-        self.need_refresh.connect(self.recount, type=Qt.QueuedConnection)
+        self.refresh_required.connect(self.recount, type=Qt.QueuedConnection)
         db.add_listener(self.database_changed)
         self.saved_searches_changed(recount=False)
 
     def database_changed(self, event, ids):
-        self.need_refresh.emit()
+        self.refresh_required.emit()
 
     @property
     def match_all(self):
@@ -80,16 +83,23 @@ class TagsView(QTreeView): # {{{
         if event.button() == Qt.LeftButton:
             QTreeView.mouseReleaseEvent(self, event)
 
+    def mouseDoubleClickEvent(self, event):
+        # swallow these to avoid toggling and editing at the same time
+        pass
+
     def toggle(self, index):
         modifiers = int(QApplication.keyboardModifiers())
         exclusive = modifiers not in (Qt.CTRL, Qt.SHIFT)
         if self._model.toggle(index, exclusive):
             self.tags_marked.emit(self._model.tokens(), self.match_all)
 
-    def context_menu_handler(self, action=None, category=None):
+    def context_menu_handler(self, action=None, category=None, index=None):
         if not action:
             return
         try:
+            if action == 'edit_item':
+                self.edit(index)
+                return
             if action == 'manage_tags':
                 self.tag_list_edit.emit(category, 'tags')
                 return
@@ -97,7 +107,7 @@ class TagsView(QTreeView): # {{{
                 self.tag_list_edit.emit(category, 'series')
                 return
             if action == 'manage_publishers':
-                self.tag_list_edit.emit(category, 'publishers')
+                self.tag_list_edit.emit(category, 'publisher')
                 return
             if action == 'manage_categories':
                 self.user_category_edit.emit(category)
@@ -123,24 +133,31 @@ class TagsView(QTreeView): # {{{
         item = index.internalPointer()
         tag_name = ''
         if item.type == TagTreeItem.TAG:
+            tag_item = item
             tag_name = item.tag.name
             item = item.parent
         if item.type == TagTreeItem.CATEGORY:
             category = unicode(item.name.toString())
             self.context_menu = QMenu(self)
-            self.context_menu.addAction(_('Hide %s') % category,
-                partial(self.context_menu_handler, action='hide', category=category))
-
-            if self.hidden_categories:
+            # If the user right-clicked on a tag/series/publisher, then offer
+            # the possibility of renaming that item
+            if tag_name and item.category_key in ['tags', 'series', 'publisher', 'search']:
+                self.context_menu.addAction(_('Rename item') + " '" + tag_name + "'",
+                        partial(self.context_menu_handler, action='edit_item',
+                                category=tag_item, index=index))
                 self.context_menu.addSeparator()
+            # Hide/Show/Restore categories
+            self.context_menu.addAction(_('Hide category %s') % category,
+                partial(self.context_menu_handler, action='hide', category=category))
+            if self.hidden_categories:
                 m = self.context_menu.addMenu(_('Show category'))
-                for col in self.hidden_categories:
+                for col in sorted(self.hidden_categories, cmp=lambda x,y: cmp(x.lower(), y.lower())):
                     m.addAction(col,
                         partial(self.context_menu_handler, action='show', category=col))
-                self.context_menu.addSeparator()
-                self.context_menu.addAction(_('Restore defaults'),
+                self.context_menu.addAction(_('Show all categories'),
                             partial(self.context_menu_handler, action='defaults'))
 
+            # Offer specific editors for tags/series/publishers/saved searches
             self.context_menu.addSeparator()
             if category == _('Tags'):
                 self.context_menu.addAction(_('Manage Tags'),
@@ -159,6 +176,7 @@ class TagsView(QTreeView): # {{{
                     partial(self.context_menu_handler, action='manage_series',
                             category=tag_name))
 
+            # Always show the user categories editor
             self.context_menu.addSeparator()
             if category in prefs['user_categories'].keys():
                 self.context_menu.addAction(_('Manage User Categories'),
@@ -219,7 +237,8 @@ class TagTreeItem(object): # {{{
     TAG      = 1
     ROOT     = 2
 
-    def __init__(self, data=None, category_icon=None, icon_map=None, parent=None, tooltip=None):
+    def __init__(self, data=None, category_icon=None, icon_map=None,
+                 parent=None, tooltip=None, category_key=None):
         self.parent = parent
         self.children = []
         if self.parent is not None:
@@ -234,6 +253,7 @@ class TagTreeItem(object): # {{{
             self.bold_font = QFont()
             self.bold_font.setBold(True)
             self.bold_font = QVariant(self.bold_font)
+            self.category_key = category_key
         elif self.type == self.TAG:
             icon_map[0] = data.icon
             self.tag, self.icon_state_map = data, list(map(QVariant, icon_map))
@@ -279,6 +299,8 @@ class TagTreeItem(object): # {{{
                 return QVariant('%s'%(self.tag.name))
             else:
                 return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
+        if role == Qt.EditRole:
+            return QVariant(self.tag.name)
         if role == Qt.DecorationRole:
             return self.icon_state_map[self.tag.state]
         if role == Qt.ToolTipRole and self.tag.tooltip is not None:
@@ -293,7 +315,7 @@ class TagTreeItem(object): # {{{
 
 class TagsModel(QAbstractItemModel): # {{{
 
-    def __init__(self, db, parent=None, hidden_categories=None):
+    def __init__(self, db, parent, hidden_categories=None):
         QAbstractItemModel.__init__(self, parent)
 
         # must do this here because 'QPixmap: Must construct a QApplication
@@ -313,6 +335,7 @@ class TagsModel(QAbstractItemModel): # {{{
 
         self.icon_state_map = [None, QIcon(I('plus.svg')), QIcon(I('minus.svg'))]
         self.db = db
+        self.tags_view = parent
         self.hidden_categories = hidden_categories
         self.search_restriction = ''
         self.ignore_next_search = 0
@@ -340,7 +363,7 @@ class TagsModel(QAbstractItemModel): # {{{
             c = TagTreeItem(parent=self.root_item,
                     data=self.categories[i],
                     category_icon=self.category_icon_map[r],
-                    tooltip=tt)
+                    tooltip=tt, category_key=r)
             for tag in data[r]:
                 TagTreeItem(parent=c, data=tag, icon_map=self.icon_state_map)
 
@@ -398,11 +421,35 @@ class TagsModel(QAbstractItemModel): # {{{
         item = index.internalPointer()
         return item.data(role)
 
+    def setData(self, index, value, role=Qt.EditRole):
+        if not index.isValid():
+            return NONE
+        val = unicode(value.toString())
+        item = index.internalPointer()
+        if item.parent.category_key == 'series':
+            self.db.rename_series(item.tag.id, val)
+            item.tag.name = val
+            self.tags_view.tag_item_renamed.emit()
+        elif item.parent.category_key == 'publisher':
+            self.db.rename_publisher(item.tag.id, val)
+            item.tag.name = val
+            self.tags_view.tag_item_renamed.emit()
+        elif item.parent.category_key == 'tags':
+            self.db.rename_tag(item.tag.id, val)
+            item.tag.name = val
+            self.tags_view.tag_item_renamed.emit()
+        elif item.parent.category_key == 'search':
+            saved_searches.rename(unicode(item.data(role).toString()), val)
+            item.tag.name = val
+            self.tags_view.search_item_renamed.emit()
+        self.dataChanged.emit(index, index)
+        return True
+
     def headerData(self, *args):
         return NONE
 
     def flags(self, *args):
-        return Qt.ItemIsEnabled|Qt.ItemIsSelectable
+        return Qt.ItemIsEnabled|Qt.ItemIsSelectable|Qt.ItemIsEditable
 
     def path_for_index(self, index):
         ans = []

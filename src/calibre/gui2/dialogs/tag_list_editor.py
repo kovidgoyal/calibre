@@ -26,7 +26,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         elif category == 'series':
             result = db.get_series_with_ids()
             compare = (lambda x,y:cmp(title_sort(x).lower(), title_sort(y).lower()))
-        elif category == 'publishers':
+        elif category == 'publisher':
             result = db.get_publishers_with_ids()
             compare = (lambda x,y:cmp(x.lower(), y.lower()))
 
@@ -96,7 +96,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         elif self.category == 'series':
             rename_func = self.db.rename_series
             delete_func = self.db.delete_series_using_id
-        elif self.category == 'publishers':
+        elif self.category == 'publisher':
             rename_func = self.db.rename_publisher
             delete_func = self.db.delete_publisher_using_id
 
