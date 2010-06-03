@@ -41,6 +41,7 @@ mimetypes.add_type('application/vnd.palm',                '.pdb')
 mimetypes.add_type('application/x-mobipocket-ebook',      '.mobi')
 mimetypes.add_type('application/x-mobipocket-ebook',      '.prc')
 mimetypes.add_type('application/x-mobipocket-ebook',      '.azw')
+mimetypes.add_type('application/x-koboreader-ebook',      '.kobo') 
 mimetypes.add_type('image/wmf',                           '.wmf')
 guess_type = mimetypes.guess_type
 import cssutils
