@@ -31,9 +31,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             result = db.get_publishers_with_ids()
             compare = (lambda x,y:cmp(x.lower(), y.lower()))
         else: # should be a custom field
-            self.cc_label = db.field_metadata[category]['label']
-            print 'here', self.cc_label
-            result = self.db.get_custom_items_with_ids(label=self.cc_label)
+            self.cc_label = None
+            if category in db.field_metadata:
+                self.cc_label = db.field_metadata[category]['label']
+                result = self.db.get_custom_items_with_ids(label=self.cc_label)
+            else:
+                result = []
             compare = (lambda x,y:cmp(x.lower(), y.lower()))
 
         for k,v in result:

@@ -986,6 +986,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.notify('metadata', [id])
 
     # Convenience methods for tags_list_editor
+    # Note: we generally do not need to refresh_ids because library_view will
+    # refresh everything.
     def get_tags_with_ids(self):
         result = self.conn.get('SELECT id,name FROM tags')
         if not result:
@@ -1017,11 +1019,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def delete_series_using_id(self, id):
         if id:
             books = self.conn.get('SELECT book from books_series_link WHERE series=?', (id,))
-            for (book_id,) in books:
-                self.conn.execute('UPDATE books SET series_index=1.0 WHERE id=?', (book_id,))
             self.conn.execute('DELETE FROM books_series_link WHERE series=?', (id,))
             self.conn.execute('DELETE FROM series WHERE id=?', (id,))
             self.conn.commit()
+            for (book_id,) in books:
+                self.conn.execute('UPDATE books SET series_index=1.0 WHERE id=?', (book_id,))
 
     def get_publishers_with_ids(self):
         result = self.conn.get('SELECT id,name FROM publishers')
@@ -1040,6 +1042,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.conn.execute('DELETE FROM publishers WHERE id=?', (id,))
             self.conn.commit()
 
+    # There is no editor for author, so we do not need get_authors_with_ids or
+    # delete_author_using_id.
     def rename_author(self, id, new_name):
         if id:
             # Make sure that any commas in new_name are changed to '|'!
