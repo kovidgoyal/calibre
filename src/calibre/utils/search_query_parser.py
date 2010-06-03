@@ -52,6 +52,12 @@ class SavedSearchQueries(object):
         self.queries.pop(self.force_unicode(name), False)
         prefs[self.opt_name] = self.queries
 
+    def rename(self, old_name, new_name):
+        self.queries[self.force_unicode(new_name)] = \
+                    self.queries.get(self.force_unicode(old_name), None)
+        self.queries.pop(self.force_unicode(old_name), False)
+        prefs[self.opt_name] = self.queries
+
     def names(self):
         return sorted(self.queries.keys(),
                 cmp=lambda x,y: cmp(x.lower(), y.lower()))
