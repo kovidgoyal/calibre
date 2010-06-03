@@ -643,11 +643,24 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         Remove orphaned entries.
         '''
-        st = 'DELETE FROM %(table)s WHERE (SELECT COUNT(id) FROM books_%(ltable)s_link WHERE %(ltable_col)s=%(table)s.id) < 1;'
-        self.conn.execute(st%dict(ltable='authors', table='authors', ltable_col='author'))
-        self.conn.execute(st%dict(ltable='publishers', table='publishers', ltable_col='publisher'))
-        self.conn.execute(st%dict(ltable='tags', table='tags', ltable_col='tag'))
-        self.conn.execute(st%dict(ltable='series', table='series', ltable_col='series'))
+        def doit(ltable, table, ltable_col):
+            st = ('DELETE FROM books_%s_link WHERE (SELECT COUNT(id) '
+                    'FROM books WHERE id=book) < 1;')%ltable
+            self.conn.execute(st)
+            st = ('DELETE FROM %(table)s WHERE (SELECT COUNT(id) '
+                    'FROM books_%(ltable)s_link WHERE '
+                    '%(ltable_col)s=%(table)s.id) < 1;') % dict(
+                            ltable=ltable, table=table, ltable_col=ltable_col)
+            self.conn.execute(st)
+
+        for ltable, table, ltable_col in [
+                ('authors', 'authors', 'author'),
+                ('publishers', 'publishers', 'publisher'),
+                ('tags', 'tags', 'tag'),
+                ('series', 'series', 'series')
+                ]:
+            doit(ltable, table, ltable_col)
+
         for id_, tag in self.conn.get('SELECT id, name FROM tags', all=True):
             if not tag.strip():
                 self.conn.execute('DELETE FROM books_tags_link WHERE tag=?',
@@ -1674,6 +1687,7 @@ books_series_link      feeds
 
     def check_integrity(self, callback):
         callback(0., _('Checking SQL integrity...'))
+        self.clean()
         user_version = self.user_version
         sql = '\n'.join(self.conn.dump())
         self.conn.close()
