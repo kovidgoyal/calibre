@@ -6,12 +6,11 @@ from PyQt4.QtGui import QDialog, QListWidgetItem
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2 import question_dialog, error_dialog
 
+from calibre.ebooks.metadata import title_sort
+
 class TagListEditor(QDialog, Ui_TagListEditor):
 
-    def tag_cmp(self, x, y):
-        return cmp(x.lower(), y.lower())
-
-    def __init__(self, window, db, tag_to_match):
+    def __init__(self, window, db, tag_to_match, category):
         QDialog.__init__(self, window)
         Ui_TagListEditor.__init__(self)
         self.setupUi(self)
@@ -20,9 +19,20 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.to_delete = []
         self.db = db
         self.all_tags = {}
-        for k,v in db.get_tags_with_ids():
+        self.category = category
+        if category == 'tags':
+            result = db.get_tags_with_ids()
+            compare = (lambda x,y:cmp(x.lower(), y.lower()))
+        elif category == 'series':
+            result = db.get_series_with_ids()
+            compare = (lambda x,y:cmp(title_sort(x).lower(), title_sort(y).lower()))
+        elif category == 'publishers':
+            result = db.get_publishers_with_ids()
+            compare = (lambda x,y:cmp(x.lower(), y.lower()))
+
+        for k,v in result:
             self.all_tags[v] = k
-        for tag in sorted(self.all_tags.keys(), cmp=self.tag_cmp):
+        for tag in sorted(self.all_tags.keys(), cmp=compare):
             item = QListWidgetItem(tag)
             item.setData(Qt.UserRole, self.all_tags[tag])
             self.available_tags.addItem(item)
@@ -38,17 +48,17 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def finish_editing(self, item):
         if not item.text():
-                error_dialog(self, 'Tag is blank',
-                             'A tag cannot be set to nothing. Delete it instead.'%(item.text())).exec_()
+                error_dialog(self, 'Item is blank',
+                             'An item cannot be set to nothing. Delete it instead.'%(item.text())).exec_()
                 item.setText(self.item_before_editing.text())
                 return
         if item.text() != self.item_before_editing.text():
             if item.text() in self.all_tags.keys() or item.text() in self.to_rename.keys():
-                error_dialog(self, 'Tag already used',
-                             'The tag %s is already used.'%(item.text())).exec_()
+                error_dialog(self, 'Item already used',
+                             'The item %s is already used.'%(item.text())).exec_()
                 item.setText(self.item_before_editing.text())
                 return
-            (id,_) = self.item_before_editing.data(Qt.UserRole).toInt()
+            (id,ign) = self.item_before_editing.data(Qt.UserRole).toInt()
             self.to_rename[item.text()] = id
 
     def rename_tag(self):
@@ -57,39 +67,49 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def _rename_tag(self, item):
         if item is None:
-            error_dialog(self, 'No tag selected', 'You must select one tag from the list of Available tags.').exec_()
+            error_dialog(self, 'No item selected', 'You must select one item from the list of Available items.').exec_()
             return
         self.item_before_editing = item.clone()
         item.setFlags (item.flags() | Qt.ItemIsEditable);
         self.available_tags.editItem(item)
 
     def delete_tags(self, item=None):
-        confirms, deletes = [], []
-        items = self.available_tags.selectedItems() if item is None else [item]
-        if not items:
-            error_dialog(self, 'No tags selected', 'You must select at least one tag from the list of Available tags.').exec_()
+        deletes = self.available_tags.selectedItems() if item is None else [item]
+        if not deletes:
+            error_dialog(self, 'No items selected', 'You must select at least one items from the list.').exec_()
             return
-        for item in items:
-            if self.db.is_tag_used(unicode(item.text())):
-                confirms.append(item)
-            else:
-                deletes.append(item)
-        if confirms:
-            ct = ', '.join([unicode(item.text()) for item in confirms])
-            if question_dialog(self, _('Are your sure?'),
-                '<p>'+_('The following tags are used by one or more books. '
-                    'Are you certain you want to delete them?')+'<br>'+ct):
-                deletes += confirms
+        ct = ', '.join([unicode(item.text()) for item in deletes])
+        if not question_dialog(self, _('Are your sure?'),
+            '<p>'+_('Are you certain you want to delete the following items?')+'<br>'+ct):
+            return
 
         for item in deletes:
-            (id,_) = item.data(Qt.UserRole).toInt()
+            (id,ign) = item.data(Qt.UserRole).toInt()
             self.to_delete.append(id)
             self.available_tags.takeItem(self.available_tags.row(item))
 
     def accept(self):
-        for text in self.to_rename:
-            self.db.rename_tag(id=self.to_rename[text], new_name=unicode(text))
-        for item in self.to_delete:
-            self.db.delete_tag_using_id(item)
-        QDialog.accept(self)
+        rename_func = None
+        if self.category == 'tags':
+            rename_func = self.db.rename_tag
+            delete_func = self.db.delete_tag_using_id
+        elif self.category == 'series':
+            rename_func = self.db.rename_series
+            delete_func = self.db.delete_series_using_id
+        elif self.category == 'publishers':
+            rename_func = self.db.rename_publisher
+            delete_func = self.db.delete_publisher_using_id
+
+        work_done = False
+        if rename_func:
+            for text in self.to_rename:
+                work_done = True
+                rename_func(id=self.to_rename[text], new_name=unicode(text))
+            for item in self.to_delete:
+                work_done = True
+                delete_func(item)
+        if not work_done:
+            QDialog.reject(self)
+        else:
+            QDialog.accept(self)
 

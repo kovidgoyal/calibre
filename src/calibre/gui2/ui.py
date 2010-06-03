@@ -660,13 +660,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.tags_view.set_new_model()
             self.tags_view.recount()
 
-    def do_tags_list_edit(self, tag):
-        d = TagListEditor(self, self.library_view.model().db, tag)
+    def do_tags_list_edit(self, tag, category):
+        d = TagListEditor(self, self.library_view.model().db, tag, category)
         d.exec_()
         if d.result() == d.Accepted:
+            # Clean up everything, as information could have changed for many books.
+            self.library_view.model().refresh()
             self.tags_view.set_new_model()
             self.tags_view.recount()
-            self.library_view.model().refresh()
+            self.saved_search.clear_to_help()
+            self.search.clear_to_help()
 
     def do_saved_search_edit(self, search):
         d = SavedSearchEditor(self, search)

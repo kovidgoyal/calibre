@@ -24,7 +24,7 @@ class TagsView(QTreeView): # {{{
     restriction_set     = pyqtSignal(object)
     tags_marked         = pyqtSignal(object, object)
     user_category_edit  = pyqtSignal(object)
-    tag_list_edit       = pyqtSignal(object)
+    tag_list_edit       = pyqtSignal(object, object)
     saved_search_edit   = pyqtSignal(object)
 
     def __init__(self, *args):
@@ -91,7 +91,13 @@ class TagsView(QTreeView): # {{{
             return
         try:
             if action == 'manage_tags':
-                self.tag_list_edit.emit(category)
+                self.tag_list_edit.emit(category, 'tags')
+                return
+            if action == 'manage_series':
+                self.tag_list_edit.emit(category, 'series')
+                return
+            if action == 'manage_publishers':
+                self.tag_list_edit.emit(category, 'publishers')
                 return
             if action == 'manage_categories':
                 self.user_category_edit.emit(category)
@@ -136,10 +142,24 @@ class TagsView(QTreeView): # {{{
                             partial(self.context_menu_handler, action='defaults'))
 
             self.context_menu.addSeparator()
-            self.context_menu.addAction(_('Manage Tags'),
+            if category == _('Tags'):
+                self.context_menu.addAction(_('Manage Tags'),
                         partial(self.context_menu_handler, action='manage_tags',
                                 category=tag_name))
+            elif category == _('Searches'):
+                self.context_menu.addAction(_('Manage Saved Searches'),
+                    partial(self.context_menu_handler, action='manage_searches',
+                            category=tag_name))
+            elif category == _('Publishers'):
+                self.context_menu.addAction(_('Manage Publishers'),
+                    partial(self.context_menu_handler, action='manage_publishers',
+                            category=tag_name))
+            elif category == _('Series'):
+                self.context_menu.addAction(_('Manage Series'),
+                    partial(self.context_menu_handler, action='manage_series',
+                            category=tag_name))
 
+            self.context_menu.addSeparator()
             if category in prefs['user_categories'].keys():
                 self.context_menu.addAction(_('Manage User Categories'),
                         partial(self.context_menu_handler, action='manage_categories',
@@ -148,10 +168,6 @@ class TagsView(QTreeView): # {{{
                 self.context_menu.addAction(_('Manage User Categories'),
                         partial(self.context_menu_handler, action='manage_categories',
                                 category=None))
-
-            self.context_menu.addAction(_('Manage Saved Searches'),
-                    partial(self.context_menu_handler, action='manage_searches',
-                            category=tag_name))
 
             self.context_menu.popup(self.mapToGlobal(point))
         return True
