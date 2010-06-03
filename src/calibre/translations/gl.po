@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-31 16:18+0000\n"
-"PO-Revision-Date: 2010-06-01 12:46+0000\n"
+"PO-Revision-Date: 2010-06-02 08:16+0000\n"
 "Last-Translator: Imendez <ivan.mendez.lopez@gmail.com>\n"
 "Language-Team: Galician <gl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-02 03:31+0000\n"
+"X-Launchpad-Export-Date: 2010-06-03 03:32+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -373,7 +373,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:275
 msgid "This profile is intended for the Kobo Reader."
-msgstr "Este profil está sangrado para o Kobo Reader."
+msgstr "Este perfil está sangrado para o Kobo Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:287
 msgid "This profile is intended for the SONY PRS-300."
@@ -2222,13 +2222,15 @@ msgstr "A editorial do libro polo que procurar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:53
 msgid "LibraryThing.com timed out. Try again later."
-msgstr ""
+msgstr "LibraryThing.com execedeu o tempo. Ténteo máis tarde."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:60
 msgid ""
 "Could not fetch cover as server is experiencing high load. Please try again "
 "later."
 msgstr ""
+"Non se puido obter a portada xa que o servidor ten unha carga excesiva. "
+"Ténteo máis tarde."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:61
 msgid " not found."
@@ -2236,7 +2238,7 @@ msgstr " non se achou."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:64
 msgid "LibraryThing.com server error. Try again later."
-msgstr ""
+msgstr "Houbo un erro no servidor de LibraryThing.com. Ténteo máis tarde."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:71
 msgid ""
@@ -2254,21 +2256,25 @@ msgstr "Capa"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
 msgstr ""
+"Modificar as imaxes para adaptarse ás limitacións de tamaño dos dispositivos "
+"Palm."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:26
 msgid "When present, use author sort field as author."
-msgstr ""
+msgstr "Cando exista, usar o campo autor abreviado como autor."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:30
 msgid ""
 "Don't add Table of Contents to end of book. Useful if the book has its own "
 "table of contents."
 msgstr ""
+"Non engadir índice ao final do libro. Esta opción é útil se o libro ten o "
+"seu propio índice."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:33
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:56
 msgid "Title for any generated in-line table of contents."
-msgstr ""
+msgstr "Título para calquera índice xerado no texto."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:37
 msgid "Disable compression of the file contents."
@@ -2277,6 +2283,7 @@ msgstr "Desactivar a compresión dos contidos do ficheiro."
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:40
 msgid "Tag marking book to be filed with Personal Docs"
 msgstr ""
+"Etiquetar o libro marcado para ser arquivado como documentos persoais."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:108
 msgid "All articles"
@@ -2284,7 +2291,7 @@ msgstr "Todos os artigos"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:258
 msgid "This is an Amazon Topaz book. It cannot be processed."
-msgstr ""
+msgstr "Este é un libro Topaz de Amazon. Por tanto, non se pode procesar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1373
 msgid "Title Page"
@@ -2303,19 +2310,19 @@ msgstr "Índice"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1376
 msgid "Glossary"
-msgstr ""
+msgstr "Glosario"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1377
 msgid "Acknowledgements"
-msgstr ""
+msgstr "Agradecementos"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1378
 msgid "Bibliography"
-msgstr ""
+msgstr "Bibliografia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1379
 msgid "Colophon"
-msgstr ""
+msgstr "Colofón"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1380
 msgid "Copyright"
@@ -2323,15 +2330,15 @@ msgstr "Dereitos de copia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1381
 msgid "Dedication"
-msgstr ""
+msgstr "Dedicatoria"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1382
 msgid "Epigraph"
-msgstr ""
+msgstr "Epígrafe"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1383
 msgid "Foreword"
-msgstr ""
+msgstr "Prólogo"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1384
 msgid "List of Illustrations"
@@ -2347,7 +2354,7 @@ msgstr "Notas"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1387
 msgid "Preface"
-msgstr ""
+msgstr "Prefacio"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1388
 msgid "Main Text"
@@ -2359,7 +2366,7 @@ msgstr "O formato de libros %s non está soportado"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."
-msgstr ""
+msgstr "Opcións de xeración de índices HTML"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:113
 msgid "Book Jacket"
@@ -2368,24 +2375,26 @@ msgstr "Envoltorio do Libro"
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/split.py:34
 msgid ""
 "Could not find reasonable point at which to split: %s Sub-tree size: %d KB"
-msgstr ""
+msgstr "Non se achou un punto razoábel en que partir: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:32
 msgid "OPF/NCX/etc. generation options."
-msgstr ""
+msgstr "Opcións de xeración OPF/NCX/etc."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:35
 msgid "OPF version to generate. Default is %default."
-msgstr ""
+msgstr "Versión de OPF para xerar. A predefinida é %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:37
 msgid ""
 "Generate an Adobe \"page-map\" file if pagination information is available."
 msgstr ""
+"Xerar un ficheiro de \"paga-map\" do Adobe se a información de paxinación "
+"está dispoñíbel."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:128
 msgid "Footnotes"
-msgstr ""
+msgstr "Notas a rodapé."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:135
 msgid "Sidebar"
@@ -2398,6 +2407,9 @@ msgid ""
 "Normally calibre treats blank lines as paragraph markers. With this option "
 "it will assume that every line represents a paragraph instead."
 msgstr ""
+"Polo xeral, o Calibre interpreta as liñas en branco como marcas de "
+"parágrafo. Con esta opción interprétase que cada liña representa un "
+"parágrafo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:27
@@ -2408,20 +2420,30 @@ msgid ""
 "spaces) represents a paragraph. Paragraphs end when the next line that "
 "starts with an indent is reached."
 msgstr ""
+"Polo xeral, o Calibre interpreta as liñas en branco como marcas de "
+"parágrafo. Con esta opción interprétase que cada liña que comeza con "
+"sangrado (quer unha tabulación quer máis de dous espazos) representa un "
+"parágrafo. Cada parágrafo remata cando a liña seguinte comeza con un "
+"sangrado como o indicado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
 msgstr ""
+"Formato que se empregará dentro do contedor pdb. As eleccións son as "
+"seguintes:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:27
 msgid ""
 "Specify the character encoding of the output document. The default is "
 "cp1252. Note: This option is not honored by all formats."
 msgstr ""
+"Especificar a codificación de caracteres do documento de saída. A "
+"predeterminada é cp1252. Nota: esta opción non ten efecto en todos os "
+"formatos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:24
 msgid "Do not extract images from the document"
-msgstr ""
+msgstr "Non extraer as imaxes do documento"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:26
 msgid ""
@@ -2429,10 +2451,13 @@ msgid ""
 "Valid values are a decimal between 0 and 1. The default is 0.5, this is the "
 "median line length."
 msgstr ""
+"Escala que se emprega para determinar a largura da que se deben unir as "
+"liñas divididas. Os valores válidos son decimais entre 0 e 1. O valor "
+"predeterminado é 0,5, isto é, a mediana da lonxitude da liña."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."
-msgstr ""
+msgstr "Usar o novo sistema de conversión de PDF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/cli.py:31
 msgid ""
@@ -2445,6 +2470,12 @@ msgid ""
 "\n"
 "Manipulate a PDF.\n"
 msgstr ""
+"orde...\n"
+"a orde pode ser unha das seguintes:\n"
+"[%%comands]\n"
+"Use %prog command --help para obter máis información sobre unha orde "
+"específica.\n"
+"Manipular un PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:29
 msgid ""
@@ -2452,6 +2483,8 @@ msgid ""
 "\n"
 "Crop a PDF file.\n"
 msgstr ""
+"[options[ ficheiro.pdf\n"
+"Cortar un ficheiro de PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:38
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:32
@@ -2463,28 +2496,40 @@ msgstr ""
 msgid ""
 "Path to output file. By default a file is created in the current directory."
 msgstr ""
+"Camiño ao ficheiro de saída. Por omisión, un ficheiro créase neste "
+"directorio."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:41
 msgid "Number of pixels to crop from the left most x (default is %s)"
 msgstr ""
+"Número de píxeles para cortar do parámetro x da esquerda (por omisión, o "
+"número é %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:44
 msgid "Number of pixels to crop from the left most y (default is %s)"
 msgstr ""
+"Número de píxeles para recortar do parámetro y da esquerda (por omisión, o "
+"número é %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:47
 msgid "Number of pixels to crop from the right most x (default is %s)"
 msgstr ""
+"Número de píxeles para cortar do parámetro x da dereita (por omisión, o "
+"número é %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:50
 msgid "Number of pixels to crop from the right most y (default is %s)"
 msgstr ""
+"Número de píxeles para cortar do parámetro y da dereita (por omisión, o "
+"número é de %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:53
 msgid ""
 "A file generated by ghostscript which allows each page to be individually "
 "cropped `gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox file.pdf 2> bounding`"
 msgstr ""
+"Un ficheiro xerado por ghostscript que permite cortar cada páxina por "
+"separado `gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox file.pdf 2> bounding`"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 msgid "Crop Options:"
@@ -2498,7 +2543,7 @@ msgstr "Opcións de Recorte:"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Options to control the transformation of pdf"
-msgstr ""
+msgstr "Opcións para controlar a transformación do pdf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:23
 msgid ""
@@ -2506,6 +2551,8 @@ msgid ""
 "\n"
 "Decrypt a PDF.\n"
 msgstr ""
+"[options] ficheiro.pdf contrasinal\n"
+"Descodificar un PDF\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
 msgid "Decrypt Options:"
@@ -2517,6 +2564,8 @@ msgid ""
 "\n"
 "Encrypt a PDF.\n"
 msgstr ""
+"[options] ficheiro.pdf contrasinal\n"
+"Codificar un PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:54
 msgid "Encrypt Options:"
@@ -2528,6 +2577,8 @@ msgid ""
 "\n"
 "Get info about a PDF.\n"
 msgstr ""
+"ficheiro.pdf...\n"
+"Obter a información do PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:46
 msgid "Author"
@@ -2561,6 +2612,9 @@ msgid ""
 "\n"
 "Merges individual PDFs.\n"
 msgstr ""
+"[options] ficheiro1.pdf ficheiro2.pdf\n"
+"Empregaranse os metadatos do primeiro ficheiro que se especifique.\n"
+"Une ficheiros PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:56
 msgid "Merge Options:"
@@ -2572,6 +2626,8 @@ msgid ""
 "\n"
 "Reverse a PDF.\n"
 msgstr ""
+"[options] ficheiro.pdf\n"
+"Inverter un PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/reverse.py:54
 msgid "Reverse Options:"
@@ -2583,6 +2639,8 @@ msgid ""
 "\n"
 "Rotate pages of a PDF clockwise.\n"
 msgstr ""
+"ficheiro.pdf graos\n"
+"Rotar as páxinas dun PDF no sentido das agullas do reloxo.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 msgid "Rotate Options:"
@@ -2602,6 +2660,17 @@ msgid ""
 "\n"
 "Split a PDF.\n"
 msgstr ""
+"\n"
+"%prog %%name [options] ficheiro.pdf páxina_en_que_dividir ...\n"
+"%prog %%name [options] ficheiro.pdf rango_da_páxina_en_que_dividir ...\n"
+"\t\n"
+"Ex.\n"
+"\t\n"
+"%prog %%name ficheiro.pdf 6\n"
+"%prog %%name ficheiro.pdf 6-12\n"
+"%prog %%name ficheiro.pdf 6-12 8 10 9-20\n"
+"\n"
+"Dividir un PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Split Options:"
@@ -2612,22 +2681,29 @@ msgid ""
 "The unit of measure. Default is inch. Choices are %s Note: This does not "
 "override the unit for margins!"
 msgstr ""
+"A unidade de medida. Por omisión son polgadas. As eleccións son %s. Nota: "
+"esta opción non afecta ás unidades das marxes."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:36
 msgid ""
 "The size of the paper. This size will be overridden when an output profile "
 "is used. Default is letter. Choices are %s"
 msgstr ""
+"O tamaño do papel. O tamaño que se especificar nun perfil de saída ten "
+"preferencia. O tamaño por omisión é o folio. As eleccións son %s."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:40
 msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
 msgstr ""
+"Tamaño personalizado do documento. Use o formato larguraXaltura Ex. "
+"`123x321` para especificar o largo e a altura. Ten preferencia sobre o paper-"
+"size."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:45
 msgid "The orientation of the page. Default is portrait. Choices are %s"
-msgstr ""
+msgstr "A orientación da páxina. Por omisión é retrato. As eleccións son %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:49
 msgid ""
@@ -9622,7 +9698,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:496
 msgid "Do not download CSS stylesheets."
-msgstr ""
+msgstr "Non descargar follas de estilo CSS"
 
 #~ msgid "The reader has no storage card connected."
 #~ msgstr "O lector non ten conectada tarxeta de almacenamento ningunha"
