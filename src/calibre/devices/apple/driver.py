@@ -1229,8 +1229,10 @@ class ITUNES(DevicePlugin):
             self.iTunes.delete(cached_book['lib_book'])
 
         elif iswindows:
-            # Assume we're wrapped in a pythoncom
-            # Windows stores the book under a common author directory, so we just delete the .epub
+            '''
+            Assume we're wrapped in a pythoncom
+            Windows stores the book under a common author directory, so we just delete the .epub
+            '''
             if DEBUG:
                 self.log.info("ITUNES._remove_from_iTunes(): '%s'" % cached_book['title'])
             book = self._find_library_book(cached_book)

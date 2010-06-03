@@ -115,7 +115,7 @@ Pre/post processing of downloaded HTML
 
 .. automethod:: BasicNewsRecipe.postprocess_html
 
-
+.. automethod:: BasicNewsRecipe.populate_article_metadata
     
 
 Convenience methods
