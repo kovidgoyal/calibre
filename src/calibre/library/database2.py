@@ -743,7 +743,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0],
                                         icon=icon, tooltip = tooltip)
                                     for r in data if item_not_zero_func(r)]
-            if category == 'series':
+            if category == 'series' and not sort_on_count:
                 categories[category].sort(cmp=lambda x,y:cmp(title_sort(x.name).lower(),
                     title_sort(y.name).lower()))
 
