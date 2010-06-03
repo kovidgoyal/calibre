@@ -241,9 +241,9 @@ Now, you can access your saved search in the Tag Browser under "Searches". A sin
 
 .. _configuration:
 
-Configuration
+Preferences
 ---------------
-The configuration dialog allows you to set some global defaults used by all of |app|. To access it, click the |cbi|.
+The Preferences dialog allows you to set some global defaults used by all of |app|. To access it, click the |cbi|.
 
 .. |cbi| image:: images/configuration.png
 
