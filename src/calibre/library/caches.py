@@ -17,7 +17,7 @@ from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
-# from calibre.library.field_metadata import FieldMetadata
+from calibre.ebooks.metadata import title_sort
 
 class CoverCache(QThread):
 
@@ -564,7 +564,8 @@ class ResultCache(SearchQueryParser):
     def seriescmp(self, x, y):
         sidx = self.FIELD_MAP['series']
         try:
-            ans = cmp(self._data[x][sidx].lower(), self._data[y][sidx].lower())
+            ans = cmp(title_sort(self._data[x][sidx].lower()),
+                    title_sort(self._data[y][sidx].lower()))
         except AttributeError: # Some entries may be None
             ans = cmp(self._data[x][sidx], self._data[y][sidx])
         if ans != 0: return ans

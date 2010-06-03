@@ -29,7 +29,7 @@ class Plugin(object):
 
     '''
     #: List of platforms this plugin works on
-    #: For example: ``['windows', 'osx', 'linux']
+    #: For example: ``['windows', 'osx', 'linux']``
     supported_platforms = []
 
     #: The name of this plugin. You must set it something other
@@ -214,10 +214,8 @@ class MetadataReaderPlugin(Plugin):
         Return metadata for the file represented by stream (a file like object
         that supports reading). Raise an exception when there is an error
         with the input data.
-
         :param type: The type of file. Guaranteed to be one of the entries
         in :attr:`file_types`.
-
         :return: A :class:`calibre.ebooks.metadata.MetaInformation` object
         '''
         return None
@@ -245,11 +243,9 @@ class MetadataWriterPlugin(Plugin):
         Set metadata for the file represented by stream (a file like object
         that supports reading). Raise an exception when there is an error
         with the input data.
-
         :param type: The type of file. Guaranteed to be one of the entries
         in :attr:`file_types`.
         :param mi: A :class:`calibre.ebooks.metadata.MetaInformation` object
-
         '''
         pass
 

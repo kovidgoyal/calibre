@@ -416,9 +416,9 @@ class HTMLInput(InputFormatPlugin):
         link = unquote(link).replace('/', os.sep)
         if not link.strip():
             return link_
-        if base and not os.path.isabs(link):
-            link = os.path.join(base, link)
         try:
+            if base and not os.path.isabs(link):
+                link = os.path.join(base, link)
             link = os.path.abspath(link)
         except:
             return link_

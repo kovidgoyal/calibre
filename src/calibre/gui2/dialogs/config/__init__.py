@@ -14,7 +14,7 @@ from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
 from calibre.constants import iswindows, isosx
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
 from calibre.gui2.dialogs.config.create_custom_column import CreateCustomColumn
-from calibre.gui2 import choose_dir, error_dialog, config, \
+from calibre.gui2 import choose_dir, error_dialog, config, gprefs, \
                          ALL_COLUMNS, NONE, info_dialog, choose_files, \
                          warning_dialog, ResizableDialog, question_dialog
 from calibre.utils.config import prefs
@@ -480,6 +480,8 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.opt_enforce_cpu_limit.setChecked(config['enforce_cpu_limit'])
         self.device_detection_button.clicked.connect(self.debug_device_detection)
         self.port.editingFinished.connect(self.check_port_value)
+        self.show_splash_screen.setChecked(gprefs.get('show_splash_screen',
+            True))
 
     def check_port_value(self, *args):
         port = self.port.value()
@@ -852,6 +854,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['get_social_metadata'] = self.opt_get_social_metadata.isChecked()
         config['overwrite_author_title_metadata'] = self.opt_overwrite_author_title_metadata.isChecked()
         config['enforce_cpu_limit'] = bool(self.opt_enforce_cpu_limit.isChecked())
+        gprefs['show_splash_screen'] = bool(self.show_splash_screen.isChecked())
         fmts = []
         for i in range(self.viewer.count()):
             if self.viewer.item(i).checkState() == Qt.Checked:

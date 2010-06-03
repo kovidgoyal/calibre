@@ -97,7 +97,8 @@ def _config():
             help=_('Overwrite author and title with new metadata'))
     c.add_opt('enforce_cpu_limit', default=True,
             help=_('Limit max simultaneous jobs to number of CPUs'))
-
+    c.add_opt('tag_browser_hidden_categories', default=set(),
+            help=_('tag browser categories not to display'))
     return ConfigProxy(c)
 
 config = _config()
