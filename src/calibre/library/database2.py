@@ -987,16 +987,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     # Convenience method for tags_list_editor
     def get_tags_with_ids(self):
-        result = self.conn.get('SELECT * FROM tags')
+        result = self.conn.get('SELECT id,name FROM tags')
         if not result:
-            return {}
-        r = []
-        for k,v in result:
-            r.append((k,v))
-        return r
+            return []
+        return result
 
-    def rename_tag(self, id, new):
-        self.conn.execute('UPDATE tags SET name=? WHERE id=?', (new, id))
+    def rename_tag(self, id, new_name):
+        self.conn.execute('UPDATE tags SET name=? WHERE id=?', (new_name, id))
         self.conn.commit()
 
     def get_tags(self, id):
@@ -1083,6 +1080,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
                 self.conn.commit()
 
+    def delete_tag_using_id(self, id):
+        if id:
+            self.conn.execute('DELETE FROM books_tags_link WHERE tag=?', (id,))
+            self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
+            self.conn.commit()
 
     def set_series(self, id, series, notify=True):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))

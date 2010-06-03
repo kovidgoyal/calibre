@@ -48,7 +48,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                              'The tag %s is already used.'%(item.text())).exec_()
                 item.setText(self.item_before_editing.text())
                 return
-            id,ign = self.item_before_editing.data(Qt.UserRole).toInt()
+            (id,_) = self.item_before_editing.data(Qt.UserRole).toInt()
             self.to_rename[item.text()] = id
 
     def rename_tag(self):
@@ -82,13 +82,14 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 deletes += confirms
 
         for item in deletes:
-            self.to_delete.append(item)
+            (id,_) = item.data(Qt.UserRole).toInt()
+            self.to_delete.append(id)
             self.available_tags.takeItem(self.available_tags.row(item))
 
     def accept(self):
         for text in self.to_rename:
-            self.db.rename_tag(self.to_rename[text], unicode(text))
+            self.db.rename_tag(id=self.to_rename[text], new_name=unicode(text))
         for item in self.to_delete:
-            self.db.delete_tag(unicode(item.text()))
+            self.db.delete_tag_using_id(item)
         QDialog.accept(self)
 
