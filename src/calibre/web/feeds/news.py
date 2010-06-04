@@ -267,7 +267,7 @@ class BasicNewsRecipe(Recipe):
             }
 
             a.article {
-                font-weight: bold;
+                font-weight: bold; text-align:left;
             }
 
             a.feed {
@@ -773,15 +773,15 @@ class BasicNewsRecipe(Recipe):
         if self.touchscreen:
             touchscreen_css = u'''
                     .summary_headline {
-                        font-size:large; font-weight:bold; margin-top:0px; margin-bottom:0px;
+                        font-weight:bold; text-align:left;
                     }
 
                     .summary_byline {
-                        font-size:small; margin-top:0px; margin-bottom:0px;
+                        font-family:monospace;
                     }
 
                     .summary_text {
-                        margin-top:0px; margin-bottom:0px;
+                        text-align:left;
                     }
 
                     .feed {
@@ -797,9 +797,6 @@ class BasicNewsRecipe(Recipe):
                         border-width:thin;
                     }
 
-                    table.toc {
-                        font-size:large;
-                    }
             '''
 
             templ = templates.TouchscreenFeedTemplate()
@@ -1133,8 +1130,10 @@ class BasicNewsRecipe(Recipe):
         mi.author_sort = __appname__
         if self.output_profile.name == 'iPad':
             date_as_author = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
-            mi.authors = [date_as_author]
-            mi.author_sort = strftime('%Y-%m-%d')
+            mi = MetaInformation(self.short_title(), [date_as_author])
+            mi.publisher = __appname__
+            sort_author =  re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', self.title).rstrip()
+            mi.author_sort = '%s %s' % (sort_author, strftime('%Y-%m-%d'))
         mi.publication_type = 'periodical:'+self.publication_type
         mi.timestamp = nowf()
         mi.comments = self.description
@@ -1257,7 +1256,6 @@ class BasicNewsRecipe(Recipe):
 
         with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
             opf.render(opf_file, ncx_file)
-
 
     def article_downloaded(self, request, result):
         index = os.path.join(os.path.dirname(result[0]), 'index.html')
