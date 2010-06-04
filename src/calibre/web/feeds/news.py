@@ -538,7 +538,7 @@ class BasicNewsRecipe(Recipe):
         Intended to be used to get article metadata like author/summary/etc.
         from the parsed HTML (soup).
         :param article: A object of class :class:`calibre.web.feeds.Article`.
-                       If you chane the sumamry, remeber to also change the
+                       If you change the summary, remember to also change the
                        text_summary
         :param soup: Parsed HTML belonging to this article
         :param first: True iff the parsed HTML is the first page of the article.
@@ -799,9 +799,6 @@ class BasicNewsRecipe(Recipe):
 
                     table.toc {
                         font-size:large;
-                    }
-                    td.article_count {
-                        text-align:right;
                     }
             '''
 
@@ -1135,7 +1132,8 @@ class BasicNewsRecipe(Recipe):
         mi.publisher = __appname__
         mi.author_sort = __appname__
         if self.output_profile.name == 'iPad':
-            mi.authors = [strftime('%A, %d %B %Y')]
+            date_as_author = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
+            mi.authors = [date_as_author]
             mi.author_sort = strftime('%Y-%m-%d')
         mi.publication_type = 'periodical:'+self.publication_type
         mi.timestamp = nowf()
