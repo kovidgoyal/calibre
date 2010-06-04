@@ -1188,9 +1188,6 @@ class ITUNES(DevicePlugin):
 
         if isosx:
             for d_book in device_books:
-                if DEBUG:
-                    self.log.info(" evaluating title: '%s' author: '%s'" %
-                        (d_book.name(), d_book.artist()))
                 if d_book.name() == title and d_book.artist() == author:
                     if DEBUG:
                         self.log.info(' found it')
@@ -1201,10 +1198,6 @@ class ITUNES(DevicePlugin):
                 return None
         elif iswindows:
             for d_book in device_books:
-                '''
-                if DEBUG:
-                    self.log.info(" evaluating title: '%s' author: '%s'" % (d_book.Name, d_book.Artist))
-                '''
                 if d_book.Name == title and d_book.Artist == author:
                     self.log.info(" found it")
                     return d_book.Size
