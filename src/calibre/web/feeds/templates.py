@@ -185,15 +185,13 @@ class TouchscreenIndexTemplate(Template):
         for i, feed in enumerate(feeds):
             if feed:
                 tr = TR()
-                tr.append(TD( CLASS('toc_item','calibre_rescale_120'), A(feed.title.strip(), href='feed_%d/index.html'%i)))
+                tr.append(TD( CLASS('calibre_rescale_120'), A(feed.title, href='feed_%d/index.html'%i)))
                 tr.append(TD( '%s' % len(feed.articles), style="text-align:right"))
                 toc.append(tr)
-
         div = DIV(
                 masthead_p,
                 PT(date, style='text-align:center'),
-                toc,
-                CLASS('calibre_rescale_100'))
+                toc)
         self.root = HTML(head, BODY(div))
 
 class FeedTemplate(Template):

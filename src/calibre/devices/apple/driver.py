@@ -44,6 +44,12 @@ if iswindows:
                 ]
 
 class ITUNES(DevicePlugin):
+    '''
+            try:
+                pythoncom.CoInitialize()
+            finally:
+                pythoncom.CoUninitialize()
+    '''
 
     name = 'Apple device interface'
     gui_name = 'Apple device'
@@ -69,6 +75,7 @@ class ITUNES(DevicePlugin):
     # Properties
     cached_books = {}
     cache_dir = os.path.join(config_dir, 'caches', 'itunes')
+    ejected = False
     iTunes= None
     log = Log()
     path_template = 'iTunes/%s - %s.epub'
@@ -264,31 +271,49 @@ class ITUNES(DevicePlugin):
 
         if self.iTunes:
             # Check for connected book-capable device
-            try:
-                '''
-                names = [s.name() for s in self.iTunes.sources()]
-                kinds = [str(s.kind()).rpartition('.')[2] for s in self.iTunes.sources()]
-                self.sources = sources = dict(zip(kinds,names))
-                '''
-                self.sources = self._get_sources()
-                if 'iPod' in self.sources:
-#                     if DEBUG:
-#                         sys.stdout.write('.')
-#                         sys.stdout.flush()
-                    return True
-                else:
-                    if DEBUG:
-                        self.log.info("ITUNES.can_handle(): device ejected")
-                    return False
-            except:
-                # iTunes connection failed, probably not running anymore
-                self.log.error("ITUNES.can_handle(): lost connection to iTunes")
+            self.sources = self._get_sources()
+            if 'iPod' in self.sources:
+                #if DEBUG:
+                    #sys.stdout.write('.')
+                    #sys.stdout.flush()
+                return True
+            else:
+                if DEBUG:
+                    sys.stdout.write('-')
+                    sys.stdout.flush()
                 return False
         else:
-            # can_handle() is called once before open(), so need to return True
-            # to keep things going
+            # Called at entry
+            # We need to know if iTunes sees the iPad
+            # It may have been ejected
             if DEBUG:
-                self.log.info("ITUNES:can_handle(): iTunes not yet instantiated")
+                self.log.info("ITUNES.can_handle()")
+
+            self._launch_iTunes()
+            self.sources = self._get_sources()
+            if (not 'iPod' in self.sources) or (self.sources['iPod'] == ''):
+                attempts = 9
+                while attempts:
+                    # If iTunes was just launched, device may not be detected yet
+                    self.sources = self._get_sources()
+                    if (not 'iPod' in self.sources) or (self.sources['iPod'] == ''):
+                        attempts -= 1
+                        time.sleep(0.5)
+                        if DEBUG:
+                            self.log.warning(" waiting for identified iPad, attempt #%d" % (10 - attempts))
+                    else:
+                        if DEBUG:
+                            self.log.info(' found connected iPad in iTunes')
+                        break
+                else:
+                    # iTunes running, but not connected iPad
+                    if DEBUG:
+                        self.log.info(' self.ejected = True')
+                    self.ejected = True
+                    return False
+            else:
+                self.log.info(' found connected iPad in sources')
+
             return True
 
     def can_handle_windows(self, device_id, debug=False):
@@ -302,35 +327,74 @@ class ITUNES(DevicePlugin):
 
         :param device_info: On windows a device ID string. On Unix a tuple of
         ``(vendor_id, product_id, bcd)``.
+
+        iPad implementation notes:
+        It is necessary to use this method to check for the presence of a connected
+        iPad, as we have to return True if we can handle device interaction, or False if not.
+
         '''
         if self.iTunes:
-            # Check for connected book-capable device
+            # We've previously run, so the user probably ejected the device
             try:
-                '''
-                names = [s.name() for s in self.iTunes.sources()]
-                kinds = [str(s.kind()).rpartition('.')[2] for s in self.iTunes.sources()]
-                self.sources = sources = dict(zip(kinds,names))
-                '''
+                pythoncom.CoInitialize()
                 self.sources = self._get_sources()
                 if 'iPod' in self.sources:
                     if DEBUG:
                         sys.stdout.write('.')
                         sys.stdout.flush()
+                    if DEBUG:
+                        self.log.info('ITUNES.can_handle_windows:\n confirming connected iPad')
+                    self.ejected = False
                     return True
                 else:
                     if DEBUG:
-                        self.log.info("ITUNES.can_handle(): device ejected")
+                        self.log.info("ITUNES.can_handle_windows():\n device ejected")
+                    self.ejected = True
                     return False
             except:
                 # iTunes connection failed, probably not running anymore
-                self.log.error("ITUNES.can_handle(): lost connection to iTunes")
+
+                self.log.error("ITUNES.can_handle_windows():\n lost connection to iTunes")
                 return False
+            finally:
+                pythoncom.CoUninitialize()
 
         else:
-            # can_handle_windows() is called once before open(), so need to return True
-            # to keep things going
+            # This is called at entry
+            # We need to know if iTunes sees the iPad
+            # It may have been ejected
             if DEBUG:
-                self.log.info("ITUNES:can_handle(): iTunes not yet instantiated")
+                self.log.info("ITUNES:can_handle_windows():\n Launching iTunes")
+
+            try:
+                pythoncom.CoInitialize()
+                self._launch_iTunes()
+                self.sources = self._get_sources()
+                if (not 'iPod' in self.sources) or (self.sources['iPod'] == ''):
+                    attempts = 9
+                    while attempts:
+                        # If iTunes was just launched, device may not be detected yet
+                        self.sources = self._get_sources()
+                        if (not 'iPod' in self.sources) or (self.sources['iPod'] == ''):
+                            attempts -= 1
+                            time.sleep(0.5)
+                            if DEBUG:
+                                self.log.warning(" waiting for identified iPad, attempt #%d" % (10 - attempts))
+                        else:
+                            if DEBUG:
+                                self.log.info(' found connected iPad in iTunes')
+                            break
+                    else:
+                        # iTunes running, but not connected iPad
+                        if DEBUG:
+                            self.log.info(' self.ejected = True')
+                        self.ejected = True
+                        return False
+                else:
+                    self.log.info(' found connected iPad in sources')
+            finally:
+                pythoncom.CoUninitialize()
+
             return True
 
     def card_prefix(self, end_session=True):
@@ -343,8 +407,6 @@ class ITUNES(DevicePlugin):
         ('place', None)
         (None, None)
         '''
-#         if DEBUG:
-#             self.log.info("ITUNES:card_prefix()")
         return (None,None)
 
     def delete_books(self, paths, end_session=True):
@@ -423,13 +485,19 @@ class ITUNES(DevicePlugin):
 
         elif iswindows:
             if 'iPod' in self.sources:
-                try:
-                    pythoncom.CoInitialize()
-                    self.iTunes = win32com.client.Dispatch("iTunes.Application")
-                    connected_device = self.sources['iPod']
-                    free_space = self.iTunes.sources.ItemByName(connected_device).FreeSpace
-                finally:
-                    pythoncom.CoUninitialize()
+
+                while True:
+                    try:
+                        try:
+                            pythoncom.CoInitialize()
+                            self.iTunes = win32com.client.Dispatch("iTunes.Application")
+                            connected_device = self.sources['iPod']
+                            free_space = self.iTunes.sources.ItemByName(connected_device).FreeSpace
+                        finally:
+                            pythoncom.CoUninitialize()
+                            break
+                    except:
+                        self.log.error(' waiting for free_space() call to go through')
 
         return (free_space,-1,-1)
 
@@ -462,61 +530,10 @@ class ITUNES(DevicePlugin):
         mounted. The base class within USBMS device.py has a implementation of
         this function that should serve as a good example for USB Mass storage
         devices.
+
+        Note that most of the initialization is necessarily performed in can_handle(), as
+        we need to talk to iTunes to discover if there's a connected iPod
         '''
-
-        if isosx:
-            # Launch iTunes if not already running
-            if DEBUG:
-                self.log.info("ITUNES:open(): Instantiating iTunes")
-
-            # Instantiate iTunes
-            running_apps = appscript.app('System Events')
-            if not 'iTunes' in running_apps.processes.name():
-                if DEBUG:
-                    self.log.info( "ITUNES:open(): Launching iTunes" )
-                self.iTunes = iTunes= appscript.app('iTunes', hide=True)
-                iTunes.run()
-                initial_status = 'launched'
-            else:
-                self.iTunes = appscript.app('iTunes')
-                initial_status = 'already running'
-
-            if DEBUG:
-                self.log.info( " %s - %s (%s), driver version %s" %
-                 (self.iTunes.name(), self.iTunes.version(), initial_status, repr(self.version)))
-
-            # Init the iTunes source list
-            '''
-            names = [s.name() for s in self.iTunes.sources()]
-            kinds = [str(s.kind()).rpartition('.')[2] for s in self.iTunes.sources()]
-            self.sources = dict(zip(kinds,names))
-            '''
-            self.sources = self._get_sources()
-
-        elif iswindows:
-            # Launch iTunes if not already running
-            if DEBUG:
-                self.log.info("ITUNES:open(): Instantiating iTunes")
-
-            # Instantiate iTunes
-            try:
-                pythoncom.CoInitialize()
-                self.iTunes = win32com.client.Dispatch("iTunes.Application")
-                if not DEBUG:
-                    self.iTunes.Windows[0].Minimized = True
-                initial_status = 'launched'
-
-                if DEBUG:
-                    self.log.info( " %s - %s (%s), driver version %d.%d.%d" %
-                     (self.iTunes.Windows[0].name, self.iTunes.Version, initial_status,
-                      self.version[0],self.version[1],self.version[2]))
-
-                # Init the iTunes source list
-                self.sources = self._get_sources()
-
-            finally:
-                pythoncom.CoUninitialize()
-
 
         # Confirm/create thumbs archive
         archive_path = os.path.join(self.cache_dir, "thumbs.zip")
@@ -586,8 +603,6 @@ class ITUNES(DevicePlugin):
                                 If it is called with -1 that means that the
                                 task does not have any progress information
         '''
-#         if DEBUG:
-#             self.log.info("ITUNES:set_progress_reporter()")
         self.report_progress = report_progress
 
     def settings(self):
@@ -595,8 +610,6 @@ class ITUNES(DevicePlugin):
         Should return an opts object. The opts object should have one attribute
         `format_map` which is an ordered list of formats for the device.
         '''
-#         if DEBUG:
-#             self.log.info("ITUNES.settings()")
         klass = self if isinstance(self, type) else self.__class__
         c = Config('device_drivers_%s' % klass.__name__, _('settings for device drivers'))
         c.add_opt('format_map', default=self.FORMATS,
@@ -627,16 +640,9 @@ class ITUNES(DevicePlugin):
                     size_on_device = self._get_device_book_size(updated_book['title'],
                                                                 updated_book['author'][0])
                     if size_on_device:
-                        if DEBUG:
-                            self._dump_booklist(booklists[0], 'sync_booklists()')
-                            self.log.info(" looking for '%s' by %s" %
-                                (updated_book['title'], updated_book['author']))
                         for book in booklists[0]:
                             if book.title == updated_book['title'] and \
                                book.author == updated_book['author']:
-                                if DEBUG:
-                                    self.log.info(" found '%s' by %s" % (book.title, book.author[0]))
-                                book.size = size_on_device
                                 break
                         else:
                             self.log.error("ITUNES:sync_booklists(): could not update book size for '%s'" % updated_book['title'])
@@ -1224,6 +1230,10 @@ class ITUNES(DevicePlugin):
                 dev_playlists = [pl.Name for pl in dev.Playlists]
                 if 'Books' in dev_playlists:
                     return self.iTunes.sources.ItemByName(connected_device).Playlists.ItemByName('Books').Tracks
+                else:
+                    return []
+            if DEBUG:
+                self.log.warning('ITUNES._get_device_book(): No iPod device connected')
             return []
 
     def _get_library_books(self):
@@ -1285,6 +1295,7 @@ class ITUNES(DevicePlugin):
             kinds = [str(s.kind()).rpartition('.')[2] for s in self.iTunes.sources()]
             return dict(zip(kinds,names))
         elif iswindows:
+            # Assumes a pythoncom wrapper
             it_sources = ['Unknown','Library','iPod','AudioCD','MP3CD','Device','RadioTuner','SharedLibrary']
             names = [s.name for s in self.iTunes.sources]
             kinds = [it_sources[s.kind] for s in self.iTunes.sources]
@@ -1297,6 +1308,49 @@ class ITUNES(DevicePlugin):
             return False
         else:
             return True
+
+    def _launch_iTunes(self):
+        '''
+        '''
+        if DEBUG:
+            self.log.info("ITUNES:_launch_iTunes():\n Instantiating iTunes")
+
+        if isosx:
+            '''
+            Launch iTunes if not already running
+            '''
+            # Instantiate iTunes
+            running_apps = appscript.app('System Events')
+            if not 'iTunes' in running_apps.processes.name():
+                if DEBUG:
+                    self.log.info( "ITUNES:open(): Launching iTunes" )
+                self.iTunes = iTunes= appscript.app('iTunes', hide=True)
+                iTunes.run()
+                initial_status = 'launched'
+            else:
+                self.iTunes = appscript.app('iTunes')
+                initial_status = 'already running'
+
+            if DEBUG:
+                self.log.info( " [%s - %s (%s), driver version %d.%d.%d]" %
+                 (self.iTunes.name(), self.iTunes.version(), initial_status,
+                  self.version[0],self.version[1],self.version[2]))
+
+        if iswindows:
+            '''
+            Launch iTunes if not already running
+            Assumes pythoncom wrapper
+            '''
+            # Instantiate iTunes
+            self.iTunes = win32com.client.Dispatch("iTunes.Application")
+            if not DEBUG:
+                self.iTunes.Windows[0].Minimized = True
+            initial_status = 'launched'
+
+            if DEBUG:
+                self.log.info( " [%s - %s (%s), driver version %d.%d.%d]" %
+                 (self.iTunes.Windows[0].name, self.iTunes.Version, initial_status,
+                  self.version[0],self.version[1],self.version[2]))
 
     def _remove_from_iTunes(self, cached_book):
         '''
@@ -1393,8 +1447,8 @@ class ITUNES(DevicePlugin):
                         pb_count = len(self._get_purchased_book_ids())
                         if db_count != lb_count + pb_count:
                             if DEBUG:
-                                sys.stdout.write(' %d != %d + %d\n' % (db_count,lb_count,pb_count))
-                                #sys.stdout.write('.')
+                                #sys.stdout.write(' %d != %d + %d\n' % (db_count,lb_count,pb_count))
+                                sys.stdout.write('.')
                                 sys.stdout.flush()
                             time.sleep(2)
                         else:
