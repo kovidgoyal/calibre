@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-31 16:18+0000\n"
-"PO-Revision-Date: 2010-06-02 08:16+0000\n"
+"PO-Revision-Date: 2010-06-03 10:46+0000\n"
 "Last-Translator: Imendez <ivan.mendez.lopez@gmail.com>\n"
 "Language-Team: Galician <gl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-03 03:32+0000\n"
+"X-Launchpad-Export-Date: 2010-06-04 03:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -2247,6 +2247,11 @@ msgid ""
 "\n"
 "Fetch a cover image for the book identified by ISBN from LibraryThing.com\n"
 msgstr ""
+"\n"
+"%prog [options] ISBN\n"
+"\n"
+"Obter unha imaxe da capa do libro identificado polo ISBD de "
+"LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1220
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1372
@@ -2710,6 +2715,8 @@ msgid ""
 "Preserve the aspect ratio of the cover, instead of stretching it to fill the "
 "ull first page of the generated pdf."
 msgstr ""
+"Manter o raio do aspecto da capa no campo de adaptala para encher a primeira "
+"páxina do PDF xerado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:55
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -2726,11 +2733,16 @@ msgid ""
 "first and then try it.\n"
 "%s"
 msgstr ""
+"Este ficheiro de RTF ten unha característica que non é compatíbel co "
+"Calibre. Convértao primeiro a HTML e ténteo despois.\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8."
 msgstr ""
+"Especifique a codificación de caracteres do documento de saída. A "
+"predeterminada é UTF-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
@@ -2738,12 +2750,17 @@ msgid ""
 "compression but the fastest and 10 being the highest compression but the "
 "slowest."
 msgstr ""
+"Especifique o nivel de compresión que se empregará. A escala 1 - 1p.1 é o "
+"nivel máis baixo de compresión pero o máis rápido, mentres que 10 é o máis "
+"alto pero o máis lento."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:33
 msgid ""
 "Normally extra spaces are condensed into a single space. With this option "
 "all spaces will be displayed."
 msgstr ""
+"Polo xeral, os espazos extras aglutínanse nun único. Con esta opción "
+"amosaranse todos os espazos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:36
 msgid ""
@@ -2753,7 +2770,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:39
 msgid "Do not insert a Table of Contents into the output text."
-msgstr ""
+msgstr "Non introducir un índice detro do texto de saída."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
 msgid ""
