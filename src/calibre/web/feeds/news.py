@@ -403,10 +403,25 @@ class BasicNewsRecipe(Recipe):
                     return url
         return article.get('link',  None)
 
+    def prepreprocess_html(self, soup):
+        '''
+        This method is called with the source of each downloaded :term:`HTML` file, before
+        any of the cleanup attributes like remove_tags, keep_only_tags are
+        applied. Note that preprocess_regexps will have already been applied.
+        It can be used to do arbitrarily powerful pre-processing on the :term:`HTML`.
+        It should return `soup` after processing it.
+
+        `soup`: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
+        instance containing the downloaded :term:`HTML`.
+        '''
+        return soup
+
+
     def preprocess_html(self, soup):
         '''
         This method is called with the source of each downloaded :term:`HTML` file, before
-        it is parsed for links and images.
+        it is parsed for links and images. It is called after the cleanup as
+        specified by remove_tags etc.
         It can be used to do arbitrarily powerful pre-processing on the :term:`HTML`.
         It should return `soup` after processing it.
 
@@ -603,7 +618,7 @@ class BasicNewsRecipe(Recipe):
 
         self.web2disk_options = web2disk_option_parser().parse_args(web2disk_cmdline)[0]
         for extra in ('keep_only_tags', 'remove_tags', 'preprocess_regexps',
-                      'preprocess_html', 'remove_tags_after',
+                      'prepreprocess_html', 'preprocess_html', 'remove_tags_after',
                       'remove_tags_before', 'is_link_wanted'):
             setattr(self.web2disk_options, extra, getattr(self, extra))
         self.web2disk_options.postprocess_html = self._postprocess_html
