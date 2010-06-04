@@ -58,7 +58,7 @@ class ITUNES(DevicePlugin):
     supported_platforms = ['osx','windows']
     author = 'GRiker'
     #: The version of this plugin as a 3-tuple (major, minor, revision)
-    version        = (0, 3, 0)
+    version        = (1, 0, 0)
 
     OPEN_FEEDBACK_MESSAGE = _(
         'Apple device detected, launching iTunes, please wait ...')
