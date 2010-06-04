@@ -185,7 +185,7 @@ class TouchscreenIndexTemplate(Template):
         for i, feed in enumerate(feeds):
             if feed:
                 tr = TR()
-                tr.append(TD( CLASS('toc_item'), A(feed.title, href='feed_%d/index.html'%i)))
+                tr.append(TD( CLASS('toc_item','calibre_rescale_120'), A(feed.title.strip(), href='feed_%d/index.html'%i)))
                 tr.append(TD( '%s' % len(feed.articles), style="text-align:right"))
                 toc.append(tr)
 
@@ -279,12 +279,15 @@ class TouchscreenFeedTemplate(Template):
                 continue
             tr = TR()
             td = TD(
-                    A(article.title, CLASS('article calibre_rescale_100',
+                    A(article.title, CLASS('summary_headline','calibre_rescale_120',
                                     href=article.url))
                     )
+            if article.author:
+                td.append(DIV(article.author,
+                    CLASS('summary_byline', 'calibre_rescale_100')))
             if article.summary:
                 td.append(DIV(cutoff(article.text_summary),
-                    CLASS('article_description', 'calibre_rescale_80')))
+                    CLASS('summary_text', 'calibre_rescale_100')))
             tr.append(td)
             toc.append(tr)
         div.append(toc)

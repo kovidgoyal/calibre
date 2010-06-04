@@ -267,7 +267,7 @@ class BasicNewsRecipe(Recipe):
             }
 
             a.article {
-                font-weight: bold;
+                font-weight: bold; text-align:left;
             }
 
             a.feed {
@@ -282,6 +282,15 @@ class BasicNewsRecipe(Recipe):
     #: By default, calibre will use a default image for the masthead (Kindle only).
     #: Override this in your recipe to provide a url to use as a masthead.
     masthead_url = None
+
+    #: By default, the cover image returned by get_cover_url() will be used as
+    #: the cover for the periodical.  Overriding this in your recipe instructs
+    #: calibre to render the downloaded cover into a frame whose width and height
+    #: are expressed as a percentage of the downloaded cover.
+    #: For example,
+    #: cover_margins = (10,15)
+    #: would pad the downloaded cover 10px on the left and right, 15px on the top and bottom.
+    cover_margins = (0,0)
 
     #: Set to a non empty string to disable this recipe
     #: The string will be used as the disabled message
@@ -758,15 +767,15 @@ class BasicNewsRecipe(Recipe):
         if self.touchscreen:
             touchscreen_css = u'''
                     .summary_headline {
-                        font-size:large; font-weight:bold; margin-top:0px; margin-bottom:0px;
+                        font-weight:bold; text-align:left;
                     }
 
                     .summary_byline {
-                        font-size:small; margin-top:0px; margin-bottom:0px;
+                        font-family:monospace;
                     }
 
                     .summary_text {
-                        margin-top:0px; margin-bottom:0px;
+                        text-align:left;
                     }
 
                     .feed {
@@ -782,9 +791,6 @@ class BasicNewsRecipe(Recipe):
                         border-width:thin;
                     }
 
-                    table.toc {
-                        font-size:large;
-                    }
             '''
 
             templ = templates.TouchscreenFeedTemplate()
@@ -960,8 +966,50 @@ class BasicNewsRecipe(Recipe):
                     cfile.write(open(cu, 'rb').read())
             else:
                 self.report_progress(1, _('Downloading cover from %s')%cu)
-                with nested(open(cpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
-                    cfile.write(r.read())
+
+                if self.cover_margin[0] == 0 and self.cover_margin[1] == 0:
+                    with nested(open(cpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
+                        cfile.write(r.read())
+                else:
+                    ccpath = os.path.join(self.output_dir, 'cover_contents.'+ext)
+                    with nested(open(ccpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
+                        cfile.write(r.read())
+
+                    import calibre.utils.PythonMagickWand as pw
+                    with pw.ImageMagick():
+                        img = pw.NewMagickWand()
+                        img2 = pw.NewMagickWand()
+                        frame = pw.NewMagickWand()
+                        p = pw.NewPixelWand()
+                    if img < 0 or img2 < 0 or p < 0 or frame < 0:
+                        raise RuntimeError('Out of memory')
+                    if not pw.MagickReadImage(img, ccpath):
+                        severity = pw.ExceptionType(0)
+                        msg = pw.MagickGetException(img, byref(severity))
+                        raise IOError('Failed to read image from: %s: %s'
+                                %(ccpath, msg))
+                    #pw.PixelSetColor(p, 'white')
+                    pw.PixelSetColor(p, 'rgb(252,252,252)')
+                    width = pw.MagickGetImageWidth(img) + self.cover_margin[0]*2
+                    height = pw.MagickGetImageHeight(img) + self.cover_margin[1]*2
+                    if not pw.MagickNewImage(img2, width, height, p):
+                        raise RuntimeError('Out of memory')
+                    if not pw.MagickNewImage(frame,  width, height, p):
+                        raise RuntimeError('Out of memory')
+                    if not pw.MagickCompositeImage(img2, img, pw.OverCompositeOp, 0, 0):
+                        raise RuntimeError('Out of memory')
+                    left = self.cover_margin[0]
+                    top = self.cover_margin[1]
+                    if not pw.MagickCompositeImage(frame, img2, pw.OverCompositeOp,
+                            left, top):
+                        raise RuntimeError('Out of memory')
+                    if not pw.MagickWriteImage(frame, cpath):
+                        raise RuntimeError('Failed to save image to %s'%cpath)
+                    pw.DestroyPixelWand(p)
+                    for x in (img, img2, frame):
+                        pw.DestroyMagickWand(x)
+                    os.remove(ccpath)
+
             if ext.lower() == 'pdf':
                 from calibre.ebooks.metadata.pdf import get_metadata
                 stream = open(cpath, 'rb')
@@ -1118,8 +1166,10 @@ class BasicNewsRecipe(Recipe):
         mi.author_sort = __appname__
         if self.output_profile.name == 'iPad':
             date_as_author = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
-            mi.authors = [date_as_author]
-            mi.author_sort = strftime('%Y-%m-%d')
+            mi = MetaInformation(self.short_title(), [date_as_author])
+            mi.publisher = __appname__
+            sort_author =  re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', self.title).rstrip()
+            mi.author_sort = '%s %s' % (sort_author, strftime('%Y-%m-%d'))
         mi.publication_type = 'periodical:'+self.publication_type
         mi.timestamp = nowf()
         mi.comments = self.description
@@ -1242,7 +1292,6 @@ class BasicNewsRecipe(Recipe):
 
         with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
             opf.render(opf_file, ncx_file)
-
 
     def article_downloaded(self, request, result):
         index = os.path.join(os.path.dirname(result[0]), 'index.html')
