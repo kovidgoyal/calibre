@@ -135,7 +135,7 @@ turned into a collection on the reader. Note that the PRS-500 does not support c
 How do I use |app| with my iPad/iPhone/iTouch?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The easiest way to browse your |app| collection on your Apple device (iPad/iPhone/iPod) is by using the *free* Stanza app, available from the Apple app store. You need at least STanza version 3.0. Stanza allows you to access your |app| collection wirelessly, over the air.
+The easiest way to browse your |app| collection on your Apple device (iPad/iPhone/iPod) is by using the *free* Stanza app, available from the Apple app store. You need at least Stanza version 3.0. Stanza allows you to access your |app| collection wirelessly, over the air.
 
 First perform the following steps in |app|
 
