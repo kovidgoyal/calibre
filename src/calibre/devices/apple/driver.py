@@ -1429,7 +1429,7 @@ class ITUNES(DevicePlugin):
             try:
                 pythoncom.CoInitialize()
                 self.iTunes = win32com.client.Dispatch("iTunes.Application")
-                result = self.iTunes.UpdateIPod()
+                self.iTunes.UpdateIPod()
                 if wait:
                     if DEBUG:
                         sys.stdout.write(" waiting for iPad sync to complete ...")
