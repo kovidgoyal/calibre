@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from lxml import html, etree
 from lxml.html.builder import HTML, HEAD, TITLE, STYLE, DIV, BODY, \
-        STRONG, BR, H1, SPAN, A, HR, UL, LI, H2, IMG, P as PT, \
+        STRONG, BR, SPAN, A, HR, UL, LI, H2, IMG, P as PT, \
         TABLE, TD, TR
 
 from calibre import preferred_encoding, strftime, isbytestring

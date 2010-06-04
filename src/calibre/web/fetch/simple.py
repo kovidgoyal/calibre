@@ -136,6 +136,7 @@ class RecursiveFetcher(object):
         self.remove_tags_before  = getattr(options, 'remove_tags_before', None)
         self.keep_only_tags      = getattr(options, 'keep_only_tags', [])
         self.preprocess_html_ext = getattr(options, 'preprocess_html', lambda soup: soup)
+        self.prepreprocess_html_ext = getattr(options, 'prepreprocess_html', lambda soup: soup)
         self.postprocess_html_ext= getattr(options, 'postprocess_html', None)
         self._is_link_wanted     = getattr(options, 'is_link_wanted',
                 default_is_link_wanted)
@@ -152,6 +153,8 @@ class RecursiveFetcher(object):
         # multiple nested comments
         nmassage.append((re.compile(r'<!--.*?-->', re.DOTALL), lambda m: ''))
         soup = BeautifulSoup(xml_to_unicode(src, self.verbose, strip_encoding_pats=True)[0], markupMassage=nmassage)
+
+        soup = self.prepreprocess_html_ext(soup)
 
         if self.keep_only_tags:
             body = Tag(soup, 'body')

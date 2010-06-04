@@ -111,6 +111,8 @@ Pre/post processing of downloaded HTML
 
 .. automember:: BasicNewsRecipe.remove_javascript
 
+.. automethod:: BasicNewsRecipe.prepreprocess_html
+
 .. automethod:: BasicNewsRecipe.preprocess_html
 
 .. automethod:: BasicNewsRecipe.postprocess_html
