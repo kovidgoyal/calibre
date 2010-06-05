@@ -9,7 +9,7 @@ The Graphical User Interface *(GUI)* provides access to all
 library management and ebook format conversion features. The basic workflow
 for using |app| is to first add books to the library from your hard disk.
 |app| will automatically try to read metadata from the books and add them
-to its internal database. Once they are in the database, you can performa various
+to its internal database. Once they are in the database, you can perform a various
 :ref:`actions` on them that include conversion from one format to another,
 transfer to the reading device, viewing on your computer, editing metadata, including covers, etc.
 
@@ -243,7 +243,7 @@ Now, you can access your saved search in the Tag Browser under "Searches". A sin
 
 Preferences
 ---------------
-The Preferences dialog allows you to set some global defaults used by all of |app|. To access it, click the |cbi|.
+The Preferences dialog allows you to change the way various aspects of |app| work. To access it, click the |cbi|.
 
 .. |cbi| image:: images/configuration.png
 
@@ -251,7 +251,7 @@ The Preferences dialog allows you to set some global defaults used by all of |ap
 
 Guessing metadata from file names
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In the :guilabel:`Advanced` section of the configuration dialog, you can specify a regularexpression that |app| will use to try and guess metadata from the names of ebook files
+In the :guilabel:`Add/Save` section of the configuration dialog, you can specify a regular expression that |app| will use to try and guess metadata from the names of ebook files
 that you add to the library. The default regular expression is::
 
     title - author
@@ -265,18 +265,13 @@ will be interpreted to have the title: Foundation and Earth and author: Isaac As
 .. tip::
     If the filename does not contain the hyphen, the regular expression will fail.
 
-.. tip::
-   If you want to only use metadata guessed from filenames and not metadata read from the file itself, you can tell |app| to do this, via the configuration dialog, accessed by the button to the right
-   of the search box.
-
 .. _book_details:
 
 Book Details
 -------------
 .. image:: images/book_details.png
 
-The Book Details display shows you extra information and the cover for the currently selected book. THe comments section is truncated if the comments are too long. To see the full comments as well as
-a larger image of the cover, click anywhere in the Book Details area.
+The Book Details display shows you extra information and the cover for the currently selected book.
 
 .. _jobs:
 

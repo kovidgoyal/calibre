@@ -201,7 +201,11 @@ class CSSFlattener(object):
         tag = barename(node.tag)
         style = stylizer.style(node)
         cssdict = style.cssdict()
-        font_size = style['font-size']
+        try:
+            font_size = style['font-size']
+        except:
+            font_size = self.sbase if self.sbase is not None else \
+                self.context.source.fbase
         if 'align' in node.attrib:
             cssdict['text-align'] = node.attrib['align']
             del node.attrib['align']
