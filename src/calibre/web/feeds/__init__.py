@@ -11,7 +11,7 @@ from lxml import html
 
 from calibre.web.feeds.feedparser import parse
 from calibre.utils.logging import default_log
-from calibre import entity_to_unicode
+from calibre import entity_to_unicode, strftime
 from calibre.utils.date import dt_factory, utcnow, local_tz
 
 class Article(object):
@@ -55,7 +55,8 @@ class Article(object):
     def formatted_date(self):
         def fget(self):
             if self._formatted_date is None:
-                self._formatted_date = self.localtime.strftime(" [%a, %d %b %H:%M]")
+                self._formatted_date = strftime(" [%a, %d %b %H:%M]",
+                        t=self.localtime.timetuple())
             return self._formatted_date
         def fset(self, val):
             self._formatted_date = val
