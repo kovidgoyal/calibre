@@ -283,15 +283,6 @@ class BasicNewsRecipe(Recipe):
     #: Override this in your recipe to provide a url to use as a masthead.
     masthead_url = None
 
-    #: By default, the cover image returned by get_cover_url() will be used as
-    #: the cover for the periodical.  Overriding this in your recipe instructs
-    #: calibre to render the downloaded cover into a frame whose width and height
-    #: are expressed as a percentage of the downloaded cover.
-    #: For example,
-    #: cover_margins = (10,15)
-    #: would pad the downloaded cover 10px on the left and right, 15px on the top and bottom.
-    cover_margins = (0,0)
-
     #: Set to a non empty string to disable this recipe
     #: The string will be used as the disabled message
     recipe_disabled = None
@@ -547,8 +538,8 @@ class BasicNewsRecipe(Recipe):
         Intended to be used to get article metadata like author/summary/etc.
         from the parsed HTML (soup).
         :param article: A object of class :class:`calibre.web.feeds.Article`.
-                       If you change the summary, remember to also change the
-                       text_summary
+        If you change the summary, remember to also change the
+        text_summary
         :param soup: Parsed HTML belonging to this article
         :param first: True iff the parsed HTML is the first page of the article.
         '''
@@ -981,50 +972,8 @@ class BasicNewsRecipe(Recipe):
                     cfile.write(open(cu, 'rb').read())
             else:
                 self.report_progress(1, _('Downloading cover from %s')%cu)
-
-                if self.cover_margin[0] == 0 and self.cover_margin[1] == 0:
-                    with nested(open(cpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
-                        cfile.write(r.read())
-                else:
-                    ccpath = os.path.join(self.output_dir, 'cover_contents.'+ext)
-                    with nested(open(ccpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
-                        cfile.write(r.read())
-
-                    import calibre.utils.PythonMagickWand as pw
-                    with pw.ImageMagick():
-                        img = pw.NewMagickWand()
-                        img2 = pw.NewMagickWand()
-                        frame = pw.NewMagickWand()
-                        p = pw.NewPixelWand()
-                    if img < 0 or img2 < 0 or p < 0 or frame < 0:
-                        raise RuntimeError('Out of memory')
-                    if not pw.MagickReadImage(img, ccpath):
-                        severity = pw.ExceptionType(0)
-                        msg = pw.MagickGetException(img, byref(severity))
-                        raise IOError('Failed to read image from: %s: %s'
-                                %(ccpath, msg))
-                    #pw.PixelSetColor(p, 'white')
-                    pw.PixelSetColor(p, 'rgb(252,252,252)')
-                    width = pw.MagickGetImageWidth(img) + self.cover_margin[0]*2
-                    height = pw.MagickGetImageHeight(img) + self.cover_margin[1]*2
-                    if not pw.MagickNewImage(img2, width, height, p):
-                        raise RuntimeError('Out of memory')
-                    if not pw.MagickNewImage(frame,  width, height, p):
-                        raise RuntimeError('Out of memory')
-                    if not pw.MagickCompositeImage(img2, img, pw.OverCompositeOp, 0, 0):
-                        raise RuntimeError('Out of memory')
-                    left = self.cover_margin[0]
-                    top = self.cover_margin[1]
-                    if not pw.MagickCompositeImage(frame, img2, pw.OverCompositeOp,
-                            left, top):
-                        raise RuntimeError('Out of memory')
-                    if not pw.MagickWriteImage(frame, cpath):
-                        raise RuntimeError('Failed to save image to %s'%cpath)
-                    pw.DestroyPixelWand(p)
-                    for x in (img, img2, frame):
-                        pw.DestroyMagickWand(x)
-                    os.remove(ccpath)
-
+                with nested(open(cpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
+                    cfile.write(r.read())
             if ext.lower() == 'pdf':
                 from calibre.ebooks.metadata.pdf import get_metadata
                 stream = open(cpath, 'rb')
