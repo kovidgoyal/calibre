@@ -66,7 +66,6 @@ class PRS505(USBMS):
         return '_LAUNCHER' in pnp_id
 
     def open(self):
-        self.report_progress = lambda x, y: x
         USBMS.open(self)
 
         def write_cache(prefix):
