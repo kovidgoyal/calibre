@@ -22,7 +22,12 @@ from calibre.devices.errors import UserFeedback
 from PIL import Image as PILImage
 
 if isosx:
-    import appscript
+    try:
+        import appscript
+        appscript
+    except:
+        # appscript fails to load on 10.4
+        appscript = None
 
 if iswindows:
     import pythoncom, win32com.client
@@ -268,6 +273,8 @@ class ITUNES(DevicePlugin):
         instantiate iTunes if necessary
         This gets called ~1x/second while device fingerprint is sensed
         '''
+        if appscript is None:
+            return False
 
         if self.iTunes:
             # Check for connected book-capable device
