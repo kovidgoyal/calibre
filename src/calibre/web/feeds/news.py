@@ -146,7 +146,7 @@ class BasicNewsRecipe(Recipe):
     #: If True empty feeds are removed from the output.
     #: This option has no effect if parse_index is overriden in
     #: the sub class. It is meant only for recipes that return a list
-    #: of feeds using :member:`feeds` or :method:`get_feeds`.
+    #: of feeds using `feeds` or :method:`get_feeds`.
     remove_empty_feeds = False
 
     #: List of regular expressions that determines which links to follow
@@ -254,9 +254,9 @@ class BasicNewsRecipe(Recipe):
     #: will remove everythong from `<!--Article ends here-->` to `</body>`.
     preprocess_regexps    = []
 
-    #: The CSS that is used to styles the templates, i.e., the navigation bars and
+    #: The CSS that is used to style the templates, i.e., the navigation bars and
     #: the Tables of Contents. Rather than overriding this variable, you should
-    #: use :member:`extra_css` in your recipe to customize look and feel.
+    #: use `extra_css` in your recipe to customize look and feel.
     template_css = u'''
             .article_date {
                 color: gray; font-family: monospace;
@@ -267,7 +267,7 @@ class BasicNewsRecipe(Recipe):
             }
 
             a.article {
-                font-weight: bold;
+                font-weight: bold; text-align:left;
             }
 
             a.feed {
@@ -403,10 +403,25 @@ class BasicNewsRecipe(Recipe):
                     return url
         return article.get('link',  None)
 
+    def prepreprocess_html(self, soup):
+        '''
+        This method is called with the source of each downloaded :term:`HTML` file, before
+        any of the cleanup attributes like remove_tags, keep_only_tags are
+        applied. Note that preprocess_regexps will have already been applied.
+        It can be used to do arbitrarily powerful pre-processing on the :term:`HTML`.
+        It should return `soup` after processing it.
+
+        `soup`: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
+        instance containing the downloaded :term:`HTML`.
+        '''
+        return soup
+
+
     def preprocess_html(self, soup):
         '''
         This method is called with the source of each downloaded :term:`HTML` file, before
-        it is parsed for links and images.
+        it is parsed for links and images. It is called after the cleanup as
+        specified by remove_tags etc.
         It can be used to do arbitrarily powerful pre-processing on the :term:`HTML`.
         It should return `soup` after processing it.
 
@@ -506,7 +521,7 @@ class BasicNewsRecipe(Recipe):
 
     def get_obfuscated_article(self, url):
         '''
-        If you set :member:`articles_are_obfuscated` this method is called with
+        If you set `articles_are_obfuscated` this method is called with
         every article URL. It should return the path to a file on the filesystem
         that contains the article HTML. That file is processed by the recursive
         HTML fetching engine, so it can contain links to pages/images on the web.
@@ -516,6 +531,19 @@ class BasicNewsRecipe(Recipe):
         :module:`calibre.web.recipes.iht` recipe.
         '''
         raise NotImplementedError
+
+    def populate_article_metadata(self, article, soup, first):
+        '''
+        Called when each HTML page belonging to article is downloaded.
+        Intended to be used to get article metadata like author/summary/etc.
+        from the parsed HTML (soup).
+        :param article: A object of class :class:`calibre.web.feeds.Article`.
+        If you change the summary, remember to also change the
+        text_summary
+        :param soup: Parsed HTML belonging to this article
+        :param first: True iff the parsed HTML is the first page of the article.
+        '''
+        pass
 
     def postprocess_book(self, oeb, opts, log):
         '''
@@ -544,6 +572,8 @@ class BasicNewsRecipe(Recipe):
         self.username = options.username
         self.password = options.password
         self.lrf = options.lrf
+        self.output_profile = options.output_profile
+        self.touchscreen = getattr(self.output_profile, 'touchscreen', False)
 
         self.output_dir = os.path.abspath(self.output_dir)
         if options.test:
@@ -588,7 +618,7 @@ class BasicNewsRecipe(Recipe):
 
         self.web2disk_options = web2disk_option_parser().parse_args(web2disk_cmdline)[0]
         for extra in ('keep_only_tags', 'remove_tags', 'preprocess_regexps',
-                      'preprocess_html', 'remove_tags_after',
+                      'prepreprocess_html', 'preprocess_html', 'remove_tags_after',
                       'remove_tags_before', 'is_link_wanted'):
             setattr(self.web2disk_options, extra, getattr(self, extra))
         self.web2disk_options.postprocess_html = self._postprocess_html
@@ -597,7 +627,7 @@ class BasicNewsRecipe(Recipe):
         if self.delay > 0:
             self.simultaneous_downloads = 1
 
-        self.navbar = templates.NavBarTemplate()
+        self.navbar = templates.TouchscreenNavBarTemplate() if self.touchscreen else templates.NavBarTemplate()
         self.failed_downloads = []
         self.partial_failures = []
 
@@ -638,7 +668,15 @@ class BasicNewsRecipe(Recipe):
         for base in list(soup.findAll(['base', 'iframe'])):
             base.extract()
 
-        return self.postprocess_html(soup, first_fetch)
+        ans = self.postprocess_html(soup, first_fetch)
+        try:
+            article = self.feed_objects[f].articles[a]
+        except:
+            self.log.exception('Failed to get article object for postprocessing')
+            pass
+        else:
+            self.populate_article_metadata(article, ans, first_fetch)
+        return ans
 
 
     def download(self):
@@ -674,7 +712,11 @@ class BasicNewsRecipe(Recipe):
     def feeds2index(self, feeds):
         templ = templates.IndexTemplate()
         css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
-        return templ.generate(self.title, self.timefmt, feeds,
+        timefmt = self.timefmt
+        if self.touchscreen:
+            templ = templates.TouchscreenIndexTemplate()
+            timefmt = '%A, %d %b %Y'
+        return templ.generate(self.title, "mastheadImage.jpg", timefmt, feeds,
                               extra_css=css).render(doctype='xhtml')
 
     @classmethod
@@ -727,6 +769,38 @@ class BasicNewsRecipe(Recipe):
 
         templ = templates.FeedTemplate()
         css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
+
+        if self.touchscreen:
+            touchscreen_css = u'''
+                    .summary_headline {
+                        font-weight:bold; text-align:left;
+                    }
+
+                    .summary_byline {
+                        font-family:monospace;
+                    }
+
+                    .summary_text {
+                        text-align:left;
+                    }
+
+                    .feed {
+                        font-family:sans-serif; font-weight:bold; font-size:larger;
+                    }
+
+                    .calibre_navbar {
+                        font-family:monospace;
+                    }
+                    hr {
+                        border-color:gray;
+                        border-style:solid;
+                        border-width:thin;
+                    }
+
+            '''
+
+            templ = templates.TouchscreenFeedTemplate()
+            css = touchscreen_css + '\n\n' + (self.extra_css if self.extra_css else '')
         return templ.generate(feed, self.description_limiter,
                               extra_css=css).render(doctype='xhtml')
 
@@ -820,6 +894,7 @@ class BasicNewsRecipe(Recipe):
                 if hasattr(feed, 'reverse'):
                     feed.reverse()
 
+        self.feed_objects = feeds
         for f, feed in enumerate(feeds):
             feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
             if not os.path.isdir(feed_dir):
@@ -1053,6 +1128,12 @@ class BasicNewsRecipe(Recipe):
         mi = MetaInformation(self.short_title() + strftime(self.timefmt), [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
+        if self.output_profile.name == 'iPad':
+            date_as_author = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
+            mi = MetaInformation(self.short_title(), [date_as_author])
+            mi.publisher = __appname__
+            sort_author =  re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', self.title).rstrip()
+            mi.author_sort = '%s %s' % (sort_author, strftime('%Y-%m-%d'))
         mi.publication_type = 'periodical:'+self.publication_type
         mi.timestamp = nowf()
         mi.comments = self.description
@@ -1175,7 +1256,6 @@ class BasicNewsRecipe(Recipe):
 
         with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
             opf.render(opf_file, ncx_file)
-
 
     def article_downloaded(self, request, result):
         index = os.path.join(os.path.dirname(result[0]), 'index.html')

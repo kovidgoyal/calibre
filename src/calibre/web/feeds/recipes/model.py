@@ -121,7 +121,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
 
     def __init__(self, db, *args):
         QAbstractItemModel.__init__(self, *args)
-        SearchQueryParser.__init__(self)
+        SearchQueryParser.__init__(self, locations=['all'])
         self.db = db
         self.default_icon = QVariant(QIcon(I('news.svg')))
         self.custom_icon = QVariant(QIcon(I('user_profile.svg')))

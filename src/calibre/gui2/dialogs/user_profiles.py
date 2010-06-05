@@ -9,7 +9,7 @@ from PyQt4.Qt import SIGNAL, QUrl, QDesktopServices, QAbstractListModel, Qt, \
 from calibre.web.feeds.recipes import compile_recipe
 from calibre.web.feeds.news import AutomaticNewsRecipe
 from calibre.gui2.dialogs.user_profiles_ui import Ui_Dialog
-from calibre.gui2 import qstring_to_unicode, error_dialog, question_dialog, \
+from calibre.gui2 import error_dialog, question_dialog, \
                          choose_files, ResizableDialog, NONE
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.ptempfile import PersistentTemporaryFile
@@ -162,19 +162,19 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         else:
             self.stacks.setCurrentIndex(1)
             self.toggle_mode_button.setText(_('Switch to Basic mode'))
-            if not qstring_to_unicode(self.source_code.toPlainText()).strip():
+            if not unicode(self.source_code.toPlainText()).strip():
                 src = self.options_to_profile()[0].replace('AutomaticNewsRecipe', 'BasicNewsRecipe')
                 self.source_code.setPlainText(src.replace('BasicUserRecipe', 'AdvancedUserRecipe'))
                 self.highlighter = PythonHighlighter(self.source_code.document())
 
 
     def add_feed(self, *args):
-        title = qstring_to_unicode(self.feed_title.text()).strip()
+        title = unicode(self.feed_title.text()).strip()
         if not title:
             error_dialog(self, _('Feed must have a title'),
                              _('The feed must have a title')).exec_()
             return
-        url = qstring_to_unicode(self.feed_url.text()).strip()
+        url = unicode(self.feed_url.text()).strip()
         if not url:
             error_dialog(self, _('Feed must have a URL'),
                          _('The feed %s must have a URL')%title).exec_()
@@ -190,7 +190,7 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
 
     def options_to_profile(self):
         classname = 'BasicUserRecipe'+str(int(time.time()))
-        title = qstring_to_unicode(self.profile_title.text()).strip()
+        title = unicode(self.profile_title.text()).strip()
         if not title:
             title = classname
         self.profile_title.setText(title)
@@ -229,7 +229,7 @@ class %(classname)s(%(base_class)s):
                 return
             profile = src
         else:
-            src = qstring_to_unicode(self.source_code.toPlainText())
+            src = unicode(self.source_code.toPlainText())
             try:
                 title = compile_recipe(src).title
             except Exception, err:

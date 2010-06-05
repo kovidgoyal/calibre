@@ -27,6 +27,34 @@ def strftime(epoch, zone=time.gmtime):
     src[2] = INVERSE_MONTH_MAP[int(src[2])]
     return ' '.join(src)
 
+def get_connected_device():
+    from calibre.customize.ui import device_plugins
+    from calibre.devices.scanner import DeviceScanner
+    dev = None
+    scanner = DeviceScanner()
+    scanner.scan()
+    connected_devices = []
+    for d in device_plugins():
+        ok, det = scanner.is_device_connected(d)
+        if ok:
+            dev = d
+            dev.reset(log_packets=False, detected_device=det)
+            connected_devices.append(dev)
+
+    if dev is None:
+        print >>sys.stderr, 'Unable to find a connected ebook reader.'
+        return
+
+    for d in connected_devices:
+        try:
+            d.open()
+        except:
+            continue
+        else:
+            dev = d
+            break
+    return dev
+
 def debug(ioreg_to_tmp=False, buf=None):
     from calibre.customize.ui import device_plugins
     from calibre.devices.scanner import DeviceScanner, win_pnp_drives

@@ -451,8 +451,6 @@ class OPF(object):
     guide_path      = XPath('descendant::*[re:match(name(), "guide", "i")]/*[re:match(name(), "reference", "i")]')
 
     title           = MetadataField('title', formatter=lambda x: re.sub(r'\s+', ' ', x))
-    title_sort      = MetadataField('title_sort', formatter=lambda x:
-                        re.sub(r'\s+', ' ', x), is_dc=False)
     publisher       = MetadataField('publisher')
     language        = MetadataField('language')
     comments        = MetadataField('description')
@@ -707,6 +705,30 @@ class OPF(object):
                 matches[0].set('{%s}file-as'%self.NAMESPACES['opf'], unicode(val))
 
         return property(fget=fget, fset=fset)
+
+    @dynamic_property
+    def title_sort(self):
+
+        def fget(self):
+            matches = self.title_path(self.metadata)
+            if matches:
+                for match in matches:
+                    ans = match.get('{%s}file-as'%self.NAMESPACES['opf'], None)
+                    if not ans:
+                        ans = match.get('file-as', None)
+                    if ans:
+                        return ans
+
+        def fset(self, val):
+            matches = self.title_path(self.metadata)
+            if matches:
+                for key in matches[0].attrib:
+                    if key.endswith('file-as'):
+                        matches[0].attrib.pop(key)
+                matches[0].set('{%s}file-as'%self.NAMESPACES['opf'], unicode(val))
+
+        return property(fget=fget, fset=fset)
+
 
     @dynamic_property
     def tags(self):
@@ -981,11 +1003,8 @@ class OPFCreator(MetaInformation):
 
     def render(self, opf_stream=sys.stdout, ncx_stream=None,
                ncx_manifest_entry=None, encoding=None):
-        from calibre.utils.genshi.template import MarkupTemplate
-        opf_template = open(P('templates/opf.xml'), 'rb').read()
         if encoding is None:
             encoding = 'utf-8'
-        template = MarkupTemplate(opf_template)
         toc = getattr(self, 'toc', None)
         if self.manifest:
             self.manifest.set_basedir(self.base_path)
@@ -1006,12 +1025,101 @@ class OPFCreator(MetaInformation):
                 cover = os.path.abspath(os.path.join(self.base_path, cover))
             self.guide.set_cover(cover)
         self.guide.set_basedir(self.base_path)
-        opf = template.generate(
-                __appname__=__appname__, mi=self,
-                __version__=__version__).render('xml', encoding=encoding)
-        opf_stream.write('<?xml version="1.0" encoding="%s" ?>\n'
-                %encoding.upper())
-        opf_stream.write(opf)
+
+        # Actual rendering
+        from lxml.builder import ElementMaker
+        from calibre.ebooks.oeb.base import OPF2_NS, DC11_NS, CALIBRE_NS
+        DNS = OPF2_NS+'___xx___'
+        E = ElementMaker(namespace=DNS, nsmap={None:DNS})
+        M = ElementMaker(namespace=DNS,
+                nsmap={'dc':DC11_NS, 'calibre':CALIBRE_NS, 'opf':OPF2_NS})
+        DC = ElementMaker(namespace=DC11_NS)
+
+        def DC_ELEM(tag, text, dc_attrs={}, opf_attrs={}):
+            if text:
+                elem = getattr(DC, tag)(text, **dc_attrs)
+            else:
+                elem = getattr(DC, tag)(**dc_attrs)
+            for k, v in opf_attrs.items():
+                elem.set('{%s}%s'%(OPF2_NS, k), v)
+            return elem
+
+        def CAL_ELEM(name, content):
+            return M.meta(name=name, content=content)
+
+        metadata = M.metadata()
+        a = metadata.append
+        role = {}
+        if self.title_sort:
+            role = {'file-as':self.title_sort}
+        a(DC_ELEM('title', self.title if self.title else _('Unknown'),
+            opf_attrs=role))
+        for i, author in enumerate(self.authors):
+            fa = {'role':'aut'}
+            if i == 0 and self.author_sort:
+                fa['file-as'] = self.author_sort
+            a(DC_ELEM('creator', author, opf_attrs=fa))
+        a(DC_ELEM('contributor', '%s (%s) [%s]'%(__appname__, __version__,
+            'http://calibre-ebook.com'), opf_attrs={'role':'bkp',
+                'file-as':__appname__}))
+        a(DC_ELEM('identifier', str(self.application_id),
+            opf_attrs={'scheme':__appname__},
+            dc_attrs={'id':__appname__+'_id'}))
+        if getattr(self, 'pubdate', None) is not None:
+            a(DC_ELEM('date', self.pubdate.isoformat()))
+        a(DC_ELEM('language', self.language if self.language else 'UND'))
+        if self.comments:
+            a(DC_ELEM('description', self.comments))
+        if self.publisher:
+            a(DC_ELEM('publisher', self.publisher))
+        if self.isbn:
+            a(DC_ELEM('identifier', self.isbn, opf_attrs={'scheme':'ISBN'}))
+        if self.rights:
+            a(DC_ELEM('rights', self.rights))
+        if self.tags:
+            for tag in self.tags:
+                a(DC_ELEM('subject', tag))
+        if self.series:
+            a(CAL_ELEM('calibre:series', self.series))
+            if self.series_index is not None:
+                a(CAL_ELEM('calibre:series_index', self.format_series_index()))
+        if self.rating is not None:
+            a(CAL_ELEM('calibre:rating', str(self.rating)))
+        if self.timestamp is not None:
+            a(CAL_ELEM('calibre:timestamp', self.timestamp.isoformat()))
+        if self.publication_type is not None:
+            a(CAL_ELEM('calibre:publication_type', self.publication_type))
+        manifest = E.manifest()
+        if self.manifest is not None:
+            for ref in self.manifest:
+                item = E.item(id=str(ref.id), href=ref.href())
+                item.set('media-type', ref.mime_type)
+                manifest.append(item)
+        spine = E.spine()
+        if self.toc is not None:
+            spine.set('toc', 'ncx')
+        if self.spine is not None:
+            for ref in self.spine:
+                spine.append(E.itemref(idref=ref.id))
+        guide = E.guide()
+        if self.guide is not None:
+            for ref in self.guide:
+                item = E.reference(type=ref.type, href=ref.href())
+                if ref.title:
+                    item.set('title', ref.title)
+                guide.append(item)
+
+        root = E.package(
+                metadata,
+                manifest,
+                spine,
+                guide
+        )
+        root.set('unique-identifier', __appname__+'_id')
+        raw = etree.tostring(root, pretty_print=True, xml_declaration=True,
+                encoding=encoding)
+        raw = raw.replace(DNS, OPF2_NS)
+        opf_stream.write(raw)
         opf_stream.flush()
         if toc is not None and ncx_stream is not None:
             toc.render(ncx_stream, self.application_id)
@@ -1159,12 +1267,14 @@ class OPFTest(unittest.TestCase):
 <package version="2.0" xmlns="http://www.idpf.org/2007/opf" >
 <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
     <dc:title opf:file-as="Wow">A Cool &amp; &copy; &#223; Title</dc:title>
-    <creator opf:role="aut" file-as="Monkey">Monkey Kitchen, Next</creator>
+    <creator opf:role="aut" file-as="Monkey">Monkey Kitchen</creator>
+    <creator opf:role="aut">Next</creator>
     <dc:subject>One</dc:subject><dc:subject>Two</dc:subject>
     <dc:identifier scheme="ISBN">123456789</dc:identifier>
-    <x-metadata>
-        <series>A one book series</series>
-    </x-metadata>
+    <meta name="calibre:series" content="A one book series" />
+    <meta name="calibre:rating" content="4"/>
+    <meta name="calibre:publication_type" content="test"/>
+    <meta name="calibre:series_index" content="2.5" />
 </metadata>
 <manifest>
     <item id="1" href="a%20%7E%20b" media-type="text/txt" />
@@ -1184,7 +1294,9 @@ class OPFTest(unittest.TestCase):
         self.assertEqual(opf.tags, ['One', 'Two'])
         self.assertEqual(opf.isbn, '123456789')
         self.assertEqual(opf.series, 'A one book series')
-        self.assertEqual(opf.series_index, 1)
+        self.assertEqual(opf.series_index, 2.5)
+        self.assertEqual(opf.rating, 4)
+        self.assertEqual(opf.publication_type, 'test')
         self.assertEqual(list(opf.itermanifest())[0].get('href'), 'a ~ b')
 
     def testWriting(self):
@@ -1214,3 +1326,6 @@ def suite():
 
 def test():
     unittest.TextTestRunner(verbosity=2).run(suite())
+
+if __name__ == '__main__':
+    test()

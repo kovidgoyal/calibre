@@ -18,7 +18,7 @@ entry_points = {
              'ebook-convert      = calibre.ebooks.conversion.cli:main',
              'markdown-calibre   = calibre.ebooks.markdown.markdown:main',
              'web2disk           = calibre.web.fetch.simple:main',
-             'calibre-server     = calibre.library.server:main',
+             'calibre-server     = calibre.library.server.main:main',
              'lrf2lrs            = calibre.ebooks.lrf.lrfparser:main',
              'lrs2lrf            = calibre.ebooks.lrf.lrs.convert_from:main',
              'librarything       = calibre.ebooks.metadata.library_thing:main',
@@ -132,7 +132,6 @@ class PostInstall:
         self.mime_resources = []
         if islinux:
             self.setup_completion()
-            self.setup_udev_rules()
         self.install_man_pages()
         if islinux:
             self.setup_desktop_integration()
@@ -285,40 +284,6 @@ class PostInstall:
             if self.opts.fatal_errors:
                 raise
             self.task_failed('Setting up completion failed')
-
-    def setup_udev_rules(self):
-        self.info('Trying to setup udev rules...')
-        try:
-            group_file = os.path.join(self.opts.staging_etc, 'group')
-            if not os.path.exists(group_file):
-                group_file = '/etc/group'
-            groups = open(group_file, 'rb').read()
-            group = 'plugdev' if 'plugdev' in groups else 'usb'
-            old_udev = '/etc/udev/rules.d/95-calibre.rules'
-            if not os.path.exists(old_udev):
-                old_udev = os.path.join(self.opts.staging_etc, 'udev/rules.d/95-calibre.rules')
-            if os.path.exists(old_udev):
-                try:
-                    os.remove(old_udev)
-                except:
-                    self.warn('Old udev rules found, please delete manually:',
-                            old_udev)
-            if self.opts.staging_root == '/usr':
-                base = '/lib'
-            else:
-                base = os.path.join(self.opts.staging_root, 'lib')
-            base = os.path.join(base, 'udev', 'rules.d')
-            if not os.path.exists(base):
-                os.makedirs(base)
-            with open(os.path.join(base, '95-calibre.rules'), 'wb') as udev:
-                self.manifest.append(udev.name)
-                udev.write('''# Sony Reader PRS-500\n'''
-                        '''SUBSYSTEMS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="%s"\n'''%(group,)
-                        )
-        except:
-            if self.opts.fatal_errors:
-                raise
-            self.task_failed('Setting up udev rules failed')
 
     def install_man_pages(self):
         try:

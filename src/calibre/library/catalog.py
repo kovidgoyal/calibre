@@ -127,120 +127,60 @@ class CSV_XML(CatalogPlugin):
 
         elif self.fmt == 'xml':
             from lxml import etree
+            from lxml.builder import E
 
-            from calibre.utils.genshi.template import MarkupTemplate
+            root = E.calibredb()
+            for r in data:
+                record = E.record()
+                root.append(record)
 
-            PY_NAMESPACE = "http://genshi.edgewall.org/"
-            PY = "{%s}" % PY_NAMESPACE
-            NSMAP = {'py' : PY_NAMESPACE}
-            root = etree.Element('calibredb', nsmap=NSMAP)
-            py_for = etree.SubElement(root, PY + 'for', each="record in data")
-            record = etree.SubElement(py_for, 'record')
+                for field in ('id', 'uuid', 'title', 'publisher', 'rating', 'size',
+                        'isbn'):
+                    if field in fields:
+                        val = r[field]
+                        if val is None:
+                            continue
+                        if not isinstance(val, (str, unicode)):
+                            val = unicode(val)
+                        item = getattr(E, field)(val)
+                        record.append(item)
 
-            if 'id' in fields:
-                record_child = etree.SubElement(record, 'id')
-                record_child.set(PY + "if", "record['id']")
-                record_child.text = "${record['id']}"
+                if 'authors' in fields:
+                    aus = E.authors(sort=r['author_sort'])
+                    for au in r['authors']:
+                        aus.append(E.author(au))
+                    record.append(aus)
 
-            if 'uuid' in fields:
-                record_child = etree.SubElement(record, 'uuid')
-                record_child.set(PY + "if", "record['uuid']")
-                record_child.text = "${record['uuid']}"
+                for field in ('timestamp', 'pubdate'):
+                    if field in fields:
+                        record.append(getattr(E, field)(r[field].isoformat()))
 
-            if 'title' in fields:
-                record_child = etree.SubElement(record, 'title')
-                record_child.set(PY + "if", "record['title']")
-                record_child.text = "${record['title']}"
+                if 'tags' in fields and r['tags']:
+                    tags = E.tags()
+                    for tag in r['tags']:
+                        tags.append(E.tag(tag))
+                    record.append(tags)
 
-            if 'authors' in fields:
-                record_child = etree.SubElement(record, 'authors', sort="${record['author_sort']}")
-                record_subchild = etree.SubElement(record_child, PY + 'for', each="author in record['authors']")
-                record_subsubchild = etree.SubElement(record_subchild, 'author')
-                record_subsubchild.text = '$author'
+                if 'comments' in fields and r['comments']:
+                    record.append(E.comments(r['comments']))
 
-            if 'publisher' in fields:
-                record_child = etree.SubElement(record, 'publisher')
-                record_child.set(PY + "if", "record['publisher']")
-                record_child.text = "${record['publisher']}"
+                if 'series' in fields and r['series']:
+                    record.append(E.series(r['series'],
+                        index=str(r['series_index'])))
 
-            if 'rating' in fields:
-                record_child = etree.SubElement(record, 'rating')
-                record_child.set(PY + "if", "record['rating']")
-                record_child.text = "${record['rating']}"
+                if 'cover' in fields and r['cover']:
+                    record.append(E.cover(r['cover'].replace(os.sep, '/')))
 
-            if 'date' in fields:
-                record_child = etree.SubElement(record, 'date')
-                record_child.set(PY + "if", "record['date']")
-                record_child.text = "${record['date'].isoformat()}"
+                if 'formats' in fields and r['formats']:
+                    fmt = E.formats()
+                    for f in r['formats']:
+                        fmt.append(E.format(f.replace(os.sep, '/')))
+                    record.append(fmt)
 
-            if 'pubdate' in fields:
-                record_child = etree.SubElement(record, 'pubdate')
-                record_child.set(PY + "if", "record['pubdate']")
-                record_child.text = "${record['pubdate'].isoformat()}"
+            with open(path_to_output, 'w') as f:
+                f.write(etree.tostring(root, encoding='utf-8',
+                    xml_declaration=True, pretty_print=True))
 
-            if 'size' in fields:
-                record_child = etree.SubElement(record, 'size')
-                record_child.set(PY + "if", "record['size']")
-                record_child.text = "${record['size']}"
-
-            if 'tags' in fields:
-                # <tags py:if="record['tags']">
-                #  <py:for each="tag in record['tags']">
-                #   <tag>$tag</tag>
-                #  </py:for>
-                # </tags>
-                record_child = etree.SubElement(record, 'tags')
-                record_child.set(PY + "if", "record['tags']")
-                record_subchild = etree.SubElement(record_child, PY + 'for', each="tag in record['tags']")
-                record_subsubchild = etree.SubElement(record_subchild, 'tag')
-                record_subsubchild.text = '$tag'
-
-            if 'comments' in fields:
-                record_child = etree.SubElement(record, 'comments')
-                record_child.set(PY + "if", "record['comments']")
-                record_child.text = "${record['comments']}"
-
-            if 'series' in fields:
-                # <series py:if="record['series']" index="${record['series_index']}">
-                #  ${record['series']}
-                # </series>
-                record_child = etree.SubElement(record, 'series')
-                record_child.set(PY + "if", "record['series']")
-                record_child.set('index', "${record['series_index']}")
-                record_child.text = "${record['series']}"
-
-            if 'isbn' in fields:
-                record_child = etree.SubElement(record, 'isbn')
-                record_child.set(PY + "if", "record['isbn']")
-                record_child.text = "${record['isbn']}"
-
-            if 'cover' in fields:
-                # <cover py:if="record['cover']">
-                #  ${record['cover'].replace(os.sep, '/')}
-                # </cover>
-                record_child = etree.SubElement(record, 'cover')
-                record_child.set(PY + "if", "record['cover']")
-                record_child.text = "${record['cover']}"
-
-            if 'formats' in fields:
-                # <formats py:if="record['formats']">
-                #  <py:for each="path in record['formats']">
-                #    <format>${path.replace(os.sep, '/')}</format>
-                #  </py:for>
-                # </formats>
-                record_child = etree.SubElement(record, 'formats')
-                record_child.set(PY + "if", "record['formats']")
-                record_subchild = etree.SubElement(record_child, PY + 'for', each="path in record['formats']")
-                record_subsubchild = etree.SubElement(record_subchild, 'format')
-                record_subsubchild.text = "${path.replace(os.sep, '/')}"
-
-            outfile = open(path_to_output, 'w')
-            template = MarkupTemplate(etree.tostring(root, xml_declaration=True,
-                                      encoding="UTF-8", pretty_print=True))
-            outfile.write(template.generate(data=data, os=os).render('xml'))
-            outfile.close()
-
-        return None
 
 class EPUB_MOBI(CatalogPlugin):
     'ePub catalog generator'

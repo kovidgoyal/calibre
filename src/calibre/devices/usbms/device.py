@@ -109,15 +109,16 @@ class Device(DeviceConfig, DevicePlugin):
     def _windows_space(cls, prefix):
         if not prefix:
             return 0, 0
+        prefix = prefix[:-1]
         win32file = __import__('win32file', globals(), locals(), [], -1)
         try:
             sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
-                win32file.GetDiskFreeSpace(prefix[:-1])
+                win32file.GetDiskFreeSpace(prefix)
         except Exception, err:
             if getattr(err, 'args', [None])[0] == 21: # Disk not ready
                 time.sleep(3)
                 sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
-                    win32file.GetDiskFreeSpace(prefix[:-1])
+                    win32file.GetDiskFreeSpace(prefix)
             else: raise
         mult = sectors_per_cluster * bytes_per_sector
         return total_clusters * mult, free_clusters * mult
@@ -827,7 +828,7 @@ class Device(DeviceConfig, DevicePlugin):
         if not isinstance(template, unicode):
             template = template.decode('utf-8')
         app_id = str(getattr(mdata, 'application_id', ''))
-        # The SONY readers need to have the db id in the created filename
+        # The db id will be in the created filename
         extra_components = get_components(template, mdata, fname,
                 length=250-len(app_id)-1)
         if not extra_components:
@@ -835,6 +836,9 @@ class Device(DeviceConfig, DevicePlugin):
                 mdata)))
         else:
             extra_components[-1] = sanitize(self.filename_callback(extra_components[-1]+ext, mdata))
+
+        if extra_components[-1] and extra_components[-1][0] in ('.', '_'):
+            extra_components[-1] = 'x' + extra_components[-1][1:]
 
         if special_tag is not None:
             name = extra_components[-1]

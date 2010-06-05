@@ -15,10 +15,11 @@ from PyQt4.Qt import QAbstractTableModel, QVariant, QModelIndex, Qt, \
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
-from calibre.gui2 import Dispatcher, error_dialog, NONE, config
+from calibre.gui2 import Dispatcher, error_dialog, NONE, config, gprefs
 from calibre.gui2.device import DeviceJob
 from calibre.gui2.dialogs.jobs_ui import Ui_JobsDialog
 from calibre import __appname__
+from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
 
 class JobManager(QAbstractTableModel):
 
@@ -243,7 +244,32 @@ class ProgressBarDelegate(QAbstractItemDelegate):
         opts.text = QString(_('Unavailable') if percent == 0 else '%d%%'%percent)
         QApplication.style().drawControl(QStyle.CE_ProgressBar, opts, painter)
 
+class DetailView(QDialog, Ui_Dialog):
+
+    def __init__(self, parent, job):
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
+        self.setWindowTitle(job.description)
+        self.job = job
+        self.next_pos = 0
+        self.update()
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update)
+        self.timer.start(1000)
+
+
+    def update(self):
+        f = self.job.log_file
+        f.seek(self.next_pos)
+        more = f.read()
+        self.next_pos = f.tell()
+        if more:
+            self.log.appendPlainText(more.decode('utf-8', 'replace'))
+
+
+
 class JobsDialog(QDialog, Ui_JobsDialog):
+
     def __init__(self, window, model):
         QDialog.__init__(self, window)
         Ui_JobsDialog.__init__(self)
@@ -252,8 +278,6 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.model = model
         self.setWindowModality(Qt.NonModal)
         self.setWindowTitle(__appname__ + _(' - Jobs'))
-        self.connect(self.jobs_view.model(), SIGNAL('modelReset()'),
-                        self.jobs_view.resizeColumnsToContents)
         self.connect(self.kill_button, SIGNAL('clicked()'),
                         self.kill_job)
         self.connect(self.details_button, SIGNAL('clicked()'),
@@ -264,7 +288,21 @@ class JobsDialog(QDialog, Ui_JobsDialog):
                         self.jobs_view.model().kill_job)
         self.pb_delegate = ProgressBarDelegate(self)
         self.jobs_view.setItemDelegateForColumn(2, self.pb_delegate)
+        self.jobs_view.doubleClicked.connect(self.show_job_details)
+        self.jobs_view.horizontalHeader().setMovable(True)
+        state = gprefs.get('jobs view column layout', None)
+        if state is not None:
+            try:
+                self.jobs_view.horizontalHeader().restoreState(bytes(state))
+            except:
+                pass
 
+    def show_job_details(self, index):
+        row = index.row()
+        job = self.jobs_view.model().row_to_job(row)
+        d = DetailView(self, job)
+        d.exec_()
+        d.timer.stop()
 
     def kill_job(self):
         for index in self.jobs_view.selectedIndexes():
@@ -274,12 +312,16 @@ class JobsDialog(QDialog, Ui_JobsDialog):
 
     def show_details(self):
         for index in self.jobs_view.selectedIndexes():
-            self.jobs_view.show_details(index)
+            self.show_job_details(index)
             return
 
     def kill_all_jobs(self):
         self.model.kill_all_jobs()
 
     def closeEvent(self, e):
-        self.jobs_view.write_settings()
+        try:
+            state = bytearray(self.jobs_view.horizontalHeader().saveState())
+            gprefs['jobs view column layout'] = state
+        except:
+            pass
         e.accept()

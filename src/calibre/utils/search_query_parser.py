@@ -23,7 +23,6 @@ from calibre.utils.pyparsing import Keyword, Group, Forward, CharsNotIn, Suppres
 from calibre.constants import preferred_encoding
 from calibre.utils.config import prefs
 
-
 '''
 This class manages access to the preference holding the saved search queries.
 It exists to ensure that unicode is used throughout, and also to permit
@@ -53,6 +52,12 @@ class SavedSearchQueries(object):
         self.queries.pop(self.force_unicode(name), False)
         prefs[self.opt_name] = self.queries
 
+    def rename(self, old_name, new_name):
+        self.queries[self.force_unicode(new_name)] = \
+                    self.queries.get(self.force_unicode(old_name), None)
+        self.queries.pop(self.force_unicode(old_name), False)
+        prefs[self.opt_name] = self.queries
+
     def names(self):
         return sorted(self.queries.keys(),
                 cmp=lambda x,y: cmp(x.lower(), y.lower()))
@@ -73,7 +78,7 @@ class SearchQueryParser(object):
     When no operator is specified between two tokens, `and` is assumed.
 
     Each token is a string of the form `location:query`. `location` is a string
-    from :member:`LOCATIONS`. It is optional. If it is omitted, it is assumed to
+    from :member:`DEFAULT_LOCATIONS`. It is optional. If it is omitted, it is assumed to
     be `all`. `query` is an arbitrary string that must not contain parentheses.
     If it contains whitespace, it should be quoted by enclosing it in `"` marks.
 
@@ -86,22 +91,6 @@ class SearchQueryParser(object):
       * `(author:Asimov or author:Hardy) and not tag:read` [search for unread books by Asimov or Hardy]
     '''
 
-    LOCATIONS = [
-        'tag',
-        'title',
-        'author',
-        'publisher',
-        'series',
-        'rating',
-        'cover',
-        'comments',
-        'format',
-        'isbn',
-        'search',
-        'date',
-        'pubdate',
-        'all',
-                 ]
 
     @staticmethod
     def run_tests(parser, result, tests):
@@ -116,13 +105,13 @@ class SearchQueryParser(object):
                 failed.append(test[0])
         return failed
 
-    def __init__(self, test=False):
+    def __init__(self, locations, test=False):
         self._tests_failed = False
         # Define a token
-        locations = map(lambda x : CaselessLiteral(x)+Suppress(':'),
-                        self.LOCATIONS)
+        standard_locations = map(lambda x : CaselessLiteral(x)+Suppress(':'),
+                locations)
         location = NoMatch()
-        for l in locations:
+        for l in standard_locations:
             location |= l
         location     = Optional(location, default='all')
         word_query   = CharsNotIn(string.whitespace + '()')
@@ -176,14 +165,20 @@ class SearchQueryParser(object):
 
     def parse(self, query):
         # empty the list of searches used for recursion testing
+        self.recurse_level = 0
         self.searches_seen = set([])
         return self._parse(query)
 
     # this parse is used internally because it doesn't clear the
-    # recursive search test list
+    # recursive search test list. However, we permit seeing the
+    # same search a few times because the search might appear within
+    # another search.
     def _parse(self, query):
+        self.recurse_level += 1
         res = self._parser.parseString(query)[0]
-        return self.evaluate(res)
+        t = self.evaluate(res)
+        self.recurse_level -= 1
+        return t
 
     def method(self, group_name):
         return getattr(self, 'evaluate_'+group_name)
@@ -207,13 +202,13 @@ class SearchQueryParser(object):
         location = argument[0]
         query = argument[1]
         if location.lower() == 'search':
-            # print "looking for named search " + query
             if query.startswith('='):
                 query = query[1:]
             try:
                 if query in self.searches_seen:
                     raise ParseException(query, len(query), 'undefined saved search', self)
-                self.searches_seen.add(query)
+                if self.recurse_level > 5:
+                    self.searches_seen.add(query)
                 return self._parse(saved_searches.lookup(query))
             except: # convert all exceptions (e.g., missing key) to a parse error
                 raise ParseException(query, len(query), 'undefined saved search', self)
@@ -223,7 +218,7 @@ class SearchQueryParser(object):
         '''
         Should return the set of matches for :param:'location` and :param:`query`.
 
-        :param:`location` is one of the items in :member:`SearchQueryParser.LOCATIONS`.
+        :param:`location` is one of the items in :member:`SearchQueryParser.DEFAULT_LOCATIONS`.
         :param:`query` is a string literal.
         '''
         return set([])

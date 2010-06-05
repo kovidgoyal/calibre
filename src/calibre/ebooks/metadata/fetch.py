@@ -9,7 +9,6 @@ from threading import Thread
 from calibre import prints
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import default_log
-from calibre.ebooks.metadata import MetaInformation
 from calibre.customize import Plugin
 
 metadata_config = None
@@ -53,7 +52,7 @@ class MetadataSource(Plugin):
             if self.results:
                 c = self.config_store().get(self.name, {})
                 res = self.results
-                if isinstance(res, MetaInformation):
+                if hasattr(res, 'authors'):
                     res = [res]
                 for mi in res:
                     if not c.get('rating', True):

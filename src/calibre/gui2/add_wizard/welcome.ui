@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>WizardPage</class>
+ <widget class="QWizardPage" name="WizardPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>704</width>
+    <height>468</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>WizardPage</string>
+  </property>
+  <property name="title">
+   <string>Choose the location to add books from</string>
+  </property>
+  <property name="subTitle">
+   <string>Select a folder on your hard disk</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="3">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&lt;p&gt;calibre can scan your computer for existing books automatically. These books will then be &lt;b&gt;copied&lt;/b&gt; into the calibre library. This wizard will help you customize the scanning and import process for your existing book collection.&lt;/p&gt;
+&lt;p&gt;Choose a root folder. Books will be searched for only inside this folder and any sub-folders.&lt;/p&gt;
+&lt;p&gt;Make sure that the folder you chose for your calibre library &lt;b&gt;is not&lt;/b&gt; under the root folder you choose.&lt;/p&gt;</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>&amp;Root folder:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_root_folder</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="opt_root_folder">
+     <property name="toolTip">
+      <string>This folder and its sub-folders will be scanned for books to import into calibre's library</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QToolButton" name="button_choose_root_folder">
+     <property name="toolTip">
+      <string>Choose root folder</string>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../../resources/images.qrc">
+       <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="3">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Handle multiple files per book</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QRadioButton" name="opt_one_per_folder">
+        <property name="text">
+         <string>&amp;One book per folder, assumes every ebook file in a folder is the same book in a different format</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="opt_many_per_folder">
+        <property name="text">
+         <string>&amp;Multiple books per folder, assumes every ebook file is a different book</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="1">
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="1">
+    <spacer name="verticalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../../../resources/images.qrc"/>
+ </resources>
+ <connections/>
+</ui>

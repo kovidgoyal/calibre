@@ -45,6 +45,7 @@ class CustomColumns(object):
                     DROP TRIGGER IF EXISTS fkc_insert_{table};
                     DROP TRIGGER IF EXISTS fkc_delete_{table};
                     DROP VIEW    IF EXISTS tag_browser_{table};
+                    DROP VIEW    IF EXISTS tag_browser_filtered_{table};
                     DROP TABLE   IF EXISTS {table};
                     DROP TABLE   IF EXISTS {lt};
                     '''.format(table=table, lt=lt)
@@ -137,7 +138,25 @@ class CustomColumns(object):
                 'comments': lambda x,d: adapt_text(x, {'is_multiple':False}),
                 'datetime' : adapt_datetime,
                 'text':adapt_text
-                }
+        }
+
+        # Create Tag Browser categories for custom columns
+        for k in sorted(self.custom_column_label_map.keys()):
+            v = self.custom_column_label_map[k]
+            if v['normalized']:
+                is_category = True
+            else:
+                is_category = False
+            if v['is_multiple']:
+                is_m = '|'
+            else:
+                is_m = None
+            tn = 'custom_column_{0}'.format(v['num'])
+            self.field_metadata.add_custom_field(label=v['label'],
+                    table=tn, column='value', datatype=v['datatype'],
+                    colnum=v['num'], name=v['name'], display=v['display'],
+                    is_multiple=is_m, is_category=is_category,
+                    is_editable=v['editable'])
 
     def get_custom(self, idx, label=None, num=None, index_is_id=False):
         if label is not None:
@@ -151,6 +170,40 @@ class CustomColumns(object):
             if data['display'].get('sort_alpha', False):
                 ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
         return ans
+
+    # convenience methods for tag editing
+    def get_custom_items_with_ids(self, label=None, num=None):
+        if label is not None:
+            data = self.custom_column_label_map[label]
+        if num is not None:
+            data = self.custom_column_num_map[num]
+        table,lt = self.custom_table_names(data['num'])
+        if not data['normalized']:
+            return []
+        ans = self.conn.get('SELECT id, value FROM %s'%table)
+        return ans
+
+    def rename_custom_item(self, id, new_name, label=None, num=None):
+        if id:
+            if label is not None:
+                data = self.custom_column_label_map[label]
+            if num is not None:
+                data = self.custom_column_num_map[num]
+            table,lt = self.custom_table_names(data['num'])
+            self.conn.execute('UPDATE %s SET value=? WHERE id=?'%table, (new_name, id))
+            self.conn.commit()
+
+    def delete_custom_item_using_id(self, id, label=None, num=None):
+        if id:
+            if label is not None:
+                data = self.custom_column_label_map[label]
+            if num is not None:
+                data = self.custom_column_num_map[num]
+            table,lt = self.custom_table_names(data['num'])
+            self.conn.execute('DELETE FROM %s WHERE value=?'%lt, (id,))
+            self.conn.execute('DELETE FROM %s WHERE id=?'%table, (id,))
+            self.conn.commit()
+    # end convenience methods
 
     def all_custom(self, label=None, num=None):
         if label is not None:
@@ -190,7 +243,7 @@ class CustomColumns(object):
                     (label, num))
             changed = True
         if is_editable is not None:
-            self.conn.execute('UPDATE custom_columns SET is_editable=? WHERE id=?',
+            self.conn.execute('UPDATE custom_columns SET editable=? WHERE id=?',
                     (bool(is_editable), num))
             self.custom_column_num_map[num]['is_editable'] = bool(is_editable)
             changed = True
@@ -243,7 +296,7 @@ class CustomColumns(object):
                             'SELECT id FROM %s WHERE value=?'%table, (ex,), all=False)
                     if ex != x:
                         self.conn.execute(
-                                'UPDATE %s SET value=? WHERE id=?', (x, xid))
+                                'UPDATE %s SET value=? WHERE id=?'%table, (x, xid))
                 else:
                     xid = self.conn.execute(
                             'INSERT INTO %s(value) VALUES(?)'%table, (x,)).lastrowid
@@ -394,6 +447,13 @@ class CustomColumns(object):
                     id,
                     value,
                     (SELECT COUNT(id) FROM {lt} WHERE value={table}.id) count
+                FROM {table};
+
+                CREATE VIEW tag_browser_filtered_{table} AS SELECT
+                    id,
+                    value,
+                    (SELECT COUNT({lt}.id) FROM {lt} WHERE value={table}.id AND
+                    books_list_filter(book)) count
                 FROM {table};
 
                 '''.format(lt=lt, table=table),

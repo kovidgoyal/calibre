@@ -1,6 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, re, time, textwrap
+
+import os, re, time, textwrap, copy, sys
 
 from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
                         QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit, \
@@ -12,14 +13,14 @@ from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
 
 from calibre.constants import iswindows, isosx
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
-from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
+from calibre.gui2.dialogs.config.create_custom_column import CreateCustomColumn
+from calibre.gui2 import choose_dir, error_dialog, config, gprefs, \
                          ALL_COLUMNS, NONE, info_dialog, choose_files, \
-                         warning_dialog, ResizableDialog
+                         warning_dialog, ResizableDialog, question_dialog
 from calibre.utils.config import prefs
-from calibre.gui2.library import BooksModel
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
-from calibre.library import server_config
+from calibre.library.server import server_config
 from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
                                  disable_plugin, customize_plugin, \
                                  plugin_customization, add_plugin, \
@@ -90,7 +91,6 @@ class ConfigTabs(QTabWidget):
             widget.commit(save_defaults=True)
         return True
 
-
 class PluginModel(QAbstractItemModel):
 
     def __init__(self, *args):
@@ -109,6 +109,9 @@ class PluginModel(QAbstractItemModel):
             else:
                 self._data[plugin.type].append(plugin)
         self.categories = sorted(self._data.keys())
+
+        for plugins in self._data.values():
+            plugins.sort(cmp=lambda x, y: cmp(x.name.lower(), y.name.lower()))
 
     def index(self, row, column, parent):
         if not self.hasIndex(row, column, parent):
@@ -328,14 +331,17 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
     def category_current_changed(self, n, p):
         self.stackedWidget.setCurrentIndex(n.row())
 
-    def __init__(self, window, db, server=None):
-        ResizableDialog.__init__(self, window)
+    def __init__(self, parent, library_view, server=None):
+        ResizableDialog.__init__(self, parent)
         self.ICON_SIZES = {0:QSize(48, 48), 1:QSize(32,32), 2:QSize(24,24)}
         self._category_model = CategoryModel()
 
         self.category_view.currentChanged = self.category_current_changed
         self.category_view.setModel(self._category_model)
-        self.db = db
+        self.parent = parent
+        self.library_view = library_view
+        self.model = library_view.model()
+        self.db = self.model.db
         self.server = server
         path = prefs['library_path']
         self.location.setText(path if path else '')
@@ -359,18 +365,28 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.roman_numerals.setChecked(rn)
         self.new_version_notification.setChecked(config['new_version_notification'])
 
-        column_map = config['column_map']
-        for col in column_map + [i for i in ALL_COLUMNS if i not in column_map]:
-            try:
-                item = QListWidgetItem(BooksModel.headers[col], self.columns)
-            except KeyError:
-                continue
+        # Set up columns
+        colmap = list(self.model.column_map)
+        state = self.library_view.get_state()
+        hidden_cols = state['hidden_columns']
+        positions = state['column_positions']
+        colmap.sort(cmp=lambda x,y: cmp(positions[x], positions[y]))
+        self.custcols = copy.deepcopy(self.db.field_metadata.get_custom_field_metadata())
+        for col in colmap:
+            item = QListWidgetItem(self.model.headers[col], self.columns)
             item.setData(Qt.UserRole, QVariant(col))
-            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
-            item.setCheckState(Qt.Checked if col in column_map else Qt.Unchecked)
-
-        self.connect(self.column_up, SIGNAL('clicked()'), self.up_column)
-        self.connect(self.column_down, SIGNAL('clicked()'), self.down_column)
+            flags = Qt.ItemIsEnabled|Qt.ItemIsSelectable
+            if col != 'ondevice':
+                flags |= Qt.ItemIsUserCheckable
+            item.setFlags(flags)
+            if col != 'ondevice':
+                item.setCheckState(Qt.Unchecked if col in hidden_cols else
+                        Qt.Checked)
+        self.column_up.clicked.connect(self.up_column)
+        self.column_down.clicked.connect(self.down_column)
+        self.del_custcol_button.clicked.connect(self.del_custcol)
+        self.add_custcol_button.clicked.connect(self.add_custcol)
+        self.edit_custcol_button.clicked.connect(self.edit_custcol)
 
         icons = config['toolbar_icon_size']
         self.toolbar_button_size.setCurrentIndex(0 if icons == self.ICON_SIZES[0] else 1 if icons == self.ICON_SIZES[1] else 2)
@@ -400,7 +416,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         items.sort(cmp=lambda x, y: cmp(x[1], y[1]))
         for item in items:
             self.language.addItem(item[1], QVariant(item[0]))
-
 
         exts = set([])
         for ext in BOOK_EXTENSIONS:
@@ -465,6 +480,8 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.opt_enforce_cpu_limit.setChecked(config['enforce_cpu_limit'])
         self.device_detection_button.clicked.connect(self.debug_device_detection)
         self.port.editingFinished.connect(self.check_port_value)
+        self.show_splash_screen.setChecked(gprefs.get('show_splash_screen',
+            True))
 
     def check_port_value(self, *args):
         port = self.port.value()
@@ -635,6 +652,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             self.input_order.insertItem(idx+1, self.input_order.takeItem(idx))
             self.input_order.setCurrentRow(idx+1)
 
+    # Column settings {{{
     def up_column(self):
         idx = self.columns.currentRow()
         if idx > 0:
@@ -646,6 +664,77 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         if idx < self.columns.count()-1:
             self.columns.insertItem(idx+1, self.columns.takeItem(idx))
             self.columns.setCurrentRow(idx+1)
+
+    def del_custcol(self):
+        idx = self.columns.currentRow()
+        if idx < 0:
+            return error_dialog(self, '', _('You must select a column to delete it'),
+                    show=True)
+        col = unicode(self.columns.item(idx).data(Qt.UserRole).toString())
+        if col not in self.custcols:
+            return error_dialog(self, '',
+                    _('The selected column is not a custom column'), show=True)
+        if not question_dialog(self, _('Are you sure?'),
+            _('Do you really want to delete column %s and all its data?') %
+            self.custcols[col]['name'], show_copy_button=False):
+            return
+        self.columns.item(idx).setCheckState(False)
+        self.columns.takeItem(idx)
+        self.custcols[col]['*deleteme'] = True
+        return
+
+    def add_custcol(self):
+        CreateCustomColumn(self, False, self.model.orig_headers, ALL_COLUMNS)
+
+    def edit_custcol(self):
+        CreateCustomColumn(self, True, self.model.orig_headers, ALL_COLUMNS)
+
+    def apply_custom_column_changes(self):
+        config_cols = [unicode(self.columns.item(i).data(Qt.UserRole).toString())\
+                 for i in range(self.columns.count())]
+        if not config_cols:
+            config_cols = ['title']
+        removed_cols = set(self.model.column_map) - set(config_cols)
+        hidden_cols = set([unicode(self.columns.item(i).data(Qt.UserRole).toString())\
+                 for i in range(self.columns.count()) \
+                 if self.columns.item(i).checkState()==Qt.Unchecked])
+        hidden_cols = hidden_cols.union(removed_cols) # Hide removed cols
+        hidden_cols = list(hidden_cols.intersection(set(self.model.column_map)))
+        if 'ondevice' in hidden_cols:
+            hidden_cols.remove('ondevice')
+        def col_pos(x, y):
+            xidx = config_cols.index(x) if x in config_cols else sys.maxint
+            yidx = config_cols.index(y) if y in config_cols else sys.maxint
+            return cmp(xidx, yidx)
+        positions = {}
+        for i, col in enumerate((sorted(self.model.column_map, cmp=col_pos))):
+            positions[col] = i
+        state = {'hidden_columns': hidden_cols, 'column_positions':positions}
+        self.library_view.apply_state(state)
+        self.library_view.save_state()
+
+        must_restart = False
+        for c in self.custcols:
+            if self.custcols[c]['colnum'] is None:
+                self.db.create_custom_column(
+                                label=self.custcols[c]['label'],
+                                name=self.custcols[c]['name'],
+                                datatype=self.custcols[c]['datatype'],
+                                is_multiple=self.custcols[c]['is_multiple'],
+                                display = self.custcols[c]['display'])
+                must_restart = True
+            elif '*deleteme' in self.custcols[c]:
+                self.db.delete_custom_column(label=self.custcols[c]['label'])
+                must_restart = True
+            elif '*edited' in self.custcols[c]:
+                cc = self.custcols[c]
+                self.db.set_custom_column_metadata(cc['colnum'], name=cc['name'],
+                                                   label=cc['label'],
+                                                   display = self.custcols[c]['display'])
+                if '*must_restart' in self.custcols[c]:
+                    must_restart = True
+        return must_restart
+    # }}}
 
     def view_server_logs(self):
         from calibre.library.server import log_access_file, log_error_file
@@ -683,7 +772,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
 
     def start_server(self):
         self.set_server_options()
-        from calibre.library.server import start_threaded_server
+        from calibre.library.server.main import start_threaded_server
         self.server = start_threaded_server(self.db, server_config().parse())
         while not self.server.is_running and self.server.exception is None:
             time.sleep(1)
@@ -696,7 +785,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.stop.setEnabled(True)
 
     def stop_server(self):
-        from calibre.library.server import stop_threaded_server
+        from calibre.library.server.main import stop_threaded_server
         stop_threaded_server(self.server)
         self.server = None
         self.start.setEnabled(True)
@@ -716,7 +805,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         if dir:
             self.location.setText(dir)
 
-
     def accept(self):
         mcs = unicode(self.max_cover_size.text()).strip()
         if not re.match(r'\d+x\d+', mcs):
@@ -734,17 +822,15 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             wl += 1
         config['worker_limit'] = wl
 
-
         config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
         prefs['network_timeout'] = int(self.timeout.value())
-        path = qstring_to_unicode(self.location.text())
+        path = unicode(self.location.text())
         input_cols = [unicode(self.input_order.item(i).data(Qt.UserRole).toString()) for i in range(self.input_order.count())]
         prefs['input_format_order'] = input_cols
-        cols = [unicode(self.columns.item(i).data(Qt.UserRole).toString()) for i in range(self.columns.count()) if self.columns.item(i).checkState()==Qt.Checked]
-        if not cols:
-            cols = ['title']
-        config['column_map'] = cols
+
+        must_restart = self.apply_custom_column_changes()
+
         config['toolbar_icon_size'] = self.ICON_SIZES[self.toolbar_button_size.currentIndex()]
         config['show_text_in_toolbar'] = bool(self.show_toolbar_text.isChecked())
         config['separate_cover_flow'] = bool(self.separate_cover_flow.isChecked())
@@ -768,6 +854,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['get_social_metadata'] = self.opt_get_social_metadata.isChecked()
         config['overwrite_author_title_metadata'] = self.opt_overwrite_author_title_metadata.isChecked()
         config['enforce_cpu_limit'] = bool(self.opt_enforce_cpu_limit.isChecked())
+        gprefs['show_splash_screen'] = bool(self.show_splash_screen.isChecked())
         fmts = []
         for i in range(self.viewer.count()):
             if self.viewer.item(i).checkState() == Qt.Checked:
@@ -785,6 +872,12 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             d.exec_()
         else:
             self.database_location = os.path.abspath(path)
+            if must_restart:
+                warning_dialog(self, _('Must restart'),
+                        _('The changes you made require that Calibre be '
+                            'restarted. Please restart as soon as practical.'),
+                        show=True, show_copy_button=False)
+                self.parent.must_restart_before_config = True
             QDialog.accept(self)
 
 class VacThread(QThread):

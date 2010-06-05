@@ -181,6 +181,8 @@ class DBAdder(Thread):
             mi.title = os.path.splitext(name)[0]
         mi.title = mi.title if isinstance(mi.title, unicode) else \
                    mi.title.decode(preferred_encoding, 'replace')
+        if mi.application_id == '__calibre_dummy__':
+            mi.application_id = None
         if self.db is not None:
             if cover:
                 cover = open(cover, 'rb').read()
@@ -219,6 +221,8 @@ class DBAdder(Thread):
 
 
 class Adder(QObject):
+
+    ADD_TIMEOUT = 600 # seconds
 
     def __init__(self, parent, db, callback, spare_server=None):
         QObject.__init__(self, parent)
@@ -326,7 +330,7 @@ class Adder(QObject):
         except Empty:
             pass
 
-        if (time.time() - self.last_added_at) > 300:
+        if (time.time() - self.last_added_at) > self.ADD_TIMEOUT:
             self.timer.stop()
             self.pd.hide()
             self.db_adder.end = True

@@ -331,8 +331,8 @@
             </layout>
            </widget>
            <widget class="QWidget" name="page">
-            <layout class="QVBoxLayout" name="verticalLayout_4">
-             <item>
+            <layout class="QGridLayout" name="gridLayout_8">
+             <item row="0" column="0">
               <widget class="QCheckBox" name="roman_numerals">
                <property name="text">
                 <string>Use &amp;Roman numerals for series number</string>
@@ -342,28 +342,35 @@
                </property>
               </widget>
              </item>
-             <item>
+             <item row="1" column="0">
               <widget class="QCheckBox" name="systray_icon">
                <property name="text">
                 <string>Enable system &amp;tray icon (needs restart)</string>
                </property>
               </widget>
              </item>
-             <item>
+             <item row="1" column="1">
               <widget class="QCheckBox" name="systray_notifications">
                <property name="text">
                 <string>Show &amp;notifications in system tray</string>
                </property>
               </widget>
              </item>
-             <item>
+             <item row="2" column="0" colspan="2">
+              <widget class="QCheckBox" name="show_splash_screen">
+               <property name="text">
+                <string>Show &amp;splash screen at startup</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0" colspan="2">
               <widget class="QCheckBox" name="separate_cover_flow">
                <property name="text">
                 <string>Show cover &amp;browser in a separate window (needs restart)</string>
                </property>
               </widget>
              </item>
-             <item>
+             <item row="4" column="0">
               <widget class="QCheckBox" name="search_as_you_type">
                <property name="text">
                 <string>Search as you type</string>
@@ -373,21 +380,21 @@
                </property>
               </widget>
              </item>
-             <item>
+             <item row="5" column="0" colspan="2">
               <widget class="QCheckBox" name="sync_news">
                <property name="text">
                 <string>Automatically send downloaded &amp;news to ebook reader</string>
                </property>
               </widget>
              </item>
-             <item>
+             <item row="6" column="0" colspan="2">
               <widget class="QCheckBox" name="delete_news">
                <property name="text">
                 <string>&amp;Delete news from library when it is automatically sent to reader</string>
                </property>
               </widget>
              </item>
-             <item>
+             <item row="7" column="0" colspan="2">
               <layout class="QHBoxLayout" name="horizontalLayout">
                <item>
                 <widget class="QLabel" name="label_6">
@@ -404,7 +411,7 @@
                </item>
               </layout>
              </item>
-             <item>
+             <item row="8" column="0" colspan="2">
               <widget class="QGroupBox" name="groupBox_2">
                <property name="title">
                 <string>Toolbar</string>
@@ -452,7 +459,7 @@
                </layout>
               </widget>
              </item>
-             <item>
+             <item row="9" column="0" colspan="2">
               <layout class="QHBoxLayout" name="horizontalLayout_7">
                <item>
                 <widget class="QGroupBox" name="groupBox">
@@ -482,6 +489,87 @@
                         <property name="icon">
                          <iconset resource="../../../../../resources/images.qrc">
                           <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="verticalSpacer_2">
+                        <property name="orientation">
+                         <enum>Qt::Vertical</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>20</width>
+                          <height>40</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QToolButton" name="del_custcol_button">
+                        <property name="toolTip">
+                         <string>Remove a user-defined column</string>
+                        </property>
+                        <property name="text">
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../../../../../resources/images.qrc">
+                          <normaloff>:/images/minus.svg</normaloff>:/images/minus.svg</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="verticalSpacer_2">
+                        <property name="orientation">
+                         <enum>Qt::Vertical</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>20</width>
+                          <height>40</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QToolButton" name="add_custcol_button">
+                        <property name="toolTip">
+                         <string>Add a user-defined column</string>
+                        </property>
+                        <property name="text">
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../../../../../resources/images.qrc">
+                          <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="verticalSpacer_2">
+                        <property name="orientation">
+                         <enum>Qt::Vertical</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>20</width>
+                          <height>40</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QToolButton" name="edit_custcol_button">
+                        <property name="toolTip">
+                         <string>Edit settings of a user-defined column</string>
+                        </property>
+                        <property name="text">
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../../../../../resources/images.qrc">
+                          <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
                         </property>
                        </widget>
                       </item>

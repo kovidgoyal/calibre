@@ -30,6 +30,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.utils.search_query_parser import saved_searches
+from calibre.devices.errors import UserFeedback
 from calibre.gui2 import warning_dialog, choose_files, error_dialog, \
                            question_dialog,\
                            pixmap_to_data, choose_dir, \
@@ -45,7 +46,6 @@ from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.main_ui import Ui_MainWindow
 from calibre.gui2.device import DeviceManager, DeviceMenu, DeviceGUI, Emailer
-from calibre.gui2.status import StatusBar
 from calibre.gui2.jobs import JobManager, JobsDialog
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
@@ -60,6 +60,9 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.caches import CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.dialogs.tag_categories import TagCategories
+from calibre.gui2.dialogs.tag_list_editor import TagListEditor
+from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 
 class SaveMenu(QMenu):
 
@@ -125,11 +128,19 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.default_thumbnail = (pixmap.width(), pixmap.height(),
                 pixmap_to_data(pixmap))
 
-    def __init__(self, library_path, db, listener, opts, actions, parent=None):
+        self.last_time = datetime.datetime.now()
+
+    def __init__(self, opts, parent=None):
+        MainWindow.__init__(self, opts, parent)
+        self.opts = opts
+
+    def initialize(self, library_path, db, listener, actions):
+        opts = self.opts
+        self.last_time = datetime.datetime.now()
         self.preferences_action, self.quit_action = actions
         self.library_path = library_path
         self.spare_servers = []
-        MainWindow.__init__(self, opts, parent)
+        self.must_restart_before_config = False
         # Initialize fontconfig in a separate thread as this can be a lengthy
         # process if run for the first time on this machine
         from calibre.utils.fonts import fontconfig
@@ -144,6 +155,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.setupUi(self)
         self.setWindowTitle(__appname__)
 
+        self.restriction_count_of_books_in_view = 0
+        self.restriction_count_of_books_in_library = 0
+        self.restriction_in_effect = False
         self.search.initialize('main_search_history', colorize=True,
                 help_text=_('Search (For Advanced Search click the button to the left)'))
         self.connect(self.clear_button, SIGNAL('clicked()'), self.search_clear)
@@ -177,7 +191,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
         self.tb_wrapper = textwrap.TextWrapper(width=40)
-        self.device_connected = False
+        self.device_connected = None
         self.viewers = collections.deque()
         self.content_server = None
         self.system_tray_icon = SystemTrayIcon(QIcon(I('library.png')), self)
@@ -227,7 +241,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         ####################### Setup device detection ########################
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
-                self.job_manager)
+                self.job_manager, Dispatcher(self.status_bar.showMessage))
         self.device_manager.start()
 
 
@@ -254,20 +268,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.device_info = ' '
         if not opts.no_update_check:
             self.update_checker = CheckForUpdates(self)
-            QObject.connect(self.update_checker,
-                    SIGNAL('update_found(PyQt_PyObject)'), self.update_found)
-            self.update_checker.start(2000)
+            self.update_checker.update_found.connect(self.update_found,
+                    type=Qt.QueuedConnection)
+            self.update_checker.start()
         ####################### Status Bar #####################
-        self.status_bar = StatusBar(self.jobs_dialog, self.system_tray_icon)
-        self.setStatusBar(self.status_bar)
-        QObject.connect(self.job_manager, SIGNAL('job_added(int)'),
-                self.status_bar.job_added, Qt.QueuedConnection)
-        QObject.connect(self.job_manager, SIGNAL('job_done(int)'),
-                self.status_bar.job_done, Qt.QueuedConnection)
-        QObject.connect(self.status_bar, SIGNAL('show_book_info()'),
-                self.show_book_info)
-        QObject.connect(self.status_bar, SIGNAL('files_dropped(PyQt_PyObject,PyQt_PyObject)'),
-                self.files_dropped_on_book)
+        self.status_bar.initialize(self.system_tray_icon)
+        self.status_bar.show_book_info.connect(self.show_book_info)
+        self.status_bar.files_dropped.connect(self.files_dropped_on_book)
+
         ####################### Setup Toolbar #####################
         md = QMenu()
         md.addAction(_('Edit metadata individually'))
@@ -348,6 +356,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.save_menu.addAction(_('Save to disk in a single directory'))
         self.save_menu.addAction(_('Save only %s format to disk')%
                 prefs['output_format'].upper())
+        self.save_menu.addAction(
+                _('Save only %s format to disk in a single directory')%
+                prefs['output_format'].upper())
+
         self.save_sub_menu = SaveMenu(self)
         self.save_menu.addMenu(self.save_sub_menu)
         self.connect(self.save_sub_menu, SIGNAL('save_fmt(PyQt_PyObject)'),
@@ -376,6 +388,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.save_to_single_dir)
         QObject.connect(self.save_menu.actions()[2], SIGNAL("triggered(bool)"),
                 self.save_single_format_to_disk)
+        QObject.connect(self.save_menu.actions()[3], SIGNAL("triggered(bool)"),
+                self.save_single_fmt_to_single_dir)
         QObject.connect(self.action_view, SIGNAL("triggered(bool)"),
                 self.view_book)
         QObject.connect(self.view_menu.actions()[0],
@@ -458,6 +472,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'),
                 self.do_advanced_search)
 
+        for ch in self.tool_bar.children():
+            if isinstance(ch, QToolButton):
+                ch.setCursor(Qt.PointingHandCursor)
+
         ####################### Library view ########################
         similar_menu = QMenu(_('Similar books...'))
         similar_menu.addAction(self.action_books_by_same_author)
@@ -497,14 +515,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.card_b_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None, self.action_del)
 
-        QObject.connect(self.library_view,
-                SIGNAL('files_dropped(PyQt_PyObject)'),
-                        self.files_dropped, Qt.QueuedConnection)
+        self.library_view.files_dropped.connect(self.files_dropped, type=Qt.QueuedConnection)
         for func, args in [
                              ('connect_to_search_box', (self.search,
                                  self.search_done)),
                              ('connect_to_book_display',
                                  (self.status_bar.book_info.show_data,)),
+                             ('connect_to_restriction_set',
+                                 (self.tags_view,)),
                              ]:
             for view in (self.library_view, self.memory_view, self.card_a_view, self.card_b_view):
                 getattr(view, func)(*args)
@@ -517,37 +535,34 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
         self.stack.setCurrentIndex(0)
+        self.book_on_device(None, reset=True)
+        db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
+        self.library_view.model().set_book_on_device_func(self.book_on_device)
         prefs['library_path'] = self.library_path
-        self.library_view.sortByColumn(*dynamic.get('sort_column',
-            ('timestamp', Qt.DescendingOrder)))
-        if not self.library_view.restore_column_widths():
-            self.library_view.resizeColumnsToContents()
         self.search.setFocus(Qt.OtherFocusReason)
         self.cover_cache = CoverCache(self.library_path)
         self.cover_cache.start()
         self.library_view.model().cover_cache = self.cover_cache
-        self.tags_view.setVisible(False)
-        self.tag_match.setVisible(False)
-        self.popularity.setVisible(False)
-        self.tags_view.set_database(db, self.tag_match, self.popularity)
-        self.connect(self.tags_view,
-                SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
-                     self.search.search_from_tags)
-        self.connect(self.tags_view,
-                SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
-                     self.saved_search.clear_to_help)
-        self.connect(self.status_bar.tag_view_button,
-                SIGNAL('toggled(bool)'), self.toggle_tags_view)
-        self.connect(self.search,
-                SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'),
-                     self.tags_view.model().reinit)
-        self.connect(self.library_view.model(),
-                SIGNAL('count_changed(int)'), self.location_view.count_changed)
-        self.connect(self.library_view.model(), SIGNAL('count_changed(int)'),
-                     self.tags_view.recount, Qt.QueuedConnection)
-        self.connect(self.search, SIGNAL('cleared()'), self.tags_view_clear)
-        self.connect(self.saved_search, SIGNAL('changed()'), self.tags_view.recount, Qt.QueuedConnection)
+        self.connect(self.edit_categories, SIGNAL('clicked()'), self.do_user_categories_edit)
+        self.tags_view.set_database(db, self.tag_match, self.popularity, self.search_restriction)
+        self.tags_view.tags_marked.connect(self.search.search_from_tags)
+        for x in (self.saved_search.clear_to_help, self.mark_restriction_set):
+            self.tags_view.restriction_set.connect(x)
+        self.tags_view.tags_marked.connect(self.saved_search.clear_to_help)
+        self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
+        self.tags_view.user_category_edit.connect(self.do_user_categories_edit)
+        self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
+        self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
+        self.tags_view.search_item_renamed.connect(self.saved_search.clear_to_help)
+        self.search.search.connect(self.tags_view.model().reinit)
+        for x in (self.location_view.count_changed, self.tags_view.recount,
+                self.restriction_count_changed):
+            self.library_view.model().count_changed_signal.connect(x)
+
+        self.connect(self.search, SIGNAL('cleared()'), self.search_box_cleared)
+        self.connect(self.saved_search, SIGNAL('changed()'),
+                     self.tags_view.saved_searches_changed, Qt.QueuedConnection)
         if not gprefs.get('quick_start_guide_added', False):
             from calibre.ebooks.metadata import MetaInformation
             mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
@@ -562,6 +577,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.db_images.reset()
 
         self.library_view.model().count_changed()
+        self.location_view.model().database_changed(self.library_view.model().db)
+        self.library_view.model().database_changed.connect(self.location_view.model().database_changed,
+                type=Qt.QueuedConnection)
+
+        ########################### Tags Browser ##############################
+        self.search_restriction.setSizeAdjustPolicy(self.search_restriction.AdjustToMinimumContentsLengthWithIcon)
+        self.search_restriction.setMinimumContentsLength(10)
+
 
         ########################### Cover Flow ################################
         self.cover_flow = None
@@ -581,26 +604,31 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if not config['separate_cover_flow']:
                 self.library.layout().addWidget(self.cover_flow)
             self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
-            self.connect(self.status_bar.cover_flow_button,
-                         SIGNAL('toggled(bool)'), self.toggle_cover_flow)
-            self.connect(self.cover_flow, SIGNAL('stop()'),
-                         self.status_bar.cover_flow_button.toggle)
             self.library_view.selectionModel().currentRowChanged.connect(
                     self.sync_cf_to_listview)
             self.db_images = DatabaseImages(self.library_view.model())
             self.cover_flow.setImages(self.db_images)
-        else:
-            self.status_bar.cover_flow_button.disable(pictureflowerror)
 
         self._calculated_available_height = min(max_available_height()-15,
                 self.height())
         self.resize(self.width(), self._calculated_available_height)
         self.search.setMaximumWidth(self.width()-150)
 
+        ####################### Side Bar ###############################
+
+        self.sidebar.initialize(self.jobs_dialog, self.cover_flow,
+                self.toggle_cover_flow, pictureflowerror,
+                self.vertical_splitter, self.horizontal_splitter)
+        QObject.connect(self.job_manager, SIGNAL('job_added(int)'),
+                self.sidebar.job_added, Qt.QueuedConnection)
+        QObject.connect(self.job_manager, SIGNAL('job_done(int)'),
+                self.sidebar.job_done, Qt.QueuedConnection)
+
+
 
         if config['autolaunch_server']:
-            from calibre.library.server import start_threaded_server
-            from calibre.library import server_config
+            from calibre.library.server.main import start_threaded_server
+            from calibre.library.server import server_config
             self.content_server = start_threaded_server(
                     db, server_config().parse())
             self.test_server_timer = QTimer.singleShot(10000, self.test_server)
@@ -624,25 +652,52 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
 
-        if self.cover_flow is not None and dynamic.get('cover_flow_visible', False):
-            self.status_bar.cover_flow_button.toggle()
-
-        if dynamic.get('tag_view_visible', False):
-            self.status_bar.tag_view_button.toggle()
-
         self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
-        v = self.library_view
-        if v.model().rowCount(None) > 1:
-            v.resizeRowToContents(0)
-            height = v.rowHeight(0)
-            self.library_view.verticalHeader().setDefaultSectionSize(height)
-
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
 
+    def do_user_categories_edit(self, on_category=None):
+        d = TagCategories(self, self.library_view.model().db, on_category)
+        d.exec_()
+        if d.result() == d.Accepted:
+            self.tags_view.set_new_model()
+            self.tags_view.recount()
+
+    def do_tags_list_edit(self, tag, category):
+        d = TagListEditor(self, self.library_view.model().db, tag, category)
+        d.exec_()
+        if d.result() == d.Accepted:
+            # Clean up everything, as information could have changed for many books.
+            self.library_view.model().refresh()
+            self.tags_view.set_new_model()
+            self.tags_view.recount()
+            self.saved_search.clear_to_help()
+            self.search.clear_to_help()
+
+    def do_tag_item_renamed(self):
+        # Clean up library view and search
+        self.library_view.model().refresh()
+        self.saved_search.clear_to_help()
+        self.search.clear_to_help()
+
+    def do_saved_search_edit(self, search):
+        d = SavedSearchEditor(self, search)
+        d.exec_()
+        if d.result() == d.Accepted:
+            self.tags_view.saved_searches_changed(recount=True)
+            self.saved_search.clear_to_help()
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
         self.search.setMaximumWidth(self.width()-150)
+
+    def connect_to_folder(self):
+        dir = choose_dir(self, 'Select Device Folder',
+                _('Select folder to open as device'))
+        if dir is not None:
+            self.device_manager.connect_to_folder(dir)
+
+    def disconnect_from_folder(self):
+        self.device_manager.disconnect_folder()
 
     def _sync_action_triggered(self, *args):
         m = getattr(self, '_sync_menu', None)
@@ -656,6 +711,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 SIGNAL('sync(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                 self.dispatch_sync_event)
         self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
+        self._sync_menu.connect_to_folder.connect(self.connect_to_folder)
+        self._sync_menu.disconnect_from_folder.connect(self.disconnect_from_folder)
+        if self.device_connected:
+            self._sync_menu.connect_to_folder_action.setEnabled(False)
+            if self.device_connected == 'folder':
+                self._sync_menu.disconnect_from_folder_action.setEnabled(True)
+            else:
+                self._sync_menu.disconnect_from_folder_action.setEnabled(False)
+        else:
+            self._sync_menu.connect_to_folder_action.setEnabled(True)
+            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
 
     def add_spare_server(self, *args):
         self.spare_servers.append(Server(limit=int(config['worker_limit']/2.0)))
@@ -728,11 +794,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if search:
             self.search.set_search_string(join.join(search))
 
-
-
-    def uncheck_cover_button(self, *args):
-        self.status_bar.cover_flow_button.setChecked(False)
-
     def toggle_cover_flow(self, show):
         if config['separate_cover_flow']:
             if show:
@@ -748,8 +809,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.cover_flow.setFocus(Qt.OtherFocusReason)
                 self.library_view.scrollTo(self.library_view.currentIndex())
                 d.show()
-                self.connect(d, SIGNAL('finished(int)'),
-                    self.uncheck_cover_button)
+                d.finished.connect(self.sidebar.external_cover_flow_finished)
                 self.cf_dialog = d
                 self.cover_flow_sync_timer.start(500)
             else:
@@ -771,8 +831,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         self.library_view.currentIndex())
                 self.cover_flow.setVisible(True)
                 self.cover_flow.setFocus(Qt.OtherFocusReason)
-                #self.status_bar.book_info.book_data.setMaximumHeight(100)
-                #self.status_bar.setMaximumHeight(120)
                 self.library_view.scrollTo(self.library_view.currentIndex())
                 self.cover_flow_sync_timer.start(500)
             else:
@@ -783,33 +841,61 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     sm = self.library_view.selectionModel()
                     sm.select(idx, sm.ClearAndSelect|sm.Rows)
                     self.library_view.setCurrentIndex(idx)
-                #self.status_bar.book_info.book_data.setMaximumHeight(1000)
-            #self.resize(self.width(), self._calculated_available_height)
-            #self.setMaximumHeight(available_height())
 
-    def toggle_tags_view(self, show):
-        if show:
-            self.tags_view.setVisible(True)
-            self.tag_match.setVisible(True)
-            self.popularity.setVisible(True)
-            self.tags_view.setFocus(Qt.OtherFocusReason)
-        else:
-            self.tags_view.setVisible(False)
-            self.tag_match.setVisible(False)
-            self.popularity.setVisible(False)
 
-    def tags_view_clear(self):
-        self.search_count.setText(_("(all books)"))
+
+    '''
+    Handling of the count of books in a restricted view requires that
+    we capture the count after the initial restriction search. To so this,
+    we require that the restriction_set signal be issued before the search signal,
+    so that when the search_done happens and the count is displayed,
+    we can grab the count. This works because the search box is cleared
+    when a restriction is set, so that first search will find all books.
+
+    Adding and deleting books creates another complexity. When added, they are
+    displayed regardless of whether they match the restriction. However, if they
+    do not, they are removed at the next search. The counts must take this
+    behavior into effect.
+    '''
+
+    def restriction_count_changed(self, c):
+        self.restriction_count_of_books_in_view += c - self.restriction_count_of_books_in_library
+        self.restriction_count_of_books_in_library = c
+        if self.restriction_in_effect:
+            self.set_number_of_books_shown(compute_count=False)
+
+    def mark_restriction_set(self, r):
+        self.restriction_in_effect = False if r is None or not r else True
+
+    def set_number_of_books_shown(self, compute_count):
+        if self.current_view() == self.library_view and self.restriction_in_effect:
+            if compute_count:
+                self.restriction_count_of_books_in_view = self.current_view().row_count()
+            t = _("({0} of {1})").format(self.current_view().row_count(),
+                                         self.restriction_count_of_books_in_view)
+            self.search_count.setStyleSheet('QLabel { border-radius: 8px; background-color: yellow; }')
+        else: # No restriction or not library view
+            if not self.search.in_a_search():
+                t = _("(all books)")
+            else:
+                t = _("({0} of all)").format(self.current_view().row_count())
+            self.search_count.setStyleSheet(
+                    'QLabel { background-color: transparent; }')
+        self.search_count.setText(t)
+
+    def search_box_cleared(self):
+        self.set_number_of_books_shown(compute_count=True)
         self.tags_view.clear()
+        self.saved_search.clear_to_help()
 
     def search_clear(self):
-        self.search_count.setText(_("(all books)"))
+        self.set_number_of_books_shown(compute_count=True)
         self.search.clear()
 
     def search_done(self, view, ok):
         if view is self.current_view():
-            self.search_count.setText(_("(%d found)") % self.current_view().row_count())
             self.search.search_done(ok)
+            self.set_number_of_books_shown(compute_count=False)
 
     def sync_cf_to_listview(self, current, previous):
         if self.cover_flow_sync_flag and self.cover_flow.isVisible() and \
@@ -881,7 +967,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def save_device_view_settings(self):
         model = self.location_view.model()
-        self.memory_view.write_settings()
+        return
+        #self.memory_view.write_settings()
         for x in range(model.rowCount()):
             if x > 1:
                 if model.location_for_row(x) == 'carda':
@@ -889,11 +976,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 elif model.location_for_row(x) == 'cardb':
                     self.card_b_view.write_settings()
 
-    def device_detected(self, connected):
+    def device_detected(self, connected, is_folder_device):
         '''
         Called when a device is connected to the computer.
         '''
         if connected:
+            self._sync_menu.connect_to_folder_action.setEnabled(False)
+            if is_folder_device:
+                self._sync_menu.disconnect_from_folder_action.setEnabled(True)
             self.device_manager.get_device_information(\
                     Dispatcher(self.info_read))
             self.set_default_thumbnail(\
@@ -901,15 +991,18 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.status_bar.showMessage(_('Device: ')+\
                 self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
-            self.device_connected = True
+            self.device_connected = 'device' if not is_folder_device else 'folder'
             self._sync_menu.enable_device_actions(True,
                     self.device_manager.device.card_prefix(),
                     self.device_manager.device)
             self.location_view.model().device_connected(self.device_manager.device)
             self.eject_action.setEnabled(True)
+            self.refresh_ondevice_info (device_connected = True, reset_only = True)
         else:
+            self._sync_menu.connect_to_folder_action.setEnabled(True)
+            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
             self.save_device_view_settings()
-            self.device_connected = False
+            self.device_connected = None
             self._sync_menu.enable_device_actions(False)
             self.location_view.model().update_devices()
             self.vanity.setText(self.vanity_template%\
@@ -919,6 +1012,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.status_bar.reset_info()
                 self.location_view.setCurrentIndex(self.location_view.model().index(0))
             self.eject_action.setEnabled(False)
+            self.refresh_ondevice_info (device_connected = False)
 
     def info_read(self, job):
         '''
@@ -951,6 +1045,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             else:
                 self.device_job_exception(job)
             return
+        self.set_books_in_library(job.result, reset=True)
         mainlist, cardalist, cardblist = job.result
         self.memory_view.set_database(mainlist)
         self.memory_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
@@ -958,14 +1053,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.card_a_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         self.card_b_view.set_database(cardblist)
         self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
-        for view in (self.memory_view, self.card_a_view, self.card_b_view):
-            view.sortByColumn(3, Qt.DescendingOrder)
-            view.read_settings()
-            if not view.restore_column_widths():
-                view.resizeColumnsToContents()
-            view.resize_on_select = not view.isVisible()
         self.sync_news()
         self.sync_catalogs()
+        self.refresh_ondevice_info(device_connected = True)
+
+    ############################################################################
+    ### Force the library view to refresh, taking into consideration books information
+    def refresh_ondevice_info(self, device_connected, reset_only = False):
+        self.book_on_device(None, reset=True)
+        if reset_only:
+            return
+        self.library_view.set_device_connected(device_connected)
     ############################################################################
 
     ######################### Fetch annotations ################################
@@ -1447,6 +1545,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     sm = view.selectionModel()
                     sm.select(ci, sm.Select)
         else:
+            if not confirm('<p>'+_('The selected books will be '
+                                   '<b>permanently deleted</b> '
+                                   'from your device. Are you sure?')
+                                +'</p>', 'library_delete_books', self):
+                return
             if self.stack.currentIndex() == 1:
                 view = self.memory_view
             elif self.stack.currentIndex() == 2:
@@ -1726,6 +1829,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def save_to_single_dir(self, checked):
         self.save_to_disk(checked, True)
+
+    def save_single_fmt_to_single_dir(self, *args):
+        self.save_to_disk(False, single_dir=True,
+                single_format=prefs['output_format'])
 
     def save_to_disk(self, checked, single_dir=False, single_format=None):
         rows = self.current_view().selectionModel().selectedRows()
@@ -2069,14 +2176,25 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             format = d.format()
             self.view_format(row, format)
 
+    def _view_check(self, num, max_=3):
+        if num <= max_:
+            return True
+        return question_dialog(self, _('Multiple Books Selected'),
+                _('You are attempting to open %d books. Opening too many '
+                'books at once can be slow and have a negative effect on the '
+                'responsiveness of your computer. Once started the process '
+                'cannot be stopped until complete. Do you wish to continue?'
+                ) % num)
+
     def view_folder(self, *args):
         rows = self.current_view().selectionModel().selectedRows()
-        if self.current_view() is self.library_view:
-            if not rows or len(rows) == 0:
-                d = error_dialog(self, _('Cannot open folder'),
-                        _('No book selected'))
-                d.exec_()
-                return
+        if not rows or len(rows) == 0:
+            d = error_dialog(self, _('Cannot open folder'),
+                    _('No book selected'))
+            d.exec_()
+            return
+        if not self._view_check(len(rows)):
+            return
         for row in rows:
             path = self.library_view.model().db.abspath(row.row())
             QDesktopServices.openUrl(QUrl.fromLocalFile(path))
@@ -2094,14 +2212,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self._launch_viewer()
             return
 
-        if len(rows) >= 3:
-            if not question_dialog(self, _('Multiple Books Selected'),
-                _('You are attempting to open %d books. Opening too many '
-                'books at once can be slow and have a negative effect on the '
-                'responsiveness of your computer. Once started the process '
-                'cannot be stopped until complete. Do you wish to continue?'
-                )% len(rows)):
-                    return
+        if not self._view_check(len(rows)):
+            return
 
         if self.current_view() is self.library_view:
             for row in rows:
@@ -2157,8 +2269,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     _('Cannot configure while there are running jobs.'))
             d.exec_()
             return
-        d = ConfigDialog(self, self.library_view.model().db,
+        if self.must_restart_before_config:
+            d = error_dialog(self, _('Cannot configure'),
+                    _('Cannot configure before calibre is restarted.'))
+            d.exec_()
+            return
+        d = ConfigDialog(self, self.library_view,
                 server=self.content_server)
+
         d.exec_()
         self.content_server = d.server
         if d.result() == d.Accepted:
@@ -2171,24 +2289,28 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.save_menu.actions()[2].setText(
                 _('Save only %s format to disk')%
                 prefs['output_format'].upper())
-            self.library_view.model().read_config()
+            self.save_menu.actions()[3].setText(
+                _('Save only %s format to disk in a single directory')%
+                prefs['output_format'].upper())
+            self.tags_view.set_new_model() # in case columns changed
+            self.tags_view.recount()
             self.create_device_menu()
-
 
             if not patheq(self.library_path, d.database_location):
                 newloc = d.database_location
                 move_library(self.library_path, newloc, self,
                         self.library_moved)
 
-
     def library_moved(self, newloc):
         if newloc is None: return
         db = LibraryDatabase2(newloc)
+        self.book_on_device(None, reset=True)
+        db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
+        self.library_view.model().set_book_on_device_func(self.book_on_device)
         self.status_bar.clearMessage()
         self.search.clear_to_help()
         self.status_bar.reset_info()
-        self.library_view.sortByColumn(3, Qt.DescendingOrder)
         self.library_view.model().count_changed()
 
     ############################################################################
@@ -2214,15 +2336,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         page = 0 if location == 'library' else 1 if location == 'main' else 2 if location == 'carda' else 3
         self.stack.setCurrentIndex(page)
-        view = self.memory_view if page == 1 else \
-                self.card_a_view if page == 2 else \
-                self.card_b_view if page == 3 else None
-        if view:
-            if view.resize_on_select:
-                if not view.restore_column_widths():
-                    view.resizeColumnsToContents()
-                view.resize_on_select = False
         self.status_bar.reset_info()
+        self.sidebar.location_changed(location)
         if location == 'library':
             self.action_edit.setEnabled(True)
             self.action_merge.setEnabled(True)
@@ -2230,8 +2345,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.view_menu.actions()[1].setEnabled(True)
             self.action_open_containing_folder.setEnabled(True)
             self.action_sync.setEnabled(True)
-            self.status_bar.tag_view_button.setEnabled(True)
-            self.status_bar.cover_flow_button.setEnabled(True)
+            self.search_restriction.setEnabled(True)
             for action in list(self.delete_menu.actions())[1:]:
                 action.setEnabled(True)
         else:
@@ -2241,16 +2355,24 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.view_menu.actions()[1].setEnabled(False)
             self.action_open_containing_folder.setEnabled(False)
             self.action_sync.setEnabled(False)
-            self.status_bar.tag_view_button.setEnabled(False)
-            self.status_bar.cover_flow_button.setEnabled(False)
+            self.search_restriction.setEnabled(False)
             for action in list(self.delete_menu.actions())[1:]:
                 action.setEnabled(False)
+        self.set_number_of_books_shown(compute_count=False)
 
 
     def device_job_exception(self, job):
         '''
         Handle exceptions in threaded device jobs.
         '''
+        if isinstance(getattr(job, 'exception', None), UserFeedback):
+            ex = job.exception
+            func = {UserFeedback.ERROR:error_dialog,
+                    UserFeedback.WARNING:warning_dialog,
+                    UserFeedback.INFO:info_dialog}[ex.level]
+            return func(self, _('Failed'), ex.msg, det_msg=ex.details if
+                    ex.details else '', show=True)
+
         try:
             if 'Could not read 32 bytes on the control bus.' in \
                     unicode(job.details):
@@ -2326,12 +2448,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def write_settings(self):
         config.set('main_window_geometry', self.saveGeometry())
-        dynamic.set('sort_column', self.library_view.model().sorted_on)
-        dynamic.set('tag_view_visible', self.tags_view.isVisible())
-        dynamic.set('cover_flow_visible', self.cover_flow.isVisible())
-        self.library_view.write_settings()
-        if self.device_connected:
-            self.save_device_view_settings()
+        dynamic.set('sort_history', self.library_view.model().sort_history)
+        self.sidebar.save_state()
+        for view in ('library_view', 'memory_view', 'card_a_view',
+                'card_b_view'):
+            getattr(self, view).save_state()
 
     def restart(self):
         self.quit(restart=True)
@@ -2400,7 +2521,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if write_settings:
             self.write_settings()
         self.check_messages_timer.stop()
-        self.update_checker.stop()
+        self.update_checker.terminate()
         self.listener.close()
         self.job_manager.server.close()
         while self.spare_servers:

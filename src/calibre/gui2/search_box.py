@@ -6,10 +6,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QComboBox, SIGNAL, Qt, QLineEdit, QStringList, pyqtSlot
+from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, \
+    pyqtSignal, SIGNAL
 from PyQt4.QtGui import QCompleter
 
 from calibre.gui2 import config
+from calibre.gui2.dialogs.confirm_delete import confirm
 
 class SearchLineEdit(QLineEdit):
 
@@ -55,6 +57,8 @@ class SearchBox2(QComboBox):
     INTERVAL = 1500 #: Time to wait before emitting search signal
     MAX_COUNT = 25
 
+    search = pyqtSignal(object, object)
+
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
         self.normal_background = 'rgb(255, 255, 255, 0%)'
@@ -72,7 +76,8 @@ class SearchBox2(QComboBox):
         self.setInsertPolicy(self.NoInsert)
         self.setMaxCount(self.MAX_COUNT)
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
-        self.setMinimumContentsLength(50)
+        self.setMinimumContentsLength(25)
+        self._in_a_search = False
 
     def initialize(self, opt_name, colorize=False,
             help_text=_('Search')):
@@ -92,6 +97,7 @@ class SearchBox2(QComboBox):
         self.help_state = False
 
     def clear_to_help(self):
+        self._in_a_search = False
         self.setEditText(self.help_text)
         self.line_edit.home(False)
         self.help_state = True
@@ -105,11 +111,12 @@ class SearchBox2(QComboBox):
 
     def clear(self):
         self.clear_to_help()
-        self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), '', False)
+        self.search.emit('', False)
 
     def search_done(self, ok):
         if not unicode(self.currentText()).strip():
             return self.clear_to_help()
+        self._in_a_search = ok
         col = 'rgba(0,255,0,20%)' if ok else 'rgb(255,0,0,20%)'
         if not self.colorize:
             col = self.normal_background
@@ -128,13 +135,12 @@ class SearchBox2(QComboBox):
 
     def text_edited_slot(self, text):
         if self.as_you_type:
-            text = unicode(text)
-            self.prev_text = text
             self.timer = self.startTimer(self.__class__.INTERVAL)
 
     def timerEvent(self, event):
         self.killTimer(event.timerId())
         if event.timerId() == self.timer:
+            self.timer = None
             self.do_search()
 
     @property
@@ -151,7 +157,7 @@ class SearchBox2(QComboBox):
         self.help_state = False
         refinement = text.startswith(self.prev_search) and ':' not in text
         self.prev_search = text
-        self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), text, refinement)
+        self.search.emit(text, refinement)
 
         idx = self.findText(text, Qt.MatchFixedString)
         self.block_signals(True)
@@ -183,13 +189,18 @@ class SearchBox2(QComboBox):
     def set_search_string(self, txt):
         self.normalize_state()
         self.setEditText(txt)
-        self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), txt, False)
+        if self.timer is not None: # Turn off any timers that got started in setEditText
+            self.killTimer(self.timer)
+            self.timer = None
+        self.search.emit(txt, False)
         self.line_edit.end(False)
         self.initial_state = False
 
     def search_as_you_type(self, enabled):
         self.as_you_type = enabled
 
+    def in_a_search(self):
+        return self._in_a_search
 
 class SavedSearchBox(QComboBox):
 
@@ -233,7 +244,6 @@ class SavedSearchBox(QComboBox):
         self.clear_to_help()
 
     def normalize_state(self):
-        #print 'in normalize_state'
         self.setEditText('')
         self.line_edit.setStyleSheet(
             'QLineEdit { color: black; background-color: %s; }' %
@@ -241,7 +251,6 @@ class SavedSearchBox(QComboBox):
         self.help_state = False
 
     def clear_to_help(self):
-        #print 'in clear_to_help'
         self.setToolTip(self.tool_tip_text)
         self.initialize_saved_search_names()
         self.setEditText(self.help_text)
@@ -252,12 +261,10 @@ class SavedSearchBox(QComboBox):
                 self.normal_background)
 
     def focus_out(self, event):
-        #print 'in focus_out'
         if self.currentText() == '':
             self.clear_to_help()
 
     def key_pressed(self, event):
-        #print 'in key_pressed'
         if self.help_state:
             self.normalize_state()
 
@@ -266,7 +273,6 @@ class SavedSearchBox(QComboBox):
             self.normalize_state()
 
     def saved_search_selected (self, qname):
-        #print 'in saved_search_selected'
         qname = unicode(qname)
         if qname is None or not qname.strip():
             return
@@ -276,7 +282,6 @@ class SavedSearchBox(QComboBox):
         self.setToolTip(self.saved_searches.lookup(qname))
 
     def initialize_saved_search_names(self):
-        #print 'in initialize_saved_search_names'
         self.clear()
         qnames = self.saved_searches.names()
         self.addItems(qnames)
@@ -284,18 +289,23 @@ class SavedSearchBox(QComboBox):
 
     # SIGNALed from the main UI
     def delete_search_button_clicked(self):
-        #print 'in delete_search_button_clicked'
+        if not confirm('<p>'+_('The selected search will be '
+                       '<b>permanently deleted</b>. Are you sure?')
+                    +'</p>', 'saved_search_delete', self):
+            return
         idx = self.currentIndex
         if idx < 0:
             return
+        ss = self.saved_searches.lookup(unicode(self.currentText()))
+        if ss is None:
+            return
         self.saved_searches.delete(unicode(self.currentText()))
         self.clear_to_help()
-        self.search_box.set_search_string('')
+        self.search_box.clear_to_help()
         self.emit(SIGNAL('changed()'))
 
     # SIGNALed from the main UI
     def save_search_button_clicked(self):
-        #print 'in save_search_button_clicked'
         name = unicode(self.currentText())
         if self.help_state or not name.strip():
             name = unicode(self.search_box.text()).replace('"', '')
@@ -312,10 +322,7 @@ class SavedSearchBox(QComboBox):
 
     # SIGNALed from the main UI
     def copy_search_button_clicked (self):
-        #print 'in copy_search_button_clicked'
         idx = self.currentIndex();
         if idx < 0:
             return
         self.search_box.set_search_string(self.saved_searches.lookup(unicode(self.currentText())))
-
-
