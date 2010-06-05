@@ -127,10 +127,7 @@ class ContentServer(object):
             cherrypy.log('User agent: '+ua)
 
         if want_opds:
-            return self.stanza(search=kwargs.get('search', None), sortby=kwargs.get('sortby',None), authorid=kwargs.get('authorid',None),
-                           tagid=kwargs.get('tagid',None),
-                           seriesid=kwargs.get('seriesid',None),
-                           offset=kwargs.get('offset', 0))
+            return self.opds(version=0)
 
         if want_mobile:
             return self.mobile()
