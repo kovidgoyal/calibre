@@ -201,6 +201,11 @@ class CSSFlattener(object):
         tag = barename(node.tag)
         style = stylizer.style(node)
         cssdict = style.cssdict()
+        try:
+            font_size = style['font-size']
+        except:
+            font_size = self.sbase if self.sbase is not None else \
+                self.context.source.fbase
         if 'align' in node.attrib:
             cssdict['text-align'] = node.attrib['align']
             del node.attrib['align']
@@ -219,13 +224,16 @@ class CSSFlattener(object):
                             esize = 1
                         if esize > 7:
                             esize = 7
-                        cssdict['font-size'] = fnums[esize]
+                        font_size = fnums[esize]
                     else:
                         try:
-                            cssdict['font-size'] = fnums[force_int(size)]
+                            font_size = fnums[force_int(size)]
                         except:
-                            cssdict['font-size'] = fnums[3]
+                            font_size = fnums[3]
+                    cssdict['font-size'] = '%.1fpt'%font_size
                 del node.attrib['size']
+            if 'face' in node.attrib:
+                del node.attrib['face']
         if 'color' in node.attrib:
             cssdict['color'] = node.attrib['color']
             del node.attrib['color']
@@ -244,7 +252,7 @@ class CSSFlattener(object):
                 cssdict['font-size'] = '%0.5fem'%(fsize/psize)
                 psize = fsize
             elif 'font-size' in cssdict or tag == 'body':
-                fsize = self.fmap[style['font-size']]
+                fsize = self.fmap[font_size]
                 cssdict['font-size'] = "%0.5fem" % (fsize / psize)
                 psize = fsize
         if cssdict:

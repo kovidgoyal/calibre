@@ -135,29 +135,18 @@ turned into a collection on the reader. Note that the PRS-500 does not support c
 How do I use |app| with my iPad/iPhone/iTouch?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can access your calibre library on a iPad/iPhone/iTouch over the air using the calibre content server. 
+The easiest way to browse your |app| collection on your Apple device (iPad/iPhone/iPod) is by using the *free* Stanza app, available from the Apple app store. You need at least Stanza version 3.0. Stanza allows you to access your |app| collection wirelessly, over the air.
 
 First perform the following steps in |app|
 
   * Set the Preferred Output Format in |app| to EPUB (The output format can be set under Preferences->General) 
+  * Set the output profile to iPad (this will work for iPhone/iPods as well), under Preferences->Conversion->Page Setup
   * Convert the books you want to read on your iPhone to EPUB format by selecting them and clicking the Convert button.
   * Turn on the Content Server in |app|'s preferences and leave |app| running.
 
-For an iPad:
+Install the free Stanza reader app on your iPad/iPhone/iTouch using iTunes.
 
-Install the ReadMe app on your iPad using iTunes. Open the Readme builtin browser and browse to::
-
-    http://192.168.1.2:8080/
-
-Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port. The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address.
-
-The books in your |app| library will be presented as a list, 25 entries at a time. Click the right arrow to go to the next 25. You can also type in the search box to find specific books. Just click on the EPUB link of the book you want and it will be downloaded into your ReadMe library.
-
-For an iPhone/iTouch:   
-
-Install the free Stanza reader app on your iPhone/iTouch using iTunes.
-
-Now you should be able to access your books on your iPhone by opening Stanza. Go to "Get Books" and then click the "Shared" tab. Under Shared you will see an entry "Books in calibre". If you don't, make sure your iPhone is connected using the WiFi network in your house, not 3G. If the |app| catalog is still not detected in Stanza, you can add it manually in Stanza. To do this, click the "Shared" tab, then click the "Edit" button and then click "Add book source" to add a new book source. In the Add Book Source screen enter whatever name you like and in the URL field, enter the following::
+Now you should be able to access your books on your iPhone by opening Stanza. Go to "Get Books" and then click the "Shared" tab. Under Shared you will see an entry "Books in calibre". If you don't, make sure your iPad/iPhone is connected using the WiFi network in your house, not 3G. If the |app| catalog is still not detected in Stanza, you can add it manually in Stanza. To do this, click the "Shared" tab, then click the "Edit" button and then click "Add book source" to add a new book source. In the Add Book Source screen enter whatever name you like and in the URL field, enter the following::
 
     http://192.168.1.2:8080/
 
@@ -165,7 +154,10 @@ Replace ``192.168.1.2`` with the local IP address of the computer running |app|.
 
 If you get timeout errors while browsing the calibre catalog in Stanza, try increasing the connection timeout value in the stanza settings. Go to Info->Settings and increase the value of Download Timeout.
 
-Note that neither the Stanza, nor the ReadMe apps are in anyway associated with |app|.
+Alternative for the iPad
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As of |app| version 0.7.0, on windows and OS X you can plugin your iPad into the computer using its charging cable, and |app| will detect it and show you a list of books on the iPad. You can then use the Send to device button to send books directly to iBooks on the iPad.
 
 How do I use |app| with my Android phone?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

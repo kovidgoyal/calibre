@@ -44,7 +44,8 @@ def get_metadata_(src, encoding=None):
         author = match.group(2).replace(',', ';')
 
     ent_pat = re.compile(r'&(\S+)?;')
-    title = ent_pat.sub(entity_to_unicode, title)
+    if title:
+        title = ent_pat.sub(entity_to_unicode, title)
     if author:
         author = ent_pat.sub(entity_to_unicode, author)
     mi = MetaInformation(title, [author] if author else None)

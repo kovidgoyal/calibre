@@ -25,7 +25,7 @@ BASE_HREFS = {
         1 : '/opds',
 }
 
-STANZA_FORMATS = frozenset(['epub', 'pdb'])
+STANZA_FORMATS = frozenset(['epub', 'pdb', 'pdf', 'cbr', 'cbz', 'djvu'])
 
 def url_for(name, version, **kwargs):
     if not name.endswith('_'):
@@ -121,7 +121,7 @@ def CATALOG_GROUP_ENTRY(item, category, base_href, version, updated):
             TITLE(item.text),
             ID(id_),
             UPDATED(updated),
-            E.content(_('%d books')%item.count, type='text'),
+            E.content(_('%d items')%item.count, type='text'),
             link
             )
 
