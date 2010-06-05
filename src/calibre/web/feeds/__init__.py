@@ -53,13 +53,17 @@ class Article(object):
 
     @dynamic_property
     def formatted_date(self):
+
         def fget(self):
             if self._formatted_date is None:
                 self._formatted_date = strftime(" [%a, %d %b %H:%M]",
                         t=self.localtime.timetuple())
             return self._formatted_date
+
         def fset(self, val):
-            self._formatted_date = val
+            if isinstance(val, unicode):
+                self._formatted_date = val
+
         return property(fget=fget, fset=fset)
 
     @dynamic_property
