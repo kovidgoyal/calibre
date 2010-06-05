@@ -31,6 +31,37 @@ if isosx:
 
 if iswindows:
     import pythoncom, win32com.client
+
+class ITUNES(DevicePlugin):
+    '''
+            try:
+                pythoncom.CoInitialize()
+            finally:
+                pythoncom.CoUninitialize()
+    '''
+
+    name = 'Apple device interface'
+    gui_name = 'Apple device'
+    icon = I('devices/ipad.png')
+    description    = _('Communicate with iBooks through iTunes.')
+    supported_platforms = ['osx','windows']
+    author = 'GRiker'
+    #: The version of this plugin as a 3-tuple (major, minor, revision)
+    version        = (0, 4, 0)
+
+    OPEN_FEEDBACK_MESSAGE = _(
+        'Apple device detected, launching iTunes, please wait ...')
+
+    FORMATS = ['epub']
+
+    # Product IDs:
+    #  0x1292:iPhone 3G
+    #  0x129a:iPad
+    VENDOR_ID = [0x05ac]
+    PRODUCT_ID = [0x129a]
+    BCD = [0x01]
+
+    # iTunes enumerations
     Sources = [
                 'Unknown',
                 'Library',
@@ -48,34 +79,27 @@ if iswindows:
                 'BMP'
                 ]
 
-class ITUNES(DevicePlugin):
-    '''
-            try:
-                pythoncom.CoInitialize()
-            finally:
-                pythoncom.CoUninitialize()
-    '''
+    PlaylistKind = [
+                'Unknown',
+                'Library',
+                'User',
+                'CD',
+                'Device',
+                'Radio Tuner'
+                ]
 
-    name = 'Apple device interface'
-    gui_name = 'Apple device'
-    icon = I('devices/ipad.png')
-    description    = _('Communicate with iBooks through iTunes.')
-    supported_platforms = ['osx','windows']
-    author = 'GRiker'
-    #: The version of this plugin as a 3-tuple (major, minor, revision)
-    version        = (1, 0, 0)
-
-    OPEN_FEEDBACK_MESSAGE = _(
-        'Apple device detected, launching iTunes, please wait ...')
-
-    FORMATS = ['epub']
-
-    # Product IDs:
-    #  0x1292:iPhone 3G
-    #  0x129a:iPad
-    VENDOR_ID = [0x05ac]
-    PRODUCT_ID = [0x129a]
-    BCD = [0x01]
+    PlaylistSpecialKind = [
+                'Unknown',
+                'Purchased Music',
+                'Party Shuffle',
+                'Podcasts',
+                'Folder',
+                'Video',
+                'Music',
+                'Movies',
+                'TV Shows',
+                'Books',
+                ]
 
     # Properties
     cached_books = {}
@@ -459,12 +483,14 @@ class ITUNES(DevicePlugin):
         if isosx:
             self.iTunes.eject(self.sources['iPod'])
         elif iswindows:
-            try:
-                pythoncom.CoInitialize()
-                self.iTunes = win32com.client.Dispatch("iTunes.Application")
-                self.iTunes.sources.ItemByName(self.sources['iPod']).EjectIPod()
-            finally:
-                pythoncom.CoUninitialize()
+            if 'iPod' in self.sources:
+                try:
+                    pythoncom.CoInitialize()
+                    self.iTunes = win32com.client.Dispatch("iTunes.Application")
+                    self.iTunes.sources.ItemByName(self.sources['iPod']).EjectIPod()
+
+                finally:
+                    pythoncom.CoUninitialize()
 
         self.iTunes = None
         self.sources = None
@@ -635,7 +661,7 @@ class ITUNES(DevicePlugin):
         if self.update_needed:
             if DEBUG:
                 self.log.info(' calling _update_device')
-            self._update_device(msg=self.update_msg)
+            self._update_device(msg=self.update_msg, wait=False)
             self.update_needed = False
 
         # Get actual size of updated books on device
@@ -736,12 +762,13 @@ class ITUNES(DevicePlugin):
         self.problem_msg = _("Some cover art could not be converted.\n"
                                      "Click 'Show Details' for a list.")
 
+        if DEBUG:
+            self.log.info("ITUNES.upload_books():")
+            self._dump_files(files, header='upload_books()')
+            self._dump_cached_books('upload_books()')
+            self._dump_update_list('upload_books()')
+
         if isosx:
-            if DEBUG:
-                self.log.info("ITUNES.upload_books():")
-                self._dump_files(files, header='upload_books()')
-                self._dump_cached_books('upload_books()')
-                self._dump_update_list('upload_books()')
             for (i,file) in enumerate(files):
                 path = self.path_template % (metadata[i].title, metadata[i].author[0])
                 # Delete existing from Library|Books, add to self.update_list
@@ -836,11 +863,36 @@ class ITUNES(DevicePlugin):
             try:
                 pythoncom.CoInitialize()
                 self.iTunes = win32com.client.Dispatch("iTunes.Application")
-                lib = self.iTunes.sources.ItemByName('Library')
-                lib_playlists = [pl.Name for pl in lib.Playlists]
-                if not 'Books' in lib_playlists:
-                    self.log.error(" no 'Books' playlist in Library")
-                library_books = lib.Playlists.ItemByName('Books')
+
+                for source in self.iTunes.sources:
+                    if source.Kind == self.Sources.index('Library'):
+                        lib = source
+                        if DEBUG:
+                            self.log.info(" Library source: '%s'  kind: %s" % (lib.Name, self.Sources[lib.Kind]))
+                        break
+                else:
+                    if DEBUG:
+                        self.log.info(" Library source not found")
+
+                if lib is not None:
+                    lib_books = None
+                    for pl in lib.Playlists:
+                        if self.PlaylistKind[pl.Kind] == 'User' and self.PlaylistSpecialKind[pl.SpecialKind] == 'Books':
+                            if DEBUG:
+                                self.log.info(" Books playlist: '%s' special_kind: '%s'" % (pl.Name, self.PlaylistSpecialKind[pl.SpecialKind]))
+                            lib_books = pl
+                            break
+                    else:
+                        if DEBUG:
+                            self.log.error(" no Books playlist found")
+
+                #
+#                 lib = self.iTunes.sources.ItemByName('Library')
+#                 lib_playlists = [pl.Name for pl in lib.Playlists]
+#                 if not 'Books' in lib_playlists:
+#                     self.log.error(" no 'Books' playlist in Library")
+#                 library_books = lib.Playlists.ItemByName('Books')
+                #
 
                 for (i,file) in enumerate(files):
                     path = self.path_template % (metadata[i].title, metadata[i].author[0])
@@ -859,10 +911,10 @@ class ITUNES(DevicePlugin):
 
                     # Add to iTunes Library|Books
                     if isinstance(file,PersistentTemporaryFile):
-                        op_status = library_books.AddFile(file._name)
+                        op_status = lib_books.AddFile(file._name)
                         self.log.info("ITUNES.upload_books():\n iTunes adding '%s'" % file._name)
                     else:
-                        op_status = library_books.AddFile(file)
+                        op_status = lib_books.AddFile(file)
                         self.log.info(" iTunes adding '%s'" % file)
 
                     if DEBUG:
@@ -1060,20 +1112,6 @@ class ITUNES(DevicePlugin):
                   ub['author']))
         self.log.info()
 
-    def _find_device_book(self, cached_book):
-        '''
-        Windows-only method to get a handle to a device book in the current pythoncom session
-        '''
-        SearchField = ['All','Visible','Artists','Titles','Composers','SongNames']
-        if iswindows:
-            dev_books = self.iTunes.sources.ItemByName(self.sources['iPod']).Playlists.ItemByName('Books')
-            hits = dev_books.Search(cached_book['title'],SearchField.index('Titles'))
-            if hits:
-                for hit in hits:
-                    if hit.Artist == cached_book['author']:
-                        return hit
-            return None
-
     def _find_library_book(self, cached_book):
         '''
         Windows-only method to get a handle to a library book in the current pythoncom session
@@ -1083,7 +1121,28 @@ class ITUNES(DevicePlugin):
             if DEBUG:
                 self.log.info("ITUNES._find_library_book()")
                 self.log.info(" looking for '%s' by %s" % (cached_book['title'], cached_book['author']))
-            lib_books = self.iTunes.sources.ItemByName('Library').Playlists.ItemByName('Books')
+
+            for source in self.iTunes.sources:
+                if source.Kind == self.Sources.index('Library'):
+                    lib = source
+                    if DEBUG:
+                        self.log.info(" Library source: '%s'  kind: %s" % (lib.Name, self.Sources[lib.Kind]))
+                    break
+            else:
+                if DEBUG:
+                    self.log.info(" Library source not found")
+
+            if lib is not None:
+                lib_books = None
+                for pl in lib.Playlists:
+                    if self.PlaylistKind[pl.Kind] == 'User' and self.PlaylistSpecialKind[pl.SpecialKind] == 'Books':
+                        if DEBUG:
+                            self.log.info(" Books playlist: '%s' special_kind: '%s'" % (pl.Name, self.PlaylistSpecialKind[pl.SpecialKind]))
+                        lib_books = pl
+                        break
+                else:
+                    if DEBUG:
+                        self.log.error(" no Books playlist found")
 
             attempts = 9
             while attempts:
@@ -1121,12 +1180,6 @@ class ITUNES(DevicePlugin):
         except:
             zfw = zipfile.ZipFile(archive_path, mode='a')
         else:
-#             if DEBUG:
-#                 if isosx:
-#                     self.log.info("ITUNES._generate_thumbnail(): cached thumb found for '%s'" % book.name())
-#                 elif iswindows:
-#                     self.log.info("ITUNES._generate_thumbnail(): cached thumb found for '%s'" % book.Name)
-
             return thumb_data
 
         if isosx:
@@ -1160,7 +1213,7 @@ class ITUNES(DevicePlugin):
                 return None
 
             # Save the cover from iTunes
-            tmp_thumb = os.path.join(tempfile.gettempdir(), "thumb.%s" % ArtworkFormat[book.Artwork.Item(1).Format])
+            tmp_thumb = os.path.join(tempfile.gettempdir(), "thumb.%s" % self.ArtworkFormat[book.Artwork.Item(1).Format])
             book.Artwork.Item(1).SaveArtworkToFile(tmp_thumb)
             try:
                 # Resize the cover
@@ -1184,8 +1237,6 @@ class ITUNES(DevicePlugin):
     def _get_device_book_size(self, title, author):
         '''
         Fetch the size of a book stored on the device
-
-        Windows: If sync-in-progress, this call blocked until sync completes
         '''
         if DEBUG:
             self.log.info("ITUNES._get_device_book_size():\n looking for title: '%s' author: '%s'" %
@@ -1214,53 +1265,134 @@ class ITUNES(DevicePlugin):
 
     def _get_device_books(self):
         '''
-        Assumes pythoncom wrapper
+        Assumes pythoncom wrapper for Windows
         '''
+        if DEBUG:
+            self.log.info("\nITUNES._get_device_books()")
+
+        device_books = []
         if isosx:
             if 'iPod' in self.sources:
                 connected_device = self.sources['iPod']
-                if 'Books' in self.iTunes.sources[connected_device].playlists.name():
-                    return self.iTunes.sources[connected_device].playlists['Books'].file_tracks()
-            return []
+                device = self.iTunes.sources[connected_device]
+                for pl in device.playlists():
+                    if pl.special_kind() == appscript.k.Books:
+                        if DEBUG:
+                            self.log.info(" Book playlist: '%s' special_kind: '%s'" % (pl.name(), pl.special_kind()))
+                        books = pl.file_tracks()
+                        break
+                else:
+                    self.log.error(" book_playlist not found")
+
+                for book in books:
+                    if book.kind() in ['Book','Protected book']:
+                        device_books.append(book)
+                    else:
+                        if DEBUG:
+                            self.log.info(" ignoring '%s' of type '%s'" % (book.name(), book.kind()))
 
         elif iswindows:
             if 'iPod' in self.sources:
-                connected_device = self.sources['iPod']
-                dev = self.iTunes.sources.ItemByName(connected_device)
-                dev_playlists = [pl.Name for pl in dev.Playlists]
-                if 'Books' in dev_playlists:
-                    return self.iTunes.sources.ItemByName(connected_device).Playlists.ItemByName('Books').Tracks
-                else:
-                    return []
-            if DEBUG:
-                self.log.warning('ITUNES._get_device_book(): No iPod device connected')
-            return []
+                try:
+                    pythoncom.CoInitialize()
+                    connected_device = self.sources['iPod']
+                    device = self.iTunes.sources.ItemByName(connected_device)
+
+                    dev_books = None
+                    for pl in device.Playlists:
+                        if self.PlaylistKind[pl.Kind] == 'User' and self.PlaylistSpecialKind[pl.SpecialKind] == 'Books':
+                            if DEBUG:
+                                self.log.info(" Books playlist: '%s' special_kind: '%s'" % (pl.Name, self.PlaylistSpecialKind[pl.SpecialKind]))
+                            dev_books = pl.Tracks
+                            break
+                    else:
+                        if DEBUG:
+                            self.log.info(" no Books playlist found")
+
+                    for book in dev_books:
+                        if book.KindAsString in ['Book','Protected book']:
+                            device_books.append(book)
+                        else:
+                            self.log.info(" ignoring '%s' of type %s" % (book.Name, book.KindAsString))
+
+                finally:
+                    pythoncom.CoUninitialize()
+
+        return device_books
 
     def _get_library_books(self):
         '''
         Populate a dict of paths from iTunes Library|Books
         '''
+        if DEBUG:
+            self.log.info("\nITUNES._get_library_books()")
+
         library_books = {}
+        lib = None
 
         if isosx:
-            lib = self.iTunes.sources['library']
-            if 'Books' in lib.playlists.name():
-                lib_books = lib.playlists['Books'].file_tracks()
+            for source in self.iTunes.sources():
+                if source.kind() == appscript.k.library:
+                    lib = source
+                    if DEBUG:
+                        self.log.info(" Library source: '%s' kind: %s" % (lib.name(), lib.kind()))
+                    break
+            else:
+                if DEBUG:
+                    self.log.error(' Library source not found')
+
+            if lib is not None:
+                lib_books = None
+                for pl in lib.playlists():
+                    if pl.special_kind() == appscript.k.Books:
+                        if DEBUG:
+                            self.log.info(" Books playlist: '%s' special_kind: '%s'" % (pl.name(), pl.special_kind()))
+                        break
+                lib_books = pl.file_tracks()
                 for book in lib_books:
-                    path = self.path_template % (book.name(), book.artist())
-                    library_books[path] = book
+                    if book.kind() in ['Book','Protected book']:
+                        path = self.path_template % (book.name(), book.artist())
+                        library_books[path] = book
+                    else:
+                        if DEBUG:
+                            self.log.info(" ignoring library book of type '%s'" % book.kind())
+            else:
+                if DEBUG:
+                    self.log.info('ITUNES._get_library_books():\n No Books playlist')
+
 
         elif iswindows:
+            lib = None
             try:
                 pythoncom.CoInitialize()
                 self.iTunes = win32com.client.Dispatch("iTunes.Application")
-                lib = self.iTunes.sources.ItemByName('Library')
-                lib_playlists = [pl.Name for pl in lib.Playlists]
-                if 'Books' in lib_playlists:
-                    lib_books = lib.Playlists.ItemByName('Books').Tracks
+                for source in self.iTunes.sources:
+                    if source.Kind == self.Sources.index('Library'):
+                        lib = source
+                        self.log.info(" Library source: '%s' kind: %s" % (lib.Name, self.Sources[lib.Kind]))
+                        break
+                else:
+                    self.log.error(" Library source not found")
+
+                if lib is not None:
+                    lib_books = None
+                    for pl in lib.Playlists:
+                        if self.PlaylistKind[pl.Kind] == 'User' and self.PlaylistSpecialKind[pl.SpecialKind] == 'Books':
+                            if DEBUG:
+                                self.log.info(" Books playlist: '%s' special_kind: '%s'" % (pl.Name, self.PlaylistSpecialKind[pl.SpecialKind]))
+                            lib_books = pl.Tracks
+                            break
+                    else:
+                        if DEBUG:
+                            self.log.error(" no Books playlist found")
+
                     for book in lib_books:
-                        path = self.path_template % (book.Name, book.Artist)
-                        library_books[path] = book
+                        if book.KindAsString in ['Book','Protected book']:
+                            path = self.path_template % (book.Name, book.Artist)
+                            library_books[path] = book
+                        else:
+                            if DEBUG:
+                                self.log.info(" ignoring '%s' of type %s" % (book.Name, book.KindAsString))
             finally:
                 pythoncom.CoUninitialize()
 
@@ -1455,10 +1587,8 @@ class ITUNES(DevicePlugin):
                             sys.stdout.write('\n')
                             sys.stdout.flush()
                             break
-
             finally:
                 pythoncom.CoUninitialize()
-
 
 class BookList(list):
     '''
