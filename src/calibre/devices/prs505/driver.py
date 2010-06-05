@@ -65,8 +65,7 @@ class PRS505(USBMS):
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
 
-    def open(self):
-        USBMS.open(self)
+    def post_open_callback(self):
 
         def write_cache(prefix):
             try:
@@ -89,6 +88,9 @@ class PRS505(USBMS):
                 import traceback
                 traceback.print_exc()
             return False
+
+        # Make sure we don't have the launcher partition
+        # as one of the cards
 
         if self._card_a_prefix is not None:
             if not write_cache(self._card_a_prefix):
