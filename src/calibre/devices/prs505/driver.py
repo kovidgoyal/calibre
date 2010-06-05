@@ -69,7 +69,7 @@ class PRS505(USBMS):
 
         def write_cache(prefix):
             try:
-                cachep = os.path.join(prefix, *(self.CACHE_XML.split('/')))
+                cachep = os.path.join(prefix, *(CACHE_XML.split('/')))
                 if not os.path.exists(cachep):
                     dname = os.path.dirname(cachep)
                     if not os.path.exists(dname):
