@@ -189,6 +189,9 @@ class SearchBox2(QComboBox):
         self.set_search_string(joiner.join(tags))
 
     def set_search_string(self, txt):
+        if not txt:
+            self.clear_to_help()
+            return
         self.normalize_state()
         self.setEditText(txt)
         if self.timer is not None: # Turn off any timers that got started in setEditText

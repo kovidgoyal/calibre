@@ -552,7 +552,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
         self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
         self.tags_view.search_item_renamed.connect(self.saved_search.clear_to_help)
-        self.search.search.connect(self.tags_view.model().reinit)
         for x in (self.location_view.count_changed, self.tags_view.recount,
                 self.restriction_count_changed):
             self.library_view.model().count_changed_signal.connect(x)
