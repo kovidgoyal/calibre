@@ -97,6 +97,7 @@ class SearchBox2(QComboBox):
         self.help_state = False
 
     def clear_to_help(self):
+        self.search.emit('', False)
         self._in_a_search = False
         self.setEditText(self.help_text)
         if self.timer is not None: # Turn off any timers that got started in setEditText
@@ -114,7 +115,6 @@ class SearchBox2(QComboBox):
 
     def clear(self):
         self.clear_to_help()
-        self.search.emit('', False)
 
     def search_done(self, ok):
         if not unicode(self.currentText()).strip():

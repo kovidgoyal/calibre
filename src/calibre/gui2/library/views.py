@@ -437,10 +437,6 @@ class BooksView(QTableView): # {{{
         self._search_done = search_done
         self._model.searched.connect(self.search_done)
 
-    def connect_to_restriction_set(self, tv):
-        # must be synchronous (not queued)
-        tv.restriction_set.connect(self._model.set_search_restriction)
-
     def connect_to_book_display(self, bd):
         self._model.new_bookdisplay_data.connect(bd)
 

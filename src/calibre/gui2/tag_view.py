@@ -22,7 +22,6 @@ from calibre.gui2 import error_dialog
 class TagsView(QTreeView): # {{{
 
     refresh_required    = pyqtSignal()
-    restriction_set     = pyqtSignal(object)
     tags_marked         = pyqtSignal(object, object)
     user_category_edit  = pyqtSignal(object)
     tag_list_edit       = pyqtSignal(object, object)
@@ -37,12 +36,11 @@ class TagsView(QTreeView): # {{{
         self.setIconSize(QSize(30, 30))
         self.tag_match = None
 
-    def set_database(self, db, tag_match, popularity, restriction):
+    def set_database(self, db, tag_match, popularity):
         self.hidden_categories = config['tag_browser_hidden_categories']
         self._model = TagsModel(db, parent=self,
                                 hidden_categories=self.hidden_categories)
         self.popularity = popularity
-        self.restriction = restriction
         self.tag_match = tag_match
         self.db = db
         self.setModel(self._model)
@@ -51,10 +49,8 @@ class TagsView(QTreeView): # {{{
         self.customContextMenuRequested.connect(self.show_context_menu)
         self.popularity.setChecked(config['sort_by_popularity'])
         self.popularity.stateChanged.connect(self.sort_changed)
-        self.restriction.activated[str].connect(self.search_restriction_set)
         self.refresh_required.connect(self.recount, type=Qt.QueuedConnection)
         db.add_listener(self.database_changed)
-        self.saved_searches_changed(recount=False)
 
     def database_changed(self, event, ids):
         self.refresh_required.emit()
@@ -68,14 +64,10 @@ class TagsView(QTreeView): # {{{
         self.model().refresh()
         # self.search_restriction_set()
 
-    def search_restriction_set(self, s):
+    def set_search_restriction(self, s):
         self.clear()
-        if len(s) == 0:
-            self.search_restriction = ''
-        else:
-            self.search_restriction = 'search:"%s"' % unicode(s).strip()
-        self.model().set_search_restriction(self.search_restriction)
-        self.restriction_set.emit(self.search_restriction)
+        self.model().set_search_restriction(s)
+        self.recount()
 
     def mouseReleaseEvent(self, event):
         # Swallow everything except leftButton so context menus work correctly
@@ -185,21 +177,8 @@ class TagsView(QTreeView): # {{{
         return True
 
     def clear(self):
-        self.model().clear_state()
-
-    def saved_searches_changed(self, recount=True):
-        p = prefs['saved_searches'].keys()
-        p.sort()
-        t = self.restriction.currentText()
-        self.restriction.clear() # rebuild the restrictions combobox using current saved searches
-        self.restriction.addItem('')
-        for s in p:
-            self.restriction.addItem(s)
-        if t in p: # redo the current restriction, if there was one
-            self.restriction.setCurrentIndex(self.restriction.findText(t))
-            self.search_restriction_set(t)
-        if recount:
-            self.recount()
+        if self.model():
+            self.model().clear_state()
 
     def recount(self, *args):
         ci = self.currentIndex()
@@ -370,7 +349,7 @@ class TagsModel(QAbstractItemModel): # {{{
 
         if len(self.search_restriction):
             data = self.db.get_categories(sort_on_count=sort, icon_map=self.category_icon_map,
-                        ids=self.db.search(self.search_restriction, return_matches=True))
+                        ids=self.db.search('', return_matches=True))
         else:
             data = self.db.get_categories(sort_on_count=sort, icon_map=self.category_icon_map)
 
