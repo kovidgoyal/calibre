@@ -5086,7 +5086,7 @@ msgstr "Ums&chlagbild getrennt speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:117
 msgid "Update &metadata in saved copies"
-msgstr "&Metadaten in geseicherten Kopien aktualisieren"
+msgstr "&Metadaten in gespeicherten Kopien aktualisieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:118
 msgid "Save metadata in &OPF file"
