@@ -1514,7 +1514,12 @@ class ITUNES(DevicePlugin):
         '''
         if isosx:
             storage_path = os.path.split(cached_book['lib_book'].location().path)
-            presumptive_path = os.path.join(self.iTunes_media,cached_book['author'][0],cached_book['title'],storage_path[1])
+            presumptive_path = os.path.join(self.iTunes_media,
+                                            'iTunes Music',
+                                            cached_book['author'][0],
+                                            cached_book['title'],
+                                            storage_path[1])
+
             if os.path.exists(presumptive_path):
                 title_storage_path = storage_path[0]
                 if DEBUG:
