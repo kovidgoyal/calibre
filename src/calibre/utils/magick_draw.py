@@ -212,6 +212,23 @@ def create_cover_page(top_lines, logo_path, width=590, height=750,
         p.DestroyMagickWand(canvas)
     return ans
 
+def save_cover_data_to(data, path, bgcolor='white'):
+    '''
+    Saves image in data to path, in the format specified by the path
+    extension. Composes the image onto a blank cancas so as to
+    properly convert transparent images.
+    '''
+    with open(path, 'wb') as f:
+        f.write(data)
+    with p.ImageMagick():
+        img = load_image(path)
+        canvas = create_canvas(p.MagickGetImageWidth(img),
+                p.MagickGetImageHeight(img), bgcolor)
+        compose_image(canvas, img, 0, 0)
+        p.MagickWriteImage(canvas, path)
+        p.DestroyMagickWand(img)
+        p.DestroyMagickWand(canvas)
+
 def test():
     import subprocess
     with TemporaryFile('.png') as f:

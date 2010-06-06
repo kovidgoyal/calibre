@@ -9,12 +9,6 @@ The database used to store ebook metadata
 import os, sys, shutil, cStringIO, glob,functools, traceback
 from itertools import repeat
 from math import floor
-try:
-    from PIL import Image as PILImage
-    PILImage
-except ImportError:
-    import Image as PILImage
-
 
 from PyQt4.QtGui import QImage
 
@@ -37,7 +31,7 @@ from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.utils.config import prefs
 from calibre.utils.search_query_parser import saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
-
+from calibre.utils.magick_draw import save_cover_data_to
 
 if iswindows:
     import calibre.utils.winshell as winshell
@@ -475,11 +469,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if callable(getattr(data, 'save', None)):
             data.save(path)
         else:
-            f = data
-            if not callable(getattr(data, 'read', None)):
-                f = cStringIO.StringIO(data)
-            im = PILImage.open(f)
-            im.convert('RGB').save(path, 'JPEG')
+            if callable(getattr(data, 'read', None)):
+                data = data.read()
+            save_cover_data_to(data, path)
 
     def book_on_device(self, id):
         if callable(self.book_on_device_func):

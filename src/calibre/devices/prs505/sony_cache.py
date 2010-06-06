@@ -415,10 +415,11 @@ class XMLCache(object):
                 prints('\tmtime', strftime(os.path.getmtime(path)))
             record.set('date', date)
         record.set('size', str(os.stat(path).st_size))
-        record.set('title', book.title)
+        title = book.title if book.title else _('Unknown')
+        record.set('title', title)
         ts = book.title_sort
         if not ts:
-            ts = title_sort(book.title)
+            ts = title_sort(title)
         record.set('titleSorter', ts)
         record.set('author', authors_to_string(book.authors))
         ext = os.path.splitext(path)[1]
