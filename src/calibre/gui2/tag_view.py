@@ -76,8 +76,6 @@ class TagsView(QTreeView): # {{{
             self.search_restriction = 'search:"%s"' % unicode(s).strip()
         self.model().set_search_restriction(self.search_restriction)
         self.restriction_set.emit(self.search_restriction)
-        self.recount() # Must happen after the emission of the restriction_set signal
-        self.tags_marked.emit(self._model.tokens(), self.match_all)
 
     def mouseReleaseEvent(self, event):
         # Swallow everything except leftButton so context menus work correctly

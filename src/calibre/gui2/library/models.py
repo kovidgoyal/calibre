@@ -214,18 +214,19 @@ class BooksModel(QAbstractTableModel): # {{{
             self.count_changed()
 
     def search(self, text, refinement, reset=True):
+        initial_rowcount = self.rowCount(None)
         try:
             self.db.search(text)
         except ParseException:
             self.searched.emit(False)
             return
         self.last_search = text
+        final_rowcount = self.rowCount(None)
         if reset:
             self.clear_caches()
             self.reset()
-        if self.last_search:
+        if self.last_search or initial_rowcount != final_rowcount:
             self.searched.emit(True)
-
 
     def sort(self, col, order, reset=True):
         if not self.db:

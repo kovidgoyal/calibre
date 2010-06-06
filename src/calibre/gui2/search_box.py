@@ -99,6 +99,9 @@ class SearchBox2(QComboBox):
     def clear_to_help(self):
         self._in_a_search = False
         self.setEditText(self.help_text)
+        if self.timer is not None: # Turn off any timers that got started in setEditText
+            self.killTimer(self.timer)
+            self.timer = None
         self.line_edit.home(False)
         self.help_state = True
         self.line_edit.setStyleSheet(

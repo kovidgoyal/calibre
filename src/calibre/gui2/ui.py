@@ -547,8 +547,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.edit_categories, SIGNAL('clicked()'), self.do_user_categories_edit)
         self.tags_view.set_database(db, self.tag_match, self.popularity, self.search_restriction)
         self.tags_view.tags_marked.connect(self.search.search_from_tags)
-        for x in (self.saved_search.clear_to_help, self.mark_restriction_set):
-            self.tags_view.restriction_set.connect(x)
+        self.tags_view.restriction_set.connect(self.mark_restriction_set)
         self.tags_view.tags_marked.connect(self.saved_search.clear_to_help)
         self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
         self.tags_view.user_category_edit.connect(self.do_user_categories_edit)
@@ -866,15 +865,29 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def mark_restriction_set(self, r):
         self.restriction_in_effect = False if r is None or not r else True
+        # Set the count of books to -1 so that the next search knows to capture
+        # the count
+        self.restriction_count_of_books_in_view = -1
+        self.saved_search.clear_to_help()
+        # Force a null search so that the restriction change is taken into
+        # account. As a side effect, this will clear the search box to empty
+        self.search.set_search_string('')
 
     def set_number_of_books_shown(self, compute_count):
         if self.current_view() == self.library_view and self.restriction_in_effect:
             if compute_count:
                 self.restriction_count_of_books_in_view = self.current_view().row_count()
+                # tell the tag browser that counts might have changed
+                self.tags_view.recount()
             t = _("({0} of {1})").format(self.current_view().row_count(),
                                          self.restriction_count_of_books_in_view)
             self.search_count.setStyleSheet('QLabel { border-radius: 8px; background-color: yellow; }')
         else: # No restriction or not library view
+            if self.current_view() == self.library_view and compute_count:
+                # set the count to turn off future recounts
+                self.restriction_count_of_books_in_view = self.current_view().row_count()
+                # tell the tag browser that counts might have changed
+                self.tags_view.recount()
             if not self.search.in_a_search():
                 t = _("(all books)")
             else:
@@ -884,18 +897,21 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.search_count.setText(t)
 
     def search_box_cleared(self):
-        self.set_number_of_books_shown(compute_count=True)
+        self.set_number_of_books_shown(compute_count=False)
         self.tags_view.clear()
         self.saved_search.clear_to_help()
 
     def search_clear(self):
-        self.set_number_of_books_shown(compute_count=True)
+        self.set_number_of_books_shown(compute_count=False)
         self.search.clear()
 
     def search_done(self, view, ok):
         if view is self.current_view():
             self.search.search_done(ok)
-            self.set_number_of_books_shown(compute_count=False)
+            if self.restriction_count_of_books_in_view < 0:
+                self.set_number_of_books_shown(compute_count=True)
+            else:
+                self.set_number_of_books_shown(compute_count=False)
 
     def sync_cf_to_listview(self, current, previous):
         if self.cover_flow_sync_flag and self.cover_flow.isVisible() and \
