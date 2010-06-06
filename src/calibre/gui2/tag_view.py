@@ -39,10 +39,12 @@ class TagsView(QTreeView): # {{{
     def set_database(self, db, tag_match, popularity):
         self.hidden_categories = config['tag_browser_hidden_categories']
         self._model = TagsModel(db, parent=self,
-                                hidden_categories=self.hidden_categories)
+                                hidden_categories=self.hidden_categories,
+                                search_restriction=None)
         self.popularity = popularity
         self.tag_match = tag_match
         self.db = db
+        self.search_restriction = None
         self.setModel(self._model)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.clicked.connect(self.toggle)
@@ -65,9 +67,11 @@ class TagsView(QTreeView): # {{{
         # self.search_restriction_set()
 
     def set_search_restriction(self, s):
-        self.clear()
-        self.model().set_search_restriction(s)
-        self.recount()
+        if s:
+            self.search_restriction = s
+        else:
+            self.search_restriction = None
+        self.set_new_model()
 
     def mouseReleaseEvent(self, event):
         # Swallow everything except leftButton so context menus work correctly
@@ -200,7 +204,8 @@ class TagsView(QTreeView): # {{{
     # model. Reason: it is much easier than reconstructing the browser tree.
     def set_new_model(self):
         self._model = TagsModel(self.db, parent=self,
-                                hidden_categories=self.hidden_categories)
+                                hidden_categories=self.hidden_categories,
+                                search_restriction=self.search_restriction)
         self.setModel(self._model)
     # }}}
 
@@ -288,7 +293,7 @@ class TagTreeItem(object): # {{{
 
 class TagsModel(QAbstractItemModel): # {{{
 
-    def __init__(self, db, parent, hidden_categories=None):
+    def __init__(self, db, parent, hidden_categories=None, search_restriction=None):
         QAbstractItemModel.__init__(self, parent)
 
         # must do this here because 'QPixmap: Must construct a QApplication
@@ -310,8 +315,7 @@ class TagsModel(QAbstractItemModel): # {{{
         self.db = db
         self.tags_view = parent
         self.hidden_categories = hidden_categories
-        self.search_restriction = ''
-        self.ignore_next_search = 0
+        self.search_restriction = search_restriction
 
         # Reconstruct the user categories, putting them into metadata
         tb_cats = self.db.field_metadata
@@ -347,8 +351,9 @@ class TagsModel(QAbstractItemModel): # {{{
         self.row_map = []
         self.categories = []
 
-        if len(self.search_restriction):
-            data = self.db.get_categories(sort_on_count=sort, icon_map=self.category_icon_map,
+        if self.search_restriction:
+            data = self.db.get_categories(sort_on_count=sort,
+                        icon_map=self.category_icon_map,
                         ids=self.db.search('', return_matches=True))
         else:
             data = self.db.get_categories(sort_on_count=sort, icon_map=self.category_icon_map)
@@ -362,7 +367,6 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.category_items[category] = set([tag.name for tag in data[category]])
                 self.row_map.append(category)
                 self.categories.append(tb_categories[category]['name'])
-
         return data
 
     def refresh(self):
@@ -521,12 +525,6 @@ class TagsModel(QAbstractItemModel): # {{{
     def clear_state(self):
         self.reset_all_states()
 
-    def reinit(self, *args, **kwargs):
-        if self.ignore_next_search == 0:
-            self.reset_all_states()
-        else:
-            self.ignore_next_search -= 1
-
     def toggle(self, index, exclusive):
         if not index.isValid(): return False
         item = index.internalPointer()
@@ -534,7 +532,6 @@ class TagsModel(QAbstractItemModel): # {{{
             item.toggle()
             if exclusive:
                 self.reset_all_states(except_=item.tag)
-            self.ignore_next_search = 2
             self.dataChanged.emit(index, index)
             return True
         return False

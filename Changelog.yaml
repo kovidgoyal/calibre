@@ -12,6 +12,9 @@
 
     - title: "Make the book details pane occupy the full lower part of the window"
 
+    - title: "Add true and false searches for date based columns"
+      tickets: [5717]
+
   bug fixes:
     - title: "iPad driver: Various bug fixes."
 
