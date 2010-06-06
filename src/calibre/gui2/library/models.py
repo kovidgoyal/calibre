@@ -213,7 +213,7 @@ class BooksModel(QAbstractTableModel): # {{{
             self.endInsertRows()
             self.count_changed()
 
-    def search(self, text, refinement, reset=True):
+    def search(self, text, reset=True):
         try:
             self.db.search(text)
         except ParseException:
@@ -224,8 +224,9 @@ class BooksModel(QAbstractTableModel): # {{{
             self.clear_caches()
             self.reset()
         if self.last_search:
+            # Do not issue search done for the null search. It is used to clear
+            # the search and count records for restrictions
             self.searched.emit(True)
-
 
     def sort(self, col, order, reset=True):
         if not self.db:
@@ -257,7 +258,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.sort(col, self.sorted_on[1], reset=reset)
 
     def research(self, reset=True):
-        self.search(self.last_search, False, reset=reset)
+        self.search(self.last_search, reset=reset)
 
     def columnCount(self, parent):
         if parent and parent.isValid():
@@ -730,6 +731,8 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_search_restriction(self, s):
         self.db.data.set_search_restriction(s)
+        self.search('')
+        return self.rowCount(None)
 
 # }}}
 
@@ -874,7 +877,7 @@ class DeviceBooksModel(BooksModel): # {{{
         return flags
 
 
-    def search(self, text, refinement, reset=True):
+    def search(self, text, reset=True):
         if not text or not text.strip():
             self.map = list(range(len(self.db)))
         else:
