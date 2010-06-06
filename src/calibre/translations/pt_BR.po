@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-05 01:06+0000\n"
-"PO-Revision-Date: 2010-06-04 16:58+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-06-05 15:12+0000\n"
+"Last-Translator: Thomaz Rodrigues Botelho <Unknown>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-05 03:34+0000\n"
+"X-Launchpad-Export-Date: 2010-06-06 03:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -489,7 +489,7 @@ msgstr "Dispositivo Apple detectado, iniciando iTunes, aguarde por favor..."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:143
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:146
 msgid "Updating device metadata listing..."
-msgstr ""
+msgstr "Atualizando a listagem de metadados do dispositivo..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:211
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:242
@@ -528,6 +528,8 @@ msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Algumas capas não puderam ser convertidas.\n"
+"Clique em 'Mostrar Detalhes' para a listagem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -566,7 +568,7 @@ msgstr "Comunica-se com o leitor ESlick."
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:30
 msgid "Use an arbitrary folder as a device."
-msgstr ""
+msgstr "Use um diretório escolhido no dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:26
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:23
@@ -849,7 +851,7 @@ msgstr "Defina o título do livro"
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:47
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
 msgid "Set sort key for the title"
-msgstr ""
+msgstr "Configura a ordenação por título."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
@@ -859,7 +861,7 @@ msgstr "Defina o autor"
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:51
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 msgid "Set sort key for the author"
-msgstr ""
+msgstr "Configura a ordenação por autor."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:53
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:597
@@ -1372,6 +1374,12 @@ msgid ""
 "\"original\" (the default) does not change justification in the source file. "
 "Note that only some output formats support justification."
 msgstr ""
+"Mudar a justificação do texto. Um valor de \"Esquerda\" converte todo o "
+"texto justificado na origem para texto alinhado a esqueda (por ex. sem "
+"justificação). Um valor de \"Justificado\" converte todo o texto não "
+"justificado para justificado. Um valor de \"Original\" (o padrão) não muda a "
+"justificação do arquivo de origem. Note que somente alguns formatos de saída "
+"suportam justificação."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:316
 msgid ""
@@ -1379,6 +1387,9 @@ msgid ""
 "1.5em. Spacing removal will not work if the source file does not use "
 "paragraphs (<p> or <div> tags)."
 msgstr ""
+"Remova espaço entre parágrafos. Também configura um espaçamento de 1,5 "
+"linhas nos parágrafos. Remoção de espaços não irão funcionar se o arquivo de "
+"origem não usa parágrafos (tags <p> ou <div>)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:323
 msgid ""
@@ -1386,6 +1397,9 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
 msgstr ""
+"Quando calibre remove espaço entre parágrafos, ele automaticamente configura "
+"um identificador de parágrafo, para segurar que os parágrafos possam ser "
+"facilmente identificados. Esta opção controla o tamanho do identificador."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:330
 msgid ""
@@ -1447,6 +1461,8 @@ msgid ""
 "Read metadata from the specified OPF file. Metadata read from this file will "
 "override any metadata in the source file."
 msgstr ""
+"Ler metadados de um arquivo OPF específico. Metadados lidos deste arquivo "
+"irão sobrescrever qualquer metadado no arquivo de origem."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:401
 msgid ""
@@ -1476,6 +1492,8 @@ msgstr "Defina o título."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:432
 msgid "Set the authors. Multiple authors should be separated by ampersands."
 msgstr ""
+"Configura os autores. Múltiplos autores devem ser separados por \"e "
+"comercial\"."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:437
 msgid "The version of the title to be used for sorting. "
@@ -1487,7 +1505,7 @@ msgstr "O texto a ser usado quando ordenando por autor. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:445
 msgid "Set the cover to the specified file or URL"
-msgstr ""
+msgstr "Configura a capa para o arquivo específico ou URL"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:449
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
@@ -1537,7 +1555,7 @@ msgstr "Defina o idioma."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:485
 msgid "Set the publication date."
-msgstr ""
+msgstr "Configura a data da publicação."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:489
 msgid "Set the book timestamp (used by the date column in calibre)."
@@ -1549,11 +1567,11 @@ msgstr "Não foi possível encontrar um ebook dentro do arquivo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:647
 msgid "Values of series index and rating must be numbers. Ignoring"
-msgstr ""
+msgstr "Valores para índices de séries e nota devem ser números. Ignorando"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:654
 msgid "Failed to parse date/time"
-msgstr ""
+msgstr "Falhou para decompor data/hora"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:802
 msgid "Converting input to HTML..."
@@ -1561,7 +1579,7 @@ msgstr "Convertendo entrada para HTML..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:829
 msgid "Running transforms on ebook..."
-msgstr ""
+msgstr "Executando transformações no ebook..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:916
 msgid "Creating"
@@ -1572,6 +1590,8 @@ msgid ""
 "Extract the contents of the generated EPUB file to the specified directory. "
 "The contents of the directory are first deleted, so be careful."
 msgstr ""
+"Extrair o conteúdo do arquivo EPUB gerado para o diretório especificado. O "
+"conteúdo do diretório é inicialmente apagado, então tenha cuidado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:62
 msgid ""
@@ -1593,6 +1613,10 @@ msgid ""
 "most EPUB readers cannot handle large file sizes. The default of %defaultKB "
 "is the size required for Adobe Digital Editions."
 msgstr ""
+"Divide todos os arquivos HTML maiores que este tamanho (em KB). Isto é "
+"necessário uma vez que os leitores de EPUB não podem ler arquivos de tamanho "
+"grande. O padrão de %defaultKB é o tamanho requerido para o Adobe Digital "
+"Editions."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:80
 msgid ""
@@ -1600,6 +1624,9 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
+"Normalmente, se o arquivo de entrada não tem capa e você não especificou "
+"uma, uma capa padrão é gerada com o título, autores, etc. Esta opção "
+"desabilita a geração desta capa."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
@@ -1608,6 +1635,9 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
+"Não use SVG para a capa do livro. Use esta opção se seu EPUB irá ser usado "
+"em um dispositivo que não suporta SVG, como o iPhone ou o JetBook Lite. Sem "
+"esta opção, os dispositivos irão mostrar a capa como uma página em branco."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
@@ -1617,20 +1647,26 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
+"Quando estiver usando uma capa SVG, esta opção irá fazer a capa se ajustar "
+"ao tamanho da área da tela, mas preservando seu aspecto sem deformação "
+"(largura e comprimento). Isto quer dizer que pode haver bordas brancas nos "
+"lados ou na parte de cima e em baixo da imagem, mas ela nunca ficará "
+"deformada. Sem esta opção a imagem pode ser visivelmente deformada, mas não "
+"haverão bordas brancas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:169
 msgid "Start"
-msgstr ""
+msgstr "Iniciar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:77
 msgid "Table of Contents:"
-msgstr ""
+msgstr "Tabela de conteúdos:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:32
 msgid "Do not insert a Table of Contents at the beginning of the book."
-msgstr ""
+msgstr "Não insira uma Tabela de Conteúdos no início do livro."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:32
@@ -1638,7 +1674,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:35
 msgid "Add Table of Contents to beginning of the book."
-msgstr ""
+msgstr "Adicione uma Tabela de Conteúdo no início do livro."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:243
 msgid ""
@@ -1702,19 +1738,19 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:539
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:552
 msgid "Could not parse file: %s"
-msgstr ""
+msgstr "Não foi possível decompor o arquivo: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:544
 msgid "%s is an empty file"
-msgstr ""
+msgstr "%s é um arquivo vazio"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:564
 msgid "Failed to parse link %s %s"
-msgstr ""
+msgstr "Falhou em decompor o link %s %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:608
 msgid "Cannot add link %s to TOC"
-msgstr ""
+msgstr "Não foi possivel adicionar o link %s a Tabela de Conteúdos"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:957
 msgid "Unable to process image %s. Error: %s"
@@ -9731,6 +9767,8 @@ msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
 msgstr ""
+"A codificação de caracteres para os websites que você está tentando fazer "
+"download. O Padrão é tentar adivinhar a codificação."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid ""
@@ -9738,6 +9776,10 @@ msgid ""
 "can be specified multiple times, in which case as long as a link matches any "
 "one regexp, it will be followed. By default all links are followed."
 msgstr ""
+"Somente links que correspondem a esta expressão regular serão seguidos. Esta "
+"opção pode ser especificada multiplas vezes, no caso, toda vez que um link "
+"corresponder a uma das expressões regulares, ele será seguido. Por padrão "
+"todos os links são seguidos."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:500
 msgid ""
@@ -9747,6 +9789,11 @@ msgid ""
 "filter-regexp and --match-regexp are specified, then --filter-regexp is "
 "applied first."
 msgstr ""
+"Qualquer link que corresponda a esta expressão regular será ignorado. Esta "
+"opção pode ser especificada multiplas vezes, e no caso, sempre que alguma "
+"das expressões regulares corresponder a um link, ele será ignorado. Por "
+"padrão, nenhum link é ignorado. Se ambos, --filter-regexp e --match-regexp "
+"são especificados juntos, então --filter-regexp é aplicado primeiro."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:502
 msgid "Do not download CSS stylesheets."

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-05 01:06+0000\n"
-"PO-Revision-Date: 2010-06-04 16:46+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-06-05 09:26+0000\n"
+"Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-05 03:33+0000\n"
+"X-Launchpad-Export-Date: 2010-06-06 03:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -2932,7 +2932,7 @@ msgstr "Ograniči najveći broj poslova na broj procesora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:101
 msgid "tag browser categories not to display"
-msgstr ""
+msgstr "kategorije koje ne treba prikazati u izlogu etiketa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:138
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:476
@@ -5133,7 +5133,7 @@ msgstr "Prikazuj obaveštenja u sistemskoj ikoni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:549
 msgid "Show &splash screen at startup"
-msgstr ""
+msgstr "Prikaži &početni ekran pri pokretanju programa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:550
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -6046,34 +6046,35 @@ msgstr "Prekidam..."
 msgid ""
 "The current saved search will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"Izabana sačuvana pretraga će biti <b>izbrisana zauvek</b>. Da li ste sigurni?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:83
 msgid "Saved Search Editor"
-msgstr ""
+msgstr "Uređivač sačuvanih pretraga"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:84
 msgid "Saved Search: "
-msgstr ""
+msgstr "Sačuvana pretraga: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:85
 msgid "Select a saved search to edit"
-msgstr ""
+msgstr "Izaberite sačuvanu pretragu za obadu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:86
 msgid "Delete this selected saved search"
-msgstr ""
+msgstr "Izbriši izabranu sačuvanu pretragu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:88
 msgid "Enter a new saved search name."
-msgstr ""
+msgstr "Unesite novo ime za sačuvanu pretragu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:89
 msgid "Add the new saved search"
-msgstr ""
+msgstr "Dodaj novu sačuvanu pretragu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:91
 msgid "Change the contents of the saved search"
-msgstr ""
+msgstr "Izmeni sadržaj sačuvane pretrage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:119
 msgid "Need username and password"
@@ -6342,7 +6343,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:153
 msgid "User Categories Editor"
-msgstr ""
+msgstr "Uređivač korisničkih kategorija"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:154
 msgid "A&vailable items"
@@ -6450,62 +6451,64 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:429
 msgid "Item is blank"
-msgstr ""
+msgstr "Ova stavka je prazna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:430
 msgid "An item cannot be set to nothing. Delete it instead."
-msgstr ""
+msgstr "Stavka ne može da bude prazna. Izbrišite je."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:66
 msgid "Item already used"
-msgstr ""
+msgstr "Stavka je već u upotrebi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:67
 msgid "The item %s is already used."
-msgstr ""
+msgstr "Stavka %s je već u upotrebi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:79
 msgid "No item selected"
-msgstr ""
+msgstr "Nije izabrana nijedna stavka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:80
 msgid "You must select one item from the list of Available items."
-msgstr ""
+msgstr "Morate izabrati jednu stavku iz liste raspoloživih stavki."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:89
 msgid "No items selected"
-msgstr ""
+msgstr "Nije izabrana nijedna stavka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:90
 msgid "You must select at least one items from the list."
-msgstr ""
+msgstr "Morate izabrati bar jednu stavku iz liste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:94
 msgid "Are you certain you want to delete the following items?"
-msgstr ""
+msgstr "Da li ste sigurni da želite da izbrišete ove stavke?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:71
 msgid "Category Editor"
-msgstr ""
+msgstr "Uređivač kategorija"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:72
 msgid "Items in use"
-msgstr ""
+msgstr "Stavke u upotrebi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:73
 msgid ""
 "Delete item from database. This will unapply the item from all books and "
 "then remove it from the database."
 msgstr ""
+"Izbriši stavku iz baze podataka. Ovo će prvo ukloniti ovu stavku iz svih "
+"knjiga, a zatim je ukloniti i iz baze podataka."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:75
 msgid "Rename the item in every book where it is used."
-msgstr ""
+msgstr "Preimenuj stavku u svakoj knjizi koja je koristi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:77
 msgid "Ctrl+S"
-msgstr ""
+msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:51
 msgid "Test email settings"
@@ -7096,7 +7099,7 @@ msgstr "Nisam uspeo da napravim biblioteku u: %r. Prekidam."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:132
 msgid "Initializing user interface..."
-msgstr ""
+msgstr "Pokrećem korisnički interfejs..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:157
 msgid "Repairing failed"
@@ -7155,7 +7158,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:230
 msgid "Starting %s: Loading books..."
-msgstr ""
+msgstr "Pokrećem %s: Učitavam knjige..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:275
 msgid "If you are sure it is not running"
@@ -7511,32 +7514,32 @@ msgstr "Nisam uspeo da učitam izlog omota: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:148
 msgid "Rename"
-msgstr ""
+msgstr "Preimenuj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:153
 msgid "Hide category %s"
-msgstr ""
+msgstr "Sakrij kategoriju %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:156
 msgid "Show category"
-msgstr ""
+msgstr "Prikaži kategoriju"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:160
 msgid "Show all categories"
-msgstr ""
+msgstr "Prikaži sve kategorije"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:167
 msgid "Manage "
-msgstr ""
+msgstr "Uredi "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:171
 msgid "Manage Saved Searches"
-msgstr ""
+msgstr "Uredi sačuvane pretrage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:182
 msgid "Manage User Categories"
-msgstr ""
+msgstr "Uredi korisničke kategorije"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:348
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:244
@@ -7545,7 +7548,7 @@ msgstr "Pretrage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:439
 msgid "The name %s is already used."
-msgstr ""
+msgstr "Ime %s je već u upotrebi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:182
@@ -10058,7 +10061,7 @@ msgstr "%d knjiga"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:124
 msgid "%d items"
-msgstr ""
+msgstr "%d stavki."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:141
 msgid "RATING: %s<br />"
