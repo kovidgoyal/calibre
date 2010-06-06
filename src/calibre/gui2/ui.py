@@ -543,7 +543,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.cover_cache.start()
         self.library_view.model().cover_cache = self.cover_cache
         self.connect(self.edit_categories, SIGNAL('clicked()'), self.do_user_categories_edit)
-        self.search_restriction.currentIndexChanged[str].connect(self.apply_search_restriction)
+        self.search_restriction.activated[str].connect(self.apply_search_restriction)
         self.tags_view.set_database(db, self.tag_match, self.popularity)
         self.tags_view.tags_marked.connect(self.search.search_from_tags)
         self.tags_view.tags_marked.connect(self.saved_search.clear_to_help)
@@ -895,6 +895,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         t = unicode(self.search_restriction.currentText())
         self.search_restriction.clear() # rebuild the restrictions combobox using current saved searches
         self.search_restriction.addItem('')
+        self.tags_view.recount()
         for s in p:
             self.search_restriction.addItem(s)
         if t:
@@ -903,7 +904,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 # self.tags_view.set_search_restriction(t)
             else:
                 self.search_restriction.setCurrentIndex(0)
-            self.search.clear_to_help()
+                self.apply_search_restriction('')
 
     def sync_cf_to_listview(self, current, previous):
         if self.cover_flow_sync_flag and self.cover_flow.isVisible() and \
