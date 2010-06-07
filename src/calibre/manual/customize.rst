@@ -8,15 +8,24 @@ Customizing |app|
 ==================================
 
 |app| has a highly modular design. Various parts of it can be customized. You can learn how to create
-*recipes* to add new sources of online content to |app| in the Section :ref:`news`. Here, you will learn how to
-use *plugins* to customize and control various aspects of |app|'s behavior. 
-
-Theer are different kinds of plugins, corresponding to different aspects of |app|. As more and more aspects of |app|
-are modularized, new plugin types will be added.
+*recipes* to add new sources of online content to |app| in the Section :ref:`news`. Here, you will learn,
+first, how to use environment variables and *tweaks* to customize |app|'s behavior and then how to
+use *plugins* to add funtionality to |app|.
 
 .. contents::
     :depth: 2
     :local:
+
+Environment variables
+-----------------------
+
+    * ``CALIBRE_CONFIG_DIRECTORY``
+    * ``CALIBRE_OVERRIDE_DATABASE_PATH``
+    * ``CALIBRE_DEVELOP_FROM``
+    * ``CALIBRE_OVERRIDE_LANG``
+    * ``SYSFS_PATH``
+    * ``http_proxy``
+
 
 A Hello World plugin
 ------------------------

@@ -241,7 +241,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
                 results.add(urn)
         return results
 
-    def search(self, query, refinement):
+    def search(self, query):
         try:
             results = self.parse(unicode(query))
             if not results:
