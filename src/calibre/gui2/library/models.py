@@ -1089,7 +1089,6 @@ class DeviceBooksModel(BooksModel): # {{{
             idx = self.map[row]
             if cname == 'title' :
                 self.db[idx].title = val
-                self.db[idx].title_sorter = val
             elif cname == 'authors':
                 self.db[idx].authors = string_to_authors(val)
             elif cname == 'collections':
