@@ -1049,8 +1049,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # new series index to each of the books.
 
             # Get the list of books where we must update the series index
-            books = self.conn.get('''SELECT book from books_series_link
-                                     WHERE series=?''', (old_id,))
+            books = self.conn.get('''SELECT books.id
+                                     FROM books, books_series_link as lt
+                                     WHERE books.id = lt.book AND lt.series=?
+                                     ORDER BY books.series_index''', (old_id,))
             # Get the next series index
             index = self.get_next_series_num_for(new_name)
             # Now update the link table

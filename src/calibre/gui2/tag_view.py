@@ -185,11 +185,17 @@ class TagsView(QTreeView): # {{{
         if self.model():
             self.model().clear_state()
 
+    def is_visible(self, idx):
+        item = idx.internalPointer()
+        if item.type == TagTreeItem.TAG:
+            idx = idx.parent()
+        return self.isExpanded(idx)
+
     def recount(self, *args):
         ci = self.currentIndex()
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))
-        path = self.model().path_for_index(ci)
+        path = self.model().path_for_index(ci) if self.is_visible(ci) else None
         try:
             self.model().refresh()
         except: #Database connection could be closed if an integrity check is happening
