@@ -317,8 +317,10 @@ class DeviceManager(Thread):
     def _save_books(self, paths, target):
         '''Copy books from device to disk'''
         for path in paths:
-            name = path.rpartition(getattr(self.device, 'path_sep', '/'))[2]
+#            name = path.rpartition(getattr(self.device, 'path_sep', '/'))[2]
+            name = path.rpartition(os.sep)[2]
             dest = os.path.join(target, name)
+            print path, dest
             if os.path.abspath(dest) != os.path.abspath(path):
                 f = open(dest, 'wb')
                 self.device.get_file(path, f)
