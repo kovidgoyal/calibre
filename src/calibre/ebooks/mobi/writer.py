@@ -1334,7 +1334,7 @@ class MobiWriter(object):
             item = self._oeb.manifest.hrefs[href]
             try:
                 data = rescale_image(item.data, self._imagemax)
-            except IOError:
+            except:
                 self._oeb.logger.warn('Bad image file %r' % item.href)
                 continue
             self._records.append(data)

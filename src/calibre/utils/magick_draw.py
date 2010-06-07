@@ -161,6 +161,19 @@ def create_text_arc(text, font_size, font=None, bgcolor='white'):
     p.MagickTrimImage(canvas, 0)
     return canvas
 
+def add_borders_to_image(path_to_image, left=0, top=0, right=0, bottom=0,
+        border_color='white'):
+    with p.ImageMagick():
+        img = load_image(path_to_image)
+        lwidth = p.MagickGetImageWidth(img)
+        lheight = p.MagickGetImageHeight(img)
+        canvas = create_canvas(lwidth+left+right, lheight+top+bottom,
+                border_color)
+        compose_image(canvas, img, left, top)
+        p.DestroyMagickWand(img)
+        with open(path_to_image, 'wb') as f:
+            p.MagickWriteImage(canvas, f)
+        p.DestroyMagickWand(canvas)
 
 def create_cover_page(top_lines, logo_path, width=590, height=750,
         bgcolor='white', output_format='png'):
@@ -198,6 +211,23 @@ def create_cover_page(top_lines, logo_path, width=590, height=750,
                 ans = f.read()
         p.DestroyMagickWand(canvas)
     return ans
+
+def save_cover_data_to(data, path, bgcolor='white'):
+    '''
+    Saves image in data to path, in the format specified by the path
+    extension. Composes the image onto a blank cancas so as to
+    properly convert transparent images.
+    '''
+    with open(path, 'wb') as f:
+        f.write(data)
+    with p.ImageMagick():
+        img = load_image(path)
+        canvas = create_canvas(p.MagickGetImageWidth(img),
+                p.MagickGetImageHeight(img), bgcolor)
+        compose_image(canvas, img, 0, 0)
+        p.MagickWriteImage(canvas, path)
+        p.DestroyMagickWand(img)
+        p.DestroyMagickWand(canvas)
 
 def test():
     import subprocess

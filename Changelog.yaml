@@ -4,6 +4,45 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.1
+  date: 2010-06-04
+
+  new features:
+    - title: "Content server: Add option to control category groupiong in OPDS feeds"
+
+    - title: "Make the book details pane occupy the full lower part of the window"
+
+    - title: "Add true and false searches for date based columns"
+      tickets: [5717]
+
+  bug fixes:
+    - title: "iPad driver: Various bug fixes."
+
+    - title: "SONY driver: Fix Launcher partition being detected as storage card in linux"
+
+    - title: "Fix news downloading breaking on windows systems with local encoding other than UTF-8."
+
+    - title: "SONY driver: Fix problem caused by null titles"
+
+    - title: "Make the new splash screen not always stay on top"
+      tickets: [5700]
+
+    - title: "When setting an image with transparent pixels as the book cover, overlay it on a white background first. Fixes transparent covers getting random backgrounds."
+
+    - title: "Content server: Fix stanza integration when entering the server URL my hand"
+
+  improved recipes:
+    - Gizmodo
+    - Vreme
+
+
+- version: 0.7.0
+  date: 2010-06-04
+
+  new features:
+    - title: "Go to http://calibre-ebook.com/new-in/seven to see what's new in 0.7.0"
+      type: major
+
 - version: 0.6.55
   date: 2010-05-28
 

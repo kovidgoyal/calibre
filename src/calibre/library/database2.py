@@ -9,12 +9,6 @@ The database used to store ebook metadata
 import os, sys, shutil, cStringIO, glob,functools, traceback
 from itertools import repeat
 from math import floor
-try:
-    from PIL import Image as PILImage
-    PILImage
-except ImportError:
-    import Image as PILImage
-
 
 from PyQt4.QtGui import QImage
 
@@ -37,7 +31,7 @@ from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.utils.config import prefs
 from calibre.utils.search_query_parser import saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
-
+from calibre.utils.magick_draw import save_cover_data_to
 
 if iswindows:
     import calibre.utils.winshell as winshell
@@ -475,11 +469,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if callable(getattr(data, 'save', None)):
             data.save(path)
         else:
-            f = data
-            if not callable(getattr(data, 'read', None)):
-                f = cStringIO.StringIO(data)
-            im = PILImage.open(f)
-            im.convert('RGB').save(path, 'JPEG')
+            if callable(getattr(data, 'read', None)):
+                data = data.read()
+            save_cover_data_to(data, path)
 
     def book_on_device(self, id):
         if callable(self.book_on_device_func):
@@ -643,11 +635,24 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         Remove orphaned entries.
         '''
-        st = 'DELETE FROM %(table)s WHERE (SELECT COUNT(id) FROM books_%(ltable)s_link WHERE %(ltable_col)s=%(table)s.id) < 1;'
-        self.conn.execute(st%dict(ltable='authors', table='authors', ltable_col='author'))
-        self.conn.execute(st%dict(ltable='publishers', table='publishers', ltable_col='publisher'))
-        self.conn.execute(st%dict(ltable='tags', table='tags', ltable_col='tag'))
-        self.conn.execute(st%dict(ltable='series', table='series', ltable_col='series'))
+        def doit(ltable, table, ltable_col):
+            st = ('DELETE FROM books_%s_link WHERE (SELECT COUNT(id) '
+                    'FROM books WHERE id=book) < 1;')%ltable
+            self.conn.execute(st)
+            st = ('DELETE FROM %(table)s WHERE (SELECT COUNT(id) '
+                    'FROM books_%(ltable)s_link WHERE '
+                    '%(ltable_col)s=%(table)s.id) < 1;') % dict(
+                            ltable=ltable, table=table, ltable_col=ltable_col)
+            self.conn.execute(st)
+
+        for ltable, table, ltable_col in [
+                ('authors', 'authors', 'author'),
+                ('publishers', 'publishers', 'publisher'),
+                ('tags', 'tags', 'tag'),
+                ('series', 'series', 'series')
+                ]:
+            doit(ltable, table, ltable_col)
+
         for id_, tag in self.conn.get('SELECT id, name FROM tags', all=True):
             if not tag.strip():
                 self.conn.execute('DELETE FROM books_tags_link WHERE tag=?',
@@ -730,9 +735,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0],
                                         icon=icon, tooltip = tooltip)
                                     for r in data if item_not_zero_func(r)]
-            if category == 'series':
-                categories[category].sort(cmp=lambda x,y:cmp(title_sort(x.name),
-                    title_sort(y.name)))
+            if category == 'series' and not sort_on_count:
+                categories[category].sort(cmp=lambda x,y:cmp(title_sort(x.name).lower(),
+                    title_sort(y.name).lower()))
 
         # We delayed computing the standard formats category because it does not
         # use a view, but is computed dynamically
@@ -985,19 +990,91 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if notify:
                 self.notify('metadata', [id])
 
-    # Convenience method for tags_list_editor
+    # Convenience methods for tags_list_editor
+    # Note: we generally do not need to refresh_ids because library_view will
+    # refresh everything.
     def get_tags_with_ids(self):
-        result = self.conn.get('SELECT * FROM tags')
+        result = self.conn.get('SELECT id,name FROM tags')
         if not result:
-            return {}
-        r = []
-        for k,v in result:
-            r.append((k,v))
-        return r
+            return []
+        return result
 
-    def rename_tag(self, id, new):
-        self.conn.execute('UPDATE tags SET name=? WHERE id=?', (new, id))
-        self.conn.commit()
+    def rename_tag(self, id, new_name):
+        if id:
+            self.conn.execute('UPDATE tags SET name=? WHERE id=?', (new_name, id))
+            self.conn.commit()
+
+    def delete_tag_using_id(self, id):
+        if id:
+            self.conn.execute('DELETE FROM books_tags_link WHERE tag=?', (id,))
+            self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
+            self.conn.commit()
+
+    def get_series_with_ids(self):
+        result = self.conn.get('SELECT id,name FROM series')
+        if not result:
+            return []
+        return result
+
+    def rename_series(self, id, new_name):
+        if id:
+            self.conn.execute('UPDATE series SET name=? WHERE id=?', (new_name, id))
+            self.conn.commit()
+
+    def delete_series_using_id(self, id):
+        if id:
+            books = self.conn.get('SELECT book from books_series_link WHERE series=?', (id,))
+            self.conn.execute('DELETE FROM books_series_link WHERE series=?', (id,))
+            self.conn.execute('DELETE FROM series WHERE id=?', (id,))
+            self.conn.commit()
+            for (book_id,) in books:
+                self.conn.execute('UPDATE books SET series_index=1.0 WHERE id=?', (book_id,))
+
+    def get_publishers_with_ids(self):
+        result = self.conn.get('SELECT id,name FROM publishers')
+        if not result:
+            return []
+        return result
+
+    def rename_publisher(self, id, new_name):
+        if id:
+            self.conn.execute('UPDATE publishers SET name=? WHERE id=?', (new_name, id))
+            self.conn.commit()
+
+    def delete_publisher_using_id(self, id):
+        if id:
+            self.conn.execute('DELETE FROM books_publishers_link WHERE publisher=?', (id,))
+            self.conn.execute('DELETE FROM publishers WHERE id=?', (id,))
+            self.conn.commit()
+
+    # There is no editor for author, so we do not need get_authors_with_ids or
+    # delete_author_using_id.
+    def rename_author(self, id, new_name):
+        if id:
+            # Make sure that any commas in new_name are changed to '|'!
+            new_name = new_name.replace(',', '|')
+            self.conn.execute('UPDATE authors SET name=? WHERE id=?', (new_name, id))
+            self.conn.commit()
+            # now must fix up the books
+            books = self.conn.get('SELECT book from books_authors_link WHERE author=?', (id,))
+            for (book_id,) in books:
+                # First, must refresh the cache to see the new authors
+                self.data.refresh_ids(self, [book_id])
+                # now fix the filesystem paths
+                self.set_path(book_id, index_is_id=True)
+                # Next fix the author sort. Reset it to the default
+                authors = self.conn.get('''
+                    SELECT authors.name
+                    FROM authors, books_authors_link as bl
+                    WHERE bl.book = ? and bl.author = authors.id
+                ''' , (book_id,))
+                # unpack the double-list structure
+                for i,aut in enumerate(authors):
+                    authors[i] = aut[0]
+                ss = authors_to_sort_string(authors)
+                self.conn.execute('UPDATE books SET author_sort=? WHERE id=?', (ss, id))
+
+    # end convenience methods
 
     def get_tags(self, id):
         result = self.conn.get(
@@ -1082,7 +1159,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.execute('DELETE FROM books_tags_link WHERE tag=?', (id,))
                 self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
                 self.conn.commit()
-
 
     def set_series(self, id, series, notify=True):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
@@ -1603,6 +1679,7 @@ books_series_link      feeds
 
     def check_integrity(self, callback):
         callback(0., _('Checking SQL integrity...'))
+        self.clean()
         user_version = self.user_version
         sql = '\n'.join(self.conn.dump())
         self.conn.close()

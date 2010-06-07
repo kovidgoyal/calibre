@@ -6,8 +6,7 @@ __docformat__ = 'restructuredtext en'
 Device driver for the SONY devices
 '''
 
-import os
-import re
+import os, time, re
 
 from calibre.devices.usbms.driver import USBMS
 from calibre.devices.prs505 import MEDIA_XML
@@ -65,6 +64,41 @@ class PRS505(USBMS):
 
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
+
+    def post_open_callback(self):
+
+        def write_cache(prefix):
+            try:
+                cachep = os.path.join(prefix, *(CACHE_XML.split('/')))
+                if not os.path.exists(cachep):
+                    dname = os.path.dirname(cachep)
+                    if not os.path.exists(dname):
+                        try:
+                            os.makedirs(dname, mode=0777)
+                        except:
+                            time.sleep(5)
+                            os.makedirs(dname, mode=0777)
+                    with open(cachep, 'wb') as f:
+                        f.write(u'''<?xml version="1.0" encoding="UTF-8"?>
+                            <cache xmlns="http://www.kinoma.com/FskCache/1">
+                            </cache>
+                            '''.encode('utf8'))
+                return True
+            except:
+                import traceback
+                traceback.print_exc()
+            return False
+
+        # Make sure we don't have the launcher partition
+        # as one of the cards
+
+        if self._card_a_prefix is not None:
+            if not write_cache(self._card_a_prefix):
+                self._card_a_prefix = None
+        if self._card_b_prefix is not None:
+            if not write_cache(self._card_b_prefix):
+                self._card_b_prefix = None
+
 
     def get_device_information(self, end_session=True):
         return (self.gui_name, '', '', '')

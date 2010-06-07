@@ -25,7 +25,7 @@ BASE_HREFS = {
         1 : '/opds',
 }
 
-STANZA_FORMATS = frozenset(['epub', 'pdb'])
+STANZA_FORMATS = frozenset(['epub', 'pdb', 'pdf', 'cbr', 'cbz', 'djvu'])
 
 def url_for(name, version, **kwargs):
     if not name.endswith('_'):
@@ -121,7 +121,7 @@ def CATALOG_GROUP_ENTRY(item, category, base_href, version, updated):
             TITLE(item.text),
             ID(id_),
             UPDATED(updated),
-            E.content(_('%d books')%item.count, type='text'),
+            E.content(_('%d items')%item.count, type='text'),
             link
             )
 
@@ -445,7 +445,7 @@ class OPDSServer(object):
 
         id_ = 'calibre-category-feed:'+which
 
-        MAX_ITEMS = 50
+        MAX_ITEMS = self.opts.max_opds_ungrouped_items
 
         if len(items) <= MAX_ITEMS:
             max_items = self.opts.max_opds_items
@@ -459,8 +459,6 @@ class OPDSServer(object):
                     self.text, self.count = text, count
 
             starts = set([x.name[0] for x in items])
-            if len(starts) > MAX_ITEMS:
-                starts = set([x.name[:2] for x in items])
             category_groups = OrderedDict()
             for x in sorted(starts, cmp=lambda x,y:cmp(x.lower(), y.lower())):
                 category_groups[x] = len([y for y in items if

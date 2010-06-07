@@ -38,6 +38,12 @@ def server_config(defaults=None):
     c.add_opt('max_opds_items', ['--max-opds-items'], default=30,
             help=_('The maximum number of matches to return per OPDS query. '
             'This affects Stanza, WordPlayer, etc. integration.'))
+    c.add_opt('max_opds_ungrouped_items', ['--max-opds-ungrouped-items'],
+            default=100,
+            help=_('Group items in categories such as author/tags '
+                'by first letter when there are more than this number '
+                'of items. Default: %default. Set to a large number '
+                'to disable grouping.'))
     return c
 
 def main():

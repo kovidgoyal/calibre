@@ -3,14 +3,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
-from PyQt4.QtCore import SIGNAL, Qt
-from PyQt4.QtGui import QDialog, QIcon, QListWidgetItem
+from PyQt4.QtCore import SIGNAL
+from PyQt4.QtGui import QDialog
 
 from calibre.gui2.dialogs.saved_search_editor_ui import Ui_SavedSearchEditor
-from calibre.utils.config import prefs
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.constants import islinux
 
 class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
 

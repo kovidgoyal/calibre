@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from lxml import html, etree
 from lxml.html.builder import HTML, HEAD, TITLE, STYLE, DIV, BODY, \
-        STRONG, BR, H1, SPAN, A, HR, UL, LI, H2, IMG, P as PT, \
+        STRONG, BR, SPAN, A, HR, UL, LI, H2, IMG, P as PT, \
         TABLE, TD, TR
 
 from calibre import preferred_encoding, strftime, isbytestring
@@ -120,6 +120,7 @@ class TouchscreenNavBarTemplate(Template):
             href = '%s%s/%s/index.html'%(prefix, up, next)
             navbar.text = '| '
             navbar.append(A('Next', href=href))
+
         href = '%s../index.html#article_%d'%(prefix, art)
         navbar.iterchildren(reversed=True).next().tail = ' | '
         navbar.append(A('Section Menu', href=href))
@@ -130,6 +131,7 @@ class TouchscreenNavBarTemplate(Template):
             href = '%s../article_%d/index.html'%(prefix, art-1)
             navbar.iterchildren(reversed=True).next().tail = ' | '
             navbar.append(A('Previous', href=href))
+
         navbar.iterchildren(reversed=True).next().tail = ' | '
         if not bottom:
             navbar.append(HR())
@@ -165,8 +167,14 @@ class TouchscreenIndexTemplate(Template):
     def _generate(self, title, masthead, datefmt, feeds, extra_css=None, style=None):
         if isinstance(datefmt, unicode):
             datefmt = datefmt.encode(preferred_encoding)
-        date = strftime(datefmt)
-        masthead_img = IMG(src=masthead,alt="masthead")
+        date = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
+        masthead_p = etree.Element("p")
+        masthead_p.set("style","text-align:center")
+        masthead_img = etree.Element("img")
+        masthead_img.set("src",masthead)
+        masthead_img.set("alt","masthead")
+        masthead_p.append(masthead_img)
+
         head = HEAD(TITLE(title))
         if style:
             head.append(STYLE(style, type='text/css'))
@@ -177,15 +185,13 @@ class TouchscreenIndexTemplate(Template):
         for i, feed in enumerate(feeds):
             if feed:
                 tr = TR()
-                tr.append(TD( CLASS('toc_item'), A(feed.title, href='feed_%d/index.html'%i)))
-                tr.append(TD( CLASS('article_count'),'%d' % len(feed.articles)))
+                tr.append(TD( CLASS('calibre_rescale_120'), A(feed.title, href='feed_%d/index.html'%i)))
+                tr.append(TD( '%s' % len(feed.articles), style="text-align:right"))
                 toc.append(tr)
-
         div = DIV(
-                PT(masthead_img,style='text-align:center'),
+                masthead_p,
                 PT(date, style='text-align:center'),
-                toc,
-                CLASS('calibre_rescale_100'))
+                toc)
         self.root = HTML(head, BODY(div))
 
 class FeedTemplate(Template):
@@ -271,12 +277,15 @@ class TouchscreenFeedTemplate(Template):
                 continue
             tr = TR()
             td = TD(
-                    A(article.title, CLASS('article calibre_rescale_100',
+                    A(article.title, CLASS('summary_headline','calibre_rescale_120',
                                     href=article.url))
                     )
+            if article.author:
+                td.append(DIV(article.author,
+                    CLASS('summary_byline', 'calibre_rescale_100')))
             if article.summary:
                 td.append(DIV(cutoff(article.text_summary),
-                    CLASS('article_description', 'calibre_rescale_80')))
+                    CLASS('summary_text', 'calibre_rescale_100')))
             tr.append(td)
             toc.append(tr)
         div.append(toc)

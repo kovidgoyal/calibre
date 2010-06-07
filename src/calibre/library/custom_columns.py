@@ -171,6 +171,40 @@ class CustomColumns(object):
                 ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
         return ans
 
+    # convenience methods for tag editing
+    def get_custom_items_with_ids(self, label=None, num=None):
+        if label is not None:
+            data = self.custom_column_label_map[label]
+        if num is not None:
+            data = self.custom_column_num_map[num]
+        table,lt = self.custom_table_names(data['num'])
+        if not data['normalized']:
+            return []
+        ans = self.conn.get('SELECT id, value FROM %s'%table)
+        return ans
+
+    def rename_custom_item(self, id, new_name, label=None, num=None):
+        if id:
+            if label is not None:
+                data = self.custom_column_label_map[label]
+            if num is not None:
+                data = self.custom_column_num_map[num]
+            table,lt = self.custom_table_names(data['num'])
+            self.conn.execute('UPDATE %s SET value=? WHERE id=?'%table, (new_name, id))
+            self.conn.commit()
+
+    def delete_custom_item_using_id(self, id, label=None, num=None):
+        if id:
+            if label is not None:
+                data = self.custom_column_label_map[label]
+            if num is not None:
+                data = self.custom_column_num_map[num]
+            table,lt = self.custom_table_names(data['num'])
+            self.conn.execute('DELETE FROM %s WHERE value=?'%lt, (id,))
+            self.conn.execute('DELETE FROM %s WHERE id=?'%table, (id,))
+            self.conn.commit()
+    # end convenience methods
+
     def all_custom(self, label=None, num=None):
         if label is not None:
             data = self.custom_column_label_map[label]

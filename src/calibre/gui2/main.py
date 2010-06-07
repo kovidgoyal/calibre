@@ -226,7 +226,7 @@ class GuiRunner(QObject):
         self.splash_pixmap = QPixmap()
         self.splash_pixmap.load(I('library.png'))
         self.splash_screen = QSplashScreen(self.splash_pixmap,
-            Qt.SplashScreen|Qt.WindowStaysOnTopHint)
+            Qt.SplashScreen)
         self.splash_screen.showMessage(_('Starting %s: Loading books...') %
                 __appname__)
         self.splash_screen.show()

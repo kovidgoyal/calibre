@@ -75,6 +75,9 @@ class BooksView(QTableView): # {{{
             h.setSectionHidden(idx, True)
         elif action == 'show':
             h.setSectionHidden(idx, False)
+            if h.sectionSize(idx) < 3:
+               sz = h.sectionSizeHint(idx)
+               h.resizeSection(idx, sz)
         elif action == 'ascending':
             self.sortByColumn(idx, Qt.AscendingOrder)
         elif action == 'descending':
@@ -257,6 +260,11 @@ class BooksView(QTableView): # {{{
         for col, alignment in state.get('column_alignment', {}).items():
             self._model.change_alignment(col, alignment)
 
+        for i in range(h.count()):
+            if not h.isSectionHidden(i) and h.sectionSize(i) < 3:
+                sz = h.sectionSizeHint(i)
+                h.resizeSection(i, sz)
+
     def get_default_state(self):
         old_state = {
                 'hidden_columns': [],
@@ -428,10 +436,6 @@ class BooksView(QTableView): # {{{
         sb.search.connect(self._model.search)
         self._search_done = search_done
         self._model.searched.connect(self.search_done)
-
-    def connect_to_restriction_set(self, tv):
-        # must be synchronous (not queued)
-        tv.restriction_set.connect(self._model.set_search_restriction)
 
     def connect_to_book_display(self, bd):
         self._model.new_bookdisplay_data.connect(bd)
