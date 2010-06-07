@@ -1163,7 +1163,7 @@ class ITUNES(DevicePlugin):
                 hits = lib_books.Search(cached_book['author'],SearchField.index('Artists'))
                 if hits:
                     for hit in hits:
-                        self.log.info(" evaluating '%s' by %s" % (hit.Name, hit.Artist))
+                        #self.log.info(" evaluating '%s' by %s" % (hit.Name, hit.Artist))
                         if hit.Name == cached_book['title']:
                             self.log.info(" matched '%s' by %s" % (hit.Name, hit.Artist))
                             return hit
@@ -1359,7 +1359,6 @@ class ITUNES(DevicePlugin):
                 if DEBUG:
                     self.log.info('ITUNES._get_library_books():\n No Books playlist')
 
-
         elif iswindows:
             lib = None
             try:
@@ -1466,7 +1465,7 @@ class ITUNES(DevicePlugin):
             cmd = "defaults read com.apple.itunes NSNavLastRootDirectory"
             proc = subprocess.Popen( cmd, shell=True, cwd=os.curdir, stdout=subprocess.PIPE)
             retcode = proc.wait()
-            media_dir = proc.communicate()[0].strip()
+            media_dir = os.path.abspath(proc.communicate()[0].strip())
             if os.path.exists(media_dir):
                 self.iTunes_media = media_dir
             else:
@@ -1493,12 +1492,13 @@ class ITUNES(DevicePlugin):
                 soup = BeautifulSoup(xml.read().decode('utf-8'))
                 mf = soup.find('key',text="Music Folder").parent
                 string = mf.findNext('string').renderContents()
-                media_dir = string[len('file://localhost/'):].replace('%20',' ')
+                media_dir = os.path.abspath(string[len('file://localhost/'):].replace('%20',' '))
                 if os.path.exists(media_dir):
                     self.iTunes_media = media_dir
                 else:
                     self.log.error(" could not extract valid iTunes.media_dir from %s" % self.iTunes.LibraryXMLPath)
                     self.log.error(" %s" % string.parent.prettify())
+                    self.log.error(" '%s' not found" % media_dir)
 
             if DEBUG:
                 self.log.info( " [%s - %s (%s), driver version %d.%d.%d]" %
@@ -1514,13 +1514,7 @@ class ITUNES(DevicePlugin):
         '''
         if isosx:
             storage_path = os.path.split(cached_book['lib_book'].location().path)
-            presumptive_path = os.path.join(self.iTunes_media,
-                                            'iTunes Music',
-                                            cached_book['author'][0],
-                                            cached_book['title'],
-                                            storage_path[1])
-
-            if os.path.exists(presumptive_path):
+            if cached_book['lib_book'].location().path.startswith(self.iTunes_media):
                 title_storage_path = storage_path[0]
                 if DEBUG:
                     self.log.info("ITUNES._remove_from_iTunes():")
@@ -1545,7 +1539,7 @@ class ITUNES(DevicePlugin):
                         self.log.info(" author_storage_path not empty (%d objects):" % len(author_files))
                         self.log.info(" %s" % '\n'.join(author_files))
             else:
-                self.log.info(" '%s' not found in iTunes storage, no files deleted" % presumptive_path)
+                self.log.info(" '%s' stored external to iTunes, no files deleted" % cached_book['title'])
 
             self.iTunes.delete(cached_book['lib_book'])
 
@@ -1560,15 +1554,7 @@ class ITUNES(DevicePlugin):
             if book:
                 path = book.Location
                 storage_path = os.path.split(book.Location)
-                # This assumes that 'Books' will be the storage subdirectory in
-                # all versions of Windows.  The XML file doesn't offer any deeper information
-                # than the media directory.
-                presumptive_path = os.path.join(self.iTunes_media,
-                                                'Books',
-                                                cached_book['author'],
-                                                storage_path[1])
-
-                if os.path.exists(presumptive_path):
+                if book.Location.startswith(self.iTunes_media):
                     if DEBUG:
                         self.log.info("ITUNES._remove_from_iTunes():")
                         self.log.info(" removing '%s' at %s" %
@@ -1585,7 +1571,7 @@ class ITUNES(DevicePlugin):
 
                     # Delete from iTunes database
                 else:
-                    self.log.info(" '%s' not in iTunes storage, no files deleted" % presumptive_path)
+                    self.log.info(" '%s' stored external to iTunes, no files deleted" % cached_book['title'])
 
                 book.Delete()
 

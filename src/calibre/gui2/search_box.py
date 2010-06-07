@@ -57,7 +57,7 @@ class SearchBox2(QComboBox):
     INTERVAL = 1500 #: Time to wait before emitting search signal
     MAX_COUNT = 25
 
-    search = pyqtSignal(object, object)
+    search = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
@@ -97,8 +97,12 @@ class SearchBox2(QComboBox):
         self.help_state = False
 
     def clear_to_help(self):
+        self.search.emit('')
         self._in_a_search = False
         self.setEditText(self.help_text)
+        if self.timer is not None: # Turn off any timers that got started in setEditText
+            self.killTimer(self.timer)
+            self.timer = None
         self.line_edit.home(False)
         self.help_state = True
         self.line_edit.setStyleSheet(
@@ -111,7 +115,6 @@ class SearchBox2(QComboBox):
 
     def clear(self):
         self.clear_to_help()
-        self.search.emit('', False)
 
     def search_done(self, ok):
         if not unicode(self.currentText()).strip():
@@ -155,9 +158,8 @@ class SearchBox2(QComboBox):
         if not text or text == self.help_text:
             return self.clear()
         self.help_state = False
-        refinement = text.startswith(self.prev_search) and ':' not in text
         self.prev_search = text
-        self.search.emit(text, refinement)
+        self.search.emit(text)
 
         idx = self.findText(text, Qt.MatchFixedString)
         self.block_signals(True)
@@ -187,12 +189,15 @@ class SearchBox2(QComboBox):
         self.set_search_string(joiner.join(tags))
 
     def set_search_string(self, txt):
+        if not txt:
+            self.clear_to_help()
+            return
         self.normalize_state()
         self.setEditText(txt)
         if self.timer is not None: # Turn off any timers that got started in setEditText
             self.killTimer(self.timer)
             self.timer = None
-        self.search.emit(txt, False)
+        self.search.emit(txt)
         self.line_edit.end(False)
         self.initial_state = False
 
