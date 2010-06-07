@@ -138,7 +138,8 @@ class TagsView(QTreeView): # {{{
             # the possibility of renaming that item
             if tag_name and \
                     (key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
-                     self.db.field_metadata[key]['is_custom']):
+                     self.db.field_metadata[key]['is_custom'] and \
+                     self.db.field_metadata[key]['datatype'] != 'rating'):
                 self.context_menu.addAction(_('Rename') + " '" + tag_name + "'",
                         partial(self.context_menu_handler, action='edit_item',
                                 category=tag_item, index=index))
@@ -359,12 +360,8 @@ class TagsModel(QAbstractItemModel): # {{{
             data = self.db.get_categories(sort_on_count=sort, icon_map=self.category_icon_map)
 
         tb_categories = self.db.field_metadata
-        self.category_items = {}
         for category in tb_categories:
             if category in data: # They should always be there, but ...
-                # make a map of sets of names per category for duplicate
-                # checking when editing
-                self.category_items[category] = set([tag.name for tag in data[category]])
                 self.row_map.append(category)
                 self.categories.append(tb_categories[category]['name'])
         return data
@@ -412,15 +409,14 @@ class TagsModel(QAbstractItemModel): # {{{
             return False
         item = index.internalPointer()
         key = item.parent.category_key
-        # make certain we know about the category
+        # make certain we know about the item's category
         if key not in self.db.field_metadata:
             return
-        if val in self.category_items[key]:
-            error_dialog(self.tags_view, 'Duplicate item',
-                        _('The name %s is already used.')%val).exec_()
-            return False
-        oldval = item.tag.name
         if key == 'search':
+            if val in saved_searches.names():
+                error_dialog(self.tags_view, _('Duplicate search name'),
+                    _('The saved search name %s is already used.')%val).exec_()
+                return False
             saved_searches.rename(unicode(item.data(role).toString()), val)
             self.tags_view.search_item_renamed.emit()
         else:
@@ -437,10 +433,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                     label=self.db.field_metadata[key]['label'])
             self.tags_view.tag_item_renamed.emit()
         item.tag.name = val
-        self.dataChanged.emit(index, index)
-        # replace the old value in the duplicate detection map with the new one
-        self.category_items[key].discard(oldval)
-        self.category_items[key].add(val)
+        self.refresh()
         return True
 
     def headerData(self, *args):

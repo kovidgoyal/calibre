@@ -183,15 +183,30 @@ class CustomColumns(object):
         ans = self.conn.get('SELECT id, value FROM %s'%table)
         return ans
 
-    def rename_custom_item(self, id, new_name, label=None, num=None):
-        if id:
-            if label is not None:
-                data = self.custom_column_label_map[label]
-            if num is not None:
-                data = self.custom_column_num_map[num]
-            table,lt = self.custom_table_names(data['num'])
-            self.conn.execute('UPDATE %s SET value=? WHERE id=?'%table, (new_name, id))
-            self.conn.commit()
+    def rename_custom_item(self, old_id, new_name, label=None, num=None):
+        if label is not None:
+            data = self.custom_column_label_map[label]
+        if num is not None:
+            data = self.custom_column_num_map[num]
+        table,lt = self.custom_table_names(data['num'])
+        # check if item exists
+        new_id = self.conn.get(
+            'SELECT id FROM %s WHERE value=?'%table, (new_name,), all=False)
+        if new_id is None:
+            self.conn.execute('UPDATE %s SET value=? WHERE id=?'%table, (new_name, old_id))
+        else:
+            # New id exists. If the column is_multiple, then process like
+            # tags, otherwise process like publishers (see database2)
+            if data['is_multiple']:
+                books = self.conn.get('''SELECT book from %s
+                                         WHERE value=?'''%lt, (old_id,))
+                for (book_id,) in books:
+                    self.conn.execute('''DELETE FROM %s
+                            WHERE book=? and value=?'''%lt, (book_id, new_id))
+            self.conn.execute('''UPDATE %s SET value=?
+                                 WHERE value=?'''%lt, (new_id, old_id,))
+            self.conn.execute('DELETE FROM %s WHERE id=?'%table, (old_id,))
+        self.conn.commit()
 
     def delete_custom_item_using_id(self, id, label=None, num=None):
         if id:
