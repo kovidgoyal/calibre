@@ -8,7 +8,7 @@ Device driver for the SONY devices
 
 import os, time, re
 
-from calibre.devices.usbms.driver import USBMS
+from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.devices.prs505 import MEDIA_XML
 from calibre.devices.prs505 import CACHE_XML
 from calibre.devices.prs505.sony_cache import XMLCache
@@ -128,12 +128,15 @@ class PRS505(USBMS):
         return XMLCache(paths, prefixes)
 
     def books(self, oncard=None, end_session=True):
+        debug_print('PRS505: starting fetching books for card', oncard)
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
         c = self.initialize_XML_cache()
         c.update_booklist(bl, {'carda':1, 'cardb':2}.get(oncard, 0))
+        debug_print('PRS505: finished fetching books for card', oncard)
         return bl
 
     def sync_booklists(self, booklists, end_session=True):
+        debug_print('PRS505: started sync_booklists')
         c = self.initialize_XML_cache()
         blists = {}
         for i in c.paths:
@@ -149,5 +152,6 @@ class PRS505(USBMS):
         c.write()
 
         USBMS.sync_booklists(self, booklists, end_session=end_session)
+        debug_print('PRS505: finished sync_booklists')
 
 

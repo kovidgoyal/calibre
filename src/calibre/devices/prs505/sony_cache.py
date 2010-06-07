@@ -14,6 +14,7 @@ from lxml import etree
 
 from calibre import prints, guess_type
 from calibre.devices.errors import DeviceError
+from calibre.devices.usbms.driver import debug_print
 from calibre.constants import DEBUG
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, title_sort
@@ -61,7 +62,7 @@ class XMLCache(object):
 
     def __init__(self, paths, prefixes):
         if DEBUG:
-            prints('Building XMLCache...')
+            debug_print('Building XMLCache...')
             pprint(paths)
         self.paths = paths
         self.prefixes = prefixes
@@ -97,16 +98,19 @@ class XMLCache(object):
         self.record_roots[0] = recs[0]
 
         self.detect_namespaces()
+        debug_print('Done building XMLCache...')
 
 
     # Playlist management {{{
     def purge_broken_playlist_items(self, root):
+        id_map = self.build_id_map(root)
         for pl in root.xpath('//*[local-name()="playlist"]'):
             seen = set([])
             for item in list(pl):
                 id_ = item.get('id', None)
-                if id_ is None or id_ in seen or not root.xpath(
-                    '//*[local-name()!="item" and @id="%s"]'%id_):
+#                if id_ is None or id_ in seen or not root.xpath(
+#                    '//*[local-name()!="item" and @id="%s"]'%id_):
+                if id_ is None or id_ in seen or id_map.get(id_, None) is None:
                     if DEBUG:
                         if id_ is None:
                             cause = 'invalid id'
@@ -127,7 +131,7 @@ class XMLCache(object):
             for playlist in root.xpath('//*[local-name()="playlist"]'):
                 if len(playlist) == 0 or not playlist.get('title', None):
                     if DEBUG:
-                        prints('Removing playlist id:', playlist.get('id', None),
+                        debug_print('Removing playlist id:', playlist.get('id', None),
                                 playlist.get('title', None))
                     playlist.getparent().remove(playlist)
 
@@ -149,20 +153,30 @@ class XMLCache(object):
                     seen.add(title)
 
     def get_playlist_map(self):
+        debug_print('Start get_playlist_map')
         ans = {}
         self.ensure_unique_playlist_titles()
+        debug_print('after ensure_unique_playlist_titles')
         self.prune_empty_playlists()
+        debug_print('get_playlist_map loop')
         for i, root in self.record_roots.items():
+            debug_print('get_playlist_map loop', i)
+            id_map = self.build_id_map(root)
             ans[i] = []
             for playlist in root.xpath('//*[local-name()="playlist"]'):
                 items = []
                 for item in playlist:
                     id_ = item.get('id', None)
-                    records = root.xpath(
-                        '//*[local-name()="text" and @id="%s"]'%id_)
-                    if records:
-                        items.append(records[0])
+#                    records = root.xpath(
+#                        '//*[local-name()="text" and @id="%s"]'%id_)
+#                    if records:
+#                    if records is not None:
+#                        items.append(records[0])
+                    record = id_map.get(id_, None)
+                    if record is not None:
+                        items.append(record)
                 ans[i].append((playlist.get('title'), items))
+        debug_print('end get_playlist_map')
         return ans
 
     def get_or_create_playlist(self, bl_idx, title):
@@ -171,7 +185,7 @@ class XMLCache(object):
             if playlist.get('title', None) == title:
                 return playlist
         if DEBUG:
-            prints('Creating playlist:', title)
+            debug_print('Creating playlist:', title)
         ans = root.makeelement('{%s}playlist'%self.namespaces[bl_idx],
                 nsmap=root.nsmap, attrib={
                     'uuid' : uuid(),
@@ -185,7 +199,7 @@ class XMLCache(object):
 
     def fix_ids(self): # {{{
         if DEBUG:
-            prints('Running fix_ids()')
+            debug_print('Running fix_ids()')
 
         def ensure_numeric_ids(root):
             idmap = {}
@@ -198,8 +212,8 @@ class XMLCache(object):
                     idmap[id_] = '-1'
 
             if DEBUG and idmap:
-                prints('Found non numeric ids:')
-                prints(list(idmap.keys()))
+                debug_print('Found non numeric ids:')
+                debug_print(list(idmap.keys()))
             return idmap
 
         def remap_playlist_references(root, idmap):
@@ -210,7 +224,7 @@ class XMLCache(object):
                     if id_ in idmap:
                         item.set('id', idmap[id_])
                         if DEBUG:
-                            prints('Remapping id %s to %s'%(id_, idmap[id_]))
+                            debug_print('Remapping id %s to %s'%(id_, idmap[id_]))
 
         def ensure_media_xml_base_ids(root):
             for num, tag in enumerate(('library', 'watchSpecial')):
@@ -260,6 +274,8 @@ class XMLCache(object):
         last_bl = max(self.roots.keys())
         max_id = self.max_id(self.roots[last_bl])
         self.roots[0].set('nextID', str(max_id+1))
+        debug_print('Finished running fix_ids()')
+
     # }}}
 
     # Update JSON from XML {{{
@@ -267,7 +283,7 @@ class XMLCache(object):
         if bl_index not in self.record_roots:
             return
         if DEBUG:
-            prints('Updating JSON cache:', bl_index)
+            debug_print('Updating JSON cache:', bl_index)
         root = self.record_roots[bl_index]
         pmap = self.get_playlist_map()[bl_index]
         playlist_map = {}
@@ -279,13 +295,15 @@ class XMLCache(object):
                         playlist_map[path] = []
                     playlist_map[path].append(title)
 
+        lpath_map = self.build_lpath_map(root)
         for book in bl:
-            record = self.book_by_lpath(book.lpath, root)
+            #record = self.book_by_lpath(book.lpath, root)
+            record = lpath_map[book.lpath]
             if record is not None:
                 title = record.get('title', None)
                 if title is not None and title != book.title:
                     if DEBUG:
-                        prints('Renaming title', book.title, 'to', title)
+                        debug_print('Renaming title', book.title, 'to', title)
                     book.title = title
 # We shouldn't do this for Sonys, because the reader strips
 # all but the first author.
@@ -310,20 +328,24 @@ class XMLCache(object):
                 if book.lpath in playlist_map:
                     tags = playlist_map[book.lpath]
                     book.device_collections = tags
+        debug_print('Finished updating JSON cache:', bl_index)
 
     # }}}
 
     # Update XML from JSON {{{
     def update(self, booklists, collections_attributes):
+        debug_print('Starting update XML from JSON')
         playlist_map = self.get_playlist_map()
 
         for i, booklist in booklists.items():
             if DEBUG:
-                prints('Updating XML Cache:', i)
+                debug_print('Updating XML Cache:', i)
             root = self.record_roots[i]
+            lpath_map = self.build_lpath_map(root)
             for book in booklist:
                 path = os.path.join(self.prefixes[i], *(book.lpath.split('/')))
-                record = self.book_by_lpath(book.lpath, root)
+#                record = self.book_by_lpath(book.lpath, root)
+                record = lpath_map.get(book.lpath, None)
                 if record is None:
                     record = self.create_text_record(root, i, book.lpath)
                 self.update_text_record(record, book, path, i)
@@ -337,16 +359,20 @@ class XMLCache(object):
         # This is needed to update device_collections
         for i, booklist in booklists.items():
             self.update_booklist(booklist, i)
+        debug_print('Finished update XML from JSON')
 
     def update_playlists(self, bl_index, root, booklist, playlist_map,
             collections_attributes):
+        debug_print('Starting update_playlists')
         collections = booklist.get_collections(collections_attributes)
+        lpath_map = self.build_lpath_map(root)
         for category, books in collections.items():
-            records = [self.book_by_lpath(b.lpath, root) for b in books]
+#            records = [self.book_by_lpath(b.lpath, root) for b in books]
+            records = [lpath_map.get(b.lpath, None) for b in books]
             # Remove any books that were not found, although this
             # *should* never happen
             if DEBUG and None in records:
-                prints('WARNING: Some elements in the JSON cache were not'
+                debug_print('WARNING: Some elements in the JSON cache were not'
                         ' found in the XML cache')
             records = [x for x in records if x is not None]
             for rec in records:
@@ -355,7 +381,7 @@ class XMLCache(object):
             ids = [x.get('id', None) for x in records]
             if None in ids:
                 if DEBUG:
-                    prints('WARNING: Some <text> elements do not have ids')
+                    debug_print('WARNING: Some <text> elements do not have ids')
                     ids = [x for x in ids if x is not None]
 
             playlist = self.get_or_create_playlist(bl_index, category)
@@ -379,20 +405,22 @@ class XMLCache(object):
             title = playlist.get('title', None)
             if title not in collections:
                 if DEBUG:
-                    prints('Deleting playlist:', playlist.get('title', ''))
+                    debug_print('Deleting playlist:', playlist.get('title', ''))
                 playlist.getparent().remove(playlist)
                 continue
             books = collections[title]
-            records = [self.book_by_lpath(b.lpath, root) for b in books]
+#            records = [self.book_by_lpath(b.lpath, root) for b in books]
+            records = [lpath_map.get(b.lpath, None) for b in books]
             records = [x for x in records if x is not None]
             ids = [x.get('id', None) for x in records]
             ids = [x for x in ids if x is not None]
             for item in list(playlist):
                 if item.get('id', None) not in ids:
                     if DEBUG:
-                        prints('Deleting item:', item.get('id', ''),
+                        debug_print('Deleting item:', item.get('id', ''),
                                 'from playlist:', playlist.get('title', ''))
                     playlist.remove(item)
+        debug_print('Finishing update_playlists')
 
     def create_text_record(self, root, bl_id, lpath):
         namespace = self.namespaces[bl_id]
@@ -409,7 +437,7 @@ class XMLCache(object):
         date = strftime(timestamp)
         if date != record.get('date', None):
             if DEBUG:
-                prints('Changing date of', path, 'from',
+                debug_print('Changing date of', path, 'from',
                         record.get('date', ''), 'to', date)
                 prints('\tctime', strftime(os.path.getctime(path)))
                 prints('\tmtime', strftime(os.path.getmtime(path)))
@@ -475,11 +503,23 @@ class XMLCache(object):
     # }}}
 
     # Utility methods {{{
+
+    def build_lpath_map(self, root):
+        m = {}
+        for bk in root.xpath('//*[local-name()="text"]'):
+            m[bk.get('path')] = bk
+        return m
+
+    def build_id_map(self, root):
+        m = {}
+        for bk in root.xpath('//*[local-name()="text"]'):
+            m[bk.get('id')] = bk
+        return m
+
     def book_by_lpath(self, lpath, root):
         matches = root.xpath(u'//*[local-name()="text" and @path="%s"]'%lpath)
         if matches:
             return matches[0]
-
 
     def max_id(self, root):
         ans = -1
@@ -516,9 +556,9 @@ class XMLCache(object):
                 self.namespaces[i] = ns
 
         if DEBUG:
-            prints('Found nsmaps:')
+            debug_print('Found nsmaps:')
             pprint(self.nsmaps)
-            prints('Found namespaces:')
+            debug_print('Found namespaces:')
             pprint(self.namespaces)
     # }}}
 
