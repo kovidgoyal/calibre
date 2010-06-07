@@ -147,7 +147,7 @@ class PRS505(USBMS):
         if opts.extra_customization:
             collections = [x.strip() for x in
                     opts.extra_customization.split(',')]
-
+        debug_print('PRS505: collection fields:', collections)
         c.update(blists, collections)
         c.write()
 

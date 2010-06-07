@@ -540,10 +540,10 @@ class XMLCache(object):
                         break
                 self.namespaces[i] = ns
 
-        if DEBUG:
-            debug_print('Found nsmaps:')
-            pprint(self.nsmaps)
-            debug_print('Found namespaces:')
-            pprint(self.namespaces)
+#        if DEBUG:
+#            debug_print('Found nsmaps:')
+#            pprint(self.nsmaps)
+#            debug_print('Found namespaces:')
+#            pprint(self.namespaces)
     # }}}
 
