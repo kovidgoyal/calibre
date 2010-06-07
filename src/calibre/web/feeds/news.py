@@ -24,6 +24,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.web.feeds import feed_from_xml, templates, feeds_from_index, Feed
 from calibre.web.fetch.simple import option_parser as web2disk_option_parser
 from calibre.web.fetch.simple import RecursiveFetcher
+from calibre.utils.magick_draw import add_borders_to_image
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
@@ -282,6 +283,15 @@ class BasicNewsRecipe(Recipe):
     #: By default, calibre will use a default image for the masthead (Kindle only).
     #: Override this in your recipe to provide a url to use as a masthead.
     masthead_url = None
+
+    #: By default, the cover image returned by get_cover_url() will be used as
+    #: the cover for the periodical.  Overriding this in your recipe instructs
+    #: calibre to render the downloaded cover into a frame whose width and height
+    #: are expressed as a percentage of the downloaded cover.
+    #: cover_margins = (10,15,'white') pads the cover with a white margin
+    #: 10px on the left and right, 15px on the top and bottom.
+    #: Colors name defined at http://www.imagemagick.org/script/color.php
+    cover_margins = (0,0,'white')
 
     #: Set to a non empty string to disable this recipe
     #: The string will be used as the disabled message
@@ -974,6 +984,11 @@ class BasicNewsRecipe(Recipe):
                 self.report_progress(1, _('Downloading cover from %s')%cu)
                 with nested(open(cpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
                     cfile.write(r.read())
+                if self.cover_margins[0] or self.cover_margins[1]:
+                    add_borders_to_image(cpath,
+                                         left=self.cover_margins[0],right=self.cover_margins[0],
+                                         top=self.cover_margins[1],bottom=self.cover_margins[1],
+                                         border_color=self.cover_margins[2])
             if ext.lower() == 'pdf':
                 from calibre.ebooks.metadata.pdf import get_metadata
                 stream = open(cpath, 'rb')

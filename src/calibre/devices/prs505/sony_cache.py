@@ -108,8 +108,6 @@ class XMLCache(object):
             seen = set([])
             for item in list(pl):
                 id_ = item.get('id', None)
-#                if id_ is None or id_ in seen or not root.xpath(
-#                    '//*[local-name()!="item" and @id="%s"]'%id_):
                 if id_ is None or id_ in seen or id_map.get(id_, None) is None:
                     if DEBUG:
                         if id_ is None:
@@ -167,11 +165,6 @@ class XMLCache(object):
                 items = []
                 for item in playlist:
                     id_ = item.get('id', None)
-#                    records = root.xpath(
-#                        '//*[local-name()="text" and @id="%s"]'%id_)
-#                    if records:
-#                    if records is not None:
-#                        items.append(records[0])
                     record = id_map.get(id_, None)
                     if record is not None:
                         items.append(record)
@@ -297,7 +290,6 @@ class XMLCache(object):
 
         lpath_map = self.build_lpath_map(root)
         for book in bl:
-            #record = self.book_by_lpath(book.lpath, root)
             record = lpath_map[book.lpath]
             if record is not None:
                 title = record.get('title', None)
@@ -367,7 +359,6 @@ class XMLCache(object):
         collections = booklist.get_collections(collections_attributes)
         lpath_map = self.build_lpath_map(root)
         for category, books in collections.items():
-#            records = [self.book_by_lpath(b.lpath, root) for b in books]
             records = [lpath_map.get(b.lpath, None) for b in books]
             # Remove any books that were not found, although this
             # *should* never happen
@@ -409,7 +400,6 @@ class XMLCache(object):
                 playlist.getparent().remove(playlist)
                 continue
             books = collections[title]
-#            records = [self.book_by_lpath(b.lpath, root) for b in books]
             records = [lpath_map.get(b.lpath, None) for b in books]
             records = [x for x in records if x is not None]
             ids = [x.get('id', None) for x in records]
