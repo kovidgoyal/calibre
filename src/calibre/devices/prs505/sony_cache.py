@@ -290,7 +290,7 @@ class XMLCache(object):
 
         lpath_map = self.build_lpath_map(root)
         for book in bl:
-            record = lpath_map[book.lpath]
+            record = lpath_map.get(book.lpath, None)
             if record is not None:
                 title = record.get('title', None)
                 if title is not None and title != book.title:
