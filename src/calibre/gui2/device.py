@@ -122,7 +122,7 @@ class DeviceManager(Thread):
             try:
                 dev.open()
             except:
-                print 'Unable to open device', dev
+                prints('Unable to open device', str(dev))
                 traceback.print_exc()
                 continue
             self.connected_device = dev
@@ -168,11 +168,11 @@ class DeviceManager(Thread):
             if possibly_connected_devices:
                 if not self.do_connect(possibly_connected_devices,
                                        is_folder_device=False):
-                    print 'Connect to device failed, retrying in 5 seconds...'
+                    prints('Connect to device failed, retrying in 5 seconds...')
                     time.sleep(5)
                     if not self.do_connect(possibly_connected_devices,
                                        is_folder_device=False):
-                        print 'Device connect failed again, giving up'
+                        prints('Device connect failed again, giving up')
 
     def umount_device(self, *args):
         if self.is_device_connected and not self.job_manager.has_device_jobs():
@@ -317,7 +317,7 @@ class DeviceManager(Thread):
     def _save_books(self, paths, target):
         '''Copy books from device to disk'''
         for path in paths:
-            name = path.rpartition(getattr(self.device, 'path_sep', '/'))[2]
+            name = path.rpartition(os.sep)[2]
             dest = os.path.join(target, name)
             if os.path.abspath(dest) != os.path.abspath(path):
                 f = open(dest, 'wb')
