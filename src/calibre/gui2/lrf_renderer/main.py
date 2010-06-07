@@ -152,7 +152,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.stack.setCurrentIndex(1)
             self.renderer.start()
 
-    def find(self, search, refinement):
+    def find(self, search):
         self.last_search = search
         try:
             self.document.search(search)
