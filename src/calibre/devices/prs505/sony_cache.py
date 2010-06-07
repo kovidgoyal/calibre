@@ -426,11 +426,6 @@ class XMLCache(object):
         timestamp = os.path.getctime(path)
         date = strftime(timestamp)
         if date != record.get('date', None):
-            if DEBUG:
-                debug_print('Changing date of', path, 'from',
-                        record.get('date', ''), 'to', date)
-                prints('\tctime', strftime(os.path.getctime(path)))
-                prints('\tmtime', strftime(os.path.getmtime(path)))
             record.set('date', date)
         record.set('size', str(os.stat(path).st_size))
         title = book.title if book.title else _('Unknown')
