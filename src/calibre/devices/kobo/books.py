@@ -24,34 +24,34 @@ class Book(MetaInformation):
         'uuid',
     ]
 
-    def __init__(self, mountpath, path, title, authors, mime, date, ContentType, ImageID, other=None):
+    def __init__(self, mountpath, path, title, authors, mime, date, ContentType, thumbnail_name, other=None):
 
         MetaInformation.__init__(self, '')
         self.device_collections = []
 
-	self.title = title
-	if not authors:
-		self.authors = ['']
-	else:
-	        self.authors = [authors]
+        self.title = title
+        if not authors:
+            self.authors = ['']
+        else:
+            self.authors = [authors]
         self.mime = mime
-	self.path = path
-	try:
-	        self.size = os.path.getsize(path)
-	except OSError:
-		self.size = 0
+        self.path = path
         try:
-	    if ContentType == '6':
-		self.datetime = time.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
-	    else:
+            self.size = os.path.getsize(path)
+        except OSError:
+            self.size = 0
+        try:
+            if ContentType == '6':
+                self.datetime = time.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
+            else:
                 self.datetime = time.gmtime(os.path.getctime(path))
         except ValueError:
              self.datetime = time.gmtime()
-	except OSError:
+        except OSError:
              self.datetime = time.gmtime()
         self.lpath = path
 
-	self.thumbnail = ImageWrapper(mountpath + '.kobo/images/' + ImageID + ' - iPhoneThumbnail.parsed')
+        self.thumbnail = ImageWrapper(thumbnail_name)
         self.tags = []
         if other:
             self.smart_update(other)
@@ -108,5 +108,5 @@ class Book(MetaInformation):
 
 class ImageWrapper(object):
     def __init__(self, image_path):
-	self.image_path = image_path
+       self.image_path = image_path
 

@@ -82,14 +82,20 @@ class KOBO(USBMS):
                 # if lpath.startswith(os.sep):
                 #                      lpath = lpath[len(os.sep):]
                 #                   lpath = lpath.replace('\\', '/')
+                print "Filename: " + filename
+                filename = self.normalize_path(filename)
+                print "Normalized FileName: " + filename
+
                 idx = bl_cache.get(filename, None)
                 if idx is not None:
-                    bl[idx].thumbnail = ImageWrapper(mountpath + '.kobo/images/' + ImageID + ' - iPhoneThumbnail.parsed')
+                    imagename = self.normalize_path(mountpath + '.kobo/images/' + ImageID + ' - iPhoneThumbnail.parsed')
+                    print "Image name Normalized: " + imagename
+                    bl[idx].thumbnail = ImageWrapper(imagename)
                     bl_cache[filename] = None
                     if ContentType != '6':
-	                    if self.update_metadata_item(bl[idx]):
-        	                # print 'update_metadata_item returned true'
-                	        changed = True
+                        if self.update_metadata_item(bl[idx]):
+                            # print 'update_metadata_item returned true'
+                            changed = True
                 else:
                     book = Book(mountpath, filename, title, authors, mime, date, ContentType, ImageID)
                     # print 'Update booklist'
@@ -103,21 +109,21 @@ class KOBO(USBMS):
         connection = sqlite.connect(self._main_prefix + '.kobo/KoboReader.sqlite')
         cursor = connection.cursor()
         
-        query = 'select count(distinct volumeId) from volume_shortcovers'
-        cursor.execute(query)
-        for row in (cursor):
-            numrows = row[0]
-        cursor.close()
+        #query = 'select count(distinct volumeId) from volume_shortcovers'
+        #cursor.execute(query)
+        #for row in (cursor):
+        #    numrows = row[0]
+        #cursor.close()
 
         query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-        		'ImageID from content where ContentID in (select distinct volumeId from volume_shortcovers)'
+                'ImageID from content where ContentID in (select distinct volumeId from volume_shortcovers)'
 
         cursor.execute (query) 
 
         changed = False
 
         for i, row in enumerate(cursor):
-            self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
+         #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
 
             filename = row[3]
             if row[5] == "6":
@@ -125,18 +131,18 @@ class KOBO(USBMS):
             mime = mime_type_ext(path_to_ext(row[3]))
 
             if oncard != 'carda' and oncard != 'cardb':
-            		if row[5] == '6':
-			            # print "shortbook: " + filename
-   				        changed = update_booklist(self._main_prefix, row[3], filename, row[0], row[1], mime, row[2], row[5], row[6])
+                if row[5] == '6':
+                    # print "shortbook: " + filename
+                    changed = update_booklist(self._main_prefix, row[3], filename, row[0], row[1], mime, row[2], row[5], row[6])
+                    if changed:
+                        need_sync = True
+                else:
+                    if filename.startswith("file:///mnt/onboard/"):
+                        filename = filename.replace("file:///mnt/onboard/", self._main_prefix)
+                        # print "Internal: " + filename
+                        changed = update_booklist(self._main_prefix, row[3], filename, row[0], row[1], mime, row[2], row[5], row[6])
                         if changed:
                             need_sync = True
-                    else:
-                        if filename.startswith("file:///mnt/onboard/"):
-                            filename = filename.replace("file:///mnt/onboard/", self._main_prefix)
-                            # print "Internal: " + filename
-                            changed = update_booklist(self._main_prefix, row[3], filename, row[0], row[1], mime, row[2], row[5], row[6])
-                            if changed:
-                                need_sync = True
             elif oncard == 'carda':
                 if filename.startswith("file:///mnt/sd/"):
                     filename = filename.replace("file:///mnt/sd/", self._card_a_prefix)
@@ -145,14 +151,14 @@ class KOBO(USBMS):
                     if changed:
                         need_sync = True
             else:
-			    print "Add card b support"
+                print "Add card b support"
 
             #FIXME - NOT NEEDED flist.append({'filename': filename, 'path':row[3]})
             #bl.append(book)
-		
+
         cursor.close()
         connection.close()
-	
+
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
@@ -185,48 +191,56 @@ class KOBO(USBMS):
         t = (ContentID,)
         cursor.execute('select ImageID from content where ContentID = ?', t)
 
+        ImageID = None
         for row in cursor:
             # First get the ImageID to delete the images
             ImageID = row[0]
         cursor.close()
-        
-        cursor = connection.cursor()
-        if ContentType == 6:
-            # Delete the shortcover_pages first
-            cursor.execute('delete from shortcover_page where shortcoverid in (select ContentID from content where BookID = ?)', t)
+       
+        if ImageID != None:
+            cursor = connection.cursor()
+            if ContentType == 6:
+                # Delete the shortcover_pages first
+                cursor.execute('delete from shortcover_page where shortcoverid in (select ContentID from content where BookID = ?)', t)
 
-        #Delete the volume_shortcovers second
-        cursor.execute('delete from volume_shortcovers where volumeid = ?', t)
+            #Delete the volume_shortcovers second
+            cursor.execute('delete from volume_shortcovers where volumeid = ?', t)
 
-        # Delete the chapters associated with the book next
-        t = (ContentID,ContentID,)
-        cursor.execute('delete from content where BookID  = ? or ContentID = ?', t) 
+            # Delete the chapters associated with the book next
+            t = (ContentID,ContentID,)
+            cursor.execute('delete from content where BookID  = ? or ContentID = ?', t) 
 
-        connection.commit()
+            connection.commit()
 
-        cursor.close()
+            cursor.close()
+        else:
+            print "Error condition ImageID was not found"
+            print "You likely tried to delete a book that the kobo has not yet added to the database"
+
         connection.close()
         # If all this succeeds we need to delete the images files via the ImageID
         return ImageID
 
     def delete_images(self, ImageID):
-        path_prefix = '.kobo/images/'
-        path = self._main_prefix + path_prefix + ImageID
+        if ImageID == None:
+            path_prefix = '.kobo/images/'
+            path = self._main_prefix + path_prefix + ImageID
 
-        file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed',)
+            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed',)
 
-        for ending in file_endings:
-            fpath = path + ending
-            fpath = self.normalize_path(fpath)
+            for ending in file_endings:
+                fpath = path + ending
+                fpath = self.normalize_path(fpath)
 
-            if os.path.exists(fpath):
-                # print 'Image File Exists: ' + fpath
-                os.unlink(fpath)
+                if os.path.exists(fpath):
+                    # print 'Image File Exists: ' + fpath
+                    os.unlink(fpath)
 
     def delete_books(self, paths, end_session=True):
         for i, path in enumerate(paths):
             self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
             path = self.normalize_path(path)
+            print "Delete file normalized path: " + path
             extension =  os.path.splitext(path)[1]
 
             if extension == '.kobo':
@@ -238,7 +252,7 @@ class KOBO(USBMS):
                 ContentID = ContentID.replace(self._main_prefix, '')
                 if self._card_a_prefix is not None:
                     ContentID = ContentID.replace(self._card_a_prefix, '')
-    
+                ContentID = ContentID.replace("\\", '/')
                 ImageID = self.delete_via_sql(ContentID, ContentType)
                 #print " We would now delete the Images for" + ImageID
                 self.delete_images(ImageID)
@@ -250,6 +264,7 @@ class KOBO(USBMS):
                 ContentID = ContentID.replace(self._main_prefix, "file:///mnt/onboard/")
                 if self._card_a_prefix is not None:
                     ContentID = ContentID.replace(self._card_a_prefix, "file:///mnt/sd/")
+                ContentID = ContentID.replace("\\", '/')
                 # print "ContentID: " + ContentID
                 ImageID = self.delete_via_sql(ContentID, ContentType)
                 #print " We would now delete the Images for" + ImageID
@@ -313,17 +328,17 @@ class KOBO(USBMS):
                 prints('in add_books_to_metadata. Prefix is None!', path,
                         self._main_prefix)
                 continue
+            print "Add book to metatdata: "
+            print "prefix: " + prefix
             lpath = path.partition(prefix)[2]
             if lpath.startswith('/') or lpath.startswith('\\'):
                 lpath = lpath[1:]
+            print "path: " + lpath
             #book = self.book_class(prefix, lpath, other=info)
-       	    book = Book(prefix, lpath, '', '', '', '', '', '', other=info)
+            lpath = self.normalize_path(prefix + lpath)
+            book = Book(prefix, lpath, '', '', '', '', '', '', other=info)
             if book.size is None:
                 book.size = os.stat(self.normalize_path(path)).st_size
             booklists[blist].add_book(book, replace_metadata=True)
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
-
-#class ImageWrapper(object):
-#    def __init__(self, image_path):
-#        self.image_path = image_path
 
