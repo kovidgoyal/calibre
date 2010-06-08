@@ -14,7 +14,6 @@ from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata import MetaInformation
 from calibre.library.server.utils import strftime
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import Config, config_dir
 from calibre.utils.date import parse_date
 from calibre.utils.logging import Log
@@ -781,10 +780,12 @@ class ITUNES(DevicePlugin):
                     self._remove_from_iTunes(self.cached_books[path])
 
                 # Add to iTunes Library|Books
-                if isinstance(file,PersistentTemporaryFile):
-                    added = self.iTunes.add(appscript.mactypes.File(file._name))
-                else:
-                    added = self.iTunes.add(appscript.mactypes.File(file))
+                fpath = file
+                if getattr(file, 'orig_file_path', None) is not None:
+                    fpath = file.orig_file_path
+                elif getattr(file, 'name', None) is not None:
+                    fpath = file.name
+                added = self.iTunes.add(appscript.mactypes.File(fpath))
 
                 thumb = None
                 if metadata[i].cover:
@@ -824,7 +825,7 @@ class ITUNES(DevicePlugin):
                 this_book.device_collections = []
                 this_book.library_id = added
                 this_book.path = path
-                this_book.size = self._get_device_book_size(file, added.size())
+                this_book.size = self._get_device_book_size(fpath, added.size())
                 this_book.thumbnail = thumb
                 this_book.iTunes_id = added
 
@@ -932,14 +933,15 @@ class ITUNES(DevicePlugin):
                             self.log.info(" '%s' not in cached_books" % metadata[i].title)
 
                     # Add to iTunes Library|Books
-                    if isinstance(file,PersistentTemporaryFile):
-                        op_status = lib_books.AddFile(file._name)
-                        if DEBUG:
-                            self.log.info("ITUNES.upload_books():\n iTunes adding '%s'" % file._name)
-                    else:
-                        op_status = lib_books.AddFile(file)
-                        if DEBUG:
-                            self.log.info(" iTunes adding '%s'" % file)
+                    fpath = file
+                    if getattr(file, 'orig_file_path', None) is not None:
+                        fpath = file.orig_file_path
+                    elif getattr(file, 'name', None) is not None:
+                        fpath = file.name
+
+                    op_status = lib_books.AddFile(fpath)
+                    self.log.info("ITUNES.upload_books():\n iTunes adding '%s'"
+                            % fpath)
 
                     if DEBUG:
                         sys.stdout.write(" iTunes copying '%s' ..." % metadata[i].title)
@@ -1509,7 +1511,7 @@ class ITUNES(DevicePlugin):
             # Read the current storage path for iTunes media
             cmd = "defaults read com.apple.itunes NSNavLastRootDirectory"
             proc = subprocess.Popen( cmd, shell=True, cwd=os.curdir, stdout=subprocess.PIPE)
-            retcode = proc.wait()
+            proc.wait()
             media_dir = os.path.abspath(proc.communicate()[0].strip())
             if os.path.exists(media_dir):
                 self.iTunes_media = media_dir

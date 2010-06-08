@@ -123,5 +123,12 @@ class BOOX(HANLINV3):
     EBOOK_DIR_MAIN = 'MyBooks'
     EBOOK_DIR_CARD_A = 'MyBooks'
 
+    def windows_sort_drives(self, drives):
+        return drives
 
+    def osx_sort_names(self, names):
+        return names
+
+    def linux_swap_drives(self, drives):
+        return drives
 

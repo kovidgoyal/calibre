@@ -46,7 +46,8 @@ class Book(MetaInformation):
             self.smart_update(other)
 
     def __eq__(self, other):
-        return self.path == getattr(other, 'path', None)
+        # use lpath because the prefix can change, changing path
+        return self.path == getattr(other, 'lpath', None)
 
     @dynamic_property
     def db_id(self):
@@ -97,12 +98,23 @@ class Book(MetaInformation):
 
 class BookList(_BookList):
 
+    def __init__(self, oncard, prefix, settings):
+        _BookList.__init__(self, oncard, prefix, settings)
+        self._bookmap = {}
+
     def supports_collections(self):
         return False
 
     def add_book(self, book, replace_metadata):
-        if book not in self:
+        try:
+            b = self.index(book)
+        except (ValueError, IndexError):
+            b = None
+        if b is None:
             self.append(book)
+            return True
+        if replace_metadata:
+            self[b].smart_update(book)
             return True
         return False
 
@@ -111,7 +123,6 @@ class BookList(_BookList):
 
     def get_collections(self):
         return {}
-
 
 class CollectionsBookList(BookList):
 

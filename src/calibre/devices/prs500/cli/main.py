@@ -337,7 +337,7 @@ def main():
             dev.touch(args[0])
         elif command == 'test_file':
             parser = OptionParser(usage=("usage: %prog test_file path\n"
-                'Open device, copy file psecified by path to device and '
+                'Open device, copy file specified by path to device and '
                 'then eject device.'))
             options, args = parser.parse_args(args)
             if len(args) != 1:
