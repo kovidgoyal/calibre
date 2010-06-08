@@ -63,8 +63,7 @@ class TagsView(QTreeView): # {{{
 
     def sort_changed(self, state):
         config.set('sort_by_popularity', state == Qt.Checked)
-        self.model().refresh()
-        # self.search_restriction_set()
+        self.recount()
 
     def set_search_restriction(self, s):
         if s:
@@ -197,7 +196,9 @@ class TagsView(QTreeView): # {{{
             ci = self.indexAt(QPoint(10, 10))
         path = self.model().path_for_index(ci) if self.is_visible(ci) else None
         try:
-            self.model().refresh()
+            if not self.model().refresh(): # categories changed!
+                self.set_new_model()
+                path = None
         except: #Database connection could be closed if an integrity check is happening
             pass
         if path:
@@ -210,10 +211,16 @@ class TagsView(QTreeView): # {{{
     # gone, or if columns have been hidden or restored, we must rebuild the
     # model. Reason: it is much easier than reconstructing the browser tree.
     def set_new_model(self):
-        self._model = TagsModel(self.db, parent=self,
-                                hidden_categories=self.hidden_categories,
-                                search_restriction=self.search_restriction)
-        self.setModel(self._model)
+        try:
+            self._model = TagsModel(self.db, parent=self,
+                                    hidden_categories=self.hidden_categories,
+                                    search_restriction=self.search_restriction)
+            self.setModel(self._model)
+        except:
+            # The DB must be gone. Set the model to None and hope that someone
+            # will call set_database later. I don't know if this in fact works
+            self._model = None
+            self.setModel(None)
     # }}}
 
 class TagTreeItem(object): # {{{
@@ -323,18 +330,9 @@ class TagsModel(QAbstractItemModel): # {{{
         self.tags_view = parent
         self.hidden_categories = hidden_categories
         self.search_restriction = search_restriction
+        self.row_map = []
 
-        # Reconstruct the user categories, putting them into metadata
-        tb_cats = self.db.field_metadata
-        for k in tb_cats.keys():
-            if tb_cats[k]['kind'] in ['user', 'search']:
-                del tb_cats[k]
-        for user_cat in sorted(prefs['user_categories'].keys()):
-            cat_name = user_cat+':' # add the ':' to avoid name collision
-            tb_cats.add_user_category(label=cat_name, name=user_cat)
-        if len(saved_searches.names()):
-            tb_cats.add_search_category(label='search', name=_('Searches'))
-
+        # get_node_tree cannot return None here, because row_map is empty
         data = self.get_node_tree(config['sort_by_popularity'])
         self.root_item = TagTreeItem()
         for i, r in enumerate(self.row_map):
@@ -355,9 +353,22 @@ class TagsModel(QAbstractItemModel): # {{{
         self.search_restriction = s
 
     def get_node_tree(self, sort):
+        old_row_map = self.row_map[:]
         self.row_map = []
         self.categories = []
 
+        # Reconstruct the user categories, putting them into metadata
+        tb_cats = self.db.field_metadata
+        for k in tb_cats.keys():
+            if tb_cats[k]['kind'] in ['user', 'search']:
+                del tb_cats[k]
+        for user_cat in sorted(prefs['user_categories'].keys()):
+            cat_name = user_cat+':' # add the ':' to avoid name collision
+            tb_cats.add_user_category(label=cat_name, name=user_cat)
+        if len(saved_searches.names()):
+            tb_cats.add_search_category(label='search', name=_('Searches'))
+
+        # Now get the categories
         if self.search_restriction:
             data = self.db.get_categories(sort_on_count=sort,
                         icon_map=self.category_icon_map,
@@ -367,13 +378,19 @@ class TagsModel(QAbstractItemModel): # {{{
 
         tb_categories = self.db.field_metadata
         for category in tb_categories:
-            if category in data: # They should always be there, but ...
+            if category in data: # The search category can come and go
                 self.row_map.append(category)
                 self.categories.append(tb_categories[category]['name'])
+        if len(old_row_map) != 0 and len(old_row_map) != len(self.row_map):
+            # A category has been added or removed. We must force a rebuild of
+            # the model
+            return None
         return data
 
     def refresh(self):
         data = self.get_node_tree(config['sort_by_popularity']) # get category data
+        if data is None:
+            return False
         row_index = -1
         for i, r in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
@@ -395,6 +412,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     tag.state = state_map.get(tag.name, 0)
                     t = TagTreeItem(parent=category, data=tag, icon_map=self.icon_state_map)
                 self.endInsertRows()
+        return True
 
     def columnCount(self, parent):
         return 1
@@ -439,7 +457,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                     label=self.db.field_metadata[key]['label'])
             self.tags_view.tag_item_renamed.emit()
         item.tag.name = val
-        self.refresh()
+        self.refresh() # Should work, because no categories can have disappeared
         return True
 
     def headerData(self, *args):

@@ -854,7 +854,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         r = unicode(r)
         if r is not None and r != '':
             self.restriction_in_effect = True
-            restriction = "search:%s"%(r)
+            restriction = 'search:"%s"'%(r)
         else:
             self.restriction_in_effect = False
             restriction = ''
@@ -1557,7 +1557,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if not confirm('<p>'+_('The selected books will be '
                                    '<b>permanently deleted</b> '
                                    'from your device. Are you sure?')
-                                +'</p>', 'library_delete_books', self):
+                                +'</p>', 'device_delete_books', self):
                 return
             if self.stack.currentIndex() == 1:
                 view = self.memory_view

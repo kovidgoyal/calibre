@@ -3,6 +3,7 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Dialog to create a new custom column'''
 
+import re
 from functools import partial
 
 from PyQt4.QtCore import SIGNAL
@@ -94,8 +95,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         col = unicode(self.column_name_box.text()).lower()
         if not col:
             return self.simple_error('', _('No lookup name was provided'))
-        if not col.isalnum() or not col[0].isalpha():
-            return self.simple_error('', _('The label must contain only letters and digits, and start with a letter'))
+        if re.match('^\w*$', col) is None or not col[0].isalpha():
+            return self.simple_error('', _('The label must contain only letters, digits and underscores, and start with a letter'))
         col_heading = unicode(self.column_heading_box.text())
         col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
         if col_type == '*text':
