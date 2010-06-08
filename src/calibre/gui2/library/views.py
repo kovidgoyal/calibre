@@ -426,6 +426,14 @@ class BooksView(QTableView): # {{{
         if dy != 0:
             self.column_header.update()
 
+    def scroll_to_row(self, row):
+        if row > -1:
+            h = self.horizontalHeader()
+            for i in range(h.count()):
+                if not h.isSectionHidden(i):
+                    self.scrollTo(self.model().index(row, i))
+                    break
+
     def close(self):
         self._model.close()
 
@@ -436,10 +444,6 @@ class BooksView(QTableView): # {{{
         sb.search.connect(self._model.search)
         self._search_done = search_done
         self._model.searched.connect(self.search_done)
-
-    def connect_to_restriction_set(self, tv):
-        # must be synchronous (not queued)
-        tv.restriction_set.connect(self._model.set_search_restriction)
 
     def connect_to_book_display(self, bd):
         self._model.new_bookdisplay_data.connect(bd)

@@ -160,9 +160,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.restriction_in_effect = False
         self.search.initialize('main_search_history', colorize=True,
                 help_text=_('Search (For Advanced Search click the button to the left)'))
-        self.connect(self.clear_button, SIGNAL('clicked()'), self.search_clear)
+        self.connect(self.clear_button, SIGNAL('clicked()'), self.search.clear)
         self.connect(self.clear_button, SIGNAL('clicked()'), self.saved_search.clear_to_help)
-        self.search_clear()
+        self.search.clear()
 
         self.saved_search.initialize(saved_searches, self.search, colorize=True,
                 help_text=_('Saved Searches'))
@@ -226,14 +226,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.quit_action, SIGNAL('triggered(bool)'), self.quit)
         self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
         self.connect(self.restore_action, SIGNAL('triggered()'),
-                self.show_windows)
+                        self.show_windows)
         self.connect(self.action_show_book_details,
-                SIGNAL('triggered(bool)'), self.show_book_info)
+                     SIGNAL('triggered(bool)'), self.show_book_info)
         self.connect(self.action_restart, SIGNAL('triggered()'),
                      self.restart)
         self.connect(self.system_tray_icon,
-                SIGNAL('activated(QSystemTrayIcon::ActivationReason)'),
-                self.system_tray_icon_activated)
+                     SIGNAL('activated(QSystemTrayIcon::ActivationReason)'),
+                     self.system_tray_icon_activated)
         self.tool_bar.contextMenuEvent = self.no_op
 
         ####################### Start spare job server ########################
@@ -521,8 +521,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                                  self.search_done)),
                              ('connect_to_book_display',
                                  (self.status_bar.book_info.show_data,)),
-                             ('connect_to_restriction_set',
-                                 (self.tags_view,)),
                              ]:
             for view in (self.library_view, self.memory_view, self.card_a_view, self.card_b_view):
                 getattr(view, func)(*args)
@@ -545,24 +543,22 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.cover_cache.start()
         self.library_view.model().cover_cache = self.cover_cache
         self.connect(self.edit_categories, SIGNAL('clicked()'), self.do_user_categories_edit)
-        self.tags_view.set_database(db, self.tag_match, self.popularity, self.search_restriction)
+        self.search_restriction.activated[str].connect(self.apply_search_restriction)
+        self.tags_view.set_database(db, self.tag_match, self.popularity)
         self.tags_view.tags_marked.connect(self.search.search_from_tags)
-        for x in (self.saved_search.clear_to_help, self.mark_restriction_set):
-            self.tags_view.restriction_set.connect(x)
         self.tags_view.tags_marked.connect(self.saved_search.clear_to_help)
         self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
         self.tags_view.user_category_edit.connect(self.do_user_categories_edit)
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
         self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
         self.tags_view.search_item_renamed.connect(self.saved_search.clear_to_help)
-        self.search.search.connect(self.tags_view.model().reinit)
         for x in (self.location_view.count_changed, self.tags_view.recount,
                 self.restriction_count_changed):
             self.library_view.model().count_changed_signal.connect(x)
 
         self.connect(self.search, SIGNAL('cleared()'), self.search_box_cleared)
-        self.connect(self.saved_search, SIGNAL('changed()'),
-                     self.tags_view.saved_searches_changed, Qt.QueuedConnection)
+        self.connect(self.saved_search, SIGNAL('changed()'), self.saved_searches_changed)
+        self.saved_searches_changed()
         if not gprefs.get('quick_start_guide_added', False):
             from calibre.ebooks.metadata import MetaInformation
             mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
@@ -585,7 +581,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.search_restriction.setSizeAdjustPolicy(self.search_restriction.AdjustToMinimumContentsLengthWithIcon)
         self.search_restriction.setMinimumContentsLength(10)
 
-
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
@@ -602,7 +597,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.cover_flow = CoverFlow(height=cfh, text_height=text_height)
             self.cover_flow.setVisible(False)
             if not config['separate_cover_flow']:
-                self.library.layout().addWidget(self.cover_flow)
+                self.cb_layout.addWidget(self.cover_flow)
             self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
             self.library_view.selectionModel().currentRowChanged.connect(
                     self.sync_cf_to_listview)
@@ -625,7 +620,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.sidebar.job_done, Qt.QueuedConnection)
 
 
-
         if config['autolaunch_server']:
             from calibre.library.server.main import start_threaded_server
             from calibre.library.server import server_config
@@ -644,7 +638,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.scheduler,
                 SIGNAL('start_recipe_fetch(PyQt_PyObject)'),
                 self.download_scheduled_recipe, Qt.QueuedConnection)
-        self.library_view.verticalHeader().sectionClicked.connect(self.view_specific_book)
 
         for view in ('library', 'memory', 'card_a', 'card_b'):
             view = getattr(self, view+'_view')
@@ -683,7 +676,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         d = SavedSearchEditor(self, search)
         d.exec_()
         if d.result() == d.Accepted:
-            self.tags_view.saved_searches_changed(recount=True)
+            self.saved_searches_changed()
             self.saved_search.clear_to_help()
 
     def resizeEvent(self, ev):
@@ -807,7 +800,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 d.layout().addWidget(self.cover_flow)
                 self.cover_flow.setVisible(True)
                 self.cover_flow.setFocus(Qt.OtherFocusReason)
-                self.library_view.scrollTo(self.library_view.currentIndex())
+                self.library_view.scroll_to_row(self.library_view.currentIndex().row())
                 d.show()
                 d.finished.connect(self.sidebar.external_cover_flow_finished)
                 self.cf_dialog = d
@@ -831,7 +824,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         self.library_view.currentIndex())
                 self.cover_flow.setVisible(True)
                 self.cover_flow.setFocus(Qt.OtherFocusReason)
-                self.library_view.scrollTo(self.library_view.currentIndex())
+                self.library_view.scroll_to_row(self.library_view.currentIndex().row())
                 self.cover_flow_sync_timer.start(500)
             else:
                 self.cover_flow_sync_timer.stop()
@@ -842,19 +835,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     sm.select(idx, sm.ClearAndSelect|sm.Rows)
                     self.library_view.setCurrentIndex(idx)
 
-
-
     '''
-    Handling of the count of books in a restricted view requires that
-    we capture the count after the initial restriction search. To so this,
-    we require that the restriction_set signal be issued before the search signal,
-    so that when the search_done happens and the count is displayed,
-    we can grab the count. This works because the search box is cleared
-    when a restriction is set, so that first search will find all books.
-
-    Adding and deleting books creates another complexity. When added, they are
-    displayed regardless of whether they match the restriction. However, if they
-    do not, they are removed at the next search. The counts must take this
+    Restrictions.
+    Adding and deleting books creates a complexity. When added, they are
+    displayed regardless of whether they match a search restriction. However, if
+    they do not, they are removed at the next search. The counts must take this
     behavior into effect.
     '''
 
@@ -862,15 +847,25 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.restriction_count_of_books_in_view += c - self.restriction_count_of_books_in_library
         self.restriction_count_of_books_in_library = c
         if self.restriction_in_effect:
-            self.set_number_of_books_shown(compute_count=False)
+            self.set_number_of_books_shown()
 
-    def mark_restriction_set(self, r):
-        self.restriction_in_effect = False if r is None or not r else True
+    def apply_search_restriction(self, r):
+        r = unicode(r)
+        if r is not None and r != '':
+            self.restriction_in_effect = True
+            restriction = 'search:"%s"'%(r)
+        else:
+            self.restriction_in_effect = False
+            restriction = ''
+        self.restriction_count_of_books_in_view = \
+                    self.library_view.model().set_search_restriction(restriction)
+        self.search.clear_to_help()
+        self.saved_search.clear_to_help()
+        self.tags_view.set_search_restriction(restriction)
+        self.set_number_of_books_shown()
 
-    def set_number_of_books_shown(self, compute_count):
+    def set_number_of_books_shown(self):
         if self.current_view() == self.library_view and self.restriction_in_effect:
-            if compute_count:
-                self.restriction_count_of_books_in_view = self.current_view().row_count()
             t = _("({0} of {1})").format(self.current_view().row_count(),
                                          self.restriction_count_of_books_in_view)
             self.search_count.setStyleSheet('QLabel { border-radius: 8px; background-color: yellow; }')
@@ -884,18 +879,31 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.search_count.setText(t)
 
     def search_box_cleared(self):
-        self.set_number_of_books_shown(compute_count=True)
         self.tags_view.clear()
         self.saved_search.clear_to_help()
-
-    def search_clear(self):
-        self.set_number_of_books_shown(compute_count=True)
-        self.search.clear()
+        self.set_number_of_books_shown()
 
     def search_done(self, view, ok):
         if view is self.current_view():
             self.search.search_done(ok)
-            self.set_number_of_books_shown(compute_count=False)
+            self.set_number_of_books_shown()
+
+    def saved_searches_changed(self):
+        p = prefs['saved_searches'].keys()
+        p.sort()
+        t = unicode(self.search_restriction.currentText())
+        self.search_restriction.clear() # rebuild the restrictions combobox using current saved searches
+        self.search_restriction.addItem('')
+        self.tags_view.recount()
+        for s in p:
+            self.search_restriction.addItem(s)
+        if t:
+            if t in p: # redo the current restriction, if there was one
+                self.search_restriction.setCurrentIndex(self.search_restriction.findText(t))
+                # self.tags_view.set_search_restriction(t)
+            else:
+                self.search_restriction.setCurrentIndex(0)
+                self.apply_search_restriction('')
 
     def sync_cf_to_listview(self, current, previous):
         if self.cover_flow_sync_flag and self.cover_flow.isVisible() and \
@@ -914,6 +922,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 index = m.index(row, 0)
                 if self.library_view.currentIndex().row() != row and index.isValid():
                     self.cover_flow_sync_flag = False
+                    self.library_view.scroll_to_row(index.row())
                     sm = self.library_view.selectionModel()
                     sm.select(index, sm.ClearAndSelect|sm.Rows)
                     self.library_view.setCurrentIndex(index)
@@ -1548,7 +1557,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if not confirm('<p>'+_('The selected books will be '
                                    '<b>permanently deleted</b> '
                                    'from your device. Are you sure?')
-                                +'</p>', 'library_delete_books', self):
+                                +'</p>', 'device_delete_books', self):
                 return
             if self.stack.currentIndex() == 1:
                 view = self.memory_view
@@ -2304,14 +2313,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def library_moved(self, newloc):
         if newloc is None: return
         db = LibraryDatabase2(newloc)
+        self.library_path = newloc
         self.book_on_device(None, reset=True)
         db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
+        self.tags_view.set_database(db, self.tag_match, self.popularity)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
         self.status_bar.clearMessage()
         self.search.clear_to_help()
         self.status_bar.reset_info()
         self.library_view.model().count_changed()
+        prefs['library_path'] = self.library_path
 
     ############################################################################
 
@@ -2358,7 +2370,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.search_restriction.setEnabled(False)
             for action in list(self.delete_menu.actions())[1:]:
                 action.setEnabled(False)
-        self.set_number_of_books_shown(compute_count=False)
+        self.set_number_of_books_shown()
 
 
     def device_job_exception(self, job):

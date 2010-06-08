@@ -1,0 +1,57 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+haaretz.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Haaretz_en(BasicNewsRecipe):
+    title                 = 'Haaretz in English'
+    __author__            = 'Darko Miletic'
+    description           = 'Haaretz.com, the online edition of Haaretz Newspaper in Israel, and analysis from Israel and the Middle East. Haaretz.com provides extensive and in-depth coverage of Israel, the Jewish World and the Middle East, including defense, diplomacy, the Arab-Israeli conflict, the peace process, Israeli politics, Jerusalem affairs, international relations, Iran, Iraq, Syria, Lebanon, the Palestinian Authority, the West Bank and the Gaza Strip, the Israeli business world and Jewish life in Israel and the Diaspora. '
+    publisher             = 'haaretz.com'
+    category              = 'news, politics, Israel'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'cp1252'
+    use_embedded_content  = False
+    language              = 'en_IL'
+    publication_type      = 'newspaper'
+    remove_empty_feeds    = True
+    masthead_url          = 'http://www.haaretz.com/images/logos/logoGrey.gif'
+    extra_css             = ' body{font-family: Verdana,Arial,Helvetica,sans-serif } '
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [dict(name='div', attrs={'class':['rightcol']}),dict(name='table')]
+    remove_tags_before = dict(name='h1')
+    remove_tags_after  = dict(attrs={'id':'innerArticle'})
+    keep_only_tags     = [dict(attrs={'id':'content'})]
+
+
+    feeds = [
+              (u'Opinion'               , u'http://www.haaretz.com/cmlink/opinion-rss-1.209234?localLinksEnabled=false'   )
+             ,(u'Defense and diplomacy' , u'http://www.haaretz.com/cmlink/defense-and-diplomacy-rss-1.208894?localLinksEnabled=false')
+             ,(u'National'              , u'http://www.haaretz.com/cmlink/national-rss-1.208896?localLinksEnabled=false'       )
+             ,(u'International'         , u'http://www.haaretz.com/cmlink/international-rss-1.208898?localLinksEnabled=false'      )
+             ,(u'Jewish World'          , u'http://www.haaretz.com/cmlink/jewish-world-rss-1.209085?localLinksEnabled=false'        )
+             ,(u'Business'              , u'http://www.haaretz.com/cmlink/business-print-rss-1.264904?localLinksEnabled=false'     )
+             ,(u'Real Estate'           , u'http://www.haaretz.com/cmlink/real-estate-print-rss-1.264977?localLinksEnabled=false'      )
+             ,(u'Features'              , u'http://www.haaretz.com/cmlink/features-print-rss-1.264912?localLinksEnabled=false'          )
+             ,(u'Arts and leisure'      , u'http://www.haaretz.com/cmlink/arts-and-leisure-rss-1.286090?localLinksEnabled=false'       )
+             ,(u'Books'                 , u'http://www.haaretz.com/cmlink/books-rss-1.264947?localLinksEnabled=false'         )
+             ,(u'Food and Wine'         , u'http://www.haaretz.com/cmlink/food-and-wine-print-rss-1.265034?localLinksEnabled=false'      )
+             ,(u'Sports'                , u'http://www.haaretz.com/cmlink/sports-rss-1.286092?localLinksEnabled=false'          )
+            ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup

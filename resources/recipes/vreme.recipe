@@ -52,10 +52,12 @@ class Vreme(BasicNewsRecipe):
     def parse_index(self):
         articles = []
         soup = self.index_to_soup(self.INDEX)
-
+        cover_item = soup.find('div',attrs={'id':'najava'})
+        if cover_item:
+           self.cover_url = self.INDEX + cover_item.img['src']      
         for item in soup.findAll(['h3','h4']):
-            description = ''
-            title_prefix = ''
+            description = u''
+            title_prefix = u''
             feed_link = item.find('a')
             if feed_link and feed_link.has_key('href') and feed_link['href'].startswith('/cms/view.php'):
                 url   = self.INDEX + feed_link['href']
@@ -67,7 +69,7 @@ class Vreme(BasicNewsRecipe):
                                  ,'url'        :url
                                  ,'description':description
                                 })
-        return [(soup.head.title.string, articles)]
+        return [('Nedeljnik Vreme', articles)]
 
     remove_tags = [
                     dict(name=['object','link'])
@@ -76,11 +78,3 @@ class Vreme(BasicNewsRecipe):
 
     def print_version(self, url):
         return url + '&print=yes'
-
-    def get_cover_url(self):
-        cover_url = None
-        soup = self.index_to_soup(self.INDEX)
-        cover_item = soup.find('div',attrs={'id':'najava'})
-        if cover_item:
-           cover_url = self.INDEX + cover_item.img['src']
-        return cover_url

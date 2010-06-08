@@ -12,14 +12,23 @@ for a particular device.
 
 import os
 import re
+import time
 import json
 from itertools import cycle
 
 from calibre import prints, isbytestring
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, DEBUG
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
+
+BASE_TIME = None
+def debug_print(*args):
+    global BASE_TIME
+    if BASE_TIME is None:
+        BASE_TIME = time.time()
+    if DEBUG:
+        prints('DEBUG: %6.1f'%(time.time()-BASE_TIME), *args)
 
 # CLI must come before Device as it implements the CLI functions that
 # are inherited from the device interface in Device.
@@ -46,6 +55,8 @@ class USBMS(CLI, Device):
 
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
+
+        debug_print ('USBMS: Fetching list of books from device. oncard=', oncard)
 
         dummy_bl = BookList(None, None, None)
 
@@ -136,8 +147,8 @@ class USBMS(CLI, Device):
                 need_sync = True
                 del bl[idx]
 
-        #print "count found in cache: %d, count of files in metadata: %d, need_sync: %s" % \
-        #      (len(bl_cache), len(bl), need_sync)
+        debug_print('USBMS: count found in cache: %d, count of files in metadata: %d, need_sync: %s' % \
+            (len(bl_cache), len(bl), need_sync))
         if need_sync: #self.count_found_in_bl != len(bl) or need_sync:
             if oncard == 'cardb':
                 self.sync_booklists((None, None, bl))
@@ -147,10 +158,13 @@ class USBMS(CLI, Device):
                 self.sync_booklists((bl, None, None))
 
         self.report_progress(1.0, _('Getting list of books on device...'))
+        debug_print('USBMS: Finished fetching list of books from device. oncard=', oncard)
         return bl
 
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
+        debug_print('USBMS: uploading %d books'%(len(files)))
+
         path = self._sanity_check(on_card, files)
 
         paths = []
@@ -174,6 +188,7 @@ class USBMS(CLI, Device):
             self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
 
         self.report_progress(1.0, _('Transferring books to device...'))
+        debug_print('USBMS: finished uploading %d books'%(len(files)))
         return zip(paths, cycle([on_card]))
 
     def upload_cover(self, path, filename, metadata):
@@ -186,6 +201,8 @@ class USBMS(CLI, Device):
         pass
 
     def add_books_to_metadata(self, locations, metadata, booklists):
+        debug_print('USBMS: adding metadata for %d books'%(len(metadata)))
+
         metadata = iter(metadata)
         for i, location in enumerate(locations):
             self.report_progress((i+1) / float(len(locations)), _('Adding books to device metadata listing...'))
@@ -218,8 +235,10 @@ class USBMS(CLI, Device):
                 book.size = os.stat(self.normalize_path(path)).st_size
             booklists[blist].add_book(book, replace_metadata=True)
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
+        debug_print('USBMS: finished adding metadata')
 
     def delete_books(self, paths, end_session=True):
+        debug_print('USBMS: deleting %d books'%(len(paths)))
         for i, path in enumerate(paths):
             self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
             path = self.normalize_path(path)
@@ -240,8 +259,11 @@ class USBMS(CLI, Device):
                     except:
                         pass
         self.report_progress(1.0, _('Removing books from device...'))
+        debug_print('USBMS: finished deleting %d books'%(len(paths)))
 
     def remove_books_from_metadata(self, paths, booklists):
+        debug_print('USBMS: removing metadata for %d books'%(len(paths)))
+
         for i, path in enumerate(paths):
             self.report_progress((i+1) / float(len(paths)), _('Removing books from device metadata listing...'))
             for bl in booklists:
@@ -249,8 +271,11 @@ class USBMS(CLI, Device):
                     if path.endswith(book.path):
                         bl.remove_book(book)
         self.report_progress(1.0, _('Removing books from device metadata listing...'))
+        debug_print('USBMS: finished removing metadata for %d books'%(len(paths)))
 
     def sync_booklists(self, booklists, end_session=True):
+        debug_print('USBMS: starting sync_booklists')
+
         if not os.path.exists(self.normalize_path(self._main_prefix)):
             os.makedirs(self.normalize_path(self._main_prefix))
 
@@ -267,6 +292,7 @@ class USBMS(CLI, Device):
         write_prefix(self._card_b_prefix, 2)
 
         self.report_progress(1.0, _('Sending metadata to device...'))
+        debug_print('USBMS: finished sync_booklists')
 
     @classmethod
     def path_to_unicode(cls, path):

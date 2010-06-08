@@ -6,10 +6,9 @@ __docformat__ = 'restructuredtext en'
 Device driver for the SONY devices
 '''
 
-import os
-import re
+import os, time, re
 
-from calibre.devices.usbms.driver import USBMS
+from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.devices.prs505 import MEDIA_XML
 from calibre.devices.prs505 import CACHE_XML
 from calibre.devices.prs505.sony_cache import XMLCache
@@ -66,6 +65,41 @@ class PRS505(USBMS):
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
 
+    def post_open_callback(self):
+
+        def write_cache(prefix):
+            try:
+                cachep = os.path.join(prefix, *(CACHE_XML.split('/')))
+                if not os.path.exists(cachep):
+                    dname = os.path.dirname(cachep)
+                    if not os.path.exists(dname):
+                        try:
+                            os.makedirs(dname, mode=0777)
+                        except:
+                            time.sleep(5)
+                            os.makedirs(dname, mode=0777)
+                    with open(cachep, 'wb') as f:
+                        f.write(u'''<?xml version="1.0" encoding="UTF-8"?>
+                            <cache xmlns="http://www.kinoma.com/FskCache/1">
+                            </cache>
+                            '''.encode('utf8'))
+                return True
+            except:
+                import traceback
+                traceback.print_exc()
+            return False
+
+        # Make sure we don't have the launcher partition
+        # as one of the cards
+
+        if self._card_a_prefix is not None:
+            if not write_cache(self._card_a_prefix):
+                self._card_a_prefix = None
+        if self._card_b_prefix is not None:
+            if not write_cache(self._card_b_prefix):
+                self._card_b_prefix = None
+
+
     def get_device_information(self, end_session=True):
         return (self.gui_name, '', '', '')
 
@@ -94,26 +128,31 @@ class PRS505(USBMS):
         return XMLCache(paths, prefixes)
 
     def books(self, oncard=None, end_session=True):
+        debug_print('PRS505: starting fetching books for card', oncard)
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
         c = self.initialize_XML_cache()
         c.update_booklist(bl, {'carda':1, 'cardb':2}.get(oncard, 0))
+        debug_print('PRS505: finished fetching books for card', oncard)
         return bl
 
     def sync_booklists(self, booklists, end_session=True):
+        debug_print('PRS505: started sync_booklists')
         c = self.initialize_XML_cache()
         blists = {}
         for i in c.paths:
             if booklists[i] is not None:
                 blists[i] = booklists[i]
         opts = self.settings()
-        collections = ['series', 'tags']
         if opts.extra_customization:
             collections = [x.strip() for x in
                     opts.extra_customization.split(',')]
-
+        else:
+            collections = []
+        debug_print('PRS505: collection fields:', collections)
         c.update(blists, collections)
         c.write()
 
         USBMS.sync_booklists(self, booklists, end_session=end_session)
+        debug_print('PRS505: finished sync_booklists')
 
 

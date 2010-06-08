@@ -403,12 +403,14 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         ag = QCoreApplication.instance().desktop().availableGeometry(self)
         self.cover.MAX_HEIGHT = ag.height()-(25 if (islinux or isfreebsd) else 0)-height_of_rest
         self.cover.MAX_WIDTH = ag.width()-(25 if (islinux or isfreebsd) else 0)-width_of_rest
+        pm = QPixmap()
         if cover:
-            pm = QPixmap()
             pm.loadFromData(cover)
-            if not pm.isNull():
-                self.cover.setPixmap(pm)
+        if pm.isNull():
+            pm = QPixmap(I('book.svg'))
+        else:
             self.cover_data = cover
+        self.cover.setPixmap(pm)
         self.original_series_name = unicode(self.series.text()).strip()
         if len(db.custom_column_label_map) == 0:
             self.central_widget.tabBar().setVisible(False)
