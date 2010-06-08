@@ -597,7 +597,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.cover_flow = CoverFlow(height=cfh, text_height=text_height)
             self.cover_flow.setVisible(False)
             if not config['separate_cover_flow']:
-                self.library.layout().addWidget(self.cover_flow)
+                self.cb_layout.addWidget(self.cover_flow)
             self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
             self.library_view.selectionModel().currentRowChanged.connect(
                     self.sync_cf_to_listview)
@@ -638,7 +638,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.scheduler,
                 SIGNAL('start_recipe_fetch(PyQt_PyObject)'),
                 self.download_scheduled_recipe, Qt.QueuedConnection)
-        self.library_view.verticalHeader().sectionClicked.connect(self.view_specific_book)
 
         for view in ('library', 'memory', 'card_a', 'card_b'):
             view = getattr(self, view+'_view')
@@ -923,6 +922,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 index = m.index(row, 0)
                 if self.library_view.currentIndex().row() != row and index.isValid():
                     self.cover_flow_sync_flag = False
+                    self.library_view.scrollTo(index)
                     sm = self.library_view.selectionModel()
                     sm.select(index, sm.ClearAndSelect|sm.Rows)
                     self.library_view.setCurrentIndex(index)
