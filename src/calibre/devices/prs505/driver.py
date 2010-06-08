@@ -143,10 +143,11 @@ class PRS505(USBMS):
             if booklists[i] is not None:
                 blists[i] = booklists[i]
         opts = self.settings()
-        collections = ['series', 'tags']
         if opts.extra_customization:
             collections = [x.strip() for x in
                     opts.extra_customization.split(',')]
+        else:
+            collections = []
         debug_print('PRS505: collection fields:', collections)
         c.update(blists, collections)
         c.write()
