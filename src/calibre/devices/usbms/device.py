@@ -765,12 +765,8 @@ class Device(DeviceConfig, DevicePlugin):
             path = existing[0]
 
         def get_size(obj):
-            if hasattr(obj, 'seek'):
-                obj.seek(0, os.SEEK_END)
-                size = obj.tell()
-                obj.seek(0)
-                return size
-            return os.path.getsize(obj)
+            path = getattr(obj, 'name', obj)
+            return os.path.getsize(path)
 
         sizes = [get_size(f) for f in files]
         size = sum(sizes)

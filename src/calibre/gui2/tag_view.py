@@ -186,7 +186,7 @@ class TagsView(QTreeView): # {{{
 
     def is_visible(self, idx):
         item = idx.internalPointer()
-        if item.type == TagTreeItem.TAG:
+        if getattr(item, 'type', None) == TagTreeItem.TAG:
             idx = idx.parent()
         return self.isExpanded(idx)
 

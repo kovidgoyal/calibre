@@ -1,6 +1,8 @@
 from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
+# Imports {{{
 import os, traceback, Queue, time, socket, cStringIO, re
 from threading import Thread, RLock
 from itertools import repeat
@@ -27,7 +29,9 @@ from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 
-class DeviceJob(BaseJob):
+# }}}
+
+class DeviceJob(BaseJob): # {{{
 
     def __init__(self, func, done, job_manager, args=[], kwargs={},
             description=''):
@@ -78,8 +82,9 @@ class DeviceJob(BaseJob):
     def log_file(self):
         return cStringIO.StringIO(self._details.encode('utf-8'))
 
+    # }}}
 
-class DeviceManager(Thread):
+class DeviceManager(Thread): # {{{
 
     def __init__(self, connected_slot, job_manager, open_feedback_slot, sleep_time=2):
         '''
@@ -338,8 +343,9 @@ class DeviceManager(Thread):
         return self.create_job(self._view_book, done, args=[path, target],
                         description=_('View book on device'))
 
+    # }}}
 
-class DeviceAction(QAction):
+class DeviceAction(QAction): # {{{
 
     a_s = pyqtSignal(object)
 
@@ -356,9 +362,9 @@ class DeviceAction(QAction):
     def __repr__(self):
         return self.__class__.__name__ + ':%s:%s:%s'%(self.dest, self.delete,
                 self.specific)
+    # }}}
 
-
-class DeviceMenu(QMenu):
+class DeviceMenu(QMenu): # {{{
 
     fetch_annotations = pyqtSignal()
     connect_to_folder = pyqtSignal()
@@ -532,8 +538,9 @@ class DeviceMenu(QMenu):
         annot_enable = enable and getattr(device, 'SUPPORTS_ANNOTATIONS', False)
         self.annotation_action.setEnabled(annot_enable)
 
+    # }}}
 
-class Emailer(Thread):
+class Emailer(Thread): # {{{
 
     def __init__(self, timeout=60):
         Thread.__init__(self)
@@ -590,6 +597,7 @@ class Emailer(Thread):
                 results.append([jobname, e, traceback.format_exc()])
         callback(results)
 
+    # }}}
 
 class DeviceGUI(object):
 
@@ -637,7 +645,7 @@ class DeviceGUI(object):
         if not ids or len(ids) == 0:
             return
         files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
-                                    fmts, paths=True, set_metadata=True,
+                                    fmts, set_metadata=True,
                                     specific_format=specific_format,
                                     exclude_auto=do_auto_convert)
         if do_auto_convert:
@@ -647,7 +655,6 @@ class DeviceGUI(object):
             _auto_ids = []
 
         full_metadata = self.library_view.model().metadata_for(ids)
-        files = [getattr(f, 'name', None) for f in files]
 
         bad, remove_ids, jobnames = [], [], []
         texts, subjects, attachments, attachment_names = [], [], [], []
@@ -760,7 +767,7 @@ class DeviceGUI(object):
         for account, fmts in accounts:
             files, auto = self.library_view.model().\
                     get_preferred_formats_from_ids([id], fmts)
-            files = [f.name for f in files if f is not None]
+            files = [f for f in files if f is not None]
             if not files:
                 continue
             attachment = files[0]
@@ -824,7 +831,7 @@ class DeviceGUI(object):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id,
-                    os.path.splitext(f.name)[1]))
+                    os.path.splitext(f)[1]))
                 if mi.cover and os.access(mi.cover, os.R_OK):
                     mi.thumbnail = self.cover_to_thumbnail(open(mi.cover,
                         'rb').read())
@@ -837,7 +844,7 @@ class DeviceGUI(object):
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
-                        memory=[[f.name for f in files], remove])
+                        memory=[files, remove])
                 self.status_bar.showMessage(_('Sending catalogs to device.'), 5000)
 
 
@@ -884,7 +891,7 @@ class DeviceGUI(object):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id,
-                    os.path.splitext(f.name)[1]))
+                    os.path.splitext(f)[1]))
                 if mi.cover and os.access(mi.cover, os.R_OK):
                     mi.thumbnail = self.cover_to_thumbnail(open(mi.cover,
                         'rb').read())
@@ -898,7 +905,7 @@ class DeviceGUI(object):
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
-                        memory=[[f.name for f in files], remove])
+                        memory=[files, remove])
                 self.status_bar.showMessage(_('Sending news to device.'), 5000)
 
 
@@ -914,7 +921,7 @@ class DeviceGUI(object):
 
         _files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
                                     settings.format_map,
-                                    paths=True, set_metadata=True,
+                                    set_metadata=True,
                                     specific_format=specific_format,
                                     exclude_auto=do_auto_convert)
         if do_auto_convert:
@@ -930,9 +937,8 @@ class DeviceGUI(object):
                 mi.thumbnail = self.cover_to_thumbnail(open(mi.cover, 'rb').read())
         imetadata = iter(metadata)
 
-        files = [getattr(f, 'name', None) for f in _files]
         bad, good, gf, names, remove_ids = [], [], [], [], []
-        for f in files:
+        for f in _files:
             mi = imetadata.next()
             id = ids.next()
             if f is None:

@@ -108,7 +108,7 @@ class BookList(_BookList):
     def add_book(self, book, replace_metadata):
         try:
             b = self.index(book)
-        except ValueError, IndexError:
+        except (ValueError, IndexError):
             b = None
         if b is None:
             self.append(book)
