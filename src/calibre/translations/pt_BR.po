@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-06 21:03+0000\n"
-"PO-Revision-Date: 2010-06-07 03:24+0000\n"
+"PO-Revision-Date: 2010-06-08 03:37+0000\n"
 "Last-Translator: Thomaz Rodrigues Botelho <Unknown>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-07 03:41+0000\n"
+"X-Launchpad-Export-Date: 2010-06-08 03:39+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1565,7 +1565,8 @@ msgstr "Não foi possível encontrar um ebook dentro do arquivo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:647
 msgid "Values of series index and rating must be numbers. Ignoring"
-msgstr "Valores para índices de séries e nota devem ser números. Ignorando"
+msgstr ""
+"Valores para índices de séries e avaliação devem ser números. Ignorando"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:654
 msgid "Failed to parse date/time"
@@ -2006,7 +2007,7 @@ msgstr "Tags"
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:105
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:82
 msgid "Series"
-msgstr "Séries"
+msgstr "Série"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:387
 msgid "Language"
@@ -2161,7 +2162,7 @@ msgstr "Baixar metadados"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:110
 msgid "ratings"
-msgstr ""
+msgstr "Avaliações"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:110
 msgid "tags"
@@ -2757,7 +2758,7 @@ msgstr "Notificar quando uma nova versão estiver disponível"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:45
 msgid "Use Roman numerals for series number"
-msgstr "Usar numerais romanos para numeros de séries"
+msgstr "Usar numerais romanos para números da série"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:47
 msgid "Sort tags list by popularity"
@@ -3672,12 +3673,15 @@ msgid ""
 "Tags categorize the book. This is particularly useful while searching. "
 "<br><br>They can be any words or phrases, separated by commas."
 msgstr ""
+"Tags categorizam o livro. Isto é particularmente útil quando estiver "
+"pesquisando. <br><br>Elas podem ser qualquer palavra ou frase, separadas por "
+"virgula."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:174
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:384
 msgid "&Series:"
-msgstr "&Séries:"
+msgstr "&Série:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:182
@@ -4907,7 +4911,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:555
 msgid "Use &Roman numerals for series number"
-msgstr ""
+msgstr "Use numerais &Romanos para números da série"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:556
 msgid "Enable system &tray icon (needs restart)"
@@ -5225,7 +5229,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:33
 msgid "Ratings, shown with stars"
-msgstr ""
+msgstr "Avaliações, mostradas com estrelas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:36
 msgid "Yes/No"
@@ -5473,7 +5477,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:24
 msgid "Editing meta information for <b>%d books</b>"
-msgstr ""
+msgstr "Editando informação meta para <b>%d livros</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:157
 msgid "Edit Meta information"
@@ -5497,7 +5501,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:375
 msgid "&Rating:"
-msgstr ""
+msgstr "&Avaliação"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:163
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:164
@@ -5508,7 +5512,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:165
 msgid "No change"
-msgstr ""
+msgstr "Nenhuma mudança"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:378
@@ -5540,7 +5544,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:178
 msgid "&Swap title and author"
-msgstr ""
+msgstr "&Inverter título e autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:179
 msgid ""
@@ -5549,10 +5553,14 @@ msgid ""
 "So if you selected Book A and then Book B,\n"
 "Book A will have series number 1 and Book B series number 2."
 msgstr ""
+"Livros selecionados serão automaticamente numerados,\n"
+"na ordem que você os selecionou.\n"
+"Então se você seleciona um Livro A e depois um Livro B,\n"
+"o Livro A irá ter o número de série 1 e o Livro B o número de série 2."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:183
 msgid "Automatically number books in this series"
-msgstr ""
+msgstr "Numerar automaticamente os livros nestas série"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:184
 msgid ""
@@ -5560,6 +5568,8 @@ msgid ""
 "\n"
 "Future conversion of these books will use the default settings."
 msgstr ""
+"Remove configurações de conversão armazenadas para os livros selecionados.\n"
+"Futuras conversões desses livros irão usar as configurações padrões."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:187
 msgid "Remove &stored conversion settings for the selected books"
@@ -6479,7 +6489,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:124
 msgid "Series:"
-msgstr "Séries:"
+msgstr "Série:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:125
 msgid "Regular expression (?P<series>)"
@@ -6487,7 +6497,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:127
 msgid "Series index:"
-msgstr ""
+msgstr "Índice da série:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:128
 msgid "Regular expression (?P<series_index>)"
@@ -9257,7 +9267,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:29
 msgid "The series"
-msgstr ""
+msgstr "A série"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:30
 msgid ""
@@ -9437,7 +9447,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:148
 msgid "SERIES: %s [%s]<br />"
-msgstr ""
+msgstr "SÉRIE: %s [%s]<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:189
 msgid "Library"
