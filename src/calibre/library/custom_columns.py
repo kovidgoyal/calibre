@@ -192,7 +192,7 @@ class CustomColumns(object):
         # check if item exists
         new_id = self.conn.get(
             'SELECT id FROM %s WHERE value=?'%table, (new_name,), all=False)
-        if new_id is None:
+        if new_id is None or old_id == new_id:
             self.conn.execute('UPDATE %s SET value=? WHERE id=?'%table, (new_name, old_id))
         else:
             # New id exists. If the column is_multiple, then process like

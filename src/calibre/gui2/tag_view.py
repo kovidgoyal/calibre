@@ -426,6 +426,8 @@ class TagsModel(QAbstractItemModel): # {{{
     def setData(self, index, value, role=Qt.EditRole):
         if not index.isValid():
             return NONE
+        # set up to position at the category label
+        path = self.path_for_index(self.parent(index))
         val = unicode(value.toString())
         if not val:
             error_dialog(self.tags_view, _('Item is blank'),
@@ -458,6 +460,11 @@ class TagsModel(QAbstractItemModel): # {{{
             self.tags_view.tag_item_renamed.emit()
         item.tag.name = val
         self.refresh() # Should work, because no categories can have disappeared
+        if path:
+            idx = self.index_for_path(path)
+            if idx.isValid():
+                self.tags_view.setCurrentIndex(idx)
+                self.tags_view.scrollTo(idx, QTreeView.PositionAtCenter)
         return True
 
     def headerData(self, *args):

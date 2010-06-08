@@ -1003,8 +1003,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         new_id = self.conn.get(
                     '''SELECT id from tags
                        WHERE name=?''', (new_name,), all=False)
-        if new_id is None:
-            # easy case. Simply rename the tag
+        if new_id is None or old_id == new_id:
+            # easy cases. Simply rename the tag. Do it even if equal, in case
+            # there is a change of case
             self.conn.execute('''UPDATE tags SET name=?
                                  WHERE id=?''', (new_name, old_id))
         else:
@@ -1041,7 +1042,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         new_id = self.conn.get(
                     '''SELECT id from series
                        WHERE name=?''', (new_name,), all=False)
-        if new_id is None:
+        if new_id is None or old_id == new_id:
             self.conn.execute('UPDATE series SET name=? WHERE id=?',
                               (new_name, old_id))
         else:
@@ -1086,7 +1087,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         new_id = self.conn.get(
                     '''SELECT id from publishers
                        WHERE name=?''', (new_name,), all=False)
-        if new_id is None:
+        if new_id is None or old_id == new_id:
             # New name doesn't exist. Simply change the old name
             self.conn.execute('UPDATE publishers SET name=? WHERE id=?', \
                               (new_name, old_id))
@@ -1113,22 +1114,34 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         new_name = new_name.replace(',', '|')
 
         # Get the list of books we must fix up, one way or the other
-        books = self.conn.get('SELECT book from books_authors_link WHERE author=?', (old_id,))
+        # Save the list so we can use it twice
+        bks = self.conn.get('SELECT book from books_authors_link WHERE author=?', (old_id,))
+        books = []
+        for (book_id,) in bks:
+            books.append(book_id)
 
         # check if the new author already exists
         new_id = self.conn.get('SELECT id from authors WHERE name=?',
                                 (new_name,), all=False)
-        if new_id is None:
+        if new_id is None or old_id == new_id:
             # No name clash. Go ahead and update the author's name
             self.conn.execute('UPDATE authors SET name=? WHERE id=?',
                               (new_name, old_id))
         else:
+            # First check for the degenerate case -- changing a value to itself.
+            # Update it in case there is a change of case, but do nothing else
+            if old_id == new_id:
+                self.conn.execute('UPDATE authors SET name=? WHERE id=?',
+                              (new_name, old_id))
+                self.conn.commit()
+                return
             # Author exists. To fix this, we must replace all the authors
             # instead of replacing the one. Reason: db integrity checks can stop
             # the rename process, which would leave everything half-done. We
             # can't do it the same way as tags (delete and add) because author
             # order is important.
-            for (book_id,) in books:
+
+            for book_id in books:
                 # Get the existing list of authors
                 authors = self.conn.get('''
                     SELECT author from books_authors_link
@@ -1139,7 +1152,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 # with the new one while we are at it
                 for i,aut in enumerate(authors):
                     authors[i] = aut[0] if aut[0] != old_id else new_id
-
                 # Delete the existing authors list
                 self.conn.execute('''DELETE FROM books_authors_link
                                      WHERE book=?''',(book_id,))
@@ -1154,11 +1166,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         # metadata. Ignore it.
                         pass
             # Now delete the old author from the DB
+            bks = self.conn.get('SELECT book FROM books_authors_link WHERE author=?', (old_id,))
             self.conn.execute('DELETE FROM authors WHERE id=?', (old_id,))
-            self.conn.commit()
+        self.conn.commit()
         # the authors are now changed, either by changing the author's name
         # or replacing the author in the list. Now must fix up the books.
-        for (book_id,) in books:
+        for book_id in books:
             # First, must refresh the cache to see the new authors
             self.data.refresh_ids(self, [book_id])
             # now fix the filesystem paths
@@ -1168,14 +1181,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 SELECT authors.name
                 FROM authors, books_authors_link as bl
                 WHERE bl.book = ? and bl.author = authors.id
+                ORDER BY bl.id
             ''' , (book_id,))
             # unpack the double-list structure
             for i,aut in enumerate(authors):
                 authors[i] = aut[0]
             ss = authors_to_sort_string(authors)
+            # Change the '|'s to ','
+            ss = ss.replace('|', ',')
             self.conn.execute('''UPDATE books
                                  SET author_sort=?
-                                 WHERE id=?''', (ss, old_id))
+                                 WHERE id=?''', (ss, book_id))
             self.conn.commit()
             # the caller will do a general refresh, so we don't need to
             # do one here
