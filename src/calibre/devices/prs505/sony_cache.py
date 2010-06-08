@@ -426,11 +426,6 @@ class XMLCache(object):
         timestamp = os.path.getctime(path)
         date = strftime(timestamp)
         if date != record.get('date', None):
-            if DEBUG:
-                debug_print('Changing date of', path, 'from',
-                        record.get('date', ''), 'to', date)
-                prints('\tctime', strftime(os.path.getctime(path)))
-                prints('\tmtime', strftime(os.path.getmtime(path)))
             record.set('date', date)
         record.set('size', str(os.stat(path).st_size))
         title = book.title if book.title else _('Unknown')
@@ -545,10 +540,10 @@ class XMLCache(object):
                         break
                 self.namespaces[i] = ns
 
-        if DEBUG:
-            debug_print('Found nsmaps:')
-            pprint(self.nsmaps)
-            debug_print('Found namespaces:')
-            pprint(self.namespaces)
+#        if DEBUG:
+#            debug_print('Found nsmaps:')
+#            pprint(self.nsmaps)
+#            debug_print('Found namespaces:')
+#            pprint(self.namespaces)
     # }}}
 
