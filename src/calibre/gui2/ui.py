@@ -800,7 +800,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 d.layout().addWidget(self.cover_flow)
                 self.cover_flow.setVisible(True)
                 self.cover_flow.setFocus(Qt.OtherFocusReason)
-                self.library_view.scrollTo(self.library_view.currentIndex())
+                self.library_view.scroll_to_row(self.library_view.currentIndex().row())
                 d.show()
                 d.finished.connect(self.sidebar.external_cover_flow_finished)
                 self.cf_dialog = d
@@ -824,7 +824,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         self.library_view.currentIndex())
                 self.cover_flow.setVisible(True)
                 self.cover_flow.setFocus(Qt.OtherFocusReason)
-                self.library_view.scrollTo(self.library_view.currentIndex())
+                self.library_view.scroll_to_row(self.library_view.currentIndex().row())
                 self.cover_flow_sync_timer.start(500)
             else:
                 self.cover_flow_sync_timer.stop()
@@ -922,7 +922,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 index = m.index(row, 0)
                 if self.library_view.currentIndex().row() != row and index.isValid():
                     self.cover_flow_sync_flag = False
-                    self.library_view.scrollTo(index)
+                    self.library_view.scroll_to_row(index.row())
                     sm = self.library_view.selectionModel()
                     sm.select(index, sm.ClearAndSelect|sm.Rows)
                     self.library_view.setCurrentIndex(index)
