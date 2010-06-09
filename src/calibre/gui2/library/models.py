@@ -39,6 +39,7 @@ class FormatPath(unicode):
     def __new__(cls, path, orig_file_path):
         ans = unicode.__new__(cls, path)
         ans.orig_file_path = orig_file_path
+        ans.deleted_after_upload = False
         return ans
 
 class BooksModel(QAbstractTableModel): # {{{

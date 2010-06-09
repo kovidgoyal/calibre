@@ -289,7 +289,10 @@ class DevicePlugin(Plugin):
         word "card" if C{on_card} is not None otherwise it must contain the word "memory".
         :files: A list of paths and/or file-like objects. If they are paths and
         the paths point to temporary files, they may have an additional
-        attribute, original_file_path pointing to the originals.
+        attribute, original_file_path pointing to the originals. They may have
+        another optional attribute, deleted_after_upload which if True means
+        that the file pointed to by original_file_path will be deleted after
+        being uploaded to the device.
         :names: A list of file names that the books should have
         once uploaded to the device. len(names) == len(files)
         :return: A list of 3-element tuples. The list is meant to be passed
