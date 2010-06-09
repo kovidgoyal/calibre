@@ -1546,7 +1546,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             row = None
             if ci.isValid():
                 row = ci.row()
-            view.model().delete_books(rows)
+            ids_deleted = view.model().delete_books(rows)
+            for v in (self.memory_view, self.card_a_view, self.card_b_view):
+                if v is None:
+                    continue
+                v.model().clear_ondevice(ids_deleted)
             if row is not None:
                 ci = view.model().index(row, 0)
                 if ci.isValid():
@@ -1591,6 +1595,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     self.booklists())
             model.paths_deleted(paths)
             self.upload_booklists()
+        # Clear the ondevice info so it will be recomputed
+        self.book_on_device(None, None, reset=True)
+        # We want to reset all the ondevice flags in the library. Use a big
+        # hammer, so we don't need to worry about whether some succeeded or not
+        self.library_view.model().refresh()
 
     ############################################################################
 
