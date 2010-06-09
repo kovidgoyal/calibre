@@ -355,10 +355,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI, ToolbarMixin,
                 SIGNAL('start_recipe_fetch(PyQt_PyObject)'),
                 self.download_scheduled_recipe, Qt.QueuedConnection)
 
-        for view in ('library', 'memory', 'card_a', 'card_b'):
-            view = getattr(self, view+'_view')
-            view.verticalHeader().sectionDoubleClicked.connect(self.view_specific_book)
-
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
 
         self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)

@@ -91,6 +91,12 @@ if pictureflow is not None:
             elif ev.delta() > 0:
                 self.showPrevious()
 
+        def resizeEvent(self, *args):
+            ans = pictureflow.PictureFlow.resizeEvent(self, *args)
+            height = self.height()/2.
+            self.setSlideSize(QSize(int(2/3. * height), height))
+            return ans
+
 
 else:
     CoverFlow = None
@@ -126,7 +132,7 @@ class CoverFlowMixin(object):
             if show:
                 d = QDialog(self)
                 ah, aw = available_height(), available_width()
-                d.resize(int(aw/2.), ah-60)
+                d.resize(int(aw/1.5), ah-60)
                 d._layout = QStackedLayout()
                 d.setLayout(d._layout)
                 d.setWindowTitle(_('Browse by covers'))
@@ -203,8 +209,8 @@ if __name__ == '__main__':
     app = QApplication([])
     w = QMainWindow()
     cf = CoverFlow()
-    cf.resize(cf.minimumSize())
-    w.resize(cf.minimumSize()+QSize(30, 20))
+    cf.resize(int(available_width()/1.5), available_height()-60)
+    w.resize(cf.size()+QSize(30, 20))
     path = sys.argv[1]
     model = FileSystemImages(sys.argv[1])
     cf.setImages(model)

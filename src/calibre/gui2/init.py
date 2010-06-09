@@ -242,6 +242,12 @@ class LibraryViewMixin(object): # {{{
         self.library_view.model().set_book_on_device_func(self.book_on_device)
         prefs['library_path'] = self.library_path
 
+        for view in ('library', 'memory', 'card_a', 'card_b'):
+            view = getattr(self, view+'_view')
+            view.verticalHeader().sectionDoubleClicked.connect(self.view_specific_book)
+
+
+
     def show_similar_books(self, type, *args):
         search, join = [], ' '
         idx = self.library_view.currentIndex()
