@@ -67,7 +67,8 @@ if pictureflow is not None:
             return ans
 
         def reset(self):
-            self.dataChanged.emit()
+            #self.dataChanged.emit()
+            pass
 
         def image(self, index):
             return self.model.cover(index)
