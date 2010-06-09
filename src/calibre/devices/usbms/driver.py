@@ -295,6 +295,19 @@ class USBMS(CLI, Device):
         debug_print('USBMS: finished sync_booklists')
 
     @classmethod
+    def build_template_regexp(cls):
+        def replfunc(match):
+            if match.group(1) in ['title', 'series', 'series_index', 'isbn']:
+                return '(?P<' + match.group(1) + '>.+?)'
+            elif match.group(1) == 'authors':
+                return '(?P<author>.+?)'
+            else:
+                return '(.+?)'
+        template = cls.save_template().rpartition('/')[2]
+        print 'bftr', template
+        return re.compile(re.sub('{([^}]*)}', replfunc, template) + '([_\d]*$)')
+
+    @classmethod
     def path_to_unicode(cls, path):
         if isbytestring(path):
             path = path.decode(filesystem_encoding)
@@ -355,22 +368,17 @@ class USBMS(CLI, Device):
         from calibre.ebooks.metadata.meta import metadata_from_formats
         from calibre.customize.ui import quick_metadata
         with quick_metadata:
-            return metadata_from_formats(fmts)
+            return metadata_from_formats(fmts, force_read_metadata=True,
+                                         pattern=cls.build_template_regexp())
 
     @classmethod
-    def book_from_path(cls, prefix, path):
+    def book_from_path(cls, prefix, lpath):
         from calibre.ebooks.metadata import MetaInformation
-
-        if cls.settings().read_metadata or cls.MUST_READ_METADATA:
-            mi = cls.metadata_from_path(cls.normalize_path(os.path.join(prefix, path)))
-        else:
-            from calibre.ebooks.metadata.meta import metadata_from_filename
-            mi = metadata_from_filename(cls.normalize_path(os.path.basename(path)),
-                re.compile(r'^(?P<title>[ \S]+?)[ _]-[ _](?P<author>[ \S]+?)_+\d+'))
+        mi = cls.metadata_from_path(cls.normalize_path(os.path.join(prefix, lpath)))
 
         if mi is None:
-            mi = MetaInformation(os.path.splitext(os.path.basename(path))[0],
+            mi = MetaInformation(os.path.splitext(os.path.basename(lpath))[0],
                     [_('Unknown')])
-        size = os.stat(cls.normalize_path(os.path.join(prefix, path))).st_size
-        book = cls.book_class(prefix, path, other=mi, size=size)
+        size = os.stat(cls.normalize_path(os.path.join(prefix, lpath))).st_size
+        book = cls.book_class(prefix, lpath, other=mi, size=size)
         return book
