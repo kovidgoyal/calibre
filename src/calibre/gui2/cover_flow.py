@@ -78,7 +78,6 @@ if pictureflow is not None:
         def __init__(self, parent=None):
             pictureflow.PictureFlow.__init__(self, parent,
                                 config['cover_flow_queue_length']+1)
-            self.setSlideSize(QSize(int(2/3. * 10), 10))
             self.setMinimumSize(QSize(10, 10))
             self.setFocusPolicy(Qt.WheelFocus)
             self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
@@ -90,12 +89,6 @@ if pictureflow is not None:
                 self.showNext()
             elif ev.delta() > 0:
                 self.showPrevious()
-
-        def resizeEvent(self, *args):
-            ans = pictureflow.PictureFlow.resizeEvent(self, *args)
-            height = self.height()/2.
-            self.setSlideSize(QSize(int(2/3. * height), height))
-            return ans
 
 
 else:
@@ -213,8 +206,8 @@ if __name__ == '__main__':
     w.resize(cf.size()+QSize(30, 20))
     path = sys.argv[1]
     model = FileSystemImages(sys.argv[1])
-    cf.setImages(model)
     cf.currentChanged[int].connect(model.currentChanged)
+    cf.setImages(model)
     w.setCentralWidget(cf)
 
     w.show()
