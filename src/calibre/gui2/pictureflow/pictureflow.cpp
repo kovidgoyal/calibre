@@ -85,6 +85,8 @@ typedef long PFreal;
 
 typedef unsigned short QRgb565;
 
+#define FONT_SIZE 18
+
 #define RGB565_RED_MASK 0xF800
 #define RGB565_GREEN_MASK 0x07E0
 #define RGB565_BLUE_MASK 0x001F
@@ -711,14 +713,14 @@ void PictureFlowPrivate::render()
     QPainter painter;
     painter.begin(&buffer);
 
-    QFont font("Arial", 14);
+    QFont font("Arial", FONT_SIZE);
     font.setBold(true);
     painter.setFont(font);
     painter.setPen(Qt::white);
     //painter.setPen(QColor(255,255,255,127));
 
     if (centerIndex < slideCount() && centerIndex > -1) 
-    	painter.drawText( QRect(0,0, buffer.width(), (buffer.height() - slideSize().height())/2),
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2-FONT_SIZE*3),
                       Qt::AlignCenter, slideImages->caption(centerIndex));
 
     painter.end();
@@ -761,7 +763,7 @@ void PictureFlowPrivate::render()
     QPainter painter;
     painter.begin(&buffer);
 
-    QFont font("Arial", 14);
+    QFont font("Arial", FONT_SIZE);
     font.setBold(true);
     painter.setFont(font);
 
@@ -770,12 +772,12 @@ void PictureFlowPrivate::render()
 
     painter.setPen(QColor(255,255,255, (255-fade) ));
     if (leftTextIndex < sc && leftTextIndex > -1)
-    	painter.drawText( QRect(0,0, buffer.width(), (buffer.height() - slideSize().height())/2),
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - FONT_SIZE*3),
                       Qt::AlignCenter, slideImages->caption(leftTextIndex));
 
     painter.setPen(QColor(255,255,255, fade));
     if (leftTextIndex+1 < sc && leftTextIndex > -2)
-    	painter.drawText( QRect(0,0, buffer.width(), (buffer.height() - slideSize().height())/2),
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - FONT_SIZE*3),
                       Qt::AlignCenter, slideImages->caption(leftTextIndex+1));
 
 
