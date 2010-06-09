@@ -222,7 +222,7 @@ class KOBO(USBMS):
         return ImageID
 
     def delete_images(self, ImageID):
-        if ImageID == None:
+        if ImageID != None:
             path_prefix = '.kobo/images/'
             path = self._main_prefix + path_prefix + ImageID
 
