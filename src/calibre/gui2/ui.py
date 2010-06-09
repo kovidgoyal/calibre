@@ -44,7 +44,7 @@ from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.main_ui import Ui_MainWindow
-from calibre.gui2.device import DeviceManager, DeviceMenu, DeviceGUI, Emailer
+from calibre.gui2.device import DeviceManager, DeviceMenu, DeviceMixin, Emailer
 from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
@@ -105,7 +105,7 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 # }}}
 
-class Main(MainWindow, Ui_MainWindow, DeviceGUI, ToolbarMixin,
+class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin):
     'The main GUI'
 
@@ -227,6 +227,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI, ToolbarMixin,
                      self.system_tray_icon_activated)
         QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'),
                 self.do_advanced_search)
+
+        DeviceMixin.__init__(self)
 
         ####################### Start spare job server ########################
         QTimer.singleShot(1000, self.add_spare_server)

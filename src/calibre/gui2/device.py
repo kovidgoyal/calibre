@@ -599,7 +599,10 @@ class Emailer(Thread): # {{{
 
     # }}}
 
-class DeviceGUI(object):
+class DeviceMixin(object):
+
+    def __init__(self):
+        self.db_book_uuid_cache = set()
 
     def dispatch_sync_event(self, dest, delete, specific):
         rows = self.library_view.selectionModel().selectedRows()
