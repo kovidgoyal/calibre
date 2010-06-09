@@ -18,6 +18,8 @@ from calibre.utils.config import prefs
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
+from calibre.gui2.dialogs.tag_categories import TagCategories
+from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 
 class TagsView(QTreeView): # {{{
 
@@ -29,12 +31,16 @@ class TagsView(QTreeView): # {{{
     tag_item_renamed    = pyqtSignal()
     search_item_renamed = pyqtSignal()
 
-    def __init__(self, *args):
-        QTreeView.__init__(self, *args)
+    def __init__(self, parent=None):
+        QTreeView.__init__(self, parent=None)
+        self.tag_match = None
         self.setUniformRowHeights(True)
         self.setCursor(Qt.PointingHandCursor)
         self.setIconSize(QSize(30, 30))
-        self.tag_match = None
+        self.setTabKeyNavigation(True)
+        self.setAlternatingRowColors(True)
+        self.setAnimated(True)
+        self.setHeaderHidden(True)
 
     def set_database(self, db, tag_match, popularity):
         self.hidden_categories = config['tag_browser_hidden_categories']
@@ -587,4 +593,43 @@ class TagsModel(QAbstractItemModel): # {{{
         return ans
 
     # }}}
+
+class TagBrowserMixin(object): # {{{
+
+    def __init__(self, db):
+        self.tags_view.set_database(self.library_view.model().db,
+                self.tag_match, self.popularity)
+        self.tags_view.tags_marked.connect(self.search.search_from_tags)
+        self.tags_view.tags_marked.connect(self.saved_search.clear_to_help)
+        self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
+        self.tags_view.user_category_edit.connect(self.do_user_categories_edit)
+        self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
+        self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
+        self.tags_view.search_item_renamed.connect(self.saved_search.clear_to_help)
+
+    def do_user_categories_edit(self, on_category=None):
+        d = TagCategories(self, self.library_view.model().db, on_category)
+        d.exec_()
+        if d.result() == d.Accepted:
+            self.tags_view.set_new_model()
+            self.tags_view.recount()
+
+    def do_tags_list_edit(self, tag, category):
+        d = TagListEditor(self, self.library_view.model().db, tag, category)
+        d.exec_()
+        if d.result() == d.Accepted:
+            # Clean up everything, as information could have changed for many books.
+            self.library_view.model().refresh()
+            self.tags_view.set_new_model()
+            self.tags_view.recount()
+            self.saved_search.clear_to_help()
+            self.search.clear_to_help()
+
+    def do_tag_item_renamed(self):
+        # Clean up library view and search
+        self.library_view.model().refresh()
+        self.saved_search.clear_to_help()
+        self.search.clear_to_help()
+
+# }}}
 

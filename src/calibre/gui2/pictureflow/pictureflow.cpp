@@ -540,6 +540,8 @@ void PictureFlowPrivate::showSlide(int index)
 
 void PictureFlowPrivate::resize(int w, int h)
 {
+  slideHeight = int(float(h)/2.);
+  slideWidth = int(float(slideHeight) * 2/3.);
   recalc(w, h);
   resetSlides();
   triggerRender();
