@@ -957,7 +957,7 @@ class ITUNES(DevicePlugin):
 
                     dev_book_added = None
                     if self.manual_sync_mode:
-                        dev_book_added = self._add_device_book(fpath)
+                        added = dev_book_added = self._add_device_book(fpath)
 
                     if added:
                         thumb = None
