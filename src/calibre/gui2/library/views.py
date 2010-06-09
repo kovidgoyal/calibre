@@ -426,6 +426,14 @@ class BooksView(QTableView): # {{{
         if dy != 0:
             self.column_header.update()
 
+    def scroll_to_row(self, row):
+        if row > -1:
+            h = self.horizontalHeader()
+            for i in range(h.count()):
+                if not h.isSectionHidden(i):
+                    self.scrollTo(self.model().index(row, i))
+                    break
+
     def close(self):
         self._model.close()
 

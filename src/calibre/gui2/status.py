@@ -52,10 +52,7 @@ class BookInfoDisplay(QWidget):
             QLabel.__init__(self)
             self.setMaximumWidth(81)
             self.setMaximumHeight(108)
-            self.default_pixmap = QPixmap(coverpath).scaled(self.maximumWidth(),
-                                                            self.maximumHeight(),
-                                                            Qt.IgnoreAspectRatio,
-                                                            Qt.SmoothTransformation)
+            self.default_pixmap = QPixmap(coverpath)
             self.setScaledContents(True)
             self.statusbar_height = 120
             self.setPixmap(self.default_pixmap)
