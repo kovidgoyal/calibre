@@ -82,14 +82,14 @@ class KOBO(USBMS):
                 # if lpath.startswith(os.sep):
                 #                      lpath = lpath[len(os.sep):]
                 #                   lpath = lpath.replace('\\', '/')
-                print "Filename: " + filename
+                # print "Filename: " + filename
                 filename = self.normalize_path(filename)
-                print "Normalized FileName: " + filename
+                # print "Normalized FileName: " + filename
 
                 idx = bl_cache.get(filename, None)
                 if idx is not None:
                     imagename = self.normalize_path(mountpath + '.kobo/images/' + ImageID + ' - iPhoneThumbnail.parsed')
-                    print "Image name Normalized: " + imagename
+                    # print "Image name Normalized: " + imagename
                     bl[idx].thumbnail = ImageWrapper(imagename)
                     bl_cache[filename] = None
                     if ContentType != '6':
@@ -240,7 +240,7 @@ class KOBO(USBMS):
         for i, path in enumerate(paths):
             self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
             path = self.normalize_path(path)
-            print "Delete file normalized path: " + path
+            # print "Delete file normalized path: " + path
             extension =  os.path.splitext(path)[1]
 
             if extension == '.kobo':
