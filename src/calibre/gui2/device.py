@@ -599,7 +599,10 @@ class Emailer(Thread): # {{{
 
     # }}}
 
-class DeviceGUI(object):
+class DeviceMixin(object):
+
+    def __init__(self):
+        self.db_book_uuid_cache = set()
 
     def dispatch_sync_event(self, dest, delete, specific):
         rows = self.library_view.selectionModel().selectedRows()
@@ -851,6 +854,7 @@ class DeviceGUI(object):
 
     def sync_news(self, send_ids=None, do_auto_convert=True):
         if self.device_connected:
+            del_on_upload = config['delete_news_from_library_on_upload']
             settings = self.device_manager.device.settings()
             ids = list(dynamic.get('news_to_be_synced', set([]))) if send_ids is None else send_ids
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
@@ -880,6 +884,8 @@ class DeviceGUI(object):
                             'the device?'), det_msg=autos):
                         self.auto_convert_news(auto, format)
             files = [f for f in files if f is not None]
+            for f in files:
+                f.deleted_after_upload = del_on_upload
             if not files:
                 dynamic.set('news_to_be_synced', set([]))
                 return
@@ -897,8 +903,7 @@ class DeviceGUI(object):
                         'rb').read())
             dynamic.set('news_to_be_synced', set([]))
             if config['upload_news_to_device'] and files:
-                remove = ids if \
-                    config['delete_news_from_library_on_upload'] else []
+                remove = ids if del_on_upload else []
                 space = { self.location_view.model().free[0] : None,
                     self.location_view.model().free[1] : 'carda',
                     self.location_view.model().free[2] : 'cardb' }
