@@ -16,6 +16,10 @@ public:
   virtual int count();
   virtual QImage image(int index);
   virtual QString caption(int index);
+
+signals:
+  void dataChanged();
+
 };
 
 
