@@ -5,77 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
 from functools import partial
 
 from PyQt4.Qt import QToolBar, Qt, QIcon, QSizePolicy, QWidget, \
-        QFrame, QVBoxLayout, QLabel, QSize, QCoreApplication, QToolButton
+        QSize, QToolButton
 
-from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2 import dynamic
-
-class JobsButton(QFrame):
-
-    def __init__(self, parent):
-        QFrame.__init__(self, parent)
-        self.setLayout(QVBoxLayout())
-        self.pi = ProgressIndicator(self)
-        self.layout().addWidget(self.pi)
-        self.jobs = QLabel('<b>'+_('Jobs:')+' 0')
-        self.jobs.setAlignment(Qt.AlignHCenter|Qt.AlignBottom)
-        self.layout().addWidget(self.jobs)
-        self.layout().setAlignment(self.jobs, Qt.AlignHCenter)
-        self.jobs.setMargin(0)
-        self.layout().setMargin(0)
-        self.jobs.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self.setCursor(Qt.PointingHandCursor)
-        self.setToolTip(_('Click to see list of active jobs.'))
-
-    def initialize(self, jobs_dialog):
-        self.jobs_dialog = jobs_dialog
-
-    def mouseReleaseEvent(self, event):
-        if self.jobs_dialog.isVisible():
-            self.jobs_dialog.hide()
-        else:
-            self.jobs_dialog.show()
-
-    @property
-    def is_running(self):
-        return self.pi.isAnimated()
-
-    def start(self):
-        self.pi.startAnimation()
-
-    def stop(self):
-        self.pi.stopAnimation()
-
-
-class Jobs(ProgressIndicator):
-
-    def initialize(self, jobs_dialog):
-        self.jobs_dialog = jobs_dialog
-
-    def mouseClickEvent(self, event):
-        if self.jobs_dialog.isVisible():
-            self.jobs_dialog.jobs_view.write_settings()
-            self.jobs_dialog.hide()
-        else:
-            self.jobs_dialog.jobs_view.read_settings()
-            self.jobs_dialog.show()
-            self.jobs_dialog.jobs_view.restore_column_widths()
-
-    @property
-    def is_running(self):
-        return self.isAnimated()
-
-    def start(self):
-        self.startAnimation()
-
-    def stop(self):
-        self.stopAnimation()
-
-
 
 class SideBar(QToolBar):
 
@@ -114,8 +49,6 @@ class SideBar(QToolBar):
         self.spacer = QWidget(self)
         self.spacer.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.addWidget(self.spacer)
-        self.jobs_button = JobsButton(self)
-        self.addWidget(self.jobs_button)
 
         self.show_cover_browser = partial(self._toggle_cover_browser, show=True)
         self.hide_cover_browser = partial(self._toggle_cover_browser,
@@ -124,9 +57,8 @@ class SideBar(QToolBar):
             if isinstance(ch, QToolButton):
                 ch.setCursor(Qt.PointingHandCursor)
 
-    def initialize(self, jobs_dialog, cover_browser, toggle_cover_browser,
+    def initialize(self, jobs_button, cover_browser, toggle_cover_browser,
             cover_browser_error, vertical_splitter, horizontal_splitter):
-        self.jobs_button.initialize(jobs_dialog)
         self.cover_browser, self.do_toggle_cover_browser = cover_browser, \
                                 toggle_cover_browser
         if self.cover_browser is None:
@@ -166,6 +98,7 @@ class SideBar(QToolBar):
             'book_info'), type=Qt.QueuedConnection)
         self.horizontal_splitter.state_changed.connect(partial(self.view_status_changed,
             'tag_browser'), type=Qt.QueuedConnection)
+        self.addWidget(jobs_button)
 
 
 
@@ -210,31 +143,5 @@ class SideBar(QToolBar):
 
     def _toggle_book_info(self, show=None):
         self.vertical_splitter.toggle_side_index()
-
-    def jobs(self):
-        src = unicode(self.jobs_button.jobs.text())
-        return int(re.search(r'\d+', src).group())
-
-    def job_added(self, nnum):
-        jobs = self.jobs_button.jobs
-        src = unicode(jobs.text())
-        num = self.jobs()
-        text = src.replace(str(num), str(nnum))
-        jobs.setText(text)
-        self.jobs_button.start()
-
-    def job_done(self, nnum):
-        jobs = self.jobs_button.jobs
-        src = unicode(jobs.text())
-        num = self.jobs()
-        text = src.replace(str(num), str(nnum))
-        jobs.setText(text)
-        if nnum == 0:
-            self.no_more_jobs()
-
-    def no_more_jobs(self):
-        if self.jobs_button.is_running:
-            self.jobs_button.stop()
-            QCoreApplication.instance().alert(self, 5000)
 
 
