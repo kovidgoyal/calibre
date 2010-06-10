@@ -12,7 +12,6 @@ from urlparse import urlparse
 
 from calibre import relpath, prints
 
-from calibre.utils.config import tweaks
 from calibre.utils.date import isoformat
 
 _author_pat = re.compile(',?\s+(and|with)\s+', re.IGNORECASE)
@@ -43,11 +42,10 @@ def authors_to_sort_string(authors):
 
 _title_pat = re.compile('^(A|The|An)\s+', re.IGNORECASE)
 def title_sort(title):
-    if tweaks['title_sorting'] == 'library_order':
-        match = _title_pat.search(title)
-        if match:
-            prep = match.group(1)
-            title = title[len(prep):] + ', ' + prep
+    match = _title_pat.search(title)
+    if match:
+        prep = match.group(1)
+        title = title[len(prep):] + ', ' + prep
     return title.strip()
 
 coding = zip(
