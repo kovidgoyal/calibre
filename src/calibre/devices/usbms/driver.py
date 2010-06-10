@@ -304,7 +304,6 @@ class USBMS(CLI, Device):
             else:
                 return '(.+?)'
         template = cls.save_template().rpartition('/')[2]
-        print 'bftr', template
         return re.compile(re.sub('{([^}]*)}', replfunc, template) + '([_\d]*$)')
 
     @classmethod
