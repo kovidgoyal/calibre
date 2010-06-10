@@ -67,9 +67,7 @@ if pictureflow is not None:
             return ans
 
         def reset(self):
-            from PyQt4.Qt import SIGNAL   ### TEMP
-            self.emit(SIGNAL('dataChanged()')) # TEMP
-#            self.dataChanged.emit()
+            self.dataChanged.emit()
 
         def image(self, index):
             return self.model.cover(index)
