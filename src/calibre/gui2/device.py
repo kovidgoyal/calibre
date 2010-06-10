@@ -1140,6 +1140,13 @@ class DeviceMixin(object):
                         in cache['authors']:
                     loc[i] = True
                     continue
+                # Also check author sort, because it can be used as author in
+                # some formats
+                if mi.author_sort and \
+                        re.sub('(?u)\W|[_]', '', mi.author_sort.lower()) \
+                        in cache['authors']:
+                    loc[i] = True
+                    continue
         return loc
 
     def set_books_in_library(self, booklists, reset=False):
@@ -1152,10 +1159,16 @@ class DeviceMixin(object):
                 mi = db.get_metadata(id, index_is_id=True)
                 title = re.sub('(?u)\W|[_]', '', mi.title.lower())
                 if title not in self.db_book_title_cache:
-                    self.db_book_title_cache[title] = {'authors':{}, 'db_ids':{}}
-                authors = authors_to_string(mi.authors).lower() if mi.authors else ''
-                authors = re.sub('(?u)\W|[_]', '', authors)
-                self.db_book_title_cache[title]['authors'][authors] = mi
+                    self.db_book_title_cache[title] = \
+                                {'authors':{}, 'author_sort':{}, 'db_ids':{}}
+                if mi.authors:
+                    authors = authors_to_string(mi.authors).lower()
+                    authors = re.sub('(?u)\W|[_]', '', authors)
+                    self.db_book_title_cache[title]['authors'][authors] = mi
+                if mi.author_sort:
+                    aus = mi.author_sort.lower()
+                    aus = re.sub('(?u)\W|[_]', '', aus)
+                    self.db_book_title_cache[title]['author_sort'][aus] = mi
                 self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
                 self.db_book_uuid_cache.add(mi.uuid)
 
@@ -1186,12 +1199,19 @@ class DeviceMixin(object):
                         book.smart_update(d['db_ids'][book.db_id])
                         resend_metadata = True
                         continue
-                    book_authors = authors_to_string(book.authors).lower() if book.authors else ''
-                    book_authors = re.sub('(?u)\W|[_]', '', book_authors)
-                    if book_authors in d['authors']:
-                        book.in_library = True
-                        book.smart_update(d['authors'][book_authors])
-                        resend_metadata = True
+                    if book.authors:
+                        # Compare against both author and author sort, because
+                        # either can appear as the author
+                        book_authors = authors_to_string(book.authors).lower()
+                        book_authors = re.sub('(?u)\W|[_]', '', book_authors)
+                        if book_authors in d['authors']:
+                            book.in_library = True
+                            book.smart_update(d['authors'][book_authors])
+                            resend_metadata = True
+                        elif book_authors in d['author_sort']:
+                            book.in_library = True
+                            book.smart_update(d['author_sort'][book_authors])
+                            resend_metadata = True
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
                 if not asort and book.authors:
