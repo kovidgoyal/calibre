@@ -43,10 +43,11 @@ def authors_to_sort_string(authors):
 
 _title_pat = re.compile('^(A|The|An)\s+', re.IGNORECASE)
 def title_sort(title):
-    match = _title_pat.search(title)
-    if match:
-        prep = match.group(1)
-        title = title[len(prep):] + ', ' + prep
+    if tweaks['title_sorting'] == 'library_order':
+        match = _title_pat.search(title)
+        if match:
+            prep = match.group(1)
+            title = title[len(prep):] + ', ' + prep
     return title.strip()
 
 coding = zip(
