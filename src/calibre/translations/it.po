@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-06 21:03+0000\n"
-"PO-Revision-Date: 2010-06-06 16:48+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-06-09 16:39+0000\n"
+"Last-Translator: Sheldon Pax <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-07 03:40+0000\n"
+"X-Launchpad-Export-Date: 2010-06-10 03:34+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -238,7 +238,7 @@ msgstr "Leggi i metadati dei libri negli archivi ZIP"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:381
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:391
 msgid "Set metadata in %s files"
-msgstr "Organizza i metadati in %s file"
+msgstr "Imposta i metadati nei file %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:359
 msgid "Set metadata from %s files"
@@ -413,7 +413,7 @@ msgstr "Personalizzazione dei plug-in locali"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Disabled plugins"
-msgstr ""
+msgstr "Plugin disabilitati"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:77
 msgid "No valid plugin found in "
@@ -3007,7 +3007,7 @@ msgstr "Cercando in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:229
 msgid "Adding..."
-msgstr "Aggiungendo..."
+msgstr "Sto aggiungendo...."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:242
 msgid "Searching in all sub-directories..."
@@ -8292,7 +8292,7 @@ msgid ""
 "ebook.com/whats-new\">new features</a>. Visit the download page?"
 msgstr ""
 "%s é stato aggiornato alla versione %s. Vedere la pagina <a "
-"href=\"http://calibre-ebook.com/whats-new\">nuovitá</a>. Seguire il "
+"href=\"http://calibre-ebook.com/whats-new\">novitá</a>. Seguire il "
 "collegamento alla pagina di scaricamento?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43

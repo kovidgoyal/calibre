@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-06 21:03+0000\n"
-"PO-Revision-Date: 2010-06-07 03:12+0000\n"
-"Last-Translator: victor tejada yau <Unknown>\n"
+"PO-Revision-Date: 2010-06-09 18:23+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-08 03:39+0000\n"
+"X-Launchpad-Export-Date: 2010-06-10 03:35+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:318
@@ -3701,7 +3701,7 @@ msgstr "C&SS adicional"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:136
 msgid "&Transliterate unicode characters to ASCII"
-msgstr "&Transliterar los caracteres unicode mediante ASCII"
+msgstr "T&ransliterar los caracteres unicode mediante ASCII"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:137
 msgid "Insert &blank line"
@@ -3709,7 +3709,7 @@ msgstr "Insertar línea en &blanco"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:138
 msgid "Keep &ligatures"
-msgstr "Mantener &ligaduras"
+msgstr "&Mantener ligaduras"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -4674,7 +4674,7 @@ msgstr "Mis libros"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:287
 msgid "Generate catalog"
-msgstr "Genera el catálogo"
+msgstr "Generar el catálogo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:70
 msgid "Generate catalog for {0} books"
@@ -5322,12 +5322,12 @@ msgstr "&Abrir el directorio de configuración de calibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:589
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
 msgstr ""
-"Limitar el número máximo de tareas simultáneas al número de núcleos de &CPU "
+"&Limitar el número máximo de tareas simultáneas al número de núcleos de CPU "
 "disponibles."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:590
 msgid "Debug &device detection"
-msgstr "Depurar detección de &dispositivos"
+msgstr "&Depurar detección de dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:591
 msgid ""
@@ -5390,7 +5390,7 @@ msgstr "Número máximo de elementos &OPDS por consulta:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:600
 msgid "Max. OPDS &ungrouped items:"
-msgstr ""
+msgstr "&Máximo número de elementos OPDS sin agrupar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:601
 msgid "&Start Server"
@@ -6445,23 +6445,23 @@ msgstr "Editor de categorías de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:154
 msgid "A&vailable items"
-msgstr ""
+msgstr "Elementos &disponibles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:155
 msgid "Apply tags to current tag category"
-msgstr ""
+msgstr "Añadir etiquetas a la categoría de etiquetas actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:157
 msgid "A&pplied items"
-msgstr ""
+msgstr "Elementos &añadidos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:158
 msgid "Unapply (remove) tag from current tag category"
-msgstr ""
+msgstr "Eliminar etiqueta de la categoría de etiquetas actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:160
 msgid "Category name: "
-msgstr ""
+msgstr "Nombre de la categoría: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:161
 msgid "Select a category to edit"
@@ -6469,15 +6469,17 @@ msgstr "Seleccione una categoria para editar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:162
 msgid "Delete this selected tag category"
-msgstr ""
+msgstr "Borrar esta categoría de etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:164
 msgid "Enter a new category name. Select the kind before adding it."
 msgstr ""
+"Introduzca un nuevo nombre de categoría. Seleccione el tipo antes de "
+"añadirlo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:165
 msgid "Add the new category"
-msgstr ""
+msgstr "Añadir la nueva categoría"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:167
 msgid "Category filter: "
@@ -6485,7 +6487,7 @@ msgstr "Filtro de categoria "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:168
 msgid "Select the content kind of the new category"
-msgstr ""
+msgstr "Seleccione el tipo de contenido de la nueva categoría"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:93
@@ -6550,62 +6552,64 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:410
 msgid "Item is blank"
-msgstr ""
+msgstr "El elemento está en blanco"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:411
 msgid "An item cannot be set to nothing. Delete it instead."
-msgstr ""
+msgstr "No puede establecerse un elemento en blanco. Bórrelo en su lugar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:66
 msgid "Item already used"
-msgstr ""
+msgstr "El elemento ya está en uso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:67
 msgid "The item %s is already used."
-msgstr ""
+msgstr "El elemento %s ya está usado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:79
 msgid "No item selected"
-msgstr ""
+msgstr "No hay ningún elemento seleccionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:80
 msgid "You must select one item from the list of Available items."
-msgstr ""
+msgstr "Debe seleccionar un elemento de la lista de elementos disponibles."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:89
 msgid "No items selected"
-msgstr ""
+msgstr "No hay elementos seleccionados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:90
 msgid "You must select at least one items from the list."
-msgstr ""
+msgstr "Debe seleccionar al menos un elemento de la lista."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:94
 msgid "Are you certain you want to delete the following items?"
-msgstr ""
+msgstr "¿Está seguro de que quiere borrar los siguientes elementos?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:71
 msgid "Category Editor"
-msgstr ""
+msgstr "Editor de categorías"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:72
 msgid "Items in use"
-msgstr ""
+msgstr "Elementos en uso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:73
 msgid ""
 "Delete item from database. This will unapply the item from all books and "
 "then remove it from the database."
 msgstr ""
+"Borrar elemento de la base de datos. Esto quitará el elemento de todos los "
+"libros y después lo eliminará de la base de datos."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:75
 msgid "Rename the item in every book where it is used."
-msgstr ""
+msgstr "Renombrar el elemento en todos los libros que lo usen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:77
 msgid "Ctrl+S"
-msgstr ""
+msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:51
 msgid "Test email settings"
@@ -6973,15 +6977,15 @@ msgstr " - tareas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:284
 msgid "N"
-msgstr ""
+msgstr "N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:284
 msgid "Y"
-msgstr ""
+msgstr "S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:47
 msgid "On Device"
-msgstr ""
+msgstr "En el dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:49
 msgid "Size (MB)"
@@ -7012,21 +7016,21 @@ msgstr "Libro <font face=\"serif\">%s</font> de %s."
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1071
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:337
 msgid "The lookup/search name is \"{0}\""
-msgstr ""
+msgstr "El nombre de búsqueda es \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:830
 msgid "In Library"
-msgstr ""
+msgstr "En la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:834
 msgid "Size"
-msgstr ""
+msgstr "Tamaño"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:835
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:997
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:104
 msgid "Collections"
-msgstr ""
+msgstr "Colecciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:993
 msgid "Format"
@@ -7034,7 +7038,7 @@ msgstr "Formato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1053
 msgid "Marked for deletion"
-msgstr ""
+msgstr "Marcado para borrarlo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1056
 msgid "Double click to <b>edit</b> me<br><br>"
@@ -7042,43 +7046,43 @@ msgstr "Doble clic para <b>editarme</b><br><br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:101
 msgid "Hide column %s"
-msgstr ""
+msgstr "Ocultar columna %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:106
 msgid "Sort on %s"
-msgstr ""
+msgstr "Ordenar según %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:107
 msgid "Ascending"
-msgstr ""
+msgstr "Ascendente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:110
 msgid "Descending"
-msgstr ""
+msgstr "Descendente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:122
 msgid "Change text alignment for %s"
-msgstr ""
+msgstr "Cambiar la alineación del texto para %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:124
 msgid "Left"
-msgstr ""
+msgstr "Izquierda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:124
 msgid "Right"
-msgstr ""
+msgstr "Derecha"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:125
 msgid "Center"
-msgstr ""
+msgstr "Centro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:144
 msgid "Show column"
-msgstr ""
+msgstr "Mostrar columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:156
 msgid "Restore default layout"
-msgstr ""
+msgstr "Restaurar formato por defecto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:475
 msgid "Not allowed"
@@ -7197,7 +7201,7 @@ msgstr "Error en la creación de la biblioteca de calibre en: %r. Cancelando."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:132
 msgid "Initializing user interface..."
-msgstr ""
+msgstr "Iniciando la interfaz de usuario..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:157
 msgid "Repairing failed"
@@ -7258,7 +7262,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:230
 msgid "Starting %s: Loading books..."
-msgstr ""
+msgstr "Iniciando %s: Cargando libros..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:275
 msgid "If you are sure it is not running"
@@ -7299,12 +7303,12 @@ msgstr "calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:397
 msgid "&Restrict to:"
-msgstr ""
+msgstr "Restringir a:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:398
 msgid ""
 "Books display will be restricted to those matching the selected saved search"
-msgstr ""
+msgstr "Sólo se mostrarán los libros que coincidan con la búsqueda guardada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:399
 msgid "set in ui.py"
@@ -7367,11 +7371,11 @@ msgstr "Buscar todas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:418
 msgid "Create, edit, and delete user categories"
-msgstr ""
+msgstr "Crear, editar y borrar categorías de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:419
 msgid "Manage &user categories"
-msgstr ""
+msgstr "Administrar categorías de &usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:420
 msgid "Add books"
@@ -7400,7 +7404,7 @@ msgstr "E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:427
 msgid "Merge book records"
-msgstr ""
+msgstr "Unir registros de libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:428
 msgid "M"
@@ -7513,6 +7517,7 @@ msgstr "Buscar"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:297
 msgid "The selected search will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"La búsqueda seleccionada será <b>borrada permanentemente</b>. ¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:58
 msgid "Press a key..."
@@ -7584,64 +7589,64 @@ msgstr "Pulse para ver las tareas activas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/sidebar.py:83
 msgid "Hide Book Details"
-msgstr ""
+msgstr "Ocultar detalles del libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/sidebar.py:83
 msgid "Show Book Details"
-msgstr ""
+msgstr "Mostrar detalles del libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/sidebar.py:84
 msgid "Hide Tag Browser"
-msgstr ""
+msgstr "Ocultar explorador de etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/sidebar.py:84
 msgid "Show Tag Browser"
-msgstr ""
+msgstr "Mostrar explorador de etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/sidebar.py:85
 msgid "Hide Cover Browser"
-msgstr ""
+msgstr "Ocultar explorador de portadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/sidebar.py:85
 msgid "Show Cover Browser"
-msgstr ""
+msgstr "Mostrar explorador de portadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/sidebar.py:95
 msgid "Side bar"
-msgstr ""
+msgstr "Barra lateral"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/sidebar.py:135
 msgid "Cover browser could not be loaded: "
-msgstr ""
+msgstr "No se pudo cargar el explorador de portadas: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:142
 msgid "Rename"
-msgstr ""
+msgstr "Renombrar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:147
 msgid "Hide category %s"
-msgstr ""
+msgstr "Ocultar categoría %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:150
 msgid "Show category"
-msgstr ""
+msgstr "Mostrar categoría"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:154
 msgid "Show all categories"
-msgstr ""
+msgstr "Ver todas las categorias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:161
 msgid "Manage "
-msgstr ""
+msgstr "Administrar "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:165
 msgid "Manage Saved Searches"
-msgstr ""
+msgstr "Administrar búsquedas guardadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:176
 msgid "Manage User Categories"
-msgstr ""
+msgstr "Administrar categorías de usuarios"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:329
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:238
@@ -7650,7 +7655,7 @@ msgstr "Búsquedas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:420
 msgid "The name %s is already used."
-msgstr ""
+msgstr "El nombre %s ya está en uso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:182
@@ -7805,7 +7810,7 @@ msgstr "Guardar solamente el formato %s en disco"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:360
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2302
 msgid "Save only %s format to disk in a single directory"
-msgstr ""
+msgstr "Guardar sólo el formato %s en un único directorio"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:370
 msgid "View specific format"
@@ -7853,7 +7858,7 @@ msgstr "Guía de inicio rápido de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:689
 msgid "Select folder to open as device"
-msgstr ""
+msgstr "Seleccionar carpeta para abrir como un dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:800
 msgid "Browse by covers"
@@ -7861,7 +7866,7 @@ msgstr "Explorar por portadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:870
 msgid "({0} of {1})"
-msgstr ""
+msgstr "({0} de {1})"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:875
 msgid "(all books)"
@@ -7869,7 +7874,7 @@ msgstr "(todos los libros)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:877
 msgid "({0} of all)"
-msgstr ""
+msgstr "({0} de todos)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1000
 msgid "Device: "
@@ -8073,6 +8078,8 @@ msgid ""
 "The selected books will be <b>permanently deleted</b> from your device. Are "
 "you sure?"
 msgstr ""
+"Los libros seleccionados se <b>borrarán permanentemente</b> del dispositivo. "
+"¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1572
 msgid "Deleting books from device."
@@ -8267,7 +8274,7 @@ msgstr "No se puede configurar mientras haya tareas en ejecución."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2283
 msgid "Cannot configure before calibre is restarted."
-msgstr ""
+msgstr "No se puede configurar antes de reiniciar calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2334
 msgid "No detailed info available"
@@ -8280,7 +8287,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2385
 msgid "Failed"
-msgstr ""
+msgstr "Falló"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:2391
 msgid "Error talking to device"
@@ -8914,7 +8921,7 @@ msgstr "Pulsar para ver los libros en la tarjeta de memoria B del lector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:246
 msgid "Books located at"
-msgstr ""
+msgstr "Libros ubicados en"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:504
 msgid "Change Case"
@@ -9247,48 +9254,48 @@ msgstr "Activar el servidor de &contenidos"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:270
 msgid "today"
-msgstr ""
+msgstr "today"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:273
 msgid "yesterday"
-msgstr ""
+msgstr "yesterday"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:276
 msgid "thismonth"
-msgstr ""
+msgstr "thismonth"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:279
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:280
 msgid "daysago"
-msgstr ""
+msgstr "daysago"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:430
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:440
 msgid "no"
-msgstr ""
+msgstr "no"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:430
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:440
 msgid "unchecked"
-msgstr ""
+msgstr "unchecked"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:433
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:443
 msgid "checked"
-msgstr ""
+msgstr "checked"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:433
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:443
 msgid "yes"
-msgstr ""
+msgstr "yes"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:437
 msgid "blank"
-msgstr ""
+msgstr "blank"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:437
 msgid "empty"
-msgstr ""
+msgstr "empty"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:41
 msgid ""
@@ -9930,15 +9937,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:487
 msgid "Main"
-msgstr ""
+msgstr "Principal"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:489
 msgid "Card A"
-msgstr ""
+msgstr "Tarjeta A"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:491
 msgid "Card B"
-msgstr ""
+msgstr "Tarjeta B"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1542
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
@@ -9968,7 +9975,7 @@ msgstr "ID comprobado"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:111
 msgid "Ratings"
-msgstr ""
+msgstr "Calificaciones"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:24
 msgid "The title"
@@ -10166,6 +10173,9 @@ msgid ""
 "more than this number of items. Default: %default. Set to a large number to "
 "disable grouping."
 msgstr ""
+"Agrupar elementos por categorías tales como autores o etiquetas por la "
+"primera letra cuando hay más de este número de elementos. Predeterminado: "
+"%default. Establezca un número alto para desactivar el agrupamiento."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/base.py:93
 msgid "Password to access your calibre library. Username is "
@@ -10193,43 +10203,43 @@ msgstr "Escribir PID del proceso al archivo especificado"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:112
 msgid "%d books"
-msgstr ""
+msgstr "%d libros"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:124
 msgid "%d items"
-msgstr ""
+msgstr "%d elementos"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:141
 msgid "RATING: %s<br />"
-msgstr ""
+msgstr "CALIFICACIÓN: %s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:144
 msgid "TAGS: %s<br />"
-msgstr ""
+msgstr "ETIQUETAS: %s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:148
 msgid "SERIES: %s [%s]<br />"
-msgstr ""
+msgstr "SERIE: %s [%s]<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:189
 msgid "Library"
-msgstr ""
+msgstr "Biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:228
 msgid "Books in your library"
-msgstr ""
+msgstr "Libros en la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:234
 msgid "By "
-msgstr ""
+msgstr "Por "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:235
 msgid "Books sorted by "
-msgstr ""
+msgstr "Libros ordenados por "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:535
 msgid "Newest"
-msgstr ""
+msgstr "Más reciente"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:48
 msgid "%sUsage%s: %s\n"
@@ -10302,7 +10312,7 @@ msgstr "Lista de búsquedas guardadas con nombre"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:700
 msgid "User-created tag browser categories"
-msgstr ""
+msgstr "Categorías del explorador de etiquetas creadas por el usuario"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."

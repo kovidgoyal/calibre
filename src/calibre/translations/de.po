@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-06 21:03+0000\n"
-"PO-Revision-Date: 2010-06-06 17:54+0000\n"
-"Last-Translator: Gerold Kogler <gnosis@gmx.at>\n"
+"PO-Revision-Date: 2010-06-09 22:10+0000\n"
+"Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-07 03:39+0000\n"
+"X-Launchpad-Export-Date: 2010-06-10 03:34+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -2841,6 +2841,8 @@ msgid ""
 "Normally extra spaces are condensed into a single space. With this option "
 "all spaces will be displayed."
 msgstr ""
+"Normalerweise werden extra Leerzeichen zu einem einzigen Leerzeichen "
+"zusammengeführt. Mit dieser Option werden alle Leerzeichen angezeigt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:36
 msgid ""
@@ -3009,7 +3011,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:101
 msgid "tag browser categories not to display"
-msgstr ""
+msgstr "Etiketten-Browser Kategorien nicht anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:138
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:476
@@ -3109,7 +3111,7 @@ msgstr "Suche nach Büchern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:74
 msgid "Looking for duplicates based on file hash"
-msgstr ""
+msgstr "Suche nach Duplikaten anhand des Datei Hashes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:65
@@ -5820,7 +5822,7 @@ msgstr "&Alle Aufträge abbrechen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:24
 msgid "Editing meta information for <b>%d books</b>"
-msgstr ""
+msgstr "Meta-Informationen für <b>%d books</b> editieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:157
 msgid "Edit Meta information"
@@ -6150,11 +6152,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:85
 msgid "Select a saved search to edit"
-msgstr ""
+msgstr "Wählen Sie eine gespeicherte Suche zum Editieren aus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:86
 msgid "Delete this selected saved search"
-msgstr ""
+msgstr "Löscht diese selektierte gespeicherte Suche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:88
 msgid "Enter a new saved search name."
@@ -6550,7 +6552,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:410
 msgid "Item is blank"
-msgstr ""
+msgstr "Eintrag ist leer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:411
@@ -6567,7 +6569,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:79
 msgid "No item selected"
-msgstr ""
+msgstr "Kein Eintrag ausgewählt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:80
 msgid "You must select one item from the list of Available items."
@@ -6575,7 +6577,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:89
 msgid "No items selected"
-msgstr ""
+msgstr "Keine Einträge ausgewählt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:90
 msgid "You must select at least one items from the list."
@@ -6587,7 +6589,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:71
 msgid "Category Editor"
-msgstr ""
+msgstr "Kategorie-Editor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:72
 msgid "Items in use"
@@ -6605,7 +6607,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:77
 msgid "Ctrl+S"
-msgstr ""
+msgstr "Strg+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:51
 msgid "Test email settings"
@@ -7028,7 +7030,7 @@ msgstr "Größe"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:997
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:104
 msgid "Collections"
-msgstr ""
+msgstr "Sammlungen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:993
 msgid "Format"
@@ -7616,7 +7618,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:142
 msgid "Rename"
-msgstr ""
+msgstr "Umbenennen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:147
 msgid "Hide category %s"
@@ -10204,7 +10206,7 @@ msgstr "%d Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:124
 msgid "%d items"
-msgstr ""
+msgstr "%d Einträge"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:141
 msgid "RATING: %s<br />"
