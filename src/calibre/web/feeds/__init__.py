@@ -137,7 +137,7 @@ class Feed(object):
 
     def populate_from_preparsed_feed(self, title, articles, oldest_article=7,
                            max_articles_per_feed=100):
-        self.title      = title if title else _('Unknown feed')
+        self.title      = unicode(title if title else _('Unknown feed'))
         self.description = ''
         self.image_url  = None
         self.articles   = []
