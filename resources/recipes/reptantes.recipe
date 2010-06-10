@@ -1,0 +1,43 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.reptantes.com.ar
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Reptantes(BasicNewsRecipe):
+    title                 = 'Reptantes'
+    __author__            = 'Darko Miletic'
+    description           = u"cada vez que te haces acupuntura, tu muñeco vudú sufre en algún lado"
+    oldest_article        = 130
+    max_articles_per_feed = 100
+    language              = 'es'
+    encoding              = 'utf-8'
+    no_stylesheets        = True
+    use_embedded_content  = False
+    publication_type      = 'blog'
+    extra_css             = ' body{font-family: "Palatino Linotype",serif} h2{text-align: center; color:#BE7F8D} img{margin-bottom: 2em} '
+
+    conversion_options = {
+                          'comment'  : description
+                        , 'tags'     : 'literatura'
+                        , 'publisher': 'Hernan Racnati'
+                        , 'language' : language
+                        }
+
+    feeds = [(u'Posts', u'http://www.reptantes.com.ar/?feed=rss2')]
+
+    keep_only_tags     = [dict(attrs={'id':'content'})]
+    remove_tags        = [dict(attrs={'class':'iLikeThis'})]
+    remove_tags_before = dict(name='h2')
+    remove_tags_after  = dict(attrs={'class':'iLikeThis'})
+
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return self.adeify_images(soup)
+
+
