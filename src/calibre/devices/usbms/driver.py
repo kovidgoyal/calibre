@@ -374,8 +374,13 @@ class USBMS(CLI, Device):
     @classmethod
     def book_from_path(cls, prefix, lpath):
         from calibre.ebooks.metadata import MetaInformation
-        mi = cls.metadata_from_path(cls.normalize_path(os.path.join(prefix, lpath)))
 
+        if cls.settings().read_metadata or cls.MUST_READ_METADATA:
+            mi = cls.metadata_from_path(cls.normalize_path(os.path.join(prefix, lpath)))
+        else:
+            from calibre.ebooks.metadata.meta import metadata_from_filename
+            mi = metadata_from_filename(cls.normalize_path(os.path.basename(lpath)),
+                                        cls.build_template_regexp())
         if mi is None:
             mi = MetaInformation(os.path.splitext(os.path.basename(lpath))[0],
                     [_('Unknown')])
