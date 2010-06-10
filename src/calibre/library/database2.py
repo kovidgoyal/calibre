@@ -736,7 +736,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         icon=icon, tooltip = tooltip)
                                     for r in data if item_not_zero_func(r)]
             if category == 'series' and not sort_on_count:
-                if tweaks['title_sorting'] == 'library_order':
+                if tweaks['title_series_sorting'] == 'library_order':
                     ts = lambda x: title_sort(x)
                 else:
                     ts = lambda x:x
@@ -954,7 +954,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             title = title.decode(preferred_encoding, 'replace')
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.data.set(id, self.FIELD_MAP['title'], title, row_is_id=True)
-        if tweaks['title_sorting'] == 'library_order':
+        if tweaks['title_series_sorting'] == 'library_order':
             self.data.set(id, self.FIELD_MAP['sort'], title_sort(title), row_is_id=True)
         else:
             self.data.set(id, self.FIELD_MAP['sort'], title, row_is_id=True)

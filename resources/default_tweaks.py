@@ -61,13 +61,13 @@ sort_columns_at_startup = None
 # default if not set: MMM yyyy
 gui_pubdate_display_format = 'MMM yyyy'
 
-# Control title sorting.
+# Control title and series sorting in the library view.
 # If set to 'library_order', Leading articles such as The and A will be ignored.
 # If set to 'strictly_alphabetic', the titles will be sorted without processing
 # For example, with library_order, The Client will sort under 'C'. With
 # strictly_alphabetic, the book will sort under 'T'.
 # This flag affects Calibre's library display. It has no effect on devices. In
-# addition, books added before changing the flag will retain their order until
-# the title is edited. Double-clicking on a title and hitting return without
-# changing anything is sufficient to change the sort.
-title_sorting = 'library_order'
+# addition, titles for books added before changing the flag will retain their
+# order until the title is edited. Double-clicking on a title and hitting return
+# without changing anything is sufficient to change the sort.
+title_series_sorting = 'library_order'

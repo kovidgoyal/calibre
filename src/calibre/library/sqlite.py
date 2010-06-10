@@ -116,7 +116,7 @@ class DBThread(Thread):
         self.conn.create_aggregate('concat', 1, Concatenate)
         self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
         self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
-        if tweaks['title_sorting'] == 'library_order':
+        if tweaks['title_series_sorting'] == 'library_order':
             self.conn.create_function('title_sort', 1, title_sort)
         else:
             self.conn.create_function('title_sort', 1, lambda x:x)
