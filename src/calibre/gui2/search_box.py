@@ -73,7 +73,7 @@ class SearchBox2(QComboBox):
         self.connect(self.line_edit, SIGNAL('mouse_released(PyQt_PyObject)'),
                 self.mouse_released, Qt.DirectConnection)
         self.setEditable(True)
-        self.help_state = True
+        self.help_state = False
         self.as_you_type = True
         self.prev_search = ''
         self.timer = None
