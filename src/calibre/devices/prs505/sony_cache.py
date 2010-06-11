@@ -12,7 +12,7 @@ from uuid import uuid4
 
 from lxml import etree
 
-from calibre import prints, guess_type, iswindows
+from calibre import prints, guess_type, iswindows, islinux
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.driver import debug_print
 from calibre.constants import DEBUG
@@ -47,7 +47,10 @@ def strptime(src):
     src[2] = str(MONTH_MAP[src[2]])
     return time.strptime(' '.join(src), '%w, %d %m %Y %H:%M:%S %Z')
 
-def strftime(epoch, zone=time.gmtime):
+def strftime(epoch, zone=None):
+    zone = time.gmtime
+    if islinux:
+        zone = time.localtime
     src = time.strftime("%w, %d %m %Y %H:%M:%S GMT", zone(epoch)).split()
     src[0] = INVERSE_DAY_MAP[int(src[0][:-1])]+','
     src[2] = INVERSE_MONTH_MAP[int(src[2])]

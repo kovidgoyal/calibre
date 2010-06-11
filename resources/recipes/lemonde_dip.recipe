@@ -51,6 +51,7 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
                         , dict(name='div',attrs={'class':'notes surlignable'})
                         ]
     remove_tags = [dict(name=['object','link','script','iframe','base'])]
+    remove_attributes = ['height','width']
 
     def parse_index(self):
         articles = []
@@ -72,5 +73,5 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
                                  ,'url'        :url
                                  ,'description':description
                                 })
-        return [(soup.head.title.string, articles)]
+        return [(self.title, articles)]
 
