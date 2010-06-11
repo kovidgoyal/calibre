@@ -73,7 +73,7 @@ class SearchBox2(QComboBox):
         self.connect(self.line_edit, SIGNAL('mouse_released(PyQt_PyObject)'),
                 self.mouse_released, Qt.DirectConnection)
         self.setEditable(True)
-        self.help_state = True
+        self.help_state = False
         self.as_you_type = True
         self.prev_search = ''
         self.timer = None
@@ -100,18 +100,20 @@ class SearchBox2(QComboBox):
         self.help_state = False
 
     def clear_to_help(self):
+        if self.help_state:
+            return
+        self.help_state = True
+        self.search.emit('')
         self._in_a_search = False
         self.setEditText(self.help_text)
         if self.timer is not None: # Turn off any timers that got started in setEditText
             self.killTimer(self.timer)
             self.timer = None
         self.line_edit.home(False)
-        self.help_state = True
         self.line_edit.setStyleSheet(
                 'QLineEdit { color: gray; background-color: %s; }' %
                 self.normal_background)
         self.emit(SIGNAL('cleared()'))
-        self.search.emit('')
 
     def text(self):
         return self.currentText()
