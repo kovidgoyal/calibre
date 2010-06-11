@@ -518,7 +518,6 @@ class CustomColumns(object):
                         END;
                 '''.format(table=table),
             ]
-        print lines
         script = ' \n'.join(lines)
         self.conn.executescript(script)
         self.conn.commit()
