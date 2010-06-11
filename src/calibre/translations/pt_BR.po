@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-06 21:03+0000\n"
-"PO-Revision-Date: 2010-06-10 02:23+0000\n"
+"PO-Revision-Date: 2010-06-11 00:14+0000\n"
 "Last-Translator: Thomaz Rodrigues Botelho <Unknown>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-10 03:35+0000\n"
+"X-Launchpad-Export-Date: 2010-06-11 03:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1110,8 +1110,8 @@ msgid ""
 "source file has a Table of Contents, it will be used in preference to the "
 "automatically generated one."
 msgstr ""
-"Controlar a geração automática de índice. Por padrão, se o arquivo fonte tem "
-"um índice, ele será usado no lugar do que seria gerado automaticamente."
+"Controlar a geração automática do Sumário. Por padrão, se o arquivo fonte "
+"tem um índice, ele será usado no lugar do que seria gerado automaticamente."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:155
 msgid "Options to set metadata in the output"
@@ -1229,7 +1229,7 @@ msgid ""
 "other forms of auto-detection."
 msgstr ""
 "Expressão XPath que especifica todas as etiquetas que devem ser adicionadas "
-"ao Índice no nível um. Se esta for especificada, ela tem prioridade sobre "
+"ao Sumário no nível um. Se esta for especificada, ela tem prioridade sobre "
 "outras formas de auto-detecção."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:189
@@ -1238,6 +1238,9 @@ msgid ""
 "of Contents at level two. Each entry is added under the previous level one "
 "entry."
 msgstr ""
+"Expressão XPath que especifica todas as etiquetas que devem ser adicionadas "
+"ao Sumário no nível dois. Cada entrada é adicionada abaixo da entrada de "
+"nível um anterior."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:197
 msgid ""
@@ -1246,7 +1249,7 @@ msgid ""
 "entry."
 msgstr ""
 "Expressão XPath que especifica todas as etiquetas que devem ser adicionadas "
-"ao Índice no nível três. Cada entrada é adicionada abaixo da entrada de "
+"ao Sumário no nível três. Cada entrada é adicionada abaixo da entrada de "
 "nível dois anterior."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:205
@@ -1255,13 +1258,13 @@ msgid ""
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
 msgstr ""
-"Normalmente, se o arquivo fonte já tem um índice, ele é usado em preferencia "
-"ao que é gerado automaticamente. Com esta opção, o que é gerado "
+"Normalmente, se o arquivo fonte já tem um Sumário, ele é usado em "
+"preferência ao que é gerado automaticamente. Com esta opção, o que é gerado "
 "automaticamente sempre será usado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:213
 msgid "Don't add auto-detected chapters to the Table of Contents."
-msgstr "Não adicionar ao índice os capítulos detectados automaticamente."
+msgstr "Não adicionar ao sumário os capítulos detectados automaticamente."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:220
 msgid ""
@@ -1269,7 +1272,7 @@ msgid ""
 "the Table of Contents. Default: %default"
 msgstr ""
 "Se um número de capítulos menor do que esse for detectado, links a eles "
-"serão adicionados à Tabela de Conteúdos. Padrão: %default."
+"serão adicionados ao Sumário. Padrão: %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:227
 msgid ""
@@ -1277,16 +1280,16 @@ msgid ""
 "is: %default. Links are only added to the TOC if less than the threshold "
 "number of chapters were detected."
 msgstr ""
-"Número máximo de links para inserir no Índice. Defina como 0 para desativar. "
-"O padrão é: %default. Links só são adicionados ao índice se forem detectados "
-"menos capítulos do que o limite definido."
+"Número máximo de links para inserir no Sumário. Defina como 0 para "
+"desativar. O padrão é: %default. Links só são adicionados ao índice se forem "
+"detectados menos capítulos do que o limite definido."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:235
 msgid ""
 "Remove entries from the Table of Contents whose titles match the specified "
 "regular expression. Matching entries and all their children are removed."
 msgstr ""
-"Remover os itens do Índice cujos títulos correspondem à expressão regular "
+"Remover os itens do Sumário cujos títulos correspondem à expressão regular "
 "especificada. Os itens correspondentes e sub-itens serão removidos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:246
@@ -1325,7 +1328,7 @@ msgid ""
 "the style rules from the source file, so it can be used to override those "
 "rules."
 msgstr ""
-"O caminho para uma folha de estilho CSS ou CSS puro. Este CSS será "
+"O caminho para uma folha de estilo CSS ou CSS puro. Este CSS será "
 "acrescentado às regras de estilo do arquivo de origem, de modo a "
 "sobrescrever aquelas regras."
 
@@ -1471,6 +1474,12 @@ msgid ""
 "by Chinese and Japanese for instance) the representation used by the largest "
 "number of people will be used (Chinese in the previous example)."
 msgstr ""
+"Transformar caracteres unicode para uma representação ASCII. Use com cuidado "
+"pois isto irá substituir caracteres unicode por ASCII. Por exemplo ele irá "
+"substituir \"%s\" por \"Mikhail Gorbachiov\". Também, note que em alguns "
+"casos onde existem múltiplas representações de um caractere (caracteres "
+"compartilhados pelo Chinês e Japonês) a representação usada pela maioria das "
+"pessoas será usada (Chinês no exemplo anterior)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:416
 msgid ""
@@ -1481,6 +1490,12 @@ msgid ""
 "corresponding pair of normal characters. This option will preserve them "
 "instead."
 msgstr ""
+"Preserva as ligaduras presentes no documento de entrada. Uma ligadura é um "
+"formato especial para mostrar um par de caracteres como ff, fi, fl, etc. A "
+"maioria dos leitores não tem suporte para ligaduras em suas fontes padrões, "
+"então eles não conseguem mostrá-las corretamente. Por padrão, o calibe irá "
+"transformar uma ligadura em seu par correspondente de caracteres normais. "
+"Esta opção irá preservar as ligaduras."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
@@ -1661,11 +1676,11 @@ msgstr "Iniciar"
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:77
 msgid "Table of Contents:"
-msgstr "Tabela de conteúdos:"
+msgstr "Sumário:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:32
 msgid "Do not insert a Table of Contents at the beginning of the book."
-msgstr "Não insira uma Tabela de Conteúdos no início do livro."
+msgstr "Não insira um Sumário no início do livro."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:32
@@ -1673,7 +1688,7 @@ msgstr "Não insira uma Tabela de Conteúdos no início do livro."
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:35
 msgid "Add Table of Contents to beginning of the book."
-msgstr "Adicione uma Tabela de Conteúdo no início do livro."
+msgstr "Adicione um Sumário no início do livro."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:243
 msgid ""
@@ -1755,7 +1770,7 @@ msgstr "Falhou em decompor o link %s %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:608
 msgid "Cannot add link %s to TOC"
-msgstr "Não foi possivel adicionar o link %s a Tabela de Conteúdos"
+msgstr "Não foi possivel adicionar o link %s ao sumário"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:957
 msgid "Unable to process image %s. Error: %s"
@@ -2273,8 +2288,8 @@ msgid ""
 "Don't add Table of Contents to end of book. Useful if the book has its own "
 "table of contents."
 msgstr ""
-"Não adicione Tabela de Conteúdos no fim do livro. Útil se o livro tem sua "
-"própria tabela de conteúdos."
+"Não adicione o Sumário no fim do livro. Útil se o livro tem sua própria "
+"tabela de conteúdos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:33
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:56
@@ -2370,7 +2385,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."
-msgstr "Opções de geração de Tabela de Conteúdo HTML."
+msgstr "Opções de geração de Sumário HTML."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:113
 msgid "Book Jacket"
@@ -2712,7 +2727,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:39
 msgid "Do not insert a Table of Contents into the output text."
-msgstr ""
+msgstr "Não insira um Sumário no texto de saída"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
 msgid ""
@@ -3285,7 +3300,7 @@ msgstr "&Desativar processamento de HQs"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:111
 msgid "&Output format:"
-msgstr ""
+msgstr "F&ormato de saída:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:101
 msgid "Disable conversion of images to &black and white"
@@ -3319,6 +3334,11 @@ msgid ""
 "understanding the conversion process and figuring out the correct values for "
 "conversion parameters like Table of Contents and Chapter Detection."
 msgstr ""
+"Escolha um diretório para colocar a saída do depurador. Se você especifica "
+"um diretório, o calibre irá colocar um monte de saída de depuração nele. "
+"Isto será util para compreender os processos de conversão e descobrir os "
+"valores corretos para parâmetros de conversão como Sumário e Detecção de "
+"Capítulos."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:54
 msgid ""
@@ -3329,11 +3349,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
-msgstr ""
+msgstr "Saída EPUB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:49
 msgid "Do not &split on page breaks"
-msgstr ""
+msgstr "Não &dividir nas quebras de página"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:50
 msgid "No default &cover"
@@ -3361,7 +3381,7 @@ msgstr "FB2 Entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:29
 msgid "Do not insert a &Table of Contents at the beginning of the book."
-msgstr ""
+msgstr "Não insira um &Sumário no início do livro."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:14
 msgid "FB2 Output"
@@ -3396,7 +3416,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:103
 msgid "&Output document"
-msgstr ""
+msgstr "D&ocumento de saída"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:109
@@ -3429,7 +3449,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
 msgid "&Input document"
-msgstr ""
+msgstr "documento de &entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:111
 msgid "&Font size: "
@@ -3445,11 +3465,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
-msgstr ""
+msgstr "Aparência e Comportamento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:18
 msgid "Control the look and feel of the output"
-msgstr ""
+msgstr "Controla a aparência e comportamento da saída"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:30
 msgid "Original"
@@ -3457,19 +3477,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:31
 msgid "Left align"
-msgstr ""
+msgstr "Alinhar à esquerda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:32
 msgid "Justify text"
-msgstr ""
+msgstr "Justificar texto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:120
 msgid "&Disable font size rescaling"
-msgstr ""
+msgstr "&Desativar redimensionamento do tamanho das fontes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:121
 msgid "Base &font size:"
-msgstr ""
+msgstr "Tamanho base para &fontes:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:124
 msgid "Wizard to help you choose an appropriate font size key"
@@ -3477,15 +3497,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:126
 msgid "Line &height:"
-msgstr ""
+msgstr "&Altura da Linha:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:128
 msgid "Input character &encoding:"
-msgstr ""
+msgstr "&Codificação de caracteres de entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:129
 msgid "Remove &spacing between paragraphs"
-msgstr ""
+msgstr "Remover e&spaçamento entre parágrafos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:130
 msgid "Indent size:"
@@ -3504,27 +3524,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:133
 msgid "Text justification:"
-msgstr ""
+msgstr "Justificação de texto:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:134
 msgid "&Linearize tables"
-msgstr ""
+msgstr "&Linearizar tabelas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:135
 msgid "Extra &CSS"
-msgstr ""
+msgstr "&CSS extra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:136
 msgid "&Transliterate unicode characters to ASCII"
-msgstr ""
+msgstr "&Transformar caracteres unicode em ASCII"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:137
 msgid "Insert &blank line"
-msgstr ""
+msgstr "Inserir linha em &branco"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:138
 msgid "Keep &ligatures"
-msgstr ""
+msgstr "Manter &ligaduras"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -3603,7 +3623,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:169
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:109
 msgid "You do not have permission to read the file: "
-msgstr ""
+msgstr "Você não tem permissão para ler o arquivo: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:184
@@ -3718,7 +3738,7 @@ msgstr "Padrão"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:67
 msgid "&Title for Table of Contents:"
-msgstr ""
+msgstr "&Título para o Sumário:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:68
 msgid "Rescale images for &Palm devices"
@@ -3734,7 +3754,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:71
 msgid "Do not add Table of Contents to book"
-msgstr ""
+msgstr "Não adicione Sumário no livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:72
 msgid "Kindle options"
@@ -3750,19 +3770,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
-msgstr ""
+msgstr "Configurações de Página"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:116
 msgid "&Output profile:"
-msgstr ""
+msgstr "Perfil de &Saída:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:117
 msgid "Profile description"
-msgstr ""
+msgstr "Descrição do perfil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:118
 msgid "&Input profile:"
-msgstr ""
+msgstr "Perfil de &Entrada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:119
 msgid "Margins"
@@ -3889,38 +3909,42 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:109
 msgid "&Input format:"
-msgstr ""
+msgstr "Formato de &Entrada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:110
 msgid "Use &saved conversion settings for individual books"
-msgstr ""
+msgstr "Use configuração de conversão &salvas para livros individuais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
 "Structure\n"
 "Detection"
 msgstr ""
+"Detecção da\n"
+"Estrutura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:19
 msgid ""
 "Fine tune the detection of chapter headings and other document structure."
 msgstr ""
+"Refina a detecção de cabeçalhos de capítulos e outras estruturas do "
+"documento."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:34
 msgid "Detect chapters at (XPath expression):"
-msgstr ""
+msgstr "Detectar capítulos com (expressão XPath):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:35
 msgid "Insert page breaks before (XPath expression):"
-msgstr ""
+msgstr "Inserir quebras de páginas antes de (expressão XPath):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:37
 msgid "Header regular expression:"
-msgstr ""
+msgstr "Expressão regular para o Cabeçalho:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:40
 msgid "Footer regular expression:"
-msgstr ""
+msgstr "Expressão regular para o Rodapé:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:71
@@ -3944,11 +3968,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:60
 msgid "Chapter &mark:"
-msgstr ""
+msgstr "&marcação de capítulo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:61
 msgid "Remove first &image"
-msgstr ""
+msgstr "Remover primeira &imagem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:62
 msgid "Insert &metadata as page at start of book"
@@ -3957,20 +3981,22 @@ msgstr "Inserir &metadados como uma página no início do livro"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:63
 msgid "&Preprocess input file to possibly improve structure detection"
 msgstr ""
+"&Preprocessa o arquivo de entrada para possivelmente melhorar a detecção da "
+"estrutura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove F&ooter"
-msgstr ""
+msgstr "Remover R&odapé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:65
 msgid "Remove H&eader"
-msgstr ""
+msgstr "Remover Cab&eçalho"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
 "Table of\n"
 "Contents"
-msgstr ""
+msgstr "Sumário"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:18
 msgid "Control the creation/conversion of the Table of Contents."
@@ -3978,23 +4004,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:29
 msgid "Level &1 TOC (XPath expression):"
-msgstr ""
+msgstr "Sumário nível &1 (expressão XPath):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:30
 msgid "Level &2 TOC (XPath expression):"
-msgstr ""
+msgstr "Sumário nível &2 (expressão XPath):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:31
 msgid "Level &3 TOC (XPath expression):"
-msgstr ""
+msgstr "Sumário nível &3 (expressão XPath):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:63
 msgid "Do not add &detected chapters to the Table of Contents"
-msgstr ""
+msgstr "Não adicione os capítulos &detectados no Sumário"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:64
 msgid "Number of &links to add to Table of Contents"
-msgstr ""
+msgstr "Número de &Links para adicionar no Sumário"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:65
 msgid "Chapter &threshold"
@@ -4002,11 +4028,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:66
 msgid "&Force use of auto-generated Table of Contents"
-msgstr ""
+msgstr "&Forçar uso do Sumário auto-gerado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:67
 msgid "TOC &Filter:"
-msgstr ""
+msgstr "&Filtro de Sumário:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
@@ -4025,7 +4051,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:50
 msgid "Do not insert Table of Contents into output text when using markdown"
-msgstr ""
+msgstr "Não insira o Sumário no texto de saída quando usando markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:51
 msgid "Preserve &spaces"
@@ -4060,7 +4086,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:51
 msgid "Use a wizard to help construct the XPath expression"
-msgstr ""
+msgstr "Use um assistente para ajudar a construir a expressão XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:68
 msgid "Match HTML &tags with tag name:"
@@ -4918,11 +4944,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:551
 msgid "Preferred &output format:"
-msgstr ""
+msgstr "F&ormato de Saída Preferido:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:552
 msgid "Preferred &input format order:"
-msgstr ""
+msgstr "ordem preferida dos formatos de &entrada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:555
 msgid "Use &Roman numerals for series number"
@@ -5052,7 +5078,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:590
 msgid "Debug &device detection"
-msgstr ""
+msgstr "Depurar a detecção de &dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:591
 msgid ""
@@ -5264,7 +5290,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:96
 msgid "No lookup name was provided"
-msgstr ""
+msgstr "Inglês"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:98
 msgid ""
@@ -5353,7 +5379,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:24
 msgid "Debug device detection"
-msgstr ""
+msgstr "Depurar a detecção de dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/save_template.py:44
 msgid "Invalid template"
@@ -5619,7 +5645,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:168
 msgid "You do not have permission to read the following files:"
-msgstr ""
+msgstr "Você não tem permissão para ler os seguintes arquivos:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:196
@@ -6006,6 +6032,8 @@ msgid ""
 "<p>Negate this match. That is, only return results that <b>do not</b> match "
 "this query."
 msgstr ""
+"<p>Negar esta correspondência. Ou seja, só retorna resultados que <b>não</b> "
+"correspondem a está consulta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:39
 msgid "Negate"
@@ -6684,7 +6712,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:156
 msgid "Restore default layout"
-msgstr ""
+msgstr "Restaurar o layout padrão"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:475
 msgid "Not allowed"
@@ -6784,7 +6812,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:36
 msgid "Do not check for updates"
-msgstr ""
+msgstr "Não verificar updates"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:67
 msgid "Choose a location for your calibre e-book library"
@@ -7070,6 +7098,8 @@ msgid ""
 "Redirect console output to a dialog window (both stdout and stderr). Useful "
 "on windows where GUI apps do not have a output streams."
 msgstr ""
+"Redirecionar a saída do console para uma janela (ambos stdout e stderr). "
+"Útil em windows onde os aplicativos GUI não tem um console de saída."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:61
 msgid "&Preferences"
@@ -8031,6 +8061,8 @@ msgid ""
 "The default language to use for hyphenation rules. If the book does not "
 "specify a language, this will be used."
 msgstr ""
+"A linguagem padrão para usar nas regras do emprego do hífen. Se o livro não "
+"especificar uma linguagem, esta será usada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:172
 msgid "Default &language for hyphenation:"
@@ -8075,6 +8107,8 @@ msgid ""
 "Set the user CSS stylesheet. This can be used to customize the look of all "
 "books."
 msgstr ""
+"Configura a folha de estilo CSS. Isto pode ser usado para personalizar a "
+"aparência de todos os livros."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:46
 msgid "Maximum width of the viewer window, in pixels."
@@ -8090,7 +8124,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:51
 msgid "Default language for hyphenation rules"
-msgstr ""
+msgstr "Linguagem padrão para regras de hifenização"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:53
 msgid "Font options"
@@ -8122,7 +8156,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:452
 msgid "&Lookup in dictionary"
-msgstr ""
+msgstr "&Procurar no dicionário"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:455
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:138
@@ -8870,7 +8904,7 @@ msgid ""
 msgstr ""
 "Especifica o perfil de saída. Em alguns casos, um perfil de saída é "
 "necessário para otimizar o catálogo para o dispositivo. Por exemplo, "
-"'kindle' ou 'kindle_dx'\n"
+"'kindle' ou 'kindle_dx' cria um Sumário estruturado com Seções e Artigos.\n"
 "Padrão: '%default'\n"
 "Aplica-se para: arquivos de saída ePub, MOBI"
 
@@ -8928,6 +8962,8 @@ msgid ""
 "The maximum width of a single line in the output. Defaults to detecting "
 "screen size."
 msgstr ""
+"A largura máxima de uma única linha na saída. O padrão é detectar o tamanho "
+"da tela."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:142
 msgid "The string used to separate fields. Default is a space."
@@ -9229,7 +9265,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:764
 msgid "Do not ask for confirmation"
-msgstr ""
+msgstr "Não perguntar por confirmação"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:774
 msgid "Error: You must specify a column label"
