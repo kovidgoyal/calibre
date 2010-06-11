@@ -100,6 +100,9 @@ class SearchBox2(QComboBox):
         self.help_state = False
 
     def clear_to_help(self):
+        if self.help_state:
+            return
+        self.help_state = True
         self.search.emit('')
         self._in_a_search = False
         self.setEditText(self.help_text)
@@ -107,7 +110,6 @@ class SearchBox2(QComboBox):
             self.killTimer(self.timer)
             self.timer = None
         self.line_edit.home(False)
-        self.help_state = True
         self.line_edit.setStyleSheet(
                 'QLineEdit { color: gray; background-color: %s; }' %
                 self.normal_background)
