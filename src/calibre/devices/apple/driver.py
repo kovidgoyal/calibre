@@ -1712,9 +1712,9 @@ class ITUNES(DevicePlugin):
                             if str(book.description()).startswith(self.description_prefix):
                                 if book.location() == appscript.k.missing_value:
                                     if DEBUG:
-                                        self.log.info("   deleting calibre orphan '%s' from Library|Books" % book.name())
-                                    book.delete()
-                                    continue
+                                        self.log.info("   found calibre orphan '%s' in Library|Books" % book.name())
+                                    #book.delete()
+                                    #continue
 
                             path = self.path_template % (book.name(), book.artist())
                             library_books[path] = book
@@ -1768,9 +1768,9 @@ class ITUNES(DevicePlugin):
                                 if book.Description.startswith(self.description_prefix):
                                     if not book.Location:
                                         if DEBUG:
-                                            self.log.info("   deleting calibre orphan '%s' from Library|Books" % book.Name)
-                                            book.Delete()
-                                            continue
+                                            self.log.info("   found calibre orphan '%s' in Library|Books" % book.Name)
+                                            #book.Delete()
+                                            #continue
 
                                 path = self.path_template % (book.Name, book.Artist)
                                 library_books[path] = book
@@ -1998,9 +1998,11 @@ class ITUNES(DevicePlugin):
                 else:
                     self.log.info("  '%s' stored external to iTunes, no files deleted" % cached_book['title'])
 
-                self.iTunes.delete(cached_book['lib_book'])
             except:
-                self.log.warning("  error removing %s from iTunes" % cached_book['title'])
+                # We get here if there was an error with .location().path
+                self.log.info("  removing orphan '%s' from iTunes" % cached_book['title'])
+
+            self.iTunes.delete(cached_book['lib_book'])
 
         elif iswindows:
             '''
