@@ -14,7 +14,6 @@ from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata import MetaInformation
 from calibre.library.server.utils import strftime
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import Config, config_dir
 from calibre.utils.date import parse_date
 from calibre.utils.logging import Log
@@ -988,7 +987,6 @@ class ITUNES(DevicePlugin):
                     connected_device = self.sources['iPod']
                     device = self.iTunes.sources.ItemByName(connected_device)
 
-                    dev_books = None
                     added = None
                     for pl in device.Playlists:
                         if pl.Kind == self.PlaylistKind.index('User') and \
@@ -1641,7 +1639,6 @@ class ITUNES(DevicePlugin):
                 connected_device = self.sources['iPod']
                 device = self.iTunes.sources.ItemByName(connected_device)
 
-                dev_books = None
                 for pl in device.Playlists:
                     if pl.Kind == self.PlaylistKind.index('User') and \
                        pl.SpecialKind == self.PlaylistSpecialKind.index('Books'):
@@ -1988,7 +1985,7 @@ class ITUNES(DevicePlugin):
         if isosx:
             if DEBUG:
                 self.log.info("  deleting %s" % cached_book['dev_book'])
-            result = cached_book['dev_book'].delete()
+            cached_book['dev_book'].delete()
 
         elif iswindows:
             dev_pl = self._get_device_books_playlist()
@@ -2000,7 +1997,7 @@ class ITUNES(DevicePlugin):
                     if hit.Name == cached_book['title']:
                         if DEBUG:
                             self.log.info("  deleting '%s' by %s" % (hit.Name, hit.Artist))
-                        results = hit.Delete()
+                        hit.Delete()
                         break
 
     def _remove_from_iTunes(self, cached_book):
