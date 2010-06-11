@@ -88,7 +88,9 @@ class Economist(BasicNewsRecipe):
                 continue
             a = tag.find('a', href=True)
             if a is not None:
-                url=a['href'].split('?')[0]+'/print'
+                url=a['href']
+                id_ = re.search(r'story_id=(\d+)', url).group(1)
+                url = 'http://www.economist.com/node/%s/print'%id_
                 if url.startswith('Printer'):
                     url = '/'+url
                 if url.startswith('/'):
