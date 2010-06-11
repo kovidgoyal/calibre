@@ -10,10 +10,11 @@ Module to implement the Cover Flow feature
 import sys, os, time
 
 from PyQt4.Qt import QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, \
-        QStackedLayout
+        QStackedLayout, QLabel
 
 from calibre import plugins
 from calibre.gui2 import config, available_height, available_width
+
 pictureflow, pictureflowerror = plugins['pictureflow']
 
 if pictureflow is not None:
@@ -78,11 +79,14 @@ if pictureflow is not None:
         def __init__(self, parent=None):
             pictureflow.PictureFlow.__init__(self, parent,
                                 config['cover_flow_queue_length']+1)
-            self.setMinimumSize(QSize(10, 10))
+            self.setMinimumSize(QSize(300, 150))
             self.setFocusPolicy(Qt.WheelFocus)
             self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
             self.setZoomFactor(150)
+
+        def sizeHint(self):
+            return self.minimumSize()
 
         def wheelEvent(self, ev):
             ev.accept()
@@ -107,56 +111,58 @@ class CoverFlowMixin(object):
             self.cover_flow_sync_timer.timeout.connect(self.cover_flow_do_sync)
             self.cover_flow_sync_flag = True
             self.cover_flow = CoverFlow(parent=self)
-            self.cover_flow.setVisible(False)
-            if not config['separate_cover_flow']:
-                self.cb_layout.addWidget(self.cover_flow)
             self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
             self.library_view.selectionModel().currentRowChanged.connect(
                     self.sync_cf_to_listview)
             self.db_images = DatabaseImages(self.library_view.model())
             self.cover_flow.setImages(self.db_images)
-            ah, aw = available_height(), available_width()
-            self._cb_layout_is_horizontal = float(aw)/ah >= 1.4
-            self.cb_layout.setDirection(self.cb_layout.LeftToRight if
-                    self._cb_layout_is_horizontal else
-                    self.cb_layout.TopToBottom)
-
-    def toggle_cover_flow_visibility(self, show):
+        else:
+            self.cover_flow = QLabel('<p>'+_('Cover browser could not be loaded')
+                    +'<br>'+pictureflowerror)
+            self.cover_flow.setWordWrap(True)
         if config['separate_cover_flow']:
-            if show:
-                d = QDialog(self)
-                ah, aw = available_height(), available_width()
-                d.resize(int(aw/1.5), ah-60)
-                d._layout = QStackedLayout()
-                d.setLayout(d._layout)
-                d.setWindowTitle(_('Browse by covers'))
-                d.layout().addWidget(self.cover_flow)
-                self.cover_flow.setVisible(True)
-                self.cover_flow.setFocus(Qt.OtherFocusReason)
-                d.show()
-                d.finished.connect(self.sidebar.external_cover_flow_finished)
-                self.cf_dialog = d
-            else:
-                cfd = getattr(self, 'cf_dialog', None)
-                if cfd is not None:
-                    self.cover_flow.setVisible(False)
-                    cfd.hide()
-                    self.cf_dialog = None
+            self.cb_splitter.button.clicked.connect(self.toggle_cover_browser)
+            if CoverFlow is not None:
+                self.cover_flow.stop.connect(self.hide_cover_browser)
         else:
-            if show:
-                self.cover_flow.setVisible(True)
-                self.cover_flow.setFocus(Qt.OtherFocusReason)
-            else:
-                self.cover_flow.setVisible(False)
+            self.cb_splitter.insertWidget(self.cb_splitter.side_index, self.cover_flow)
+            if CoverFlow is not None:
+                self.cover_flow.stop.connect(self.cb_splitter.hide_side_pane)
 
-    def toggle_cover_flow(self, show):
-        if show:
-            self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
-            self.library_view.setCurrentIndex(
-                    self.library_view.currentIndex())
-            self.cover_flow_sync_timer.start(500)
-            self.library_view.scroll_to_row(self.library_view.currentIndex().row())
+    def toggle_cover_browser(self):
+        cbd = getattr(self, 'cb_dialog', None)
+        if cbd is not None:
+            self.hide_cover_browser()
         else:
+            self.show_cover_browser()
+
+    def show_cover_browser(self):
+        if CoverFlow is not None:
+            self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
+            self.cover_flow_sync_timer.start(500)
+        self.library_view.setCurrentIndex(
+                self.library_view.currentIndex())
+        self.library_view.scroll_to_row(self.library_view.currentIndex().row())
+
+        if config['separate_cover_flow']:
+            d = QDialog(self)
+            ah, aw = available_height(), available_width()
+            d.resize(int(aw/1.5), ah-60)
+            d._layout = QStackedLayout()
+            d.setLayout(d._layout)
+            d.setWindowTitle(_('Browse by covers'))
+            d.layout().addWidget(self.cover_flow)
+            self.cover_flow.setVisible(True)
+            self.cover_flow.setFocus(Qt.OtherFocusReason)
+            d.show()
+            self.cb_splitter.button.set_state_to_hide()
+            d.finished.connect(self.cb_splitter.button.set_state_to_show)
+            self.cb_dialog = d
+        else:
+            self.cover_flow.setFocus(Qt.OtherFocusReason)
+
+    def hide_cover_browser(self):
+        if CoverFlow is not None:
             self.cover_flow_sync_timer.stop()
             idx = self.library_view.model().index(self.cover_flow.currentSlide(), 0)
             if idx.isValid():
@@ -164,7 +170,12 @@ class CoverFlowMixin(object):
                 sm.select(idx, sm.ClearAndSelect|sm.Rows)
                 self.library_view.setCurrentIndex(idx)
                 self.library_view.scroll_to_row(idx.row())
-        self.toggle_cover_flow_visibility(show)
+
+        if config['separate_cover_flow']:
+            cbd = getattr(self, 'cb_dialog', None)
+            if cbd is not None:
+                cbd.accept()
+                self.cb_dialog = None
 
     def sync_cf_to_listview(self, current, previous):
         if self.cover_flow_sync_flag and self.cover_flow.isVisible() and \

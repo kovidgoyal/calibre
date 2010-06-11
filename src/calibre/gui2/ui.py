@@ -37,7 +37,7 @@ from calibre.gui2 import warning_dialog, choose_files, error_dialog, \
                            Dispatcher, gprefs, \
                            max_available_height, config, info_dialog, \
                            GetMetadata
-from calibre.gui2.cover_flow import pictureflowerror, CoverFlowMixin
+from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator, IMAGE_EXTENSIONS
 from calibre.gui2.wizard import move_library
 from calibre.gui2.dialogs.scheduler import Scheduler
@@ -61,7 +61,7 @@ from calibre.library.caches import CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.tag_view import TagBrowserMixin
-from calibre.gui2.init import ToolbarMixin, LibraryViewMixin
+from calibre.gui2.init import ToolbarMixin, LibraryViewMixin, LayoutMixin
 
 class Listener(Thread): # {{{
 
@@ -106,7 +106,7 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 # }}}
 
 class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
-        TagBrowserMixin, CoverFlowMixin, LibraryViewMixin):
+        TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, LayoutMixin):
     'The main GUI'
 
     def set_default_thumbnail(self, height):
@@ -143,8 +143,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         self.check_messages_timer.start(1000)
 
         Ui_MainWindow.__init__(self)
-        self.setupUi(self)
-        self.setWindowTitle(__appname__)
+
+        # Jobs Button {{{
+        self.job_manager = JobManager()
+        self.jobs_dialog = JobsDialog(self, self.job_manager)
+        self.jobs_button = JobsButton()
+        self.jobs_button.initialize(self.jobs_dialog, self.job_manager)
+        # }}}
+
+        LayoutMixin.__init__(self)
 
         self.restriction_count_of_books_in_view = 0
         self.restriction_count_of_books_in_library = 0
@@ -167,11 +174,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         self.progress_indicator = ProgressIndicator(self)
         self.verbose = opts.verbose
         self.get_metadata = GetMetadata()
-        self.read_settings()
-        self.job_manager = JobManager()
         self.emailer = Emailer()
         self.emailer.start()
-        self.jobs_dialog = JobsDialog(self, self.job_manager)
         self.upload_memory = {}
         self.delete_memory = {}
         self.conversion_jobs = {}
@@ -326,17 +330,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         self.resize(self.width(), self._calculated_available_height)
         self.search.setMaximumWidth(self.width()-150)
 
-        # Jobs Button {{{
-        self.jobs_button = JobsButton()
-        self.jobs_button.initialize(self.jobs_dialog, self.job_manager)
-        # }}}
-
-        ####################### Side Bar ###############################
-
-        self.sidebar.initialize(self.jobs_button, self.cover_flow,
-                self.toggle_cover_flow, pictureflowerror,
-                self.vertical_splitter, self.horizontal_splitter)
-
 
         if config['autolaunch_server']:
             from calibre.library.server.main import start_threaded_server
@@ -362,6 +355,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
 
+        self.read_settings()
+        self.finalize_layout()
 
     def do_saved_search_edit(self, search):
         d = SavedSearchEditor(self, search)
@@ -1934,7 +1929,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         page = 0 if location == 'library' else 1 if location == 'main' else 2 if location == 'carda' else 3
         self.stack.setCurrentIndex(page)
         self.status_bar.reset_info()
-        self.sidebar.location_changed(location)
+        for x in ('tb', 'cb'):
+            splitter = getattr(self, x+'_splitter')
+            splitter.button.setEnabled(location == 'library')
         if location == 'library':
             self.action_edit.setEnabled(True)
             self.action_merge.setEnabled(True)
@@ -2037,14 +2034,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         if geometry is not None:
             self.restoreGeometry(geometry)
         self.read_toolbar_settings()
+        self.read_layout_settings()
 
     def write_settings(self):
         config.set('main_window_geometry', self.saveGeometry())
         dynamic.set('sort_history', self.library_view.model().sort_history)
-        self.sidebar.save_state()
-        for view in ('library_view', 'memory_view', 'card_a_view',
-                'card_b_view'):
-            getattr(self, view).save_state()
+        self.save_layout_state()
 
     def restart(self):
         self.quit(restart=True)
