@@ -687,7 +687,7 @@ class DeviceMixin(object):
             self.emailer.send_mails(jobnames,
                     Dispatcher(partial(self.emails_sent, remove=remove)),
                     attachments, to_s, subjects, texts, attachment_names)
-            self.status_bar.showMessage(_('Sending email to')+' '+to, 3000)
+            self.status_bar.show_message(_('Sending email to')+' '+to, 3000)
 
         auto = []
         if _auto_ids != []:
@@ -748,7 +748,7 @@ class DeviceMixin(object):
                             '%s'%errors, show=True
                         )
         else:
-            self.status_bar.showMessage(_('Sent by email:') + ', '.join(good),
+            self.status_bar.show_message(_('Sent by email:') + ', '.join(good),
                     5000)
 
     def cover_to_thumbnail(self, data):
@@ -787,7 +787,7 @@ class DeviceMixin(object):
                     attachments, to_s, subjects, texts, attachment_names)
             sent_mails.append(to_s[0])
         if sent_mails:
-            self.status_bar.showMessage(_('Sent news to')+' '+\
+            self.status_bar.show_message(_('Sent news to')+' '+\
                     ', '.join(sent_mails),  3000)
 
     def sync_catalogs(self, send_ids=None, do_auto_convert=True):
@@ -846,7 +846,7 @@ class DeviceMixin(object):
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
                         memory=[files, remove])
-                self.status_bar.showMessage(_('Sending catalogs to device.'), 5000)
+                self.status_bar.show_message(_('Sending catalogs to device.'), 5000)
 
 
 
@@ -909,7 +909,7 @@ class DeviceMixin(object):
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
                         memory=[files, remove])
-                self.status_bar.showMessage(_('Sending news to device.'), 5000)
+                self.status_bar.show_message(_('Sending news to device.'), 5000)
 
 
     def sync_to_device(self, on_card, delete_from_library,
@@ -963,7 +963,7 @@ class DeviceMixin(object):
                 names.append('%s_%d%s'%(prefix, id, os.path.splitext(f)[1]))
         remove = remove_ids if delete_from_library else []
         self.upload_books(gf, names, good, on_card, memory=(_files, remove))
-        self.status_bar.showMessage(_('Sending books to device.'), 5000)
+        self.status_bar.show_message(_('Sending books to device.'), 5000)
 
         auto = []
         if _auto_ids != []:

@@ -223,7 +223,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
 
         ####################### Setup device detection ########################
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
-                self.job_manager, Dispatcher(self.status_bar.showMessage))
+                self.job_manager, Dispatcher(self.status_bar.show_message))
         self.device_manager.start()
 
 
@@ -482,7 +482,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
                     Dispatcher(self.info_read))
             self.set_default_thumbnail(\
                     self.device_manager.device.THUMBNAIL_HEIGHT)
-            self.status_bar.showMessage(_('Device: ')+\
+            self.status_bar.show_message(_('Device: ')+\
                 self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
             self.device_connected = 'device' if not is_folder_device else 'folder'
@@ -861,7 +861,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
             to_device = allow_device and self.stack.currentIndex() != 0
             self._add_books(books, to_device)
             if to_device:
-                self.status_bar.showMessage(\
+                self.status_bar.show_message(\
                         _('Uploading books to device.'), 2000)
 
 
@@ -912,7 +912,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
             self.upload_books(paths,
                                 list(map(ascii_filename, names)),
                                 infos, on_card=on_card)
-            self.status_bar.showMessage(
+            self.status_bar.show_message(
                     _('Uploading books to device.'), 2000)
         if getattr(self._adder, 'number_of_books_added', 0) > 0:
             self.library_view.model().books_added(self._adder.number_of_books_added)
@@ -1058,7 +1058,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
             job = self.remove_paths(paths)
             self.delete_memory[job] = (paths, view.model())
             view.model().mark_for_deletion(job, rows)
-            self.status_bar.showMessage(_('Deleting books from device.'), 1000)
+            self.status_bar.show_message(_('Deleting books from device.'), 1000)
 
     def remove_paths(self, paths):
         return self.device_manager.delete_books(\
@@ -1424,7 +1424,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         job.catalog_file_path = out
         job.fmt = fmt
         job.catalog_sync, job.catalog_title = sync, title
-        self.status_bar.showMessage(_('Generating %s catalog...')%fmt)
+        self.status_bar.show_message(_('Generating %s catalog...')%fmt)
 
     def catalog_generated(self, job):
         if job.result:
@@ -1440,7 +1440,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
             sync = dynamic.get('catalogs_to_be_synced', set([]))
             sync.add(id)
             dynamic.set('catalogs_to_be_synced', sync)
-        self.status_bar.showMessage(_('Catalog generated.'), 3000)
+        self.status_bar.show_message(_('Catalog generated.'), 3000)
         self.sync_catalogs()
         if job.fmt not in ['EPUB','MOBI']:
             export_dir = choose_dir(self, _('Export Catalog Directory'),
@@ -1458,7 +1458,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
                 Dispatcher(self.scheduled_recipe_fetched), func, args=args,
                            description=desc)
         self.conversion_jobs[job] = (temp_files, fmt, arg)
-        self.status_bar.showMessage(_('Fetching news from ')+arg['title'], 2000)
+        self.status_bar.show_message(_('Fetching news from ')+arg['title'], 2000)
 
     def scheduled_recipe_fetched(self, job):
         temp_files, fmt, arg = self.conversion_jobs.pop(job)
@@ -1472,7 +1472,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         sync.add(id)
         dynamic.set('news_to_be_synced', sync)
         self.scheduler.recipe_downloaded(arg)
-        self.status_bar.showMessage(arg['title'] + _(' fetched.'), 3000)
+        self.status_bar.show_message(arg['title'] + _(' fetched.'), 3000)
         self.email_news(id)
         self.sync_news()
 
@@ -1552,7 +1552,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
             num = len(jobs)
 
         if num > 0:
-            self.status_bar.showMessage(_('Starting conversion of %d book(s)') %
+            self.status_bar.show_message(_('Starting conversion of %d book(s)') %
                 num, 2000)
 
     def queue_convert_jobs(self, jobs, changed, bad, rows, previous,
@@ -1599,7 +1599,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
             self.library_view.model().db.add_format(book_id, \
                     fmt, data, index_is_id=True)
             data.close()
-            self.status_bar.showMessage(job.description + \
+            self.status_bar.show_message(job.description + \
                     (' completed'), 2000)
         finally:
             for f in temp_files:
