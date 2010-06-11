@@ -29,7 +29,6 @@ from calibre.utils.filenames import ascii_filename
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
-from calibre.utils.search_query_parser import saved_searches
 from calibre.devices.errors import UserFeedback
 from calibre.gui2 import warning_dialog, choose_files, error_dialog, \
                            question_dialog,\
@@ -37,7 +36,7 @@ from calibre.gui2 import warning_dialog, choose_files, error_dialog, \
                            Dispatcher, gprefs, \
                            max_available_height, config, info_dialog, \
                            GetMetadata
-from calibre.gui2.cover_flow import pictureflowerror, CoverFlowMixin
+from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator, IMAGE_EXTENSIONS
 from calibre.gui2.wizard import move_library
 from calibre.gui2.dialogs.scheduler import Scheduler
@@ -51,7 +50,6 @@ from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook, \
     fetch_scheduled_recipe, generate_catalog
 from calibre.gui2.dialogs.config import ConfigDialog
-from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -59,9 +57,10 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.caches import CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
+from calibre.gui2.init import ToolbarMixin, LibraryViewMixin, LayoutMixin
+from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
+from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_view import TagBrowserMixin
-from calibre.gui2.init import ToolbarMixin, LibraryViewMixin
 
 class Listener(Thread): # {{{
 
@@ -106,7 +105,8 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 # }}}
 
 class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
-        TagBrowserMixin, CoverFlowMixin, LibraryViewMixin):
+        TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
+        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin):
     'The main GUI'
 
     def set_default_thumbnail(self, height):
@@ -143,35 +143,25 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         self.check_messages_timer.start(1000)
 
         Ui_MainWindow.__init__(self)
-        self.setupUi(self)
-        self.setWindowTitle(__appname__)
+
+        # Jobs Button {{{
+        self.job_manager = JobManager()
+        self.jobs_dialog = JobsDialog(self, self.job_manager)
+        self.jobs_button = JobsButton()
+        self.jobs_button.initialize(self.jobs_dialog, self.job_manager)
+        # }}}
+
+        LayoutMixin.__init__(self)
 
         self.restriction_count_of_books_in_view = 0
         self.restriction_count_of_books_in_library = 0
         self.restriction_in_effect = False
-        self.search.initialize('main_search_history', colorize=True,
-                help_text=_('Search (For Advanced Search click the button to the left)'))
-        self.connect(self.clear_button, SIGNAL('clicked()'), self.search.clear)
-        self.connect(self.clear_button, SIGNAL('clicked()'), self.saved_search.clear_to_help)
-        self.search.clear()
-
-        self.saved_search.initialize(saved_searches, self.search, colorize=True,
-                help_text=_('Saved Searches'))
-        self.connect(self.save_search_button, SIGNAL('clicked()'),
-                self.saved_search.save_search_button_clicked)
-        self.connect(self.delete_search_button, SIGNAL('clicked()'),
-                self.saved_search.delete_search_button_clicked)
-        self.connect(self.copy_search_button, SIGNAL('clicked()'),
-                self.saved_search.copy_search_button_clicked)
 
         self.progress_indicator = ProgressIndicator(self)
         self.verbose = opts.verbose
         self.get_metadata = GetMetadata()
-        self.read_settings()
-        self.job_manager = JobManager()
         self.emailer = Emailer()
         self.emailer.start()
-        self.jobs_dialog = JobsDialog(self, self.job_manager)
         self.upload_memory = {}
         self.delete_memory = {}
         self.conversion_jobs = {}
@@ -225,8 +215,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         self.connect(self.system_tray_icon,
                      SIGNAL('activated(QSystemTrayIcon::ActivationReason)'),
                      self.system_tray_icon_activated)
-        QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'),
-                self.do_advanced_search)
 
         DeviceMixin.__init__(self)
 
@@ -265,6 +253,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
             self.update_checker.update_found.connect(self.update_found,
                     type=Qt.QueuedConnection)
             self.update_checker.start()
+
         ####################### Status Bar #####################
         self.status_bar.initialize(self.system_tray_icon)
         self.status_bar.show_book_info.connect(self.show_book_info)
@@ -273,6 +262,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         ####################### Setup Toolbar #####################
         ToolbarMixin.__init__(self)
 
+        ####################### Search boxes ########################
+        SavedSearchBoxMixin.__init__(self)
+        SearchBoxMixin.__init__(self)
+
         ####################### Library view ########################
         LibraryViewMixin.__init__(self, db)
 
@@ -280,20 +273,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
 
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
-        self.stack.setCurrentIndex(0)
-        self.search.setFocus(Qt.OtherFocusReason)
         self.cover_cache = CoverCache(self.library_path)
         self.cover_cache.start()
         self.library_view.model().cover_cache = self.cover_cache
-        self.connect(self.edit_categories, SIGNAL('clicked()'), self.do_user_categories_edit)
-        self.search_restriction.activated[str].connect(self.apply_search_restriction)
-        for x in (self.location_view.count_changed, self.tags_view.recount,
-                self.restriction_count_changed):
-            self.library_view.model().count_changed_signal.connect(x)
-
-        self.connect(self.search, SIGNAL('cleared()'), self.search_box_cleared)
-        self.connect(self.saved_search, SIGNAL('changed()'), self.saved_searches_changed)
-        self.saved_searches_changed()
+        self.library_view.model().count_changed_signal.connect \
+                                            (self.location_view.count_changed)
         if not gprefs.get('quick_start_guide_added', False):
             from calibre.ebooks.metadata import MetaInformation
             mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
@@ -314,8 +298,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
 
         ########################### Tags Browser ##############################
         TagBrowserMixin.__init__(self, db)
-        self.search_restriction.setSizeAdjustPolicy(self.search_restriction.AdjustToMinimumContentsLengthWithIcon)
-        self.search_restriction.setMinimumContentsLength(10)
+
+        ######################### Search Restriction ##########################
+        SearchRestrictionMixin.__init__(self)
 
         ########################### Cover Flow ################################
 
@@ -324,18 +309,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         self._calculated_available_height = min(max_available_height()-15,
                 self.height())
         self.resize(self.width(), self._calculated_available_height)
-        self.search.setMaximumWidth(self.width()-150)
-
-        # Jobs Button {{{
-        self.jobs_button = JobsButton()
-        self.jobs_button.initialize(self.jobs_dialog, self.job_manager)
-        # }}}
-
-        ####################### Side Bar ###############################
-
-        self.sidebar.initialize(self.jobs_button, self.cover_flow,
-                self.toggle_cover_flow, pictureflowerror,
-                self.vertical_splitter, self.horizontal_splitter)
 
 
         if config['autolaunch_server']:
@@ -362,13 +335,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
 
-
-    def do_saved_search_edit(self, search):
-        d = SavedSearchEditor(self, search)
-        d.exec_()
-        if d.result() == d.Accepted:
-            self.saved_searches_changed()
-            self.saved_search.clear_to_help()
+        self.read_settings()
+        self.finalize_layout()
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
@@ -451,76 +419,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
             error_dialog(self, _('Failed to start content server'),
                          unicode(self.content_server.exception)).exec_()
 
-    '''
-    Restrictions.
-    Adding and deleting books creates a complexity. When added, they are
-    displayed regardless of whether they match a search restriction. However, if
-    they do not, they are removed at the next search. The counts must take this
-    behavior into effect.
-    '''
-
-    def restriction_count_changed(self, c):
-        self.restriction_count_of_books_in_view += c - self.restriction_count_of_books_in_library
-        self.restriction_count_of_books_in_library = c
-        if self.restriction_in_effect:
-            self.set_number_of_books_shown()
-
-    def apply_search_restriction(self, r):
-        r = unicode(r)
-        if r is not None and r != '':
-            self.restriction_in_effect = True
-            restriction = 'search:"%s"'%(r)
-        else:
-            self.restriction_in_effect = False
-            restriction = ''
-        self.restriction_count_of_books_in_view = \
-                    self.library_view.model().set_search_restriction(restriction)
-        self.search.clear_to_help()
-        self.saved_search.clear_to_help()
-        self.tags_view.set_search_restriction(restriction)
-        self.set_number_of_books_shown()
-
-    def set_number_of_books_shown(self):
-        if self.current_view() == self.library_view and self.restriction_in_effect:
-            t = _("({0} of {1})").format(self.current_view().row_count(),
-                                         self.restriction_count_of_books_in_view)
-            self.search_count.setStyleSheet('QLabel { border-radius: 8px; background-color: yellow; }')
-        else: # No restriction or not library view
-            if not self.search.in_a_search():
-                t = _("(all books)")
-            else:
-                t = _("({0} of all)").format(self.current_view().row_count())
-            self.search_count.setStyleSheet(
-                    'QLabel { background-color: transparent; }')
-        self.search_count.setText(t)
-
-    def search_box_cleared(self):
-        self.tags_view.clear()
-        self.saved_search.clear_to_help()
-        self.set_number_of_books_shown()
-
-    def search_done(self, view, ok):
-        if view is self.current_view():
-            self.search.search_done(ok)
-            self.set_number_of_books_shown()
-
-    def saved_searches_changed(self):
-        p = prefs['saved_searches'].keys()
-        p.sort()
-        t = unicode(self.search_restriction.currentText())
-        self.search_restriction.clear() # rebuild the restrictions combobox using current saved searches
-        self.search_restriction.addItem('')
-        self.tags_view.recount()
-        for s in p:
-            self.search_restriction.addItem(s)
-        if t:
-            if t in p: # redo the current restriction, if there was one
-                self.search_restriction.setCurrentIndex(self.search_restriction.findText(t))
-                # self.tags_view.set_search_restriction(t)
-            else:
-                self.search_restriction.setCurrentIndex(0)
-                self.apply_search_restriction('')
-
 
     def another_instance_wants_to_talk(self):
         try:
@@ -558,8 +456,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
 
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
-
-
 
     ########################## Connect to device ##############################
 
@@ -1135,7 +1031,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
             row = None
             if ci.isValid():
                 row = ci.row()
-            view.model().delete_books(rows)
+            ids_deleted = view.model().delete_books(rows)
+            for v in (self.memory_view, self.card_a_view, self.card_b_view):
+                if v is None:
+                    continue
+                v.model().clear_ondevice(ids_deleted)
             if row is not None:
                 ci = view.model().index(row, 0)
                 if ci.isValid():
@@ -1180,6 +1080,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
                     self.booklists())
             model.paths_deleted(paths)
             self.upload_booklists()
+        # Clear the ondevice info so it will be recomputed
+        self.book_on_device(None, None, reset=True)
+        # We want to reset all the ondevice flags in the library. Use a big
+        # hammer, so we don't need to worry about whether some succeeded or not
+        self.library_view.model().refresh()
 
     ############################################################################
 
@@ -1850,13 +1755,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
 
     ############################################################################
 
-    ########################### Do advanced search #############################
-
-    def do_advanced_search(self, *args):
-        d = SearchDialog(self)
-        if d.exec_() == QDialog.Accepted:
-            self.search.set_search_string(d.search_string())
-
     ############################################################################
 
     ############################### Do config ##################################
@@ -1934,7 +1832,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         page = 0 if location == 'library' else 1 if location == 'main' else 2 if location == 'carda' else 3
         self.stack.setCurrentIndex(page)
         self.status_bar.reset_info()
-        self.sidebar.location_changed(location)
+        for x in ('tb', 'cb'):
+            splitter = getattr(self, x+'_splitter')
+            splitter.button.setEnabled(location == 'library')
         if location == 'library':
             self.action_edit.setEnabled(True)
             self.action_merge.setEnabled(True)
@@ -2037,14 +1937,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         if geometry is not None:
             self.restoreGeometry(geometry)
         self.read_toolbar_settings()
+        self.read_layout_settings()
 
     def write_settings(self):
         config.set('main_window_geometry', self.saveGeometry())
         dynamic.set('sort_history', self.library_view.model().sort_history)
-        self.sidebar.save_state()
-        for view in ('library_view', 'memory_view', 'card_a_view',
-                'card_b_view'):
-            getattr(self, view).save_state()
+        self.save_layout_state()
 
     def restart(self):
         self.quit(restart=True)

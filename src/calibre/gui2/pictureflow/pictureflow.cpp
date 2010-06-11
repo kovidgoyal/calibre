@@ -713,8 +713,9 @@ void PictureFlowPrivate::render()
     QPainter painter;
     painter.begin(&buffer);
 
-    QFont font("Arial", FONT_SIZE);
+    QFont font = QFont();
     font.setBold(true);
+    font.setPointSize(FONT_SIZE);
     painter.setFont(font);
     painter.setPen(Qt::white);
     //painter.setPen(QColor(255,255,255,127));
@@ -763,8 +764,9 @@ void PictureFlowPrivate::render()
     QPainter painter;
     painter.begin(&buffer);
 
-    QFont font("Arial", FONT_SIZE);
+    QFont font = QFont();
     font.setBold(true);
+    font.setPointSize(FONT_SIZE);
     painter.setFont(font);
 
     int leftTextIndex = (step>0) ? centerIndex : centerIndex-1;

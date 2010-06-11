@@ -10,9 +10,11 @@ Browsing book collection by tags.
 from itertools import izip
 from functools import partial
 
-from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
-                     QFont, QSize, QIcon, QPoint, \
-                     QAbstractItemModel, QVariant, QModelIndex, QMenu
+from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QCheckBox, \
+                     QFont, QSize, QIcon, QPoint, QVBoxLayout, QComboBox, \
+                     QAbstractItemModel, QVariant, QModelIndex, QMenu, \
+                     QPushButton, QWidget
+
 from calibre.gui2 import config, NONE
 from calibre.utils.config import prefs
 from calibre.library.field_metadata import TagsIcons
@@ -597,6 +599,7 @@ class TagsModel(QAbstractItemModel): # {{{
 class TagBrowserMixin(object): # {{{
 
     def __init__(self, db):
+        self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
         self.tags_view.set_database(self.library_view.model().db,
                 self.tag_match, self.popularity)
         self.tags_view.tags_marked.connect(self.search.search_from_tags)
@@ -606,6 +609,8 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
         self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
         self.tags_view.search_item_renamed.connect(self.saved_search.clear_to_help)
+        self.edit_categories.clicked.connect(lambda x:
+                self.do_user_categories_edit())
 
     def do_user_categories_edit(self, on_category=None):
         d = TagCategories(self, self.library_view.model().db, on_category)
@@ -630,6 +635,32 @@ class TagBrowserMixin(object): # {{{
         self.library_view.model().refresh()
         self.saved_search.clear_to_help()
         self.search.clear_to_help()
+
+# }}}
+
+class TagBrowserWidget(QWidget): # {{{
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self._layout = QVBoxLayout()
+        self.setLayout(self._layout)
+
+        parent.tags_view = TagsView(parent)
+        self._layout.addWidget(parent.tags_view)
+
+        parent.popularity = QCheckBox(parent)
+        parent.popularity.setText(_('Sort by &popularity'))
+        self._layout.addWidget(parent.popularity)
+
+        parent.tag_match = QComboBox(parent)
+        for x in (_('Match any'), _('Match all')):
+            parent.tag_match.addItem(x)
+        parent.tag_match.setCurrentIndex(0)
+        self._layout.addWidget(parent.tag_match)
+
+        parent.edit_categories = QPushButton(_('Manage &user categories'), parent)
+        self._layout.addWidget(parent.edit_categories)
+
 
 # }}}
 

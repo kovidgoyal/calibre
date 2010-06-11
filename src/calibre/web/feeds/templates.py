@@ -65,6 +65,7 @@ class NavBarTemplate(Template):
             text = 'This article was downloaded by '
             p = PT(text, STRONG(__appname__), A(url, href=url), style='text-align:left')
             p[0].tail = ' from '
+            navbar.append(p)
             navbar.append(BR())
             navbar.append(BR())
         else:
@@ -111,6 +112,7 @@ class TouchscreenNavBarTemplate(Template):
             text = 'This article was downloaded by '
             p = PT(text, STRONG(__appname__), A(url, href=url), style='text-align:left')
             p[0].tail = ' from '
+            navbar.append(p)
             navbar.append(BR())
             navbar.append(BR())
         else:

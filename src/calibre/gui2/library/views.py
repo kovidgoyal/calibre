@@ -26,6 +26,15 @@ class BooksView(QTableView): # {{{
 
     def __init__(self, parent, modelcls=BooksModel):
         QTableView.__init__(self, parent)
+
+        self.setDragEnabled(True)
+        self.setDragDropOverwriteMode(False)
+        self.setDragDropMode(self.DragDrop)
+        self.setAlternatingRowColors(True)
+        self.setSelectionBehavior(self.SelectRows)
+        self.setShowGrid(False)
+        self.setWordWrap(False)
+
         self.rating_delegate = RatingDelegate(self)
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
@@ -432,6 +441,18 @@ class BooksView(QTableView): # {{{
             for i in range(h.count()):
                 if not h.isSectionHidden(i):
                     self.scrollTo(self.model().index(row, i))
+                    break
+
+    def set_current_row(self, row, select=True):
+        if row > -1:
+            h = self.horizontalHeader()
+            for i in range(h.count()):
+                if not h.isSectionHidden(i):
+                    index = self.model().index(row, i)
+                    self.setCurrentIndex(index)
+                    if select:
+                        sm = self.selectionModel()
+                        sm.select(index, sm.ClearAndSelect|sm.Rows)
                     break
 
     def close(self):

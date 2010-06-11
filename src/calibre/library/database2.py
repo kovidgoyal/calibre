@@ -28,7 +28,7 @@ from calibre.customize.ui import run_plugins_on_import
 
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.utils.search_query_parser import saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick_draw import save_cover_data_to
@@ -736,8 +736,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         icon=icon, tooltip = tooltip)
                                     for r in data if item_not_zero_func(r)]
             if category == 'series' and not sort_on_count:
-                categories[category].sort(cmp=lambda x,y:cmp(title_sort(x.name).lower(),
-                    title_sort(y.name).lower()))
+                if tweaks['title_series_sorting'] == 'library_order':
+                    ts = lambda x: title_sort(x)
+                else:
+                    ts = lambda x:x
+                categories[category].sort(cmp=lambda x,y:cmp(ts(x.name).lower(),
+                                                             ts(y.name).lower()))
 
         # We delayed computing the standard formats category because it does not
         # use a view, but is computed dynamically
@@ -950,7 +954,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             title = title.decode(preferred_encoding, 'replace')
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.data.set(id, self.FIELD_MAP['title'], title, row_is_id=True)
-        self.data.set(id, self.FIELD_MAP['sort'],  title_sort(title), row_is_id=True)
+        if tweaks['title_series_sorting'] == 'library_order':
+            self.data.set(id, self.FIELD_MAP['sort'], title_sort(title), row_is_id=True)
+        else:
+            self.data.set(id, self.FIELD_MAP['sort'], title, row_is_id=True)
         self.set_path(id, True)
         self.conn.commit()
         if notify:
@@ -1835,6 +1842,8 @@ books_series_link      feeds
             os.remove(self.dbpath)
             shutil.copyfile(dest, self.dbpath)
             self.connect()
+            self.field_metadata.remove_dynamic_categories()
+            self.field_metadata.remove_custom_fields()
             self.initialize_dynamic()
             self.refresh()
         if os.path.exists(dest):

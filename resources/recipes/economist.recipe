@@ -24,9 +24,10 @@ class Economist(BasicNewsRecipe):
     oldest_article = 7.0
     cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
     remove_tags = [dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
-            dict(attrs={'class':['dblClkTrk']})]
-    remove_tags_before = dict(name=lambda tag: tag.name=='title' and tag.parent.name=='body')
+            dict(attrs={'class':['dblClkTrk', 'ec-article-info']})]
+    keep_only_tags = [dict(id='ec-article-body')]
     needs_subscription = True
+    no_stylesheets = True
     preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
         lambda x:'</html>')]
 
@@ -87,7 +88,7 @@ class Economist(BasicNewsRecipe):
                 continue
             a = tag.find('a', href=True)
             if a is not None:
-                url=a['href'].replace('displaystory', 'PrinterFriendly').strip()
+                url=a['href'].split('?')[0]+'/print'
                 if url.startswith('Printer'):
                     url = '/'+url
                 if url.startswith('/'):

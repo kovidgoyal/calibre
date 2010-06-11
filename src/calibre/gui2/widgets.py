@@ -4,16 +4,18 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Miscellaneous widgets used in the GUI
 '''
 import re, os, traceback
+
 from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
-                        QPixmap, QPalette, QSplitterHandle, \
+                        QPixmap, QPalette, QSplitterHandle, QToolButton, \
                         QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal, \
                         QRegExp, QSettings, QSize, QModelIndex, QSplitter, \
                         QAbstractButton, QPainter, QLineEdit, QComboBox, \
-                        QMenu, QStringListModel, QCompleter, QStringList
+                        QMenu, QStringListModel, QCompleter, QStringList, \
+                        QTimer
 
-from calibre.gui2 import NONE, error_dialog, pixmap_to_data, dynamic
+from calibre.gui2 import NONE, error_dialog, pixmap_to_data, gprefs
 
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image, human_readable
@@ -927,6 +929,7 @@ class SplitterHandle(QSplitterHandle):
         self.double_clicked.connect(splitter.double_clicked,
                 type=Qt.QueuedConnection)
         self.highlight = False
+        self.setToolTip(_('Drag to resize')+' '+splitter.label)
 
     def splitter_moved(self, *args):
         oh = self.highlight
@@ -944,20 +947,62 @@ class SplitterHandle(QSplitterHandle):
     def mouseDoubleClickEvent(self, ev):
         self.double_clicked.emit(self)
 
+class LayoutButton(QToolButton):
+
+    def __init__(self, icon, text, splitter, parent=None):
+        QToolButton.__init__(self, parent)
+        self.label = text
+        self.setIcon(QIcon(icon))
+        self.setCheckable(True)
+
+        self.splitter = splitter
+        splitter.state_changed.connect(self.update_state)
+
+    def set_state_to_show(self, *args):
+        self.setChecked(False)
+        label =_('Show')
+        self.setText(label + ' ' + self.label)
+
+    def set_state_to_hide(self, *args):
+        self.setChecked(True)
+        label = _('Hide')
+        self.setText(label + ' ' + self.label)
+
+    def update_state(self, *args):
+        if self.splitter.is_side_index_hidden:
+            self.set_state_to_show()
+        else:
+            self.set_state_to_hide()
+
 class Splitter(QSplitter):
 
     state_changed = pyqtSignal(object)
 
-    def __init__(self, *args):
-        QSplitter.__init__(self, *args)
+    def __init__(self, name, label, icon, initial_show=True,
+            initial_side_size=120, connect_button=True,
+            orientation=Qt.Horizontal, side_index=0, parent=None):
+        QSplitter.__init__(self, parent)
+        self.resize_timer = QTimer(self)
+        self.resize_timer.setSingleShot(True)
+        self.desired_side_size = initial_side_size
+        self.desired_show = initial_show
+        self.resize_timer.setInterval(5)
+        self.resize_timer.timeout.connect(self.do_resize)
+        self.setOrientation(orientation)
+        self.side_index = side_index
+        self._name = name
+        self.label = label
+        self.initial_side_size = initial_side_size
+        self.initial_show = initial_show
         self.splitterMoved.connect(self.splitter_moved, type=Qt.QueuedConnection)
+        self.button = LayoutButton(icon, label, self)
+        if connect_button:
+            self.button.clicked.connect(self.double_clicked)
 
     def createHandle(self):
         return SplitterHandle(self.orientation(), self)
 
-    def initialize(self, name=None):
-        if name is not None:
-            self._name = name
+    def initialize(self):
         for i in range(self.count()):
             h = self.handle(i)
             if h is not None:
@@ -965,40 +1010,115 @@ class Splitter(QSplitter):
         self.state_changed.emit(not self.is_side_index_hidden)
 
     def splitter_moved(self, *args):
+        self.desired_side_size = self.side_index_size
         self.state_changed.emit(not self.is_side_index_hidden)
-
-    @property
-    def side_index(self):
-        return 0 if self.orientation() == Qt.Horizontal else 1
 
     @property
     def is_side_index_hidden(self):
         sizes = list(self.sizes())
         return sizes[self.side_index] == 0
 
-    def toggle_side_index(self):
-        self.double_clicked(None)
+    @property
+    def save_name(self):
+        ori = 'horizontal' if self.orientation() == Qt.Horizontal \
+                else 'vertical'
+        return self._name + '_' + ori
 
-    def double_clicked(self, handle):
-        visible = not self.is_side_index_hidden
-        sizes = list(self.sizes())
-        if 0 in sizes:
-            idx = sizes.index(0)
-            sizes[idx] = 80
-        else:
-            sizes[self.side_index] = 0
+    def print_sizes(self):
+        if self.count() > 1:
+            print self.save_name, 'side:', self.side_index_size, 'other:',
+            print list(self.sizes())[self.other_index]
 
-        if visible:
-            dynamic.set(self._name + '_last_open_state', str(self.saveState()))
+    @dynamic_property
+    def side_index_size(self):
+        def fget(self):
+            if self.count() < 2: return 0
+            return self.sizes()[self.side_index]
+
+        def fset(self, val):
+            if self.count() < 2: return
+            if val == 0 and not self.is_side_index_hidden:
+                self.save_state()
+            sizes = list(self.sizes())
+            for i in range(len(sizes)):
+                sizes[i] = val if i == self.side_index else 10
             self.setSizes(sizes)
+            total = sum(self.sizes())
+            sizes = list(self.sizes())
+            for i in range(len(sizes)):
+                sizes[i] = val if i == self.side_index else total-val
+            self.setSizes(sizes)
+            self.initialize()
+
+        return property(fget=fget, fset=fset)
+
+    def do_resize(self, *args):
+        orig = self.desired_side_size
+        QSplitter.resizeEvent(self, self._resize_ev)
+        if orig > 20 and self.desired_show:
+            c = 0
+            while abs(self.side_index_size - orig) > 10 and c < 5:
+                self.apply_state(self.get_state(), save_desired=False)
+                c += 1
+
+    def resizeEvent(self, ev):
+        if self.resize_timer.isActive():
+            self.resize_timer.stop()
+        self._resize_ev = ev
+        self.resize_timer.start()
+
+    def get_state(self):
+        if self.count() < 2: return (False, 200)
+        return (self.desired_show, self.desired_side_size)
+
+    def apply_state(self, state, save_desired=True):
+        if state[0]:
+            self.side_index_size = state[1]
+            if save_desired:
+                self.desired_side_size = self.side_index_size
         else:
-            state = dynamic.get(self._name+  '_last_open_state', None)
-            if state is not None:
-                self.restoreState(state)
-            else:
-                self.setSizes(sizes)
-        self.initialize()
+            self.side_index_size = 0
+        self.desired_show = state[0]
 
+    def default_state(self):
+        return (self.initial_show, self.initial_side_size)
 
+    # Public API {{{
 
+    def save_state(self):
+        if self.count() > 1:
+            gprefs[self.save_name+'_state'] = self.get_state()
+
+    @property
+    def other_index(self):
+        return (self.side_index+1)%2
+
+    def restore_state(self):
+        if self.count() > 1:
+            state = gprefs.get(self.save_name+'_state',
+                    self.default_state())
+            self.apply_state(state, save_desired=False)
+            self.desired_side_size = state[1]
+
+    def toggle_side_pane(self, hide=None):
+        if hide is None:
+            action = 'show' if self.is_side_index_hidden else 'hide'
+        else:
+            action = 'hide' if hide else 'show'
+        getattr(self, action+'_side_pane')()
+
+    def show_side_pane(self):
+        if self.count() < 2 or not self.is_side_index_hidden:
+            return
+        self.apply_state((True, self.desired_side_size))
+
+    def hide_side_pane(self):
+        if self.count() < 2 or self.is_side_index_hidden:
+            return
+        self.apply_state((False, self.desired_side_size))
+
+    def double_clicked(self, *args):
+        self.toggle_side_pane()
+
+    # }}}
 
