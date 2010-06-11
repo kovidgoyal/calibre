@@ -101,6 +101,11 @@ class Float(Int):
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
 
+    def setter(self, val):
+        if val is None:
+            val = self.widgets[1].minimum()
+        self.widgets[1].setValue(val)
+
 class Rating(Int):
 
     def setup_ui(self, parent):

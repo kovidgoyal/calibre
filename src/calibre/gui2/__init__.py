@@ -127,10 +127,16 @@ def available_width():
     desktop       = QCoreApplication.instance().desktop()
     return desktop.availableGeometry().width()
 
-try:
-    is_widescreen = float(available_width())/available_height() > 1.4
-except:
-    is_widescreen = True
+_is_widescreen = None
+
+def is_widescreen():
+    global _is_widescreen
+    if _is_widescreen is None:
+        try:
+            _is_widescreen = float(available_width())/available_height() > 1.4
+        except:
+            _is_widescreen = False
+    return _is_widescreen
 
 def extension(path):
     return os.path.splitext(path)[1][1:].lower()

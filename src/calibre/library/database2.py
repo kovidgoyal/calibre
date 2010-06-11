@@ -1307,12 +1307,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
             self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
         self.conn.commit()
-        try:
-            row = self.row(id)
-            if row is not None:
-                self.data.set(row, 9, series)
-        except ValueError:
-            pass
         self.data.set(id, self.FIELD_MAP['series'], series, row_is_id=True)
         if notify:
             self.notify('metadata', [id])
