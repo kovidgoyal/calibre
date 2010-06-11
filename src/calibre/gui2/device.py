@@ -391,16 +391,14 @@ class DeviceMenu(QMenu): # {{{
                     default_account = (dest, False, False, I('mail.svg'),
                             _('Email to')+' '+account)
                 action1 = DeviceAction(dest, False, False, I('mail.svg'),
-                        _('Email to')+' '+account, self)
+                        _('Email to')+' '+account)
                 action2 = DeviceAction(dest, True, False, I('mail.svg'),
-                        _('Email to')+' '+account, self)
+                        _('Email to')+' '+account+ _(' and delete from library'))
                 map(self.email_to_menu.addAction, (action1, action2))
                 map(self._memory.append, (action1, action2))
                 self.email_to_menu.addSeparator()
-                self.connect(action1, SIGNAL('a_s(QAction)'),
-                            self.action_triggered)
-                self.connect(action2, SIGNAL('a_s(QAction)'),
-                            self.action_triggered)
+                action1.a_s.connect(self.action_triggered)
+                action2.a_s.connect(self.action_triggered)
 
         basic_actions = [
                 ('main:', False, False,  I('reader.svg'),
