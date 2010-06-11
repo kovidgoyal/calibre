@@ -35,10 +35,39 @@ if iswindows:
 
 class ITUNES(DevicePlugin):
     '''
-            try:
-                pythoncom.CoInitialize()
-            finally:
-                pythoncom.CoUninitialize()
+    Calling sequences:
+    Initialization:
+        can_handle() or can_handle_windows()
+        reset()
+        open()
+        card_prefix()
+        can_handle()
+        set_progress_reporter()
+        get_device_information()
+        card_prefix()
+        free_space()
+        (Job 1 Get device information finishes)
+        can_handle()
+        set_progress_reporter()
+        books() (once for each storage point)
+        settings()
+        settings()
+        can_handle() (~1x per second OSX while idle)
+    Delete:
+        delete_books()
+        remove_books_from_metadata()
+        sync_booklists()
+        card_prefix()
+        free_space()
+    Upload:
+        settings()
+        set_progress_reporter()
+        upload_books()
+        add_books_to_metadata()
+        set_progress_reporter()
+        sync_booklists()
+        card_prefix()
+        free_space()
     '''
 
     name = 'Apple device interface'
@@ -1778,17 +1807,27 @@ class ITUNES(DevicePlugin):
     def _get_sources(self):
         '''
         Return a dict of sources
+        Check for >1 iPod device connected to iTunes
         '''
         if isosx:
             names = [s.name() for s in self.iTunes.sources()]
             kinds = [str(s.kind()).rpartition('.')[2] for s in self.iTunes.sources()]
-            return dict(zip(kinds,names))
         elif iswindows:
             # Assumes a pythoncom wrapper
             it_sources = ['Unknown','Library','iPod','AudioCD','MP3CD','Device','RadioTuner','SharedLibrary']
             names = [s.name for s in self.iTunes.sources]
             kinds = [it_sources[s.kind] for s in self.iTunes.sources]
-            return dict(zip(kinds,names))
+
+        # If more than one connected iDevice, remove all from list to prevent driver initialization
+        if kinds.count('iPod') > 1:
+            if DEBUG:
+                self.log.error("  %d connected iPod devices detected, calibre supports a single connected iDevice" % kinds.count('iPod'))
+            while kinds.count('iPod'):
+                index = kinds.index('iPod')
+                kinds.pop(index)
+                names.pop(index)
+
+        return dict(zip(kinds,names))
 
     def _is_alpha(self,char):
         '''
@@ -1931,34 +1970,37 @@ class ITUNES(DevicePlugin):
             self.log.info(" ITUNES._remove_from_iTunes():")
 
         if isosx:
-            storage_path = os.path.split(cached_book['lib_book'].location().path)
-            if cached_book['lib_book'].location().path.startswith(self.iTunes_media):
-                title_storage_path = storage_path[0]
-                if DEBUG:
-                    self.log.info("  removing title_storage_path: %s" % title_storage_path)
-                try:
-                    shutil.rmtree(title_storage_path)
-                except:
-                    self.log.info("  '%s' not empty" % title_storage_path)
-
-                # Clean up title/author directories
-                author_storage_path = os.path.split(title_storage_path)[0]
-                self.log.info("  author_storage_path: %s" % author_storage_path)
-                author_files = os.listdir(author_storage_path)
-                if '.DS_Store' in author_files:
-                    author_files.pop(author_files.index('.DS_Store'))
-                if not author_files:
-                    shutil.rmtree(author_storage_path)
+            try:
+                storage_path = os.path.split(cached_book['lib_book'].location().path)
+                if cached_book['lib_book'].location().path.startswith(self.iTunes_media):
+                    title_storage_path = storage_path[0]
                     if DEBUG:
-                        self.log.info("  removing empty author_storage_path")
+                        self.log.info("  removing title_storage_path: %s" % title_storage_path)
+                    try:
+                        shutil.rmtree(title_storage_path)
+                    except:
+                        self.log.info("  '%s' not empty" % title_storage_path)
+
+                    # Clean up title/author directories
+                    author_storage_path = os.path.split(title_storage_path)[0]
+                    self.log.info("  author_storage_path: %s" % author_storage_path)
+                    author_files = os.listdir(author_storage_path)
+                    if '.DS_Store' in author_files:
+                        author_files.pop(author_files.index('.DS_Store'))
+                    if not author_files:
+                        shutil.rmtree(author_storage_path)
+                        if DEBUG:
+                            self.log.info("  removing empty author_storage_path")
+                    else:
+                        if DEBUG:
+                            self.log.info("  author_storage_path not empty (%d objects):" % len(author_files))
+                            self.log.info("  %s" % '\n'.join(author_files))
                 else:
-                    if DEBUG:
-                        self.log.info("  author_storage_path not empty (%d objects):" % len(author_files))
-                        self.log.info("  %s" % '\n'.join(author_files))
-            else:
-                self.log.info("  '%s' stored external to iTunes, no files deleted" % cached_book['title'])
+                    self.log.info("  '%s' stored external to iTunes, no files deleted" % cached_book['title'])
 
-            self.iTunes.delete(cached_book['lib_book'])
+                self.iTunes.delete(cached_book['lib_book'])
+            except:
+                self.log.warning("  error removing %s from iTunes" % cached_book['title'])
 
         elif iswindows:
             '''
