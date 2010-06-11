@@ -290,14 +290,15 @@ class LibraryWidget(Splitter): # {{{
 
     def __init__(self, parent):
         orientation = Qt.Vertical if config['gui_layout'] == 'narrow' and \
-                not is_widescreen else Qt.Horizontal
+                not is_widescreen() else Qt.Horizontal
         #orientation = Qt.Vertical
         idx = 0 if orientation == Qt.Vertical else 1
+        size = 300 if orientation == Qt.Vertical else 550
         Splitter.__init__(self, 'cover_browser_splitter', _('Cover Browser'),
                 I('cover_flow.svg'),
                 orientation=orientation, parent=parent,
                 connect_button=not config['separate_cover_flow'],
-                side_index=idx, initial_side_size=400, initial_show=False)
+                side_index=idx, initial_side_size=size, initial_show=False)
         parent.library_view = BooksView(parent)
         parent.library_view.setObjectName('library_view')
         self.addWidget(parent.library_view)
