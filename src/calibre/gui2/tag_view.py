@@ -609,7 +609,8 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
         self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
         self.tags_view.search_item_renamed.connect(self.saved_search.clear_to_help)
-        self.edit_categories.clicked.connect(self.do_user_categories_edit)
+        self.edit_categories.clicked.connect(lambda x:
+                self.do_user_categories_edit())
 
     def do_user_categories_edit(self, on_category=None):
         d = TagCategories(self, self.library_view.model().db, on_category)
