@@ -298,7 +298,10 @@ class TagTreeItem(object): # {{{
             if self.tag.count == 0:
                 return QVariant('%s'%(self.tag.name))
             else:
-                return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
+                if self.tag.avg is None:
+                    return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
+                else:
+                    return QVariant('[%d][%d] %s'%(self.tag.count, self.tag.avg, self.tag.name))
         if role == Qt.EditRole:
             return QVariant(self.tag.name)
         if role == Qt.DecorationRole:
@@ -332,6 +335,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     ':custom'   : QIcon(I('column.svg')),
                     ':user'     : QIcon(I('drawer.svg')),
                     'search'    : QIcon(I('search.svg'))})
+        self.categories_with_ratings = ['authors', 'series', 'publisher', 'tags']
 
         self.icon_state_map = [None, QIcon(I('plus.svg')), QIcon(I('minus.svg'))]
         self.db = db
@@ -354,7 +358,14 @@ class TagsModel(QAbstractItemModel): # {{{
                     data=self.categories[i],
                     category_icon=self.category_icon_map[r],
                     tooltip=tt, category_key=r)
+            # This duplicates code in refresh(). Having it here as well
+            # can save seconds during startup, because we avoid a second
+            # call to get_node_tree.
             for tag in data[r]:
+                if r not in self.categories_with_ratings and \
+                            not self.db.field_metadata[r]['is_custom'] and \
+                            not self.db.field_metadata[r]['kind'] == 'user':
+                    tag.avg = None
                 TagTreeItem(parent=c, data=tag, icon_map=self.icon_state_map)
 
     def set_search_restriction(self, s):
@@ -417,6 +428,10 @@ class TagsModel(QAbstractItemModel): # {{{
             if len(data[r]) > 0:
                 self.beginInsertRows(category_index, 0, len(data[r])-1)
                 for tag in data[r]:
+                    if r not in self.categories_with_ratings and \
+                                not self.db.field_metadata[r]['is_custom'] and \
+                                not self.db.field_metadata[r]['kind'] == 'user':
+                        tag.avg = None
                     tag.state = state_map.get(tag.name, 0)
                     t = TagTreeItem(parent=category, data=tag, icon_map=self.icon_state_map)
                 self.endInsertRows()

@@ -56,11 +56,12 @@ copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
 class Tag(object):
 
-    def __init__(self, name, id=None, count=0, state=0, tooltip=None, icon=None):
+    def __init__(self, name, id=None, count=0, state=0, avg=0, tooltip=None, icon=None):
         self.name = name
         self.id = id
         self.count = count
         self.state = state
+        self.avg = avg/2 if avg is not None else 0
         self.tooltip = tooltip
         self.icon = icon
 
@@ -125,15 +126,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.connect()
         self.is_case_sensitive = not iswindows and not isosx and \
             not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
-        SchemaUpgrade.__init__(self)
         self.initialize_dynamic()
+        SchemaUpgrade.__init__(self)
 
     def initialize_dynamic(self):
         self.conn.executescript(u'''
             CREATE TEMP VIEW IF NOT EXISTS tag_browser_news AS SELECT DISTINCT
                 id,
                 name,
-                (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id) count
+                (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id) count,
+                (0) as avg_rating
             FROM tags as x WHERE name!="{0}" AND id IN
                 (SELECT DISTINCT tag FROM books_tags_link WHERE book IN
                     (SELECT DISTINCT book FROM books_tags_link WHERE tag IN
@@ -144,7 +146,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             CREATE TEMP VIEW IF NOT EXISTS tag_browser_filtered_news AS SELECT DISTINCT
                 id,
                 name,
-                (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id and books_list_filter(book)) count
+                (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id and books_list_filter(book)) count,
+                (0) as avg_rating
             FROM tags as x WHERE name!="{0}" AND id IN
                 (SELECT DISTINCT tag FROM books_tags_link WHERE book IN
                     (SELECT DISTINCT book FROM books_tags_link WHERE tag IN
@@ -698,9 +701,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 continue
             cn = cat['column']
             if ids is None:
-                query = 'SELECT id, {0}, count FROM tag_browser_{1}'.format(cn, tn)
+                query = 'SELECT id, {0}, count, avg_rating FROM tag_browser_{1}'.format(cn, tn)
             else:
-                query = 'SELECT id, {0}, count FROM tag_browser_filtered_{1}'.format(cn, tn)
+                query = 'SELECT id, {0}, count, avg_rating FROM tag_browser_filtered_{1}'.format(cn, tn)
             if sort_on_count:
                 query += ' ORDER BY count DESC'
             else:
@@ -733,7 +736,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 formatter = (lambda x:unicode(x))
 
             categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0],
-                                        icon=icon, tooltip = tooltip)
+                                        avg=r[3], icon=icon, tooltip=tooltip)
                                     for r in data if item_not_zero_func(r)]
             if category == 'series' and not sort_on_count:
                 if tweaks['title_series_sorting'] == 'library_order':

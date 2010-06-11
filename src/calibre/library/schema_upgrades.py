@@ -292,3 +292,76 @@ class SchemaUpgrade(object):
         for field in self.field_metadata.itervalues():
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 create_tag_browser_view(field['table'], field['link_column'], field['column'])
+
+    def upgrade_version_11(self):
+        'Add average rating to tag browser views'
+        def create_std_tag_browser_view(table_name, column_name, view_column_name):
+            script = ('''
+                DROP VIEW IF EXISTS tag_browser_{tn};
+                CREATE VIEW tag_browser_{tn} AS SELECT
+                    id,
+                    {vcn},
+                    (SELECT COUNT(id) FROM books_{tn}_link WHERE {cn}={tn}.id) count,
+                    (SELECT AVG(ratings.rating)
+                     FROM books_{tn}_link as tl, books_ratings_link as bl, ratings
+                     WHERE tl.{cn}={tn}.id and bl.book=tl.book and
+                     ratings.id = bl.rating and ratings.rating <> 0) avg_rating
+                FROM {tn};
+                DROP VIEW IF EXISTS tag_browser_filtered_{tn};
+                CREATE VIEW tag_browser_filtered_{tn} AS SELECT
+                    id,
+                    {vcn},
+                    (SELECT COUNT(books_{tn}_link.id) FROM books_{tn}_link WHERE
+                        {cn}={tn}.id AND books_list_filter(book)) count,
+                    (SELECT AVG(ratings.rating)
+                     FROM books_{tn}_link as tl, books_ratings_link as bl, ratings
+                     WHERE tl.{cn}={tn}.id and bl.book=tl.book and
+                     ratings.id = bl.rating and ratings.rating <> 0 AND
+                     books_list_filter(bl.book)) avg_rating
+                FROM {tn};
+
+                '''.format(tn=table_name, cn=column_name, vcn=view_column_name))
+            self.conn.executescript(script)
+
+        def create_cust_tag_browser_view(table_name, link_table_name):
+            script = '''
+                DROP VIEW IF EXISTS tag_browser_{table};
+                CREATE VIEW tag_browser_{table} AS SELECT
+                    id,
+                    value,
+                    (SELECT COUNT(id) FROM {lt} WHERE value={table}.id) count,
+                    (SELECT AVG(r.rating)
+                     FROM {lt},
+                          books_ratings_link as bl,
+                          ratings as r
+                     WHERE {lt}.value={table}.id and bl.book={lt}.book and
+                           r.id = bl.rating and r.rating <> 0) avg_rating
+                FROM {table};
+
+                DROP VIEW IF EXISTS tag_browser_filtered_{table};
+                CREATE VIEW tag_browser_filtered_{table} AS SELECT
+                    id,
+                    value,
+                    (SELECT COUNT({lt}.id) FROM {lt} WHERE value={table}.id AND
+                    books_list_filter(book)) count,
+                    (SELECT AVG(r.rating)
+                     FROM {lt},
+                          books_ratings_link as bl,
+                          ratings as r
+                     WHERE {lt}.value={table}.id AND bl.book={lt}.book AND
+                           r.id = bl.rating AND r.rating <> 0 AND
+                           books_list_filter(bl.book)) avg_rating
+                FROM {table};
+                '''.format(lt=link_table_name, table=table_name)
+            self.conn.executescript(script)
+
+        for field in self.field_metadata.itervalues():
+            if field['is_category'] and not field['is_custom'] and 'link_column' in field:
+                create_std_tag_browser_view(field['table'], field['link_column'],
+                                            field['column'])
+
+        for field in self.field_metadata.itervalues():
+            if field['is_category'] and field['is_custom']:
+                link_table_name = 'books_custom_column_%d_link'%field['colnum']
+                print 'try to upgrade cust col', field['table'], link_table_name
+                create_cust_tag_browser_view(field['table'], link_table_name)

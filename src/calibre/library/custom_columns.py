@@ -461,14 +461,27 @@ class CustomColumns(object):
                 CREATE VIEW tag_browser_{table} AS SELECT
                     id,
                     value,
-                    (SELECT COUNT(id) FROM {lt} WHERE value={table}.id) count
+                    (SELECT COUNT(id) FROM {lt} WHERE value={table}.id) count,
+                    (SELECT AVG(r.rating)
+                     FROM {lt},
+                          books_ratings_link as bl,
+                          ratings as r
+                     WHERE {lt}.value={table}.id and bl.book={lt}.book and
+                           r.id = bl.rating and r.rating <> 0) avg_rating
                 FROM {table};
 
                 CREATE VIEW tag_browser_filtered_{table} AS SELECT
                     id,
                     value,
                     (SELECT COUNT({lt}.id) FROM {lt} WHERE value={table}.id AND
-                    books_list_filter(book)) count
+                    books_list_filter(book)) count,
+                    (SELECT AVG(r.rating)
+                     FROM {lt},
+                          books_ratings_link as bl,
+                          ratings as r
+                     WHERE {lt}.value={table}.id AND bl.book={lt}.book AND
+                           r.id = bl.rating AND r.rating <> 0 AND
+                           books_list_filter(bl.book)) avg_rating
                 FROM {table};
 
                 '''.format(lt=lt, table=table),
@@ -505,7 +518,7 @@ class CustomColumns(object):
                         END;
                 '''.format(table=table),
             ]
-
+        print lines
         script = ' \n'.join(lines)
         self.conn.executescript(script)
         self.conn.commit()
