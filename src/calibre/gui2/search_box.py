@@ -100,7 +100,6 @@ class SearchBox2(QComboBox):
         self.help_state = False
 
     def clear_to_help(self):
-        self.search.emit('')
         self._in_a_search = False
         self.setEditText(self.help_text)
         if self.timer is not None: # Turn off any timers that got started in setEditText
@@ -112,6 +111,7 @@ class SearchBox2(QComboBox):
                 'QLineEdit { color: gray; background-color: %s; }' %
                 self.normal_background)
         self.emit(SIGNAL('cleared()'))
+        self.search.emit('')
 
     def text(self):
         return self.currentText()
