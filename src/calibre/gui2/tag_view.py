@@ -301,7 +301,7 @@ class TagTreeItem(object): # {{{
                 if self.tag.avg is None:
                     return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
                 else:
-                    return QVariant('[%d][%d] %s'%(self.tag.count, self.tag.avg, self.tag.name))
+                    return QVariant('[%d][%3.1f] %s'%(self.tag.count, self.tag.avg, self.tag.name))
         if role == Qt.EditRole:
             return QVariant(self.tag.name)
         if role == Qt.DecorationRole:

@@ -61,7 +61,7 @@ class Tag(object):
         self.id = id
         self.count = count
         self.state = state
-        self.avg = avg/2 if avg is not None else 0
+        self.avg = avg/2.0 if avg is not None else 0
         self.tooltip = tooltip
         self.icon = icon
 
