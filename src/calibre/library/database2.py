@@ -1842,6 +1842,8 @@ books_series_link      feeds
             os.remove(self.dbpath)
             shutil.copyfile(dest, self.dbpath)
             self.connect()
+            self.field_metadata.remove_dynamic_categories()
+            self.field_metadata.remove_custom_fields()
             self.initialize_dynamic()
             self.refresh()
         if os.path.exists(dest):

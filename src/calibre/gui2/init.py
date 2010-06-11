@@ -7,12 +7,16 @@ __docformat__ = 'restructuredtext en'
 
 import functools
 
-from PyQt4.Qt import QMenu, Qt, pyqtSignal, QToolButton, QIcon
+from PyQt4.Qt import QMenu, Qt, pyqtSignal, QToolButton, QIcon, QStackedWidget, \
+        QWidget, QHBoxLayout, QToolBar, QSize, QSizePolicy
 
 from calibre.utils.config import prefs
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.constants import isosx
-from calibre.gui2 import config
+from calibre.constants import isosx, __appname__
+from calibre.gui2 import config, is_widescreen
+from calibre.gui2.library.views import BooksView, DeviceBooksView
+from calibre.gui2.widgets import Splitter
+from calibre.gui2.tag_view import TagBrowserWidget
 
 _keep_refs = []
 
@@ -281,4 +285,117 @@ class LibraryViewMixin(object): # {{{
             self.set_number_of_books_shown()
 
     # }}}
+
+class LibraryWidget(Splitter): # {{{
+
+    def __init__(self, parent):
+        orientation = Qt.Vertical if config['gui_layout'] == 'narrow' and \
+                not is_widescreen else Qt.Horizontal
+        #orientation = Qt.Vertical
+        idx = 0 if orientation == Qt.Vertical else 1
+        Splitter.__init__(self, 'cover_browser_splitter', _('Cover Browser'),
+                I('cover_flow.svg'),
+                orientation=orientation, parent=parent,
+                connect_button=not config['separate_cover_flow'],
+                side_index=idx, initial_side_size=400, initial_show=False)
+        parent.library_view = BooksView(parent)
+        parent.library_view.setObjectName('library_view')
+        self.addWidget(parent.library_view)
+# }}}
+
+class Stack(QStackedWidget): # {{{
+
+    def __init__(self, parent):
+        QStackedWidget.__init__(self, parent)
+
+        parent.cb_splitter = LibraryWidget(parent)
+        self.tb_widget = TagBrowserWidget(parent)
+        parent.tb_splitter = Splitter('tag_browser_splitter',
+                _('Tag Browser'), I('tags.svg'),
+                parent=parent, side_index=0, initial_side_size=200)
+        parent.tb_splitter.addWidget(self.tb_widget)
+        parent.tb_splitter.addWidget(parent.cb_splitter)
+        parent.tb_splitter.setCollapsible(parent.tb_splitter.other_index, False)
+
+        self.addWidget(parent.tb_splitter)
+        for x in ('memory', 'card_a', 'card_b'):
+            name = x+'_view'
+            w = DeviceBooksView(parent)
+            setattr(parent, name, w)
+            self.addWidget(w)
+            w.setObjectName(name)
+
+
+# }}}
+
+class SideBar(QToolBar): # {{{
+
+
+    def __init__(self, splitters, jobs_button, parent=None):
+        QToolBar.__init__(self, _('Side bar'), parent)
+        self.setOrientation(Qt.Vertical)
+        self.setMovable(False)
+        self.setFloatable(False)
+        self.setToolButtonStyle(Qt.ToolButtonIconOnly)
+        self.setIconSize(QSize(48, 48))
+        self.spacer = QWidget(self)
+        self.spacer.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        for s in splitters:
+            self.addWidget(s.button)
+        self.addWidget(self.spacer)
+        self.addWidget(jobs_button)
+
+        for ch in self.children():
+            if isinstance(ch, QToolButton):
+                ch.setCursor(Qt.PointingHandCursor)
+
+# }}}
+
+class LayoutMixin(object): # {{{
+
+    def __init__(self):
+        self.setupUi(self)
+        self.setWindowTitle(__appname__)
+
+        if config['gui_layout'] == 'narrow':
+            from calibre.gui2.status import StatusBar
+            self.status_bar = StatusBar(self)
+            self.stack = Stack(self)
+            self.bd_splitter = Splitter('book_details_splitter',
+                    _('Book Details'), I('book.svg'),
+                    orientation=Qt.Vertical, parent=self, side_index=1)
+            self._layout_mem = [QWidget(self), QHBoxLayout()]
+            self._layout_mem[0].setLayout(self._layout_mem[1])
+            l = self._layout_mem[1]
+            l.addWidget(self.stack)
+            self.sidebar = SideBar([getattr(self, x+'_splitter')
+                for x in ('bd', 'tb', 'cb')], self.jobs_button, parent=self)
+            l.addWidget(self.sidebar)
+            self.bd_splitter.addWidget(self._layout_mem[0])
+            self.bd_splitter.addWidget(self.status_bar)
+            self.bd_splitter.setCollapsible((self.bd_splitter.side_index+1)%2, False)
+            self.centralwidget.layout().addWidget(self.bd_splitter)
+
+    def finalize_layout(self):
+        m = self.library_view.model()
+        if m.rowCount(None) > 0:
+            self.library_view.set_current_row(0)
+            m.current_changed(self.library_view.currentIndex(),
+                    self.library_view.currentIndex())
+
+
+    def save_layout_state(self):
+        for x in ('library', 'memory', 'card_a', 'card_b'):
+            getattr(self, x+'_view').save_state()
+
+        for x in ('cb', 'tb', 'bd'):
+            getattr(self, x+'_splitter').save_state()
+
+    def read_layout_settings(self):
+        # View states are restored automatically when set_database is called
+
+        for x in ('cb', 'tb', 'bd'):
+            getattr(self, x+'_splitter').restore_state()
+
+# }}}
 

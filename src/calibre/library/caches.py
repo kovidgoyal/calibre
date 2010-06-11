@@ -621,7 +621,7 @@ class ResultCache(SearchQueryParser):
             self.first_sort = False
         fcmp = self.seriescmp \
                 if field == 'series' and \
-                   tweaks['title_sorting'] == 'library_order' \
+                   tweaks['title_series_sorting'] == 'library_order' \
                 else \
                    functools.partial(self.cmp, self.FIELD_MAP[field],
                                      subsort=subsort, asstr=as_string)
