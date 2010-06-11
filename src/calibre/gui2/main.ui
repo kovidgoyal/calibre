@@ -169,6 +169,12 @@
       </item>
       <item>
        <widget class="QComboBox" name="search_restriction">
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="toolTip">
          <string>Books display will be restricted to those matching the selected saved search</string>
         </property>

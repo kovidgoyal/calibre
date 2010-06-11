@@ -279,7 +279,10 @@ class LibraryViewMixin(object): # {{{
         if search:
             self.search.set_search_string(join.join(search))
 
-
+    def search_done(self, view, ok):
+        if view is self.current_view():
+            self.search.search_done(ok)
+            self.set_number_of_books_shown()
 
     # }}}
 

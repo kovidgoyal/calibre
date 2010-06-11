@@ -599,6 +599,7 @@ class TagsModel(QAbstractItemModel): # {{{
 class TagBrowserMixin(object): # {{{
 
     def __init__(self, db):
+        self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
         self.tags_view.set_database(self.library_view.model().db,
                 self.tag_match, self.popularity)
         self.tags_view.tags_marked.connect(self.search.search_from_tags)
@@ -608,6 +609,7 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
         self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
         self.tags_view.search_item_renamed.connect(self.saved_search.clear_to_help)
+        self.edit_categories.clicked.connect(self.do_user_categories_edit)
 
     def do_user_categories_edit(self, on_category=None):
         d = TagCategories(self, self.library_view.model().db, on_category)
@@ -657,6 +659,7 @@ class TagBrowserWidget(QWidget): # {{{
 
         parent.edit_categories = QPushButton(_('Manage &user categories'), parent)
         self._layout.addWidget(parent.edit_categories)
+
 
 # }}}
 

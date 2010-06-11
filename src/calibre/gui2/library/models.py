@@ -200,7 +200,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.count_changed()
         self.clear_caches()
         self.reset()
-
+        return ids
 
     def delete_books_by_id(self, ids):
         for id in ids:
@@ -881,6 +881,15 @@ class DeviceBooksModel(BooksModel): # {{{
         for v in self.marked_for_deletion.values():
             ans.extend(v)
         return ans
+
+    def clear_ondevice(self, db_ids):
+        for data in self.db:
+            if data is None:
+                continue
+            app_id = getattr(data, 'application_id', None)
+            if app_id is not None and app_id in db_ids:
+                data.in_library = False
+            self.reset()
 
     def flags(self, index):
         if self.map[index.row()] in self.indices_to_be_deleted():

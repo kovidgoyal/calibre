@@ -619,9 +619,12 @@ class ResultCache(SearchQueryParser):
         if self.first_sort:
             subsort = True
             self.first_sort = False
-        fcmp = self.seriescmp if field == 'series' else \
-            functools.partial(self.cmp, self.FIELD_MAP[field], subsort=subsort,
-                              asstr=as_string)
+        fcmp = self.seriescmp \
+                if field == 'series' and \
+                   tweaks['title_series_sorting'] == 'library_order' \
+                else \
+                   functools.partial(self.cmp, self.FIELD_MAP[field],
+                                     subsort=subsort, asstr=as_string)
         self._map.sort(cmp=fcmp, reverse=not ascending)
         self._map_filtered = [id for id in self._map if id in self._map_filtered]
 

@@ -15,6 +15,7 @@ from threading import RLock
 from datetime import datetime
 
 from calibre.ebooks.metadata import title_sort
+from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, isoformat
 
 global_lock = RLock()
@@ -115,7 +116,10 @@ class DBThread(Thread):
         self.conn.create_aggregate('concat', 1, Concatenate)
         self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
         self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
-        self.conn.create_function('title_sort', 1, title_sort)
+        if tweaks['title_series_sorting'] == 'library_order':
+            self.conn.create_function('title_sort', 1, title_sort)
+        else:
+            self.conn.create_function('title_sort', 1, lambda x:x)
         self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
         # Dummy functions for dynamically created filters
         self.conn.create_function('books_list_filter', 1, lambda x: 1)

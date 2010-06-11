@@ -12,7 +12,7 @@ from uuid import uuid4
 
 from lxml import etree
 
-from calibre import prints, guess_type
+from calibre import prints, guess_type, iswindows
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.driver import debug_print
 from calibre.constants import DEBUG
@@ -423,7 +423,10 @@ class XMLCache(object):
         return ans
 
     def update_text_record(self, record, book, path, bl_index):
-        timestamp = os.path.getctime(path)
+        timestamp = os.path.getmtime(path)
+        # Correct for MS DST time 'adjustment'
+        if iswindows and time.daylight:
+            timestamp -= time.altzone - time.timezone
         date = strftime(timestamp)
         if date != record.get('date', None):
             record.set('date', date)
