@@ -47,7 +47,7 @@ class Book(MetaInformation):
 
     def __eq__(self, other):
         # use lpath because the prefix can change, changing path
-        return self.path == getattr(other, 'lpath', None)
+        return self.lpath == getattr(other, 'lpath', None)
 
     @dynamic_property
     def db_id(self):
