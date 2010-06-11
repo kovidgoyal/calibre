@@ -128,6 +128,7 @@ class CoverFlowMixin(object):
             self.cb_splitter.insertWidget(self.cb_splitter.side_index, self.cover_flow)
             if CoverFlow is not None:
                 self.cover_flow.stop.connect(self.cb_splitter.hide_side_pane)
+        self.cb_splitter.button.toggled.connect(self.cover_browser_toggled)
 
     def toggle_cover_browser(self):
         cbd = getattr(self, 'cb_dialog', None)
@@ -136,7 +137,14 @@ class CoverFlowMixin(object):
         else:
             self.show_cover_browser()
 
-    def show_cover_browser(self):
+    def cover_browser_toggled(self, *args):
+        if self.cb_splitter.button.isChecked():
+            self.cover_browser_shown()
+        else:
+            self.cover_browser_hidden()
+
+    def cover_browser_shown(self):
+        self.cover_flow.setFocus(Qt.OtherFocusReason)
         if CoverFlow is not None:
             self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
             self.cover_flow_sync_timer.start(500)
@@ -144,24 +152,7 @@ class CoverFlowMixin(object):
                 self.library_view.currentIndex())
         self.library_view.scroll_to_row(self.library_view.currentIndex().row())
 
-        if config['separate_cover_flow']:
-            d = QDialog(self)
-            ah, aw = available_height(), available_width()
-            d.resize(int(aw/1.5), ah-60)
-            d._layout = QStackedLayout()
-            d.setLayout(d._layout)
-            d.setWindowTitle(_('Browse by covers'))
-            d.layout().addWidget(self.cover_flow)
-            self.cover_flow.setVisible(True)
-            self.cover_flow.setFocus(Qt.OtherFocusReason)
-            d.show()
-            self.cb_splitter.button.set_state_to_hide()
-            d.finished.connect(self.cb_splitter.button.set_state_to_show)
-            self.cb_dialog = d
-        else:
-            self.cover_flow.setFocus(Qt.OtherFocusReason)
-
-    def hide_cover_browser(self):
+    def cover_browser_hidden(self):
         if CoverFlow is not None:
             self.cover_flow_sync_timer.stop()
             idx = self.library_view.model().index(self.cover_flow.currentSlide(), 0)
@@ -171,11 +162,27 @@ class CoverFlowMixin(object):
                 self.library_view.setCurrentIndex(idx)
                 self.library_view.scroll_to_row(idx.row())
 
-        if config['separate_cover_flow']:
-            cbd = getattr(self, 'cb_dialog', None)
-            if cbd is not None:
-                cbd.accept()
-                self.cb_dialog = None
+
+    def show_cover_browser(self):
+        d = QDialog(self)
+        ah, aw = available_height(), available_width()
+        d.resize(int(aw/1.5), ah-60)
+        d._layout = QStackedLayout()
+        d.setLayout(d._layout)
+        d.setWindowTitle(_('Browse by covers'))
+        d.layout().addWidget(self.cover_flow)
+        self.cover_flow.setVisible(True)
+        self.cover_flow.setFocus(Qt.OtherFocusReason)
+        d.show()
+        self.cb_splitter.button.set_state_to_hide()
+        d.finished.connect(self.cb_splitter.button.set_state_to_show)
+        self.cb_dialog = d
+
+    def hide_cover_browser(self):
+        cbd = getattr(self, 'cb_dialog', None)
+        if cbd is not None:
+            cbd.accept()
+            self.cb_dialog = None
 
     def sync_cf_to_listview(self, current, previous):
         if self.cover_flow_sync_flag and self.cover_flow.isVisible() and \
