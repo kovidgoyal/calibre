@@ -61,7 +61,7 @@ class BookInfoDisplay(QWidget):
             pixmap = self.pixmap()
             pwidth, pheight = pixmap.width(), pixmap.height()
             width, height = fit_image(pwidth, pheight,
-                                              pwidth, self.statusbar_height-12)[1:]
+                                              pwidth, self.statusbar_height-20)[1:]
             self.setMaximumHeight(height)
             try:
                 aspect_ratio = pwidth/float(pheight)
