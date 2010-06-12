@@ -801,11 +801,6 @@ class BasicNewsRecipe(Recipe):
                     .calibre_navbar {
                         font-family:monospace;
                     }
-                    hr {
-                        border-color:gray;
-                        border-style:solid;
-                        border-width:thin;
-                    }
 
             '''
 
