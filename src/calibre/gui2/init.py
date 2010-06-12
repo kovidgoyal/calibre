@@ -47,7 +47,7 @@ class ToolbarMixin(object): # {{{
     def __init__(self):
         md = QMenu()
         md.addAction(_('Edit metadata individually'),
-                partial(self.edit_metadata, False))
+                partial(self.edit_metadata, False, bulk=False))
         md.addSeparator()
         md.addAction(_('Edit metadata in bulk'),
                 partial(self.edit_metadata, False, bulk=True))
