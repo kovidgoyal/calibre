@@ -14,7 +14,6 @@ from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata import MetaInformation
 from calibre.library.server.utils import strftime
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import Config, config_dir
 from calibre.utils.date import parse_date
 from calibre.utils.logging import Log
@@ -147,6 +146,7 @@ class ITUNES(DevicePlugin):
     ejected = False
     iTunes= None
     iTunes_media = None
+    library_orphans = None
     log = Log()
     manual_sync_mode = False
     path_template = 'iTunes/%s - %s.epub'
@@ -244,14 +244,13 @@ class ITUNES(DevicePlugin):
 
             # Fetch a list of books from iPod device connected to iTunes
 
-            # Fetch Library|Books
-            library_books = self._get_library_books()
 
             if 'iPod' in self.sources:
                 booklist = BookList(self.log)
                 cached_books = {}
 
                 if isosx:
+                    library_books = self._get_library_books()
                     device_books = self._get_device_books()
                     book_count = float(len(device_books))
                     for (i,book) in enumerate(device_books):
@@ -281,11 +280,13 @@ class ITUNES(DevicePlugin):
 
                         if self.report_progress is not None:
                             self.report_progress(i+1/book_count, _('%d of %d') % (i+1, book_count))
+                    self._purge_orphans(cached_books)
 
                 elif iswindows:
                     try:
                         pythoncom.CoInitialize()
                         self.iTunes = win32com.client.Dispatch("iTunes.Application")
+                        library_books = self._get_library_books()
                         device_books = self._get_device_books()
                         book_count = float(len(device_books))
                         for (i,book) in enumerate(device_books):
@@ -315,6 +316,7 @@ class ITUNES(DevicePlugin):
                             if self.report_progress is not None:
                                 self.report_progress(i+1/book_count,
                                         _('%d of %d') % (i+1, book_count))
+                        self._purge_orphans(cached_books)
 
                     finally:
                         pythoncom.CoUninitialize()
@@ -985,7 +987,6 @@ class ITUNES(DevicePlugin):
                     connected_device = self.sources['iPod']
                     device = self.iTunes.sources.ItemByName(connected_device)
 
-                    dev_books = None
                     added = None
                     for pl in device.Playlists:
                         if pl.Kind == self.PlaylistKind.index('User') and \
@@ -1638,7 +1639,6 @@ class ITUNES(DevicePlugin):
                 connected_device = self.sources['iPod']
                 device = self.iTunes.sources.ItemByName(connected_device)
 
-                dev_books = None
                 for pl in device.Playlists:
                     if pl.Kind == self.PlaylistKind.index('User') and \
                        pl.SpecialKind == self.PlaylistSpecialKind.index('Books'):
@@ -1671,11 +1671,13 @@ class ITUNES(DevicePlugin):
     def _get_library_books(self):
         '''
         Populate a dict of paths from iTunes Library|Books
+        Windows assumes pythoncom wrapper
         '''
         if DEBUG:
             self.log.info("\n ITUNES._get_library_books()")
 
         library_books = {}
+        library_orphans = {}
         lib = None
 
         if isosx:
@@ -1708,15 +1710,14 @@ class ITUNES(DevicePlugin):
                             if DEBUG:
                                 self.log.info("   ignoring '%s' of type '%s'" % (book.name(), book.kind()))
                         else:
-                            # Remove calibre orphans
+                            # Collect calibre orphans - remnants of recipe uploads
+                            path = self.path_template % (book.name(), book.artist())
                             if str(book.description()).startswith(self.description_prefix):
                                 if book.location() == appscript.k.missing_value:
+                                    library_orphans[path] = book
                                     if DEBUG:
                                         self.log.info("   found calibre orphan '%s' in Library|Books" % book.name())
-                                    #book.delete()
-                                    #continue
 
-                            path = self.path_template % (book.name(), book.artist())
                             library_books[path] = book
                             if DEBUG:
                                 self.log.info("   adding %-30.30s [%s]" % (book.name(), book.kind()))
@@ -1729,59 +1730,59 @@ class ITUNES(DevicePlugin):
 
         elif iswindows:
             lib = None
-            try:
-                pythoncom.CoInitialize()
-                self.iTunes = win32com.client.Dispatch("iTunes.Application")
-                for source in self.iTunes.sources:
-                    if source.Kind == self.Sources.index('Library'):
-                        lib = source
-                        self.log.info(" Library source: '%s' kind: %s" % (lib.Name, self.Sources[lib.Kind]))
-                        break
-                else:
-                    self.log.error(" Library source not found")
+#         try:
+#             pythoncom.CoInitialize()
+#             self.iTunes = win32com.client.Dispatch("iTunes.Application")
+            for source in self.iTunes.sources:
+                if source.Kind == self.Sources.index('Library'):
+                    lib = source
+                    self.log.info(" Library source: '%s' kind: %s" % (lib.Name, self.Sources[lib.Kind]))
+                    break
+            else:
+                self.log.error(" Library source not found")
 
-                if lib is not None:
-                    lib_books = None
-                    if lib.Playlists is not None:
-                        for pl in lib.Playlists:
-                            if pl.Kind == self.PlaylistKind.index('User') and \
-                               pl.SpecialKind == self.PlaylistSpecialKind.index('Books'):
-                                if DEBUG:
-                                    self.log.info(" Books playlist: '%s'" % (pl.Name))
-                                lib_books = pl.Tracks
-                                break
-                        else:
+            if lib is not None:
+                lib_books = None
+                if lib.Playlists is not None:
+                    for pl in lib.Playlists:
+                        if pl.Kind == self.PlaylistKind.index('User') and \
+                           pl.SpecialKind == self.PlaylistSpecialKind.index('Books'):
                             if DEBUG:
-                                self.log.error(" no Library|Books playlist found")
+                                self.log.info(" Books playlist: '%s'" % (pl.Name))
+                            lib_books = pl.Tracks
+                            break
                     else:
                         if DEBUG:
-                            self.log.error(" no Library playlists found")
+                            self.log.error(" no Library|Books playlist found")
+                else:
+                    if DEBUG:
+                        self.log.error(" no Library playlists found")
 
-                    try:
-                        for book in lib_books:
-                            # This may need additional entries for international iTunes users
-                            if book.KindAsString in ['MPEG audio file']:
-                                if DEBUG:
-                                    self.log.info("  ignoring %-30.30s of type '%s'" % (book.Name, book.KindAsString))
-                            else:
-                                # Remove calibre orphans
-                                if book.Description.startswith(self.description_prefix):
-                                    if not book.Location:
-                                        if DEBUG:
-                                            self.log.info("   found calibre orphan '%s' in Library|Books" % book.Name)
-                                            #book.Delete()
-                                            #continue
+                try:
+                    for book in lib_books:
+                        # This may need additional entries for international iTunes users
+                        if book.KindAsString in ['MPEG audio file']:
+                            if DEBUG:
+                                self.log.info("  ignoring %-30.30s of type '%s'" % (book.Name, book.KindAsString))
+                        else:
+                            path = self.path_template % (book.Name, book.Artist)
 
-                                path = self.path_template % (book.Name, book.Artist)
-                                library_books[path] = book
-                                if DEBUG:
-                                    self.log.info("  adding %-30.30s [%s]" % (book.Name, book.KindAsString))
-                    except:
-                        if DEBUG:
-                            self.log.info(" no books in library")
-            finally:
-                pythoncom.CoUninitialize()
+                            # Collect calibre orphans
+                            if book.Description.startswith(self.description_prefix):
+                                if not book.Location:
+                                    library_orphans[path] = book
+                                    if DEBUG:
+                                        self.log.info("   found calibre orphan '%s' in Library|Books" % book.Name)
 
+                            library_books[path] = book
+                            if DEBUG:
+                                self.log.info("  adding %-30.30s [%s]" % (book.Name, book.KindAsString))
+                except:
+                    if DEBUG:
+                        self.log.info(" no books in library")
+#         finally:
+#             pythoncom.CoUninitialize()
+        self.library_orphans = library_orphans
         return library_books
 
     def _get_purchased_book_ids(self):
@@ -1904,6 +1905,45 @@ class ITUNES(DevicePlugin):
                   self.version[0],self.version[1],self.version[2]))
                 self.log.info("  iTunes_media: %s" % self.iTunes_media)
 
+    def _purge_orphans(self,cached_books):
+        '''
+        Scan self.library_orphans for any paths not on device
+        Remove any true orphans from iTunes
+        This occurs when recipes are uploaded in a previous session
+        and the book has since been deleted on the device
+        '''
+        if DEBUG:
+            self.log.info(" ITUNES._purge_orphans")
+            #self.log.info("  cached_books:\n   %s" % "\n   ".join(cached_books.keys()))
+
+        orphan_paths = {}
+
+        if isosx:
+            for orphan in self.library_orphans:
+                path = self.path_template % (self.library_orphans[orphan].name(),
+                                             self.library_orphans[orphan].artist())
+                orphan_paths[path] = self.library_orphans[orphan]
+
+            # Scan orphan_paths for paths not found in cached_books
+            for orphan in orphan_paths.keys():
+                if orphan not in cached_books:
+                    if DEBUG:
+                        self.log.info("  '%s' not found on device, removing from iTunes" % orphan)
+                    self.iTunes.delete(orphan_paths[orphan])
+
+        elif iswindows:
+            for orphan in self.library_orphans:
+                path = self.path_template % (self.library_orphans[orphan].Name,
+                                             self.library_orphans[orphan].Artist)
+                orphan_paths[path] = self.library_orphans[orphan]
+
+            # Scan orphan_paths for paths not found in cached_books
+            for orphan in orphan_paths.keys():
+                if orphan not in cached_books:
+                    if DEBUG:
+                        self.log.info("  '%s' not found on device, removing from iTunes" % orphan)
+                    orphan_paths[orphan].Delete()
+
     def _remove_existing_copies(self,path,file,metadata):
         '''
         '''
@@ -1945,7 +1985,7 @@ class ITUNES(DevicePlugin):
         if isosx:
             if DEBUG:
                 self.log.info("  deleting %s" % cached_book['dev_book'])
-            result = cached_book['dev_book'].delete()
+            cached_book['dev_book'].delete()
 
         elif iswindows:
             dev_pl = self._get_device_books_playlist()
@@ -1957,7 +1997,7 @@ class ITUNES(DevicePlugin):
                     if hit.Name == cached_book['title']:
                         if DEBUG:
                             self.log.info("  deleting '%s' by %s" % (hit.Name, hit.Artist))
-                        results = hit.Delete()
+                        hit.Delete()
                         break
 
     def _remove_from_iTunes(self, cached_book):

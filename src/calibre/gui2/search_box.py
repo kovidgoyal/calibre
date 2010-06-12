@@ -7,8 +7,8 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, \
-                     pyqtSignal, SIGNAL, QObject, QDialog
-from PyQt4.QtGui import QCompleter
+                     pyqtSignal, SIGNAL, QObject, QDialog, QCompleter, \
+                     QAction, QKeySequence
 
 from calibre.gui2 import config
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -348,8 +348,14 @@ class SearchBoxMixin(object):
                         self.do_advanced_search)
 
         self.search.clear()
-        self.search.setFocus(Qt.OtherFocusReason)
         self.search.setMaximumWidth(self.width()-150)
+        self.action_focus_search = QAction(self)
+        shortcuts = QKeySequence.keyBindings(QKeySequence.Find)
+        shortcuts = list(shortcuts) + [QKeySequence('/')]
+        self.action_focus_search.setShortcuts(shortcuts)
+        self.action_focus_search.triggered.connect(lambda x:
+                self.search.setFocus(Qt.OtherFocusReason))
+        self.addAction(self.action_focus_search)
 
     def search_box_cleared(self):
         self.tags_view.clear()
