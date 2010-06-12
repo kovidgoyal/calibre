@@ -9,11 +9,14 @@ Browsing book collection by tags.
 
 from itertools import izip
 from functools import partial
+from math import cos, sin, pi
 
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QCheckBox, \
                      QFont, QSize, QIcon, QPoint, QVBoxLayout, QComboBox, \
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, \
                      QPushButton, QWidget
+from PyQt4.Qt import QItemDelegate, QString, QPainterPath, QPen, QColor, \
+                     QLinearGradient, QBrush
 
 from calibre.gui2 import config, NONE
 from calibre.utils.config import prefs
@@ -22,6 +25,90 @@ from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
+
+class TagDelegate(QItemDelegate):
+
+    def __init__(self, parent):
+        QItemDelegate.__init__(self, parent)
+        self._parent = parent
+
+    def paint(self, painter, option, index):
+
+        def draw_rating(rect, rating):
+            COLOR    = QColor("blue")
+            if rating is None:
+                return 0
+            painter.save()
+            painter.translate(r.left(), r.top())
+            factor = r.height()/100.
+# Try the star
+#            star_path = QPainterPath()
+#            star_path.moveTo(90, 50)
+#            for i in range(1, 5):
+#                star_path.lineTo(50 + 40 * cos(0.8 * i * pi), \
+#                                      50 + 40 * sin(0.8 * i * pi))
+#            star_path.closeSubpath()
+#            star_path.setFillRule(Qt.WindingFill)
+#            pen = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+#            gradient = QLinearGradient(0, 0, 0, 100)
+#            gradient.setColorAt(0.0, COLOR)
+#            gradient.setColorAt(1.0, COLOR)
+#            painter.setBrush(QBrush(gradient))
+#            painter.setClipRect(0, 0, int(r.height() * (rating/5.0)), r.height())
+#            painter.scale(factor, factor)
+#            painter.translate(50.0, 50.0)
+#            painter.rotate(-20)
+#            painter.translate(-50.0, -50.0)
+#            painter.drawPath(star_path)
+#            painter.restore()
+#            return r.height()
+
+# Try a circle
+#            gradient = QLinearGradient(0, 0, 0, 100)
+#            gradient.setColorAt(0.0, COLOR)
+#            gradient.setColorAt(1.0, COLOR)
+#            painter.setBrush(QBrush(gradient))
+#            painter.setClipRect(0, 0, int(r.height() * (rating/5.0)), r.height())
+#            painter.scale(factor, factor)
+#            painter.drawEllipse(0, 0, 100, 100)
+#            painter.restore()
+#            return r.height()
+
+# Try a rectangle
+            width = 20
+            height = 80
+            left_offset = 5
+            top_offset = 10
+            if rating > 0.0:
+                pen = QPen(COLOR, 5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+                painter.setPen(pen)
+                painter.scale(factor, factor)
+                painter.drawRect(left_offset, top_offset, width, height)
+                fill_height = height*(rating/5.0)
+                gradient = QLinearGradient(0, 0, 0, 100)
+                gradient.setColorAt(0.0, COLOR)
+                gradient.setColorAt(1.0, COLOR)
+                painter.setBrush(QBrush(gradient))
+                painter.drawRect(left_offset, top_offset+(height-fill_height),
+                                 width, fill_height)
+            painter.restore()
+            return int ((width+left_offset*2) * factor)
+
+        item = index.internalPointer()
+        if item.type == TagTreeItem.TAG:
+            r = option.rect
+            # Paint the decoration icon
+            icon = self._parent.model().data(index, Qt.DecorationRole).toPyObject()
+            icon.paint(painter, r, Qt.AlignLeft)
+            # Paint the rating, if any
+            r.setLeft(r.left()+r.height()+5)
+            text_start = draw_rating(r, item.tag.avg)
+            # Paint the text
+            r.setLeft(r.left() + text_start+5)
+            painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
+                             QString('[%d] %s'%(item.tag.count, item.tag.name)))
+        else:
+            QItemDelegate.paint(self, painter, option, index)
 
 class TagsView(QTreeView): # {{{
 
@@ -43,6 +130,7 @@ class TagsView(QTreeView): # {{{
         self.setAlternatingRowColors(True)
         self.setAnimated(True)
         self.setHeaderHidden(True)
+        self.setItemDelegate(TagDelegate(self))
 
     def set_database(self, db, tag_match, popularity):
         self.hidden_categories = config['tag_browser_hidden_categories']
