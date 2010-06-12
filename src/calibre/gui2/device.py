@@ -10,7 +10,8 @@ from functools import partial
 from binascii import unhexlify
 
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, QPixmap, \
-                     Qt, pyqtSignal
+                     Qt, pyqtSignal, QColor, QPainter
+from PyQt4.QtSvg import QSvgRenderer
 
 from calibre.customize.ui import available_input_formats, available_output_formats, \
     device_plugins
@@ -611,6 +612,16 @@ class DeviceMixin(object): # {{{
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
                 self.job_manager, Dispatcher(self.status_bar.show_message))
         self.device_manager.start()
+
+    def set_default_thumbnail(self, height):
+        r = QSvgRenderer(I('book.svg'))
+        pixmap = QPixmap(height, height)
+        pixmap.fill(QColor(255,255,255))
+        p = QPainter(pixmap)
+        r.render(p)
+        p.end()
+        self.default_thumbnail = (pixmap.width(), pixmap.height(),
+                pixmap_to_data(pixmap))
 
     def connect_to_folder(self):
         dir = choose_dir(self, 'Select Device Folder',

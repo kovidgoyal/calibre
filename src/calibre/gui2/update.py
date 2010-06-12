@@ -37,7 +37,7 @@ class CheckForUpdates(QThread):
                 traceback.print_exc()
             self.sleep(self.INTERVAL)
 
-def UpdateMixin(object):
+class UpdateMixin(object):
 
     def __init__(self, opts):
         if not opts.no_update_check:
