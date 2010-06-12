@@ -256,8 +256,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
 
         ####################### Status Bar #####################
         self.status_bar.initialize(self.system_tray_icon)
-        self.status_bar.show_book_info.connect(self.show_book_info)
-        self.status_bar.files_dropped.connect(self.files_dropped_on_book)
+        self.book_details.show_book_info.connect(self.show_book_info)
+        self.book_details.files_dropped.connect(self.files_dropped_on_book)
 
         ####################### Setup Toolbar #####################
         ToolbarMixin.__init__(self)
@@ -503,7 +503,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
                     dict(version=self.latest_version, device=' '))
             self.device_info = ' '
             if self.current_view() != self.library_view:
-                self.status_bar.reset_info()
+                self.book_details.reset_info()
                 self.location_view.setCurrentIndex(self.location_view.model().index(0))
             self.eject_action.setEnabled(False)
             self.refresh_ondevice_info (device_connected = False)
@@ -1802,9 +1802,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         self.library_view.set_database(db)
         self.tags_view.set_database(db, self.tag_match, self.popularity)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
-        self.status_bar.clearMessage()
+        self.status_bar.clear_message()
         self.search.clear_to_help()
-        self.status_bar.reset_info()
+        self.book_details.reset_info()
         self.library_view.model().count_changed()
         prefs['library_path'] = self.library_path
 
@@ -1831,7 +1831,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         '''
         page = 0 if location == 'library' else 1 if location == 'main' else 2 if location == 'carda' else 3
         self.stack.setCurrentIndex(page)
-        self.status_bar.reset_info()
+        self.book_details.reset_info()
         for x in ('tb', 'cb'):
             splitter = getattr(self, x+'_splitter')
             splitter.button.setEnabled(location == 'library')

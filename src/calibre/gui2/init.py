@@ -231,7 +231,7 @@ class LibraryViewMixin(object): # {{{
                              ('connect_to_search_box', (self.search,
                                  self.search_done)),
                              ('connect_to_book_display',
-                                 (self.status_bar.book_info.show_data,)),
+                                 (self.book_details.show_data,)),
                              ]:
             for view in (self.library_view, self.memory_view, self.card_a_view, self.card_b_view):
                 getattr(view, func)(*args)
@@ -360,7 +360,7 @@ class LayoutMixin(object): # {{{
 
         if config['gui_layout'] == 'narrow':
             from calibre.gui2.status import StatusBar
-            self.status_bar = StatusBar(self)
+            self.status_bar = self.book_details = StatusBar(self)
             self.stack = Stack(self)
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.svg'),

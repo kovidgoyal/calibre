@@ -178,16 +178,32 @@ class StatusBarInterface(object):
                     msg = msg.encode('utf-8')
             self.notifier(msg)
 
+    def clear_message(self):
+        QStatusBar.clearMessage(self)
 
-class StatusBar(QStatusBar, StatusBarInterface):
+class BookDetailsInterface(object):
 
-    resized = pyqtSignal(object)
+    # These signals must be defined in the class implementing this interface
+    files_dropped = None
+    show_book_info = None
+
+    def reset_info(self):
+        raise NotImplementedError()
+
+    def show_data(self, data):
+        raise NotImplementedError()
+
+class StatusBar(QStatusBar, StatusBarInterface, BookDetailsInterface):
+
     files_dropped = pyqtSignal(object, object)
     show_book_info = pyqtSignal()
 
+
+    resized = pyqtSignal(object)
+
     def initialize(self, systray=None):
         StatusBarInterface.initialize(self, systray=systray)
-        self.book_info = BookInfoDisplay(self.clearMessage)
+        self.book_info = BookInfoDisplay(self.clear_message)
         self.book_info.setAcceptDrops(True)
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidget(self.book_info)
@@ -207,4 +223,6 @@ class StatusBar(QStatusBar, StatusBarInterface):
     def reset_info(self):
         self.book_info.show_data({})
 
+    def show_data(self, data):
+        self.book_info.show_data(data)
 
