@@ -292,7 +292,8 @@ class BooksView(QTableView): # {{{
             old_state['column_positions'][name] = i
             if name != 'ondevice':
                 old_state['column_sizes'][name] = \
-                    max(self.sizeHintForColumn(i), h.sectionSizeHint(i))
+                    min(350, max(self.sizeHintForColumn(i),
+                        h.sectionSizeHint(i)))
                 if name == 'timestamp':
                     old_state['column_sizes'][name] += 12
         return old_state
