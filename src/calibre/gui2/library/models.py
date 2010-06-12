@@ -21,7 +21,8 @@ from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
-from calibre import strftime
+from calibre import strftime, isbytestring
+from calibre.constants import filesystem_encoding
 from calibre.gui2.library import DEFAULT_SORT
 
 def human_readable(size, precision=1):
@@ -32,6 +33,14 @@ TIME_FMT = '%d %b %Y'
 
 ALIGNMENT_MAP = {'left': Qt.AlignLeft, 'right': Qt.AlignRight, 'center':
         Qt.AlignHCenter}
+
+class FormatPath(unicode):
+
+    def __new__(cls, path, orig_file_path):
+        ans = unicode.__new__(cls, path)
+        ans.orig_file_path = orig_file_path
+        ans.deleted_after_upload = False
+        return ans
 
 class BooksModel(QAbstractTableModel): # {{{
 
@@ -191,7 +200,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.count_changed()
         self.clear_caches()
         self.reset()
-
+        return ids
 
     def delete_books_by_id(self, ids):
         for id in ids:
@@ -213,7 +222,7 @@ class BooksModel(QAbstractTableModel): # {{{
             self.endInsertRows()
             self.count_changed()
 
-    def search(self, text, refinement, reset=True):
+    def search(self, text, reset=True):
         try:
             self.db.search(text)
         except ParseException:
@@ -224,8 +233,9 @@ class BooksModel(QAbstractTableModel): # {{{
             self.clear_caches()
             self.reset()
         if self.last_search:
+            # Do not issue search done for the null search. It is used to clear
+            # the search and count records for restrictions
             self.searched.emit(True)
-
 
     def sort(self, col, order, reset=True):
         if not self.db:
@@ -257,7 +267,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.sort(col, self.sorted_on[1], reset=reset)
 
     def research(self, reset=True):
-        self.search(self.last_search, False, reset=reset)
+        self.search(self.last_search, reset=reset)
 
     def columnCount(self, parent):
         if parent and parent.isValid():
@@ -378,7 +388,7 @@ class BooksModel(QAbstractTableModel): # {{{
         else:
             return metadata
 
-    def get_preferred_formats_from_ids(self, ids, formats, paths=False,
+    def get_preferred_formats_from_ids(self, ids, formats,
                               set_metadata=False, specific_format=None,
                               exclude_auto=False, mode='r+b'):
         ans = []
@@ -403,12 +413,20 @@ class BooksModel(QAbstractTableModel): # {{{
                     as_file=True)) as src:
                     shutil.copyfileobj(src, pt)
                     pt.flush()
+                    if getattr(src, 'name', None):
+                        pt.orig_file_path = os.path.abspath(src.name)
                 pt.seek(0)
                 if set_metadata:
                     _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
                                   format)
-                pt.close() if paths else pt.seek(0)
-                ans.append(pt)
+                pt.close()
+                def to_uni(x):
+                    if isbytestring(x):
+                        x = x.decode(filesystem_encoding)
+                    return x
+                name, op = map(to_uni, map(os.path.abspath, (pt.name,
+                    pt.orig_file_path)))
+                ans.append(FormatPath(name, op))
             else:
                 need_auto.append(id)
                 if not exclude_auto:
@@ -730,6 +748,8 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_search_restriction(self, s):
         self.db.data.set_search_restriction(s)
+        self.search('')
+        return self.rowCount(None)
 
 # }}}
 
@@ -862,6 +882,15 @@ class DeviceBooksModel(BooksModel): # {{{
             ans.extend(v)
         return ans
 
+    def clear_ondevice(self, db_ids):
+        for data in self.db:
+            if data is None:
+                continue
+            app_id = getattr(data, 'application_id', None)
+            if app_id is not None and app_id in db_ids:
+                data.in_library = False
+            self.reset()
+
     def flags(self, index):
         if self.map[index.row()] in self.indices_to_be_deleted():
             return Qt.ItemIsUserCheckable  # Can't figure out how to get the disabled flag in python
@@ -874,7 +903,7 @@ class DeviceBooksModel(BooksModel): # {{{
         return flags
 
 
-    def search(self, text, refinement, reset=True):
+    def search(self, text, reset=True):
         if not text or not text.strip():
             self.map = list(range(len(self.db)))
         else:
@@ -1086,7 +1115,6 @@ class DeviceBooksModel(BooksModel): # {{{
             idx = self.map[row]
             if cname == 'title' :
                 self.db[idx].title = val
-                self.db[idx].title_sorter = val
             elif cname == 'authors':
                 self.db[idx].authors = string_to_authors(val)
             elif cname == 'collections':

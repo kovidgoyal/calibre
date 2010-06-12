@@ -9,12 +9,6 @@ The database used to store ebook metadata
 import os, sys, shutil, cStringIO, glob,functools, traceback
 from itertools import repeat
 from math import floor
-try:
-    from PIL import Image as PILImage
-    PILImage
-except ImportError:
-    import Image as PILImage
-
 
 from PyQt4.QtGui import QImage
 
@@ -34,10 +28,10 @@ from calibre.customize.ui import run_plugins_on_import
 
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.utils.search_query_parser import saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
-
+from calibre.utils.magick_draw import save_cover_data_to
 
 if iswindows:
     import calibre.utils.winshell as winshell
@@ -475,11 +469,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if callable(getattr(data, 'save', None)):
             data.save(path)
         else:
-            f = data
-            if not callable(getattr(data, 'read', None)):
-                f = cStringIO.StringIO(data)
-            im = PILImage.open(f)
-            im.convert('RGB').save(path, 'JPEG')
+            if callable(getattr(data, 'read', None)):
+                data = data.read()
+            save_cover_data_to(data, path)
 
     def book_on_device(self, id):
         if callable(self.book_on_device_func):
@@ -744,8 +736,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         icon=icon, tooltip = tooltip)
                                     for r in data if item_not_zero_func(r)]
             if category == 'series' and not sort_on_count:
-                categories[category].sort(cmp=lambda x,y:cmp(title_sort(x.name).lower(),
-                    title_sort(y.name).lower()))
+                if tweaks['title_series_sorting'] == 'library_order':
+                    ts = lambda x: title_sort(x)
+                else:
+                    ts = lambda x:x
+                categories[category].sort(cmp=lambda x,y:cmp(ts(x.name).lower(),
+                                                             ts(y.name).lower()))
 
         # We delayed computing the standard formats category because it does not
         # use a view, but is computed dynamically
@@ -958,7 +954,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             title = title.decode(preferred_encoding, 'replace')
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.data.set(id, self.FIELD_MAP['title'], title, row_is_id=True)
-        self.data.set(id, self.FIELD_MAP['sort'],  title_sort(title), row_is_id=True)
+        if tweaks['title_series_sorting'] == 'library_order':
+            self.data.set(id, self.FIELD_MAP['sort'], title_sort(title), row_is_id=True)
+        else:
+            self.data.set(id, self.FIELD_MAP['sort'], title, row_is_id=True)
         self.set_path(id, True)
         self.conn.commit()
         if notify:
@@ -1007,16 +1006,38 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return []
         return result
 
-    def rename_tag(self, id, new_name):
-        if id:
-            self.conn.execute('UPDATE tags SET name=? WHERE id=?', (new_name, id))
-            self.conn.commit()
+    def rename_tag(self, old_id, new_name):
+        new_id = self.conn.get(
+                    '''SELECT id from tags
+                       WHERE name=?''', (new_name,), all=False)
+        if new_id is None or old_id == new_id:
+            # easy cases. Simply rename the tag. Do it even if equal, in case
+            # there is a change of case
+            self.conn.execute('''UPDATE tags SET name=?
+                                 WHERE id=?''', (new_name, old_id))
+        else:
+            # It is possible that by renaming a tag, the tag will appear
+            # twice on a book. This will throw an integrity error, aborting
+            # all the changes. To get around this, we first delete any links
+            # to the new_id from books referencing the old_id, so that
+            # renaming old_id to new_id will be unique on the book
+            books = self.conn.get('''SELECT book from books_tags_link
+                                     WHERE tag=?''', (old_id,))
+            for (book_id,) in books:
+                self.conn.execute('''DELETE FROM books_tags_link
+                                     WHERE book=? and tag=?''', (book_id, new_id))
+
+            # Change the link table to point at the new tag
+            self.conn.execute('''UPDATE books_tags_link SET tag=?
+                                 WHERE tag=?''',(new_id, old_id,))
+            # Get rid of the no-longer used publisher
+            self.conn.execute('DELETE FROM tags WHERE id=?', (old_id,))
+        self.conn.commit()
 
     def delete_tag_using_id(self, id):
-        if id:
-            self.conn.execute('DELETE FROM books_tags_link WHERE tag=?', (id,))
-            self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
-            self.conn.commit()
+        self.conn.execute('DELETE FROM books_tags_link WHERE tag=?', (id,))
+        self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
+        self.conn.commit()
 
     def get_series_with_ids(self):
         result = self.conn.get('SELECT id,name FROM series')
@@ -1024,19 +1045,44 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return []
         return result
 
-    def rename_series(self, id, new_name):
-        if id:
-            self.conn.execute('UPDATE series SET name=? WHERE id=?', (new_name, id))
-            self.conn.commit()
+    def rename_series(self, old_id, new_name):
+        new_id = self.conn.get(
+                    '''SELECT id from series
+                       WHERE name=?''', (new_name,), all=False)
+        if new_id is None or old_id == new_id:
+            self.conn.execute('UPDATE series SET name=? WHERE id=?',
+                              (new_name, old_id))
+        else:
+            # New series exists. Must update the link, then assign a
+            # new series index to each of the books.
+
+            # Get the list of books where we must update the series index
+            books = self.conn.get('''SELECT books.id
+                                     FROM books, books_series_link as lt
+                                     WHERE books.id = lt.book AND lt.series=?
+                                     ORDER BY books.series_index''', (old_id,))
+            # Get the next series index
+            index = self.get_next_series_num_for(new_name)
+            # Now update the link table
+            self.conn.execute('''UPDATE books_series_link
+                                 SET series=?
+                                 WHERE series=?''',(new_id, old_id,))
+            # Now set the indices
+            for (book_id,) in books:
+                self.conn.execute('''UPDATE books
+                                     SET series_index=?
+                                     WHERE id=?''',(index, book_id,))
+                index = index + 1
+        self.conn.commit()
+
 
     def delete_series_using_id(self, id):
-        if id:
-            books = self.conn.get('SELECT book from books_series_link WHERE series=?', (id,))
-            self.conn.execute('DELETE FROM books_series_link WHERE series=?', (id,))
-            self.conn.execute('DELETE FROM series WHERE id=?', (id,))
-            self.conn.commit()
-            for (book_id,) in books:
-                self.conn.execute('UPDATE books SET series_index=1.0 WHERE id=?', (book_id,))
+        books = self.conn.get('SELECT book from books_series_link WHERE series=?', (id,))
+        self.conn.execute('DELETE FROM books_series_link WHERE series=?', (id,))
+        self.conn.execute('DELETE FROM series WHERE id=?', (id,))
+        self.conn.commit()
+        for (book_id,) in books:
+            self.conn.execute('UPDATE books SET series_index=1.0 WHERE id=?', (book_id,))
 
     def get_publishers_with_ids(self):
         result = self.conn.get('SELECT id,name FROM publishers')
@@ -1044,43 +1090,118 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return []
         return result
 
-    def rename_publisher(self, id, new_name):
-        if id:
-            self.conn.execute('UPDATE publishers SET name=? WHERE id=?', (new_name, id))
-            self.conn.commit()
+    def rename_publisher(self, old_id, new_name):
+        new_id = self.conn.get(
+                    '''SELECT id from publishers
+                       WHERE name=?''', (new_name,), all=False)
+        if new_id is None or old_id == new_id:
+            # New name doesn't exist. Simply change the old name
+            self.conn.execute('UPDATE publishers SET name=? WHERE id=?', \
+                              (new_name, old_id))
+        else:
+            # Change the link table to point at the new one
+            self.conn.execute('''UPDATE books_publishers_link
+                                 SET publisher=?
+                                 WHERE publisher=?''',(new_id, old_id,))
+            # Get rid of the no-longer used publisher
+            self.conn.execute('DELETE FROM publishers WHERE id=?', (old_id,))
+        self.conn.commit()
 
-    def delete_publisher_using_id(self, id):
-        if id:
-            self.conn.execute('DELETE FROM books_publishers_link WHERE publisher=?', (id,))
-            self.conn.execute('DELETE FROM publishers WHERE id=?', (id,))
-            self.conn.commit()
+    def delete_publisher_using_id(self, old_id):
+        self.conn.execute('''DELETE FROM books_publishers_link
+                             WHERE publisher=?''', (old_id,))
+        self.conn.execute('DELETE FROM publishers WHERE id=?', (old_id,))
+        self.conn.commit()
 
     # There is no editor for author, so we do not need get_authors_with_ids or
     # delete_author_using_id.
-    def rename_author(self, id, new_name):
-        if id:
-            # Make sure that any commas in new_name are changed to '|'!
-            new_name = new_name.replace(',', '|')
-            self.conn.execute('UPDATE authors SET name=? WHERE id=?', (new_name, id))
-            self.conn.commit()
-            # now must fix up the books
-            books = self.conn.get('SELECT book from books_authors_link WHERE author=?', (id,))
-            for (book_id,) in books:
-                # First, must refresh the cache to see the new authors
-                self.data.refresh_ids(self, [book_id])
-                # now fix the filesystem paths
-                self.set_path(book_id, index_is_id=True)
-                # Next fix the author sort. Reset it to the default
+
+    def rename_author(self, old_id, new_name):
+        # Make sure that any commas in new_name are changed to '|'!
+        new_name = new_name.replace(',', '|')
+
+        # Get the list of books we must fix up, one way or the other
+        # Save the list so we can use it twice
+        bks = self.conn.get('SELECT book from books_authors_link WHERE author=?', (old_id,))
+        books = []
+        for (book_id,) in bks:
+            books.append(book_id)
+
+        # check if the new author already exists
+        new_id = self.conn.get('SELECT id from authors WHERE name=?',
+                                (new_name,), all=False)
+        if new_id is None or old_id == new_id:
+            # No name clash. Go ahead and update the author's name
+            self.conn.execute('UPDATE authors SET name=? WHERE id=?',
+                              (new_name, old_id))
+        else:
+            # First check for the degenerate case -- changing a value to itself.
+            # Update it in case there is a change of case, but do nothing else
+            if old_id == new_id:
+                self.conn.execute('UPDATE authors SET name=? WHERE id=?',
+                              (new_name, old_id))
+                self.conn.commit()
+                return
+            # Author exists. To fix this, we must replace all the authors
+            # instead of replacing the one. Reason: db integrity checks can stop
+            # the rename process, which would leave everything half-done. We
+            # can't do it the same way as tags (delete and add) because author
+            # order is important.
+
+            for book_id in books:
+                # Get the existing list of authors
                 authors = self.conn.get('''
-                    SELECT authors.name
-                    FROM authors, books_authors_link as bl
-                    WHERE bl.book = ? and bl.author = authors.id
-                ''' , (book_id,))
-                # unpack the double-list structure
+                    SELECT author from books_authors_link
+                    WHERE book=?
+                    ORDER BY id''',(book_id,))
+
+                # unpack the double-list structure, replacing the old author
+                # with the new one while we are at it
                 for i,aut in enumerate(authors):
-                    authors[i] = aut[0]
-                ss = authors_to_sort_string(authors)
-                self.conn.execute('UPDATE books SET author_sort=? WHERE id=?', (ss, id))
+                    authors[i] = aut[0] if aut[0] != old_id else new_id
+                # Delete the existing authors list
+                self.conn.execute('''DELETE FROM books_authors_link
+                                     WHERE book=?''',(book_id,))
+                # Change the authors to the new list
+                for aid in authors:
+                    try:
+                        self.conn.execute('''
+                            INSERT INTO books_authors_link(book, author)
+                            VALUES (?,?)''', (book_id, aid))
+                    except IntegrityError:
+                        # Sometimes books specify the same author twice in their
+                        # metadata. Ignore it.
+                        pass
+            # Now delete the old author from the DB
+            bks = self.conn.get('SELECT book FROM books_authors_link WHERE author=?', (old_id,))
+            self.conn.execute('DELETE FROM authors WHERE id=?', (old_id,))
+        self.conn.commit()
+        # the authors are now changed, either by changing the author's name
+        # or replacing the author in the list. Now must fix up the books.
+        for book_id in books:
+            # First, must refresh the cache to see the new authors
+            self.data.refresh_ids(self, [book_id])
+            # now fix the filesystem paths
+            self.set_path(book_id, index_is_id=True)
+            # Next fix the author sort. Reset it to the default
+            authors = self.conn.get('''
+                SELECT authors.name
+                FROM authors, books_authors_link as bl
+                WHERE bl.book = ? and bl.author = authors.id
+                ORDER BY bl.id
+            ''' , (book_id,))
+            # unpack the double-list structure
+            for i,aut in enumerate(authors):
+                authors[i] = aut[0]
+            ss = authors_to_sort_string(authors)
+            # Change the '|'s to ','
+            ss = ss.replace('|', ',')
+            self.conn.execute('''UPDATE books
+                                 SET author_sort=?
+                                 WHERE id=?''', (ss, book_id))
+            self.conn.commit()
+            # the caller will do a general refresh, so we don't need to
+            # do one here
 
     # end convenience methods
 
@@ -1183,12 +1304,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
             self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
         self.conn.commit()
-        try:
-            row = self.row(id)
-            if row is not None:
-                self.data.set(row, 9, series)
-        except ValueError:
-            pass
         self.data.set(id, self.FIELD_MAP['series'], series, row_is_id=True)
         if notify:
             self.notify('metadata', [id])
@@ -1721,6 +1836,8 @@ books_series_link      feeds
             os.remove(self.dbpath)
             shutil.copyfile(dest, self.dbpath)
             self.connect()
+            self.field_metadata.remove_dynamic_categories()
+            self.field_metadata.remove_custom_fields()
             self.initialize_dynamic()
             self.refresh()
         if os.path.exists(dest):

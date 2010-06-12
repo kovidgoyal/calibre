@@ -36,4 +36,29 @@ class ESLICK(USBMS):
 
     SUPPORTS_SUB_DIRS = True
 
+    @classmethod
+    def can_handle(cls, dev, debug=False):
+        return (dev[3], dev[4]) != ('philips', 'Philips d')
+
+
+
+class EBK52(ESLICK):
+
+    name           = 'EBK-52 Device Interface'
+    gui_name       = 'Sigmatek EBK'
+    description    = _('Communicate with the Sigmatek eBook reader.')
+
+    FORMATS     = ['epub', 'fb2', 'pdf', 'txt']
+
+    VENDOR_NAME = ''
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOK_READER'
+
+    MAIN_MEMORY_VOLUME_LABEL  = 'Sigmatek Main Memory'
+    STORAGE_CARD_VOLUME_LABEL = 'Sigmatek Storage Card'
+
+
+    @classmethod
+    def can_handle(cls, dev, debug=False):
+        return (dev[3], dev[4]) == ('philips', 'Philips d')
+
 

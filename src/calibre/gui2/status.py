@@ -52,10 +52,7 @@ class BookInfoDisplay(QWidget):
             QLabel.__init__(self)
             self.setMaximumWidth(81)
             self.setMaximumHeight(108)
-            self.default_pixmap = QPixmap(coverpath).scaled(self.maximumWidth(),
-                                                            self.maximumHeight(),
-                                                            Qt.IgnoreAspectRatio,
-                                                            Qt.SmoothTransformation)
+            self.default_pixmap = QPixmap(coverpath)
             self.setScaledContents(True)
             self.statusbar_height = 120
             self.setPixmap(self.default_pixmap)
@@ -64,7 +61,7 @@ class BookInfoDisplay(QWidget):
             pixmap = self.pixmap()
             pwidth, pheight = pixmap.width(), pixmap.height()
             width, height = fit_image(pwidth, pheight,
-                                              pwidth, self.statusbar_height-12)[1:]
+                                              pwidth, self.statusbar_height-20)[1:]
             self.setMaximumHeight(height)
             try:
                 aspect_ratio = pwidth/float(pheight)
@@ -165,17 +162,48 @@ class BookInfoDisplay(QWidget):
         self.updateGeometry()
         self.setVisible(True)
 
-
-class StatusBar(QStatusBar):
-
-    resized = pyqtSignal(object)
-    files_dropped = pyqtSignal(object, object)
-    show_book_info = pyqtSignal()
+class StatusBarInterface(object):
 
     def initialize(self, systray=None):
         self.systray = systray
         self.notifier = get_notifier(systray)
-        self.book_info = BookInfoDisplay(self.clearMessage)
+
+    def show_message(self, msg, timeout=0):
+        QStatusBar.showMessage(self, msg, timeout)
+        if self.notifier is not None and not config['disable_tray_notification']:
+            if isosx and isinstance(msg, unicode):
+                try:
+                    msg = msg.encode(preferred_encoding)
+                except UnicodeEncodeError:
+                    msg = msg.encode('utf-8')
+            self.notifier(msg)
+
+    def clear_message(self):
+        QStatusBar.clearMessage(self)
+
+class BookDetailsInterface(object):
+
+    # These signals must be defined in the class implementing this interface
+    files_dropped = None
+    show_book_info = None
+
+    def reset_info(self):
+        raise NotImplementedError()
+
+    def show_data(self, data):
+        raise NotImplementedError()
+
+class StatusBar(QStatusBar, StatusBarInterface, BookDetailsInterface):
+
+    files_dropped = pyqtSignal(object, object)
+    show_book_info = pyqtSignal()
+
+
+    resized = pyqtSignal(object)
+
+    def initialize(self, systray=None):
+        StatusBarInterface.initialize(self, systray=systray)
+        self.book_info = BookInfoDisplay(self.clear_message)
         self.book_info.setAcceptDrops(True)
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidget(self.book_info)
@@ -195,15 +223,6 @@ class StatusBar(QStatusBar):
     def reset_info(self):
         self.book_info.show_data({})
 
-    def showMessage(self, msg, timeout=0):
-        ret = QStatusBar.showMessage(self, msg, timeout)
-        if self.notifier is not None and not config['disable_tray_notification']:
-            if isosx and isinstance(msg, unicode):
-                try:
-                    msg = msg.encode(preferred_encoding)
-                except UnicodeEncodeError:
-                    msg = msg.encode('utf-8')
-            self.notifier(msg)
-        return ret
-
+    def show_data(self, data):
+        self.book_info.show_data(data)
 

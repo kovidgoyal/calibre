@@ -115,7 +115,8 @@ public:
   QSize slideSize() const;
 
   /*!
-    Sets the dimension of each slide (in pixels).
+    Sets the dimension of each slide (in pixels). Do not use this method directly
+    instead use resize which automatically sets an appropriate slide size.
   */  
   void setSlideSize(QSize size);
 

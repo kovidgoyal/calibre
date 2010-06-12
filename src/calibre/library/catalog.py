@@ -83,7 +83,7 @@ class CSV_XML(CatalogPlugin):
 
         if not len(data):
             log.error("\nNo matching database entries for search criteria '%s'" % opts.search_text)
-            raise SystemExit(1)
+            #raise SystemExit(1)
 
         # Get the requested output fields as a list
         fields = self.get_output_fields(opts)

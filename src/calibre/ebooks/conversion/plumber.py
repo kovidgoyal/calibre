@@ -706,15 +706,22 @@ OptionRecommendation(name='timestamp',
             for rec in group:
                 setattr(self.opts, rec.option.name, rec.recommended_value)
 
-        for x in input_profiles():
-            if x.short_name == self.opts.input_profile:
-                self.opts.input_profile = x
-                break
+        def set_profile(profiles, which):
+            attr = which + '_profile'
+            sval = getattr(self.opts, attr)
+            for x in profiles():
+                if x.short_name == sval:
+                    setattr(self.opts, attr, x)
+                    return
+            self.log.warn(
+                'Profile (%s) %r is no longer available, using default'%(which, sval))
+            for x in profiles():
+                if x.short_name == 'default':
+                    setattr(self.opts, attr, x)
+                    break
 
-        for x in output_profiles():
-            if x.short_name == self.opts.output_profile:
-                self.opts.output_profile = x
-                break
+        set_profile(input_profiles, 'input')
+        set_profile(output_profiles, 'output')
 
         self.read_user_metadata()
         self.opts.no_inline_navbars = self.opts.output_profile.supports_mobi_indexing \

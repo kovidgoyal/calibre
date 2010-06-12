@@ -445,7 +445,7 @@ class OPDSServer(object):
 
         id_ = 'calibre-category-feed:'+which
 
-        MAX_ITEMS = 50
+        MAX_ITEMS = self.opts.max_opds_ungrouped_items
 
         if len(items) <= MAX_ITEMS:
             max_items = self.opts.max_opds_items
@@ -459,8 +459,6 @@ class OPDSServer(object):
                     self.text, self.count = text, count
 
             starts = set([x.name[0] for x in items])
-            if len(starts) > MAX_ITEMS:
-                starts = set([x.name[:2] for x in items])
             category_groups = OrderedDict()
             for x in sorted(starts, cmp=lambda x,y:cmp(x.lower(), y.lower())):
                 category_groups[x] = len([y for y in items if

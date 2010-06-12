@@ -1,6 +1,8 @@
 from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
+# Imports {{{
 import os, traceback, Queue, time, socket, cStringIO, re
 from threading import Thread, RLock
 from itertools import repeat
@@ -27,7 +29,9 @@ from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 
-class DeviceJob(BaseJob):
+# }}}
+
+class DeviceJob(BaseJob): # {{{
 
     def __init__(self, func, done, job_manager, args=[], kwargs={},
             description=''):
@@ -78,8 +82,9 @@ class DeviceJob(BaseJob):
     def log_file(self):
         return cStringIO.StringIO(self._details.encode('utf-8'))
 
+    # }}}
 
-class DeviceManager(Thread):
+class DeviceManager(Thread): # {{{
 
     def __init__(self, connected_slot, job_manager, open_feedback_slot, sleep_time=2):
         '''
@@ -122,7 +127,7 @@ class DeviceManager(Thread):
             try:
                 dev.open()
             except:
-                print 'Unable to open device', dev
+                prints('Unable to open device', str(dev))
                 traceback.print_exc()
                 continue
             self.connected_device = dev
@@ -168,11 +173,11 @@ class DeviceManager(Thread):
             if possibly_connected_devices:
                 if not self.do_connect(possibly_connected_devices,
                                        is_folder_device=False):
-                    print 'Connect to device failed, retrying in 5 seconds...'
+                    prints('Connect to device failed, retrying in 5 seconds...')
                     time.sleep(5)
                     if not self.do_connect(possibly_connected_devices,
                                        is_folder_device=False):
-                        print 'Device connect failed again, giving up'
+                        prints('Device connect failed again, giving up')
 
     def umount_device(self, *args):
         if self.is_device_connected and not self.job_manager.has_device_jobs():
@@ -317,7 +322,7 @@ class DeviceManager(Thread):
     def _save_books(self, paths, target):
         '''Copy books from device to disk'''
         for path in paths:
-            name = path.rpartition(getattr(self.device, 'path_sep', '/'))[2]
+            name = path.rpartition(os.sep)[2]
             dest = os.path.join(target, name)
             if os.path.abspath(dest) != os.path.abspath(path):
                 f = open(dest, 'wb')
@@ -338,8 +343,9 @@ class DeviceManager(Thread):
         return self.create_job(self._view_book, done, args=[path, target],
                         description=_('View book on device'))
 
+    # }}}
 
-class DeviceAction(QAction):
+class DeviceAction(QAction): # {{{
 
     a_s = pyqtSignal(object)
 
@@ -356,9 +362,9 @@ class DeviceAction(QAction):
     def __repr__(self):
         return self.__class__.__name__ + ':%s:%s:%s'%(self.dest, self.delete,
                 self.specific)
+    # }}}
 
-
-class DeviceMenu(QMenu):
+class DeviceMenu(QMenu): # {{{
 
     fetch_annotations = pyqtSignal()
     connect_to_folder = pyqtSignal()
@@ -385,16 +391,14 @@ class DeviceMenu(QMenu):
                     default_account = (dest, False, False, I('mail.svg'),
                             _('Email to')+' '+account)
                 action1 = DeviceAction(dest, False, False, I('mail.svg'),
-                        _('Email to')+' '+account, self)
+                        _('Email to')+' '+account)
                 action2 = DeviceAction(dest, True, False, I('mail.svg'),
-                        _('Email to')+' '+account, self)
+                        _('Email to')+' '+account+ _(' and delete from library'))
                 map(self.email_to_menu.addAction, (action1, action2))
                 map(self._memory.append, (action1, action2))
                 self.email_to_menu.addSeparator()
-                self.connect(action1, SIGNAL('a_s(QAction)'),
-                            self.action_triggered)
-                self.connect(action2, SIGNAL('a_s(QAction)'),
-                            self.action_triggered)
+                action1.a_s.connect(self.action_triggered)
+                action2.a_s.connect(self.action_triggered)
 
         basic_actions = [
                 ('main:', False, False,  I('reader.svg'),
@@ -532,8 +536,9 @@ class DeviceMenu(QMenu):
         annot_enable = enable and getattr(device, 'SUPPORTS_ANNOTATIONS', False)
         self.annotation_action.setEnabled(annot_enable)
 
+    # }}}
 
-class Emailer(Thread):
+class Emailer(Thread): # {{{
 
     def __init__(self, timeout=60):
         Thread.__init__(self)
@@ -590,8 +595,12 @@ class Emailer(Thread):
                 results.append([jobname, e, traceback.format_exc()])
         callback(results)
 
+    # }}}
 
-class DeviceGUI(object):
+class DeviceMixin(object):
+
+    def __init__(self):
+        self.db_book_uuid_cache = set()
 
     def dispatch_sync_event(self, dest, delete, specific):
         rows = self.library_view.selectionModel().selectedRows()
@@ -637,7 +646,7 @@ class DeviceGUI(object):
         if not ids or len(ids) == 0:
             return
         files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
-                                    fmts, paths=True, set_metadata=True,
+                                    fmts, set_metadata=True,
                                     specific_format=specific_format,
                                     exclude_auto=do_auto_convert)
         if do_auto_convert:
@@ -647,7 +656,6 @@ class DeviceGUI(object):
             _auto_ids = []
 
         full_metadata = self.library_view.model().metadata_for(ids)
-        files = [getattr(f, 'name', None) for f in files]
 
         bad, remove_ids, jobnames = [], [], []
         texts, subjects, attachments, attachment_names = [], [], [], []
@@ -679,7 +687,7 @@ class DeviceGUI(object):
             self.emailer.send_mails(jobnames,
                     Dispatcher(partial(self.emails_sent, remove=remove)),
                     attachments, to_s, subjects, texts, attachment_names)
-            self.status_bar.showMessage(_('Sending email to')+' '+to, 3000)
+            self.status_bar.show_message(_('Sending email to')+' '+to, 3000)
 
         auto = []
         if _auto_ids != []:
@@ -740,7 +748,7 @@ class DeviceGUI(object):
                             '%s'%errors, show=True
                         )
         else:
-            self.status_bar.showMessage(_('Sent by email:') + ', '.join(good),
+            self.status_bar.show_message(_('Sent by email:') + ', '.join(good),
                     5000)
 
     def cover_to_thumbnail(self, data):
@@ -760,7 +768,7 @@ class DeviceGUI(object):
         for account, fmts in accounts:
             files, auto = self.library_view.model().\
                     get_preferred_formats_from_ids([id], fmts)
-            files = [f.name for f in files if f is not None]
+            files = [f for f in files if f is not None]
             if not files:
                 continue
             attachment = files[0]
@@ -779,7 +787,7 @@ class DeviceGUI(object):
                     attachments, to_s, subjects, texts, attachment_names)
             sent_mails.append(to_s[0])
         if sent_mails:
-            self.status_bar.showMessage(_('Sent news to')+' '+\
+            self.status_bar.show_message(_('Sent news to')+' '+\
                     ', '.join(sent_mails),  3000)
 
     def sync_catalogs(self, send_ids=None, do_auto_convert=True):
@@ -824,7 +832,7 @@ class DeviceGUI(object):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id,
-                    os.path.splitext(f.name)[1]))
+                    os.path.splitext(f)[1]))
                 if mi.cover and os.access(mi.cover, os.R_OK):
                     mi.thumbnail = self.cover_to_thumbnail(open(mi.cover,
                         'rb').read())
@@ -837,13 +845,14 @@ class DeviceGUI(object):
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
-                        memory=[[f.name for f in files], remove])
-                self.status_bar.showMessage(_('Sending catalogs to device.'), 5000)
+                        memory=[files, remove])
+                self.status_bar.show_message(_('Sending catalogs to device.'), 5000)
 
 
 
     def sync_news(self, send_ids=None, do_auto_convert=True):
         if self.device_connected:
+            del_on_upload = config['delete_news_from_library_on_upload']
             settings = self.device_manager.device.settings()
             ids = list(dynamic.get('news_to_be_synced', set([]))) if send_ids is None else send_ids
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
@@ -873,6 +882,8 @@ class DeviceGUI(object):
                             'the device?'), det_msg=autos):
                         self.auto_convert_news(auto, format)
             files = [f for f in files if f is not None]
+            for f in files:
+                f.deleted_after_upload = del_on_upload
             if not files:
                 dynamic.set('news_to_be_synced', set([]))
                 return
@@ -884,22 +895,21 @@ class DeviceGUI(object):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id,
-                    os.path.splitext(f.name)[1]))
+                    os.path.splitext(f)[1]))
                 if mi.cover and os.access(mi.cover, os.R_OK):
                     mi.thumbnail = self.cover_to_thumbnail(open(mi.cover,
                         'rb').read())
             dynamic.set('news_to_be_synced', set([]))
             if config['upload_news_to_device'] and files:
-                remove = ids if \
-                    config['delete_news_from_library_on_upload'] else []
+                remove = ids if del_on_upload else []
                 space = { self.location_view.model().free[0] : None,
                     self.location_view.model().free[1] : 'carda',
                     self.location_view.model().free[2] : 'cardb' }
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
-                        memory=[[f.name for f in files], remove])
-                self.status_bar.showMessage(_('Sending news to device.'), 5000)
+                        memory=[files, remove])
+                self.status_bar.show_message(_('Sending news to device.'), 5000)
 
 
     def sync_to_device(self, on_card, delete_from_library,
@@ -914,7 +924,7 @@ class DeviceGUI(object):
 
         _files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
                                     settings.format_map,
-                                    paths=True, set_metadata=True,
+                                    set_metadata=True,
                                     specific_format=specific_format,
                                     exclude_auto=do_auto_convert)
         if do_auto_convert:
@@ -930,9 +940,8 @@ class DeviceGUI(object):
                 mi.thumbnail = self.cover_to_thumbnail(open(mi.cover, 'rb').read())
         imetadata = iter(metadata)
 
-        files = [getattr(f, 'name', None) for f in _files]
         bad, good, gf, names, remove_ids = [], [], [], [], []
-        for f in files:
+        for f in _files:
             mi = imetadata.next()
             id = ids.next()
             if f is None:
@@ -954,7 +963,7 @@ class DeviceGUI(object):
                 names.append('%s_%d%s'%(prefix, id, os.path.splitext(f)[1]))
         remove = remove_ids if delete_from_library else []
         self.upload_books(gf, names, good, on_card, memory=(_files, remove))
-        self.status_bar.showMessage(_('Sending books to device.'), 5000)
+        self.status_bar.show_message(_('Sending books to device.'), 5000)
 
         auto = []
         if _auto_ids != []:
@@ -1129,6 +1138,13 @@ class DeviceGUI(object):
                         in cache['authors']:
                     loc[i] = True
                     continue
+                # Also check author sort, because it can be used as author in
+                # some formats
+                if mi.author_sort and \
+                        re.sub('(?u)\W|[_]', '', mi.author_sort.lower()) \
+                        in cache['authors']:
+                    loc[i] = True
+                    continue
         return loc
 
     def set_books_in_library(self, booklists, reset=False):
@@ -1141,10 +1157,16 @@ class DeviceGUI(object):
                 mi = db.get_metadata(id, index_is_id=True)
                 title = re.sub('(?u)\W|[_]', '', mi.title.lower())
                 if title not in self.db_book_title_cache:
-                    self.db_book_title_cache[title] = {'authors':{}, 'db_ids':{}}
-                authors = authors_to_string(mi.authors).lower() if mi.authors else ''
-                authors = re.sub('(?u)\W|[_]', '', authors)
-                self.db_book_title_cache[title]['authors'][authors] = mi
+                    self.db_book_title_cache[title] = \
+                                {'authors':{}, 'author_sort':{}, 'db_ids':{}}
+                if mi.authors:
+                    authors = authors_to_string(mi.authors).lower()
+                    authors = re.sub('(?u)\W|[_]', '', authors)
+                    self.db_book_title_cache[title]['authors'][authors] = mi
+                if mi.author_sort:
+                    aus = mi.author_sort.lower()
+                    aus = re.sub('(?u)\W|[_]', '', aus)
+                    self.db_book_title_cache[title]['author_sort'][aus] = mi
                 self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
                 self.db_book_uuid_cache.add(mi.uuid)
 
@@ -1175,12 +1197,19 @@ class DeviceGUI(object):
                         book.smart_update(d['db_ids'][book.db_id])
                         resend_metadata = True
                         continue
-                    book_authors = authors_to_string(book.authors).lower() if book.authors else ''
-                    book_authors = re.sub('(?u)\W|[_]', '', book_authors)
-                    if book_authors in d['authors']:
-                        book.in_library = True
-                        book.smart_update(d['authors'][book_authors])
-                        resend_metadata = True
+                    if book.authors:
+                        # Compare against both author and author sort, because
+                        # either can appear as the author
+                        book_authors = authors_to_string(book.authors).lower()
+                        book_authors = re.sub('(?u)\W|[_]', '', book_authors)
+                        if book_authors in d['authors']:
+                            book.in_library = True
+                            book.smart_update(d['authors'][book_authors])
+                            resend_metadata = True
+                        elif book_authors in d['author_sort']:
+                            book.in_library = True
+                            book.smart_update(d['author_sort'][book_authors])
+                            resend_metadata = True
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
                 if not asort and book.authors:

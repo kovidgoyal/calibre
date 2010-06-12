@@ -7,16 +7,18 @@ __docformat__ = 'restructuredtext en'
 Module to implement the Cover Flow feature
 '''
 
-import sys, os
+import sys, os, time
 
-from PyQt4.QtGui import QImage, QSizePolicy
-from PyQt4.QtCore import Qt, QSize, SIGNAL, QObject
+from PyQt4.Qt import QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, \
+        QStackedLayout, QLabel
 
 from calibre import plugins
-from calibre.gui2 import config
+from calibre.gui2 import config, available_height, available_width
+
 pictureflow, pictureflowerror = plugins['pictureflow']
 
 if pictureflow is not None:
+
     class EmptyImageList(pictureflow.FlowImages):
         def __init__(self):
             pictureflow.FlowImages.__init__(self)
@@ -51,7 +53,7 @@ if pictureflow is not None:
         def __init__(self, model, buffer=20):
             pictureflow.FlowImages.__init__(self)
             self.model = model
-            QObject.connect(self.model, SIGNAL('modelReset()'), self.reset)
+            self.model.modelReset.connect(self.reset)
 
         def count(self):
             return self.model.count()
@@ -66,7 +68,7 @@ if pictureflow is not None:
             return ans
 
         def reset(self):
-            self.emit(SIGNAL('dataChanged()'))
+            self.dataChanged.emit()
 
         def image(self, index):
             return self.model.cover(index)
@@ -74,13 +76,17 @@ if pictureflow is not None:
 
     class CoverFlow(pictureflow.PictureFlow):
 
-        def __init__(self, height=300, parent=None, text_height=25):
+        def __init__(self, parent=None):
             pictureflow.PictureFlow.__init__(self, parent,
                                 config['cover_flow_queue_length']+1)
-            self.setSlideSize(QSize(int(2/3. * height), height))
-            self.setMinimumSize(QSize(int(2.35*0.67*height), (5/3.)*height+text_height))
+            self.setMinimumSize(QSize(300, 150))
             self.setFocusPolicy(Qt.WheelFocus)
-            self.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
+            self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
+                QSizePolicy.Expanding))
+            self.setZoomFactor(150)
+
+        def sizeHint(self):
+            return self.minimumSize()
 
         def wheelEvent(self, ev):
             ev.accept()
@@ -95,6 +101,118 @@ else:
     DatabaseImages = None
     FileSystemImages = None
 
+class CoverFlowMixin(object):
+
+    def __init__(self):
+        self.cover_flow = None
+        if CoverFlow is not None:
+            self.cf_last_updated_at = None
+            self.cover_flow_sync_timer = QTimer(self)
+            self.cover_flow_sync_timer.timeout.connect(self.cover_flow_do_sync)
+            self.cover_flow_sync_flag = True
+            self.cover_flow = CoverFlow(parent=self)
+            self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
+            self.library_view.selectionModel().currentRowChanged.connect(
+                    self.sync_cf_to_listview)
+            self.db_images = DatabaseImages(self.library_view.model())
+            self.cover_flow.setImages(self.db_images)
+        else:
+            self.cover_flow = QLabel('<p>'+_('Cover browser could not be loaded')
+                    +'<br>'+pictureflowerror)
+            self.cover_flow.setWordWrap(True)
+        if config['separate_cover_flow']:
+            self.cb_splitter.button.clicked.connect(self.toggle_cover_browser)
+            if CoverFlow is not None:
+                self.cover_flow.stop.connect(self.hide_cover_browser)
+        else:
+            self.cb_splitter.insertWidget(self.cb_splitter.side_index, self.cover_flow)
+            if CoverFlow is not None:
+                self.cover_flow.stop.connect(self.cb_splitter.hide_side_pane)
+        self.cb_splitter.button.toggled.connect(self.cover_browser_toggled)
+
+    def toggle_cover_browser(self):
+        cbd = getattr(self, 'cb_dialog', None)
+        if cbd is not None:
+            self.hide_cover_browser()
+        else:
+            self.show_cover_browser()
+
+    def cover_browser_toggled(self, *args):
+        if self.cb_splitter.button.isChecked():
+            self.cover_browser_shown()
+        else:
+            self.cover_browser_hidden()
+
+    def cover_browser_shown(self):
+        self.cover_flow.setFocus(Qt.OtherFocusReason)
+        if CoverFlow is not None:
+            self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
+            self.cover_flow_sync_timer.start(500)
+        self.library_view.setCurrentIndex(
+                self.library_view.currentIndex())
+        self.library_view.scroll_to_row(self.library_view.currentIndex().row())
+
+    def cover_browser_hidden(self):
+        if CoverFlow is not None:
+            self.cover_flow_sync_timer.stop()
+            idx = self.library_view.model().index(self.cover_flow.currentSlide(), 0)
+            if idx.isValid():
+                sm = self.library_view.selectionModel()
+                sm.select(idx, sm.ClearAndSelect|sm.Rows)
+                self.library_view.setCurrentIndex(idx)
+                self.library_view.scroll_to_row(idx.row())
+
+
+    def show_cover_browser(self):
+        d = QDialog(self)
+        ah, aw = available_height(), available_width()
+        d.resize(int(aw/1.5), ah-60)
+        d._layout = QStackedLayout()
+        d.setLayout(d._layout)
+        d.setWindowTitle(_('Browse by covers'))
+        d.layout().addWidget(self.cover_flow)
+        self.cover_flow.setVisible(True)
+        self.cover_flow.setFocus(Qt.OtherFocusReason)
+        d.show()
+        self.cb_splitter.button.set_state_to_hide()
+        d.finished.connect(self.cb_splitter.button.set_state_to_show)
+        self.cb_dialog = d
+
+    def hide_cover_browser(self):
+        cbd = getattr(self, 'cb_dialog', None)
+        if cbd is not None:
+            cbd.accept()
+            self.cb_dialog = None
+
+    def sync_cf_to_listview(self, current, previous):
+        if self.cover_flow_sync_flag and self.cover_flow.isVisible() and \
+                self.cover_flow.currentSlide() != current.row():
+            self.cover_flow.setCurrentSlide(current.row())
+        self.cover_flow_sync_flag = True
+
+    def cover_flow_do_sync(self):
+        self.cover_flow_sync_flag = True
+        try:
+            if self.cover_flow.isVisible() and self.cf_last_updated_at is not None and \
+                time.time() - self.cf_last_updated_at > 0.5:
+                self.cf_last_updated_at = None
+                row = self.cover_flow.currentSlide()
+                m = self.library_view.model()
+                index = m.index(row, 0)
+                if self.library_view.currentIndex().row() != row and index.isValid():
+                    self.cover_flow_sync_flag = False
+                    self.library_view.scroll_to_row(index.row())
+                    sm = self.library_view.selectionModel()
+                    sm.select(index, sm.ClearAndSelect|sm.Rows)
+                    self.library_view.setCurrentIndex(index)
+        except:
+            pass
+
+
+    def sync_listview_to_cf(self, row):
+        self.cf_last_updated_at = time.time()
+
+
 def main(args=sys.argv):
     return 0
 
@@ -103,12 +221,12 @@ if __name__ == '__main__':
     app = QApplication([])
     w = QMainWindow()
     cf = CoverFlow()
-    cf.resize(cf.minimumSize())
-    w.resize(cf.minimumSize()+QSize(30, 20))
+    cf.resize(int(available_width()/1.5), available_height()-60)
+    w.resize(cf.size()+QSize(30, 20))
     path = sys.argv[1]
     model = FileSystemImages(sys.argv[1])
+    cf.currentChanged[int].connect(model.currentChanged)
     cf.setImages(model)
-    cf.connect(cf, SIGNAL('currentChanged(int)'), model.currentChanged)
     w.setCentralWidget(cf)
 
     w.show()

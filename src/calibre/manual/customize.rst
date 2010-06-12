@@ -8,15 +8,32 @@ Customizing |app|
 ==================================
 
 |app| has a highly modular design. Various parts of it can be customized. You can learn how to create
-*recipes* to add new sources of online content to |app| in the Section :ref:`news`. Here, you will learn how to
-use *plugins* to customize and control various aspects of |app|'s behavior. 
-
-Theer are different kinds of plugins, corresponding to different aspects of |app|. As more and more aspects of |app|
-are modularized, new plugin types will be added.
+*recipes* to add new sources of online content to |app| in the Section :ref:`news`. Here, you will learn,
+first, how to use environment variables and *tweaks* to customize |app|'s behavior and then how to
+use *plugins* to add funtionality to |app|.
 
 .. contents::
     :depth: 2
     :local:
+
+Environment variables
+-----------------------
+
+    * ``CALIBRE_CONFIG_DIRECTORY`` - sets the directory where configuration files are stored/read.
+    * ``CALIBRE_OVERRIDE_DATABASE_PATH`` - allows you to specify the full path to metadata.db. Using this variable you can have metadata.db be in a location other than the library folder. Useful if your library folder is on a networked drive that does not support file locking.
+    * ``CALIBRE_DEVELOP_FROM`` - Used to run from a calibre development environment. See :ref:`develop`.
+    * ``CALIBRE_OVERRIDE_LANG`` - Used to force the language used by the interface (ISO 639 language code)
+    * ``SYSFS_PATH`` - Use if sysfs is mounted somewhere other than /sys
+    * ``http_proxy`` - Used on linux to specify an HTTP proxy
+
+Tweaks
+------------
+
+Tweaks are small changes that you can specify to control various aspects of |app|'s behavior. You specify them by editing the 2tweaks.py file in the config directory.
+The default tweaks.py file is reproduced below
+
+.. literalinclude:: ../../../resources/default_tweaks.py
+
 
 A Hello World plugin
 ------------------------

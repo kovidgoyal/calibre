@@ -26,6 +26,15 @@ class BooksView(QTableView): # {{{
 
     def __init__(self, parent, modelcls=BooksModel):
         QTableView.__init__(self, parent)
+
+        self.setDragEnabled(True)
+        self.setDragDropOverwriteMode(False)
+        self.setDragDropMode(self.DragDrop)
+        self.setAlternatingRowColors(True)
+        self.setSelectionBehavior(self.SelectRows)
+        self.setShowGrid(False)
+        self.setWordWrap(False)
+
         self.rating_delegate = RatingDelegate(self)
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
@@ -283,7 +292,8 @@ class BooksView(QTableView): # {{{
             old_state['column_positions'][name] = i
             if name != 'ondevice':
                 old_state['column_sizes'][name] = \
-                    max(self.sizeHintForColumn(i), h.sectionSizeHint(i))
+                    min(350, max(self.sizeHintForColumn(i),
+                        h.sectionSizeHint(i)))
                 if name == 'timestamp':
                     old_state['column_sizes'][name] += 12
         return old_state
@@ -426,6 +436,26 @@ class BooksView(QTableView): # {{{
         if dy != 0:
             self.column_header.update()
 
+    def scroll_to_row(self, row):
+        if row > -1:
+            h = self.horizontalHeader()
+            for i in range(h.count()):
+                if not h.isSectionHidden(i):
+                    self.scrollTo(self.model().index(row, i))
+                    break
+
+    def set_current_row(self, row, select=True):
+        if row > -1:
+            h = self.horizontalHeader()
+            for i in range(h.count()):
+                if not h.isSectionHidden(i):
+                    index = self.model().index(row, i)
+                    self.setCurrentIndex(index)
+                    if select:
+                        sm = self.selectionModel()
+                        sm.select(index, sm.ClearAndSelect|sm.Rows)
+                    break
+
     def close(self):
         self._model.close()
 
@@ -436,10 +466,6 @@ class BooksView(QTableView): # {{{
         sb.search.connect(self._model.search)
         self._search_done = search_done
         self._model.searched.connect(self.search_done)
-
-    def connect_to_restriction_set(self, tv):
-        # must be synchronous (not queued)
-        tv.restriction_set.connect(self._model.set_search_restriction)
 
     def connect_to_book_display(self, bd):
         self._model.new_bookdisplay_data.connect(bd)

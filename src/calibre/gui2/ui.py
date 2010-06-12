@@ -16,9 +16,9 @@ from threading import Thread
 from functools import partial
 from PyQt4.Qt import Qt, SIGNAL, QObject, QUrl, QTimer, \
                      QModelIndex, QPixmap, QColor, QPainter, QMenu, QIcon, \
-                     QToolButton, QDialog, QDesktopServices, \
+                     QDialog, QDesktopServices, \
                      QSystemTrayIcon, QApplication, QKeySequence, QAction, \
-                     QMessageBox, QStackedLayout, QHelpEvent, QInputDialog,\
+                     QMessageBox, QHelpEvent, QInputDialog,\
                      QThread, pyqtSignal
 from PyQt4.QtSvg import QSvgRenderer
 
@@ -29,30 +29,27 @@ from calibre.utils.filenames import ascii_filename
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
-from calibre.utils.search_query_parser import saved_searches
 from calibre.devices.errors import UserFeedback
 from calibre.gui2 import warning_dialog, choose_files, error_dialog, \
                            question_dialog,\
                            pixmap_to_data, choose_dir, \
                            Dispatcher, gprefs, \
-                           available_height, \
                            max_available_height, config, info_dialog, \
-                           available_width, GetMetadata
-from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
+                           GetMetadata
+from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator, IMAGE_EXTENSIONS
 from calibre.gui2.wizard import move_library
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.main_ui import Ui_MainWindow
-from calibre.gui2.device import DeviceManager, DeviceMenu, DeviceGUI, Emailer
-from calibre.gui2.jobs import JobManager, JobsDialog
+from calibre.gui2.device import DeviceManager, DeviceMenu, DeviceMixin, Emailer
+from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook, \
     fetch_scheduled_recipe, generate_catalog
 from calibre.gui2.dialogs.config import ConfigDialog
-from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -60,24 +57,12 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.caches import CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.dialogs.tag_categories import TagCategories
-from calibre.gui2.dialogs.tag_list_editor import TagListEditor
-from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
+from calibre.gui2.init import ToolbarMixin, LibraryViewMixin, LayoutMixin
+from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
+from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
+from calibre.gui2.tag_view import TagBrowserMixin
 
-class SaveMenu(QMenu):
-
-    def __init__(self, parent):
-        QMenu.__init__(self, _('Save single format to disk...'), parent)
-        for ext in sorted(BOOK_EXTENSIONS):
-            action = self.addAction(ext.upper())
-            setattr(self, 'do_'+ext, partial(self.do, ext))
-            self.connect(action, SIGNAL('triggered(bool)'),
-                    getattr(self, 'do_'+ext))
-
-    def do(self, ext, *args):
-        self.emit(SIGNAL('save_fmt(PyQt_PyObject)'), ext)
-
-class Listener(Thread):
+class Listener(Thread): # {{{
 
     def __init__(self, listener):
         Thread.__init__(self)
@@ -102,7 +87,9 @@ class Listener(Thread):
         except:
             pass
 
-class SystemTrayIcon(QSystemTrayIcon):
+# }}}
+
+class SystemTrayIcon(QSystemTrayIcon): # {{{
 
     def __init__(self, icon, parent):
         QSystemTrayIcon.__init__(self, icon, parent)
@@ -115,7 +102,11 @@ class SystemTrayIcon(QSystemTrayIcon):
             return True
         return QSystemTrayIcon.event(self, ev)
 
-class Main(MainWindow, Ui_MainWindow, DeviceGUI):
+# }}}
+
+class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
+        TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
+        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin):
     'The main GUI'
 
     def set_default_thumbnail(self, height):
@@ -152,35 +143,25 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.check_messages_timer.start(1000)
 
         Ui_MainWindow.__init__(self)
-        self.setupUi(self)
-        self.setWindowTitle(__appname__)
+
+        # Jobs Button {{{
+        self.job_manager = JobManager()
+        self.jobs_dialog = JobsDialog(self, self.job_manager)
+        self.jobs_button = JobsButton()
+        self.jobs_button.initialize(self.jobs_dialog, self.job_manager)
+        # }}}
+
+        LayoutMixin.__init__(self)
 
         self.restriction_count_of_books_in_view = 0
         self.restriction_count_of_books_in_library = 0
         self.restriction_in_effect = False
-        self.search.initialize('main_search_history', colorize=True,
-                help_text=_('Search (For Advanced Search click the button to the left)'))
-        self.connect(self.clear_button, SIGNAL('clicked()'), self.search_clear)
-        self.connect(self.clear_button, SIGNAL('clicked()'), self.saved_search.clear_to_help)
-        self.search_clear()
-
-        self.saved_search.initialize(saved_searches, self.search, colorize=True,
-                help_text=_('Saved Searches'))
-        self.connect(self.save_search_button, SIGNAL('clicked()'),
-                self.saved_search.save_search_button_clicked)
-        self.connect(self.delete_search_button, SIGNAL('clicked()'),
-                self.saved_search.delete_search_button_clicked)
-        self.connect(self.copy_search_button, SIGNAL('clicked()'),
-                self.saved_search.copy_search_button_clicked)
 
         self.progress_indicator = ProgressIndicator(self)
         self.verbose = opts.verbose
         self.get_metadata = GetMetadata()
-        self.read_settings()
-        self.job_manager = JobManager()
         self.emailer = Emailer()
         self.emailer.start()
-        self.jobs_dialog = JobsDialog(self, self.job_manager)
         self.upload_memory = {}
         self.delete_memory = {}
         self.conversion_jobs = {}
@@ -226,22 +207,23 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.quit_action, SIGNAL('triggered(bool)'), self.quit)
         self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
         self.connect(self.restore_action, SIGNAL('triggered()'),
-                self.show_windows)
+                        self.show_windows)
         self.connect(self.action_show_book_details,
-                SIGNAL('triggered(bool)'), self.show_book_info)
+                     SIGNAL('triggered(bool)'), self.show_book_info)
         self.connect(self.action_restart, SIGNAL('triggered()'),
                      self.restart)
         self.connect(self.system_tray_icon,
-                SIGNAL('activated(QSystemTrayIcon::ActivationReason)'),
-                self.system_tray_icon_activated)
-        self.tool_bar.contextMenuEvent = self.no_op
+                     SIGNAL('activated(QSystemTrayIcon::ActivationReason)'),
+                     self.system_tray_icon_activated)
+
+        DeviceMixin.__init__(self)
 
         ####################### Start spare job server ########################
         QTimer.singleShot(1000, self.add_spare_server)
 
         ####################### Setup device detection ########################
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
-                self.job_manager, Dispatcher(self.status_bar.showMessage))
+                self.job_manager, Dispatcher(self.status_bar.show_message))
         self.device_manager.start()
 
 
@@ -271,298 +253,31 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.update_checker.update_found.connect(self.update_found,
                     type=Qt.QueuedConnection)
             self.update_checker.start()
+
         ####################### Status Bar #####################
         self.status_bar.initialize(self.system_tray_icon)
-        self.status_bar.show_book_info.connect(self.show_book_info)
-        self.status_bar.files_dropped.connect(self.files_dropped_on_book)
+        self.book_details.show_book_info.connect(self.show_book_info)
+        self.book_details.files_dropped.connect(self.files_dropped_on_book)
 
         ####################### Setup Toolbar #####################
-        md = QMenu()
-        md.addAction(_('Edit metadata individually'))
-        md.addSeparator()
-        md.addAction(_('Edit metadata in bulk'))
-        md.addSeparator()
-        md.addAction(_('Download metadata and covers'))
-        md.addAction(_('Download only metadata'))
-        md.addAction(_('Download only covers'))
-        md.addAction(_('Download only social metadata'))
-        self.metadata_menu = md
+        ToolbarMixin.__init__(self)
 
-        mb = QMenu()
-        mb.addAction(_('Merge into first selected book - delete others'))
-        mb.addSeparator()
-        mb.addAction(_('Merge into first selected book - keep others'))
-        self.merge_menu = mb
-        self.action_merge.setMenu(mb)
-        md.addSeparator()
-        md.addAction(self.action_merge)
-
-        self.add_menu = QMenu()
-        self.add_menu.addAction(_('Add books from a single directory'))
-        self.add_menu.addAction(_('Add books from directories, including '
-            'sub-directories (One book per directory, assumes every ebook '
-            'file is the same book in a different format)'))
-        self.add_menu.addAction(_('Add books from directories, including '
-            'sub directories (Multiple books per directory, assumes every '
-            'ebook file is a different book)'))
-        self.add_menu.addAction(_('Add Empty book. (Book entry with no '
-            'formats)'))
-        self.action_add.setMenu(self.add_menu)
-        QObject.connect(self.action_add, SIGNAL("triggered(bool)"),
-                self.add_books)
-        QObject.connect(self.add_menu.actions()[0], SIGNAL("triggered(bool)"),
-                self.add_books)
-        QObject.connect(self.add_menu.actions()[1], SIGNAL("triggered(bool)"),
-                self.add_recursive_single)
-        QObject.connect(self.add_menu.actions()[2], SIGNAL("triggered(bool)"),
-                self.add_recursive_multiple)
-        QObject.connect(self.add_menu.actions()[3], SIGNAL('triggered(bool)'),
-                self.add_empty)
-        QObject.connect(self.action_del, SIGNAL("triggered(bool)"),
-                self.delete_books)
-        QObject.connect(self.action_edit, SIGNAL("triggered(bool)"),
-                self.edit_metadata)
-        self.__em1__ = partial(self.edit_metadata, bulk=False)
-        QObject.connect(md.actions()[0], SIGNAL('triggered(bool)'),
-                self.__em1__)
-        self.__em2__ = partial(self.edit_metadata, bulk=True)
-        QObject.connect(md.actions()[2], SIGNAL('triggered(bool)'),
-                self.__em2__)
-        self.__em3__ = partial(self.download_metadata, covers=True)
-        QObject.connect(md.actions()[4], SIGNAL('triggered(bool)'),
-                self.__em3__)
-        self.__em4__ = partial(self.download_metadata, covers=False)
-        QObject.connect(md.actions()[5], SIGNAL('triggered(bool)'),
-                self.__em4__)
-        self.__em5__ = partial(self.download_metadata, covers=True,
-                    set_metadata=False, set_social_metadata=False)
-        QObject.connect(md.actions()[6], SIGNAL('triggered(bool)'),
-                self.__em5__)
-        self.__em6__ = partial(self.download_metadata, covers=False,
-                    set_metadata=False, set_social_metadata=True)
-        QObject.connect(md.actions()[7], SIGNAL('triggered(bool)'),
-                self.__em6__)
-
-        QObject.connect(self.action_merge, SIGNAL("triggered(bool)"),
-                self.merge_books)
-        QObject.connect(mb.actions()[0], SIGNAL('triggered(bool)'),
-                self.merge_books)
-        self.__mb1__ = partial(self.merge_books, safe_merge=True)
-        QObject.connect(mb.actions()[2], SIGNAL('triggered(bool)'),
-                self.__mb1__)
-
-        self.save_menu = QMenu()
-        self.save_menu.addAction(_('Save to disk'))
-        self.save_menu.addAction(_('Save to disk in a single directory'))
-        self.save_menu.addAction(_('Save only %s format to disk')%
-                prefs['output_format'].upper())
-        self.save_menu.addAction(
-                _('Save only %s format to disk in a single directory')%
-                prefs['output_format'].upper())
-
-        self.save_sub_menu = SaveMenu(self)
-        self.save_menu.addMenu(self.save_sub_menu)
-        self.connect(self.save_sub_menu, SIGNAL('save_fmt(PyQt_PyObject)'),
-                self.save_specific_format_disk)
-
-        self.view_menu = QMenu()
-        self.view_menu.addAction(_('View'))
-        ac = self.view_menu.addAction(_('View specific format'))
-        ac.setShortcut((Qt.ControlModifier if isosx else Qt.AltModifier)+Qt.Key_V)
-        self.action_view.setMenu(self.view_menu)
-
-        self.delete_menu = QMenu()
-        self.delete_menu.addAction(_('Remove selected books'))
-        self.delete_menu.addAction(
-                _('Remove files of a specific format from selected books..'))
-        self.delete_menu.addAction(
-                _('Remove all formats from selected books, except...'))
-        self.delete_menu.addAction(
-                _('Remove covers from selected books'))
-        self.action_del.setMenu(self.delete_menu)
-        QObject.connect(self.action_save, SIGNAL("triggered(bool)"),
-                self.save_to_disk)
-        QObject.connect(self.save_menu.actions()[0], SIGNAL("triggered(bool)"),
-                self.save_to_disk)
-        QObject.connect(self.save_menu.actions()[1], SIGNAL("triggered(bool)"),
-                self.save_to_single_dir)
-        QObject.connect(self.save_menu.actions()[2], SIGNAL("triggered(bool)"),
-                self.save_single_format_to_disk)
-        QObject.connect(self.save_menu.actions()[3], SIGNAL("triggered(bool)"),
-                self.save_single_fmt_to_single_dir)
-        QObject.connect(self.action_view, SIGNAL("triggered(bool)"),
-                self.view_book)
-        QObject.connect(self.view_menu.actions()[0],
-                SIGNAL("triggered(bool)"), self.view_book)
-        QObject.connect(self.view_menu.actions()[1],
-                SIGNAL("triggered(bool)"), self.view_specific_format,
-                Qt.QueuedConnection)
-        self.connect(self.action_open_containing_folder,
-                SIGNAL('triggered(bool)'), self.view_folder)
-
-        self.delete_menu.actions()[0].triggered.connect(self.delete_books)
-        self.delete_menu.actions()[1].triggered.connect(self.delete_selected_formats)
-        self.delete_menu.actions()[2].triggered.connect(self.delete_all_but_selected_formats)
-        self.delete_menu.actions()[3].triggered.connect(self.delete_covers)
-
-        self.action_open_containing_folder.setShortcut(Qt.Key_O)
-        self.addAction(self.action_open_containing_folder)
-        self.action_sync.setShortcut(Qt.Key_D)
-        self.action_sync.setEnabled(True)
-        self.create_device_menu()
-        self.connect(self.action_sync, SIGNAL('triggered(bool)'),
-                self._sync_action_triggered)
-
-        self.action_edit.setMenu(md)
-        self.action_save.setMenu(self.save_menu)
-
-        cm = QMenu()
-        cm.addAction(_('Convert individually'))
-        cm.addAction(_('Bulk convert'))
-        cm.addSeparator()
-        ac = cm.addAction(
-                _('Create catalog of books in your calibre library'))
-        ac.triggered.connect(self.generate_catalog)
-        self.action_convert.setMenu(cm)
-        self._convert_single_hook = partial(self.convert_ebook, bulk=False)
-        QObject.connect(cm.actions()[0],
-                SIGNAL('triggered(bool)'), self._convert_single_hook)
-        self._convert_bulk_hook = partial(self.convert_ebook, bulk=True)
-        QObject.connect(cm.actions()[1],
-                SIGNAL('triggered(bool)'), self._convert_bulk_hook)
-        QObject.connect(self.action_convert,
-                SIGNAL('triggered(bool)'), self.convert_ebook)
-        self.convert_menu = cm
-
-        pm = QMenu()
-        ap = self.action_preferences
-        pm.addAction(ap.icon(), ap.text())
-        pm.addAction(QIcon(I('wizard.svg')), _('Run welcome wizard'))
-        self.connect(pm.actions()[0], SIGNAL('triggered(bool)'),
-                self.do_config)
-        self.connect(pm.actions()[1], SIGNAL('triggered(bool)'),
-                self.run_wizard)
-        self.action_preferences.setMenu(pm)
-        self.preferences_menu = pm
-
-        self.tool_bar.widgetForAction(self.action_news).\
-                setPopupMode(QToolButton.MenuButtonPopup)
-        self.tool_bar.widgetForAction(self.action_edit).\
-                setPopupMode(QToolButton.MenuButtonPopup)
-        self.tool_bar.widgetForAction(self.action_sync).\
-                setPopupMode(QToolButton.MenuButtonPopup)
-        self.tool_bar.widgetForAction(self.action_convert).\
-                setPopupMode(QToolButton.MenuButtonPopup)
-        self.tool_bar.widgetForAction(self.action_save).\
-                setPopupMode(QToolButton.MenuButtonPopup)
-        self.tool_bar.widgetForAction(self.action_add).\
-                setPopupMode(QToolButton.MenuButtonPopup)
-        self.tool_bar.widgetForAction(self.action_view).\
-                setPopupMode(QToolButton.MenuButtonPopup)
-        self.tool_bar.widgetForAction(self.action_del).\
-                setPopupMode(QToolButton.MenuButtonPopup)
-        self.tool_bar.widgetForAction(self.action_preferences).\
-                setPopupMode(QToolButton.MenuButtonPopup)
-        self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
-
-        self.connect(self.preferences_action, SIGNAL('triggered(bool)'),
-                self.do_config)
-        self.connect(self.action_preferences, SIGNAL('triggered(bool)'),
-                self.do_config)
-        QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'),
-                self.do_advanced_search)
-
-        for ch in self.tool_bar.children():
-            if isinstance(ch, QToolButton):
-                ch.setCursor(Qt.PointingHandCursor)
+        ####################### Search boxes ########################
+        SavedSearchBoxMixin.__init__(self)
+        SearchBoxMixin.__init__(self)
 
         ####################### Library view ########################
-        similar_menu = QMenu(_('Similar books...'))
-        similar_menu.addAction(self.action_books_by_same_author)
-        similar_menu.addAction(self.action_books_in_this_series)
-        similar_menu.addAction(self.action_books_with_the_same_tags)
-        similar_menu.addAction(self.action_books_by_this_publisher)
-        self.action_books_by_same_author.setShortcut(Qt.ALT + Qt.Key_A)
-        self.action_books_in_this_series.setShortcut(Qt.ALT + Qt.Key_S)
-        self.action_books_by_this_publisher.setShortcut(Qt.ALT + Qt.Key_P)
-        self.action_books_with_the_same_tags.setShortcut(Qt.ALT+Qt.Key_T)
-        self.addAction(self.action_books_by_same_author)
-        self.addAction(self.action_books_by_this_publisher)
-        self.addAction(self.action_books_in_this_series)
-        self.addAction(self.action_books_with_the_same_tags)
-        self.similar_menu = similar_menu
-        self.connect(self.action_books_by_same_author, SIGNAL('triggered()'),
-                     lambda : self.show_similar_books('author'))
-        self.connect(self.action_books_in_this_series, SIGNAL('triggered()'),
-                     lambda : self.show_similar_books('series'))
-        self.connect(self.action_books_with_the_same_tags,
-                     SIGNAL('triggered()'),
-                     lambda : self.show_similar_books('tag'))
-        self.connect(self.action_books_by_this_publisher, SIGNAL('triggered()'),
-                     lambda : self.show_similar_books('publisher'))
-        self.library_view.set_context_menu(self.action_edit, self.action_sync,
-                                        self.action_convert, self.action_view,
-                                        self.action_save,
-                                        self.action_open_containing_folder,
-                                        self.action_show_book_details,
-                                        self.action_del,
-                                        similar_menu=similar_menu)
-
-        self.memory_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del)
-        self.card_a_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del)
-        self.card_b_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del)
-
-        self.library_view.files_dropped.connect(self.files_dropped, type=Qt.QueuedConnection)
-        for func, args in [
-                             ('connect_to_search_box', (self.search,
-                                 self.search_done)),
-                             ('connect_to_book_display',
-                                 (self.status_bar.book_info.show_data,)),
-                             ('connect_to_restriction_set',
-                                 (self.tags_view,)),
-                             ]:
-            for view in (self.library_view, self.memory_view, self.card_a_view, self.card_b_view):
-                getattr(view, func)(*args)
-
-        self.memory_view.connect_dirtied_signal(self.upload_booklists)
-        self.card_a_view.connect_dirtied_signal(self.upload_booklists)
-        self.card_b_view.connect_dirtied_signal(self.upload_booklists)
+        LibraryViewMixin.__init__(self, db)
 
         self.show()
+
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
-        self.stack.setCurrentIndex(0)
-        self.book_on_device(None, reset=True)
-        db.set_book_on_device_func(self.book_on_device)
-        self.library_view.set_database(db)
-        self.library_view.model().set_book_on_device_func(self.book_on_device)
-        prefs['library_path'] = self.library_path
-        self.search.setFocus(Qt.OtherFocusReason)
         self.cover_cache = CoverCache(self.library_path)
         self.cover_cache.start()
         self.library_view.model().cover_cache = self.cover_cache
-        self.connect(self.edit_categories, SIGNAL('clicked()'), self.do_user_categories_edit)
-        self.tags_view.set_database(db, self.tag_match, self.popularity, self.search_restriction)
-        self.tags_view.tags_marked.connect(self.search.search_from_tags)
-        for x in (self.saved_search.clear_to_help, self.mark_restriction_set):
-            self.tags_view.restriction_set.connect(x)
-        self.tags_view.tags_marked.connect(self.saved_search.clear_to_help)
-        self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
-        self.tags_view.user_category_edit.connect(self.do_user_categories_edit)
-        self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
-        self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
-        self.tags_view.search_item_renamed.connect(self.saved_search.clear_to_help)
-        self.search.search.connect(self.tags_view.model().reinit)
-        for x in (self.location_view.count_changed, self.tags_view.recount,
-                self.restriction_count_changed):
-            self.library_view.model().count_changed_signal.connect(x)
-
-        self.connect(self.search, SIGNAL('cleared()'), self.search_box_cleared)
-        self.connect(self.saved_search, SIGNAL('changed()'),
-                     self.tags_view.saved_searches_changed, Qt.QueuedConnection)
+        self.library_view.model().count_changed_signal.connect \
+                                            (self.location_view.count_changed)
         if not gprefs.get('quick_start_guide_added', False):
             from calibre.ebooks.metadata import MetaInformation
             mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
@@ -582,48 +297,18 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 type=Qt.QueuedConnection)
 
         ########################### Tags Browser ##############################
-        self.search_restriction.setSizeAdjustPolicy(self.search_restriction.AdjustToMinimumContentsLengthWithIcon)
-        self.search_restriction.setMinimumContentsLength(10)
+        TagBrowserMixin.__init__(self, db)
 
+        ######################### Search Restriction ##########################
+        SearchRestrictionMixin.__init__(self)
 
         ########################### Cover Flow ################################
-        self.cover_flow = None
-        if CoverFlow is not None:
-            self.cf_last_updated_at = None
-            self.cover_flow_sync_timer = QTimer(self)
-            self.cover_flow_sync_timer.timeout.connect(self.cover_flow_do_sync)
-            self.cover_flow_sync_flag = True
-            text_height = 40 if config['separate_cover_flow'] else 25
-            ah = available_height()
-            cfh = ah-100
-            cfh = 3./5 * cfh - text_height
-            if not config['separate_cover_flow']:
-                cfh = 220 if ah > 950 else 170 if ah > 850 else 140
-            self.cover_flow = CoverFlow(height=cfh, text_height=text_height)
-            self.cover_flow.setVisible(False)
-            if not config['separate_cover_flow']:
-                self.library.layout().addWidget(self.cover_flow)
-            self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
-            self.library_view.selectionModel().currentRowChanged.connect(
-                    self.sync_cf_to_listview)
-            self.db_images = DatabaseImages(self.library_view.model())
-            self.cover_flow.setImages(self.db_images)
+
+        CoverFlowMixin.__init__(self)
 
         self._calculated_available_height = min(max_available_height()-15,
                 self.height())
         self.resize(self.width(), self._calculated_available_height)
-        self.search.setMaximumWidth(self.width()-150)
-
-        ####################### Side Bar ###############################
-
-        self.sidebar.initialize(self.jobs_dialog, self.cover_flow,
-                self.toggle_cover_flow, pictureflowerror,
-                self.vertical_splitter, self.horizontal_splitter)
-        QObject.connect(self.job_manager, SIGNAL('job_added(int)'),
-                self.sidebar.job_added, Qt.QueuedConnection)
-        QObject.connect(self.job_manager, SIGNAL('job_done(int)'),
-                self.sidebar.job_done, Qt.QueuedConnection)
-
 
 
         if config['autolaunch_server']:
@@ -644,47 +329,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.scheduler,
                 SIGNAL('start_recipe_fetch(PyQt_PyObject)'),
                 self.download_scheduled_recipe, Qt.QueuedConnection)
-        self.library_view.verticalHeader().sectionClicked.connect(self.view_specific_book)
-
-        for view in ('library', 'memory', 'card_a', 'card_b'):
-            view = getattr(self, view+'_view')
-            view.verticalHeader().sectionDoubleClicked.connect(self.view_specific_book)
 
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
 
         self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
 
-    def do_user_categories_edit(self, on_category=None):
-        d = TagCategories(self, self.library_view.model().db, on_category)
-        d.exec_()
-        if d.result() == d.Accepted:
-            self.tags_view.set_new_model()
-            self.tags_view.recount()
-
-    def do_tags_list_edit(self, tag, category):
-        d = TagListEditor(self, self.library_view.model().db, tag, category)
-        d.exec_()
-        if d.result() == d.Accepted:
-            # Clean up everything, as information could have changed for many books.
-            self.library_view.model().refresh()
-            self.tags_view.set_new_model()
-            self.tags_view.recount()
-            self.saved_search.clear_to_help()
-            self.search.clear_to_help()
-
-    def do_tag_item_renamed(self):
-        # Clean up library view and search
-        self.library_view.model().refresh()
-        self.saved_search.clear_to_help()
-        self.search.clear_to_help()
-
-    def do_saved_search_edit(self, search):
-        d = SavedSearchEditor(self, search)
-        d.exec_()
-        if d.result() == d.Accepted:
-            self.tags_view.saved_searches_changed(recount=True)
-            self.saved_search.clear_to_help()
+        self.read_settings()
+        self.finalize_layout()
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
@@ -767,162 +419,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             error_dialog(self, _('Failed to start content server'),
                          unicode(self.content_server.exception)).exec_()
 
-    def show_similar_books(self, type):
-        search, join = [], ' '
-        idx = self.library_view.currentIndex()
-        if not idx.isValid():
-            return
-        row = idx.row()
-        if type == 'series':
-            series = idx.model().db.series(row)
-            if series:
-                search = ['series:"'+series+'"']
-        elif type == 'publisher':
-            publisher = idx.model().db.publisher(row)
-            if publisher:
-                search = ['publisher:"'+publisher+'"']
-        elif type == 'tag':
-            tags = idx.model().db.tags(row)
-            if tags:
-                search = ['tag:"='+t+'"' for t in tags.split(',')]
-        elif type == 'author':
-            authors = idx.model().db.authors(row)
-            if authors:
-                search = ['author:"='+a.strip().replace('|', ',')+'"' \
-                                for a in authors.split(',')]
-                join = ' or '
-        if search:
-            self.search.set_search_string(join.join(search))
-
-    def toggle_cover_flow(self, show):
-        if config['separate_cover_flow']:
-            if show:
-                self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
-                d = QDialog(self)
-                ah, aw = available_height(), available_width()
-                d.resize(int(aw/2.), ah-60)
-                d._layout = QStackedLayout()
-                d.setLayout(d._layout)
-                d.setWindowTitle(_('Browse by covers'))
-                d.layout().addWidget(self.cover_flow)
-                self.cover_flow.setVisible(True)
-                self.cover_flow.setFocus(Qt.OtherFocusReason)
-                self.library_view.scrollTo(self.library_view.currentIndex())
-                d.show()
-                d.finished.connect(self.sidebar.external_cover_flow_finished)
-                self.cf_dialog = d
-                self.cover_flow_sync_timer.start(500)
-            else:
-                self.cover_flow_sync_timer.stop()
-                idx = self.library_view.model().index(self.cover_flow.currentSlide(), 0)
-                if idx.isValid():
-                    sm = self.library_view.selectionModel()
-                    sm.select(idx, sm.ClearAndSelect|sm.Rows)
-                    self.library_view.setCurrentIndex(idx)
-                cfd = getattr(self, 'cf_dialog', None)
-                if cfd is not None:
-                    self.cover_flow.setVisible(False)
-                    cfd.hide()
-                    self.cf_dialog = None
-        else:
-            if show:
-                self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
-                self.library_view.setCurrentIndex(
-                        self.library_view.currentIndex())
-                self.cover_flow.setVisible(True)
-                self.cover_flow.setFocus(Qt.OtherFocusReason)
-                self.library_view.scrollTo(self.library_view.currentIndex())
-                self.cover_flow_sync_timer.start(500)
-            else:
-                self.cover_flow_sync_timer.stop()
-                self.cover_flow.setVisible(False)
-                idx = self.library_view.model().index(self.cover_flow.currentSlide(), 0)
-                if idx.isValid():
-                    sm = self.library_view.selectionModel()
-                    sm.select(idx, sm.ClearAndSelect|sm.Rows)
-                    self.library_view.setCurrentIndex(idx)
-
-
-
-    '''
-    Handling of the count of books in a restricted view requires that
-    we capture the count after the initial restriction search. To so this,
-    we require that the restriction_set signal be issued before the search signal,
-    so that when the search_done happens and the count is displayed,
-    we can grab the count. This works because the search box is cleared
-    when a restriction is set, so that first search will find all books.
-
-    Adding and deleting books creates another complexity. When added, they are
-    displayed regardless of whether they match the restriction. However, if they
-    do not, they are removed at the next search. The counts must take this
-    behavior into effect.
-    '''
-
-    def restriction_count_changed(self, c):
-        self.restriction_count_of_books_in_view += c - self.restriction_count_of_books_in_library
-        self.restriction_count_of_books_in_library = c
-        if self.restriction_in_effect:
-            self.set_number_of_books_shown(compute_count=False)
-
-    def mark_restriction_set(self, r):
-        self.restriction_in_effect = False if r is None or not r else True
-
-    def set_number_of_books_shown(self, compute_count):
-        if self.current_view() == self.library_view and self.restriction_in_effect:
-            if compute_count:
-                self.restriction_count_of_books_in_view = self.current_view().row_count()
-            t = _("({0} of {1})").format(self.current_view().row_count(),
-                                         self.restriction_count_of_books_in_view)
-            self.search_count.setStyleSheet('QLabel { border-radius: 8px; background-color: yellow; }')
-        else: # No restriction or not library view
-            if not self.search.in_a_search():
-                t = _("(all books)")
-            else:
-                t = _("({0} of all)").format(self.current_view().row_count())
-            self.search_count.setStyleSheet(
-                    'QLabel { background-color: transparent; }')
-        self.search_count.setText(t)
-
-    def search_box_cleared(self):
-        self.set_number_of_books_shown(compute_count=True)
-        self.tags_view.clear()
-        self.saved_search.clear_to_help()
-
-    def search_clear(self):
-        self.set_number_of_books_shown(compute_count=True)
-        self.search.clear()
-
-    def search_done(self, view, ok):
-        if view is self.current_view():
-            self.search.search_done(ok)
-            self.set_number_of_books_shown(compute_count=False)
-
-    def sync_cf_to_listview(self, current, previous):
-        if self.cover_flow_sync_flag and self.cover_flow.isVisible() and \
-                self.cover_flow.currentSlide() != current.row():
-            self.cover_flow.setCurrentSlide(current.row())
-        self.cover_flow_sync_flag = True
-
-    def cover_flow_do_sync(self):
-        self.cover_flow_sync_flag = True
-        try:
-            if self.cover_flow.isVisible() and self.cf_last_updated_at is not None and \
-                time.time() - self.cf_last_updated_at > 0.5:
-                self.cf_last_updated_at = None
-                row = self.cover_flow.currentSlide()
-                m = self.library_view.model()
-                index = m.index(row, 0)
-                if self.library_view.currentIndex().row() != row and index.isValid():
-                    self.cover_flow_sync_flag = False
-                    sm = self.library_view.selectionModel()
-                    sm.select(index, sm.ClearAndSelect|sm.Rows)
-                    self.library_view.setCurrentIndex(index)
-        except:
-            pass
-
-
-    def sync_listview_to_cf(self, row):
-        self.cf_last_updated_at = time.time()
 
     def another_instance_wants_to_talk(self):
         try:
@@ -961,8 +457,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
-
-
     ########################## Connect to device ##############################
 
     def save_device_view_settings(self):
@@ -988,7 +482,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     Dispatcher(self.info_read))
             self.set_default_thumbnail(\
                     self.device_manager.device.THUMBNAIL_HEIGHT)
-            self.status_bar.showMessage(_('Device: ')+\
+            self.status_bar.show_message(_('Device: ')+\
                 self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
             self.device_connected = 'device' if not is_folder_device else 'folder'
@@ -1009,7 +503,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     dict(version=self.latest_version, device=' '))
             self.device_info = ' '
             if self.current_view() != self.library_view:
-                self.status_bar.reset_info()
+                self.book_details.reset_info()
                 self.location_view.setCurrentIndex(self.location_view.model().index(0))
             self.eject_action.setEnabled(False)
             self.refresh_ondevice_info (device_connected = False)
@@ -1300,21 +794,21 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 Dispatcher(self._files_added), spare_server=self.spare_server)
         self._adder.add_recursive(root, single)
 
-    def add_recursive_single(self, checked):
+    def add_recursive_single(self, *args):
         '''
         Add books from the local filesystem to either the library or the device
         recursively assuming one book per folder.
         '''
         self.add_recursive(True)
 
-    def add_recursive_multiple(self, checked):
+    def add_recursive_multiple(self, *args):
         '''
         Add books from the local filesystem to either the library or the device
         recursively assuming multiple books per folder.
         '''
         self.add_recursive(False)
 
-    def add_empty(self, checked):
+    def add_empty(self, *args):
         '''
         Add an empty book item to the library. This does not import any formats
         from a book file.
@@ -1367,14 +861,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             to_device = allow_device and self.stack.currentIndex() != 0
             self._add_books(books, to_device)
             if to_device:
-                self.status_bar.showMessage(\
+                self.status_bar.show_message(\
                         _('Uploading books to device.'), 2000)
 
 
     def add_filesystem_book(self, paths, allow_device=True):
         self._add_filesystem_book(paths, allow_device=allow_device)
 
-    def add_books(self, checked):
+    def add_books(self, *args):
         '''
         Add books from the local filesystem to either the library or the device.
         '''
@@ -1418,7 +912,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.upload_books(paths,
                                 list(map(ascii_filename, names)),
                                 infos, on_card=on_card)
-            self.status_bar.showMessage(
+            self.status_bar.show_message(
                     _('Uploading books to device.'), 2000)
         if getattr(self._adder, 'number_of_books_added', 0) > 0:
             self.library_view.model().books_added(self._adder.number_of_books_added)
@@ -1537,7 +1031,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             row = None
             if ci.isValid():
                 row = ci.row()
-            view.model().delete_books(rows)
+            ids_deleted = view.model().delete_books(rows)
+            for v in (self.memory_view, self.card_a_view, self.card_b_view):
+                if v is None:
+                    continue
+                v.model().clear_ondevice(ids_deleted)
             if row is not None:
                 ci = view.model().index(row, 0)
                 if ci.isValid():
@@ -1548,7 +1046,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if not confirm('<p>'+_('The selected books will be '
                                    '<b>permanently deleted</b> '
                                    'from your device. Are you sure?')
-                                +'</p>', 'library_delete_books', self):
+                                +'</p>', 'device_delete_books', self):
                 return
             if self.stack.currentIndex() == 1:
                 view = self.memory_view
@@ -1560,7 +1058,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             job = self.remove_paths(paths)
             self.delete_memory[job] = (paths, view.model())
             view.model().mark_for_deletion(job, rows)
-            self.status_bar.showMessage(_('Deleting books from device.'), 1000)
+            self.status_bar.show_message(_('Deleting books from device.'), 1000)
 
     def remove_paths(self, paths):
         return self.device_manager.delete_books(\
@@ -1582,6 +1080,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     self.booklists())
             model.paths_deleted(paths)
             self.upload_booklists()
+        # Clear the ondevice info so it will be recomputed
+        self.book_on_device(None, None, reset=True)
+        # We want to reset all the ondevice flags in the library. Use a big
+        # hammer, so we don't need to worry about whether some succeeded or not
+        self.library_view.model().refresh()
 
     ############################################################################
 
@@ -1921,7 +1424,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         job.catalog_file_path = out
         job.fmt = fmt
         job.catalog_sync, job.catalog_title = sync, title
-        self.status_bar.showMessage(_('Generating %s catalog...')%fmt)
+        self.status_bar.show_message(_('Generating %s catalog...')%fmt)
 
     def catalog_generated(self, job):
         if job.result:
@@ -1937,7 +1440,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             sync = dynamic.get('catalogs_to_be_synced', set([]))
             sync.add(id)
             dynamic.set('catalogs_to_be_synced', sync)
-        self.status_bar.showMessage(_('Catalog generated.'), 3000)
+        self.status_bar.show_message(_('Catalog generated.'), 3000)
         self.sync_catalogs()
         if job.fmt not in ['EPUB','MOBI']:
             export_dir = choose_dir(self, _('Export Catalog Directory'),
@@ -1955,7 +1458,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 Dispatcher(self.scheduled_recipe_fetched), func, args=args,
                            description=desc)
         self.conversion_jobs[job] = (temp_files, fmt, arg)
-        self.status_bar.showMessage(_('Fetching news from ')+arg['title'], 2000)
+        self.status_bar.show_message(_('Fetching news from ')+arg['title'], 2000)
 
     def scheduled_recipe_fetched(self, job):
         temp_files, fmt, arg = self.conversion_jobs.pop(job)
@@ -1969,7 +1472,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         sync.add(id)
         dynamic.set('news_to_be_synced', sync)
         self.scheduler.recipe_downloaded(arg)
-        self.status_bar.showMessage(arg['title'] + _(' fetched.'), 3000)
+        self.status_bar.show_message(arg['title'] + _(' fetched.'), 3000)
         self.email_news(id)
         self.sync_news()
 
@@ -2049,7 +1552,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             num = len(jobs)
 
         if num > 0:
-            self.status_bar.showMessage(_('Starting conversion of %d book(s)') %
+            self.status_bar.show_message(_('Starting conversion of %d book(s)') %
                 num, 2000)
 
     def queue_convert_jobs(self, jobs, changed, bad, rows, previous,
@@ -2096,7 +1599,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.library_view.model().db.add_format(book_id, \
                     fmt, data, index_is_id=True)
             data.close()
-            self.status_bar.showMessage(job.description + \
+            self.status_bar.show_message(job.description + \
                     (' completed'), 2000)
         finally:
             for f in temp_files:
@@ -2252,13 +1755,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################################################################
 
-    ########################### Do advanced search #############################
-
-    def do_advanced_search(self, *args):
-        d = SearchDialog(self)
-        if d.exec_() == QDialog.Accepted:
-            self.search.set_search_string(d.search_string())
-
     ############################################################################
 
     ############################### Do config ##################################
@@ -2280,12 +1776,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         d.exec_()
         self.content_server = d.server
         if d.result() == d.Accepted:
-            self.tool_bar.setIconSize(config['toolbar_icon_size'])
+            self.read_toolbar_settings()
             self.search.search_as_you_type(config['search_as_you_type'])
-            self.tool_bar.setToolButtonStyle(
-                    Qt.ToolButtonTextUnderIcon if \
-                            config['show_text_in_toolbar'] else \
-                            Qt.ToolButtonIconOnly)
             self.save_menu.actions()[2].setText(
                 _('Save only %s format to disk')%
                 prefs['output_format'].upper())
@@ -2304,14 +1796,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def library_moved(self, newloc):
         if newloc is None: return
         db = LibraryDatabase2(newloc)
+        self.library_path = newloc
         self.book_on_device(None, reset=True)
         db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
+        self.tags_view.set_database(db, self.tag_match, self.popularity)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
-        self.status_bar.clearMessage()
+        self.status_bar.clear_message()
         self.search.clear_to_help()
-        self.status_bar.reset_info()
+        self.book_details.reset_info()
         self.library_view.model().count_changed()
+        prefs['library_path'] = self.library_path
 
     ############################################################################
 
@@ -2336,8 +1831,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         page = 0 if location == 'library' else 1 if location == 'main' else 2 if location == 'carda' else 3
         self.stack.setCurrentIndex(page)
-        self.status_bar.reset_info()
-        self.sidebar.location_changed(location)
+        self.book_details.reset_info()
+        for x in ('tb', 'cb'):
+            splitter = getattr(self, x+'_splitter')
+            splitter.button.setEnabled(location == 'library')
         if location == 'library':
             self.action_edit.setEnabled(True)
             self.action_merge.setEnabled(True)
@@ -2358,7 +1855,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.search_restriction.setEnabled(False)
             for action in list(self.delete_menu.actions())[1:]:
                 action.setEnabled(False)
-        self.set_number_of_books_shown(compute_count=False)
+        self.set_number_of_books_shown()
 
 
     def device_job_exception(self, job):
@@ -2439,20 +1936,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         geometry = config['main_window_geometry']
         if geometry is not None:
             self.restoreGeometry(geometry)
-        self.tool_bar.setIconSize(config['toolbar_icon_size'])
-        self.tool_bar.setToolButtonStyle(
-                Qt.ToolButtonTextUnderIcon if \
-                    config['show_text_in_toolbar'] else \
-                    Qt.ToolButtonIconOnly)
-
+        self.read_toolbar_settings()
+        self.read_layout_settings()
 
     def write_settings(self):
         config.set('main_window_geometry', self.saveGeometry())
         dynamic.set('sort_history', self.library_view.model().sort_history)
-        self.sidebar.save_state()
-        for view in ('library_view', 'memory_view', 'card_a_view',
-                'card_b_view'):
-            getattr(self, view).save_state()
+        self.save_layout_state()
 
     def restart(self):
         self.quit(restart=True)
