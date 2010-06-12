@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 '''The main GUI'''
 
 import collections, datetime, os, shutil, sys, textwrap, time
-from xml.parsers.expat import ExpatError
 from Queue import Queue, Empty
 from threading import Thread
 from functools import partial
@@ -24,12 +23,11 @@ from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import  prints, patheq, strftime
 from calibre.constants import __version__, __appname__, isfrozen, islinux, \
-                    iswindows, isosx, filesystem_encoding, preferred_encoding
+                    isosx, filesystem_encoding, preferred_encoding
 from calibre.utils.filenames import ascii_filename
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
-from calibre.devices.errors import UserFeedback
 from calibre.gui2 import warning_dialog, choose_files, error_dialog, \
                            question_dialog,\
                            pixmap_to_data, choose_dir, \
@@ -40,10 +38,10 @@ from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator, IMAGE_EXTENSIONS
 from calibre.gui2.wizard import move_library
 from calibre.gui2.dialogs.scheduler import Scheduler
-from calibre.gui2.update import CheckForUpdates
+from calibre.gui2.update import UpdateMixin
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.main_ui import Ui_MainWindow
-from calibre.gui2.device import DeviceManager, DeviceMenu, DeviceMixin, Emailer
+from calibre.gui2.device import DeviceMixin
 from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
@@ -106,7 +104,7 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
-        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin):
+        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin):
     'The main GUI'
 
     def set_default_thumbnail(self, height):
@@ -152,6 +150,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         # }}}
 
         LayoutMixin.__init__(self)
+        DeviceMixin.__init__(self)
 
         self.restriction_count_of_books_in_view = 0
         self.restriction_count_of_books_in_library = 0
@@ -160,19 +159,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         self.progress_indicator = ProgressIndicator(self)
         self.verbose = opts.verbose
         self.get_metadata = GetMetadata()
-        self.emailer = Emailer()
-        self.emailer.start()
         self.upload_memory = {}
         self.delete_memory = {}
         self.conversion_jobs = {}
         self.persistent_files = []
         self.metadata_dialogs = []
         self.default_thumbnail = None
-        self.device_error_dialog = error_dialog(self, _('Error'),
-                _('Error communicating with device'), ' ')
-        self.device_error_dialog.setModal(Qt.NonModal)
         self.tb_wrapper = textwrap.TextWrapper(width=40)
-        self.device_connected = None
         self.viewers = collections.deque()
         self.content_server = None
         self.system_tray_icon = SystemTrayIcon(QIcon(I('library.png')), self)
@@ -216,16 +209,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
                      SIGNAL('activated(QSystemTrayIcon::ActivationReason)'),
                      self.system_tray_icon_activated)
 
-        DeviceMixin.__init__(self)
 
         ####################### Start spare job server ########################
         QTimer.singleShot(1000, self.add_spare_server)
-
-        ####################### Setup device detection ########################
-        self.device_manager = DeviceManager(Dispatcher(self.device_detected),
-                self.job_manager, Dispatcher(self.status_bar.show_message))
-        self.device_manager.start()
-
 
         ####################### Location View ########################
         QObject.connect(self.location_view,
@@ -248,12 +234,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         self.latest_version = ' '
         self.vanity.setText(self.vanity_template%dict(version=' ', device=' '))
         self.device_info = ' '
-        if not opts.no_update_check:
-            self.update_checker = CheckForUpdates(self)
-            self.update_checker.update_found.connect(self.update_found,
-                    type=Qt.QueuedConnection)
-            self.update_checker.start()
-
+        UpdateMixin.__init__(self, opts)
         ####################### Status Bar #####################
         self.status_bar.initialize(self.system_tray_icon)
         self.book_details.show_book_info.connect(self.show_book_info)
@@ -342,39 +323,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         MainWindow.resizeEvent(self, ev)
         self.search.setMaximumWidth(self.width()-150)
 
-    def connect_to_folder(self):
-        dir = choose_dir(self, 'Select Device Folder',
-                _('Select folder to open as device'))
-        if dir is not None:
-            self.device_manager.connect_to_folder(dir)
-
-    def disconnect_from_folder(self):
-        self.device_manager.disconnect_folder()
-
-    def _sync_action_triggered(self, *args):
-        m = getattr(self, '_sync_menu', None)
-        if m is not None:
-            m.trigger_default()
-
-    def create_device_menu(self):
-        self._sync_menu = DeviceMenu(self)
-        self.action_sync.setMenu(self._sync_menu)
-        self.connect(self._sync_menu,
-                SIGNAL('sync(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
-                self.dispatch_sync_event)
-        self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
-        self._sync_menu.connect_to_folder.connect(self.connect_to_folder)
-        self._sync_menu.disconnect_from_folder.connect(self.disconnect_from_folder)
-        if self.device_connected:
-            self._sync_menu.connect_to_folder_action.setEnabled(False)
-            if self.device_connected == 'folder':
-                self._sync_menu.disconnect_from_folder_action.setEnabled(True)
-            else:
-                self._sync_menu.disconnect_from_folder_action.setEnabled(False)
-        else:
-            self._sync_menu.connect_to_folder_action.setEnabled(True)
-            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
-
     def add_spare_server(self, *args):
         self.spare_servers.append(Server(limit=int(config['worker_limit']/2.0)))
 
@@ -457,108 +405,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
-    ########################## Connect to device ##############################
-
-    def save_device_view_settings(self):
-        model = self.location_view.model()
-        return
-        #self.memory_view.write_settings()
-        for x in range(model.rowCount()):
-            if x > 1:
-                if model.location_for_row(x) == 'carda':
-                    self.card_a_view.write_settings()
-                elif model.location_for_row(x) == 'cardb':
-                    self.card_b_view.write_settings()
-
-    def device_detected(self, connected, is_folder_device):
-        '''
-        Called when a device is connected to the computer.
-        '''
-        if connected:
-            self._sync_menu.connect_to_folder_action.setEnabled(False)
-            if is_folder_device:
-                self._sync_menu.disconnect_from_folder_action.setEnabled(True)
-            self.device_manager.get_device_information(\
-                    Dispatcher(self.info_read))
-            self.set_default_thumbnail(\
-                    self.device_manager.device.THUMBNAIL_HEIGHT)
-            self.status_bar.show_message(_('Device: ')+\
-                self.device_manager.device.__class__.get_gui_name()+\
-                        _(' detected.'), 3000)
-            self.device_connected = 'device' if not is_folder_device else 'folder'
-            self._sync_menu.enable_device_actions(True,
-                    self.device_manager.device.card_prefix(),
-                    self.device_manager.device)
-            self.location_view.model().device_connected(self.device_manager.device)
-            self.eject_action.setEnabled(True)
-            self.refresh_ondevice_info (device_connected = True, reset_only = True)
-        else:
-            self._sync_menu.connect_to_folder_action.setEnabled(True)
-            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
-            self.save_device_view_settings()
-            self.device_connected = None
-            self._sync_menu.enable_device_actions(False)
-            self.location_view.model().update_devices()
-            self.vanity.setText(self.vanity_template%\
-                    dict(version=self.latest_version, device=' '))
-            self.device_info = ' '
-            if self.current_view() != self.library_view:
-                self.book_details.reset_info()
-                self.location_view.setCurrentIndex(self.location_view.model().index(0))
-            self.eject_action.setEnabled(False)
-            self.refresh_ondevice_info (device_connected = False)
-
-    def info_read(self, job):
-        '''
-        Called once device information has been read.
-        '''
-        if job.failed:
-            return self.device_job_exception(job)
-        info, cp, fs = job.result
-        self.location_view.model().update_devices(cp, fs)
-        self.device_info = _('Connected ')+info[0]
-        self.vanity.setText(self.vanity_template%\
-                dict(version=self.latest_version, device=self.device_info))
-
-        self.device_manager.books(Dispatcher(self.metadata_downloaded))
-
-    def metadata_downloaded(self, job):
-        '''
-        Called once metadata has been read for all books on the device.
-        '''
-        if job.failed:
-            if isinstance(job.exception, ExpatError):
-                error_dialog(self, _('Device database corrupted'),
-                _('''
-                <p>The database of books on the reader is corrupted. Try the following:
-                <ol>
-                <li>Unplug the reader. Wait for it to finish regenerating the database (i.e. wait till it is ready to be used). Plug it back in. Now it should work with %(app)s. If not try the next step.</li>
-                <li>Quit %(app)s. Find the file media.xml in the reader's main memory. Delete it. Unplug the reader. Wait for it to regenerate the file. Re-connect it and start %(app)s.</li>
-                </ol>
-                ''')%dict(app=__appname__)).exec_()
-            else:
-                self.device_job_exception(job)
-            return
-        self.set_books_in_library(job.result, reset=True)
-        mainlist, cardalist, cardblist = job.result
-        self.memory_view.set_database(mainlist)
-        self.memory_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
-        self.card_a_view.set_database(cardalist)
-        self.card_a_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
-        self.card_b_view.set_database(cardblist)
-        self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
-        self.sync_news()
-        self.sync_catalogs()
-        self.refresh_ondevice_info(device_connected = True)
-
-    ############################################################################
-    ### Force the library view to refresh, taking into consideration books information
-    def refresh_ondevice_info(self, device_connected, reset_only = False):
-        self.book_on_device(None, reset=True)
-        if reset_only:
-            return
-        self.library_view.set_device_connected(device_connected)
-    ############################################################################
 
     ######################### Fetch annotations ################################
 
@@ -1060,31 +906,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
             view.model().mark_for_deletion(job, rows)
             self.status_bar.show_message(_('Deleting books from device.'), 1000)
 
-    def remove_paths(self, paths):
-        return self.device_manager.delete_books(\
-                Dispatcher(self.books_deleted), paths)
-
-    def books_deleted(self, job):
-        '''
-        Called once deletion is done on the device
-        '''
-        for view in (self.memory_view, self.card_a_view, self.card_b_view):
-            view.model().deletion_done(job, job.failed)
-        if job.failed:
-            self.device_job_exception(job)
-            return
-
-        if self.delete_memory.has_key(job):
-            paths, model = self.delete_memory.pop(job)
-            self.device_manager.remove_books_from_metadata(paths,
-                    self.booklists())
-            model.paths_deleted(paths)
-            self.upload_booklists()
-        # Clear the ondevice info so it will be recomputed
-        self.book_on_device(None, None, reset=True)
-        # We want to reset all the ondevice flags in the library. Use a big
-        # hammer, so we don't need to worry about whether some succeeded or not
-        self.library_view.model().refresh()
 
     ############################################################################
 
@@ -1858,35 +1679,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
         self.set_number_of_books_shown()
 
 
-    def device_job_exception(self, job):
-        '''
-        Handle exceptions in threaded device jobs.
-        '''
-        if isinstance(getattr(job, 'exception', None), UserFeedback):
-            ex = job.exception
-            func = {UserFeedback.ERROR:error_dialog,
-                    UserFeedback.WARNING:warning_dialog,
-                    UserFeedback.INFO:info_dialog}[ex.level]
-            return func(self, _('Failed'), ex.msg, det_msg=ex.details if
-                    ex.details else '', show=True)
-
-        try:
-            if 'Could not read 32 bytes on the control bus.' in \
-                    unicode(job.details):
-                error_dialog(self, _('Error talking to device'),
-                             _('There was a temporary error talking to the '
-                             'device. Please unplug and reconnect the device '
-                             'and or reboot.')).show()
-                return
-        except:
-            pass
-        try:
-            prints(job.details, file=sys.stderr)
-        except:
-            pass
-        if not self.device_error_dialog.isVisible():
-            self.device_error_dialog.setDetailedText(job.details)
-            self.device_error_dialog.show()
 
     def job_exception(self, job):
         if not hasattr(self, '_modeless_dialogs'):
@@ -2065,27 +1857,4 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin,
                 e.accept()
             else:
                 e.ignore()
-
-    def update_found(self, version):
-        os = 'windows' if iswindows else 'osx' if isosx else 'linux'
-        url = 'http://calibre-ebook.com/download_%s'%os
-        self.latest_version = '<br>' + _('<span style="color:red; font-weight:bold">'
-                'Latest version: <a href="%s">%s</a></span>')%(url, version)
-        self.vanity.setText(self.vanity_template%\
-                (dict(version=self.latest_version,
-                      device=self.device_info)))
-        self.vanity.update()
-        if config.get('new_version_notification') and \
-                dynamic.get('update to version %s'%version, True):
-            if question_dialog(self, _('Update available'),
-                    _('%s has been updated to version %s. '
-                    'See the <a href="http://calibre-ebook.com/whats-new'
-                    '">new features</a>. Visit the download pa'
-                    'ge?')%(__appname__, version)):
-                url = 'http://calibre-ebook.com/download_'+\
-                    ('windows' if iswindows else 'osx' if isosx else 'linux')
-                QDesktopServices.openUrl(QUrl(url))
-            dynamic.set('update to version %s'%version, False)
-
-
 
