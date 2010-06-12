@@ -49,12 +49,12 @@ class BookInfo(QDialog, Ui_BookInfo):
 
     def open_book_path(self, path):
         if os.sep in unicode(path):
-            QDesktopServices.openUrl(QUrl('file:'+path))
+            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
         else:
             format = unicode(path)
             path = self.view.model().db.format_abspath(self.current_row, format)
             if path is not None:
-                QDesktopServices.openUrl(QUrl('file:'+path))
+                QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
 
     def next(self):
