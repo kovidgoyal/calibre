@@ -132,6 +132,7 @@ class ToolbarMixin(object): # {{{
 
         self.action_open_containing_folder.setShortcut(Qt.Key_O)
         self.addAction(self.action_open_containing_folder)
+        self.action_open_containing_folder.triggered.connect(self.view_folder)
         self.action_sync.setShortcut(Qt.Key_D)
         self.action_sync.setEnabled(True)
         self.create_device_menu()
