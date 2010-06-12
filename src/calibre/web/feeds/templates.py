@@ -279,17 +279,33 @@ class TouchscreenFeedTemplate(Template):
             if not getattr(article, 'downloaded', False):
                 continue
             tr = TR()
-            td = TD(
-                    A(article.title, CLASS('summary_headline','calibre_rescale_120',
-                                    href=article.url))
-                    )
-            if article.author:
-                td.append(DIV(article.author,
-                    CLASS('summary_byline', 'calibre_rescale_100')))
-            if article.summary:
-                td.append(DIV(cutoff(article.text_summary),
-                    CLASS('summary_text', 'calibre_rescale_100')))
-            tr.append(td)
+
+            if True:
+                div_td = DIV(
+                        A(article.title, CLASS('summary_headline','calibre_rescale_120',
+                                        href=article.url)),
+                        style="display:inline-block")
+                if article.author:
+                    div_td.append(DIV(article.author,
+                        CLASS('summary_byline', 'calibre_rescale_100')))
+                if article.summary:
+                    div_td.append(DIV(cutoff(article.text_summary),
+                        CLASS('summary_text', 'calibre_rescale_100')))
+                tr.append(TD(div_td))
+            else:
+                td = TD(
+                        A(article.title, CLASS('summary_headline','calibre_rescale_120',
+                                        href=article.url))
+                        )
+                if article.author:
+                    td.append(DIV(article.author,
+                        CLASS('summary_byline', 'calibre_rescale_100')))
+                if article.summary:
+                    td.append(DIV(cutoff(article.text_summary),
+                        CLASS('summary_text', 'calibre_rescale_100')))
+
+                tr.append(td)
+
             toc.append(tr)
         div.append(toc)
 
