@@ -121,6 +121,7 @@ class BookInfo(QDialog, Ui_BookInfo):
                 f = f.strip()
                 info[_('Formats')] += '<a href="%s">%s</a>, '%(f,f)
         for key in info.keys():
+            if key == 'id': continue
             txt  = info[key]
             txt  = u'<br />\n'.join(textwrap.wrap(txt, 120))
             rows += u'<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)
