@@ -1,10 +1,12 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, collections
 
-from PyQt4.QtGui import QStatusBar, QLabel, QWidget, QHBoxLayout, QPixmap, \
-                        QSizePolicy, QScrollArea
-from PyQt4.QtCore import Qt, QSize, pyqtSignal
+import os
+
+from PyQt4.Qt import QStatusBar, QLabel, QWidget, QHBoxLayout, QPixmap, \
+                    QSizePolicy, QScrollArea, Qt, QSize, pyqtSignal, \
+                    QPropertyAnimation, QEasingCurve
+
 
 from calibre import fit_image, preferred_encoding, isosx
 from calibre.gui2 import config
@@ -12,6 +14,7 @@ from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.gui2.notify import get_notifier
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.library.comments import comments_to_html
+from calibre.gui2.book_details import render_rows
 
 class BookInfoDisplay(QWidget):
 
@@ -50,6 +53,10 @@ class BookInfoDisplay(QWidget):
 
         def __init__(self, coverpath=I('book.svg')):
             QLabel.__init__(self)
+            self.animation = QPropertyAnimation(self, 'size', self)
+            self.animation.setEasingCurve(QEasingCurve(QEasingCurve.OutExpo))
+            self.animation.setDuration(1000)
+            self.animation.setStartValue(QSize(0, 0))
             self.setMaximumWidth(81)
             self.setMaximumHeight(108)
             self.default_pixmap = QPixmap(coverpath)
@@ -58,21 +65,23 @@ class BookInfoDisplay(QWidget):
             self.setPixmap(self.default_pixmap)
 
         def do_layout(self):
+            self.animation.stop()
             pixmap = self.pixmap()
             pwidth, pheight = pixmap.width(), pixmap.height()
             width, height = fit_image(pwidth, pheight,
-                                              pwidth, self.statusbar_height-12)[1:]
+                                              pwidth, self.statusbar_height-20)[1:]
             self.setMaximumHeight(height)
             try:
                 aspect_ratio = pwidth/float(pheight)
             except ZeroDivisionError:
                 aspect_ratio = 1
             self.setMaximumWidth(int(aspect_ratio*self.maximumHeight()))
+            self.animation.setEndValue(self.maximumSize())
 
         def setPixmap(self, pixmap):
             QLabel.setPixmap(self, pixmap)
             self.do_layout()
-
+            self.animation.start()
 
         def sizeHint(self):
             return QSize(self.maximumWidth(), self.maximumHeight())
@@ -84,24 +93,27 @@ class BookInfoDisplay(QWidget):
 
     class BookDataDisplay(QLabel):
 
-        mr = pyqtSignal(int)
+        mr = pyqtSignal(object)
+        link_clicked = pyqtSignal(object)
 
         def __init__(self):
             QLabel.__init__(self)
             self.setText('')
             self.setWordWrap(True)
             self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
+            self.linkActivated.connect(self.link_activated)
+            self._link_clicked = False
 
         def mouseReleaseEvent(self, ev):
-            self.mr.emit(1)
+            QLabel.mouseReleaseEvent(self, ev)
+            if not self._link_clicked:
+                self.mr.emit(ev)
+            self._link_clicked = False
 
-    WEIGHTS = collections.defaultdict(lambda : 100)
-    WEIGHTS[_('Path')] = 0
-    WEIGHTS[_('Formats')] = 1
-    WEIGHTS[_('Collections')] = 2
-    WEIGHTS[_('Series')] = 3
-    WEIGHTS[_('Tags')] = 4
-    WEIGHTS[_('Comments')] = 5
+        def link_activated(self, link):
+            self._link_clicked = True
+            link = unicode(link)
+            self.link_clicked.emit(link)
 
     show_book_info = pyqtSignal()
 
@@ -122,6 +134,7 @@ class BookInfoDisplay(QWidget):
         self._layout.setAlignment(self.cover_display, Qt.AlignTop|Qt.AlignLeft)
 
     def mouseReleaseEvent(self, ev):
+        ev.accept()
         self.show_book_info.emit()
 
     def show_data(self, data):
@@ -133,23 +146,11 @@ class BookInfoDisplay(QWidget):
         rows, comments = [], ''
         self.book_data.setText('')
         self.data = data.copy()
-        keys = data.keys()
-        keys.sort(cmp=lambda x, y: cmp(self.WEIGHTS[x], self.WEIGHTS[y]))
-        for key in keys:
-            txt = data[key]
-            if not txt or not txt.strip() or txt == 'None':
-                continue
-            if isinstance(key, str):
-                key = key.decode(preferred_encoding, 'replace')
-            if isinstance(txt, str):
-                txt = txt.decode(preferred_encoding, 'replace')
-            if key == _('Comments'):
-                comments = comments_to_html(txt)
-            else:
-                rows.append((key, txt))
+        rows = render_rows(self.data)
         rows = '\n'.join([u'<tr><td valign="top"><b>%s:</b></td><td valign="top">%s</td></tr>'%(k,t) for
             k, t in rows])
-        if comments:
+        if _('Comments') in self.data:
+            comments = comments_to_html(self.data[_('Comments')])
             comments = '<b>Comments:</b>'+comments
         left_pane = u'<table>%s</table>'%rows
         right_pane = u'<div>%s</div>'%comments
@@ -186,6 +187,8 @@ class BookDetailsInterface(object):
     # These signals must be defined in the class implementing this interface
     files_dropped = None
     show_book_info = None
+    open_containing_folder = None
+    view_specific_format = None
 
     def reset_info(self):
         raise NotImplementedError()
@@ -197,7 +200,8 @@ class StatusBar(QStatusBar, StatusBarInterface, BookDetailsInterface):
 
     files_dropped = pyqtSignal(object, object)
     show_book_info = pyqtSignal()
-
+    open_containing_folder = pyqtSignal(int)
+    view_specific_format = pyqtSignal(int, object)
 
     resized = pyqtSignal(object)
 
@@ -212,10 +216,20 @@ class StatusBar(QStatusBar, StatusBarInterface, BookDetailsInterface):
                 type=Qt.QueuedConnection)
         self.book_info.files_dropped.connect(self.files_dropped.emit,
                 type=Qt.QueuedConnection)
+        self.book_info.book_data.link_clicked.connect(self._link_clicked)
         self.addWidget(self.scroll_area, 100)
         self.setMinimumHeight(120)
         self.resized.connect(self.book_info.cover_display.relayout)
         self.book_info.cover_display.relayout(self.size())
+
+
+    def _link_clicked(self, link):
+        typ, _, val = link.partition(':')
+        if typ == 'path':
+            self.open_containing_folder.emit(int(val))
+        if typ == 'format':
+            id_, fmt = val.split(':')
+            self.view_specific_format.emit(int(id_), fmt)
 
     def resizeEvent(self, ev):
         self.resized.emit(self.size())

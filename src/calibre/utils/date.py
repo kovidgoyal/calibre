@@ -31,7 +31,7 @@ class SafeLocalTimeZone(tzlocal):
 def compute_locale_info_for_parse_date():
     try:
         dt = datetime.strptime('1/5/2000', "%x")
-    except ValueError:
+    except:
         try:
             dt = datetime.strptime('1/5/01', '%x')
         except:

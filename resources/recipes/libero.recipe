@@ -11,11 +11,11 @@ http://www.libero-news.it/
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class LiberoNews(BasicNewsRecipe):
-    __author__     = 'Marini Gabriele'
-    description    = 'Italian daily newspaper'
+    __author__    = 'Marini Gabriele'
+    description   = 'Italian daily newspaper'
 
-    cover_url      = 'http://www.ilgiornale.it/img_v1/logo.gif'
-    title          = u'Libero'
+    cover_url      = 'http://www.libero-news.it/images/logo.png'
+    title          = u'Libero '
     publisher      = 'EDITORIALE LIBERO s.r.l 2006'
     category       = 'News, politics, culture, economy, general interest'
 

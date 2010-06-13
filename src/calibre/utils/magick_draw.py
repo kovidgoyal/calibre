@@ -175,7 +175,7 @@ def add_borders_to_image(path_to_image, left=0, top=0, right=0, bottom=0,
         p.DestroyMagickWand(canvas)
 
 def create_cover_page(top_lines, logo_path, width=590, height=750,
-        bgcolor='white', output_format='png'):
+        bgcolor='white', output_format='jpg'):
     ans = None
     with p.ImageMagick():
         canvas = create_canvas(width, height, bgcolor)
