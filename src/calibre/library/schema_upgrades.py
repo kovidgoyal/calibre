@@ -355,13 +355,24 @@ class SchemaUpgrade(object):
                 '''.format(lt=link_table_name, table=table_name)
             self.conn.executescript(script)
 
-        for field in self.field_metadata.itervalues():
-            if field['is_category'] and not field['is_custom'] and 'link_column' in field:
-                create_std_tag_browser_view(field['table'], field['link_column'],
-                                            field['column'])
+        STANDARD_TAG_BROWSER_TABLES = [
+            ('authors', 'author', 'name'),
+            ('publishers', 'publisher', 'name'),
+            ('ratings', 'rating', 'rating'),
+            ('series', 'series', 'name'),
+            ('tags', 'tag', 'name'),
+        ]
+        for table, column, view_column in STANDARD_TAG_BROWSER_TABLES:
+            create_std_tag_browser_view(table, column, view_column)
 
-        for field in self.field_metadata.itervalues():
-            if field['is_category'] and field['is_custom']:
-                link_table_name = 'books_custom_column_%d_link'%field['colnum']
-                print 'try to upgrade cust col', field['table'], link_table_name
-                create_cust_tag_browser_view(field['table'], link_table_name)
+        db_tables = self.conn.get('''SELECT name FROM sqlite_master
+                                     WHERE type='table'
+                                     ORDER BY name''');
+        tables = []
+        for (table,) in db_tables:
+            tables.append(table)
+        for table in tables:
+            link_table = 'books_%s_link'%table
+            if table.startswith('custom_column_') and link_table in tables:
+                print table
+                create_cust_tag_browser_view(table, link_table)

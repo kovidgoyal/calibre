@@ -9,17 +9,15 @@ Browsing book collection by tags.
 
 from itertools import izip
 from functools import partial
-from math import cos, sin, pi
 
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QCheckBox, \
                      QFont, QSize, QIcon, QPoint, QVBoxLayout, QComboBox, \
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, \
                      QPushButton, QWidget
-from PyQt4.Qt import QItemDelegate, QString, QPainterPath, QPen, QColor, \
-                     QLinearGradient, QBrush
+from PyQt4.Qt import QItemDelegate, QString, QPen, QColor, QLinearGradient, QBrush
 
 from calibre.gui2 import config, NONE
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
@@ -31,84 +29,59 @@ class TagDelegate(QItemDelegate):
     def __init__(self, parent):
         QItemDelegate.__init__(self, parent)
         self._parent = parent
+        self.icon = QIcon(I('star.png'))
 
     def paint(self, painter, option, index):
-
-        def draw_rating(rect, rating):
-            COLOR    = QColor("blue")
-            if rating is None:
-                return 0
-            painter.save()
-            painter.translate(r.left(), r.top())
-            factor = r.height()/100.
-# Try the star
-#            star_path = QPainterPath()
-#            star_path.moveTo(90, 50)
-#            for i in range(1, 5):
-#                star_path.lineTo(50 + 40 * cos(0.8 * i * pi), \
-#                                      50 + 40 * sin(0.8 * i * pi))
-#            star_path.closeSubpath()
-#            star_path.setFillRule(Qt.WindingFill)
-#            pen = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
-#            gradient = QLinearGradient(0, 0, 0, 100)
-#            gradient.setColorAt(0.0, COLOR)
-#            gradient.setColorAt(1.0, COLOR)
-#            painter.setBrush(QBrush(gradient))
-#            painter.setClipRect(0, 0, int(r.height() * (rating/5.0)), r.height())
-#            painter.scale(factor, factor)
-#            painter.translate(50.0, 50.0)
-#            painter.rotate(-20)
-#            painter.translate(-50.0, -50.0)
-#            painter.drawPath(star_path)
-#            painter.restore()
-#            return r.height()
-
-# Try a circle
-#            gradient = QLinearGradient(0, 0, 0, 100)
-#            gradient.setColorAt(0.0, COLOR)
-#            gradient.setColorAt(1.0, COLOR)
-#            painter.setBrush(QBrush(gradient))
-#            painter.setClipRect(0, 0, int(r.height() * (rating/5.0)), r.height())
-#            painter.scale(factor, factor)
-#            painter.drawEllipse(0, 0, 100, 100)
-#            painter.restore()
-#            return r.height()
-
-# Try a rectangle
-            width = 20
-            height = 80
-            left_offset = 5
-            top_offset = 10
-            if rating > 0.0:
-                pen = QPen(COLOR, 5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
-                painter.setPen(pen)
-                painter.scale(factor, factor)
-                painter.drawRect(left_offset, top_offset, width, height)
-                fill_height = height*(rating/5.0)
-                gradient = QLinearGradient(0, 0, 0, 100)
-                gradient.setColorAt(0.0, COLOR)
-                gradient.setColorAt(1.0, COLOR)
-                painter.setBrush(QBrush(gradient))
-                painter.drawRect(left_offset, top_offset+(height-fill_height),
-                                 width, fill_height)
-            painter.restore()
-            return int ((width+left_offset*2) * factor)
-
         item = index.internalPointer()
-        if item.type == TagTreeItem.TAG:
-            r = option.rect
-            # Paint the decoration icon
-            icon = self._parent.model().data(index, Qt.DecorationRole).toPyObject()
-            icon.paint(painter, r, Qt.AlignLeft)
-            # Paint the rating, if any
-            r.setLeft(r.left()+r.height()+5)
-            text_start = draw_rating(r, item.tag.avg)
-            # Paint the text
-            r.setLeft(r.left() + text_start+5)
-            painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
-                             QString('[%d] %s'%(item.tag.count, item.tag.name)))
-        else:
+        if item.type != TagTreeItem.TAG:
             QItemDelegate.paint(self, painter, option, index)
+            return
+        r = option.rect
+        # Paint the decoration icon
+        icon = self._parent.model().data(index, Qt.DecorationRole).toPyObject()
+        icon.paint(painter, r, Qt.AlignLeft)
+
+        # Paint the rating, if any. The decoration icon is assumed to be square,
+        # filling the row top to bottom. The three is arbitrary, there to
+        # provide a little space between the icon and what follows
+        r.setLeft(r.left()+r.height()+3)
+        rating = item.tag.avg_rating
+        if config['show_avg_rating'] and item.tag.avg_rating is not None:
+            painter.save()
+            if tweaks['render_avg_rating_using'] == 'star':
+                painter.setClipRect(r.left(), r.top(),
+                                    int(r.height()*(rating/5.0)), r.height())
+                self.icon.paint(painter, r, Qt.AlignLeft | Qt.AlignVCenter)
+                r.setLeft(r.left() + r.height())
+            else:
+                painter.translate(r.left(), r.top())
+                # Compute factor so sizes can be expressed in percentages of the
+                # box defined by the row height
+                factor = r.height()/100.
+                width = 20
+                height = 80
+                left_offset = 5
+                top_offset = 10
+                if r > 0.0:
+                    color = QColor(100, 100, 255) #medium blue, less glare
+                    pen = QPen(color, 5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+                    painter.setPen(pen)
+                    painter.scale(factor, factor)
+                    painter.drawRect(left_offset, top_offset, width, height)
+                    fill_height = height*(rating/5.0)
+                    gradient = QLinearGradient(0, 0, 0, 100)
+                    gradient.setColorAt(0.0, color)
+                    gradient.setColorAt(1.0, color)
+                    painter.setBrush(QBrush(gradient))
+                    painter.drawRect(left_offset, top_offset+(height-fill_height),
+                                     width, fill_height)
+                # The '3' is arbitrary, there because we need a little space
+                # between the rectangle and the text.
+                r.setLeft(r.left() + ((width+left_offset*2)*factor) + 3)
+            painter.restore()
+        # Paint the text
+        painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
+                         QString('[%d] %s'%(item.tag.count, item.tag.name)))
 
 class TagsView(QTreeView): # {{{
 
@@ -386,10 +359,11 @@ class TagTreeItem(object): # {{{
             if self.tag.count == 0:
                 return QVariant('%s'%(self.tag.name))
             else:
-                if self.tag.avg is None:
+                if self.tag.avg_rating is None:
                     return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
                 else:
-                    return QVariant('[%d][%3.1f] %s'%(self.tag.count, self.tag.avg, self.tag.name))
+                    return QVariant('[%d][%3.1f] %s'%(self.tag.count,
+                                                      self.tag.avg_rating, self.tag.name))
         if role == Qt.EditRole:
             return QVariant(self.tag.name)
         if role == Qt.DecorationRole:
@@ -453,7 +427,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 if r not in self.categories_with_ratings and \
                             not self.db.field_metadata[r]['is_custom'] and \
                             not self.db.field_metadata[r]['kind'] == 'user':
-                    tag.avg = None
+                    tag.avg_rating = None
                 TagTreeItem(parent=c, data=tag, icon_map=self.icon_state_map)
 
     def set_search_restriction(self, s):
@@ -519,7 +493,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     if r not in self.categories_with_ratings and \
                                 not self.db.field_metadata[r]['is_custom'] and \
                                 not self.db.field_metadata[r]['kind'] == 'user':
-                        tag.avg = None
+                        tag.avg_rating = None
                     tag.state = state_map.get(tag.name, 0)
                     t = TagTreeItem(parent=category, data=tag, icon_map=self.icon_state_map)
                 self.endInsertRows()

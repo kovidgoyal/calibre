@@ -61,7 +61,7 @@ class Tag(object):
         self.id = id
         self.count = count
         self.state = state
-        self.avg = avg/2.0 if avg is not None else 0
+        self.avg_rating = avg/2.0 if avg is not None else 0
         self.tooltip = tooltip
         self.icon = icon
 
@@ -126,8 +126,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.connect()
         self.is_case_sensitive = not iswindows and not isosx and \
             not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
-        self.initialize_dynamic()
         SchemaUpgrade.__init__(self)
+        self.initialize_dynamic()
 
     def initialize_dynamic(self):
         self.conn.executescript(u'''
