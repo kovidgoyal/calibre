@@ -49,7 +49,7 @@ class BookInfoDisplay(QWidget):
         event.acceptProposedAction()
 
 
-    class BookCoverDisplay(QLabel):
+    class BookCoverDisplay(QLabel): # {{{
 
         def __init__(self, coverpath=I('book.svg')):
             QLabel.__init__(self)
@@ -90,6 +90,7 @@ class BookInfoDisplay(QWidget):
             self.statusbar_height = statusbar_size.height()
             self.do_layout()
 
+        # }}}
 
     class BookDataDisplay(QLabel):
 
