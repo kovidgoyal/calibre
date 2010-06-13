@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-11 22:51+0000\n"
-"PO-Revision-Date: 2010-06-11 18:42+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-06-12 09:04+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-12 03:41+0000\n"
+"X-Launchpad-Export-Date: 2010-06-13 03:39+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -3008,7 +3008,7 @@ msgstr "catégories du navigateur d'étiquettes à ne pas afficher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:103
 msgid "The layout of the user interface"
-msgstr ""
+msgstr "La présentation de l'interface utilisateur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:151
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:476
@@ -3654,7 +3654,7 @@ msgstr "0,0 pt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
-msgstr "&Présentation"
+msgstr "Présentation"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:18
 msgid "Control the look and feel of the output"
@@ -4379,7 +4379,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:120
 msgid "Cover browser could not be loaded"
-msgstr ""
+msgstr "Le navigateur de coverture ne peut ête chargé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:172
 msgid "Browse by covers"
@@ -4484,7 +4484,7 @@ msgstr "Email vers"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:396
 msgid " and delete from library"
-msgstr ""
+msgstr " et efface de la bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:405
 msgid "Send to main memory"
@@ -5616,6 +5616,8 @@ msgid ""
 "The label must contain only letters, digits and underscores, and start with "
 "a letter"
 msgstr ""
+"Le libellé doit seulement contenir des lettres, des chiffres et des "
+"underscores, et commencer par une lettre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:108
 msgid "No column heading was provided"
@@ -7115,11 +7117,11 @@ msgstr "Livres similaires..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:297
 msgid "Cover Browser"
-msgstr ""
+msgstr "Navigateur de couvertures"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:315
 msgid "Tag Browser"
-msgstr ""
+msgstr "Navigateur d'étiquettes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:336
 msgid "Side bar"
@@ -7127,7 +7129,7 @@ msgstr "Volet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:366
 msgid "Book Details"
-msgstr ""
+msgstr "Détails du livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:60
 msgid "Job"
@@ -7195,7 +7197,7 @@ msgstr "N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:284
 msgid "Y"
-msgstr "O"
+msgstr "Y"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:56
 msgid "On Device"
@@ -7415,7 +7417,7 @@ msgstr "La création de la bibliothèque a échoué"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:94
 msgid "Failed to create calibre library at: %r."
-msgstr ""
+msgstr "Echec de la création de la bibliothèque à: %r."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:182
@@ -7827,11 +7829,11 @@ msgstr "Recherches"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:451
 msgid "Duplicate search name"
-msgstr ""
+msgstr "Nom de recherche en double"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:452
 msgid "The saved search name %s is already used."
-msgstr ""
+msgstr "Le nom de la recherche sauvegardé %s est déjà utilisé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:652
 msgid "Sort by &popularity"
@@ -9008,15 +9010,15 @@ msgstr "Casse du titre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:932
 msgid "Drag to resize"
-msgstr ""
+msgstr "Faire glisser pour redimensionner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:963
 msgid "Show"
-msgstr ""
+msgstr "Afficher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:968
 msgid "Hide"
-msgstr ""
+msgstr "Masquer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:367
 msgid ""
@@ -9966,7 +9968,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:750
 msgid "y"
-msgstr "o"
+msgstr "y"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:756
 msgid ""

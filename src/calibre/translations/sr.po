@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-11 22:51+0000\n"
-"PO-Revision-Date: 2010-06-11 18:45+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-06-12 08:28+0000\n"
+"Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-12 03:42+0000\n"
+"X-Launchpad-Export-Date: 2010-06-13 03:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -2937,7 +2937,7 @@ msgstr "kategorije koje ne treba prikazati u izlogu etiketa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:103
 msgid "The layout of the user interface"
-msgstr ""
+msgstr "Izgled korisničkog interfejsa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:151
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:476
@@ -4294,7 +4294,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:120
 msgid "Cover browser could not be loaded"
-msgstr ""
+msgstr "Izlog omota nije mogao biti učitan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:172
 msgid "Browse by covers"
@@ -4399,7 +4399,7 @@ msgstr "Pošalji elektronskom poštom na"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:396
 msgid " and delete from library"
-msgstr ""
+msgstr " i izbriši iz biblioteke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:405
 msgid "Send to main memory"
@@ -5506,6 +5506,7 @@ msgid ""
 "The label must contain only letters, digits and underscores, and start with "
 "a letter"
 msgstr ""
+"Etiketa sme da sadrži samo slova, cifre i donje crte, a mora početi slovom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:108
 msgid "No column heading was provided"
@@ -6971,11 +6972,11 @@ msgstr "Slične knjige..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:297
 msgid "Cover Browser"
-msgstr ""
+msgstr "Izlog omota"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:315
 msgid "Tag Browser"
-msgstr ""
+msgstr "Izlog etiketa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:336
 msgid "Side bar"
@@ -6983,7 +6984,7 @@ msgstr "Bočna traka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:366
 msgid "Book Details"
-msgstr ""
+msgstr "Podaci o knjizi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:60
 msgid "Job"
@@ -7271,7 +7272,7 @@ msgstr "Nisam uspeo da napravim biblioteku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:94
 msgid "Failed to create calibre library at: %r."
-msgstr ""
+msgstr "Nisam uspeo da napravim biblioteku na: %r."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:182
@@ -7670,11 +7671,11 @@ msgstr "Pretrage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:451
 msgid "Duplicate search name"
-msgstr ""
+msgstr "Naziv pretrage već postoji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:452
 msgid "The saved search name %s is already used."
-msgstr ""
+msgstr "Naziv sačuvane pretrage %s je već u upotrebi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:652
 msgid "Sort by &popularity"
@@ -8842,15 +8843,15 @@ msgstr "Veličina slova za naslov"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:932
 msgid "Drag to resize"
-msgstr ""
+msgstr "Povuci za promenu veličine"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:963
 msgid "Show"
-msgstr ""
+msgstr "Prikaži"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:968
 msgid "Hide"
-msgstr ""
+msgstr "Sakrij"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:367
 msgid ""

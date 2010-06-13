@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-11 22:51+0000\n"
-"PO-Revision-Date: 2010-06-11 18:46+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-06-12 04:17+0000\n"
+"Last-Translator: Thomaz Rodrigues Botelho <Unknown>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-12 03:43+0000\n"
+"X-Launchpad-Export-Date: 2010-06-13 03:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -4004,7 +4004,7 @@ msgstr "Sumário"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:18
 msgid "Control the creation/conversion of the Table of Contents."
-msgstr ""
+msgstr "Controla a criação/conversão do Sumário."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:29
 msgid "Level &1 TOC (XPath expression):"
@@ -4028,7 +4028,7 @@ msgstr "Número de &Links para adicionar no Sumário"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:65
 msgid "Chapter &threshold"
-msgstr ""
+msgstr "&Limiar do capítulo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:66
 msgid "&Force use of auto-generated Table of Contents"
@@ -6690,7 +6690,7 @@ msgstr "Criar um catálogo de livros em sua biblioteca do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:160
 msgid "Run welcome wizard"
-msgstr ""
+msgstr "Rodar o assistente de boas vindas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:192
 msgid "Similar books..."
@@ -9422,6 +9422,10 @@ msgid ""
 "subdirectory with filenames containing title and author. Available controls "
 "are: {%s}"
 msgstr ""
+"O modelo para controlar o nome de arquivo e estrutura de diretório dos "
+"arquivos salvos. O padrão é \"%s\" o qual irá salvar livros em subdiretórios "
+"por autor com arquivos contendo o título e autor. Controles disponíveis são: "
+"{%s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:71
 msgid ""
@@ -9430,6 +9434,10 @@ msgid ""
 "directory with filenames containing title and author. Available controls "
 "are: {%s}"
 msgstr ""
+"O modelo para controlar o nome de arquivo e estrutura de diretório para "
+"enviar para o dispositivo. O padrão ´w \"%s\" o qual irá salvar os livros em "
+"diretórios por autor com arquivos contendo o título e autor. Controles "
+"disponíveis são: {%s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:78
 msgid ""
@@ -9459,7 +9467,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:21
 msgid "Settings to control the calibre content server"
-msgstr ""
+msgstr "Configurações para controlar o servidor de conteúdo do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:25
 msgid "The port on which to listen. Default is %default"
