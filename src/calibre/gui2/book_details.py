@@ -95,14 +95,15 @@ def render_rows(data):
             txt = txt.decode(preferred_encoding, 'replace')
         if '</font>' not in txt:
             txt = prepare_string_for_xml(txt)
-        if key == _('Path'):
-            txt = '...'+os.sep+os.sep.join(txt.split(os.sep)[-2:])
-            txt = u'<a href="path:%s">%s</a>'%(data['id'], txt)
-        if key == _('Formats') and txt and txt != _('None'):
-            fmts = [x.strip() for x in txt.split(',')]
-            fmts = [u'<a href="format:%s:%s">%s</a>' % (data['id'], x, x) for x
-                    in fmts]
-            txt = ', '.join(fmts)
+        if 'id' in data:
+            if key == _('Path'):
+                txt = '...'+os.sep+os.sep.join(txt.split(os.sep)[-2:])
+                txt = u'<a href="path:%s">%s</a>'%(data['id'], txt)
+            if key == _('Formats') and txt and txt != _('None'):
+                fmts = [x.strip() for x in txt.split(',')]
+                fmts = [u'<a href="format:%s:%s">%s</a>' % (data['id'], x, x) for x
+                        in fmts]
+                txt = ', '.join(fmts)
         rows.append((key, txt))
     return rows
 
