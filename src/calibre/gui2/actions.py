@@ -1064,6 +1064,12 @@ class ViewAction(object): # {{{
         if fmt_path:
             self._view_file(fmt_path)
 
+    def view_format_by_id(self, id_, format):
+        fmt_path = self.library_view.model().db.format_abspath(id_, format,
+                index_is_id=True)
+        if fmt_path:
+            self._view_file(fmt_path)
+
     def metadata_view_format(self, fmt):
         fmt_path = self.library_view.model().db.\
                 format_abspath(self._metadata_view_id,
@@ -1146,6 +1152,9 @@ class ViewAction(object): # {{{
             path = self.library_view.model().db.abspath(row.row())
             QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
+    def view_folder_for_id(self, id_):
+        path = self.library_view.model().db.abspath(id_, index_is_id=True)
+        QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
     def view_book(self, triggered):
         rows = self.current_view().selectionModel().selectedRows()
