@@ -219,6 +219,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         self.status_bar.initialize(self.system_tray_icon)
         self.book_details.show_book_info.connect(self.show_book_info)
         self.book_details.files_dropped.connect(self.files_dropped_on_book)
+        self.book_details.open_containing_folder.connect(self.view_folder_for_id)
+        self.book_details.view_specific_format.connect(self.view_format_by_id)
 
         ####################### Setup Toolbar #####################
         ToolbarMixin.__init__(self)

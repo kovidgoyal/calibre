@@ -21,7 +21,7 @@ from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
-from calibre import strftime, isbytestring
+from calibre import strftime, isbytestring, prepare_string_for_xml
 from calibre.constants import filesystem_encoding
 from calibre.gui2.library import DEFAULT_SORT
 
@@ -300,6 +300,7 @@ class BooksModel(QAbstractTableModel): # {{{
             formats = _('None')
         data[_('Formats')] = formats
         data[_('Path')] = self.db.abspath(idx)
+        data['id'] = self.id(idx)
         comments = self.db.comments(idx)
         if not comments:
             comments = _('None')
@@ -308,7 +309,9 @@ class BooksModel(QAbstractTableModel): # {{{
         if series:
             sidx = self.db.series_index(idx)
             sidx = fmt_sidx(sidx, use_roman = self.use_roman_numbers)
-            data[_('Series')] = _('Book <font face="serif">%s</font> of %s.')%(sidx, series)
+            data[_('Series')] = \
+                _('Book <font face="serif">%s</font> of %s.')%\
+                    (sidx, prepare_string_for_xml(series))
 
         return data
 

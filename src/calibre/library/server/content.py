@@ -60,6 +60,7 @@ class ContentServer(object):
             items.sort(cmp=self.seriescmp, reverse=not order)
         else:
             lookup = 'sort' if field == 'title' else field
+            lookup = 'author_sort' if field == 'authors' else field
             field = self.db.FIELD_MAP[lookup]
             getter = operator.itemgetter(field)
             items.sort(cmp=lambda x, y: cmpf(getter(x), getter(y)), reverse=not order)
