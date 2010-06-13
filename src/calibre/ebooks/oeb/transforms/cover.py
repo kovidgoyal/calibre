@@ -103,8 +103,8 @@ class CoverManager(object):
                 32)]
             img_data = create_cover_page(lines, I('library.png'))
             id, href = self.oeb.manifest.generate('cover_image',
-                    'cover_image.png')
-            item = self.oeb.manifest.add(id, href, guess_type('t.png')[0],
+                    'cover_image.jpg')
+            item = self.oeb.manifest.add(id, href, guess_type('t.jpg')[0],
                         data=img_data)
             m.clear('cover')
             m.add('cover', item.id)

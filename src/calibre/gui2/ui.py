@@ -13,7 +13,7 @@ import collections, os, sys, textwrap, time
 from Queue import Queue, Empty
 from threading import Thread
 from PyQt4.Qt import Qt, SIGNAL, QObject, QUrl, QTimer, \
-                     QPixmap, QMenu, QIcon, \
+                     QPixmap, QMenu, QIcon, pyqtSignal, \
                      QDialog, QDesktopServices, \
                      QSystemTrayIcon, QApplication, QKeySequence, QAction, \
                      QMessageBox, QHelpEvent
@@ -24,7 +24,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.gui2 import error_dialog, GetMetadata, \
-        Dispatcher, gprefs, max_available_height, config, info_dialog
+        gprefs, max_available_height, config, info_dialog
 from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.wizard import move_library
@@ -77,13 +77,15 @@ class Listener(Thread): # {{{
 
 class SystemTrayIcon(QSystemTrayIcon): # {{{
 
+    tooltip_requested = pyqtSignal(object)
+
     def __init__(self, icon, parent):
         QSystemTrayIcon.__init__(self, icon, parent)
 
     def event(self, ev):
         if ev.type() == ev.ToolTip:
             evh = QHelpEvent(ev)
-            self.emit(SIGNAL('tooltip_requested(PyQt_PyObject)'),
+            self.tooltip_requested.emit(
                     (self, evh.globalPos()))
             return True
         return QSystemTrayIcon.event(self, ev)
@@ -149,8 +151,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         self.content_server = None
         self.system_tray_icon = SystemTrayIcon(QIcon(I('library.png')), self)
         self.system_tray_icon.setToolTip('calibre')
-        self.connect(self.system_tray_icon,
-                SIGNAL('tooltip_requested(PyQt_PyObject)'),
+        self.system_tray_icon.tooltip_requested.connect(
                 self.job_manager.show_tooltip)
         if not config['systray_icon']:
             self.system_tray_icon.hide()
@@ -292,8 +293,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
 
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
 
-        self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
+        AddAction.__init__(self)
 
         self.read_settings()
         self.finalize_layout()

@@ -251,6 +251,9 @@ class AnnotationsAction(object): # {{{
 
 class AddAction(object): # {{{
 
+    def __init__(self):
+        self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
+
     def add_recursive(self, single):
         root = choose_dir(self, 'recursive book import root dir dialog',
                           'Select root folder')

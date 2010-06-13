@@ -83,7 +83,6 @@ if pictureflow is not None:
             self.setFocusPolicy(Qt.WheelFocus)
             self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
-            self.setZoomFactor(150)
 
         def sizeHint(self):
             return self.minimumSize()

@@ -2,9 +2,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, collections
 
-from PyQt4.QtGui import QStatusBar, QLabel, QWidget, QHBoxLayout, QPixmap, \
-                        QSizePolicy, QScrollArea
-from PyQt4.QtCore import Qt, QSize, pyqtSignal
+from PyQt4.Qt import QStatusBar, QLabel, QWidget, QHBoxLayout, QPixmap, \
+                    QSizePolicy, QScrollArea, Qt, QSize, pyqtSignal, \
+                    QPropertyAnimation, QEasingCurve
+
 
 from calibre import fit_image, preferred_encoding, isosx
 from calibre.gui2 import config
@@ -50,6 +51,10 @@ class BookInfoDisplay(QWidget):
 
         def __init__(self, coverpath=I('book.svg')):
             QLabel.__init__(self)
+            self.animation = QPropertyAnimation(self, 'size', self)
+            self.animation.setEasingCurve(QEasingCurve(QEasingCurve.OutExpo))
+            self.animation.setDuration(1000)
+            self.animation.setStartValue(QSize(0, 0))
             self.setMaximumWidth(81)
             self.setMaximumHeight(108)
             self.default_pixmap = QPixmap(coverpath)
@@ -58,6 +63,7 @@ class BookInfoDisplay(QWidget):
             self.setPixmap(self.default_pixmap)
 
         def do_layout(self):
+            self.animation.stop()
             pixmap = self.pixmap()
             pwidth, pheight = pixmap.width(), pixmap.height()
             width, height = fit_image(pwidth, pheight,
@@ -68,11 +74,12 @@ class BookInfoDisplay(QWidget):
             except ZeroDivisionError:
                 aspect_ratio = 1
             self.setMaximumWidth(int(aspect_ratio*self.maximumHeight()))
+            self.animation.setEndValue(self.maximumSize())
 
         def setPixmap(self, pixmap):
             QLabel.setPixmap(self, pixmap)
             self.do_layout()
-
+            self.animation.start()
 
         def sizeHint(self):
             return QSize(self.maximumWidth(), self.maximumHeight())
