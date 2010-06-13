@@ -295,7 +295,8 @@ class SchemaUpgrade(object):
 
     def upgrade_version_11(self):
         'Add average rating to tag browser views'
-        def create_std_tag_browser_view(table_name, column_name, view_column_name):
+        def create_std_tag_browser_view(table_name, column_name,
+                                        view_column_name, sort_column_name):
             script = ('''
                 DROP VIEW IF EXISTS tag_browser_{tn};
                 CREATE VIEW tag_browser_{tn} AS SELECT
@@ -305,22 +306,25 @@ class SchemaUpgrade(object):
                     (SELECT AVG(ratings.rating)
                      FROM books_{tn}_link as tl, books_ratings_link as bl, ratings
                      WHERE tl.{cn}={tn}.id and bl.book=tl.book and
-                     ratings.id = bl.rating and ratings.rating <> 0) avg_rating
+                     ratings.id = bl.rating and ratings.rating <> 0) avg_rating,
+                     {scn} as sort
                 FROM {tn};
                 DROP VIEW IF EXISTS tag_browser_filtered_{tn};
                 CREATE VIEW tag_browser_filtered_{tn} AS SELECT
                     id,
-                    {vcn},
+                    {vcn} as sort,
                     (SELECT COUNT(books_{tn}_link.id) FROM books_{tn}_link WHERE
                         {cn}={tn}.id AND books_list_filter(book)) count,
                     (SELECT AVG(ratings.rating)
                      FROM books_{tn}_link as tl, books_ratings_link as bl, ratings
                      WHERE tl.{cn}={tn}.id and bl.book=tl.book and
                      ratings.id = bl.rating and ratings.rating <> 0 AND
-                     books_list_filter(bl.book)) avg_rating
+                     books_list_filter(bl.book)) avg_rating,
+                     {scn} as sort
                 FROM {tn};
 
-                '''.format(tn=table_name, cn=column_name, vcn=view_column_name))
+                '''.format(tn=table_name, cn=column_name,
+                           vcn=view_column_name, scn= sort_column_name))
             self.conn.executescript(script)
 
         def create_cust_tag_browser_view(table_name, link_table_name):
@@ -335,7 +339,8 @@ class SchemaUpgrade(object):
                           books_ratings_link as bl,
                           ratings as r
                      WHERE {lt}.value={table}.id and bl.book={lt}.book and
-                           r.id = bl.rating and r.rating <> 0) avg_rating
+                           r.id = bl.rating and r.rating <> 0) avg_rating,
+                     value as sort
                 FROM {table};
 
                 DROP VIEW IF EXISTS tag_browser_filtered_{table};
@@ -350,20 +355,21 @@ class SchemaUpgrade(object):
                           ratings as r
                      WHERE {lt}.value={table}.id AND bl.book={lt}.book AND
                            r.id = bl.rating AND r.rating <> 0 AND
-                           books_list_filter(bl.book)) avg_rating
+                           books_list_filter(bl.book)) avg_rating,
+                     value as sort
                 FROM {table};
                 '''.format(lt=link_table_name, table=table_name)
             self.conn.executescript(script)
 
         STANDARD_TAG_BROWSER_TABLES = [
-            ('authors', 'author', 'name'),
-            ('publishers', 'publisher', 'name'),
-            ('ratings', 'rating', 'rating'),
-            ('series', 'series', 'name'),
-            ('tags', 'tag', 'name'),
+            ('authors', 'author', 'name', 'sort'),
+            ('publishers', 'publisher', 'name', 'name'),
+            ('ratings', 'rating', 'rating', 'rating'),
+            ('series', 'series', 'name', 'name'),
+            ('tags', 'tag', 'name', 'name'),
         ]
-        for table, column, view_column in STANDARD_TAG_BROWSER_TABLES:
-            create_std_tag_browser_view(table, column, view_column)
+        for table, column, view_column, sort_column in STANDARD_TAG_BROWSER_TABLES:
+            create_std_tag_browser_view(table, column, view_column, sort_column)
 
         db_tables = self.conn.get('''SELECT name FROM sqlite_master
                                      WHERE type='table'
@@ -374,5 +380,28 @@ class SchemaUpgrade(object):
         for table in tables:
             link_table = 'books_%s_link'%table
             if table.startswith('custom_column_') and link_table in tables:
-                print table
                 create_cust_tag_browser_view(table, link_table)
+
+        from calibre.ebooks.metadata import author_to_author_sort
+
+        aut = self.conn.get('SELECT id, name FROM authors');
+        records = []
+        for (id, author) in aut:
+            records.append((id, author.replace('|', ',')))
+        for id,author in records:
+            self.conn.execute('UPDATE authors SET sort=? WHERE id=?',
+                (author_to_author_sort(author.replace('|', ',')).strip(), id))
+        self.conn.commit()
+        self.conn.executescript('''
+        CREATE TRIGGER author_insert_trg
+            AFTER INSERT ON authors
+            BEGIN
+            UPDATE authors SET sort=author_to_author_sort(NEW.name) WHERE id=NEW.id;
+        END;
+        CREATE TRIGGER author_update_trg
+            BEFORE UPDATE ON authors
+            BEGIN
+            UPDATE authors SET sort=author_to_author_sort(NEW.name)
+            WHERE id=NEW.id and name <> NEW.name;
+        END;
+        ''')

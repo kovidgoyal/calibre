@@ -23,6 +23,7 @@ from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
+from calibre.gui2.dialogs.sort_field_dialog import SortFieldDialog
 
 class TagDelegate(QItemDelegate):
 
@@ -90,6 +91,7 @@ class TagsView(QTreeView): # {{{
     user_category_edit  = pyqtSignal(object)
     tag_list_edit       = pyqtSignal(object, object)
     saved_search_edit   = pyqtSignal(object)
+    author_sort_edit    = pyqtSignal(object, object, object)
     tag_item_renamed    = pyqtSignal()
     search_item_renamed = pyqtSignal()
 
@@ -173,6 +175,9 @@ class TagsView(QTreeView): # {{{
             if action == 'manage_searches':
                 self.saved_search_edit.emit(category)
                 return
+            if action == 'edit_author_sort':
+                self.author_sort_edit.emit(self, category, index)
+                return
             if action == 'hide':
                 self.hidden_categories.add(category)
             elif action == 'show':
@@ -193,6 +198,8 @@ class TagsView(QTreeView): # {{{
         if item.type == TagTreeItem.TAG:
             tag_item = item
             tag_name = item.tag.name
+            tag_id = item.tag.id
+            tag_sort = item.tag.sort
             item = item.parent
         if item.type == TagTreeItem.CATEGORY:
             category = unicode(item.name.toString())
@@ -211,6 +218,10 @@ class TagsView(QTreeView): # {{{
                 self.context_menu.addAction(_('Rename') + " '" + tag_name + "'",
                         partial(self.context_menu_handler, action='edit_item',
                                 category=tag_item, index=index))
+                if key == 'authors':
+                    self.context_menu.addAction(_('Edit sort for') + " '" + tag_name + "'",
+                            partial(self.context_menu_handler, action='edit_author_sort',
+                                    category=tag_sort, index=tag_id))
                 self.context_menu.addSeparator()
             # Hide/Show/Restore categories
             self.context_menu.addAction(_('Hide category %s') % category,
@@ -684,6 +695,7 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
         self.tags_view.user_category_edit.connect(self.do_user_categories_edit)
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
+        self.tags_view.author_sort_edit.connect(self.do_author_sort_edit)
         self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
         self.tags_view.search_item_renamed.connect(self.saved_search.clear_to_help)
         self.edit_categories.clicked.connect(lambda x:
@@ -712,6 +724,15 @@ class TagBrowserMixin(object): # {{{
         self.library_view.model().refresh()
         self.saved_search.clear_to_help()
         self.search.clear_to_help()
+
+    def do_author_sort_edit(self, parent, text, id):
+        editor = SortFieldDialog(parent, text)
+        d = editor.exec_()
+        if d:
+            print editor.textbox.text()
+            self.library_view.model().db.set_sort_field_for_author \
+                                (id, unicode(editor.textbox.text()))
+            self.tags_view.recount()
 
 # }}}
 
