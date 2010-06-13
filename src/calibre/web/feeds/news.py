@@ -787,6 +787,7 @@ class BasicNewsRecipe(Recipe):
                     }
 
                     .summary_byline {
+                        text-align:left;
                         font-family:monospace;
                     }
 
