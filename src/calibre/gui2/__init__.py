@@ -100,7 +100,7 @@ def _config():
     c.add_opt('tag_browser_hidden_categories', default=set(),
             help=_('tag browser categories not to display'))
     c.add_opt('gui_layout', choices=['wide', 'narrow'],
-            help=_('The layout of the user interface'), default='narrow')
+            help=_('The layout of the user interface'), default='wide')
     c.add_opt('show_avg_rating', default=True,
             help=_('Show the average rating per item indication in the tag browser'))
     return ConfigProxy(c)

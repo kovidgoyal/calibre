@@ -485,6 +485,14 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.show_avg_rating.setChecked(config['show_avg_rating'])
         self.show_splash_screen.setChecked(gprefs.get('show_splash_screen',
             True))
+        li = None
+        for i, z in enumerate([('wide', _('Wide')),
+            ('narrow', _('Narrow'))]):
+            x, y = z
+            self.opt_gui_layout.addItem(y, QVariant(x))
+            if x == config['gui_layout']:
+                li = i
+        self.opt_gui_layout.setCurrentIndex(li)
 
     def check_port_value(self, *args):
         port = self.port.value()
@@ -866,6 +874,8 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             if self.viewer.item(i).checkState() == Qt.Checked:
                 fmts.append(str(self.viewer.item(i).text()))
         config['internally_viewed_formats'] = fmts
+        val = self.opt_gui_layout.itemData(self.opt_gui_layout.currentIndex()).toString()
+        config['gui_layout'] = unicode(val)
 
         if not path or not os.path.exists(path) or not os.path.isdir(path):
             d = error_dialog(self, _('Invalid database location'),
