@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Device driver for Amazon's Kindle
 '''
-import datetime, os, re, sys
+import datetime, os, re, sys, json, hashlib
 from cStringIO import StringIO
 from struct import unpack
 
@@ -59,6 +59,7 @@ class KINDLE(USBMS):
                     mi.title = mi.title.decode(sys.getfilesystemencoding(),
                                                'replace')
         return mi
+
 
     def get_annotations(self, path_map):
         MBP_FORMATS = [u'azw', u'mobi', u'prc', u'txt']
@@ -150,6 +151,37 @@ class KINDLE2(KINDLE):
     PRODUCT_ID = [0x0002]
     BCD        = [0x0100]
 
+    def books(self, oncard=None, end_session=True):
+        bl = USBMS.books(self, oncard=oncard, end_session=end_session)
+        # Read collections information
+        collections = os.path.join(self._main_prefix, 'system', 'collections.json')
+        if os.access(collections, os.R_OK):
+            try:
+                self.kindle_update_booklist(bl, collections)
+            except:
+                import traceback
+                traceback.print_exc()
+        return bl
+
+    def kindle_update_booklist(self, bl, collections):
+        with open(collections, 'rb') as f:
+            collections = f.read()
+        collections = json.loads(collections)
+        path_map = {}
+        for name, val in collections.items():
+            col = name.split('@')[0]
+            items = val.get('items', [])
+            for x in items:
+                x = x[-40:]
+                if x not in path_map:
+                    path_map[x] = set([])
+                path_map[x].add(col)
+        if path_map:
+            for book in bl:
+                path = '/mnt/us/'+book.lpath
+                h = hashlib.sha1(path).hexdigest()
+                if h in path_map:
+                    book.device_collections = list(sorted(path_map[h]))
 
 class KINDLE_DX(KINDLE2):
 
