@@ -361,15 +361,11 @@ class SchemaUpgrade(object):
                 '''.format(lt=link_table_name, table=table_name)
             self.conn.executescript(script)
 
-        STANDARD_TAG_BROWSER_TABLES = [
-            ('authors', 'author', 'name', 'sort'),
-            ('publishers', 'publisher', 'name', 'name'),
-            ('ratings', 'rating', 'rating', 'rating'),
-            ('series', 'series', 'name', 'name'),
-            ('tags', 'tag', 'name', 'name'),
-        ]
-        for table, column, view_column, sort_column in STANDARD_TAG_BROWSER_TABLES:
-            create_std_tag_browser_view(table, column, view_column, sort_column)
+        for field in self.field_metadata.itervalues():
+            if field['is_category'] and not field['is_custom'] and 'link_column' in field:
+                print field['table']
+                create_std_tag_browser_view(field['table'], field['link_column'],
+                                            field['column'], field['category_sort'])
 
         db_tables = self.conn.get('''SELECT name FROM sqlite_master
                                      WHERE type='table'

@@ -116,10 +116,10 @@ class DBThread(Thread):
         self.conn.create_aggregate('concat', 1, Concatenate)
         self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
         self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
-        if tweaks['title_series_sorting'] == 'library_order':
-            self.conn.create_function('title_sort', 1, title_sort)
-        else:
+        if tweaks['title_series_sorting'] == 'strictly_alphabetic':
             self.conn.create_function('title_sort', 1, lambda x:x)
+        else:
+            self.conn.create_function('title_sort', 1, title_sort)
         self.conn.create_function('author_to_author_sort', 1,
                 lambda x: author_to_author_sort(x.replace('|', ',')))
         self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))

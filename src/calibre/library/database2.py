@@ -138,7 +138,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 name,
                 (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id) count,
                 (0) as avg_rating,
-                (null) as sort
+                name as sort
             FROM tags as x WHERE name!="{0}" AND id IN
                 (SELECT DISTINCT tag FROM books_tags_link WHERE book IN
                     (SELECT DISTINCT book FROM books_tags_link WHERE tag IN
@@ -151,7 +151,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 name,
                 (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id and books_list_filter(book)) count,
                 (0) as avg_rating,
-                (null) as sort
+                name as sort
             FROM tags as x WHERE name!="{0}" AND id IN
                 (SELECT DISTINCT tag FROM books_tags_link WHERE book IN
                     (SELECT DISTINCT book FROM books_tags_link WHERE tag IN
@@ -714,9 +714,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if sort_on_count:
                 query += ' ORDER BY count DESC'
             else:
-                if 'category_sort' in cat:
-                    cn = cat['category_sort']
-                query += ' ORDER BY {0} ASC'.format(cn)
+                query += ' ORDER BY sort ASC'
             data = self.conn.get(query)
 
             # icon_map is not None if get_categories is to store an icon and
@@ -734,6 +732,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
             datatype = cat['datatype']
             if datatype == 'rating':
+                # eliminate the zero ratings line as well as count == 0
                 item_not_zero_func = (lambda x: x[1] > 0 and x[2] > 0)
                 formatter = (lambda x:u'\u2605'*int(round(x/2.)))
             elif category == 'authors':
@@ -748,13 +747,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         avg=r[3], sort=r[4],
                                         icon=icon, tooltip=tooltip)
                                     for r in data if item_not_zero_func(r)]
-            if category == 'series' and not sort_on_count:
-                if tweaks['title_series_sorting'] == 'library_order':
-                    ts = lambda x: title_sort(x)
-                else:
-                    ts = lambda x:x
-                categories[category].sort(cmp=lambda x,y:cmp(ts(x.name).lower(),
-                                                             ts(y.name).lower()))
 
         # We delayed computing the standard formats category because it does not
         # use a view, but is computed dynamically
