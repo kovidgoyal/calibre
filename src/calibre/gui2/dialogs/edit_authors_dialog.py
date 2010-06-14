@@ -23,7 +23,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.setupUi(self)
 
         self.buttonBox.accepted.connect(self.accepted)
-        self.table.cellChanged.connect(self.cell_changed)
 
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table.setColumnCount(2)
@@ -43,13 +42,18 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.table.setItem(row, 1, sort)
             if id == id_to_select:
                 select_item = sort
+        self.table.resizeColumnsToContents()
 
+        # set up the signal after the table is filled
+        self.table.cellChanged.connect(self.cell_changed)
+
+        self.table.setSortingEnabled(True)
+        self.table.sortByColumn(1, Qt.AscendingOrder)
         if select_item is not None:
             self.table.setCurrentItem(select_item)
             self.table.editItem(select_item)
-        self.table.resizeColumnsToContents()
-        self.table.setSortingEnabled(True)
-        self.table.sortByColumn(1, Qt.AscendingOrder)
+        else:
+            self.table.setCurrentCell(0, 0)
 
     def accepted(self):
         self.result = []
@@ -63,8 +67,16 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def cell_changed(self, row, col):
         if col == 0:
-            aut  = unicode(self.table.item(row, 0).text())
+            item = self.table.item(row, 0)
+            aut  = unicode(item.text())
             c = self.table.item(row, 1)
-            if c is not None:
-                c.setText(author_to_author_sort(aut))
-                self.table.setCurrentItem(c)
+            c.setText(author_to_author_sort(aut))
+            item = c
+        else:
+            item  = self.table.item(row, 1)
+        self.table.setCurrentItem(item)
+        # disable and reenable sorting to force the sort now, so we can scroll
+        # to the item after it moves
+        self.table.setSortingEnabled(False)
+        self.table.setSortingEnabled(True)
+        self.table.scrollToItem(item)

@@ -938,8 +938,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def author_sort_from_authors(self, authors):
         result = []
         for aut in authors:
-            aut = aut.replace(',', '|')
-            r = self.conn.get('SELECT sort FROM authors WHERE name=?', (aut,), all=False)
+            r = self.conn.get('SELECT sort FROM authors WHERE name=?',
+                              (aut.replace(',', '|'),), all=False)
             if r is None:
                 result.append(author_to_author_sort(aut))
             else:
