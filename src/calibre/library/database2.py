@@ -1160,6 +1160,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.execute('UPDATE authors SET sort=? WHERE id=?', \
                               (new_sort, old_id))
         self.conn.commit()
+        # Now change all the author_sort fields in books by this author
+        bks = self.conn.get('SELECT book from books_authors_link WHERE author=?', (old_id,))
+        for (book_id,) in bks:
+            ss = self.author_sort_from_book(book_id, index_is_id=True)
+            self.set_author_sort(book_id, ss)
 
     def rename_author(self, old_id, new_name):
         # Make sure that any commas in new_name are changed to '|'!
@@ -1186,7 +1191,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.execute('UPDATE authors SET name=? WHERE id=?',
                               (new_name, old_id))
                 self.conn.commit()
-                return
+                return new_id
             # Author exists. To fix this, we must replace all the authors
             # instead of replacing the one. Reason: db integrity checks can stop
             # the rename process, which would leave everything half-done. We
@@ -1233,6 +1238,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.set_author_sort(book_id, ss)
             # the caller will do a general refresh, so we don't need to
             # do one here
+        return new_id
 
     # end convenience methods
 

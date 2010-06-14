@@ -23,7 +23,7 @@ from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
-from calibre.gui2.dialogs.sort_field_dialog import SortFieldDialog
+from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
 
 class TagDelegate(QItemDelegate):
 
@@ -91,7 +91,7 @@ class TagsView(QTreeView): # {{{
     user_category_edit  = pyqtSignal(object)
     tag_list_edit       = pyqtSignal(object, object)
     saved_search_edit   = pyqtSignal(object)
-    author_sort_edit    = pyqtSignal(object, object, object)
+    author_sort_edit    = pyqtSignal(object, object)
     tag_item_renamed    = pyqtSignal()
     search_item_renamed = pyqtSignal()
 
@@ -176,7 +176,7 @@ class TagsView(QTreeView): # {{{
                 self.saved_search_edit.emit(category)
                 return
             if action == 'edit_author_sort':
-                self.author_sort_edit.emit(self, category, index)
+                self.author_sort_edit.emit(self, index)
                 return
             if action == 'hide':
                 self.hidden_categories.add(category)
@@ -199,7 +199,6 @@ class TagsView(QTreeView): # {{{
             tag_item = item
             tag_name = item.tag.name
             tag_id = item.tag.id
-            tag_sort = item.tag.sort
             item = item.parent
         if item.type == TagTreeItem.CATEGORY:
             category = unicode(item.name.toString())
@@ -215,13 +214,13 @@ class TagsView(QTreeView): # {{{
                     (key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
                      self.db.field_metadata[key]['is_custom'] and \
                      self.db.field_metadata[key]['datatype'] != 'rating'):
-                self.context_menu.addAction(_('Rename') + " '" + tag_name + "'",
+                self.context_menu.addAction(_('Rename \'%s\'')%tag_name,
                         partial(self.context_menu_handler, action='edit_item',
                                 category=tag_item, index=index))
                 if key == 'authors':
-                    self.context_menu.addAction(_('Edit sort for') + " '" + tag_name + "'",
-                            partial(self.context_menu_handler, action='edit_author_sort',
-                                    category=tag_sort, index=tag_id))
+                    self.context_menu.addAction(_('Edit sort for \'%s\'')%tag_name,
+                            partial(self.context_menu_handler,
+                                    action='edit_author_sort', index=tag_id))
                 self.context_menu.addSeparator()
             # Hide/Show/Restore categories
             self.context_menu.addAction(_('Hide category %s') % category,
@@ -238,9 +237,12 @@ class TagsView(QTreeView): # {{{
             self.context_menu.addSeparator()
             if key in ['tags', 'publisher', 'series'] or \
                         self.db.field_metadata[key]['is_custom']:
-                self.context_menu.addAction(_('Manage ') + category,
+                self.context_menu.addAction(_('Manage %s')%category,
                         partial(self.context_menu_handler, action='open_editor',
                                 category=tag_name, key=key))
+            elif key == 'authors':
+                self.context_menu.addAction(_('Manage %s')%category,
+                        partial(self.context_menu_handler, action='edit_author_sort'))
             elif key == 'search':
                 self.context_menu.addAction(_('Manage Saved Searches'),
                     partial(self.context_menu_handler, action='manage_searches',
@@ -725,16 +727,17 @@ class TagBrowserMixin(object): # {{{
         self.saved_search.clear_to_help()
         self.search.clear_to_help()
 
-    def do_author_sort_edit(self, parent, text, id):
-        editor = SortFieldDialog(parent, self.library_view.model().db, id)
+    def do_author_sort_edit(self, parent, id):
+        db = self.library_view.model().db
+        editor = EditAuthorsDialog(parent, db, id)
         d = editor.exec_()
         if d:
-            print editor.result
             for (id, old_author, new_author, new_sort) in editor.result:
                 if old_author != new_author:
-                    self.library_view.model().db.rename_author(id, new_author)
-                self.library_view.model().db.set_sort_field_for_author \
-                                (id, unicode(new_sort))
+                    # The id might change if the new author already exists
+                    id = db.rename_author(id, new_author)
+                db.set_sort_field_for_author(id, unicode(new_sort))
+            self.library_view.model().refresh()
             self.tags_view.recount()
 
 # }}}

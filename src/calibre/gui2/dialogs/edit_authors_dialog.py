@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 from PyQt4.Qt import Qt, QDialog, QTableWidgetItem, QAbstractItemView
 
 from calibre.ebooks.metadata import author_to_author_sort
-from calibre.gui2.dialogs.sort_field_dialog_ui import Ui_SortFieldDialog
+from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
 
 class tableItem(QTableWidgetItem):
     def __ge__(self, other):
@@ -15,11 +15,11 @@ class tableItem(QTableWidgetItem):
     def __lt__(self, other):
         return unicode(self.text()).lower() < unicode(other.text()).lower()
 
-class SortFieldDialog(QDialog, Ui_SortFieldDialog):
+class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def __init__(self, parent, db, id_to_select):
         QDialog.__init__(self, parent)
-        Ui_SortFieldDialog.__init__(self)
+        Ui_EditAuthorsDialog.__init__(self)
         self.setupUi(self)
 
         self.buttonBox.accepted.connect(self.accepted)
@@ -42,22 +42,21 @@ class SortFieldDialog(QDialog, Ui_SortFieldDialog):
             self.table.setItem(row, 0, aut)
             self.table.setItem(row, 1, sort)
             if id == id_to_select:
-                select_item = aut
+                select_item = sort
 
         if select_item is not None:
             self.table.setCurrentItem(select_item)
+            self.table.editItem(select_item)
         self.table.resizeColumnsToContents()
         self.table.setSortingEnabled(True)
         self.table.sortByColumn(1, Qt.AscendingOrder)
 
     def accepted(self):
-        print 'accepted!'
         self.result = []
         for row in range(0,self.table.rowCount()):
             id   = self.table.item(row, 0).data(Qt.UserRole).toInt()[0]
             aut  = unicode(self.table.item(row, 0).text())
             sort = unicode(self.table.item(row, 1).text())
-            print id, aut, sort
             orig_aut,orig_sort = self.authors[id]
             if orig_aut != aut or orig_sort != sort:
                 self.result.append((id, orig_aut, aut, sort))
@@ -68,3 +67,4 @@ class SortFieldDialog(QDialog, Ui_SortFieldDialog):
             c = self.table.item(row, 1)
             if c is not None:
                 c.setText(author_to_author_sort(aut))
+                self.table.setCurrentItem(c)
