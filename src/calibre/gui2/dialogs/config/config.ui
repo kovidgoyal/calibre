@@ -371,16 +371,6 @@
               </widget>
              </item>
              <item row="5" column="0">
-              <widget class="QCheckBox" name="search_as_you_type">
-               <property name="text">
-                <string>Search as you type</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
               <widget class="QCheckBox" name="show_avg_rating">
                <property name="text">
                 <string>Show &amp;average ratings in the tags browser</string>
@@ -390,21 +380,31 @@
                </property>
               </widget>
              </item>
-             <item row="6" column="0" colspan="2">
+             <item row="6" column="0">
+              <widget class="QCheckBox" name="search_as_you_type">
+               <property name="text">
+                <string>Search as you type</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0" colspan="2">
               <widget class="QCheckBox" name="sync_news">
                <property name="text">
                 <string>Automatically send downloaded &amp;news to ebook reader</string>
                </property>
               </widget>
              </item>
-             <item row="7" column="0" colspan="2">
+             <item row="8" column="0" colspan="2">
               <widget class="QCheckBox" name="delete_news">
                <property name="text">
                 <string>&amp;Delete news from library when it is automatically sent to reader</string>
                </property>
               </widget>
              </item>
-             <item row="8" column="0" colspan="2">
+             <item row="9" column="0" colspan="2">
               <layout class="QHBoxLayout" name="horizontalLayout">
                <item>
                 <widget class="QLabel" name="label_6">
@@ -421,7 +421,7 @@
                </item>
               </layout>
              </item>
-             <item row="9" column="0" colspan="2">
+             <item row="10" column="0" colspan="2">
               <widget class="QGroupBox" name="groupBox_2">
                <property name="title">
                 <string>Toolbar</string>
@@ -469,7 +469,7 @@
                </layout>
               </widget>
              </item>
-             <item row="10" column="0" colspan="2">
+             <item row="11" column="0" colspan="2">
               <layout class="QHBoxLayout" name="horizontalLayout_7">
                <item>
                 <widget class="QGroupBox" name="groupBox">
