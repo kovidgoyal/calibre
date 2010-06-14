@@ -42,8 +42,8 @@ def render_rows(data):
             txt = prepare_string_for_xml(txt)
         if 'id' in data:
             if key == _('Path'):
-                txt = u'<a href="path:%s">%s</a>'%(data['id'],
-                        _('Click to open'))
+                txt = u'<a href="path:%s" title="%s">%s</a>'%(data['id'],
+                        txt, _('Click to open'))
             if key == _('Formats') and txt and txt != _('None'):
                 fmts = [x.strip() for x in txt.split(',')]
                 fmts = [u'<a href="format:%s:%s">%s</a>' % (data['id'], x, x) for x
@@ -272,6 +272,10 @@ class BookDetails(QWidget):
     def show_data(self, data):
         self.cover_view.show_data(data)
         self.book_info.show_data(data)
+        self.setToolTip('<p>'+_('Click to open Book Details window') +
+                '<br><br>' + _('Path') + ': ' + data.get(_('Path'), ''))
+
+
 
     def reset_info(self):
         self.show_data({})
