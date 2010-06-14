@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>334</width>
-    <height>135</height>
+    <width>518</width>
+    <height>262</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,13 +24,17 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>311</width>
-     <height>111</height>
+     <width>501</width>
+     <height>231</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QLineEdit" name="textbox"/>
+     <widget class="QTableWidget" name="table">
+      <property name="columnCount">
+       <number>0</number>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QDialogButtonBox" name="buttonBox">

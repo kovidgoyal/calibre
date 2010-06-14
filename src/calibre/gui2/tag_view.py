@@ -726,12 +726,15 @@ class TagBrowserMixin(object): # {{{
         self.search.clear_to_help()
 
     def do_author_sort_edit(self, parent, text, id):
-        editor = SortFieldDialog(parent, text)
+        editor = SortFieldDialog(parent, self.library_view.model().db, id)
         d = editor.exec_()
         if d:
-            print editor.textbox.text()
-            self.library_view.model().db.set_sort_field_for_author \
-                                (id, unicode(editor.textbox.text()))
+            print editor.result
+            for (id, old_author, new_author, new_sort) in editor.result:
+                if old_author != new_author:
+                    self.library_view.model().db.rename_author(id, new_author)
+                self.library_view.model().db.set_sort_field_for_author \
+                                (id, unicode(new_sort))
             self.tags_view.recount()
 
 # }}}

@@ -1113,7 +1113,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 index = index + 1
         self.conn.commit()
 
-
     def delete_series_using_id(self, id):
         books = self.conn.get('SELECT book from books_series_link WHERE series=?', (id,))
         self.conn.execute('DELETE FROM books_series_link WHERE series=?', (id,))
@@ -1151,9 +1150,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.execute('DELETE FROM publishers WHERE id=?', (old_id,))
         self.conn.commit()
 
-    # There is no editor for author, so we do not need get_authors_with_ids or
-    # delete_author_using_id. However, we can change the author's sort field, so
-    # we provide that setter
+    def get_authors_with_ids(self):
+        result = self.conn.get('SELECT id,name,sort FROM authors')
+        if not result:
+            return []
+        return result
 
     def set_sort_field_for_author(self, old_id, new_sort):
         self.conn.execute('UPDATE authors SET sort=? WHERE id=?', \
