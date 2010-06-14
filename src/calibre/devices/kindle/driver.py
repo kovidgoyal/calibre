@@ -13,6 +13,27 @@ from struct import unpack
 
 from calibre.devices.usbms.driver import USBMS
 
+'''
+Notes on collections:
+
+A collections cache is stored at system/collections.json
+The cache is read only, changes made to it are overwritten (it is regenerated)
+on device disconnect
+
+A log of collection creation/manipulation is available at
+system/userannotationlog
+
+collections.json refers to books via a SHA1 hash of the absolute path to the
+book (prefix is /mnt/us on my Kindle). The SHA1 hash may or may not be prefixed
+by some characters, use the last 40 characters.
+
+Changing the metadata and resending the file doesn't seem to affect collections
+
+Adding a book to a collection on the Kindle does not change the book file at all
+(i.e. it is binary identical). Therefore collection information is not stored in
+file metadata.
+'''
+
 class KINDLE(USBMS):
 
     name           = 'Kindle Device Interface'
