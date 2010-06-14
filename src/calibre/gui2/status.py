@@ -152,7 +152,7 @@ class BookInfoDisplay(QWidget):
             k, t in rows])
         if _('Comments') in self.data:
             comments = comments_to_html(self.data[_('Comments')])
-            comments = '<b>Comments:</b>'+comments
+            comments = ('<b>%s:</b>'%_('Comments'))+comments
         left_pane = u'<table>%s</table>'%rows
         right_pane = u'<div>%s</div>'%comments
         self.book_data.setText(u'<table><tr><td valign="top" '
@@ -196,6 +196,9 @@ class BookDetailsInterface(object):
 
     def show_data(self, data):
         raise NotImplementedError()
+
+class HStatusBar(QStatusBar, StatusBarInterface):
+    pass
 
 class StatusBar(QStatusBar, StatusBarInterface, BookDetailsInterface):
 
