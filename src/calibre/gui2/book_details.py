@@ -89,13 +89,13 @@ class CoverView(QWidget): # {{{
         pixmap = self.pixmap
         pwidth, pheight = pixmap.width(), pixmap.height()
         self.pwidth, self.pheight = fit_image(pwidth, pheight,
-                            self.maximumWidth(), self.maximumHeight())[1:]
+                            self.rect().width(), self.rect().height())[1:]
         self.current_pixmap_size = QSize(self.pwidth, self.pheight)
         self.animation.setEndValue(self.current_pixmap_size)
 
     def relayout(self, parent_size):
         self.setMaximumSize(parent_size.width(),
-            int(parent_size.height()/3.)+1)
+            min(int(parent_size.height()/2.),int(4/3. * parent_size.width())+1))
         self.resize(self.maximumSize())
         self.animation.stop()
         self.do_layout()
@@ -243,6 +243,7 @@ class BookDetails(QWidget):
         self.book_info.link_clicked.connect(self._link_clicked)
         self.book_info.mr.connect(self.mouseReleaseEvent)
         self.setMinimumSize(QSize(190, 200))
+        self.setCursor(Qt.PointingHandCursor)
 
     def _link_clicked(self, link):
         typ, _, val = link.partition(':')
