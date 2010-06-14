@@ -59,8 +59,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.result = []
         for row in range(0,self.table.rowCount()):
             id   = self.table.item(row, 0).data(Qt.UserRole).toInt()[0]
-            aut  = unicode(self.table.item(row, 0).text())
-            sort = unicode(self.table.item(row, 1).text())
+            aut  = unicode(self.table.item(row, 0).text()).strip()
+            sort = unicode(self.table.item(row, 1).text()).strip()
             orig_aut,orig_sort = self.authors[id]
             if orig_aut != aut or orig_sort != sort:
                 self.result.append((id, orig_aut, aut, sort))
@@ -68,7 +68,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
     def cell_changed(self, row, col):
         if col == 0:
             item = self.table.item(row, 0)
-            aut  = unicode(item.text())
+            aut  = unicode(item.text()).strip()
             c = self.table.item(row, 1)
             c.setText(author_to_author_sort(aut))
             item = c

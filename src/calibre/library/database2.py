@@ -1045,6 +1045,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return result
 
     def rename_tag(self, old_id, new_name):
+        new_name = new_name.strip()
         new_id = self.conn.get(
                     '''SELECT id from tags
                        WHERE name=?''', (new_name,), all=False)
@@ -1084,6 +1085,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return result
 
     def rename_series(self, old_id, new_name):
+        new_name = new_name.strip()
         new_id = self.conn.get(
                     '''SELECT id from series
                        WHERE name=?''', (new_name,), all=False)
@@ -1128,6 +1130,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return result
 
     def rename_publisher(self, old_id, new_name):
+        new_name = new_name.strip()
         new_id = self.conn.get(
                     '''SELECT id from publishers
                        WHERE name=?''', (new_name,), all=False)
@@ -1158,7 +1161,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_sort_field_for_author(self, old_id, new_sort):
         self.conn.execute('UPDATE authors SET sort=? WHERE id=?', \
-                              (new_sort, old_id))
+                              (new_sort.strip(), old_id))
         self.conn.commit()
         # Now change all the author_sort fields in books by this author
         bks = self.conn.get('SELECT book from books_authors_link WHERE author=?', (old_id,))
@@ -1168,7 +1171,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def rename_author(self, old_id, new_name):
         # Make sure that any commas in new_name are changed to '|'!
-        new_name = new_name.replace(',', '|')
+        new_name = new_name.replace(',', '|').strip()
 
         # Get the list of books we must fix up, one way or the other
         # Save the list so we can use it twice
