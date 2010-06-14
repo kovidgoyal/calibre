@@ -709,7 +709,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 query = '''SELECT id, {0}, count, avg_rating, sort
                            FROM tag_browser_{1}'''.format(cn, tn)
             else:
-                query = '''SELECT id, {0}, count, avg_rating
+                query = '''SELECT id, {0}, count, avg_rating, sort
                            FROM tag_browser_filtered_{1}'''.format(cn, tn)
             if sort_on_count:
                 query += ' ORDER BY count DESC'

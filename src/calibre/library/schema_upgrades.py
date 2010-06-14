@@ -316,7 +316,7 @@ class SchemaUpgrade(object):
                 DROP VIEW IF EXISTS tag_browser_filtered_{tn};
                 CREATE VIEW tag_browser_filtered_{tn} AS SELECT
                     id,
-                    {vcn} as sort,
+                    {vcn},
                     (SELECT COUNT(books_{tn}_link.id) FROM books_{tn}_link WHERE
                         {cn}={tn}.id AND books_list_filter(book)) count,
                     (SELECT AVG(ratings.rating)
