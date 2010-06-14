@@ -9,7 +9,7 @@ import os, collections
 
 from PyQt4.Qt import QLabel, QPixmap, QSize, QWidget, Qt, pyqtSignal, \
     QVBoxLayout, QScrollArea, QPropertyAnimation, QEasingCurve, \
-    QSizePolicy, QPainter, QRect, pyqtProperty
+    QSizePolicy, QPainter, QRect, pyqtProperty, QDesktopServices, QUrl
 
 from calibre import fit_image, prepare_string_for_xml
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
@@ -42,7 +42,6 @@ def render_rows(data):
             txt = prepare_string_for_xml(txt)
         if 'id' in data:
             if key == _('Path'):
-                txt = '...'+os.sep+os.sep.join(txt.split(os.sep)[-2:])
                 txt = u'<a href="path:%s">%s</a>'%(data['id'],
                         _('Click to open'))
             if key == _('Formats') and txt and txt != _('None'):
@@ -50,6 +49,11 @@ def render_rows(data):
                 fmts = [u'<a href="format:%s:%s">%s</a>' % (data['id'], x, x) for x
                         in fmts]
                 txt = ', '.join(fmts)
+        else:
+            if key == _('Path'):
+                txt = u'<a href="devpath:%s">%s</a>'%(txt,
+                        _('Click to open'))
+
         rows.append((key, txt))
     return rows
 
@@ -150,6 +154,7 @@ class Label(QLabel):
 
     def __init__(self):
         QLabel.__init__(self)
+        self.setTextFormat(Qt.RichText)
         self.setText('')
         self.setWordWrap(True)
         self.linkActivated.connect(self.link_activated)
@@ -249,9 +254,13 @@ class BookDetails(QWidget):
         typ, _, val = link.partition(':')
         if typ == 'path':
             self.open_containing_folder.emit(int(val))
-        if typ == 'format':
+        elif typ == 'format':
             id_, fmt = val.split(':')
             self.view_specific_format.emit(int(id_), fmt)
+        elif typ == 'devpath':
+            path = os.path.dirname(val)
+            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+
 
     def mouseReleaseEvent(self, ev):
         ev.accept()
