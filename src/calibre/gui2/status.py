@@ -5,7 +5,7 @@ import os
 
 from PyQt4.Qt import QStatusBar, QLabel, QWidget, QHBoxLayout, QPixmap, \
                     QSizePolicy, QScrollArea, Qt, QSize, pyqtSignal, \
-                    QPropertyAnimation, QEasingCurve
+                    QPropertyAnimation, QEasingCurve, QDesktopServices, QUrl
 
 
 from calibre import fit_image, preferred_encoding, isosx
@@ -163,6 +163,10 @@ class BookInfoDisplay(QWidget):
         self.book_data.updateGeometry()
         self.updateGeometry()
         self.setVisible(True)
+        self.setToolTip('<p>'+_('Click to open Book Details window') +
+                '<br><br>' + _('Path') + ': ' + data.get(_('Path'), ''))
+
+
 
 class StatusBarInterface(object):
 
@@ -231,9 +235,13 @@ class StatusBar(QStatusBar, StatusBarInterface, BookDetailsInterface):
         typ, _, val = link.partition(':')
         if typ == 'path':
             self.open_containing_folder.emit(int(val))
-        if typ == 'format':
+        elif typ == 'format':
             id_, fmt = val.split(':')
             self.view_specific_format.emit(int(id_), fmt)
+        elif typ == 'devpath':
+            path = os.path.dirname(val)
+            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+
 
     def resizeEvent(self, ev):
         self.resized.emit(self.size())
