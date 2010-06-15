@@ -11,13 +11,50 @@ from itertools import izip
 from functools import partial
 
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
-                     QFont, QSize, QIcon, QPoint, \
-                     QAbstractItemModel, QVariant, QModelIndex, QMenu
+                     QFont, QSize, QIcon, QPoint, QVBoxLayout, QComboBox, \
+                     QAbstractItemModel, QVariant, QModelIndex, QMenu, \
+                     QPushButton, QWidget, QItemDelegate
+
 from calibre.gui2 import config, NONE
 from calibre.utils.config import prefs
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
+from calibre.gui2.dialogs.tag_categories import TagCategories
+from calibre.gui2.dialogs.tag_list_editor import TagListEditor
+from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
+
+class TagDelegate(QItemDelegate): # {{{
+
+    def paint(self, painter, option, index):
+        item = index.internalPointer()
+        if item.type != TagTreeItem.TAG:
+            QItemDelegate.paint(self, painter, option, index)
+            return
+        r = option.rect
+        model = self.parent().model()
+        icon = model.data(index, Qt.DecorationRole).toPyObject()
+        painter.save()
+        if item.tag.state != 0 or not config['show_avg_rating'] or \
+                item.tag.avg_rating is None:
+            icon.paint(painter, r, Qt.AlignLeft)
+        else:
+            painter.setOpacity(0.3)
+            icon.paint(painter, r, Qt.AlignLeft)
+            painter.setOpacity(1)
+            rating = item.tag.avg_rating
+            painter.setClipRect(r.left(), r.bottom()-int(r.height()*(rating/5.0)),
+                    r.width(), r.height())
+            icon.paint(painter, r, Qt.AlignLeft)
+            painter.setClipRect(r)
+
+        # Paint the text
+        r.setLeft(r.left()+r.height()+3)
+        painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
+                        model.data(index, Qt.DisplayRole).toString())
+        painter.restore()
+
+    # }}}
 
 class TagsView(QTreeView): # {{{
 
@@ -26,22 +63,28 @@ class TagsView(QTreeView): # {{{
     user_category_edit  = pyqtSignal(object)
     tag_list_edit       = pyqtSignal(object, object)
     saved_search_edit   = pyqtSignal(object)
+    author_sort_edit    = pyqtSignal(object, object)
     tag_item_renamed    = pyqtSignal()
     search_item_renamed = pyqtSignal()
 
-    def __init__(self, *args):
-        QTreeView.__init__(self, *args)
+    def __init__(self, parent=None):
+        QTreeView.__init__(self, parent=None)
+        self.tag_match = None
         self.setUniformRowHeights(True)
         self.setCursor(Qt.PointingHandCursor)
         self.setIconSize(QSize(30, 30))
-        self.tag_match = None
+        self.setTabKeyNavigation(True)
+        self.setAlternatingRowColors(True)
+        self.setAnimated(True)
+        self.setHeaderHidden(True)
+        self.setItemDelegate(TagDelegate(self))
 
-    def set_database(self, db, tag_match, popularity):
+    def set_database(self, db, tag_match, sort_by):
         self.hidden_categories = config['tag_browser_hidden_categories']
         self._model = TagsModel(db, parent=self,
                                 hidden_categories=self.hidden_categories,
                                 search_restriction=None)
-        self.popularity = popularity
+        self.sort_by = sort_by
         self.tag_match = tag_match
         self.db = db
         self.search_restriction = None
@@ -49,8 +92,9 @@ class TagsView(QTreeView): # {{{
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.clicked.connect(self.toggle)
         self.customContextMenuRequested.connect(self.show_context_menu)
-        self.popularity.setChecked(config['sort_by_popularity'])
-        self.popularity.stateChanged.connect(self.sort_changed)
+        pop = config['sort_tags_by']
+        self.sort_by.setCurrentIndex(self.db.CATEGORY_SORTS.index(pop))
+        self.sort_by.currentIndexChanged.connect(self.sort_changed)
         self.refresh_required.connect(self.recount, type=Qt.QueuedConnection)
         db.add_listener(self.database_changed)
 
@@ -61,10 +105,9 @@ class TagsView(QTreeView): # {{{
     def match_all(self):
         return self.tag_match and self.tag_match.currentIndex() > 0
 
-    def sort_changed(self, state):
-        config.set('sort_by_popularity', state == Qt.Checked)
-        self.model().refresh()
-        # self.search_restriction_set()
+    def sort_changed(self, pop):
+        config.set('sort_tags_by', self.db.CATEGORY_SORTS[pop])
+        self.recount()
 
     def set_search_restriction(self, s):
         if s:
@@ -105,6 +148,9 @@ class TagsView(QTreeView): # {{{
             if action == 'manage_searches':
                 self.saved_search_edit.emit(category)
                 return
+            if action == 'edit_author_sort':
+                self.author_sort_edit.emit(self, index)
+                return
             if action == 'hide':
                 self.hidden_categories.add(category)
             elif action == 'show':
@@ -125,6 +171,7 @@ class TagsView(QTreeView): # {{{
         if item.type == TagTreeItem.TAG:
             tag_item = item
             tag_name = item.tag.name
+            tag_id = item.tag.id
             item = item.parent
         if item.type == TagTreeItem.CATEGORY:
             category = unicode(item.name.toString())
@@ -138,10 +185,15 @@ class TagsView(QTreeView): # {{{
             # the possibility of renaming that item
             if tag_name and \
                     (key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
-                     self.db.field_metadata[key]['is_custom']):
-                self.context_menu.addAction(_('Rename') + " '" + tag_name + "'",
+                     self.db.field_metadata[key]['is_custom'] and \
+                     self.db.field_metadata[key]['datatype'] != 'rating'):
+                self.context_menu.addAction(_('Rename \'%s\'')%tag_name,
                         partial(self.context_menu_handler, action='edit_item',
                                 category=tag_item, index=index))
+                if key == 'authors':
+                    self.context_menu.addAction(_('Edit sort for \'%s\'')%tag_name,
+                            partial(self.context_menu_handler,
+                                    action='edit_author_sort', index=tag_id))
                 self.context_menu.addSeparator()
             # Hide/Show/Restore categories
             self.context_menu.addAction(_('Hide category %s') % category,
@@ -158,9 +210,12 @@ class TagsView(QTreeView): # {{{
             self.context_menu.addSeparator()
             if key in ['tags', 'publisher', 'series'] or \
                         self.db.field_metadata[key]['is_custom']:
-                self.context_menu.addAction(_('Manage ') + category,
+                self.context_menu.addAction(_('Manage %s')%category,
                         partial(self.context_menu_handler, action='open_editor',
                                 category=tag_name, key=key))
+            elif key == 'authors':
+                self.context_menu.addAction(_('Manage %s')%category,
+                        partial(self.context_menu_handler, action='edit_author_sort'))
             elif key == 'search':
                 self.context_menu.addAction(_('Manage Saved Searches'),
                     partial(self.context_menu_handler, action='manage_searches',
@@ -184,13 +239,21 @@ class TagsView(QTreeView): # {{{
         if self.model():
             self.model().clear_state()
 
+    def is_visible(self, idx):
+        item = idx.internalPointer()
+        if getattr(item, 'type', None) == TagTreeItem.TAG:
+            idx = idx.parent()
+        return self.isExpanded(idx)
+
     def recount(self, *args):
         ci = self.currentIndex()
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))
-        path = self.model().path_for_index(ci)
+        path = self.model().path_for_index(ci) if self.is_visible(ci) else None
         try:
-            self.model().refresh()
+            if not self.model().refresh(): # categories changed!
+                self.set_new_model()
+                path = None
         except: #Database connection could be closed if an integrity check is happening
             pass
         if path:
@@ -203,10 +266,16 @@ class TagsView(QTreeView): # {{{
     # gone, or if columns have been hidden or restored, we must rebuild the
     # model. Reason: it is much easier than reconstructing the browser tree.
     def set_new_model(self):
-        self._model = TagsModel(self.db, parent=self,
-                                hidden_categories=self.hidden_categories,
-                                search_restriction=self.search_restriction)
-        self.setModel(self._model)
+        try:
+            self._model = TagsModel(self.db, parent=self,
+                                    hidden_categories=self.hidden_categories,
+                                    search_restriction=self.search_restriction)
+            self.setModel(self._model)
+        except:
+            # The DB must be gone. Set the model to None and hope that someone
+            # will call set_database later. I don't know if this in fact works
+            self._model = None
+            self.setModel(None)
     # }}}
 
 class TagTreeItem(object): # {{{
@@ -310,25 +379,17 @@ class TagsModel(QAbstractItemModel): # {{{
                     ':custom'   : QIcon(I('column.svg')),
                     ':user'     : QIcon(I('drawer.svg')),
                     'search'    : QIcon(I('search.svg'))})
+        self.categories_with_ratings = ['authors', 'series', 'publisher', 'tags']
 
         self.icon_state_map = [None, QIcon(I('plus.svg')), QIcon(I('minus.svg'))]
         self.db = db
         self.tags_view = parent
         self.hidden_categories = hidden_categories
         self.search_restriction = search_restriction
+        self.row_map = []
 
-        # Reconstruct the user categories, putting them into metadata
-        tb_cats = self.db.field_metadata
-        for k in tb_cats.keys():
-            if tb_cats[k]['kind'] in ['user', 'search']:
-                del tb_cats[k]
-        for user_cat in sorted(prefs['user_categories'].keys()):
-            cat_name = user_cat+':' # add the ':' to avoid name collision
-            tb_cats.add_user_category(label=cat_name, name=user_cat)
-        if len(saved_searches.names()):
-            tb_cats.add_search_category(label='search', name=_('Searches'))
-
-        data = self.get_node_tree(config['sort_by_popularity'])
+        # get_node_tree cannot return None here, because row_map is empty
+        data = self.get_node_tree(config['sort_tags_by'])
         self.root_item = TagTreeItem()
         for i, r in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
@@ -341,36 +402,58 @@ class TagsModel(QAbstractItemModel): # {{{
                     data=self.categories[i],
                     category_icon=self.category_icon_map[r],
                     tooltip=tt, category_key=r)
+            # This duplicates code in refresh(). Having it here as well
+            # can save seconds during startup, because we avoid a second
+            # call to get_node_tree.
             for tag in data[r]:
+                if r not in self.categories_with_ratings and \
+                            not self.db.field_metadata[r]['is_custom'] and \
+                            not self.db.field_metadata[r]['kind'] == 'user':
+                    tag.avg_rating = None
                 TagTreeItem(parent=c, data=tag, icon_map=self.icon_state_map)
 
     def set_search_restriction(self, s):
         self.search_restriction = s
 
     def get_node_tree(self, sort):
+        old_row_map = self.row_map[:]
         self.row_map = []
         self.categories = []
 
+        # Reconstruct the user categories, putting them into metadata
+        tb_cats = self.db.field_metadata
+        for k in tb_cats.keys():
+            if tb_cats[k]['kind'] in ['user', 'search']:
+                del tb_cats[k]
+        for user_cat in sorted(prefs['user_categories'].keys()):
+            cat_name = user_cat+':' # add the ':' to avoid name collision
+            tb_cats.add_user_category(label=cat_name, name=user_cat)
+        if len(saved_searches.names()):
+            tb_cats.add_search_category(label='search', name=_('Searches'))
+
+        # Now get the categories
         if self.search_restriction:
-            data = self.db.get_categories(sort_on_count=sort,
+            data = self.db.get_categories(sort=sort,
                         icon_map=self.category_icon_map,
                         ids=self.db.search('', return_matches=True))
         else:
-            data = self.db.get_categories(sort_on_count=sort, icon_map=self.category_icon_map)
+            data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
 
         tb_categories = self.db.field_metadata
-        self.category_items = {}
         for category in tb_categories:
-            if category in data: # They should always be there, but ...
-                # make a map of sets of names per category for duplicate
-                # checking when editing
-                self.category_items[category] = set([tag.name for tag in data[category]])
+            if category in data: # The search category can come and go
                 self.row_map.append(category)
                 self.categories.append(tb_categories[category]['name'])
+        if len(old_row_map) != 0 and len(old_row_map) != len(self.row_map):
+            # A category has been added or removed. We must force a rebuild of
+            # the model
+            return None
         return data
 
     def refresh(self):
-        data = self.get_node_tree(config['sort_by_popularity']) # get category data
+        data = self.get_node_tree(config['sort_tags_by']) # get category data
+        if data is None:
+            return False
         row_index = -1
         for i, r in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
@@ -389,9 +472,14 @@ class TagsModel(QAbstractItemModel): # {{{
             if len(data[r]) > 0:
                 self.beginInsertRows(category_index, 0, len(data[r])-1)
                 for tag in data[r]:
+                    if r not in self.categories_with_ratings and \
+                                not self.db.field_metadata[r]['is_custom'] and \
+                                not self.db.field_metadata[r]['kind'] == 'user':
+                        tag.avg_rating = None
                     tag.state = state_map.get(tag.name, 0)
                     t = TagTreeItem(parent=category, data=tag, icon_map=self.icon_state_map)
                 self.endInsertRows()
+        return True
 
     def columnCount(self, parent):
         return 1
@@ -405,6 +493,8 @@ class TagsModel(QAbstractItemModel): # {{{
     def setData(self, index, value, role=Qt.EditRole):
         if not index.isValid():
             return NONE
+        # set up to position at the category label
+        path = self.path_for_index(self.parent(index))
         val = unicode(value.toString())
         if not val:
             error_dialog(self.tags_view, _('Item is blank'),
@@ -412,15 +502,14 @@ class TagsModel(QAbstractItemModel): # {{{
             return False
         item = index.internalPointer()
         key = item.parent.category_key
-        # make certain we know about the category
+        # make certain we know about the item's category
         if key not in self.db.field_metadata:
             return
-        if val in self.category_items[key]:
-            error_dialog(self.tags_view, 'Duplicate item',
-                        _('The name %s is already used.')%val).exec_()
-            return False
-        oldval = item.tag.name
         if key == 'search':
+            if val in saved_searches.names():
+                error_dialog(self.tags_view, _('Duplicate search name'),
+                    _('The saved search name %s is already used.')%val).exec_()
+                return False
             saved_searches.rename(unicode(item.data(role).toString()), val)
             self.tags_view.search_item_renamed.emit()
         else:
@@ -437,10 +526,12 @@ class TagsModel(QAbstractItemModel): # {{{
                                     label=self.db.field_metadata[key]['label'])
             self.tags_view.tag_item_renamed.emit()
         item.tag.name = val
-        self.dataChanged.emit(index, index)
-        # replace the old value in the duplicate detection map with the new one
-        self.category_items[key].discard(oldval)
-        self.category_items[key].add(val)
+        self.refresh() # Should work, because no categories can have disappeared
+        if path:
+            idx = self.index_for_path(path)
+            if idx.isValid():
+                self.tags_view.setCurrentIndex(idx)
+                self.tags_view.scrollTo(idx, QTreeView.PositionAtCenter)
         return True
 
     def headerData(self, *args):
@@ -563,4 +654,90 @@ class TagsModel(QAbstractItemModel): # {{{
         return ans
 
     # }}}
+
+class TagBrowserMixin(object): # {{{
+
+    def __init__(self, db):
+        self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
+        self.tags_view.set_database(self.library_view.model().db,
+                self.tag_match, self.sort_by)
+        self.tags_view.tags_marked.connect(self.search.search_from_tags)
+        self.tags_view.tags_marked.connect(self.saved_search.clear_to_help)
+        self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
+        self.tags_view.user_category_edit.connect(self.do_user_categories_edit)
+        self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
+        self.tags_view.author_sort_edit.connect(self.do_author_sort_edit)
+        self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
+        self.tags_view.search_item_renamed.connect(self.saved_search.clear_to_help)
+        self.edit_categories.clicked.connect(lambda x:
+                self.do_user_categories_edit())
+
+    def do_user_categories_edit(self, on_category=None):
+        d = TagCategories(self, self.library_view.model().db, on_category)
+        d.exec_()
+        if d.result() == d.Accepted:
+            self.tags_view.set_new_model()
+            self.tags_view.recount()
+
+    def do_tags_list_edit(self, tag, category):
+        d = TagListEditor(self, self.library_view.model().db, tag, category)
+        d.exec_()
+        if d.result() == d.Accepted:
+            # Clean up everything, as information could have changed for many books.
+            self.library_view.model().refresh()
+            self.tags_view.set_new_model()
+            self.tags_view.recount()
+            self.saved_search.clear_to_help()
+            self.search.clear_to_help()
+
+    def do_tag_item_renamed(self):
+        # Clean up library view and search
+        self.library_view.model().refresh()
+        self.saved_search.clear_to_help()
+        self.search.clear_to_help()
+
+    def do_author_sort_edit(self, parent, id):
+        db = self.library_view.model().db
+        editor = EditAuthorsDialog(parent, db, id)
+        d = editor.exec_()
+        if d:
+            for (id, old_author, new_author, new_sort) in editor.result:
+                if old_author != new_author:
+                    # The id might change if the new author already exists
+                    id = db.rename_author(id, new_author)
+                db.set_sort_field_for_author(id, unicode(new_sort))
+            self.library_view.model().refresh()
+            self.tags_view.recount()
+
+# }}}
+
+class TagBrowserWidget(QWidget): # {{{
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self._layout = QVBoxLayout()
+        self.setLayout(self._layout)
+
+        parent.tags_view = TagsView(parent)
+        self._layout.addWidget(parent.tags_view)
+
+        parent.sort_by = QComboBox(parent)
+        # Must be in the same order as db2.CATEGORY_SORTS
+        for x in (_('Sort by name'), _('Sort by popularity'),
+                  _('Sort by average rating')):
+            parent.sort_by.addItem(x)
+        parent.sort_by.setCurrentIndex(0)
+        self._layout.addWidget(parent.sort_by)
+
+        parent.tag_match = QComboBox(parent)
+        for x in (_('Match any'), _('Match all')):
+            parent.tag_match.addItem(x)
+        parent.tag_match.setCurrentIndex(0)
+        self._layout.addWidget(parent.tag_match)
+
+        parent.edit_categories = QPushButton(_('Manage &user categories'), parent)
+        self._layout.addWidget(parent.edit_categories)
+
+
+# }}}
 

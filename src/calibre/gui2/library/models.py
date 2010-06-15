@@ -21,7 +21,8 @@ from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
-from calibre import strftime
+from calibre import strftime, isbytestring, prepare_string_for_xml
+from calibre.constants import filesystem_encoding
 from calibre.gui2.library import DEFAULT_SORT
 
 def human_readable(size, precision=1):
@@ -32,6 +33,14 @@ TIME_FMT = '%d %b %Y'
 
 ALIGNMENT_MAP = {'left': Qt.AlignLeft, 'right': Qt.AlignRight, 'center':
         Qt.AlignHCenter}
+
+class FormatPath(unicode):
+
+    def __new__(cls, path, orig_file_path):
+        ans = unicode.__new__(cls, path)
+        ans.orig_file_path = orig_file_path
+        ans.deleted_after_upload = False
+        return ans
 
 class BooksModel(QAbstractTableModel): # {{{
 
@@ -191,7 +200,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.count_changed()
         self.clear_caches()
         self.reset()
-
+        return ids
 
     def delete_books_by_id(self, ids):
         for id in ids:
@@ -291,6 +300,7 @@ class BooksModel(QAbstractTableModel): # {{{
             formats = _('None')
         data[_('Formats')] = formats
         data[_('Path')] = self.db.abspath(idx)
+        data['id'] = self.id(idx)
         comments = self.db.comments(idx)
         if not comments:
             comments = _('None')
@@ -299,7 +309,9 @@ class BooksModel(QAbstractTableModel): # {{{
         if series:
             sidx = self.db.series_index(idx)
             sidx = fmt_sidx(sidx, use_roman = self.use_roman_numbers)
-            data[_('Series')] = _('Book <font face="serif">%s</font> of %s.')%(sidx, series)
+            data[_('Series')] = \
+                _('Book <font face="serif">%s</font> of %s.')%\
+                    (sidx, prepare_string_for_xml(series))
 
         return data
 
@@ -379,7 +391,7 @@ class BooksModel(QAbstractTableModel): # {{{
         else:
             return metadata
 
-    def get_preferred_formats_from_ids(self, ids, formats, paths=False,
+    def get_preferred_formats_from_ids(self, ids, formats,
                               set_metadata=False, specific_format=None,
                               exclude_auto=False, mode='r+b'):
         ans = []
@@ -404,12 +416,23 @@ class BooksModel(QAbstractTableModel): # {{{
                     as_file=True)) as src:
                     shutil.copyfileobj(src, pt)
                     pt.flush()
+                    if getattr(src, 'name', None):
+                        pt.orig_file_path = os.path.abspath(src.name)
                 pt.seek(0)
                 if set_metadata:
-                    _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
+                    try:
+                        _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
                                   format)
-                pt.close() if paths else pt.seek(0)
-                ans.append(pt)
+                    except:
+                        traceback.print_exc()
+                pt.close()
+                def to_uni(x):
+                    if isbytestring(x):
+                        x = x.decode(filesystem_encoding)
+                    return x
+                name, op = map(to_uni, map(os.path.abspath, (pt.name,
+                    pt.orig_file_path)))
+                ans.append(FormatPath(name, op))
             else:
                 need_auto.append(id)
                 if not exclude_auto:
@@ -864,6 +887,15 @@ class DeviceBooksModel(BooksModel): # {{{
         for v in self.marked_for_deletion.values():
             ans.extend(v)
         return ans
+
+    def clear_ondevice(self, db_ids):
+        for data in self.db:
+            if data is None:
+                continue
+            app_id = getattr(data, 'application_id', None)
+            if app_id is not None and app_id in db_ids:
+                data.in_library = False
+            self.reset()
 
     def flags(self, index):
         if self.map[index.row()] in self.indices_to_be_deleted():

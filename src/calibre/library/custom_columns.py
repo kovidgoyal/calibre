@@ -183,15 +183,30 @@ class CustomColumns(object):
         ans = self.conn.get('SELECT id, value FROM %s'%table)
         return ans
 
-    def rename_custom_item(self, id, new_name, label=None, num=None):
-        if id:
-            if label is not None:
-                data = self.custom_column_label_map[label]
-            if num is not None:
-                data = self.custom_column_num_map[num]
-            table,lt = self.custom_table_names(data['num'])
-            self.conn.execute('UPDATE %s SET value=? WHERE id=?'%table, (new_name, id))
-            self.conn.commit()
+    def rename_custom_item(self, old_id, new_name, label=None, num=None):
+        if label is not None:
+            data = self.custom_column_label_map[label]
+        if num is not None:
+            data = self.custom_column_num_map[num]
+        table,lt = self.custom_table_names(data['num'])
+        # check if item exists
+        new_id = self.conn.get(
+            'SELECT id FROM %s WHERE value=?'%table, (new_name,), all=False)
+        if new_id is None or old_id == new_id:
+            self.conn.execute('UPDATE %s SET value=? WHERE id=?'%table, (new_name, old_id))
+        else:
+            # New id exists. If the column is_multiple, then process like
+            # tags, otherwise process like publishers (see database2)
+            if data['is_multiple']:
+                books = self.conn.get('''SELECT book from %s
+                                         WHERE value=?'''%lt, (old_id,))
+                for (book_id,) in books:
+                    self.conn.execute('''DELETE FROM %s
+                            WHERE book=? and value=?'''%lt, (book_id, new_id))
+            self.conn.execute('''UPDATE %s SET value=?
+                                 WHERE value=?'''%lt, (new_id, old_id,))
+            self.conn.execute('DELETE FROM %s WHERE id=?'%table, (old_id,))
+        self.conn.commit()
 
     def delete_custom_item_using_id(self, id, label=None, num=None):
         if id:
@@ -446,14 +461,27 @@ class CustomColumns(object):
                 CREATE VIEW tag_browser_{table} AS SELECT
                     id,
                     value,
-                    (SELECT COUNT(id) FROM {lt} WHERE value={table}.id) count
+                    (SELECT COUNT(id) FROM {lt} WHERE value={table}.id) count,
+                    (SELECT AVG(r.rating)
+                     FROM {lt},
+                          books_ratings_link as bl,
+                          ratings as r
+                     WHERE {lt}.value={table}.id and bl.book={lt}.book and
+                           r.id = bl.rating and r.rating <> 0) avg_rating
                 FROM {table};
 
                 CREATE VIEW tag_browser_filtered_{table} AS SELECT
                     id,
                     value,
                     (SELECT COUNT({lt}.id) FROM {lt} WHERE value={table}.id AND
-                    books_list_filter(book)) count
+                    books_list_filter(book)) count,
+                    (SELECT AVG(r.rating)
+                     FROM {lt},
+                          books_ratings_link as bl,
+                          ratings as r
+                     WHERE {lt}.value={table}.id AND bl.book={lt}.book AND
+                           r.id = bl.rating AND r.rating <> 0 AND
+                           books_list_filter(bl.book)) avg_rating
                 FROM {table};
 
                 '''.format(lt=lt, table=table),
@@ -490,7 +518,6 @@ class CustomColumns(object):
                         END;
                 '''.format(table=table),
             ]
-
         script = ' \n'.join(lines)
         self.conn.executescript(script)
         self.conn.commit()

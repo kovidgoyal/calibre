@@ -43,8 +43,8 @@ def _config():
               help=_('Notify when a new version is available'))
     c.add_opt('use_roman_numerals_for_series_number', default=True,
               help=_('Use Roman numerals for series number'))
-    c.add_opt('sort_by_popularity', default=False,
-              help=_('Sort tags list by popularity'))
+    c.add_opt('sort_tags_by', default='name',
+              help=_('Sort tags list by name, popularity, or rating'))
     c.add_opt('cover_flow_queue_length', default=6,
               help=_('Number of covers to show in the cover browsing mode'))
     c.add_opt('LRF_conversion_defaults', default=[],
@@ -99,6 +99,10 @@ def _config():
             help=_('Limit max simultaneous jobs to number of CPUs'))
     c.add_opt('tag_browser_hidden_categories', default=set(),
             help=_('tag browser categories not to display'))
+    c.add_opt('gui_layout', choices=['wide', 'narrow'],
+            help=_('The layout of the user interface'), default='wide')
+    c.add_opt('show_avg_rating', default=True,
+            help=_('Show the average rating per item indication in the tag browser'))
     return ConfigProxy(c)
 
 config = _config()
@@ -124,6 +128,17 @@ def min_available_height():
 def available_width():
     desktop       = QCoreApplication.instance().desktop()
     return desktop.availableGeometry().width()
+
+_is_widescreen = None
+
+def is_widescreen():
+    global _is_widescreen
+    if _is_widescreen is None:
+        try:
+            _is_widescreen = float(available_width())/available_height() > 1.4
+        except:
+            _is_widescreen = False
+    return _is_widescreen
 
 def extension(path):
     return os.path.splitext(path)[1][1:].lower()

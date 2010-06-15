@@ -35,6 +35,8 @@ PUBLICATION_METADATA_FIELDS = frozenset([
     'title_sort',
     # Ordered list of authors. Must never be None, can be [_('Unknown')]
     'authors',
+    # Map of sort strings for each author
+    'author_sort_map',
     # Pseudo field that can be set, but if not set is auto generated
     # from authors and languages
     'author_sort',

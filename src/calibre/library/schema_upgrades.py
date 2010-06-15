@@ -291,4 +291,122 @@ class SchemaUpgrade(object):
 
         for field in self.field_metadata.itervalues():
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
-                create_tag_browser_view(field['table'], field['link_column'], field['column'])
+                table = self.conn.get(
+                    'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
+                    ('books_%s_link'%field['table'],), all=False)
+                if table is not None:
+                    create_tag_browser_view(field['table'], field['link_column'], field['column'])
+
+    def upgrade_version_11(self):
+        'Add average rating to tag browser views'
+        def create_std_tag_browser_view(table_name, column_name,
+                                        view_column_name, sort_column_name):
+            script = ('''
+                DROP VIEW IF EXISTS tag_browser_{tn};
+                CREATE VIEW tag_browser_{tn} AS SELECT
+                    id,
+                    {vcn},
+                    (SELECT COUNT(id) FROM books_{tn}_link WHERE {cn}={tn}.id) count,
+                    (SELECT AVG(ratings.rating)
+                     FROM books_{tn}_link AS tl, books_ratings_link AS bl, ratings
+                     WHERE tl.{cn}={tn}.id AND bl.book=tl.book AND
+                     ratings.id = bl.rating AND ratings.rating <> 0) avg_rating,
+                     {scn} AS sort
+                FROM {tn};
+                DROP VIEW IF EXISTS tag_browser_filtered_{tn};
+                CREATE VIEW tag_browser_filtered_{tn} AS SELECT
+                    id,
+                    {vcn},
+                    (SELECT COUNT(books_{tn}_link.id) FROM books_{tn}_link WHERE
+                        {cn}={tn}.id AND books_list_filter(book)) count,
+                    (SELECT AVG(ratings.rating)
+                     FROM books_{tn}_link AS tl, books_ratings_link AS bl, ratings
+                     WHERE tl.{cn}={tn}.id AND bl.book=tl.book AND
+                     ratings.id = bl.rating AND ratings.rating <> 0 AND
+                     books_list_filter(bl.book)) avg_rating,
+                     {scn} AS sort
+                FROM {tn};
+
+                '''.format(tn=table_name, cn=column_name,
+                           vcn=view_column_name, scn= sort_column_name))
+            self.conn.executescript(script)
+
+        def create_cust_tag_browser_view(table_name, link_table_name):
+            script = '''
+                DROP VIEW IF EXISTS tag_browser_{table};
+                CREATE VIEW tag_browser_{table} AS SELECT
+                    id,
+                    value,
+                    (SELECT COUNT(id) FROM {lt} WHERE value={table}.id) count,
+                    (SELECT AVG(r.rating)
+                     FROM {lt},
+                          books_ratings_link AS bl,
+                          ratings AS r
+                     WHERE {lt}.value={table}.id AND bl.book={lt}.book AND
+                           r.id = bl.rating AND r.rating <> 0) avg_rating,
+                     value AS sort
+                FROM {table};
+
+                DROP VIEW IF EXISTS tag_browser_filtered_{table};
+                CREATE VIEW tag_browser_filtered_{table} AS SELECT
+                    id,
+                    value,
+                    (SELECT COUNT({lt}.id) FROM {lt} WHERE value={table}.id AND
+                    books_list_filter(book)) count,
+                    (SELECT AVG(r.rating)
+                     FROM {lt},
+                          books_ratings_link AS bl,
+                          ratings AS r
+                     WHERE {lt}.value={table}.id AND bl.book={lt}.book AND
+                           r.id = bl.rating AND r.rating <> 0 AND
+                           books_list_filter(bl.book)) avg_rating,
+                     value AS sort
+                FROM {table};
+                '''.format(lt=link_table_name, table=table_name)
+            self.conn.executescript(script)
+
+        for field in self.field_metadata.itervalues():
+            if field['is_category'] and not field['is_custom'] and 'link_column' in field:
+                table = self.conn.get(
+                    'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
+                    ('books_%s_link'%field['table'],), all=False)
+                if table is not None:
+                    create_std_tag_browser_view(field['table'], field['link_column'],
+                                            field['column'], field['category_sort'])
+
+        db_tables = self.conn.get('''SELECT name FROM sqlite_master
+                                     WHERE type='table'
+                                     ORDER BY name''');
+        tables = []
+        for (table,) in db_tables:
+            tables.append(table)
+        for table in tables:
+            link_table = 'books_%s_link'%table
+            if table.startswith('custom_column_') and link_table in tables:
+                create_cust_tag_browser_view(table, link_table)
+
+        from calibre.ebooks.metadata import author_to_author_sort
+
+        aut = self.conn.get('SELECT id, name FROM authors');
+        records = []
+        for (id, author) in aut:
+            records.append((id, author.replace('|', ',')))
+        for id,author in records:
+            self.conn.execute('UPDATE authors SET sort=? WHERE id=?',
+                (author_to_author_sort(author.replace('|', ',')).strip(), id))
+        self.conn.commit()
+        self.conn.executescript('''
+        DROP TRIGGER IF EXISTS author_insert_trg;
+        CREATE TRIGGER author_insert_trg
+            AFTER INSERT ON authors
+            BEGIN
+            UPDATE authors SET sort=author_to_author_sort(NEW.name) WHERE id=NEW.id;
+        END;
+        DROP TRIGGER IF EXISTS author_update_trg;
+        CREATE TRIGGER author_update_trg
+            BEFORE UPDATE ON authors
+            BEGIN
+            UPDATE authors SET sort=author_to_author_sort(NEW.name)
+            WHERE id=NEW.id AND name <> NEW.name;
+        END;
+        ''')

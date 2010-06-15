@@ -481,8 +481,18 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.opt_enforce_cpu_limit.setChecked(config['enforce_cpu_limit'])
         self.device_detection_button.clicked.connect(self.debug_device_detection)
         self.port.editingFinished.connect(self.check_port_value)
+        self.search_as_you_type.setChecked(config['search_as_you_type'])
+        self.show_avg_rating.setChecked(config['show_avg_rating'])
         self.show_splash_screen.setChecked(gprefs.get('show_splash_screen',
             True))
+        li = None
+        for i, z in enumerate([('wide', _('Wide')),
+            ('narrow', _('Narrow'))]):
+            x, y = z
+            self.opt_gui_layout.addItem(y, QVariant(x))
+            if x == config['gui_layout']:
+                li = i
+        self.opt_gui_layout.setCurrentIndex(li)
 
     def check_port_value(self, *args):
         port = self.port.value()
@@ -854,6 +864,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['delete_news_from_library_on_upload'] = self.delete_news.isChecked()
         config['upload_news_to_device'] = self.sync_news.isChecked()
         config['search_as_you_type'] = self.search_as_you_type.isChecked()
+        config['show_avg_rating'] = self.show_avg_rating.isChecked()
         config['get_social_metadata'] = self.opt_get_social_metadata.isChecked()
         config['overwrite_author_title_metadata'] = self.opt_overwrite_author_title_metadata.isChecked()
         config['enforce_cpu_limit'] = bool(self.opt_enforce_cpu_limit.isChecked())
@@ -863,6 +874,8 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             if self.viewer.item(i).checkState() == Qt.Checked:
                 fmts.append(str(self.viewer.item(i).text()))
         config['internally_viewed_formats'] = fmts
+        val = self.opt_gui_layout.itemData(self.opt_gui_layout.currentIndex()).toString()
+        config['gui_layout'] = unicode(val)
 
         if not path or not os.path.exists(path) or not os.path.isdir(path):
             d = error_dialog(self, _('Invalid database location'),

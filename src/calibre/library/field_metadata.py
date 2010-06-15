@@ -44,9 +44,12 @@ class FieldMetadata(dict):
     is_category: is a tag browser category. If true, then:
        table: name of the db table used to construct item list
        column: name of the column in the normalized table to join on
-       link_column: name of the column in the connection table to join on
+       link_column: name of the column in the connection table to join on. This
+                    key should not be present if there is no link table
+       category_sort: the field in the normalized table to sort on. This
+                      key must be present if is_category is True
        If these are None, then the category constructor must know how
-       to build the item list (e.g., formats).
+       to build the item list (e.g., formats, news).
        The order below is the order that the categories will
        appear in the tags pane.
 
@@ -66,6 +69,7 @@ class FieldMetadata(dict):
             ('authors',   {'table':'authors',
                            'column':'name',
                            'link_column':'author',
+                           'category_sort':'sort',
                            'datatype':'text',
                            'is_multiple':',',
                            'kind':'field',
@@ -76,6 +80,7 @@ class FieldMetadata(dict):
             ('series',    {'table':'series',
                            'column':'name',
                            'link_column':'series',
+                           'category_sort':'(title_sort(name))',
                            'datatype':'text',
                            'is_multiple':None,
                            'kind':'field',
@@ -95,6 +100,7 @@ class FieldMetadata(dict):
             ('publisher', {'table':'publishers',
                            'column':'name',
                            'link_column':'publisher',
+                           'category_sort':'name',
                            'datatype':'text',
                            'is_multiple':None,
                            'kind':'field',
@@ -105,6 +111,7 @@ class FieldMetadata(dict):
             ('rating',    {'table':'ratings',
                            'column':'rating',
                            'link_column':'rating',
+                           'category_sort':'rating',
                            'datatype':'rating',
                            'is_multiple':None,
                            'kind':'field',
@@ -114,6 +121,7 @@ class FieldMetadata(dict):
                            'is_category':True}),
             ('news',      {'table':'news',
                            'column':'name',
+                           'category_sort':'name',
                            'datatype':None,
                            'is_multiple':None,
                            'kind':'category',
@@ -124,6 +132,7 @@ class FieldMetadata(dict):
             ('tags',      {'table':'tags',
                            'column':'name',
                            'link_column': 'tag',
+                           'category_sort':'name',
                            'datatype':'text',
                            'is_multiple':',',
                            'kind':'field',
@@ -374,10 +383,21 @@ class FieldMetadata(dict):
                              'search_terms':[key], 'label':label,
                              'colnum':colnum,      'display':display,
                              'is_custom':True,     'is_category':is_category,
-                             'link_column':'value',
+                             'link_column':'value','category_sort':'value',
                              'is_editable': is_editable,}
         self._add_search_terms_to_map(key, [key])
         self.custom_label_to_key_map[label] = key
+
+    def remove_custom_fields(self):
+        for key in self.get_custom_fields():
+            del self._tb_cats[key]
+
+    def remove_dynamic_categories(self):
+        for key in list(self._tb_cats.keys()):
+            val = self._tb_cats[key]
+            if val['is_category'] and val['kind'] in ('user', 'search'):
+                del self._tb_cats[key]
+
 
     def add_user_category(self, label, name):
         if label in self._tb_cats:
