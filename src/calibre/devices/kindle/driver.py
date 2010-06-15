@@ -7,11 +7,32 @@ __docformat__ = 'restructuredtext en'
 '''
 Device driver for Amazon's Kindle
 '''
-import datetime, os, re, sys
+import datetime, os, re, sys, json, hashlib
 from cStringIO import StringIO
 from struct import unpack
 
 from calibre.devices.usbms.driver import USBMS
+
+'''
+Notes on collections:
+
+A collections cache is stored at system/collections.json
+The cache is read only, changes made to it are overwritten (it is regenerated)
+on device disconnect
+
+A log of collection creation/manipulation is available at
+system/userannotationlog
+
+collections.json refers to books via a SHA1 hash of the absolute path to the
+book (prefix is /mnt/us on my Kindle). The SHA1 hash may or may not be prefixed
+by some characters, use the last 40 characters.
+
+Changing the metadata and resending the file doesn't seem to affect collections
+
+Adding a book to a collection on the Kindle does not change the book file at all
+(i.e. it is binary identical). Therefore collection information is not stored in
+file metadata.
+'''
 
 class KINDLE(USBMS):
 
@@ -59,6 +80,7 @@ class KINDLE(USBMS):
                     mi.title = mi.title.decode(sys.getfilesystemencoding(),
                                                'replace')
         return mi
+
 
     def get_annotations(self, path_map):
         MBP_FORMATS = [u'azw', u'mobi', u'prc', u'txt']
@@ -150,6 +172,37 @@ class KINDLE2(KINDLE):
     PRODUCT_ID = [0x0002]
     BCD        = [0x0100]
 
+    def books(self, oncard=None, end_session=True):
+        bl = USBMS.books(self, oncard=oncard, end_session=end_session)
+        # Read collections information
+        collections = os.path.join(self._main_prefix, 'system', 'collections.json')
+        if os.access(collections, os.R_OK):
+            try:
+                self.kindle_update_booklist(bl, collections)
+            except:
+                import traceback
+                traceback.print_exc()
+        return bl
+
+    def kindle_update_booklist(self, bl, collections):
+        with open(collections, 'rb') as f:
+            collections = f.read()
+        collections = json.loads(collections)
+        path_map = {}
+        for name, val in collections.items():
+            col = name.split('@')[0]
+            items = val.get('items', [])
+            for x in items:
+                x = x[-40:]
+                if x not in path_map:
+                    path_map[x] = set([])
+                path_map[x].add(col)
+        if path_map:
+            for book in bl:
+                path = '/mnt/us/'+book.lpath
+                h = hashlib.sha1(path).hexdigest()
+                if h in path_map:
+                    book.device_collections = list(sorted(path_map[h]))
 
 class KINDLE_DX(KINDLE2):
 

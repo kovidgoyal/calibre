@@ -445,7 +445,7 @@ from calibre.devices.nook.driver import NOOK
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.android.driver import ANDROID, S60
 from calibre.devices.nokia.driver import N770, N810, E71X
-from calibre.devices.eslick.driver import ESLICK
+from calibre.devices.eslick.driver import ESLICK, EBK52
 from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
@@ -519,6 +519,7 @@ plugins += [
     N810,
     COOL_ER,
     ESLICK,
+    EBK52,
     NUUT2,
     IRIVER_STORY,
     GER2,

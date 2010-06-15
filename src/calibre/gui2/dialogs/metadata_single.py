@@ -357,7 +357,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         aus = self.db.author_sort(row)
         self.author_sort.setText(aus if aus else '')
         tags = self.db.tags(row)
-        self.tags.setText(', '.join(tags.split(',')) if tags else '')
+        self.original_tags = ', '.join(tags.split(',')) if tags else ''
+        self.tags.setText(self.original_tags)
         self.tags.update_tags_cache(self.db.all_tags())
         rating = self.db.rating(row)
         if rating > 0:
@@ -527,6 +528,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.publisher.setCurrentIndex(idx)
 
     def edit_tags(self):
+        if self.tags.text() != self.original_tags:
+            error_dialog(self, _('Cannot use tag editor'),
+                _('The tags editor cannot be used if you have modified the tags')).exec_()
+            return
         d = TagEditor(self, self.db, self.row)
         d.exec_()
         if d.result() == QDialog.Accepted:

@@ -96,14 +96,14 @@ class Kobo(Device):
 class Booq(Device):
     name = 'Booq Reader'
     manufacturer = 'Booq'
-    output_profile = 'prs505'
+    output_profile = 'sony'
     output_format = 'EPUB'
     id = 'booq'
 
 class TheBook(Device):
     name = 'The Book'
     manufacturer = 'Augen'
-    output_profile = 'prs505'
+    output_profile = 'sony'
     output_format = 'EPUB'
     id = 'thebook'
 

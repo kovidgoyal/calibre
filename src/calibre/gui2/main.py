@@ -53,7 +53,24 @@ def init_qt(args):
     app.setWindowIcon(QIcon(I('library.png')))
     return app, opts, args, actions
 
-def get_library_path():
+
+def get_default_library_path():
+    fname = _('Calibre Library')
+    if isinstance(fname, unicode):
+        try:
+            fname = fname.encode(filesystem_encoding)
+        except:
+            fname = 'Calibre Library'
+    x = os.path.expanduser('~'+os.sep+fname)
+    if not os.path.exists(x):
+        try:
+            os.makedirs(x)
+        except:
+            x = os.path.expanduser('~')
+    return x
+
+
+def get_library_path(parent=None):
     library_path = prefs['library_path']
     if library_path is None: # Need to migrate to new database layout
         base = os.path.expanduser('~')
@@ -73,10 +90,12 @@ def get_library_path():
         try:
             os.makedirs(library_path)
         except:
-            error_dialog(None, _('Failed to create library'),
-                    _('Failed to create calibre library at: %r. Aborting.')%library_path,
+            error_dialog(parent, _('Failed to create library'),
+                    _('Failed to create calibre library at: %r.')%library_path,
                     det_msg=traceback.format_exc(), show=True)
-            library_path = None
+            library_path = choose_dir(parent, 'choose calibre library',
+                _('Choose a location for your new calibre e-book library'),
+                default_dir=get_default_library_path())
     return library_path
 
 class DBRepair(QThread):
@@ -159,22 +178,9 @@ class GuiRunner(QObject):
                         'a new empty library.'),
                     det_msg=tb, show=True)
         if db is None:
-            fname = _('Calibre Library')
-            if isinstance(fname, unicode):
-                try:
-                    fname = fname.encode(filesystem_encoding)
-                except:
-                    fname = 'Calibre Library'
-            x = os.path.expanduser('~'+os.sep+fname)
-            if not os.path.exists(x):
-                try:
-                    os.makedirs(x)
-                except:
-                    x = os.path.expanduser('~')
             candidate = choose_dir(self.splash_screen, 'choose calibre library',
                 _('Choose a location for your new calibre e-book library'),
-                default_dir=x)
-
+                default_dir=get_default_library_path())
             if not candidate:
                 self.initialization_failed()
 
@@ -236,8 +242,8 @@ class GuiRunner(QObject):
         if gprefs.get('show_splash_screen', True):
             self.show_splash_screen()
 
-        self.library_path = get_library_path()
-        if self.library_path is None:
+        self.library_path = get_library_path(parent=self.splash_screen)
+        if not self.library_path:
             self.initialization_failed()
 
         self.initialize_db()

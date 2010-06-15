@@ -27,16 +27,16 @@ for i, ext in enumerate(_METADATA_PRIORITIES):
 def path_to_ext(path):
     return os.path.splitext(path)[1][1:].lower()
 
-def metadata_from_formats(formats):
+def metadata_from_formats(formats, force_read_metadata=False, pattern=None):
     try:
-        return _metadata_from_formats(formats)
+        return _metadata_from_formats(formats, force_read_metadata, pattern)
     except:
-        mi = metadata_from_filename(list(iter(formats))[0])
+        mi = metadata_from_filename(list(iter(formats), pattern)[0])
         if not mi.authors:
             mi.authors = [_('Unknown')]
         return mi
 
-def _metadata_from_formats(formats):
+def _metadata_from_formats(formats, force_read_metadata=False, pattern=None):
     mi = MetaInformation(None, None)
     formats.sort(cmp=lambda x,y: cmp(METADATA_PRIORITIES[path_to_ext(x)],
                                      METADATA_PRIORITIES[path_to_ext(y)]))
@@ -51,7 +51,9 @@ def _metadata_from_formats(formats):
         with open(path, 'rb') as stream:
             try:
                 newmi = get_metadata(stream, stream_type=ext,
-                                     use_libprs_metadata=True)
+                                     use_libprs_metadata=True,
+                                     force_read_metadata=force_read_metadata,
+                                     pattern=pattern)
                 mi.smart_update(newmi)
             except:
                 continue
@@ -69,18 +71,21 @@ def is_recipe(filename):
     return filename.startswith('calibre') and \
         filename.rpartition('.')[0].endswith('_recipe_out')
 
-def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
+def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False,
+                 force_read_metadata=False, pattern=None):
     pos = 0
     if hasattr(stream, 'tell'):
         pos = stream.tell()
     try:
-        return _get_metadata(stream, stream_type, use_libprs_metadata)
+        return _get_metadata(stream, stream_type, use_libprs_metadata,
+                             force_read_metadata, pattern)
     finally:
         if hasattr(stream, 'seek'):
             stream.seek(pos)
 
 
-def _get_metadata(stream, stream_type, use_libprs_metadata):
+def _get_metadata(stream, stream_type, use_libprs_metadata,
+                  force_read_metadata=False, pattern=None):
     if stream_type: stream_type = stream_type.lower()
     if stream_type in ('html', 'html', 'xhtml', 'xhtm', 'xml'):
         stream_type = 'html'
@@ -100,8 +105,8 @@ def _get_metadata(stream, stream_type, use_libprs_metadata):
 
     mi = MetaInformation(None, None)
     name = os.path.basename(getattr(stream, 'name', ''))
-    base = metadata_from_filename(name)
-    if is_recipe(name) or prefs['read_file_metadata']:
+    base = metadata_from_filename(name, pat=pattern)
+    if force_read_metadata or is_recipe(name) or prefs['read_file_metadata']:
         mi = get_file_type_metadata(stream, stream_type)
     if base.title == os.path.splitext(name)[0] and base.authors is None:
         # Assume that there was no metadata in the file and the user set pattern
@@ -139,7 +144,7 @@ def metadata_from_filename(name, pat=None):
         pat = re.compile(prefs.get('filename_pattern'))
     name = name.replace('_', ' ')
     match = pat.search(name)
-    if match:
+    if match is not None:
         try:
             mi.title = match.group('title')
         except IndexError:

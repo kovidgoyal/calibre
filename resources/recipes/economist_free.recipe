@@ -17,8 +17,9 @@ class Economist(BasicNewsRecipe):
     oldest_article = 7.0
     cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
     remove_tags = [dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
-            dict(attrs={'class':['dblClkTrk']})]
-    remove_tags_before = dict(name=lambda tag: tag.name=='title' and tag.parent.name=='body')
+            dict(attrs={'class':['dblClkTrk', 'ec-article-info']})]
+    keep_only_tags = [dict(id='ec-article-body')]
+    no_stylesheets = True
     preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
         lambda x:'</html>')]
 
@@ -88,19 +89,20 @@ class Economist(BasicNewsRecipe):
         br = browser()
         ret = br.open(url)
         raw = ret.read()
-        url = br.geturl().replace('displaystory', 'PrinterFriendly').strip()
+        url = br.geturl().split('?')[0]+'/print'
         root = html.fromstring(raw)
-        matches = root.xpath('//*[@class = "article-section"]')
+        matches = root.xpath('//*[@class = "ec-article-info"]')
         feedtitle = 'Miscellaneous'
         if matches:
-            feedtitle = string.capwords(html.tostring(matches[0], method='text',
-                    encoding=unicode))
+            feedtitle = string.capwords(html.tostring(matches[-1], method='text',
+                    encoding=unicode).split('|')[-1].strip())
         return (i, feedtitle, url, title, description, author, published)
 
     def eco_article_found(self, req, result):
         from calibre.web.feeds import Article
         i, feedtitle, link, title, description, author, published = result
-        self.log('Found print version for article:', title)
+        self.log('Found print version for article:', title, 'in', feedtitle,
+                'at', link)
 
         a = Article(i, title, link, author, description, published, '')
 

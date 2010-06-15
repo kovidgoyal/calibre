@@ -49,12 +49,12 @@ class BookInfo(QDialog, Ui_BookInfo):
 
     def open_book_path(self, path):
         if os.sep in unicode(path):
-            QDesktopServices.openUrl(QUrl('file:'+path))
+            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
         else:
             format = unicode(path)
             path = self.view.model().db.format_abspath(self.current_row, format)
             if path is not None:
-                QDesktopServices.openUrl(QUrl('file:'+path))
+                QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
 
     def next(self):
@@ -121,6 +121,7 @@ class BookInfo(QDialog, Ui_BookInfo):
                 f = f.strip()
                 info[_('Formats')] += '<a href="%s">%s</a>, '%(f,f)
         for key in info.keys():
+            if key == 'id': continue
             txt  = info[key]
             txt  = u'<br />\n'.join(textwrap.wrap(txt, 120))
             rows += u'<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)

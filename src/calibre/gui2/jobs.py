@@ -7,11 +7,14 @@ __docformat__ = 'restructuredtext en'
 Job management.
 '''
 
+import re
+
 from Queue import Empty, Queue
 
 from PyQt4.Qt import QAbstractTableModel, QVariant, QModelIndex, Qt, \
-    QTimer, SIGNAL, QIcon, QDialog, QAbstractItemDelegate, QApplication, \
-    QSize, QStyleOptionProgressBarV2, QString, QStyle, QToolTip
+    QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication, \
+    QSize, QStyleOptionProgressBarV2, QString, QStyle, QToolTip, QFrame, \
+    QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
@@ -20,8 +23,12 @@ from calibre.gui2.device import DeviceJob
 from calibre.gui2.dialogs.jobs_ui import Ui_JobsDialog
 from calibre import __appname__
 from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
+from calibre.gui2.progress_indicator import ProgressIndicator
 
 class JobManager(QAbstractTableModel):
+
+    job_added = pyqtSignal(int)
+    job_done  = pyqtSignal(int)
 
     def __init__(self):
         QAbstractTableModel.__init__(self)
@@ -37,8 +44,7 @@ class JobManager(QAbstractTableModel):
         self.changed_queue = Queue()
 
         self.timer         = QTimer(self)
-        self.connect(self.timer, SIGNAL('timeout()'), self.update,
-                Qt.QueuedConnection)
+        self.timer.timeout.connect(self.update, type=Qt.QueuedConnection)
         self.timer.start(1000)
 
     def columnCount(self, parent=QModelIndex()):
@@ -130,8 +136,7 @@ class JobManager(QAbstractTableModel):
         for i, j in enumerate(self.jobs):
             if j.run_state == j.RUNNING:
                 idx = self.index(i, 3)
-                self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
-                        idx, idx)
+                self.dataChanged.emit(idx, idx)
 
         # Update parallel jobs
         jobs = set([])
@@ -157,20 +162,19 @@ class JobManager(QAbstractTableModel):
                 self.jobs.sort()
                 self.reset()
                 if job.is_finished:
-                    self.emit(SIGNAL('job_done(int)'), len(self.unfinished_jobs()))
+                    self.job_done.emit(len(self.unfinished_jobs()))
             else:
                 for job in jobs:
                     idx = self.jobs.index(job)
-                    self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
+                    self.dataChanged.emit(
                         self.index(idx, 0), self.index(idx, 3))
 
 
     def _add_job(self, job):
-        self.emit(SIGNAL('layoutAboutToBeChanged()'))
+        self.layoutAboutToBeChanged.emit()
         self.jobs.append(job)
         self.jobs.sort()
-        self.emit(SIGNAL('job_added(int)'), len(self.unfinished_jobs()))
-        self.emit(SIGNAL('layoutChanged()'))
+        self.job_added.emit(len(self.unfinished_jobs()))
 
     def done_jobs(self):
         return [j for j in self.jobs if j.is_finished]
@@ -266,6 +270,80 @@ class DetailView(QDialog, Ui_Dialog):
         if more:
             self.log.appendPlainText(more.decode('utf-8', 'replace'))
 
+class JobsButton(QFrame):
+
+    def __init__(self, horizontal=False, size=48, parent=None):
+        QFrame.__init__(self, parent)
+        if horizontal:
+            size = 24
+        self.pi = ProgressIndicator(self, size)
+        self._jobs = QLabel('<b>'+_('Jobs:')+' 0')
+        self._jobs.mouseReleaseEvent = self.mouseReleaseEvent
+
+        if horizontal:
+            self.setLayout(QHBoxLayout())
+            self.layout().setDirection(self.layout().RightToLeft)
+        else:
+            self.setLayout(QVBoxLayout())
+            self._jobs.setAlignment(Qt.AlignHCenter|Qt.AlignBottom)
+
+        self.layout().addWidget(self.pi)
+        self.layout().addWidget(self._jobs)
+        if not horizontal:
+            self.layout().setAlignment(self._jobs, Qt.AlignHCenter)
+        self._jobs.setMargin(0)
+        self.layout().setMargin(0)
+        self._jobs.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setToolTip(_('Click to see list of active jobs.'))
+
+    def initialize(self, jobs_dialog, job_manager):
+        self.jobs_dialog = jobs_dialog
+        job_manager.job_added.connect(self.job_added)
+        job_manager.job_done.connect(self.job_done)
+
+
+    def mouseReleaseEvent(self, event):
+        if self.jobs_dialog.isVisible():
+            self.jobs_dialog.hide()
+        else:
+            self.jobs_dialog.show()
+
+    @property
+    def is_running(self):
+        return self.pi.isAnimated()
+
+    def start(self):
+        self.pi.startAnimation()
+
+    def stop(self):
+        self.pi.stopAnimation()
+
+    def jobs(self):
+        src = unicode(self._jobs.text())
+        return int(re.search(r'\d+', src).group())
+
+    def job_added(self, nnum):
+        jobs = self._jobs
+        src = unicode(jobs.text())
+        num = self.jobs()
+        text = src.replace(str(num), str(nnum))
+        jobs.setText(text)
+        self.start()
+
+    def job_done(self, nnum):
+        jobs = self._jobs
+        src = unicode(jobs.text())
+        num = self.jobs()
+        text = src.replace(str(num), str(nnum))
+        jobs.setText(text)
+        if nnum == 0:
+            self.no_more_jobs()
+
+    def no_more_jobs(self):
+        if self.is_running:
+            self.stop()
+            QCoreApplication.instance().alert(self, 5000)
 
 
 class JobsDialog(QDialog, Ui_JobsDialog):
@@ -278,14 +356,9 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.model = model
         self.setWindowModality(Qt.NonModal)
         self.setWindowTitle(__appname__ + _(' - Jobs'))
-        self.connect(self.kill_button, SIGNAL('clicked()'),
-                        self.kill_job)
-        self.connect(self.details_button, SIGNAL('clicked()'),
-                        self.show_details)
-        self.connect(self.stop_all_jobs_button, SIGNAL('clicked()'),
-                self.kill_all_jobs)
-        self.connect(self, SIGNAL('kill_job(int, PyQt_PyObject)'),
-                        self.jobs_view.model().kill_job)
+        self.kill_button.clicked.connect(self.kill_job)
+        self.details_button.clicked.connect(self.show_details)
+        self.stop_all_jobs_button.clicked.connect(self.kill_all_jobs)
         self.pb_delegate = ProgressBarDelegate(self)
         self.jobs_view.setItemDelegateForColumn(2, self.pb_delegate)
         self.jobs_view.doubleClicked.connect(self.show_job_details)
@@ -304,18 +377,18 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         d.exec_()
         d.timer.stop()
 
-    def kill_job(self):
+    def kill_job(self, *args):
         for index in self.jobs_view.selectedIndexes():
             row = index.row()
             self.model.kill_job(row, self)
             return
 
-    def show_details(self):
+    def show_details(self, *args):
         for index in self.jobs_view.selectedIndexes():
             self.show_job_details(index)
             return
 
-    def kill_all_jobs(self):
+    def kill_all_jobs(self, *args):
         self.model.kill_all_jobs()
 
     def closeEvent(self, e):

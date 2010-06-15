@@ -379,6 +379,17 @@ class FieldMetadata(dict):
         self._add_search_terms_to_map(key, [key])
         self.custom_label_to_key_map[label] = key
 
+    def remove_custom_fields(self):
+        for key in self.get_custom_fields():
+            del self._tb_cats[key]
+
+    def remove_dynamic_categories(self):
+        for key in list(self._tb_cats.keys()):
+            val = self._tb_cats[key]
+            if val['is_category'] and val['kind'] in ('user', 'search'):
+                del self._tb_cats[key]
+
+
     def add_user_category(self, label, name):
         if label in self._tb_cats:
             raise ValueError('Duplicate user field [%s]'%(label))
