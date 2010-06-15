@@ -433,7 +433,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if aum: aum = [a.strip().replace('|', ',') for a in aum.split(',')]
         mi = MetaInformation(self.title(idx, index_is_id=index_is_id), aum)
         mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)
-        mi.authors_sort_strings = self.authors_sort_strings(idx, index_is_id)
+        if mi.authors:
+            mi.author_sort_map = {}
+            for name, sort in zip(mi.authors, self.authors_sort_strings(idx,
+                index_is_id)):
+                mi.author_sort_map[name] = sort
         mi.comments    = self.comments(idx, index_is_id=index_is_id)
         mi.publisher   = self.publisher(idx, index_is_id=index_is_id)
         mi.timestamp   = self.timestamp(idx, index_is_id=index_is_id)

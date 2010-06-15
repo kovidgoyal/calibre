@@ -239,8 +239,7 @@ class StatusBar(QStatusBar, StatusBarInterface, BookDetailsInterface):
             id_, fmt = val.split(':')
             self.view_specific_format.emit(int(id_), fmt)
         elif typ == 'devpath':
-            path = os.path.dirname(val)
-            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+            QDesktopServices.openUrl(QUrl.fromLocalFile(val))
 
 
     def resizeEvent(self, ev):

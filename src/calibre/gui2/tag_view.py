@@ -24,7 +24,7 @@ from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
 
-class TagDelegate(QItemDelegate):
+class TagDelegate(QItemDelegate): # {{{
 
     def paint(self, painter, option, index):
         item = index.internalPointer()
@@ -53,6 +53,8 @@ class TagDelegate(QItemDelegate):
         painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
                         model.data(index, Qt.DisplayRole).toString())
         painter.restore()
+
+    # }}}
 
 class TagsView(QTreeView): # {{{
 
