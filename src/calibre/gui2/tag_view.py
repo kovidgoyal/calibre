@@ -13,15 +13,76 @@ from functools import partial
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QCheckBox, \
                      QFont, QSize, QIcon, QPoint, QVBoxLayout, QComboBox, \
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, \
-                     QPushButton, QWidget
+                     QPushButton, QWidget, QItemDelegate, QString, QPen, \
+                     QColor, QLinearGradient, QBrush
 
 from calibre.gui2 import config, NONE
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
+from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
+
+class TagDelegate(QItemDelegate):
+
+    def __init__(self, parent):
+        QItemDelegate.__init__(self, parent)
+        self._parent = parent
+        self.icon = QIcon(I('star.png'))
+
+    def paint(self, painter, option, index):
+        item = index.internalPointer()
+        if item.type != TagTreeItem.TAG:
+            QItemDelegate.paint(self, painter, option, index)
+            return
+        r = option.rect
+        # Paint the decoration icon
+        icon = self._parent.model().data(index, Qt.DecorationRole).toPyObject()
+        icon.paint(painter, r, Qt.AlignLeft)
+
+        # Paint the rating, if any. The decoration icon is assumed to be square,
+        # filling the row top to bottom. The three is arbitrary, there to
+        # provide a little space between the icon and what follows
+        r.setLeft(r.left()+r.height()+3)
+        rating = item.tag.avg_rating
+        if config['show_avg_rating'] and item.tag.avg_rating is not None:
+            painter.save()
+            if tweaks['render_avg_rating_using'] == 'star':
+                painter.setClipRect(r.left(), r.top(),
+                                    int(r.height()*(rating/5.0)), r.height())
+                self.icon.paint(painter, r, Qt.AlignLeft | Qt.AlignVCenter)
+                r.setLeft(r.left() + r.height())
+            else:
+                painter.translate(r.left(), r.top())
+                # Compute factor so sizes can be expressed in percentages of the
+                # box defined by the row height
+                factor = r.height()/100.
+                width = 20
+                height = 80
+                left_offset = 5
+                top_offset = 10
+                if r > 0.0:
+                    color = QColor(100, 100, 255) #medium blue, less glare
+                    pen = QPen(color, 5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+                    painter.setPen(pen)
+                    painter.scale(factor, factor)
+                    painter.drawRect(left_offset, top_offset, width, height)
+                    fill_height = height*(rating/5.0)
+                    gradient = QLinearGradient(0, 0, 0, 100)
+                    gradient.setColorAt(0.0, color)
+                    gradient.setColorAt(1.0, color)
+                    painter.setBrush(QBrush(gradient))
+                    painter.drawRect(left_offset, top_offset+(height-fill_height),
+                                     width, fill_height)
+                # The '3' is arbitrary, there because we need a little space
+                # between the rectangle and the text.
+                r.setLeft(r.left() + ((width+left_offset*2)*factor) + 3)
+            painter.restore()
+        # Paint the text
+        painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
+                         QString('[%d] %s'%(item.tag.count, item.tag.name)))
 
 class TagsView(QTreeView): # {{{
 
@@ -30,6 +91,7 @@ class TagsView(QTreeView): # {{{
     user_category_edit  = pyqtSignal(object)
     tag_list_edit       = pyqtSignal(object, object)
     saved_search_edit   = pyqtSignal(object)
+    author_sort_edit    = pyqtSignal(object, object)
     tag_item_renamed    = pyqtSignal()
     search_item_renamed = pyqtSignal()
 
@@ -43,6 +105,7 @@ class TagsView(QTreeView): # {{{
         self.setAlternatingRowColors(True)
         self.setAnimated(True)
         self.setHeaderHidden(True)
+        self.setItemDelegate(TagDelegate(self))
 
     def set_database(self, db, tag_match, popularity):
         self.hidden_categories = config['tag_browser_hidden_categories']
@@ -112,6 +175,9 @@ class TagsView(QTreeView): # {{{
             if action == 'manage_searches':
                 self.saved_search_edit.emit(category)
                 return
+            if action == 'edit_author_sort':
+                self.author_sort_edit.emit(self, index)
+                return
             if action == 'hide':
                 self.hidden_categories.add(category)
             elif action == 'show':
@@ -132,6 +198,7 @@ class TagsView(QTreeView): # {{{
         if item.type == TagTreeItem.TAG:
             tag_item = item
             tag_name = item.tag.name
+            tag_id = item.tag.id
             item = item.parent
         if item.type == TagTreeItem.CATEGORY:
             category = unicode(item.name.toString())
@@ -147,9 +214,13 @@ class TagsView(QTreeView): # {{{
                     (key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
                      self.db.field_metadata[key]['is_custom'] and \
                      self.db.field_metadata[key]['datatype'] != 'rating'):
-                self.context_menu.addAction(_('Rename') + " '" + tag_name + "'",
+                self.context_menu.addAction(_('Rename \'%s\'')%tag_name,
                         partial(self.context_menu_handler, action='edit_item',
                                 category=tag_item, index=index))
+                if key == 'authors':
+                    self.context_menu.addAction(_('Edit sort for \'%s\'')%tag_name,
+                            partial(self.context_menu_handler,
+                                    action='edit_author_sort', index=tag_id))
                 self.context_menu.addSeparator()
             # Hide/Show/Restore categories
             self.context_menu.addAction(_('Hide category %s') % category,
@@ -166,9 +237,12 @@ class TagsView(QTreeView): # {{{
             self.context_menu.addSeparator()
             if key in ['tags', 'publisher', 'series'] or \
                         self.db.field_metadata[key]['is_custom']:
-                self.context_menu.addAction(_('Manage ') + category,
+                self.context_menu.addAction(_('Manage %s')%category,
                         partial(self.context_menu_handler, action='open_editor',
                                 category=tag_name, key=key))
+            elif key == 'authors':
+                self.context_menu.addAction(_('Manage %s')%category,
+                        partial(self.context_menu_handler, action='edit_author_sort'))
             elif key == 'search':
                 self.context_menu.addAction(_('Manage Saved Searches'),
                     partial(self.context_menu_handler, action='manage_searches',
@@ -298,7 +372,11 @@ class TagTreeItem(object): # {{{
             if self.tag.count == 0:
                 return QVariant('%s'%(self.tag.name))
             else:
-                return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
+                if self.tag.avg_rating is None:
+                    return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
+                else:
+                    return QVariant('[%d][%3.1f] %s'%(self.tag.count,
+                                                      self.tag.avg_rating, self.tag.name))
         if role == Qt.EditRole:
             return QVariant(self.tag.name)
         if role == Qt.DecorationRole:
@@ -332,6 +410,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     ':custom'   : QIcon(I('column.svg')),
                     ':user'     : QIcon(I('drawer.svg')),
                     'search'    : QIcon(I('search.svg'))})
+        self.categories_with_ratings = ['authors', 'series', 'publisher', 'tags']
 
         self.icon_state_map = [None, QIcon(I('plus.svg')), QIcon(I('minus.svg'))]
         self.db = db
@@ -354,7 +433,14 @@ class TagsModel(QAbstractItemModel): # {{{
                     data=self.categories[i],
                     category_icon=self.category_icon_map[r],
                     tooltip=tt, category_key=r)
+            # This duplicates code in refresh(). Having it here as well
+            # can save seconds during startup, because we avoid a second
+            # call to get_node_tree.
             for tag in data[r]:
+                if r not in self.categories_with_ratings and \
+                            not self.db.field_metadata[r]['is_custom'] and \
+                            not self.db.field_metadata[r]['kind'] == 'user':
+                    tag.avg_rating = None
                 TagTreeItem(parent=c, data=tag, icon_map=self.icon_state_map)
 
     def set_search_restriction(self, s):
@@ -417,6 +503,10 @@ class TagsModel(QAbstractItemModel): # {{{
             if len(data[r]) > 0:
                 self.beginInsertRows(category_index, 0, len(data[r])-1)
                 for tag in data[r]:
+                    if r not in self.categories_with_ratings and \
+                                not self.db.field_metadata[r]['is_custom'] and \
+                                not self.db.field_metadata[r]['kind'] == 'user':
+                        tag.avg_rating = None
                     tag.state = state_map.get(tag.name, 0)
                     t = TagTreeItem(parent=category, data=tag, icon_map=self.icon_state_map)
                 self.endInsertRows()
@@ -607,6 +697,7 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
         self.tags_view.user_category_edit.connect(self.do_user_categories_edit)
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
+        self.tags_view.author_sort_edit.connect(self.do_author_sort_edit)
         self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
         self.tags_view.search_item_renamed.connect(self.saved_search.clear_to_help)
         self.edit_categories.clicked.connect(lambda x:
@@ -635,6 +726,19 @@ class TagBrowserMixin(object): # {{{
         self.library_view.model().refresh()
         self.saved_search.clear_to_help()
         self.search.clear_to_help()
+
+    def do_author_sort_edit(self, parent, id):
+        db = self.library_view.model().db
+        editor = EditAuthorsDialog(parent, db, id)
+        d = editor.exec_()
+        if d:
+            for (id, old_author, new_author, new_sort) in editor.result:
+                if old_author != new_author:
+                    # The id might change if the new author already exists
+                    id = db.rename_author(id, new_author)
+                db.set_sort_field_for_author(id, unicode(new_sort))
+            self.library_view.model().refresh()
+            self.tags_view.recount()
 
 # }}}
 
