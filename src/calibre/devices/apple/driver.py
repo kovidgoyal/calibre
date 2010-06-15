@@ -884,7 +884,7 @@ class ITUNES(DevicePlugin):
                 connected_device = self.sources['iPod']
                 device = self.iTunes.sources.ItemByName(connected_device)
 
-                added = None
+                db_added = None
                 for pl in device.Playlists:
                     if pl.Kind == self.PlaylistKind.index('User') and \
                        pl.SpecialKind == self.PlaylistSpecialKind.index('Books'):
@@ -1161,12 +1161,12 @@ class ITUNES(DevicePlugin):
             else:
                 if DEBUG:
                     self.log.info("   adding tracer to empty Books|Playlist")
-                fpath = P('tracer.epub')
-                metadata = {'title':'Tracer','author':'calibre'}
-                added = self._add_device_book(fpath,metadata)
-                if added_
+                try:
+                    added = pl.add(appscript.mactypes.File(P('tracer.epub')),to=pl)
+                    time.sleep(0.5)
+                    added.delete()
                     self.manual_sync_mode = True
-                else:
+                except:
                     self.manual_sync_mode = False
 
         elif iswindows:
@@ -1195,14 +1195,17 @@ class ITUNES(DevicePlugin):
                     self.log.info("  iTunes.manual_sync_mode: %s" % self.manual_sync_mode)
             else:
                 if DEBUG:
-                    self.log.info("   adding tracer to empty Books|Playlist")
+                    self.log.info("   sending tracer to empty Books|Playlist")
+                fpath = P('tracer.epub')
+                mi = MetaInformation('Tracer',['calibre'])
                 try:
-                    added = pl.add(appscript.mactypes.File(P('tracer.epub')),to=pl)
+                    added = self._add_device_book(fpath,mi)
                     time.sleep(0.5)
-                    added.delete()
+                    added.Delete()
                     self.manual_sync_mode = True
                 except:
                     self.manual_sync_mode = False
+
 
         self.log.info("   iTunes.manual_sync_mode: %s" % self.manual_sync_mode)
 
