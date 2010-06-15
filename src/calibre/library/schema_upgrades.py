@@ -308,10 +308,10 @@ class SchemaUpgrade(object):
                     {vcn},
                     (SELECT COUNT(id) FROM books_{tn}_link WHERE {cn}={tn}.id) count,
                     (SELECT AVG(ratings.rating)
-                     FROM books_{tn}_link as tl, books_ratings_link as bl, ratings
-                     WHERE tl.{cn}={tn}.id and bl.book=tl.book and
-                     ratings.id = bl.rating and ratings.rating <> 0) avg_rating,
-                     {scn} as sort
+                     FROM books_{tn}_link AS tl, books_ratings_link AS bl, ratings
+                     WHERE tl.{cn}={tn}.id AND bl.book=tl.book AND
+                     ratings.id = bl.rating AND ratings.rating <> 0) avg_rating,
+                     {scn} AS sort
                 FROM {tn};
                 DROP VIEW IF EXISTS tag_browser_filtered_{tn};
                 CREATE VIEW tag_browser_filtered_{tn} AS SELECT
@@ -320,11 +320,11 @@ class SchemaUpgrade(object):
                     (SELECT COUNT(books_{tn}_link.id) FROM books_{tn}_link WHERE
                         {cn}={tn}.id AND books_list_filter(book)) count,
                     (SELECT AVG(ratings.rating)
-                     FROM books_{tn}_link as tl, books_ratings_link as bl, ratings
-                     WHERE tl.{cn}={tn}.id and bl.book=tl.book and
-                     ratings.id = bl.rating and ratings.rating <> 0 AND
+                     FROM books_{tn}_link AS tl, books_ratings_link AS bl, ratings
+                     WHERE tl.{cn}={tn}.id AND bl.book=tl.book AND
+                     ratings.id = bl.rating AND ratings.rating <> 0 AND
                      books_list_filter(bl.book)) avg_rating,
-                     {scn} as sort
+                     {scn} AS sort
                 FROM {tn};
 
                 '''.format(tn=table_name, cn=column_name,
@@ -340,11 +340,11 @@ class SchemaUpgrade(object):
                     (SELECT COUNT(id) FROM {lt} WHERE value={table}.id) count,
                     (SELECT AVG(r.rating)
                      FROM {lt},
-                          books_ratings_link as bl,
-                          ratings as r
-                     WHERE {lt}.value={table}.id and bl.book={lt}.book and
-                           r.id = bl.rating and r.rating <> 0) avg_rating,
-                     value as sort
+                          books_ratings_link AS bl,
+                          ratings AS r
+                     WHERE {lt}.value={table}.id AND bl.book={lt}.book AND
+                           r.id = bl.rating AND r.rating <> 0) avg_rating,
+                     value AS sort
                 FROM {table};
 
                 DROP VIEW IF EXISTS tag_browser_filtered_{table};
@@ -355,12 +355,12 @@ class SchemaUpgrade(object):
                     books_list_filter(book)) count,
                     (SELECT AVG(r.rating)
                      FROM {lt},
-                          books_ratings_link as bl,
-                          ratings as r
+                          books_ratings_link AS bl,
+                          ratings AS r
                      WHERE {lt}.value={table}.id AND bl.book={lt}.book AND
                            r.id = bl.rating AND r.rating <> 0 AND
                            books_list_filter(bl.book)) avg_rating,
-                     value as sort
+                     value AS sort
                 FROM {table};
                 '''.format(lt=link_table_name, table=table_name)
             self.conn.executescript(script)
@@ -396,15 +396,17 @@ class SchemaUpgrade(object):
                 (author_to_author_sort(author.replace('|', ',')).strip(), id))
         self.conn.commit()
         self.conn.executescript('''
+        DROP TRIGGER IF EXISTS author_insert_trg;
         CREATE TRIGGER author_insert_trg
             AFTER INSERT ON authors
             BEGIN
             UPDATE authors SET sort=author_to_author_sort(NEW.name) WHERE id=NEW.id;
         END;
+        DROP TRIGGER IF EXISTS author_update_trg;
         CREATE TRIGGER author_update_trg
             BEFORE UPDATE ON authors
             BEGIN
             UPDATE authors SET sort=author_to_author_sort(NEW.name)
-            WHERE id=NEW.id and name <> NEW.name;
+            WHERE id=NEW.id AND name <> NEW.name;
         END;
         ''')

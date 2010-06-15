@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>410</width>
-    <height>239</height>
+    <width>730</width>
+    <height>342</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -47,9 +47,6 @@
     </widget>
    </item>
   </layout>
-  <zorder>buttonBox</zorder>
-  <zorder>table</zorder>
-  <zorder>buttonBox</zorder>
  </widget>
  <resources/>
  <connections>

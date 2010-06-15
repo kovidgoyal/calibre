@@ -13,8 +13,8 @@ from functools import partial
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QCheckBox, \
                      QFont, QSize, QIcon, QPoint, QVBoxLayout, QComboBox, \
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, \
-                     QPushButton, QWidget
-from PyQt4.Qt import QItemDelegate, QString, QPen, QColor, QLinearGradient, QBrush
+                     QPushButton, QWidget, QItemDelegate, QString, QPen, \
+                     QColor, QLinearGradient, QBrush
 
 from calibre.gui2 import config, NONE
 from calibre.utils.config import prefs, tweaks
