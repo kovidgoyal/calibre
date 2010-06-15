@@ -74,7 +74,7 @@ class KOBO(USBMS):
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
-        def update_booklist(mountpath, ContentID, filename, title, authors, mime, date, ContentType, ImageID):
+        def update_booklist(mountpath, filename, title, authors, mime, date, ContentType, ImageID):
             changed = False
             # if path_to_ext(filename) in self.FORMATS:
             try:
@@ -89,7 +89,7 @@ class KOBO(USBMS):
                 idx = bl_cache.get(filename, None)
                 if idx is not None:
                     imagename = self.normalize_path(mountpath + '.kobo/images/' + ImageID + ' - iPhoneThumbnail.parsed')
-                    # print "Image name Normalized: " + imagename
+                    print "Image name Normalized: " + imagename
                     bl[idx].thumbnail = ImageWrapper(imagename)
                     bl_cache[filename] = None
                     if ContentType != '6':
@@ -133,21 +133,21 @@ class KOBO(USBMS):
             if oncard != 'carda' and oncard != 'cardb':
                 if row[5] == '6':
                     # print "shortbook: " + filename
-                    changed = update_booklist(self._main_prefix, row[3], filename, row[0], row[1], mime, row[2], row[5], row[6])
+                    changed = update_booklist(self._main_prefix, filename, row[0], row[1], mime, row[2], row[5], row[6])
                     if changed:
                         need_sync = True
                 else:
                     if filename.startswith("file:///mnt/onboard/"):
                         filename = filename.replace("file:///mnt/onboard/", self._main_prefix)
                         # print "Internal: " + filename
-                        changed = update_booklist(self._main_prefix, row[3], filename, row[0], row[1], mime, row[2], row[5], row[6])
+                        changed = update_booklist(self._main_prefix, filename, row[0], row[1], mime, row[2], row[5], row[6])
                         if changed:
                             need_sync = True
             elif oncard == 'carda':
                 if filename.startswith("file:///mnt/sd/"):
                     filename = filename.replace("file:///mnt/sd/", self._card_a_prefix)
                     # print "SD Card: " + filename
-                    changed = update_booklist(self._card_a_prefix, row[3], filename, row[0], row[1], mime, row[2], row[5], row[6])
+                    changed = update_booklist(self._card_a_prefix, filename, row[0], row[1], mime, row[2], row[5], row[6])
                     if changed:
                         need_sync = True
             else:
@@ -247,28 +247,16 @@ class KOBO(USBMS):
                 # Kobo books do not have book files.  They do have some images though
                 #print "kobo book"
                 ContentType = 6
-                ContentID = os.path.splitext(path)[0]
-                # Remove the prefix on the file.  it could be either
-                ContentID = ContentID.replace(self._main_prefix, '')
-                if self._card_a_prefix is not None:
-                    ContentID = ContentID.replace(self._card_a_prefix, '')
-                ContentID = ContentID.replace("\\", '/')
-                ImageID = self.delete_via_sql(ContentID, ContentType)
-                #print " We would now delete the Images for" + ImageID
-                self.delete_images(ImageID)
+                ContentID = self.contentid_from_path(path, ContentType)
             if extension == '.pdf' or extension == '.epub':
                 # print "ePub or pdf"
                 ContentType = 16
                 #print "Path: " + path
-                ContentID = path
-                ContentID = ContentID.replace(self._main_prefix, "file:///mnt/onboard/")
-                if self._card_a_prefix is not None:
-                    ContentID = ContentID.replace(self._card_a_prefix, "file:///mnt/sd/")
-                ContentID = ContentID.replace("\\", '/')
+                ContentID = self.contentid_from_path(path, ContentType)
                 # print "ContentID: " + ContentID
-                ImageID = self.delete_via_sql(ContentID, ContentType)
-                #print " We would now delete the Images for" + ImageID
-                self.delete_images(ImageID)
+            ImageID = self.delete_via_sql(ContentID, ContentType)
+            #print " We would now delete the Images for" + ImageID
+            self.delete_images(ImageID)
             
             if os.path.exists(path):
                 # Delete the ebook
@@ -342,3 +330,17 @@ class KOBO(USBMS):
             booklists[blist].add_book(book, replace_metadata=True)
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
 
+    def contentid_from_path(self, path, ContentType):
+        if ContentType == 6:
+            ContentID = os.path.splitext(path)[0]
+            # Remove the prefix on the file.  it could be either
+            ContentID = ContentID.replace(self._main_prefix, '')
+            if self._card_a_prefix is not None:
+                ContentID = ContentID.replace(self._card_a_prefix, '')
+        else: # ContentType = 16
+            ContentID = path
+            ContentID = ContentID.replace(self._main_prefix, "file:///mnt/onboard/")
+            if self._card_a_prefix is not None:
+                ContentID = ContentID.replace(self._card_a_prefix, "file:///mnt/sd/")
+        ContentID = ContentID.replace("\\", '/')
+        return ContentType
