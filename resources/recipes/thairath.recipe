@@ -1,0 +1,58 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1271637235(BasicNewsRecipe):
+
+    title          = u'Thairath'
+    __author__ = 'Anat R.'
+    language = 'th'
+
+    oldest_article = 7
+
+    max_articles_per_feed = 100
+    no_stylesheets = True
+
+    remove_javascript = True
+
+    use_embedded_content = False
+    feeds          = [(u'News',
+u'http://www.thairath.co.th/rss/news.xml'), (u'Politics',
+u'http://www.thairath.co.th/rss/pol.xml'), (u'Economy',
+u'http://www.thairath.co.th/rss/eco.xml'), (u'International',
+u'http://www.thairath.co.th/rss/oversea.xml'), (u'Sports',
+u'http://www.thairath.co.th/rss/sport.xml'), (u'Life',
+u'http://www.thairath.co.th/rss/life.xml'), (u'Education',
+u'http://www.thairath.co.th/rss/edu.xml'), (u'Tech',
+u'http://www.thairath.co..th/rss/tech.xml'), (u'Entertainment',
+u'http://www.thairath.co.th/rss/ent.xml')]
+    keep_only_tags = []
+
+    keep_only_tags.append(dict(name = 'h1', attrs = {'id' : 'title'}))
+
+    keep_only_tags.append(dict(name = 'ul', attrs = {'class' :
+'detail-info'}))
+
+    keep_only_tags.append(dict(name = 'img', attrs = {'class' :
+'detail-image'}))
+
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' :
+'entry'}))
+    remove_tags = []
+    remove_tags.append(dict(name = 'div', attrs = {'id':
+'menu-holder'}))
+
+    remove_tags.append(dict(name = 'div', attrs = {'class':
+'addthis_toolbox addthis_default_style'}))
+
+    remove_tags.append(dict(name = 'div', attrs = {'class': 'box top-item'}))
+
+    remove_tags.append(dict(name = 'div', attrs = {'class': 'column-200 column-margin-430'}))
+
+    remove_tags.append(dict(name = 'div', attrs = {'id':
+'detail-related'}))
+
+    remove_tags.append(dict(name = 'div', attrs = {'id': 'related'}))
+
+    remove_tags.append(dict(name = 'id', attrs = {'class': 'footer'}))
+
+    remove_tags.append(dict(name = "ul",attrs =
+{'id':'banner-highlights-images'}))

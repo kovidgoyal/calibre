@@ -13,7 +13,7 @@ from PyQt4.Qt import QPixmap, SIGNAL
 from calibre.gui2 import choose_images, error_dialog
 from calibre.gui2.convert.metadata_ui import Ui_Form
 from calibre.ebooks.metadata import authors_to_string, string_to_authors, \
-        MetaInformation, authors_to_sort_string
+        MetaInformation
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.convert import Widget
@@ -57,7 +57,7 @@ class MetadataWidget(Widget, Ui_Form):
         au = unicode(self.author.currentText())
         au = re.sub(r'\s+et al\.$', '', au)
         authors = string_to_authors(au)
-        self.author_sort.setText(authors_to_sort_string(authors))
+        self.author_sort.setText(self.db.author_sort_from_authors(authors))
 
 
     def initialize_metadata_options(self):
