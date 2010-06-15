@@ -39,7 +39,9 @@ class TagDelegate(QItemDelegate):
                 item.tag.avg_rating is None:
             icon.paint(painter, r, Qt.AlignLeft)
         else:
-            icon.paint(painter, r, Qt.AlignLeft, mode=QIcon.Disabled)
+            painter.setOpacity(0.3)
+            icon.paint(painter, r, Qt.AlignLeft)
+            painter.setOpacity(1)
             rating = item.tag.avg_rating
             painter.setClipRect(r.left(), r.bottom()-int(r.height()*(rating/5.0)),
                     r.width(), r.height())
