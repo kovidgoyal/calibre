@@ -8,17 +8,18 @@ __docformat__ = 'restructuredtext en'
 import functools
 
 from PyQt4.Qt import QMenu, Qt, pyqtSignal, QToolButton, QIcon, QStackedWidget, \
-        QWidget, QHBoxLayout, QToolBar, QSize, QSizePolicy
+        QWidget, QHBoxLayout, QToolBar, QSize, QSizePolicy, QStatusBar
 
 from calibre.utils.config import prefs
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.constants import isosx, __appname__
+from calibre.constants import isosx, __appname__, preferred_encoding
 from calibre.gui2 import config, is_widescreen
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.widgets import Splitter
 from calibre.gui2.tag_view import TagBrowserWidget
-from calibre.gui2.status import StatusBar, HStatusBar
 from calibre.gui2.book_details import BookDetails
+from calibre.gui2.notify import get_notifier
+
 
 _keep_refs = []
 
@@ -355,6 +356,27 @@ class SideBar(QToolBar): # {{{
 
 # }}}
 
+class StatusBar(QStatusBar): # {{{
+
+    def initialize(self, systray=None):
+        self.systray = systray
+        self.notifier = get_notifier(systray)
+
+    def show_message(self, msg, timeout=0):
+        QStatusBar.showMessage(self, msg, timeout)
+        if self.notifier is not None and not config['disable_tray_notification']:
+            if isosx and isinstance(msg, unicode):
+                try:
+                    msg = msg.encode(preferred_encoding)
+                except UnicodeEncodeError:
+                    msg = msg.encode('utf-8')
+            self.notifier(msg)
+
+    def clear_message(self):
+        QStatusBar.clearMessage(self)
+
+# }}}
+
 class LayoutMixin(object): # {{{
 
     def __init__(self):
@@ -362,7 +384,7 @@ class LayoutMixin(object): # {{{
         self.setWindowTitle(__appname__)
 
         if config['gui_layout'] == 'narrow':
-            self.status_bar = self.book_details = StatusBar(self)
+            self.book_details = BookDetails(False, self)
             self.stack = Stack(self)
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.svg'),
@@ -375,31 +397,37 @@ class LayoutMixin(object): # {{{
                 for x in ('bd', 'tb', 'cb')], self.jobs_button, parent=self)
             l.addWidget(self.sidebar)
             self.bd_splitter.addWidget(self._layout_mem[0])
-            self.bd_splitter.addWidget(self.status_bar)
+            self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.centralwidget.layout().addWidget(self.bd_splitter)
         else:
-            self.status_bar = HStatusBar(self)
-            self.setStatusBar(self.status_bar)
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.svg'), initial_side_size=200,
                     orientation=Qt.Horizontal, parent=self, side_index=1)
             self.stack = Stack(self)
             self.bd_splitter.addWidget(self.stack)
-            self.book_details = BookDetails(self)
+            self.book_details = BookDetails(True, self)
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
             self.centralwidget.layout().addWidget(self.bd_splitter)
 
-            for x in ('cb', 'tb', 'bd'):
-                button = getattr(self, x+'_splitter').button
-                button.setIconSize(QSize(22, 22))
-                self.status_bar.addPermanentWidget(button)
-            self.status_bar.addPermanentWidget(self.jobs_button)
+        self.status_bar = StatusBar(self)
+        self.setStatusBar(self.status_bar)
+        for x in ('cb', 'tb', 'bd'):
+            button = getattr(self, x+'_splitter').button
+            button.setIconSize(QSize(22, 22))
+            self.status_bar.addPermanentWidget(button)
+        self.status_bar.addPermanentWidget(self.jobs_button)
 
     def finalize_layout(self):
+        self.status_bar.initialize(self.system_tray_icon)
+        self.book_details.show_book_info.connect(self.show_book_info)
+        self.book_details.files_dropped.connect(self.files_dropped_on_book)
+        self.book_details.open_containing_folder.connect(self.view_folder_for_id)
+        self.book_details.view_specific_format.connect(self.view_format_by_id)
+
         m = self.library_view.model()
         if m.rowCount(None) > 0:
             self.library_view.set_current_row(0)

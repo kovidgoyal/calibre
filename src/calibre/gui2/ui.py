@@ -104,6 +104,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
     def __init__(self, opts, parent=None):
         MainWindow.__init__(self, opts, parent)
         self.opts = opts
+        self.setUnifiedTitleAndToolBarOnMac(True)
 
     def initialize(self, library_path, db, listener, actions):
         opts = self.opts
@@ -126,8 +127,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         # Jobs Button {{{
         self.job_manager = JobManager()
         self.jobs_dialog = JobsDialog(self, self.job_manager)
-        self.jobs_button = JobsButton(horizontal=config['gui_layout'] !=
-                'narrow')
+        self.jobs_button = JobsButton(horizontal=True)
         self.jobs_button.initialize(self.jobs_dialog, self.job_manager)
         # }}}
 
@@ -216,12 +216,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         self.vanity.setText(self.vanity_template%dict(version=' ', device=' '))
         self.device_info = ' '
         UpdateMixin.__init__(self, opts)
-        ####################### Status Bar #####################
-        self.status_bar.initialize(self.system_tray_icon)
-        self.book_details.show_book_info.connect(self.show_book_info)
-        self.book_details.files_dropped.connect(self.files_dropped_on_book)
-        self.book_details.open_containing_folder.connect(self.view_folder_for_id)
-        self.book_details.view_specific_format.connect(self.view_format_by_id)
 
         ####################### Setup Toolbar #####################
         ToolbarMixin.__init__(self)
