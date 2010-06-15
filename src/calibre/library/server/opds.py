@@ -99,17 +99,20 @@ def html_to_lxml(raw):
     raw = etree.tostring(root, encoding=None)
     return etree.fromstring(raw)
 
-def CATALOG_ENTRY(item, base_href, version, updated):
+def CATALOG_ENTRY(item, base_href, version, updated, ignore_count=False):
     id_ = 'calibre:category:'+item.name
     iid = 'N' + item.name
     if item.id is not None:
         iid = 'I' + str(item.id)
     link = NAVLINK(href = base_href + '/' + hexlify(iid))
+    count = _('%d books')%item.count
+    if ignore_count:
+        count = ''
     return E.entry(
             TITLE(item.name),
             ID(id_),
             UPDATED(updated),
-            E.content(_('%d books')%item.count, type='text'),
+            E.content(count, type='text'),
             link
             )
 
@@ -265,8 +268,12 @@ class CategoryFeed(NavFeed):
     def __init__(self, items, which, id_, updated, version, offsets, page_url, up_url):
         NavFeed.__init__(self, id_, updated, version, offsets, page_url, up_url)
         base_href = self.base_href + '/category/' + hexlify(which)
+        ignore_count = False
+        if which == 'search':
+            ignore_count = True
         for item in items:
-            self.root.append(CATALOG_ENTRY(item, base_href, version, updated))
+            self.root.append(CATALOG_ENTRY(item, base_href, version, updated,
+                ignore_count=ignore_count))
 
 class CategoryGroupFeed(NavFeed):
 
@@ -393,7 +400,7 @@ class OPDSServer(object):
         owhich = hexlify('N'+which)
         up_url = url_for('opdsnavcatalog', version, which=owhich)
         items = categories[category]
-        items = [x for x in items if x.name.startswith(which)]
+        items = [x for x in items if getattr(x, 'sort', x.name).startswith(which)]
         if not items:
             raise cherrypy.HTTPError(404, 'No items in group %r:%r'%(category,
                 which))
@@ -458,11 +465,11 @@ class OPDSServer(object):
                 def __init__(self, text, count):
                     self.text, self.count = text, count
 
-            starts = set([x.name[0] for x in items])
+            starts = set([getattr(x, 'sort', x.name)[0] for x in items])
             category_groups = OrderedDict()
             for x in sorted(starts, cmp=lambda x,y:cmp(x.lower(), y.lower())):
                 category_groups[x] = len([y for y in items if
-                    y.name.startswith(x)])
+                    getattr(y, 'sort', y.name).startswith(x)])
             items = [Group(x, y) for x, y in category_groups.items()]
             max_items = self.opts.max_opds_items
             offsets = OPDSOffsets(offset, max_items, len(items))
