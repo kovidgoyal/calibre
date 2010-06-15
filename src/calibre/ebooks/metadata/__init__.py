@@ -223,6 +223,7 @@ class MetaInformation(object):
                      'isbn', 'tags', 'cover_data', 'application_id', 'guide',
                      'manifest', 'spine', 'toc', 'cover', 'language',
                      'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc',
+                     'author_sort_map',
                      'pubdate', 'rights', 'publication_type', 'uuid'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
@@ -244,6 +245,7 @@ class MetaInformation(object):
         self.tags = getattr(mi, 'tags', [])
         #: mi.cover_data = (ext, data)
         self.cover_data   = getattr(mi, 'cover_data', (None, None))
+        self.author_sort_map = getattr(mi, 'author_sort_map', {})
 
         for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
                   'series', 'series_index', 'rating', 'isbn', 'language',
@@ -258,7 +260,7 @@ class MetaInformation(object):
                   'series', 'series_index', 'tags', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
                   'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate',
-                  'rights', 'publication_type', 'uuid'
+                  'rights', 'publication_type', 'uuid', 'author_sort_map'
                   ):
             prints(x, getattr(self, x, 'None'))
 
@@ -287,6 +289,9 @@ class MetaInformation(object):
         if mi.tags:
             self.tags += mi.tags
         self.tags = list(set(self.tags))
+
+        if mi.author_sort_map:
+            self.author_sort_map.update(mi.author_sort_map)
 
         if getattr(mi, 'cover_data', False):
             other_cover = mi.cover_data[-1]
