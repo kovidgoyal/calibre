@@ -163,6 +163,10 @@ class BookInfoDisplay(QWidget):
         self.book_data.updateGeometry()
         self.updateGeometry()
         self.setVisible(True)
+        self.setToolTip('<p>'+_('Click to open Book Details window') +
+                '<br><br>' + _('Path') + ': ' + data.get(_('Path'), ''))
+
+
 
 class StatusBarInterface(object):
 
