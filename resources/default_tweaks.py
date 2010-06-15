@@ -71,3 +71,10 @@ gui_pubdate_display_format = 'MMM yyyy'
 # order until the title is edited. Double-clicking on a title and hitting return
 # without changing anything is sufficient to change the sort.
 title_series_sorting = 'library_order'
+
+# How to render average rating in the tag browser.
+# There are two rendering methods available. The first is to show a partial
+# star, and the second is to show a partially filled rectangle. The first is
+# better looking, but uses more screen space than the second.
+# Values are 'star' or 'rectangle'
+render_avg_rating_using='star'

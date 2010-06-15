@@ -23,7 +23,7 @@ from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
                         pixmap_to_data, warning_dialog, \
                         question_dialog, info_dialog, choose_dir
-from calibre.ebooks.metadata import authors_to_string, authors_to_sort_string
+from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
@@ -1409,7 +1409,7 @@ class DeviceMixin(object): # {{{
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
                 if not asort and book.authors:
-                    book.author_sort = authors_to_sort_string(book.authors)
+                    book.author_sort = self.db.author_sort_from_authors(book.authors)
                     resend_metadata = True
 
         if resend_metadata:

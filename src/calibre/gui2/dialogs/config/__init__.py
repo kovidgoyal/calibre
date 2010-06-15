@@ -481,6 +481,8 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.opt_enforce_cpu_limit.setChecked(config['enforce_cpu_limit'])
         self.device_detection_button.clicked.connect(self.debug_device_detection)
         self.port.editingFinished.connect(self.check_port_value)
+        self.search_as_you_type.setChecked(config['search_as_you_type'])
+        self.show_avg_rating.setChecked(config['show_avg_rating'])
         self.show_splash_screen.setChecked(gprefs.get('show_splash_screen',
             True))
         li = None
@@ -862,6 +864,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['delete_news_from_library_on_upload'] = self.delete_news.isChecked()
         config['upload_news_to_device'] = self.sync_news.isChecked()
         config['search_as_you_type'] = self.search_as_you_type.isChecked()
+        config['show_avg_rating'] = self.show_avg_rating.isChecked()
         config['get_social_metadata'] = self.opt_get_social_metadata.isChecked()
         config['overwrite_author_title_metadata'] = self.opt_overwrite_author_title_metadata.isChecked()
         config['enforce_cpu_limit'] = bool(self.opt_enforce_cpu_limit.isChecked())

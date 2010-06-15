@@ -30,7 +30,7 @@ def authors_to_string(authors):
 
 def author_to_author_sort(author):
     method = tweaks['author_sort_copy_method']
-    if method == 'copy' or (method == 'comma' and author.count(',') > 0):
+    if method == 'copy' or (method == 'comma' and ',' in author):
         return author
     tokens = author.split()
     tokens = tokens[-1:] + tokens[:-1]
