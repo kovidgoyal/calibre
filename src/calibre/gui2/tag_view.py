@@ -13,7 +13,7 @@ from functools import partial
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QCheckBox, \
                      QFont, QSize, QIcon, QPoint, QVBoxLayout, QComboBox, \
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, \
-                     QPushButton, QWidget, QItemDelegate, QString
+                     QPushButton, QWidget, QItemDelegate
 
 from calibre.gui2 import config, NONE
 from calibre.utils.config import prefs
@@ -37,15 +37,15 @@ class TagDelegate(QItemDelegate):
             QItemDelegate.paint(self, painter, option, index)
             return
         r = option.rect
-        icon = self._parent.model().data(index, Qt.DecorationRole).toPyObject()
+        model = self._parent.model()
+        icon = model.data(index, Qt.DecorationRole).toPyObject()
         painter.save()
-        if item.tag.state != 0 or not config['show_avg_rating']:
+        if item.tag.state != 0 or not config['show_avg_rating'] or \
+                item.tag.avg_rating is None:
             icon.paint(painter, r, Qt.AlignLeft)
         else:
             icon.paint(painter, r, Qt.AlignLeft, mode=QIcon.Disabled)
             rating = item.tag.avg_rating
-            if rating is None:
-                rating = 5.0
             painter.setClipRect(r.left(), r.bottom()-int(r.height()*(rating/5.0)),
                     r.width(), r.height())
             icon.paint(painter, r, Qt.AlignLeft)
@@ -54,7 +54,7 @@ class TagDelegate(QItemDelegate):
         # Paint the text
         r.setLeft(r.left()+r.height()+3)
         painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
-                         QString('[%d] %s'%(item.tag.count, item.tag.name)))
+                        model.data(index, Qt.DisplayRole).toString())
         painter.restore()
 
 class TagsView(QTreeView): # {{{
@@ -345,11 +345,7 @@ class TagTreeItem(object): # {{{
             if self.tag.count == 0:
                 return QVariant('%s'%(self.tag.name))
             else:
-                if self.tag.avg_rating is None:
-                    return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
-                else:
-                    return QVariant('[%d][%3.1f] %s'%(self.tag.count,
-                                                      self.tag.avg_rating, self.tag.name))
+                return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
         if role == Qt.EditRole:
             return QVariant(self.tag.name)
         if role == Qt.DecorationRole:
