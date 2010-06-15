@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import functools
 
 from PyQt4.Qt import QMenu, Qt, pyqtSignal, QToolButton, QIcon, QStackedWidget, \
-        QWidget, QHBoxLayout, QToolBar, QSize, QSizePolicy, QStatusBar
+        QSize, QSizePolicy, QStatusBar
 
 from calibre.utils.config import prefs
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -333,29 +333,6 @@ class Stack(QStackedWidget): # {{{
 
 # }}}
 
-class SideBar(QToolBar): # {{{
-
-
-    def __init__(self, splitters, jobs_button, parent=None):
-        QToolBar.__init__(self, _('Side bar'), parent)
-        self.setOrientation(Qt.Vertical)
-        self.setMovable(False)
-        self.setFloatable(False)
-        self.setToolButtonStyle(Qt.ToolButtonIconOnly)
-        self.setIconSize(QSize(48, 48))
-        self.spacer = QWidget(self)
-        self.spacer.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-        for s in splitters:
-            self.addWidget(s.button)
-        self.addWidget(self.spacer)
-        self.addWidget(jobs_button)
-
-        for ch in self.children():
-            if isinstance(ch, QToolButton):
-                ch.setCursor(Qt.PointingHandCursor)
-
-# }}}
-
 class StatusBar(QStatusBar): # {{{
 
     def initialize(self, systray=None):
@@ -383,24 +360,18 @@ class LayoutMixin(object): # {{{
         self.setupUi(self)
         self.setWindowTitle(__appname__)
 
-        if config['gui_layout'] == 'narrow':
+        if config['gui_layout'] == 'narrow': # narrow {{{
             self.book_details = BookDetails(False, self)
             self.stack = Stack(self)
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.svg'),
                     orientation=Qt.Vertical, parent=self, side_index=1)
-            self._layout_mem = [QWidget(self), QHBoxLayout()]
-            self._layout_mem[0].setLayout(self._layout_mem[1])
-            l = self._layout_mem[1]
-            l.addWidget(self.stack)
-            self.sidebar = SideBar([getattr(self, x+'_splitter')
-                for x in ('bd', 'tb', 'cb')], self.jobs_button, parent=self)
-            l.addWidget(self.sidebar)
-            self.bd_splitter.addWidget(self._layout_mem[0])
+            self.bd_splitter.addWidget(self.stack)
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.centralwidget.layout().addWidget(self.bd_splitter)
-        else:
+            # }}}
+        else: # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.svg'), initial_side_size=200,
                     orientation=Qt.Horizontal, parent=self, side_index=1)
@@ -412,14 +383,15 @@ class LayoutMixin(object): # {{{
             self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
             self.centralwidget.layout().addWidget(self.bd_splitter)
+        # }}}
 
         self.status_bar = StatusBar(self)
-        self.setStatusBar(self.status_bar)
         for x in ('cb', 'tb', 'bd'):
             button = getattr(self, x+'_splitter').button
-            button.setIconSize(QSize(22, 22))
+            button.setIconSize(QSize(24, 24))
             self.status_bar.addPermanentWidget(button)
         self.status_bar.addPermanentWidget(self.jobs_button)
+        self.setStatusBar(self.status_bar)
 
     def finalize_layout(self):
         self.status_bar.initialize(self.system_tray_icon)

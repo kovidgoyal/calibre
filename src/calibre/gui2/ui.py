@@ -104,7 +104,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
     def __init__(self, opts, parent=None):
         MainWindow.__init__(self, opts, parent)
         self.opts = opts
-        self.setUnifiedTitleAndToolBarOnMac(True)
 
     def initialize(self, library_path, db, listener, actions):
         opts = self.opts
