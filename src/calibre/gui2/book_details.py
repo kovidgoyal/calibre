@@ -109,7 +109,7 @@ class CoverView(QWidget): # {{{
 
     def show_data(self, data):
         self.animation.stop()
-        if data.get('id', None) == self.data.get('id', None):
+        if data.get('id', True) == self.data.get('id', False):
             return
         self.data = {'id':data.get('id', None)}
         if data.has_key('cover'):
