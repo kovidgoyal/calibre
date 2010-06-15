@@ -10,7 +10,7 @@ Browsing book collection by tags.
 from itertools import izip
 from functools import partial
 
-from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QCheckBox, \
+from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
                      QFont, QSize, QIcon, QPoint, QVBoxLayout, QComboBox, \
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, \
                      QPushButton, QWidget, QItemDelegate
@@ -26,25 +26,22 @@ from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
 
 class TagDelegate(QItemDelegate):
 
-    def __init__(self, parent):
-        QItemDelegate.__init__(self, parent)
-        self._parent = parent
-        self.icon = QIcon(I('star.png'))
-
     def paint(self, painter, option, index):
         item = index.internalPointer()
         if item.type != TagTreeItem.TAG:
             QItemDelegate.paint(self, painter, option, index)
             return
         r = option.rect
-        model = self._parent.model()
+        model = self.parent().model()
         icon = model.data(index, Qt.DecorationRole).toPyObject()
         painter.save()
         if item.tag.state != 0 or not config['show_avg_rating'] or \
                 item.tag.avg_rating is None:
             icon.paint(painter, r, Qt.AlignLeft)
         else:
-            icon.paint(painter, r, Qt.AlignLeft, mode=QIcon.Disabled)
+            painter.setOpacity(0.3)
+            icon.paint(painter, r, Qt.AlignLeft)
+            painter.setOpacity(1)
             rating = item.tag.avg_rating
             painter.setClipRect(r.left(), r.bottom()-int(r.height()*(rating/5.0)),
                     r.width(), r.height())
