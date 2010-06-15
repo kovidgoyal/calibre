@@ -13,11 +13,10 @@ from functools import partial
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QCheckBox, \
                      QFont, QSize, QIcon, QPoint, QVBoxLayout, QComboBox, \
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, \
-                     QPushButton, QWidget, QItemDelegate, QString, QPen, \
-                     QColor, QLinearGradient, QBrush
+                     QPushButton, QWidget, QItemDelegate
 
 from calibre.gui2 import config, NONE
-from calibre.utils.config import prefs, tweaks
+from calibre.utils.config import prefs
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
@@ -38,55 +37,25 @@ class TagDelegate(QItemDelegate):
             QItemDelegate.paint(self, painter, option, index)
             return
         r = option.rect
-        # Paint the decoration icon
-        icon = self._parent.model().data(index, Qt.DecorationRole).toPyObject()
-        icon.paint(painter, r, Qt.AlignLeft)
-
-        # Paint the rating, if any. The decoration icon is assumed to be square,
-        # filling the row top to bottom. The three is arbitrary, there to
-        # provide a little space between the icon and what follows
-        r.setLeft(r.left()+r.height()+3)
-        rating = item.tag.avg_rating
-        if config['show_avg_rating'] and item.tag.avg_rating is not None:
-            painter.save()
-            if tweaks['render_avg_rating_using'] == 'star':
-                painter.setClipRect(r.left(), r.top(),
-                                    int(r.height()*(rating/5.0)), r.height())
-                self.icon.paint(painter, r, Qt.AlignLeft | Qt.AlignVCenter)
-                r.setLeft(r.left() + r.height())
-            else:
-                painter.translate(r.left(), r.top())
-                # Compute factor so sizes can be expressed in percentages of the
-                # box defined by the row height
-                factor = r.height()/100.
-                width = 20
-                height = 80
-                left_offset = 5
-                top_offset = 10
-                if r > 0.0:
-                    color = QColor(100, 100, 255) #medium blue, less glare
-                    pen = QPen(color, 5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
-                    painter.setPen(pen)
-                    painter.scale(factor, factor)
-                    painter.drawRect(left_offset, top_offset, width, height)
-                    fill_height = height*(rating/5.0)
-                    gradient = QLinearGradient(0, 0, 0, 100)
-                    gradient.setColorAt(0.0, color)
-                    gradient.setColorAt(1.0, color)
-                    painter.setBrush(QBrush(gradient))
-                    painter.drawRect(left_offset, top_offset+(height-fill_height),
-                                     width, fill_height)
-                # The '3' is arbitrary, there because we need a little space
-                # between the rectangle and the text.
-                r.setLeft(r.left() + ((width+left_offset*2)*factor) + 3)
-            painter.restore()
-        # Paint the text
-        if item.tag.count == 0:
-            painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
-                             QString('%s'%(item.tag.name)))
+        model = self._parent.model()
+        icon = model.data(index, Qt.DecorationRole).toPyObject()
+        painter.save()
+        if item.tag.state != 0 or not config['show_avg_rating'] or \
+                item.tag.avg_rating is None:
+            icon.paint(painter, r, Qt.AlignLeft)
         else:
-            painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
-                             QString('[%d] %s'%(item.tag.count, item.tag.name)))
+            icon.paint(painter, r, Qt.AlignLeft, mode=QIcon.Disabled)
+            rating = item.tag.avg_rating
+            painter.setClipRect(r.left(), r.bottom()-int(r.height()*(rating/5.0)),
+                    r.width(), r.height())
+            icon.paint(painter, r, Qt.AlignLeft)
+            painter.setClipRect(r)
+
+        # Paint the text
+        r.setLeft(r.left()+r.height()+3)
+        painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
+                        model.data(index, Qt.DisplayRole).toString())
+        painter.restore()
 
 class TagsView(QTreeView): # {{{
 
@@ -377,11 +346,7 @@ class TagTreeItem(object): # {{{
             if self.tag.count == 0:
                 return QVariant('%s'%(self.tag.name))
             else:
-                if self.tag.avg_rating is None:
-                    return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
-                else:
-                    return QVariant('[%d][%3.1f] %s'%(self.tag.count,
-                                                      self.tag.avg_rating, self.tag.name))
+                return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
         if role == Qt.EditRole:
             return QVariant(self.tag.name)
         if role == Qt.DecorationRole:
