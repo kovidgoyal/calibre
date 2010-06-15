@@ -12,7 +12,7 @@ from math import floor
 
 from PyQt4.QtGui import QImage
 
-from calibre.ebooks.metadata import title_sort
+from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.library.database import LibraryDatabase
 from calibre.library.field_metadata import FieldMetadata, TagsIcons
 from calibre.library.schema_upgrades import SchemaUpgrade
@@ -20,7 +20,7 @@ from calibre.library.caches import ResultCache
 from calibre.library.custom_columns import CustomColumns
 from calibre.library.sqlite import connect, IntegrityError, DBThread
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, \
-                                    MetaInformation, authors_to_sort_string
+                                    MetaInformation
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
@@ -56,11 +56,14 @@ copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
 class Tag(object):
 
-    def __init__(self, name, id=None, count=0, state=0, tooltip=None, icon=None):
+    def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
+                 tooltip=None, icon=None):
         self.name = name
         self.id = id
         self.count = count
         self.state = state
+        self.avg_rating = avg/2.0 if avg is not None else 0
+        self.sort = sort
         self.tooltip = tooltip
         self.icon = icon
 
@@ -133,7 +136,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             CREATE TEMP VIEW IF NOT EXISTS tag_browser_news AS SELECT DISTINCT
                 id,
                 name,
-                (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id) count
+                (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id) count,
+                (0) as avg_rating,
+                name as sort
             FROM tags as x WHERE name!="{0}" AND id IN
                 (SELECT DISTINCT tag FROM books_tags_link WHERE book IN
                     (SELECT DISTINCT book FROM books_tags_link WHERE tag IN
@@ -144,7 +149,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             CREATE TEMP VIEW IF NOT EXISTS tag_browser_filtered_news AS SELECT DISTINCT
                 id,
                 name,
-                (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id and books_list_filter(book)) count
+                (SELECT COUNT(books_tags_link.id) FROM books_tags_link WHERE tag=x.id and books_list_filter(book)) count,
+                (0) as avg_rating,
+                name as sort
             FROM tags as x WHERE name!="{0}" AND id IN
                 (SELECT DISTINCT tag FROM books_tags_link WHERE book IN
                     (SELECT DISTINCT book FROM books_tags_link WHERE tag IN
@@ -422,6 +429,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if aum: aum = [a.strip().replace('|', ',') for a in aum.split(',')]
         mi = MetaInformation(self.title(idx, index_is_id=index_is_id), aum)
         mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)
+        mi.authors_sort_strings = self.authors_sort_strings(idx, index_is_id)
         mi.comments    = self.comments(idx, index_is_id=index_is_id)
         mi.publisher   = self.publisher(idx, index_is_id=index_is_id)
         mi.timestamp   = self.timestamp(idx, index_is_id=index_is_id)
@@ -698,13 +706,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 continue
             cn = cat['column']
             if ids is None:
-                query = 'SELECT id, {0}, count FROM tag_browser_{1}'.format(cn, tn)
+                query = '''SELECT id, {0}, count, avg_rating, sort
+                           FROM tag_browser_{1}'''.format(cn, tn)
             else:
-                query = 'SELECT id, {0}, count FROM tag_browser_filtered_{1}'.format(cn, tn)
+                query = '''SELECT id, {0}, count, avg_rating, sort
+                           FROM tag_browser_filtered_{1}'''.format(cn, tn)
             if sort_on_count:
                 query += ' ORDER BY count DESC'
             else:
-                query += ' ORDER BY {0} ASC'.format(cn)
+                query += ' ORDER BY sort ASC'
             data = self.conn.get(query)
 
             # icon_map is not None if get_categories is to store an icon and
@@ -722,6 +732,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
             datatype = cat['datatype']
             if datatype == 'rating':
+                # eliminate the zero ratings line as well as count == 0
                 item_not_zero_func = (lambda x: x[1] > 0 and x[2] > 0)
                 formatter = (lambda x:u'\u2605'*int(round(x/2.)))
             elif category == 'authors':
@@ -733,15 +744,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 formatter = (lambda x:unicode(x))
 
             categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0],
-                                        icon=icon, tooltip = tooltip)
+                                        avg=r[3], sort=r[4],
+                                        icon=icon, tooltip=tooltip)
                                     for r in data if item_not_zero_func(r)]
-            if category == 'series' and not sort_on_count:
-                if tweaks['title_series_sorting'] == 'library_order':
-                    ts = lambda x: title_sort(x)
-                else:
-                    ts = lambda x:x
-                categories[category].sort(cmp=lambda x,y:cmp(ts(x.name).lower(),
-                                                             ts(y.name).lower()))
 
         # We delayed computing the standard formats category because it does not
         # use a view, but is computed dynamically
@@ -909,6 +914,38 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.set_path(id, True)
         self.notify('metadata', [id])
 
+    # Given a book, return the list of author sort strings for the book's authors
+    def authors_sort_strings(self, id, index_is_id=False):
+        id = id if index_is_id else self.id(id)
+        aut_strings = self.conn.get('''
+                        SELECT sort
+                        FROM authors, books_authors_link as bl
+                        WHERE bl.book=? and authors.id=bl.author
+                        ORDER BY bl.id''', (id,))
+        result = []
+        for (sort,) in aut_strings:
+            result.append(sort)
+        return result
+
+    # Given a book, return the author_sort string for authors of the book
+    def author_sort_from_book(self, id, index_is_id=False):
+        auts = self.authors_sort_strings(id, index_is_id)
+        return ' & '.join(auts).replace('|', ',')
+
+    # Given a list of authors, return the author_sort string for the authors,
+    # preferring the author sort associated with the author over the computed
+    # string
+    def author_sort_from_authors(self, authors):
+        result = []
+        for aut in authors:
+            r = self.conn.get('SELECT sort FROM authors WHERE name=?',
+                              (aut.replace(',', '|'),), all=False)
+            if r is None:
+                result.append(author_to_author_sort(aut))
+            else:
+                result.append(r)
+        return ' & '.join(result).replace('|', ',')
+
     def set_authors(self, id, authors, notify=True):
         '''
         `authors`: A list of authors.
@@ -935,7 +972,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                    (id, aid))
             except IntegrityError: # Sometimes books specify the same author twice in their metadata
                 pass
-        ss = authors_to_sort_string(authors)
+        self.conn.commit()
+        ss = self.author_sort_from_book(id, index_is_id=True)
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?',
                           (ss, id))
         self.conn.commit()
@@ -1007,6 +1045,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return result
 
     def rename_tag(self, old_id, new_name):
+        new_name = new_name.strip()
         new_id = self.conn.get(
                     '''SELECT id from tags
                        WHERE name=?''', (new_name,), all=False)
@@ -1046,6 +1085,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return result
 
     def rename_series(self, old_id, new_name):
+        new_name = new_name.strip()
         new_id = self.conn.get(
                     '''SELECT id from series
                        WHERE name=?''', (new_name,), all=False)
@@ -1075,7 +1115,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 index = index + 1
         self.conn.commit()
 
-
     def delete_series_using_id(self, id):
         books = self.conn.get('SELECT book from books_series_link WHERE series=?', (id,))
         self.conn.execute('DELETE FROM books_series_link WHERE series=?', (id,))
@@ -1091,6 +1130,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return result
 
     def rename_publisher(self, old_id, new_name):
+        new_name = new_name.strip()
         new_id = self.conn.get(
                     '''SELECT id from publishers
                        WHERE name=?''', (new_name,), all=False)
@@ -1113,12 +1153,25 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.execute('DELETE FROM publishers WHERE id=?', (old_id,))
         self.conn.commit()
 
-    # There is no editor for author, so we do not need get_authors_with_ids or
-    # delete_author_using_id.
+    def get_authors_with_ids(self):
+        result = self.conn.get('SELECT id,name,sort FROM authors')
+        if not result:
+            return []
+        return result
+
+    def set_sort_field_for_author(self, old_id, new_sort):
+        self.conn.execute('UPDATE authors SET sort=? WHERE id=?', \
+                              (new_sort.strip(), old_id))
+        self.conn.commit()
+        # Now change all the author_sort fields in books by this author
+        bks = self.conn.get('SELECT book from books_authors_link WHERE author=?', (old_id,))
+        for (book_id,) in bks:
+            ss = self.author_sort_from_book(book_id, index_is_id=True)
+            self.set_author_sort(book_id, ss)
 
     def rename_author(self, old_id, new_name):
         # Make sure that any commas in new_name are changed to '|'!
-        new_name = new_name.replace(',', '|')
+        new_name = new_name.replace(',', '|').strip()
 
         # Get the list of books we must fix up, one way or the other
         # Save the list so we can use it twice
@@ -1141,7 +1194,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.execute('UPDATE authors SET name=? WHERE id=?',
                               (new_name, old_id))
                 self.conn.commit()
-                return
+                return new_id
             # Author exists. To fix this, we must replace all the authors
             # instead of replacing the one. Reason: db integrity checks can stop
             # the rename process, which would leave everything half-done. We
@@ -1184,24 +1237,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # now fix the filesystem paths
             self.set_path(book_id, index_is_id=True)
             # Next fix the author sort. Reset it to the default
-            authors = self.conn.get('''
-                SELECT authors.name
-                FROM authors, books_authors_link as bl
-                WHERE bl.book = ? and bl.author = authors.id
-                ORDER BY bl.id
-            ''' , (book_id,))
-            # unpack the double-list structure
-            for i,aut in enumerate(authors):
-                authors[i] = aut[0]
-            ss = authors_to_sort_string(authors)
-            # Change the '|'s to ','
-            ss = ss.replace('|', ',')
-            self.conn.execute('''UPDATE books
-                                 SET author_sort=?
-                                 WHERE id=?''', (ss, book_id))
-            self.conn.commit()
+            ss = self.author_sort_from_book(book_id, index_is_id=True)
+            self.set_author_sort(book_id, ss)
             # the caller will do a general refresh, so we don't need to
             # do one here
+        return new_id
 
     # end convenience methods
 
@@ -1436,7 +1476,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if not add_duplicates and self.has_book(mi):
             return None
         series_index = 1.0 if mi.series_index is None else mi.series_index
-        aus = mi.author_sort if mi.author_sort else ', '.join(mi.authors)
+        aus = mi.author_sort if mi.author_sort else self.author_sort_from_authors(mi.authors)
         title = mi.title
         if isinstance(aus, str):
             aus = aus.decode(preferred_encoding, 'replace')
@@ -1476,7 +1516,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 duplicates.append((path, format, mi))
                 continue
             series_index = 1.0 if mi.series_index is None else mi.series_index
-            aus = mi.author_sort if mi.author_sort else ', '.join(mi.authors)
+            aus = mi.author_sort if mi.author_sort else self.author_sort_from_authors(mi.authors)
             title = mi.title
             if isinstance(aus, str):
                 aus = aus.decode(preferred_encoding, 'replace')
@@ -1515,7 +1555,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             mi.title = _('Unknown')
         if not mi.authors:
             mi.authors = [_('Unknown')]
-        aus = mi.author_sort if mi.author_sort else authors_to_sort_string(mi.authors)
+        aus = mi.author_sort if mi.author_sort else self.author_sort_from_authors(mi.authors)
         if isinstance(aus, str):
             aus = aus.decode(preferred_encoding, 'replace')
         title = mi.title if isinstance(mi.title, unicode) else \

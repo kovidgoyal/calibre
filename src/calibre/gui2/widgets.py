@@ -1110,6 +1110,8 @@ class Splitter(QSplitter):
     def show_side_pane(self):
         if self.count() < 2 or not self.is_side_index_hidden:
             return
+        if self.desired_side_size == 0:
+            self.desired_side_size = self.initial_side_size
         self.apply_state((True, self.desired_side_size))
 
     def hide_side_pane(self):

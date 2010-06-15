@@ -420,8 +420,11 @@ class BooksModel(QAbstractTableModel): # {{{
                         pt.orig_file_path = os.path.abspath(src.name)
                 pt.seek(0)
                 if set_metadata:
-                    _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
+                    try:
+                        _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
                                   format)
+                    except:
+                        traceback.print_exc()
                 pt.close()
                 def to_uni(x):
                     if isbytestring(x):
