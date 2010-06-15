@@ -554,7 +554,7 @@ void PictureFlowPrivate::resize(int w, int h)
   if (h < 10) h = 10;
   slideHeight = int(float(h)/REFLECTION_FACTOR);
   slideWidth = int(float(slideHeight) * 2/3.);
-  fontSize = MAX(int(h/20.), 12);
+  fontSize = MAX(int(h/15.), 12);
   recalc(w, h);
   resetSlides();
   triggerRender();

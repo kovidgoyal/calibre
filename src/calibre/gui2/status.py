@@ -5,7 +5,7 @@ import os
 
 from PyQt4.Qt import QStatusBar, QLabel, QWidget, QHBoxLayout, QPixmap, \
                     QSizePolicy, QScrollArea, Qt, QSize, pyqtSignal, \
-                    QPropertyAnimation, QEasingCurve
+                    QPropertyAnimation, QEasingCurve, QDesktopServices, QUrl
 
 
 from calibre import fit_image, preferred_encoding, isosx
@@ -49,7 +49,7 @@ class BookInfoDisplay(QWidget):
         event.acceptProposedAction()
 
 
-    class BookCoverDisplay(QLabel):
+    class BookCoverDisplay(QLabel): # {{{
 
         def __init__(self, coverpath=I('book.svg')):
             QLabel.__init__(self)
@@ -90,6 +90,7 @@ class BookInfoDisplay(QWidget):
             self.statusbar_height = statusbar_size.height()
             self.do_layout()
 
+        # }}}
 
     class BookDataDisplay(QLabel):
 
@@ -151,7 +152,7 @@ class BookInfoDisplay(QWidget):
             k, t in rows])
         if _('Comments') in self.data:
             comments = comments_to_html(self.data[_('Comments')])
-            comments = '<b>Comments:</b>'+comments
+            comments = ('<b>%s:</b>'%_('Comments'))+comments
         left_pane = u'<table>%s</table>'%rows
         right_pane = u'<div>%s</div>'%comments
         self.book_data.setText(u'<table><tr><td valign="top" '
@@ -162,6 +163,10 @@ class BookInfoDisplay(QWidget):
         self.book_data.updateGeometry()
         self.updateGeometry()
         self.setVisible(True)
+        self.setToolTip('<p>'+_('Click to open Book Details window') +
+                '<br><br>' + _('Path') + ': ' + data.get(_('Path'), ''))
+
+
 
 class StatusBarInterface(object):
 
@@ -196,6 +201,9 @@ class BookDetailsInterface(object):
     def show_data(self, data):
         raise NotImplementedError()
 
+class HStatusBar(QStatusBar, StatusBarInterface):
+    pass
+
 class StatusBar(QStatusBar, StatusBarInterface, BookDetailsInterface):
 
     files_dropped = pyqtSignal(object, object)
@@ -227,9 +235,13 @@ class StatusBar(QStatusBar, StatusBarInterface, BookDetailsInterface):
         typ, _, val = link.partition(':')
         if typ == 'path':
             self.open_containing_folder.emit(int(val))
-        if typ == 'format':
+        elif typ == 'format':
             id_, fmt = val.split(':')
             self.view_specific_format.emit(int(id_), fmt)
+        elif typ == 'devpath':
+            path = os.path.dirname(val)
+            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+
 
     def resizeEvent(self, ev):
         self.resized.emit(self.size())

@@ -291,4 +291,8 @@ class SchemaUpgrade(object):
 
         for field in self.field_metadata.itervalues():
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
-                create_tag_browser_view(field['table'], field['link_column'], field['column'])
+                table = self.conn.get(
+                    'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
+                    ('books_%s_link'%field['table'],), all=False)
+                if table is not None:
+                    create_tag_browser_view(field['table'], field['link_column'], field['column'])

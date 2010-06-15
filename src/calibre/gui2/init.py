@@ -17,6 +17,8 @@ from calibre.gui2 import config, is_widescreen
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.widgets import Splitter
 from calibre.gui2.tag_view import TagBrowserWidget
+from calibre.gui2.status import StatusBar, HStatusBar
+from calibre.gui2.book_details import BookDetails
 
 _keep_refs = []
 
@@ -290,9 +292,9 @@ class LibraryViewMixin(object): # {{{
 class LibraryWidget(Splitter): # {{{
 
     def __init__(self, parent):
-        orientation = Qt.Vertical if config['gui_layout'] == 'narrow' and \
-                not is_widescreen() else Qt.Horizontal
-        #orientation = Qt.Vertical
+        orientation = Qt.Vertical
+        if config['gui_layout'] == 'narrow':
+            orientation = Qt.Horizontal if is_widescreen() else Qt.Vertical
         idx = 0 if orientation == Qt.Vertical else 1
         size = 300 if orientation == Qt.Vertical else 550
         Splitter.__init__(self, 'cover_browser_splitter', _('Cover Browser'),
@@ -360,7 +362,6 @@ class LayoutMixin(object): # {{{
         self.setWindowTitle(__appname__)
 
         if config['gui_layout'] == 'narrow':
-            from calibre.gui2.status import StatusBar
             self.status_bar = self.book_details = StatusBar(self)
             self.stack = Stack(self)
             self.bd_splitter = Splitter('book_details_splitter',
@@ -375,8 +376,28 @@ class LayoutMixin(object): # {{{
             l.addWidget(self.sidebar)
             self.bd_splitter.addWidget(self._layout_mem[0])
             self.bd_splitter.addWidget(self.status_bar)
-            self.bd_splitter.setCollapsible((self.bd_splitter.side_index+1)%2, False)
+            self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.centralwidget.layout().addWidget(self.bd_splitter)
+        else:
+            self.status_bar = HStatusBar(self)
+            self.setStatusBar(self.status_bar)
+            self.bd_splitter = Splitter('book_details_splitter',
+                    _('Book Details'), I('book.svg'), initial_side_size=200,
+                    orientation=Qt.Horizontal, parent=self, side_index=1)
+            self.stack = Stack(self)
+            self.bd_splitter.addWidget(self.stack)
+            self.book_details = BookDetails(self)
+            self.bd_splitter.addWidget(self.book_details)
+            self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
+            self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
+                QSizePolicy.Expanding))
+            self.centralwidget.layout().addWidget(self.bd_splitter)
+
+            for x in ('cb', 'tb', 'bd'):
+                button = getattr(self, x+'_splitter').button
+                button.setIconSize(QSize(22, 22))
+                self.status_bar.addPermanentWidget(button)
+            self.status_bar.addPermanentWidget(self.jobs_button)
 
     def finalize_layout(self):
         m = self.library_view.model()

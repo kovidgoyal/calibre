@@ -126,7 +126,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         # Jobs Button {{{
         self.job_manager = JobManager()
         self.jobs_dialog = JobsDialog(self, self.job_manager)
-        self.jobs_button = JobsButton()
+        self.jobs_button = JobsButton(horizontal=config['gui_layout'] !=
+                'narrow')
         self.jobs_button.initialize(self.jobs_dialog, self.job_manager)
         # }}}
 

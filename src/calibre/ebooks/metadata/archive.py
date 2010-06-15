@@ -10,11 +10,30 @@ import os
 from contextlib import closing
 
 from calibre.customize import FileTypePlugin
+from calibre.utils.zipfile import ZipFile, stringFileHeader
 
 def is_comic(list_of_names):
     extensions = set([x.rpartition('.')[-1].lower() for x in list_of_names])
     comic_extensions = set(['jpg', 'jpeg', 'png'])
     return len(extensions - comic_extensions) == 0
+
+def archive_type(stream):
+    try:
+        pos = stream.tell()
+    except:
+        pos = 0
+    id_ = stream.read(4)
+    ans = None
+    if id_ == stringFileHeader:
+        ans = 'zip'
+    elif id_.startswith('Rar'):
+        ans = 'rar'
+    try:
+        stream.seek(pos)
+    except:
+        pass
+    return ans
+
 
 class ArchiveExtract(FileTypePlugin):
     name = 'Archive Extract'
@@ -31,7 +50,6 @@ class ArchiveExtract(FileTypePlugin):
         if is_rar:
             from calibre.libunrar import extract_member, names
         else:
-            from calibre.utils.zipfile import ZipFile
             zf = ZipFile(archive, 'r')
 
         if is_rar:
