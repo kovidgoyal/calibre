@@ -81,8 +81,12 @@ class TagDelegate(QItemDelegate):
                 r.setLeft(r.left() + ((width+left_offset*2)*factor) + 3)
             painter.restore()
         # Paint the text
-        painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
-                         QString('[%d] %s'%(item.tag.count, item.tag.name)))
+        if item.tag.count == 0:
+            painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
+                             QString('%s'%(item.tag.name)))
+        else:
+            painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
+                             QString('[%d] %s'%(item.tag.count, item.tag.name)))
 
 class TagsView(QTreeView): # {{{
 
@@ -107,12 +111,12 @@ class TagsView(QTreeView): # {{{
         self.setHeaderHidden(True)
         self.setItemDelegate(TagDelegate(self))
 
-    def set_database(self, db, tag_match, popularity):
+    def set_database(self, db, tag_match, sort_by):
         self.hidden_categories = config['tag_browser_hidden_categories']
         self._model = TagsModel(db, parent=self,
                                 hidden_categories=self.hidden_categories,
                                 search_restriction=None)
-        self.popularity = popularity
+        self.sort_by = sort_by
         self.tag_match = tag_match
         self.db = db
         self.search_restriction = None
@@ -120,8 +124,9 @@ class TagsView(QTreeView): # {{{
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.clicked.connect(self.toggle)
         self.customContextMenuRequested.connect(self.show_context_menu)
-        self.popularity.setChecked(config['sort_by_popularity'])
-        self.popularity.stateChanged.connect(self.sort_changed)
+        pop = config['sort_tags_by']
+        self.sort_by.setCurrentIndex(self.db.CATEGORY_SORTS.index(pop))
+        self.sort_by.currentIndexChanged.connect(self.sort_changed)
         self.refresh_required.connect(self.recount, type=Qt.QueuedConnection)
         db.add_listener(self.database_changed)
 
@@ -132,8 +137,8 @@ class TagsView(QTreeView): # {{{
     def match_all(self):
         return self.tag_match and self.tag_match.currentIndex() > 0
 
-    def sort_changed(self, state):
-        config.set('sort_by_popularity', state == Qt.Checked)
+    def sort_changed(self, pop):
+        config.set('sort_tags_by', self.db.CATEGORY_SORTS[pop])
         self.recount()
 
     def set_search_restriction(self, s):
@@ -420,7 +425,7 @@ class TagsModel(QAbstractItemModel): # {{{
         self.row_map = []
 
         # get_node_tree cannot return None here, because row_map is empty
-        data = self.get_node_tree(config['sort_by_popularity'])
+        data = self.get_node_tree(config['sort_tags_by'])
         self.root_item = TagTreeItem()
         for i, r in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
@@ -464,11 +469,11 @@ class TagsModel(QAbstractItemModel): # {{{
 
         # Now get the categories
         if self.search_restriction:
-            data = self.db.get_categories(sort_on_count=sort,
+            data = self.db.get_categories(sort=sort,
                         icon_map=self.category_icon_map,
                         ids=self.db.search('', return_matches=True))
         else:
-            data = self.db.get_categories(sort_on_count=sort, icon_map=self.category_icon_map)
+            data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
 
         tb_categories = self.db.field_metadata
         for category in tb_categories:
@@ -482,7 +487,7 @@ class TagsModel(QAbstractItemModel): # {{{
         return data
 
     def refresh(self):
-        data = self.get_node_tree(config['sort_by_popularity']) # get category data
+        data = self.get_node_tree(config['sort_tags_by']) # get category data
         if data is None:
             return False
         row_index = -1
@@ -691,7 +696,7 @@ class TagBrowserMixin(object): # {{{
     def __init__(self, db):
         self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
         self.tags_view.set_database(self.library_view.model().db,
-                self.tag_match, self.popularity)
+                self.tag_match, self.sort_by)
         self.tags_view.tags_marked.connect(self.search.search_from_tags)
         self.tags_view.tags_marked.connect(self.saved_search.clear_to_help)
         self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
@@ -752,9 +757,13 @@ class TagBrowserWidget(QWidget): # {{{
         parent.tags_view = TagsView(parent)
         self._layout.addWidget(parent.tags_view)
 
-        parent.popularity = QCheckBox(parent)
-        parent.popularity.setText(_('Sort by &popularity'))
-        self._layout.addWidget(parent.popularity)
+        parent.sort_by = QComboBox(parent)
+        # Must be in the same order as db2.CATEGORY_SORTS
+        for x in (_('Sort by name'), _('Sort by popularity'),
+                  _('Sort by average rating')):
+            parent.sort_by.addItem(x)
+        parent.sort_by.setCurrentIndex(0)
+        self._layout.addWidget(parent.sort_by)
 
         parent.tag_match = QComboBox(parent)
         for x in (_('Match any'), _('Match all')):

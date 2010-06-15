@@ -64,6 +64,10 @@ class Tag(object):
         self.state = state
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
+        if self.avg_rating > 0:
+            if tooltip:
+                tooltip = tooltip + ': '
+            tooltip = _('%sAverage rating is %3.1f')%(tooltip, self.avg_rating)
         self.tooltip = tooltip
         self.icon = icon
 
@@ -687,7 +691,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     tn=field['table'], col=field['link_column']), (id_,))
         return set(x[0] for x in ans)
 
-    def get_categories(self, sort_on_count=False, ids=None, icon_map=None):
+    CATEGORY_SORTS = ('name', 'popularity', 'rating')
+
+    def get_categories(self, sort='name', ids=None, icon_map=None):
         self.books_list_filter.change([] if not ids else ids)
 
         categories = {}
@@ -711,10 +717,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 query = '''SELECT id, {0}, count, avg_rating, sort
                            FROM tag_browser_filtered_{1}'''.format(cn, tn)
-            if sort_on_count:
-                query += ' ORDER BY count DESC'
-            else:
+            if sort == 'popularity':
+                query += ' ORDER BY count DESC, sort ASC'
+            elif sort == 'name':
                 query += ' ORDER BY sort ASC'
+            else:
+                query += ' ORDER BY avg_rating DESC, sort ASC'
             data = self.conn.get(query)
 
             # icon_map is not None if get_categories is to store an icon and
@@ -770,11 +778,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if count > 0:
                 categories['formats'].append(Tag(fmt, count=count, icon=icon))
 
-        if sort_on_count:
-            categories['formats'].sort(cmp=lambda x,y:cmp(x.count, y.count),
-                    reverse=True)
-        else:
-            categories['formats'].sort(cmp=lambda x,y:cmp(x.name, y.name))
+        if sort == 'popularity':
+            categories['formats'].sort(key=lambda x: x.count, reverse=True)
+        else: # no ratings exist to sort on
+            categories['formats'].sort(key = lambda x:x.name)
 
         #### Now do the user-defined categories. ####
         user_categories = prefs['user_categories']
@@ -799,12 +806,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 # Not a problem if we accumulate entries in the icon map
                 if icon_map is not None:
                     icon_map[cat_name] = icon_map[':user']
-                if sort_on_count:
+                if sort == 'popularity':
                     categories[cat_name] = \
-                        sorted(items, cmp=(lambda x, y: cmp(y.count, x.count)))
+                        sorted(items, key=lambda x: x.count, reverse=True)
+                elif sort == 'name':
+                    categories[cat_name] = \
+                        sorted(items, key=lambda x: x.sort.lower())
                 else:
                     categories[cat_name] = \
-                        sorted(items, cmp=(lambda x, y: cmp(x.name.lower(), y.name.lower())))
+                        sorted(items, key=lambda x:x.avg_rating, reverse=True)
 
         #### Finally, the saved searches category ####
         items = []
