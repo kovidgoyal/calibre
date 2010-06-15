@@ -1147,7 +1147,7 @@ class ITUNES(DevicePlugin):
                     dev_books = pl.file_tracks()
                     break
             else:
-                self.log.error("  book_playlist not found")
+                self.log.error("   book_playlist not found")
 
             if len(dev_books):
                 first_book = dev_books[0]
@@ -1158,7 +1158,16 @@ class ITUNES(DevicePlugin):
                     self.manual_sync_mode = True
                 except:
                     self.manual_sync_mode = False
-                self.log.info("  iTunes.manual_sync_mode: %s" % self.manual_sync_mode)
+            else:
+                if DEBUG:
+                    self.log.info("   adding tracer to empty Books|Playlist")
+                fpath = P('tracer.epub')
+                metadata = {'title':'Tracer','author':'calibre'}
+                added = self._add_device_book(fpath,metadata)
+                if added_
+                    self.manual_sync_mode = True
+                else:
+                    self.manual_sync_mode = False
 
         elif iswindows:
             if wait:
@@ -1186,7 +1195,16 @@ class ITUNES(DevicePlugin):
                     self.log.info("  iTunes.manual_sync_mode: %s" % self.manual_sync_mode)
             else:
                 if DEBUG:
-                    self.log.error("   no books on iDevice, can't determine manual sync mode")
+                    self.log.info("   adding tracer to empty Books|Playlist")
+                try:
+                    added = pl.add(appscript.mactypes.File(P('tracer.epub')),to=pl)
+                    time.sleep(0.5)
+                    added.delete()
+                    self.manual_sync_mode = True
+                except:
+                    self.manual_sync_mode = False
+
+        self.log.info("   iTunes.manual_sync_mode: %s" % self.manual_sync_mode)
 
     def _dump_booklist(self, booklist, header=None):
         '''
@@ -1798,14 +1816,14 @@ class ITUNES(DevicePlugin):
             cmd = "defaults read com.apple.itunes NSNavLastRootDirectory"
             proc = subprocess.Popen( cmd, shell=True, cwd=os.curdir, stdout=subprocess.PIPE)
             proc.wait()
-            media_dir = os.path.abspath(proc.communicate()[0].strip())
+            media_dir = os.path.expanduser(proc.communicate()[0].strip())
             if os.path.exists(media_dir):
                 self.iTunes_media = media_dir
             else:
                 self.log.error("  could not confirm valid iTunes.media_dir from %s" % 'com.apple.itunes')
-
+                self.log.error("  media_dir: %s" % media_dir)
             if DEBUG:
-                self.log.info("  [%s - %s (%s), driver version %d.%d.%d]" %
+                self.log.info("  [OSX %s - %s (%s), driver version %d.%d.%d]" %
                  (self.iTunes.name(), self.iTunes.version(), initial_status,
                   self.version[0],self.version[1],self.version[2]))
                 self.log.info("  iTunes_media: %s" % self.iTunes_media)
@@ -1834,7 +1852,7 @@ class ITUNES(DevicePlugin):
                     self.log.error("  '%s' not found" % media_dir)
 
             if DEBUG:
-                self.log.info("  [%s - %s (%s), driver version %d.%d.%d]" %
+                self.log.info("  [Windows %s - %s (%s), driver version %d.%d.%d]" %
                  (self.iTunes.Windows[0].name, self.iTunes.Version, initial_status,
                   self.version[0],self.version[1],self.version[2]))
                 self.log.info("  iTunes_media: %s" % self.iTunes_media)
@@ -1869,6 +1887,8 @@ class ITUNES(DevicePlugin):
                              'author':library_books[book].Artist,
                            'lib_book':library_books[book]}
                     self._remove_from_iTunes(btr)
+        if DEBUG:
+            self.log.info()
 
     def _remove_existing_copies(self,path,file,metadata):
         '''
@@ -2018,42 +2038,26 @@ class ITUNES(DevicePlugin):
             opf_raw = cStringIO.StringIO(zf.read(opf)).getvalue()
             soup = BeautifulSoup(opf_raw)
             md = soup.find('metadata')
-            ots = ts = md.find('meta',attrs={'name':'calibre:timestamp'})
+            ts = md.find('meta',attrs={'name':'calibre:timestamp'})
             if ts:
                 # Touch existing calibre timestamp
                 timestamp = ts['content']
-#                 old_ts = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f+00:00")
-#                 new_ts = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour, old_ts.minute,
-#                               old_ts.second, old_ts.microsecond+1)
-#                 ts['content'] = new_ts.strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
                 old_ts = strptime(timestamp,"%Y-%m-%dT%H:%M:%S.%f+00:00")
                 new_ts = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
                                            old_ts.minute, old_ts.second, old_ts.microsecond+1)
                 ts['content'] = new_ts.strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
-                if DEBUG:
-                    self.log.info("   touching existing calibre:timestamp in %s" % opf)
-                    self.log.info("   %s" % ots)
-                    self.log.info("   %s" % ts)
             else:
                 # Create new calibre timestamp
-                if True:
-                    print "existing metadata:\n%s" % md.prettify()
-                else:
-                    ts = Tag(soup,'meta')
-                    ts['name'] = 'calibre:timestamp'
-                    ts['content'] = isoformat(now())
-                    md.insert(len(md),ts)
-                    if DEBUG:
-                        self.log.info("   adding calibre:timestamp to %s" % opf)
-                        self.log.info("   %s" % ts)
+                ts = Tag(soup,'meta')
+                ts['name'] = 'calibre:timestamp'
+                ts['content'] = isoformat(now())
+                md.insert(len(md),ts)
             zfo = open(fpath,'r+b')
-            safe_replace(zfo, opf, cStringIO.StringIO(soup))
+            safe_replace(zfo, opf, cStringIO.StringIO(soup.renderContents()))
 
         else:
             if DEBUG:
                 self.log.error("   can't find .opf in %s" % fpath)
-
-
 
     def _update_device(self, msg='', wait=True):
         '''
