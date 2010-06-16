@@ -1409,7 +1409,7 @@ class DeviceMixin(object): # {{{
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
                 if not asort and book.authors:
-                    book.author_sort = self.db.author_sort_from_authors(book.authors)
+                    book.author_sort = self.library_view.model().db.author_sort_from_authors(book.authors)
                     resend_metadata = True
 
         if resend_metadata:
