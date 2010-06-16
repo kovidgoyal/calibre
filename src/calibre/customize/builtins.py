@@ -458,8 +458,10 @@ from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
+from calibre.ebooks.metadata.douban import DoubanBooks
 from calibre.library.catalog import CSV_XML, EPUB_MOBI
-plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon, CSV_XML, EPUB_MOBI]
+plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
+        DoubanBooks, CSV_XML, EPUB_MOBI]
 plugins += [
     ComicInput,
     EPUBInput,
