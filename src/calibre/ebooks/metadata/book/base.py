@@ -16,6 +16,7 @@ NULL_VALUES = {
                 'classifiers'  : {},
                 'languages'    : [],
                 'device_collections': [],
+                'author_sort_map': {},
                 'authors'      : [_('Unknown')],
                 'title'        : _('Unknown'),
 }
