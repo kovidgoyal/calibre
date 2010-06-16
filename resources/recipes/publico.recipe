@@ -1,41 +1,43 @@
-"""
-publico.py - v1.0
+#!/usr/bin/env  python
+__author__    = u'Jordi Balcells'
+__license__   = 'GPL v3'
+description   = u'Jornal portugu\xeas - v1.03 (16 June 2010)'
+__docformat__ = 'restructuredtext en'
 
-Copyright (c) 2009, David Rodrigues - http://sixhat.net
-All rights reserved.
-"""
-
-__license__ = 'GPL 3'
+'''
+publico.pt
+'''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
-class Publico(BasicNewsRecipe):
-    title          = u'P\xfablico'
-    __author__     = 'David Rodrigues'
-    oldest_article = 1
-    max_articles_per_feed = 30
-    encoding='utf-8'
-    no_stylesheets = True
-    language = 'pt'
+class PublicoPT(BasicNewsRecipe):
+    description           = u'Jornal portugu\xeas'
+    cover_url             = 'http://static.publico.pt/files/header/img/publico.gif'
+    title                 = u'Publico.PT'
+    category              = 'News, politics, culture, economy, general interest'
+    oldest_article        = 2
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'pt'
+    remove_empty_feeds    = True
+    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} '
 
-    preprocess_regexps = [(re.compile(u"\uFFFD", re.DOTALL|re.IGNORECASE),  lambda match: ''),]
+    keep_only_tags = [dict(attrs={'class':['content-noticia-title','artigoHeader','ECOSFERA_MANCHETE','noticia','textoPrincipal','ECOSFERA_texto_01']})]
+    remove_tags    = [dict(attrs={'class':['options','subcoluna']})]
 
-    feeds          = [
-                        (u'Geral', u'http://feeds.feedburner.com/PublicoUltimaHora'),
-                        (u'Internacional', u'http://www.publico.clix.pt/rss.ashx?idCanal=11'),
-                        (u'Pol\xedtica', u'http://www.publico.clix.pt/rss.ashx?idCanal=12'),
-                        (u'Ci\xcencias', u'http://www.publico.clix.pt/rss.ashx?idCanal=13'),
-                        (u'Desporto', u'http://desporto.publico.pt/rss.ashx'),
-                        (u'Economia', u'http://www.publico.clix.pt/rss.ashx?idCanal=57'),
-                        (u'Educa\xe7\xe3o', u'http://www.publico.clix.pt/rss.ashx?idCanal=58'),
-                        (u'Local', u'http://www.publico.clix.pt/rss.ashx?idCanal=59'),
-                        (u'Media e Tecnologia', u'http://www.publico.clix.pt/rss.ashx?idCanal=61'),
-                        (u'Sociedade', u'http://www.publico.clix.pt/rss.ashx?idCanal=62')
-                    ]
-    remove_tags    = [dict(name='script'), dict(id='linhaTitulosHeader')]
-    keep_only_tags = [dict(name='div')]
+    feeds = [
+                        (u'Geral', u'http://feeds.feedburner.com/publicoRSS'),
+                        (u'Mundo', u'http://feeds.feedburner.com/PublicoMundo'),
+                        (u'Pol\xedtica', u'http://feeds.feedburner.com/PublicoPolitica'),
+                        (u'Economia', u'http://feeds.feedburner.com/PublicoEconomia'),
+                        (u'Desporto', u'http://feeds.feedburner.com/PublicoDesporto'),
+                        (u'Sociedade', u'http://feeds.feedburner.com/PublicoSociedade'),
+                        (u'Educa\xe7\xe3o', u'http://feeds.feedburner.com/PublicoEducacao'),
+                        (u'Ci\xeancias', u'http://feeds.feedburner.com/PublicoCiencias'),
+                        (u'Ecosfera', u'http://feeds.feedburner.com/PublicoEcosfera'),
+                        (u'Cultura', u'http://feeds.feedburner.com/PublicoCultura'),
+                        (u'Local', u'http://feeds.feedburner.com/PublicoLocal'),
+                        (u'Tecnologia', u'http://feeds.feedburner.com/PublicoTecnologia')
+            ]
 
-    def print_version(self,url):
-        s=re.findall("id=[0-9]+",url);
-        return "http://ww2.publico.clix.pt/print.aspx?"+s[0]
