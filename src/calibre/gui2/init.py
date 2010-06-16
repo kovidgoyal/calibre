@@ -8,17 +8,18 @@ __docformat__ = 'restructuredtext en'
 import functools
 
 from PyQt4.Qt import QMenu, Qt, pyqtSignal, QToolButton, QIcon, QStackedWidget, \
-        QWidget, QHBoxLayout, QToolBar, QSize, QSizePolicy
+        QSize, QSizePolicy, QStatusBar
 
 from calibre.utils.config import prefs
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.constants import isosx, __appname__
+from calibre.constants import isosx, __appname__, preferred_encoding
 from calibre.gui2 import config, is_widescreen
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.widgets import Splitter
 from calibre.gui2.tag_view import TagBrowserWidget
-from calibre.gui2.status import StatusBar, HStatusBar
 from calibre.gui2.book_details import BookDetails
+from calibre.gui2.notify import get_notifier
+
 
 _keep_refs = []
 
@@ -332,26 +333,24 @@ class Stack(QStackedWidget): # {{{
 
 # }}}
 
-class SideBar(QToolBar): # {{{
+class StatusBar(QStatusBar): # {{{
 
+    def initialize(self, systray=None):
+        self.systray = systray
+        self.notifier = get_notifier(systray)
 
-    def __init__(self, splitters, jobs_button, parent=None):
-        QToolBar.__init__(self, _('Side bar'), parent)
-        self.setOrientation(Qt.Vertical)
-        self.setMovable(False)
-        self.setFloatable(False)
-        self.setToolButtonStyle(Qt.ToolButtonIconOnly)
-        self.setIconSize(QSize(48, 48))
-        self.spacer = QWidget(self)
-        self.spacer.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-        for s in splitters:
-            self.addWidget(s.button)
-        self.addWidget(self.spacer)
-        self.addWidget(jobs_button)
+    def show_message(self, msg, timeout=0):
+        QStatusBar.showMessage(self, msg, timeout)
+        if self.notifier is not None and not config['disable_tray_notification']:
+            if isosx and isinstance(msg, unicode):
+                try:
+                    msg = msg.encode(preferred_encoding)
+                except UnicodeEncodeError:
+                    msg = msg.encode('utf-8')
+            self.notifier(msg)
 
-        for ch in self.children():
-            if isinstance(ch, QToolButton):
-                ch.setCursor(Qt.PointingHandCursor)
+    def clear_message(self):
+        QStatusBar.clearMessage(self)
 
 # }}}
 
@@ -361,45 +360,46 @@ class LayoutMixin(object): # {{{
         self.setupUi(self)
         self.setWindowTitle(__appname__)
 
-        if config['gui_layout'] == 'narrow':
-            self.status_bar = self.book_details = StatusBar(self)
+        if config['gui_layout'] == 'narrow': # narrow {{{
+            self.book_details = BookDetails(False, self)
             self.stack = Stack(self)
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.svg'),
                     orientation=Qt.Vertical, parent=self, side_index=1)
-            self._layout_mem = [QWidget(self), QHBoxLayout()]
-            self._layout_mem[0].setLayout(self._layout_mem[1])
-            l = self._layout_mem[1]
-            l.addWidget(self.stack)
-            self.sidebar = SideBar([getattr(self, x+'_splitter')
-                for x in ('bd', 'tb', 'cb')], self.jobs_button, parent=self)
-            l.addWidget(self.sidebar)
-            self.bd_splitter.addWidget(self._layout_mem[0])
-            self.bd_splitter.addWidget(self.status_bar)
+            self.bd_splitter.addWidget(self.stack)
+            self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.centralwidget.layout().addWidget(self.bd_splitter)
-        else:
-            self.status_bar = HStatusBar(self)
-            self.setStatusBar(self.status_bar)
+            # }}}
+        else: # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.svg'), initial_side_size=200,
                     orientation=Qt.Horizontal, parent=self, side_index=1)
             self.stack = Stack(self)
             self.bd_splitter.addWidget(self.stack)
-            self.book_details = BookDetails(self)
+            self.book_details = BookDetails(True, self)
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
             self.centralwidget.layout().addWidget(self.bd_splitter)
+        # }}}
 
-            for x in ('cb', 'tb', 'bd'):
-                button = getattr(self, x+'_splitter').button
-                button.setIconSize(QSize(22, 22))
-                self.status_bar.addPermanentWidget(button)
-            self.status_bar.addPermanentWidget(self.jobs_button)
+        self.status_bar = StatusBar(self)
+        for x in ('cb', 'tb', 'bd'):
+            button = getattr(self, x+'_splitter').button
+            button.setIconSize(QSize(24, 24))
+            self.status_bar.addPermanentWidget(button)
+        self.status_bar.addPermanentWidget(self.jobs_button)
+        self.setStatusBar(self.status_bar)
 
     def finalize_layout(self):
+        self.status_bar.initialize(self.system_tray_icon)
+        self.book_details.show_book_info.connect(self.show_book_info)
+        self.book_details.files_dropped.connect(self.files_dropped_on_book)
+        self.book_details.open_containing_folder.connect(self.view_folder_for_id)
+        self.book_details.view_specific_format.connect(self.view_format_by_id)
+
         m = self.library_view.model()
         if m.rowCount(None) > 0:
             self.library_view.set_current_row(0)

@@ -385,14 +385,6 @@ class EPUBOutput(OutputFormatPlugin):
                             if val and not pval:
                                 rule.style.setProperty('padding-left', val)
 
-        if stylesheet is not None:
-            stylesheet.data.add('a { color: inherit; text-decoration: inherit; '
-                    'cursor: default; }')
-            stylesheet.data.add('a[href] { color: blue; '
-                    'text-decoration: underline; cursor:pointer; }')
-        else:
-            self.oeb.log.warn('No stylesheet found')
-
     # }}}
 
     def workaround_sony_quirks(self): # {{{
