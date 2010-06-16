@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-14 07:12+0000\n"
-"PO-Revision-Date: 2010-06-14 15:54+0000\n"
+"PO-Revision-Date: 2010-06-15 21:48+0000\n"
 "Last-Translator: Àngel Ollé <Unknown>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-15 03:31+0000\n"
+"X-Launchpad-Export-Date: 2010-06-16 03:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1658,6 +1658,12 @@ msgid ""
 "if your source file contains a very large number of page breaks, you should "
 "turn off splitting on page breaks."
 msgstr ""
+"Desactivi les divisions als salts de línia. Normalment, els fitxers "
+"d'entrada es divideixen en dos automàticament a cada salt de pàgina. Això li "
+"dóna un llibre electrònic (e-book) de sortida que es pot analitzar més ràpid "
+"i amb menys recursos. Si més no, la divisió és lenta i si el seu fitxer "
+"d'origen conté un gran número de salts de pàgina, vostè ha de desactivar la "
+"divisió dels salts de pàgina."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:73
 msgid ""
@@ -1770,7 +1776,7 @@ msgstr "\tS'està convertint a BBeB..."
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:539
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:552
 msgid "Could not parse file: %s"
-msgstr ""
+msgstr "No s'ha pogut analitzar el fitxer: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:544
 msgid "%s is an empty file"
@@ -1778,11 +1784,11 @@ msgstr "%s és un fitxer buit"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:564
 msgid "Failed to parse link %s %s"
-msgstr ""
+msgstr "Ha fallat l'anàlisi de l'enllaç %s %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:608
 msgid "Cannot add link %s to TOC"
-msgstr ""
+msgstr "No s'ha pogut afegir l'enllaç %s a la TDC"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:957
 msgid "Unable to process image %s. Error: %s"
