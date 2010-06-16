@@ -872,11 +872,15 @@ class DeviceBooksModel(BooksModel): # {{{
         self.editable = True
         self.book_in_library = None
 
-    def mark_for_deletion(self, job, rows):
-        self.marked_for_deletion[job] = self.indices(rows)
-        for row in rows:
-            indices = self.row_indices(row)
-            self.dataChanged.emit(indices[0], indices[-1])
+    def mark_for_deletion(self, job, rows, rows_are_ids=False):
+        if rows_are_ids:
+            self.marked_for_deletion[job] = rows
+            self.reset()
+        else:
+            self.marked_for_deletion[job] = self.indices(rows)
+            for row in rows:
+                indices = self.row_indices(row)
+                self.dataChanged.emit(indices[0], indices[-1])
 
     def deletion_done(self, job, succeeded=True):
         if not self.marked_for_deletion.has_key(job):
@@ -1058,6 +1062,13 @@ class DeviceBooksModel(BooksModel): # {{{
 
     def paths(self, rows):
         return [self.db[self.map[r.row()]].path for r in rows ]
+
+    def paths_for_db_ids(self, db_ids):
+        res = []
+        for r,b in enumerate(self.db):
+            if b.application_id in db_ids:
+                res.append((r,b))
+        return res
 
     def indices(self, rows):
         '''

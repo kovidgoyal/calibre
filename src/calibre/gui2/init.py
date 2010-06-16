@@ -132,8 +132,8 @@ class ToolbarMixin(object): # {{{
         self.delete_menu.addAction(
                 _('Remove covers from selected books'), self.delete_covers)
         self.delete_menu.addAction(
-                _('Mark matching books on device for removal'),
-                self.mark_matching_for_removal)
+                _('Remove matching books from device'),
+                self.remove_matching_books_from_device)
         self.action_del.setMenu(self.delete_menu)
 
         self.action_open_containing_folder.setShortcut(Qt.Key_O)
