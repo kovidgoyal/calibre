@@ -471,6 +471,21 @@ class DeleteAction(object): # {{{
         if ids:
             self.tags_view.recount()
 
+    def mark_matching_for_removal(self, *args):
+        ids = self._get_selected_ids()
+        if not ids:
+            return
+        db = self.library_view.model().db
+        for model in (self.memory_view.model(), self.card_a_view.model(),
+                      self.card_b_view.model()):
+            ids_to_mark = []
+            for id in ids:
+                uuid = db.uuid(id, index_is_id=True)
+                for book in model.db:
+                    if getattr(book, 'uuid', None) == uuid:
+                        ids_to_mark.append(id)
+                        break
+            model.clear_ondevice(ids_to_mark, to_what=False)
 
     def delete_covers(self, *args):
         ids = self._get_selected_ids()

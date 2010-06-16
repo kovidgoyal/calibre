@@ -1347,7 +1347,7 @@ class DeviceMixin(object): # {{{
         if reset:
             # First build a cache of the library, so the search isn't On**2
             self.db_book_title_cache = {}
-            self.db_book_uuid_cache = set()
+            self.db_book_uuid_cache = {}
             db = self.library_view.model().db
             for id in db.data.iterallids():
                 mi = db.get_metadata(id, index_is_id=True)
@@ -1364,7 +1364,7 @@ class DeviceMixin(object): # {{{
                     aus = re.sub('(?u)\W|[_]', '', aus)
                     self.db_book_title_cache[title]['author_sort'][aus] = mi
                 self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
-                self.db_book_uuid_cache.add(mi.uuid)
+                self.db_book_uuid_cache[mi.uuid] = mi.application_id
 
         # Now iterate through all the books on the device, setting the
         # in_library field Fastest and most accurate key is the uuid. Second is
@@ -1376,11 +1376,13 @@ class DeviceMixin(object): # {{{
             for book in booklist:
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
                     book.in_library = True
+                    # ensure that the correct application_id is set
+                    book.application_id = self.db_book_uuid_cache[book.uuid]
                     continue
 
                 book_title = book.title.lower() if book.title else ''
                 book_title = re.sub('(?u)\W|[_]', '', book_title)
-                book.in_library = False
+                book.in_library = None
                 d = self.db_book_title_cache.get(book_title, None)
                 if d is not None:
                     if getattr(book, 'application_id', None) in d['db_ids']:
