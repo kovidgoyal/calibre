@@ -237,8 +237,6 @@ class ITUNES(DevicePlugin):
                     (new_book.title, new_book.author))
             booklists[0].append(new_book)
 
-        self.update_list = []
-
         if DEBUG:
             self._dump_booklist(booklists[0],header='after',indent=2)
             self._dump_cached_books(header='after',indent=2)
@@ -414,7 +412,7 @@ class ITUNES(DevicePlugin):
                     self.ejected = True
                     return False
 
-            self._discover_manual_sync_mode()
+            self._discover_manual_sync_mode(wait = 2 if self.initial_status == 'launched' else 0)
             return True
 
     def can_handle_windows(self, device_id, debug=False):
@@ -676,25 +674,18 @@ class ITUNES(DevicePlugin):
             self.log.info("ITUNES.remove_books_from_metadata()")
         for path in paths:
             self._dump_cached_book(self.cached_books[path], indent=2)
-            if self.cached_books[path]['lib_book']:
-                # Remove from the booklist
-                for i,book in enumerate(booklists[0]):
-                    print "book.uuid: %s" % book.uuid
-                    print "self.cached_books[path]['uuid']: %s" % self.cached_books[path]['uuid']
-                    if book.uuid == self.cached_books[path]['uuid']:
-                        booklists[0].pop(i)
-                        break
-                else:
-                    self.log.error(" '%s' not found in self.cached_book" % path)
 
-                # Remove from cached_books
-                self.cached_books.pop(path)
-                if DEBUG:
-                    self.log.info(" removing '%s' from self.cached_books" % path)
-                    self._dump_cached_books(header='remove_books_from_metadata()',indent=2)
-                    self._dump_booklist(booklists[0], header='remove_books_from_metadata()',indent=2)
-            else:
-                self.log.warning(" skipping purchased book, can't remove via automation interface")
+            # Purge the booklist, self.cached_books
+            for i,bl_book in enumerate(booklists[0]):
+                if bl_book.uuid == self.cached_books[path]['uuid']:
+                    # Remove from booklists[0]
+                    booklists[0].pop(i)
+
+                    for cb in self.cached_books:
+                        if self.cached_books[cb]['uuid'] == self.cached_books[path]['uuid']:
+                            self.cached_books.pop(cb)
+                            break
+                    break
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None) :
@@ -749,6 +740,7 @@ class ITUNES(DevicePlugin):
                                   details='\n'.join(self.problem_titles), level=UserFeedback.WARN)
         self.problem_titles = []
         self.problem_msg = None
+        self.update_list = []
 
     def total_space(self, end_session=True):
         """
@@ -1152,6 +1144,8 @@ class ITUNES(DevicePlugin):
         '''
         if DEBUG:
             self.log.info(" ITUNES._discover_manual_sync_mode()")
+        if wait:
+            time.sleep(wait)
         if isosx:
             connected_device = self.sources['iPod']
             dev_books = None
@@ -1165,8 +1159,8 @@ class ITUNES(DevicePlugin):
 
             if len(dev_books):
                 first_book = dev_books[0]
-                #if DEBUG:
-                    #self.log.info("  determing manual mode by modifying '%s' by %s" % (first_book.name(), first_book.artist()))
+                if DEBUG:
+                    self.log.info("  determing manual mode by modifying '%s' by %s" % (first_book.name(), first_book.artist()))
                 try:
                     first_book.bpm.set(0)
                     self.manual_sync_mode = True
@@ -1184,8 +1178,6 @@ class ITUNES(DevicePlugin):
                     self.manual_sync_mode = False
 
         elif iswindows:
-            if wait:
-                time.sleep(wait)
             connected_device = self.sources['iPod']
             device = self.iTunes.sources.ItemByName(connected_device)
 
@@ -1294,18 +1286,35 @@ class ITUNES(DevicePlugin):
 
         self.log.info()
 
-    def _dump_hex(self, src, length=16):
+    def _dump_epub_metadata(self, fpath):
         '''
         '''
-        FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
-        N=0; result=''
-        while src:
-           s,src = src[:length],src[length:]
-           hexa = ' '.join(["%02X"%ord(x) for x in s])
-           s = s.translate(FILTER)
-           result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
-           N+=length
-        print result
+        self.log.info(" ITUNES.__get_epub_metadata()")
+        title = None
+        author = None
+        timestamp = None
+        zf = ZipFile(fpath,'r')
+        fnames = zf.namelist()
+        opf = [x for x in fnames if '.opf' in x][0]
+        if opf:
+            opf_raw = cStringIO.StringIO(zf.read(opf)).getvalue()
+            soup = BeautifulSoup(opf_raw)
+            title = soup.find('dc:title').renderContents()
+            author = soup.find('dc:creator').renderContents()
+            ts = soup.find('meta',attrs={'name':'calibre:timestamp'})
+            if ts:
+                # Touch existing calibre timestamp
+                timestamp = ts['content']
+
+            if not title or not author:
+                if DEBUG:
+                    self.log.error("   couldn't extract title/author from %s in %s" % (opf,fpath))
+                    self.log.error("   title: %s  author: %s timestamp: %s" % (title, author, timestamp))
+        else:
+            if DEBUG:
+                self.log.error("   can't find .opf in %s" % fpath)
+        zf.close()
+        return (title, author, timestamp)
 
     def _dump_files(self, files, header=None,indent=0):
         if header:
@@ -1318,6 +1327,19 @@ class ITUNES(DevicePlugin):
             elif getattr(file, 'name', None) is not None:
                 self.log.info(" %s%s" % (' '*indent,file.name))
         self.log.info()
+
+    def _dump_hex(self, src, length=16):
+        '''
+        '''
+        FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
+        N=0; result=''
+        while src:
+           s,src = src[:length],src[length:]
+           hexa = ' '.join(["%02X"%ord(x) for x in s])
+           s = s.translate(FILTER)
+           result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
+           N+=length
+        print result
 
     def _dump_library_books(self, library_books):
         '''
@@ -1615,30 +1637,6 @@ class ITUNES(DevicePlugin):
                         self.log.error("  no iPad|Books playlist found")
                 return pl
 
-    def _get_epub_metadata(self, fpath):
-        '''
-        Return the original title and author from the .OPF file in the epub bundle
-        '''
-        self.log.info(" ITUNES.__get_epub_metadata()")
-        title = None
-        author = None
-        zf = ZipFile(fpath,'r')
-        fnames = zf.namelist()
-        opf = [x for x in fnames if '.opf' in x][0]
-        if opf:
-            opf_raw = cStringIO.StringIO(zf.read(opf)).getvalue()
-            soup = BeautifulSoup(opf_raw)
-            title = soup.find('dc:title').renderContents()
-            author = soup.find('dc:creator').renderContents()
-            if not title or not author:
-                if DEBUG:
-                    self.log.error("   couldn't extract title/author from %s in %s" % (opf,fpath))
-                    self.log.error("   title: %s  author: %s" % (title, author))
-        else:
-            if DEBUG:
-                self.log.error("   can't find .opf in %s" % fpath)
-        return title, author
-
     def _get_fpath(self,file, metadata, update_md=False):
         '''
         If the database copy will be deleted after upload, we have to
@@ -1652,13 +1650,17 @@ class ITUNES(DevicePlugin):
         if not getattr(fpath, 'deleted_after_upload', False):
             if getattr(file, 'orig_file_path', None) is not None:
                 fpath = file.orig_file_path
-                if update_md:
-                    self._update_epub_metadata(fpath, metadata)
             elif getattr(file, 'name', None) is not None:
                 fpath = file.name
         else:
             if DEBUG:
                 self.log.info("  file will be deleted after upload")
+        if update_md:
+            if DEBUG:
+                self.log.info("   metadata before rewrite: '{0[0]}' '{0[1]}' '{0[2]}'".format(self._dump_epub_metadata(fpath)))
+            self._update_epub_metadata(fpath, metadata)
+            if DEBUG:
+                self.log.info("   metadata after rewrite: '{0[0]}' '{0[1]}' '{0[2]}'".format(self._dump_epub_metadata(fpath)))
         return fpath
 
     def _get_library_books(self):
@@ -1843,10 +1845,10 @@ class ITUNES(DevicePlugin):
                     self.log.info( "ITUNES:open(): Launching iTunes" )
                 self.iTunes = iTunes= appscript.app('iTunes', hide=True)
                 iTunes.run()
-                initial_status = 'launched'
+                self.initial_status = 'launched'
             else:
                 self.iTunes = appscript.app('iTunes')
-                initial_status = 'already running'
+                self.initial_status = 'already running'
 
             # Read the current storage path for iTunes media
             cmd = "defaults read com.apple.itunes NSNavLastRootDirectory"
@@ -1860,7 +1862,7 @@ class ITUNES(DevicePlugin):
                 self.log.error("  media_dir: %s" % media_dir)
             if DEBUG:
                 self.log.info("  [OSX %s - %s (%s), driver version %d.%d.%d]" %
-                 (self.iTunes.name(), self.iTunes.version(), initial_status,
+                 (self.iTunes.name(), self.iTunes.version(), self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
                 self.log.info("  iTunes_media: %s" % self.iTunes_media)
         if iswindows:
@@ -1872,7 +1874,7 @@ class ITUNES(DevicePlugin):
             self.iTunes = win32com.client.Dispatch("iTunes.Application")
             if not DEBUG:
                 self.iTunes.Windows[0].Minimized = True
-            initial_status = 'launched'
+            self.initial_status = 'launched'
 
             # Read the current storage path for iTunes media from the XML file
             with open(self.iTunes.LibraryXMLPath, 'r') as xml:
@@ -1889,7 +1891,7 @@ class ITUNES(DevicePlugin):
 
             if DEBUG:
                 self.log.info("  [Windows %s - %s (%s), driver version %d.%d.%d]" %
-                 (self.iTunes.Windows[0].name, self.iTunes.Version, initial_status,
+                 (self.iTunes.Windows[0].name, self.iTunes.Version, self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
                 self.log.info("  iTunes_media: %s" % self.iTunes_media)
 
@@ -2061,60 +2063,30 @@ class ITUNES(DevicePlugin):
 
     def _update_epub_metadata(self, fpath, metadata):
         '''
-        Refresh metadata in database epub to force iBooks to recache
         '''
         self.log.info(" ITUNES._update_epub_metadata()")
 
         # Refresh epub metadata
         with open(fpath,'r+b') as zfo:
+
+            # Touch the timestamp to force a recache
             if metadata.timestamp:
-                #old_ts = strptime(metadata.timestamp,"%Y-%m-%dT%H:%M:%S.%f+00:00")
                 old_ts = metadata.timestamp
                 metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
-                                           old_ts.minute, old_ts.second, old_ts.microsecond+1)
+                                           old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
             else:
                 metadata.timestamp = isoformat(now())
 
-            if iswindows:
-                # This hack compensates for the Windows automation interface not allowing
-                # us to update Category after the fact.  By removing the tags, we should be
-                # able to set the Category after the upload.
-                if metadata.series:
-                    metadata.tags = None
+            # Tweak the author if 'News' in tags for friendlier display in iBooks
+            if _('News') in metadata.tags:
+                if metadata.title.find('[') > 0:
+                    metadata.title = metadata.title[:metadata.title.find('[')-1]
+                date_as_author = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
+                metadata.author = metadata.authors = [date_as_author]
+                sort_author =  re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', metadata.title).rstrip()
+                metadata.author_sort = '%s %s' % (sort_author, strftime('%Y-%m-%d'))
 
-            if DEBUG:
-                self.log.info("   updating to '%s' by %s" % (metadata.title, metadata.authors[0]))
             set_metadata(zfo,metadata)
-
-        if False:
-            # This code operates directly on the OPF file, obsolete since we're rewriting md
-            zf = ZipFile(fpath,'r')
-            fnames = zf.namelist()
-            opf = [x for x in fnames if '.opf' in x][0]
-            if opf:
-                opf_raw = cStringIO.StringIO(zf.read(opf)).getvalue()
-                soup = BeautifulSoup(opf_raw)
-                md = soup.find('metadata')
-                ts = md.find('meta',attrs={'name':'calibre:timestamp'})
-                if ts:
-                    # Touch existing calibre timestamp
-                    timestamp = ts['content']
-                    old_ts = strptime(timestamp,"%Y-%m-%dT%H:%M:%S.%f+00:00")
-                    new_ts = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
-                                               old_ts.minute, old_ts.second, old_ts.microsecond+1)
-                    ts['content'] = new_ts.strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
-                else:
-                    # Create new calibre timestamp
-                    ts = Tag(soup,'meta')
-                    ts['name'] = 'calibre:timestamp'
-                    ts['content'] = isoformat(now())
-                    md.insert(len(md),ts)
-                zfo = open(fpath,'r+b')
-                safe_replace(zfo, opf, cStringIO.StringIO(soup.renderContents()))
-
-            else:
-                if DEBUG:
-                    self.log.error("   can't find .opf in %s" % fpath)
 
     def _update_device(self, msg='', wait=True):
         '''
