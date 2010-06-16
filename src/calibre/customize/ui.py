@@ -183,10 +183,7 @@ run_plugins_on_postprocess = functools.partial(_run_filetype_plugins,
                                                occasion='postprocess')
 # }}}
 
-
-
-
-# PLugin customization {{{
+# Plugin customization {{{
 def customize_plugin(plugin, custom):
     d = config['plugin_customization']
     d[plugin.name] = custom.strip()
