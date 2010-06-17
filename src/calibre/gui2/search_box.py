@@ -90,14 +90,18 @@ class SearchBox2(QComboBox):
         self.help_text = help_text
         self.colorize = colorize
         self.clear_to_help()
-        self.connect(self, SIGNAL('editTextChanged(QString)'), self.text_edited_slot)
 
     def normalize_state(self):
-        self.setEditText('')
-        self.line_edit.setStyleSheet(
-            'QLineEdit { color: black; background-color: %s; }' %
-            self.normal_background)
-        self.help_state = False
+        if self.help_state:
+            self.setEditText('')
+            self.line_edit.setStyleSheet(
+                'QLineEdit { color: black; background-color: %s; }' %
+                self.normal_background)
+            self.help_state = False
+        else:
+            self.line_edit.setStyleSheet(
+                'QLineEdit { color: black; background-color: %s; }' %
+                    self.normal_background)
 
     def clear_to_help(self):
         if self.help_state:
@@ -131,17 +135,15 @@ class SearchBox2(QComboBox):
         self.line_edit.setStyleSheet('QLineEdit { color: black; background-color: %s; }' % col)
 
     def key_pressed(self, event):
-        if self.help_state:
-            self.normalize_state()
+        self.normalize_state()
         if not self.as_you_type:
             if event.key() in (Qt.Key_Return, Qt.Key_Enter):
                 self.do_search()
+        else:
+            self.timer = self.startTimer(self.__class__.INTERVAL)
 
     def mouse_released(self, event):
-        if self.help_state:
-            self.normalize_state()
-
-    def text_edited_slot(self, text):
+        self.normalize_state()
         if self.as_you_type:
             self.timer = self.startTimer(self.__class__.INTERVAL)
 
