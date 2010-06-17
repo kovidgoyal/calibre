@@ -163,8 +163,7 @@ class ToolbarMixin(object): # {{{
         self.convert_menu = cm
 
         pm = QMenu()
-        ap = self.action_preferences
-        pm.addAction(ap)
+        pm.addAction(QIcon(I('config.svg')), _('Preferences'), self.do_config)
         pm.addAction(QIcon(I('wizard.svg')), _('Run welcome wizard'),
                 self.run_wizard)
         self.action_preferences.setMenu(pm)

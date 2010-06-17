@@ -385,28 +385,5 @@ class SchemaUpgrade(object):
             if table.startswith('custom_column_') and link_table in tables:
                 create_cust_tag_browser_view(table, link_table)
 
-        from calibre.ebooks.metadata import author_to_author_sort
+        self.conn.execute('UPDATE authors SET sort=author_to_author_sort(name)')
 
-        aut = self.conn.get('SELECT id, name FROM authors');
-        records = []
-        for (id, author) in aut:
-            records.append((id, author.replace('|', ',')))
-        for id,author in records:
-            self.conn.execute('UPDATE authors SET sort=? WHERE id=?',
-                (author_to_author_sort(author.replace('|', ',')).strip(), id))
-        self.conn.commit()
-        self.conn.executescript('''
-        DROP TRIGGER IF EXISTS author_insert_trg;
-        CREATE TRIGGER author_insert_trg
-            AFTER INSERT ON authors
-            BEGIN
-            UPDATE authors SET sort=author_to_author_sort(NEW.name) WHERE id=NEW.id;
-        END;
-        DROP TRIGGER IF EXISTS author_update_trg;
-        CREATE TRIGGER author_update_trg
-            BEFORE UPDATE ON authors
-            BEGIN
-            UPDATE authors SET sort=author_to_author_sort(NEW.name)
-            WHERE id=NEW.id AND name <> NEW.name;
-        END;
-        ''')
