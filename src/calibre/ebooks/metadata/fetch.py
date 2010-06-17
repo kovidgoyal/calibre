@@ -198,6 +198,38 @@ class Amazon(MetadataSource):
             self.exception = e
             self.tb = traceback.format_exc()
 
+class LibraryThing(MetadataSource):
+
+    name = 'LibraryThing'
+    metadata_type = 'social'
+    description = _('Downloads series information from librarything.com')
+
+    def fetch(self):
+        if not self.isbn:
+            return
+        from calibre import browser
+        from calibre.ebooks.metadata import MetaInformation
+        import json
+        br = browser()
+        try:
+            raw = br.open(
+                    'http://status.calibre-ebook.com/library_thing/metadata/'+self.isbn
+                    ).read()
+            data = json.loads(raw)
+            if not data:
+                return
+            if 'error' in data:
+                raise Exception(data['error'])
+            if 'series' in data and 'series_index' in data:
+                mi = MetaInformation(self.title, [])
+                mi.series = data['series']
+                mi.series_index = data['series_index']
+                self.results = mi
+        except Exception, e:
+            self.exception = e
+            self.tb = traceback.format_exc()
+
+
 def result_index(source, result):
     if not result.isbn:
         return -1
@@ -266,7 +298,7 @@ def get_social_metadata(mi, verbose=0):
     with MetadataSources(fetchers) as manager:
         manager(mi.title, mi.authors, mi.publisher, mi.isbn, verbose)
         manager.join()
-    ratings, tags, comments = [], set([]), set([])
+    ratings, tags, comments, series, series_index = [], set([]), set([]), None, None
     for fetcher in fetchers:
         if fetcher.results:
             dmi = fetcher.results
@@ -279,6 +311,10 @@ def get_social_metadata(mi, verbose=0):
                 mi.pubdate = dmi.pubdate
             if dmi.comments:
                 comments.add(dmi.comments)
+            if dmi.series is not None:
+                series = dmi.series
+                if dmi.series_index is not None:
+                    series_index = dmi.series_index
     if ratings:
         rating = sum(ratings)/float(len(ratings))
         if mi.rating is None or mi.rating < 0.1:
@@ -295,6 +331,9 @@ def get_social_metadata(mi, verbose=0):
             mi.comments = ''
             for x in comments:
                 mi.comments += x+'\n\n'
+    if series and series_index is not None:
+        mi.series = series
+        mi.series_index = series_index
 
     return [(x.name, x.exception, x.tb) for x in fetchers if x.exception is not
             None]

@@ -481,13 +481,13 @@ class DeleteAction(object): # {{{
         ids = self._get_selected_ids()
         if not ids:
             #For some reason the delete dialog reports no selection, so
-            #we don't need to do it here
+            #we need to do it here
             return
         to_delete = {}
         some_to_delete = False
         for model,name in ((self.memory_view.model(), _('Main memory')),
-                           (self.card_a_view.model(), _('Storage card A')),
-                           (self.card_b_view.model(), _('Storage card A'))):
+                           (self.card_a_view.model(), _('Storage Card A')),
+                           (self.card_b_view.model(), _('Storage Card B'))):
             to_delete[name] = (model, model.paths_for_db_ids(ids))
             if len(to_delete[name][1]) > 0:
                 some_to_delete = True

@@ -127,6 +127,10 @@ class DownloadMetadata(Thread):
                     self.db.set_tags(id, mi.tags)
                 if mi.comments:
                     self.db.set_comment(id, mi.comments)
+                if mi.series:
+                    self.db.set_series(id, mi.series)
+                    if mi.series_index is not None:
+                        self.db.set_series_index(id, mi.series_index)
 
         self.updated = set(self.fetched_metadata)
 
