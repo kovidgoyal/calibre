@@ -546,8 +546,24 @@ class ITUNES(DevicePlugin):
                 else:
                     self.log.info(" skipping sync phase, manual_sync_mode: True")
             else:
-                self.problem_titles.append("'%s' by %s" %
-                 (self.cached_books[path]['title'],self.cached_books[path]['author']))
+                if self.manual_sync_mode:
+                    metadata = MetaInformation(self.cached_books[path]['title'],
+                                               [self.cached_books[path]['author']])
+                    metadata.uuid = self.cached_books[path]['uuid']
+
+                    if isosx:
+                        self._remove_existing_copy(self.cached_books[path],metadata)
+                    elif iswindows:
+                        try:
+                            pythoncom.CoInitialize()
+                            self.iTunes = win32com.client.Dispatch("iTunes.Application")
+                            self._remove_existing_copy(self.cached_books[path],metadata)
+                        finally:
+                            pythoncom.CoUninitialize()
+
+                else:
+                    self.problem_titles.append("'%s' by %s" %
+                     (self.cached_books[path]['title'],self.cached_books[path]['author']))
 
     def eject(self):
         '''
@@ -800,7 +816,7 @@ class ITUNES(DevicePlugin):
         if isosx:
             for (i,file) in enumerate(files):
                 path = self.path_template % (metadata[i].title, metadata[i].author[0])
-                self._remove_existing_copies(path, metadata[i])
+                self._remove_existing_copy(path, metadata[i])
                 fpath = self._get_fpath(file, metadata[i], update_md=True)
                 db_added, lb_added = self._add_new_copy(fpath, metadata[i])
                 thumb = self._cover_to_thumb(path, metadata[i], db_added, lb_added)
@@ -827,7 +843,7 @@ class ITUNES(DevicePlugin):
 
                 for (i,file) in enumerate(files):
                     path = self.path_template % (metadata[i].title, metadata[i].author[0])
-                    self._remove_existing_copies(path, metadata[i])
+                    self._remove_existing_copy(path, metadata[i])
                     fpath = self._get_fpath(file, metadata[i], update_md=True)
                     db_added, lb_added = self._add_new_copy(fpath, metadata[i])
 
@@ -1965,11 +1981,11 @@ class ITUNES(DevicePlugin):
         if DEBUG:
             self.log.info()
 
-    def _remove_existing_copies(self, path, metadata):
+    def _remove_existing_copy(self, path, metadata):
         '''
         '''
         if DEBUG:
-            self.log.info(" ITUNES._remove_existing_copies()")
+            self.log.info(" ITUNES._remove_existing_copy()")
 
         if self.manual_sync_mode:
             # Delete existing from Device|Books, add to self.update_list
@@ -2063,7 +2079,11 @@ class ITUNES(DevicePlugin):
                 # We get here if there was an error with .location().path
                 self.log.info("   removing orphan '%s' from iTunes" % cached_book['title'])
 
-            self.iTunes.delete(cached_book['lib_book'])
+            try:
+                self.iTunes.delete(cached_book['lib_book'])
+            except:
+                if DEBUG:
+                    self.log.info("   book not found in iTunes")
 
         elif iswindows:
             '''
@@ -2098,7 +2118,11 @@ class ITUNES(DevicePlugin):
             else:
                 if DEBUG:
                     self.log.info("   unable to find Library book '%s'" % cached_book['title'])
-            book.Delete()
+            try:
+                book.Delete()
+            except:
+                if DEBUG:
+                    self.log.info("   book not found in iTunes")
 
     def _update_epub_metadata(self, fpath, metadata):
         '''
