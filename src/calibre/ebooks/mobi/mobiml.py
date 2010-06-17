@@ -61,6 +61,7 @@ class FormatState(object):
         self.italic = False
         self.bold = False
         self.strikethrough = False
+        self.underline = False
         self.preserve = False
         self.family = 'serif'
         self.bgcolor = 'transparent'
@@ -79,7 +80,8 @@ class FormatState(object):
                and self.family == other.family \
                and self.bgcolor == other.bgcolor \
                and self.fgcolor == other.fgcolor \
-               and self.strikethrough == other.strikethrough
+               and self.strikethrough == other.strikethrough \
+               and self.underline == other.underline
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -251,6 +253,8 @@ class MobiMLizer(object):
                         color=unicode(istate.fgcolor))
             if istate.strikethrough:
                 inline = etree.SubElement(inline, XHTML('s'))
+            if istate.underline:
+                inline = etree.SubElement(inline, XHTML('u'))
             bstate.inline = inline
         bstate.istate = istate
         inline = bstate.inline
@@ -330,6 +334,7 @@ class MobiMLizer(object):
         istate.bgcolor  = style['background-color']
         istate.fgcolor  = style['color']
         istate.strikethrough = style['text-decoration'] == 'line-through'
+        istate.underline = style['text-decoration'] == 'underline'
         if 'monospace' in style['font-family']:
             istate.family = 'monospace'
         elif 'sans-serif' in style['font-family']:

@@ -201,4 +201,21 @@ class ELONEX(EB600):
     def can_handle(cls, dev, debug=False):
         return dev[3] == 'Elonex' and dev[4] == 'eBook'
 
+class POCKETBOOK301(USBMS):
+
+    name           = 'PocketBook 301 Device Interface'
+    description    = _('Communicate with the PocketBook 301 reader.')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+    FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
+
+    SUPPORTS_SUB_DIRS = True
+
+    MAIN_MEMORY_VOLUME_LABEL  = 'PocketBook 301 Main Memory'
+    STORAGE_CARD_VOLUME_LABEL = 'PocketBook 301 Storage Card'
+
+    VENDOR_ID   = [0x1]
+    PRODUCT_ID  = [0x301]
+    BCD         = [0x132]
+
 

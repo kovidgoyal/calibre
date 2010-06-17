@@ -80,6 +80,7 @@ class Device(DeviceConfig, DevicePlugin):
 
     SUPPORTS_SUB_DIRS = False
     MUST_READ_METADATA = False
+    SUPPORTS_USE_AUTHOR_SORT = False
 
     EBOOK_DIR_MAIN = ''
     EBOOK_DIR_CARD_A = ''

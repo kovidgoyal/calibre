@@ -21,7 +21,7 @@ from calibre.utils.config import make_config_dir, Config, ConfigProxy, \
 platform = 'linux'
 if iswindows:
     platform = 'windows'
-if isosx:
+elif isosx:
     platform = 'osx'
 
 from zipfile import ZipFile
@@ -32,11 +32,11 @@ def _config():
     c.add_opt('filetype_mapping', default={}, help=_('Mapping for filetype plugins'))
     c.add_opt('plugin_customization', default={}, help=_('Local plugin customization'))
     c.add_opt('disabled_plugins', default=set([]), help=_('Disabled plugins'))
+    c.add_opt('enabled_plugins', default=set([]), help=_('Enabled plugins'))
 
     return ConfigProxy(c)
 
 config = _config()
-
 
 class InvalidPlugin(ValueError):
     pass
@@ -44,7 +44,13 @@ class InvalidPlugin(ValueError):
 class PluginNotFound(ValueError):
     pass
 
-def load_plugin(path_to_zip_file):
+def find_plugin(name):
+    for plugin in _initialized_plugins:
+        if plugin.name == name:
+            return plugin
+
+
+def load_plugin(path_to_zip_file): # {{{
     '''
     Load plugin from zip file or raise InvalidPlugin error
 
@@ -76,11 +82,120 @@ def load_plugin(path_to_zip_file):
 
     raise InvalidPlugin(_('No valid plugin found in ')+path_to_zip_file)
 
-_initialized_plugins = []
+# }}}
+
+# Enable/disable plugins {{{
+
+def disable_plugin(plugin_or_name):
+    x = getattr(plugin_or_name, 'name', plugin_or_name)
+    plugin = find_plugin(x)
+    if not plugin.can_be_disabled:
+        raise ValueError('Plugin %s cannot be disabled'%x)
+    dp = config['disabled_plugins']
+    dp.add(x)
+    config['disabled_plugins'] = dp
+    ep = config['enabled_plugins']
+    if x in ep:
+        ep.remove(x)
+    config['enabled_plugins'] = ep
+
+def enable_plugin(plugin_or_name):
+    x = getattr(plugin_or_name, 'name', plugin_or_name)
+    dp = config['disabled_plugins']
+    if x in dp:
+        dp.remove(x)
+    config['disabled_plugins'] = dp
+    ep = config['enabled_plugins']
+    ep.add(x)
+    config['enabled_plugins'] = ep
+
+default_disabled_plugins = set([
+    'Douban Books',
+])
+
+def is_disabled(plugin):
+    if plugin.name in config['enabled_plugins']: return False
+    return plugin.name in config['disabled_plugins'] or \
+            plugin.name in default_disabled_plugins
+# }}}
+
+# File type plugins {{{
+
 _on_import           = {}
 _on_preprocess       = {}
 _on_postprocess      = {}
 
+def reread_filetype_plugins():
+    global _on_import
+    global _on_preprocess
+    global _on_postprocess
+    _on_import           = {}
+    _on_preprocess       = {}
+    _on_postprocess      = {}
+
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, FileTypePlugin):
+            for ft in plugin.file_types:
+                if plugin.on_import:
+                    if not _on_import.has_key(ft):
+                        _on_import[ft] = []
+                    _on_import[ft].append(plugin)
+                if plugin.on_preprocess:
+                    if not _on_preprocess.has_key(ft):
+                        _on_preprocess[ft] = []
+                    _on_preprocess[ft].append(plugin)
+                if plugin.on_postprocess:
+                    if not _on_postprocess.has_key(ft):
+                        _on_postprocess[ft] = []
+                    _on_postprocess[ft].append(plugin)
+
+
+def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
+    occasion = {'import':_on_import, 'preprocess':_on_preprocess,
+                'postprocess':_on_postprocess}[occasion]
+    customization = config['plugin_customization']
+    if ft is None:
+        ft = os.path.splitext(path_to_file)[-1].lower().replace('.', '')
+    nfp = path_to_file
+    for plugin in occasion.get(ft, []):
+        if is_disabled(plugin):
+            continue
+        plugin.site_customization = customization.get(plugin.name, '')
+        with plugin:
+            try:
+                nfp = plugin.run(path_to_file)
+                if not nfp:
+                    nfp = path_to_file
+            except:
+                print 'Running file type plugin %s failed with traceback:'%plugin.name
+                traceback.print_exc()
+    x = lambda j : os.path.normpath(os.path.normcase(j))
+    if occasion == 'postprocess' and x(nfp) != x(path_to_file):
+        shutil.copyfile(nfp, path_to_file)
+        nfp = path_to_file
+    return nfp
+
+run_plugins_on_import      = functools.partial(_run_filetype_plugins,
+                                               occasion='import')
+run_plugins_on_preprocess  = functools.partial(_run_filetype_plugins,
+                                               occasion='preprocess')
+run_plugins_on_postprocess = functools.partial(_run_filetype_plugins,
+                                               occasion='postprocess')
+# }}}
+
+# Plugin customization {{{
+def customize_plugin(plugin, custom):
+    d = config['plugin_customization']
+    d[plugin.name] = custom.strip()
+    config['plugin_customization'] = d
+
+def plugin_customization(plugin):
+    return config['plugin_customization'].get(plugin.name, '')
+
+# }}}
+
+
+# Input/Output profiles {{{
 def input_profiles():
     for plugin in _initialized_plugins:
         if isinstance(plugin, InputProfile):
@@ -90,7 +205,9 @@ def output_profiles():
     for plugin in _initialized_plugins:
         if isinstance(plugin, OutputProfile):
             yield plugin
+# }}}
 
+# Metadata sources {{{
 def metadata_sources(metadata_type='basic', customize=True, isbndb_key=None):
     for plugin in _initialized_plugins:
         if isinstance(plugin, MetadataSource) and \
@@ -117,31 +234,9 @@ def migrate_isbndb_key():
     if key:
         prefs.set('isbndb_com_key', '')
         set_isbndb_key(key)
+# }}}
 
-def reread_filetype_plugins():
-    global _on_import
-    global _on_preprocess
-    global _on_postprocess
-    _on_import           = {}
-    _on_preprocess       = {}
-    _on_postprocess      = {}
-
-    for plugin in _initialized_plugins:
-        if isinstance(plugin, FileTypePlugin):
-            for ft in plugin.file_types:
-                if plugin.on_import:
-                    if not _on_import.has_key(ft):
-                        _on_import[ft] = []
-                    _on_import[ft].append(plugin)
-                if plugin.on_preprocess:
-                    if not _on_preprocess.has_key(ft):
-                        _on_preprocess[ft] = []
-                    _on_preprocess[ft].append(plugin)
-                if plugin.on_postprocess:
-                    if not _on_postprocess.has_key(ft):
-                        _on_postprocess[ft] = []
-                    _on_postprocess[ft].append(plugin)
-
+# Metadata read/write {{{
 _metadata_readers = {}
 _metadata_writers = {}
 def reread_metadata_plugins():
@@ -233,51 +328,9 @@ def set_file_type_metadata(stream, mi, ftype):
                         print 'Failed to set metadata for', repr(getattr(mi, 'title', ''))
                         traceback.print_exc()
 
+# }}}
 
-def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
-    occasion = {'import':_on_import, 'preprocess':_on_preprocess,
-                'postprocess':_on_postprocess}[occasion]
-    customization = config['plugin_customization']
-    if ft is None:
-        ft = os.path.splitext(path_to_file)[-1].lower().replace('.', '')
-    nfp = path_to_file
-    for plugin in occasion.get(ft, []):
-        if is_disabled(plugin):
-            continue
-        plugin.site_customization = customization.get(plugin.name, '')
-        with plugin:
-            try:
-                nfp = plugin.run(path_to_file)
-                if not nfp:
-                    nfp = path_to_file
-            except:
-                print 'Running file type plugin %s failed with traceback:'%plugin.name
-                traceback.print_exc()
-    x = lambda j : os.path.normpath(os.path.normcase(j))
-    if occasion == 'postprocess' and x(nfp) != x(path_to_file):
-        shutil.copyfile(nfp, path_to_file)
-        nfp = path_to_file
-    return nfp
-
-run_plugins_on_import      = functools.partial(_run_filetype_plugins,
-                                               occasion='import')
-run_plugins_on_preprocess  = functools.partial(_run_filetype_plugins,
-                                               occasion='preprocess')
-run_plugins_on_postprocess = functools.partial(_run_filetype_plugins,
-                                               occasion='postprocess')
-
-
-def initialize_plugin(plugin, path_to_zip_file):
-    try:
-        p = plugin(path_to_zip_file)
-        p.initialize()
-        return p
-    except Exception:
-        print 'Failed to initialize plugin:', plugin.name, plugin.version
-        tb = traceback.format_exc()
-        raise InvalidPlugin((_('Initialization of plugin %s failed with traceback:')
-                            %tb) + '\n'+tb)
-
+# Add/remove plugins {{{
 
 def add_plugin(path_to_zip_file):
     make_config_dir()
@@ -307,14 +360,9 @@ def remove_plugin(plugin_or_name):
     initialize_plugins()
     return removed
 
-def is_disabled(plugin):
-    return plugin.name in config['disabled_plugins']
+# }}}
 
-def find_plugin(name):
-    for plugin in _initialized_plugins:
-        if plugin.name == name:
-            return plugin
-
+# Input/Output format plugins {{{
 
 def input_format_plugins():
     for plugin in _initialized_plugins:
@@ -364,6 +412,9 @@ def available_output_formats():
             formats.add(plugin.file_type)
     return formats
 
+# }}}
+
+# Catalog plugins {{{
 
 def catalog_plugins():
     for plugin in _initialized_plugins:
@@ -383,27 +434,32 @@ def plugin_for_catalog_format(fmt):
         if fmt.lower() in plugin.file_types:
             return plugin
 
-def device_plugins():
+# }}}
+
+def device_plugins(): # {{{
     for plugin in _initialized_plugins:
         if isinstance(plugin, DevicePlugin):
             if not is_disabled(plugin):
-                yield plugin
+                if platform in plugin.supported_platforms:
+                    yield plugin
+# }}}
 
-def disable_plugin(plugin_or_name):
-    x = getattr(plugin_or_name, 'name', plugin_or_name)
-    plugin = find_plugin(x)
-    if not plugin.can_be_disabled:
-        raise ValueError('Plugin %s cannot be disabled'%x)
-    dp = config['disabled_plugins']
-    dp.add(x)
-    config['disabled_plugins'] = dp
 
-def enable_plugin(plugin_or_name):
-    x = getattr(plugin_or_name, 'name', plugin_or_name)
-    dp = config['disabled_plugins']
-    if x in dp:
-        dp.remove(x)
-    config['disabled_plugins'] = dp
+# Initialize plugins {{{
+
+_initialized_plugins = []
+
+def initialize_plugin(plugin, path_to_zip_file):
+    try:
+        p = plugin(path_to_zip_file)
+        p.initialize()
+        return p
+    except Exception:
+        print 'Failed to initialize plugin:', plugin.name, plugin.version
+        tb = traceback.format_exc()
+        raise InvalidPlugin((_('Initialization of plugin %s failed with traceback:')
+                            %tb) + '\n'+tb)
+
 
 def initialize_plugins():
     global _initialized_plugins
@@ -425,9 +481,13 @@ def initialize_plugins():
 
 initialize_plugins()
 
-def intialized_plugins():
+def initialized_plugins():
     for plugin in _initialized_plugins:
         yield plugin
+
+# }}}
+
+# CLI {{{
 
 def option_parser():
     parser = OptionParser(usage=_('''\
@@ -448,17 +508,6 @@ def option_parser():
     parser.add_option('--disable-plugin', default=None,
                       help=_('Disable the named plugin'))
     return parser
-
-def initialized_plugins():
-    return _initialized_plugins
-
-def customize_plugin(plugin, custom):
-    d = config['plugin_customization']
-    d[plugin.name] = custom.strip()
-    config['plugin_customization'] = d
-
-def plugin_customization(plugin):
-    return config['plugin_customization'].get(plugin.name, '')
 
 def main(args=sys.argv):
     parser = option_parser()
@@ -504,3 +553,5 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
+# }}}
+
