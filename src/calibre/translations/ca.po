@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-14 07:12+0000\n"
-"PO-Revision-Date: 2010-06-15 21:48+0000\n"
+"PO-Revision-Date: 2010-06-16 13:29+0000\n"
 "Last-Translator: Àngel Ollé <Unknown>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-16 03:47+0000\n"
+"X-Launchpad-Export-Date: 2010-06-17 03:31+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1671,6 +1671,10 @@ msgid ""
 "most EPUB readers cannot handle large file sizes. The default of %defaultKB "
 "is the size required for Adobe Digital Editions."
 msgstr ""
+"Divideix tots els fitxers HTML majors d'aquesta mida (en KB). Això es "
+"necessari perquè la majoria de lectors EPUB no poden manegar els fitxers de "
+"gran mida. El valor predeterminat de defaultKB% es la mida requerida per "
+"Adobe Digital Editions."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:80
 msgid ""
@@ -1678,6 +1682,9 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
+"Normalment, si el fitxer d'entrada no te tapa i no s'especifica una, es "
+"genera una tapa per defecte amb el títol, autors, etc. Aquesta opció "
+"deshabilita la generació d'aquesta tapa."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
@@ -1686,6 +1693,10 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
+"No utilitzi SVG per a la tapa del llibre. Utilitzi aquesta opció si el seu "
+"EPUB s'utilitzarà a un dispositiu que no es compatible amb SVG, com l'iPhone "
+"o el jetBook Lite. Sense aquesta opció, dits dispositius mostraran la tapa "
+"com una pàgina en blanc."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
@@ -1695,10 +1706,16 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
+"Quan s'utilitza una tapa SVG, aquesta opció farà que s'escali la tapa per "
+"cobrir l'àrea de pantalla disponible, però encara conservarà la seva relació "
+"d'aspecte (relació entre l'amplada i l'altura). Això significa que pot haver "
+"cantons blancs als costats o a la part superior i inferior de la imatge, "
+"però la imatge mai es distorsiona. Sense aquesta opció, la imatge pot estar "
+"una mica distorsionada, però no hi haurà fronteres."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:169
 msgid "Start"
-msgstr ""
+msgstr "Inici"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
@@ -1730,6 +1747,9 @@ msgid ""
 "negative. 0 implies that no links in the root HTML file are followed. "
 "Default is %default."
 msgstr ""
+"Els nivells màxims de recursivitat quan es segueixen els enllaços als "
+"fitxers HTML. No han de ser negatius. 0 significa que no hi ha enllaços a "
+"l'arrel del fitxer HTML per seguir. El valor predeterminat es %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:259
 msgid ""

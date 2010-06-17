@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-14 07:12+0000\n"
-"PO-Revision-Date: 2010-06-15 03:23+0000\n"
+"PO-Revision-Date: 2010-06-17 03:17+0000\n"
 "Last-Translator: Thomaz Rodrigues Botelho <Unknown>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-16 03:48+0000\n"
+"X-Launchpad-Export-Date: 2010-06-17 03:32+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -2833,7 +2833,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:63
 msgid "Upload downloaded news to device"
-msgstr ""
+msgstr "Enviar noticias baixadas para o dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:65
 msgid "Delete books from library after uploading to device"
@@ -5028,6 +5028,9 @@ msgid ""
 "If checked, downloaded news will be automatically mailed <br>to this email "
 "address (provided it is in one of the listed formats)."
 msgstr ""
+"Se marcado, notícias baixadas serão automaticamente enviadas por email "
+"<br>para este endereço de email (desde que ele esteja em um dos formatos "
+"listados)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:299
 msgid "new email address"
@@ -6138,7 +6141,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:567
 msgid "The download timed out."
-msgstr ""
+msgstr "O tempo de espera de download espirou."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:571
 msgid "Could not find cover for this book. Try specifying the ISBN first."
@@ -6312,7 +6315,7 @@ msgstr "Criado por: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:178
 msgid "Last downloaded: never"
-msgstr ""
+msgstr "Último baixado: nunca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:193
 msgid "%d days, %d hours and %d minutes ago"
@@ -6320,7 +6323,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:195
 msgid "Last downloaded"
-msgstr ""
+msgstr "Último baixado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:216
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:192
@@ -6410,6 +6413,8 @@ msgid ""
 "Interval at which to download this recipe. A value of zero means that the "
 "recipe will be downloaded every hour."
 msgstr ""
+"Intervalo para baixar esta lista. Um valor de zero significa que a lista irá "
+"ser baixada a cada hora."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:210
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:222
@@ -6450,10 +6455,12 @@ msgid ""
 "Delete downloaded news older than the specified number of days. Set to zero "
 "to disable."
 msgstr ""
+"Apagar as notícias baixadas mais antigas que o número de dias especificado. "
+"Coloque zero para desligar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:223
 msgid "Delete downloaded news older than "
-msgstr ""
+msgstr "Apagar notícias mais antigas que "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:36
 msgid "contains"
@@ -6462,6 +6469,7 @@ msgstr "contém"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:37
 msgid "The text to search for. It is interpreted as a regular expression."
 msgstr ""
+"O texto para procurar. Ele é interpretado como uma expressão regular."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:38
 msgid ""
@@ -6731,7 +6739,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:132
 msgid "The attached file: %s is a recipe to download %s."
-msgstr ""
+msgstr "O arquivo anexo: %s é uma lista para baixar %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:133
 msgid "Recipe for "
@@ -6741,12 +6749,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:255
 msgid "Switch to Advanced mode"
-msgstr ""
+msgstr "Mudar para o modo Avançado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:164
 msgid "Switch to Basic mode"
-msgstr ""
+msgstr "Mudar para o modo Básico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:174
 msgid "Feed must have a title"
@@ -6860,7 +6868,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:262
 msgid "The oldest article to download"
-msgstr ""
+msgstr "O artigo mais antigo para download"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:264
 msgid "&Max. number of articles per feed:"
@@ -7159,7 +7167,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:101
 msgid "Unknown job"
-msgstr ""
+msgstr "Tarefa desconhecida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:82
 msgid "There are %d waiting jobs:"
@@ -7498,6 +7506,8 @@ msgstr "&Restringir à:"
 msgid ""
 "Books display will be restricted to those matching the selected saved search"
 msgstr ""
+"Livros mostrados serão restritos aos que correspondem a pesquisa salva "
+"selecionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:257
 msgid "set in ui.py"
@@ -7529,18 +7539,19 @@ msgstr "Limpar Pesquisa Rápida"
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:266
 msgid "Choose saved search or enter name for new saved search"
 msgstr ""
+"Escolha uma pesquisa salva ou entre um nome para uma nova pesquisa salva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:267
 msgid "Copy current search text (instead of search name)"
-msgstr ""
+msgstr "Copia o texto da pesquisa atual (ao invés do nome da pesquisa)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:269
 msgid "Save current search under the name shown in the box"
-msgstr ""
+msgstr "Salva a pesquisa atual com o nome mostrado na caixa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:271
 msgid "Delete current saved search"
-msgstr ""
+msgstr "Apaga a pesquisa atual salva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:273
 msgid "Add books"
@@ -7666,11 +7677,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:249
 msgid "Search"
-msgstr ""
+msgstr "Pesquisar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:302
 msgid "The selected search will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"A pesquisa selecionada será <b>permanentemente apagada</b>. Você tem certeza?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:344
 msgid "Search (For Advanced Search click the button to the left)"
@@ -7678,7 +7690,7 @@ msgstr "Pesquisar (Para Pesquisa Avançada clique no botão da esquerda)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:377
 msgid "Saved Searches"
-msgstr "Buscas Salvas"
+msgstr "Pesquisas Salvas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:46
 msgid "({0} of {1})"
@@ -7774,7 +7786,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:173
 msgid "Manage Saved Searches"
-msgstr "Gerenciar Buscas Salvas"
+msgstr "Gerenciar Pesquisas Salvas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:184
@@ -7784,15 +7796,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:377
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:238
 msgid "Searches"
-msgstr ""
+msgstr "Pesquisas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:451
 msgid "Duplicate search name"
-msgstr ""
+msgstr "Nome de pesquisa duplicado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:452
 msgid "The saved search name %s is already used."
-msgstr ""
+msgstr "O nome da pesquisa salva %s já está sendo usado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:652
 msgid "Sort by &popularity"
@@ -7961,6 +7973,8 @@ msgid ""
 "%s has been updated to version %s. See the <a href=\"http://calibre-"
 "ebook.com/whats-new\">new features</a>. Visit the download page?"
 msgstr ""
+"%s foi atualizado para a versão %s. Veja as <a href=\"http://calibre-"
+"ebook.com/whats-new\">novas funções</a>. Visitar a página de download?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -8273,7 +8287,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:199
 msgid "Search for text in book"
-msgstr ""
+msgstr "Pesquisar por texto no livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:268
 msgid "Print Preview"
@@ -8659,6 +8673,9 @@ msgid ""
 "location. If a calibre library already exists at the new location, calibre "
 "will switch to using it."
 msgstr ""
+"Se você tem uma biblioteca do calibre, era será copiada para a nova "
+"localização. Se uma biblioteca do calibre já existe na nova localização, "
+"calibre irá usá-la."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:32
 msgid "Using: %s:%s@%s:%s and %s encryption"
@@ -8786,6 +8803,11 @@ msgid ""
 "directly on the device. To do this you have to turn on the calibre content "
 "server."
 msgstr ""
+"<p>Se você usa o aplicativo de ebooks <a "
+"href=\"http://www.lexcycle.com/download\">Stanza</a> no seu iPhone/iTouch, "
+"você pode acessar sua coleção de livros do calibre diretamente no "
+"dispositivo. Para fazer isto você tem que ligar o servidor de conteúdo do "
+"calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:45
 msgid "Turn on the &content server"
@@ -8992,6 +9014,9 @@ msgid ""
 "please see the search related documentation in the User Manual. Default is "
 "to do no filtering."
 msgstr ""
+"Filtrar os resultados pela frase de pesquisa. Para o formato da frase de "
+"pesquisa, por favor veja a documentação à respeito de pesquisa no Manual do "
+"Usuário. O padrão é não filtrar."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:141
 msgid ""
@@ -9658,7 +9683,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:699
 msgid "List of named saved searches"
-msgstr ""
+msgstr "Lista das pesquisas salvas nomeadas"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:700
 msgid "User-created tag browser categories"
@@ -9796,7 +9821,7 @@ msgstr "Artigo sem título"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:21
 msgid "Download periodical content from the internet"
-msgstr ""
+msgstr "Baixar conteúdo periódico da internet"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:36
 msgid ""
@@ -9820,7 +9845,7 @@ msgstr "Não baixar a ultima versão das listas do servidor do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:44
 msgid "Unknown News Source"
-msgstr ""
+msgstr "Fonte de notícias desconhecida"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:606
 msgid "The \"%s\" recipe needs a username and password."
@@ -9868,7 +9893,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:942
 msgid "Starting download [%d thread(s)]..."
-msgstr ""
+msgstr "Iniciando o download [%d tarefa(s)]"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:958
 msgid "Feeds downloaded to %s"
@@ -9884,7 +9909,7 @@ msgstr "Baixando capa de %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1020
 msgid "Masthead image downloaded"
-msgstr ""
+msgstr "Imagem de cabeçalho baixada"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1216
 msgid "Untitled Article"
@@ -9896,7 +9921,7 @@ msgstr "Artigo transferido: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1298
 msgid "Article download failed: %s"
-msgstr ""
+msgstr "Transferência de artigo falhou: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1315
 msgid "Fetching feed"
@@ -9915,6 +9940,8 @@ msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
 msgstr ""
+"Você não tem permissão para baixar esta publicação. Ou sua inscrição expirou "
+"ou você excedeu o número máximo de dowloads por hoje."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 msgid "You"
