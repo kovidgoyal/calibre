@@ -23,7 +23,7 @@ class SearchLineEdit(QLineEdit):
     focus_out = pyqtSignal(object)
 
     def keyPressEvent(self, event):
-        self.key_pressed.emit(object)
+        self.key_pressed.emit(event)
         QLineEdit.keyPressEvent(self, event)
 
     def mouseReleaseEvent(self, event):
