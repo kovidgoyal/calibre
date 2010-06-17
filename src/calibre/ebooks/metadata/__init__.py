@@ -260,7 +260,7 @@ class MetaInformation(object):
             setattr(self, x, getattr(mi, x, None))
 
     def print_all_attributes(self):
-        for x in ('author', 'author_sort', 'title_sort', 'comments', 'category', 'publisher',
+        for x in ('title','author', 'author_sort', 'title_sort', 'comments', 'category', 'publisher',
                   'series', 'series_index', 'tags', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
                   'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate',

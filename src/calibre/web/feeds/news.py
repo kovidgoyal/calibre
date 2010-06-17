@@ -788,6 +788,7 @@ class BasicNewsRecipe(Recipe):
                     }
 
                     .summary_byline {
+                        text-align:left;
                         font-family:monospace;
                     }
 
@@ -1139,12 +1140,6 @@ class BasicNewsRecipe(Recipe):
         mi = MetaInformation(self.short_title() + strftime(self.timefmt), [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
-        if self.output_profile.name == 'iPad':
-            date_as_author = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
-            mi = MetaInformation(self.short_title(), [date_as_author])
-            mi.publisher = __appname__
-            sort_author =  re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', self.title).rstrip()
-            mi.author_sort = '%s %s' % (sort_author, strftime('%Y-%m-%d'))
         mi.publication_type = 'periodical:'+self.publication_type
         mi.timestamp = nowf()
         mi.comments = self.description

@@ -182,7 +182,7 @@ def get_metadata(stream, extract_cover=True):
 def get_quick_metadata(stream):
     return get_metadata(stream, False)
 
-def set_metadata(stream, mi, apply_null=False):
+def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
     stream.seek(0)
     reader = OCFZipReader(stream, root=os.getcwdu())
     mi = MetaInformation(mi)
@@ -196,6 +196,8 @@ def set_metadata(stream, mi, apply_null=False):
             reader.opf.tags = []
         if not getattr(mi, 'isbn', None):
             reader.opf.isbn = None
+    if update_timestamp and mi.timestamp is not None:
+        reader.opf.timestamp = mi.timestamp
 
     newopf = StringIO(reader.opf.render())
     safe_replace(stream, reader.container[OPF.MIMETYPE], newopf)
