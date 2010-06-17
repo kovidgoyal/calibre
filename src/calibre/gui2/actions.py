@@ -480,8 +480,8 @@ class DeleteAction(object): # {{{
             return
         ids = self._get_selected_ids()
         if not ids:
-            #For some reason the delete dialog reports no selection, so
-            #we need to do it here
+            #_get_selected_ids shows a dialog box if nothing is selected, so we
+            #do not need to show one here
             return
         to_delete = {}
         some_to_delete = False
