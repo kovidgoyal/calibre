@@ -61,7 +61,7 @@ class DeviceConfig(object):
             proxy['use_subdirs'] = config_widget.use_subdirs()
         if not cls.MUST_READ_METADATA:
             proxy['read_metadata'] = config_widget.read_metadata()
-        if not cls.SUPPORTS_USE_AUTHOR_SORT:
+        if cls.SUPPORTS_USE_AUTHOR_SORT:
             proxy['use_author_sort'] = config_widget.use_author_sort()
         if cls.EXTRA_CUSTOMIZATION_MESSAGE:
             ec = unicode(config_widget.opt_extra_customization.text()).strip()
