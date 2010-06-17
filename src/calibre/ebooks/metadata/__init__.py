@@ -28,10 +28,14 @@ def authors_to_string(authors):
     else:
         return ''
 
+_bracket_pat = re.compile(r'[\[({].*?[})\]]')
 def author_to_author_sort(author):
+    if not author:
+        return ''
     method = tweaks['author_sort_copy_method']
     if method == 'copy' or (method == 'comma' and ',' in author):
         return author
+    author = _bracket_pat.sub('', author).strip()
     tokens = author.split()
     tokens = tokens[-1:] + tokens[:-1]
     if len(tokens) > 1:
