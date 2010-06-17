@@ -823,6 +823,8 @@ class OnDeviceSearch(SearchQueryParser): # {{{
                     if accessor(row) is None:
                         matches.add(index)
                     continue
+                if locvalue == 'inlibrary':
+                    continue    # this is bool, so can't match below
                 try:
                     ### Can't separate authors because comma is used for name sep and author sep
                     ### Exact match might not get what you want. For that reason, turn author

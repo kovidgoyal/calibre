@@ -139,11 +139,9 @@ class SearchBox2(QComboBox):
 
     def key_pressed(self, event):
         self.normalize_state()
-        if not self.as_you_type:
-            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
-                self.do_search()
-        else:
-            self.timer = self.startTimer(self.__class__.INTERVAL)
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            self.do_search()
+        self.timer = self.startTimer(self.__class__.INTERVAL)
 
     def mouse_released(self, event):
         self.normalize_state()
