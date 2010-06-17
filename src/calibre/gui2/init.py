@@ -131,6 +131,7 @@ class ToolbarMixin(object): # {{{
                 self.delete_all_but_selected_formats)
         self.delete_menu.addAction(
                 _('Remove covers from selected books'), self.delete_covers)
+        self.delete_menu.addSeparator()
         self.delete_menu.addAction(
                 _('Remove matching books from device'),
                 self.remove_matching_books_from_device)
@@ -408,6 +409,7 @@ class LayoutMixin(object): # {{{
             self.library_view.set_current_row(0)
             m.current_changed(self.library_view.currentIndex(),
                     self.library_view.currentIndex())
+        self.library_view.setFocus(Qt.OtherFocusReason)
 
 
     def save_layout_state(self):
