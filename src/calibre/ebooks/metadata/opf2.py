@@ -920,7 +920,7 @@ class OPF(object):
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'language', 'tags', 'category', 'comments',
-                     'pubdate','timestamp'):
+                     'pubdate'):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)

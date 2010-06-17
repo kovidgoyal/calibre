@@ -12,15 +12,14 @@ from calibre import fit_image
 from calibre.constants import isosx, iswindows
 from calibre.devices.errors import UserFeedback
 from calibre.devices.interface import DevicePlugin
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import Config, config_dir
-from calibre.utils.date import fromtimestamp, isoformat, now, parse_date, strptime
+from calibre.utils.date import isoformat, now, parse_date
 from calibre.utils.logging import Log
-from calibre.utils.zipfile import safe_replace, ZipFile
+from calibre.utils.zipfile import ZipFile
 
 from PIL import Image as PILImage
 
@@ -34,7 +33,6 @@ if isosx:
 
 if iswindows:
     import pythoncom, win32com.client
-    from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 
 class ITUNES(DevicePlugin):
@@ -1665,8 +1663,6 @@ class ITUNES(DevicePlugin):
         '''
         assumes pythoncom wrapper
         '''
-#         if DEBUG:
-#             self.log.info(" ITUNES._get_device_books_playlist()")
         if iswindows:
             if 'iPod' in self.sources:
                 pl = None
@@ -1709,11 +1705,6 @@ class ITUNES(DevicePlugin):
         if update_md:
             self._update_epub_metadata(fpath, metadata)
 
-#             if DEBUG:
-#                 self.log.info("   metadata before rewrite: '{0[0]}' '{0[1]}' '{0[2]}'".format(self._dump_epub_metadata(fpath)))
-#             self._update_epub_metadata(fpath, metadata)
-#             if DEBUG:
-#                 self.log.info("   metadata after rewrite: '{0[0]}' '{0[1]}' '{0[2]}'".format(self._dump_epub_metadata(fpath)))
         return fpath
 
     def _get_library_books(self):
@@ -2132,21 +2123,6 @@ class ITUNES(DevicePlugin):
 
         # Refresh epub metadata
         with open(fpath,'r+b') as zfo:
-            '''
-            # Touch the timestamp to force a recache
-            if metadata.timestamp:
-                if DEBUG:
-                    self.log.info("   old timestamp: %s" % metadata.timestamp)
-                old_ts = metadata.timestamp
-                metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
-                                           old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
-                if DEBUG:
-                    self.log.info("   new timestamp: %s" % metadata.timestamp)
-            else:
-                metadata.timestamp = isoformat(now())
-                if DEBUG:
-                    self.log.info("   add timestamp: %s" % metadata.timestamp)
-            '''
             # Touch the OPF timestamp
             zf_opf = ZipFile(fpath,'r')
             fnames = zf_opf.namelist()
@@ -2186,7 +2162,7 @@ class ITUNES(DevicePlugin):
             if iswindows and metadata.series:
                 metadata.tags = None
 
-            set_metadata(zfo,metadata)
+            set_metadata(zfo, metadata, update_timestamp=True)
 
     def _update_device(self, msg='', wait=True):
         '''

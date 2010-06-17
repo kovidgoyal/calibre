@@ -299,7 +299,7 @@ class USBMS(CLI, Device):
         def replfunc(match):
             if match.group(1) in ['title', 'series', 'series_index', 'isbn']:
                 return '(?P<' + match.group(1) + '>.+?)'
-            elif match.group(1) == 'authors':
+            elif match.group(1) in ['authors', 'author_sort']:
                 return '(?P<author>.+?)'
             else:
                 return '(.+?)'

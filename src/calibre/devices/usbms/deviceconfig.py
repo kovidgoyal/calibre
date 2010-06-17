@@ -32,6 +32,8 @@ class DeviceConfig(object):
                 help=_('Place files in sub directories if the device supports them'))
         c.add_opt('read_metadata', default=True,
                 help=_('Read metadata from files on device'))
+        c.add_opt('use_author_sort', default=False,
+                help=_('Use author sort instead of author'))
         c.add_opt('save_template', default=cls._default_save_template(),
                 help=_('Template to control how books are saved'))
         c.add_opt('extra_customization',
@@ -47,7 +49,8 @@ class DeviceConfig(object):
     def config_widget(cls):
         from calibre.gui2.device_drivers.configwidget import ConfigWidget
         cw = ConfigWidget(cls.settings(), cls.FORMATS, cls.SUPPORTS_SUB_DIRS,
-            cls.MUST_READ_METADATA, cls.EXTRA_CUSTOMIZATION_MESSAGE)
+            cls.MUST_READ_METADATA, cls.SUPPORTS_USE_AUTHOR_SORT,
+            cls.EXTRA_CUSTOMIZATION_MESSAGE)
         return cw
 
     @classmethod
@@ -58,6 +61,8 @@ class DeviceConfig(object):
             proxy['use_subdirs'] = config_widget.use_subdirs()
         if not cls.MUST_READ_METADATA:
             proxy['read_metadata'] = config_widget.read_metadata()
+        if cls.SUPPORTS_USE_AUTHOR_SORT:
+            proxy['use_author_sort'] = config_widget.use_author_sort()
         if cls.EXTRA_CUSTOMIZATION_MESSAGE:
             ec = unicode(config_widget.opt_extra_customization.text()).strip()
             if not ec:

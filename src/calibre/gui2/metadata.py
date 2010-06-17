@@ -84,12 +84,12 @@ class DownloadMetadata(Thread):
                 if mi.isbn:
                     args['isbn'] = mi.isbn
                 else:
-                    if not mi.title:
+                    if not mi.title or mi.title == _('Unknown'):
                         self.failures[id] = \
                                 (str(id), _('Book has neither title nor ISBN'))
                         continue
                     args['title'] = mi.title
-                    if mi.authors:
+                    if mi.authors and mi.authors[0] != _('Unknown'):
                         args['author'] = mi.authors[0]
                 if self.key:
                     args['isbndb_key'] = self.key
