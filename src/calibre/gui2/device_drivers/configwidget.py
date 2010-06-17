@@ -11,7 +11,8 @@ from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
 class ConfigWidget(QWidget, Ui_ConfigWidget):
 
     def __init__(self, settings, all_formats, supports_subdirs,
-        must_read_metadata, extra_customization_message):
+        must_read_metadata, supports_use_author_sort,
+        extra_customization_message):
 
         QWidget.__init__(self)
         Ui_ConfigWidget.__init__(self)
@@ -38,6 +39,10 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             self.opt_read_metadata.setChecked(self.settings.read_metadata)
         else:
             self.opt_read_metadata.hide()
+        if supports_use_author_sort:
+            self.opt_use_author_sort.setChecked(self.settings.use_author_sort)
+        else:
+            self.opt_use_author_sort.hide()
         if extra_customization_message:
             self.extra_customization_label.setText(extra_customization_message)
             if settings.extra_customization:
@@ -69,3 +74,6 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
 
     def read_metadata(self):
         return self.opt_read_metadata.isChecked()
+
+    def use_author_sort(self):
+        return self.opt_use_author_sort.isChecked()

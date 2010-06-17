@@ -55,6 +55,7 @@ class PRS505(USBMS):
 
     SUPPORTS_SUB_DIRS = True
     MUST_READ_METADATA = True
+    SUPPORTS_USE_AUTHOR_SORT = True
     EBOOK_DIR_MAIN = 'database/media/books'
 
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of metadata fields '
@@ -125,7 +126,7 @@ class PRS505(USBMS):
                 d = os.path.dirname(paths[source_id])
                 if not os.path.exists(d):
                     os.makedirs(d)
-        return XMLCache(paths, prefixes)
+        return XMLCache(paths, prefixes, self.settings().use_author_sort)
 
     def books(self, oncard=None, end_session=True):
         debug_print('PRS505: starting fetching books for card', oncard)
