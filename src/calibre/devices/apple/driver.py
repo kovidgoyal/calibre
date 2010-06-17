@@ -2077,13 +2077,14 @@ class ITUNES(DevicePlugin):
 
             except:
                 # We get here if there was an error with .location().path
-                self.log.info("   removing orphan '%s' from iTunes" % cached_book['title'])
+                if DEBUG:
+                    self.log.info("   '%s' not found in iTunes" % cached_book['title'])
 
             try:
                 self.iTunes.delete(cached_book['lib_book'])
             except:
                 if DEBUG:
-                    self.log.info("   book not found in iTunes")
+                    self.log.info("   '%s' not found in iTunes" % cached_book['title'])
 
         elif iswindows:
             '''
@@ -2096,7 +2097,7 @@ class ITUNES(DevicePlugin):
             except:
                 book = self._find_library_book(cached_book)
 
-            if book.Location:
+            if book:
                 storage_path = os.path.split(book.Location)
                 if book.Location.startswith(self.iTunes_media):
                     if DEBUG:
@@ -2117,12 +2118,12 @@ class ITUNES(DevicePlugin):
                     self.log.info("   '%s' (stored external to iTunes, no files deleted)" % cached_book['title'])
             else:
                 if DEBUG:
-                    self.log.info("   unable to find Library book '%s'" % cached_book['title'])
+                    self.log.info("   '%s' not found in iTunes" % cached_book['title'])
             try:
                 book.Delete()
             except:
                 if DEBUG:
-                    self.log.info("   book not found in iTunes")
+                    self.log.info("   '%s' not found in iTunes" % cached_book['title'])
 
     def _update_epub_metadata(self, fpath, metadata):
         '''
