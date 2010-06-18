@@ -89,7 +89,7 @@ class KOBO(USBMS):
                 idx = bl_cache.get(filename, None)
                 if idx is not None:
                     imagename = self.normalize_path(mountpath + '.kobo/images/' + ImageID + ' - iPhoneThumbnail.parsed')
-                    print "Image name Normalized: " + imagename
+                    #print "Image name Normalized: " + imagename
                     bl[idx].thumbnail = ImageWrapper(imagename)
                     bl_cache[filename] = None
                     if ContentType != '6':
