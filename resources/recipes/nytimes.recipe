@@ -64,6 +64,7 @@ class NYTimes(BasicNewsRecipe):
     timefmt = ''
     needs_subscription = True
     masthead_url = 'http://graphics8.nytimes.com/images/misc/nytlogo379x64.gif'
+    cover_margins = (18,18,'grey99')
 
     remove_tags_before = dict(id='article')
     remove_tags_after  = dict(id='article')
@@ -182,6 +183,16 @@ class NYTimes(BasicNewsRecipe):
             except:
                 self.log("\nFailed to login")
         return br
+
+    def skip_ad_pages(self, soup):
+        # Skip ad pages served before actual article
+        skip_tag = soup.find(True, {'name':'skip'})
+        if skip_tag is not None:
+            self.log.warn("Found forwarding link: %s" % skip_tag.parent['href'])
+            url = 'http://www.nytimes.com' + re.sub(r'\?.*', '', skip_tag.parent['href'])
+            url += '?pagewanted=all'
+            self.log.warn("Skipping ad to article at '%s'" % url)
+            return self.index_to_soup(url, raw=True)
 
     def get_cover_url(self):
         cover = None
@@ -391,14 +402,6 @@ class NYTimes(BasicNewsRecipe):
         return ans
 
     def preprocess_html(self, soup):
-        # Skip ad pages served before actual article
-        skip_tag = soup.find(True, {'name':'skip'})
-        if skip_tag is not None:
-            self.log.error("Found forwarding link: %s" % skip_tag.parent['href'])
-            url = 'http://www.nytimes.com' + re.sub(r'\?.*', '', skip_tag.parent['href'])
-            url += '?pagewanted=all'
-            self.log.error("Skipping ad to article at '%s'" % url)
-            soup = self.index_to_soup(url)
         return self.strip_anchors(soup)
 
     def postprocess_html(self,soup, True):
