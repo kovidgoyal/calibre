@@ -370,7 +370,8 @@ class BooksView(QTableView): # {{{
 
     # Context Menu {{{
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
-                         save, open_folder, book_details, delete, similar_menu=None):
+                         save, open_folder, book_details, delete,
+                         similar_menu=None, add_to_library=None):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
         self.context_menu = QMenu(self)
         if edit_metadata is not None:
@@ -389,6 +390,9 @@ class BooksView(QTableView): # {{{
             self.context_menu.addAction(book_details)
         if similar_menu is not None:
             self.context_menu.addMenu(similar_menu)
+        if add_to_library is not None:
+            func = partial(add_to_library[1], view=self)
+            self.context_menu.addAction(add_to_library[0], func)
 
     def contextMenuEvent(self, event):
         self.context_menu.popup(event.globalPos())

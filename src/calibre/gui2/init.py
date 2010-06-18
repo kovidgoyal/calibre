@@ -218,20 +218,25 @@ class LibraryViewMixin(object): # {{{
                 partial(self.show_similar_books, 'tag'))
         self.action_books_by_this_publisher.triggered.connect(
                 partial(self.show_similar_books, 'publisher'))
+
         self.library_view.set_context_menu(self.action_edit, self.action_sync,
                                         self.action_convert, self.action_view,
                                         self.action_save,
                                         self.action_open_containing_folder,
                                         self.action_show_book_details,
                                         self.action_del,
+                                        add_to_library = None,
                                         similar_menu=similar_menu)
-
+        add_to_library = (_('Add books to library'), self.add_books_from_device)
         self.memory_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del)
+                self.action_view, self.action_save, None, None, self.action_del,
+                add_to_library=add_to_library)
         self.card_a_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del)
+                self.action_view, self.action_save, None, None, self.action_del,
+                add_to_library=add_to_library)
         self.card_b_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del)
+                self.action_view, self.action_save, None, None, self.action_del,
+                add_to_library=add_to_library)
 
         self.library_view.files_dropped.connect(self.files_dropped, type=Qt.QueuedConnection)
         for func, args in [
