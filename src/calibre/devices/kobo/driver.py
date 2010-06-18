@@ -22,6 +22,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and Kovid Goyal'
+    version = (1, 0, 1)
 
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -121,40 +122,22 @@ class KOBO(USBMS):
         cursor.execute (query) 
 
         changed = False
-
         for i, row in enumerate(cursor):
          #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
 
-            filename = row[3]
-            if row[5] == "6":
-                filename = filename + '.kobo'
+            path = self.path_from_contentid(row[3], row[5], oncard)
             mime = mime_type_ext(path_to_ext(row[3]))
 
             if oncard != 'carda' and oncard != 'cardb':
-                if row[5] == '6':
-                    # print "shortbook: " + filename
-                    changed = update_booklist(self._main_prefix, filename, row[0], row[1], mime, row[2], row[5], row[6])
-                    if changed:
-                        need_sync = True
-                else:
-                    if filename.startswith("file:///mnt/onboard/"):
-                        filename = filename.replace("file:///mnt/onboard/", self._main_prefix)
-                        # print "Internal: " + filename
-                        changed = update_booklist(self._main_prefix, filename, row[0], row[1], mime, row[2], row[5], row[6])
-                        if changed:
-                            need_sync = True
+                # print "shortbook: " + filename
+                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6])
             elif oncard == 'carda':
-                if filename.startswith("file:///mnt/sd/"):
-                    filename = filename.replace("file:///mnt/sd/", self._card_a_prefix)
-                    # print "SD Card: " + filename
-                    changed = update_booklist(self._card_a_prefix, filename, row[0], row[1], mime, row[2], row[5], row[6])
-                    if changed:
-                        need_sync = True
+                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6])
             else:
                 print "Add card b support"
 
-            #FIXME - NOT NEEDED flist.append({'filename': filename, 'path':row[3]})
-            #bl.append(book)
+            if changed:
+                need_sync = True
 
         cursor.close()
         connection.close()
@@ -344,3 +327,21 @@ class KOBO(USBMS):
                 ContentID = ContentID.replace(self._card_a_prefix, "file:///mnt/sd/")
         ContentID = ContentID.replace("\\", '/')
         return ContentType
+
+
+    def path_from_contentid(self, ContentID, ContentType, oncard):
+        path = ContentID
+
+        if oncard != 'carda' and oncard != 'cardb':
+            if ContentType == "6":
+                path = path + '.kobo'
+            else:
+                if path.startswith("file:///mnt/onboard/"):
+                    path = path.replace("file:///mnt/onboard/", self._main_prefix)
+                    # print "Internal: " + filename
+        elif oncard == 'carda':
+            if path.startswith("file:///mnt/sd/"):
+                path = path.replace("file:///mnt/sd/", self._card_a_prefix)
+                # print "SD Card: " + filename
+
+        return path
