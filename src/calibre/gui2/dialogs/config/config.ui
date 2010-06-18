@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>884</width>
+    <width>1000</width>
     <height>730</height>
    </rect>
   </property>
@@ -89,7 +89,7 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>604</width>
+          <width>720</width>
           <height>679</height>
          </rect>
         </property>
@@ -370,7 +370,7 @@
                </property>
               </widget>
              </item>
-             <item row="5" column="0">
+             <item row="5" column="0" colspan="2">
               <widget class="QCheckBox" name="show_avg_rating">
                <property name="text">
                 <string>Show &amp;average ratings in the tags browser</string>

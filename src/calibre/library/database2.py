@@ -136,6 +136,23 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.initialize_dynamic()
 
     def initialize_dynamic(self):
+        self.conn.executescript('''
+        DROP TRIGGER IF EXISTS author_insert_trg;
+        CREATE TEMP TRIGGER author_insert_trg
+            AFTER INSERT ON authors
+            BEGIN
+            UPDATE authors SET sort=author_to_author_sort(NEW.name) WHERE id=NEW.id;
+        END;
+        DROP TRIGGER IF EXISTS author_update_trg;
+        CREATE TEMP TRIGGER author_update_trg
+            BEFORE UPDATE ON authors
+            BEGIN
+            UPDATE authors SET sort=author_to_author_sort(NEW.name)
+            WHERE id=NEW.id AND name <> NEW.name;
+        END;
+        ''')
+        self.conn.execute(
+            'UPDATE authors SET sort=author_to_author_sort(name) WHERE sort IS NULL')
         self.conn.executescript(u'''
             CREATE TEMP VIEW IF NOT EXISTS tag_browser_news AS SELECT DISTINCT
                 id,

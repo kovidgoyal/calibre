@@ -736,7 +736,9 @@ class OPF(object):
         def fget(self):
             ans = []
             for tag in self.tags_path(self.metadata):
-                ans.append(self.get_text(tag))
+                text = self.get_text(tag)
+                if text and text.strip():
+                    ans.extend([x.strip() for x in text.split(',')])
             return ans
 
         def fset(self, val):

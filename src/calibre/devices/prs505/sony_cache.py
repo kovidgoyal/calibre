@@ -60,12 +60,13 @@ def uuid():
 
 class XMLCache(object):
 
-    def __init__(self, paths, prefixes):
+    def __init__(self, paths, prefixes, use_author_sort):
         if DEBUG:
             debug_print('Building XMLCache...')
             pprint(paths)
         self.paths = paths
         self.prefixes = prefixes
+        self.use_author_sort = use_author_sort
 
         # Parse XML files {{{
         parser = etree.XMLParser(recover=True)
@@ -434,7 +435,10 @@ class XMLCache(object):
         if not ts:
             ts = title_sort(title)
         record.set('titleSorter', ts)
-        record.set('author', authors_to_string(book.authors))
+        if self.use_author_sort and book.author_sort is not None:
+            record.set('author', book.author_sort)
+        else:
+            record.set('author', authors_to_string(book.authors))
         ext = os.path.splitext(path)[1]
         if ext:
             ext = ext[1:].lower()
