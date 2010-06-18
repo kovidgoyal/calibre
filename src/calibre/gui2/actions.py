@@ -427,7 +427,7 @@ class AddAction(object): # {{{
             d = error_dialog(self, _('Add to library'), _('No book selected'))
             d.exec_()
             return
-        paths = view._model.paths(rows)
+        paths = [p for p in view._model.paths(rows) if p is not None]
         from calibre.gui2.add import Adder
         self.__adder_func = partial(self._add_from_device_adder, on_card=None,
                                                     model=view._model)
