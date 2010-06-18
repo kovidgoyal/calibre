@@ -20,6 +20,7 @@ class NYTimes(BasicNewsRecipe):
     title       = 'The New York Times'
     __author__  = 'GRiker'
     language = 'en'
+    requires_version = (0, 7, 3)
 
     description = 'Daily news from the New York Times (subscription version)'
     allSectionKeywords = ['The Front Page', 'International','National','Obituaries','Editorials',

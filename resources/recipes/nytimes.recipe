@@ -17,6 +17,7 @@ class NYTimes(BasicNewsRecipe):
     title       = 'New York Times Top Stories'
     __author__  = 'GRiker'
     language = 'en'
+    requires_version = (0, 7, 3)
     description = 'Top Stories from the New York Times'
 
     # List of sections typically included in Top Stories.  Use a keyword from the
