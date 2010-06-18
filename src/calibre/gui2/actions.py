@@ -428,6 +428,10 @@ class AddAction(object): # {{{
             d.exec_()
             return
         paths = [p for p in view._model.paths(rows) if p is not None]
+        if not paths or len(paths) == 0:
+            d = error_dialog(self, _('Add to library'), _('No book files found'))
+            d.exec_()
+            return
         from calibre.gui2.add import Adder
         self.__adder_func = partial(self._add_from_device_adder, on_card=None,
                                                     model=view._model)
