@@ -602,7 +602,6 @@ class Emailer(Thread): # {{{
 class DeviceMixin(object): # {{{
 
     def __init__(self):
-        self.db_book_uuid_cache = set()
         self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
@@ -1350,8 +1349,13 @@ class DeviceMixin(object): # {{{
         return loc
 
     def set_books_in_library(self, booklists, reset=False):
-        if reset:
-            # First build a cache of the library, so the search isn't On**2
+        # Force a reset if the caches are not initialized
+        if reset or not hasattr(self, 'db_book_title_cache'):
+            # It might be possible to get here without having initialized the
+            # library view. In this case, simply give up
+            if not hasattr(self, 'library_view') or self.library_view is None:
+                return
+            # Build a cache (map) of the library, so the search isn't On**2
             self.db_book_title_cache = {}
             self.db_book_uuid_cache = {}
             db = self.library_view.model().db
