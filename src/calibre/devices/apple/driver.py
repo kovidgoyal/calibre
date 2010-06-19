@@ -1557,6 +1557,10 @@ class ITUNES(DevicePlugin):
                 return thumb.getvalue()
             except:
                 self.log.error("  error generating thumb for '%s'" % book.name())
+                try:
+                    zfw.close()
+                except:
+                    pass
                 return None
 
         elif iswindows:
@@ -1586,6 +1590,10 @@ class ITUNES(DevicePlugin):
                 return thumb.getvalue()
             except:
                 self.log.error("  error generating thumb for '%s'" % book.Name)
+                try:
+                    zfw.close()
+                except:
+                    pass
                 return None
 
     def _get_device_book_size(self, file, compressed_size):
@@ -2108,13 +2116,14 @@ class ITUNES(DevicePlugin):
                 path = book.Location
             except:
                 book = self._find_library_book(cached_book)
+                path = book.Location
 
             if book:
-                storage_path = os.path.split(book.Location)
-                if book.Location.startswith(self.iTunes_media):
+                storage_path = os.path.split(path)
+                if path.startswith(self.iTunes_media):
                     if DEBUG:
                         self.log.info("   removing '%s' at %s" %
-                            (cached_book['title'], book.Location))
+                            (cached_book['title'], path))
                     try:
                         os.remove(path)
                     except:

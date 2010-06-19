@@ -805,6 +805,17 @@ class BasicNewsRecipe(Recipe):
                         font-family:monospace;
                     }
 
+                    /*
+                    .touchscreen_navbar {
+                        -webkit-border-radius:4px;
+                        background:#ccc;
+                        border:#ccc 1px solid;
+                        margin-left: 25%;
+                        margin-right: 25%;
+                        width: 50%;
+                   }
+                   */
+
             '''
 
             templ = templates.TouchscreenFeedTemplate()
