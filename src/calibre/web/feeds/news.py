@@ -752,7 +752,8 @@ class BasicNewsRecipe(Recipe):
 
 
 
-    def feed2index(self, feed):
+    def feed2index(self, f, feeds):
+        feed = feeds[f]
         if feed.image_url is not None: # Download feed image
             imgdir = os.path.join(self.output_dir, 'images')
             if not os.path.isdir(imgdir):
@@ -808,7 +809,8 @@ class BasicNewsRecipe(Recipe):
 
             templ = templates.TouchscreenFeedTemplate()
             css = touchscreen_css + '\n\n' + (self.extra_css if self.extra_css else '')
-        return templ.generate(feed, self.description_limiter,
+
+        return templ.generate(f, feeds, self.description_limiter,
                               extra_css=css).render(doctype='xhtml')
 
 
@@ -951,7 +953,7 @@ class BasicNewsRecipe(Recipe):
         #feeds.restore_duplicates()
 
         for f, feed in enumerate(feeds):
-            html = self.feed2index(feed)
+            html = self.feed2index(f,feeds)
             feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
             with open(os.path.join(feed_dir, 'index.html'), 'wb') as fi:
                 fi.write(html)

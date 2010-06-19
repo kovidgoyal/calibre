@@ -107,32 +107,66 @@ class TouchscreenNavBarTemplate(Template):
         align = 'center' if center else 'left'
         navbar = DIV(CLASS('calibre_navbar', 'calibre_rescale_100',
             style='text-align:'+align))
-        if bottom:
-            navbar.append(DIV(style="border-top:1px solid gray;border-bottom:1em solid white"))
-            text = 'This article was downloaded by '
-            p = PT(text, STRONG(__appname__), A(url, href=url), style='text-align:left')
-            p[0].tail = ' from '
-            navbar.append(p)
-            navbar.append(BR())
-            navbar.append(BR())
+
+        if False:
+            if bottom:
+                navbar.append(DIV(style="border-top:1px solid gray;border-bottom:1em solid white"))
+                text = 'This article was downloaded by '
+                p = PT(text, STRONG(__appname__), A(url, href=url), style='text-align:left')
+                p[0].tail = ' from '
+                navbar.append(p)
+                navbar.append(BR())
+                navbar.append(BR())
+            else:
+                next = 'feed_%d'%(feed+1) if art == number_of_articles_in_feed - 1 \
+                        else 'article_%d'%(art+1)
+                up = '../..' if art == number_of_articles_in_feed - 1 else '..'
+                href = '%s%s/%s/index.html'%(prefix, up, next)
+                navbar.text = '| '
+                navbar.append(A('Next', href=href))
+
+            href = '%s../index.html#article_%d'%(prefix, art)
+            navbar.iterchildren(reversed=True).next().tail = ' | '
+            navbar.append(A('Section Menu', href=href))
+            href = '%s../../index.html#feed_%d'%(prefix, feed)
+            navbar.iterchildren(reversed=True).next().tail = ' | '
+            navbar.append(A("Sections", href=href))
+            if art > 0 and not bottom:
+                href = '%s../article_%d/index.html'%(prefix, art-1)
+                navbar.iterchildren(reversed=True).next().tail = ' | '
+                navbar.append(A('Previous', href=href))
         else:
+            if bottom:
+                navbar.append(DIV(style="border-top:1px solid gray;border-bottom:1em solid white"))
+                text = 'This article was downloaded by '
+                p = PT(text, STRONG(__appname__), A(url, href=url), style='text-align:left')
+                p[0].tail = ' from '
+                navbar.append(p)
+                navbar.append(BR())
+                navbar.append(BR())
+            else:
+                # | Previous
+                if art > 0 and not bottom:
+                    href = '%s../article_%d/index.html'%(prefix, art-1)
+                    navbar.text = '| '
+                    navbar.append(A('Previous', href=href))
+
+            # | Section | Main |
+            href = '%s../index.html#article_%d'%(prefix, art)
+            if art > 0:
+                navbar.iterchildren(reversed=True).next().tail = ' | '
+            navbar.append(A('Articles', href=href))
+            href = '%s../../index.html#feed_%d'%(prefix, feed)
+            navbar.iterchildren(reversed=True).next().tail = ' | '
+            navbar.append(A("Sections", href=href))
+
+            # | Next
             next = 'feed_%d'%(feed+1) if art == number_of_articles_in_feed - 1 \
                     else 'article_%d'%(art+1)
             up = '../..' if art == number_of_articles_in_feed - 1 else '..'
             href = '%s%s/%s/index.html'%(prefix, up, next)
-            navbar.text = '| '
-            navbar.append(A('Next', href=href))
-
-        href = '%s../index.html#article_%d'%(prefix, art)
-        navbar.iterchildren(reversed=True).next().tail = ' | '
-        navbar.append(A('Section Menu', href=href))
-        href = '%s../../index.html#feed_%d'%(prefix, feed)
-        navbar.iterchildren(reversed=True).next().tail = ' | '
-        navbar.append(A('Main Menu', href=href))
-        if art > 0 and not bottom:
-            href = '%s../article_%d/index.html'%(prefix, art-1)
             navbar.iterchildren(reversed=True).next().tail = ' | '
-            navbar.append(A('Previous', href=href))
+            navbar.append(A('Next', href=href))
 
         navbar.iterchildren(reversed=True).next().tail = ' | '
         if not bottom:
@@ -200,7 +234,8 @@ class TouchscreenIndexTemplate(Template):
 
 class FeedTemplate(Template):
 
-    def _generate(self, feed, cutoff, extra_css=None, style=None):
+    def _generate(self, f, feeds, cutoff, extra_css=None, style=None):
+        feed = feeds[f]
         head = HEAD(TITLE(feed.title))
         if style:
             head.append(STYLE(style, type='text/css'))
@@ -250,7 +285,41 @@ class FeedTemplate(Template):
 
 class TouchscreenFeedTemplate(Template):
 
-    def _generate(self, feed, cutoff, extra_css=None, style=None):
+    def _generate(self, f, feeds, cutoff, extra_css=None, style=None):
+
+        def trim_title(title,clip=15):
+            if len(title)>clip:
+                tokens = title.split(' ')
+                new_title_tokens = []
+                new_title_len = 0
+                for token in tokens:
+                    if len(token) + new_title_len < clip:
+                        new_title_tokens.append(token)
+                        new_title_len += len(token) + 1
+                    else:
+                        new_title_tokens.append('...')
+                        title = ' '.join(new_title_tokens)
+                        break
+            return title
+
+        feed = feeds[f]
+
+        # Construct the navbar
+        navbar = DIV('| ', CLASS('calibre_navbar', 'calibre_rescale_100'),style='text-align:center')
+        if f > 0:
+            link = A(trim_title(feeds[f-1].title), href = '../feed_%d/index.html' % int(f-1))
+            link.tail = ' |'
+            navbar.append(link)
+
+        link = A("Sections", href="../index.html")
+        link.tail = ' |'
+        navbar.append(link)
+        if f < len(feeds)-1:
+            link = A(trim_title(feeds[f+1].title), href = '../feed_%d/index.html' % int(f+1))
+            link.tail = ' |'
+            navbar.append(link)
+
+        # Build the page
         head = HEAD(TITLE(feed.title))
         if style:
             head.append(STYLE(style, type='text/css'))
@@ -262,6 +331,7 @@ class TouchscreenFeedTemplate(Template):
                 DIV(style="border-top:1px solid gray;border-bottom:1em solid white")
                 )
         body.append(div)
+
         if getattr(feed, 'image', None):
             div.append(DIV(IMG(
                 alt = feed.image_alt if feed.image_alt else '',
@@ -280,41 +350,21 @@ class TouchscreenFeedTemplate(Template):
                 continue
             tr = TR()
 
-            if True:
-                div_td = DIV(
-                        A(article.title, CLASS('summary_headline','calibre_rescale_120',
-                                        href=article.url)),
-                        style="display:inline-block")
-                if article.author:
-                    div_td.append(DIV(article.author,
-                        CLASS('summary_byline', 'calibre_rescale_100')))
-                if article.summary:
-                    div_td.append(DIV(cutoff(article.text_summary),
-                        CLASS('summary_text', 'calibre_rescale_100')))
-                tr.append(TD(div_td))
-            else:
-                td = TD(
-                        A(article.title, CLASS('summary_headline','calibre_rescale_120',
-                                        href=article.url))
-                        )
-                if article.author:
-                    td.append(DIV(article.author,
-                        CLASS('summary_byline', 'calibre_rescale_100')))
-                if article.summary:
-                    td.append(DIV(cutoff(article.text_summary),
-                        CLASS('summary_text', 'calibre_rescale_100')))
-
-                tr.append(td)
+            div_td = DIV(
+                    A(article.title, CLASS('summary_headline','calibre_rescale_120',
+                                    href=article.url)),
+                    style="display:inline-block")
+            if article.author:
+                div_td.append(DIV(article.author,
+                    CLASS('summary_byline', 'calibre_rescale_100')))
+            if article.summary:
+                div_td.append(DIV(cutoff(article.text_summary),
+                    CLASS('summary_text', 'calibre_rescale_100')))
+            tr.append(TD(div_td))
 
             toc.append(tr)
         div.append(toc)
-
-        navbar = DIV('| ', CLASS('calibre_navbar', 'calibre_rescale_100'),style='text-align:center')
-        link = A('Up one level', href="../index.html")
-        link.tail = ' |'
-        navbar.append(link)
         div.append(navbar)
-
         self.root = HTML(head, body)
 
 class EmbeddedContent(Template):
