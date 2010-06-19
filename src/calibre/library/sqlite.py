@@ -94,6 +94,9 @@ class Connection(sqlite.Connection):
             return ans[0]
         return ans.fetchall()
 
+def _author_to_author_sort(x):
+    if not x: return ''
+    return author_to_author_sort(x.replace('|', ','))
 
 class DBThread(Thread):
 
@@ -121,7 +124,7 @@ class DBThread(Thread):
         else:
             self.conn.create_function('title_sort', 1, title_sort)
         self.conn.create_function('author_to_author_sort', 1,
-                lambda x: author_to_author_sort(x.replace('|', ',')))
+                _author_to_author_sort)
         self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
         # Dummy functions for dynamically created filters
         self.conn.create_function('books_list_filter', 1, lambda x: 1)

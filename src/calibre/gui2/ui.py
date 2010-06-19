@@ -126,8 +126,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         # Jobs Button {{{
         self.job_manager = JobManager()
         self.jobs_dialog = JobsDialog(self, self.job_manager)
-        self.jobs_button = JobsButton(horizontal=config['gui_layout'] !=
-                'narrow')
+        self.jobs_button = JobsButton(horizontal=True)
         self.jobs_button.initialize(self.jobs_dialog, self.job_manager)
         # }}}
 
@@ -216,12 +215,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         self.vanity.setText(self.vanity_template%dict(version=' ', device=' '))
         self.device_info = ' '
         UpdateMixin.__init__(self, opts)
-        ####################### Status Bar #####################
-        self.status_bar.initialize(self.system_tray_icon)
-        self.book_details.show_book_info.connect(self.show_book_info)
-        self.book_details.files_dropped.connect(self.files_dropped_on_book)
-        self.book_details.open_containing_folder.connect(self.view_folder_for_id)
-        self.book_details.view_specific_format.connect(self.view_format_by_id)
 
         ####################### Setup Toolbar #####################
         ToolbarMixin.__init__(self)
@@ -417,6 +410,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
             self.tags_view.set_new_model() # in case columns changed
             self.tags_view.recount()
             self.create_device_menu()
+            self.set_device_menu_items_state(bool(self.device_connected),
+                    self.device_connected == 'folder')
 
             if not patheq(self.library_path, d.database_location):
                 newloc = d.database_location
@@ -430,7 +425,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         self.book_on_device(None, reset=True)
         db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
-        self.tags_view.set_database(db, self.tag_match, self.popularity)
+        self.tags_view.set_database(db, self.tag_match, self.sort_by)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
         self.status_bar.clear_message()
         self.search.clear_to_help()

@@ -28,6 +28,7 @@ from calibre.constants import preferred_encoding, filesystem_encoding, \
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.dialogs.delete_matching_from_device import DeleteMatchingFromDeviceDialog
 
 class AnnotationsAction(object): # {{{
 
@@ -410,6 +411,34 @@ class AddAction(object): # {{{
         if hasattr(self._adder, 'cleanup'):
             self._adder.cleanup()
         self._adder = None
+
+    def _add_from_device_adder(self, paths=[], names=[], infos=[],
+                               on_card=None, model=None):
+        self._files_added(paths, names, infos, on_card=on_card)
+        # set the in-library flags, and as a consequence send the library's
+        # metadata for this book to the device. This sets the uuid to the
+        # correct value.
+        self.set_books_in_library(booklists=[model.db], reset=True)
+        model.reset()
+
+    def add_books_from_device(self, view):
+        rows = view.selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            d = error_dialog(self, _('Add to library'), _('No book selected'))
+            d.exec_()
+            return
+        paths = [p for p in view._model.paths(rows) if p is not None]
+        if not paths or len(paths) == 0:
+            d = error_dialog(self, _('Add to library'), _('No book files found'))
+            d.exec_()
+            return
+        from calibre.gui2.add import Adder
+        self.__adder_func = partial(self._add_from_device_adder, on_card=None,
+                                                    model=view._model)
+        self._adder = Adder(self, self.library_view.model().db,
+                Dispatcher(self.__adder_func), spare_server=self.spare_server)
+        self._adder.add(paths)
+
     # }}}
 
 class DeleteAction(object): # {{{
@@ -471,6 +500,45 @@ class DeleteAction(object): # {{{
         if ids:
             self.tags_view.recount()
 
+    def remove_matching_books_from_device(self, *args):
+        if not self.device_manager.is_device_connected:
+            d = error_dialog(self, _('Cannot delete books'),
+                             _('No device is connected'))
+            d.exec_()
+            return
+        ids = self._get_selected_ids()
+        if not ids:
+            #_get_selected_ids shows a dialog box if nothing is selected, so we
+            #do not need to show one here
+            return
+        to_delete = {}
+        some_to_delete = False
+        for model,name in ((self.memory_view.model(), _('Main memory')),
+                           (self.card_a_view.model(), _('Storage Card A')),
+                           (self.card_b_view.model(), _('Storage Card B'))):
+            to_delete[name] = (model, model.paths_for_db_ids(ids))
+            if len(to_delete[name][1]) > 0:
+                some_to_delete = True
+        if not some_to_delete:
+            d = error_dialog(self, _('No books to delete'),
+                             _('None of the selected books are on the device'))
+            d.exec_()
+            return
+        d = DeleteMatchingFromDeviceDialog(self, to_delete)
+        if d.exec_():
+            paths = {}
+            ids = {}
+            for (model, id, path) in d.result:
+                if model not in paths:
+                    paths[model] = []
+                    ids[model] = []
+                paths[model].append(path)
+                ids[model].append(id)
+            for model in paths:
+                job = self.remove_paths(paths[model])
+                self.delete_memory[job] = (paths[model], model)
+                model.mark_for_deletion(job, ids[model], rows_are_ids=True)
+            self.status_bar.show_message(_('Deleting books from device.'), 1000)
 
     def delete_covers(self, *args):
         ids = self._get_selected_ids()

@@ -18,17 +18,20 @@ from calibre.utils.config import prefs
 from calibre.utils.search_query_parser import saved_searches
 
 class SearchLineEdit(QLineEdit):
+    key_pressed = pyqtSignal(object)
+    mouse_released = pyqtSignal(object)
+    focus_out = pyqtSignal(object)
 
     def keyPressEvent(self, event):
-        self.emit(SIGNAL('key_pressed(PyQt_PyObject)'), event)
+        self.key_pressed.emit(event)
         QLineEdit.keyPressEvent(self, event)
 
     def mouseReleaseEvent(self, event):
-        self.emit(SIGNAL('mouse_released(PyQt_PyObject)'), event)
+        self.mouse_released.emit(event)
         QLineEdit.mouseReleaseEvent(self, event)
 
     def focusOutEvent(self, event):
-        self.emit(SIGNAL('focus_out(PyQt_PyObject)'), event)
+        self.focus_out.emit(event)
         QLineEdit.focusOutEvent(self, event)
 
     def dropEvent(self, ev):
@@ -68,10 +71,10 @@ class SearchBox2(QComboBox):
         self.normal_background = 'rgb(255, 255, 255, 0%)'
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
-        self.connect(self.line_edit, SIGNAL('key_pressed(PyQt_PyObject)'),
-                self.key_pressed, Qt.DirectConnection)
-        self.connect(self.line_edit, SIGNAL('mouse_released(PyQt_PyObject)'),
-                self.mouse_released, Qt.DirectConnection)
+        self.line_edit.key_pressed.connect(self.key_pressed,
+                type=Qt.DirectConnection)
+        self.line_edit.mouse_released.connect(self.mouse_released,
+                type=Qt.DirectConnection)
         self.setEditable(True)
         self.help_state = False
         self.as_you_type = True
@@ -90,14 +93,18 @@ class SearchBox2(QComboBox):
         self.help_text = help_text
         self.colorize = colorize
         self.clear_to_help()
-        self.connect(self, SIGNAL('editTextChanged(QString)'), self.text_edited_slot)
 
     def normalize_state(self):
-        self.setEditText('')
-        self.line_edit.setStyleSheet(
-            'QLineEdit { color: black; background-color: %s; }' %
-            self.normal_background)
-        self.help_state = False
+        if self.help_state:
+            self.setEditText('')
+            self.line_edit.setStyleSheet(
+                'QLineEdit { color: black; background-color: %s; }' %
+                self.normal_background)
+            self.help_state = False
+        else:
+            self.line_edit.setStyleSheet(
+                'QLineEdit { color: black; background-color: %s; }' %
+                    self.normal_background)
 
     def clear_to_help(self):
         if self.help_state:
@@ -131,17 +138,13 @@ class SearchBox2(QComboBox):
         self.line_edit.setStyleSheet('QLineEdit { color: black; background-color: %s; }' % col)
 
     def key_pressed(self, event):
-        if self.help_state:
-            self.normalize_state()
-        if not self.as_you_type:
-            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
-                self.do_search()
+        self.normalize_state()
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            self.do_search()
+        self.timer = self.startTimer(self.__class__.INTERVAL)
 
     def mouse_released(self, event):
-        if self.help_state:
-            self.normalize_state()
-
-    def text_edited_slot(self, text):
+        self.normalize_state()
         if self.as_you_type:
             self.timer = self.startTimer(self.__class__.INTERVAL)
 
@@ -227,14 +230,13 @@ class SavedSearchBox(QComboBox):
 
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
-        self.connect(self.line_edit, SIGNAL('key_pressed(PyQt_PyObject)'),
-                self.key_pressed, Qt.DirectConnection)
-        self.connect(self.line_edit, SIGNAL('mouse_released(PyQt_PyObject)'),
-                self.mouse_released, Qt.DirectConnection)
-        self.connect(self.line_edit, SIGNAL('focus_out(PyQt_PyObject)'),
-                self.focus_out, Qt.DirectConnection)
-        self.connect(self, SIGNAL('activated(const QString&)'),
-                self.saved_search_selected)
+        self.line_edit.key_pressed.connect(self.key_pressed,
+                type=Qt.DirectConnection)
+        self.line_edit.mouse_released.connect(self.mouse_released,
+                type=Qt.DirectConnection)
+        self.line_edit.focus_out.connect(self.focus_out,
+                type=Qt.DirectConnection)
+        self.activated[str].connect(self.saved_search_selected)
 
         completer = QCompleter(self) # turn off auto-completion
         self.setCompleter(completer)
@@ -282,7 +284,7 @@ class SavedSearchBox(QComboBox):
         if self.help_state:
             self.normalize_state()
 
-    def saved_search_selected (self, qname):
+    def saved_search_selected(self, qname):
         qname = unicode(qname)
         if qname is None or not qname.strip():
             return

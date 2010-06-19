@@ -602,7 +602,6 @@ class Emailer(Thread): # {{{
 class DeviceMixin(object): # {{{
 
     def __init__(self):
-        self.db_book_uuid_cache = set()
         self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
@@ -689,14 +688,28 @@ class DeviceMixin(object): # {{{
             self.device_error_dialog.show()
 
     # Device connected {{{
-    def device_detected(self, connected, is_folder_device):
-        '''
-        Called when a device is connected to the computer.
-        '''
+
+    def set_device_menu_items_state(self, connected, is_folder_device):
         if connected:
             self._sync_menu.connect_to_folder_action.setEnabled(False)
             if is_folder_device:
                 self._sync_menu.disconnect_from_folder_action.setEnabled(True)
+            self._sync_menu.enable_device_actions(True,
+                    self.device_manager.device.card_prefix(),
+                    self.device_manager.device)
+            self.eject_action.setEnabled(True)
+        else:
+            self._sync_menu.connect_to_folder_action.setEnabled(True)
+            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
+            self._sync_menu.enable_device_actions(False)
+            self.eject_action.setEnabled(False)
+
+    def device_detected(self, connected, is_folder_device):
+        '''
+        Called when a device is connected to the computer.
+        '''
+        self.set_device_menu_items_state(connected, is_folder_device)
+        if connected:
             self.device_manager.get_device_information(\
                     Dispatcher(self.info_read))
             self.set_default_thumbnail(\
@@ -705,17 +718,10 @@ class DeviceMixin(object): # {{{
                 self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
             self.device_connected = 'device' if not is_folder_device else 'folder'
-            self._sync_menu.enable_device_actions(True,
-                    self.device_manager.device.card_prefix(),
-                    self.device_manager.device)
             self.location_view.model().device_connected(self.device_manager.device)
-            self.eject_action.setEnabled(True)
             self.refresh_ondevice_info (device_connected = True, reset_only = True)
         else:
-            self._sync_menu.connect_to_folder_action.setEnabled(True)
-            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
             self.device_connected = None
-            self._sync_menu.enable_device_actions(False)
             self.location_view.model().update_devices()
             self.vanity.setText(self.vanity_template%\
                     dict(version=self.latest_version, device=' '))
@@ -723,7 +729,6 @@ class DeviceMixin(object): # {{{
             if self.current_view() != self.library_view:
                 self.book_details.reset_info()
                 self.location_view.setCurrentIndex(self.location_view.model().index(0))
-            self.eject_action.setEnabled(False)
             self.refresh_ondevice_info (device_connected = False)
 
     def info_read(self, job):
@@ -1344,11 +1349,18 @@ class DeviceMixin(object): # {{{
         return loc
 
     def set_books_in_library(self, booklists, reset=False):
-        if reset:
-            # First build a cache of the library, so the search isn't On**2
+        # Force a reset if the caches are not initialized
+        if reset or not hasattr(self, 'db_book_title_cache'):
+            # It might be possible to get here without having initialized the
+            # library view. In this case, simply give up
+            if not hasattr(self, 'library_view') or self.library_view is None:
+                return
+            db = getattr(self.library_view.model(), 'db', None)
+            if db is None:
+                return
+            # Build a cache (map) of the library, so the search isn't On**2
             self.db_book_title_cache = {}
-            self.db_book_uuid_cache = set()
-            db = self.library_view.model().db
+            self.db_book_uuid_cache = {}
             for id in db.data.iterallids():
                 mi = db.get_metadata(id, index_is_id=True)
                 title = re.sub('(?u)\W|[_]', '', mi.title.lower())
@@ -1364,7 +1376,7 @@ class DeviceMixin(object): # {{{
                     aus = re.sub('(?u)\W|[_]', '', aus)
                     self.db_book_title_cache[title]['author_sort'][aus] = mi
                 self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
-                self.db_book_uuid_cache.add(mi.uuid)
+                self.db_book_uuid_cache[mi.uuid] = mi.application_id
 
         # Now iterate through all the books on the device, setting the
         # in_library field Fastest and most accurate key is the uuid. Second is
@@ -1376,11 +1388,13 @@ class DeviceMixin(object): # {{{
             for book in booklist:
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
                     book.in_library = True
+                    # ensure that the correct application_id is set
+                    book.application_id = self.db_book_uuid_cache[book.uuid]
                     continue
 
                 book_title = book.title.lower() if book.title else ''
                 book_title = re.sub('(?u)\W|[_]', '', book_title)
-                book.in_library = False
+                book.in_library = None
                 d = self.db_book_title_cache.get(book_title, None)
                 if d is not None:
                     if getattr(book, 'application_id', None) in d['db_ids']:
@@ -1409,7 +1423,7 @@ class DeviceMixin(object): # {{{
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
                 if not asort and book.authors:
-                    book.author_sort = self.db.author_sort_from_authors(book.authors)
+                    book.author_sort = self.library_view.model().db.author_sort_from_authors(book.authors)
                     resend_metadata = True
 
         if resend_metadata:

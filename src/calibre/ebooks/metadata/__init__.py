@@ -28,10 +28,14 @@ def authors_to_string(authors):
     else:
         return ''
 
+_bracket_pat = re.compile(r'[\[({].*?[})\]]')
 def author_to_author_sort(author):
+    if not author:
+        return ''
     method = tweaks['author_sort_copy_method']
     if method == 'copy' or (method == 'comma' and ',' in author):
         return author
+    author = _bracket_pat.sub('', author).strip()
     tokens = author.split()
     tokens = tokens[-1:] + tokens[:-1]
     if len(tokens) > 1:
@@ -223,6 +227,7 @@ class MetaInformation(object):
                      'isbn', 'tags', 'cover_data', 'application_id', 'guide',
                      'manifest', 'spine', 'toc', 'cover', 'language',
                      'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc',
+                     'author_sort_map',
                      'pubdate', 'rights', 'publication_type', 'uuid'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
@@ -244,6 +249,7 @@ class MetaInformation(object):
         self.tags = getattr(mi, 'tags', [])
         #: mi.cover_data = (ext, data)
         self.cover_data   = getattr(mi, 'cover_data', (None, None))
+        self.author_sort_map = getattr(mi, 'author_sort_map', {})
 
         for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
                   'series', 'series_index', 'rating', 'isbn', 'language',
@@ -254,11 +260,11 @@ class MetaInformation(object):
             setattr(self, x, getattr(mi, x, None))
 
     def print_all_attributes(self):
-        for x in ('author', 'author_sort', 'title_sort', 'comments', 'category', 'publisher',
+        for x in ('title','author', 'author_sort', 'title_sort', 'comments', 'category', 'publisher',
                   'series', 'series_index', 'tags', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
                   'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate',
-                  'rights', 'publication_type', 'uuid'
+                  'rights', 'publication_type', 'uuid', 'author_sort_map'
                   ):
             prints(x, getattr(self, x, 'None'))
 
@@ -287,6 +293,9 @@ class MetaInformation(object):
         if mi.tags:
             self.tags += mi.tags
         self.tags = list(set(self.tags))
+
+        if mi.author_sort_map:
+            self.author_sort_map.update(mi.author_sort_map)
 
         if getattr(mi, 'cover_data', False):
             other_cover = mi.cover_data[-1]

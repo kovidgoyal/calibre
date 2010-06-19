@@ -64,6 +64,10 @@ class Tag(object):
         self.state = state
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
+        if self.avg_rating > 0:
+            if tooltip:
+                tooltip = tooltip + ': '
+            tooltip = _('%sAverage rating is %3.1f')%(tooltip, self.avg_rating)
         self.tooltip = tooltip
         self.icon = icon
 
@@ -132,6 +136,23 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.initialize_dynamic()
 
     def initialize_dynamic(self):
+        self.conn.executescript('''
+        DROP TRIGGER IF EXISTS author_insert_trg;
+        CREATE TEMP TRIGGER author_insert_trg
+            AFTER INSERT ON authors
+            BEGIN
+            UPDATE authors SET sort=author_to_author_sort(NEW.name) WHERE id=NEW.id;
+        END;
+        DROP TRIGGER IF EXISTS author_update_trg;
+        CREATE TEMP TRIGGER author_update_trg
+            BEFORE UPDATE ON authors
+            BEGIN
+            UPDATE authors SET sort=author_to_author_sort(NEW.name)
+            WHERE id=NEW.id AND name <> NEW.name;
+        END;
+        ''')
+        self.conn.execute(
+            'UPDATE authors SET sort=author_to_author_sort(name) WHERE sort IS NULL')
         self.conn.executescript(u'''
             CREATE TEMP VIEW IF NOT EXISTS tag_browser_news AS SELECT DISTINCT
                 id,
@@ -429,7 +450,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if aum: aum = [a.strip().replace('|', ',') for a in aum.split(',')]
         mi = MetaInformation(self.title(idx, index_is_id=index_is_id), aum)
         mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)
-        mi.authors_sort_strings = self.authors_sort_strings(idx, index_is_id)
+        if mi.authors:
+            mi.author_sort_map = {}
+            for name, sort in zip(mi.authors, self.authors_sort_strings(idx,
+                index_is_id)):
+                mi.author_sort_map[name] = sort
         mi.comments    = self.comments(idx, index_is_id=index_is_id)
         mi.publisher   = self.publisher(idx, index_is_id=index_is_id)
         mi.timestamp   = self.timestamp(idx, index_is_id=index_is_id)
@@ -687,7 +712,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     tn=field['table'], col=field['link_column']), (id_,))
         return set(x[0] for x in ans)
 
-    def get_categories(self, sort_on_count=False, ids=None, icon_map=None):
+    CATEGORY_SORTS = ('name', 'popularity', 'rating')
+
+    def get_categories(self, sort='name', ids=None, icon_map=None):
         self.books_list_filter.change([] if not ids else ids)
 
         categories = {}
@@ -711,10 +738,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 query = '''SELECT id, {0}, count, avg_rating, sort
                            FROM tag_browser_filtered_{1}'''.format(cn, tn)
-            if sort_on_count:
-                query += ' ORDER BY count DESC'
-            else:
+            if sort == 'popularity':
+                query += ' ORDER BY count DESC, sort ASC'
+            elif sort == 'name':
                 query += ' ORDER BY sort ASC'
+            else:
+                query += ' ORDER BY avg_rating DESC, sort ASC'
             data = self.conn.get(query)
 
             # icon_map is not None if get_categories is to store an icon and
@@ -770,11 +799,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if count > 0:
                 categories['formats'].append(Tag(fmt, count=count, icon=icon))
 
-        if sort_on_count:
-            categories['formats'].sort(cmp=lambda x,y:cmp(x.count, y.count),
-                    reverse=True)
-        else:
-            categories['formats'].sort(cmp=lambda x,y:cmp(x.name, y.name))
+        if sort == 'popularity':
+            categories['formats'].sort(key=lambda x: x.count, reverse=True)
+        else: # no ratings exist to sort on
+            categories['formats'].sort(key = lambda x:x.name)
 
         #### Now do the user-defined categories. ####
         user_categories = prefs['user_categories']
@@ -799,12 +827,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 # Not a problem if we accumulate entries in the icon map
                 if icon_map is not None:
                     icon_map[cat_name] = icon_map[':user']
-                if sort_on_count:
+                if sort == 'popularity':
                     categories[cat_name] = \
-                        sorted(items, cmp=(lambda x, y: cmp(y.count, x.count)))
+                        sorted(items, key=lambda x: x.count, reverse=True)
+                elif sort == 'name':
+                    categories[cat_name] = \
+                        sorted(items, key=lambda x: x.sort.lower())
                 else:
                     categories[cat_name] = \
-                        sorted(items, cmp=(lambda x, y: cmp(x.name.lower(), y.name.lower())))
+                        sorted(items, key=lambda x:x.avg_rating, reverse=True)
 
         #### Finally, the saved searches category ####
         items = []

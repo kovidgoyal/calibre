@@ -10,14 +10,13 @@ Browsing book collection by tags.
 from itertools import izip
 from functools import partial
 
-from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QCheckBox, \
+from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
                      QFont, QSize, QIcon, QPoint, QVBoxLayout, QComboBox, \
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, \
-                     QPushButton, QWidget, QItemDelegate, QString, QPen, \
-                     QColor, QLinearGradient, QBrush
+                     QPushButton, QWidget, QItemDelegate
 
 from calibre.gui2 import config, NONE
-from calibre.utils.config import prefs, tweaks
+from calibre.utils.config import prefs
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
@@ -25,12 +24,7 @@ from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
 
-class TagDelegate(QItemDelegate):
-
-    def __init__(self, parent):
-        QItemDelegate.__init__(self, parent)
-        self._parent = parent
-        self.icon = QIcon(I('star.png'))
+class TagDelegate(QItemDelegate): # {{{
 
     def paint(self, painter, option, index):
         item = index.internalPointer()
@@ -38,51 +32,29 @@ class TagDelegate(QItemDelegate):
             QItemDelegate.paint(self, painter, option, index)
             return
         r = option.rect
-        # Paint the decoration icon
-        icon = self._parent.model().data(index, Qt.DecorationRole).toPyObject()
-        icon.paint(painter, r, Qt.AlignLeft)
+        model = self.parent().model()
+        icon = model.data(index, Qt.DecorationRole).toPyObject()
+        painter.save()
+        if item.tag.state != 0 or not config['show_avg_rating'] or \
+                item.tag.avg_rating is None:
+            icon.paint(painter, r, Qt.AlignLeft)
+        else:
+            painter.setOpacity(0.3)
+            icon.paint(painter, r, Qt.AlignLeft)
+            painter.setOpacity(1)
+            rating = item.tag.avg_rating
+            painter.setClipRect(r.left(), r.bottom()-int(r.height()*(rating/5.0)),
+                    r.width(), r.height())
+            icon.paint(painter, r, Qt.AlignLeft)
+            painter.setClipRect(r)
 
-        # Paint the rating, if any. The decoration icon is assumed to be square,
-        # filling the row top to bottom. The three is arbitrary, there to
-        # provide a little space between the icon and what follows
-        r.setLeft(r.left()+r.height()+3)
-        rating = item.tag.avg_rating
-        if config['show_avg_rating'] and item.tag.avg_rating is not None:
-            painter.save()
-            if tweaks['render_avg_rating_using'] == 'star':
-                painter.setClipRect(r.left(), r.top(),
-                                    int(r.height()*(rating/5.0)), r.height())
-                self.icon.paint(painter, r, Qt.AlignLeft | Qt.AlignVCenter)
-                r.setLeft(r.left() + r.height())
-            else:
-                painter.translate(r.left(), r.top())
-                # Compute factor so sizes can be expressed in percentages of the
-                # box defined by the row height
-                factor = r.height()/100.
-                width = 20
-                height = 80
-                left_offset = 5
-                top_offset = 10
-                if r > 0.0:
-                    color = QColor(100, 100, 255) #medium blue, less glare
-                    pen = QPen(color, 5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
-                    painter.setPen(pen)
-                    painter.scale(factor, factor)
-                    painter.drawRect(left_offset, top_offset, width, height)
-                    fill_height = height*(rating/5.0)
-                    gradient = QLinearGradient(0, 0, 0, 100)
-                    gradient.setColorAt(0.0, color)
-                    gradient.setColorAt(1.0, color)
-                    painter.setBrush(QBrush(gradient))
-                    painter.drawRect(left_offset, top_offset+(height-fill_height),
-                                     width, fill_height)
-                # The '3' is arbitrary, there because we need a little space
-                # between the rectangle and the text.
-                r.setLeft(r.left() + ((width+left_offset*2)*factor) + 3)
-            painter.restore()
         # Paint the text
+        r.setLeft(r.left()+r.height()+3)
         painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
-                         QString('[%d] %s'%(item.tag.count, item.tag.name)))
+                        model.data(index, Qt.DisplayRole).toString())
+        painter.restore()
+
+    # }}}
 
 class TagsView(QTreeView): # {{{
 
@@ -107,12 +79,12 @@ class TagsView(QTreeView): # {{{
         self.setHeaderHidden(True)
         self.setItemDelegate(TagDelegate(self))
 
-    def set_database(self, db, tag_match, popularity):
+    def set_database(self, db, tag_match, sort_by):
         self.hidden_categories = config['tag_browser_hidden_categories']
         self._model = TagsModel(db, parent=self,
                                 hidden_categories=self.hidden_categories,
                                 search_restriction=None)
-        self.popularity = popularity
+        self.sort_by = sort_by
         self.tag_match = tag_match
         self.db = db
         self.search_restriction = None
@@ -120,8 +92,9 @@ class TagsView(QTreeView): # {{{
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.clicked.connect(self.toggle)
         self.customContextMenuRequested.connect(self.show_context_menu)
-        self.popularity.setChecked(config['sort_by_popularity'])
-        self.popularity.stateChanged.connect(self.sort_changed)
+        pop = config['sort_tags_by']
+        self.sort_by.setCurrentIndex(self.db.CATEGORY_SORTS.index(pop))
+        self.sort_by.currentIndexChanged.connect(self.sort_changed)
         self.refresh_required.connect(self.recount, type=Qt.QueuedConnection)
         db.add_listener(self.database_changed)
 
@@ -132,8 +105,8 @@ class TagsView(QTreeView): # {{{
     def match_all(self):
         return self.tag_match and self.tag_match.currentIndex() > 0
 
-    def sort_changed(self, state):
-        config.set('sort_by_popularity', state == Qt.Checked)
+    def sort_changed(self, pop):
+        config.set('sort_tags_by', self.db.CATEGORY_SORTS[pop])
         self.recount()
 
     def set_search_restriction(self, s):
@@ -372,11 +345,7 @@ class TagTreeItem(object): # {{{
             if self.tag.count == 0:
                 return QVariant('%s'%(self.tag.name))
             else:
-                if self.tag.avg_rating is None:
-                    return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
-                else:
-                    return QVariant('[%d][%3.1f] %s'%(self.tag.count,
-                                                      self.tag.avg_rating, self.tag.name))
+                return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
         if role == Qt.EditRole:
             return QVariant(self.tag.name)
         if role == Qt.DecorationRole:
@@ -420,7 +389,7 @@ class TagsModel(QAbstractItemModel): # {{{
         self.row_map = []
 
         # get_node_tree cannot return None here, because row_map is empty
-        data = self.get_node_tree(config['sort_by_popularity'])
+        data = self.get_node_tree(config['sort_tags_by'])
         self.root_item = TagTreeItem()
         for i, r in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
@@ -464,11 +433,11 @@ class TagsModel(QAbstractItemModel): # {{{
 
         # Now get the categories
         if self.search_restriction:
-            data = self.db.get_categories(sort_on_count=sort,
+            data = self.db.get_categories(sort=sort,
                         icon_map=self.category_icon_map,
                         ids=self.db.search('', return_matches=True))
         else:
-            data = self.db.get_categories(sort_on_count=sort, icon_map=self.category_icon_map)
+            data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
 
         tb_categories = self.db.field_metadata
         for category in tb_categories:
@@ -482,7 +451,7 @@ class TagsModel(QAbstractItemModel): # {{{
         return data
 
     def refresh(self):
-        data = self.get_node_tree(config['sort_by_popularity']) # get category data
+        data = self.get_node_tree(config['sort_tags_by']) # get category data
         if data is None:
             return False
         row_index = -1
@@ -691,7 +660,7 @@ class TagBrowserMixin(object): # {{{
     def __init__(self, db):
         self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
         self.tags_view.set_database(self.library_view.model().db,
-                self.tag_match, self.popularity)
+                self.tag_match, self.sort_by)
         self.tags_view.tags_marked.connect(self.search.search_from_tags)
         self.tags_view.tags_marked.connect(self.saved_search.clear_to_help)
         self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
@@ -752,9 +721,13 @@ class TagBrowserWidget(QWidget): # {{{
         parent.tags_view = TagsView(parent)
         self._layout.addWidget(parent.tags_view)
 
-        parent.popularity = QCheckBox(parent)
-        parent.popularity.setText(_('Sort by &popularity'))
-        self._layout.addWidget(parent.popularity)
+        parent.sort_by = QComboBox(parent)
+        # Must be in the same order as db2.CATEGORY_SORTS
+        for x in (_('Sort by name'), _('Sort by popularity'),
+                  _('Sort by average rating')):
+            parent.sort_by.addItem(x)
+        parent.sort_by.setCurrentIndex(0)
+        self._layout.addWidget(parent.sort_by)
 
         parent.tag_match = QComboBox(parent)
         for x in (_('Match any'), _('Match all')):

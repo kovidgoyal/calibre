@@ -1,25 +1,25 @@
-# Albanian translation for calibre
-# Copyright (c) 2009 Kovid Goyal
+# Persian translation for calibre
+# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
 # This file is distributed under the same license as the calibre package.
-# Besnik Bleta <besnik@programeshqip.org>, 2009.
-#Vetëm 10% e vargje të prodhuara nga auto-përkthimi i PoEdit-it janë kontrolluar!
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-11 22:51+0000\n"
-"PO-Revision-Date: 2010-06-11 19:05+0000\n"
-"Last-Translator: Besnik <besnik@programeshqip.org>\n"
-"Language-Team: Albanian <sq@li.org>\n"
+"PO-Revision-Date: 2010-06-13 09:43+0000\n"
+"Last-Translator: m m naseri <m.m.naseri@gmail.com>\n"
+"Language-Team: Persian <fa@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-12 03:40+0000\n"
+"X-Launchpad-Export-Date: 2010-06-14 03:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
-msgstr ""
+msgstr "هیچ کار به خصوصی نمی کند"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:72
@@ -145,27 +145,27 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:50
 msgid "Unknown"
-msgstr ""
+msgstr "نامعلوم"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:64
 msgid "Base"
-msgstr ""
+msgstr "پایه"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:172
 msgid "File type"
-msgstr ""
+msgstr "نوع پرونده"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:206
 msgid "Metadata reader"
-msgstr ""
+msgstr "خواننده ی فراداده"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:235
 msgid "Metadata writer"
-msgstr ""
+msgstr "نویسنده ی فراداده"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:263
 msgid "Catalog generator"
-msgstr ""
+msgstr "مولّد کاتالوگ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:15
 msgid ""
@@ -173,12 +173,17 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
+"تمام پیوند های یک فایل HTML را دنبال می کند و یک فایل ZIP حاوی تمام فایل های "
+"پیوند داده شده تولید می کند. این افزونه هر بار که شما یک فایل HTML را به "
+"کتاب خانه ی خود اضافه می کنید اجرا می شود."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:50
 msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
+"رمزگذاری نویسه ها در فایل های HTML  ورودی. برخی از گزینه های رایج عبارت اند "
+"از: cp1252، latin1، iso-8850-1 و utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:57
 msgid ""
@@ -186,10 +191,13 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
+"یک فایل فشرده ی PMLZ حاوی فایل PML و تمامی تصاویر موجود در پوشه ی "
+"pmlname_img یا images تولید می کند. این افزونه هر بار که شما یک فایل PML به "
+"کتاب خانه ی خود اضافه می کنید اجرا می شود."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:89
 msgid "Extract cover from comic files"
-msgstr ""
+msgstr "استخراج جلد از فایل های کمیک"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:116
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
@@ -210,15 +218,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:296
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:306
 msgid "Read metadata from %s files"
-msgstr ""
+msgstr "خواندن فراداده از فایل های %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:265
 msgid "Read metadata from ebooks in RAR archives"
-msgstr ""
+msgstr "خواندن فراداده از ای بوک های داخل فایل های RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:317
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr ""
+msgstr "خواندن فراداده از ای بوک های داخل فایل های ZIP"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:328
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:338
@@ -227,15 +235,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:381
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:391
 msgid "Set metadata in %s files"
-msgstr ""
+msgstr "تنظیم کردن فراداده در فایل های %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:359
 msgid "Set metadata from %s files"
-msgstr ""
+msgstr "تنظیم کردن فراداده با توجّه به فایل های %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr ""
+msgstr "ورودی تبدیل"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:125
 msgid ""
@@ -244,100 +252,111 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
+"تنظیم رمزگذاری نویسه های سند ورودی. اگر این گزینه انتخاب شود، هر رمزگذاری "
+"دیگری که در خود سند تعریف شده باشد ندیده گرفته می شود. این گزینه به خصوص "
+"برای تنظیم رمزگذاری برای سندهایی که رمزگذاری خود را تعریف نمی کنند (یا آن را "
+"به اشتباه تعریف می کنند) کارآمد است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:241
 msgid "Conversion Output"
-msgstr ""
+msgstr "خروجی تبدیل"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:255
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
+"اگر تنظیم شده باشد، افزونه ی خروجی سعی می کند تا سند خروجی را تا حدّ ممکن به "
+"نوشتار قابل خواندن توسّط انسان نزدیک کند. برای برخی از افزونه های خروجی ممکن "
+"است کار به خصوصی انجام ندهد."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:45
 msgid "Input profile"
-msgstr ""
+msgstr "نمایه ی ورودی"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
 msgstr ""
+"این نمایه به منظور ارائه ی پیش فرض های قابل قبول ایجاد شده است، و به خصوص "
+"زمانی کاربرد دارد که شما هیچ اطّلاعی از سند ورودی ندارید."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:57
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:266
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
+"این نمایه برای سری SONY PRS در نظر گرفته شده است؛ یعنی مدل های "
+"500/505/600/700 و غیر از آن."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:69
 msgid "This profile is intended for the SONY PRS 300."
-msgstr ""
+msgstr "این نمایه برای مدل های SONY PRS 300 در نظر گرفته شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:78
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:300
 msgid "This profile is intended for the SONY PRS-900."
-msgstr ""
+msgstr "این نمایه برای SONY PRS-900 در نظر گرفته شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:86
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:330
 msgid "This profile is intended for the Microsoft Reader."
-msgstr ""
+msgstr "این نمایه برای Microsoft Reader در نظر گرفته شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:97
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:341
 msgid "This profile is intended for the Mobipocket books."
-msgstr ""
+msgstr "این نمایه برای کتاب های Mobipocket در نظر گرفته شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:110
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:354
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr ""
+msgstr "این نمایه برای Hanlin V3 و مشابه آن در نظر گرفته شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:122
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:366
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr ""
+msgstr "این نمایه برای Hanlin V5 و مشابه آن در نظر گرفته شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:132
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:374
 msgid "This profile is intended for the Cybook G3."
-msgstr ""
+msgstr "این نمایه برای Cybook G3 در نظر گرفته شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:145
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:387
 msgid "This profile is intended for the Cybook Opus."
-msgstr ""
+msgstr "این نمایه برای Cybook Opus  در نظر گرفته شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:157
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:398
 msgid "This profile is intended for the Amazon Kindle."
-msgstr ""
+msgstr "این نمایه برای Amazon Kindle  در نظر گرفته شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:169
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:433
 msgid "This profile is intended for the Irex Illiad."
-msgstr ""
+msgstr "این نمایه برای Irex Illiad  در نظر گرفته شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:181
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:446
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr ""
+msgstr "این نمایه برای IRex Digital Reader 1000  در نظر گرفته شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:194
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:460
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr ""
+msgstr "این نمایه برای IRex Digital Reader 800  در نظر گرفته شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:206
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:474
 msgid "This profile is intended for the B&N Nook."
-msgstr ""
+msgstr "این نمایه برای B&N Nook  در نظر گرفته شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:226
 msgid "Output profile"
-msgstr ""
+msgstr "نمایه ی خروجی"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:230
 msgid ""
@@ -345,15 +364,17 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
+"این نمایه به منظور ارائه ی پیش فرض های قابل قبول برای سند هایی که با هدف "
+"خواندن توسّط رایانه یا دست گاه های گوناگون دیگر تولید می شوند، ایجاد شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:254
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr ""
+msgstr "برای کار با iPad و یا دست گاه های مشابه با بزرگ نمایی ۷۶۸×۱۰۲۴"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:279
 msgid "This profile is intended for the Kobo Reader."
-msgstr ""
+msgstr "این نمایه برای Kobo Reader  در نظر گرفته شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:291
 msgid "This profile is intended for the SONY PRS-300."
@@ -728,11 +749,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1399
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:120
 msgid "News"
-msgstr "Lajme"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:12
 msgid "Configure Device"
-msgstr "Formësoni Pajisjen"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:32
 msgid "Place files in sub directories if the device supports them"
@@ -750,7 +771,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:80
 msgid "Extra customization"
-msgstr "Përshtatje Ekstra"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:37
 msgid "Communicate with an eBook reader."
@@ -758,7 +779,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:53
 msgid "Get device information..."
-msgstr "Merr të dhëna paisjeje..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:64
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:67
@@ -963,7 +984,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:452
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:463
 msgid "Page"
-msgstr "Faqe"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:19
 msgid ""
@@ -1299,7 +1320,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
 msgid "Set the title."
-msgstr "Caktoni titullin"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:432
 msgid "Set the authors. Multiple authors should be separated by ampersands."
@@ -1708,7 +1729,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:848
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:536
 msgid "Title"
-msgstr "Titull"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:373
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:62
@@ -1716,13 +1737,13 @@ msgstr "Titull"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:350
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:849
 msgid "Author(s)"
-msgstr "Autor(ë)"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:374
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:62
 msgid "Publisher"
-msgstr "Botues"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:375
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:49
@@ -1738,7 +1759,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:146
 msgid "Comments"
-msgstr "Komente"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:384
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:46
@@ -1748,7 +1769,7 @@ msgstr "Komente"
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:103
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:130
 msgid "Tags"
-msgstr "Etiketa"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:386
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:46
@@ -1758,26 +1779,26 @@ msgstr "Etiketa"
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:102
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:82
 msgid "Series"
-msgstr "Seri"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:387
 msgid "Language"
-msgstr "Gjuhë"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:389
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1022
 msgid "Timestamp"
-msgstr "Vulë kohore"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:391
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:60
 msgid "Published"
-msgstr "Botuar"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:393
 msgid "Rights"
-msgstr "Të drejta"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:85
 msgid "EDITORIAL REVIEW"
@@ -1791,7 +1812,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:20
 msgid "options"
-msgstr "mundësi"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:21
 msgid ""
@@ -1892,15 +1913,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:110
 msgid "tags"
-msgstr "etiketa"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:111
 msgid "description/reviews"
-msgstr "përshkrime/recensione"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:112
 msgid "Download %s from %s"
-msgstr "Shkarkoje %s prej %s"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:136
 msgid "Downloads metadata from Google Books"
@@ -1979,7 +2000,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1220
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1371
 msgid "Cover"
-msgstr "Kapak"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -2010,7 +2031,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:108
 msgid "All articles"
-msgstr "Krejt artikujt"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:258
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -2018,18 +2039,18 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1372
 msgid "Title Page"
-msgstr "Faqe Titulli"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1373
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:194
 msgid "Table of Contents"
-msgstr "Tryeza e Lëndës"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1374
 msgid "Index"
-msgstr "Tregues"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1375
 msgid "Glossary"
@@ -2041,7 +2062,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1377
 msgid "Bibliography"
-msgstr "Bibliografi"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1378
 msgid "Colophon"
@@ -2049,7 +2070,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1379
 msgid "Copyright"
-msgstr "Të drejta kopjimi"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1380
 msgid "Dedication"
@@ -2065,15 +2086,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1383
 msgid "List of Illustrations"
-msgstr "Listë e ilustrimeve"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1384
 msgid "List of Tables"
-msgstr "Listë Tabelash"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1385
 msgid "Notes"
-msgstr "Shënime"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1386
 msgid "Preface"
@@ -2081,7 +2102,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1387
 msgid "Main Text"
-msgstr "Teksti Kryesor"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:41
 msgid "%s format books are not supported"
@@ -2093,7 +2114,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:113
 msgid "Book Jacket"
-msgstr "Mbështjellëse Libri"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/split.py:34
 msgid ""
@@ -2115,11 +2136,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:128
 msgid "Footnotes"
-msgstr "Poshtëshënime"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:135
 msgid "Sidebar"
-msgstr "Anështyllë"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:22
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:23
@@ -2577,7 +2598,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:255
 msgid "Path error"
-msgstr "Gabim shtegu"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:256
 msgid "The specified directory could not be processed."
@@ -3048,7 +3069,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:54
 msgid " KB"
-msgstr " KB"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
@@ -3116,7 +3137,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:127
 msgid " pt"
-msgstr " pt"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:107
 msgid "Use &default values"
@@ -3195,7 +3216,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:132
 msgid " em"
-msgstr " em"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:133
 msgid "Text justification:"
@@ -3277,7 +3298,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:195
 msgid "Metadata"
-msgstr "Tejtëdhëna"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:43
 msgid ""
@@ -3288,7 +3309,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:101
 msgid "Choose cover for "
-msgstr "Zgjidhni kapak për "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:168
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:108
@@ -3298,13 +3319,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:169
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:109
 msgid "You do not have permission to read the file: "
-msgstr "Nuk keni leje të lexoni kartelën: "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:117
 msgid "Error reading file"
-msgstr "Gabim në leximin e kartelës"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:118
@@ -3319,7 +3340,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:405
 msgid "Book Cover"
-msgstr "Kapak Libri"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:168
 msgid "Use cover from &source file"
@@ -3338,7 +3359,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:366
 msgid "&Title: "
-msgstr "&Titull: "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:367
@@ -3365,7 +3386,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:379
 msgid "&Publisher: "
-msgstr "&Botues: "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:380
@@ -3398,7 +3419,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:391
 msgid "Book "
-msgstr "Libër "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:20
 msgid "MOBI Output"
@@ -3760,7 +3781,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:69
 msgid "*"
-msgstr "*"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:70
 msgid "a"
@@ -3768,15 +3789,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:71
 msgid "br"
-msgstr "br"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:72
 msgid "div"
-msgstr "div"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:73
 msgid "h1"
-msgstr "h1"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:74
 msgid "h2"
@@ -3800,11 +3821,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:79
 msgid "hr"
-msgstr "hr"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:80
 msgid "span"
-msgstr "span"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:81
 msgid "Having the &attribute:"
@@ -3994,7 +4015,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:622
 msgid "No device"
-msgstr "Pa pajisje"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:623
 msgid "Cannot send: No device is connected"
@@ -4012,7 +4033,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:672
 msgid "E-book:"
-msgstr "E-libër:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:675
 msgid "Attached, you will find the e-book"
@@ -4063,7 +4084,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:778
 msgid "News:"
-msgstr "Lajme:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:779
 msgid "Attached is the"
@@ -4125,7 +4146,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1020
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:99
 msgid "Path"
-msgstr "Shteg"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:117
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:118
@@ -4136,7 +4157,7 @@ msgstr "Shteg"
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:100
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:91
 msgid "Formats"
-msgstr "Formate"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:68
 msgid "Fit &cover to view"
@@ -4144,11 +4165,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:69
 msgid "&Previous"
-msgstr "&E mëparshmja"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:70
 msgid "&Next"
-msgstr "&Pasuesja"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:38
 msgid "My Books"
@@ -4182,7 +4203,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:40
 msgid "Choose Format"
-msgstr "Zgjidhni Format"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:33
 msgid "Set defaults for conversion of comics (CBR/CBZ files)"
@@ -4194,15 +4215,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:92
 msgid "&Title:"
-msgstr "&Titull:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:93
 msgid "&Author(s):"
-msgstr "&Autor(ë):"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:95
 msgid "&Profile:"
-msgstr "&Profil:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog_ui.py:41
 msgid "Edit Comments"
@@ -4214,7 +4235,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:174
 msgid "plugins"
-msgstr "shtojca"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:183
 msgid ""
@@ -4224,15 +4245,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:199
 msgid "Conversion"
-msgstr "Shndërrim"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:199
 msgid "General"
-msgstr "Të përgjithshme"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:199
 msgid "Interface"
-msgstr "Ndërfaqe"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:200
 msgid "Add/Save"
@@ -4256,7 +4277,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:201
 msgid "Plugins"
-msgstr "Shtojca"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:219
 msgid "Auto send"
@@ -4264,7 +4285,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:219
 msgid "Email"
-msgstr "Email"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:224
 msgid "Formats to email. The first matching format will be sent."
@@ -4297,7 +4318,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1144
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:53
 msgid "Error"
-msgstr "Gabim"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:511
 msgid "Failed to install command line tools."
@@ -4326,7 +4347,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:571
 msgid "Choose plugin"
-msgstr "Zgjidhni shtojcë"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:583
 msgid "Plugin cannot be disabled"
@@ -4346,7 +4367,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:602
 msgid "Customize"
-msgstr "Personalizojeni"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:640
 msgid "Cannot remove builtin plugin"
@@ -4375,7 +4396,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:746
 msgid "Error log:"
-msgstr "Regjistrim gabimesh:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:753
 msgid "Access log:"
@@ -4393,7 +4414,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:812
 msgid "Invalid size"
-msgstr "Madhësi e pavlefshme"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:813
 msgid "The size %s is invalid. must be of the form widthxheight"
@@ -4589,7 +4610,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:545
 msgid " seconds"
-msgstr " sekonda"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:546
 msgid "Choose &language (requires restart):"
@@ -4657,7 +4678,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:564
 msgid "Toolbar"
-msgstr "Panel"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:565
 msgid "Large"
@@ -5050,11 +5071,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/save_template.py:44
 msgid "Invalid template"
-msgstr "Gjedhe e  pavlefshme"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/save_template.py:45
 msgid "The template %s is invalid:"
-msgstr "Gjedhja %s është e pavlefshme:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/save_template_ui.py:42
 msgid "Save &template"
@@ -5083,7 +5104,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/conversion_error_ui.py:42
 msgid "ERROR"
-msgstr "GABIM"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:63
 msgid "Author Sort"
@@ -5107,7 +5128,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:189
 msgid "Warning"
-msgstr "Sinjalizim"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:190
 msgid "Could not fetch metadata from:"
@@ -5221,7 +5242,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:378
 msgid " stars"
-msgstr " yje"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:168
 msgid "Add ta&gs: "
@@ -5232,7 +5253,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:382
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:383
 msgid "Open Tag Editor"
-msgstr "Hap Përpunuesin e Etiketave"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:172
 msgid "&Remove tags:"
@@ -5294,7 +5315,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:876
 msgid "Books"
-msgstr "Libra"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:167
 msgid "No permission"
@@ -5360,7 +5381,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:562
 msgid "The download timed out."
-msgstr "Shkarkimit i mbaroi koha."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:566
 msgid "Could not find cover for this book. Try specifying the ISBN first."
@@ -5368,15 +5389,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:578
 msgid "Bad cover"
-msgstr "Kapak i Prishur"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:579
 msgid "The cover is not a valid picture"
-msgstr "Kapaku s'është pamje e vlefshme"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:612
 msgid "There were errors"
-msgstr "Pati gabime"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:613
 msgid "There were errors downloading social metadata"
@@ -5392,7 +5413,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:714
 msgid "Permission denied"
-msgstr "Leje e mohuar"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:715
 msgid "Could not open %s. Is it being used by another program?"
@@ -5425,7 +5446,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:389
 msgid "IS&BN:"
-msgstr "IS&BN:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:390
 msgid "Publishe&d:"
@@ -5433,11 +5454,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:393
 msgid "dd MMM yyyy"
-msgstr "dd MMM yyyy"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:394
 msgid "&Date:"
-msgstr "&Datë:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:395
 msgid "&Comments"
@@ -5477,7 +5498,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:56
 msgid "Password needed"
-msgstr "Lypset fjalëkalim"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:52
 msgid "Aborting..."
@@ -5526,7 +5547,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:171
 msgid "Created by: "
-msgstr "Krijuar prej: "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:178
 msgid "Last downloaded: never"
@@ -5585,39 +5606,39 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:198
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:208
 msgid "Every "
-msgstr "Çdo "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:199
 msgid "day"
-msgstr "ditë"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:200
 msgid "Monday"
-msgstr "të Hënë"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:201
 msgid "Tuesday"
-msgstr "të Martë"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:202
 msgid "Wednesday"
-msgstr "të Mërkurë"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:203
 msgid "Thursday"
-msgstr "të Enjte"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
 msgid "Friday"
-msgstr "të Premte"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:205
 msgid "Saturday"
-msgstr "të Shtunë"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
 msgid "Sunday"
-msgstr "të Dielë"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid "at"
@@ -5633,11 +5654,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:222
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid " days"
-msgstr " ditë"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
 msgid "&Account"
-msgstr "&Llogari"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:215
 msgid "For the scheduling to work, you must leave calibre running."
@@ -5675,7 +5696,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:36
 msgid "contains"
-msgstr "përmban"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:37
 msgid "The text to search for. It is interpreted as a regular expression."
@@ -5738,7 +5759,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:124
 msgid " "
-msgstr " "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:125
 msgid ""
@@ -5748,17 +5769,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:45
 msgid "Choose formats"
-msgstr "Zgjidhni formate"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:46
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:72
 msgid "Authors"
-msgstr "Autorë"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:46
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:101
 msgid "Publishers"
-msgstr "Botuesa"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:110
 msgid " (not on any book)"
@@ -5820,7 +5841,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:93
 msgid "Are your sure?"
-msgstr "Jeni i sigurt?"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:69
 msgid ""
@@ -5830,7 +5851,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:123
 msgid "Tag Editor"
-msgstr "Përpunues Etiketash"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:124
 msgid "A&vailable tags"
@@ -5844,7 +5865,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:127
 msgid "Apply tag to current book"
-msgstr "Zbatoje etiketën te libri i tanishëm"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:129
 msgid "A&pplied tags"
@@ -6155,7 +6176,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:118
 msgid "Title:"
-msgstr "Titull:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:119
 msgid "Regular expression (?P&lt;title&gt;)"
@@ -6176,7 +6197,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:121
 msgid "Authors:"
-msgstr "Autorë:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:122
 msgid "Regular expression (?P<author>)"
@@ -6265,7 +6286,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:283
 msgid "Save to disk"
-msgstr "Ruaje në disk"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:100
 msgid "Save to disk in a single directory"
@@ -6284,7 +6305,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:289
 msgid "View"
-msgstr "Shfaqje"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:116
 msgid "View specific format"
@@ -6348,11 +6369,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:61
 msgid "Status"
-msgstr "Gjendje"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:62
 msgid "Progress"
-msgstr "Përparim"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:63
 msgid "Running time"
@@ -6419,7 +6440,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:61
 msgid "Rating"
-msgstr "Vlerësim"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:294
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:300
@@ -6431,7 +6452,7 @@ msgstr "Vlerësim"
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:78
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:416
 msgid "None"
-msgstr "Asnjë"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:311
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1039
@@ -6460,7 +6481,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1019
 msgid "Format"
-msgstr "Format"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1079
 msgid "Marked for deletion"
@@ -6547,7 +6568,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:440
 msgid "No matches found"
-msgstr "Nuk u gjetën përputhje"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:128
 msgid "LRF Viewer"
@@ -6564,26 +6585,26 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:476
 msgid "Next Page"
-msgstr "Faqja Pasuese"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:477
 msgid "Previous Page"
-msgstr "Faqja e Mëparshme"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:188
 msgid "Back"
-msgstr "Mbrapsht"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:189
 msgid "Forward"
-msgstr "Përpara"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:135
 msgid "Next match"
-msgstr "Përputhja pasuese"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:196
@@ -6592,11 +6613,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:137
 msgid "Configure"
-msgstr "Formësoni"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:30
 msgid "Use the library located at the specified path."
-msgstr "Përdor biblioteknë e treguar te shtegu i dhënë."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:32
 msgid "Start minimized to system tray."
@@ -6608,7 +6629,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:36
 msgid "Do not check for updates"
-msgstr "Mos kontrollo për përditësime"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:595
@@ -6730,15 +6751,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:258
 msgid "Advanced search"
-msgstr "Kërkim i thelluar"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:260
 msgid "Alt+S"
-msgstr "Alt+S"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:261
 msgid "&Search:"
-msgstr "&Kërko:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:262
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:263
@@ -6769,28 +6790,28 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:273
 msgid "Add books"
-msgstr "Shtoni libra"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:274
 msgid "A"
-msgstr "S"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:275
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:276
 msgid "Remove books"
-msgstr "Hiqni libra"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:277
 msgid "Del"
-msgstr "Del"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:278
 msgid "Edit meta information"
-msgstr "Përpunoni të dhëna meta"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:279
 msgid "E"
-msgstr "P"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:280
 msgid "Merge book records"
@@ -6802,63 +6823,63 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:282
 msgid "Send to device"
-msgstr "Dërgoje te pajisja"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:284
 msgid "S"
-msgstr "R"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:285
 msgid "Fetch news"
-msgstr "Bjer lajme"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:286
 msgid "F"
-msgstr "B"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:287
 msgid "Convert E-books"
-msgstr "Shndërro E-libra"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:288
 msgid "C"
-msgstr "N"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:290
 msgid "V"
-msgstr "q"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:291
 msgid "Open containing folder"
-msgstr "Hap dosjen mëmë"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:292
 msgid "Show book details"
-msgstr "Shfaq hollësi libri"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:293
 msgid "Books by same author"
-msgstr "Libra nga po ai autor"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:294
 msgid "Books in this series"
-msgstr "Libra në këtë seri"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:295
 msgid "Books by this publisher"
-msgstr "Libra nga ky botues"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:296
 msgid "Books with the same tags"
-msgstr "Libra me të njëjtat etiketa"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:298
 msgid "Configure calibre"
-msgstr "Formësoni calibre-in"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:299
 msgid "Ctrl+P"
-msgstr "Ctrl+P"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:20
 msgid ""
@@ -6868,11 +6889,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:61
 msgid "&Preferences"
-msgstr "&Parapëlqime"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:62
 msgid "&Quit"
-msgstr "&Mbylle"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:90
 msgid "ERROR: Unhandled exception"
@@ -6930,12 +6951,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:223
 msgid " or "
-msgstr " ose "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:69
 msgid "&Default"
-msgstr "&Parazgjedhje"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:135
 msgid "Customize shortcuts for"
@@ -6951,7 +6972,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:68
 msgid "Frame"
-msgstr "Kornizë"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:70
 msgid "&Custom"
@@ -7110,7 +7131,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:485
 msgid "Device: "
-msgstr "Pajisje: "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:487
 msgid " detected."
