@@ -411,6 +411,34 @@ class AddAction(object): # {{{
         if hasattr(self._adder, 'cleanup'):
             self._adder.cleanup()
         self._adder = None
+
+    def _add_from_device_adder(self, paths=[], names=[], infos=[],
+                               on_card=None, model=None):
+        self._files_added(paths, names, infos, on_card=on_card)
+        # set the in-library flags, and as a consequence send the library's
+        # metadata for this book to the device. This sets the uuid to the
+        # correct value.
+        self.set_books_in_library(booklists=[model.db], reset=True)
+        model.reset()
+
+    def add_books_from_device(self, view):
+        rows = view.selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            d = error_dialog(self, _('Add to library'), _('No book selected'))
+            d.exec_()
+            return
+        paths = [p for p in view._model.paths(rows) if p is not None]
+        if not paths or len(paths) == 0:
+            d = error_dialog(self, _('Add to library'), _('No book files found'))
+            d.exec_()
+            return
+        from calibre.gui2.add import Adder
+        self.__adder_func = partial(self._add_from_device_adder, on_card=None,
+                                                    model=view._model)
+        self._adder = Adder(self, self.library_view.model().db,
+                Dispatcher(self.__adder_func), spare_server=self.spare_server)
+        self._adder.add(paths)
+
     # }}}
 
 class DeleteAction(object): # {{{
