@@ -93,6 +93,8 @@ class CoverView(QWidget): # {{{
         self._current_pixmap_size = val
 
     def do_layout(self):
+        if self.rect().width() == 0 or self.rect().height() == 0:
+            return
         pixmap = self.pixmap
         pwidth, pheight = pixmap.width(), pixmap.height()
         self.pwidth, self.pheight = fit_image(pwidth, pheight,
