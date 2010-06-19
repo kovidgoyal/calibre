@@ -22,7 +22,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and Kovid Goyal'
-    version = (1, 0, 1)
+    version = (1, 0, 2)
 
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -75,34 +75,35 @@ class KOBO(USBMS):
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
-        def update_booklist(mountpath, filename, title, authors, mime, date, ContentType, ImageID):
+        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID):
             changed = False
-            # if path_to_ext(filename) in self.FORMATS:
+            # if path_to_ext(path) in self.FORMATS:
             try:
-                # lpath = os.path.join(path, filename).partition(self.normalize_path(prefix))[2]
-                # if lpath.startswith(os.sep):
-                #                      lpath = lpath[len(os.sep):]
-                #                   lpath = lpath.replace('\\', '/')
-                # print "Filename: " + filename
-                filename = self.normalize_path(filename)
-                # print "Normalized FileName: " + filename
+                lpath = path.partition(self.normalize_path(prefix))[2]
+                if lpath.startswith(os.sep):
+                    lpath = lpath[len(os.sep):]
+                    lpath = lpath.replace('\\', '/')
+#                print "LPATH: " + lpath
 
-                idx = bl_cache.get(filename, None)
+                path = self.normalize_path(path)
+                # print "Normalized FileName: " + path
+
+                idx = bl_cache.get(lpath, None)
                 if idx is not None:
-                    imagename = self.normalize_path(mountpath + '.kobo/images/' + ImageID + ' - iPhoneThumbnail.parsed')
+                    imagename = self.normalize_path(prefix + '.kobo/images/' + ImageID + ' - iPhoneThumbnail.parsed')
                     #print "Image name Normalized: " + imagename
                     bl[idx].thumbnail = ImageWrapper(imagename)
-                    bl_cache[filename] = None
+                    bl_cache[lpath] = None
                     if ContentType != '6':
                         if self.update_metadata_item(bl[idx]):
                             # print 'update_metadata_item returned true'
                             changed = True
                 else:
-                    book = Book(mountpath, filename, title, authors, mime, date, ContentType, ImageID)
+                    book = Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
                     # print 'Update booklist'
                     if bl.add_book(book, replace_metadata=False):
                         changed = True
-            except: # Probably a filename encoding error
+            except: # Probably a path encoding error
                 import traceback
                 traceback.print_exc()
             return changed
@@ -129,7 +130,7 @@ class KOBO(USBMS):
             mime = mime_type_ext(path_to_ext(row[3]))
 
             if oncard != 'carda' and oncard != 'cardb':
-                # print "shortbook: " + filename
+                # print "shortbook: " + path
                 changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6])
             elif oncard == 'carda':
                 changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6])
@@ -334,7 +335,10 @@ class KOBO(USBMS):
 
         if oncard != 'carda' and oncard != 'cardb':
             if ContentType == "6":
-                path = path + '.kobo'
+                # This is a hack as the kobo files do not exist
+                # but the path is required to make a unique id 
+                # for calibre's reference
+                path = self._main_prefix + os.sep + path + '.kobo'
             else:
                 if path.startswith("file:///mnt/onboard/"):
                     path = path.replace("file:///mnt/onboard/", self._main_prefix)

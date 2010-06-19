@@ -24,10 +24,17 @@ class Book(MetaInformation):
         'uuid',
     ]
 
-    def __init__(self, mountpath, path, title, authors, mime, date, ContentType, thumbnail_name, other=None):
+    def __init__(self, prefix, lpath, title, authors, mime, date, ContentType, thumbnail_name, other=None):
 
         MetaInformation.__init__(self, '')
         self.device_collections = []
+
+        self.path = os.path.join(prefix, lpath)
+        if os.sep == '\\':
+            self.path = self.path.replace('/', '\\')
+            self.lpath = lpath.replace('\\', '/')
+        else:
+             self.lpath = lpath
 
         self.title = title
         if not authors:
@@ -35,21 +42,19 @@ class Book(MetaInformation):
         else:
             self.authors = [authors]
         self.mime = mime
-        self.path = path
         try:
-            self.size = os.path.getsize(path)
+            self.size = os.path.getsize(self.path)
         except OSError:
             self.size = 0
         try:
             if ContentType == '6':
                 self.datetime = time.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
             else:
-                self.datetime = time.gmtime(os.path.getctime(path))
+                self.datetime = time.gmtime(os.path.getctime(self.path))
         except ValueError:
              self.datetime = time.gmtime()
         except OSError:
              self.datetime = time.gmtime()
-        self.lpath = path
 
         self.thumbnail = ImageWrapper(thumbnail_name)
         self.tags = []
