@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-06-18 17:57+0000\n"
-"PO-Revision-Date: 2010-06-18 17:02+0000\n"
+"POT-Creation-Date: 2010-06-20 00:56+0000\n"
+"PO-Revision-Date: 2010-06-20 00:48+0000\n"
 "Last-Translator: Thruth Wang <wanglihao@gmail.com>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-19 03:50+0000\n"
+"X-Launchpad-Export-Date: 2010-06-20 03:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -458,55 +458,55 @@ msgstr "逗号间隔的电子书发送到设备的目录列表。将使用第一
 msgid "Communicate with S60 phones."
 msgstr "与 S60 手机通信。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:78
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:77
 msgid "Communicate with iBooks through iTunes."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:84
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:83
 msgid "Apple device detected, launching iTunes, please wait ..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:227
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:230
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:226
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:229
 msgid "Updating device metadata listing..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:301
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:338
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:842
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:876
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:300
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:337
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:841
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:875
 msgid "%d of %d"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:345
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:881
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:344
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:880
 msgid "finished"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:519
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:518
 msgid ""
 "Some books not found in iTunes database.\n"
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:742
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:741
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:28
 msgid "settings for device drivers"
 msgstr "设备磁盘盘符设置"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:744
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:743
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:30
 msgid "Ordered list of formats the device will accept"
 msgstr "设备支持的格式列表"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:813
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:812
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2168
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2178
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:810
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:816
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:844
@@ -1495,7 +1495,7 @@ msgstr "正常情况下，如果输入文件没有封面，您也未指定，会
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
 "Do not use SVG for the book cover. Use this option if your EPUB is going to "
-"be used ona  device that does not support SVG, like the iPhone or the "
+"be used on a device that does not support SVG, like the iPhone or the "
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
@@ -1816,10 +1816,10 @@ msgstr "出品人"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:385
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:34
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:201
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:202
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:207
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:209
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:214
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:67
@@ -3332,7 +3332,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:22
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:53
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:116
@@ -3377,7 +3377,7 @@ msgstr ""
 msgid "None"
 msgstr "无"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:301
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:308
 msgid "Click to open Book Details window"
 msgstr ""
 

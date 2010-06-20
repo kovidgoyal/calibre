@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-06-18 17:57+0000\n"
-"PO-Revision-Date: 2010-06-18 16:48+0000\n"
+"POT-Creation-Date: 2010-06-20 00:56+0000\n"
+"PO-Revision-Date: 2010-06-20 00:27+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-19 03:50+0000\n"
+"X-Launchpad-Export-Date: 2010-06-20 03:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -432,9 +432,9 @@ msgid ""
 "    Customize calibre by loading external plugins.\n"
 "    "
 msgstr ""
-"    opções %prog/\n"
+"    opções %prog\n"
 "\n"
-"         customiza o calibre usando plugins externos\n"
+"     customiza o calibre usando plugins externos\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:499
@@ -484,32 +484,32 @@ msgstr ""
 msgid "Communicate with S60 phones."
 msgstr "Comunica-se com os telefones S60."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:78
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:77
 msgid "Communicate with iBooks through iTunes."
 msgstr "Comunica-se com iBooks através do iTunes."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:84
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:83
 msgid "Apple device detected, launching iTunes, please wait ..."
 msgstr "Dispositivo Apple detectado, iniciando iTunes, aguarde por favor..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:227
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:230
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:226
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:229
 msgid "Updating device metadata listing..."
 msgstr "Atualizando a listagem de metadados do dispositivo..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:301
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:338
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:842
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:876
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:300
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:337
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:841
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:875
 msgid "%d of %d"
 msgstr "%d de %d"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:345
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:881
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:344
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:880
 msgid "finished"
 msgstr "concluído"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:519
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:518
 msgid ""
 "Some books not found in iTunes database.\n"
 "Delete using the iBooks app.\n"
@@ -519,17 +519,17 @@ msgstr ""
 "Remova usando a aplicação iBooks.\n"
 "Clique 'Mostrar Detalhes' para a lista."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:742
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:741
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:28
 msgid "settings for device drivers"
 msgstr "ajustes para unidades de dispositivos"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:744
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:743
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:30
 msgid "Ordered list of formats the device will accept"
 msgstr "Lista ordenada de formatos que serão aceitos pelo dispositivo"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:813
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:812
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
@@ -537,7 +537,7 @@ msgstr ""
 "Algumas capas não puderam ser convertidas.\n"
 "Clique em 'Mostrar Detalhes' para a listagem."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2168
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2178
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:810
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:816
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:844
@@ -1669,13 +1669,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
 "Do not use SVG for the book cover. Use this option if your EPUB is going to "
-"be used ona  device that does not support SVG, like the iPhone or the "
+"be used on a device that does not support SVG, like the iPhone or the "
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
-"Não use SVG para a capa do livro. Use esta opção se seu EPUB irá ser usado "
-"em um dispositivo que não suporta SVG, como o iPhone ou o JetBook Lite. Sem "
-"esta opção, os dispositivos irão mostrar a capa como uma página em branco."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
@@ -2020,10 +2017,10 @@ msgstr "Produtor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:385
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:34
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:201
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:202
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:207
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:209
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:214
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:67
@@ -2173,7 +2170,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:88
 msgid "Set the BookID in LRF files"
-msgstr ""
+msgstr "Altere o BookID nos arquivos LRF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:153
 msgid "No file specified"
@@ -2874,6 +2871,8 @@ msgid ""
 "Show the cover flow in a separate window instead of in the main calibre "
 "window"
 msgstr ""
+"Mostra o cover flow em uma janela independente e não na janela principal do "
+"calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:69
 msgid "Disable notifications from the system tray icon"
@@ -3527,7 +3526,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:22
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:53
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:116
@@ -3572,7 +3571,7 @@ msgstr ""
 msgid "None"
 msgstr "Nenhum"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:301
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:308
 msgid "Click to open Book Details window"
 msgstr ""
 
@@ -7088,7 +7087,7 @@ msgstr "Série:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:125
 msgid "Regular expression (?P<series>)"
-msgstr ""
+msgstr "Expressão regular (?P<series>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:127
 msgid "Series index:"
@@ -7096,7 +7095,7 @@ msgstr "Índice da série:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:128
 msgid "Regular expression (?P<series_index>)"
-msgstr ""
+msgstr "Expressão regular (?P<series_index>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:130
 msgid "ISBN:"
@@ -7918,23 +7917,23 @@ msgstr "O nome da pesquisa salva %s já está sendo usado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:726
 msgid "Sort by name"
-msgstr ""
+msgstr "Ordenar pelo nome"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:726
 msgid "Sort by popularity"
-msgstr ""
+msgstr "Ordenar pela polularidade"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:727
 msgid "Sort by average rating"
-msgstr ""
+msgstr "Ordernar pela média de avaliações"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:733
 msgid "Match all"
-msgstr "Corresponder todos"
+msgstr "Todos os critérios"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:733
 msgid "Match any"
-msgstr "Corresponder algum"
+msgstr "Qualquer critério"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:738
 msgid "Manage &user categories"
@@ -7999,7 +7998,7 @@ msgstr "&Reiniciar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:206
 msgid "<p>For help see the: <a href=\"%s\">User Manual</a><br>"
-msgstr ""
+msgstr "<p>Para ajuda veja o: <a href=\"%s\">Manual do Usuário</a><br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:212
 msgid "<b>%s</b>: %s by <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
@@ -8413,7 +8412,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:299
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
-msgstr ""
+msgstr "Conectando em dict.org para procurar: <b>%s</b>&hellip;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:398
 msgid "Choose ebook"
@@ -9954,6 +9953,8 @@ msgid ""
 "Useful for recipe development. Forces max_articles_per_feed to 2 and "
 "downloads at most 2 feeds."
 msgstr ""
+"Útil no desenvolvimento de receita. Forçar max_articles_per_feed para 2 e "
+"baixar no máximo 2 feeds."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:39
 msgid "Username for sites that require a login to access content."
@@ -10023,7 +10024,7 @@ msgstr "Iniciando o download [%d tarefa(s)]"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:959
 msgid "Feeds downloaded to %s"
-msgstr ""
+msgstr "Feeds descarregados para %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:969
 msgid "Could not download cover: %s"
@@ -10126,6 +10127,8 @@ msgid ""
 "Minimum interval in seconds between consecutive fetches. Default is %default "
 "s"
 msgstr ""
+"Intervalo mínimo, em segundos, entre downloads consecutivos. O padrão é de "
+"%default s"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid ""
@@ -10293,6 +10296,16 @@ msgstr "Não baixar folhas de estilo CSS."
 #~ "Não força o texto a estar justificado na saída. Se o texto já é exibido "
 #~ "justificado ou não depende de suporte a texto justificado no formato do "
 #~ "ebook e do dispositivo de leitura."
+
+#~ msgid ""
+#~ "Do not use SVG for the book cover. Use this option if your EPUB is going to "
+#~ "be used ona  device that does not support SVG, like the iPhone or the "
+#~ "JetBook Lite. Without this option, such devices will display the cover as a "
+#~ "blank page."
+#~ msgstr ""
+#~ "Não use SVG para a capa do livro. Use esta opção se seu EPUB irá ser usado "
+#~ "em um dispositivo que não suporta SVG, como o iPhone ou o JetBook Lite. Sem "
+#~ "esta opção, os dispositivos irão mostrar a capa como uma página em branco."
 
 #~ msgid "Sort by &popularity"
 #~ msgstr "Classificar por &popularidade"

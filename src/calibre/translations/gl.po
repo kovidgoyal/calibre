@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-06-18 17:57+0000\n"
-"PO-Revision-Date: 2010-06-18 17:25+0000\n"
+"POT-Creation-Date: 2010-06-20 00:56+0000\n"
+"PO-Revision-Date: 2010-06-20 00:46+0000\n"
 "Last-Translator: Imendez <ivan.mendez.lopez@gmail.com>\n"
 "Language-Team: Galician <gl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-19 03:48+0000\n"
+"X-Launchpad-Export-Date: 2010-06-20 03:32+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -485,50 +485,50 @@ msgstr ""
 msgid "Communicate with S60 phones."
 msgstr "Comunicar con teléfonos S60"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:78
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:77
 msgid "Communicate with iBooks through iTunes."
 msgstr "Comunicar con iBooks a través do iTunes."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:84
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:83
 msgid "Apple device detected, launching iTunes, please wait ..."
 msgstr ""
 "Detectouse un dispositivo de Apple. Estase a iniciar o iTunes, agarde..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:227
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:230
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:226
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:229
 msgid "Updating device metadata listing..."
 msgstr "Actualizando a relación de metadatos..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:301
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:338
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:842
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:876
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:300
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:337
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:841
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:875
 msgid "%d of %d"
 msgstr "%d de %d"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:345
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:881
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:344
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:880
 msgid "finished"
 msgstr "ramtouse"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:519
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:518
 msgid ""
 "Some books not found in iTunes database.\n"
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr "Algúns libros non se acharon na base de datos do iTunes-"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:742
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:741
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:28
 msgid "settings for device drivers"
 msgstr "Configuración para os controladores de dispositivo"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:744
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:743
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:30
 msgid "Ordered list of formats the device will accept"
 msgstr "Lista ordenada de formatos que o dispositivo aceptará"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:813
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:812
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
@@ -536,7 +536,7 @@ msgstr ""
 "Algunhas portadas non se converteron. \n"
 "Prema \"Amosar detalles\" para relacionalas."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2168
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2178
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:810
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:816
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:844
@@ -1659,7 +1659,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
 "Do not use SVG for the book cover. Use this option if your EPUB is going to "
-"be used ona  device that does not support SVG, like the iPhone or the "
+"be used on a device that does not support SVG, like the iPhone or the "
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
@@ -2002,10 +2002,10 @@ msgstr "Produtor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:385
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:34
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:201
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:202
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:207
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:209
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:214
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:67
@@ -3562,7 +3562,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:22
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:53
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:116
@@ -3607,7 +3607,7 @@ msgstr ""
 msgid "None"
 msgstr "Ningún"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:301
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:308
 msgid "Click to open Book Details window"
 msgstr ""
 
