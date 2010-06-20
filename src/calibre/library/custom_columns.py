@@ -173,6 +173,19 @@ class CustomColumns(object):
                 ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
         return ans
 
+    def get_custom_extra(self, idx, label=None, num=None, index_is_id=False):
+        if label is not None:
+            data = self.custom_column_label_map[label]
+        if num is not None:
+            data = self.custom_column_num_map[num]
+        # add future datatypes with an extra column here
+        if data['datatype'] not in ['series']:
+            return None
+        ign,lt = self.custom_table_names(data['num'])
+        idx = idx if index_is_id else self.id(idx)
+        return self.conn.get('''SELECT extra FROM %s
+                                WHERE book=?'''%lt, (idx,), all=False)
+
     # convenience methods for tag editing
     def get_custom_items_with_ids(self, label=None, num=None):
         if label is not None:
@@ -237,7 +250,7 @@ class CustomColumns(object):
             return 1.0
         # get the label of the associated series number table
         series_num = self.conn.get('''
-                SELECT MAX({lt}.s_index) FROM {lt}
+                SELECT MAX({lt}.extra) FROM {lt}
                 WHERE {lt}.book IN (SELECT book FROM {lt} where value=?)
                 '''.format(lt=lt), (series_id,), all=False)
         if series_num is None:
@@ -343,7 +356,7 @@ class CustomColumns(object):
                                                         (id_, xid), all=False):
                     if data['datatype'] == 'series':
                         self.conn.execute(
-                            '''INSERT INTO %s(book, value, s_index)
+                            '''INSERT INTO %s(book, value, extra)
                                VALUES (?,?,?)'''%lt, (id_, xid, extra))
                         self.data.set(id_, self.FIELD_MAP[data['num']]+1,
                                       extra, row_is_id=True)
@@ -401,7 +414,7 @@ class CustomColumns(object):
                     custom_{num}
                 '''.format(query=query%table, lt=lt, table=table, num=data['num'])
                 if data['datatype'] == 'series':
-                    line += ''',(SELECT s_index FROM {lt} WHERE {lt}.book=books.id)
+                    line += ''',(SELECT extra FROM {lt} WHERE {lt}.book=books.id)
                         custom_index_{num}'''.format(lt=lt, num=data['num'])
             else:
                 line = '''
@@ -438,7 +451,7 @@ class CustomColumns(object):
         table, lt = self.custom_table_names(num)
         if normalized:
             if datatype == 'series':
-                s_index = 's_index REAL,'
+                s_index = 'extra REAL,'
             else:
                 s_index = ''
             lines = [
