@@ -919,8 +919,8 @@ class DeviceBooksModel(BooksModel): # {{{
         flags = QAbstractTableModel.flags(self, index)
         if index.isValid() and self.editable:
             cname = self.column_map[index.column()]
-            if cname in ('title', 'authors') or (cname == 'collection' and \
-                    self.db.supports_collections()):
+            if cname in ('title', 'authors') or \
+                    (cname == 'collections' and self.db.supports_collections()):
                 flags |= Qt.ItemIsEditable
         return flags
 
