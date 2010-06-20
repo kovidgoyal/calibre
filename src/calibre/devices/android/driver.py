@@ -45,8 +45,8 @@ class ANDROID(USBMS):
             'GT-I5700', 'SAMSUNG']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD',
-            'PROD_GT-I9000']
-    WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'PROD_GT-I9000_CARD']
+            'PR OD_GT-I9000']
+    WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'PR OD_GT-I9000_CARD']
 
     OSX_MAIN_MEM = 'HTC Android Phone Media'
 
