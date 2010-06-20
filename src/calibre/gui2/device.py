@@ -1355,10 +1355,12 @@ class DeviceMixin(object): # {{{
             # library view. In this case, simply give up
             if not hasattr(self, 'library_view') or self.library_view is None:
                 return
+            db = getattr(self.library_view.model(), 'db', None)
+            if db is None:
+                return
             # Build a cache (map) of the library, so the search isn't On**2
             self.db_book_title_cache = {}
             self.db_book_uuid_cache = {}
-            db = self.library_view.model().db
             for id in db.data.iterallids():
                 mi = db.get_metadata(id, index_is_id=True)
                 title = re.sub('(?u)\W|[_]', '', mi.title.lower())

@@ -506,7 +506,7 @@ class CustomColumns(object):
                           ratings as r
                      WHERE {lt}.value={table}.id and bl.book={lt}.book and
                            r.id = bl.rating and r.rating <> 0) avg_rating,
-                    value as sort
+                    value AS sort
                 FROM {table};
 
                 CREATE VIEW tag_browser_filtered_{table} AS SELECT
@@ -521,7 +521,7 @@ class CustomColumns(object):
                      WHERE {lt}.value={table}.id AND bl.book={lt}.book AND
                            r.id = bl.rating AND r.rating <> 0 AND
                            books_list_filter(bl.book)) avg_rating,
-                    value as sort
+                    value AS sort
                 FROM {table};
 
                 '''.format(lt=lt, table=table),
