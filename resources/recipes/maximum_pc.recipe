@@ -1,5 +1,5 @@
 from calibre.ptempfile import PersistentTemporaryFile
-from clibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1276930924(BasicNewsRecipe):
     title          = u'Maximum PC'

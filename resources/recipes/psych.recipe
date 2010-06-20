@@ -1,6 +1,6 @@
 
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.webfeeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1275708473(BasicNewsRecipe):
     title          = u'Psychology Today'
