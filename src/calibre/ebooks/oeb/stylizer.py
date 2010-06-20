@@ -126,6 +126,17 @@ class Stylizer(object):
             head = head[0]
         else:
             head = []
+
+        # GwR : Add webkit profile to cssutils before validating
+        if True:
+            wk_macros = {
+                      'border-width': '{length}|thin|medium|thick'
+                     }
+            wk_props =  {
+                      '-webkit-border-radius': r'{border-width}(\s+{border-width}){0,3}|inherit'
+                     }
+            cssutils.profile.addProfile('webkit', wk_props, wk_macros)
+
         parser = cssutils.CSSParser(fetcher=self._fetch_css_file,
                 log=logging.getLogger('calibre.css'))
         self.font_face_rules = []

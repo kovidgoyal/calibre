@@ -280,6 +280,46 @@ class BasicNewsRecipe(Recipe):
             }
     '''
 
+    #: The CSS that is used to style the touchscreen elements, i.e., the navigation bars and
+    #: the Feed summaries.
+    touchscreen_css = u'''
+            .article_navbar {
+                -webkit-border-radius:4px;
+                background-color:#eee;
+                border:1px solid #888;
+                margin-left: 5%;
+                margin-right: 5%;
+                width: 90%;
+           }
+
+            .feed_navbar {
+                -webkit-border-radius:4px;
+                background-color:#eee;
+                border:1px solid #888;
+                margin-left: 5%;
+                margin-right: 5%;
+                width: 90%;
+           }
+
+            .summary_headline {
+                font-weight:bold; text-align:left;
+            }
+
+            .summary_byline {
+                text-align:left;
+                font-family:monospace;
+            }
+
+            .summary_text {
+                text-align:left;
+            }
+
+            .feed {
+                font-family:sans-serif; font-weight:bold; font-size:larger;
+            }
+        '''
+
+
     #: By default, calibre will use a default image for the masthead (Kindle only).
     #: Override this in your recipe to provide a url to use as a masthead.
     masthead_url = None
@@ -638,6 +678,9 @@ class BasicNewsRecipe(Recipe):
         if self.delay > 0:
             self.simultaneous_downloads = 1
 
+        if self.touchscreen:
+            self.extra_css += self.touchscreen_css
+
         self.navbar = templates.TouchscreenNavBarTemplate() if self.touchscreen else templates.NavBarTemplate()
         self.failed_downloads = []
         self.partial_failures = []
@@ -661,8 +704,7 @@ class BasicNewsRecipe(Recipe):
                 templ = self.navbar.generate(False, f, a, feed_len,
                                              not self.has_single_feed,
                                              url, __appname__,
-                                             center=self.center_navbar,
-                                             extra_css=self.extra_css)
+                                             center=self.center_navbar)
                 elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                 body.insert(0, elem)
         if self.remove_javascript:
@@ -783,43 +825,7 @@ class BasicNewsRecipe(Recipe):
         css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
 
         if self.touchscreen:
-            touchscreen_css = u'''
-                    .summary_headline {
-                        font-weight:bold; text-align:left;
-                    }
-
-                    .summary_byline {
-                        text-align:left;
-                        font-family:monospace;
-                    }
-
-                    .summary_text {
-                        text-align:left;
-                    }
-
-                    .feed {
-                        font-family:sans-serif; font-weight:bold; font-size:larger;
-                    }
-
-                    .calibre_navbar {
-                        font-family:monospace;
-                    }
-
-                    /*
-                    .touchscreen_navbar {
-                        -webkit-border-radius:4px;
-                        background:#ccc;
-                        border:#ccc 1px solid;
-                        margin-left: 25%;
-                        margin-right: 25%;
-                        width: 50%;
-                   }
-                   */
-
-            '''
-
             templ = templates.TouchscreenFeedTemplate()
-            css = touchscreen_css + '\n\n' + (self.extra_css if self.extra_css else '')
 
         return templ.generate(f, feeds, self.description_limiter,
                               extra_css=css).render(doctype='xhtml')
