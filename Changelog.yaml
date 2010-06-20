@@ -4,6 +4,31 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.4
+  date: 2010-06-19
+
+  bug fixes:
+    - title: "Fix regression in 0.7.3 that broke creating custom columns of rating or text types"
+      
+    - title: "Fix cover browser breaking if you click on a book in the book list while cover browser is animated"
+
+    - title: "Fix a bug that could be triggered with the new book details pane if a book has a zero size cover"
+      tickets: [5889]
+
+    - title: "SONY driver: Fix bug preventing the editing of collections in the device view"
+
+  new recipes:
+    - title: Auto Prove
+      author: Gabriele Marini
+      
+    - title: Forbes India, Maximum PC, Today Online
+      author: rty
+
+  improved recipes:
+    - WSJ
+    - Psychology Today
+        
+
 - version: 0.7.3
   date: 2010-06-18
 

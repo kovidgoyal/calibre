@@ -97,8 +97,12 @@ class CoverView(QWidget): # {{{
             return
         pixmap = self.pixmap
         pwidth, pheight = pixmap.width(), pixmap.height()
-        self.pwidth, self.pheight = fit_image(pwidth, pheight,
+        try:
+            self.pwidth, self.pheight = fit_image(pwidth, pheight,
                             self.rect().width(), self.rect().height())[1:]
+        except:
+            self.pwidth, self.pheight = self.rect().width()-1, \
+                    self.rect().height()-1
         self.current_pixmap_size = QSize(self.pwidth, self.pheight)
         self.animation.setEndValue(self.current_pixmap_size)
 
@@ -122,7 +126,8 @@ class CoverView(QWidget): # {{{
         self.data = {'id':data.get('id', None)}
         if data.has_key('cover'):
             self.pixmap = QPixmap.fromImage(data.pop('cover'))
-            if self.pixmap.isNull():
+            if self.pixmap.isNull() or self.pixmap.width() < 5 or \
+                    self.pixmap.height() < 5:
                 self.pixmap = self.default_pixmap
         else:
             self.pixmap = self.default_pixmap
