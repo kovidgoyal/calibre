@@ -327,7 +327,7 @@ class KOBO(USBMS):
             if self._card_a_prefix is not None:
                 ContentID = ContentID.replace(self._card_a_prefix, "file:///mnt/sd/")
         ContentID = ContentID.replace("\\", '/')
-        return ContentType
+        return ContentID
 
 
     def path_from_contentid(self, ContentID, ContentType, oncard):
