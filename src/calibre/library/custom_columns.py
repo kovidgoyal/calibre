@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import json
 from functools import partial
+from math import floor
 
 from calibre import prints
 from calibre.constants import preferred_encoding
@@ -16,7 +17,7 @@ from calibre.utils.date import parse_date
 class CustomColumns(object):
 
     CUSTOM_DATA_TYPES = frozenset(['rating', 'text', 'comments', 'datetime',
-        'int', 'float', 'bool'])
+        'int', 'float', 'bool', 'series'])
 
     def custom_table_names(self, num):
         return 'custom_column_%d'%num, 'books_custom_column_%d_link'%num
@@ -137,7 +138,8 @@ class CustomColumns(object):
                 'bool':  adapt_bool,
                 'comments': lambda x,d: adapt_text(x, {'is_multiple':False}),
                 'datetime' : adapt_datetime,
-                'text':adapt_text
+                'text':adapt_text,
+                'series':adapt_text
         }
 
         # Create Tag Browser categories for custom columns
@@ -220,6 +222,28 @@ class CustomColumns(object):
             self.conn.commit()
     # end convenience methods
 
+    def get_next_cc_series_num_for(self, series, label=None, num=None):
+        if label is not None:
+            data = self.custom_column_label_map[label]
+        if num is not None:
+            data = self.custom_column_num_map[num]
+        if data['datatype'] != 'series':
+            return None
+        table, lt = self.custom_table_names(data['num'])
+        # get the id of the row containing the series string
+        series_id = self.conn.get('SELECT id from %s WHERE value=?'%table,
+                                                        (series,), all=False)
+        if series_id is None:
+            return 1.0
+        # get the label of the associated series number table
+        series_num = self.conn.get('''
+                SELECT MAX({lt}.s_index) FROM {lt}
+                WHERE {lt}.book IN (SELECT book FROM {lt} where value=?)
+                '''.format(lt=lt), (series_id,), all=False)
+        if series_num is None:
+            return 1.0
+        return floor(series_num+1)
+
     def all_custom(self, label=None, num=None):
         if label is not None:
             data = self.custom_column_label_map[label]
@@ -271,9 +295,8 @@ class CustomColumns(object):
             self.conn.commit()
         return changed
 
-
-
-    def set_custom(self, id_, val, label=None, num=None, append=False, notify=True):
+    def set_custom(self, id_, val, extra=None, label=None, num=None,
+                   append=False, notify=True):
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
@@ -317,10 +340,17 @@ class CustomColumns(object):
                             'INSERT INTO %s(value) VALUES(?)'%table, (x,)).lastrowid
                 if not self.conn.get(
                     'SELECT book FROM %s WHERE book=? AND value=?'%lt,
-                    (id_, xid), all=False):
-                    self.conn.execute(
-                        'INSERT INTO %s(book, value) VALUES (?,?)'%lt,
-                            (id_, xid))
+                                                        (id_, xid), all=False):
+                    if data['datatype'] == 'series':
+                        self.conn.execute(
+                            '''INSERT INTO %s(book, value, s_index)
+                               VALUES (?,?,?)'''%lt, (id_, xid, extra))
+                        self.data.set(id_, self.FIELD_MAP[data['num']]+1,
+                                      extra, row_is_id=True)
+                    else:
+                        self.conn.execute(
+                            '''INSERT INTO %s(book, value)
+                                VALUES (?,?)'''%lt, (id_, xid))
             self.conn.commit()
             nval = self.conn.get(
                     'SELECT custom_%s FROM meta2 WHERE id=?'%data['num'],
@@ -370,6 +400,9 @@ class CustomColumns(object):
                     {table} ON(link.value={table}.id) WHERE link.book=books.id)
                     custom_{num}
                 '''.format(query=query%table, lt=lt, table=table, num=data['num'])
+                if data['datatype'] == 'series':
+                    line += ''',(SELECT s_index FROM {lt} WHERE {lt}.book=books.id)
+                        custom_index_{num}'''.format(lt=lt, num=data['num'])
             else:
                 line = '''
                 (SELECT value FROM {table} WHERE book=books.id) custom_{num}
@@ -393,7 +426,7 @@ class CustomColumns(object):
 
         if datatype in ('rating', 'int'):
             dt = 'INT'
-        elif datatype in ('text', 'comments'):
+        elif datatype in ('text', 'comments', 'series'):
             dt = 'TEXT'
         elif datatype in ('float',):
             dt = 'REAL'
@@ -404,6 +437,10 @@ class CustomColumns(object):
         collate = 'COLLATE NOCASE' if dt == 'TEXT' else ''
         table, lt = self.custom_table_names(num)
         if normalized:
+            if datatype == 'series':
+                s_index = 's_index REAL,'
+            else:
+                s_index = ''
             lines = [
                 '''\
                 CREATE TABLE %s(
@@ -419,8 +456,9 @@ class CustomColumns(object):
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     book INTEGER NOT NULL,
                     value INTEGER NOT NULL,
+                    %s
                     UNIQUE(book, value)
-                    );'''%lt,
+                    );'''%(lt, s_index),
 
                 'CREATE INDEX %s_aidx ON %s (value);'%(lt,lt),
                 'CREATE INDEX %s_bidx ON %s (book);'%(lt,lt),
@@ -467,7 +505,8 @@ class CustomColumns(object):
                           books_ratings_link as bl,
                           ratings as r
                      WHERE {lt}.value={table}.id and bl.book={lt}.book and
-                           r.id = bl.rating and r.rating <> 0) avg_rating
+                           r.id = bl.rating and r.rating <> 0) avg_rating,
+                    value as sort
                 FROM {table};
 
                 CREATE VIEW tag_browser_filtered_{table} AS SELECT
@@ -481,7 +520,8 @@ class CustomColumns(object):
                           ratings as r
                      WHERE {lt}.value={table}.id AND bl.book={lt}.book AND
                            r.id = bl.rating AND r.rating <> 0 AND
-                           books_list_filter(bl.book)) avg_rating
+                           books_list_filter(bl.book)) avg_rating,
+                    value as sort
                 FROM {table};
 
                 '''.format(lt=lt, table=table),
