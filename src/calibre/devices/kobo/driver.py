@@ -90,7 +90,7 @@ class KOBO(USBMS):
 
                 idx = bl_cache.get(lpath, None)
                 if idx is not None:
-                    imagename = self.normalize_path(prefix + '.kobo/images/' + ImageID + ' - iPhoneThumbnail.parsed')
+                    imagename = self.normalize_path(prefix + '.kobo/images/' + ImageID + ' - NickelBookCover.parsed')
                     #print "Image name Normalized: " + imagename
                     bl[idx].thumbnail = ImageWrapper(imagename)
                     bl_cache[lpath] = None
