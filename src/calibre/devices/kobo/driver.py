@@ -151,8 +151,8 @@ class KOBO(USBMS):
                 need_sync = True
                 del bl[idx]
 
-        print "count found in cache: %d, count of files in metadata: %d, need_sync: %s" % \
-              (len(bl_cache), len(bl), need_sync)
+        #print "count found in cache: %d, count of files in metadata: %d, need_sync: %s" % \
+        #      (len(bl_cache), len(bl), need_sync)
         if need_sync: #self.count_found_in_bl != len(bl) or need_sync:
             if oncard == 'cardb':
                 self.sync_booklists((None, None, bl))
@@ -300,12 +300,12 @@ class KOBO(USBMS):
                 prints('in add_books_to_metadata. Prefix is None!', path,
                         self._main_prefix)
                 continue
-            print "Add book to metatdata: "
-            print "prefix: " + prefix
+            #print "Add book to metatdata: "
+            #print "prefix: " + prefix
             lpath = path.partition(prefix)[2]
             if lpath.startswith('/') or lpath.startswith('\\'):
                 lpath = lpath[1:]
-            print "path: " + lpath
+            #print "path: " + lpath
             #book = self.book_class(prefix, lpath, other=info)
             lpath = self.normalize_path(prefix + lpath)
             book = Book(prefix, lpath, '', '', '', '', '', '', other=info)
