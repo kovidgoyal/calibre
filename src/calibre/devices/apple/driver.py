@@ -6,8 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 
 import cStringIO, ctypes, datetime, os, re, shutil, subprocess, sys, tempfile, time
-
-from calibre.constants import DEBUG
+from calibre.constants import __appname__, __version__, DEBUG
 from calibre import fit_image
 from calibre.constants import isosx, iswindows
 from calibre.devices.errors import UserFeedback
@@ -79,7 +78,7 @@ class ITUNES(DevicePlugin):
     supported_platforms = ['osx','windows']
     author = 'GRiker'
     #: The version of this plugin as a 3-tuple (major, minor, revision)
-    version        = (0,6,0)
+    version        = (0,7,0)
 
     OPEN_FEEDBACK_MESSAGE = _(
         'Apple device detected, launching iTunes, please wait ...')
@@ -294,7 +293,7 @@ class ITUNES(DevicePlugin):
                          'author':[book.artist()],
                          'lib_book':library_books[this_book.path] if this_book.path in library_books else None,
                          'dev_book':book,
-                         'uuid': book.album()
+                         'uuid': book.composer()
                          }
 
                         if self.report_progress is not None:
@@ -330,7 +329,7 @@ class ITUNES(DevicePlugin):
                              'title':book.Name,
                              'author':book.Artist,
                              'lib_book':library_books[this_book.path] if this_book.path in library_books else None,
-                             'uuid': book.Album
+                             'uuid': book.Composer
                              }
 
                             if self.report_progress is not None:
@@ -1426,10 +1425,10 @@ class ITUNES(DevicePlugin):
             attempts = 9
             while attempts:
                 # Try by uuid - only one hit
-                hits = dev_books.Search(search['uuid'],self.SearchField.index('Albums'))
+                hits = dev_books.Search(search['uuid'],self.SearchField.index('All'))
                 if hits:
                     hit = hits[0]
-                    self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Album))
+                    self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                     return hit
 
                 # Try by author - there could be multiple hits
@@ -1438,7 +1437,7 @@ class ITUNES(DevicePlugin):
                     for hit in hits:
                         if hit.Name == search['title']:
                             if DEBUG:
-                                self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Album))
+                                self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                             return hit
 
                 attempts -= 1
@@ -1493,11 +1492,11 @@ class ITUNES(DevicePlugin):
                 if 'uuid' in search:
                     if DEBUG:
                         self.log.info("   searching by uuid '%s' ..." % search['uuid'])
-                    hits = lib_books.Search(search['uuid'],self.SearchField.index('Albums'))
+                    hits = lib_books.Search(search['uuid'],self.SearchField.index('All'))
                     if hits:
                         hit = hits[0]
                         if DEBUG:
-                            self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Album))
+                            self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                         return hit
 
                 if DEBUG:
@@ -1507,7 +1506,7 @@ class ITUNES(DevicePlugin):
                     for hit in hits:
                         if hit.Name == search['title']:
                             if DEBUG:
-                                self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Album))
+                                self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                             return hit
 
                 attempts -= 1
@@ -1558,6 +1557,10 @@ class ITUNES(DevicePlugin):
                 return thumb.getvalue()
             except:
                 self.log.error("  error generating thumb for '%s'" % book.name())
+                try:
+                    zfw.close()
+                except:
+                    pass
                 return None
 
         elif iswindows:
@@ -1587,6 +1590,10 @@ class ITUNES(DevicePlugin):
                 return thumb.getvalue()
             except:
                 self.log.error("  error generating thumb for '%s'" % book.Name)
+                try:
+                    zfw.close()
+                except:
+                    pass
                 return None
 
     def _get_device_book_size(self, file, compressed_size):
@@ -1925,6 +1932,7 @@ class ITUNES(DevicePlugin):
                 self.log.error("  could not confirm valid iTunes.media_dir from %s" % 'com.apple.itunes')
                 self.log.error("  media_dir: %s" % media_dir)
             if DEBUG:
+                self.log.info("  %s %s" % (__appname__, __version__))
                 self.log.info("  [OSX %s - %s (%s), driver version %d.%d.%d]" %
                  (self.iTunes.name(), self.iTunes.version(), self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
@@ -1954,6 +1962,7 @@ class ITUNES(DevicePlugin):
                     self.log.error("  '%s' not found" % media_dir)
 
             if DEBUG:
+                self.log.info("  %s %s" % (__appname__, __version__))
                 self.log.info("  [Windows %s - %s (%s), driver version %d.%d.%d]" %
                  (self.iTunes.Windows[0].name, self.iTunes.Version, self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
@@ -2041,7 +2050,7 @@ class ITUNES(DevicePlugin):
 
         elif iswindows:
             dev_pl = self._get_device_books_playlist()
-            hits = dev_pl.Search(cached_book['uuid'],self.SearchField.index('Albums'))
+            hits = dev_pl.Search(cached_book['uuid'],self.SearchField.index('All'))
             if hits:
                 hit = hits[0]
                 if False:
@@ -2095,7 +2104,7 @@ class ITUNES(DevicePlugin):
                 self.iTunes.delete(cached_book['lib_book'])
             except:
                 if DEBUG:
-                    self.log.info("   '%s' not found in iTunes" % cached_book['title'])
+                    self.log.info("   unable to remove '%s' from iTunes" % cached_book['title'])
 
         elif iswindows:
             '''
@@ -2107,13 +2116,14 @@ class ITUNES(DevicePlugin):
                 path = book.Location
             except:
                 book = self._find_library_book(cached_book)
+                path = book.Location
 
             if book:
-                storage_path = os.path.split(book.Location)
-                if book.Location.startswith(self.iTunes_media):
+                storage_path = os.path.split(path)
+                if path.startswith(self.iTunes_media):
                     if DEBUG:
                         self.log.info("   removing '%s' at %s" %
-                            (cached_book['title'], book.Location))
+                            (cached_book['title'], path))
                     try:
                         os.remove(path)
                     except:
@@ -2134,7 +2144,7 @@ class ITUNES(DevicePlugin):
                 book.Delete()
             except:
                 if DEBUG:
-                    self.log.info("   '%s' not found in iTunes" % cached_book['title'])
+                    self.log.info("   unable to remove '%s' from iTunes" % cached_book['title'])
 
     def _update_epub_metadata(self, fpath, metadata):
         '''
@@ -2241,14 +2251,16 @@ class ITUNES(DevicePlugin):
 
         if isosx:
             if lb_added:
-                lb_added.album.set(metadata.uuid)
+                lb_added.album.set(metadata.title)
+                lb_added.composer.set(metadata.uuid)
                 lb_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.enabled.set(True)
                 lb_added.sort_artist.set(metadata.author_sort.title())
                 lb_added.sort_name.set(this_book.title_sorter)
 
             if db_added:
-                db_added.album.set(metadata.uuid)
+                db_added.album.set(metadata.title)
+                db_added.composer.set(metadata.uuid)
                 db_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.enabled.set(True)
                 db_added.sort_artist.set(metadata.author_sort.title())
@@ -2296,14 +2308,16 @@ class ITUNES(DevicePlugin):
 
         elif iswindows:
             if lb_added:
-                lb_added.Album = metadata.uuid
+                lb_added.Album = metadata.title
+                lb_added.Composer = metadata.uuid
                 lb_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.Enabled = True
                 lb_added.SortArtist = (metadata.author_sort.title())
                 lb_added.SortName = (this_book.title_sorter)
 
             if db_added:
-                db_added.Album = metadata.uuid
+                db_added.Album = metadata.title
+                db_added.Composer = metadata.uuid
                 db_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.Enabled = True
                 db_added.SortArtist = (metadata.author_sort.title())

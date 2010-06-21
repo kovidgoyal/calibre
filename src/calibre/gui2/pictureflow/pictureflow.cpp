@@ -496,6 +496,7 @@ int PictureFlowPrivate::currentSlide() const
 
 void PictureFlowPrivate::setCurrentSlide(int index)
 {
+  animateTimer.stop();
   step = 0;
   centerIndex = qBound(index, 0, slideImages->count()-1);
   target = centerIndex;

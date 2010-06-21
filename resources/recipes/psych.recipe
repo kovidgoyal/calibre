@@ -1,39 +1,44 @@
+
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
-class PsychologyToday(BasicNewsRecipe):
+class AdvancedUserRecipe1275708473(BasicNewsRecipe):
     title          = u'Psychology Today'
-    language       = 'en'
-    __author__     = 'Krittika Goyal'
-    oldest_article = 1 #days
-    max_articles_per_feed = 25
-    #encoding = 'latin1'
-
-    remove_stylesheets = True
-    #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
-    #remove_tags_after  = dict(name='td', attrs={'class':'newptool1'})
+    _author__ = 'rty'
+    publisher = u'www.psychologytoday.com'
+    category = u'Psychology'
+    max_articles_per_feed = 100
+    remove_javascript = True
+    use_embedded_content   = False
+    no_stylesheets = True
+    language = 'en'
+    temp_files = []
+    articles_are_obfuscated = True
     remove_tags = [
-       dict(name='iframe'),
-       dict(name='div', attrs={'class':['pt-box-title', 'pt-box-content', 'blog-entry-footer', 'item-list', 'article-sub-meta']}),
-       dict(name='div', attrs={'id':['block-td_search_160', 'block-cam_search_160']}),
-       #dict(name='ul', attrs={'class':'article-tools'}),
-       #dict(name='ul', attrs={'class':'articleTools'}),
-    ]
+                    dict(name='div', attrs={'class':['print-source_url','field-items','print-footer']}),
+                    dict(name='span', attrs={'class':'print-footnote'}),
+                  ]
+    remove_tags_before  = dict(name='h1', attrs={'class':'print-title'})
+    remove_tags_after     = dict(name='div', attrs={'class':['field-items','print-footer']})
 
-    feeds          = [
-('PSY TODAY',
- 'http://www.psychologytoday.com/articles/index.rss'),
-]
+    feeds          = [(u'Contents', u'http://www.psychologytoday.com/articles/index.rss')]
 
-    def preprocess_html(self, soup):
-        story = soup.find(name='div', attrs={'id':'contentColumn'})
-        #td = heading.findParent(name='td')
-        #td.extract()
-        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
-        body = soup.find(name='body')
-        body.insert(0, story)
-        for x in soup.findAll(name='p', text=lambda x:x and '--&gt;' in x):
-             p = x.findParent('p')
-             if p is not None:
-                  p.extract()
-        return soup
+    def get_article_url(self, article):
+       return article.get('link',  None)
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        br.open(url)
+        response = br.follow_link(url_regex = r'/print/[0-9]+', nr = 0)
+        html = response.read()
+        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+        self.temp_files[-1].write(html)
+        self.temp_files[-1].close()
+        return self.temp_files[-1].name
+
+    def get_cover_url(self):
+        index = 'http://www.psychologytoday.com/magazine/'
+        soup = self.index_to_soup(index)
+        for image in soup.findAll('img',{ "class" : "imagefield imagefield-field_magazine_cover" }):
+              return image['src'] + '.jpg'
+        return None
