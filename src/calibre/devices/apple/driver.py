@@ -15,7 +15,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
-from calibre.utils.config import Config, config_dir
+from calibre.utils.config import Config, config_dir, tweaks
 from calibre.utils.date import isoformat, now, parse_date
 from calibre.utils.logging import Log
 from calibre.utils.zipfile import ZipFile
@@ -78,12 +78,12 @@ class ITUNES(DevicePlugin):
     supported_platforms = ['osx','windows']
     author = 'GRiker'
     #: The version of this plugin as a 3-tuple (major, minor, revision)
-    version        = (0,7,0)
+    version        = (0,8,0)
 
     OPEN_FEEDBACK_MESSAGE = _(
         'Apple device detected, launching iTunes, please wait ...')
 
-    FORMATS = ['epub']
+    FORMATS = ['epub','pdf']
 
     # Product IDs:
     #  0x1292:iPhone 3G
@@ -141,6 +141,10 @@ class ITUNES(DevicePlugin):
                 'SongNames',
                 ]
 
+    # Cover art size limits
+    MAX_COVER_WIDTH = 510
+    MAX_COVER_HEIGHT = 680
+
     # Properties
     cached_books = {}
     cache_dir = os.path.join(config_dir, 'caches', 'itunes')
@@ -159,7 +163,7 @@ class ITUNES(DevicePlugin):
     sources = None
     update_msg = None
     update_needed = False
-    use_series_data = True
+    use_series_as_category = tweaks['iDevice_use_series_as_category']
 
     # Public methods
     def add_books_to_metadata(self, locations, metadata, booklists):
@@ -173,16 +177,17 @@ class ITUNES(DevicePlugin):
                                 (L{books}(oncard=None), L{books}(oncard='carda'),
                                 L{books}(oncard='cardb')).
         '''
+        if DEBUG:
+            self.log.info("ITUNES.add_books_to_metadata()")
 
         task_count = float(len(self.update_list))
 
         # Delete any obsolete copies of the book from the booklist
         if self.update_list:
-            if True:
-                self.log.info("ITUNES.add_books_to_metadata()")
-                #self._dump_booklist(booklists[0], header='before',indent=2)
-                #self._dump_update_list(header='before',indent=2)
-                #self._dump_cached_books(header='before',indent=2)
+            if False:
+                self._dump_booklist(booklists[0], header='before',indent=2)
+                self._dump_update_list(header='before',indent=2)
+                self._dump_cached_books(header='before',indent=2)
 
             for (j,p_book) in enumerate(self.update_list):
                 if False:
@@ -230,12 +235,12 @@ class ITUNES(DevicePlugin):
 
         # Add new books to booklists[0]
         for new_book in locations[0]:
-            if False:
+            if DEBUG:
                 self.log.info("  adding '%s' by '%s' to booklists[0]" %
                     (new_book.title, new_book.author))
             booklists[0].append(new_book)
 
-        if False:
+        if DEBUG:
             self._dump_booklist(booklists[0],header='after',indent=2)
             self._dump_cached_books(header='after',indent=2)
 
@@ -329,7 +334,8 @@ class ITUNES(DevicePlugin):
                              'title':book.Name,
                              'author':book.Artist,
                              'lib_book':library_books[this_book.path] if this_book.path in library_books else None,
-                             'uuid': book.Composer
+                             'uuid': book.Composer,
+                             'format': 'pdf' if book.KindAsString.startswith('PDF') else 'epub'
                              }
 
                             if self.report_progress is not None:
@@ -343,9 +349,9 @@ class ITUNES(DevicePlugin):
                 if self.report_progress is not None:
                     self.report_progress(1.0, _('finished'))
                 self.cached_books = cached_books
-#                 if DEBUG:
-#                     self._dump_booklist(booklist, 'returning from books():')
-#                     self._dump_cached_books('returning from books():')
+                if DEBUG:
+                    self._dump_booklist(booklist, 'returning from books()', indent=2)
+                    self._dump_cached_books('returning from books()',indent=2)
                 return booklist
         else:
             return []
@@ -685,6 +691,9 @@ class ITUNES(DevicePlugin):
         @param booklists:  A tuple containing the result of calls to
                                 (L{books}(oncard=None), L{books}(oncard='carda'),
                                 L{books}(oncard='cardb')).
+
+        NB: This will not find books that were added by a different installation of calibre
+            as uuids are different
         '''
         if DEBUG:
             self.log.info("ITUNES.remove_books_from_metadata()")
@@ -750,6 +759,10 @@ class ITUNES(DevicePlugin):
                                 (L{books}(oncard=None), L{books}(oncard='carda'),
                                 L{books}(oncard='cardb')).
         '''
+
+        if DEBUG:
+            self.log.info("ITUNES.sync_booklists()")
+
         if self.update_needed:
             if DEBUG:
                 self.log.info(' calling _update_device')
@@ -812,29 +825,32 @@ class ITUNES(DevicePlugin):
         self.problem_msg = _("Some cover art could not be converted.\n"
                                      "Click 'Show Details' for a list.")
 
-        if False:
+        if DEBUG:
             self.log.info("ITUNES.upload_books()")
             self._dump_files(files, header='upload_books()',indent=2)
             self._dump_update_list(header='upload_books()',indent=2)
 
         if isosx:
             for (i,file) in enumerate(files):
+                format = file.rpartition('.')[2].lower()
                 path = self.path_template % (metadata[i].title, metadata[i].author[0])
                 self._remove_existing_copy(path, metadata[i])
-                fpath = self._get_fpath(file, metadata[i], update_md=True)
+                fpath = self._get_fpath(file, metadata[i], format, update_md=True)
                 db_added, lb_added = self._add_new_copy(fpath, metadata[i])
-                thumb = self._cover_to_thumb(path, metadata[i], db_added, lb_added)
-                this_book = self._create_new_book(fpath, metadata[i], path, db_added, lb_added, thumb)
+                thumb = self._cover_to_thumb(path, metadata[i], db_added, lb_added, format)
+                this_book = self._create_new_book(fpath, metadata[i], path, db_added, lb_added, thumb, format)
                 new_booklist.append(this_book)
                 self._update_iTunes_metadata(metadata[i], db_added, lb_added, this_book)
 
                 # Add new_book to self.cached_paths
                 self.cached_books[this_book.path] = {
-                    'title': metadata[i].title,
                    'author': metadata[i].author,
-                 'lib_book': lb_added,
                  'dev_book': db_added,
-                     'uuid': metadata[i].uuid}
+                   'format': format,
+                 'lib_book': lb_added,
+                    'title': metadata[i].title,
+                     'uuid': metadata[i].uuid }
+
 
                 # Report progress
                 if self.report_progress is not None:
@@ -846,9 +862,10 @@ class ITUNES(DevicePlugin):
                 self.iTunes = win32com.client.Dispatch("iTunes.Application")
 
                 for (i,file) in enumerate(files):
+                    format = file.rpartition('.')[2].lower()
                     path = self.path_template % (metadata[i].title, metadata[i].author[0])
                     self._remove_existing_copy(path, metadata[i])
-                    fpath = self._get_fpath(file, metadata[i], update_md=True)
+                    fpath = self._get_fpath(file, metadata[i],format, update_md=True)
                     db_added, lb_added = self._add_new_copy(fpath, metadata[i])
 
                     if self.manual_sync_mode and not db_added:
@@ -857,17 +874,18 @@ class ITUNES(DevicePlugin):
                                             "Click 'Show Details...' for affected books.")
                         self.problem_titles.append("'%s' by %s" % (metadata[i].title, metadata[i].author[0]))
 
-                    thumb = self._cover_to_thumb(path, metadata[i], lb_added, db_added)
-                    this_book = self._create_new_book(fpath, metadata[i], path, db_added, lb_added, thumb)
+                    thumb = self._cover_to_thumb(path, metadata[i], db_added, lb_added, format)
+                    this_book = self._create_new_book(fpath, metadata[i], path, db_added, lb_added, thumb, format)
                     new_booklist.append(this_book)
                     self._update_iTunes_metadata(metadata[i], db_added, lb_added, this_book)
 
                     # Add new_book to self.cached_paths
                     self.cached_books[this_book.path] = {
-                        'title': metadata[i].title,
                        'author': metadata[i].author[0],
-                     'lib_book': lb_added,
                      'dev_book': db_added,
+                       'format': format,
+                     'lib_book': lb_added,
+                        'title': metadata[i].title,
                          'uuid': metadata[i].uuid}
 
                     # Report progress
@@ -968,7 +986,8 @@ class ITUNES(DevicePlugin):
                         db_added = self._find_device_book(
                                      {'title': metadata.title,
                                      'author': metadata.authors[0],
-                                       'uuid': metadata.uuid})
+                                       'uuid': metadata.uuid,
+                                     'format': fpath.rpartition('.')[2].lower()})
 
                     return db_added
 
@@ -1021,7 +1040,8 @@ class ITUNES(DevicePlugin):
                 added = self._find_library_book(
                     { 'title': metadata.title,
                      'author': metadata.author[0],
-                       'uuid': metadata.uuid})
+                       'uuid': metadata.uuid,
+                     'format': file.rpartition('.')[2].lower()})
         return added
 
     def _add_new_copy(self, fpath, metadata):
@@ -1047,46 +1067,82 @@ class ITUNES(DevicePlugin):
 
         return db_added, lb_added
 
-    def _cover_to_thumb(self, path, metadata, db_added, lb_added):
+    def _cover_to_thumb(self, path, metadata, db_added, lb_added, format):
         '''
         assumes pythoncom wrapper for db_added
+        as of iTunes 9.2, iBooks 1.1, can't set artwork for PDF files via automation
         '''
         self.log.info(" ITUNES._cover_to_thumb()")
+
         thumb = None
         if metadata.cover:
-            if isosx:
-                cover_data = open(metadata.cover,'rb')
-                if lb_added:
-                    lb_added.artworks[1].data_.set(cover_data.read())
 
-                if db_added:
-                    # The following command generates an error, but the artwork does in fact
-                    # get sent to the device.  Seems like a bug in Apple's automation interface
-                    try:
-                        db_added.artworks[1].data_.set(cover_data.read())
-                    except:
+            if (format == 'epub'):
+                # Pre-shrink cover
+                # self.MAX_COVER_WIDTH, self.MAX_COVER_HEIGHT
+                try:
+                    img = PILImage.open(metadata.cover)
+                    width = img.size[0]
+                    height = img.size[1]
+                    scaled, nwidth, nheight = fit_image(width, height, self.MAX_COVER_WIDTH, self.MAX_COVER_HEIGHT)
+                    if scaled:
                         if DEBUG:
-                            self.log.warning("  iTunes automation interface reported an error"
-                                             " when adding artwork to '%s' on the iDevice" % metadata.title)
-                        #import traceback
-                        #traceback.print_exc()
-                        #from calibre import ipython
-                        #ipython(user_ns=locals())
-                        pass
-
-
-            elif iswindows:
-                if lb_added:
-                    if lb_added.Artwork.Count:
-                        lb_added.Artwork.Item(1).SetArtworkFromFile(metadata.cover)
+                            self.log.info("   '%s' scaled from %sx%s to %sx%s" %
+                                          (metadata.cover,width,height,nwidth,nheight))
+                        img = img.resize((nwidth, nheight), PILImage.ANTIALIAS)
+                        cd = cStringIO.StringIO()
+                        img.convert('RGB').save(cd, 'JPEG')
+                        cover_data = cd.getvalue()
+                        cd.close()
                     else:
-                        lb_added.AddArtworkFromFile(metadata.cover)
+                        with open(metadata.cover,'r+b') as cd:
+                            cover_data = cd.read()
+                except:
+                    self.problem_titles.append("'%s' by %s" % (metadata.title, metadata.author[0]))
+                    self.log.error("  error scaling '%s' for '%s'" % (metadata.cover,metadata.title))
+                    return thumb
 
-                if db_added:
-                    if db_added.Artwork.Count:
-                        db_added.Artwork.Item(1).SetArtworkFromFile(metadata.cover)
-                    else:
-                        db_added.AddArtworkFromFile(metadata.cover)
+                if isosx:
+                    if lb_added:
+                        lb_added.artworks[1].data_.set(cover_data)
+
+                    if db_added:
+                        # The following command generates an error, but the artwork does in fact
+                        # get sent to the device.  Seems like a bug in Apple's automation interface
+                        try:
+                            db_added.artworks[1].data_.set(cover_data)
+                        except:
+                            if DEBUG:
+                                self.log.warning("  iTunes automation interface reported an error"
+                                                 " when adding artwork to '%s' on the iDevice" % metadata.title)
+                            #import traceback
+                            #traceback.print_exc()
+                            #from calibre import ipython
+                            #ipython(user_ns=locals())
+                            pass
+
+
+                elif iswindows:
+                    # Write the data to a real file for Windows iTunes
+                    tc = os.path.join(tempfile.gettempdir(), "cover.jpg")
+                    with open(tc,'wb') as tmp_cover:
+                        tmp_cover.write(cover_data)
+
+                    if lb_added:
+                        if lb_added.Artwork.Count:
+                            lb_added.Artwork.Item(1).SetArtworkFromFile(tc)
+                        else:
+                            lb_added.AddArtworkFromFile(tc)
+
+                    if db_added:
+                        if db_added.Artwork.Count:
+                            db_added.Artwork.Item(1).SetArtworkFromFile(tc)
+                        else:
+                            db_added.AddArtworkFromFile(tc)
+
+            elif format == 'pdf':
+                if DEBUG:
+                    self.log.info("   unable to set PDF cover via automation interface")
 
             try:
                 # Resize for thumb
@@ -1097,6 +1153,7 @@ class ITUNES(DevicePlugin):
                 of = cStringIO.StringIO()
                 im.convert('RGB').save(of, 'JPEG')
                 thumb = of.getvalue()
+                of.close()
 
                 # Refresh the thumbnail cache
                 if DEBUG:
@@ -1105,14 +1162,15 @@ class ITUNES(DevicePlugin):
                 zfw = ZipFile(archive_path, mode='a')
                 thumb_path = path.rpartition('.')[0] + '.jpg'
                 zfw.writestr(thumb_path, thumb)
-                zfw.close()
             except:
                 self.problem_titles.append("'%s' by %s" % (metadata.title, metadata.author[0]))
                 self.log.error("  error converting '%s' to thumb for '%s'" % (metadata.cover,metadata.title))
+            finally:
+                zfw.close()
 
-            return thumb
+        return thumb
 
-    def _create_new_book(self,fpath, metadata, path, db_added, lb_added, thumb):
+    def _create_new_book(self,fpath, metadata, path, db_added, lb_added, thumb, format):
         '''
         '''
         if DEBUG:
@@ -1122,6 +1180,7 @@ class ITUNES(DevicePlugin):
 
         this_book.db_id = None
         this_book.device_collections = []
+        this_book.format = format
         this_book.library_id = lb_added
         this_book.path = path
         this_book.thumbnail = thumb
@@ -1319,10 +1378,11 @@ class ITUNES(DevicePlugin):
                   self.cached_books[cb]['uuid']))
         elif iswindows:
             for cb in self.cached_books.keys():
-                self.log.info("%s%-40.40s %-30.30s %s" %
+                self.log.info("%s%-40.40s %-30.30s %-4.4s %s" %
                  (' '*indent,
                   self.cached_books[cb]['title'],
                   self.cached_books[cb]['author'],
+                  self.cached_books[cb]['format'],
                   self.cached_books[cb]['uuid']))
 
         self.log.info()
@@ -1338,8 +1398,9 @@ class ITUNES(DevicePlugin):
         fnames = zf.namelist()
         opf = [x for x in fnames if '.opf' in x][0]
         if opf:
-            opf_raw = cStringIO.StringIO(zf.read(opf)).getvalue()
-            soup = BeautifulSoup(opf_raw)
+            opf_raw = cStringIO.StringIO(zf.read(opf))
+            soup = BeautifulSoup(opf_raw.getvalue())
+            opf_raw.close()
             title = soup.find('dc:title').renderContents()
             author = soup.find('dc:creator').renderContents()
             ts = soup.find('meta',attrs={'name':'calibre:timestamp'})
@@ -1428,7 +1489,7 @@ class ITUNES(DevicePlugin):
                 hits = dev_books.Search(search['uuid'],self.SearchField.index('All'))
                 if hits:
                     hit = hits[0]
-                    self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                    self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                     return hit
 
                 # Try by author - there could be multiple hits
@@ -1437,8 +1498,24 @@ class ITUNES(DevicePlugin):
                     for hit in hits:
                         if hit.Name == search['title']:
                             if DEBUG:
-                                self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                                self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                             return hit
+
+                # PDF metadata was rewritten at export as 'safe(title) - safe(author)'
+                if search['format'] == 'pdf':
+                    title = re.sub(r'[^0-9a-zA-Z ]', '_', search['title'])
+                    author = re.sub(r'[^0-9a-zA-Z ]', '_', search['author'])
+                    if DEBUG:
+                        self.log.info("   searching by name: '%s - %s'" % (title,author))
+                    hits = dev_books.Search('%s - %s' % (title,author),
+                                             self.SearchField.index('All'))
+                    if hits:
+                        hit = hits[0]
+                        self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                        return hit
+                    else:
+                        if DEBUG:
+                            self.log.info("   no PDF hits")
 
                 attempts -= 1
                 time.sleep(0.5)
@@ -1496,7 +1573,7 @@ class ITUNES(DevicePlugin):
                     if hits:
                         hit = hits[0]
                         if DEBUG:
-                            self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                            self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                         return hit
 
                 if DEBUG:
@@ -1506,8 +1583,24 @@ class ITUNES(DevicePlugin):
                     for hit in hits:
                         if hit.Name == search['title']:
                             if DEBUG:
-                                self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                                self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                             return hit
+
+                # PDF metadata was rewritten at export as 'safe(title) - safe(author)'
+                if search['format'] == 'pdf':
+                    title = re.sub(r'[^0-9a-zA-Z ]', '_', search['title'])
+                    author = re.sub(r'[^0-9a-zA-Z ]', '_', search['author'])
+                    if DEBUG:
+                        self.log.info("   searching by name: %s - %s" % (title,author))
+                    hits = lib_books.Search('%s - %s' % (title,author),
+                                             self.SearchField.index('All'))
+                    if hits:
+                        hit = hits[0]
+                        self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                        return hit
+                    else:
+                        if DEBUG:
+                            self.log.info("   no PDF hits")
 
                 attempts -= 1
                 time.sleep(0.5)
@@ -1523,10 +1616,12 @@ class ITUNES(DevicePlugin):
         Convert iTunes artwork to thumbnail
         Cache generated thumbnails
         cache_dir = os.path.join(config_dir, 'caches', 'itunes')
+        as of iTunes 9.2, iBooks 1.1, can't set artwork for PDF files via automation
         '''
 
         archive_path = os.path.join(self.cache_dir, "thumbs.zip")
         thumb_path = book_path.rpartition('.')[0] + '.jpg'
+        format = book_path.rpartition('.')[2].lower()
 
         try:
             zfr = ZipFile(archive_path)
@@ -1539,77 +1634,99 @@ class ITUNES(DevicePlugin):
 
         self.log.info(" ITUNES._generate_thumbnail()")
         if isosx:
-            try:
-                # Resize the cover
-                data = book.artworks[1].raw_data().data
-                #self._dump_hex(data[:256])
-                im = PILImage.open(cStringIO.StringIO(data))
-                scaled, width, height = fit_image(im.size[0],im.size[1], 60, 80)
-                im = im.resize((int(width),int(height)), PILImage.ANTIALIAS)
-                thumb = cStringIO.StringIO()
-                im.convert('RGB').save(thumb,'JPEG')
-
-                # Cache the tagged thumb
-                if DEBUG:
-                    self.log.info("  generated thumb for '%s', caching" % book.name())
-                zfw.writestr(thumb_path, thumb.getvalue())
-                zfw.close()
-                return thumb.getvalue()
-            except:
-                self.log.error("  error generating thumb for '%s'" % book.name())
+            if format == 'epub':
                 try:
+                    if False:
+                        self.log.info("   fetching artwork from %s\n   %s" % (book_path,book))
+                    # Resize the cover
+                    data = book.artworks[1].raw_data().data
+                    #self._dump_hex(data[:256])
+                    img_data = cStringIO.StringIO(data)
+                    im = PILImage.open(img_data)
+                    scaled, width, height = fit_image(im.size[0],im.size[1], 60, 80)
+                    im = im.resize((int(width),int(height)), PILImage.ANTIALIAS)
+                    img_data.close()
+
+                    thumb = cStringIO.StringIO()
+                    im.convert('RGB').save(thumb,'JPEG')
+                    thumb_data = thumb.getvalue()
+                    thumb.close()
+
+                    # Cache the tagged thumb
+                    if DEBUG:
+                        self.log.info("  generated thumb for '%s', caching" % book.name())
+                    zfw.writestr(thumb_path, thumb_data)
                     zfw.close()
+                    return thumb_data
                 except:
-                    pass
+                    self.log.error("  error generating thumb for '%s'" % book.name())
+                    try:
+                        zfw.close()
+                    except:
+                        pass
+                    return None
+            else:
+                if DEBUG:
+                    self.log.info("  unable to generate PDF thumbs")
                 return None
 
         elif iswindows:
 
             if not book.Artwork.Count:
                 if DEBUG:
-                    self.log.info("  no artwork available")
+                    self.log.info("  no artwork available for '%s'" % book.Name)
                 return None
 
-            # Save the cover from iTunes
-            try:
-                tmp_thumb = os.path.join(tempfile.gettempdir(), "thumb.%s" % self.ArtworkFormat[book.Artwork.Item(1).Format])
-                book.Artwork.Item(1).SaveArtworkToFile(tmp_thumb)
-                # Resize the cover
-                im = PILImage.open(tmp_thumb)
-                scaled, width, height = fit_image(im.size[0],im.size[1], 60, 80)
-                im = im.resize((int(width),int(height)), PILImage.ANTIALIAS)
-                thumb = cStringIO.StringIO()
-                im.convert('RGB').save(thumb,'JPEG')
-                os.remove(tmp_thumb)
-
-                # Cache the tagged thumb
-                if DEBUG:
-                    self.log.info("  generated thumb for '%s', caching" % book.Name)
-                zfw.writestr(thumb_path, thumb.getvalue())
-                zfw.close()
-                return thumb.getvalue()
-            except:
-                self.log.error("  error generating thumb for '%s'" % book.Name)
+            if format == 'epub':
+                # Save the cover from iTunes
                 try:
+                    tmp_thumb = os.path.join(tempfile.gettempdir(), "thumb.%s" % self.ArtworkFormat[book.Artwork.Item(1).Format])
+                    book.Artwork.Item(1).SaveArtworkToFile(tmp_thumb)
+                    # Resize the cover
+                    im = PILImage.open(tmp_thumb)
+                    scaled, width, height = fit_image(im.size[0],im.size[1], 60, 80)
+                    im = im.resize((int(width),int(height)), PILImage.ANTIALIAS)
+                    thumb = cStringIO.StringIO()
+                    im.convert('RGB').save(thumb,'JPEG')
+                    thumb_data = thmb.getvalue()
+                    os.remove(tmp_thumb)
+                    thumb.close()
+
+                    # Cache the tagged thumb
+                    if DEBUG:
+                        self.log.info("  generated thumb for '%s', caching" % book.Name)
+                    zfw.writestr(thumb_path, thumb_data)
                     zfw.close()
+                    return thumb_data
                 except:
-                    pass
+                    self.log.error("  error generating thumb for '%s'" % book.Name)
+                    try:
+                        zfw.close()
+                    except:
+                        pass
+                    return None
+            else:
+                if DEBUG:
+                    self.log.info("  unable to generate PDF thumbs")
                 return None
 
     def _get_device_book_size(self, file, compressed_size):
         '''
         Calculate the exploded size of file
         '''
-        myZip = ZipFile(file,'r')
-        myZipList = myZip.infolist()
-        exploded_file_size = 0
-        for file in myZipList:
-            exploded_file_size += file.file_size
-        if False:
-            self.log.info(" ITUNES._get_device_book_size()")
-            self.log.info("  %d items in archive" % len(myZipList))
-            self.log.info("  compressed: %d  exploded: %d" % (compressed_size, exploded_file_size))
-        myZip.close()
+        exploded_file_size = compressed_size
+        format = file.rpartition('.')[2].lower()
+        if format == 'epub':
+            myZip = ZipFile(file,'r')
+            myZipList = myZip.infolist()
+            exploded_file_size = 0
+            for file in myZipList:
+                exploded_file_size += file.file_size
+            if False:
+                self.log.info(" ITUNES._get_device_book_size()")
+                self.log.info("  %d items in archive" % len(myZipList))
+                self.log.info("  compressed: %d  exploded: %d" % (compressed_size, exploded_file_size))
+            myZip.close()
         return exploded_file_size
 
     def _get_device_books(self):
@@ -1701,7 +1818,7 @@ class ITUNES(DevicePlugin):
                         self.log.error("  no iPad|Books playlist found")
                 return pl
 
-    def _get_fpath(self,file, metadata, update_md=False):
+    def _get_fpath(self,file, metadata, format, update_md=False):
         '''
         If the database copy will be deleted after upload, we have to
         use file (the PersistentTemporaryFile), which will be around until
@@ -1723,9 +1840,9 @@ class ITUNES(DevicePlugin):
         else:
             # Recipe - PTF
             if DEBUG:
-                self.log.info("  file will be deleted after upload")
+                self.log.info("   file will be deleted after upload")
 
-        if update_md:
+        if format == 'epub' and update_md:
             self._update_epub_metadata(fpath, metadata)
 
         return fpath
@@ -1950,10 +2067,12 @@ class ITUNES(DevicePlugin):
 
             # Read the current storage path for iTunes media from the XML file
             with open(self.iTunes.LibraryXMLPath, 'r') as xml:
-                soup = BeautifulSoup(xml.read().decode('utf-8'))
-                mf = soup.find('key',text="Music Folder").parent
-                string = mf.findNext('string').renderContents()
-                media_dir = os.path.abspath(string[len('file://localhost/'):].replace('%20',' '))
+                for line in xml:
+                    if line.strip().startswith('<key>Music Folder'):
+                        soup = BeautifulSoup(line)
+                        string = soup.find('string').renderContents()
+                        media_dir = os.path.abspath(string[len('file://localhost/'):].replace('%20',' '))
+                        break
                 if os.path.exists(media_dir):
                     self.iTunes_media = media_dir
                 else:
@@ -2028,7 +2147,9 @@ class ITUNES(DevicePlugin):
             # Delete existing from Library|Books, add to self.update_list
             # for deletion from booklist[0] during add_books_to_metadata
             for book in self.cached_books:
-                if self.cached_books[book]['uuid'] == metadata.uuid:
+                if (self.cached_books[book]['uuid'] == metadata.uuid) or \
+                   (self.cached_books[book]['title'] == metadata.title and \
+                    self.cached_books[book]['author'] == metadata.authors[0]):
                     self.update_list.append(self.cached_books[book])
                     self._remove_from_iTunes(self.cached_books[book])
                     if DEBUG:
@@ -2036,7 +2157,7 @@ class ITUNES(DevicePlugin):
                     break
                 else:
                     if DEBUG:
-                        self.log.info("  '%s' not in cached_books" % metadata.title)
+                        self.log.info("  '%s' not found in cached_books" % metadata.title)
 
     def _remove_from_device(self, cached_book):
         '''
@@ -2158,12 +2279,14 @@ class ITUNES(DevicePlugin):
             fnames = zf_opf.namelist()
             opf = [x for x in fnames if '.opf' in x][0]
             if opf:
-                opf_raw = cStringIO.StringIO(zf_opf.read(opf)).getvalue()
-                soup = BeautifulSoup(opf_raw)
+                opf_raw = cStringIO.StringIO(zf_opf.read(opf))
+                soup = BeautifulSoup(opf_raw.getvalue())
+                opf_raw.close()
+
+                # Touch existing calibre timestamp
                 md = soup.find('metadata')
                 ts = md.find('meta',attrs={'name':'calibre:timestamp'})
                 if ts:
-                    # Touch existing calibre timestamp
                     timestamp = ts['content']
                     old_ts = parse_date(timestamp)
                     metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
@@ -2172,6 +2295,15 @@ class ITUNES(DevicePlugin):
                     metadata.timestamp = isoformat(now())
                     if DEBUG:
                         self.log.info("   add timestamp: %s" % metadata.timestamp)
+
+                # Fix the language declaration for iBooks 1.1
+                patched_language = 'en-US'
+                language = md.find('dc:language')
+                if language:
+                    self.log.info("   changing <dc:language> from '%s' to '%s'" %
+                                  (language.renderContents(),patched_language))
+                metadata.language = patched_language
+
             zf_opf.close()
 
             # If 'News' in tags, tweak the title/author for friendlier display in iBooks
@@ -2257,6 +2389,9 @@ class ITUNES(DevicePlugin):
                 lb_added.enabled.set(True)
                 lb_added.sort_artist.set(metadata.author_sort.title())
                 lb_added.sort_name.set(this_book.title_sorter)
+                if this_book.format == 'pdf':
+                    lb_added.artist.set(metadata.authors[0])
+                    lb_added.name.set(metadata.title)
 
             if db_added:
                 db_added.album.set(metadata.title)
@@ -2265,6 +2400,9 @@ class ITUNES(DevicePlugin):
                 db_added.enabled.set(True)
                 db_added.sort_artist.set(metadata.author_sort.title())
                 db_added.sort_name.set(this_book.title_sorter)
+                if this_book.format == 'pdf':
+                    db_added.artist.set(metadata.authors[0])
+                    db_added.name.set(metadata.title)
 
             if metadata.comments:
                 if lb_added:
@@ -2284,7 +2422,9 @@ class ITUNES(DevicePlugin):
 
             # Set genre from series if available, else first alpha tag
             # Otherwise iTunes grabs the first dc:subject from the opf metadata
-            if self.use_series_data and metadata.series:
+            if self.use_series_as_category and metadata.series:
+                if DEBUG:
+                    self.log.info("   using Series name as Genre")
                 if lb_added:
                     lb_added.sort_name.set("%s %03d" % (metadata.series, metadata.series_index))
                     lb_added.genre.set(metadata.series)
@@ -2298,6 +2438,8 @@ class ITUNES(DevicePlugin):
                     db_added.episode_number.set(metadata.series_index)
 
             elif metadata.tags:
+                if DEBUG:
+                    self.log.info("   using Tag as Genre")
                 for tag in metadata.tags:
                     if self._is_alpha(tag[0]):
                         if lb_added:
@@ -2314,6 +2456,9 @@ class ITUNES(DevicePlugin):
                 lb_added.Enabled = True
                 lb_added.SortArtist = (metadata.author_sort.title())
                 lb_added.SortName = (this_book.title_sorter)
+                if this_book.format == 'pdf':
+                    lb_added.Artist = metadata.authors[0]
+                    lb_added.Name = metadata.title
 
             if db_added:
                 db_added.Album = metadata.title
@@ -2322,6 +2467,9 @@ class ITUNES(DevicePlugin):
                 db_added.Enabled = True
                 db_added.SortArtist = (metadata.author_sort.title())
                 db_added.SortName = (this_book.title_sorter)
+                if this_book.format == 'pdf':
+                    db_added.Artist = metadata.authors[0]
+                    db_added.Name = metadata.title
 
             if metadata.comments:
                 if lb_added:
@@ -2345,7 +2493,9 @@ class ITUNES(DevicePlugin):
             # Otherwise iBooks uses first <dc:subject> from opf
             # iTunes balks on setting EpisodeNumber, but it sticks (9.1.1.12)
 
-            if self.use_series_data and metadata.series:
+            if self.use_series_as_category and metadata.series:
+                if DEBUG:
+                    self.log.info("   using Series name as Genre")
                 if lb_added:
                     lb_added.SortName = "%s %03d" % (metadata.series, metadata.series_index)
                     lb_added.Genre = metadata.series
@@ -2365,6 +2515,8 @@ class ITUNES(DevicePlugin):
                             self.log.warning("  iTunes automation interface reported an error"
                                              " setting EpisodeNumber on iDevice")
             elif metadata.tags:
+                if DEBUG:
+                    self.log.info("   using Tag as Genre")
                 for tag in metadata.tags:
                     if self._is_alpha(tag[0]):
                         if lb_added:

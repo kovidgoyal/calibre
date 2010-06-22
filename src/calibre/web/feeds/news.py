@@ -280,46 +280,6 @@ class BasicNewsRecipe(Recipe):
             }
     '''
 
-    #: The CSS that is used to style the touchscreen elements, i.e., the navigation bars and
-    #: the Feed summaries.
-    touchscreen_css = u'''
-            .article_navbar {
-                -webkit-border-radius:4px;
-                background-color:#eee;
-                border:1px solid #888;
-                margin-left: 5%;
-                margin-right: 5%;
-                width: 90%;
-           }
-
-            .feed_navbar {
-                -webkit-border-radius:4px;
-                background-color:#eee;
-                border:1px solid #888;
-                margin-left: 5%;
-                margin-right: 5%;
-                width: 90%;
-           }
-
-            .summary_headline {
-                font-weight:bold; text-align:left;
-            }
-
-            .summary_byline {
-                text-align:left;
-                font-family:monospace;
-            }
-
-            .summary_text {
-                text-align:left;
-            }
-
-            .feed {
-                font-family:sans-serif; font-weight:bold; font-size:larger;
-            }
-        '''
-
-
     #: By default, calibre will use a default image for the masthead (Kindle only).
     #: Override this in your recipe to provide a url to use as a masthead.
     masthead_url = None
@@ -625,6 +585,8 @@ class BasicNewsRecipe(Recipe):
         self.lrf = options.lrf
         self.output_profile = options.output_profile
         self.touchscreen = getattr(self.output_profile, 'touchscreen', False)
+        if self.touchscreen and getattr(self.output_profile, 'touchscreen_css',False):
+            self.extra_css += self.output_profile.touchscreen_css
 
         self.output_dir = os.path.abspath(self.output_dir)
         if options.test:
@@ -678,10 +640,8 @@ class BasicNewsRecipe(Recipe):
         if self.delay > 0:
             self.simultaneous_downloads = 1
 
-        if self.touchscreen:
-            self.extra_css += self.touchscreen_css
-
-        self.navbar = templates.TouchscreenNavBarTemplate() if self.touchscreen else templates.NavBarTemplate()
+        self.navbar = templates.TouchscreenNavBarTemplate() if self.touchscreen else \
+                      templates.NavBarTemplate()
         self.failed_downloads = []
         self.partial_failures = []
 
@@ -768,7 +728,8 @@ class BasicNewsRecipe(Recipe):
         timefmt = self.timefmt
         if self.touchscreen:
             templ = templates.TouchscreenIndexTemplate()
-            timefmt = '%A, %d %b %Y'
+            if getattr(self.output_profile,'timefmt',False):
+                timefmt = self.output_profile.timefmt
         return templ.generate(self.title, "mastheadImage.jpg", timefmt, feeds,
                               extra_css=css).render(doctype='xhtml')
 

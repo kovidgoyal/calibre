@@ -237,9 +237,6 @@ class OutputProfile(Plugin):
     # If True the MOBI renderer on the device supports MOBI indexing
     supports_mobi_indexing = False
 
-    # Device supports displaying a nested TOC
-    supports_nested_toc = True
-
     # If True output should be optimized for a touchscreen interface
     touchscreen = False
 
@@ -256,8 +253,82 @@ class iPadOutput(OutputProfile):
     screen_size = (768, 1024)
     comic_screen_size = (768, 1024)
     dpi = 132.0
-    supports_nested_toc = False
+    timefmt = '%A, %d %b %Y'
+    cssutils_addProfile = {  'name':'webkit',
+                            'props': {
+                            			'-webkit-border-bottom-left-radius':'{length}',
+                            			'-webkit-border-bottom-right-radius':'{length}',
+                            			'-webkit-border-top-left-radius':'{length}',
+                            			'-webkit-border-top-right-radius':'{length}',
+                            			'-webkit-border-radius': r'{border-width}(\s+{border-width}){0,3}|inherit',
+                            		 },
+                           'macros': {'border-width': '{length}|medium|thick|thin'}}
     touchscreen = True
+    touchscreen_css = u'''
+			/* hr used in articles */
+            .caption_divider {
+            	border:#ccc 1px solid;
+				}
+
+            .touchscreen_navbar {
+                background:#ccc;
+                border:#ccc 1px solid;
+                border-collapse:separate;
+                border-spacing:1px;
+                margin-left: 5%;
+                margin-right: 5%;
+                width: 90%;
+                -webkit-border-radius:4px;
+                }
+            .touchscreen_navbar td {
+                background:#fff;
+                font-family:Helvetica;
+                font-size:80%;
+                padding: 5px;
+                text-align:center;
+                }
+            .touchscreen_navbar td:first-child {
+				-webkit-border-top-left-radius:4px;
+				-webkit-border-bottom-left-radius:4px;
+				}
+			.touchscreen_navbar td:last-child {
+				-webkit-border-top-right-radius:4px;
+				-webkit-border-bottom-right-radius:4px;
+				}
+
+            .feed_link {
+                font-style: italic;
+                }
+
+
+            /* Feed summary formatting */
+            .feed_title {
+                text-align: center;
+                font-size: 160%;
+                }
+
+            .summary_headline {
+                font-weight:bold;
+                text-align:left;
+				}
+
+            .summary_byline {
+                text-align:left;
+                font-family:monospace;
+				}
+
+            .summary_text {
+                text-align:left;
+				}
+
+            .feed {
+                font-family:sans-serif;
+                font-weight:bold;
+                font-size:larger;
+				}
+
+        '''
+
 
 class SonyReaderOutput(OutputProfile):
 

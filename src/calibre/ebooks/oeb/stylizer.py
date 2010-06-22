@@ -127,15 +127,12 @@ class Stylizer(object):
         else:
             head = []
 
-        # GwR : Add webkit profile to cssutils before validating
-        if True:
-            wk_macros = {
-                      'border-width': '{length}|thin|medium|thick'
-                     }
-            wk_props =  {
-                      '-webkit-border-radius': r'{border-width}(\s+{border-width}){0,3}|inherit'
-                     }
-            cssutils.profile.addProfile('webkit', wk_props, wk_macros)
+        # Add optional cssutils parsing profile from output_profile
+        if hasattr(self.opts.output_profile, 'cssutils_addProfile'):
+            profile = self.opts.output_profile.cssutils_addProfile
+            cssutils.profile.addProfile(profile['name'],
+                                        profile['props'],
+                                        profile['macros'])
 
         parser = cssutils.CSSParser(fetcher=self._fetch_css_file,
                 log=logging.getLogger('calibre.css'))

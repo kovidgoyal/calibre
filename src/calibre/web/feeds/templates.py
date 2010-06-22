@@ -3,6 +3,9 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
+
+import copy
+
 from lxml import html, etree
 from lxml.html.builder import HTML, HEAD, TITLE, STYLE, DIV, BODY, \
         STRONG, EM, BR, SPAN, A, HR, UL, LI, H2, IMG, P as PT, \
@@ -73,6 +76,7 @@ class EmbeddedContent(Template):
 class IndexTemplate(Template):
 
     def _generate(self, title, masthead, datefmt, feeds, extra_css=None, style=None):
+        self.IS_HTML = False
         if isinstance(datefmt, unicode):
             datefmt = datefmt.encode(preferred_encoding)
         date = strftime(datefmt)
@@ -198,6 +202,9 @@ class NavBarTemplate(Template):
 class TouchscreenIndexTemplate(Template):
 
     def _generate(self, title, masthead, datefmt, feeds, extra_css=None, style=None):
+
+        self.IS_HTML = False
+
         if isinstance(datefmt, unicode):
             datefmt = datefmt.encode(preferred_encoding)
         date = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
@@ -238,6 +245,8 @@ class TouchscreenFeedTemplate(Template):
                 tokens = title.split(' ')
                 new_title_tokens = []
                 new_title_len = 0
+                if len(tokens[0]) > clip:
+                    return tokens[0][:clip] + '...'
                 for token in tokens:
                     if len(token) + new_title_len < clip:
                         new_title_tokens.append(token)
@@ -248,29 +257,37 @@ class TouchscreenFeedTemplate(Template):
                         break
             return title
 
+        self.IS_HTML = False
         feed = feeds[f]
 
         # Construct the navbar
-        navbar_t = TABLE(CLASS('feed_navbar'))
+        navbar_t = TABLE(CLASS('touchscreen_navbar'))
         navbar_tr = TR()
 
+        # Previous Section
         link = ''
         if f > 0:
-            link = A(EM( '< ' + trim_title(feeds[f-1].title)),
+            link = A(CLASS('feed_link'),
+                     trim_title(feeds[f-1].title),
                      href = '../feed_%d/index.html' % int(f-1))
         navbar_tr.append(TD(link, width="40%", align="center"))
 
+        # Up to Sections
         link = A(STRONG('Sections'), href="../index.html")
         navbar_tr.append(TD(link,width="20%",align="center"))
 
+        # Next Section
         link = ''
         if f < len(feeds)-1:
-            link = A(EM(trim_title(feeds[f+1].title) + ' >'),
+            link = A(CLASS('feed_link'),
+                     trim_title(feeds[f+1].title),
                      href = '../feed_%d/index.html' % int(f+1))
-        navbar_tr.append(TD(link, width="40%", align="center"))
-
+        navbar_tr.append(TD(link, width="40%", align="center", ))
         navbar_t.append(navbar_tr)
-        navbar = navbar_t
+        top_navbar = navbar_t
+        bottom_navbar = copy.copy(navbar_t)
+        #print "\n%s\n" % etree.tostring(navbar_t, pretty_print=True)
+
 
         # Build the page
         head = HEAD(TITLE(feed.title))
@@ -280,8 +297,8 @@ class TouchscreenFeedTemplate(Template):
             head.append(STYLE(extra_css, type='text/css'))
         body = BODY(style='page-break-before:always')
         div = DIV(
-                H2(feed.title, CLASS('calibre_feed_title', 'calibre_rescale_160')),
-                DIV(style="border-top:1px solid gray;border-bottom:1em solid white")
+                top_navbar,
+                H2(feed.title, CLASS('feed_title'))
                 )
         body.append(div)
 
@@ -317,9 +334,8 @@ class TouchscreenFeedTemplate(Template):
             toc.append(tr)
 
         div.append(toc)
-        #div.append(DIV(style="border-top:1px solid gray;border-bottom:1em solid white"))
         div.append(BR())
-        div.append(navbar)
+        div.append(bottom_navbar)
         self.root = HTML(head, body)
 
 class TouchscreenNavBarTemplate(Template):
@@ -334,24 +350,23 @@ class TouchscreenNavBarTemplate(Template):
             head.append(STYLE(extra_css, type='text/css'))
 
         navbar = DIV()
-        if bottom:
-            navbar.append(DIV(style="border-top:1px solid gray;border-bottom:1em solid white"))
-
-        navbar_t = TABLE(CLASS('article_navbar'))
+        navbar_t = TABLE(CLASS('touchscreen_navbar'))
         navbar_tr = TR()
+
         # | Previous
         if art > 0:
             href = '%s../article_%d/index.html'%(prefix, art-1)
-            navbar_tr.append(TD(A(EM('< Previous'), href=href), width="32%", align="center"))
+            navbar_tr.append(TD(A(EM('Previous'),href=href),
+                               width="32%"))
         else:
-            navbar_tr.append(TD('', width="25%"))
+            navbar_tr.append(TD('', width="32%"))
 
         # | Articles | Sections |
         href = '%s../index.html#article_%d'%(prefix, art)
-        navbar_tr.append(TD(A(STRONG('Articles'), href=href),width="18%", align="center"))
+        navbar_tr.append(TD(A(STRONG('Articles'), href=href),width="18%"))
 
         href = '%s../../index.html#feed_%d'%(prefix, feed)
-        navbar_tr.append(TD(A(STRONG('Sections'), href=href),width="18%", align="center"))
+        navbar_tr.append(TD(A(STRONG('Sections'), href=href),width="18%"))
 
         # | Next
         next = 'feed_%d'%(feed+1) if art == number_of_articles_in_feed - 1 \
@@ -359,7 +374,8 @@ class TouchscreenNavBarTemplate(Template):
         up = '../..' if art == number_of_articles_in_feed - 1 else '..'
         href = '%s%s/%s/index.html'%(prefix, up, next)
 
-        navbar_tr.append(TD(A(EM('Next >'), href=href),width="32%", align="center"))
+        navbar_tr.append(TD(A(EM('Next'),href=href),
+                           width="32%"))
         navbar_t.append(navbar_tr)
         navbar.append(navbar_t)
         #print "\n%s\n" % etree.tostring(navbar, pretty_print=True)

@@ -72,4 +72,9 @@ gui_pubdate_display_format = 'MMM yyyy'
 # without changing anything is sufficient to change the sort.
 title_series_sorting = 'library_order'
 
-
+# Apple iDevice
+# Control whether Series name is used as Category/Genre in iTunes/iBooks
+# If set to 'True', a Book's Series name will be used as the Category/Genre
+# If set to 'False', the book's first tag beginning with an alpha character will
+# be used as the Category/Genre
+iDevice_use_series_as_category = True
