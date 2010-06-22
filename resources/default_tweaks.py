@@ -74,7 +74,7 @@ title_series_sorting = 'library_order'
 
 # Apple iTunes/iDevice
 # Control whether Series name is used as Genre in iTunes/iBooks
-# If set to 'True', a Book's Series name will be used as the Genre
+# If set to 'True', a Book's Series name (if one exists) will be used as the Genre
 # If set to 'False', the book's first tag beginning with an alpha character will
 # be used as the Genre
 ITUNES_use_series_as_category = False
