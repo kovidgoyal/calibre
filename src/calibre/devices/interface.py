@@ -372,7 +372,7 @@ class DevicePlugin(Plugin):
     @classmethod
     def settings(cls):
         '''
-        Should return an opts object. The opts object should have one attribute
+        Should return an opts object. The opts object should have at least one attribute
         `format_map` which is an ordered list of formats for the device.
         '''
         raise NotImplementedError()
