@@ -282,7 +282,7 @@ class MetaInformation(object):
         for attr in ('author_sort', 'title_sort', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'application_id', 'manifest', 'spine', 'toc',
-                     'cover', 'language', 'guide', 'book_producer',
+                     'cover', 'guide', 'book_producer',
                      'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate', 'rights',
                      'publication_type', 'uuid'):
             if hasattr(mi, attr):
@@ -313,6 +313,11 @@ class MetaInformation(object):
             other_comments = ''
         if len(other_comments.strip()) > len(my_comments.strip()):
             self.comments = other_comments
+
+        other_lang = getattr(mi, 'language', None)
+        if other_lang and other_lang.lower() != 'und':
+            self.language = other_lang
+
 
     def format_series_index(self):
         try:
