@@ -190,11 +190,16 @@ The most likely cause of this is your antivirus program. Try temporarily disabli
 Why is my device not detected in linux?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-|app| uses something called SYSFS to detect devices in linux. The linux kernel can export two version of SYSFS, one of which is deprecated. Some linux distributions still ship with kernels that support the deprecated version of SYSFS, even though it was deprecated a long time ago. In this case, device detection in |app| will not work. You can check what version of SYSFS is exported by your kernel with the following command::
+|app| needs your linux kernel to have been setup correctly to detect devices. If your devices are not detected, perform the following tests:: 
     
     grep SYSFS_DEPRECATED /boot/config-`uname -r`
 
-You should see something like ``CONFIG_SYSFS_DEPRECATED_V2 is not set``. If you don't you have to either recompile your kernel with the correct setting, or upgrade your linux distro to a more modern version, where this will not be set.
+You should see something like ``CONFIG_SYSFS_DEPRECATED_V2 is not set``.
+Also, ::
+
+    grep CONFIG_SCSI_MULTI_LUN /boot/config-`uname -r`
+
+must return ``CONFIG_SCSI_MULTI_LUN=y``. If you don't see either, you have to recompile your kernel with the correct settings.
 
 Library Management
 ------------------
