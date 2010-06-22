@@ -304,9 +304,8 @@ def auto_member(dirname, arguments, options, content, lineno,
     return list(node)
 
 def setup(app):
-    app.add_config_value('epub_titlepage', None, False)
+    app.add_config_value('epub_cover', None, False)
     app.add_config_value('epub_author', '', False)
-    app.add_config_value('epub_logo', None, False)
     app.add_builder(CustomBuilder)
     app.add_builder(CustomQtBuild)
     app.add_builder(EPUBHelpBuilder)
