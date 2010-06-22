@@ -77,4 +77,4 @@ title_series_sorting = 'library_order'
 # If set to 'True', a Book's Series name will be used as the Genre
 # If set to 'False', the book's first tag beginning with an alpha character will
 # be used as the Genre
-ITUNES_use_series_as_category = True
+ITUNES_use_series_as_category = False
