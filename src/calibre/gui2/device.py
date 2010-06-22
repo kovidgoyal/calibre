@@ -10,7 +10,7 @@ from functools import partial
 from binascii import unhexlify
 
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, QPixmap, \
-                     Qt, pyqtSignal, QColor, QPainter
+                     Qt, pyqtSignal, QColor, QPainter, QDialog
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre.customize.ui import available_input_formats, available_output_formats, \
@@ -814,7 +814,8 @@ class DeviceMixin(object): # {{{
         if specific:
             d = ChooseFormatDialog(self, _('Choose format to send to device'),
                                 self.device_manager.device.settings().format_map)
-            d.exec_()
+            if d.exec_() != QDialog.Accepted:
+                return
             if d.format():
                 fmt = d.format().lower()
         dest, sub_dest = dest.split(':')
