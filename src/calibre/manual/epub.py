@@ -50,6 +50,7 @@ OPF = '''\
         <dc:identifier opf:scheme="sphinx" id="sphinx_id">{uid}</dc:identifier>
         <dc:date>{date}</dc:date>
         <meta name="calibre:publication_type" content="sphinx_manual" />
+        <meta name="cover" content="cover"/>
     </metadata>
     <manifest>
     {manifest}
@@ -71,6 +72,29 @@ CONTAINER='''\
    </rootfiles>
 </container>
 '''
+
+SVG_TEMPLATE = '''\
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="calibre:cover" content="true" />
+        <title>Cover</title>
+        <style type="text/css" title="override_css">
+            @page {padding: 0pt; margin:0pt}
+            body { text-align: center; padding:0pt; margin: 0pt; }
+        </style>
+    </head>
+    <body>
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            width="100%%" height="100%%" viewBox="0 0 600 800"
+            preserveAspectRatio="none">
+            <image width="600" height="800" xlink:href="%s"/>
+        </svg>
+    </body>
+</html>
+'''
+
 class TOC(list):
 
     def __init__(self, title=None, href=None):
@@ -151,8 +175,6 @@ class EPUBHelpBuilder(StandaloneHTMLBuilder):
         spine = [' '*8+'<itemref idref=%s />'%quoteattr(x) for x in self.spine]
         spine = '\n'.join(spine)
         guide = ''
-        if self.conf.epub_titlepage:
-            guide = ' '*8 + '<reference type="cover"  href="_static/titlepage.html" />'
 
         opf = OPF.format(title=escape(self.conf.html_title),
                 author=escape(self.conf.epub_author), uid=str(uuid.uuid4()),
@@ -162,18 +184,15 @@ class EPUBHelpBuilder(StandaloneHTMLBuilder):
         self.manifest['content.opf'] = ('application/oebps-package+xml', 'opf')
 
     def create_titlepage(self):
-        if self.conf.epub_titlepage:
-            img = ''
-            if self.conf.epub_logo:
-                img = '_static/epub_logo'+os.path.splitext(self.conf.epub_logo)[1]
-                shutil.copyfile(self.conf.epub_logo,
-                        os.path.join(self.html_outdir, *img.split('/')))
-            raw = open(self.conf.epub_titlepage, 'rb').read()
-            raw = raw%dict(title=self.conf.html_title,
-                    version=self.conf.version,
-                    img=img.split('/')[-1],
-                    author=self.conf.epub_author)
-            open(os.path.join(self.html_outdir, '_static', 'titlepage.html'), 'wb').write(raw)
+        self.cover_image_url = None
+        if self.conf.epub_cover:
+            img = '_static/'+os.path.basename(self.conf.epub_cover)
+            shutil.copyfile(self.conf.epub_cover, os.path.join(self.html_outdir,
+                *img.split('/')))
+            self.cover_image_url = img
+            tp = SVG_TEMPLATE%img.split('/')[-1]
+            open(os.path.join(self.html_outdir, '_static', 'titlepage.html'),
+                    'wb').write(tp)
 
     def generate_manifest(self):
         self.manifest = {}
@@ -190,8 +209,12 @@ class EPUBHelpBuilder(StandaloneHTMLBuilder):
                     self.manifest[url] = 'application/octet-stream'
                 if self.manifest[url] == 'text/html':
                     self.manifest[url] = 'application/xhtml+xml'
-                self.manifest[url] = (self.manifest[url], 'id'+str(id))
-                id += 1
+                if self.cover_image_url and url.endswith(self.cover_image_url):
+                    id_ = 'cover'
+                else:
+                    id_ = 'id'+str(id)
+                    id += 1
+                self.manifest[url] = (self.manifest[url], id_)
 
     def isdocnode(self, node):
         if not isinstance(node, nodes.list_item):
@@ -227,7 +250,7 @@ class EPUBHelpBuilder(StandaloneHTMLBuilder):
         open('toc.ncx', 'wb').write(ncx)
         self.manifest['toc.ncx'] = ('application/x-dtbncx+xml', 'ncx')
         self.spine.insert(0, self.manifest[self.conf.master_doc+'.html'][1])
-        if self.conf.epub_titlepage:
+        if self.conf.epub_cover:
             self.spine.insert(0, self.manifest['_static/titlepage.html'][1])
 
     def add_to_spine(self, href):

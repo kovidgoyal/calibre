@@ -163,7 +163,7 @@ class ITUNES(DevicePlugin):
     sources = None
     update_msg = None
     update_needed = False
-    use_series_as_category = tweaks['iDevice_use_series_as_category']
+    use_series_as_category = tweaks['ITUNES_use_series_as_category']
 
     # Public methods
     def add_books_to_metadata(self, locations, metadata, booklists):

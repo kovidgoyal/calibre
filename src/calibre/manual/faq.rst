@@ -160,7 +160,7 @@ Alternative for the iPad
 As of |app| version 0.7.0, you can plugin your iPad into the computer using its charging cable, and |app| will detect it and show you a list of books on the iPad. You can then use the Send to device button to send books directly to iBooks on the iPad.
 
 This method only works on Windows XP and higher and OS X 10.5 and higher. Linux is not supported (iTunes is not available in linux) and OS X 10.4 is not supported. For more details, see
-`this forum post http://www.mobileread.com/forums/showpost.php?p=944079&postcount=1`_.
+`this forum post <http://www.mobileread.com/forums/showpost.php?p=944079&postcount=1>`_.
 
 How do I use |app| with my Android phone?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -190,11 +190,16 @@ The most likely cause of this is your antivirus program. Try temporarily disabli
 Why is my device not detected in linux?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-|app| uses something called SYSFS to detect devices in linux. The linux kernel can export two version of SYSFS, one of which is deprecated. Some linux distributions still ship with kernels that support the deprecated version of SYSFS, even though it was deprecated a long time ago. In this case, device detection in |app| will not work. You can check what version of SYSFS is exported by your kernel with the following command::
+|app| needs your linux kernel to have been setup correctly to detect devices. If your devices are not detected, perform the following tests:: 
     
     grep SYSFS_DEPRECATED /boot/config-`uname -r`
 
-You should see something like ``CONFIG_SYSFS_DEPRECATED_V2 is not set``. If you don't you have to either recompile your kernel with the correct setting, or upgrade your linux distro to a more modern version, where this will not be set.
+You should see something like ``CONFIG_SYSFS_DEPRECATED_V2 is not set``.
+Also, ::
+
+    grep CONFIG_SCSI_MULTI_LUN /boot/config-`uname -r`
+
+must return ``CONFIG_SCSI_MULTI_LUN=y``. If you don't see either, you have to recompile your kernel with the correct settings.
 
 Library Management
 ------------------
