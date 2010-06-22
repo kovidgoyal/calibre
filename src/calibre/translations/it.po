@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-20 00:56+0000\n"
-"PO-Revision-Date: 2010-06-19 19:35+0000\n"
-"Last-Translator: Sheldon Pax <Unknown>\n"
+"PO-Revision-Date: 2010-06-21 15:31+0000\n"
+"Last-Translator: MeltingShell <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-20 03:32+0000\n"
+"X-Launchpad-Export-Date: 2010-06-22 03:51+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -537,7 +537,7 @@ msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
-"Alcune copertine non possono essere converite.\n"
+"Alcune copertine non possono essere convertite.\n"
 "Fare clic su 'Mostra dettagli' per una lista."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2178
@@ -1167,7 +1167,7 @@ msgstr "Output salvato in"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:95
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
 msgstr ""
-"Livello di dettagli dell'output. Specificare piu' istanze per maggiori "
+"Livello di dettagli dell'output. Specificare piu' volte per maggiori "
 "dettagli."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:102
@@ -1176,9 +1176,9 @@ msgid ""
 "specified directory. Useful if you are unsure at which stage of the "
 "conversion process a bug is occurring."
 msgstr ""
-"Salva l'output dal differente stadio di conversione raggiunto nella "
-"directory specificata. Utile se non si e' sicuri in quale stadio del "
-"processo di conversione appare il bug"
+"Salva l'output dei differenti stadi di conversione raggiunti nella directory "
+"specificata. Utile se non si conosce in quale stadio del processo di "
+"conversione si verifica l'errore."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:111
 msgid ""
@@ -1274,9 +1274,6 @@ msgid ""
 "of Contents at level two. Each entry is added under the previous level one "
 "entry."
 msgstr ""
-"Espressione XPath che specifica tutti i tag che devono essere aggiunti al "
-"sommario al secondo livello. Ogni elemento viene aggiunto sotto l'elemento "
-"di primo livello precedente."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:197
 msgid ""
@@ -1284,9 +1281,9 @@ msgid ""
 "of Contents at level three. Each entry is added under the previous level two "
 "entry."
 msgstr ""
-"Espressione XPath che identifica tutte le etichette da aggiungere alla "
-"tavola dei contenuti al terzo livello. Ogni istanza é aggiunta come il "
-"livello due che la precede."
+"Espressione XPath che specifica tutti i tag che devono essere aggiunti al "
+"sommario al terzo livello. Ogni elemento viene aggiunto sotto l'elemento di "
+"secondo livello precedente."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:205
 msgid ""
@@ -1426,9 +1423,9 @@ msgid ""
 "1.5em. Spacing removal will not work if the source file does not use "
 "paragraphs (<p> or <div> tags)."
 msgstr ""
-"Rimuovi gli spazi fra i paragrafi. Specifica anche un incavo all'inizio dei "
-"paragrafi di 1.5em. Rimuover gli spazi non avrá alcun effetto se il "
-"documento sorgente non usa notazione per i paragrafi del tipo <p> o <div>."
+"Rimuovi gli spazi fra i paragrafi. Specifica anche un rientro all'inizio dei "
+"paragrafi di 1.5em. Rimuovere gli spazi non funzionerá se il documento "
+"sorgente non usa la notazione per i paragrafi del tipo <p> o <div>."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:323
 msgid ""
@@ -1453,8 +1450,8 @@ msgid ""
 "Insert a blank line between paragraphs. Will not work if the source file "
 "does not use paragraphs (<p> or <div> tags)."
 msgstr ""
-"Inserisce una linea vuota tra i paragrafi. Non funziona se il file sorgente "
-"non usa paragrafi ( tag <p> o <div> )"
+"Inserisce una linea vuota tra i paragrafi. Non funzionerà se il file "
+"sorgente non usa i paragrafi ( tag <p> o <div> )"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:343
 msgid ""
@@ -1596,7 +1593,7 @@ msgstr "Imposta il codice ISBN del libro"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:68
 msgid "Set the tags for the book. Should be a comma separated list."
 msgstr ""
-"Imposta i tags per il libro. Deve eessere una lista separata da virgole."
+"Imposta i tag per il libro. Deve essere una lista separata da virgole."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:477
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:70
@@ -1695,6 +1692,10 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
+"Non utilizzare SVG per la copertina del libro. Usare questa opzione se "
+"l'EPUB verrà usato su un dispositivo che non supporta SVG, come l'iPhone o "
+"il JetBook Lite. Senza questa opzione, alcuni dispositivi visualizzeranno "
+"cme copertina una pagina bianca."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
@@ -1913,7 +1914,7 @@ msgstr "Percorso del file in uscita"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:290
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:113
 msgid "Verbose processing"
-msgstr "Processamento dettagliato"
+msgstr "Elaborazione dettagliata"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:292
 msgid "Convert LRS to LRS, useful for debugging."
@@ -2240,7 +2241,7 @@ msgstr "Valutazioni"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:110
 msgid "tags"
-msgstr "etichette"
+msgstr "tag"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:111
 msgid "description/reviews"
@@ -2381,7 +2382,7 @@ msgstr "Disabilita la compressione dei file di contenuto"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:40
 msgid "Tag marking book to be filed with Personal Docs"
-msgstr "Il Tag marca il libro come Documento Personale"
+msgstr "Il tag marca il libro come Documento Personale"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:108
 msgid "All articles"
@@ -2959,7 +2960,7 @@ msgstr "Usa numeri romani per i numeri delle serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:47
 msgid "Sort tags list by name, popularity, or rating"
-msgstr "Ordina i tag per nome, popolarità o voto"
+msgstr "Ordina i tag per nome, popolarità o valutazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:49
 msgid "Number of covers to show in the cover browsing mode"
@@ -3010,7 +3011,7 @@ msgid ""
 "window"
 msgstr ""
 "Fai vedere la vetrina delle copertine in una finestra separata invece della "
-"finestra prinicpale di Calibre."
+"finestra principale di Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:69
 msgid "Disable notifications from the system tray icon"
@@ -3028,7 +3029,7 @@ msgstr "Limite masimo di processi in attesa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:95
 msgid "Download social metadata (tags/rating/etc.)"
-msgstr "Scaricare metadati sociali (categorie/valutazioni/etc.)"
+msgstr "Scaricare metadati sociali (tag/valutazioni/etc.)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:97
 msgid "Overwrite author and title with new metadata"
@@ -3048,7 +3049,7 @@ msgstr "L'aspetto dell'interfaccia grafica"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:105
 msgid "Show the average rating per item indication in the tag browser"
-msgstr "Visualizza il voto medio per elemento nel browser dei tag"
+msgstr "Visualizza la valutazione media per elemento nel browser dei tag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:153
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:476
@@ -3377,7 +3378,7 @@ msgstr "Errore durante il salvataggio"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:890
 msgid "There was an error while saving."
-msgstr "Si é verificato un errore durante il salvataggio"
+msgstr "Si è verificato un errore durante il salvataggio."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:897
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:898
@@ -3829,19 +3830,19 @@ msgstr "Catalogo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:69
 msgid "'Don't include this book' tag:"
-msgstr "Etichetta per 'Non usare questo libro':"
+msgstr "Tag per 'Non usare questo libro':"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:70
 msgid "'Mark this book as read' tag:"
-msgstr "Etichetta per 'Marcare questo libro come letto':"
+msgstr "Tag per 'Marca questo libro come letto':"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:71
 msgid "Additional note tag prefix:"
-msgstr "Etichetta per note aggiuntive"
+msgstr "Tag per note aggiuntive:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:72
 msgid "Regex pattern describing tags to exclude as genres:"
-msgstr "Stringa Regex per definire etichette che escludono generi:"
+msgstr "Espressione regolare per definire i tag da escludere come generi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:73
 msgid ""
@@ -3851,11 +3852,11 @@ msgid ""
 "- A regex pattern of a single dot excludes all genre tags, generating no "
 "Genre Section"
 msgstr ""
-"Consigli Regex:\n"
-"- Il valore di default regex - \\[[\\w ]*\\] - esclude i tag di genere dal "
-"modulo [tag], ad esempio, [Amazon Freebie]\n"
-"- Un modello regex con un singolo punto esclude tutte le etichette di "
-"genere, non generando quindi alcuna Sezione Genere"
+"Consigli espressioni regolari:\n"
+"- L'espressione predefinita - \\[[\\w ]*\\] - esclude i tag di genere del "
+"tipo [tag], ad esempio, [Amazon Freebie]\n"
+"- Un espressione con un singolo punto esclude tutti i tag di genere, "
+"generando quindi una Sezione senza Genere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:76
 msgid "Include 'Titles' Section"
@@ -4022,11 +4023,11 @@ msgstr "Non &spezzare nelle interruzioni di pagina."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:50
 msgid "No default &cover"
-msgstr "Non esiste una &copetina predefinita"
+msgstr "Nessuna &copertina predefinita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:51
 msgid "No &SVG cover"
-msgstr "Nessuna cover &SVG"
+msgstr "Nessuna copertina &SVG"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:52
 msgid "Preserve cover &aspect ratio"
@@ -4078,19 +4079,19 @@ msgid ""
 "ebook.com/user_manual/conversion.html#font-size-rescaling\">User Manual</a> "
 "for a discussion of how font size rescaling works.</p>"
 msgstr ""
-"<p>Questo assistente vi aiuterá a scegliere una grandezza di carattteri "
-"adeguata ai vostri bisogni. Indicate la dimensione di base del documento "
-"sorgente e poi una dimensione di input. L'assistente visualizzerá le "
-"corrispondenze e l'effetto del riaggiustamento prodotto dall'algoritmo di "
-"conversione. É possibile modificare l'algoritmo cambiando le dimensioni dei "
-"caratteri di base e tipo di carattere in basso. Quando siete soddisfatti con "
-"la scelta, premere OK.</p>p>Come parametro predefinito, la dimensione del "
-"carattere di base é zero e/o non é specificato un tipo di carattere; Calibre "
-"userá i valori presenti nel Profilo di output selezionato</p>\n"
-"<p>Vedere il <a href=\"http://calibre-"
+"<p>Questa procedura permetterà di scegliere una grandezza di carattteri "
+"adeguata. Indicare la dimensione di base dei caratteri del documento "
+"sorgente e poi una dimensione dei caratteri di input. La procedura "
+"visualizzerá le corrispondenze e l'effetto del riaggiustamento prodotto "
+"dall'algoritmo di conversione. È possibile modificare l'algoritmo cambiando "
+"le dimensioni dei caratteri di base e tipo di carattere. Una volta trovati i "
+"valori giusti, fare clic su OK.</p>\n"
+"<p>Come parametro predefinito, se la dimensione del carattere di base é zero "
+"e/o non é specificato un tipo di carattere, Calibre userá i valori presenti "
+"nel profilo di output corrente.</p>\n"
+"<p>Consultare il <a href=\"http://calibre-"
 "ebook.com/user_manual/conversion.html#font-size-rescaling\">manuale "
-"d'uso</a> per un trattamento piú dettagliato sull'aggiustamento delle "
-"grandezze.</p>"
+"d'uso</a> per capire come funziona il ridimensionamento dei caratteri.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:103
 msgid "&Output document"
@@ -4393,8 +4394,8 @@ msgid ""
 "<br><br>They can be any words or phrases, separated by commas."
 msgstr ""
 "I tag categorizzano un libro. Questo è particolarmente utile durante le "
-"ricerche. <br><br>Possono essere qualsiasi parola o frase, separati da una "
-"virgola"
+"ricerche. <br><br>Possono essere qualsiasi parola o frase, separati da "
+"virgole."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:174
@@ -4454,7 +4455,7 @@ msgstr "Carattere Testata Periodica:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:74
 msgid "Personal Doc tag:"
-msgstr "Tag Documenti Personali"
+msgstr "Tag Documenti Personali:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -4782,7 +4783,7 @@ msgstr "Utilizza il wizard di aiuto per create le espressioni XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:68
 msgid "Match HTML &tags with tag name:"
-msgstr "Uguagliare HTML &tags con il nome di etichetta"
+msgstr "Far corrispondere i &tag HTML con il nome del tag:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:69
 msgid "*"
@@ -4904,15 +4905,15 @@ msgstr "Non votato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:357
 msgid "Remove all tags"
-msgstr "Elimina tutte le etichette"
+msgstr "Elimina tutti i tag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:378
 msgid "tags to add"
-msgstr "etichette da aggiungere"
+msgstr "tag da aggiungere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:383
 msgid "tags to remove"
-msgstr "etichette da eliminare"
+msgstr "tag da eliminare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:135
@@ -5194,7 +5195,7 @@ msgstr "Salva &template"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:68
 msgid "Fit &cover to view"
-msgstr "Ridimensiona &cover per la visualizzazione"
+msgstr "Ridimensiona &copertina per la visualizzazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:69
 msgid "&Previous"
@@ -5678,8 +5679,7 @@ msgstr "&Visualizza un avvertimento quando è disponibile una nuova versione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:553
 msgid "Download &social metadata (tags/ratings/etc.) by default"
-msgstr ""
-"Scarica i metadati &sociali (etichette, valutazioni, etc.) automaticamente"
+msgstr "Scarica i metadati &sociali (tag, valutazioni, etc.) automaticamente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:554
 msgid "&Overwrite author and title by default when fetching metadata"
@@ -5748,12 +5748,12 @@ msgstr "Visualizza lo &splash screen all'avvio"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:571
 msgid "Show cover &browser in a separate window (needs restart)"
 msgstr ""
-"Visualizza il &browser di copertine in una finestra separata (richiede il "
+"Visualizza il &browser di copertine in una finestra separata (richiede "
 "riavvio)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:572
 msgid "Show &average ratings in the tags browser"
-msgstr "Visualizza la &media dei voti nel browser dei tag"
+msgstr "Visualizza la &media delle valutazioni nel browser dei tag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:573
 msgid "Search as you type"
@@ -5850,9 +5850,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:599
 msgid "&Maximum number of waiting worker processes (needs restart):"
-msgstr ""
-"Numero &massimo di elaboratori di processi in attesa (richiede rilancio del "
-"programma):"
+msgstr "Numero &massimo di processi in attesa (richiede riavvio):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:600
 msgid "&Check database integrity"
@@ -6071,7 +6069,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:25
 msgid "Long text, like comments, not shown in the tag browser"
-msgstr "Testo esteso, come i commenti, non visualizzato nel browserdei tag"
+msgstr "Testo esteso, come i commenti, non visualizzato nel browser dei tag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:30
 msgid "Floating point numbers"
@@ -6349,8 +6347,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:91
 msgid "Download &social metadata (tags/rating/etc.) for the selected book"
 msgstr ""
-"Scaricare i &social metadati (etichette, valutazioni, etc) per il libro "
-"selezionato"
+"Scaricare i &social metadati (tag, valutazioni, etc) per il libro selezionato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:92
 msgid "Overwrite author and title with author and title of selected book"
@@ -6405,14 +6402,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:375
 msgid "&Rating:"
-msgstr "&Giudizio:"
+msgstr "&Valutazione:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:163
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:164
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:376
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:377
 msgid "Rating of this book. 0-5 stars"
-msgstr "Giudizio su questo libro. 0-5 stelle"
+msgstr "Valutazione di questo libro. 0-5 stelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:165
 msgid "No change"
@@ -6523,15 +6520,15 @@ msgstr "Non é possibile leggere i metadati dai formati %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:256
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:262
 msgid "Could not read cover"
-msgstr "Non é possibile visualizzare la copertina"
+msgstr "Non è possibile visualizzare la copertina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:257
 msgid "Could not read cover from %s format"
-msgstr "Non é possibile visualizzare la copertina dai formati %s"
+msgstr "Non è possibile visualizzare la copertina di formato %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:263
 msgid "The cover in the %s format is invalid"
-msgstr "La copertina nel formato %s é invalida."
+msgstr "La copertina nel formato %s non è valida."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:300
 msgid "Abort the editing of all remaining books"
@@ -6576,7 +6573,7 @@ msgstr "Lo scaricamento ha raggiunto il limite di tempo"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:571
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr ""
-"Non é stato possibile trovare  una copertina per questo libro. Si provi a "
+"Impossibile trovare una copertina per questo libro. Provare prima a "
 "specificare il codice ISBN."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:583
@@ -6585,7 +6582,7 @@ msgstr "Copertina inutilizzabile"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:584
 msgid "The cover is not a valid picture"
-msgstr "La copertina non é un'immagine accettabile."
+msgstr "La copertina non é un'immagine valida."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:617
 msgid "There were errors"
@@ -6678,7 +6675,7 @@ msgstr "Cancella il formato selezionato dal database per questo libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:402
 msgid "Set the cover for the book from the selected format"
-msgstr "Specifica la copertina del libro dal formato selezionato"
+msgstr "Imposta la copertina del libro dal formato selezionato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:404
 msgid "Update metadata from the metadata in the selected format"
@@ -6690,7 +6687,7 @@ msgstr "Ripristinare la copertina predefinita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:411
 msgid "Download &cover"
-msgstr "Scaricamento &cover"
+msgstr "Scaricamento &copertine"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:56
 msgid "Password needed"
@@ -6873,11 +6870,11 @@ msgstr "&Programma"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:217
 msgid "Add &title as tag"
-msgstr "Aggiunta di &title come etichetta"
+msgstr "Aggiungi &titolo come tag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:218
 msgid "&Extra  tags:"
-msgstr "&Extra etichette:"
+msgstr "Tag &aggiuntivi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:219
 msgid "&Advanced"
@@ -7063,9 +7060,7 @@ msgstr "Siete sicuri?"
 msgid ""
 "The following tags are used by one or more books. Are you certain you want "
 "to delete them?"
-msgstr ""
-"Queste etichette sono usate da uno o piú libri. Siete sicuri di volerle "
-"rimuovere?"
+msgstr "Questi tag sono usati da uno o piú libri. Eliminarli comunque?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:123
 msgid "Tag Editor"
@@ -7411,20 +7406,19 @@ msgstr ""
 "</style></head><body style=\" font-family:'Candara'; font-size:10pt; font-"
 "weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">Specificare uno schema "
-"come espressione regolare da usare per tentare di individuare i metadati dai "
-"nomi dei documenti. </p>\n"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Specificare un'espressione "
+"regolare da usare per tentare di individuare i metadati dai nomi dei "
+"file.</p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">A <a "
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><a "
 "href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-"
-"decoration: underline; color:#0000ff;\">riferimento</span></a> alla sintassi "
-"dell'espressione regolare é disponibile.</p>\n"
+"decoration: underline; color:#0000ff;\">Qui</span></a> è possibile trovare "
+"maggiori informazioni sulle espressioni regolari.</p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">Use the <span style=\" "
-"font-weight:600;\">Prova</span> l'applicazione dell'espressione regolare "
-"usata in basso con qualche esempio di nomi di documenti. I gruppi "
-"individuati con i vari metadati sono indicati con "
-"suggerimenti.</p></body></html>"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Utilizzare la funzione "
+"<span style=\" font-weight:600;\">Test</span> per provare l'espressione "
+"regolare su alcuni file di esempio. I nomi dei gruppi per i vari metadati "
+"sono indicati nei suggerimenti dei rispettivi campi.</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:114
 msgid "Regular &expression"
@@ -7710,7 +7704,7 @@ msgstr "Dimensione (MB)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:61
 msgid "Rating"
-msgstr "Giudizio"
+msgstr "Valutazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:313
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1061
@@ -7995,14 +7989,12 @@ msgstr "calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:255
 msgid "&Restrict to:"
-msgstr "&Limitato a:"
+msgstr "&Limita a:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:256
 msgid ""
 "Books display will be restricted to those matching the selected saved search"
 msgstr ""
-"I libri visualizzati saranno limitati a quelli corrispondenti alla ricerca "
-"salvata selezionata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:257
 msgid "set in ui.py"
@@ -8026,8 +8018,8 @@ msgid ""
 "<p>Search the list of books by title, author, publisher, tags, comments, "
 "etc.<br><br>Words separated by spaces are ANDed"
 msgstr ""
-"<p>Cerca nella lista dei libri per titolo, autore, editore, etichette, "
-"commenti, etc.<br><br> Parole separate da spazi e l'operatore AND"
+"<p>Cerca nella lista dei libri per titolo, autore, editore, tag, commenti, "
+"etc.<br><br> Parole separate da spazi usano l'operatore AND"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:264
 msgid "Reset Quick Search"
@@ -8317,7 +8309,7 @@ msgstr "Ordina per popolarità"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:727
 msgid "Sort by average rating"
-msgstr "Ordina per voto medio"
+msgstr "Ordina per valutazione media"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:733
 msgid "Match all"
@@ -9499,10 +9491,10 @@ msgid ""
 "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Stringa regex per escludere etichette che definiscono i generi\n"
-"Valore predefinito: '%default' che esclude etichette con parantesi, e.g. "
+"Espressione regolare per descrivere i tag come generi.\n"
+"Valore predefinito: '%default' che esclude i tag con parentesi, ad esempio "
 "'[<tag>]'\n"
-"Applicabile ai formati di output: ePub, MOBI"
+"Applicato ai formati di output: ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:225
 msgid ""
@@ -9513,11 +9505,11 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 "Lista di etichette separate da virgole per indicare quali libri devono "
-"essere esclusi dall'output. Si noti che le maiuscole sono ignorate\n"
-"--exclude-tags=ignorare troverá risultati nelle frasi 'ignorare this book' "
-"and 'Ignorare will like this'\n"
+"essere esclusi dall'output. Si noti che le maiuscole sono ignorate.\n"
+"--exclude-tags=ignorare troverá risultati nelle frasi 'ignorare questo "
+"libro' e 'Ignorare sarà come questo'\n"
 "Valore predefinito: '%default'\n"
-"Applicabile ai formati di output: ePub, MOBI"
+"Applicato ai formati di output: ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:233
 msgid ""
@@ -9545,10 +9537,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Prefissi di etichette per le vostre annotazioni, e.g. '*questo libro "
-"piacerebbe a Giovanni'  \n"
+"Prefissi dei tag per le annotazioni, ad esempio '*questo libro piacerebbe a "
+"Giovanni'  .\n"
 "Valore predefinito: '%default'\n"
-"Applicabile ai formati di output: ePub, MOBI"
+"Applicato ai formati di output: ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:254
 msgid ""
@@ -9586,9 +9578,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Etichetta per indicare che il libro é stato letto\n"
+"Tag per indicare che il libro è stato letto.\n"
 "Valore predefinito: '%default'\n"
-"Applicabile per i formati di output: ePub, MOBI"
+"Applicato ai formati di output: ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:41
 msgid ""
@@ -9896,8 +9888,8 @@ msgid ""
 msgstr ""
 "%prog add_custom_column [opzioni] etichetta nome tipo\n"
 "\n"
-"Crea una colonna personalizzata. etichetta è il amichevole della macchina "
-"della colonna. Non\n"
+"Crea una colonna personalizzata. etichetta è il nome amichevole della "
+"macchina della colonna. Non\n"
 "deve contentere spazi o punteggiatura. nome è il nome amichevole umano della "
 "colonna.\n"
 "tipo è uno di: {0}\n"
@@ -10078,7 +10070,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:70
 msgid "%sAverage rating is %3.1f"
-msgstr "%sIl voto medio è %3.1f"
+msgstr "%sLa valutazione media è %3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:520
 msgid "Main"
@@ -10119,7 +10111,7 @@ msgstr "ID controllate"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:118
 msgid "Ratings"
-msgstr "Voti"
+msgstr "Valutazioni"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:24
 msgid "The title"
@@ -10139,7 +10131,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:28
 msgid "The tags"
-msgstr "Le etichette"
+msgstr "I tag"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:29
 msgid "The series"
@@ -10289,8 +10281,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:31
 msgid "Set a password to restrict access. By default access is unrestricted."
 msgstr ""
-"Imposta una password per restringere l'accesso. Come impostazione "
-"predefinita l'accesso non è ristretto."
+"Imposta una password per limitare l'accesso. Come impostazione predefinita "
+"l'accesso non è limitato."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:33
 msgid "Username for access. By default, it is: %default"
@@ -10299,7 +10291,7 @@ msgstr "Nome utente per l'accesso. Predefinito: %default"
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:37
 msgid "The maximum size for displayed covers. Default is %default."
 msgstr ""
-"La dimensione massima per le copertine visualizzate. Il valore predefinito é "
+"La dimensione massima per le copertine visualizzate. Il valore predefinito è "
 "%default."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:39
@@ -10355,7 +10347,7 @@ msgstr "%d elementi"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:144
 msgid "RATING: %s<br />"
-msgstr "VOTO: %s<br />"
+msgstr "VALUTAZIONE: %s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:147
 msgid "TAGS: %s<br />"
@@ -10774,8 +10766,8 @@ msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
 msgstr ""
-"Il numero massimo di file da scaricare. Questa si applica solo ai file dai "
-"tag <a fref>. Predefinito: %default"
+"Il numero massimo di file da scaricare. Questo si applica solo ai file con "
+"tag <a href>. Valore predefinito: %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:496
 msgid ""

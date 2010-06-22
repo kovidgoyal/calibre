@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-20 00:56+0000\n"
-"PO-Revision-Date: 2010-06-20 00:27+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-06-21 23:29+0000\n"
+"Last-Translator: Saverio Palmieri <Unknown>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-21 03:41+0000\n"
+"X-Launchpad-Export-Date: 2010-06-22 03:51+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -245,7 +245,7 @@ msgstr "Alterar metadados a partir de %s arquivos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr "Conversão de entrada"
+msgstr "Entrada de Conversão"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:125
 msgid ""
@@ -415,7 +415,7 @@ msgstr "Plug-ins desativados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Enabled plugins"
-msgstr ""
+msgstr "Plug-ins habilitados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:83
 msgid "No valid plugin found in "
@@ -573,7 +573,7 @@ msgstr "Comunica-se com o leitor EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:207
 msgid "Communicate with the PocketBook 301 reader."
-msgstr ""
+msgstr "Comunica-se com o leitor PocketBook 301"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -589,7 +589,7 @@ msgstr "Comunica-se com o leitor ESlick."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
-msgstr ""
+msgstr "Comunica-se com o leitor Sigmatek"
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:30
@@ -618,6 +618,8 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used."
 msgstr ""
+"Lista de diretórios separados por vírgula para enviar e-books para um "
+"dispositivo. O primeiro que existir será usado."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:18
 msgid "Communicate with the Hanvon N520 eBook reader."
@@ -1578,7 +1580,6 @@ msgstr "Defina o ISBN do livro."
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:68
 msgid "Set the tags for the book. Should be a comma separated list."
 msgstr ""
-"Define as etiquetas para o livro. Deve ser uma lista separada por vírgulas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:477
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:70
@@ -1673,6 +1674,9 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
+"Não use SVG para a capa do livro. Use esta opção se seu EPUB irá ser usado "
+"em um dispositivo que não suporta SVG, como o iPhone ou o JetBook Lite. Sem "
+"esta opção, ambos dispositivos irão mostrar a capa como uma página em branco."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
@@ -2414,7 +2418,7 @@ msgstr "Texto Principal"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:41
 msgid "%s format books are not supported"
-msgstr ""
+msgstr "%s formatos de livro não são suportados"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."
@@ -2843,7 +2847,7 @@ msgstr "Formatos a serem exibidos através do visualizador interno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:58
 msgid "Columns to be displayed in the book list"
-msgstr ""
+msgstr "Colunas que serão mostradas na lista de livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:59
 msgid "Automatically launch content server on application startup"
@@ -2979,11 +2983,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:288
 msgid "How many empty books?"
-msgstr ""
+msgstr "Quantos livros em branco?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:289
 msgid "How many empty books should be added?"
-msgstr ""
+msgstr "Quantos livros em branco devem ser adicionados?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:337
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:388
@@ -3017,7 +3021,7 @@ msgstr "Livros MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:354
 msgid "Topaz books"
-msgstr ""
+msgstr "Livros Topaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:355
 msgid "Text books"
@@ -3037,11 +3041,11 @@ msgstr "Arquivos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:362
 msgid "Supported books"
-msgstr ""
+msgstr "Livros suportados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:397
 msgid "Merged some books"
-msgstr ""
+msgstr "Fundir alguns livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:398
 msgid ""
@@ -3072,7 +3076,7 @@ msgstr "Nenhum livro selecionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:432
 msgid "No book files found"
-msgstr ""
+msgstr "Nenhum arquivo de livro encontrado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:454
 msgid "Cannot delete"
@@ -3088,7 +3092,7 @@ msgstr "Escolha os formatos para <b>não</b> serem apagados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:505
 msgid "Cannot delete books"
-msgstr ""
+msgstr "Não foi possível apagar livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:506
 msgid "No device is connected"
@@ -3112,11 +3116,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:523
 msgid "No books to delete"
-msgstr ""
+msgstr "Nenhum livro para apagar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:524
 msgid "None of the selected books are on the device"
-msgstr ""
+msgstr "Nenhum dos livros selecionados estão no dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:541
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:598
@@ -3128,12 +3132,16 @@ msgid ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your computer. Are you sure?"
 msgstr ""
+"Os livros selecionados serão <b>permanentemente apagados</b> e os arquivos "
+"removidos de seu computador. Você tem certeza?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:583
 msgid ""
 "The selected books will be <b>permanently deleted</b> from your device. Are "
 "you sure?"
 msgstr ""
+"Os livros selecionados serão <b>permanentemente apagados</b> de seu "
+"dispositivo. Você tem certeza?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:608
 msgid "Cannot download metadata"
@@ -3251,7 +3259,7 @@ msgstr "Gerando %s catálogo..."
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:942
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:261
 msgid "No books found"
-msgstr ""
+msgstr "Não foram encontrados livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:943
 msgid ""
@@ -3287,7 +3295,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:1065
 msgid "Starting conversion of %d book(s)"
-msgstr ""
+msgstr "Iniciando conversão de %d livro(s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:1189
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:1250
@@ -3301,7 +3309,7 @@ msgstr "Escolha o formato para visualizar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:1203
 msgid "Multiple Books Selected"
-msgstr ""
+msgstr "Múltiplos Livros Selecionados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:1204
 msgid ""
@@ -3342,7 +3350,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:260
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:809
 msgid "No books"
-msgstr "Nenhum livros"
+msgstr "Nenhum livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:327
 msgid "Added"
@@ -3420,7 +3428,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:22
 msgid "Scanning root folder for books"
-msgstr ""
+msgstr "Pesquisando no diretório raiz por livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:23
 msgid "This may take a few minutes"
@@ -6847,7 +6855,7 @@ msgstr "O arquivo anexo: %s é uma lista para baixar %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:133
 msgid "Recipe for "
-msgstr ""
+msgstr "Lista para "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:161
@@ -6882,7 +6890,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:186
 msgid "This feed has already been added to the recipe"
-msgstr ""
+msgstr "Esta fonte já foi adicionada na lista"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:227
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:236
@@ -6894,31 +6902,32 @@ msgstr "Entrada inválida"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:237
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:287
 msgid "<p>Could not create recipe. Error:<br>%s"
-msgstr ""
+msgstr "<p>Não foi possível criar a lista. Erro:<br>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:241
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:263
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:290
 msgid "Replace recipe?"
-msgstr ""
+msgstr "Substituir lista?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:242
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:264
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:291
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
 msgstr ""
+"Uma lista personalizada chamada %s já existe. Você quer substituí-la?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:257
 msgid "Pick recipe"
-msgstr ""
+msgstr "Selecionar lista"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:257
 msgid "Pick the recipe to customize"
-msgstr ""
+msgstr "Selecionar lista para personalizar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:277
 msgid "Choose a recipe file"
-msgstr ""
+msgstr "Escolha um arquivo de lista"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:248
 msgid "Add custom news source"
@@ -6930,23 +6939,23 @@ msgstr "Listas do usuário disponíveis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:250
 msgid "Add/Update &recipe"
-msgstr ""
+msgstr "Adicionar/Atualizar &lista"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:251
 msgid "&Remove recipe"
-msgstr ""
+msgstr "&Remover lista"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:252
 msgid "&Share recipe"
-msgstr ""
+msgstr "&Compartilhar lista"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:253
 msgid "Customize &builtin recipe"
-msgstr ""
+msgstr "Personalizar lista &pré-criada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:254
 msgid "&Load recipe from file"
-msgstr ""
+msgstr "&Carregar lista do arquivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:256
 msgid ""
@@ -6964,7 +6973,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:260
 msgid "Recipe &title:"
-msgstr ""
+msgstr "Tí&tulo da lista:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:261
 msgid "&Oldest article:"
@@ -6984,16 +6993,16 @@ msgstr "Número máximo de artigos a serem baixados por feed."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:266
 msgid "Feeds in recipe"
-msgstr ""
+msgstr "Fontes na lista"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:268
 msgid "Remove feed from recipe"
-msgstr ""
+msgstr "Remove fonte da lista"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:271
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:274
 msgid "Add feed to recipe"
-msgstr ""
+msgstr "Adicionar fonte na lista"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:272
 msgid "&Feed title:"
@@ -7018,7 +7027,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:277
 msgid "Recipe source code (python)"
-msgstr ""
+msgstr "Código fonte da lista (python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:107
 msgid ""
@@ -7921,7 +7930,7 @@ msgstr "Ordenar pelo nome"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:726
 msgid "Sort by popularity"
-msgstr "Ordenar pela polularidade"
+msgstr "Ordenar pela popularidade"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:727
 msgid "Sort by average rating"
@@ -8042,7 +8051,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:503
 msgid "Recipe Disabled"
-msgstr ""
+msgstr "Lista Desativada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:518
 msgid "<b>Failed</b>"
@@ -9953,7 +9962,7 @@ msgid ""
 "Useful for recipe development. Forces max_articles_per_feed to 2 and "
 "downloads at most 2 feeds."
 msgstr ""
-"Útil no desenvolvimento de receita. Forçar max_articles_per_feed para 2 e "
+"Útil no desenvolvimento de lista. Forçar max_articles_per_feed para 2 e "
 "baixar no máximo 2 feeds."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:39
@@ -9976,7 +9985,7 @@ msgstr "Fonte de notícias desconhecida"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:606
 msgid "The \"%s\" recipe needs a username and password."
-msgstr "A receita \"%s\" requer um usuário e senha."
+msgstr "A lista \"%s\" requer um usuário e senha."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:703
 msgid "Download finished"
