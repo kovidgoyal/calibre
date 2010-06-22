@@ -160,7 +160,7 @@ Alternative for the iPad
 As of |app| version 0.7.0, you can plugin your iPad into the computer using its charging cable, and |app| will detect it and show you a list of books on the iPad. You can then use the Send to device button to send books directly to iBooks on the iPad.
 
 This method only works on Windows XP and higher and OS X 10.5 and higher. Linux is not supported (iTunes is not available in linux) and OS X 10.4 is not supported. For more details, see
-`this forum post http://www.mobileread.com/forums/showpost.php?p=944079&postcount=1`_.
+`this forum post <http://www.mobileread.com/forums/showpost.php?p=944079&postcount=1>`_.
 
 How do I use |app| with my Android phone?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
