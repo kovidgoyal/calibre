@@ -84,12 +84,12 @@ class DownloadMetadata(Thread):
                 if mi.isbn:
                     args['isbn'] = mi.isbn
                 else:
-                    if not mi.title:
+                    if not mi.title or mi.title == _('Unknown'):
                         self.failures[id] = \
                                 (str(id), _('Book has neither title nor ISBN'))
                         continue
                     args['title'] = mi.title
-                    if mi.authors:
+                    if mi.authors and mi.authors[0] != _('Unknown'):
                         args['author'] = mi.authors[0]
                 if self.key:
                     args['isbndb_key'] = self.key
@@ -127,6 +127,10 @@ class DownloadMetadata(Thread):
                     self.db.set_tags(id, mi.tags)
                 if mi.comments:
                     self.db.set_comment(id, mi.comments)
+                if mi.series:
+                    self.db.set_series(id, mi.series)
+                    if mi.series_index is not None:
+                        self.db.set_series_index(id, mi.series_index)
 
         self.updated = set(self.fetched_metadata)
 

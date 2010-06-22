@@ -8,7 +8,7 @@ import os, re
 from mimetypes import guess_type as guess_mimetype
 
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
-
+from calibre.constants import iswindows
 from calibre.utils.chm.chm import CHMFile
 from calibre.utils.chm.chmlib import (
   CHM_RESOLVE_SUCCESS, CHM_ENUMERATE_NORMAL,
@@ -135,10 +135,16 @@ class CHMReader(CHMFile):
             if lpath.find(';') != -1:
                 # fix file names with ";<junk>" at the end, see _reformat()
                 lpath = lpath.split(';')[0]
-            with open(lpath, 'wb') as f:
-                if guess_mimetype(path)[0] == ('text/html'):
-                    data = self._reformat(data)
-                f.write(data)
+            try:
+                with open(lpath, 'wb') as f:
+                    if guess_mimetype(path)[0] == ('text/html'):
+                        data = self._reformat(data)
+                    f.write(data)
+            except:
+                if iswindows and len(lpath) > 250:
+                    self.log.warn('%r filename too long, skipping'%path)
+                    continue
+                raise
         self._extracted = True
         files = os.listdir(output_dir)
         if self.hhc_path not in files:

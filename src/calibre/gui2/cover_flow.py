@@ -83,7 +83,6 @@ if pictureflow is not None:
             self.setFocusPolicy(Qt.WheelFocus)
             self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
-            self.setZoomFactor(150)
 
         def sizeHint(self):
             return self.minimumSize()
@@ -206,8 +205,8 @@ class CoverFlowMixin(object):
                     sm.select(index, sm.ClearAndSelect|sm.Rows)
                     self.library_view.setCurrentIndex(index)
         except:
-            pass
-
+            import traceback
+            traceback.print_exc()
 
     def sync_listview_to_cf(self, row):
         self.cf_last_updated_at = time.time()

@@ -16,7 +16,7 @@ class DailyTelegraph(BasicNewsRecipe):
     language = 'en_AU'
 
     oldest_article = 2
-    max_articles_per_feed = 10
+    max_articles_per_feed = 20
     remove_javascript      = True
     no_stylesheets         = True
     encoding               = 'utf8'

@@ -736,12 +736,14 @@ class OPF(object):
         def fget(self):
             ans = []
             for tag in self.tags_path(self.metadata):
-                ans.append(self.get_text(tag))
+                text = self.get_text(tag)
+                if text and text.strip():
+                    ans.extend([x.strip() for x in text.split(',')])
             return ans
 
         def fset(self, val):
             for tag in list(self.tags_path(self.metadata)):
-                self.metadata.remove(tag)
+                tag.getparent().remove(tag)
             for tag in val:
                 elem = self.create_metadata_element('subject')
                 self.set_text(elem, unicode(tag))

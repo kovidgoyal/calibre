@@ -5,19 +5,20 @@ __copyright__ = '2010, Gregory Riker'
 __docformat__ = 'restructuredtext en'
 
 
-import cStringIO, ctypes, os, re, shutil, subprocess, sys, tempfile, time, zipfile
-
-from calibre.constants import DEBUG
+import cStringIO, ctypes, datetime, os, re, shutil, subprocess, sys, tempfile, time
+from calibre.constants import __appname__, __version__, DEBUG
 from calibre import fit_image
 from calibre.constants import isosx, iswindows
+from calibre.devices.errors import UserFeedback
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
 from calibre.utils.config import Config, config_dir
-from calibre.utils.date import parse_date
+from calibre.utils.date import isoformat, now, parse_date
 from calibre.utils.logging import Log
-from calibre.devices.errors import UserFeedback
+from calibre.utils.zipfile import ZipFile
 
 from PIL import Image as PILImage
 
@@ -31,6 +32,7 @@ if isosx:
 
 if iswindows:
     import pythoncom, win32com.client
+
 
 class ITUNES(DevicePlugin):
     '''
@@ -76,7 +78,7 @@ class ITUNES(DevicePlugin):
     supported_platforms = ['osx','windows']
     author = 'GRiker'
     #: The version of this plugin as a 3-tuple (major, minor, revision)
-    version        = (0, 5, 0)
+    version        = (0,7,0)
 
     OPEN_FEEDBACK_MESSAGE = _(
         'Apple device detected, launching iTunes, please wait ...')
@@ -157,6 +159,7 @@ class ITUNES(DevicePlugin):
     sources = None
     update_msg = None
     update_needed = False
+    use_series_data = True
 
     # Public methods
     def add_books_to_metadata(self, locations, metadata, booklists):
@@ -175,53 +178,66 @@ class ITUNES(DevicePlugin):
 
         # Delete any obsolete copies of the book from the booklist
         if self.update_list:
-            if isosx:
-                if DEBUG:
-                    self.log.info( "ITUNES.add_books_to_metadata()")
-                    self._dump_update_list('add_books_to_metadata()')
-                for (j,p_book) in enumerate(self.update_list):
-                    self.log.info("ITUNES.add_books_to_metadata():\n looking for %s" %
-                        str(p_book['lib_book'])[-9:])
-                    for i,bl_book in enumerate(booklists[0]):
-                        if bl_book.library_id == p_book['lib_book']:
-                            booklists[0].pop(i)
-                            self.log.info("ITUNES.add_books_to_metadata():\n removing %s %s" %
-                                (p_book['title'], str(p_book['lib_book'])[-9:]))
+            if True:
+                self.log.info("ITUNES.add_books_to_metadata()")
+                #self._dump_booklist(booklists[0], header='before',indent=2)
+                #self._dump_update_list(header='before',indent=2)
+                #self._dump_cached_books(header='before',indent=2)
+
+            for (j,p_book) in enumerate(self.update_list):
+                if False:
+                    if isosx:
+                        self.log.info("  looking for %s" %
+                            str(p_book['lib_book'])[-9:])
+                    elif iswindows:
+                        self.log.info(" looking for '%s' by %s (%s)" %
+                                        (p_book['title'],p_book['author'], p_book['uuid']))
+
+                # Purge the booklist, self.cached_books
+                for i,bl_book in enumerate(booklists[0]):
+                    if bl_book.uuid == p_book['uuid']:
+                        # Remove from booklists[0]
+                        booklists[0].pop(i)
+                        if False:
+                            if isosx:
+                                self.log.info("  removing old %s %s from booklists[0]" %
+                                    (p_book['title'], str(p_book['lib_book'])[-9:]))
+                            elif iswindows:
+                                self.log.info(" removing old '%s' from booklists[0]" %
+                                                (p_book['title']))
+
+                        # If >1 matching uuid, remove old title
+                        matching_uuids = 0
+                        for cb in self.cached_books:
+                            if self.cached_books[cb]['uuid'] == p_book['uuid']:
+                                matching_uuids += 1
+
+                        if matching_uuids > 1:
+                            for cb in self.cached_books:
+                                if self.cached_books[cb]['uuid'] == p_book['uuid']:
+                                    if self.cached_books[cb]['title'] == p_book['title'] and \
+                                       self.cached_books[cb]['author'] == p_book['author']:
+                                        if DEBUG:
+                                            self._dump_cached_book(self.cached_books[cb],header="removing from self.cached_books:", indent=2)
+                                        self.cached_books.pop(cb)
+                                        break
                             break
-                    else:
-                        self.log.error(" update_list item '%s' by %s %s not found in booklists[0]" %
-                            (p_book['title'], p_book['author'],str(p_book['lib_book'])[-9:]))
-
-                    if self.report_progress is not None:
-                        self.report_progress(j+1/task_count, _('Updating device metadata listing...'))
-
-            elif iswindows:
-                if DEBUG:
-                    self.log.info("ITUNES.add_books_to_metadata()")
-                for (j,p_book) in enumerate(self.update_list):
-                    #self.log.info(" looking for '%s' by %s" % (p_book['title'],p_book['author']))
-                    for i,bl_book in enumerate(booklists[0]):
-                        #self.log.info(" evaluating '%s' by %s" % (bl_book.title,bl_book.author[0]))
-                        if bl_book.title == p_book['title'] and \
-                           bl_book.author[0] == p_book['author']:
-                            booklists[0].pop(i)
-                            self.log.info(" removing outdated version of '%s'" % p_book['title'])
-                            break
-                    else:
-                        self.log.error(" update_list item '%s' not found in booklists[0]" % p_book['title'])
-
-                    if self.report_progress is not None:
-                        self.report_progress(j+1/task_count, _('Updating device metadata listing...'))
+                if self.report_progress is not None:
+                    self.report_progress(j+1/task_count, _('Updating device metadata listing...'))
 
             if self.report_progress is not None:
                 self.report_progress(1.0, _('Updating device metadata listing...'))
 
         # Add new books to booklists[0]
         for new_book in locations[0]:
-            if DEBUG:
-                self.log.info(" adding '%s' by '%s' to booklists[0]" %
+            if False:
+                self.log.info("  adding '%s' by '%s' to booklists[0]" %
                     (new_book.title, new_book.author))
             booklists[0].append(new_book)
+
+        if False:
+            self._dump_booklist(booklists[0],header='after',indent=2)
+            self._dump_cached_books(header='after',indent=2)
 
     def books(self, oncard=None, end_session=True):
         """
@@ -264,6 +280,7 @@ class ITUNES(DevicePlugin):
                         this_book.device_collections = []
                         this_book.library_id = library_books[this_book.path] if this_book.path in library_books else None
                         this_book.size = book.size()
+                        this_book.uuid = book.album()
                         # Hack to discover if we're running in GUI environment
                         if self.report_progress is not None:
                             this_book.thumbnail = self._generate_thumbnail(this_book.path, book)
@@ -275,12 +292,13 @@ class ITUNES(DevicePlugin):
                          'title':book.name(),
                          'author':[book.artist()],
                          'lib_book':library_books[this_book.path] if this_book.path in library_books else None,
-                         'dev_book':book
+                         'dev_book':book,
+                         'uuid': book.composer()
                          }
 
                         if self.report_progress is not None:
                             self.report_progress(i+1/book_count, _('%d of %d') % (i+1, book_count))
-                    self._purge_orphans(cached_books)
+                    self._purge_orphans(library_books, cached_books)
 
                 elif iswindows:
                     try:
@@ -310,13 +328,14 @@ class ITUNES(DevicePlugin):
                             cached_books[this_book.path] = {
                              'title':book.Name,
                              'author':book.Artist,
-                             'lib_book':library_books[this_book.path] if this_book.path in library_books else None
+                             'lib_book':library_books[this_book.path] if this_book.path in library_books else None,
+                             'uuid': book.Composer
                              }
 
                             if self.report_progress is not None:
                                 self.report_progress(i+1/book_count,
                                         _('%d of %d') % (i+1, book_count))
-                        self._purge_orphans(cached_books)
+                        self._purge_orphans(library_books, cached_books)
 
                     finally:
                         pythoncom.CoUninitialize()
@@ -324,9 +343,9 @@ class ITUNES(DevicePlugin):
                 if self.report_progress is not None:
                     self.report_progress(1.0, _('finished'))
                 self.cached_books = cached_books
-                if DEBUG:
-                    self._dump_booklist(booklist, 'returning from books():')
-                    self._dump_cached_books('returning from books():')
+#                 if DEBUG:
+#                     self._dump_booklist(booklist, 'returning from books():')
+#                     self._dump_cached_books('returning from books():')
                 return booklist
         else:
             return []
@@ -379,7 +398,7 @@ class ITUNES(DevicePlugin):
                         attempts -= 1
                         time.sleep(0.5)
                         if DEBUG:
-                            self.log.warning(" waiting for identified iPad, attempt #%d" % (10 - attempts))
+                            self.log.warning(" waiting for connected iPad, attempt #%d" % (10 - attempts))
                     else:
                         if DEBUG:
                             self.log.info(' found connected iPad')
@@ -391,7 +410,7 @@ class ITUNES(DevicePlugin):
                     self.ejected = True
                     return False
 
-            self._discover_manual_sync_mode()
+            self._discover_manual_sync_mode(wait = 2 if self.initial_status == 'launched' else 0)
             return True
 
     def can_handle_windows(self, device_id, debug=False):
@@ -455,7 +474,7 @@ class ITUNES(DevicePlugin):
                             attempts -= 1
                             time.sleep(0.5)
                             if DEBUG:
-                                self.log.warning(" waiting for identified iPad, attempt #%d" % (10 - attempts))
+                                self.log.warning(" waiting for connected iPad, attempt #%d" % (10 - attempts))
                         else:
                             if DEBUG:
                                 self.log.info(' found connected iPad in iTunes')
@@ -463,7 +482,7 @@ class ITUNES(DevicePlugin):
                     else:
                         # iTunes running, but not connected iPad
                         if DEBUG:
-                            self.log.info(' self.ejected = True')
+                            self.log.info(' iDevice has been ejected')
                         self.ejected = True
                         return False
 
@@ -525,8 +544,24 @@ class ITUNES(DevicePlugin):
                 else:
                     self.log.info(" skipping sync phase, manual_sync_mode: True")
             else:
-                self.problem_titles.append("'%s' by %s" %
-                 (self.cached_books[path]['title'],self.cached_books[path]['author']))
+                if self.manual_sync_mode:
+                    metadata = MetaInformation(self.cached_books[path]['title'],
+                                               [self.cached_books[path]['author']])
+                    metadata.uuid = self.cached_books[path]['uuid']
+
+                    if isosx:
+                        self._remove_existing_copy(self.cached_books[path],metadata)
+                    elif iswindows:
+                        try:
+                            pythoncom.CoInitialize()
+                            self.iTunes = win32com.client.Dispatch("iTunes.Application")
+                            self._remove_existing_copy(self.cached_books[path],metadata)
+                        finally:
+                            pythoncom.CoUninitialize()
+
+                else:
+                    self.problem_titles.append("'%s' by %s" %
+                     (self.cached_books[path]['title'],self.cached_books[path]['author']))
 
     def eject(self):
         '''
@@ -622,6 +657,8 @@ class ITUNES(DevicePlugin):
         Note that most of the initialization is necessarily performed in can_handle(), as
         we need to talk to iTunes to discover if there's a connected iPod
         '''
+        if DEBUG:
+            self.log.info("ITUNES.open()")
 
         # Confirm/create thumbs archive
         archive_path = os.path.join(self.cache_dir, "thumbs.zip")
@@ -633,7 +670,7 @@ class ITUNES(DevicePlugin):
 
         if not os.path.exists(archive_path):
             self.log.info(" creating zip archive")
-            zfw = zipfile.ZipFile(archive_path, mode='w')
+            zfw = ZipFile(archive_path, mode='w')
             zfw.writestr("iTunes Thumbs Archive",'')
             zfw.close()
         else:
@@ -652,24 +689,25 @@ class ITUNES(DevicePlugin):
         if DEBUG:
             self.log.info("ITUNES.remove_books_from_metadata()")
         for path in paths:
-            self._dump_cached_book(self.cached_books[path])
-            if self.cached_books[path]['lib_book']:
-                # Remove from the booklist
-                for i,book in enumerate(booklists[0]):
-                    if book.path == path:
-                        self.log.info(" removing '%s' from calibre booklist, index: %d" % (path, i))
-                        booklists[0].pop(i)
-                        break
-                else:
-                    self.log.error(" '%s' not found in self.cached_book" % path)
+            self._dump_cached_book(self.cached_books[path], indent=2)
 
-                # Remove from cached_books
-                self.cached_books.pop(path)
-                if DEBUG:
-                    self.log.info(" removing '%s' from self.cached_books" % path)
-#                    self._dump_cached_books('remove_books_from_metadata()')
-            else:
-                self.log.warning(" skipping purchased book, can't remove via automation interface")
+            # Purge the booklist, self.cached_books
+            for i,bl_book in enumerate(booklists[0]):
+                if False:
+                    self.log.info(" evaluating '%s'" % bl_book.uuid)
+                if bl_book.uuid == self.cached_books[path]['uuid']:
+                    # Remove from booklists[0]
+                    booklists[0].pop(i)
+
+                    for cb in self.cached_books:
+                        if self.cached_books[cb]['uuid'] == self.cached_books[path]['uuid']:
+                            self.cached_books.pop(cb)
+                            break
+                    break
+
+        if False:
+            self._dump_booklist(booklists[0], indent = 2)
+            self._dump_cached_books(indent=2)
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None) :
@@ -712,13 +750,10 @@ class ITUNES(DevicePlugin):
                                 (L{books}(oncard=None), L{books}(oncard='carda'),
                                 L{books}(oncard='cardb')).
         '''
-        if DEBUG:
-            self.log.info("ITUNES:sync_booklists()")
         if self.update_needed:
             if DEBUG:
                 self.log.info(' calling _update_device')
             self._update_device(msg=self.update_msg, wait=False)
-            self.update_list = []
             self.update_needed = False
 
         # Inform user of any problem books
@@ -727,6 +762,7 @@ class ITUNES(DevicePlugin):
                                   details='\n'.join(self.problem_titles), level=UserFeedback.WARN)
         self.problem_titles = []
         self.problem_msg = None
+        self.update_list = []
 
     def total_space(self, end_session=True):
         """
@@ -776,145 +812,29 @@ class ITUNES(DevicePlugin):
         self.problem_msg = _("Some cover art could not be converted.\n"
                                      "Click 'Show Details' for a list.")
 
-        if DEBUG:
+        if False:
             self.log.info("ITUNES.upload_books()")
-            self._dump_files(files, header='upload_books()')
-#            self._dump_cached_books('upload_books()')
-            self._dump_update_list('upload_books()')
+            self._dump_files(files, header='upload_books()',indent=2)
+            self._dump_update_list(header='upload_books()',indent=2)
 
-        '''
-        if isosx:
-
-            for (i,file) in enumerate(files):
-                path = self.path_template % (metadata[i].title, metadata[i].author[0])
-
-                if self.manual_sync_mode:
-                    # Delete existing from Device|Books, add to self.update_list
-                    # for deletion from booklist[0] during add_books_to_metadata
-                    if path in self.cached_books:
-                        self.update_list.append(self.cached_books[path])
-                        if DEBUG:
-                            self.log.info(" adding '%s' by %s to self.update_list" %
-                                          (self.cached_books[path]['title'],self.cached_books[path]['author']))
-
-                        if DEBUG:
-                            self.log.info( " deleting existing '%s'" % (path))
-                        self._remove_from_iTunes(self.cached_books[path])
-                        if self.manual_sync_mode:
-                            dev_book_added = self._remove_from_device(self.cached_books[path])
-
-
-                # Add to iTunes Library|Books
-                fpath = file
-                if getattr(file, 'orig_file_path', None) is not None:
-                    fpath = file.orig_file_path
-                elif getattr(file, 'name', None) is not None:
-                    fpath = file.name
-
-                if isinstance(file,PersistentTemporaryFile) and self.manual_sync_mode:
-                    if DEBUG:
-                        self.log.info(" PTF not added to Library|Books")
-                else:
-                    added = self.iTunes.add(appscript.mactypes.File(fpath))
-                    if DEBUG:
-                        self.log.info(" file added to Library|Books")
-
-                dev_book_added = None
-                if self.manual_sync_mode:
-                    dev_book_added = self._add_device_book(fpath)
-
-                thumb = None
-                if metadata[i].cover:
-                    try:
-                        # Use cover data as artwork
-                        cover_data = open(metadata[i].cover,'rb')
-                        added.artworks[1].data_.set(cover_data.read())
-
-                        # Resize for thumb
-                        width = metadata[i].thumbnail[0]
-                        height = metadata[i].thumbnail[1]
-                        im = PILImage.open(metadata[i].cover)
-                        im = im.resize((width, height), PILImage.ANTIALIAS)
-                        of = cStringIO.StringIO()
-                        im.convert('RGB').save(of, 'JPEG')
-                        thumb = of.getvalue()
-
-                        # Refresh the thumbnail cache
-                        if DEBUG:
-                            self.log.info( " refreshing cached thumb for '%s'" % metadata[i].title)
-                        archive_path = os.path.join(self.cache_dir, "thumbs.zip")
-                        zfw = zipfile.ZipFile(archive_path, mode='a')
-                        thumb_path = path.rpartition('.')[0] + '.jpg'
-                        zfw.writestr(thumb_path, thumb)
-                        zfw.close()
-                    except:
-                        self.problem_titles.append("'%s' by %s" % (metadata[i].title, metadata[i].author[0]))
-                        self.log.error("ITUNES.upload_books(): error converting '%s' to thumb for '%s'" % (metadata[i].cover,metadata[i].title))
-
-                # Create a new Book
-                this_book = Book(metadata[i].title, metadata[i].author[0])
-                try:
-                    this_book.datetime = parse_date(str(added.date_added())).timetuple()
-                except:
-                    pass
-                this_book.db_id = None
-                this_book.device_collections = []
-                this_book.library_id = added
-                this_book.path = path
-                this_book.size = self._get_device_book_size(fpath, added.size())
-                this_book.thumbnail = thumb
-                this_book.iTunes_id = added
-
-                new_booklist.append(this_book)
-
-                # Populate the iTunes metadata
-                if metadata[i].comments:
-                    added.comment.set(strip_tags.sub('',metadata[i].comments))
-                added.description.set("added by calibre %s" % strftime('%Y-%m-%d %H:%M:%S'))
-                added.enabled.set(True)
-                if metadata[i].rating:
-                    added.rating.set(metadata[i].rating*10)
-                added.sort_artist.set(metadata[i].author_sort.title())
-                added.sort_name.set(this_book.title_sorter)
-
-                # Set genre from metadata
-                # iTunes grabs the first dc:subject from the opf metadata,
-                # But we can manually override with first tag starting with alpha
-                for tag in metadata[i].tags:
-                    if self._is_alpha(tag[0]):
-                        added.genre.set(tag)
-                        break
-
-                # Add new_book to self.cached_paths
-                self.cached_books[this_book.path] = {
-                 'title': this_book.title,
-                 'author': this_book.author,
-                 'lib_book': added,
-                 'dev_book': dev_book_added
-                 }
-
-                # Report progress
-                if self.report_progress is not None:
-                    self.report_progress(i+1/file_count, _('%d of %d') % (i+1, file_count))
-        '''
         if isosx:
             for (i,file) in enumerate(files):
                 path = self.path_template % (metadata[i].title, metadata[i].author[0])
-                self._remove_existing_copies(path,file,metadata[i])
-                fpath = self._get_fpath(file)
+                self._remove_existing_copy(path, metadata[i])
+                fpath = self._get_fpath(file, metadata[i], update_md=True)
                 db_added, lb_added = self._add_new_copy(fpath, metadata[i])
-                thumb = self._cover_to_thumb(path, metadata[i], lb_added, db_added)
+                thumb = self._cover_to_thumb(path, metadata[i], db_added, lb_added)
                 this_book = self._create_new_book(fpath, metadata[i], path, db_added, lb_added, thumb)
                 new_booklist.append(this_book)
                 self._update_iTunes_metadata(metadata[i], db_added, lb_added, this_book)
 
                 # Add new_book to self.cached_paths
                 self.cached_books[this_book.path] = {
-                 'title': metadata[i].title,
-                 'author': metadata[i].author[0],
+                    'title': metadata[i].title,
+                   'author': metadata[i].author,
                  'lib_book': lb_added,
-                 'dev_book': db_added }
-                self._dump_cached_books(header="after upload_books()")
+                 'dev_book': db_added,
+                     'uuid': metadata[i].uuid}
 
                 # Report progress
                 if self.report_progress is not None:
@@ -927,9 +847,16 @@ class ITUNES(DevicePlugin):
 
                 for (i,file) in enumerate(files):
                     path = self.path_template % (metadata[i].title, metadata[i].author[0])
-                    self._remove_existing_copies(path,file,metadata[i])
-                    fpath = self._get_fpath(file)
+                    self._remove_existing_copy(path, metadata[i])
+                    fpath = self._get_fpath(file, metadata[i], update_md=True)
                     db_added, lb_added = self._add_new_copy(fpath, metadata[i])
+
+                    if self.manual_sync_mode and not db_added:
+                        # Problem finding added book, probably title/author change needing to be written to metadata
+                        self.problem_msg = ("Title and/or author metadata mismatch with uploaded books.\n"
+                                            "Click 'Show Details...' for affected books.")
+                        self.problem_titles.append("'%s' by %s" % (metadata[i].title, metadata[i].author[0]))
+
                     thumb = self._cover_to_thumb(path, metadata[i], lb_added, db_added)
                     this_book = self._create_new_book(fpath, metadata[i], path, db_added, lb_added, thumb)
                     new_booklist.append(this_book)
@@ -937,10 +864,11 @@ class ITUNES(DevicePlugin):
 
                     # Add new_book to self.cached_paths
                     self.cached_books[this_book.path] = {
-                     'title': metadata[i].title,
-                     'author': metadata[i].author[0],
+                        'title': metadata[i].title,
+                       'author': metadata[i].author[0],
                      'lib_book': lb_added,
-                     'dev_book': db_added }
+                     'dev_book': db_added,
+                         'uuid': metadata[i].uuid}
 
                     # Report progress
                     if self.report_progress is not None:
@@ -956,11 +884,16 @@ class ITUNES(DevicePlugin):
             self.update_needed = True
             self.update_msg = "Added books to device"
 
+        if False:
+            self._dump_booklist(new_booklist,header="after upload_books()",indent=2)
+            self._dump_cached_books(header="after upload_books()",indent=2)
         return (new_booklist, [], [])
+
 
     # Private methods
     def _add_device_book(self,fpath, metadata):
         '''
+        assumes pythoncom wrapper for windows
         '''
         self.log.info(" ITUNES._add_device_book()")
         if isosx:
@@ -972,79 +905,72 @@ class ITUNES(DevicePlugin):
                         break
                 else:
                     if DEBUG:
-                        self.log.error(" Device|Books playlist not found")
+                        self.log.error("  Device|Books playlist not found")
 
                 # Add the passed book to the Device|Books playlist
                 added = pl.add(appscript.mactypes.File(fpath),to=pl)
-                if DEBUG:
-                    self.log.info(" adding '%s' to device" % fpath)
+                if False:
+                    self.log.info("  '%s' added to Device|Books" % metadata.title)
                 return added
 
         elif iswindows:
             if 'iPod' in self.sources:
-                try:
-                    pythoncom.CoInitialize()
-                    connected_device = self.sources['iPod']
-                    device = self.iTunes.sources.ItemByName(connected_device)
+                connected_device = self.sources['iPod']
+                device = self.iTunes.sources.ItemByName(connected_device)
 
-                    added = None
-                    for pl in device.Playlists:
-                        if pl.Kind == self.PlaylistKind.index('User') and \
-                           pl.SpecialKind == self.PlaylistSpecialKind.index('Books'):
-                            break
-                    else:
-                        if DEBUG:
-                            self.log.info("  no Books playlist found")
+                db_added = None
+                for pl in device.Playlists:
+                    if pl.Kind == self.PlaylistKind.index('User') and \
+                       pl.SpecialKind == self.PlaylistSpecialKind.index('Books'):
+                        break
+                else:
+                    if DEBUG:
+                        self.log.info("  no Books playlist found")
 
-                    # Add the passed book to the Device|Books playlist
-                    if pl:
-                        '''
-                        added = pl.AddFile(fpath)
-                        if DEBUG:
-                            self.log.info(" adding '%s' to device" % fpath)
-                        '''
-                        file_s = ctypes.c_char_p(fpath)
-                        FileArray = ctypes.c_char_p * 1
-                        fa = FileArray(file_s)
-                        op_status = pl.AddFiles(fa)
+                # Add the passed book to the Device|Books playlist
+                if pl:
+                    file_s = ctypes.c_char_p(fpath)
+                    FileArray = ctypes.c_char_p * 1
+                    fa = FileArray(file_s)
+                    op_status = pl.AddFiles(fa)
 
+                    if DEBUG:
+                        sys.stdout.write("  uploading '%s' to Device|Books ..." % metadata.title)
+                        sys.stdout.flush()
+
+                    while op_status.InProgress:
+                        time.sleep(0.5)
                         if DEBUG:
-                            sys.stdout.write("  uploading '%s' to device ..." % metadata.title)
+                            sys.stdout.write('.')
                             sys.stdout.flush()
+                    if DEBUG:
+                        sys.stdout.write("\n")
+                        sys.stdout.flush()
 
-                        while op_status.InProgress:
+                    # This doesn't seem to work with Device, just Library
+                    if False:
+                        if DEBUG:
+                            sys.stdout.write("  waiting for handle to added '%s' ..." % metadata.title)
+                            sys.stdout.flush()
+                        while not op_status.Tracks:
                             time.sleep(0.5)
                             if DEBUG:
                                 sys.stdout.write('.')
                                 sys.stdout.flush()
+
                         if DEBUG:
-                            sys.stdout.write("\n")
-                            sys.stdout.flush()
+                            print
+                        added = op_status.Tracks[0]
+                    else:
+                        # This approach simply scans Library|Books for the book we just added
 
-                        # This doesn't seem to work with device, just Library
-                        if False:
-                            if DEBUG:
-                                sys.stdout.write("  waiting for handle to added '%s' ..." % metadata.title)
-                                sys.stdout.flush()
-                            while op_status.Tracks is None:
-                                time.sleep(0.5)
-                                if DEBUG:
-                                    sys.stdout.write('.')
-                                    sys.stdout.flush()
-                            if DEBUG:
-                                print
-                            added = op_status.Tracks[0]
-                        else:
-                            # This approach simply scans Library|Books for the book we just added
-                            added = self._find_device_book(
-                                {'title': metadata.title,
-                                 'author': metadata.author[0]})
-                        return added
+                        # Try the calibre metadata first
+                        db_added = self._find_device_book(
+                                     {'title': metadata.title,
+                                     'author': metadata.authors[0],
+                                       'uuid': metadata.uuid})
 
-                finally:
-                    pythoncom.CoUninitialize()
-
-                return added
+                    return db_added
 
     def _add_library_book(self,file, metadata):
         '''
@@ -1078,7 +1004,7 @@ class ITUNES(DevicePlugin):
                 sys.stdout.write("\n")
                 sys.stdout.flush()
 
-            if True:
+            if False:
                 if DEBUG:
                     sys.stdout.write("  waiting for handle to added '%s' ..." % metadata.title)
                     sys.stdout.flush()
@@ -1093,8 +1019,9 @@ class ITUNES(DevicePlugin):
             else:
                 # This approach simply scans Library|Books for the book we just added
                 added = self._find_library_book(
-                    {'title': metadata.title,
-                     'author': metadata.author[0]})
+                    { 'title': metadata.title,
+                     'author': metadata.author[0],
+                       'uuid': metadata.uuid})
         return added
 
     def _add_new_copy(self, fpath, metadata):
@@ -1108,12 +1035,11 @@ class ITUNES(DevicePlugin):
 
         if self.manual_sync_mode:
             db_added = self._add_device_book(fpath, metadata)
-            if DEBUG:
-                self.log.info("  file uploaded to Device|Books")
             if not getattr(fpath, 'deleted_after_upload', False):
                 lb_added = self._add_library_book(fpath, metadata)
-                if DEBUG:
-                    self.log.info("  file added to Library|Books for iTunes:iBooks tracking")
+                if lb_added:
+                    if DEBUG:
+                        self.log.info("  file added to Library|Books for iTunes<->iBooks tracking")
         else:
             lb_added = self._add_library_book(fpath, metadata)
             if DEBUG:
@@ -1121,7 +1047,7 @@ class ITUNES(DevicePlugin):
 
         return db_added, lb_added
 
-    def _cover_to_thumb(self, path, metadata, lb_added, db_added):
+    def _cover_to_thumb(self, path, metadata, db_added, lb_added):
         '''
         assumes pythoncom wrapper for db_added
         '''
@@ -1140,8 +1066,8 @@ class ITUNES(DevicePlugin):
                         db_added.artworks[1].data_.set(cover_data.read())
                     except:
                         if DEBUG:
-                            self.log.warning("  iTunes automation interface generated an error"
-                                             " when adding artwork to '%s'" % metadata.title)
+                            self.log.warning("  iTunes automation interface reported an error"
+                                             " when adding artwork to '%s' on the iDevice" % metadata.title)
                         #import traceback
                         #traceback.print_exc()
                         #from calibre import ipython
@@ -1176,7 +1102,7 @@ class ITUNES(DevicePlugin):
                 if DEBUG:
                     self.log.info( "  refreshing cached thumb for '%s'" % metadata.title)
                 archive_path = os.path.join(self.cache_dir, "thumbs.zip")
-                zfw = zipfile.ZipFile(archive_path, mode='a')
+                zfw = ZipFile(archive_path, mode='a')
                 thumb_path = path.rpartition('.')[0] + '.jpg'
                 zfw.writestr(thumb_path, thumb)
                 zfw.close()
@@ -1200,6 +1126,7 @@ class ITUNES(DevicePlugin):
         this_book.path = path
         this_book.thumbnail = thumb
         this_book.iTunes_id = lb_added
+        this_book.uuid = metadata.uuid
 
         if isosx:
             if lb_added:
@@ -1231,14 +1158,32 @@ class ITUNES(DevicePlugin):
 
         return this_book
 
+    def _delete_iTunesMetadata_plist(self,fpath):
+        '''
+        Delete the plist file from the file to force recache
+        '''
+        zf = ZipFile(fpath,'a')
+        fnames = zf.namelist()
+        pl_name = 'iTunesMetadata.plist'
+        try:
+            plist = [x for x in fnames if pl_name in x][0]
+        except:
+            plist = None
+        if plist:
+            if DEBUG:
+                self.log.info("   deleting %s from %s" % (pl_name,fpath))
+                zf.delete(pl_name)
+        zf.close()
+
     def _discover_manual_sync_mode(self, wait=0):
         '''
         Assumes pythoncom for windows
         wait is passed when launching iTunes, as it seems to need a moment to come to its senses
-
         '''
         if DEBUG:
             self.log.info(" ITUNES._discover_manual_sync_mode()")
+        if wait:
+            time.sleep(wait)
         if isosx:
             connected_device = self.sources['iPod']
             dev_books = None
@@ -1248,22 +1193,29 @@ class ITUNES(DevicePlugin):
                     dev_books = pl.file_tracks()
                     break
             else:
-                self.log.error("  book_playlist not found")
+                self.log.error("   book_playlist not found")
 
             if len(dev_books):
                 first_book = dev_books[0]
-                #if DEBUG:
-                    #self.log.info("  determing manual mode by modifying '%s' by %s" % (first_book.name(), first_book.artist()))
+                if False:
+                    self.log.info("  determing manual mode by modifying '%s' by %s" % (first_book.name(), first_book.artist()))
                 try:
                     first_book.bpm.set(0)
                     self.manual_sync_mode = True
                 except:
                     self.manual_sync_mode = False
-                self.log.info("  iTunes.manual_sync_mode: %s" % self.manual_sync_mode)
+            else:
+                if DEBUG:
+                    self.log.info("   adding tracer to empty Books|Playlist")
+                try:
+                    added = pl.add(appscript.mactypes.File(P('tracer.epub')),to=pl)
+                    time.sleep(0.5)
+                    added.delete()
+                    self.manual_sync_mode = True
+                except:
+                    self.manual_sync_mode = False
 
         elif iswindows:
-            if wait:
-                time.sleep(wait)
             connected_device = self.sources['iPod']
             device = self.iTunes.sources.ItemByName(connected_device)
 
@@ -1283,74 +1235,138 @@ class ITUNES(DevicePlugin):
                     self.manual_sync_mode = True
                 except:
                     self.manual_sync_mode = False
-                self.log.info("  iTunes.manual_sync_mode: %s" % self.manual_sync_mode)
+            else:
+                if DEBUG:
+                    self.log.info("   sending tracer to empty Books|Playlist")
+                fpath = P('tracer.epub')
+                mi = MetaInformation('Tracer',['calibre'])
+                try:
+                    added = self._add_device_book(fpath,mi)
+                    time.sleep(0.5)
+                    added.Delete()
+                    self.manual_sync_mode = True
+                except:
+                    self.manual_sync_mode = False
 
-    def _dump_booklist(self, booklist, header=None):
+        self.log.info("   iTunes.manual_sync_mode: %s" % self.manual_sync_mode)
+
+    def _dump_booklist(self, booklist, header=None,indent=0):
         '''
         '''
         if header:
-            msg = '\nbooklist, %s' % header
+            msg = '\n%sbooklist %s:' % (' '*indent,header)
             self.log.info(msg)
-            self.log.info('%s' % ('-' * len(msg)))
+            self.log.info('%s%s' % (' '*indent,'-' * len(msg)))
 
         for book in booklist:
             if isosx:
-                self.log.info("%-40.40s %-30.30s %-10.10s" %
-                 (book.title, book.author, str(book.library_id)[-9:]))
+                self.log.info("%s%-40.40s %-30.30s %-10.10s" %
+                 (' '*indent,book.title, book.author, str(book.library_id)[-9:]))
             elif iswindows:
-                self.log.info("%-40.40s %-30.30s" %
-                 (book.title, book.author))
+                self.log.info("%s%-40.40s %-30.30s" %
+                 (' '*indent,book.title, book.author))
+        self.log.info()
 
-    def _dump_cached_book(self, cached_book, header=None):
+    def _dump_cached_book(self, cached_book, header=None,indent=0):
+        '''
+        '''
+        if isosx:
+            if header:
+                msg = '%s%s' % (' '*indent,header)
+                self.log.info(msg)
+                self.log.info( "%s%s" % (' '*indent, '-' * len(msg)))
+                self.log.info("%s%-40.40s %-30.30s %-10.10s %-10.10s %s" %
+                 (' '*indent,
+                  'title',
+                  'author',
+                  'lib_book',
+                  'dev_book',
+                  'uuid'))
+            self.log.info("%s%-40.40s %-30.30s %-10.10s %-10.10s %s" %
+             (' '*indent,
+              cached_book['title'],
+              cached_book['author'],
+              str(cached_book['lib_book'])[-9:],
+              str(cached_book['dev_book'])[-9:],
+              cached_book['uuid']))
+        elif iswindows:
+            if header:
+                msg = '%s%s' % (' '*indent,header)
+                self.log.info(msg)
+                self.log.info( "%s%s" % (' '*indent, '-' * len(msg)))
+
+            self.log.info("%s%-40.40s %-30.30s %s" %
+             (' '*indent,
+              cached_book['title'],
+              cached_book['author'],
+              cached_book['uuid']))
+
+    def _dump_cached_books(self, header=None, indent=0):
         '''
         '''
         if header:
-            msg = '%s' % header
+            msg = '\n%sself.cached_books %s:' % (' '*indent,header)
             self.log.info(msg)
-            self.log.info( "%s" % ('-' * len(msg)))
+            self.log.info( "%s%s" % (' '*indent,'-' * len(msg)))
         if isosx:
-            self.log.info("%-40.40s %-30.30s %-10.10s %-10.10s" %
-             ('title',
-              'author',
-              'lib_book',
-              'dev_book'))
-            self.log.info("%-40.40s %-30.30s %-10.10s %-10.10s" %
-             (cached_book['title'],
-              cached_book['author'],
-              str(cached_book['lib_book'])[-9:],
-              str(cached_book['dev_book'])[-9:]))
+            for cb in self.cached_books.keys():
+                self.log.info("%s%-40.40s %-30.30s %-10.10s %-10.10s %s" %
+                 (' '*indent,
+                  self.cached_books[cb]['title'],
+                  self.cached_books[cb]['author'],
+                  str(self.cached_books[cb]['lib_book'])[-9:],
+                  str(self.cached_books[cb]['dev_book'])[-9:],
+                  self.cached_books[cb]['uuid']))
         elif iswindows:
-            self.log.info("%-40.40s %-30.30s" %
-             (cached_book['title'],
-              cached_book['author']))
+            for cb in self.cached_books.keys():
+                self.log.info("%s%-40.40s %-30.30s %s" %
+                 (' '*indent,
+                  self.cached_books[cb]['title'],
+                  self.cached_books[cb]['author'],
+                  self.cached_books[cb]['uuid']))
 
         self.log.info()
 
-    def _dump_cached_books(self, header=None):
+    def _dump_epub_metadata(self, fpath):
         '''
         '''
-        if header:
-            msg = '\nself.cached_books, %s' % header
-            self.log.info(msg)
-            self.log.info( "%s" % ('-' * len(msg)))
-        if isosx:
-            self.log.info("%-40.40s %-30.30s %-10.10s %-10.10s" %
-             ('title',
-              'author',
-              'lib_book',
-              'dev_book'))
-            for cb in self.cached_books.keys():
-                self.log.info("%-40.40s %-30.30s %-10.10s %-10.10s" %
-                 (self.cached_books[cb]['title'],
-                  self.cached_books[cb]['author'],
-                  str(self.cached_books[cb]['lib_book'])[-9:],
-                  str(self.cached_books[cb]['dev_book'])[-9:]))
-        elif iswindows:
-            for cb in self.cached_books.keys():
-                self.log.info("%-40.40s %-30.30s" %
-                 (self.cached_books[cb]['title'],
-                  self.cached_books[cb]['author']))
+        self.log.info(" ITUNES.__get_epub_metadata()")
+        title = None
+        author = None
+        timestamp = None
+        zf = ZipFile(fpath,'r')
+        fnames = zf.namelist()
+        opf = [x for x in fnames if '.opf' in x][0]
+        if opf:
+            opf_raw = cStringIO.StringIO(zf.read(opf)).getvalue()
+            soup = BeautifulSoup(opf_raw)
+            title = soup.find('dc:title').renderContents()
+            author = soup.find('dc:creator').renderContents()
+            ts = soup.find('meta',attrs={'name':'calibre:timestamp'})
+            if ts:
+                # Touch existing calibre timestamp
+                timestamp = ts['content']
 
+            if not title or not author:
+                if DEBUG:
+                    self.log.error("   couldn't extract title/author from %s in %s" % (opf,fpath))
+                    self.log.error("   title: %s  author: %s timestamp: %s" % (title, author, timestamp))
+        else:
+            if DEBUG:
+                self.log.error("   can't find .opf in %s" % fpath)
+        zf.close()
+        return (title, author, timestamp)
+
+    def _dump_files(self, files, header=None,indent=0):
+        if header:
+            msg = '\n%sfiles passed to %s:' % (' '*indent,header)
+            self.log.info(msg)
+            self.log.info( "%s%s" % (' '*indent,'-' * len(msg)))
+        for file in files:
+            if getattr(file, 'orig_file_path', None) is not None:
+                self.log.info(" %s%s" % (' '*indent,file.orig_file_path))
+            elif getattr(file, 'name', None) is not None:
+                self.log.info(" %s%s" % (' '*indent,file.name))
         self.log.info()
 
     def _dump_hex(self, src, length=16):
@@ -1366,74 +1382,86 @@ class ITUNES(DevicePlugin):
            N+=length
         print result
 
-    def _dump_files(self, files, header=None):
-        if header:
-            msg = '\nfiles passed to %s:' % header
-            self.log.info(msg)
-            self.log.info( "%s" % ('-' * len(msg)))
-        for file in files:
-            if getattr(file, 'orig_file_path', None) is not None:
-                self.log.info(" %s" % file.orig_file_path)
-            elif getattr(file, 'name', None) is not None:
-                self.log.info(" %s" % file.name)
+    def _dump_library_books(self, library_books):
+        '''
+        '''
+        if DEBUG:
+            self.log.info("\n library_books:")
+        for book in library_books:
+            self.log.info("   %s" % book)
         self.log.info()
 
-    def _dump_update_list(self,header=None):
+    def _dump_update_list(self,header=None,indent=0):
         if header:
-            msg = '\nself.update_list called from %s' % header
+            msg = '\n%sself.update_list %s' % (' '*indent,header)
             self.log.info(msg)
-            self.log.info( "%s" % ('-' * len(msg)))
+            self.log.info( "%s%s" % (' '*indent,'-' * len(msg)))
 
         if isosx:
             for ub in self.update_list:
-                self.log.info("%-40.40s %-30.30s %-10.10s" %
-                 (ub['title'],
+                self.log.info("%s%-40.40s %-30.30s %-10.10s" %
+                 (' '*indent,
+                  ub['title'],
                   ub['author'],
                   str(ub['lib_book'])[-9:]))
         elif iswindows:
             for ub in self.update_list:
-                self.log.info("%-40.40s %-30.30s" %
-                 (ub['title'],
+                self.log.info("%s%-40.40s %-30.30s" %
+                 (' '*indent,
+                  ub['title'],
                   ub['author']))
         self.log.info()
 
-    def _find_device_book(self, cached_book):
+    def _find_device_book(self, search):
         '''
         Windows-only method to get a handle to device book in the current pythoncom session
         '''
         if iswindows:
-            if DEBUG:
-                self.log.info(" ITUNES._find_device_book()")
-                self.log.info("  looking for '%s' by %s" % (cached_book['title'], cached_book['author']))
-
             dev_books = self._get_device_books_playlist()
+            if DEBUG:
+                self.log.info(" ITUNES._find_device_book(uuid)")
+                self.log.info("  searching for %s ('%s' by %s)" %
+                              (search['uuid'], search['title'], search['author']))
             attempts = 9
             while attempts:
-                # Find book whose Artist field = cached_book['author']
-                hits = dev_books.Search(cached_book['author'],self.SearchField.index('Artists'))
+                # Try by uuid - only one hit
+                hits = dev_books.Search(search['uuid'],self.SearchField.index('All'))
+                if hits:
+                    hit = hits[0]
+                    self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                    return hit
+
+                # Try by author - there could be multiple hits
+                hits = dev_books.Search(search['author'],self.SearchField.index('Artists'))
                 if hits:
                     for hit in hits:
-                        self.log.info("  evaluating '%s' by %s" % (hit.Name, hit.Artist))
-                        if hit.Name == cached_book['title']:
-                            self.log.info("  matched '%s' by %s" % (hit.Name, hit.Artist))
+                        if hit.Name == search['title']:
+                            if DEBUG:
+                                self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                             return hit
+
                 attempts -= 1
                 time.sleep(0.5)
                 if DEBUG:
                     self.log.warning("  attempt #%d" % (10 - attempts))
 
             if DEBUG:
-                self.log.error("  search for '%s' yielded no hits" % cached_book['title'])
+                self.log.error("  no hits")
             return None
 
-    def _find_library_book(self, cached_book):
+    def _find_library_book(self, search):
         '''
         Windows-only method to get a handle to a library book in the current pythoncom session
         '''
         if iswindows:
             if DEBUG:
                 self.log.info(" ITUNES._find_library_book()")
-                self.log.info("  looking for '%s' by %s" % (cached_book['title'], cached_book['author']))
+                if 'uuid' in search:
+                    self.log.info("  looking for '%s' by %s (%s)" %
+                                (search['title'], search['author'], search['uuid']))
+                else:
+                    self.log.info("  looking for '%s' by %s" %
+                                (search['title'], search['author']))
 
             for source in self.iTunes.sources:
                 if source.Kind == self.Sources.index('Library'):
@@ -1460,21 +1488,34 @@ class ITUNES(DevicePlugin):
 
             attempts = 9
             while attempts:
-                # Find book whose Artist field = cached_book['author']
-                hits = lib_books.Search(cached_book['author'],self.SearchField.index('Artists'))
+                # Find book whose Album field = search['uuid']
+                if 'uuid' in search:
+                    if DEBUG:
+                        self.log.info("   searching by uuid '%s' ..." % search['uuid'])
+                    hits = lib_books.Search(search['uuid'],self.SearchField.index('All'))
+                    if hits:
+                        hit = hits[0]
+                        if DEBUG:
+                            self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                        return hit
+
+                if DEBUG:
+                    self.log.info("   searching by author '%s' ..." % search['author'])
+                hits = lib_books.Search(search['author'],self.SearchField.index('Artists'))
                 if hits:
                     for hit in hits:
-                        self.log.info("  evaluating '%s' by %s" % (hit.Name, hit.Artist))
-                        if hit.Name == cached_book['title']:
-                            self.log.info("  matched '%s' by %s" % (hit.Name, hit.Artist))
+                        if hit.Name == search['title']:
+                            if DEBUG:
+                                self.log.info("  found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                             return hit
+
                 attempts -= 1
                 time.sleep(0.5)
                 if DEBUG:
-                    self.log.warning("  attempt #%d" % (10 - attempts))
+                    self.log.warning("   attempt #%d" % (10 - attempts))
 
             if DEBUG:
-                self.log.error("  search for '%s' yielded no hits" % cached_book['title'])
+                self.log.error("  search for '%s' yielded no hits" % search['title'])
             return None
 
     def _generate_thumbnail(self, book_path, book):
@@ -1488,11 +1529,11 @@ class ITUNES(DevicePlugin):
         thumb_path = book_path.rpartition('.')[0] + '.jpg'
 
         try:
-            zfr = zipfile.ZipFile(archive_path)
+            zfr = ZipFile(archive_path)
             thumb_data = zfr.read(thumb_path)
             zfr.close()
         except:
-            zfw = zipfile.ZipFile(archive_path, mode='a')
+            zfw = ZipFile(archive_path, mode='a')
         else:
             return thumb_data
 
@@ -1516,6 +1557,10 @@ class ITUNES(DevicePlugin):
                 return thumb.getvalue()
             except:
                 self.log.error("  error generating thumb for '%s'" % book.name())
+                try:
+                    zfw.close()
+                except:
+                    pass
                 return None
 
         elif iswindows:
@@ -1526,9 +1571,9 @@ class ITUNES(DevicePlugin):
                 return None
 
             # Save the cover from iTunes
-            tmp_thumb = os.path.join(tempfile.gettempdir(), "thumb.%s" % self.ArtworkFormat[book.Artwork.Item(1).Format])
-            book.Artwork.Item(1).SaveArtworkToFile(tmp_thumb)
             try:
+                tmp_thumb = os.path.join(tempfile.gettempdir(), "thumb.%s" % self.ArtworkFormat[book.Artwork.Item(1).Format])
+                book.Artwork.Item(1).SaveArtworkToFile(tmp_thumb)
                 # Resize the cover
                 im = PILImage.open(tmp_thumb)
                 scaled, width, height = fit_image(im.size[0],im.size[1], 60, 80)
@@ -1545,21 +1590,26 @@ class ITUNES(DevicePlugin):
                 return thumb.getvalue()
             except:
                 self.log.error("  error generating thumb for '%s'" % book.Name)
+                try:
+                    zfw.close()
+                except:
+                    pass
                 return None
 
     def _get_device_book_size(self, file, compressed_size):
         '''
         Calculate the exploded size of file
         '''
-        myZip = zipfile.ZipFile(file,'r')
+        myZip = ZipFile(file,'r')
         myZipList = myZip.infolist()
         exploded_file_size = 0
         for file in myZipList:
             exploded_file_size += file.file_size
-        if DEBUG:
+        if False:
             self.log.info(" ITUNES._get_device_book_size()")
             self.log.info("  %d items in archive" % len(myZipList))
             self.log.info("  compressed: %d  exploded: %d" % (compressed_size, exploded_file_size))
+        myZip.close()
         return exploded_file_size
 
     def _get_device_books(self):
@@ -1590,8 +1640,11 @@ class ITUNES(DevicePlugin):
                             self.log.info("   ignoring '%s' of type '%s'" % (book.name(), book.kind()))
                     else:
                         if DEBUG:
-                            self.log.info("   adding %-30.30s [%s]" % (book.name(), book.kind()))
+                            self.log.info("   %-30.30s %-30.30s %-40.40s [%s]" %
+                                          (book.name(), book.artist(), book.album(), book.kind()))
                         device_books.append(book)
+                if DEBUG:
+                    self.log.info()
 
         elif iswindows:
             if 'iPod' in self.sources:
@@ -1619,8 +1672,10 @@ class ITUNES(DevicePlugin):
                                 self.log.info("   ignoring '%s' of type '%s'" % (book.Name, book.KindAsString))
                         else:
                             if DEBUG:
-                                self.log.info("   adding %-30.30s [%s]" % (book.Name, book.KindAsString))
+                                self.log.info("   %-30.30s %-30.30s %-40.40s [%s]" % (book.Name, book.Artist, book.Album, book.KindAsString))
                             device_books.append(book)
+                    if DEBUG:
+                        self.log.info()
 
                 finally:
                     pythoncom.CoUninitialize()
@@ -1631,8 +1686,6 @@ class ITUNES(DevicePlugin):
         '''
         assumes pythoncom wrapper
         '''
-        if DEBUG:
-            self.log.info(" ITUNES._get_device_books_playlist()")
         if iswindows:
             if 'iPod' in self.sources:
                 pl = None
@@ -1648,11 +1701,12 @@ class ITUNES(DevicePlugin):
                         self.log.error("  no iPad|Books playlist found")
                 return pl
 
-    def _get_fpath(self,file):
+    def _get_fpath(self,file, metadata, update_md=False):
         '''
         If the database copy will be deleted after upload, we have to
         use file (the PersistentTemporaryFile), which will be around until
         calibre exits.
+        If we're using the database copy, delete the plist
         '''
         if DEBUG:
             self.log.info(" ITUNES._get_fpath()")
@@ -1660,12 +1714,20 @@ class ITUNES(DevicePlugin):
         fpath = file
         if not getattr(fpath, 'deleted_after_upload', False):
             if getattr(file, 'orig_file_path', None) is not None:
+                # Database copy
                 fpath = file.orig_file_path
+                self._delete_iTunesMetadata_plist(fpath)
             elif getattr(file, 'name', None) is not None:
+                # PTF
                 fpath = file.name
         else:
+            # Recipe - PTF
             if DEBUG:
                 self.log.info("  file will be deleted after upload")
+
+        if update_md:
+            self._update_epub_metadata(fpath, metadata)
+
         return fpath
 
     def _get_library_books(self):
@@ -1715,12 +1777,12 @@ class ITUNES(DevicePlugin):
                             if str(book.description()).startswith(self.description_prefix):
                                 if book.location() == appscript.k.missing_value:
                                     library_orphans[path] = book
-                                    if DEBUG:
-                                        self.log.info("   found calibre orphan '%s' in Library|Books" % book.name())
+                                    if False:
+                                        self.log.info("   found iTunes PTF '%s' in Library|Books" % book.name())
 
                             library_books[path] = book
                             if DEBUG:
-                                self.log.info("   adding %-30.30s [%s]" % (book.name(), book.kind()))
+                                self.log.info("   %-30.30s %-30.30s %-40.40s [%s]" % (book.name(), book.artist(), book.album(), book.kind()))
                 else:
                     if DEBUG:
                         self.log.info('  no Library playlists')
@@ -1730,16 +1792,13 @@ class ITUNES(DevicePlugin):
 
         elif iswindows:
             lib = None
-#         try:
-#             pythoncom.CoInitialize()
-#             self.iTunes = win32com.client.Dispatch("iTunes.Application")
             for source in self.iTunes.sources:
                 if source.Kind == self.Sources.index('Library'):
                     lib = source
-                    self.log.info(" Library source: '%s' kind: %s" % (lib.Name, self.Sources[lib.Kind]))
+                    self.log.info("  Library source: '%s' kind: %s" % (lib.Name, self.Sources[lib.Kind]))
                     break
             else:
-                self.log.error(" Library source not found")
+                self.log.error("  Library source not found")
 
             if lib is not None:
                 lib_books = None
@@ -1748,22 +1807,22 @@ class ITUNES(DevicePlugin):
                         if pl.Kind == self.PlaylistKind.index('User') and \
                            pl.SpecialKind == self.PlaylistSpecialKind.index('Books'):
                             if DEBUG:
-                                self.log.info(" Books playlist: '%s'" % (pl.Name))
+                                self.log.info("  Books playlist: '%s'" % (pl.Name))
                             lib_books = pl.Tracks
                             break
                     else:
                         if DEBUG:
-                            self.log.error(" no Library|Books playlist found")
+                            self.log.error("  no Library|Books playlist found")
                 else:
                     if DEBUG:
-                        self.log.error(" no Library playlists found")
+                        self.log.error("  no Library playlists found")
 
                 try:
                     for book in lib_books:
                         # This may need additional entries for international iTunes users
                         if book.KindAsString in ['MPEG audio file']:
                             if DEBUG:
-                                self.log.info("  ignoring %-30.30s of type '%s'" % (book.Name, book.KindAsString))
+                                self.log.info("   ignoring %-30.30s of type '%s'" % (book.Name, book.KindAsString))
                         else:
                             path = self.path_template % (book.Name, book.Artist)
 
@@ -1771,17 +1830,15 @@ class ITUNES(DevicePlugin):
                             if book.Description.startswith(self.description_prefix):
                                 if not book.Location:
                                     library_orphans[path] = book
-                                    if DEBUG:
-                                        self.log.info("   found calibre orphan '%s' in Library|Books" % book.Name)
+                                    if False:
+                                        self.log.info("   found iTunes PTF '%s' in Library|Books" % book.Name)
 
                             library_books[path] = book
                             if DEBUG:
-                                self.log.info("  adding %-30.30s [%s]" % (book.Name, book.KindAsString))
+                                self.log.info("   %-30.30s %-30.30s %-40.40s [%s]" % (book.Name, book.Artist, book.Album, book.KindAsString))
                 except:
                     if DEBUG:
                         self.log.info(" no books in library")
-#         finally:
-#             pythoncom.CoUninitialize()
         self.library_orphans = library_orphans
         return library_books
 
@@ -1811,8 +1868,12 @@ class ITUNES(DevicePlugin):
         Check for >1 iPod device connected to iTunes
         '''
         if isosx:
-            names = [s.name() for s in self.iTunes.sources()]
-            kinds = [str(s.kind()).rpartition('.')[2] for s in self.iTunes.sources()]
+            try:
+                names = [s.name() for s in self.iTunes.sources()]
+                kinds = [str(s.kind()).rpartition('.')[2] for s in self.iTunes.sources()]
+            except:
+                # User probably quit iTunes
+                return {}
         elif iswindows:
             # Assumes a pythoncom wrapper
             it_sources = ['Unknown','Library','iPod','AudioCD','MP3CD','Device','RadioTuner','SharedLibrary']
@@ -1855,24 +1916,25 @@ class ITUNES(DevicePlugin):
                     self.log.info( "ITUNES:open(): Launching iTunes" )
                 self.iTunes = iTunes= appscript.app('iTunes', hide=True)
                 iTunes.run()
-                initial_status = 'launched'
+                self.initial_status = 'launched'
             else:
                 self.iTunes = appscript.app('iTunes')
-                initial_status = 'already running'
+                self.initial_status = 'already running'
 
             # Read the current storage path for iTunes media
             cmd = "defaults read com.apple.itunes NSNavLastRootDirectory"
             proc = subprocess.Popen( cmd, shell=True, cwd=os.curdir, stdout=subprocess.PIPE)
             proc.wait()
-            media_dir = os.path.abspath(proc.communicate()[0].strip())
+            media_dir = os.path.expanduser(proc.communicate()[0].strip())
             if os.path.exists(media_dir):
                 self.iTunes_media = media_dir
             else:
                 self.log.error("  could not confirm valid iTunes.media_dir from %s" % 'com.apple.itunes')
-
+                self.log.error("  media_dir: %s" % media_dir)
             if DEBUG:
-                self.log.info("  [%s - %s (%s), driver version %d.%d.%d]" %
-                 (self.iTunes.name(), self.iTunes.version(), initial_status,
+                self.log.info("  %s %s" % (__appname__, __version__))
+                self.log.info("  [OSX %s - %s (%s), driver version %d.%d.%d]" %
+                 (self.iTunes.name(), self.iTunes.version(), self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
                 self.log.info("  iTunes_media: %s" % self.iTunes_media)
         if iswindows:
@@ -1884,7 +1946,7 @@ class ITUNES(DevicePlugin):
             self.iTunes = win32com.client.Dispatch("iTunes.Application")
             if not DEBUG:
                 self.iTunes.Windows[0].Minimized = True
-            initial_status = 'launched'
+            self.initial_status = 'launched'
 
             # Read the current storage path for iTunes media from the XML file
             with open(self.iTunes.LibraryXMLPath, 'r') as xml:
@@ -1900,82 +1962,81 @@ class ITUNES(DevicePlugin):
                     self.log.error("  '%s' not found" % media_dir)
 
             if DEBUG:
-                self.log.info("  [%s - %s (%s), driver version %d.%d.%d]" %
-                 (self.iTunes.Windows[0].name, self.iTunes.Version, initial_status,
+                self.log.info("  %s %s" % (__appname__, __version__))
+                self.log.info("  [Windows %s - %s (%s), driver version %d.%d.%d]" %
+                 (self.iTunes.Windows[0].name, self.iTunes.Version, self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
                 self.log.info("  iTunes_media: %s" % self.iTunes_media)
 
-    def _purge_orphans(self,cached_books):
+    def _purge_orphans(self,library_books, cached_books):
         '''
-        Scan self.library_orphans for any paths not on device
-        Remove any true orphans from iTunes
-        This occurs when recipes are uploaded in a previous session
-        and the book has since been deleted on the device
+        Scan library_books for any paths not on device
+        Remove any iTunes orphans originally added by calibre
+        This occurs when the user deletes a book in iBooks while disconnected
         '''
         if DEBUG:
-            self.log.info(" ITUNES._purge_orphans")
+            self.log.info(" ITUNES._purge_orphans()")
+            #self._dump_library_books(library_books)
             #self.log.info("  cached_books:\n   %s" % "\n   ".join(cached_books.keys()))
 
-        orphan_paths = {}
-
-        if isosx:
-            for orphan in self.library_orphans:
-                path = self.path_template % (self.library_orphans[orphan].name(),
-                                             self.library_orphans[orphan].artist())
-                orphan_paths[path] = self.library_orphans[orphan]
-
-            # Scan orphan_paths for paths not found in cached_books
-            for orphan in orphan_paths.keys():
-                if orphan not in cached_books:
+        for book in library_books:
+            if isosx:
+                if book not in cached_books and \
+                   str(library_books[book].description()).startswith(self.description_prefix):
                     if DEBUG:
-                        self.log.info("  '%s' not found on device, removing from iTunes" % orphan)
-                    self.iTunes.delete(orphan_paths[orphan])
-
-        elif iswindows:
-            for orphan in self.library_orphans:
-                path = self.path_template % (self.library_orphans[orphan].Name,
-                                             self.library_orphans[orphan].Artist)
-                orphan_paths[path] = self.library_orphans[orphan]
-
-            # Scan orphan_paths for paths not found in cached_books
-            for orphan in orphan_paths.keys():
-                if orphan not in cached_books:
+                        self.log.info("  '%s' not found on iDevice, removing from iTunes" % book)
+                    btr = {   'title':library_books[book].name(),
+                             'author':library_books[book].artist(),
+                           'lib_book':library_books[book]}
+                    self._remove_from_iTunes(btr)
+            elif iswindows:
+                if book not in cached_books and \
+                   library_books[book].Description.startswith(self.description_prefix):
                     if DEBUG:
-                        self.log.info("  '%s' not found on device, removing from iTunes" % orphan)
-                    orphan_paths[orphan].Delete()
+                        self.log.info("  '%s' not found on iDevice, removing from iTunes" % book)
+                    btr = {   'title':library_books[book].Name,
+                             'author':library_books[book].Artist,
+                           'lib_book':library_books[book]}
+                    self._remove_from_iTunes(btr)
+        if DEBUG:
+            self.log.info()
 
-    def _remove_existing_copies(self,path,file,metadata):
+    def _remove_existing_copy(self, path, metadata):
         '''
         '''
         if DEBUG:
-            self.log.info(" ITUNES._remove_existing_copies()")
+            self.log.info(" ITUNES._remove_existing_copy()")
 
         if self.manual_sync_mode:
             # Delete existing from Device|Books, add to self.update_list
             # for deletion from booklist[0] during add_books_to_metadata
-            if path in self.cached_books:
-                self.update_list.append(self.cached_books[path])
-                self._remove_from_device(self.cached_books[path])
-                if DEBUG:
-                    self.log.info( "  deleting device book '%s'" % (path))
-                if not getattr(file, 'deleted_after_upload', False):
-                    self._remove_from_iTunes(self.cached_books[path])
+            for book in self.cached_books:
+                if self.cached_books[book]['uuid'] == metadata.uuid:
+                    self.update_list.append(self.cached_books[book])
+                    self._remove_from_device(self.cached_books[book])
                     if DEBUG:
-                        self.log.info("  deleting library book '%s'" % path)
+                        self.log.info( "  deleting device book '%s'" % (metadata.title))
+                    if not getattr(file, 'deleted_after_upload', False):
+                        self._remove_from_iTunes(self.cached_books[book])
+                        if DEBUG:
+                            self.log.info("  deleting library book '%s'" % metadata.title)
+                    break
             else:
                 if DEBUG:
                     self.log.info("  '%s' not in cached_books" % metadata.title)
         else:
             # Delete existing from Library|Books, add to self.update_list
             # for deletion from booklist[0] during add_books_to_metadata
-            if path in self.cached_books:
-                self.update_list.append(self.cached_books[path])
-                self._remove_from_iTunes(self.cached_books[path])
-                if DEBUG:
-                    self.log.info( "  deleting library book '%s'" % path)
-            else:
-                if DEBUG:
-                    self.log.info("  '%s' not in cached_books" % metadata.title)
+            for book in self.cached_books:
+                if self.cached_books[book]['uuid'] == metadata.uuid:
+                    self.update_list.append(self.cached_books[book])
+                    self._remove_from_iTunes(self.cached_books[book])
+                    if DEBUG:
+                        self.log.info( "  deleting library book '%s'" %  metadata.title)
+                    break
+                else:
+                    if DEBUG:
+                        self.log.info("  '%s' not in cached_books" % metadata.title)
 
     def _remove_from_device(self, cached_book):
         '''
@@ -1983,22 +2044,18 @@ class ITUNES(DevicePlugin):
         '''
         self.log.info(" ITUNES._remove_from_device()")
         if isosx:
-            if DEBUG:
+            if False:
                 self.log.info("  deleting %s" % cached_book['dev_book'])
             cached_book['dev_book'].delete()
 
         elif iswindows:
             dev_pl = self._get_device_books_playlist()
-            hits = dev_pl.Search(cached_book['author'],self.SearchField.index('Artists'))
+            hits = dev_pl.Search(cached_book['uuid'],self.SearchField.index('All'))
             if hits:
-                for hit in hits:
-                    if DEBUG:
-                        self.log.info("  evaluating '%s' by %s" % (hit.Name, hit.Artist))
-                    if hit.Name == cached_book['title']:
-                        if DEBUG:
-                            self.log.info("  deleting '%s' by %s" % (hit.Name, hit.Artist))
-                        hit.Delete()
-                        break
+                hit = hits[0]
+                if False:
+                    self.log.info("  deleting '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Album))
+                hit.Delete()
 
     def _remove_from_iTunes(self, cached_book):
         '''
@@ -2036,46 +2093,106 @@ class ITUNES(DevicePlugin):
                             self.log.info("  author_storage_path not empty (%d objects):" % len(author_files))
                             self.log.info("  %s" % '\n'.join(author_files))
                 else:
-                    self.log.info("  '%s' stored external to iTunes, no files deleted" % cached_book['title'])
+                    self.log.info("  '%s' (stored external to iTunes, no files deleted)" % cached_book['title'])
 
             except:
                 # We get here if there was an error with .location().path
-                self.log.info("  removing orphan '%s' from iTunes" % cached_book['title'])
+                if DEBUG:
+                    self.log.info("   '%s' not found in iTunes" % cached_book['title'])
 
-            self.iTunes.delete(cached_book['lib_book'])
+            try:
+                self.iTunes.delete(cached_book['lib_book'])
+            except:
+                if DEBUG:
+                    self.log.info("   unable to remove '%s' from iTunes" % cached_book['title'])
 
         elif iswindows:
             '''
             Assume we're wrapped in a pythoncom
             Windows stores the book under a common author directory, so we just delete the .epub
             '''
-
-            book = self._find_library_book(cached_book)
-            if book:
+            try:
+                book = cached_book['lib_book']
                 path = book.Location
-                storage_path = os.path.split(book.Location)
-                if book.Location.startswith(self.iTunes_media):
+            except:
+                book = self._find_library_book(cached_book)
+                path = book.Location
+
+            if book:
+                storage_path = os.path.split(path)
+                if path.startswith(self.iTunes_media):
                     if DEBUG:
-                        self.log.info("  removing '%s' at %s" %
+                        self.log.info("   removing '%s' at %s" %
                             (cached_book['title'], path))
                     try:
                         os.remove(path)
                     except:
-                        self.log.warning("  could not find '%s' in iTunes storage" % path)
+                        self.log.warning("   could not find '%s' in iTunes storage" % path)
                     try:
                         os.rmdir(storage_path[0])
-                        self.log.info("  removed folder '%s'" % storage_path[0])
+                        self.log.info("   removed folder '%s'" % storage_path[0])
                     except:
-                        self.log.info("  folder '%s' not found or not empty" % storage_path[0])
+                        self.log.info("   folder '%s' not found or not empty" % storage_path[0])
 
                     # Delete from iTunes database
                 else:
-                    self.log.info("  '%s' stored external to iTunes, no files deleted" % cached_book['title'])
-
-                book.Delete()
-
+                    self.log.info("   '%s' (stored external to iTunes, no files deleted)" % cached_book['title'])
             else:
-                self.log.warning("  could not find '%s' in iTunes database" % cached_book['title'])
+                if DEBUG:
+                    self.log.info("   '%s' not found in iTunes" % cached_book['title'])
+            try:
+                book.Delete()
+            except:
+                if DEBUG:
+                    self.log.info("   unable to remove '%s' from iTunes" % cached_book['title'])
+
+    def _update_epub_metadata(self, fpath, metadata):
+        '''
+        '''
+        self.log.info(" ITUNES._update_epub_metadata()")
+
+        # Refresh epub metadata
+        with open(fpath,'r+b') as zfo:
+            # Touch the OPF timestamp
+            zf_opf = ZipFile(fpath,'r')
+            fnames = zf_opf.namelist()
+            opf = [x for x in fnames if '.opf' in x][0]
+            if opf:
+                opf_raw = cStringIO.StringIO(zf_opf.read(opf)).getvalue()
+                soup = BeautifulSoup(opf_raw)
+                md = soup.find('metadata')
+                ts = md.find('meta',attrs={'name':'calibre:timestamp'})
+                if ts:
+                    # Touch existing calibre timestamp
+                    timestamp = ts['content']
+                    old_ts = parse_date(timestamp)
+                    metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
+                                               old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
+                else:
+                    metadata.timestamp = isoformat(now())
+                    if DEBUG:
+                        self.log.info("   add timestamp: %s" % metadata.timestamp)
+            zf_opf.close()
+
+            # If 'News' in tags, tweak the title/author for friendlier display in iBooks
+            if _('News') in metadata.tags:
+                if metadata.title.find('[') > 0:
+                    metadata.title = metadata.title[:metadata.title.find('[')-1]
+                date_as_author = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
+                metadata.author = metadata.authors = [date_as_author]
+                sort_author =  re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', metadata.title).rstrip()
+                metadata.author_sort = '%s %s' % (sort_author, strftime('%Y-%m-%d'))
+
+            # Remove any non-alpha category tags
+            for tag in metadata.tags:
+                if not self._is_alpha(tag[0]):
+                    metadata.tags.remove(tag)
+
+            # If windows & series, nuke tags so series used as Category during _update_iTunes_metadata()
+            if iswindows and metadata.series:
+                metadata.tags = None
+
+            set_metadata(zfo, metadata, update_timestamp=True)
 
     def _update_device(self, msg='', wait=True):
         '''
@@ -2133,6 +2250,22 @@ class ITUNES(DevicePlugin):
         strip_tags = re.compile(r'<[^<]*?/?>')
 
         if isosx:
+            if lb_added:
+                lb_added.album.set(metadata.title)
+                lb_added.composer.set(metadata.uuid)
+                lb_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
+                lb_added.enabled.set(True)
+                lb_added.sort_artist.set(metadata.author_sort.title())
+                lb_added.sort_name.set(this_book.title_sorter)
+
+            if db_added:
+                db_added.album.set(metadata.title)
+                db_added.composer.set(metadata.uuid)
+                db_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
+                db_added.enabled.set(True)
+                db_added.sort_artist.set(metadata.author_sort.title())
+                db_added.sort_name.set(this_book.title_sorter)
+
             if metadata.comments:
                 if lb_added:
                     lb_added.comment.set(strip_tags.sub('',metadata.comments))
@@ -2149,31 +2282,47 @@ class ITUNES(DevicePlugin):
                 except:
                     pass
 
-            if lb_added:
-                lb_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
-                lb_added.enabled.set(True)
-                lb_added.sort_artist.set(metadata.author_sort.title())
-                lb_added.sort_name.set(this_book.title_sorter)
+            # Set genre from series if available, else first alpha tag
+            # Otherwise iTunes grabs the first dc:subject from the opf metadata
+            if self.use_series_data and metadata.series:
+                if lb_added:
+                    lb_added.sort_name.set("%s %03d" % (metadata.series, metadata.series_index))
+                    lb_added.genre.set(metadata.series)
+                    lb_added.episode_ID.set(metadata.series)
+                    lb_added.episode_number.set(metadata.series_index)
 
-            if db_added:
-                db_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
-                db_added.enabled.set(True)
-                db_added.sort_artist.set(metadata.author_sort.title())
-                db_added.sort_name.set(this_book.title_sorter)
+                if db_added:
+                    db_added.sort_name.set("%s %03d" % (metadata.series, metadata.series_index))
+                    db_added.genre.set(metadata.series)
+                    db_added.episode_ID.set(metadata.series)
+                    db_added.episode_number.set(metadata.series_index)
 
-            # Set genre from metadata
-            # iTunes grabs the first dc:subject from the opf metadata,
-            # But we can manually override with first tag starting with alpha
-            for tag in metadata.tags:
-                if self._is_alpha(tag[0]):
-                    if lb_added:
-                        lb_added.genre.set(tag)
-                    if db_added:
-                        db_added.genre.set(tag)
-                    break
-
+            elif metadata.tags:
+                for tag in metadata.tags:
+                    if self._is_alpha(tag[0]):
+                        if lb_added:
+                            lb_added.genre.set(tag)
+                        if db_added:
+                            db_added.genre.set(tag)
+                        break
 
         elif iswindows:
+            if lb_added:
+                lb_added.Album = metadata.title
+                lb_added.Composer = metadata.uuid
+                lb_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
+                lb_added.Enabled = True
+                lb_added.SortArtist = (metadata.author_sort.title())
+                lb_added.SortName = (this_book.title_sorter)
+
+            if db_added:
+                db_added.Album = metadata.title
+                db_added.Composer = metadata.uuid
+                db_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
+                db_added.Enabled = True
+                db_added.SortArtist = (metadata.author_sort.title())
+                db_added.SortName = (this_book.title_sorter)
+
             if metadata.comments:
                 if lb_added:
                     lb_added.Comment = (strip_tags.sub('',metadata.comments))
@@ -2188,29 +2337,42 @@ class ITUNES(DevicePlugin):
                     if db_added:
                         db_added.AlbumRating = (metadata.rating*10)
                 except:
-                    pass
+                    if DEBUG:
+                        self.log.warning("  iTunes automation interface reported an error"
+                                         " setting AlbumRating on iDevice")
 
-            if lb_added:
-                lb_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
-                lb_added.Enabled = True
-                lb_added.SortArtist = (metadata.author_sort.title())
-                lb_added.SortName = (this_book.title_sorter)
+            # Set Genre from first alpha tag, overwrite with series if available
+            # Otherwise iBooks uses first <dc:subject> from opf
+            # iTunes balks on setting EpisodeNumber, but it sticks (9.1.1.12)
 
-            if db_added:
-                db_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
-                db_added.SortArtist = (metadata.author_sort.title())
-                db_added.SortName = (this_book.title_sorter)
+            if self.use_series_data and metadata.series:
+                if lb_added:
+                    lb_added.SortName = "%s %03d" % (metadata.series, metadata.series_index)
+                    lb_added.Genre = metadata.series
+                    lb_added.EpisodeID = metadata.series
+                    try:
+                        lb_added.EpisodeNumber = metadata.series_index
+                    except:
+                        pass
+                if db_added:
+                    db_added.SortName = "%s %03d" % (metadata.series, metadata.series_index)
+                    db_added.Genre = metadata.series
+                    db_added.EpisodeID = metadata.series
+                    try:
+                        db_added.EpisodeNumber = metadata.series_index
+                    except:
+                        if DEBUG:
+                            self.log.warning("  iTunes automation interface reported an error"
+                                             " setting EpisodeNumber on iDevice")
+            elif metadata.tags:
+                for tag in metadata.tags:
+                    if self._is_alpha(tag[0]):
+                        if lb_added:
+                            lb_added.Genre = tag
+                        if db_added:
+                            db_added.Genre = tag
+                        break
 
-            # Set genre from metadata
-            # iTunes grabs the first dc:subject from the opf metadata,
-            # But we can manually override with first tag starting with alpha
-            for tag in metadata.tags:
-                if self._is_alpha(tag[0]):
-                    if lb_added:
-                        lb_added.Category = (tag)
-                    if db_added:
-                        db_added.Category = (tag)
-                    break
 
 class BookList(list):
     '''

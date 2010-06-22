@@ -84,7 +84,7 @@ class EPUBOutput(OutputFormatPlugin):
 
         OptionRecommendation(name='no_svg_cover', recommended_value=False,
             help=_('Do not use SVG for the book cover. Use this option if '
-                'your EPUB is going to be used ona  device that does not '
+                'your EPUB is going to be used on a device that does not '
                 'support SVG, like the iPhone or the JetBook Lite. '
                 'Without this option, such devices will display the cover '
                 'as a blank page.')
@@ -384,14 +384,6 @@ class EPUBOutput(OutputFormatPlugin):
                             pval = rule.style.getProperty('padding-left')
                             if val and not pval:
                                 rule.style.setProperty('padding-left', val)
-
-        if stylesheet is not None:
-            stylesheet.data.add('a { color: inherit; text-decoration: inherit; '
-                    'cursor: default; }')
-            stylesheet.data.add('a[href] { color: blue; '
-                    'text-decoration: underline; cursor:pointer; }')
-        else:
-            self.oeb.log.warn('No stylesheet found')
 
     # }}}
 

@@ -14,7 +14,7 @@ from Queue import Queue
 from threading import RLock
 from datetime import datetime
 
-from calibre.ebooks.metadata import title_sort
+from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, isoformat
 
@@ -94,6 +94,9 @@ class Connection(sqlite.Connection):
             return ans[0]
         return ans.fetchall()
 
+def _author_to_author_sort(x):
+    if not x: return ''
+    return author_to_author_sort(x.replace('|', ','))
 
 class DBThread(Thread):
 
@@ -116,10 +119,12 @@ class DBThread(Thread):
         self.conn.create_aggregate('concat', 1, Concatenate)
         self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
         self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
-        if tweaks['title_series_sorting'] == 'library_order':
-            self.conn.create_function('title_sort', 1, title_sort)
-        else:
+        if tweaks['title_series_sorting'] == 'strictly_alphabetic':
             self.conn.create_function('title_sort', 1, lambda x:x)
+        else:
+            self.conn.create_function('title_sort', 1, title_sort)
+        self.conn.create_function('author_to_author_sort', 1,
+                _author_to_author_sort)
         self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
         # Dummy functions for dynamically created filters
         self.conn.create_function('books_list_filter', 1, lambda x: 1)

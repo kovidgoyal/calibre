@@ -21,7 +21,7 @@ from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
-from calibre import strftime, isbytestring
+from calibre import strftime, isbytestring, prepare_string_for_xml
 from calibre.constants import filesystem_encoding
 from calibre.gui2.library import DEFAULT_SORT
 
@@ -300,6 +300,7 @@ class BooksModel(QAbstractTableModel): # {{{
             formats = _('None')
         data[_('Formats')] = formats
         data[_('Path')] = self.db.abspath(idx)
+        data['id'] = self.id(idx)
         comments = self.db.comments(idx)
         if not comments:
             comments = _('None')
@@ -308,7 +309,9 @@ class BooksModel(QAbstractTableModel): # {{{
         if series:
             sidx = self.db.series_index(idx)
             sidx = fmt_sidx(sidx, use_roman = self.use_roman_numbers)
-            data[_('Series')] = _('Book <font face="serif">%s</font> of %s.')%(sidx, series)
+            data[_('Series')] = \
+                _('Book <font face="serif">%s</font> of %s.')%\
+                    (sidx, prepare_string_for_xml(series))
 
         return data
 
@@ -417,8 +420,11 @@ class BooksModel(QAbstractTableModel): # {{{
                         pt.orig_file_path = os.path.abspath(src.name)
                 pt.seek(0)
                 if set_metadata:
-                    _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
+                    try:
+                        _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
                                   format)
+                    except:
+                        traceback.print_exc()
                 pt.close()
                 def to_uni(x):
                     if isbytestring(x):
@@ -763,6 +769,7 @@ class OnDeviceSearch(SearchQueryParser): # {{{
         'format',
         'formats',
         'title',
+        'inlibrary'
     ]
 
 
@@ -801,12 +808,23 @@ class OnDeviceSearch(SearchQueryParser): # {{{
              'author': lambda x: ' & '.join(getattr(x, 'authors')).lower(),
              'collections':lambda x: ','.join(getattr(x, 'device_collections')).lower(),
              'format':lambda x: os.path.splitext(x.path)[1].lower(),
+             'inlibrary':lambda x : getattr(x, 'in_library')
              }
         for x in ('author', 'format'):
             q[x+'s'] = q[x]
         for index, row in enumerate(self.model.db):
             for locvalue in locations:
                 accessor = q[locvalue]
+                if query == 'true':
+                    if accessor(row) is not None:
+                        matches.add(index)
+                    continue
+                if query == 'false':
+                    if accessor(row) is None:
+                        matches.add(index)
+                    continue
+                if locvalue == 'inlibrary':
+                    continue    # this is bool, so can't match below
                 try:
                     ### Can't separate authors because comma is used for name sep and author sep
                     ### Exact match might not get what you want. For that reason, turn author
@@ -856,11 +874,15 @@ class DeviceBooksModel(BooksModel): # {{{
         self.editable = True
         self.book_in_library = None
 
-    def mark_for_deletion(self, job, rows):
-        self.marked_for_deletion[job] = self.indices(rows)
-        for row in rows:
-            indices = self.row_indices(row)
-            self.dataChanged.emit(indices[0], indices[-1])
+    def mark_for_deletion(self, job, rows, rows_are_ids=False):
+        if rows_are_ids:
+            self.marked_for_deletion[job] = rows
+            self.reset()
+        else:
+            self.marked_for_deletion[job] = self.indices(rows)
+            for row in rows:
+                indices = self.row_indices(row)
+                self.dataChanged.emit(indices[0], indices[-1])
 
     def deletion_done(self, job, succeeded=True):
         if not self.marked_for_deletion.has_key(job):
@@ -882,13 +904,13 @@ class DeviceBooksModel(BooksModel): # {{{
             ans.extend(v)
         return ans
 
-    def clear_ondevice(self, db_ids):
+    def clear_ondevice(self, db_ids, to_what=None):
         for data in self.db:
             if data is None:
                 continue
             app_id = getattr(data, 'application_id', None)
             if app_id is not None and app_id in db_ids:
-                data.in_library = False
+                data.in_library = to_what
             self.reset()
 
     def flags(self, index):
@@ -897,8 +919,8 @@ class DeviceBooksModel(BooksModel): # {{{
         flags = QAbstractTableModel.flags(self, index)
         if index.isValid() and self.editable:
             cname = self.column_map[index.column()]
-            if cname in ('title', 'authors') or (cname == 'collection' and \
-                    self.db.supports_collections()):
+            if cname in ('title', 'authors') or \
+                    (cname == 'collections' and self.db.supports_collections()):
                 flags |= Qt.ItemIsEditable
         return flags
 
@@ -1043,6 +1065,13 @@ class DeviceBooksModel(BooksModel): # {{{
     def paths(self, rows):
         return [self.db[self.map[r.row()]].path for r in rows ]
 
+    def paths_for_db_ids(self, db_ids):
+        res = []
+        for r,b in enumerate(self.db):
+            if b.application_id in db_ids:
+                res.append((r,b))
+        return res
+
     def indices(self, rows):
         '''
         Return indices into underlying database from rows
@@ -1083,6 +1112,8 @@ class DeviceBooksModel(BooksModel): # {{{
         elif role == Qt.DecorationRole and cname == 'inlibrary':
             if self.db[self.map[row]].in_library:
                 return QVariant(self.bool_yes_icon)
+            elif self.db[self.map[row]].in_library is not None:
+                return QVariant(self.bool_no_icon)
         elif role == Qt.TextAlignmentRole:
             cname = self.column_map[index.column()]
             ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,

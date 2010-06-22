@@ -108,7 +108,7 @@ class TouchscreenNavBarTemplate(Template):
         navbar = DIV(CLASS('calibre_navbar', 'calibre_rescale_100',
             style='text-align:'+align))
         if bottom:
-            navbar.append(HR())
+            navbar.append(DIV(style="border-top:1px solid gray;border-bottom:1em solid white"))
             text = 'This article was downloaded by '
             p = PT(text, STRONG(__appname__), A(url, href=url), style='text-align:left')
             p[0].tail = ' from '
@@ -136,7 +136,7 @@ class TouchscreenNavBarTemplate(Template):
 
         navbar.iterchildren(reversed=True).next().tail = ' | '
         if not bottom:
-            navbar.append(HR())
+            navbar.append(DIV(style="border-top:1px solid gray;border-bottom:1em solid white"))
 
         self.root = HTML(head, BODY(navbar))
 
@@ -193,6 +193,8 @@ class TouchscreenIndexTemplate(Template):
         div = DIV(
                 masthead_p,
                 PT(date, style='text-align:center'),
+                #DIV(style="border-color:gray;border-top-style:solid;border-width:thin"),
+                DIV(style="border-top:1px solid gray;border-bottom:1em solid white"),
                 toc)
         self.root = HTML(head, BODY(div))
 
@@ -256,10 +258,9 @@ class TouchscreenFeedTemplate(Template):
             head.append(STYLE(extra_css, type='text/css'))
         body = BODY(style='page-break-before:always')
         div = DIV(
-                H2(feed.title,
-                    CLASS('calibre_feed_title', 'calibre_rescale_160')),
-                CLASS('calibre_rescale_100')
-              )
+                H2(feed.title, CLASS('calibre_feed_title', 'calibre_rescale_160')),
+                DIV(style="border-top:1px solid gray;border-bottom:1em solid white")
+                )
         body.append(div)
         if getattr(feed, 'image', None):
             div.append(DIV(IMG(
@@ -278,17 +279,33 @@ class TouchscreenFeedTemplate(Template):
             if not getattr(article, 'downloaded', False):
                 continue
             tr = TR()
-            td = TD(
-                    A(article.title, CLASS('summary_headline','calibre_rescale_120',
-                                    href=article.url))
-                    )
-            if article.author:
-                td.append(DIV(article.author,
-                    CLASS('summary_byline', 'calibre_rescale_100')))
-            if article.summary:
-                td.append(DIV(cutoff(article.text_summary),
-                    CLASS('summary_text', 'calibre_rescale_100')))
-            tr.append(td)
+
+            if True:
+                div_td = DIV(
+                        A(article.title, CLASS('summary_headline','calibre_rescale_120',
+                                        href=article.url)),
+                        style="display:inline-block")
+                if article.author:
+                    div_td.append(DIV(article.author,
+                        CLASS('summary_byline', 'calibre_rescale_100')))
+                if article.summary:
+                    div_td.append(DIV(cutoff(article.text_summary),
+                        CLASS('summary_text', 'calibre_rescale_100')))
+                tr.append(TD(div_td))
+            else:
+                td = TD(
+                        A(article.title, CLASS('summary_headline','calibre_rescale_120',
+                                        href=article.url))
+                        )
+                if article.author:
+                    td.append(DIV(article.author,
+                        CLASS('summary_byline', 'calibre_rescale_100')))
+                if article.summary:
+                    td.append(DIV(cutoff(article.text_summary),
+                        CLASS('summary_text', 'calibre_rescale_100')))
+
+                tr.append(td)
+
             toc.append(tr)
         div.append(toc)
 

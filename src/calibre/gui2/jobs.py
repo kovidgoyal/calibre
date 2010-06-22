@@ -274,11 +274,15 @@ class JobsButton(QFrame):
 
     def __init__(self, horizontal=False, size=48, parent=None):
         QFrame.__init__(self, parent)
+        if horizontal:
+            size = 24
         self.pi = ProgressIndicator(self, size)
         self._jobs = QLabel('<b>'+_('Jobs:')+' 0')
+        self._jobs.mouseReleaseEvent = self.mouseReleaseEvent
 
         if horizontal:
             self.setLayout(QHBoxLayout())
+            self.layout().setDirection(self.layout().RightToLeft)
         else:
             self.setLayout(QVBoxLayout())
             self._jobs.setAlignment(Qt.AlignHCenter|Qt.AlignBottom)

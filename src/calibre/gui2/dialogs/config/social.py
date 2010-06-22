@@ -49,6 +49,9 @@ class SocialMetadata(QDialog):
         self.mi.tags = self.worker.mi.tags
         self.mi.rating = self.worker.mi.rating
         self.mi.comments = self.worker.mi.comments
+        if self.worker.mi.series:
+            self.mi.series = self.worker.mi.series
+            self.mi.series_index = self.worker.mi.series_index
         QDialog.accept(self)
 
     @property

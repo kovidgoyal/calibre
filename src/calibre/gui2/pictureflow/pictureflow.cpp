@@ -85,7 +85,9 @@ typedef long PFreal;
 
 typedef unsigned short QRgb565;
 
-#define FONT_SIZE 18
+#define REFLECTION_FACTOR 1.5
+
+#define MAX(x, y) ((x > y) ? x : y)
 
 #define RGB565_RED_MASK 0xF800
 #define RGB565_GREEN_MASK 0x07E0
@@ -124,6 +126,7 @@ inline PFreal floatToFixed(float val)
   return (PFreal)(val*PFREAL_ONE);
 }
 
+// sinTable {{{
 #define IANGLE_MAX 1024
 #define IANGLE_MASK 1023
 
@@ -293,6 +296,7 @@ int main(int, char**)
   return 0;
 }
 #endif
+// }}}
 
 inline PFreal fsin(int iangle)
 {
@@ -314,6 +318,8 @@ struct SlideInfo
   PFreal cx;
   PFreal cy;
 };
+
+// PicturePlowPrivate {{{
 
 class PictureFlowPrivate
 {
@@ -369,6 +375,7 @@ private:
   
   int slideWidth;
   int slideHeight;
+  int fontSize;
   int zoom;
   int queueLength;
 
@@ -406,6 +413,7 @@ PictureFlowPrivate::PictureFlowPrivate(PictureFlow* w, int queueLength_)
 
   slideWidth = 200;
   slideHeight = 200;
+  fontSize = 10;
   zoom = 100;
 
   centerIndex = 0;
@@ -488,6 +496,7 @@ int PictureFlowPrivate::currentSlide() const
 
 void PictureFlowPrivate::setCurrentSlide(int index)
 {
+  animateTimer.stop();
   step = 0;
   centerIndex = qBound(index, 0, slideImages->count()-1);
   target = centerIndex;
@@ -542,8 +551,11 @@ void PictureFlowPrivate::showSlide(int index)
 
 void PictureFlowPrivate::resize(int w, int h)
 {
-  slideHeight = int(float(h)/2.);
+  if (w < 10) w = 10;
+  if (h < 10) h = 10;
+  slideHeight = int(float(h)/REFLECTION_FACTOR);
   slideWidth = int(float(slideHeight) * 2/3.);
+  fontSize = MAX(int(h/15.), 12);
   recalc(w, h);
   resetSlides();
   triggerRender();
@@ -592,8 +604,8 @@ static QImage prepareSurface(QImage img, int w, int h)
   img = img.scaled(w, h, Qt::IgnoreAspectRatio, mode);
 
   // slightly larger, to accomodate for the reflection
-  int hs = h * 2;
-  int hofs = h / 3;
+  int hs = int(h * REFLECTION_FACTOR);
+  int hofs = 0;
 
   // offscreen buffer: black is sweet
   QImage result(hs, w, QImage::Format_RGB16);  
@@ -715,13 +727,13 @@ void PictureFlowPrivate::render()
 
     QFont font = QFont();
     font.setBold(true);
-    font.setPointSize(FONT_SIZE);
+    font.setPixelSize(fontSize);
     painter.setFont(font);
     painter.setPen(Qt::white);
     //painter.setPen(QColor(255,255,255,127));
 
     if (centerIndex < slideCount() && centerIndex > -1) 
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2-FONT_SIZE*3),
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2-fontSize*3),
                       Qt::AlignCenter, slideImages->caption(centerIndex));
 
     painter.end();
@@ -766,7 +778,7 @@ void PictureFlowPrivate::render()
 
     QFont font = QFont();
     font.setBold(true);
-    font.setPointSize(FONT_SIZE);
+    font.setPixelSize(fontSize);
     painter.setFont(font);
 
     int leftTextIndex = (step>0) ? centerIndex : centerIndex-1;
@@ -774,12 +786,12 @@ void PictureFlowPrivate::render()
 
     painter.setPen(QColor(255,255,255, (255-fade) ));
     if (leftTextIndex < sc && leftTextIndex > -1)
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - FONT_SIZE*3),
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*3),
                       Qt::AlignCenter, slideImages->caption(leftTextIndex));
 
     painter.setPen(QColor(255,255,255, fade));
     if (leftTextIndex+1 < sc && leftTextIndex > -2)
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - FONT_SIZE*3),
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*3),
                       Qt::AlignCenter, slideImages->caption(leftTextIndex+1));
 
 
@@ -893,7 +905,7 @@ int col1, int col2)
     int center = (sh*BILINEAR_STRETCH_VER/2);
     int dy = dist*BILINEAR_STRETCH_VER / h;
 #else
-    int center = (sh/2);
+    int center = sh/2;
     int dy = dist / h;
 #endif
     int p1 = center*PFREAL_ONE - dy/2;
@@ -1110,8 +1122,9 @@ void PictureFlowPrivate::clearSurfaceCache()
   surfaceCache.clear();
 }
 
-// -----------------------------------------
+// }}}
 
+// PictureFlow {{{
 PictureFlow::PictureFlow(QWidget* parent, int queueLength): QWidget(parent)
 {
   d = new PictureFlowPrivate(this, queueLength);
@@ -1387,3 +1400,5 @@ void PictureFlow::emitcurrentChanged(int index) { emit currentChanged(index); }
 int FlowImages::count() { return 0; }
 QImage FlowImages::image(int index) { index=0; return QImage(); }
 QString FlowImages::caption(int index) {index=0; return QString(); }
+
+// }}}

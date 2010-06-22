@@ -23,7 +23,7 @@ from calibre.gui2.dialogs.fetch_metadata import FetchMetadata
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors, \
+from calibre.ebooks.metadata import string_to_authors, \
         authors_to_string, check_isbn
 from calibre.ebooks.metadata.library_thing import cover_from_isbn
 from calibre import islinux, isfreebsd
@@ -357,7 +357,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         aus = self.db.author_sort(row)
         self.author_sort.setText(aus if aus else '')
         tags = self.db.tags(row)
-        self.tags.setText(', '.join(tags.split(',')) if tags else '')
+        self.original_tags = ', '.join(tags.split(',')) if tags else ''
+        self.tags.setText(self.original_tags)
         self.tags.update_tags_cache(self.db.all_tags())
         rating = self.db.rating(row)
         if rating > 0:
@@ -459,7 +460,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         au = unicode(self.authors.text())
         au = re.sub(r'\s+et al\.$', '', au)
         authors = string_to_authors(au)
-        self.author_sort.setText(authors_to_sort_string(authors))
+        self.author_sort.setText(self.db.author_sort_from_authors(authors))
 
     def swap_title_author(self):
         title = self.title.text()
@@ -527,6 +528,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.publisher.setCurrentIndex(idx)
 
     def edit_tags(self):
+        if self.tags.text() != self.original_tags:
+            error_dialog(self, _('Cannot use tag editor'),
+                _('The tags editor cannot be used if you have modified the tags')).exec_()
+            return
         d = TagEditor(self, self.db, self.row)
         d.exec_()
         if d.result() == QDialog.Accepted:

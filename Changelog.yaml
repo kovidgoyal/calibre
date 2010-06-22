@@ -4,6 +4,142 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.4
+  date: 2010-06-19
+
+  bug fixes:
+    - title: "Fix regression in 0.7.3 that broke creating custom columns of rating or text types"
+      
+    - title: "Fix cover browser breaking if you click on a book in the book list while cover browser is animated"
+
+    - title: "Fix a bug that could be triggered with the new book details pane if a book has a zero size cover"
+      tickets: [5889]
+
+    - title: "SONY driver: Fix bug preventing the editing of collections in the device view"
+
+  new recipes:
+    - title: Auto Prove
+      author: Gabriele Marini
+      
+    - title: Forbes India, Maximum PC, Today Online
+      author: rty
+
+  improved recipes:
+    - WSJ
+    - Psychology Today
+        
+
+- version: 0.7.3
+  date: 2010-06-18
+
+  new features:
+    - title: "The Tag Browser now display an average rating for each item"
+      type: major
+      description: >
+        "
+        The icons of each individual item in the Tag Browser are now partially colored to indicate the average rating of
+        all books belonging to that category. For example, the icon next to each author is partially colored based on the
+        averagerating of all books by that author in your calibre library. You can also hover your mouse over the item to
+        see the average rating in a tooltip. Can be turned off via Preferences->Interface
+        "
+
+    - title: "Editable author sort for each author"
+      type: major
+      description: >
+        "calibre has always allowed you to specify the author sort for each bookin your collection. Now you
+        can also specify the way the name of each individual author should be sorted. This is used to display the list
+        of authors in the Tag Browser and OPDS feeds in the Content Server"
+
+    - title: "When downloading metadata, also get series information from librarything.com"
+      type: major
+      tickets: [5148]
+
+    - title: "Redesign of the Book Details pane"
+      type: major
+      description: >
+        "The Book details pane now display covers with animation. Also instead of showing the full path to the book, you now have
+        clickable links to open the containing folder or individual formats. The path information is still accessible via a tooltip"
+
+    - title: "New User Interface layouts"
+      type: major
+      description: >
+        "calibre now has two user interface layouts selectable from Preferences->Interface. The 'wide' layout has the book details pane on the side
+        and the 'narrow' layout has it on the bottom. The default layout is now wide."
+
+    - title: "You can now add books directly from the device to the calibre library by right clicking on the books in the device views"
+
+    - title: "iPad driver: Create category from series preferentially, also handle series sorting"
+
+    - title: "SONY driver: Add an option to use author_sort instead of author when sending to device"
+
+    - title: "Hitting Enter in the search box now causes the search to be re-run"
+      tickets: [5856]
+
+    - title: "Boox driver: Make destination directory for books customizable"
+
+    - title: "Add plugin to download metadata from douban.com. Disabled by default."
+
+    - title: "OS X/linux driver for PocketBook 301"
+
+    - title: "Support for the Samsung Galaxy and Sigmatek EBK52"
+
+    - title: "On startup do not focus the search bar. Instead you can acces the search bar easily by pressing the / key or the standard search keyboard shortcut for your operating system"
+
+  bug fixes:
+    - title: "iPad driver: Various bug fixes"
+
+    - title: "Kobo Output profile: Adjust the screen dimensions when converting comics"
+
+    - title: "Fix using Preferences when a device is connected causes items in device menu to be disabled"
+
+    - title: "CHM Input: Skip files whoose names are too long for windows"
+
+    - title: "Brighten up calibre icon on dark backgrounds"
+
+    - title: "Ignore 'Unknown' in title/autors when downloading metadata"
+      tickets: [5633]
+
+    - title: "Fix regression that broke various entries in the menus - Preferences, Open containing folder and Edit metadata individually"
+
+    - title: "EPUB metadata: Handle comma separated entries in <dc:subject> tags correctly"
+      tickets: [5855]
+
+    - title: "MOBI Output: Fix underlines not being rendered"
+      tickets: [5830]
+
+    - title: "EPUB Output: Remove workaround for old versions of Adobe Digital Editions' faulty rendering of links in html. calibre no longer forces links to be blue and underlined"
+
+    - title: "Fix a bug that could cause the show pane buttons to not show hidden panes"
+
+    - title: "Fix Tag Editor does not reflect recently changed data in Tag Catagory Text Box"
+      tickets: [5809]
+
+    - title: "Content server: Fix sorting of books by authors instead of author_sort in the main and mobile views"
+
+    - title: "Cover cache: Resize covers larger than 600x800 in the cover cache to reduce memory consumption in the GUI"
+
+    - title: "EPUB Output: Default cover is generated is now generated as a JPEG instead of PNG32, reducing size by an order of magnitude."
+      tickets: [5810]
+
+    - title: "Cover Browser: Scale text size with height of cover browser. Only show a reflection of half the cover. Also restore rendering quality after regression in 0.7.1"
+      tickets: [5808]
+
+    - title: "Book list: Do not let the default layout have any column wider than 350 pixels"
+
+  new recipes:
+    - title: Akter 
+      author: Darko Miletic
+
+    - title: Thai Rath and The Nation (Thailand)
+      author: Anat Ruangrassamee
+
+  improved recipes:
+    - Wall Street Journal 
+    - New York Times
+    - Slashdot
+    - Publico
+    - Danas
+
 - version: 0.7.2
   date: 2010-06-11
 
