@@ -371,7 +371,8 @@ class BooksView(QTableView): # {{{
     # Context Menu {{{
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
                          save, open_folder, book_details, delete,
-                         similar_menu=None, add_to_library=None):
+                         similar_menu=None, add_to_library=None,
+                         edit_device_collections=None):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
         self.context_menu = QMenu(self)
         if edit_metadata is not None:
@@ -393,6 +394,9 @@ class BooksView(QTableView): # {{{
         if add_to_library is not None:
             func = partial(add_to_library[1], view=self)
             self.context_menu.addAction(add_to_library[0], func)
+        if edit_device_collections is not None:
+            func = partial(edit_device_collections[1], view=self)
+            self.context_menu.addAction(edit_device_collections[0], func)
 
     def contextMenuEvent(self, event):
         self.context_menu.popup(event.globalPos())
@@ -504,6 +508,9 @@ class DeviceBooksView(BooksView): # {{{
 
     def connect_dirtied_signal(self, slot):
         self._model.booklist_dirtied.connect(slot)
+
+    def connect_upload_collections_signal(self, func):
+        self._model.upload_collections.connect(partial(func, view=self))
 
     def dropEvent(self, *args):
         error_dialog(self, _('Not allowed'),

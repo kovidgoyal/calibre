@@ -294,6 +294,11 @@ class DeviceManager(Thread): # {{{
         return self.create_job(self._sync_booklists, done, args=[booklists],
                         description=_('Send metadata to device'))
 
+    def upload_collections(self, done, booklist, on_card):
+        return self.create_job(booklist.rebuild_collections, done,
+                               args=[booklist, on_card],
+                        description=_('Send collections to device'))
+
     def _upload_books(self, files, names, on_card=None, metadata=None):
         '''Upload books to device: '''
         return self.device.upload_books(files, names, on_card,
@@ -1233,6 +1238,16 @@ class DeviceMixin(object): # {{{
         self.memory_view.reset()
         self.card_a_view.reset()
         self.card_b_view.reset()
+
+    def _upload_collections(self, job, view):
+        view.reset()
+
+    def upload_collections(self, booklist, view):
+        on_card = 'carda' if self.stack.currentIndex() == 2 else \
+                  'cardb' if self.stack.currentIndex() == 3 else \
+                   None
+        done = partial(self._upload_collections, view=view)
+        return self.device_manager.upload_collections(done, booklist, on_card)
 
     def upload_books(self, files, names, metadata, on_card=None, memory=None):
         '''

@@ -692,18 +692,38 @@ class TagBrowserMixin(object): # {{{
             result = db.get_publishers_with_ids()
             compare = (lambda x,y:cmp(x.lower(), y.lower()))
         else: # should be a custom field
-            self.cc_label = None
+            cc_label = None
             if category in db.field_metadata:
-                self.cc_label = db.field_metadata[category]['label']
-                result = self.db.get_custom_items_with_ids(label=self.cc_label)
+                cc_label = db.field_metadata[category]['label']
+                result = self.db.get_custom_items_with_ids(label=cc_label)
             else:
                 result = []
             compare = (lambda x,y:cmp(x.lower(), y.lower()))
 
-        d = TagListEditor(self, db=db, tag_to_match=tag, category=category,
-                          data=result, compare=compare)
+        d = TagListEditor(self, tag_to_match=tag, data=result, compare=compare)
         d.exec_()
         if d.result() == d.Accepted:
+            to_rename = d.to_rename # dict of new text to old id
+            to_delete = d.to_delete # list of ids
+            rename_func = None
+            if category == 'tags':
+                rename_func = db.rename_tag
+                delete_func = db.delete_tag_using_id
+            elif category == 'series':
+                rename_func = db.rename_series
+                delete_func = db.delete_series_using_id
+            elif category == 'publisher':
+                rename_func = db.rename_publisher
+                delete_func = db.delete_publisher_using_id
+            else:
+                rename_func = partial(db.rename_custom_item, label=cc_label)
+                delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
+            if rename_func:
+                for text in to_rename:
+                    rename_func(old_id=to_rename[text], new_name=unicode(text))
+                for item in to_delete:
+                    delete_func(item)
+
             # Clean up everything, as information could have changed for many books.
             self.library_view.model().refresh()
             self.tags_view.set_new_model()
