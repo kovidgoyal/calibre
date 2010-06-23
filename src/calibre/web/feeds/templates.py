@@ -231,7 +231,6 @@ class TouchscreenIndexTemplate(Template):
         div = DIV(
                 masthead_p,
                 PT(date, style='text-align:center'),
-                #DIV(style="border-color:gray;border-top-style:solid;border-width:thin"),
                 DIV(style="border-top:1px solid gray;border-bottom:1em solid white"),
                 toc)
         self.root = HTML(head, BODY(div))
