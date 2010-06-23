@@ -520,7 +520,7 @@ class BooksModel(QAbstractTableModel): # {{{
                 return QVariant(', '.join(sorted(tags.split(','))))
             return None
 
-        def series(r, idx=-1, siix=-1):
+        def series_type(r, idx=-1, siix=-1):
             series = self.db.data[r][idx]
             if series:
                 idx = fmt_sidx(self.db.data[r][siix])
@@ -591,7 +591,7 @@ class BooksModel(QAbstractTableModel): # {{{
                                 idx=self.db.field_metadata['publisher']['rec_index'], mult=False),
                    'tags'     : functools.partial(tags,
                                 idx=self.db.field_metadata['tags']['rec_index']),
-                   'series'   : functools.partial(series,
+                   'series'   : functools.partial(series_type,
                                 idx=self.db.field_metadata['series']['rec_index'],
                                 siix=self.db.field_metadata['series_index']['rec_index']),
                    'ondevice' : functools.partial(text_type,
@@ -620,6 +620,9 @@ class BooksModel(QAbstractTableModel): # {{{
                                             bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] == 'yes')
             elif datatype == 'rating':
                 self.dc[col] = functools.partial(rating_type, idx=idx)
+            elif datatype == 'series':
+                self.dc[col] = functools.partial(series_type, idx=idx,
+                    siix=self.db.field_metadata.cc_series_index_column_for(col))
             else:
                 print 'What type is this?', col, datatype
         # build a index column to data converter map, to remove the string lookup in the data loop
@@ -681,6 +684,8 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_custom_column_data(self, row, colhead, value):
         typ = self.custom_columns[colhead]['datatype']
+        label=self.db.field_metadata.key_to_label(colhead)
+        s_index = None
         if typ in ('text', 'comments'):
             val = unicode(value.toString()).strip()
             val = val if val else None
@@ -702,9 +707,20 @@ class BooksModel(QAbstractTableModel): # {{{
                 if not val.isValid():
                     return False
                 val = qt_to_dt(val, as_utc=False)
-        self.db.set_custom(self.db.id(row), val,
-                           label=self.db.field_metadata.key_to_label(colhead),
-                           num=None, append=False, notify=True)
+        elif typ == 'series':
+            val = unicode(value.toString()).strip()
+            pat = re.compile(r'\[([.0-9]+)\]')
+            match = pat.search(val)
+            if match is not None:
+                val = pat.sub('', val).strip()
+                s_index = float(match.group(1))
+            elif val:
+                if tweaks['series_index_auto_increment'] == 'next':
+                    s_index = self.db.get_next_cc_series_num_for(val, label=label)
+                else:
+                    s_index = 1.0
+        self.db.set_custom(self.db.id(row), val, extra=s_index,
+                           label=label, num=None, append=False, notify=True)
         return True
 
     def setData(self, index, value, role):

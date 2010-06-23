@@ -32,7 +32,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import qt_to_dt
 from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
 from calibre.gui2.dialogs.config.social import SocialMetadata
-from calibre.gui2.custom_column_widgets import populate_single_metadata_page
+from calibre.gui2.custom_column_widgets import populate_metadata_page
 
 class CoverFetcher(QThread):
 
@@ -420,23 +420,19 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
-        top_layout = QHBoxLayout()
-        top_layout.setSpacing(20)
-        left_layout = QGridLayout()
-        right_layout = QGridLayout()
-        top_layout.addLayout(left_layout)
-
-        self.custom_column_widgets, self.__cc_spacers = populate_single_metadata_page(
-                left_layout, right_layout, self.db, self.id, w)
-        top_layout.addLayout(right_layout)
-        sip.delete(w.layout())
-        w.setLayout(top_layout)
-        self.__custom_col_layouts = [top_layout, left_layout, right_layout]
+        layout = w.layout()
+        self.custom_column_widgets, self.__cc_spacers = \
+                    populate_metadata_page(layout, self.db, self.id,
+                                           parent=w, bulk=False, two_column=True)
+        self.__custom_col_layouts = [layout]
         ans = self.custom_column_widgets
         for i in range(len(ans)-1):
-            w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[-1])
-
-
+            if len(ans[i+1].widgets) == 2:
+                w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[1])
+            else:
+                w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[0])
+            for c in range(2, len(ans[i].widgets), 2):
+                w.setTabOrder(ans[i].widgets[c-1], ans[i].widgets[c+1])
 
     def validate_isbn(self, isbn):
         isbn = unicode(isbn).strip()

@@ -347,7 +347,7 @@ class BooksView(QTableView): # {{{
                     self.setItemDelegateForColumn(cm.index(colhead), delegate)
                 elif cc['datatype'] == 'comments':
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_comments_delegate)
-                elif cc['datatype'] == 'text':
+                elif cc['datatype'] in ('text', 'series'):
                     if cc['is_multiple']:
                         self.setItemDelegateForColumn(cm.index(colhead), self.tags_delegate)
                     else:
