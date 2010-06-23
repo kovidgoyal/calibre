@@ -56,7 +56,8 @@ class SearchBox2(QComboBox):
     To use this class:
 
         * Call initialize()
-        * Connect to the search() and cleared() signals from this widget
+        * Connect to the search() and cleared() signals from this widget.
+        * Connect to the cleared() signal to know when the box content changes
         * Call search_done() after every search is complete
         * Use clear() to clear back to the help message
     '''
@@ -75,6 +76,7 @@ class SearchBox2(QComboBox):
                 type=Qt.DirectConnection)
         self.line_edit.mouse_released.connect(self.mouse_released,
                 type=Qt.DirectConnection)
+        self.activated.connect(self.history_selected)
         self.setEditable(True)
         self.help_state = False
         self.as_you_type = True
@@ -139,6 +141,9 @@ class SearchBox2(QComboBox):
 
     def key_pressed(self, event):
         self.normalize_state()
+        if self._in_a_search:
+            self.emit(SIGNAL('changed()'))
+            self._in_a_search = False
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             self.do_search()
         self.timer = self.startTimer(self.__class__.INTERVAL)
@@ -153,6 +158,10 @@ class SearchBox2(QComboBox):
         if event.timerId() == self.timer:
             self.timer = None
             self.do_search()
+
+    def history_selected(self, text):
+        self.emit(SIGNAL('changed()'))
+        self.do_search()
 
     @property
     def smart_text(self):
@@ -345,6 +354,7 @@ class SearchBoxMixin(object):
         self.search.initialize('main_search_history', colorize=True,
                 help_text=_('Search (For Advanced Search click the button to the left)'))
         self.connect(self.search, SIGNAL('cleared()'), self.search_box_cleared)
+        self.connect(self.search, SIGNAL('changed()'), self.search_box_changed)
         self.connect(self.clear_button, SIGNAL('clicked()'), self.search.clear)
         QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'),
                         self.do_advanced_search)
@@ -363,6 +373,9 @@ class SearchBoxMixin(object):
         self.tags_view.clear()
         self.saved_search.clear_to_help()
         self.set_number_of_books_shown()
+
+    def search_box_changed(self):
+        self.tags_view.clear()
 
     def do_advanced_search(self, *args):
         d = SearchDialog(self)

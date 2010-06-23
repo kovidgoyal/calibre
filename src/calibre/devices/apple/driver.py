@@ -16,7 +16,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
-from calibre.utils.config import Config, ConfigProxy, config_dir
+from calibre.utils.config import config_dir
 from calibre.utils.date import isoformat, now, parse_date
 from calibre.utils.logging import Log
 from calibre.utils.zipfile import ZipFile
@@ -34,8 +34,15 @@ if isosx:
 if iswindows:
     import pythoncom, win32com.client
 
+class DriverBase(DeviceConfig, DevicePlugin):
+    # Needed for config_widget to work
+    FORMATS = ['epub', 'pdf']
 
-class ITUNES(DeviceConfig, DevicePlugin):
+    @classmethod
+    def _config_base_name(cls):
+        return 'iTunes'
+
+class ITUNES(DriverBase):
     '''
     Calling sequences:
     Initialization:
@@ -84,16 +91,6 @@ class ITUNES(DeviceConfig, DevicePlugin):
     OPEN_FEEDBACK_MESSAGE = _(
         'Apple device detected, launching iTunes, please wait ...')
 
-    FORMATS = ['epub','pdf']
-
-    # Configuration
-    HELP_MESSAGE = _('Configure Device')
-    EXTRA_CUSTOMIZATION_MESSAGE = None
-    EXTRA_CUSTOMIZATION_DEFAULT = None
-    MUST_READ_METADATA = False
-    SAVE_TEMPLATE = '{title}'
-    SUPPORTS_SUB_DIRS = False
-    SUPPORTS_USE_AUTHOR_SORT = False
 
     # Product IDs:
     #  0x1292:iPhone 3G
@@ -173,7 +170,6 @@ class ITUNES(DeviceConfig, DevicePlugin):
     sources = None
     update_msg = None
     update_needed = False
-    use_series_as_category = False
 
     # Public methods
     def add_books_to_metadata(self, locations, metadata, booklists):
@@ -522,28 +518,18 @@ class ITUNES(DeviceConfig, DevicePlugin):
         '''
         return (None,None)
 
-    def config_widget(self):
+    @classmethod
+    def config_widget(cls):
         '''
         Return a QWidget with settings for the device interface
         '''
-        if DEBUG:
-            self.log.info("ITUNES.config_widget()")
-        from calibre.gui2.device_drivers.configwidget import ConfigWidget
-        cw = ConfigWidget(self.settings(), self.FORMATS, self.SUPPORTS_SUB_DIRS,
-            self.MUST_READ_METADATA, self.SUPPORTS_USE_AUTHOR_SORT,
-            self.EXTRA_CUSTOMIZATION_MESSAGE)
+        cw = DriverBase.config_widget()
         # Turn off the Save template
         cw.opt_save_template.setVisible(False)
         cw.label.setVisible(False)
-
         # Repurpose the checkbox
-        cw.opt_read_metadata.setText("Use Series as Genre in iTunes/iBooks")
+        cw.opt_read_metadata.setText(_("Use Series as Genre in iTunes/iBooks"))
         return cw
-
-    def customization_help(self,gui=False):
-        if DEBUG:
-            self.log.info("ITUNES.customization_help()")
-        return _('Configure Device')
 
     def delete_books(self, paths, end_session=True):
         '''
@@ -773,46 +759,6 @@ class ITUNES(DeviceConfig, DevicePlugin):
                                 task does not have any progress information
         '''
         self.report_progress = report_progress
-
-    def save_settings(self, settings_widget):
-        '''
-        Should save settings to disk. Takes the widget created in config_widget
-        and saves all settings to disk.
-        '''
-        if DEBUG:
-            self.log.info("ITUNES.save_settings()")
-        proxy = self._configProxy()
-        proxy['format_map'] = settings_widget.format_map()
-        if self.SUPPORTS_SUB_DIRS:
-            proxy['use_subdirs'] = settings_widget.use_subdirs()
-        if not self.MUST_READ_METADATA:
-            proxy['read_metadata'] = settings_widget.read_metadata()
-        if self.SUPPORTS_USE_AUTHOR_SORT:
-            proxy['use_author_sort'] = settings_widget.use_author_sort()
-        if self.EXTRA_CUSTOMIZATION_MESSAGE:
-            ec = unicode(settings_widget.opt_extra_customization.text()).strip()
-            if not ec:
-                ec = None
-            proxy['extra_customization'] = ec
-        st = unicode(settings_widget.opt_save_template.text())
-        proxy['save_template'] = st
-
-        # Snag the read_metadata check box contents on the way by
-        self.use_series_as_category = settings_widget.read_metadata()
-
-    def settings(self):
-        '''
-        Should return an opts object. The opts object should have one attribute
-        `format_map` which is an ordered list of formats for the device.
-        '''
-        if DEBUG:
-            self.log.info("ITUNES.settings()")
-        opts = self._config().parse()
-
-        # Repurpose the read_metadata check box
-        self.use_series_as_category = opts.read_metadata
-
-        return opts
 
     def sync_booklists(self, booklists, end_session=True):
         '''
@@ -1129,27 +1075,6 @@ class ITUNES(DeviceConfig, DevicePlugin):
 
         return db_added, lb_added
 
-    def _config(self):
-        klass = self if isinstance(self, type) else self.__class__
-        c = Config('device_drivers_%s' % klass.__name__, _('settings for device drivers'))
-        c.add_opt('format_map', default=self.FORMATS,
-                help=_('Ordered list of formats the device will accept'))
-        c.add_opt('use_subdirs', default=True,
-                help=_('Place files in sub directories if the device supports them'))
-        c.add_opt('read_metadata', default=True,
-                help=_('Use Series as Genre in iTunes/iBooks'))
-        c.add_opt('use_author_sort', default=False,
-                help=_('Use author sort instead of author'))
-        c.add_opt('save_template', default=self._default_save_template(),
-                help=_('Template to control how books are titled in iTunes/iBooks'))
-        c.add_opt('extra_customization',
-                default=self.EXTRA_CUSTOMIZATION_DEFAULT,
-                help=_('Extra customization'))
-        return c
-
-    def _configProxy(self):
-        return ConfigProxy(self._config())
-
     def _cover_to_thumb(self, path, metadata, db_added, lb_added, format):
         '''
         assumes pythoncom wrapper for db_added
@@ -1299,11 +1224,6 @@ class ITUNES(DeviceConfig, DevicePlugin):
                     pass
 
         return this_book
-
-    def _default_save_template(self):
-        from calibre.library.save_to_disk import config
-        return self.SAVE_TEMPLATE if self.SAVE_TEMPLATE else \
-            config().parse().send_template
 
     def _delete_iTunesMetadata_plist(self,fpath):
         '''
@@ -1776,7 +1696,7 @@ class ITUNES(DeviceConfig, DevicePlugin):
                     im = im.resize((int(width),int(height)), PILImage.ANTIALIAS)
                     thumb = cStringIO.StringIO()
                     im.convert('RGB').save(thumb,'JPEG')
-                    thumb_data = thmb.getvalue()
+                    thumb_data = thumb.getvalue()
                     os.remove(tmp_thumb)
                     thumb.close()
 
@@ -2510,7 +2430,7 @@ class ITUNES(DeviceConfig, DevicePlugin):
 
             # Set genre from series if available, else first alpha tag
             # Otherwise iTunes grabs the first dc:subject from the opf metadata
-            if self.use_series_as_category and metadata.series:
+            if metadata.series and self.settings().read_metadata:
                 if DEBUG:
                     self.log.info("   using Series name as Genre")
                 if lb_added:
@@ -2581,7 +2501,7 @@ class ITUNES(DeviceConfig, DevicePlugin):
             # Otherwise iBooks uses first <dc:subject> from opf
             # iTunes balks on setting EpisodeNumber, but it sticks (9.1.1.12)
 
-            if self.use_series_as_category and metadata.series:
+            if metadata.series and self.settings().read_metadata:
                 if DEBUG:
                     self.log.info("   using Series name as Genre")
                 if lb_added:

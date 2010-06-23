@@ -59,7 +59,7 @@ class DevicePlugin(Plugin):
             return cls.__name__
         return cls.name
 
-
+    # Device detection {{{
     def test_bcd_windows(self, device_id, bcd):
         if bcd is None or len(bcd) == 0:
             return True
@@ -152,6 +152,7 @@ class DevicePlugin(Plugin):
                                     return True, dev
         return False, None
 
+    # }}}
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None) :
@@ -372,12 +373,10 @@ class DevicePlugin(Plugin):
     @classmethod
     def settings(cls):
         '''
-        Should return an opts object. The opts object should have one attribute
+        Should return an opts object. The opts object should have at least one attribute
         `format_map` which is an ordered list of formats for the device.
         '''
         raise NotImplementedError()
-
-
 
 
 class BookList(list):

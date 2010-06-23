@@ -36,7 +36,7 @@ class Plugin(_Plugin):
         self.fnames = dict((name, sz) for name, _, sz in self.fsizes if name)
         self.fnums = dict((num, sz) for _, num, sz in self.fsizes if num)
 
-
+# Input profiles {{{
 class InputProfile(Plugin):
 
     author = 'Kovid Goyal'
@@ -218,6 +218,8 @@ input_profiles = [InputProfile, SonyReaderInput, SonyReader300Input,
 
 input_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
 
+# }}}
+
 class OutputProfile(Plugin):
 
     author = 'Kovid Goyal'
@@ -239,6 +241,10 @@ class OutputProfile(Plugin):
 
     # If True output should be optimized for a touchscreen interface
     touchscreen = False
+    touchscreen_news_css = ''
+    # A list of extra (beyond CSS 2.1) modules supported by the device
+    # Format is a cssutils profile dictionary (see iPad for example)
+    extra_css_modules = []
 
     @classmethod
     def tags_to_string(cls, tags):
@@ -253,18 +259,21 @@ class iPadOutput(OutputProfile):
     screen_size = (768, 1024)
     comic_screen_size = (768, 1024)
     dpi = 132.0
-    timefmt = '%A, %d %b %Y'
-    cssutils_addProfile = {  'name':'webkit',
-                            'props': {
-                            			'-webkit-border-bottom-left-radius':'{length}',
-                            			'-webkit-border-bottom-right-radius':'{length}',
-                            			'-webkit-border-top-left-radius':'{length}',
-                            			'-webkit-border-top-right-radius':'{length}',
-                            			'-webkit-border-radius': r'{border-width}(\s+{border-width}){0,3}|inherit',
-                            		 },
-                           'macros': {'border-width': '{length}|medium|thick|thin'}}
+    extra_css_modules = [
+        {
+            'name':'webkit',
+            'props': { '-webkit-border-bottom-left-radius':'{length}',
+                '-webkit-border-bottom-right-radius':'{length}',
+                '-webkit-border-top-left-radius':'{length}',
+                '-webkit-border-top-right-radius':'{length}',
+                '-webkit-border-radius': r'{border-width}(\s+{border-width}){0,3}|inherit',
+            },
+            'macros': {'border-width': '{length}|medium|thick|thin'}
+        }
+    ]
     touchscreen = True
-    touchscreen_css = u'''
+    # touchscreen_news_css {{{
+    touchscreen_news_css = u'''
 			/* hr used in articles */
             .caption_divider {
             	border:#ccc 1px solid;
@@ -328,6 +337,7 @@ class iPadOutput(OutputProfile):
 				}
 
         '''
+        # }}}
 
 
 class SonyReaderOutput(OutputProfile):

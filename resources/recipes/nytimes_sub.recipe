@@ -13,14 +13,14 @@ Story
 import re, string, time
 from calibre import strftime
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, NavigableString, Tag
+from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, NavigableString, Tag
 
 class NYTimes(BasicNewsRecipe):
 
     title       = 'The New York Times'
     __author__  = 'GRiker'
     language = 'en'
-    requires_version = (0, 7, 3)
+    requires_version = (0, 7, 5)
 
     description = 'Daily news from the New York Times (subscription version)'
     allSectionKeywords = ['The Front Page', 'International','National','Obituaries','Editorials',

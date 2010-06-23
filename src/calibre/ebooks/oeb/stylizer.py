@@ -127,9 +127,8 @@ class Stylizer(object):
         else:
             head = []
 
-        # Add optional cssutils parsing profile from output_profile
-        if hasattr(self.opts.output_profile, 'cssutils_addProfile'):
-            profile = self.opts.output_profile.cssutils_addProfile
+        # Add cssutils parsing profiles from output_profile
+        for profile in self.opts.output_profile.extra_css_modules:
             cssutils.profile.addProfile(profile['name'],
                                         profile['props'],
                                         profile['macros'])

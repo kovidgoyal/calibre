@@ -71,3 +71,5 @@ gui_pubdate_display_format = 'MMM yyyy'
 # order until the title is edited. Double-clicking on a title and hitting return
 # without changing anything is sufficient to change the sort.
 title_series_sorting = 'library_order'
+
+

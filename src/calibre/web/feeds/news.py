@@ -585,8 +585,8 @@ class BasicNewsRecipe(Recipe):
         self.lrf = options.lrf
         self.output_profile = options.output_profile
         self.touchscreen = getattr(self.output_profile, 'touchscreen', False)
-        if self.touchscreen and getattr(self.output_profile, 'touchscreen_css',False):
-            self.extra_css += self.output_profile.touchscreen_css
+        if self.touchscreen:
+            self.template_css += self.output_profile.touchscreen_news_css
 
         self.output_dir = os.path.abspath(self.output_dir)
         if options.test:
@@ -664,7 +664,8 @@ class BasicNewsRecipe(Recipe):
                 templ = self.navbar.generate(False, f, a, feed_len,
                                              not self.has_single_feed,
                                              url, __appname__,
-                                             center=self.center_navbar)
+                                             center=self.center_navbar,
+                                             extra_css=self.extra_css)
                 elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                 body.insert(0, elem)
         if self.remove_javascript:
@@ -728,8 +729,6 @@ class BasicNewsRecipe(Recipe):
         timefmt = self.timefmt
         if self.touchscreen:
             templ = templates.TouchscreenIndexTemplate()
-            if getattr(self.output_profile,'timefmt',False):
-                timefmt = self.output_profile.timefmt
         return templ.generate(self.title, "mastheadImage.jpg", timefmt, feeds,
                               extra_css=css).render(doctype='xhtml')
 
