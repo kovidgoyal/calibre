@@ -101,6 +101,17 @@ We just need some information from you:
 Once you send us the output for a particular operating system, support for the device in that operating system
 will appear in the next release of |app|.
 
+How does |app| manage collections on my SONY reader?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you send a book to the device, |app| will create collections based on the metadata for that book. By default, collections are created
+from tags and series. You can control what metadata is used by going to Preferences->Plugins->Device Interface plugins and customizing
+the SONY device interface plugin. 
+
+You can edit collections on the device in the device view in |app| by double clicking or right clicking on the collections field.
+
+|app| will not delete already existing collections on your device. To ensure that the collections are based only on current |app| metadata,
+delete and resend the books to the device.
 
 Can I use both |app| and the SONY software to manage my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
