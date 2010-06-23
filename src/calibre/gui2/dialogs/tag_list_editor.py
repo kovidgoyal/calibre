@@ -11,7 +11,7 @@ from calibre.ebooks.metadata import title_sort
 
 class TagListEditor(QDialog, Ui_TagListEditor):
 
-    def __init__(self, window, db, tag_to_match, category):
+    def __init__(self, window, db, tag_to_match, category, data, compare):
         QDialog.__init__(self, window)
         Ui_TagListEditor.__init__(self)
         self.setupUi(self)
