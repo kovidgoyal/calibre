@@ -620,6 +620,10 @@ class ResultCache(SearchQueryParser):
         elif field == 'title': field = 'sort'
         elif field == 'authors': field = 'author_sort'
         as_string = field not in ('size', 'rating', 'timestamp')
+
+        if self.first_sort:
+            subsort = True
+            self.first_sort = False
         if self.field_metadata[field]['is_custom']:
             if self.field_metadata[field]['datatype'] == 'series':
                 fcmp = functools.partial(self.seriescmp,
@@ -638,10 +642,6 @@ class ResultCache(SearchQueryParser):
         else:
             fcmp = functools.partial(self.cmp, self.FIELD_MAP[field],
                                      subsort=subsort, asstr=as_string)
-
-        if self.first_sort:
-            subsort = True
-            self.first_sort = False
         self._map.sort(cmp=fcmp, reverse=not ascending)
         self._map_filtered = [id for id in self._map if id in self._map_filtered]
 

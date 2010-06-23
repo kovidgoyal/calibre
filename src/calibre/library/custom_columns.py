@@ -308,8 +308,8 @@ class CustomColumns(object):
             self.conn.commit()
         return changed
 
-    def set_custom(self, id_, val, extra=None, label=None, num=None,
-                   append=False, notify=True):
+    def set_custom(self, id_, val, label=None, num=None,
+                   append=False, notify=True, extra=None):
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:

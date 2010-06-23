@@ -7,11 +7,11 @@ __docformat__ = 'restructuredtext en'
 Command line interface to the calibre database.
 '''
 
-import sys, os, cStringIO
+import sys, os, cStringIO, re
 from textwrap import TextWrapper
 
 from calibre import terminal_controller, preferred_encoding, prints
-from calibre.utils.config import OptionParser, prefs
+from calibre.utils.config import OptionParser, prefs, tweaks
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.library.database2 import LibraryDatabase2
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
@@ -680,9 +680,31 @@ def command_catalog(args, dbpath):
 
 # end of GR additions
 
+def parse_series_string(db, label, value):
+    val = unicode(value).strip()
+    s_index = None
+    pat = re.compile(r'\[([.0-9]+)\]')
+    match = pat.search(val)
+    if match is not None:
+        val = pat.sub('', val).strip()
+        s_index = float(match.group(1))
+    elif val:
+        if tweaks['series_index_auto_increment'] == 'next':
+            s_index = db.get_next_cc_series_num_for(val, label=label)
+        else:
+            s_index = 1.0
+    return val, s_index
+
 def do_set_custom(db, col, id_, val, append):
-    db.set_custom(id_, val, label=col, append=append)
-    prints('Data set to: %r'%db.get_custom(id_, label=col, index_is_id=True))
+    if db.custom_column_label_map[col]['datatype'] == 'series':
+        val, s_index = parse_series_string(db, col, val)
+        db.set_custom(id_, val, extra=s_index, label=col, append=append)
+        prints('Data set to: %r[%4.2f]'%
+               (db.get_custom(id_, label=col, index_is_id=True),
+                db.get_custom_extra(id_, label=col, index_is_id=True)))
+    else:
+        db.set_custom(id_, val, label=col, append=append)
+        prints('Data set to: %r'%db.get_custom(id_, label=col, index_is_id=True))
 
 def set_custom_option_parser():
     parser = get_parser(_(
