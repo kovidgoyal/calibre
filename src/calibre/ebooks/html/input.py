@@ -20,7 +20,7 @@ from itertools import izip
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.customize.conversion import OptionRecommendation
-from calibre.constants import islinux, isfreebsd
+from calibre.constants import islinux, isfreebsd, iswindows
 from calibre import unicode_path
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
@@ -32,9 +32,14 @@ class Link(object):
 
     @classmethod
     def url_to_local_path(cls, url, base):
-        path = urlunparse(('', '', url.path, url.params, url.query, ''))
+        path = url.path
+        isabs = False
+        if iswindows and path.startswith('/'):
+            path = path[1:]
+            isabs = True
+        path = urlunparse(('', '', path, url.params, url.query, ''))
         path = unquote(path)
-        if os.path.isabs(path):
+        if isabs or os.path.isabs(path):
             return path
         return os.path.abspath(os.path.join(base, path))
 
@@ -411,10 +416,23 @@ class HTMLInput(InputFormatPlugin):
 
 
     def resource_adder(self, link_, base=None):
-        link = self.urlnormalize(link_)
-        link, frag = self.urldefrag(link)
-        link = unquote(link).replace('/', os.sep)
-        if not link.strip():
+        if not isinstance(link_, unicode):
+            try:
+                link_ = link_.decode('utf-8', 'error')
+            except:
+                self.log.warn('Failed to decode link %r. Ignoring'%link_)
+                return link_
+        try:
+            l = Link(link_, base if base else os.path.getcwdu())
+        except:
+            self.log.exception('Failed to process link: %r'%link_)
+            return link_
+        if l.path is None:
+            # Not a local resource
+            return link_
+        link = l.path.replace('/', os.sep).strip()
+        frag = l.fragment
+        if not link:
             return link_
         try:
             if base and not os.path.isabs(link):
