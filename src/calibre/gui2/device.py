@@ -1228,6 +1228,11 @@ class DeviceMixin(object): # {{{
             return
         cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
+        # reset the views so that up-to-date info is shown. These need to be
+        # here because the sony driver updates collections in sync_booklists
+        self.memory_view.reset()
+        self.card_a_view.reset()
+        self.card_b_view.reset()
 
     def upload_books(self, files, names, metadata, on_card=None, memory=None):
         '''

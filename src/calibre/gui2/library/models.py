@@ -1109,7 +1109,7 @@ class DeviceBooksModel(BooksModel): # {{{
             elif cname == 'collections':
                 tags = self.db[self.map[row]].device_collections
                 if tags:
-                    return QVariant(', '.join(tags))
+                    return QVariant(', '.join(sorted(tags, key=str.lower)))
         elif role == Qt.ToolTipRole and index.isValid():
             if self.map[row] in self.indices_to_be_deleted():
                 return QVariant(_('Marked for deletion'))
