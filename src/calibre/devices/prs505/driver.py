@@ -145,7 +145,7 @@ class PRS505(USBMS):
                 blists[i] = booklists[i]
         opts = self.settings()
         if opts.extra_customization:
-            collections = [x.strip() for x in
+            collections = [x.lower().strip() for x in
                     opts.extra_customization.split(',')]
         else:
             collections = []
