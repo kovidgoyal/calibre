@@ -176,7 +176,8 @@ class AnnotationsAction(object): # {{{
 
             def mark_book_as_read(self,id):
                 read_tag = gprefs.get('catalog_epub_mobi_read_tag')
-                self.db.set_tags(id, [read_tag], append=True)
+                if read_tag:
+                    self.db.set_tags(id, [read_tag], append=True)
 
             def canceled(self):
                 self.pd.hide()

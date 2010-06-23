@@ -429,6 +429,7 @@ class Bookmark():
                 entries, = unpack('>I', data[9:13])
                 current_entry = 0
                 e_base = 0x0d
+                self.pdf_page_offset = 0
                 while current_entry < entries:
                     '''
                     location, = unpack('>I', data[e_base+2:e_base+6])

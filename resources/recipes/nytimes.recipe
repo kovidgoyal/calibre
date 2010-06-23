@@ -17,7 +17,7 @@ class NYTimes(BasicNewsRecipe):
     title       = 'New York Times Top Stories'
     __author__  = 'GRiker'
     language = 'en'
-    requires_version = (0, 7, 3)
+    requires_version = (0, 7, 5)
     description = 'Top Stories from the New York Times'
 
     # List of sections typically included in Top Stories.  Use a keyword from the
@@ -79,6 +79,7 @@ class NYTimes(BasicNewsRecipe):
                             'doubleRule',
                             'dottedLine',
                             'entry-meta',
+                            'entry-response module',
                             'icon enlargeThis',
                             'leftNavTabs',
                             'module box nav',
@@ -110,6 +111,7 @@ class NYTimes(BasicNewsRecipe):
                             'navigation',
                             'portfolioInline',
                             'relatedArticles',
+                            'respond',
                             'side_search',
                             'side_index',
                             'side_tool',
