@@ -91,7 +91,6 @@ Q_OBJECT
 
   Q_PROPERTY(int currentSlide READ currentSlide WRITE setCurrentSlide)
   Q_PROPERTY(QSize slideSize READ slideSize WRITE setSlideSize)
-  Q_PROPERTY(int zoomFactor READ zoomFactor WRITE setZoomFactor)
 
 public:
   /*!
@@ -119,16 +118,6 @@ public:
     instead use resize which automatically sets an appropriate slide size.
   */  
   void setSlideSize(QSize size);
-
-  /*!
-    Sets the zoom factor (in percent).
-  */ 
-  void setZoomFactor(int zoom);
-
-  /*!
-    Returns the zoom factor (in percent).
-  */
-  int zoomFactor() const;
 
   /*!
     Clears any caches held to free up memory
