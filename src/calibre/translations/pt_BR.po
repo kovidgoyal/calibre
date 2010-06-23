@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-20 00:56+0000\n"
-"PO-Revision-Date: 2010-06-21 23:29+0000\n"
-"Last-Translator: Saverio Palmieri <Unknown>\n"
+"PO-Revision-Date: 2010-06-23 01:57+0000\n"
+"Last-Translator: Thomaz Rodrigues Botelho <Unknown>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-22 03:51+0000\n"
+"X-Launchpad-Export-Date: 2010-06-23 03:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -775,12 +775,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:606
 msgid "Unable to mount main memory (Error code: %d)"
-msgstr "Não foi possível montar a memória principal (Código do erro: %d)"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:743
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:745
 msgid "The reader has no storage card in this slot."
-msgstr "Não há cartão de memória no soquete do dispositivo leitor"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:747
 msgid "Selected slot: %s is not supported."
@@ -814,7 +814,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:38
 msgid "Template to control how books are saved"
-msgstr "Modelo para controlar como livros são salvos"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:84
@@ -3100,19 +3100,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:516
 msgid "Main memory"
-msgstr ""
+msgstr "Memória principal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:517
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:418
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:427
 msgid "Storage Card A"
-msgstr ""
+msgstr "Cartão de Memória A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:518
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:420
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:429
 msgid "Storage Card B"
-msgstr ""
+msgstr "Cartão de Memória B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:523
 msgid "No books to delete"
@@ -3712,6 +3712,9 @@ msgid ""
 "in a previous conversion (if they exist) instead of using the defaults "
 "specified in the Preferences"
 msgstr ""
+"Para configurações que não podem ser especificadas nesta caixa de diálogo, "
+"use os valores salvos em uma conversão anterior (se eles existirem) ao invés "
+"de usar os valores especificados nas Preferências"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:67
 msgid "Bulk Convert"
@@ -4402,7 +4405,7 @@ msgstr "Formato de &Entrada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:110
 msgid "Use &saved conversion settings for individual books"
-msgstr "Use configuração de conversão &salvas para livros individuais"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
@@ -4775,11 +4778,11 @@ msgstr "Enviar ao cartão de memória B"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:416
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:425
 msgid "Main Memory"
-msgstr ""
+msgstr "Memória Principal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:443
 msgid "Send and delete from library"
-msgstr ""
+msgstr "Enviar e apagar da biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:444
 msgid "Send specific format"
@@ -4787,11 +4790,11 @@ msgstr "Enviar um formato específico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:483
 msgid "Connect to folder"
-msgstr ""
+msgstr "Conectar ao diretório"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:488
 msgid "Disconnect from folder"
-msgstr ""
+msgstr "Desconectar do diretório"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:496
 msgid "Fetch annotations (experimental)"
@@ -4968,7 +4971,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:85
 msgid "Save &template:"
-msgstr ""
+msgstr "Salvar &modelo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:68
 msgid "Fit &cover to view"
@@ -5344,10 +5347,12 @@ msgid ""
 "Here you can control how calibre will save your books when you click the "
 "Save to Disk button:"
 msgstr ""
+"Aqui você pode controlar como o calibre irá salvar seus livros quando você "
+"clicar no botão Salvar no Disco:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:116
 msgid "Save &cover separately"
-msgstr ""
+msgstr "Salvar &capa separadamente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:117
 msgid "Update &metadata in saved copies"
@@ -5387,6 +5392,10 @@ msgid ""
 "Send to Device button. This setting can be overriden for individual devices "
 "by customizing the device interface plugins in Preferences->Plugins"
 msgstr ""
+"Aqui você pode controlar como o calibre irá salvar seus livros quando você "
+"clicar no botão Enviar para o Dispositivo. Esta configuração pode ser "
+"sobreposta por configurações de dispositivos individuais personalizando os "
+"plugins de interface de dispositivo em Preferências -> Plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:126
 msgid "Sending to &device"
@@ -5917,7 +5926,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/save_template_ui.py:42
 msgid "Save &template"
-msgstr ""
+msgstr "Salvar &modelo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/save_template_ui.py:43
 msgid ""
@@ -5927,6 +5936,11 @@ msgid ""
 "particular book does not have some metadata, the variable will be replaced "
 "by the empty string."
 msgstr ""
+"Ajustando o modelo abaixo, você pode controlar que diretórios os arquivos "
+"serão salvos e quais nomes de arquivos serão dados. Você pode usar o "
+"caractere / para indicar subdiretórios. Variáveis de metadados disponíveis "
+"são descritas abaixo. Se um livro em particular não tem algum metadado, a "
+"variavel será substituida por um campo vazio."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/save_template_ui.py:44
 msgid "Available variables:"
@@ -7116,7 +7130,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:36
 msgid "Save single format to disk..."
-msgstr ""
+msgstr "Salvar em um único formato para o disco..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:52
 msgid "Edit metadata individually"
@@ -7178,21 +7192,21 @@ msgstr "Adicionar livro vazio. (Entrada de livro sem nenhum formato)"
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:283
 msgid "Save to disk"
-msgstr "Salvar no disco"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:103
 msgid "Save to disk in a single directory"
-msgstr ""
+msgstr "Salvar no disco em um único diretório"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:405
 msgid "Save only %s format to disk"
-msgstr ""
+msgstr "Salvar somente os formatos %s para o disco"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:408
 msgid "Save only %s format to disk in a single directory"
-msgstr ""
+msgstr "Salvar somente os formatos %s para o disco em um único diretório"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:118
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:289
@@ -7922,7 +7936,7 @@ msgstr "Nome de pesquisa duplicado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:511
 msgid "The saved search name %s is already used."
-msgstr "O nome da pesquisa salva %s já está sendo usado."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:726
 msgid "Sort by name"
@@ -9591,12 +9605,16 @@ msgid ""
 "Normally, calibre will save the cover in a separate file along with the "
 "actual e-book file(s)."
 msgstr ""
+"Normalmente, o calibre irá salvar a capa em um arquivo serparado junto com "
+"o(s) arquivo(s) do e-book atual."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:63
 msgid ""
 "Comma separated list of formats to save for each book. By default all "
 "available books are saved."
 msgstr ""
+"Lista de formatos separada por virgula para salvar para cada livro. Por "
+"padrão todos os livros disponíveis são salvos."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:66
 msgid ""

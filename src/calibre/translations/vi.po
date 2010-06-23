@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-20 00:56+0000\n"
-"PO-Revision-Date: 2010-06-19 11:06+0000\n"
+"PO-Revision-Date: 2010-06-22 14:54+0000\n"
 "Last-Translator: kronpas <Unknown>\n"
 "Language-Team: Vietnamese <vi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-20 03:33+0000\n"
+"X-Launchpad-Export-Date: 2010-06-23 03:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -2268,7 +2268,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."
-msgstr ""
+msgstr "Sử dụng cơ chế chuyển đổi định dạng PDF mới."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/cli.py:31
 msgid ""
@@ -2288,6 +2288,9 @@ msgid ""
 "\n"
 "Crop a PDF file.\n"
 msgstr ""
+"[tuỳ chọn] tập tin .pdf\n"
+"\n"
+"cắt một tập tin PDF\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:38
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:32
@@ -2299,22 +2302,27 @@ msgstr ""
 msgid ""
 "Path to output file. By default a file is created in the current directory."
 msgstr ""
+"Đường dẫn tới tập tin xuất. Mặc định, một tập tin sẽ được tạo ra trong thư "
+"mục hiện tại."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:41
 msgid "Number of pixels to crop from the left most x (default is %s)"
 msgstr ""
+"Số điểm ảnh để bắt đầu cắt từ x ngoài cùng bên trái x (mặc dịnh là %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:44
 msgid "Number of pixels to crop from the left most y (default is %s)"
-msgstr ""
+msgstr "Số điểm ảnh để bắt đầu cắt từ ngoài cùng bên trái y (mặc định là %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:47
 msgid "Number of pixels to crop from the right most x (default is %s)"
 msgstr ""
+"Số điểm ảnh để bắt đầu cắt từ x ngoài cùng bên phải x (mặc dịnh là %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:50
 msgid "Number of pixels to crop from the right most y (default is %s)"
 msgstr ""
+"Số điểm ảnh để bắt đầu cắt từ x ngoài cùng bên phải y (mặc dịnh là %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:53
 msgid ""
@@ -2324,7 +2332,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 msgid "Crop Options:"
-msgstr ""
+msgstr "Tuỳ chọn cắt:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
@@ -2334,7 +2342,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Options to control the transformation of pdf"
-msgstr ""
+msgstr "Tuỳ chọn cho phép kiểm soát thay đổi của tập tin PDF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:23
 msgid ""
@@ -2356,9 +2364,9 @@ msgid ""
 "\n"
 "Encrypt a PDF.\n"
 msgstr ""
-"[tùy chọn] mật mã file .pdf\n"
+"[tuỳ chọn] mật khẩu tập_tin.pdf\n"
 "\n"
-"Mã hóa file PDF.\n"
+"Mã hoá một tập tin PDF\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:54
 msgid "Encrypt Options:"
@@ -2369,7 +2377,10 @@ msgid ""
 "file.pdf ...\n"
 "\n"
 "Get info about a PDF.\n"
-msgstr "file .pdf...\n"
+msgstr ""
+"tập_tin.pdf ...\n"
+"\n"
+"Lấy thông tin về một tập tin PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:46
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:70
@@ -2391,7 +2402,7 @@ msgstr "Trang"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:51
 msgid "File Size"
-msgstr "Kích thước file"
+msgstr "Dung lượng tập tin"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:52
 msgid "PDF Version"
@@ -6208,7 +6219,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid "at"
-msgstr ""
+msgstr "tại"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:209
 msgid ""
@@ -6220,7 +6231,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:222
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid " days"
-msgstr ""
+msgstr " ngày"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
 msgid "&Account"
@@ -6255,14 +6266,15 @@ msgid ""
 "Delete downloaded news older than the specified number of days. Set to zero "
 "to disable."
 msgstr ""
+"Xoá các tin được tải về cũ hơn số ngày xác định. Chuyển về 0 để vô hiệu hoá."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:223
 msgid "Delete downloaded news older than "
-msgstr ""
+msgstr "Xoá tin tức đã được tải về cũ hơn "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:36
 msgid "contains"
-msgstr ""
+msgstr "chứa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:37
 msgid "The text to search for. It is interpreted as a regular expression."
@@ -6276,11 +6288,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:39
 msgid "Negate"
-msgstr ""
+msgstr "Đảo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:113
 msgid "Advanced Search"
-msgstr ""
+msgstr "Tìm kiếm nâng cao"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:114
 msgid "Find entries that have..."
@@ -6335,21 +6347,21 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:45
 msgid "Choose formats"
-msgstr ""
+msgstr "Chọn định dạng"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:46
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:76
 msgid "Authors"
-msgstr ""
+msgstr "Tác giả"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:46
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:107
 msgid "Publishers"
-msgstr ""
+msgstr "Nhà xuất bản"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:110
 msgid " (not on any book)"
-msgstr ""
+msgstr " (không có trong bất kì sách nào)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:162
 msgid ""
