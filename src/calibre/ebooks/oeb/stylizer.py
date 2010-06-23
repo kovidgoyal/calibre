@@ -126,6 +126,13 @@ class Stylizer(object):
             head = head[0]
         else:
             head = []
+
+        # Add cssutils parsing profiles from output_profile
+        for profile in self.opts.output_profile.extra_css_modules:
+            cssutils.profile.addProfile(profile['name'],
+                                        profile['props'],
+                                        profile['macros'])
+
         parser = cssutils.CSSParser(fetcher=self._fetch_css_file,
                 log=logging.getLogger('calibre.css'))
         self.font_face_rules = []

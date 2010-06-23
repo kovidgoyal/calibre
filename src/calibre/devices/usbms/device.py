@@ -78,9 +78,6 @@ class Device(DeviceConfig, DevicePlugin):
     STORAGE_CARD_VOLUME_LABEL = ''
     STORAGE_CARD2_VOLUME_LABEL = None
 
-    SUPPORTS_SUB_DIRS = False
-    MUST_READ_METADATA = False
-    SUPPORTS_USE_AUTHOR_SORT = False
 
     EBOOK_DIR_MAIN = ''
     EBOOK_DIR_CARD_A = ''

@@ -13,14 +13,14 @@ Story
 import re, string, time
 from calibre import strftime
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, NavigableString, Tag
+from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, NavigableString, Tag
 
 class NYTimes(BasicNewsRecipe):
 
     title       = 'The New York Times'
     __author__  = 'GRiker'
     language = 'en'
-    requires_version = (0, 7, 3)
+    requires_version = (0, 7, 5)
 
     description = 'Daily news from the New York Times (subscription version)'
     allSectionKeywords = ['The Front Page', 'International','National','Obituaries','Editorials',
@@ -66,6 +66,7 @@ class NYTimes(BasicNewsRecipe):
                             'doubleRule',
                             'dottedLine',
                             'entry-meta',
+                            'entry-response module',
                             'icon enlargeThis',
                             'leftNavTabs',
                             'module box nav',
@@ -97,6 +98,7 @@ class NYTimes(BasicNewsRecipe):
                             'navigation',
                             'portfolioInline',
                             'relatedArticles',
+                            'respond',
                             'side_search',
                             'side_index',
                             'side_tool',
@@ -417,12 +419,11 @@ class NYTimes(BasicNewsRecipe):
 
         return soup
 
-    def postprocess_book(self, oeb, opts, log) :
-        print "\npostprocess_book()\n"
-
-        def extract_byline(href) :
-            # <meta name="byline" content=
-            soup = BeautifulSoup(str(oeb.manifest.hrefs[href]))
+    def populate_article_metadata(self,article,soup,first):
+        '''
+        Extract author and description from article, add to article metadata
+        '''
+        def extract_author(soup):
             byline = soup.find('meta',attrs={'name':['byl','CLMST']})
             if byline :
                 author = byline['content']
@@ -432,50 +433,32 @@ class NYTimes(BasicNewsRecipe):
                 if byline:
                     author = byline.renderContents()
                 else:
-                    print "couldn't find byline in %s" % href
                     print soup.prettify()
                     return None
-            # Kill commas - Kindle switches to '&'
-            return re.sub(',','',author)
+            return author
 
-        def extract_description(href) :
-            soup = BeautifulSoup(str(oeb.manifest.hrefs[href]))
+        def extract_description(soup):
             description = soup.find('meta',attrs={'name':['description','description ']})
             if description :
-#                print repr(description['content'])
-#                print self.massageNCXText(description['content'])
                 return self.massageNCXText(description['content'])
             else:
                 # Take first paragraph of article
-                articleBody = soup.find('div',attrs={'id':'articleBody'})
-                if not articleBody:
+                articlebody = soup.find('div',attrs={'id':'articlebody'})
+                if not articlebody:
                     # Try again with class instead of id
-                    articleBody = soup.find('div',attrs={'class':'articleBody'})
-                    if not articleBody:
-                        print 'postprocess_book.extract_description(): Did not find <div id="articleBody">:'
+                    articlebody = soup.find('div',attrs={'class':'articlebody'})
+                    if not articlebody:
+                        print 'postprocess_book.extract_description(): Did not find <div id="articlebody">:'
                         print soup.prettify()
                         return None
-                paras = articleBody.findAll('p')
+                paras = articlebody.findAll('p')
                 for p in paras:
                     if p.renderContents() > '' :
                         return self.massageNCXText(self.tag_to_string(p,use_alt=False))
                 return None
 
-        # Method entry point here
-        # Single section toc looks different than multi-section tocs
-        if oeb.toc.depth() == 2 :
-            for article in oeb.toc :
-                if article.author is None :
-                    article.author = extract_byline(article.href)
-                if article.description is None :
-                    article.description = extract_description(article.href).decode('utf-8')
-        elif oeb.toc.depth() == 3 :
-            for section in oeb.toc :
-                for article in section :
-                    if article.author is None :
-                        article.author = extract_byline(article.href)
-                    if article.description is None :
-                        article.description = extract_description(article.href)
+        article.author = extract_author(soup)
+        article.summary = article.text_summary = extract_description(soup)
 
     def strip_anchors(self,soup):
         paras = soup.findAll(True)

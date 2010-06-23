@@ -13,6 +13,10 @@ class DeviceConfig(object):
     EXTRA_CUSTOMIZATION_MESSAGE = None
     EXTRA_CUSTOMIZATION_DEFAULT = None
 
+    SUPPORTS_SUB_DIRS = False
+    MUST_READ_METADATA = False
+    SUPPORTS_USE_AUTHOR_SORT = False
+
     #: If None the default is used
     SAVE_TEMPLATE = None
 
@@ -23,9 +27,14 @@ class DeviceConfig(object):
             config().parse().send_template
 
     @classmethod
-    def _config(cls):
+    def _config_base_name(cls):
         klass = cls if isinstance(cls, type) else cls.__class__
-        c = Config('device_drivers_%s' % klass.__name__, _('settings for device drivers'))
+        return klass.__name__
+
+    @classmethod
+    def _config(cls):
+        name = cls._config_base_name()
+        c = Config('device_drivers_%s' % name, _('settings for device drivers'))
         c.add_opt('format_map', default=cls.FORMATS,
                 help=_('Ordered list of formats the device will accept'))
         c.add_opt('use_subdirs', default=True,
