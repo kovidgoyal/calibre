@@ -292,7 +292,7 @@ class iPadOutput(OutputProfile):
             .touchscreen_navbar td {
                 background:#fff;
                 font-family:Helvetica;
-                font-size:80%;
+                font-size:90%;
                 padding: 5px;
                 text-align:center;
                 }
@@ -309,6 +309,14 @@ class iPadOutput(OutputProfile):
                 font-style: italic;
                 }
 
+			/* Index formatting */
+			.publish_date {
+				text-align:center;
+				}
+			.divider {
+				border-bottom:1em solid white;
+				border-top:1px solid gray;
+				}
 
             /* Feed summary formatting */
             .feed_title {

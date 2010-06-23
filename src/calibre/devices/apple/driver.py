@@ -18,6 +18,7 @@ from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
 from calibre.utils.config import config_dir
 from calibre.utils.date import isoformat, now, parse_date
+from calibre.utils.localization import get_lang
 from calibre.utils.logging import Log
 from calibre.utils.zipfile import ZipFile
 
@@ -93,10 +94,13 @@ class ITUNES(DriverBase):
 
 
     # Product IDs:
-    #  0x1292:iPhone 3G
-    #  0x129a:iPad
+    #  0x1291   iPod Touch
+    #  0x1292   iPhone 3G
+    #  0x????   iPhone 3GS
+    #  0x129a   iPad
+    #  0x????   iPhone 4
     VENDOR_ID = [0x05ac]
-    PRODUCT_ID = [0x129a]
+    PRODUCT_ID = [0x1291,0x1292,0x129a]
     BCD = [0x01]
 
     # iTunes enumerations
@@ -528,7 +532,7 @@ class ITUNES(DriverBase):
         cw.opt_save_template.setVisible(False)
         cw.label.setVisible(False)
         # Repurpose the checkbox
-        cw.opt_read_metadata.setText(_("Use Series as Genre in iTunes/iBooks"))
+        cw.opt_read_metadata.setText(_("Use Series as Category in iTunes/iBooks"))
         return cw
 
     def delete_books(self, paths, end_session=True):
@@ -837,6 +841,7 @@ class ITUNES(DriverBase):
             self.log.info("ITUNES.upload_books()")
             self._dump_files(files, header='upload_books()',indent=2)
             self._dump_update_list(header='upload_books()',indent=2)
+            #self.log.info("  self.settings().format_map: %s" % self.settings().format_map)
 
         if isosx:
             for (i,file) in enumerate(files):
@@ -1201,13 +1206,13 @@ class ITUNES(DriverBase):
                 try:
                     this_book.datetime = parse_date(str(lb_added.date_added())).timetuple()
                 except:
-                    pass
+                    this_book.datetime = time.gmtime()
             elif db_added:
                 this_book.size = self._get_device_book_size(fpath, db_added.size())
                 try:
                     this_book.datetime = parse_date(str(db_added.date_added())).timetuple()
                 except:
-                    pass
+                    this_book.datetime = time.gmtime()
 
         elif iswindows:
             if lb_added:
@@ -1215,13 +1220,13 @@ class ITUNES(DriverBase):
                 try:
                     this_book.datetime = parse_date(str(lb_added.DateAdded)).timetuple()
                 except:
-                    pass
+                    this_book.datetime = time.gmtime()
             elif db_added:
                 this_book.size = self._get_device_book_size(fpath, db_added.Size)
                 try:
                     this_book.datetime = parse_date(str(db_added.DateAdded)).timetuple()
                 except:
-                    pass
+                    this_book.datetime = time.gmtime()
 
         return this_book
 
@@ -2062,6 +2067,7 @@ class ITUNES(DriverBase):
                  (self.iTunes.name(), self.iTunes.version(), self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
                 self.log.info("  iTunes_media: %s" % self.iTunes_media)
+
         if iswindows:
             '''
             Launch iTunes if not already running
@@ -2305,12 +2311,11 @@ class ITUNES(DriverBase):
                         self.log.info("   add timestamp: %s" % metadata.timestamp)
 
                 # Fix the language declaration for iBooks 1.1
-                patched_language = 'en-US'
+                patched_language = get_lang()
                 language = md.find('dc:language')
-                if language:
-                    self.log.info("   changing <dc:language> from '%s' to '%s'" %
-                                  (language.renderContents(),patched_language))
                 metadata.language = patched_language
+                if DEBUG:
+                    self.log.info("   updating <dc:language>%s</dc:language> from localization settings" % patched_language)
 
             zf_opf.close()
 
@@ -2447,7 +2452,8 @@ class ITUNES(DriverBase):
 
             elif metadata.tags:
                 if DEBUG:
-                    self.log.info("   using Tag as Genre")
+                    self.log.info("   %susing Tag as Genre" %
+                                  "no Series name available, " if self.settings().read_metadata else '')
                 for tag in metadata.tags:
                     if self._is_alpha(tag[0]):
                         if lb_added:
@@ -2589,8 +2595,6 @@ class BookList(list):
 class Book(MetaInformation):
     '''
     A simple class describing a book in the iTunes Books Library.
-    Q's:
-    - Should thumbnail come from calibre if available?
     - See ebooks.metadata.__init__ for all fields
     '''
     def __init__(self,title,author):
