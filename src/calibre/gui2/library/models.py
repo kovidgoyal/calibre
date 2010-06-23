@@ -21,6 +21,7 @@ from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
+from calibre.library.cli import parse_series_string
 from calibre import strftime, isbytestring, prepare_string_for_xml
 from calibre.constants import filesystem_encoding
 from calibre.gui2.library import DEFAULT_SORT
@@ -708,17 +709,7 @@ class BooksModel(QAbstractTableModel): # {{{
                     return False
                 val = qt_to_dt(val, as_utc=False)
         elif typ == 'series':
-            val = unicode(value.toString()).strip()
-            pat = re.compile(r'\[([.0-9]+)\]')
-            match = pat.search(val)
-            if match is not None:
-                val = pat.sub('', val).strip()
-                s_index = float(match.group(1))
-            elif val:
-                if tweaks['series_index_auto_increment'] == 'next':
-                    s_index = self.db.get_next_cc_series_num_for(val, label=label)
-                else:
-                    s_index = 1.0
+            val, s_index = parse_series_string(self.db, label, value.toString())
         self.db.set_custom(self.db.id(row), val, extra=s_index,
                            label=label, num=None, append=False, notify=True)
         return True
