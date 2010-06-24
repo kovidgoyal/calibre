@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-20 00:56+0000\n"
-"PO-Revision-Date: 2010-06-23 01:57+0000\n"
+"PO-Revision-Date: 2010-06-23 15:08+0000\n"
 "Last-Translator: Thomaz Rodrigues Botelho <Unknown>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-23 03:46+0000\n"
+"X-Launchpad-Export-Date: 2010-06-24 03:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -4697,7 +4697,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:357
 msgid "Remove all tags"
-msgstr ""
+msgstr "Remove todas as tags"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:378
 msgid "tags to add"
@@ -5233,7 +5233,7 @@ msgstr "Falhou ao iniciar o servidor de conteúdo"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:815
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:587
 msgid "Select location for books"
-msgstr ""
+msgstr "Escolha a localização para os livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:822
 msgid "Invalid size"
@@ -5246,11 +5246,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:881
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:886
 msgid "Invalid database location"
-msgstr ""
+msgstr "Localização do banco de dados inválida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:882
 msgid "Invalid database location "
-msgstr ""
+msgstr "Localização do banco de dados inválida "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:883
 msgid "<br>Must be a directory."
@@ -5258,7 +5258,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:887
 msgid "Invalid database location.<br>Cannot write to "
-msgstr "Localização do banco de dados inválida.<br>Não é possível gravar em "
+msgstr ""
+"Localização do banco de dados inválida.<br>Não foi possível escrever em "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:892
 msgid "Must restart"
@@ -5413,14 +5414,16 @@ msgid ""
 "&Location of ebooks (The ebooks are stored in folders sorted by author and "
 "metadata is stored in the file metadata.db)"
 msgstr ""
+"&Localização dos ebooks (Os ebooks são armazenados em diretórios organizados "
+"por autor e os metadados são armazenados no arquivo metadata.db)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:550
 msgid "Browse for the new database location"
-msgstr ""
+msgstr "Escolha a nova localização do banco de dados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:552
 msgid "Show notification when &new version is available"
-msgstr ""
+msgstr "Mostrar notificação quando uma &nova versão estiver disponível"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:553
 msgid "Download &social metadata (tags/ratings/etc.) by default"
@@ -5960,7 +5963,7 @@ msgstr "ERRO"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:69
 msgid "Location"
-msgstr ""
+msgstr "Localização"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1041
@@ -7219,23 +7222,23 @@ msgstr "Exibir formato específico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:125
 msgid "Remove selected books"
-msgstr ""
+msgstr "Remover livros selecionados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:127
 msgid "Remove files of a specific format from selected books.."
-msgstr ""
+msgstr "Remove arquivos de um formato específico dos livros selecionados..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:130
 msgid "Remove all formats from selected books, except..."
-msgstr ""
+msgstr "Remove todos os formatos dos livros selecionados, exceto..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:133
 msgid "Remove covers from selected books"
-msgstr ""
+msgstr "Remove capas dos livros selecionados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:136
 msgid "Remove matching books from device"
-msgstr ""
+msgstr "Remove livros correspondentes do dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:153
 msgid "Convert individually"
@@ -7527,7 +7530,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:84
 msgid "Choose a location for your calibre e-book library"
-msgstr ""
+msgstr "Escolha uma localização para sua biblioteca de e-books do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:93
 msgid "Failed to create library"
@@ -7541,6 +7544,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:182
 msgid "Choose a location for your new calibre e-book library"
 msgstr ""
+"Escolha uma localização para sua nova biblioteca de e-books do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:151
 msgid "Initializing user interface..."
@@ -7557,11 +7561,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:224
 msgid "Bad database location"
-msgstr ""
+msgstr "Localização do banco de dados inválida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:192
 msgid "Bad database location %r. calibre will now quit."
 msgstr ""
+"Localização do banco de dados inválida %r. Calibre irá se encerrar agora."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:205
 msgid "Corrupted database"
@@ -7583,6 +7588,8 @@ msgstr ""
 msgid ""
 "Bad database location %r. Will start with  a new, empty calibre library"
 msgstr ""
+"Localização do banco de dados inválida %r. Irá iniciar com uma nova "
+"biblioteca do calibre vazia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:236
 msgid "Starting %s: Loading books..."
