@@ -96,11 +96,13 @@ class ITUNES(DriverBase):
     # Product IDs:
     #  0x1291   iPod Touch
     #  0x1292   iPhone 3G
-    #  0x????   iPhone 3GS
+    #  0x1293   iPod Touch 2G
+    #  0x1294   iPhone 3GS
+    #  0x1297   iPhone 4
+    #  0x1299   iPod Touch 3G
     #  0x129a   iPad
-    #  0x????   iPhone 4
     VENDOR_ID = [0x05ac]
-    PRODUCT_ID = [0x1291,0x1292,0x129a]
+    PRODUCT_ID = [0x1292,0x1293,0x1294,0x1297,0x1299,0x129a]
     BCD = [0x01]
 
     # iTunes enumerations
@@ -1905,10 +1907,14 @@ class ITUNES(DriverBase):
                             # Collect calibre orphans - remnants of recipe uploads
                             path = self.path_template % (book.name(), book.artist())
                             if str(book.description()).startswith(self.description_prefix):
-                                if book.location() == appscript.k.missing_value:
-                                    library_orphans[path] = book
-                                    if False:
-                                        self.log.info("   found iTunes PTF '%s' in Library|Books" % book.name())
+                                try:
+                                    if book.location() == appscript.k.missing_value:
+                                        library_orphans[path] = book
+                                        if False:
+                                            self.log.info("   found iTunes PTF '%s' in Library|Books" % book.name())
+                                except:
+                                    if DEBUG:
+                                        self.log.error("   iTunes returned an error returning .location() with %s" % book.name())
 
                             library_books[path] = book
                             if DEBUG:
@@ -2072,6 +2078,17 @@ class ITUNES(DriverBase):
             '''
             Launch iTunes if not already running
             Assumes pythoncom wrapper
+
+            *** Current implementation doesn't handle UNC paths correctly,
+                and python has two incompatible methods to parse UNCs:
+                os.path.splitdrive() and os.path.splitunc()
+                need to use os.path.normpath on result of splitunc()
+
+                Once you have the //server/share, convert with os.path.normpath('//server/share')
+                os.path.splitdrive doesn't work as advertised, so use os.path.splitunc
+                os.path.splitunc("//server/share") returns ('//server/share','')
+                os.path.splitunc("C:/Documents") returns ('c:','/documents')
+                os.path.normpath("//server/share") returns "\\\\server\\share"
             '''
             # Instantiate iTunes
             self.iTunes = win32com.client.Dispatch("iTunes.Application")
@@ -2080,6 +2097,8 @@ class ITUNES(DriverBase):
             self.initial_status = 'launched'
 
             # Read the current storage path for iTunes media from the XML file
+            media_dir = ''
+            string = None
             with open(self.iTunes.LibraryXMLPath, 'r') as xml:
                 for line in xml:
                     if line.strip().startswith('<key>Music Folder'):
@@ -2089,10 +2108,12 @@ class ITUNES(DriverBase):
                         break
                 if os.path.exists(media_dir):
                     self.iTunes_media = media_dir
-                else:
+                elif hasattr(string,'parent'):
                     self.log.error("  could not extract valid iTunes.media_dir from %s" % self.iTunes.LibraryXMLPath)
                     self.log.error("  %s" % string.parent.prettify())
                     self.log.error("  '%s' not found" % media_dir)
+                else:
+                    self.log.error("  no media dir found: string: %s" % string)
 
             if DEBUG:
                 self.log.info("  %s %s" % (__appname__, __version__))
@@ -2254,8 +2275,8 @@ class ITUNES(DriverBase):
                 path = book.Location
 
             if book:
-                storage_path = os.path.split(path)
-                if path.startswith(self.iTunes_media):
+                if self.iTunes_media and path.startswith(self.iTunes_media):
+                    storage_path = os.path.split(path)
                     if DEBUG:
                         self.log.info("   removing '%s' at %s" %
                             (cached_book['title'], path))
@@ -2299,23 +2320,27 @@ class ITUNES(DriverBase):
 
                 # Touch existing calibre timestamp
                 md = soup.find('metadata')
-                ts = md.find('meta',attrs={'name':'calibre:timestamp'})
-                if ts:
-                    timestamp = ts['content']
-                    old_ts = parse_date(timestamp)
-                    metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
-                                               old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
+                if md:
+                    ts = md.find('meta',attrs={'name':'calibre:timestamp'})
+                    if ts:
+                        timestamp = ts['content']
+                        old_ts = parse_date(timestamp)
+                        metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
+                                                   old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
+                    else:
+                        metadata.timestamp = isoformat(now())
+                        if DEBUG:
+                            self.log.info("   add timestamp: %s" % metadata.timestamp)
                 else:
                     metadata.timestamp = isoformat(now())
                     if DEBUG:
+                        self.log.warning("   missing <metadata> block in OPF file")
                         self.log.info("   add timestamp: %s" % metadata.timestamp)
 
-                # Fix the language declaration for iBooks 1.1
-                patched_language = get_lang()
-                language = md.find('dc:language')
-                metadata.language = patched_language
+                # Force the language declaration for iBooks 1.1
+                metadata.language = get_lang()
                 if DEBUG:
-                    self.log.info("   updating <dc:language>%s</dc:language> from localization settings" % patched_language)
+                    self.log.info("   rewriting language: <dc:language>%s</dc:language>" % metadata.language)
 
             zf_opf.close()
 
