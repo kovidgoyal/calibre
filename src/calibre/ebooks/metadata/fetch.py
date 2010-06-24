@@ -287,15 +287,19 @@ class HeadRequest(urllib2.Request):
     def get_method(self):
         return "HEAD"
 
-def check_for_covers(items):
+def do_cover_check(item):
     opener = browser()
-    for item in items:
-       item.has_cover = False
-       try:
-            opener.open(HeadRequest(OPENLIBRARY%item.isbn), timeout=5)
-            item.has_cover = True
-       except:
-           pass # Cover not found
+    item.has_cover = False
+    try:
+        opener.open(HeadRequest(OPENLIBRARY%item.isbn), timeout=5)
+        item.has_cover = True
+    except:
+        pass # Cover not found
+
+def check_for_covers(items):
+    threads = [Thread(target=do_cover_check, args=(item,)) for item in items]
+    for t in threads: t.start()
+    for t in threads: t.join()
 
 def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
            verbose=0):
