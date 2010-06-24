@@ -720,7 +720,9 @@ class TagBrowserMixin(object): # {{{
                 delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
             if rename_func:
                 for text in to_rename:
-                    rename_func(old_id=to_rename[text], new_name=unicode(text))
+                        for old_id in to_rename[text]:
+                            print 'rename', old_id, text
+                            rename_func(old_id, new_name=unicode(text))
                 for item in to_delete:
                     delete_func(item)
 

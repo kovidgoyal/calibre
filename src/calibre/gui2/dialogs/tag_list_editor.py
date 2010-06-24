@@ -73,7 +73,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 return
         if item.text() != self.item_before_editing.text():
             (id,ign) = self.item_before_editing.data(Qt.UserRole).toInt()
-            self.to_rename[item.text()] = id
+            if item.text() not in self.to_rename:
+                self.to_rename[item.text()] = [id]
+            else:
+                self.to_rename[item.text()].append(id)
 
     def rename_tag(self):
         item = self.available_tags.currentItem()

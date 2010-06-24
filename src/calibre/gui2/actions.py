@@ -839,10 +839,11 @@ class EditMetadataAction(object): # {{{
         d = TagListEditor(self, tag_to_match=None, data=result, compare=compare)
         d.exec_()
         if d.result() == d.Accepted:
-            to_rename = d.to_rename # dict of new text to old id
+            to_rename = d.to_rename # dict of new text to old ids
             to_delete = d.to_delete # list of ids
             for text in to_rename:
-                model.rename_collection(old_id=to_rename[text], new_name=unicode(text))
+                for old_id in to_rename[text]:
+                    model.rename_collection(old_id, new_name=unicode(text))
             for item in to_delete:
                 model.delete_collection_using_id(item)
             self.upload_collections(model.db, view=view, oncard=oncard)
