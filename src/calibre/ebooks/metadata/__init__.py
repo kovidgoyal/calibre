@@ -268,7 +268,7 @@ class MetaInformation(object):
                   ):
             prints(x, getattr(self, x, 'None'))
 
-    def smart_update(self, mi):
+    def smart_update(self, mi, replace_tags=False):
         '''
         Merge the information in C{mi} into self. In case of conflicts, the information
         in C{mi} takes precedence, unless the information in mi is NULL.
@@ -291,7 +291,10 @@ class MetaInformation(object):
                     setattr(self, attr, val)
 
         if mi.tags:
-            self.tags += mi.tags
+            if replace_tags:
+                self.tags = mi.tags
+            else:
+                self.tags += mi.tags
         self.tags = list(set(self.tags))
 
         if mi.author_sort_map:

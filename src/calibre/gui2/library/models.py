@@ -16,7 +16,7 @@ from calibre.gui2 import NONE, config, UNDEFINED_QDATE
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.config import tweaks
+from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
@@ -928,10 +928,11 @@ class DeviceBooksModel(BooksModel): # {{{
         if index.isValid() and self.editable:
             cname = self.column_map[index.column()]
             if cname in ('title', 'authors') or \
-                    (cname == 'collections' and self.db.supports_collections()):
+                    (cname == 'collections' and \
+                     self.db.supports_collections() and \
+                     prefs['preserve_user_collections']):
                 flags |= Qt.ItemIsEditable
         return flags
-
 
     def search(self, text, reset=True):
         if not text or not text.strip():

@@ -6,7 +6,6 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, time
-from pprint import pprint
 from base64 import b64decode
 from uuid import uuid4
 from lxml import etree
@@ -179,8 +178,8 @@ class XMLCache(object):
                 path = record.get('path', None)
                 if path:
                     if path not in playlist_map:
-                        playlist_map[path] = set()
-                    playlist_map[path].add(title)
+                        playlist_map[path] = []
+                    playlist_map[path].append(title)
         debug_print('Finish build_id_playlist_map. Found', len(playlist_map))
         return playlist_map
 
@@ -309,14 +308,14 @@ class XMLCache(object):
                             book.thumbnail = raw
                             break
                     break
-                book.device_collections = list(playlist_map.get(book.lpath, set()))
+                book.device_collections = playlist_map.get(book.lpath, [])
         debug_print('Finished updating JSON cache:', bl_index)
 
     # }}}
 
     # Update XML from JSON {{{
     def update(self, booklists, collections_attributes):
-        debug_print('In update. Starting update XML from JSON')
+        debug_print('Starting update', collections_attributes)
         for i, booklist in booklists.items():
             playlist_map = self.build_id_playlist_map(i)
             debug_print('Updating XML Cache:', i)
@@ -332,8 +331,7 @@ class XMLCache(object):
                 # this book
                 if book.device_collections is None:
                     book.device_collections = []
-                book.device_collections = list(set(book.device_collections) |
-                                            playlist_map.get(book.lpath, set()))
+                book.device_collections = playlist_map.get(book.lpath, [])
             self.update_playlists(i, root, booklist, collections_attributes)
         # Update the device collections because update playlist could have added
         # some new ones.
@@ -341,10 +339,9 @@ class XMLCache(object):
         for i, booklist in booklists.items():
             playlist_map = self.build_id_playlist_map(i)
             for book in booklist:
-                book.device_collections = list(set(book.device_collections) |
-                                            playlist_map.get(book.lpath, set()))
+                book.device_collections = playlist_map.get(book.lpath, [])
         self.fix_ids()
-        debug_print('Finished update XML from JSON')
+        debug_print('Finished update')
 
     def rebuild_collections(self, booklist, bl_index):
         if bl_index not in self.record_roots:

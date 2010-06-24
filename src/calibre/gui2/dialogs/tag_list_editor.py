@@ -7,6 +7,36 @@ from PyQt4.QtGui import QDialog, QListWidgetItem
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2 import question_dialog, error_dialog
 
+class ListWidgetItem(QListWidgetItem):
+
+    def __init__(self, txt):
+        QListWidgetItem.__init__(self, txt)
+        self.old_value = txt
+        self.cur_value = txt
+
+    def data(self, role):
+        if role == Qt.DisplayRole:
+            if self.old_value != self.cur_value:
+                return _('%s (was %s)'%(self.cur_value, self.old_value))
+            else:
+                return self.cur_value
+        elif role == Qt.EditRole:
+            return self.cur_value
+        else:
+            return QListWidgetItem.data(self, role)
+
+    def setData(self, role, data):
+        if role == Qt.EditRole:
+            self.cur_value = data.toString()
+        QListWidgetItem.setData(self, role, data)
+
+    def text(self):
+        return self.cur_value
+
+    def setText(self, txt):
+        self.cur_value = txt
+        QListWidgetItem.setText(txt)
+
 class TagListEditor(QDialog, Ui_TagListEditor):
 
     def __init__(self, window, tag_to_match, data, compare):
@@ -21,7 +51,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         for k,v in data:
             self.all_tags[v] = k
         for tag in sorted(self.all_tags.keys(), cmp=compare):
-            item = QListWidgetItem(tag)
+            item = ListWidgetItem(tag)
             item.setData(Qt.UserRole, self.all_tags[tag])
             self.available_tags.addItem(item)
 

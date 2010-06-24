@@ -473,6 +473,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
             self.search_restriction.setEnabled(False)
             for action in list(self.delete_menu.actions())[1:]:
                 action.setEnabled(False)
+            # Reset the view in case something changed while it was invisible
+            self.current_view().reset()
         self.set_number_of_books_shown()
 
 

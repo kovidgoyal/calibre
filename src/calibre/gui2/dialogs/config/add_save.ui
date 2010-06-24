@@ -51,7 +51,7 @@
     <item row="2" column="0" colspan="2">
      <widget class="QCheckBox" name="opt_add_formats_to_existing">
       <property name="toolTip">
-       <string>If an existing book with a similar title and author is found that does not have the format being added, the format is added 
+       <string>If an existing book with a similar title and author is found that does not have the format being added, the format is added
 to the existing book, instead of creating a new entry. If the existing book already has the format, then it is silently ignored.
 
 Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc. Author match is exact.</string>
@@ -179,7 +179,31 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
    </attribute>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QLabel" name="label_4">
+     <widget class="QCheckBox" name="preserve_user_collections">
+      <property name="text">
+       <string>Preserve user collections.</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_41">
+      <property name="text">
+       <string>If checked, collections will not be deleted even if a book with changed metadata is resent and the collection is not in the book's metadata. In addition, editing collections on the device view will be enabled.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_42">
+      <property name="text">
+       <string>  </string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_43">
       <property name="text">
        <string>Here you can control how calibre will save your books when you click the Send to Device button. This setting can be overriden for individual devices by customizing the device interface plugins in Preferences-&gt;Plugins</string>
       </property>
