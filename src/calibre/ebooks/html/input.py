@@ -312,6 +312,7 @@ class HTMLInput(InputFormatPlugin):
             xpath
         from calibre import guess_type
         import cssutils
+        self.OEB_STYLES = OEB_STYLES
         oeb = create_oebbook(log, None, opts, self,
                 encoding=opts.input_encoding, populate=False)
         self.oeb = oeb
@@ -376,7 +377,7 @@ class HTMLInput(InputFormatPlugin):
             rewrite_links(item.data, partial(self.resource_adder, base=dpath))
 
         for item in oeb.manifest.values():
-            if item.media_type in OEB_STYLES:
+            if item.media_type in self.OEB_STYLES:
                 dpath = None
                 for path, href in self.added_resources.items():
                     if href == item.href:
@@ -414,25 +415,30 @@ class HTMLInput(InputFormatPlugin):
         oeb.container = DirContainer(os.getcwdu(), oeb.log)
         return oeb
 
-
-    def resource_adder(self, link_, base=None):
+    def link_to_local_path(self, link_, base=None):
         if not isinstance(link_, unicode):
             try:
                 link_ = link_.decode('utf-8', 'error')
             except:
                 self.log.warn('Failed to decode link %r. Ignoring'%link_)
-                return link_
+                return None, None
         try:
-            l = Link(link_, base if base else os.path.getcwdu())
+            l = Link(link_, base if base else os.getcwdu())
         except:
             self.log.exception('Failed to process link: %r'%link_)
-            return link_
+            return None, None
         if l.path is None:
             # Not a local resource
-            return link_
+            return None, None
         link = l.path.replace('/', os.sep).strip()
         frag = l.fragment
         if not link:
+            return None, None
+        return link, frag
+
+    def resource_adder(self, link_, base=None):
+        link, frag = self.link_to_local_path(link_, base=base)
+        if link is None:
             return link_
         try:
             if base and not os.path.isabs(link):
@@ -460,6 +466,9 @@ class HTMLInput(InputFormatPlugin):
 
             item = self.oeb.manifest.add(id, href, media_type)
             item.html_input_href = bhref
+            if guessed in self.OEB_STYLES:
+                item.override_css_fetch = partial(
+                        self.css_import_handler, os.path.dirname(link))
             item.data
             self.added_resources[link] = href
 
@@ -468,7 +477,17 @@ class HTMLInput(InputFormatPlugin):
             nlink = '#'.join((nlink, frag))
         return nlink
 
-
+    def css_import_handler(self, base, href):
+        link, frag = self.link_to_local_path(href, base=base)
+        if link is None or not os.access(link, os.R_OK) or os.path.isdir(link):
+            return (None, None)
+        try:
+            raw = open(link, 'rb').read().decode('utf-8', 'replace')
+            raw = self.oeb.css_preprocessor(raw, add_namespace=True)
+        except:
+            self.log.exception('Failed to read CSS file: %r'%link)
+            return (None, None)
+        return (None, raw)
 
 
 
