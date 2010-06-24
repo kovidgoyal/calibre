@@ -721,7 +721,6 @@ class TagBrowserMixin(object): # {{{
             if rename_func:
                 for text in to_rename:
                         for old_id in to_rename[text]:
-                            print 'rename', old_id, text
                             rename_func(old_id, new_name=unicode(text))
                 for item in to_delete:
                     delete_func(item)
