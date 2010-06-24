@@ -8,7 +8,7 @@ import copy
 
 from lxml import html, etree
 from lxml.html.builder import HTML, HEAD, TITLE, STYLE, DIV, BODY, \
-        STRONG, EM, BR, SPAN, A, HR, UL, LI, H2, IMG, P as PT, \
+        STRONG, EM, BR, SPAN, A, HR, UL, LI, H2, H3, IMG, P as PT, \
         TABLE, TD, TR
 
 from calibre import preferred_encoding, strftime, isbytestring
@@ -230,9 +230,8 @@ class TouchscreenIndexTemplate(Template):
                 toc.append(tr)
         div = DIV(
                 masthead_p,
-                PT(date, style='text-align:center'),
-                #DIV(style="border-color:gray;border-top-style:solid;border-width:thin"),
-                DIV(style="border-top:1px solid gray;border-bottom:1em solid white"),
+                H3(CLASS('publish_date'),date),
+                DIV(CLASS('divider')),
                 toc)
         self.root = HTML(head, BODY(div))
 
