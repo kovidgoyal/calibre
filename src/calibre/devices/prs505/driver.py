@@ -99,7 +99,7 @@ class PRS505(USBMS):
         if self._card_b_prefix is not None:
             if not write_cache(self._card_b_prefix):
                 self._card_b_prefix = None
-
+        self.booklist_class.rebuild_collections = self.rebuild_collections
 
     def get_device_information(self, end_session=True):
         return (self.gui_name, '', '', '')
@@ -145,7 +145,7 @@ class PRS505(USBMS):
                 blists[i] = booklists[i]
         opts = self.settings()
         if opts.extra_customization:
-            collections = [x.strip() for x in
+            collections = [x.lower().strip() for x in
                     opts.extra_customization.split(',')]
         else:
             collections = []
@@ -156,4 +156,10 @@ class PRS505(USBMS):
         USBMS.sync_booklists(self, booklists, end_session=end_session)
         debug_print('PRS505: finished sync_booklists')
 
+    def rebuild_collections(self, booklist, oncard):
+        debug_print('PRS505: started rebuild_collections on card', oncard)
+        c = self.initialize_XML_cache()
+        c.rebuild_collections(booklist, {'carda':1, 'cardb':2}.get(oncard, 0))
+        c.write()
+        debug_print('PRS505: finished rebuild_collections')
 

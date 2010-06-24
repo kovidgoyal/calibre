@@ -10,7 +10,7 @@ from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, \
     authors_to_string
-from calibre.gui2.custom_column_widgets import populate_bulk_metadata_page
+from calibre.gui2.custom_column_widgets import populate_metadata_page
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
@@ -44,15 +44,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.central_widget.tabBar().setVisible(False)
         else:
             self.create_custom_column_editors()
-
         self.exec_()
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
         layout = QGridLayout()
-
-        self.custom_column_widgets, self.__cc_spacers = populate_bulk_metadata_page(
-                layout, self.db, self.ids, w)
+        self.custom_column_widgets, self.__cc_spacers = \
+            populate_metadata_page(layout, self.db, self.ids, parent=w,
+                                   two_column=False, bulk=True)
         w.setLayout(layout)
         self.__custom_col_layouts = [layout]
         ans = self.custom_column_widgets

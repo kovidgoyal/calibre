@@ -294,6 +294,11 @@ class DeviceManager(Thread): # {{{
         return self.create_job(self._sync_booklists, done, args=[booklists],
                         description=_('Send metadata to device'))
 
+    def upload_collections(self, done, booklist, on_card):
+        return self.create_job(booklist.rebuild_collections, done,
+                               args=[booklist, on_card],
+                        description=_('Send collections to device'))
+
     def _upload_books(self, files, names, on_card=None, metadata=None):
         '''Upload books to device: '''
         return self.device.upload_books(files, names, on_card,
@@ -1228,6 +1233,19 @@ class DeviceMixin(object): # {{{
             return
         cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
+        # reset the views so that up-to-date info is shown. These need to be
+        # here because the sony driver updates collections in sync_booklists
+        self.memory_view.reset()
+        self.card_a_view.reset()
+        self.card_b_view.reset()
+
+    def _upload_collections(self, job):
+        if job.failed:
+            self.device_job_exception(job)
+
+    def upload_collections(self, booklist, view=None, oncard=None):
+        return self.device_manager.upload_collections(self._upload_collections,
+                                                       booklist, oncard)
 
     def upload_books(self, files, names, metadata, on_card=None, memory=None):
         '''

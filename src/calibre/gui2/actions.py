@@ -21,6 +21,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
+from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook, \
     fetch_scheduled_recipe, generate_catalog
 from calibre.constants import preferred_encoding, filesystem_encoding, \
@@ -830,6 +831,23 @@ class EditMetadataAction(object): # {{{
                 dest_mi.series_index = src_mi.series_index
         db.set_metadata(dest_id, dest_mi, ignore_errors=False)
         # }}}
+
+    def edit_device_collections(self, view, oncard=None):
+        model = view.model()
+        result = model.get_collections_with_ids()
+        compare = (lambda x,y:cmp(x.lower(), y.lower()))
+        d = TagListEditor(self, tag_to_match=None, data=result, compare=compare)
+        d.exec_()
+        if d.result() == d.Accepted:
+            to_rename = d.to_rename # dict of new text to old ids
+            to_delete = d.to_delete # list of ids
+            for text in to_rename:
+                for old_id in to_rename[text]:
+                    model.rename_collection(old_id, new_name=unicode(text))
+            for item in to_delete:
+                model.delete_collection_using_id(item)
+            self.upload_collections(model.db, view=view, oncard=oncard)
+            view.reset()
 
     # }}}
 
