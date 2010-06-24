@@ -167,3 +167,15 @@ class CollectionsBookList(BookList):
                 books.sort(cmp=lambda x,y:cmp(getter(x), getter(y)))
         return collections
 
+    def rebuild_collections(self, booklist, oncard):
+        '''
+        For each book in the booklist for the card oncard, remove it from all
+        its current collections, then add it to the collections specified in
+        device_collections.
+
+        oncard is None for the main memory, carda for card A, cardb for card B,
+        etc.
+
+        booklist is the object created by the :method:`books` call above.
+        '''
+        pass

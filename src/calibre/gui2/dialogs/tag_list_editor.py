@@ -1,54 +1,34 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from functools import partial
 from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QDialog, QListWidgetItem
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2 import question_dialog, error_dialog
-from calibre.ebooks.metadata import title_sort
 
 class TagListEditor(QDialog, Ui_TagListEditor):
 
-    def __init__(self, window, db, tag_to_match, category):
+    def __init__(self, window, tag_to_match, data, compare):
         QDialog.__init__(self, window)
         Ui_TagListEditor.__init__(self)
         self.setupUi(self)
 
         self.to_rename = {}
         self.to_delete = []
-        self.db = db
         self.all_tags = {}
-        self.category = category
-        if category == 'tags':
-            result = db.get_tags_with_ids()
-            compare = (lambda x,y:cmp(x.lower(), y.lower()))
-        elif category == 'series':
-            result = db.get_series_with_ids()
-            compare = (lambda x,y:cmp(title_sort(x).lower(), title_sort(y).lower()))
-        elif category == 'publisher':
-            result = db.get_publishers_with_ids()
-            compare = (lambda x,y:cmp(x.lower(), y.lower()))
-        else: # should be a custom field
-            self.cc_label = None
-            if category in db.field_metadata:
-                self.cc_label = db.field_metadata[category]['label']
-                result = self.db.get_custom_items_with_ids(label=self.cc_label)
-            else:
-                result = []
-            compare = (lambda x,y:cmp(x.lower(), y.lower()))
 
-        for k,v in result:
+        for k,v in data:
             self.all_tags[v] = k
         for tag in sorted(self.all_tags.keys(), cmp=compare):
             item = QListWidgetItem(tag)
             item.setData(Qt.UserRole, self.all_tags[tag])
             self.available_tags.addItem(item)
 
-        items = self.available_tags.findItems(tag_to_match, Qt.MatchExactly)
-        if len(items) == 1:
-            self.available_tags.setCurrentItem(items[0])
+        if tag_to_match is not None:
+            items = self.available_tags.findItems(tag_to_match, Qt.MatchExactly)
+            if len(items) == 1:
+                self.available_tags.setCurrentItem(items[0])
 
         self.connect(self.delete_button,  SIGNAL('clicked()'), self.delete_tags)
         self.connect(self.rename_button,  SIGNAL('clicked()'), self.rename_tag)
@@ -62,11 +42,6 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 item.setText(self.item_before_editing.text())
                 return
         if item.text() != self.item_before_editing.text():
-            if item.text() in self.all_tags.keys() or item.text() in self.to_rename.keys():
-                error_dialog(self, _('Item already used'),
-                             _('The item %s is already used.')%(item.text())).exec_()
-                item.setText(self.item_before_editing.text())
-                return
             (id,ign) = self.item_before_editing.data(Qt.UserRole).toInt()
             self.to_rename[item.text()] = id
 
@@ -99,30 +74,3 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.to_delete.append(id)
             self.available_tags.takeItem(self.available_tags.row(item))
 
-    def accept(self):
-        rename_func = None
-        if self.category == 'tags':
-            rename_func = self.db.rename_tag
-            delete_func = self.db.delete_tag_using_id
-        elif self.category == 'series':
-            rename_func = self.db.rename_series
-            delete_func = self.db.delete_series_using_id
-        elif self.category == 'publisher':
-            rename_func = self.db.rename_publisher
-            delete_func = self.db.delete_publisher_using_id
-        else:
-            rename_func = partial(self.db.rename_custom_item, label=self.cc_label)
-            delete_func = partial(self.db.delete_custom_item_using_id, label=self.cc_label)
-
-        work_done = False
-        if rename_func:
-            for text in self.to_rename:
-                work_done = True
-                rename_func(id=self.to_rename[text], new_name=unicode(text))
-            for item in self.to_delete:
-                work_done = True
-                delete_func(item)
-        if not work_done:
-            QDialog.reject(self)
-        else:
-            QDialog.accept(self)

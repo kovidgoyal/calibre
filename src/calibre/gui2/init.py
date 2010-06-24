@@ -226,17 +226,22 @@ class LibraryViewMixin(object): # {{{
                                         self.action_show_book_details,
                                         self.action_del,
                                         add_to_library = None,
+                                        edit_device_collections=None,
                                         similar_menu=similar_menu)
         add_to_library = (_('Add books to library'), self.add_books_from_device)
+        edit_device_collections = (_('Manage collections'), self.edit_device_collections)
         self.memory_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None, self.action_del,
-                add_to_library=add_to_library)
+                add_to_library=add_to_library,
+                edit_device_collections=edit_device_collections)
         self.card_a_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None, self.action_del,
-                add_to_library=add_to_library)
+                add_to_library=add_to_library,
+                edit_device_collections=edit_device_collections)
         self.card_b_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None, self.action_del,
-                add_to_library=add_to_library)
+                add_to_library=add_to_library,
+                edit_device_collections=edit_device_collections)
 
         self.library_view.files_dropped.connect(self.files_dropped, type=Qt.QueuedConnection)
         for func, args in [
@@ -249,8 +254,11 @@ class LibraryViewMixin(object): # {{{
                 getattr(view, func)(*args)
 
         self.memory_view.connect_dirtied_signal(self.upload_booklists)
+        self.memory_view.connect_upload_collections_signal(self.upload_collections)
         self.card_a_view.connect_dirtied_signal(self.upload_booklists)
+        self.card_a_view.connect_upload_collections_signal(self.upload_collections)
         self.card_b_view.connect_dirtied_signal(self.upload_booklists)
+        self.card_b_view.connect_upload_collections_signal(self.upload_collections)
 
         self.book_on_device(None, reset=True)
         db.set_book_on_device_func(self.book_on_device)

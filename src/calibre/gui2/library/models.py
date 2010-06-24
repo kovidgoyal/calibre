@@ -857,6 +857,7 @@ class OnDeviceSearch(SearchQueryParser): # {{{
 class DeviceBooksModel(BooksModel): # {{{
 
     booklist_dirtied = pyqtSignal()
+    upload_collections = pyqtSignal(object)
 
     def __init__(self, parent):
         BooksModel.__init__(self, parent)
@@ -977,8 +978,8 @@ class DeviceBooksModel(BooksModel): # {{{
             x, y = int(self.db[x].size), int(self.db[y].size)
             return cmp(x, y)
         def tagscmp(x, y):
-            x = ','.join(self.db[x].device_collections)
-            y = ','.join(self.db[y].device_collections)
+            x = ','.join(getattr(self.db[x], 'device_collections', [])).lower()
+            y = ','.join(getattr(self.db[y], 'device_collections', [])).lower()
             return cmp(x, y)
         def libcmp(x, y):
             x, y = self.db[x].in_library, self.db[y].in_library
@@ -1026,6 +1027,9 @@ class DeviceBooksModel(BooksModel): # {{{
     def set_database(self, db):
         self.custom_columns = {}
         self.db = db
+        for book in db:
+            if book.device_collections is not None:
+                book.device_collections.sort(cmp=lambda x,y: cmp(x.lower(), y.lower()))
         self.map = list(range(0, len(db)))
 
     def current_changed(self, current, previous):
@@ -1079,6 +1083,36 @@ class DeviceBooksModel(BooksModel): # {{{
                 res.append((r,b))
         return res
 
+    def get_collections_with_ids(self):
+        collections = set()
+        for book in self.db:
+            if book.device_collections is not None:
+                collections.update(set(book.device_collections))
+        self.collections = []
+        result = []
+        for i,collection in enumerate(collections):
+            result.append((i, collection))
+            self.collections.append(collection)
+        return result
+
+    def rename_collection(self, old_id, new_name):
+        old_name = self.collections[old_id]
+        for book in self.db:
+            if book.device_collections is None:
+                continue
+            if old_name in book.device_collections:
+                book.device_collections.remove(old_name)
+                if new_name not in book.device_collections:
+                    book.device_collections.append(new_name)
+
+    def delete_collection_using_id(self, old_id):
+        old_name = self.collections[old_id]
+        for book in self.db:
+            if book.device_collections is None:
+                continue
+            if old_name in book.device_collections:
+                book.device_collections.remove(old_name)
+
     def indices(self, rows):
         '''
         Return indices into underlying database from rows
@@ -1109,7 +1143,7 @@ class DeviceBooksModel(BooksModel): # {{{
             elif cname == 'collections':
                 tags = self.db[self.map[row]].device_collections
                 if tags:
-                    return QVariant(', '.join(sorted(tags, key=str.lower)))
+                    return QVariant(', '.join(tags))
         elif role == Qt.ToolTipRole and index.isValid():
             if self.map[row] in self.indices_to_be_deleted():
                 return QVariant(_('Marked for deletion'))
@@ -1151,14 +1185,17 @@ class DeviceBooksModel(BooksModel): # {{{
                 return False
             val = unicode(value.toString()).strip()
             idx = self.map[row]
+            if cname == 'collections':
+                tags = [i.strip() for i in val.split(',')]
+                tags = [t for t in tags if t]
+                self.db[idx].device_collections = tags
+                self.upload_collections.emit(self.db)
+                return True
+
             if cname == 'title' :
                 self.db[idx].title = val
             elif cname == 'authors':
                 self.db[idx].authors = string_to_authors(val)
-            elif cname == 'collections':
-                tags = [i.strip() for i in val.split(',')]
-                tags = [t for t in tags if t]
-                self.db[idx].device_collections = tags
             self.dataChanged.emit(index, index)
             self.booklist_dirtied.emit()
             done = True

@@ -61,8 +61,7 @@ class XMLCache(object):
 
     def __init__(self, paths, prefixes, use_author_sort):
         if DEBUG:
-            debug_print('Building XMLCache...')
-            pprint(paths)
+            debug_print('Building XMLCache...', paths)
         self.paths = paths
         self.prefixes = prefixes
         self.use_author_sort = use_author_sort
@@ -346,6 +345,12 @@ class XMLCache(object):
                                             playlist_map.get(book.lpath, set()))
         self.fix_ids()
         debug_print('Finished update XML from JSON')
+
+    def rebuild_collections(self, booklist, bl_index):
+        if bl_index not in self.record_roots:
+            return
+        root = self.record_roots[bl_index]
+        self.update_playlists(bl_index, root, booklist, [])
 
     def update_playlists(self, bl_index, root, booklist, collections_attributes):
         debug_print('Starting update_playlists', collections_attributes)
