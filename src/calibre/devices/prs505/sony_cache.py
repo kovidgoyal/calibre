@@ -351,9 +351,10 @@ class XMLCache(object):
             return
         root = self.record_roots[bl_index]
         self.update_playlists(bl_index, root, booklist, [])
+        self.fix_ids()
 
     def update_playlists(self, bl_index, root, booklist, collections_attributes):
-        debug_print('Starting update_playlists', collections_attributes)
+        debug_print('Starting update_playlists', collections_attributes, bl_index)
         collections = booklist.get_collections(collections_attributes)
         lpath_map = self.build_lpath_map(root)
         for category, books in collections.items():

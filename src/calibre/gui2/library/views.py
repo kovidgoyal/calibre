@@ -509,8 +509,8 @@ class DeviceBooksView(BooksView): # {{{
     def connect_dirtied_signal(self, slot):
         self._model.booklist_dirtied.connect(slot)
 
-    def connect_upload_collections_signal(self, func):
-        self._model.upload_collections.connect(partial(func, view=self))
+    def connect_upload_collections_signal(self, func=None, oncard=None):
+        self._model.upload_collections.connect(partial(func, view=self, oncard=oncard))
 
     def dropEvent(self, *args):
         error_dialog(self, _('Not allowed'),

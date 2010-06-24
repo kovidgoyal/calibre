@@ -157,7 +157,7 @@ class PRS505(USBMS):
         debug_print('PRS505: finished sync_booklists')
 
     def rebuild_collections(self, booklist, oncard):
-        debug_print('PRS505: started rebuild_collections')
+        debug_print('PRS505: started rebuild_collections on card', oncard)
         c = self.initialize_XML_cache()
         c.rebuild_collections(booklist, {'carda':1, 'cardb':2}.get(oncard, 0))
         c.write()

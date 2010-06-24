@@ -1239,17 +1239,13 @@ class DeviceMixin(object): # {{{
         self.card_a_view.reset()
         self.card_b_view.reset()
 
-    def _upload_collections(self, job, view):
+    def _upload_collections(self, job):
         if job.failed:
             self.device_job_exception(job)
-        view.reset()
 
-    def upload_collections(self, booklist, view):
-        on_card = 'carda' if self.stack.currentIndex() == 2 else \
-                  'cardb' if self.stack.currentIndex() == 3 else \
-                   None
-        done = partial(self._upload_collections, view=view)
-        return self.device_manager.upload_collections(done, booklist, on_card)
+    def upload_collections(self, booklist, view=None, oncard=None):
+        return self.device_manager.upload_collections(self._upload_collections,
+                                                       booklist, oncard)
 
     def upload_books(self, files, names, metadata, on_card=None, memory=None):
         '''

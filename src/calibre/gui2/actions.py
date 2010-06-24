@@ -832,7 +832,7 @@ class EditMetadataAction(object): # {{{
         db.set_metadata(dest_id, dest_mi, ignore_errors=False)
         # }}}
 
-    def edit_device_collections(self, view):
+    def edit_device_collections(self, view, oncard=None):
         model = view.model()
         result = model.get_collections_with_ids()
         compare = (lambda x,y:cmp(x.lower(), y.lower()))
@@ -845,7 +845,8 @@ class EditMetadataAction(object): # {{{
                 model.rename_collection(old_id=to_rename[text], new_name=unicode(text))
             for item in to_delete:
                 model.delete_collection_using_id(item)
-            self.upload_collections(model.db, view=view)
+            self.upload_collections(model.db, view=view, oncard=oncard)
+            view.reset()
 
     # }}}
 
