@@ -32,15 +32,16 @@ class NewScientist(BasicNewsRecipe):
                         }
     preprocess_regexps = [(re.compile(r'</title>.*?</head>', re.DOTALL|re.IGNORECASE),lambda match: '</title></head>')]
 
-    keep_only_tags = [dict(name='div', attrs={'id':['pgtop','maincol','nsblgposts','hldgalcols']})]
+    keep_only_tags = [dict(name='div', attrs={'id':['pgtop','maincol','blgmaincol','nsblgposts','hldgalcols']})]
 
     remove_tags = [
                      dict(name='div'  , attrs={'class':['hldBd','adline','pnl','infotext' ]})
-                    ,dict(name='div'  , attrs={'id'   :['compnl','artIssueInfo','artTools']})
+                    ,dict(name='div'  , attrs={'id'   :['compnl','artIssueInfo','artTools','comments','blgsocial']})
                     ,dict(name='p'    , attrs={'class':['marker','infotext'               ]})
                     ,dict(name='meta' , attrs={'name' :'description'                       })
+                    ,dict(name='a'    , attrs={'rel'  :'tag'                                })
                   ]
-    remove_tags_after = dict(attrs={'class':'nbpcopy'})
+    remove_tags_after = dict(attrs={'class':['nbpcopy','comments']})
     remove_attributes = ['height','width']
 
     feeds          = [

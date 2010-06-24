@@ -3,17 +3,18 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, sys, textwrap, re
+import traceback, sys, textwrap, re, urllib2
 from threading import Thread
 
-from calibre import prints
+from calibre import prints, browser
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import default_log
 from calibre.customize import Plugin
+from calibre.ebooks.metadata.library_thing import OPENLIBRARY
 
 metadata_config = None
 
-class MetadataSource(Plugin):
+class MetadataSource(Plugin): # {{{
 
     author = 'Kovid Goyal'
 
@@ -130,7 +131,9 @@ class MetadataSource(Plugin):
     def customization_help(self):
         return 'This plugin can only be customized using the GUI'
 
-class GoogleBooks(MetadataSource):
+    # }}}
+
+class GoogleBooks(MetadataSource): # {{{
 
     name = 'Google Books'
     description = _('Downloads metadata from Google Books')
@@ -145,8 +148,9 @@ class GoogleBooks(MetadataSource):
             self.exception = e
             self.tb = traceback.format_exc()
 
+    # }}}
 
-class ISBNDB(MetadataSource):
+class ISBNDB(MetadataSource): # {{{
 
     name = 'IsbnDB'
     description = _('Downloads metadata from isbndb.com')
@@ -181,7 +185,9 @@ class ISBNDB(MetadataSource):
                 'and enter your access key below.')
         return '<p>'+ans%('<a href="http://www.isbndb.com">', '</a>')
 
-class Amazon(MetadataSource):
+    # }}}
+
+class Amazon(MetadataSource): # {{{
 
     name = 'Amazon'
     metadata_type = 'social'
@@ -198,7 +204,9 @@ class Amazon(MetadataSource):
             self.exception = e
             self.tb = traceback.format_exc()
 
-class LibraryThing(MetadataSource):
+    # }}}
+
+class LibraryThing(MetadataSource): # {{{
 
     name = 'LibraryThing'
     metadata_type = 'social'
@@ -207,7 +215,6 @@ class LibraryThing(MetadataSource):
     def fetch(self):
         if not self.isbn:
             return
-        from calibre import browser
         from calibre.ebooks.metadata import MetaInformation
         import json
         br = browser()
@@ -228,6 +235,7 @@ class LibraryThing(MetadataSource):
         except Exception, e:
             self.exception = e
             self.tb = traceback.format_exc()
+    # }}}
 
 
 def result_index(source, result):
@@ -268,6 +276,31 @@ class MetadataSources(object):
         for s in self.sources:
             s.join()
 
+def filter_metadata_results(item):
+    keywords = ["audio", "tape", "cassette", "abridged", "playaway"]
+    for keyword in keywords:
+        if item.publisher and keyword in item.publisher.lower():
+            return False
+    return True
+
+class HeadRequest(urllib2.Request):
+    def get_method(self):
+        return "HEAD"
+
+def do_cover_check(item):
+    opener = browser()
+    item.has_cover = False
+    try:
+        opener.open(HeadRequest(OPENLIBRARY%item.isbn), timeout=5)
+        item.has_cover = True
+    except:
+        pass # Cover not found
+
+def check_for_covers(items):
+    threads = [Thread(target=do_cover_check, args=(item,)) for item in items]
+    for t in threads: t.start()
+    for t in threads: t.join()
+
 def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
            verbose=0):
     assert not(title is None and author is None and publisher is None and \
@@ -285,10 +318,60 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
     for fetcher in fetchers[1:]:
         merge_results(results, fetcher.results)
 
-    results = sorted(results, cmp=lambda x, y : cmp(
-            (x.comments.strip() if x.comments else ''),
-            (y.comments.strip() if y.comments else '')
-                                                  ), reverse=True)
+    results = list(filter(filter_metadata_results, results))
+
+    check_for_covers(results)
+
+    words = ("the", "a", "an", "of", "and")
+    prefix_pat = re.compile(r'^(%s)\s+'%("|".join(words)))
+    trailing_paren_pat = re.compile(r'\(.*\)$')
+    whitespace_pat = re.compile(r'\s+')
+
+    def sort_func(x, y):
+
+        def cleanup_title(s):
+            s = s.strip().lower()
+            s = prefix_pat.sub(' ', s)
+            s = trailing_paren_pat.sub('', s)
+            s = whitespace_pat.sub(' ', s)
+            return s.strip()
+
+        t = cleanup_title(title)
+        x_title = cleanup_title(x.title)
+        y_title = cleanup_title(y.title)
+
+        # prefer titles that start with the search title
+        tx = cmp(t, x_title)
+        ty = cmp(t, y_title)
+        result = 0 if abs(tx) == abs(ty) else abs(tx) - abs(ty)
+
+        # then prefer titles that have a cover image
+        if result == 0:
+            result = -cmp(x.has_cover, y.has_cover)
+
+        # then prefer titles with the longest comment, with in 10%
+        if result == 0:
+            cx = len(x.comments.strip() if x.comments else '')
+            cy = len(y.comments.strip() if y.comments else '')
+            t = (cx + cy) / 20
+            result = cy - cx
+            if abs(result) < t:
+                result = 0
+
+        return result
+
+    results = sorted(results, cmp=sort_func)
+
+    # if for some reason there is no comment in the top selection, go looking for one
+    if len(results) > 1:
+        if not results[0].comments or len(results[0].comments) == 0:
+            for r in results[1:]:
+                if title.lower() == r.title[:len(title)].lower() and r.comments and len(r.comments):
+                    results[0].comments = r.comments
+                    break
+
+ #   for r in results:
+ #       print "{0:14.14} {1:30.30} {2:20.20} {3:6} {4}".format(r.isbn, r.title, r.publisher, len(r.comments if r.comments else ''), r.has_cover)
 
     return results, [(x.name, x.exception, x.tb) for x in fetchers]
 

@@ -181,14 +181,14 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
     <item>
      <widget class="QCheckBox" name="preserve_user_collections">
       <property name="text">
-       <string>Preserve user collections.</string>
+       <string>Preserve device collections.</string>
       </property>
      </widget>
     </item>
     <item>
      <widget class="QLabel" name="label_41">
       <property name="text">
-       <string>If checked, collections will not be deleted even if a book with changed metadata is resent and the collection is not in the book's metadata. In addition, editing collections on the device view will be enabled.</string>
+       <string>If checked, collections will not be deleted even if a book with changed metadata is resent and the collection is not in the book's metadata. In addition, editing collections in the device view will be enabled. If unchecked, collections will be always reflect only the metadata in the calibre library.</string>
       </property>
       <property name="wordWrap">
        <bool>true</bool>

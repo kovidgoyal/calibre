@@ -7,18 +7,18 @@ class NYTimes(BasicNewsRecipe):
     __author__  = 'Krittika Goyal'
     description = 'Canadian national newspaper'
     timefmt = ' [%d %b, %Y]'
-    needs_subscription = False
     language = 'en_CA'
+    needs_subscription = False
 
     no_stylesheets = True
     #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
-    #remove_tags_after  = dict(name='td', attrs={'class':'newptool1'})
+    remove_tags_after  = dict(name='div', attrs={'class':'npStoryTools npWidth1-6 npRight npTxtStrong'})
     remove_tags = [
        dict(name='iframe'),
-       dict(name='div', attrs={'class':'story-tools'}),
+       dict(name='div', attrs={'class':['story-tools', 'npStoryTools npWidth1-6 npRight npTxtStrong']}),
        #dict(name='div', attrs={'id':['qrformdiv', 'inSection', 'alpha-inner']}),
        #dict(name='form', attrs={'onsubmit':''}),
-       #dict(name='table', attrs={'cellspacing':'0'}),
+       dict(name='ul', attrs={'class':'npTxtAlt npGroup npTxtCentre npStoryShare npTxtStrong npTxtDim'}),
     ]
 
    # def preprocess_html(self, soup):
@@ -37,7 +37,7 @@ class NYTimes(BasicNewsRecipe):
     def parse_index(self):
             soup = self.nejm_get_index()
 
-            div = soup.find(id='LegoText4')
+            div = soup.find(id='npContentMain')
 
             current_section = None
             current_articles = []
@@ -50,7 +50,7 @@ class NYTimes(BasicNewsRecipe):
                     current_section = self.tag_to_string(x)
                     current_articles = []
                     self.log('\tFound section:', current_section)
-                if current_section is not None and x.name == 'h3':
+                if current_section is not None and x.name == 'h5':
                     # Article found
                     title = self.tag_to_string(x)
                     a = x.find('a', href=lambda x: x and 'story' in x)
@@ -59,8 +59,8 @@ class NYTimes(BasicNewsRecipe):
                     url = a.get('href', False)
                     if not url or not title:
                         continue
-                    if url.startswith('story'):
-                         url = 'http://www.nationalpost.com/todays-paper/'+url
+                    #if url.startswith('story'):
+                    url = 'http://www.nationalpost.com/todays-paper/'+url
                     self.log('\t\tFound article:', title)
                     self.log('\t\t\t', url)
                     current_articles.append({'title': title, 'url':url,
@@ -70,28 +70,11 @@ class NYTimes(BasicNewsRecipe):
                 feeds.append((current_section, current_articles))
 
             return feeds
-
     def preprocess_html(self, soup):
-        story = soup.find(name='div', attrs={'class':'triline'})
-        page2_link = soup.find('p','pagenav')
-        if page2_link:
-            atag = page2_link.find('a',href=True)
-            if atag:
-                page2_url = atag['href']
-                if page2_url.startswith('story'):
-                         page2_url = 'http://www.nationalpost.com/todays-paper/'+page2_url
-                elif page2_url.startswith( '/todays-paper/story.html'):
-                    page2_url = 'http://www.nationalpost.com/'+page2_url
-                page2_soup = self.index_to_soup(page2_url)
-                if page2_soup:
-                    page2_content = page2_soup.find('div','story-content')
-                    if page2_content:
-                        full_story = BeautifulSoup('<div></div>')
-                        full_story.insert(0,story)
-                        full_story.insert(1,page2_content)
-                        story = full_story
+        story = soup.find(name='div', attrs={'id':'npContentMain'})
+        ##td = heading.findParent(name='td')
+        ##td.extract()
         soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
         body = soup.find(name='body')
         body.insert(0, story)
         return soup
-

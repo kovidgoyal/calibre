@@ -325,6 +325,10 @@ Post any output you see in a help message on the `Forum <http://www.mobileread.c
 |app| is not starting on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+One common cause of failures on OS X is the use of accessibility technologies that are incompatible with the graphics toolkit |app| uses.
+Try turning off VoiceOver if you have it on. Also go to System Preferences->System->Universal Access and turn off the setting for enabling
+access for assistive devices in all the tabs.
+
 You can obtain debug output about why |app| is not starting by running `Console.app`. Debug output will
 be printed to it. If the debug output contains a line that looks like::
 
@@ -334,9 +338,9 @@ then the problem is probably a corrupted font cache. You can clear the cache by 
 `instructions <http://www.macworld.com/article/139383/2009/03/fontcacheclear.html>`_. If that doesn't
 solve it, look for a corrupted font file on your system, in ~/Library/Fonts or the like.
 
-
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Your antivirus program is wrong. |app| is a completely open source product. You can actually browse the source code yourself (or hire someone to do it for you) to verify that it is not a virus. Please report the false identification to whatever company you buy your antivirus software from. If the antivirus program is preventing you from downloading/installing |app|, disable it temporarily, install |app| and then re-enable it.
 
 How do I use purchased EPUB books with |app|?
