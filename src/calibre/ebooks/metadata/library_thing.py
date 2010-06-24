@@ -91,6 +91,8 @@ def get_social_metadata(title, authors, publisher, isbn, username=None,
 
         raw = br.open_novisit('http://www.librarything.com/isbn/'
                     +isbn).read()
+        if not raw:
+            return mi
         root = html.fromstring(raw)
         h1 = root.xpath('//div[@class="headsummary"]/h1')
         if h1 and not mi.title:
