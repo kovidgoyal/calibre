@@ -1240,6 +1240,8 @@ class DeviceMixin(object): # {{{
         self.card_b_view.reset()
 
     def _upload_collections(self, job, view):
+        if job.failed:
+            self.device_job_exception(job)
         view.reset()
 
     def upload_collections(self, booklist, view):

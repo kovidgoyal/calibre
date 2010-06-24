@@ -74,5 +74,3 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.to_delete.append(id)
             self.available_tags.takeItem(self.available_tags.row(item))
 
-    def accept(self):
-        QDialog.accept(self)
