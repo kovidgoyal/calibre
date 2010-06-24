@@ -782,6 +782,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         icon=icon, tooltip=tooltip)
                                     for r in data if item_not_zero_func(r)]
 
+        # Needed for legacy databases that have multiple ratings that
+        # map to n stars
+        for r in categories['rating']:
+            for x in categories['rating']:
+                if r.name == x.name and r.id != x.id:
+                    r.count = r.count + x.count
+                    categories['rating'].remove(x)
+                    break
+
         # We delayed computing the standard formats category because it does not
         # use a view, but is computed dynamically
         categories['formats'] = []
