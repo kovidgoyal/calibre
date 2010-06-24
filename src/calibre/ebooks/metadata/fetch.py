@@ -324,6 +324,7 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
     whitespace_pat = re.compile(r'\s+')
 
     def sort_func(x, y):
+
         def cleanup_title(s):
             s = s.strip().lower()
             s = prefix_pat.sub(' ', s)

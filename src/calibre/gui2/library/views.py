@@ -15,7 +15,7 @@ from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
     TextDelegate, DateDelegate, TagsDelegate, CcTextDelegate, \
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
-from calibre.utils.config import tweaks
+from calibre.utils.config import tweaks, prefs
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.library import DEFAULT_SORT
 
@@ -500,7 +500,9 @@ class DeviceBooksView(BooksView): # {{{
         self.setAcceptDrops(False)
 
     def contextMenuEvent(self, event):
-        self.edit_collections_menu.setVisible(self._model.db.supports_collections())
+        self.edit_collections_menu.setVisible(
+                            self._model.db.supports_collections() and \
+                            prefs['preserve_user_collections'])
         self.context_menu.popup(event.globalPos())
         event.accept()
 

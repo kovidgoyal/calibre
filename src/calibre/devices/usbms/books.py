@@ -11,6 +11,7 @@ from calibre.devices.mime import mime_type_ext
 from calibre.devices.interface import BookList as _BookList
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre import isbytestring
+from calibre.utils.config import prefs
 
 class Book(MetaInformation):
 
@@ -76,7 +77,7 @@ class Book(MetaInformation):
         in C{other} takes precedence, unless the information in C{other} is NULL.
         '''
 
-        MetaInformation.smart_update(self, other)
+        MetaInformation.smart_update(self, other, replace_tags=True)
 
         for attr in self.BOOK_ATTRS:
             if hasattr(other, attr):
@@ -132,7 +133,9 @@ class CollectionsBookList(BookList):
     def get_collections(self, collection_attributes):
         collections = {}
         series_categories = set([])
-        collection_attributes = list(collection_attributes)+['device_collections']
+        collection_attributes = list(collection_attributes)
+        if prefs['preserve_user_collections']:
+            collection_attributes += ['device_collections']
         for attr in collection_attributes:
             attr = attr.strip()
             for book in self:
