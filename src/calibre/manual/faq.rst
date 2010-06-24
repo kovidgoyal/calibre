@@ -107,17 +107,27 @@ How does |app| manage collections on my SONY reader?
 When |app| connects with the device, it retrieves all collections for the books on the device. The collections
 of which books are members are shown on the device view.
 
-When you send a book to the device, |app| will if necessary create new collections based on the metadata for
-that book, then add the book to the collections. By default, collections are created from tags and series. You
-can control what metadata is used by going to Preferences->Plugins->Device Interface plugins and customizing
-the SONY device interface plugin.
+When you send a book to the device, |app| will add the book to collections based on the metadata for that book. By
+default, collections are created from tags and series. You can control what metadata is used by going to
+Preferences->Plugins->Device Interface plugins and customizing the SONY device interface plugin. If you remove all
+values, |app| will not add the book to any collection.
 
-|app| will not delete already existing collections for a book on your device when you resend the book to the
-device. To ensure that the collections are based only on current |app| metadata, first delete the books from
-the device, and then resend the books.
+Collection management is largely controlled by 'Preserve device collections' found at Preferences->Add/Save->Sending
+to device. If checked (the default), managing collections is left to the user; |app| will not delete already
+existing collections for a book on your device when you resend the book to the device, but |app| will add the book to
+collections if necessary.  To ensure that the collections for a book are based only on current |app| metadata, first
+delete the books from the device, then resend the books.  You can edit collections directly on the device view by
+double-clicking or right-clicking in the collections column.
 
-You can edit collections on the device in the device view in |app| by double clicking or right clicking on the
-collections field. This is the only way to remove a book from a collection.
+If 'Preserve device collections' is not checked, then |app| will manage collections. Collections will be built using
+|app| metadata exclusively.  Sending a book to the device will correct the collections for that book so its
+collections exactly match the book's metadata. Collections are added and deleted as necessary.  Editing collections on
+the device pane is not permitted, because collections not in the metadata will be removed automatically.
+
+In summary, check 'Preserve device collections' if you want to manage collections yourself.  Collections for a book
+will never be removed by |app|, but can be removed by you by editing on the device view.  Uncheck 'Preserve device
+collections' if you want |app| to manage the collections, adding books to and removing books from collections as
+needed.  
 
 Can I use both |app| and the SONY software to manage my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
