@@ -978,8 +978,8 @@ class DeviceBooksModel(BooksModel): # {{{
             x, y = int(self.db[x].size), int(self.db[y].size)
             return cmp(x, y)
         def tagscmp(x, y):
-            x = ','.join(getattr(self.db[x], 'device_collections', [])).lower()
-            y = ','.join(getattr(self.db[y], 'device_collections', [])).lower()
+            x = ','.join(sorted(getattr(self.db[x], 'device_collections', []))).lower()
+            y = ','.join(sorted(getattr(self.db[y], 'device_collections', []))).lower()
             return cmp(x, y)
         def libcmp(x, y):
             x, y = self.db[x].in_library, self.db[y].in_library
@@ -1027,9 +1027,6 @@ class DeviceBooksModel(BooksModel): # {{{
     def set_database(self, db):
         self.custom_columns = {}
         self.db = db
-        for book in db:
-            if book.device_collections is not None:
-                book.device_collections.sort(cmp=lambda x,y: cmp(x.lower(), y.lower()))
         self.map = list(range(0, len(db)))
 
     def current_changed(self, current, previous):
@@ -1143,6 +1140,7 @@ class DeviceBooksModel(BooksModel): # {{{
             elif cname == 'collections':
                 tags = self.db[self.map[row]].device_collections
                 if tags:
+                    tags.sort(cmp=lambda x,y: cmp(x.lower(), y.lower()))
                     return QVariant(', '.join(tags))
         elif role == Qt.ToolTipRole and index.isValid():
             if self.map[row] in self.indices_to_be_deleted():
@@ -1189,6 +1187,7 @@ class DeviceBooksModel(BooksModel): # {{{
                 tags = [i.strip() for i in val.split(',')]
                 tags = [t for t in tags if t]
                 self.db[idx].device_collections = tags
+                self.dataChanged.emit(index, index)
                 self.upload_collections.emit(self.db)
                 return True
 

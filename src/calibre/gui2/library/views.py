@@ -396,7 +396,8 @@ class BooksView(QTableView): # {{{
             self.context_menu.addAction(add_to_library[0], func)
         if edit_device_collections is not None:
             func = partial(edit_device_collections[1], view=self)
-            self.context_menu.addAction(edit_device_collections[0], func)
+            self.edit_collections_menu = \
+                self.context_menu.addAction(edit_device_collections[0], func)
 
     def contextMenuEvent(self, event):
         self.context_menu.popup(event.globalPos())
@@ -498,6 +499,11 @@ class DeviceBooksView(BooksView): # {{{
         self.setDragDropMode(self.NoDragDrop)
         self.setAcceptDrops(False)
 
+    def contextMenuEvent(self, event):
+        self.edit_collections_menu.setVisible(self._model.db.supports_collections())
+        self.context_menu.popup(event.globalPos())
+        event.accept()
+
     def set_database(self, db):
         self._model.set_database(db)
         self.restore_state()
@@ -509,8 +515,8 @@ class DeviceBooksView(BooksView): # {{{
     def connect_dirtied_signal(self, slot):
         self._model.booklist_dirtied.connect(slot)
 
-    def connect_upload_collections_signal(self, func):
-        self._model.upload_collections.connect(partial(func, view=self))
+    def connect_upload_collections_signal(self, func=None, oncard=None):
+        self._model.upload_collections.connect(partial(func, view=self, oncard=oncard))
 
     def dropEvent(self, *args):
         error_dialog(self, _('Not allowed'),
