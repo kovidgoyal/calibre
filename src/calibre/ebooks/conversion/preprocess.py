@@ -280,7 +280,7 @@ class HTMLPreProcessor(object):
 
         if getattr(self.extra_opts, 'remove_footer', None):
             try:
-                rules.insert(0
+                rules.insert(0,
                     (re.compile(self.extra_opts.footer_regex), lambda match : '')
                 )
             except:
