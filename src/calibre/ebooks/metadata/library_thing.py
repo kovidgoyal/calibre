@@ -6,10 +6,11 @@ Fetch cover from LibraryThing.com based on ISBN number.
 
 import sys, socket, os, re
 
-from calibre import browser as _browser
+from lxml import html
+
+from calibre import browser, prints
 from calibre.utils.config import OptionParser
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-browser = None
 
 OPENLIBRARY = 'http://covers.openlibrary.org/b/isbn/%s-L.jpg?default=false'
 
@@ -22,31 +23,28 @@ class ISBNNotFound(LibraryThingError):
 class ServerBusy(LibraryThingError):
     pass
 
-def login(username, password, force=True):
-    global browser
-    if browser is not None and not force:
-        return
-    browser = _browser()
-    browser.open('http://www.librarything.com')
-    browser.select_form('signup')
-    browser['formusername'] = username
-    browser['formpassword'] = password
-    browser.submit()
+def login(br, username, password, force=True):
+    br.open('http://www.librarything.com')
+    br.select_form('signup')
+    br['formusername'] = username
+    br['formpassword'] = password
+    br.submit()
 
 
 def cover_from_isbn(isbn, timeout=5., username=None, password=None):
-    global browser
-    if browser is None:
-        browser = _browser()
     src = None
+    br = browser()
     try:
-        return browser.open(OPENLIBRARY%isbn, timeout=timeout).read(), 'jpg'
+        return br.open(OPENLIBRARY%isbn, timeout=timeout).read(), 'jpg'
     except:
         pass # Cover not found
     if username and password:
-        login(username, password, force=False)
+        try:
+            login(br, username, password, force=False)
+        except:
+            pass
     try:
-        src = browser.open('http://www.librarything.com/isbn/'+isbn,
+        src = br.open_novisit('http://www.librarything.com/isbn/'+isbn,
                 timeout=timeout).read().decode('utf-8', 'replace')
     except Exception, err:
         if isinstance(getattr(err, 'args', [None])[0], socket.timeout):
@@ -63,7 +61,7 @@ def cover_from_isbn(isbn, timeout=5., username=None, password=None):
         if url is None:
             raise LibraryThingError(_('LibraryThing.com server error. Try again later.'))
         url = re.sub(r'_S[XY]\d+', '', url['src'])
-        cover_data = browser.open(url).read()
+        cover_data = br.open_novisit(url).read()
         return cover_data, url.rpartition('.')[-1]
 
 def option_parser():
@@ -71,13 +69,68 @@ def option_parser():
 _('''
 %prog [options] ISBN
 
-Fetch a cover image for the book identified by ISBN from LibraryThing.com
+Fetch a cover image/social metadata for the book identified by ISBN from LibraryThing.com
 '''))
     parser.add_option('-u', '--username', default=None,
                       help='Username for LibraryThing.com')
     parser.add_option('-p', '--password', default=None,
                       help='Password for LibraryThing.com')
     return parser
+
+def get_social_metadata(title, authors, publisher, isbn, username=None,
+        password=None):
+    from calibre.ebooks.metadata import MetaInformation
+    mi = MetaInformation(title, authors)
+    if isbn:
+        br = browser()
+        if username and password:
+            try:
+                login(br, username, password, force=False)
+            except:
+                pass
+
+        raw = br.open_novisit('http://www.librarything.com/isbn/'
+                    +isbn).read()
+        if not raw:
+            return mi
+        root = html.fromstring(raw)
+        h1 = root.xpath('//div[@class="headsummary"]/h1')
+        if h1 and not mi.title:
+            mi.title = html.tostring(h1[0], method='text', encoding=unicode)
+        h2 = root.xpath('//div[@class="headsummary"]/h2/a')
+        if h2 and not mi.authors:
+            mi.authors = [html.tostring(x, method='text', encoding=unicode) for
+                    x in h2]
+        h3 = root.xpath('//div[@class="headsummary"]/h3/a')
+        if h3:
+            match = None
+            for h in h3:
+               series = html.tostring(h, method='text', encoding=unicode)
+               match = re.search(r'(.+) \((.+)\)', series)
+               if match is not None:
+                   break
+            if match is not None:
+                mi.series = match.group(1).strip()
+                match = re.search(r'[0-9.]+', match.group(2))
+                si = 1.0
+                if match is not None:
+                    si = float(match.group())
+                mi.series_index = si
+        tags = root.xpath('//div[@class="tags"]/span[@class="tag"]/a')
+        if tags:
+            mi.tags = [html.tostring(x, method='text', encoding=unicode) for x
+                    in tags]
+        span = root.xpath(
+                '//table[@class="wsltable"]/tr[@class="wslcontent"]/td[4]//span')
+        if span:
+            raw = html.tostring(span[0], method='text', encoding=unicode)
+            match = re.search(r'([0-9.]+)', raw)
+            if match is not None:
+                rating = float(match.group())
+                if rating > 0 and rating <= 5:
+                    mi.rating = rating
+    return mi
+
 
 def main(args=sys.argv):
     parser = option_parser()
@@ -86,6 +139,8 @@ def main(args=sys.argv):
         parser.print_help()
         return 1
     isbn = args[1]
+    mi = get_social_metadata('', [], '', isbn)
+    prints(mi)
     cover_data, ext = cover_from_isbn(isbn, username=opts.username,
             password=opts.password)
     if not ext:

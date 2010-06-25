@@ -2721,11 +2721,11 @@ class ITUNES_ASYNC(ITUNES):
         else:
             return BookList(self.log)
 
-    def disconnect_from_folder(self):
+    def unmount_device(self):
         '''
         '''
         if DEBUG:
-            self.log.info("ITUNES_ASYNC:disconnect_from_folder()")
+            self.log.info("ITUNES_ASYNC:unmount_device()")
         self.connected = False
 
     def eject(self):

@@ -406,3 +406,8 @@ img, object, svg|svg {
     width: auto;
     height: auto;
 }
+
+/* These are needed because ADE renders anchors the same as links */
+
+a { text-decoration: inherit; color: inherit; cursor: inherit }
+a[href] { text-decoration: underline; color: blue; cursor: pointer }

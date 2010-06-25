@@ -210,31 +210,19 @@ class LibraryThing(MetadataSource): # {{{
 
     name = 'LibraryThing'
     metadata_type = 'social'
-    description = _('Downloads series information from librarything.com')
+    description = _('Downloads series/tags/rating information from librarything.com')
 
     def fetch(self):
         if not self.isbn:
             return
-        from calibre.ebooks.metadata import MetaInformation
-        import json
-        br = browser()
+        from calibre.ebooks.metadata.library_thing import get_social_metadata
         try:
-            raw = br.open(
-                    'http://status.calibre-ebook.com/library_thing/metadata/'+self.isbn
-                    ).read()
-            data = json.loads(raw)
-            if not data:
-                return
-            if 'error' in data:
-                raise Exception(data['error'])
-            if 'series' in data and 'series_index' in data:
-                mi = MetaInformation(self.title, [])
-                mi.series = data['series']
-                mi.series_index = data['series_index']
-                self.results = mi
+            self.results = get_social_metadata(self.title, self.book_author,
+                    self.publisher, self.isbn)
         except Exception, e:
             self.exception = e
             self.tb = traceback.format_exc()
+
     # }}}
 
 
@@ -369,6 +357,16 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
                 if title.lower() == r.title[:len(title)].lower() and r.comments and len(r.comments):
                     results[0].comments = r.comments
                     break
+        # Find a pubdate
+        pubdate = None
+        for r in results:
+            if r.pubdate is not None:
+                pubdate = r.pubdate
+                break
+        if pubdate is not None:
+            for r in results:
+                if r.pubdate is None:
+                    r.pubdate = pubdate
 
  #   for r in results:
  #       print "{0:14.14} {1:30.30} {2:20.20} {3:6} {4}".format(r.isbn, r.title, r.publisher, len(r.comments if r.comments else ''), r.has_cover)
