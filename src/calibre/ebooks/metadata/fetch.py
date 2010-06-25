@@ -357,6 +357,16 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
                 if title.lower() == r.title[:len(title)].lower() and r.comments and len(r.comments):
                     results[0].comments = r.comments
                     break
+        # Find a pubdate
+        pubdate = None
+        for r in results:
+            if r.pubdate is not None:
+                pubdate = r.pubdate
+                break
+        if pubdate is not None:
+            for r in results:
+                if r.pubdate is None:
+                    r.pubdate = pubdate
 
  #   for r in results:
  #       print "{0:14.14} {1:30.30} {2:20.20} {3:6} {4}".format(r.isbn, r.title, r.publisher, len(r.comments if r.comments else ''), r.has_cover)
