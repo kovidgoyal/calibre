@@ -34,6 +34,9 @@ class ANDROID(USBMS):
 
             # Acer
             0x502 : { 0x3203 : [0x0100]},
+
+            # Dell
+            0x413c : { 0xb007 : [0x0100]},
             }
     EBOOK_DIR_MAIN = ['wordplayer/calibretransfer', 'eBooks/import', 'Books']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
@@ -42,7 +45,7 @@ class ANDROID(USBMS):
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(EBOOK_DIR_MAIN)
 
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
-            'GT-I5700', 'SAMSUNG']
+            'GT-I5700', 'SAMSUNG', 'DELL']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD',
             'PR OD_GT-I9000']
