@@ -105,11 +105,10 @@ class DeviceManager(Thread): # {{{
         self.current_job    = None
         self.scanner        = DeviceScanner()
         self.connected_device = None
+        self.connected_device_kind = None
         self.ejected_devices  = set([])
         self.mount_connection_requests = Queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
-
-    ITUNES_STRING = '#itunes#'
 
     def report_progress(self, *args):
         pass
@@ -183,11 +182,23 @@ class DeviceManager(Thread): # {{{
                                        device_kind='usb'):
                         prints('Device connect failed again, giving up')
 
+    # Mount devices that don't use USB, such as the folder device and iTunes
+    # This will be called on the GUI thread. Because of this, we must store
+    # information that the scanner thread will use to do the real work.
+    def mount_device(self, kls, kind, path):
+        self.mount_connection_requests.put((kls, kind, path))
+
+    # disconnect a device
     def umount_device(self, *args):
         if self.is_device_connected and not self.job_manager.has_device_jobs():
-            self.connected_device.eject()
-            self.ejected_devices.add(self.connected_device)
-            self.connected_slot(False, self.connected_device_kind)
+            if self.connected_device_kind == 'device':
+                self.connected_device.eject()
+                self.ejected_devices.add(self.connected_device)
+                self.connected_slot(False, self.connected_device_kind)
+            elif hasattr(self.connected_device, 'disconnect_from_folder'):
+                # As we are on the wrong thread, this call must *not* do
+                # anything besides set a flag that the right thread will see.
+                self.connected_device.disconnect_from_folder()
 
     def next(self):
         if not self.jobs.empty():
@@ -249,22 +260,6 @@ class DeviceManager(Thread): # {{{
         '''Get device information and free space on device'''
         return self.create_job(self._get_device_information, done,
                     description=_('Get device information'))
-
-    # This will be called on the GUI thread. Because of this, we must store
-    # information that the scanner thread will use to do the real work.
-    # Note: this is used for iTunes
-    def mount_device(self, kls, kind, path):
-        self.mount_connection_requests.put((kls, kind, path))
-
-    # This is called on the GUI thread. No problem here, because it calls the
-    # device driver, telling it to tell the scanner when it passes by that the
-    # folder has disconnected. Note: this is also used for iTunes
-    def unmount_device(self):
-        if self.connected_device is not None:
-            if hasattr(self.connected_device, 'disconnect_from_folder'):
-                # As we are on the wrong thread, this call must *not* do
-                # anything besides set a flag that the right thread will see.
-                self.connected_device.disconnect_from_folder()
 
     def _books(self):
         '''Get metadata from device'''
@@ -493,20 +488,15 @@ class DeviceMenu(QMenu): # {{{
         mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
         self.connect_to_folder_action = mitem
 
-        mitem = self.addAction(QIcon(I('eject.svg')), _('Disconnect from folder'))
-        mitem.setEnabled(False)
-        mitem.triggered.connect(lambda x : self.disconnect_mounted_device.emit())
-        self.disconnect_mounted_device_action = mitem
-
-        mitem = self.addAction(QIcon(I('document_open.svg')), _('Connect to iTunes (BETA TEST)'))
+        mitem = self.addAction(QIcon(I('devices/itunes.png')), _('Connect to iTunes (BETA TEST)'))
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
         self.connect_to_itunes_action = mitem
 
-        mitem = self.addAction(QIcon(I('eject.svg')), _('Disconnect from iTunes (BETA TEST)'))
+        mitem = self.addAction(QIcon(I('eject.svg')), _('Disconnect'))
         mitem.setEnabled(False)
         mitem.triggered.connect(lambda x : self.disconnect_mounted_device.emit())
-        self.disconnect_from_itunes_action = mitem
+        self.disconnect_mounted_device_action = mitem
 
         self.addSeparator()
         self.addMenu(self.set_default_menu)
@@ -652,7 +642,7 @@ class DeviceMixin(object): # {{{
 
     # disconnect from both folder and itunes devices
     def disconnect_mounted_device(self):
-        self.device_manager.unmount_device()
+        self.device_manager.umount_device()
 
     def _sync_action_triggered(self, *args):
         m = getattr(self, '_sync_menu', None)
@@ -672,19 +662,11 @@ class DeviceMixin(object): # {{{
         if self.device_connected:
             self._sync_menu.connect_to_folder_action.setEnabled(False)
             self._sync_menu.connect_to_itunes_action.setEnabled(False)
-            if self.device_connected == 'folder':
-                self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
-            if self.device_connected == 'itunes':
-                self._sync_menu.disconnect_from_itunes_action.setEnabled(True)
-            else:
-                self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
+            self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
         else:
             self._sync_menu.connect_to_folder_action.setEnabled(True)
-            self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
             self._sync_menu.connect_to_itunes_action.setEnabled(True)
-            self._sync_menu.disconnect_from_itunes_action.setEnabled(False)
-
-
+            self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
 
     def device_job_exception(self, job):
         '''
@@ -722,10 +704,7 @@ class DeviceMixin(object): # {{{
         if connected:
             self._sync_menu.connect_to_folder_action.setEnabled(False)
             self._sync_menu.connect_to_itunes_action.setEnabled(False)
-            if device_kind == 'folder':
-                self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
-            elif device_kind == 'itunes':
-                self._sync_menu.disconnect_from_itunes_action.setEnabled(True)
+            self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
             self._sync_menu.enable_device_actions(True,
                     self.device_manager.device.card_prefix(),
                     self.device_manager.device)
@@ -734,7 +713,6 @@ class DeviceMixin(object): # {{{
             self._sync_menu.connect_to_folder_action.setEnabled(True)
             self._sync_menu.connect_to_itunes_action.setEnabled(True)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
-            self._sync_menu.disconnect_from_itunes_action.setEnabled(False)
             self._sync_menu.enable_device_actions(False)
             self.eject_action.setEnabled(False)
 
