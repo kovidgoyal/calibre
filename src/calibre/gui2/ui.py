@@ -410,9 +410,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
             self.tags_view.set_new_model() # in case columns changed
             self.tags_view.recount()
             self.create_device_menu()
-            self.set_device_menu_items_state(bool(self.device_connected),
-                    self.device_connected == 'folder')
-
+            self.set_device_menu_items_state(bool(self.device_connected))
             if not patheq(self.library_path, d.database_location):
                 newloc = d.database_location
                 move_library(self.library_path, newloc, self,
