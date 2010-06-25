@@ -129,14 +129,12 @@ class KOBO(USBMS):
             path = self.path_from_contentid(row[3], row[5], oncard)
             mime = mime_type_ext(path_to_ext(row[3]))
 
-            if oncard != 'carda' and oncard != 'cardb':
-                # print "shortbook: " + path
+            if oncard != 'carda' and oncard != 'cardb' and not row[3].startswith("file:///mnt/sd/"):
                 changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6])
-            elif oncard == 'carda':
+                # print "shortbook: " + path
+            elif oncard == 'carda' and row[3].startswith("file:///mnt/sd/"): 
                 changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6])
-            else:
-                print "Add card b support"
-
+                
             if changed:
                 need_sync = True
 
@@ -333,19 +331,21 @@ class KOBO(USBMS):
     def path_from_contentid(self, ContentID, ContentType, oncard):
         path = ContentID
 
-        if oncard != 'carda' and oncard != 'cardb':
+        if oncard == 'cardb':
+            print 'path from_contentid cardb'
+        elif oncard == 'carda':
+            path = path.replace("file:///mnt/sd/", self._card_a_prefix)
+            # print "SD Card: " + filename
+        else:
             if ContentType == "6":
                 # This is a hack as the kobo files do not exist
                 # but the path is required to make a unique id 
                 # for calibre's reference
-                path = self._main_prefix + os.sep + path + '.kobo'
+                path = self._main_prefix + path + '.kobo'
+                # print "Path: " + path
             else:
-                if path.startswith("file:///mnt/onboard/"):
-                    path = path.replace("file:///mnt/onboard/", self._main_prefix)
+                # if path.startswith("file:///mnt/onboard/"):
+                path = path.replace("file:///mnt/onboard/", self._main_prefix)
                     # print "Internal: " + filename
-        elif oncard == 'carda':
-            if path.startswith("file:///mnt/sd/"):
-                path = path.replace("file:///mnt/sd/", self._card_a_prefix)
-                # print "SD Card: " + filename
 
         return path
