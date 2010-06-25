@@ -2431,24 +2431,24 @@ class ITUNES(DriverBase):
         if isosx:
             if lb_added:
                 lb_added.album.set(metadata.title)
+                lb_added.artist.set(metadata.authors[0])
                 lb_added.composer.set(metadata.uuid)
                 lb_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.enabled.set(True)
                 lb_added.sort_artist.set(metadata.author_sort.title())
                 lb_added.sort_name.set(this_book.title_sorter)
                 if this_book.format == 'pdf':
-                    lb_added.artist.set(metadata.authors[0])
                     lb_added.name.set(metadata.title)
 
             if db_added:
                 db_added.album.set(metadata.title)
+                db_added.artist.set(metadata.authors[0])
                 db_added.composer.set(metadata.uuid)
                 db_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.enabled.set(True)
                 db_added.sort_artist.set(metadata.author_sort.title())
                 db_added.sort_name.set(this_book.title_sorter)
                 if this_book.format == 'pdf':
-                    db_added.artist.set(metadata.authors[0])
                     db_added.name.set(metadata.title)
 
             if metadata.comments:
@@ -2499,24 +2499,24 @@ class ITUNES(DriverBase):
         elif iswindows:
             if lb_added:
                 lb_added.Album = metadata.title
+                lb_added.Artist = metadata.authors[0]
                 lb_added.Composer = metadata.uuid
                 lb_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.Enabled = True
                 lb_added.SortArtist = (metadata.author_sort.title())
                 lb_added.SortName = (this_book.title_sorter)
                 if this_book.format == 'pdf':
-                    lb_added.Artist = metadata.authors[0]
                     lb_added.Name = metadata.title
 
             if db_added:
                 db_added.Album = metadata.title
+                db_added.Artist = metadata.authors[0]
                 db_added.Composer = metadata.uuid
                 db_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.Enabled = True
                 db_added.SortArtist = (metadata.author_sort.title())
                 db_added.SortName = (this_book.title_sorter)
                 if this_book.format == 'pdf':
-                    db_added.Artist = metadata.authors[0]
                     db_added.Name = metadata.title
 
             if metadata.comments:
