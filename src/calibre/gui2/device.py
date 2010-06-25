@@ -706,7 +706,7 @@ class DeviceMixin(object): # {{{
 
     # Device connected {{{
 
-    def set_device_menu_items_state(self, connected, device_kind):
+    def set_device_menu_items_state(self, connected):
         if connected:
             self._sync_menu.connect_to_folder_action.setEnabled(False)
             self._sync_menu.connect_to_itunes_action.setEnabled(False)
@@ -726,7 +726,7 @@ class DeviceMixin(object): # {{{
         '''
         Called when a device is connected to the computer.
         '''
-        self.set_device_menu_items_state(connected, device_kind)
+        self.set_device_menu_items_state(connected)
         if connected:
             self.device_manager.get_device_information(\
                     Dispatcher(self.info_read))
