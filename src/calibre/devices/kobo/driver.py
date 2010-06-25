@@ -118,7 +118,7 @@ class KOBO(USBMS):
         #cursor.close()
 
         query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID from content where ContentID in (select distinct volumeId from volume_shortcovers)'
+                'ImageID from content where BookID is Null'
 
         cursor.execute (query) 
 
