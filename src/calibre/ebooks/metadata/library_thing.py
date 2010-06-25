@@ -14,6 +14,16 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 OPENLIBRARY = 'http://covers.openlibrary.org/b/isbn/%s-L.jpg?default=false'
 
+def check_for_cover(isbn):
+    br = browser()
+    br.set_handle_redirect(False)
+    try:
+        br.open_novisit(OPENLIBRARY%isbn)
+    except Exception, e:
+        if callable(getattr(e, 'getcode', None)) and e.getcode() == 302:
+            return True
+    return False
+
 class LibraryThingError(Exception):
     pass
 
