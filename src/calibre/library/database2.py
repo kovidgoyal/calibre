@@ -768,7 +768,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if datatype == 'rating':
                 # eliminate the zero ratings line as well as count == 0
                 item_not_zero_func = (lambda x: x[1] > 0 and x[2] > 0)
-                formatter = (lambda x:u'\u2605'*int(round(x/2.)))
+                formatter = (lambda x:u'\u2605'*int(x/2))
             elif category == 'authors':
                 item_not_zero_func = (lambda x: x[2] > 0)
                 # Clean up the authors strings to human-readable form
