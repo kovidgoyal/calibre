@@ -201,10 +201,10 @@ class DeviceManager(Thread): # {{{
                 self.connected_device.eject()
                 self.ejected_devices.add(self.connected_device)
                 self.connected_slot(False, self.connected_device_kind)
-            elif hasattr(self.connected_device, 'disconnect_from_folder'):
+            elif hasattr(self.connected_device, 'unmount_device'):
                 # As we are on the wrong thread, this call must *not* do
                 # anything besides set a flag that the right thread will see.
-                self.connected_device.disconnect_from_folder()
+                self.connected_device.unmount_device()
 
     def next(self):
         if not self.jobs.empty():
