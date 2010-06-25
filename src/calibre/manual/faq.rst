@@ -7,7 +7,7 @@ Frequently Asked Questions
 
 .. contents:: Contents
   :depth: 1
-  :local: 
+  :local:
 
 E-book Format Conversion
 -------------------------
@@ -30,7 +30,7 @@ It can convert every input format in the following list, to every output format.
 
 What are the best source formats to convert?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In order of decreasing preference: LIT, MOBI, EPUB, HTML, PRC, RTF, PDB, TXT, PDF 
+In order of decreasing preference: LIT, MOBI, EPUB, HTML, PRC, RTF, PDB, TXT, PDF
 
 Why does the PDF conversion lose some images/tables?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -40,7 +40,7 @@ are also represented as vector diagrams, thus they cannot be extracted.
 How do I convert a collection of HTML files in a specific order?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In order to convert a collection of HTML files in a specific oder, you have to create a table of contents file. That is, another HTML file that contains links to all the other files in the desired order. Such a file looks like::
- 
+
    <html>
       <body>
         <h1>Table of Contents</h1>
@@ -60,16 +60,16 @@ Then just add this HTML file to the GUI and use the convert button to create you
 
 How do I convert my file containing non-English characters, or smart quotes?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-There are two aspects to this problem: 
+There are two aspects to this problem:
   1. Knowing the encoding of the source file: |app| tries to guess what character encoding your source files use, but often, this is impossible, so you need to tell it what encoding to use. This can be done in the GUI via the :guilabel:`Input character encoding` field in the :guilabel:`Look & Feel` section. The command-line tools all have an :option:`--input-encoding` option.
-  2. When adding HTML files to |app|, you may need to tell |app| what encoding the files are in. To do this go to Preferences->Plugins->File Type plugins and customize the HTML2Zip plugin, telling it what encoding your HTML files are in. Now when you add HTML files to |app| they will be correctly processed. HTML files from different sources often have different encodings, so you may have to change this setting repeatedly. A common encoding for many files from the web is ``cp1252`` and I would suggest you try that first. Note that when converting HTML files, leave the input encoding setting mentioned above blank. This is because the HTML2ZIP plugin automatically converts the HTML files to a standard encoding (utf-8). 
-  3. Embedding fonts: If you are generating an LRF file to read on your SONY Reader, you are limited by the fact that the Reader only supports a few non-English characters in the fonts it comes pre-loaded with. You can work around this problem by embedding a unicode-aware font that supports the character set your file uses into the LRF file. You should embed atleast a serif and a sans-serif font. Be aware that embedding fonts significantly slows down page-turn speed on the reader. 
+  2. When adding HTML files to |app|, you may need to tell |app| what encoding the files are in. To do this go to Preferences->Plugins->File Type plugins and customize the HTML2Zip plugin, telling it what encoding your HTML files are in. Now when you add HTML files to |app| they will be correctly processed. HTML files from different sources often have different encodings, so you may have to change this setting repeatedly. A common encoding for many files from the web is ``cp1252`` and I would suggest you try that first. Note that when converting HTML files, leave the input encoding setting mentioned above blank. This is because the HTML2ZIP plugin automatically converts the HTML files to a standard encoding (utf-8).
+  3. Embedding fonts: If you are generating an LRF file to read on your SONY Reader, you are limited by the fact that the Reader only supports a few non-English characters in the fonts it comes pre-loaded with. You can work around this problem by embedding a unicode-aware font that supports the character set your file uses into the LRF file. You should embed atleast a serif and a sans-serif font. Be aware that embedding fonts significantly slows down page-turn speed on the reader.
 
 
 How do I use some of the advanced features of the conversion tools?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- You can get help on any individual feature of the converters by mousing over it in the GUI or running ``ebook-convert dummy.html .epub -h`` at a terminal. A good place to start is to look at the following demo files that demonstrate some of the advanced features: 
-  * `html-demo.zip <http://calibre-ebook.com/downloads/html-demo.zip>`_ 
+ You can get help on any individual feature of the converters by mousing over it in the GUI or running ``ebook-convert dummy.html .epub -h`` at a terminal. A good place to start is to look at the following demo files that demonstrate some of the advanced features:
+  * `html-demo.zip <http://calibre-ebook.com/downloads/html-demo.zip>`_
 
 
 Device Integration
@@ -95,12 +95,39 @@ We just need some information from you:
     device supports SD cards, insert them. Then connect your device. In calibre go to Preferences->Advanced
     and click the "Debug device detection" button. This will create some debug output. Copy it to a file
     and repeat the process, this time with your device disconnected.
-  * Send both the above outputs to us with the other information and we will write a device driver for your 
+  * Send both the above outputs to us with the other information and we will write a device driver for your
     device.
 
 Once you send us the output for a particular operating system, support for the device in that operating system
 will appear in the next release of |app|.
 
+How does |app| manage collections on my SONY reader?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When |app| connects with the device, it retrieves all collections for the books on the device. The collections
+of which books are members are shown on the device view.
+
+When you send a book to the device, |app| will add the book to collections based on the metadata for that book. By
+default, collections are created from tags and series. You can control what metadata is used by going to
+Preferences->Plugins->Device Interface plugins and customizing the SONY device interface plugin. If you remove all
+values, |app| will not add the book to any collection.
+
+Collection management is largely controlled by 'Preserve device collections' found at Preferences->Add/Save->Sending
+to device. If checked (the default), managing collections is left to the user; |app| will not delete already
+existing collections for a book on your device when you resend the book to the device, but |app| will add the book to
+collections if necessary.  To ensure that the collections for a book are based only on current |app| metadata, first
+delete the books from the device, then resend the books.  You can edit collections directly on the device view by
+double-clicking or right-clicking in the collections column.
+
+If 'Preserve device collections' is not checked, then |app| will manage collections. Collections will be built using
+|app| metadata exclusively.  Sending a book to the device will correct the collections for that book so its
+collections exactly match the book's metadata. Collections are added and deleted as necessary.  Editing collections on
+the device pane is not permitted, because collections not in the metadata will be removed automatically.
+
+In summary, check 'Preserve device collections' if you want to manage collections yourself.  Collections for a book
+will never be removed by |app|, but can be removed by you by editing on the device view.  Uncheck 'Preserve device
+collections' if you want |app| to manage the collections, adding books to and removing books from collections as
+needed.  
 
 Can I use both |app| and the SONY software to manage my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -130,7 +157,7 @@ simplest is to simply re-name the executable file that launches the library prog
 Can I use the collections feature of the SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 |app| has full support for collections. When you add tags to a book's metadata, those tags are turned into collections when you upload the book to the SONY reader. Also, the series information is automatically
-turned into a collection on the reader. Note that the PRS-500 does not support collections for books stored on the SD card. The PRS-505 does. 
+turned into a collection on the reader. Note that the PRS-500 does not support collections for books stored on the SD card. The PRS-505 does.
 
 How do I use |app| with my iPad/iPhone/iTouch?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,7 +166,7 @@ The easiest way to browse your |app| collection on your Apple device (iPad/iPhon
 
 First perform the following steps in |app|
 
-  * Set the Preferred Output Format in |app| to EPUB (The output format can be set under Preferences->General) 
+  * Set the Preferred Output Format in |app| to EPUB (The output format can be set under Preferences->General)
   * Set the output profile to iPad (this will work for iPhone/iPods as well), under Preferences->Conversion->Page Setup
   * Convert the books you want to read on your iPhone to EPUB format by selecting them and clicking the Convert button.
   * Turn on the Content Server in |app|'s preferences and leave |app| running.
@@ -160,7 +187,7 @@ Alternative for the iPad
 As of |app| version 0.7.0, you can plugin your iPad into the computer using its charging cable, and |app| will detect it and show you a list of books on the iPad. You can then use the Send to device button to send books directly to iBooks on the iPad.
 
 This method only works on Windows XP and higher and OS X 10.5 and higher. Linux is not supported (iTunes is not available in linux) and OS X 10.4 is not supported. For more details, see
-`this forum post http://www.mobileread.com/forums/showpost.php?p=944079&postcount=1`_.
+`this forum post <http://www.mobileread.com/forums/showpost.php?p=944079&postcount=1>`_.
 
 How do I use |app| with my Android phone?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -171,7 +198,7 @@ Can I access my |app| books using the web browser in my Kindle or other reading 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |app| has a *Content Server* that exports the books in |app| as a web page. You can turn it on under
-Preferences->Content Server. Then just point the web browser on your device to the computer running 
+Preferences->Content Server. Then just point the web browser on your device to the computer running
 the Content Server and you will be able to browse your book collection. For example, if the computer running
 the server has IP address 63.45.128.5, in the browser, you would type::
 
@@ -190,11 +217,16 @@ The most likely cause of this is your antivirus program. Try temporarily disabli
 Why is my device not detected in linux?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-|app| uses something called SYSFS to detect devices in linux. The linux kernel can export two version of SYSFS, one of which is deprecated. Some linux distributions still ship with kernels that support the deprecated version of SYSFS, even though it was deprecated a long time ago. In this case, device detection in |app| will not work. You can check what version of SYSFS is exported by your kernel with the following command::
-    
+|app| needs your linux kernel to have been setup correctly to detect devices. If your devices are not detected, perform the following tests::
+
     grep SYSFS_DEPRECATED /boot/config-`uname -r`
 
-You should see something like ``CONFIG_SYSFS_DEPRECATED_V2 is not set``. If you don't you have to either recompile your kernel with the correct setting, or upgrade your linux distro to a more modern version, where this will not be set.
+You should see something like ``CONFIG_SYSFS_DEPRECATED_V2 is not set``.
+Also, ::
+
+    grep CONFIG_SCSI_MULTI_LUN /boot/config-`uname -r`
+
+must return ``CONFIG_SCSI_MULTI_LUN=y``. If you don't see either, you have to recompile your kernel with the correct settings.
 
 Library Management
 ------------------
@@ -222,7 +254,7 @@ Now this makes it very easy to find for example all science fiction books by Isa
 
     ReadStatus -> Genre -> Author -> Series
 
-In |app|, you would instead use tags to mark genre and read status and then just use a simple search query like ``tag:scifi and not tag:read``. |app| even has a nice graphical interface, so you don't need to learn its search language instead you can just click on tags to include or exclude them from the search. 
+In |app|, you would instead use tags to mark genre and read status and then just use a simple search query like ``tag:scifi and not tag:read``. |app| even has a nice graphical interface, so you don't need to learn its search language instead you can just click on tags to include or exclude them from the search.
 
 Why doesn't |app| have a column for foo?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -230,7 +262,7 @@ Why doesn't |app| have a column for foo?
 
 How do I move my |app| library from one computer to another?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking Preferences. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder. 
+Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking Preferences. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder.
 
 Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also go to Preferences->Advanced and click the Check database integrity button. It will warn you about missing files, if any, which you should then transfer by hand.
 
@@ -241,11 +273,11 @@ Content From The Web
   :depth: 1
   :local:
 
-My downloaded news content causes the reader to reset. 
+My downloaded news content causes the reader to reset.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This is a bug in the SONY firmware. The problem can be mitigated by switching the output format to EPUB
-in the configuration dialog. Alternatively, you can use the LRF output format and use the SONY software 
-to transfer the files to the reader. The SONY software pre-paginates the LRF file, 
+in the configuration dialog. Alternatively, you can use the LRF output format and use the SONY software
+to transfer the files to the reader. The SONY software pre-paginates the LRF file,
 thereby reducing the number of resets.
 
 I obtained a recipe for a news site as a .py file from somewhere, how do I use it?
@@ -280,7 +312,7 @@ Take your pick:
 
 Why does |app| show only some of my fonts on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| embeds fonts in ebook files it creates. E-book files support embedding only TrueType (.ttf) fonts. Most fonts on OS X systems are in .dfont format, thus they cannot be embedded. |app| shows only TrueType fonts founf on your system. You can obtain many TrueType fonts on the web. Simply download the .ttf files and add them to the Library/Fonts directory in your home directory. 
+|app| embeds fonts in ebook files it creates. E-book files support embedding only TrueType (.ttf) fonts. Most fonts on OS X systems are in .dfont format, thus they cannot be embedded. |app| shows only TrueType fonts found on your system. You can obtain many TrueType fonts on the web. Simply download the .ttf files and add them to the Library/Fonts directory in your home directory.
 
 |app| is not starting on Windows?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -303,6 +335,10 @@ Post any output you see in a help message on the `Forum <http://www.mobileread.c
 |app| is not starting on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+One common cause of failures on OS X is the use of accessibility technologies that are incompatible with the graphics toolkit |app| uses.
+Try turning off VoiceOver if you have it on. Also go to System Preferences->System->Universal Access and turn off the setting for enabling
+access for assistive devices in all the tabs.
+
 You can obtain debug output about why |app| is not starting by running `Console.app`. Debug output will
 be printed to it. If the debug output contains a line that looks like::
 
@@ -312,9 +348,9 @@ then the problem is probably a corrupted font cache. You can clear the cache by 
 `instructions <http://www.macworld.com/article/139383/2009/03/fontcacheclear.html>`_. If that doesn't
 solve it, look for a corrupted font file on your system, in ~/Library/Fonts or the like.
 
-
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Your antivirus program is wrong. |app| is a completely open source product. You can actually browse the source code yourself (or hire someone to do it for you) to verify that it is not a virus. Please report the false identification to whatever company you buy your antivirus software from. If the antivirus program is preventing you from downloading/installing |app|, disable it temporarily, install |app| and then re-enable it.
 
 How do I use purchased EPUB books with |app|?
@@ -324,8 +360,8 @@ Most purchased EPUB books have `DRM <http://wiki.mobileread.com/wiki/DRM>`_. Thi
 
 I want some feature added to |app|. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You have two choices: 
- 1. Create a patch by hacking on |app| and send it to me for review and inclusion. See `Development <http://calibre-ebook.com/get-involved>`_. 
+You have two choices:
+ 1. Create a patch by hacking on |app| and send it to me for review and inclusion. See `Development <http://calibre-ebook.com/get-involved>`_.
  2. `Open a ticket <http://bugs.calibre-ebook.com/newticket>`_ (you have to register and login first) and hopefully I will find the time to implement your feature.
 
 Can I include |app| on a CD to be distributed with my product/magazine?

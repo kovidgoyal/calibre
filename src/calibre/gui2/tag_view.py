@@ -15,6 +15,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, \
                      QPushButton, QWidget, QItemDelegate
 
+from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE
 from calibre.utils.config import prefs
 from calibre.library.field_metadata import TagsIcons
@@ -680,9 +681,50 @@ class TagBrowserMixin(object): # {{{
             self.tags_view.recount()
 
     def do_tags_list_edit(self, tag, category):
-        d = TagListEditor(self, self.library_view.model().db, tag, category)
+        db=self.library_view.model().db
+        if category == 'tags':
+            result = db.get_tags_with_ids()
+            compare = (lambda x,y:cmp(x.lower(), y.lower()))
+        elif category == 'series':
+            result = db.get_series_with_ids()
+            compare = (lambda x,y:cmp(title_sort(x).lower(), title_sort(y).lower()))
+        elif category == 'publisher':
+            result = db.get_publishers_with_ids()
+            compare = (lambda x,y:cmp(x.lower(), y.lower()))
+        else: # should be a custom field
+            cc_label = None
+            if category in db.field_metadata:
+                cc_label = db.field_metadata[category]['label']
+                result = self.db.get_custom_items_with_ids(label=cc_label)
+            else:
+                result = []
+            compare = (lambda x,y:cmp(x.lower(), y.lower()))
+
+        d = TagListEditor(self, tag_to_match=tag, data=result, compare=compare)
         d.exec_()
         if d.result() == d.Accepted:
+            to_rename = d.to_rename # dict of new text to old id
+            to_delete = d.to_delete # list of ids
+            rename_func = None
+            if category == 'tags':
+                rename_func = db.rename_tag
+                delete_func = db.delete_tag_using_id
+            elif category == 'series':
+                rename_func = db.rename_series
+                delete_func = db.delete_series_using_id
+            elif category == 'publisher':
+                rename_func = db.rename_publisher
+                delete_func = db.delete_publisher_using_id
+            else:
+                rename_func = partial(db.rename_custom_item, label=cc_label)
+                delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
+            if rename_func:
+                for text in to_rename:
+                        for old_id in to_rename[text]:
+                            rename_func(old_id, new_name=unicode(text))
+                for item in to_delete:
+                    delete_func(item)
+
             # Clean up everything, as information could have changed for many books.
             self.library_view.model().refresh()
             self.tags_view.set_new_model()

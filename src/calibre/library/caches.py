@@ -401,7 +401,8 @@ class ResultCache(SearchQueryParser):
             for x in self.field_metadata:
                 if len(self.field_metadata[x]['search_terms']):
                     db_col[x] = self.field_metadata[x]['rec_index']
-                    if self.field_metadata[x]['datatype'] not in ['text', 'comments']:
+                    if self.field_metadata[x]['datatype'] not in \
+                                                ['text', 'comments', 'series']:
                         exclude_fields.append(db_col[x])
                     col_datatype[db_col[x]] = self.field_metadata[x]['datatype']
                     is_multiple_cols[db_col[x]] = self.field_metadata[x]['is_multiple']
@@ -580,16 +581,18 @@ class ResultCache(SearchQueryParser):
             self.sort(field, ascending)
         self._map_filtered = list(self._map)
 
-    def seriescmp(self, x, y):
-        sidx = self.FIELD_MAP['series']
+    def seriescmp(self, sidx, siidx, x, y, library_order=None):
         try:
-            ans = cmp(title_sort(self._data[x][sidx].lower()),
-                    title_sort(self._data[y][sidx].lower()))
+            if library_order:
+                ans = cmp(title_sort(self._data[x][sidx].lower()),
+                                title_sort(self._data[y][sidx].lower()))
+            else:
+                ans = cmp(self._data[x][sidx].lower(),
+                                                self._data[y][sidx].lower())
         except AttributeError: # Some entries may be None
             ans = cmp(self._data[x][sidx], self._data[y][sidx])
         if ans != 0: return ans
-        sidx = self.FIELD_MAP['series_index']
-        return cmp(self._data[x][sidx], self._data[y][sidx])
+        return cmp(self._data[x][siidx], self._data[y][siidx])
 
     def cmp(self, loc, x, y, asstr=True, subsort=False):
         try:
@@ -617,18 +620,27 @@ class ResultCache(SearchQueryParser):
         elif field == 'title': field = 'sort'
         elif field == 'authors': field = 'author_sort'
         as_string = field not in ('size', 'rating', 'timestamp')
-        if self.field_metadata[field]['is_custom']:
-            as_string = self.field_metadata[field]['datatype'] in ('comments', 'text')
-            field = self.field_metadata[field]['colnum']
 
         if self.first_sort:
             subsort = True
             self.first_sort = False
-        fcmp = self.seriescmp \
-                if field == 'series' and \
-                   tweaks['title_series_sorting'] == 'library_order' \
-                else \
-                   functools.partial(self.cmp, self.FIELD_MAP[field],
+        if self.field_metadata[field]['is_custom']:
+            if self.field_metadata[field]['datatype'] == 'series':
+                fcmp = functools.partial(self.seriescmp,
+                    self.field_metadata[field]['rec_index'],
+                    self.field_metadata.cc_series_index_column_for(field),
+                    library_order=tweaks['title_series_sorting'] == 'library_order')
+            else:
+                as_string = self.field_metadata[field]['datatype'] in ('comments', 'text')
+                field = self.field_metadata[field]['colnum']
+                fcmp = functools.partial(self.cmp, self.FIELD_MAP[field],
+                                     subsort=subsort, asstr=as_string)
+        elif field == 'series':
+            fcmp = functools.partial(self.seriescmp, self.FIELD_MAP['series'],
+                self.FIELD_MAP['series_index'],
+                library_order=tweaks['title_series_sorting'] == 'library_order')
+        else:
+            fcmp = functools.partial(self.cmp, self.FIELD_MAP[field],
                                      subsort=subsort, asstr=as_string)
         self._map.sort(cmp=fcmp, reverse=not ascending)
         self._map_filtered = [id for id in self._map if id in self._map_filtered]

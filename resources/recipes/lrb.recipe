@@ -1,6 +1,6 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 lrb.co.uk
 '''
@@ -8,32 +8,38 @@ lrb.co.uk
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class LondonReviewOfBooks(BasicNewsRecipe):
-    title                 = u'London Review of Books'
-    __author__            = u'Darko Miletic'
-    description           = u'Literary review publishing essay-length book reviews and topical articles on politics, literature, history, philosophy, science and the arts by leading writers and thinkers'
-    category              = 'news, literature, England'
-    publisher             = 'London Review of Books'
-    oldest_article        = 7
+    title                 = 'London Review of Books (free)'
+    __author__            = 'Darko Miletic'
+    description           = 'Literary review publishing essay-length book reviews and topical articles on politics, literature, history, philosophy, science and the arts by leading writers and thinkers'
+    category              = 'news, literature, UK'
+    publisher             = 'LRB ltd.'
+    oldest_article        = 15
     max_articles_per_feed = 100
     language              = 'en_GB'
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'
+    publication_type      = 'magazine'
+    masthead_url          = 'http://www.lrb.co.uk/assets/images/lrb_logo_big.gif'
+    extra_css             = ' body{font-family: Georgia,Palatino,"Palatino Linotype",serif} '
 
-    conversion_options = {  
+    conversion_options = {
                              'comments'  : description
                             ,'tags'      : category
                             ,'language'  : language
                             ,'publisher' : publisher
                          }
-    
-    keep_only_tags = [dict(name='div' , attrs={'id'   :'main'})]
-    remove_tags = [
-                    dict(name='div' , attrs={'class':['pagetools','issue-nav-controls','nocss']})
-                   ,dict(name='div' , attrs={'id'   :['mainmenu','precontent','otherarticles']     })
-                   ,dict(name='span', attrs={'class':['inlineright','article-icons']})
-                   ,dict(name='ul'  , attrs={'class':'article-controls'})
-                   ,dict(name='p'   , attrs={'class':'meta-info'       })
-                  ]
+
+    keep_only_tags = [dict(attrs={'class':['article-body indent','letters','article-list']})]
+    remove_attributes = ['width','height']
 
     feeds = [(u'London Review of Books', u'http://www.lrb.co.uk/lrbrss.xml')]
+
+    def get_cover_url(self):
+        cover_url = None
+        soup = self.index_to_soup('http://www.lrb.co.uk/')
+        cover_item = soup.find('p',attrs={'class':'cover'})
+        if cover_item:
+           cover_url = 'http://www.lrb.co.uk' + cover_item.a.img['src']
+        return cover_url
+

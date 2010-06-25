@@ -237,6 +237,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         self.custom_column_num_map[col]['label'],
                                         base,
                                         prefer_custom=True)
+            if self.custom_column_num_map[col]['datatype'] == 'series':
+                # account for the series index column. Field_metadata knows that
+                # the series index is one larger than the series. If you change
+                # it here, be sure to change it there as well.
+                self.FIELD_MAP[str(col)+'_s_index'] = base = base+1
 
         self.FIELD_MAP['cover'] = base+1
         self.field_metadata.set_field_record_index('cover', base+1, prefer_custom=False)
@@ -776,6 +781,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         avg=r[3], sort=r[4],
                                         icon=icon, tooltip=tooltip)
                                     for r in data if item_not_zero_func(r)]
+
+        # Needed for legacy databases that have multiple ratings that
+        # map to n stars
+        for r in categories['rating']:
+            for x in categories['rating']:
+                if r.name == x.name and r.id != x.id:
+                    r.count = r.count + x.count
+                    categories['rating'].remove(x)
+                    break
 
         # We delayed computing the standard formats category because it does not
         # use a view, but is computed dynamically

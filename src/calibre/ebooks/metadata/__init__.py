@@ -268,7 +268,7 @@ class MetaInformation(object):
                   ):
             prints(x, getattr(self, x, 'None'))
 
-    def smart_update(self, mi):
+    def smart_update(self, mi, replace_tags=False):
         '''
         Merge the information in C{mi} into self. In case of conflicts, the information
         in C{mi} takes precedence, unless the information in mi is NULL.
@@ -282,7 +282,7 @@ class MetaInformation(object):
         for attr in ('author_sort', 'title_sort', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'application_id', 'manifest', 'spine', 'toc',
-                     'cover', 'language', 'guide', 'book_producer',
+                     'cover', 'guide', 'book_producer',
                      'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate', 'rights',
                      'publication_type', 'uuid'):
             if hasattr(mi, attr):
@@ -291,7 +291,10 @@ class MetaInformation(object):
                     setattr(self, attr, val)
 
         if mi.tags:
-            self.tags += mi.tags
+            if replace_tags:
+                self.tags = mi.tags
+            else:
+                self.tags += mi.tags
         self.tags = list(set(self.tags))
 
         if mi.author_sort_map:
@@ -313,6 +316,11 @@ class MetaInformation(object):
             other_comments = ''
         if len(other_comments.strip()) > len(my_comments.strip()):
             self.comments = other_comments
+
+        other_lang = getattr(mi, 'language', None)
+        if other_lang and other_lang.lower() != 'und':
+            self.language = other_lang
+
 
     def format_series_index(self):
         try:

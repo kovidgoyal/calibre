@@ -107,9 +107,21 @@ class CSSPreProcessor(object):
 
     PAGE_PAT   = re.compile(r'@page[^{]*?{[^}]*?}')
 
-    def __call__(self, data):
+    def __call__(self, data, add_namespace=False):
+        from calibre.ebooks.oeb.base import XHTML_CSS_NAMESPACE
         data = self.PAGE_PAT.sub('', data)
-        return data
+        if not add_namespace:
+            return data
+        ans, namespaced = [], False
+        for line in data.splitlines():
+            ll = line.lstrip()
+            if not (namespaced or ll.startswith('@import') or
+                        ll.startswith('@charset')):
+                ans.append(XHTML_CSS_NAMESPACE.strip())
+                namespaced = True
+            ans.append(line)
+
+        return u'\n'.join(ans)
 
 class HTMLPreProcessor(object):
 

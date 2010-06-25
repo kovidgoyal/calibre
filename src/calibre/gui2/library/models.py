@@ -16,11 +16,12 @@ from calibre.gui2 import NONE, config, UNDEFINED_QDATE
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.config import tweaks
+from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
+from calibre.library.cli import parse_series_string
 from calibre import strftime, isbytestring, prepare_string_for_xml
 from calibre.constants import filesystem_encoding
 from calibre.gui2.library import DEFAULT_SORT
@@ -520,7 +521,7 @@ class BooksModel(QAbstractTableModel): # {{{
                 return QVariant(', '.join(sorted(tags.split(','))))
             return None
 
-        def series(r, idx=-1, siix=-1):
+        def series_type(r, idx=-1, siix=-1):
             series = self.db.data[r][idx]
             if series:
                 idx = fmt_sidx(self.db.data[r][siix])
@@ -591,7 +592,7 @@ class BooksModel(QAbstractTableModel): # {{{
                                 idx=self.db.field_metadata['publisher']['rec_index'], mult=False),
                    'tags'     : functools.partial(tags,
                                 idx=self.db.field_metadata['tags']['rec_index']),
-                   'series'   : functools.partial(series,
+                   'series'   : functools.partial(series_type,
                                 idx=self.db.field_metadata['series']['rec_index'],
                                 siix=self.db.field_metadata['series_index']['rec_index']),
                    'ondevice' : functools.partial(text_type,
@@ -620,6 +621,9 @@ class BooksModel(QAbstractTableModel): # {{{
                                             bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] == 'yes')
             elif datatype == 'rating':
                 self.dc[col] = functools.partial(rating_type, idx=idx)
+            elif datatype == 'series':
+                self.dc[col] = functools.partial(series_type, idx=idx,
+                    siix=self.db.field_metadata.cc_series_index_column_for(col))
             else:
                 print 'What type is this?', col, datatype
         # build a index column to data converter map, to remove the string lookup in the data loop
@@ -681,6 +685,8 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_custom_column_data(self, row, colhead, value):
         typ = self.custom_columns[colhead]['datatype']
+        label=self.db.field_metadata.key_to_label(colhead)
+        s_index = None
         if typ in ('text', 'comments'):
             val = unicode(value.toString()).strip()
             val = val if val else None
@@ -702,9 +708,10 @@ class BooksModel(QAbstractTableModel): # {{{
                 if not val.isValid():
                     return False
                 val = qt_to_dt(val, as_utc=False)
-        self.db.set_custom(self.db.id(row), val,
-                           label=self.db.field_metadata.key_to_label(colhead),
-                           num=None, append=False, notify=True)
+        elif typ == 'series':
+            val, s_index = parse_series_string(self.db, label, value.toString())
+        self.db.set_custom(self.db.id(row), val, extra=s_index,
+                           label=label, num=None, append=False, notify=True)
         return True
 
     def setData(self, index, value, role):
@@ -850,6 +857,7 @@ class OnDeviceSearch(SearchQueryParser): # {{{
 class DeviceBooksModel(BooksModel): # {{{
 
     booklist_dirtied = pyqtSignal()
+    upload_collections = pyqtSignal(object)
 
     def __init__(self, parent):
         BooksModel.__init__(self, parent)
@@ -920,10 +928,11 @@ class DeviceBooksModel(BooksModel): # {{{
         if index.isValid() and self.editable:
             cname = self.column_map[index.column()]
             if cname in ('title', 'authors') or \
-                    (cname == 'collections' and self.db.supports_collections()):
+                    (cname == 'collections' and \
+                     self.db.supports_collections() and \
+                     prefs['preserve_user_collections']):
                 flags |= Qt.ItemIsEditable
         return flags
-
 
     def search(self, text, reset=True):
         if not text or not text.strip():
@@ -970,8 +979,8 @@ class DeviceBooksModel(BooksModel): # {{{
             x, y = int(self.db[x].size), int(self.db[y].size)
             return cmp(x, y)
         def tagscmp(x, y):
-            x = ','.join(self.db[x].device_collections)
-            y = ','.join(self.db[y].device_collections)
+            x = ','.join(sorted(getattr(self.db[x], 'device_collections', []))).lower()
+            y = ','.join(sorted(getattr(self.db[y], 'device_collections', []))).lower()
             return cmp(x, y)
         def libcmp(x, y):
             x, y = self.db[x].in_library, self.db[y].in_library
@@ -1072,6 +1081,36 @@ class DeviceBooksModel(BooksModel): # {{{
                 res.append((r,b))
         return res
 
+    def get_collections_with_ids(self):
+        collections = set()
+        for book in self.db:
+            if book.device_collections is not None:
+                collections.update(set(book.device_collections))
+        self.collections = []
+        result = []
+        for i,collection in enumerate(collections):
+            result.append((i, collection))
+            self.collections.append(collection)
+        return result
+
+    def rename_collection(self, old_id, new_name):
+        old_name = self.collections[old_id]
+        for book in self.db:
+            if book.device_collections is None:
+                continue
+            if old_name in book.device_collections:
+                book.device_collections.remove(old_name)
+                if new_name not in book.device_collections:
+                    book.device_collections.append(new_name)
+
+    def delete_collection_using_id(self, old_id):
+        old_name = self.collections[old_id]
+        for book in self.db:
+            if book.device_collections is None:
+                continue
+            if old_name in book.device_collections:
+                book.device_collections.remove(old_name)
+
     def indices(self, rows):
         '''
         Return indices into underlying database from rows
@@ -1102,6 +1141,7 @@ class DeviceBooksModel(BooksModel): # {{{
             elif cname == 'collections':
                 tags = self.db[self.map[row]].device_collections
                 if tags:
+                    tags.sort(cmp=lambda x,y: cmp(x.lower(), y.lower()))
                     return QVariant(', '.join(tags))
         elif role == Qt.ToolTipRole and index.isValid():
             if self.map[row] in self.indices_to_be_deleted():
@@ -1144,14 +1184,18 @@ class DeviceBooksModel(BooksModel): # {{{
                 return False
             val = unicode(value.toString()).strip()
             idx = self.map[row]
+            if cname == 'collections':
+                tags = [i.strip() for i in val.split(',')]
+                tags = [t for t in tags if t]
+                self.db[idx].device_collections = tags
+                self.dataChanged.emit(index, index)
+                self.upload_collections.emit(self.db)
+                return True
+
             if cname == 'title' :
                 self.db[idx].title = val
             elif cname == 'authors':
                 self.db[idx].authors = string_to_authors(val)
-            elif cname == 'collections':
-                tags = [i.strip() for i in val.split(',')]
-                tags = [t for t in tags if t]
-                self.db[idx].device_collections = tags
             self.dataChanged.emit(index, index)
             self.booklist_dirtied.emit()
             done = True

@@ -40,10 +40,6 @@ public :
 
   void setSlideSize(QSize size);
 
-  void setZoomFactor(int zoom);
-
-  int zoomFactor() const;
-
   void clearCaches();
 
   virtual QImage slide(int index) const;

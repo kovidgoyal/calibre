@@ -75,10 +75,6 @@
 
 #include <QDebug>
 
-// uncomment this to enable bilinear filtering for texture mapping
-// gives much better rendering, at the cost of memory space
-// #define PICTUREFLOW_BILINEAR_FILTER
-
 // for fixed-point arithmetic, we need minimum 32-bit long
 // long long (64-bit) might be useful for multiplication and division
 typedef long PFreal;
@@ -376,7 +372,6 @@ private:
   int slideWidth;
   int slideHeight;
   int fontSize;
-  int zoom;
   int queueLength;
 
   int centerIndex;
@@ -401,6 +396,7 @@ private:
 
   void recalc(int w, int h);
   QRect renderSlide(const SlideInfo &slide, int alpha=256, int col1=-1, int col=-1);
+  QRect renderCenterSlide(const SlideInfo &slide);
   QImage* surface(int slideIndex);
   void triggerRender();
   void resetSlides();
@@ -414,7 +410,6 @@ PictureFlowPrivate::PictureFlowPrivate(PictureFlow* w, int queueLength_)
   slideWidth = 200;
   slideHeight = 200;
   fontSize = 10;
-  zoom = 100;
 
   centerIndex = 0;
   queueLength = queueLength_;
@@ -460,21 +455,6 @@ void PictureFlowPrivate::setSlideSize(QSize size)
 {
   slideWidth = size.width();
   slideHeight = size.height();
-  recalc(buffer.width(), buffer.height());
-  triggerRender();
-}
-
-int PictureFlowPrivate::zoomFactor() const
-{
-  return zoom;
-}
-
-void PictureFlowPrivate::setZoomFactor(int z)
-{
-  if(z <= 0)
-    return;
-
-  zoom = z;
   recalc(buffer.width(), buffer.height());
   triggerRender();
 }
@@ -554,7 +534,8 @@ void PictureFlowPrivate::resize(int w, int h)
   if (w < 10) w = 10;
   if (h < 10) h = 10;
   slideHeight = int(float(h)/REFLECTION_FACTOR);
-  slideWidth = int(float(slideHeight) * 2/3.);
+  slideWidth = int(float(slideHeight) * 3./4.);
+  //qDebug() << slideHeight << "x" << slideWidth;
   fontSize = MAX(int(h/15.), 12);
   recalc(w, h);
   resetSlides();
@@ -595,15 +576,12 @@ void PictureFlowPrivate::resetSlides()
   }
 }
 
-#define BILINEAR_STRETCH_HOR 4
-#define BILINEAR_STRETCH_VER 4
-
 static QImage prepareSurface(QImage img, int w, int h)
 {
   Qt::TransformationMode mode = Qt::SmoothTransformation;
-  img = img.scaled(w, h, Qt::IgnoreAspectRatio, mode);
+  img = img.scaled(w, h, Qt::KeepAspectRatioByExpanding, mode);
 
-  // slightly larger, to accomodate for the reflection
+  // slightly larger, to accommodate for the reflection
   int hs = int(h * REFLECTION_FACTOR);
   int hofs = 0;
 
@@ -632,12 +610,6 @@ static QImage prepareSurface(QImage img, int w, int h)
       int b = qBlue(color)  * a / 256 * (hte - y) / hte * 3/5;
       result.setPixel(h+hofs+y, x, qRgb(r, g, b));
     }
-
-#ifdef PICTUREFLOW_BILINEAR_FILTER
-  int hh = BILINEAR_STRETCH_VER*hs;
-  int ww = BILINEAR_STRETCH_HOR*w;
-  result = result.scaled(hh, ww, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-#endif
 
   return result;
 }
@@ -699,8 +671,12 @@ void PictureFlowPrivate::render()
 
   int nleft = leftSlides.count();
   int nright = rightSlides.count();
+  QRect r;
 
-  QRect r = renderSlide(centerSlide);
+  if (step == 0) 
+      r = renderCenterSlide(centerSlide);
+  else
+      r = renderSlide(centerSlide);
   int c1 = r.left();
   int c2 = r.right();
 
@@ -813,7 +789,23 @@ static inline uint BYTE_MUL_RGB16_32(uint x, uint a) {
     return t;
 }
 
+QRect PictureFlowPrivate::renderCenterSlide(const SlideInfo &slide) {
+  QImage* src = surface(slide.slideIndex);
+  if(!src)
+    return QRect();
 
+  int sw = src->height();
+  int sh = src->width();
+  int h = buffer.height();
+  QRect rect(buffer.width()/2 - sw/2, 0, sw, h-1);
+  int left = rect.left();
+
+  for(int x = 0; x < sh-1; x++)
+    for(int y = 0; y < sw; y++)
+      buffer.setPixel(left + y, 1+x, src->pixel(x, y));
+
+  return rect;
+}
 // Renders a slide to offscreen buffer. Returns a rect of the rendered area.
 // alpha=256 means normal, alpha=0 is fully black, alpha=128 half transparent
 // col1 and col2 limit the column for rendering.
@@ -826,13 +818,8 @@ int col1, int col2)
 
   QRect rect(0, 0, 0, 0);  
   
-#ifdef PICTUREFLOW_BILINEAR_FILTER
-  int sw = src->height() / BILINEAR_STRETCH_HOR;
-  int sh = src->width() / BILINEAR_STRETCH_VER;
-#else
   int sw = src->height();
   int sh = src->width();
-#endif
   int h = buffer.height();
   int w = buffer.width();
 
@@ -848,7 +835,7 @@ int col1, int col2)
   col1 = qMin(col1, w-1);
   col2 = qMin(col2, w-1);
 
-  int distance = h * 100 / zoom;
+  int distance = h;
   PFreal sdx = fcos(slide.angle);
   PFreal sdy = fsin(slide.angle);
   PFreal xs = slide.cx - slideWidth * sdx/2;
@@ -878,15 +865,9 @@ int col1, int col2)
     PFreal hitx = fmul(dist, rays[x]);
     PFreal hitdist = fdiv(hitx - slide.cx, sdx);
 
-#ifdef PICTUREFLOW_BILINEAR_FILTER
-    int column = sw*BILINEAR_STRETCH_HOR/2 + (hitdist*BILINEAR_STRETCH_HOR >> PFREAL_SHIFT);
-    if(column >= sw*BILINEAR_STRETCH_HOR)
-      break;
-#else
     int column = sw/2 + (hitdist >> PFREAL_SHIFT);
     if(column >= sw)
       break;
-#endif
     if(column < 0)
       continue;
 
@@ -901,13 +882,8 @@ int col1, int col2)
     QRgb565* pixel2 = (QRgb565*)(buffer.scanLine(y2)) + x;
     int pixelstep = pixel2 - pixel1;
 
-#ifdef PICTUREFLOW_BILINEAR_FILTER
-    int center = (sh*BILINEAR_STRETCH_VER/2);
-    int dy = dist*BILINEAR_STRETCH_VER / h;
-#else
     int center = sh/2;
     int dy = dist / h;
-#endif
     int p1 = center*PFREAL_ONE - dy/2;
     int p2 = center*PFREAL_ONE + dy/2;
 
@@ -1153,16 +1129,6 @@ QSize PictureFlow::slideSize() const
 void PictureFlow::setSlideSize(QSize size)
 {
   d->setSlideSize(size);
-}
-
-int PictureFlow::zoomFactor() const
-{
-  return d->zoomFactor();
-}
-
-void PictureFlow::setZoomFactor(int z)
-{
-  d->setZoomFactor(z);
 }
 
 QImage PictureFlow::slide(int index) const
