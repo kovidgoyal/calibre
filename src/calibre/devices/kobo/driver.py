@@ -22,7 +22,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and Kovid Goyal'
-    version = (1, 0, 3)
+    version = (1, 0, 4)
 
     supported_platforms = ['windows', 'osx', 'linux']
 
