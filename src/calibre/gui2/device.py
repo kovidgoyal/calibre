@@ -76,10 +76,16 @@ class DeviceJob(BaseJob): # {{{
             self.job_done()
 
     def abort(self, err):
+        call_job_done = False
+        if self.run_state == self.WAITING:
+            self.start_work()
+            call_job_done = True
         self._aborted = True
         self.failed = True
         self._details = unicode(err)
         self.exception = err
+        if call_job_done:
+            self.job_done()
 
     @property
     def log_file(self):
