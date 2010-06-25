@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, uuid, logging
+import os, re, uuid, logging, functools
 from mimetypes import types_map
 from collections import defaultdict
 from itertools import count
@@ -25,6 +25,8 @@ from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
+
+RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True, huge_tree=True)
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
@@ -232,8 +234,6 @@ QNAME_RE      = re.compile(r'^[{][^{}]+[}][^{}]+$')
 PREFIXNAME_RE = re.compile(r'^[^:]+[:][^:]+')
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 CSSURL_RE     = re.compile(r'''url[(](?P<q>["']?)(?P<url>[^)]+)(?P=q)[)]''')
-
-RECOVER_PARSER = etree.XMLParser(recover=True)
 
 
 def element(parent, *args, **kwargs):
@@ -780,8 +780,7 @@ class Manifest(object):
                     assume_utf8=True, resolve_entities=True)[0]
             if not data:
                 return None
-            parser = etree.XMLParser(recover=True)
-            return etree.fromstring(data, parser=parser)
+            return etree.fromstring(data, parser=RECOVER_PARSER)
 
         def _parse_xhtml(self, data):
             self.oeb.log.debug('Parsing', self.href, '...')
@@ -809,16 +808,17 @@ class Manifest(object):
                         pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
                         data = pat.sub(lambda m:user_entities[m.group(1)], data)
 
+            fromstring = functools.partial(etree.fromstring, parser=RECOVER_PARSER)
             # Try with more & more drastic measures to parse
             def first_pass(data):
                 try:
-                    data = etree.fromstring(data)
+                    data = fromstring(data)
                 except etree.XMLSyntaxError, err:
                     self.oeb.log.exception('Initial parse failed:')
                     repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
                     data = ENTITY_RE.sub(repl, data)
                     try:
-                        data = etree.fromstring(data)
+                        data = fromstring(data)
                     except etree.XMLSyntaxError, err:
                         self.oeb.logger.warn('Parsing file %r as HTML' % self.href)
                         if err.args and err.args[0].startswith('Excessive depth'):
@@ -832,9 +832,9 @@ class Manifest(object):
                                 elem.text = elem.text.strip('-')
                         data = etree.tostring(data, encoding=unicode)
                         try:
-                            data = etree.fromstring(data)
+                            data = fromstring(data)
                         except etree.XMLSyntaxError:
-                            data = etree.fromstring(data, parser=RECOVER_PARSER)
+                            data = fromstring(data)
                 return data
             data = first_pass(data)
 
@@ -866,12 +866,12 @@ class Manifest(object):
                 data = etree.tostring(data, encoding=unicode)
 
                 try:
-                    data = etree.fromstring(data)
+                    data = fromstring(data)
                 except:
                     data = data.replace(':=', '=').replace(':>', '>')
                     data = data.replace('<http:/>', '')
                     try:
-                        data = etree.fromstring(data)
+                        data = fromstring(data)
                     except etree.XMLSyntaxError:
                         self.oeb.logger.warn('Stripping comments and meta tags from %s'%
                                 self.href)
@@ -882,7 +882,7 @@ class Manifest(object):
                                 "<?xml version='1.0' encoding='utf-8'?><o:p></o:p>",
                                 '')
                         data = data.replace("<?xml version='1.0' encoding='utf-8'??>", '')
-                        data = etree.fromstring(data)
+                        data = fromstring(data)
             elif namespace(data.tag) != XHTML_NS:
                 # OEB_DOC_NS, but possibly others
                 ns = namespace(data.tag)

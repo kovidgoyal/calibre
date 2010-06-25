@@ -11,11 +11,10 @@ import re
 import time
 import traceback
 
-import sip
 from PyQt4.Qt import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDate, \
-    QPixmap, QListWidgetItem, QDialog, QHBoxLayout, QGridLayout
+    QPixmap, QListWidgetItem, QDialog
 
-from calibre.gui2 import error_dialog, file_icon_provider, \
+from calibre.gui2 import error_dialog, file_icon_provider, dynamic, \
                            choose_files, choose_images, ResizableDialog, \
                            warning_dialog
 from calibre.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
@@ -301,6 +300,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.connect(self.__abort_button, SIGNAL('clicked()'),
                     self.do_cancel_all)
         self.splitter.setStretchFactor(100, 1)
+        self.read_state()
         self.db = db
         self.pi = ProgressIndicator(self)
         self.accepted_callback = accepted_callback
@@ -716,7 +716,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         _('Could not open %s. Is it being used by another'
                         ' program?')%fname, show=True)
             raise
-
+        self.save_state()
         QDialog.accept(self)
         if callable(self.accepted_callback):
             self.accepted_callback(self.id)
@@ -728,3 +728,16 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             cf.wait()
 
         QDialog.reject(self, *args)
+
+    def read_state(self):
+        wg = dynamic.get('metasingle_window_geometry', None)
+        ss = dynamic.get('metasingle_splitter_state', None)
+        if wg is not None:
+          self.restoreGeometry(wg)
+        if ss is not None:
+          self.splitter.restoreState(ss)
+
+    def save_state(self):
+        dynamic.set('metasingle_window_geometry', bytes(self.saveGeometry()))
+        dynamic.set('metasingle_splitter_state',
+                bytes(self.splitter.saveState()))
