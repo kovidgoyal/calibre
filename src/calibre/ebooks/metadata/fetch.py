@@ -362,9 +362,6 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
                 if r.pubdate is None:
                     r.pubdate = pubdate
 
- #   for r in results:
- #       print "{0:14.14} {1:30.30} {2:20.20} {3:6} {4}".format(r.isbn, r.title, r.publisher, len(r.comments if r.comments else ''), r.has_cover)
-
     return results, [(x.name, x.exception, x.tb) for x in fetchers]
 
 def get_social_metadata(mi, verbose=0):
