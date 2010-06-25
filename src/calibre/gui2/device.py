@@ -29,6 +29,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
+from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 
 # }}}
@@ -105,9 +106,10 @@ class DeviceManager(Thread): # {{{
         self.scanner        = DeviceScanner()
         self.connected_device = None
         self.ejected_devices  = set([])
-        self.connected_device_is_folder = False
-        self.folder_connection_requests = Queue.Queue(0)
+        self.mount_connection_requests = Queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
+
+    ITUNES_STRING = '#itunes#'
 
     def report_progress(self, *args):
         pass
@@ -120,7 +122,7 @@ class DeviceManager(Thread): # {{{
     def device(self):
         return self.connected_device
 
-    def do_connect(self, connected_devices, is_folder_device):
+    def do_connect(self, connected_devices, device_kind):
         for dev, detected_device in connected_devices:
             if dev.OPEN_FEEDBACK_MESSAGE is not None:
                 self.open_feedback_slot(dev.OPEN_FEEDBACK_MESSAGE)
@@ -133,8 +135,8 @@ class DeviceManager(Thread): # {{{
                 traceback.print_exc()
                 continue
             self.connected_device = dev
-            self.connected_device_is_folder = is_folder_device
-            self.connected_slot(True, is_folder_device)
+            self.connected_device_kind = device_kind
+            self.connected_slot(True, device_kind)
             return True
         return False
 
@@ -152,7 +154,7 @@ class DeviceManager(Thread): # {{{
         if self.connected_device in self.ejected_devices:
             self.ejected_devices.remove(self.connected_device)
         else:
-            self.connected_slot(False, self.connected_device_is_folder)
+            self.connected_slot(False, self.connected_device_kind)
         self.connected_device = None
 
     def detect_device(self):
@@ -174,18 +176,18 @@ class DeviceManager(Thread): # {{{
                     possibly_connected_devices.append((device, detected_device))
             if possibly_connected_devices:
                 if not self.do_connect(possibly_connected_devices,
-                                       is_folder_device=False):
+                                       device_kind='device'):
                     prints('Connect to device failed, retrying in 5 seconds...')
                     time.sleep(5)
                     if not self.do_connect(possibly_connected_devices,
-                                       is_folder_device=False):
+                                       device_kind='usb'):
                         prints('Device connect failed again, giving up')
 
     def umount_device(self, *args):
         if self.is_device_connected and not self.job_manager.has_device_jobs():
             self.connected_device.eject()
             self.ejected_devices.add(self.connected_device)
-            self.connected_slot(False, self.connected_device_is_folder)
+            self.connected_slot(False, self.connected_device_kind)
 
     def next(self):
         if not self.jobs.empty():
@@ -196,20 +198,19 @@ class DeviceManager(Thread): # {{{
 
     def run(self):
         while self.keep_going:
-            folder_path = None
+            kls = None
             while True:
                 try:
-                    folder_path = self.folder_connection_requests.get_nowait()
+                    (kls,device_kind, folder_path) = \
+                                self.mount_connection_requests.get_nowait()
                 except Queue.Empty:
                     break
-            if not folder_path or not os.access(folder_path, os.R_OK):
-                folder_path = None
-            if not self.is_device_connected and folder_path is not None:
+            if kls is not None:
                 try:
-                    dev = FOLDER_DEVICE(folder_path)
-                    self.do_connect([[dev, None],], is_folder_device=True)
+                    dev = kls(folder_path)
+                    self.do_connect([[dev, None],], device_kind=device_kind)
                 except:
-                    prints('Unable to open folder as device', folder_path)
+                    prints('Unable to open %s as device (%s)'%(device_kind, folder_path))
                     traceback.print_exc()
             else:
                 self.detect_device()
@@ -251,13 +252,14 @@ class DeviceManager(Thread): # {{{
 
     # This will be called on the GUI thread. Because of this, we must store
     # information that the scanner thread will use to do the real work.
-    def connect_to_folder(self, path):
-        self.folder_connection_requests.put(path)
+    # Note: this is used for iTunes
+    def mount_device(self, kls, kind, path):
+        self.mount_connection_requests.put((kls, kind, path))
 
     # This is called on the GUI thread. No problem here, because it calls the
     # device driver, telling it to tell the scanner when it passes by that the
-    # folder has disconnected.
-    def disconnect_folder(self):
+    # folder has disconnected. Note: this is also used for iTunes
+    def unmount_device(self):
         if self.connected_device is not None:
             if hasattr(self.connected_device, 'disconnect_from_folder'):
                 # As we are on the wrong thread, this call must *not* do
@@ -375,7 +377,8 @@ class DeviceMenu(QMenu): # {{{
 
     fetch_annotations = pyqtSignal()
     connect_to_folder = pyqtSignal()
-    disconnect_from_folder = pyqtSignal()
+    connect_to_itunes = pyqtSignal()
+    disconnect_mounted_device = pyqtSignal()
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -492,8 +495,18 @@ class DeviceMenu(QMenu): # {{{
 
         mitem = self.addAction(QIcon(I('eject.svg')), _('Disconnect from folder'))
         mitem.setEnabled(False)
-        mitem.triggered.connect(lambda x : self.disconnect_from_folder.emit())
-        self.disconnect_from_folder_action = mitem
+        mitem.triggered.connect(lambda x : self.disconnect_mounted_device.emit())
+        self.disconnect_mounted_device_action = mitem
+
+        mitem = self.addAction(QIcon(I('document_open.svg')), _('Connect to iTunes (BETA TEST)'))
+        mitem.setEnabled(True)
+        mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
+        self.connect_to_itunes_action = mitem
+
+        mitem = self.addAction(QIcon(I('eject.svg')), _('Disconnect from iTunes (BETA TEST)'))
+        mitem.setEnabled(False)
+        mitem.triggered.connect(lambda x : self.disconnect_mounted_device.emit())
+        self.disconnect_from_itunes_action = mitem
 
         self.addSeparator()
         self.addMenu(self.set_default_menu)
@@ -629,12 +642,17 @@ class DeviceMixin(object): # {{{
 
     def connect_to_folder(self):
         dir = choose_dir(self, 'Select Device Folder',
-                _('Select folder to open as device'))
-        if dir is not None:
-            self.device_manager.connect_to_folder(dir)
+                             _('Select folder to open as device'))
+        kls = FOLDER_DEVICE
+        self.device_manager.mount_device(kls=kls, kind='folder', path=dir)
 
-    def disconnect_from_folder(self):
-        self.device_manager.disconnect_folder()
+    def connect_to_itunes(self):
+        kls = ITUNES_ASYNC
+        self.device_manager.mount_device(kls=kls, kind='itunes', path=None)
+
+    # disconnect from both folder and itunes devices
+    def disconnect_mounted_device(self):
+        self.device_manager.unmount_device()
 
     def _sync_action_triggered(self, *args):
         m = getattr(self, '_sync_menu', None)
@@ -649,16 +667,22 @@ class DeviceMixin(object): # {{{
                 self.dispatch_sync_event)
         self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
         self._sync_menu.connect_to_folder.connect(self.connect_to_folder)
-        self._sync_menu.disconnect_from_folder.connect(self.disconnect_from_folder)
+        self._sync_menu.connect_to_itunes.connect(self.connect_to_itunes)
+        self._sync_menu.disconnect_mounted_device.connect(self.disconnect_mounted_device)
         if self.device_connected:
             self._sync_menu.connect_to_folder_action.setEnabled(False)
+            self._sync_menu.connect_to_itunes_action.setEnabled(False)
             if self.device_connected == 'folder':
-                self._sync_menu.disconnect_from_folder_action.setEnabled(True)
+                self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
+            if self.device_connected == 'itunes':
+                self._sync_menu.disconnect_from_itunes_action.setEnabled(True)
             else:
-                self._sync_menu.disconnect_from_folder_action.setEnabled(False)
+                self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
         else:
             self._sync_menu.connect_to_folder_action.setEnabled(True)
-            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
+            self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
+            self._sync_menu.connect_to_itunes_action.setEnabled(True)
+            self._sync_menu.disconnect_from_itunes_action.setEnabled(False)
 
 
 
@@ -694,26 +718,31 @@ class DeviceMixin(object): # {{{
 
     # Device connected {{{
 
-    def set_device_menu_items_state(self, connected, is_folder_device):
+    def set_device_menu_items_state(self, connected, device_kind):
         if connected:
             self._sync_menu.connect_to_folder_action.setEnabled(False)
-            if is_folder_device:
-                self._sync_menu.disconnect_from_folder_action.setEnabled(True)
+            self._sync_menu.connect_to_itunes_action.setEnabled(False)
+            if device_kind == 'folder':
+                self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
+            elif device_kind == 'itunes':
+                self._sync_menu.disconnect_from_itunes_action.setEnabled(True)
             self._sync_menu.enable_device_actions(True,
                     self.device_manager.device.card_prefix(),
                     self.device_manager.device)
             self.eject_action.setEnabled(True)
         else:
             self._sync_menu.connect_to_folder_action.setEnabled(True)
-            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
+            self._sync_menu.connect_to_itunes_action.setEnabled(True)
+            self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
+            self._sync_menu.disconnect_from_itunes_action.setEnabled(False)
             self._sync_menu.enable_device_actions(False)
             self.eject_action.setEnabled(False)
 
-    def device_detected(self, connected, is_folder_device):
+    def device_detected(self, connected, device_kind):
         '''
         Called when a device is connected to the computer.
         '''
-        self.set_device_menu_items_state(connected, is_folder_device)
+        self.set_device_menu_items_state(connected, device_kind)
         if connected:
             self.device_manager.get_device_information(\
                     Dispatcher(self.info_read))
@@ -722,7 +751,7 @@ class DeviceMixin(object): # {{{
             self.status_bar.show_message(_('Device: ')+\
                 self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
-            self.device_connected = 'device' if not is_folder_device else 'folder'
+            self.device_connected = device_kind
             self.location_view.model().device_connected(self.device_manager.device)
             self.refresh_ondevice_info (device_connected = True, reset_only = True)
         else:
