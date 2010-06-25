@@ -367,7 +367,7 @@ class LRFInput(InputFormatPlugin):
         xml = d.to_xml(write_files=True)
         if options.verbose > 2:
             open('lrs.xml', 'wb').write(xml.encode('utf-8'))
-        parser = etree.XMLParser(recover=True, no_network=True)
+        parser = etree.XMLParser(recover=True, no_network=True, huge_tree=True)
         doc = etree.fromstring(xml, parser=parser)
         char_button_map = {}
         for x in doc.xpath('//CharButton[@refobj]'):
