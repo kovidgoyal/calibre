@@ -3,14 +3,14 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, sys, textwrap, re, urllib2
+import traceback, sys, textwrap, re
 from threading import Thread
 
-from calibre import prints, browser
+from calibre import prints
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import default_log
 from calibre.customize import Plugin
-from calibre.ebooks.metadata.library_thing import OPENLIBRARY
+from calibre.ebooks.metadata.library_thing import check_for_cover
 
 metadata_config = None
 
@@ -271,16 +271,10 @@ def filter_metadata_results(item):
             return False
     return True
 
-class HeadRequest(urllib2.Request):
-    def get_method(self):
-        return "HEAD"
-
 def do_cover_check(item):
-    opener = browser()
     item.has_cover = False
     try:
-        opener.open(HeadRequest(OPENLIBRARY%item.isbn), timeout=5)
-        item.has_cover = True
+        item.has_cover = check_for_cover(item.isbn)
     except:
         pass # Cover not found
 
@@ -367,9 +361,6 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
             for r in results:
                 if r.pubdate is None:
                     r.pubdate = pubdate
-
- #   for r in results:
- #       print "{0:14.14} {1:30.30} {2:20.20} {3:6} {4}".format(r.isbn, r.title, r.publisher, len(r.comments if r.comments else ''), r.has_cover)
 
     return results, [(x.name, x.exception, x.tb) for x in fetchers]
 

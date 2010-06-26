@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-06-18 17:57+0000\n"
-"PO-Revision-Date: 2010-06-18 17:21+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2010-06-20 00:56+0000\n"
+"PO-Revision-Date: 2010-06-22 14:54+0000\n"
+"Last-Translator: kronpas <Unknown>\n"
 "Language-Team: Vietnamese <vi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-19 03:50+0000\n"
+"X-Launchpad-Export-Date: 2010-06-23 03:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -159,15 +159,15 @@ msgstr "Kiểu tập tin"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:206
 msgid "Metadata reader"
-msgstr ""
+msgstr "Đọc thông tin mô tả"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:235
 msgid "Metadata writer"
-msgstr ""
+msgstr "Ghi thông tin mô tả"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:263
 msgid "Catalog generator"
-msgstr ""
+msgstr "Khởi tạo danh mục tự động"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:15
 msgid ""
@@ -175,7 +175,7 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Truy cập tất cả các đường dẫn nội bộ trong mộttập tin HTML và tạo một tập "
+"Truy cập tất cả các đường dẫn nội bộ trong một tập tin HTML và tạo một tập "
 "tin nén chứa tất cả các file được dẫn tới. Plugin này sẽ chạy mỗi khi bạn bổ "
 "sung một tập tin HTML vào thư viện."
 
@@ -184,6 +184,8 @@ msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
+"Định dạng ngôn ngữ cho tập tin HTML đầu vào. Lựa chọn thông thường bao gồm: "
+"cp1252, latin1, iso-8859-1 và utf-8"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:57
 msgid ""
@@ -191,6 +193,9 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
+"Tạo một bản lưu PMLZ chứa các tập tin PML cũng như hình ảnh trong thư mục "
+"pmlname_img hoặc \"images\". Tiện ích này sẽ khởi chạy mỗi khi bạn bổ sung "
+"một tập tin PML vào thư viện."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:89
 msgid "Extract cover from comic files"
@@ -215,15 +220,15 @@ msgstr "Trích bìa từ các tập tin truyện tranh"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:296
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:306
 msgid "Read metadata from %s files"
-msgstr ""
+msgstr "Đọc thông tin mô tả từ tập tin %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:265
 msgid "Read metadata from ebooks in RAR archives"
-msgstr ""
+msgstr "Đọc thông tin mô tả từ ebook trong các tập tin nén kiểu RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:317
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Đọc dữ liệu nhúng trong file nén kiểu ZIP"
+msgstr "Đọc thông tin mô tả từ ebook trong các tập tin nén kiểu ZIP"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:328
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:338
@@ -232,15 +237,15 @@ msgstr "Đọc dữ liệu nhúng trong file nén kiểu ZIP"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:381
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:391
 msgid "Set metadata in %s files"
-msgstr ""
+msgstr "Thiết lập thông tin mô tả trong tập tin %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:359
 msgid "Set metadata from %s files"
-msgstr ""
+msgstr "Thiết lập thông tin mô tả trong tập tin %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr "Chuyển đổi dữ liệu đầu vào"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:125
 msgid ""
@@ -256,19 +261,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:241
 msgid "Conversion Output"
-msgstr "Chuyển đổi dữ liệu đầu ra"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:255
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
-"Nếu được thiết lập, plugin xuất dữ liệu sẽ tạo file xuất dễ đọc nhất có thể. "
-"Đôi khi không hiệu quả với một số tiện ích xuất dữ liệu khác,"
+"Nếu được thiết lập, tiện ích xuất dữ liệu sẽ tạo tập tin xuất dễ đọc nhất có "
+"thể. Đôi khi không hiệu quả với một số tiện ích xuất dữ liệu khác."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:45
 msgid "Input profile"
-msgstr ""
+msgstr "Hồ sơ nhập"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid ""
@@ -281,108 +286,112 @@ msgstr ""
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
+"Hồ sơ này dùng cho dòng sản phẩm SONY PRS (số hiệu 500/505/600/700 v.v...)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:69
 msgid "This profile is intended for the SONY PRS 300."
-msgstr ""
+msgstr "Hồ sơ này dùng cho SONY PRS 300"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:78
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:301
 msgid "This profile is intended for the SONY PRS-900."
-msgstr ""
+msgstr "Hồ sơ này dùng cho SONY PRS-900"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:86
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:331
 msgid "This profile is intended for the Microsoft Reader."
-msgstr ""
+msgstr "Hồ sơ này dùng cho Microsoft Reader"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:97
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:342
 msgid "This profile is intended for the Mobipocket books."
-msgstr ""
+msgstr "Hồ sơ này dùng cho sách với định dạng Mobipocket"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:110
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:355
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr ""
+msgstr "Hồ sơ này dùng cho Hanlin V3 và tương tự"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:122
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:367
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr ""
+msgstr "Hồ sơ này dùng cho Hanlin V5 và tương tự"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:132
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:375
 msgid "This profile is intended for the Cybook G3."
-msgstr ""
+msgstr "Hồ sơ này dùng cho Cybook G3"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:145
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:388
 msgid "This profile is intended for the Cybook Opus."
-msgstr ""
+msgstr "Hồ sơ này dùng cho Cybook Opus."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:157
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:399
 msgid "This profile is intended for the Amazon Kindle."
-msgstr ""
+msgstr "Hồ sơ này dùng cho Amazon Kindle."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:169
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:434
 msgid "This profile is intended for the Irex Illiad."
-msgstr ""
+msgstr "Hồ sơ này dùng cho Irex Illiad."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:181
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr ""
+msgstr "Hồ sơ này dùng cho IRex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:194
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:461
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr ""
+msgstr "Hồ sơ này dùng cho Irex Digital Reader 800."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:206
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:475
 msgid "This profile is intended for the B&N Nook."
-msgstr ""
+msgstr "Hồ sơ này dùng cho B&N Nook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:226
 msgid "Output profile"
-msgstr ""
+msgstr "Hồ sơ xuất"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:230
 msgid ""
 "This profile tries to provide sane defaults and is useful if you want to "
 "produce a document intended to be read at a computer or on a range of "
 "devices."
-msgstr ""
+msgstr "Hồ sơ này"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:254
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
 msgstr ""
+"Dùng cho IPad và các thiết bị tương tự với độ phân giải màn hình 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:279
 msgid "This profile is intended for the Kobo Reader."
-msgstr ""
+msgstr "Hồ sơ này dùng cho Kobo Reader"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:292
 msgid "This profile is intended for the SONY PRS-300."
-msgstr ""
+msgstr "Hồ sơ này dùng cho Sony PRS-300"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:310
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr ""
+msgstr "Hồ sơ này dùng cho 5-inch JetBook"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:319
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
+"Hồ sơ này dùng cho dòng sản phẩm SONY PRS (500/5050/700 v.v..) tại chế độ "
+"màn hình nằm ngang. Thuận tiện khi đọc truyện tranh."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:417
 msgid "This profile is intended for the Amazon Kindle DX."
-msgstr ""
+msgstr "Hồ sơ này dùng cho Amazon Kindle DX"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -402,11 +411,11 @@ msgstr "Tiện ích đã bị vô hiệu hoá"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Enabled plugins"
-msgstr ""
+msgstr "Tiện ích đang được sử dụng"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:83
 msgid "No valid plugin found in "
-msgstr ""
+msgstr "Không tìm thấy tiện ích nào đáp ứng yêu cầu trong "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:460
 msgid "Initialization of plugin %s failed with traceback:"
@@ -423,28 +432,33 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:499
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr ""
+"Bổ sung một tiện ích bằng cách chỉ ra đường dẫn tới tập tin nén chứa nó."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:501
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
 msgstr ""
+"Xoá một tiện ích tự tạo theo tên. Không có tác dụng với các tiện ích đi kèm "
+"phần mềm ban đầu."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:503
 msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
 msgstr ""
+"Tuỳ biến tiện ích. Chỉ ra tên của tiện ích và các đoạn tuỳ biến được ngăn "
+"cách bằng dấu phẩy."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:505
 msgid "List all installed plugins"
-msgstr "Danh mục plugins đã cài đặt"
+msgstr "Danh mục tất cả các tiện ích đã được cài đặt."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:507
 msgid "Enable the named plugin"
-msgstr ""
+msgstr "Cho phép khởi chạy tiện ích có tên sau"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:509
 msgid "Disable the named plugin"
-msgstr ""
+msgstr "Cấm khởi chạy các tiện ích có tên sau"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
@@ -455,39 +469,41 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
+"Dấu phẩy tách các danh sách thư mục để gửi e-book đến thiết bị. Thư mục đầu "
+"tiên có mặt sẽ được dùng."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:70
 msgid "Communicate with S60 phones."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:78
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:77
 msgid "Communicate with iBooks through iTunes."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:84
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:83
 msgid "Apple device detected, launching iTunes, please wait ..."
 msgstr ""
 "Phát hiện thiết bị do Apple sản xuất, khởi chạy iTunes, xin đợi trong giây "
 "lát ..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:227
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:230
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:226
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:229
 msgid "Updating device metadata listing..."
-msgstr ""
+msgstr "Cập nhật danh mục thông tin mô tả của thiết bị ..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:301
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:338
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:842
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:876
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:300
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:337
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:841
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:875
 msgid "%d of %d"
-msgstr ""
+msgstr "%d của %d"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:345
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:881
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:344
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:880
 msgid "finished"
 msgstr "đã hoàn tất"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:519
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:518
 msgid ""
 "Some books not found in iTunes database.\n"
 "Delete using the iBooks app.\n"
@@ -497,17 +513,17 @@ msgstr ""
 "Xoá thông qua ứng dụng iBoooks.\n"
 "Nhấn vào \"Xem chi tiết\" để hiển thị danh sách."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:742
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:741
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:28
 msgid "settings for device drivers"
 msgstr "thiết lập cho trình điều khiển của thiết bị"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:744
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:743
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:30
 msgid "Ordered list of formats the device will accept"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:813
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:812
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
@@ -515,7 +531,7 @@ msgstr ""
 "Một số ảnh bìa sẽ không được chuyển đổi định dạng.\n"
 "Nhấn vào \"Xem chi tiết\" để xem danh sách."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2168
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2178
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:810
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:816
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:844
@@ -539,7 +555,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:90
 msgid "Kovid Goyal"
-msgstr ""
+msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -677,7 +693,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
-msgstr ""
+msgstr "Nook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:21
 msgid "Communicate with the Nook eBook reader."
@@ -704,7 +720,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:143
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
 msgid "Unnamed"
-msgstr "Không tên"
+msgstr "Chưa được đặt tên"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -724,7 +740,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:248
 msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr ""
+msgstr "Không thể tìm thấy ổ đĩa %s. Xin thử khởi động lại."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:428
 msgid "Unable to detect the %s mount point. Try rebooting."
@@ -732,7 +748,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:493
 msgid "Unable to detect the %s disk drive."
-msgstr ""
+msgstr "Không thể tìm thấy ổ đĩa %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:586
 msgid "Could not find mount helper: %s."
@@ -751,20 +767,20 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:743
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:745
 msgid "The reader has no storage card in this slot."
-msgstr ""
+msgstr "Thiết bị không có thẻ nhớ trong khe chứa này."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:747
 msgid "Selected slot: %s is not supported."
-msgstr ""
+msgstr "Khe chứa: %s không được hỗ trợ."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:776
 msgid "There is insufficient free space in main memory"
-msgstr ""
+msgstr "Không đủ không gian trống trong bộ nhớ chính."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:778
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:780
 msgid "There is insufficient free space on the storage card"
-msgstr ""
+msgstr "Không đủ không gian trống trong thẻ lưu trữ."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:12
 msgid "Configure Device"
@@ -772,12 +788,12 @@ msgstr "Cấu hình thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:32
 msgid "Place files in sub directories if the device supports them"
-msgstr ""
+msgstr "Đặt các tập tin vào thư mục phụ nếu thiết bị hỗ trợ chúng"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:81
 msgid "Read metadata from files on device"
-msgstr "Đọc dữ liệu nhúng từ thiết bị"
+msgstr "Đọc thông tin mô tả từ các tập tin trên thiết bị."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:36
 msgid "Use author sort instead of author"
@@ -790,7 +806,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:84
 msgid "Extra customization"
-msgstr ""
+msgstr "Tuỳ biến thêm"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:37
 msgid "Communicate with an eBook reader."
@@ -798,7 +814,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:53
 msgid "Get device information..."
-msgstr "Đọc thông tin thiết bị"
+msgstr "Lấy thông tin về thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:64
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:67
@@ -807,12 +823,12 @@ msgstr "Đọc thông tin thiết bị"
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:137
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:160
 msgid "Getting list of books on device..."
-msgstr "Đọc danh mục sách từ thiết bị"
+msgstr "Đang lấy danh mục sách có trên thiết bị...."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:188
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:190
 msgid "Transferring books to device..."
-msgstr "Chuyển sách sang thiết bị"
+msgstr "Đang chuyển sách sang thiết bị ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:208
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:237
@@ -822,7 +838,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:243
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:261
 msgid "Removing books from device..."
-msgstr "Xóa bỏ sách khỏi thiết bị"
+msgstr "Đang xoá sách khỏi thiết bị ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:268
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:273
@@ -831,20 +847,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:294
 msgid "Sending metadata to device..."
-msgstr "Gởi dữ liệu nhúng sang thiết bị"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:41
 msgid "%prog [options] mybook.chm"
-msgstr ""
+msgstr "%prog [tuỳ chọn] mybook.chm"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:42
 msgid "Output directory. Defaults to current directory"
-msgstr ""
+msgstr "Thư mục xuất. Mặc định là thư mục hiện tại"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:45
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
 msgid "Set the book title"
-msgstr ""
+msgstr "Đặt tiêu đề cho sách"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:47
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
@@ -859,26 +875,26 @@ msgstr "Gán tên Tác giả"
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:51
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 msgid "Set sort key for the author"
-msgstr "Gán từ khóa tìm kiếm cho Tác giả"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:53
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:597
 msgid "The category this book belongs to. E.g.: History"
-msgstr ""
+msgstr "Thể loại của sách, ví dụ: Lịch sử"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:56
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:600
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr ""
+msgstr "Đường dẫn tới hình ảnh sẽ được dùng làm ảnh thu nhỏ của tập tin này"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:59
 msgid "Path to a txt file containing a comment."
-msgstr ""
+msgstr "Đường dẫn tới tập tin text chứa lời bình"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:62
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
 msgid "Extract thumbnail from LRF file"
-msgstr ""
+msgstr "Tách ảnh thu nhỏ từ tập tin LRF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:63
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:608
@@ -906,6 +922,8 @@ msgid ""
 "Extract cover from LRF file. Note that the LRF format has no defined cover, "
 "so we use some heuristics to guess the cover."
 msgstr ""
+"Tách bìa sách từ tập tin LRF. Chú ý rằng định dạng LRF không có bìa xác "
+"định, do đó chúng tôi phải phỏng đoán bìa sách."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:70
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:615
@@ -930,6 +948,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Xử lý truyện tranh thất bại \n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:279
 msgid ""
@@ -937,15 +958,19 @@ msgid ""
 "of less than 256 may result in blurred text on your device if you are "
 "creating your comics in EPUB format."
 msgstr ""
+"Số màu của quá trình chuyển đổi hình ảnh sang đen trắng. Mặc định: %default. "
+"Giá trị thấp hơn 256 có thể dẫn đến chữ trên thiết bị bị mờ nếu bạn đang tạo "
+"sách dưới định dạng EPUB."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:283
 msgid ""
 "Disable normalize (improve contrast) color range for pictures. Default: False"
 msgstr ""
+"Huỷ tự động cân bằng màu (tăng độ tương phản) trong hình. Mặc định là: False"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:286
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
-msgstr ""
+msgstr "Giữ nguyên tỷ lệ hình ảnh. Mặc định là đầy màn hình."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:288
 msgid "Disable sharpening."
@@ -959,7 +984,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:293
 msgid "Don't split landscape images into two portrait images"
-msgstr ""
+msgstr "Không tự động chia đôi ảnh nằm ngang thành hai ảnh nằm dọc."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:295
 msgid ""
@@ -972,6 +997,8 @@ msgid ""
 "Used for right-to-left publications like manga. Causes landscape pages to be "
 "split into portrait pages from right to left."
 msgstr ""
+"Dùng cho các ấn phẩm đọc từ phải sang trái như manga. Chế độ này sẽ khiến "
+"các trang nằm ngang bị chia thành 2 trang nằm dọc từ phải sang trái."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:302
 msgid ""
@@ -984,6 +1011,8 @@ msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
 msgstr ""
+"Không sắp xếp các tập tin tìm thấy trong truyện theo tên Alphabet. Thay vào "
+"đó sắp xếp theo thứ tự được thêm vào truyện."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:309
 msgid ""
@@ -994,11 +1023,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:313
 msgid "Apply no processing to the image"
-msgstr ""
+msgstr "Không thêm hiệu ứng cho ảnh."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:315
 msgid "Do not convert the image to grayscale (black and white)"
-msgstr ""
+msgstr "Không chuyển ảnh sang dạng đen trắng."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:452
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:463
@@ -1033,19 +1062,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:97
 msgid "INPUT OPTIONS"
-msgstr ""
+msgstr "TUỲ CHỌN NHẬP"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:98
 msgid "Options to control the processing of the input %s file"
-msgstr ""
+msgstr "Các tuỳ chọn điều chỉnh xử lý của tập tin nhập %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:104
 msgid "OUTPUT OPTIONS"
-msgstr ""
+msgstr "TUỲ CHỌN XUẤT"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:105
 msgid "Options to control the processing of the output %s"
-msgstr ""
+msgstr "Các tuỳ chọn điều chỉnh xử lý của tập tin xuất %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:119
 msgid "Options to control the look and feel of the output"
@@ -1053,7 +1082,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:135
 msgid "Control auto-detection of document structure."
-msgstr ""
+msgstr "Điều chỉnh tự động nhận dạng của cấu trúc văn bản."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:145
 msgid ""
@@ -1061,10 +1090,12 @@ msgid ""
 "source file has a Table of Contents, it will be used in preference to the "
 "automatically generated one."
 msgstr ""
+"Điều chỉnh quá trình tự tạo Mục Lục. Mặc định, nếu tập tin nguồn đã có sẵn "
+"Mục Lục, nó sẽ được sử dụng thay vì tự động tạo Mục Lục mới."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:155
 msgid "Options to set metadata in the output"
-msgstr ""
+msgstr "Tuỳ chọn để gán thông tin mô tả trong quá trình xuất"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:158
 msgid "Options to help with debugging the conversion"
@@ -1072,11 +1103,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:183
 msgid "List builtin recipes"
-msgstr ""
+msgstr "Danh sách các công thức đã có sẵn"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:256
 msgid "Output saved to"
-msgstr ""
+msgstr "Dữ liệu xuất được lưu vào"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:95
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
@@ -1096,6 +1127,10 @@ msgid ""
 "For example resolution dependent lengths (i.e. lengths in pixels). Choices "
 "are:"
 msgstr ""
+"Xác định hồ sơ nhập. Hồ sơ nhập cung cấp cho hệ thống chuyển đổi định dạng "
+"thông tin để suy luận các thông tin khác nhau trong tài liệu được nhập vào. "
+"Ví dụ chiều dài phụ thuộc vào độ phân giải (Chiều dài tính theo số điểm "
+"ảnh). Các lựa chọn bao gồm:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:122
 msgid ""
@@ -1104,6 +1139,10 @@ msgid ""
 "cases, an output profile is required to produce documents that will work on "
 "a device. For example EPUB on the SONY reader. Choices are:"
 msgstr ""
+"Xác định hồ sơ xuất. Hồ sơ xuất giúp hệ thống chuyển đội định dạng biết cách "
+"tối ưu hoá tài liệu được tạo ra cho từng thiết bị phần cứng cụ thể. Trong "
+"một số trường hợp,  hồ sơ xuất là yêu cầu bắt buộc để sản xuất tài liệu cho "
+"một thiết bị cụ thể. Ví dụ EPUB cho thiết bị của SONY. Các lựa chọn bao gồm:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:133
 msgid ""
@@ -1139,6 +1178,10 @@ msgid ""
 "page and other artifacts. This option will extract the content from the "
 "tables and present it in a linear fashion."
 msgstr ""
+"Một số tài liệu được làm cẩu thả dùng bảng để điều chỉnh vị trí chữ trên "
+"trang. Khi chuyển đổi sang định dạng khác, các tài liệu này thường có chữ "
+"nằm ngoài trang và các lỗi khác. Tuỳ chọn này sẽ tách nội dung trong các "
+"bảng đó và sắp xếp dưới dạng liệt kê."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:180
 msgid ""
@@ -1167,6 +1210,9 @@ msgid ""
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
 msgstr ""
+"Thông thường, nếu tập tin nguồn đã có sẵ Mục Lục, nó sẽ được sử dụng thay vì "
+"mục lục tự tạo. Tuỳ chọn này sẽ khiến phần mềm luôn sử dụng Mục Lục tự động "
+"tạo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:213
 msgid "Don't add auto-detected chapters to the Table of Contents."
@@ -1466,7 +1512,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
 "Do not use SVG for the book cover. Use this option if your EPUB is going to "
-"be used ona  device that does not support SVG, like the iPhone or the "
+"be used on a device that does not support SVG, like the iPhone or the "
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
@@ -1774,10 +1820,10 @@ msgstr "Chủ nhiệm"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:385
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:34
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:201
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:202
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:207
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:209
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:214
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:67
@@ -2222,7 +2268,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."
-msgstr ""
+msgstr "Sử dụng cơ chế chuyển đổi định dạng PDF mới."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/cli.py:31
 msgid ""
@@ -2242,6 +2288,9 @@ msgid ""
 "\n"
 "Crop a PDF file.\n"
 msgstr ""
+"[tuỳ chọn] tập tin .pdf\n"
+"\n"
+"cắt một tập tin PDF\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:38
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:32
@@ -2253,22 +2302,27 @@ msgstr ""
 msgid ""
 "Path to output file. By default a file is created in the current directory."
 msgstr ""
+"Đường dẫn tới tập tin xuất. Mặc định, một tập tin sẽ được tạo ra trong thư "
+"mục hiện tại."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:41
 msgid "Number of pixels to crop from the left most x (default is %s)"
 msgstr ""
+"Số điểm ảnh để bắt đầu cắt từ x ngoài cùng bên trái x (mặc dịnh là %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:44
 msgid "Number of pixels to crop from the left most y (default is %s)"
-msgstr ""
+msgstr "Số điểm ảnh để bắt đầu cắt từ ngoài cùng bên trái y (mặc định là %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:47
 msgid "Number of pixels to crop from the right most x (default is %s)"
 msgstr ""
+"Số điểm ảnh để bắt đầu cắt từ x ngoài cùng bên phải x (mặc dịnh là %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:50
 msgid "Number of pixels to crop from the right most y (default is %s)"
 msgstr ""
+"Số điểm ảnh để bắt đầu cắt từ x ngoài cùng bên phải y (mặc dịnh là %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:53
 msgid ""
@@ -2278,7 +2332,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 msgid "Crop Options:"
-msgstr ""
+msgstr "Tuỳ chọn cắt:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
@@ -2288,7 +2342,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Options to control the transformation of pdf"
-msgstr ""
+msgstr "Tuỳ chọn cho phép kiểm soát thay đổi của tập tin PDF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:23
 msgid ""
@@ -2310,9 +2364,9 @@ msgid ""
 "\n"
 "Encrypt a PDF.\n"
 msgstr ""
-"[tùy chọn] mật mã file .pdf\n"
+"[tuỳ chọn] mật khẩu tập_tin.pdf\n"
 "\n"
-"Mã hóa file PDF.\n"
+"Mã hoá một tập tin PDF\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:54
 msgid "Encrypt Options:"
@@ -2323,7 +2377,10 @@ msgid ""
 "file.pdf ...\n"
 "\n"
 "Get info about a PDF.\n"
-msgstr "file .pdf...\n"
+msgstr ""
+"tập_tin.pdf ...\n"
+"\n"
+"Lấy thông tin về một tập tin PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:46
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:70
@@ -2345,7 +2402,7 @@ msgstr "Trang"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:51
 msgid "File Size"
-msgstr "Kích thước file"
+msgstr "Dung lượng tập tin"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:52
 msgid "PDF Version"
@@ -3227,7 +3284,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:22
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:53
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:116
@@ -3272,7 +3329,7 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:301
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:308
 msgid "Click to open Book Details window"
 msgstr ""
 
@@ -6162,7 +6219,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid "at"
-msgstr ""
+msgstr "tại"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:209
 msgid ""
@@ -6174,7 +6231,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:222
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid " days"
-msgstr ""
+msgstr " ngày"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
 msgid "&Account"
@@ -6209,14 +6266,15 @@ msgid ""
 "Delete downloaded news older than the specified number of days. Set to zero "
 "to disable."
 msgstr ""
+"Xoá các tin được tải về cũ hơn số ngày xác định. Chuyển về 0 để vô hiệu hoá."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:223
 msgid "Delete downloaded news older than "
-msgstr ""
+msgstr "Xoá tin tức đã được tải về cũ hơn "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:36
 msgid "contains"
-msgstr ""
+msgstr "chứa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:37
 msgid "The text to search for. It is interpreted as a regular expression."
@@ -6230,11 +6288,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:39
 msgid "Negate"
-msgstr ""
+msgstr "Đảo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:113
 msgid "Advanced Search"
-msgstr ""
+msgstr "Tìm kiếm nâng cao"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:114
 msgid "Find entries that have..."
@@ -6289,21 +6347,21 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:45
 msgid "Choose formats"
-msgstr ""
+msgstr "Chọn định dạng"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:46
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:76
 msgid "Authors"
-msgstr ""
+msgstr "Tác giả"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:46
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:107
 msgid "Publishers"
-msgstr ""
+msgstr "Nhà xuất bản"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:110
 msgid " (not on any book)"
-msgstr ""
+msgstr " (không có trong bất kì sách nào)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:162
 msgid ""

@@ -494,12 +494,13 @@ class DeviceMenu(QMenu): # {{{
         mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
         self.connect_to_folder_action = mitem
 
-        mitem = self.addAction(QIcon(I('devices/itunes.png')), _('Connect to iTunes (BETA TEST)'))
+        mitem = self.addAction(QIcon(I('devices/itunes.png')),
+                _('Connect to iTunes (EXPERIMENTAL)'))
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
         self.connect_to_itunes_action = mitem
 
-        mitem = self.addAction(QIcon(I('eject.svg')), _('Disconnect'))
+        mitem = self.addAction(QIcon(I('eject.svg')), _('Eject device'))
         mitem.setEnabled(False)
         mitem.triggered.connect(lambda x : self.disconnect_mounted_device.emit())
         self.disconnect_mounted_device_action = mitem
