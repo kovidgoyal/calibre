@@ -4,6 +4,85 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.5
+  date: 2010-06-25
+
+  new features:
+    - title: "New driver for the Kobo featuring closer integration with the device."
+
+    - title: "Support for the Dell Streak, Eken Android tablet and the Astak Mentor EB600"
+
+    - title: "New series type custom column"
+
+    - title: "Add option in Send to device menu to connect to iTunes without any iDevice (experimental)"
+
+    - title: "iPad driver: Make setting iTunes Category from series optional. News download now optimizations for iPad output."
+
+    - title: "Add option to disable book cover animation"
+      tickets: [5909]
+
+    - title: "Edit meta information dialog: Remember last used size and splitter position."
+      tickets: [5908]
+
+    - title: "Metadata download: If any results have a published date, ensure they all do"
+
+    - title: "SONY driver: Add a preference setting in Preferences->Add/Save->Send to device to control how colelctions are managed on the device by calibre"
+
+    - title: "Metadata download: Filter out non book results. Also sort results by availability of covers for the isbn"
+      tickets: [5946]
+
+    - title: "Bulk editing for device collections in the device view via the context menu"
+
+  bug fixes:
+    - title: "When converting books using the calibre GUI, set the language of the output book to be the same as the language of the User Interface, instead of undefined. Fixes use of dictionary in iBooks"
+
+    - title: "PDF Output: Fix setting top/bottom margnis has no effect" 
+
+    - title: "Conversion pipeline: Fix typo causing remove footer regex to always fail"
+
+    - title: "Handle device being yanked with queued device jobs gracefully"
+
+    - title: "Conversion pipeline: Handle deeply nested XML structures"
+      tickets: [5931]
+
+    - title: "Conversion pipeline: Fix handling of lists with a specified left margin"
+      tickets: [5877]
+
+    - title: "Restore workaround for ADE buggy rendering of anchors as links. However, make it overridable by extra CSS"
+
+    - title: "Fix LibraryThing metadata download plugin"
+
+    - title: "Fix multiple ratings displayed in Tag Browser for some legacy databases"
+
+    - title: "Fix invocation of postprocess file type plugins plugins"
+
+    - title: "HTML Input: Handle @import directives in linked css files."
+      tickets: [5135]
+
+    - title: "HTML Input: Handle absolute paths in resource links on windows correctly."
+      tickets: [3031]
+
+    - title: "E-book viewer: Handle font-face rules specify multiple families to be substituted"
+
+    - title: "Cover browser: Set aspect ratio of covers to 3:4 instead of 2:3. Crop rather than distort covers whoose aspect ratio is different from this. Antialias the rendering of the central cover"
+
+    - title: "Reset Tag browser if the text in the search box is edited"
+
+    - title: "Fix detection of SD card in Samsung Galaxy windows driver"
+
+  new recipes:
+    - title: "L'Osservatore Romano"
+      author: Darko Miletic
+
+    - title: China Press, London Free Press, People Daily
+      author: rty
+
+  improved recipes:
+    - Zaobao
+    - New Scientist
+    - National Post
+    - London review of books
+
 - version: 0.7.4
   date: 2010-06-19
 

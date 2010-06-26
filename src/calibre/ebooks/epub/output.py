@@ -380,10 +380,9 @@ class EPUBOutput(OutputFormatPlugin):
                     sel = '.'+lb.get('class')
                     for rule in stylesheet.data.cssRules.rulesOfType(CSSRule.STYLE_RULE):
                         if sel == rule.selectorList.selectorText:
-                            val = rule.style.removeProperty('margin-left')
-                            pval = rule.style.getProperty('padding-left')
-                            if val and not pval:
-                                rule.style.setProperty('padding-left', val)
+                            rule.style.removeProperty('margin-left')
+                            # padding-left breaks rendering in webkit and gecko
+                            rule.style.removeProperty('padding-left')
 
     # }}}
 

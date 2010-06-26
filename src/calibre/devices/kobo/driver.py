@@ -6,15 +6,14 @@ __copyright__ = '2010, Timothy Legge <timlegge at gmail.com> and Kovid Goyal <ko
 __docformat__ = 'restructuredtext en'
 
 import os
-
-import cStringIO
 import sqlite3 as sqlite
+
 from calibre.devices.usbms.books import BookList
 from calibre.devices.kobo.books import Book
 from calibre.devices.kobo.books import ImageWrapper
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.driver import USBMS
-
+from calibre import prints
 
 class KOBO(USBMS):
 
@@ -59,12 +58,8 @@ class KOBO(USBMS):
             return dummy_bl
 
         prefix = self._card_a_prefix if oncard == 'carda' else \
-                                     self._card_b_prefix if oncard == 'cardb' \
-                                                         else self._main_prefix
-
-        ebook_dirs = self.EBOOK_DIR_CARD_A if oncard == 'carda' else \
-            self.EBOOK_DIR_CARD_B if oncard == 'cardb' else \
-            self.get_main_ebook_dir()
+                 self._card_b_prefix if oncard == 'cardb' \
+                 else self._main_prefix
 
         # get the metadata cache
         bl = self.booklist_class(oncard, prefix, self.settings)
@@ -110,7 +105,7 @@ class KOBO(USBMS):
 
         connection = sqlite.connect(self._main_prefix + '.kobo/KoboReader.sqlite')
         cursor = connection.cursor()
-        
+
         #query = 'select count(distinct volumeId) from volume_shortcovers'
         #cursor.execute(query)
         #for row in (cursor):
@@ -120,7 +115,7 @@ class KOBO(USBMS):
         query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
                 'ImageID from content where BookID is Null'
 
-        cursor.execute (query) 
+        cursor.execute (query)
 
         changed = False
         for i, row in enumerate(cursor):
@@ -132,9 +127,9 @@ class KOBO(USBMS):
             if oncard != 'carda' and oncard != 'cardb' and not row[3].startswith("file:///mnt/sd/"):
                 changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6])
                 # print "shortbook: " + path
-            elif oncard == 'carda' and row[3].startswith("file:///mnt/sd/"): 
+            elif oncard == 'carda' and row[3].startswith("file:///mnt/sd/"):
                 changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6])
-                
+
             if changed:
                 need_sync = True
 
@@ -178,7 +173,7 @@ class KOBO(USBMS):
             # First get the ImageID to delete the images
             ImageID = row[0]
         cursor.close()
-       
+
         if ImageID != None:
             cursor = connection.cursor()
             if ContentType == 6:
@@ -190,7 +185,7 @@ class KOBO(USBMS):
 
             # Delete the chapters associated with the book next
             t = (ContentID,ContentID,)
-            cursor.execute('delete from content where BookID  = ? or ContentID = ?', t) 
+            cursor.execute('delete from content where BookID  = ? or ContentID = ?', t)
 
             connection.commit()
 
@@ -239,12 +234,12 @@ class KOBO(USBMS):
             ImageID = self.delete_via_sql(ContentID, ContentType)
             #print " We would now delete the Images for" + ImageID
             self.delete_images(ImageID)
-            
+
             if os.path.exists(path):
                 # Delete the ebook
                 # print "Delete the ebook: " + path
                 os.unlink(path)
-            
+
                 filepath = os.path.splitext(path)[0]
                 for ext in self.DELETE_EXTS:
                     if os.path.exists(filepath + ext):
@@ -253,7 +248,7 @@ class KOBO(USBMS):
                     if os.path.exists(path + ext):
                         # print "Filename: " + filename
                         os.unlink(path + ext)
-            
+
                 if self.SUPPORTS_SUB_DIRS:
                     try:
                         # print "removed"
@@ -339,7 +334,7 @@ class KOBO(USBMS):
         else:
             if ContentType == "6":
                 # This is a hack as the kobo files do not exist
-                # but the path is required to make a unique id 
+                # but the path is required to make a unique id
                 # for calibre's reference
                 path = self._main_prefix + path + '.kobo'
                 # print "Path: " + path

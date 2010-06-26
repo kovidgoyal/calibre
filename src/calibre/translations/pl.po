@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-06-18 17:57+0000\n"
-"PO-Revision-Date: 2010-06-18 17:12+0000\n"
+"POT-Creation-Date: 2010-06-20 00:56+0000\n"
+"PO-Revision-Date: 2010-06-20 00:34+0000\n"
 "Last-Translator: Bartosz Kaszubowski <gosimek@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-19 03:49+0000\n"
+"X-Launchpad-Export-Date: 2010-06-21 03:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -375,6 +375,7 @@ msgstr ""
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
 msgstr ""
+"Przeznaczone dla iPada i podobnych urządzeń z rozdzielczością 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:279
 msgid "This profile is intended for the Kobo Reader."
@@ -418,7 +419,7 @@ msgstr "Wyłączone wtyczki"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Enabled plugins"
-msgstr ""
+msgstr "Załączone wtyczki"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:83
 msgid "No valid plugin found in "
@@ -485,55 +486,55 @@ msgstr ""
 msgid "Communicate with S60 phones."
 msgstr "Umożliwia komunikację z telefonami S60."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:78
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:77
 msgid "Communicate with iBooks through iTunes."
-msgstr ""
+msgstr "Umożliwia komunikację z iBooks poprzez iTunes."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:84
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:83
 msgid "Apple device detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "Urządzenie Apple wykryte, uruchamianie iTunes, proszę czekać..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:227
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:230
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:226
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:229
 msgid "Updating device metadata listing..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:301
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:338
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:842
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:876
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:300
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:337
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:841
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:875
 msgid "%d of %d"
-msgstr ""
+msgstr "%d z %d"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:345
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:881
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:344
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:880
 msgid "finished"
-msgstr ""
+msgstr "zakończone"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:519
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:518
 msgid ""
 "Some books not found in iTunes database.\n"
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:742
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:741
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:28
 msgid "settings for device drivers"
 msgstr "ustawienia dla sterowników urządzeń"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:744
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:743
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:30
 msgid "Ordered list of formats the device will accept"
 msgstr "Uporządkowana lista formatów akceptowanych przez urządzenie"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:813
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:812
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2168
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2178
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:810
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:816
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:844
@@ -561,7 +562,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr "Umożliwia komunikację z czytnikiem Cybook Gen 3 / Opus."
+msgstr "Umożliwia komunikację z czytnikiem książek Cybook Gen 3 / Opus."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
 msgid "Communicate with the EB600 eBook reader."
@@ -569,7 +570,7 @@ msgstr "Umożliwia komunikację z czytnikiem książek EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:207
 msgid "Communicate with the PocketBook 301 reader."
-msgstr ""
+msgstr "Umożliwia komunikację z czytnikiem książek PocketBook 301."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -585,7 +586,7 @@ msgstr "Umożliwia komunikację z czytnikiem książek ESlick."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
-msgstr ""
+msgstr "Umożliwia komunikację z czytnikiem książek Sigmatek."
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:30
@@ -621,11 +622,11 @@ msgstr "Umożliwia komunikację z czytnikiem książek Hanvon N520."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:40
 msgid "Communicate with The Book reader."
-msgstr ""
+msgstr "Umożliwia komunikację z czytnikiem książek The Book."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:51
 msgid "Communicate with the SpringDesign Alex eBook reader."
-msgstr "Umożliwia komunikację z czytnikiem SpringDesign Alex eBook."
+msgstr "Umożliwia komunikację z czytnikiem książek SpringDesign Alex."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:67
 msgid "Communicate with the Azbooka"
@@ -687,7 +688,7 @@ msgstr "Umożliwia komunikację z czytnikiem Booq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr "Umożliwia komunikację z internetowym tabletem Nokia 770."
+msgstr "Umożliwia komunikację z tabletem internetowym Nokia 770."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810 internet tablet."
@@ -711,7 +712,7 @@ msgstr "Umożliwia komunikację z czytnikiem książek Sony PRS-500."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with all the Sony eBook readers."
-msgstr ""
+msgstr "Umożliwia komunikację ze wszystkimi czytnikami książek Sony."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:61
 msgid ""
@@ -728,7 +729,7 @@ msgstr "Nienazwany"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
-msgstr "Umożliwia komunikację z czytnikiem Samsung SNE eBook."
+msgstr "Umożliwia komunikację z czytnikiem książek Samsung SNE."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3 reader."
@@ -736,11 +737,11 @@ msgstr "Umożliwia komunikację z czytnikiem książek Teclast K3."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:37
 msgid "Communicate with the Newsmy reader."
-msgstr ""
+msgstr "Umożliwia komunikację z czytnikiem Newsmy."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:49
 msgid "Communicate with the iPapyrus reader."
-msgstr ""
+msgstr "Umożliwia komunikację z czytnikiem iPapyrus."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:248
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1552,11 +1553,14 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
+"Zazwyczaj, jeżeli plik źródłowy nie ma okładki i nie wskażesz odpowiedniej, "
+"domyślna okładka jest generowana z tytułem, autorami itp. Ta opcja wyłącza "
+"tworzenie takiej okładki."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
 "Do not use SVG for the book cover. Use this option if your EPUB is going to "
-"be used ona  device that does not support SVG, like the iPhone or the "
+"be used on a device that does not support SVG, like the iPhone or the "
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
@@ -1888,10 +1892,10 @@ msgstr "Producent"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:385
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:34
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:201
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:202
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:207
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:209
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:214
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:67
@@ -2048,7 +2052,7 @@ msgstr "Nie znaleziono okładki"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/douban.py:41
 msgid "Downloads metadata from Douban.com"
-msgstr ""
+msgstr "Pobierz metadane z Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:33
 msgid "Metadata download"
@@ -2092,7 +2096,7 @@ msgstr "Pobierz metadane społecznościowe z amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:205
 msgid "Downloads series information from librarything.com"
-msgstr ""
+msgstr "Pobierz informacje o serii z librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:94
 msgid ""
@@ -2330,6 +2334,8 @@ msgid ""
 "Specify the character encoding of the output document. The default is "
 "cp1252. Note: This option is not honored by all formats."
 msgstr ""
+"Określ kodowanie znaków dokumentu wyjściowego. Domyślnie to cp1252. Uwaga: "
+"ta opcja nie jest honorowana przez wszystkie formaty."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:24
 msgid "Do not extract images from the document"
@@ -2559,6 +2565,8 @@ msgid ""
 "Preserve the aspect ratio of the cover, instead of stretching it to fill the "
 "ull first page of the generated pdf."
 msgstr ""
+"Zachowaj pierwotne proporcje boków okładki zamiast rozciągania jej, by "
+"zajmowała całą pierwszą stronę wygenerowanego pliku pdf."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:55
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -2567,7 +2575,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/output.py:33
 msgid ""
 "Specify the character encoding of the output document. The default is cp1252."
-msgstr ""
+msgstr "Określ kodowanie znaków dokumentu wyjściowego. Domyślnie to cp1252."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:199
 msgid ""
@@ -2579,9 +2587,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8."
-msgstr ""
-"Określ kodowanie znaków dla dokumentu wyjściowego. Domyślne kodowanie to UTF-"
-"8."
+msgstr "Określ kodowanie znaków dokumentu wyjściowego. Domyślnie to utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
@@ -2621,6 +2627,8 @@ msgid ""
 "Specify the character encoding of the output document. The default is utf-8. "
 "Note: This option is not honored by all formats."
 msgstr ""
+"Określ kodowanie znaków dokumentu wyjściowego. Domyślnie to utf-8. Uwaga: ta "
+"opcja nie jest honorowana przez wszystkie formaty."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:38
 msgid ""
@@ -3367,7 +3375,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:22
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:53
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:116
@@ -3412,7 +3420,7 @@ msgstr ""
 msgid "None"
 msgstr "Brak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:301
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:308
 msgid "Click to open Book Details window"
 msgstr ""
 
@@ -4950,11 +4958,11 @@ msgstr "nowy adres email"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:489
 msgid "Wide"
-msgstr ""
+msgstr "Szeroki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:490
 msgid "Narrow"
-msgstr ""
+msgstr "Wąski"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:500
 msgid "System port selected"
@@ -7156,7 +7164,7 @@ msgstr "Nie można zatrzymać zadania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:217
 msgid "Cannot kill jobs that communicate with the device"
-msgstr "Nie można przerwać zadania, które komunikuje się z urządzeniem"
+msgstr "Nie można przerwać zadań, które komunikują się z urządzeniem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:220
 msgid "Job has already run"

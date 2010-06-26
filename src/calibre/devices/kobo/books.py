@@ -8,7 +8,6 @@ import re
 import time
 
 from calibre.ebooks.metadata import MetaInformation
-from calibre.devices.interface import BookList as _BookList
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre import isbytestring
 
@@ -51,9 +50,7 @@ class Book(MetaInformation):
                 self.datetime = time.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
             else:
                 self.datetime = time.gmtime(os.path.getctime(self.path))
-        except ValueError:
-             self.datetime = time.gmtime()
-        except OSError:
+        except:
              self.datetime = time.gmtime()
 
         self.thumbnail = ImageWrapper(thumbnail_name)

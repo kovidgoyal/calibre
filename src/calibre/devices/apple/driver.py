@@ -277,7 +277,6 @@ class ITUNES(DriverBase):
 
             # Fetch a list of books from iPod device connected to iTunes
 
-
             if 'iPod' in self.sources:
                 booklist = BookList(self.log)
                 cached_books = {}
@@ -366,7 +365,7 @@ class ITUNES(DriverBase):
                     self._dump_cached_books('returning from books()',indent=2)
                 return booklist
         else:
-            return []
+            return BookList(self.log)
 
     def can_handle(self, device_info, debug=False):
         '''
@@ -377,7 +376,7 @@ class ITUNES(DriverBase):
 
         Confirm that:
             - iTunes is running
-            - there is an iPod-type device connected
+            - there is an iDevice connected
         This gets called first when the device fingerprint is read, so it needs to
         instantiate iTunes if necessary
         This gets called ~1x/second while device fingerprint is sensed
@@ -2049,8 +2048,13 @@ class ITUNES(DriverBase):
             running_apps = appscript.app('System Events')
             if not 'iTunes' in running_apps.processes.name():
                 if DEBUG:
-                    self.log.info( "ITUNES:open(): Launching iTunes" )
-                self.iTunes = iTunes= appscript.app('iTunes', hide=True)
+                    self.log.info( "ITUNES:_launch_iTunes(): Launching iTunes" )
+                try:
+                    self.iTunes = iTunes= appscript.app('iTunes', hide=True)
+                except:
+                    self.iTunes = None
+                    raise UserFeedback(' ITUNES._launch_iTunes(): unable to find installed iTunes', details=None, level=UserFeedback.WARN)
+
                 iTunes.run()
                 self.initial_status = 'launched'
             else:
@@ -2091,7 +2095,12 @@ class ITUNES(DriverBase):
                 os.path.normpath("//server/share") returns "\\\\server\\share"
             '''
             # Instantiate iTunes
-            self.iTunes = win32com.client.Dispatch("iTunes.Application")
+            try:
+                self.iTunes = win32com.client.Dispatch("iTunes.Application")
+            except:
+                self.iTunes = None
+                raise UserFeedback(' ITUNES._launch_iTunes(): unable to find installed iTunes', details=None, level=UserFeedback.WARN)
+
             if not DEBUG:
                 self.iTunes.Windows[0].Minimized = True
             self.initial_status = 'launched'
@@ -2422,24 +2431,24 @@ class ITUNES(DriverBase):
         if isosx:
             if lb_added:
                 lb_added.album.set(metadata.title)
+                lb_added.artist.set(metadata.authors[0])
                 lb_added.composer.set(metadata.uuid)
                 lb_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.enabled.set(True)
                 lb_added.sort_artist.set(metadata.author_sort.title())
                 lb_added.sort_name.set(this_book.title_sorter)
                 if this_book.format == 'pdf':
-                    lb_added.artist.set(metadata.authors[0])
                     lb_added.name.set(metadata.title)
 
             if db_added:
                 db_added.album.set(metadata.title)
+                db_added.artist.set(metadata.authors[0])
                 db_added.composer.set(metadata.uuid)
                 db_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.enabled.set(True)
                 db_added.sort_artist.set(metadata.author_sort.title())
                 db_added.sort_name.set(this_book.title_sorter)
                 if this_book.format == 'pdf':
-                    db_added.artist.set(metadata.authors[0])
                     db_added.name.set(metadata.title)
 
             if metadata.comments:
@@ -2490,24 +2499,24 @@ class ITUNES(DriverBase):
         elif iswindows:
             if lb_added:
                 lb_added.Album = metadata.title
+                lb_added.Artist = metadata.authors[0]
                 lb_added.Composer = metadata.uuid
                 lb_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.Enabled = True
                 lb_added.SortArtist = (metadata.author_sort.title())
                 lb_added.SortName = (this_book.title_sorter)
                 if this_book.format == 'pdf':
-                    lb_added.Artist = metadata.authors[0]
                     lb_added.Name = metadata.title
 
             if db_added:
                 db_added.Album = metadata.title
+                db_added.Artist = metadata.authors[0]
                 db_added.Composer = metadata.uuid
                 db_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.Enabled = True
                 db_added.SortArtist = (metadata.author_sort.title())
                 db_added.SortName = (this_book.title_sorter)
                 if this_book.format == 'pdf':
-                    db_added.Artist = metadata.authors[0]
                     db_added.Name = metadata.title
 
             if metadata.comments:
@@ -2564,6 +2573,225 @@ class ITUNES(DriverBase):
                             db_added.Genre = tag
                         break
 
+class ITUNES_ASYNC(ITUNES):
+    '''
+    This subclass allows the user to interact directly with iTunes via a menu option
+    'Connect to iTunes' in Send to device.
+    '''
+    name = 'iTunes interface'
+    gui_name = 'Apple iTunes'
+    icon = I('devices/itunes.png')
+    description    = _('Communicate with iTunes.')
+
+    connected = False
+
+    def __init__(self,path):
+        if DEBUG:
+            self.log.info("ITUNES_ASYNC:__init__()")
+
+        if isosx and appscript is None:
+            self.connected = False
+            raise UserFeedback('OSX 10.5 or later required', details=None, level=UserFeedback.WARN)
+            return
+        else:
+            self.connected = True
+
+        if isosx:
+            self._launch_iTunes()
+
+        if iswindows:
+            try:
+                pythoncom.CoInitialize()
+                self._launch_iTunes()
+            except:
+                raise UserFeedback('unable to launch iTunes', details=None, level=UserFeedback.WARN)
+            finally:
+                pythoncom.CoUninitialize()
+
+        self.manual_sync_mode = False
+
+    def books(self, oncard=None, end_session=True):
+        """
+        Return a list of ebooks on the device.
+        @param oncard:  If 'carda' or 'cardb' return a list of ebooks on the
+                        specific storage card, otherwise return list of ebooks
+                        in main memory of device. If a card is specified and no
+                        books are on the card return empty list.
+        @return: A BookList.
+
+        Implementation notes:
+        iTunes does not sync purchased books, they are only on the device.  They are visible, but
+        they are not backed up to iTunes.  Since calibre can't manage them, don't show them in the
+        list of device books.
+
+        """
+        if not oncard:
+            if DEBUG:
+                self.log.info("ITUNES_ASYNC:books(oncard=%s)" % oncard)
+
+            # Fetch a list of books from iTunes
+
+            booklist = BookList(self.log)
+            cached_books = {}
+
+            if isosx:
+                library_books = self._get_library_books()
+                book_count = float(len(library_books))
+                for (i,book) in enumerate(library_books):
+                    this_book = Book(library_books[book].name(), library_books[book].artist())
+                    this_book.path = self.path_template % (library_books[book].name(),
+                                                           library_books[book].artist())
+                    try:
+                        this_book.datetime = parse_date(str(library_books[book].date_added())).timetuple()
+                    except:
+                        pass
+                    this_book.db_id = None
+                    this_book.device_collections = []
+                    #this_book.library_id = library_books[this_book.path] if this_book.path in library_books else None
+                    this_book.library_id = library_books[book]
+                    this_book.size = library_books[book].size()
+                    this_book.uuid = library_books[book].album()
+                    # Hack to discover if we're running in GUI environment
+                    if self.report_progress is not None:
+                        this_book.thumbnail = self._generate_thumbnail(this_book.path, library_books[book])
+                    else:
+                        this_book.thumbnail = None
+                    booklist.add_book(this_book, False)
+
+                    cached_books[this_book.path] = {
+                     'title':library_books[book].name(),
+                     'author':[library_books[book].artist()],
+                     'lib_book':library_books[book],
+                     'dev_book':None,
+                     'uuid': library_books[book].composer(),
+                     #'format': 'pdf' if book.KindAsString.startswith('PDF') else 'epub'
+                     }
+
+                    if self.report_progress is not None:
+                        self.report_progress(i+1/book_count, _('%d of %d') % (i+1, book_count))
+
+            elif iswindows:
+                try:
+                    pythoncom.CoInitialize()
+                    self.iTunes = win32com.client.Dispatch("iTunes.Application")
+                    library_books = self._get_library_books()
+                    book_count = float(len(library_books))
+                    for (i,book) in enumerate(library_books):
+                        this_book = Book(library_books[book].Name, library_books[book].Artist)
+                        this_book.path = self.path_template % (library_books[book].Name,
+                                                               library_books[book].Artist)
+                        try:
+                            this_book.datetime = parse_date(str(library_books[book].DateAdded)).timetuple()
+                        except:
+                            pass
+                        this_book.db_id = None
+                        this_book.device_collections = []
+                        this_book.library_id = library_books[book]
+                        this_book.size = library_books[book].Size
+                        # Hack to discover if we're running in GUI environment
+                        if self.report_progress is not None:
+                            this_book.thumbnail = self._generate_thumbnail(this_book.path, library_books[book])
+                        else:
+                            this_book.thumbnail = None
+                        booklist.add_book(this_book, False)
+
+                        cached_books[this_book.path] = {
+                         'title':library_books[book].Name,
+                         'author':library_books[book].Artist,
+                         'lib_book':library_books[book],
+                         'uuid': library_books[book].Composer,
+                         'format': 'pdf' if library_books[book].KindAsString.startswith('PDF') else 'epub'
+                         }
+
+                        if self.report_progress is not None:
+                            self.report_progress(i+1/book_count,
+                                    _('%d of %d') % (i+1, book_count))
+
+                finally:
+                    pythoncom.CoUninitialize()
+
+            if self.report_progress is not None:
+                self.report_progress(1.0, _('finished'))
+            self.cached_books = cached_books
+            if DEBUG:
+                self._dump_booklist(booklist, 'returning from books()', indent=2)
+                self._dump_cached_books('returning from books()',indent=2)
+            return booklist
+
+        else:
+            return BookList(self.log)
+
+    def unmount_device(self):
+        '''
+        '''
+        if DEBUG:
+            self.log.info("ITUNES_ASYNC:unmount_device()")
+        self.connected = False
+
+    def eject(self):
+        '''
+        Un-mount / eject the device from the OS. This does not check if there
+        are pending GUI jobs that need to communicate with the device.
+        '''
+        if DEBUG:
+            self.log.info("ITUNES_ASYNC:eject()")
+        self.iTunes = None
+        self.connected = False
+
+    def free_space(self, end_session=True):
+        """
+        Get free space available on the mountpoints:
+          1. Main memory
+          2. Card A
+          3. Card B
+
+        @return: A 3 element list with free space in bytes of (1, 2, 3). If a
+        particular device doesn't have any of these locations it should return -1.
+        """
+        if DEBUG:
+            self.log.info("ITUNES_ASYNC:free_space()")
+        free_space = 0
+        if isosx:
+            s = os.statvfs(os.sep)
+            free_space = s.f_bavail * s.f_frsize
+        elif iswindows:
+            free_bytes = ctypes.c_ulonglong(0)
+            ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p(os.sep), None, None, ctypes.pointer(free_bytes))
+            free_space = free_bytes.value
+        return (free_space,-1,-1)
+
+    def get_device_information(self, end_session=True):
+        """
+        Ask device for device information. See L{DeviceInfoQuery}.
+        @return: (device name, device version, software version on device, mime type)
+        """
+        if DEBUG:
+            self.log.info("ITUNES_ASYNC:get_device_information()")
+
+        return ('iTunes','hw v1.0','sw v1.0', 'mime type normally goes here')
+
+    def is_usb_connected(self, devices_on_system, debug=False,
+            only_presence=False):
+        return self.connected, self
+
+    def sync_booklists(self, booklists, end_session=True):
+        '''
+        Update metadata on device.
+        @param booklists: A tuple containing the result of calls to
+                                (L{books}(oncard=None), L{books}(oncard='carda'),
+                                L{books}(oncard='cardb')).
+        '''
+
+        if DEBUG:
+            self.log.info("ITUNES_ASYNC.sync_booklists()")
+
+        # Inform user of any problem books
+        if self.problem_titles:
+            raise UserFeedback(self.problem_msg,
+                                  details='\n'.join(self.problem_titles), level=UserFeedback.WARN)
+        self.problem_titles = []
+        self.problem_msg = None
+        self.update_list = []
 
 class BookList(list):
     '''

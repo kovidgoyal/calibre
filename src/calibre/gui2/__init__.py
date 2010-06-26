@@ -103,6 +103,8 @@ def _config():
             help=_('The layout of the user interface'), default='wide')
     c.add_opt('show_avg_rating', default=True,
             help=_('Show the average rating per item indication in the tag browser'))
+    c.add_opt('disable_animations', default=False,
+            help=_('Disable UI animations'))
     return ConfigProxy(c)
 
 config = _config()

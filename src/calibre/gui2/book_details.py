@@ -16,6 +16,7 @@ from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.constants import preferred_encoding
 from calibre.library.comments import comments_to_html
+from calibre.gui2 import config
 
 # render_rows(data) {{{
 WEIGHTS = collections.defaultdict(lambda : 100)
@@ -133,7 +134,7 @@ class CoverView(QWidget): # {{{
             self.pixmap = self.default_pixmap
         self.do_layout()
         self.update()
-        if not same_item:
+        if not same_item and not config['disable_animations']:
             self.animation.start()
 
     def paintEvent(self, event):

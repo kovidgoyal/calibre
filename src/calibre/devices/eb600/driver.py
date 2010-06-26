@@ -186,6 +186,15 @@ class BOOQ(EB600):
     WINDOWS_MAIN_MEM = 'EB600'
     WINDOWS_CARD_A_MEM = 'EB600'
 
+class MENTOR(EB600):
+
+    name = 'Astak Mentor EB600'
+    gui_name = 'Mentor'
+    description = _('Communicate with the Astak Mentor EB600')
+    FORMATS = ['epub', 'fb2', 'mobi', 'prc', 'pdf', 'txt']
+
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'MENTOR'
+
 class ELONEX(EB600):
 
     name = 'Elonex 600EB'
