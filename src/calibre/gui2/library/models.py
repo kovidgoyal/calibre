@@ -43,6 +43,14 @@ class FormatPath(unicode):
         ans.deleted_after_upload = False
         return ans
 
+_default_image = None
+
+def default_image():
+    global _default_image
+    if _default_image is None:
+        _default_image = QImage(I('default_cover.svg'))
+    return _default_image
+
 class BooksModel(QAbstractTableModel): # {{{
 
     about_to_be_sorted   = pyqtSignal(object, name='aboutToBeSorted')
@@ -71,7 +79,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.book_on_device = None
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
                               'tags', 'series', 'timestamp', 'pubdate']
-        self.default_image = QImage(I('book.svg'))
+        self.default_image = default_image()
         self.sorted_on = DEFAULT_SORT
         self.sort_history = [self.sorted_on]
         self.last_search = '' # The last search performed on this model
