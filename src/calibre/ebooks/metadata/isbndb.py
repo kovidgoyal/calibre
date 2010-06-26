@@ -34,7 +34,8 @@ def fetch_metadata(url, max=100, timeout=5.):
             errmsg = soup.find('errormessage').string
             raise ISBNDBError('Error fetching metadata: '+errmsg)
         total_results = int(book_list['total_results'])
-        np = '&page_number=%s&'%(page_number+1)
+        page_number += 1
+        np = '&page_number=%s&'%page_number
         url = re.sub(r'\&page_number=\d+\&', np, url)
         books.extend(book_list.findAll('bookdata'))
         max -= 1
