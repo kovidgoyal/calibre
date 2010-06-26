@@ -499,7 +499,6 @@ plugins += [
 ]
 # Order here matters. The first matched device is the one used.
 plugins += [
-    ITUNES,
     HANLINV3,
     HANLINV5,
     BLACKBERRY,
@@ -551,6 +550,7 @@ plugins += [
     FOLDER_DEVICE_FOR_CONFIG,
     AVANT,
     MENTOR,
+    ITUNES,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
