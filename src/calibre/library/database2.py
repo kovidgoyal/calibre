@@ -126,7 +126,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dbpath = os.path.join(library_path, 'metadata.db')
         self.dbpath = os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH',
                 self.dbpath)
-        if isinstance(self.dbpath, unicode):
+        if isinstance(self.dbpath, unicode) and not iswindows:
             self.dbpath = self.dbpath.encode(filesystem_encoding)
 
         self.connect()
