@@ -15,19 +15,23 @@ if _dev_path is not None:
     if not os.path.exists(_dev_path):
         _dev_path = None
 
+_path_cache = {}
+
 def get_path(path, data=False):
     global _dev_path
     path = path.replace(os.sep, '/')
-    base = None
+    base = sys.resources_location
     if _dev_path is not None:
+        if path in _path_cache:
+            return _path_cache[path]
         if os.path.exists(os.path.join(_dev_path, *path.split('/'))):
             base = _dev_path
-    if base is None:
-        base = sys.resources_location
-    path = os.path.join(base, *path.split('/'))
+    fpath = os.path.join(base, *path.split('/'))
+    if _dev_path is not None:
+        _path_cache[path] = fpath
     if data:
-        return open(path, 'rb').read()
-    return path
+        return open(fpath, 'rb').read()
+    return fpath
 
 def get_image_path(path, data=False):
     return get_path('images/'+path, data=data)
