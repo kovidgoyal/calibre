@@ -1,21 +1,16 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class TimesOfIndia(BasicNewsRecipe):
     title          = u'Times of India'
     language       = 'en_IN'
-    __author__     = 'Krittika Goyal'
+    __author__     = 'Kovid Goyal'
     oldest_article = 1 #days
     max_articles_per_feed = 25
 
-    remove_stylesheets = True
+    no_stylesheets = True
+    keep_only_tags = [dict(attrs={'class':'prttabl'})]
     remove_tags = [
-       dict(name='iframe'),
-       dict(name='td', attrs={'class':'newptool1'}),
-       dict(name='div', attrs={'id':'newptool'}),
-       dict(name='ul', attrs={'class':'newtabcontent_tabs_new'}),
-       dict(name='b', text='Topics'),
-       dict(name='span', text=':'),
+            dict(style=lambda x: x and 'float' in x)
     ]
 
     feeds          = [
@@ -42,13 +37,8 @@ class TimesOfIndia(BasicNewsRecipe):
 ('Most Read',
  'http://timesofindia.indiatimes.com/rssfeedmostread.cms')
 ]
+    def print_version(self, url):
+        return url + '?prtpage=1'
 
     def preprocess_html(self, soup):
-        heading = soup.find(name='h1', attrs={'class':'heading'})
-        td = heading.findParent(name='td')
-        td.extract()
-        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
-        body = soup.find(name='body')
-        body.insert(0, td)
-        td.name = 'div'
         return soup
