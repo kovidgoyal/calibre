@@ -325,7 +325,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         # Avoid problems with multi-line widgets
         turnover_point = count_non_comment + 1000
     ans = []
-    column = row = 0
+    column = row = comments_row = 0
     for col in cols:
         dt = x[col]['datatype']
         if dt == 'comments':
@@ -337,11 +337,13 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
             layout.addWidget(w.widgets[c], row, column)
             layout.addWidget(w.widgets[c+1], row, column+1)
             row += 1
+        comments_row = max(comments_row, row)
         if row >= turnover_point:
             column += 2
             turnover_point = count_non_comment + 1000
             row = 0
     if not bulk: # Add the comments fields
+        row = comments_row
         column = 0
         for col in cols:
             dt = x[col]['datatype']
