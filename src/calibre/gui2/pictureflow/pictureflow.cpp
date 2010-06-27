@@ -579,7 +579,7 @@ void PictureFlowPrivate::resetSlides()
 static QImage prepareSurface(QImage img, int w, int h)
 {
   Qt::TransformationMode mode = Qt::SmoothTransformation;
-  img = img.scaled(w, h, Qt::KeepAspectRatioByExpanding, mode);
+  img = img.scaled(w, h, Qt::IgnoreAspectRatio, mode);
 
   // slightly larger, to accommodate for the reflection
   int hs = int(h * REFLECTION_FACTOR);
