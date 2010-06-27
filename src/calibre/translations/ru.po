@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-25 23:45+0000\n"
-"PO-Revision-Date: 2010-06-25 18:51+0000\n"
-"Last-Translator: Ilya Telegin <devi29rus@gmail.com>\n"
+"PO-Revision-Date: 2010-06-26 17:47+0000\n"
+"Last-Translator: Zhilin Ruslan <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-26 03:55+0000\n"
+"X-Launchpad-Export-Date: 2010-06-27 03:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -377,10 +377,11 @@ msgstr ""
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
 msgstr ""
+"Предназначено для iPad и аналогичных устройств с разрешением 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:368
 msgid "This profile is intended for the Kobo Reader."
-msgstr ""
+msgstr "Этот профиль предназначен для Kobo Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:381
 msgid "This profile is intended for the SONY PRS-300."
@@ -420,7 +421,7 @@ msgstr "Отключенные модули"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Enabled plugins"
-msgstr ""
+msgstr "Включены плагины"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:83
 msgid "No valid plugin found in "
@@ -487,11 +488,11 @@ msgstr "Связь с телефоном S60"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:86
 msgid "Communicate with iBooks through iTunes."
-msgstr ""
+msgstr "Связывать с iBooks через iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:92
 msgid "Apple device detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "Обнаружено устройство Apple, запуск iTunes, пожалуйста, подождите..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:243
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:246
@@ -505,7 +506,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2671
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2708
 msgid "%d of %d"
-msgstr ""
+msgstr "%d из %d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:361
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:912
@@ -515,7 +516,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:536
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "Использовать Серии как Категории в iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:548
 msgid ""
@@ -523,12 +524,17 @@ msgid ""
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Некоторые книги не найдены в базе данных iTunes.\n"
+"Удаление с помощью приложения iBooks.\n"
+"Нажмите кнопку \"Показать детали\" для списка."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:838
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Некоторые обложки не могут быть преобразованы.\n"
+"Нажмите кнопку \"Показать детали\" для списка."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2357
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:807
@@ -544,7 +550,7 @@ msgstr "Новости"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2584
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "Устанавить связь с iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -571,11 +577,12 @@ msgstr "Соединяться с EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr ""
+msgstr "Устанавить связь c  Astak Mentor EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
 msgstr ""
+"Устанавить связь c устройством для чтения электронных книг PocketBook 301."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -583,7 +590,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr ""
+msgstr "Устанавить связь c  Entourage Edge."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
@@ -591,7 +598,7 @@ msgstr "Соединяться с ESlick."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
-msgstr ""
+msgstr "Устанавить связь c устройством для чтения электронных книг Sigmatek."
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:30
@@ -627,15 +634,18 @@ msgstr "Communicate with the Hanvon N520"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:40
 msgid "Communicate with The Book reader."
-msgstr ""
+msgstr "Устанавить связь c устройством для чтения электронных книг"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:51
 msgid "Communicate with the SpringDesign Alex eBook reader."
 msgstr ""
+"Устанавить связь c устройством для чтения электронных книг \"SpringDesign "
+"Alex\""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:67
 msgid "Communicate with the Azbooka"
 msgstr ""
+"Устанавить связь c устройством для чтения электронных книг \"Azbooka\""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:80
 msgid "Communicate with the Elonex EB 511 eBook reader."
@@ -723,7 +733,7 @@ msgstr "Связь с Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:35
 msgid "Communicate with the Booq Avant"
-msgstr ""
+msgstr "Устанавить связь c Booq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -751,7 +761,7 @@ msgstr "Соединяться с Sony PRS-500."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with all the Sony eBook readers."
-msgstr ""
+msgstr "Устанавить связь c устройствами для чтения электронных книг \"Sony\""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:61
 msgid ""
@@ -777,10 +787,12 @@ msgstr "Сообщение с Teclast K3 reader."
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:37
 msgid "Communicate with the Newsmy reader."
 msgstr ""
+"Устанавить связь c устройством для чтения электронных книг \"Newsmy\""
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:49
 msgid "Communicate with the iPapyrus reader."
 msgstr ""
+"Устанавить связь c устройством для чтения электронных книг \"iPapyrus\""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:245
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -3097,16 +3109,17 @@ msgstr "Архивы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:364
 msgid "Supported books"
-msgstr ""
+msgstr "Поддерживаемые книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:399
 msgid "Merged some books"
-msgstr ""
+msgstr "Объединить книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:400
 msgid ""
 "Some duplicates were found and merged into the following existing books:"
 msgstr ""
+"Некоторые дубликаты были найдены и объединены в следующие существующие книги:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:409
 msgid "Failed to read metadata"
@@ -3119,7 +3132,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:429
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:434
 msgid "Add to library"
-msgstr ""
+msgstr "Добавить в библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:429
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:459
@@ -3134,11 +3147,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:456
 msgid "Cannot delete"
-msgstr ""
+msgstr "Не удается удалить"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:469
 msgid "Choose formats to be deleted"
-msgstr ""
+msgstr "Выберите форматы для удаления"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:487
 msgid "Choose formats <b>not</b> to be deleted"
@@ -3146,31 +3159,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:507
 msgid "Cannot delete books"
-msgstr ""
+msgstr "Не удается удалить книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:508
 msgid "No device is connected"
-msgstr ""
+msgstr "Устройство не подключено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:518
 msgid "Main memory"
-msgstr ""
+msgstr "Основная память"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:519
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:427
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:436
 msgid "Storage Card A"
-msgstr ""
+msgstr "Карта памяти 1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:520
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:429
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:438
 msgid "Storage Card B"
-msgstr ""
+msgstr "Карта памяти 2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:525
 msgid "No books to delete"
-msgstr ""
+msgstr "Нет книг для удаления"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:526
 msgid "None of the selected books are on the device"
@@ -3243,7 +3256,7 @@ msgstr "Невозможно редактировать метаданные"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:724
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:727
 msgid "Cannot merge books"
-msgstr ""
+msgstr "Не удается объединить книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:728
 msgid "At least two books must be selected for merging"
@@ -4731,13 +4744,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:133
 msgid "Yes"
-msgstr ""
+msgstr "Да"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:134
 msgid "No"
-msgstr ""
+msgstr "Нет"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:115
 msgid "star(s)"
@@ -5120,7 +5133,7 @@ msgstr "%(plugin_type)s %(plugins)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:174
 msgid "plugins"
-msgstr ""
+msgstr "плагины"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:183
 msgid ""
@@ -5467,7 +5480,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:137
 msgid "  "
-msgstr ""
+msgstr "  "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:138
 msgid ""
@@ -5906,7 +5919,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:40
 msgid "Yes/No"
-msgstr ""
+msgstr "Да/Нет"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:64
 msgid "No column selected"
@@ -9051,7 +9064,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:275
 msgid "today"
-msgstr ""
+msgstr "сегодня"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:278
 msgid "yesterday"
@@ -9059,7 +9072,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:281
 msgid "thismonth"
-msgstr ""
+msgstr "В этом месяце"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:284
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:285
@@ -9069,7 +9082,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:436
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:446
 msgid "no"
-msgstr ""
+msgstr "нет"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:436
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:446
@@ -9084,7 +9097,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:439
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:449
 msgid "yes"
-msgstr ""
+msgstr "да"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:443
 msgid "blank"
@@ -9625,15 +9638,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:525
 msgid "Main"
-msgstr ""
+msgstr "Основная"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:527
 msgid "Card A"
-msgstr ""
+msgstr "Карта 1"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:529
 msgid "Card B"
-msgstr ""
+msgstr "Карта 2"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1750
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
@@ -9661,11 +9674,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:118
 msgid "Ratings"
-msgstr ""
+msgstr "Оценки"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:24
 msgid "The title"
-msgstr ""
+msgstr "Название"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:25
 msgid "The authors"

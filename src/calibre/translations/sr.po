@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-25 23:45+0000\n"
-"PO-Revision-Date: 2010-06-25 19:05+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-06-26 09:24+0000\n"
+"Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-26 03:55+0000\n"
+"X-Launchpad-Export-Date: 2010-06-27 03:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -511,7 +511,7 @@ msgstr "završeno"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:536
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "Koristi Seriju umesto Kategorije za iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:548
 msgid ""
@@ -545,7 +545,7 @@ msgstr "Vesti"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2584
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "Uspostavi komunikaciju sa iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -571,7 +571,7 @@ msgstr "Uspostavi komunikaciju sa EB600 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr ""
+msgstr "Uspostavi komunikaciju sa Astak Mentor EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
@@ -2256,7 +2256,7 @@ msgstr "Preuzmi društvene metapodatke s amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:213
 msgid "Downloads series/tags/rating information from librarything.com"
-msgstr ""
+msgstr "Preuzima informacije o seriji/etiketi/oceni sa librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:94
 msgid ""
@@ -2326,6 +2326,11 @@ msgid ""
 "Fetch a cover image/social metadata for the book identified by ISBN from "
 "LibraryThing.com\n"
 msgstr ""
+"\n"
+"%prog [opcije] ISBN\n"
+"\n"
+"Preuzmi omot i metapodatke za knjigu identifikovanu ISBN brojem sa "
+"LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1222
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1398
@@ -3006,7 +3011,7 @@ msgstr "Prikaži srednju ocenu po stavki u izlogu etiketa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:107
 msgid "Disable UI animations"
-msgstr ""
+msgstr "Onemogući animacije u korisničkom interfejsu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:476
@@ -4855,7 +4860,7 @@ msgstr "Bez ocene"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:249
 msgid " index:"
-msgstr ""
+msgstr " indeks:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:430
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:183
@@ -4901,7 +4906,7 @@ msgstr "Pošalji metapodatke na uređaj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:303
 msgid "Send collections to device"
-msgstr ""
+msgstr "Pošalji kolekciju na uređaj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:312
 msgid "Upload %d books to device"
@@ -4965,11 +4970,11 @@ msgstr "Uspostavi komunikaciju s direktorijumom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:498
 msgid "Connect to iTunes (EXPERIMENTAL)"
-msgstr ""
+msgstr "Uspostavi komunikaciju sa iTunes (EKSPERIMENTALNO)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:503
 msgid "Eject device"
-msgstr ""
+msgstr "Isključi uređaj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:511
 msgid "Fetch annotations (experimental)"
@@ -5525,6 +5530,14 @@ msgid ""
 "Title match ignores leading indefinite articles (\"the\", \"a\", \"an\"), "
 "punctuation, case, etc. Author match is exact."
 msgstr ""
+"Ako je pronađena postojeća knjiga sa sličnim naslovom i autorom, a koja ne "
+"postoji u formatu koji se dodaje, taj format će biti dodat postojećoj knjizi "
+"umesto kao posebna knjiga. Ako postojeća knjiga već ima taj format, nova "
+"knjiga će bit ignorisana bez ikakve poruke.\n"
+"\n"
+"Sličnost naslova zanemaruje vodeće neodređene članove (\"the\", \"a\", "
+"\"an\"), interpunkciju, te veličinu slova. Poklapanje autora mora bit "
+"egzaktno."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:122
 msgid ""
@@ -5588,7 +5601,7 @@ msgstr "&Snimanje knjiga"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:135
 msgid "Preserve device collections."
-msgstr ""
+msgstr "Sačuvaj kolekcije već na uređaju."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:136
 msgid ""
@@ -5598,10 +5611,15 @@ msgid ""
 "unchecked, collections will be always reflect only the metadata in the "
 "calibre library."
 msgstr ""
+"Ako je izabrana ova opcija, kolekcije neće biti obrisane čak i ako se ponov "
+"pošalje knjiga sa izmenjenim metapodacima gde se kolekcija ne nalazi među "
+"njima. Uz to, izmena kolekcija u pogledu na uređaj će biti omogućena. Ako "
+"opcija nije izabrana, kolekcije će uvek odslikavati samo metapodatke u "
+"calibre biblioteci."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:137
 msgid "  "
-msgstr ""
+msgstr "  "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:138
 msgid ""
@@ -5788,11 +5806,11 @@ msgstr "Izg&led korisničkog interfejsa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:597
 msgid "Disable all animations. Useful if you have a slow/old computer."
-msgstr ""
+msgstr "Onemogući sve animacije. Korisno ako imate spor/stari računar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:598
 msgid "Disable &animations"
-msgstr ""
+msgstr "Onemogući &animacije"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:599
 msgid "Add an email address to which to send books"
@@ -6046,7 +6064,7 @@ msgstr "Dugačak tekst, kao i komentari, nije prikazan u izlogu etiketa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:28
 msgid "Text column for keeping series-like information"
-msgstr ""
+msgstr "Tekst kolona za prikaz informacija kao što je serija"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:33
 msgid "Floating point numbers"
@@ -7573,7 +7591,7 @@ msgstr "Dodaj knjige u biblioteku"
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:240
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:247
 msgid "Manage collections"
-msgstr ""
+msgstr "Uredi kolekicje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:327
 msgid "Cover Browser"
@@ -10384,6 +10402,7 @@ msgstr "Korisničke kategorije za izlog etiketa"
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:702
 msgid "Preserve all collections even if not in library metadata."
 msgstr ""
+"Sačuvaj sve kolekcije čak i ako ne postoje u metapodacima u biblioteci"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."

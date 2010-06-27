@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-25 23:45+0000\n"
-"PO-Revision-Date: 2010-06-25 10:54+0000\n"
+"PO-Revision-Date: 2010-06-26 08:54+0000\n"
 "Last-Translator: Øyvind Øritsland <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-26 03:55+0000\n"
+"X-Launchpad-Export-Date: 2010-06-27 03:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -516,7 +516,7 @@ msgstr "fullført"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:536
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "Bruk serier som kategori i iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:548
 msgid ""
@@ -550,7 +550,7 @@ msgstr "Nyheter"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2584
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "Kommuniser med iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -576,7 +576,7 @@ msgstr "Kommuniser med EB600 eBook-leser."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr ""
+msgstr "Kommuniser med Astak Mentor EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
@@ -2267,7 +2267,7 @@ msgstr "Last ned sosiale metadata fra amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:213
 msgid "Downloads series/tags/rating information from librarything.com"
-msgstr ""
+msgstr "Last ned serier/emneord/bedømningsinformasjon fra librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:94
 msgid ""
@@ -2340,6 +2340,13 @@ msgid ""
 "Fetch a cover image/social metadata for the book identified by ISBN from "
 "LibraryThing.com\n"
 msgstr ""
+"\n"
+"%prog [valgmuligheter] ISBN\n"
+"\n"
+"Skaff et omslagsbilde/sosiale metadata for boken som er identifisert fra "
+"ISBN via LibraryThing.com\n"
+"representerer et linjeskift. Begynn en ny linje i den tilsvarende posisjonen "
+"i oversettelsen.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1222
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1398
@@ -3011,7 +3018,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:107
 msgid "Disable UI animations"
-msgstr ""
+msgstr "Slå av UI animeringer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:476
@@ -4183,7 +4190,7 @@ msgstr "Ekstra &CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:136
 msgid "&Transliterate unicode characters to ASCII"
-msgstr ""
+msgstr "&Translitterær oversetning fra unicode tegnsett til ASCII"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:137
 msgid "Insert &blank line"
@@ -4191,7 +4198,7 @@ msgstr "Sett inn &blank linje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:138
 msgid "Keep &ligatures"
-msgstr ""
+msgstr "Behold &bindinger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -4502,7 +4509,7 @@ msgstr "&Orientering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:45
 msgid "Preserve &aspect ratio of cover"
-msgstr ""
+msgstr "Behold &aspektområdet til omslaget"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
@@ -4701,7 +4708,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:52
 msgid "Preserve &spaces"
-msgstr ""
+msgstr "Behold &mellomrom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:16
 msgid "TXT Output"
@@ -4817,7 +4824,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:119
 msgid "Cover browser could not be loaded"
-msgstr ""
+msgstr "Omslagssøker kunne ikke starte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:171
 msgid "Browse by covers"
@@ -4835,7 +4842,7 @@ msgstr "Søk blant omslag"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:238
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:242
 msgid "Undefined"
-msgstr ""
+msgstr "Ikke definert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:131
@@ -4851,15 +4858,15 @@ msgstr "Nei"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:115
 msgid "star(s)"
-msgstr ""
+msgstr "Stjerne(r)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:116
 msgid "Unrated"
-msgstr ""
+msgstr "Ikke rangert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:249
 msgid " index:"
-msgstr ""
+msgstr " indeks:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:430
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:183
@@ -4868,15 +4875,15 @@ msgstr "Automatisk nummererte bøker i denne serien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:473
 msgid "Remove all tags"
-msgstr ""
+msgstr "Fjerne alle emneord"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:494
 msgid "tags to add"
-msgstr ""
+msgstr "emneord som skal legges til"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:499
 msgid "tags to remove"
-msgstr ""
+msgstr "emneord som skal fjernes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:46
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:135
@@ -4905,7 +4912,7 @@ msgstr "Send metadata til enheten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:303
 msgid "Send collections to device"
-msgstr ""
+msgstr "Overfør samlingene til enheten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:312
 msgid "Upload %d books to device"
@@ -4936,7 +4943,7 @@ msgstr "-post til"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:407
 msgid " and delete from library"
-msgstr ""
+msgstr " og slett fra biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:416
 msgid "Send to main memory"
@@ -4953,27 +4960,27 @@ msgstr "Send til lagringskort B"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:425
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:434
 msgid "Main Memory"
-msgstr ""
+msgstr "Hovedminne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:452
 msgid "Send and delete from library"
-msgstr ""
+msgstr "Overfør og slett fra biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:453
 msgid "Send specific format"
-msgstr ""
+msgstr "Overfør spesifisert format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:492
 msgid "Connect to folder"
-msgstr ""
+msgstr "Knytt til mappe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:498
 msgid "Connect to iTunes (EXPERIMENTAL)"
-msgstr ""
+msgstr "Knytt til iTunes (EKSPERIMENTELT)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:503
 msgid "Eject device"
-msgstr ""
+msgstr "Koble fra enhet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:511
 msgid "Fetch annotations (experimental)"
@@ -4985,11 +4992,11 @@ msgstr "Feil ved kommunikasjonen med enheten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:642
 msgid "Select folder to open as device"
-msgstr ""
+msgstr "Velg mappe som skal åpnes som enhet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:687
 msgid "Failed"
-msgstr ""
+msgstr "Mislykket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:693
 msgid "Error talking to device"
@@ -5154,7 +5161,7 @@ msgstr "Bruk underkataloger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:83
 msgid "Use author sort for author"
-msgstr ""
+msgstr "Benytt forfattersortering for forfatter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:85
 msgid "Save &template:"
@@ -5229,7 +5236,7 @@ msgstr "&Profil:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog_ui.py:41
 msgid "Edit Comments"
-msgstr ""
+msgstr "Rediger kommentarer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:173
 msgid "%(plugin_type)s %(plugins)s"
@@ -5313,11 +5320,11 @@ msgstr "ny e-postadresse"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:489
 msgid "Wide"
-msgstr ""
+msgstr "Bred"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:490
 msgid "Narrow"
-msgstr ""
+msgstr "Reduser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:501
 msgid "System port selected"
@@ -5329,6 +5336,10 @@ msgid ""
 "port. Your operating system <b>may</b> not allow the server to run on this "
 "port. To be safe choose a port number larger than 1024."
 msgstr ""
+"Verdien <b>%d</b> som du har valgt til innholdets server-port er en system-"
+"port. Ditt operativsystem <b>vil</b> kanskje ikke tillate serveren å kjøre "
+"via denne porten. For å være sikker, velg et portnummer som er høyere enn "
+"1024."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:522
 msgid "Failed to install command line tools."
@@ -5392,11 +5403,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:683
 msgid "You must select a column to delete it"
-msgstr ""
+msgstr "Du må velge en kolonne for å slette den"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:688
 msgid "The selected column is not a custom column"
-msgstr ""
+msgstr "Den valgte kolonnen er ikke en tilpasset kolonne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:689
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:48
@@ -5405,7 +5416,7 @@ msgstr "Er du sikker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:690
 msgid "Do you really want to delete column %s and all its data?"
-msgstr ""
+msgstr "Ønsker du virkelig å slette kolonne %s og alle dataene i den?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:757
 msgid "Error log:"
@@ -5452,13 +5463,15 @@ msgstr "Ugyldig lokalisering av databasen.<br>Kan ikke skrive til "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:894
 msgid "Must restart"
-msgstr ""
+msgstr "Omstart behøves"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:895
 msgid ""
 "The changes you made require that Calibre be restarted. Please restart as "
 "soon as practical."
 msgstr ""
+"Endringene du har utført krever omstart av Calibre. Vennligst kjør omstart "
+"så snart du kan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:929
 msgid "Checking database integrity"
@@ -5524,6 +5537,14 @@ msgid ""
 "Title match ignores leading indefinite articles (\"the\", \"a\", \"an\"), "
 "punctuation, case, etc. Author match is exact."
 msgstr ""
+"Dersom en eksisterende bok med tilsvarende tittel og forfatter blir funnet "
+"og ikke har det formatet du har lagt til, vil formatet bli lagt\n"
+"til den eksisterende boken fremfor å lage en tilgang. Dersom den "
+"eksisterende boken allerede har dette formatet, vil det bli forbigått uten "
+"varsler.\n"
+"\n"
+"Titteltreff ignorerer ledende udefinerte artikler /\"the\", \"a\", \"an\"). "
+"punktum, sak, osv. Forfattertreff er nøyaktig."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:122
 msgid ""
@@ -5587,7 +5608,7 @@ msgstr "&Lagrer bøker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:135
 msgid "Preserve device collections."
-msgstr ""
+msgstr "Behold enhetssamlinger."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:136
 msgid ""
@@ -5597,10 +5618,15 @@ msgid ""
 "unchecked, collections will be always reflect only the metadata in the "
 "calibre library."
 msgstr ""
+"Om merket av, vil samlinger ikke bli slettet, selv om en bok med endrede "
+"metadata er sent på nytt og samlingen ikke finnes i bokens metadata. I "
+"tillegg vil endring av samlingen i enhetens leser bli slått på. Om ikke "
+"merket av, vil samlingen bare reflektere metadata som finnes i calibre-"
+"biblioteket."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:137
 msgid "  "
-msgstr ""
+msgstr "  "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:138
 msgid ""
@@ -5707,7 +5733,7 @@ msgstr "Vis &varsler i oppgavepanelet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:573
 msgid "Show &splash screen at startup"
-msgstr ""
+msgstr "Vis &splash bilde når enheten starter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:574
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -5715,7 +5741,7 @@ msgstr "Vis omslag &søk i eget vindu (krever omstart)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:575
 msgid "Show &average ratings in the tags browser"
-msgstr ""
+msgstr "Vis &gjennomsnittlig bedømming i emneordssøkeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:576
 msgid "Search as you type"
@@ -5763,15 +5789,15 @@ msgstr "Velg synlige &kolonner i bibliotekvisningsmodus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:588
 msgid "Remove a user-defined column"
-msgstr ""
+msgstr "Fjern en brukerdefinert kolonne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:590
 msgid "Add a user-defined column"
-msgstr ""
+msgstr "Legg til en brukerdefinert kolonne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:592
 msgid "Edit settings of a user-defined column"
-msgstr ""
+msgstr "Rediger innstillinger for en brukerdefinert kolonne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:595
 msgid "Use internal &viewer for:"
@@ -5779,15 +5805,16 @@ msgstr "Bruk intern &leser for:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:596
 msgid "User Interface &layout (needs restart):"
-msgstr ""
+msgstr "Brukergrensesnitt &visning (krever omstart):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:597
 msgid "Disable all animations. Useful if you have a slow/old computer."
 msgstr ""
+"Slå av alle animeringer. Nyttig dersom du har en svak/eldre datamaskin."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:598
 msgid "Disable &animations"
-msgstr ""
+msgstr "Slå av &animeringer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:599
 msgid "Add an email address to which to send books"
@@ -5900,7 +5927,7 @@ msgstr "Maksimum &OPDS enheter per spørring:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:619
 msgid "Max. OPDS &ungrouped items:"
-msgstr ""
+msgstr "Maks OPDS &undergruppert innhold"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:620
 msgid "&Start Server"
@@ -6026,106 +6053,112 @@ msgstr "Lag og rediger emneordbaserte kolonner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:19
 msgid "Text, column shown in the tag browser"
-msgstr ""
+msgstr "Tekst, kolonne vist i emneordssøkeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:22
 msgid "Comma separated text, like tags, shown in the tag browser"
-msgstr ""
+msgstr "Kommaseparert tekst, som emneord, vist i emneordssøkeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:25
 msgid "Long text, like comments, not shown in the tag browser"
-msgstr ""
+msgstr "Lang tekst, som kommentarer, som ikke vises i emneordssøkeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:28
 msgid "Text column for keeping series-like information"
-msgstr ""
+msgstr "Tekstkolonne til bruk for serielignende informasjon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:33
 msgid "Floating point numbers"
-msgstr ""
+msgstr "Flytende pekenummer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:35
 msgid "Integers"
-msgstr ""
+msgstr "Heltall"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:37
 msgid "Ratings, shown with stars"
-msgstr ""
+msgstr "Bedømming, vist ved stjerner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:40
 msgid "Yes/No"
-msgstr ""
+msgstr "Ja/Nei"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:64
 msgid "No column selected"
-msgstr ""
+msgstr "Ingen kolonne ble valgt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:65
 msgid "No column has been selected"
-msgstr ""
+msgstr "Ingen kolonne har blitt valgt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:69
 msgid "Selected column is not a user-defined column"
-msgstr ""
+msgstr "Valgte kolonne er ikke en brukerdefinert kolonne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:100
 msgid "No lookup name was provided"
-msgstr ""
+msgstr "Ingen oppslagsord er angitt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:102
 msgid ""
 "The label must contain only letters, digits and underscores, and start with "
 "a letter"
 msgstr ""
+"Merkelappen kan kun inneholde bokstaver, tall og understreker, og må starte "
+"med en bokstav"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:111
 msgid "No column heading was provided"
-msgstr ""
+msgstr "Ingen kolonneoverskrift er angitt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:117
 msgid "The lookup name %s is already used"
-msgstr ""
+msgstr "Søkenavnet %s er allerede benyttet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:127
 msgid "The heading %s is already used"
-msgstr ""
+msgstr "Overskriften %s er allerede benyttet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:129
 msgid ""
 "The lookup name must be lower case and cannot contain \":\"s or spaces"
 msgstr ""
+"Søkenavnet må skrives med små bokstaver og kan ikke inneholde \".\" eller "
+"mellomrom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column_ui.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column_ui.py:117
 msgid "Create or edit custom columns"
-msgstr ""
+msgstr "Lag eller rediger brukerdefinerte kolonner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column_ui.py:102
 msgid "&Lookup name"
-msgstr ""
+msgstr "&Søkenavn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column_ui.py:103
 msgid "Column &heading"
-msgstr ""
+msgstr "&Kolonneoverskrift"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column_ui.py:104
 msgid ""
 "Used for searching the column. Must contain only digits and lower case "
 "letters."
 msgstr ""
+"Brukes til å søke i kolonnen. Kan kun inneholde nummer og små bokstaver."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column_ui.py:105
 msgid ""
 "Column heading in the library view and category name in the tag browser"
 msgstr ""
+"Kolonnenoverskrift i biblioteksvisning og kategorinavn i emneordssøkeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column_ui.py:106
 msgid "Column &type"
-msgstr ""
+msgstr "&Kolonnetype"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column_ui.py:107
 msgid "What kind of information will be kept in the column."
-msgstr ""
+msgstr "Den informasjonen som vil bli beholdt i kolonnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column_ui.py:108
 msgid ""
@@ -6137,18 +6170,25 @@ msgid ""
 "<li>dd MMMM yy gives 05 January 10</li>\n"
 "</ul> "
 msgstr ""
+"<p>Datoformat. Bruk 1-4 'd's for dag, 1-4 'M's for måned, og 2 eller 4 'y' "
+"for år.</p>\n"
+"<p>Som eksempel:\n"
+"<ul>\n"
+"<li> ddd, d MMM yyyy viser Man, 5 Jan 2010<li>\n"
+"<li>dd MMMM yy viser 05 Januar 10</li>\n"
+"</ul> "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column_ui.py:114
 msgid "Use MMM yyyy for month + year, yyyy for year only"
-msgstr ""
+msgstr "Bruk MMM yyyy for måned + år, yyyy kun for år"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column_ui.py:115
 msgid "Default: dd MMM yyyy."
-msgstr ""
+msgstr "Standard: dd MMM yyyy."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column_ui.py:116
 msgid "Format for &dates"
-msgstr ""
+msgstr "Datoformater"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:21
 msgid "Getting debug information"
@@ -6206,7 +6246,7 @@ msgstr "Feilmelding"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:69
 msgid "Location"
-msgstr ""
+msgstr "Lokalisering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1050
@@ -6215,15 +6255,15 @@ msgstr "Format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device_ui.py:50
 msgid "Delete from device"
-msgstr ""
+msgstr "Slett fra enheten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:29
 msgid "Author sort"
-msgstr ""
+msgstr "Sortering blant forfattere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:47
 msgid "Manage authors"
-msgstr ""
+msgstr "Behandling av forfatterinformasjon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:60
 msgid "Author Sort"
@@ -6329,7 +6369,7 @@ msgstr "Stopp &alle jobber"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:24
 msgid "Editing meta information for <b>%d books</b>"
-msgstr ""
+msgstr "Rediger metainformasjon for <b>%d bøker</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:157
 msgid "Edit Meta information"
