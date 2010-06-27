@@ -273,10 +273,11 @@ def filter_metadata_results(item):
 
 def do_cover_check(item):
     item.has_cover = False
-    try:
-        item.has_cover = check_for_cover(item.isbn)
-    except:
-        pass # Cover not found
+    if item.isbn:
+        try:
+            item.has_cover = check_for_cover(item.isbn)
+        except:
+            pass # Cover not found
 
 def check_for_covers(items):
     threads = [Thread(target=do_cover_check, args=(item,)) for item in items]
