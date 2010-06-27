@@ -13,7 +13,7 @@ from calibre import isbytestring
 
 class Book(MetaInformation):
 
-    BOOK_ATTRS = ['lpath', 'size', 'mime', 'device_collections']
+    BOOK_ATTRS = ['lpath', 'size', 'mime', 'device_collections', '_new_book']
 
     JSON_ATTRS = [
         'lpath', 'title', 'authors', 'mime', 'size', 'tags', 'author_sort',
@@ -27,6 +27,7 @@ class Book(MetaInformation):
 
         MetaInformation.__init__(self, '')
         self.device_collections = []
+        self._new_book = False
 
         self.path = os.path.join(prefix, lpath)
         if os.sep == '\\':
