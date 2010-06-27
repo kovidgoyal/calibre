@@ -89,6 +89,7 @@ class NYTimes(BasicNewsRecipe):
                             'relatedSearchesModule',
                             'side_tool',
                             'singleAd',
+                            'subNavigation clearfix',
                             'subNavigation tabContent active',
                             'subNavigation tabContent active clearfix',
                             ]}),

@@ -269,11 +269,11 @@ class TouchscreenFeedTemplate(Template):
             link = A(CLASS('feed_link'),
                      trim_title(feeds[f-1].title),
                      href = '../feed_%d/index.html' % int(f-1))
-        navbar_tr.append(TD(link, width="40%", align="center"))
+        navbar_tr.append(TD(CLASS('feed_prev'),link))
 
         # Up to Sections
-        link = A(STRONG('Sections'), href="../index.html")
-        navbar_tr.append(TD(link,width="20%",align="center"))
+        link = A('Sections', href="../index.html")
+        navbar_tr.append(TD(CLASS('feed_up'),link))
 
         # Next Section
         link = ''
@@ -281,7 +281,7 @@ class TouchscreenFeedTemplate(Template):
             link = A(CLASS('feed_link'),
                      trim_title(feeds[f+1].title),
                      href = '../feed_%d/index.html' % int(f+1))
-        navbar_tr.append(TD(link, width="40%", align="center", ))
+        navbar_tr.append(TD(CLASS('feed_next'),link))
         navbar_t.append(navbar_tr)
         top_navbar = navbar_t
         bottom_navbar = copy.copy(navbar_t)
@@ -354,27 +354,25 @@ class TouchscreenNavBarTemplate(Template):
 
         # | Previous
         if art > 0:
-            href = '%s../article_%d/index.html'%(prefix, art-1)
-            navbar_tr.append(TD(A(EM('Previous'),href=href),
-                               width="32%"))
+            link = A(CLASS('article_link'),'Previous',href='%s../article_%d/index.html'%(prefix, art-1))
+            navbar_tr.append(TD(CLASS('article_prev'),link))
         else:
-            navbar_tr.append(TD('', width="32%"))
+            navbar_tr.append(TD(CLASS('article_prev'),''))
 
         # | Articles | Sections |
-        href = '%s../index.html#article_%d'%(prefix, art)
-        navbar_tr.append(TD(A(STRONG('Articles'), href=href),width="18%"))
+        link = A(CLASS('articles_link'),'Articles', href='%s../index.html#article_%d'%(prefix, art))
+        navbar_tr.append(TD(CLASS('article_articles_list'),link))
 
-        href = '%s../../index.html#feed_%d'%(prefix, feed)
-        navbar_tr.append(TD(A(STRONG('Sections'), href=href),width="18%"))
+        link = A(CLASS('sections_link'),'Sections', href='%s../../index.html#feed_%d'%(prefix, feed))
+        navbar_tr.append(TD(CLASS('article_sections_list'),link))
 
         # | Next
         next = 'feed_%d'%(feed+1) if art == number_of_articles_in_feed - 1 \
                 else 'article_%d'%(art+1)
         up = '../..' if art == number_of_articles_in_feed - 1 else '..'
-        href = '%s%s/%s/index.html'%(prefix, up, next)
 
-        navbar_tr.append(TD(A(EM('Next'),href=href),
-                           width="32%"))
+        link = A(CLASS('article_link'),'Next', href='%s%s/%s/index.html'%(prefix, up, next))
+        navbar_tr.append(TD(CLASS('article_next'),link))
         navbar_t.append(navbar_tr)
         navbar.append(navbar_t)
         #print "\n%s\n" % etree.tostring(navbar, pretty_print=True)

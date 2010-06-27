@@ -275,13 +275,43 @@ class iPadOutput(OutputProfile):
     # touchscreen_news_css {{{
     touchscreen_news_css = u'''
 			/* hr used in articles */
+			.article_articles_list {
+                width:18%;
+				}
+            .article_link {
+                font-style: italic;
+                }
+            .article_next {
+				-webkit-border-top-right-radius:4px;
+				-webkit-border-bottom-right-radius:4px;
+                font-style: italic;
+                width:32%;
+                }
+
+            .article_prev {
+				-webkit-border-top-left-radius:4px;
+				-webkit-border-bottom-left-radius:4px;
+                font-style: italic;
+                width:32%;
+                }
+			.article_sections_list {
+                width:18%;
+				}
+            .articles_link {
+                font-weight: bold;
+                }
+            .sections_link {
+                font-weight: bold;
+                }
+
+
             .caption_divider {
             	border:#ccc 1px solid;
 				}
 
             .touchscreen_navbar {
                 background:#ccc;
-                border:#ccc 1px solid;
+                border:#ccc 0px solid;
                 border-collapse:separate;
                 border-spacing:1px;
                 margin-left: 5%;
@@ -296,18 +326,6 @@ class iPadOutput(OutputProfile):
                 padding: 5px;
                 text-align:center;
                 }
-            .touchscreen_navbar td:first-child {
-				-webkit-border-top-left-radius:4px;
-				-webkit-border-bottom-left-radius:4px;
-				}
-			.touchscreen_navbar td:last-child {
-				-webkit-border-top-right-radius:4px;
-				-webkit-border-bottom-right-radius:4px;
-				}
-
-            .feed_link {
-                font-style: italic;
-                }
 
 			/* Index formatting */
 			.publish_date {
@@ -318,11 +336,46 @@ class iPadOutput(OutputProfile):
 				border-top:1px solid gray;
 				}
 
+			hr.caption_divider {
+				border-color:black;
+				border-style:solid;
+				border-width:1px;
+				}
+
             /* Feed summary formatting */
+            .feed {
+                font-family:sans-serif;
+                font-weight:bold;
+                font-size:larger;
+				}
+
+            .feed_link {
+                font-style: italic;
+                }
+
+            .feed_next {
+				-webkit-border-top-right-radius:4px;
+				-webkit-border-bottom-right-radius:4px;
+                font-style: italic;
+                width:40%;
+                }
+
+            .feed_prev {
+				-webkit-border-top-left-radius:4px;
+				-webkit-border-bottom-left-radius:4px;
+                font-style: italic;
+                width:40%;
+                }
+
             .feed_title {
                 text-align: center;
                 font-size: 160%;
                 }
+
+			.feed_up {
+                font-weight: bold;
+                width:20%;
+				}
 
             .summary_headline {
                 font-weight:bold;
@@ -336,12 +389,6 @@ class iPadOutput(OutputProfile):
 
             .summary_text {
                 text-align:left;
-				}
-
-            .feed {
-                font-family:sans-serif;
-                font-weight:bold;
-                font-size:larger;
 				}
 
         '''
