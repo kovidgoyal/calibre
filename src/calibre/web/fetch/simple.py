@@ -156,7 +156,7 @@ class RecursiveFetcher(object):
 
         replace = self.prepreprocess_html_ext(soup)
         if replace is not None:
-            soup = BeautifulSoup(xml_to_unicode(src, self.verbose, strip_encoding_pats=True)[0], markupMassage=nmassage)
+            soup = BeautifulSoup(xml_to_unicode(replace, self.verbose, strip_encoding_pats=True)[0], markupMassage=nmassage)
 
         if self.keep_only_tags:
             body = Tag(soup, 'body')

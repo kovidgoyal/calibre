@@ -138,7 +138,7 @@ class CollectionsBookList(BookList):
             # The default: leave the book in all existing collections. Do not
             # add any new ones.
             attrs = ['device_collections']
-            if book._new_book:
+            if getattr(book, '_new_book', False):
                 if prefs['preserve_user_collections']:
                     # Ensure that the book is in all the book's existing
                     # collections plus all metadata collections
