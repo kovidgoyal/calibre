@@ -15,7 +15,7 @@ from calibre.utils.config import prefs
 
 class Book(MetaInformation):
 
-    BOOK_ATTRS = ['lpath', 'size', 'mime', 'device_collections']
+    BOOK_ATTRS = ['lpath', 'size', 'mime', 'device_collections', '_new_book']
 
     JSON_ATTRS = [
         'lpath', 'title', 'authors', 'mime', 'size', 'tags', 'author_sort',
@@ -30,6 +30,7 @@ class Book(MetaInformation):
 
         MetaInformation.__init__(self, '')
 
+        self._new_book = False
         self.device_collections = []
         self.path = os.path.join(prefix, lpath)
         if os.sep == '\\':
@@ -133,12 +134,21 @@ class CollectionsBookList(BookList):
     def get_collections(self, collection_attributes):
         collections = {}
         series_categories = set([])
-        collection_attributes = list(collection_attributes)
-        if prefs['preserve_user_collections']:
-            collection_attributes += ['device_collections']
-        for attr in collection_attributes:
-            attr = attr.strip()
-            for book in self:
+        for book in self:
+            # The default: leave the book in all existing collections. Do not
+            # add any new ones.
+            attrs = ['device_collections']
+            if book._new_book:
+                if prefs['preserve_user_collections']:
+                    # Ensure that the book is in all the book's existing
+                    # collections plus all metadata collections
+                    attrs += collection_attributes
+                else:
+                    # The book's existing collections are ignored. Put the book
+                    # in collections defined by its metadata.
+                    attrs = collection_attributes
+            for attr in attrs:
+                attr = attr.strip()
                 val = getattr(book, attr, None)
                 if not val: continue
                 if isbytestring(val):

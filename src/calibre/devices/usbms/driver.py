@@ -233,6 +233,7 @@ class USBMS(CLI, Device):
             book = self.book_class(prefix, lpath, other=info)
             if book.size is None:
                 book.size = os.stat(self.normalize_path(path)).st_size
+            book._new_book = True # Must be before add_book
             booklists[blist].add_book(book, replace_metadata=True)
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
         debug_print('USBMS: finished adding metadata')
@@ -273,6 +274,9 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Removing books from device metadata listing...'))
         debug_print('USBMS: finished removing metadata for %d books'%(len(paths)))
 
+    # If you override this method and you use book._new_book, then you must
+    # complete the processing before you call this method. The flag is cleared
+    # at the end just before the return
     def sync_booklists(self, booklists, end_session=True):
         debug_print('USBMS: starting sync_booklists')
 
@@ -290,6 +294,12 @@ class USBMS(CLI, Device):
         write_prefix(self._main_prefix, 0)
         write_prefix(self._card_a_prefix, 1)
         write_prefix(self._card_b_prefix, 2)
+
+        # Clear the _new_book indication, as we are supposed to be done with
+        # adding books at this point
+        for blist in booklists:
+            for book in blist:
+                book._new_book = False
 
         self.report_progress(1.0, _('Sending metadata to device...'))
         debug_print('USBMS: finished sync_booklists')
