@@ -173,6 +173,7 @@ class Label(QLabel):
         self.setTextFormat(Qt.RichText)
         self.setText('')
         self.setWordWrap(True)
+        self.setAlignment(Qt.AlignTop)
         self.linkActivated.connect(self.link_activated)
         self._link_clicked = False
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -205,15 +206,15 @@ class BookInfo(QScrollArea):
         rows = render_rows(data)
         rows = u'\n'.join([u'<tr><td valign="top"><b>%s:</b></td><td valign="top">%s</td></tr>'%(k,t) for
             k, t in rows])
+        comments = ''
+        if data.get(_('Comments'), '') not in ('', u'None'):
+            comments = data[_('Comments')]
+            comments = comments_to_html(comments)
         if self.vertical:
-            if _('Comments') in data and data[_('Comments')]:
-                comments = comments_to_html(data[_('Comments')])
+            if comments:
                 rows += u'<tr><td colspan="2">%s</td></tr>'%comments
             self.label.setText(u'<table>%s</table>'%rows)
         else:
-            comments = ''
-            if _('Comments') in data:
-                comments = comments_to_html(data[_('Comments')])
             left_pane = u'<table>%s</table>'%rows
             right_pane = u'<div>%s</div>'%comments
             self.label.setText(u'<table><tr><td valign="top" '

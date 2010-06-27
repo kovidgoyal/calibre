@@ -7,6 +7,7 @@ Fetch cover from LibraryThing.com based on ISBN number.
 import sys, socket, os, re
 
 from lxml import html
+import mechanize
 
 from calibre import browser, prints
 from calibre.utils.config import OptionParser
@@ -14,11 +15,17 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 OPENLIBRARY = 'http://covers.openlibrary.org/b/isbn/%s-L.jpg?default=false'
 
+class HeadRequest(mechanize.Request):
+
+    def get_method(self):
+        return 'HEAD'
+
 def check_for_cover(isbn, timeout=5.):
     br = browser()
     br.set_handle_redirect(False)
     try:
-        br.open_novisit(OPENLIBRARY%isbn, timeout=timeout)
+        br.open_novisit(HeadRequest(OPENLIBRARY%isbn), timeout=timeout)
+        return True
     except Exception, e:
         if callable(getattr(e, 'getcode', None)) and e.getcode() == 302:
             return True

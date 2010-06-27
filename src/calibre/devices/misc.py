@@ -49,3 +49,23 @@ class AVANT(USBMS):
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
 
+class SWEEX(USBMS):
+    name           = 'Sweex Device Interface'
+    gui_name       = 'Sweex'
+    description    = _('Communicate with the Sweex MM300')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'prc', 'fb2', 'html', 'rtf', 'chm', 'pdf', 'txt']
+
+    VENDOR_ID   = [0x0525]
+    PRODUCT_ID  = [0xa4a5]
+    BCD         = [0x0319]
+
+    VENDOR_NAME = 'SWEEX'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOKREADER'
+
+    EBOOK_DIR_MAIN = ''
+    SUPPORTS_SUB_DIRS = True
+

@@ -539,17 +539,20 @@ MIME = '''\
 </mime-info>
 '''
 
-def render_svg(image, dest):
+def render_svg(image, dest, width=128, height=128):
     from PyQt4.QtGui import QPainter, QImage
     from PyQt4.QtSvg import QSvgRenderer
-    svg = QSvgRenderer(image.readAll())
+    image = image.readAll() if hasattr(image, 'readAll') else image
+    svg = QSvgRenderer(image)
     painter = QPainter()
-    image = QImage(128,128,QImage.Format_ARGB32_Premultiplied)
+    image = QImage(width, height, QImage.Format_ARGB32)
     painter.begin(image)
     painter.setRenderHints(QPainter.Antialiasing|QPainter.TextAntialiasing|QPainter.SmoothPixmapTransform|QPainter.HighQualityAntialiasing)
     painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
     svg.render(painter)
     painter.end()
+    if dest is None:
+        return image
     image.save(dest)
 
 def main():
