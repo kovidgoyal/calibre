@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-25 23:45+0000\n"
-"PO-Revision-Date: 2010-06-25 19:00+0000\n"
+"PO-Revision-Date: 2010-06-28 02:41+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-26 03:54+0000\n"
+"X-Launchpad-Export-Date: 2010-06-28 03:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -516,7 +516,7 @@ msgstr "Terminé"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:536
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "Utiliser Séries comme Catégorie dans iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:548
 msgid ""
@@ -550,7 +550,7 @@ msgstr "Informations"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2584
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "Communiquer avec iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -576,7 +576,7 @@ msgstr "Communiquer avec le lecteur d'ebook EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr ""
+msgstr "Communiquer avec l'Astak Mentor EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
@@ -1724,6 +1724,10 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
+"Ne pas utiliser le format SVG pour la couverture du livre. Utiliser cette "
+"option si votre EPUB va être utilisé sur un appareil qui ne supporte pas "
+"SVG, comme l'iPhone ou le JetBook Lite. Sans cette option, ce type "
+"d'appareil affichera une page blanche comme couverture."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
@@ -2304,6 +2308,8 @@ msgstr "Télécharge les métadonnées sociales à partir d'amazon.com"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:213
 msgid "Downloads series/tags/rating information from librarything.com"
 msgstr ""
+"Télécharger les informations sur les séries/étiquettes/notes à partir de "
+"librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:94
 msgid ""
@@ -2374,6 +2380,11 @@ msgid ""
 "Fetch a cover image/social metadata for the book identified by ISBN from "
 "LibraryThing.com\n"
 msgstr ""
+"\n"
+"%prog [options] ISBN\n"
+"\n"
+"Récupère les métadonnées sociales/la couverture du livre identifié par ISBN "
+"à partir de LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1222
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1398
@@ -3071,7 +3082,7 @@ msgstr "Afficher la note moyenne par article dans le navigateur d'étiquettes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:107
 msgid "Disable UI animations"
-msgstr ""
+msgstr "Désactiver les animations de IU"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:476
@@ -4938,7 +4949,7 @@ msgstr "Non noté"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:249
 msgid " index:"
-msgstr ""
+msgstr " index:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:430
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:183
@@ -4984,7 +4995,7 @@ msgstr "Envoie les métadonnées vers l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:303
 msgid "Send collections to device"
-msgstr ""
+msgstr "Envoyer les collections vers l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:312
 msgid "Upload %d books to device"
@@ -5048,11 +5059,11 @@ msgstr "Connecter au dossier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:498
 msgid "Connect to iTunes (EXPERIMENTAL)"
-msgstr ""
+msgstr "Connecter à iTunes (EXPERIMENTAL)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:503
 msgid "Eject device"
-msgstr ""
+msgstr "Ejecter l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:511
 msgid "Fetch annotations (experimental)"
@@ -5621,6 +5632,15 @@ msgid ""
 "Title match ignores leading indefinite articles (\"the\", \"a\", \"an\"), "
 "punctuation, case, etc. Author match is exact."
 msgstr ""
+"Si un livre existant avec un titre and un auteur identique ne possédant pas "
+"le format à ajouter est trouvé, le format est ajouté\n"
+"au livre existant au lieu de créer une nouvelle entrée. Si le livre existant "
+"posséde déjà ce format, il est ignoré sans notification.\n"
+"\n"
+"La recherche de correspondance ignore dans le cas du titre les articles "
+"indéfinis en début de chaîne (\"the\", \"a\", \"an\"),\n"
+"la ponctuation, la casse, etc. La recherche de correspondance est exacte "
+"pour l'auteur."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:122
 msgid ""
@@ -5684,7 +5704,7 @@ msgstr "&Sauvegarde de livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:135
 msgid "Preserve device collections."
-msgstr ""
+msgstr "Conserver les collections de l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:136
 msgid ""
@@ -5694,10 +5714,15 @@ msgid ""
 "unchecked, collections will be always reflect only the metadata in the "
 "calibre library."
 msgstr ""
+"Si cette case est cochée, les collections ne seront pas effacées même si un "
+"livre avec des métadonnées modifiées est renvoyé et la collection n'est pas "
+"dans les métadonnées du livre. En plus, l'édition des collections sur "
+"l'appareil va être activée. Si elle est décochée, les collections seront "
+"seulement le reflet des métadonnées de la bibliothèque de Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:137
 msgid "  "
-msgstr ""
+msgstr "  "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:138
 msgid ""
@@ -5891,10 +5916,12 @@ msgstr "Présentation de &l'interface utilisateur (nécessite un redémarrage):"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:597
 msgid "Disable all animations. Useful if you have a slow/old computer."
 msgstr ""
+"Désactiver toutes les animations. Utile si vous avez un vieil ordinateur ou "
+"un ordinateur lent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:598
 msgid "Disable &animations"
-msgstr ""
+msgstr "Désactiver les &animations"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:599
 msgid "Add an email address to which to send books"
@@ -6154,6 +6181,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:28
 msgid "Text column for keeping series-like information"
 msgstr ""
+"Colonne de texte pour conserver des informations semblables aux séries"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:33
 msgid "Floating point numbers"
@@ -7718,7 +7746,7 @@ msgstr "Ajouter des livres à la bibliothèque"
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:240
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:247
 msgid "Manage collections"
-msgstr ""
+msgstr "Gérer les collections"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:327
 msgid "Cover Browser"
@@ -10579,6 +10607,8 @@ msgstr "Catégories définies par l'utilisateur du navigateur d'étiquettes"
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:702
 msgid "Preserve all collections even if not in library metadata."
 msgstr ""
+"Conserver toutes les collections même si elles ne font pas parti des "
+"métadonnées de la bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."

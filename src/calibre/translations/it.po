@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-25 23:45+0000\n"
-"PO-Revision-Date: 2010-06-25 19:07+0000\n"
+"PO-Revision-Date: 2010-06-28 02:33+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-26 03:54+0000\n"
+"X-Launchpad-Export-Date: 2010-06-28 03:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -248,7 +248,7 @@ msgstr "imposta metadati da %s file"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr ""
+msgstr "Input di conversione"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:125
 msgid ""
@@ -517,7 +517,7 @@ msgstr "completato"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:536
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "Usa le serie come categoria per iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:548
 msgid ""
@@ -551,7 +551,7 @@ msgstr "Notizie"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2584
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "Comunica con iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -577,7 +577,7 @@ msgstr "Comunica con il lettore EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr ""
+msgstr "Comunica con l'Astak Mentor EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
@@ -2274,7 +2274,7 @@ msgstr "Descrizione/Rassegne"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:113
 msgid "Download %s from %s"
-msgstr "scaricamento di %s da %s"
+msgstr "Scarica %s da %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:139
 msgid "Downloads metadata from Google Books"
@@ -2298,7 +2298,7 @@ msgstr "Scaricare i metadati sociali da amazon.com."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:213
 msgid "Downloads series/tags/rating information from librarything.com"
-msgstr ""
+msgstr "Scarica informazioni su serie/tag/valutazione da librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:94
 msgid ""
@@ -2369,6 +2369,11 @@ msgid ""
 "Fetch a cover image/social metadata for the book identified by ISBN from "
 "LibraryThing.com\n"
 msgstr ""
+"\n"
+"%prog [options] ISBN\n"
+"\n"
+"Recupera un'immagine di copertina/metadato sociale per il libro identificato "
+"con da ISBN da LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1222
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1398
@@ -3073,7 +3078,7 @@ msgstr "Visualizza la valutazione media per elemento nel browser dei tag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:107
 msgid "Disable UI animations"
-msgstr ""
+msgstr "Disattiva animazioni interfaccia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:476
@@ -3448,7 +3453,7 @@ msgstr "Selezionare una destinazione per %s.%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:992
 msgid "Fetching news from "
-msgstr "Scaricamento notizie da "
+msgstr "Recupero notizie da "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:1006
 msgid " fetched."
@@ -4928,7 +4933,7 @@ msgstr "Non votato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:249
 msgid " index:"
-msgstr ""
+msgstr " indice:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:430
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:183
@@ -4974,7 +4979,7 @@ msgstr "Invia metadati al dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:303
 msgid "Send collections to device"
-msgstr ""
+msgstr "Invia collezioni al dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:312
 msgid "Upload %d books to device"
@@ -4994,7 +4999,7 @@ msgstr "Visualizza libro sul dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:390
 msgid "Set default send to device action"
-msgstr "Imposta azione predefinita di invio al dispositivo."
+msgstr "Imposta azione predefinita di invio"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:396
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:403
@@ -5038,11 +5043,11 @@ msgstr "Connetti alla cartella"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:498
 msgid "Connect to iTunes (EXPERIMENTAL)"
-msgstr ""
+msgstr "Connetti ad iTunes (SPERIMENTALE)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:503
 msgid "Eject device"
-msgstr ""
+msgstr "Espelli dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:511
 msgid "Fetch annotations (experimental)"
@@ -5609,6 +5614,13 @@ msgid ""
 "Title match ignores leading indefinite articles (\"the\", \"a\", \"an\"), "
 "punctuation, case, etc. Author match is exact."
 msgstr ""
+"Se viene trovato un libro con un nome e autorei simili che non ha il formato "
+"che si sta aggiungendo, il formato viene aggiunto al libro esistente, invece "
+"di crearne uno nuovo. Se il libro esistente è già in quel formato, viene "
+"ignorato senza notificarlo.\n"
+"\n"
+"Il contronto del titolo ignora gli articoli (\"il\", \"un\", \"una\"), la "
+"punteggiatura, la dimensione, ecc. L'autore viene confrontato interamente."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:122
 msgid ""
@@ -5673,7 +5685,7 @@ msgstr "&Salvataggio libri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:135
 msgid "Preserve device collections."
-msgstr ""
+msgstr "Conserva le collezioni del dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:136
 msgid ""
@@ -5683,10 +5695,15 @@ msgid ""
 "unchecked, collections will be always reflect only the metadata in the "
 "calibre library."
 msgstr ""
+"Se attivo, le collezioni non verranno eliminate anche se un libro con i "
+"metadati cambiati viene inviato e la collezione non è tra i metadati del "
+"libro. In più, viene abilitata la modifica delle collezioni nel dispositivo. "
+"Se disattivato, le collezioni rifletteranno sempre e solo i metadati nella "
+"biblioteca di calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:137
 msgid "  "
-msgstr ""
+msgstr "  "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:138
 msgid ""
@@ -5873,11 +5890,11 @@ msgstr "&Aspetto interfaccia grafica (richiede riavvio):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:597
 msgid "Disable all animations. Useful if you have a slow/old computer."
-msgstr ""
+msgstr "Disattiva tutte le animazioni. Utile per i computer più lenti."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:598
 msgid "Disable &animations"
-msgstr ""
+msgstr "Disattiva &animazioni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:599
 msgid "Add an email address to which to send books"
@@ -5991,7 +6008,7 @@ msgstr "Massimo elementi &OPDS per richiesta:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:619
 msgid "Max. OPDS &ungrouped items:"
-msgstr ""
+msgstr "Elementi OPDS &sparsi massimi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:620
 msgid "&Start Server"
@@ -6130,7 +6147,7 @@ msgstr "Testo esteso, come i commenti, non visualizzato nel browser dei tag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:28
 msgid "Text column for keeping series-like information"
-msgstr ""
+msgstr "Colonna testuale per mantenere informazioni sulle serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:33
 msgid "Floating point numbers"
@@ -6299,7 +6316,7 @@ msgstr "Variabili disponibili:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/social.py:34
 msgid "Downloading social metadata, please wait..."
-msgstr "Scaricamento dei metadati sociali, per favore attendere..."
+msgstr "Scaricamento dei metadati sociali, attendere..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:50
 msgid "&Show this warning again"
@@ -6349,7 +6366,7 @@ msgstr "Non é stato possibile trovare metadati"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:177
 msgid "The metadata download seems to have stalled. Try again later."
 msgstr ""
-"Sembra che lo scaricamento dei metadati si sia bloccato. Provare piú tardi."
+"Sembra che lo scaricamento dei metadati si sia bloccato. Riprovare piú tardi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:186
 msgid "Warning"
@@ -6357,7 +6374,7 @@ msgstr "Avvertenza"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:187
 msgid "Could not fetch metadata from:"
-msgstr ""
+msgstr "Impossibile recuperare i metadati da:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:191
 msgid "No metadata found"
@@ -6625,7 +6642,7 @@ msgstr "<b>Impossibile scaricare la copertina</b><br/>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:563
 msgid "The download timed out."
-msgstr "Lo scaricamento ha raggiunto il limite di tempo"
+msgstr "Il tempo di scaricamento è scaduto."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:567
 msgid "Could not find cover for this book. Try specifying the ISBN first."
@@ -6743,7 +6760,7 @@ msgstr "Ripristinare la copertina predefinita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:411
 msgid "Download &cover"
-msgstr "Scaricamento &copertine"
+msgstr "Scarica &copertina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:56
 msgid "Password needed"
@@ -6846,7 +6863,7 @@ msgstr "La ricetta richiede l'uso di un utente e password"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:195
 msgid "Download &all scheduled"
-msgstr "Scaricamento di &all programmati"
+msgstr "Scarica &tutti i programmati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:196
 msgid "blurb"
@@ -6854,7 +6871,7 @@ msgstr "trafiletto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:197
 msgid "&Schedule for download:"
-msgstr "&schedule per lo scaricamento"
+msgstr "&Programma per lo scaricamento:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:198
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:208
@@ -7666,7 +7683,7 @@ msgstr "Aggiungi i libri alla biblioteca"
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:240
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:247
 msgid "Manage collections"
-msgstr ""
+msgstr "Gestione collezioni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:327
 msgid "Cover Browser"
@@ -8049,6 +8066,8 @@ msgstr "&Limita a:"
 msgid ""
 "Books display will be restricted to those matching the selected saved search"
 msgstr ""
+"I libri visualizzati saranno limitati a quelli corrispondenti alla ricerca "
+"salvata selezionata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:257
 msgid "set in ui.py"
@@ -8545,9 +8564,9 @@ msgid ""
 "%s has been updated to version %s. See the <a href=\"http://calibre-"
 "ebook.com/whats-new\">new features</a>. Visit the download page?"
 msgstr ""
-"%s é stato aggiornato alla versione %s. Vedere la pagina <a "
-"href=\"http://calibre-ebook.com/whats-new\">novitá</a>. Seguire il "
-"collegamento alla pagina di scaricamento?"
+"%s é stato aggiornato alla versione %s. Consultare la pagina <a "
+"href=\"http://calibre-ebook.com/whats-new\">novitá</a>. Collegarli alla "
+"pagina di scaricamento?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -10075,7 +10094,7 @@ msgstr "Verranno persi i dati nella colonna: %r. Continuare (y/n)? "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:772
 msgid "y"
-msgstr ""
+msgstr "y"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:778
 msgid ""
@@ -10506,6 +10525,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:702
 msgid "Preserve all collections even if not in library metadata."
 msgstr ""
+"Conserva tutte le collezioni anche se non presenti nei metadati della "
+"biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."

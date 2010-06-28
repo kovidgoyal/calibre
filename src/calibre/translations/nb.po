@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-25 23:45+0000\n"
-"PO-Revision-Date: 2010-06-26 08:54+0000\n"
-"Last-Translator: Øyvind Øritsland <Unknown>\n"
+"PO-Revision-Date: 2010-06-28 02:51+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-27 03:45+0000\n"
+"X-Launchpad-Export-Date: 2010-06-28 03:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -6461,17 +6461,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:187
 msgid "Remove &stored conversion settings for the selected books"
-msgstr ""
+msgstr "Slett &lagrede konverteringsinnstillinger for de valgte bøkene"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:188
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:412
 msgid "&Basic metadata"
-msgstr ""
+msgstr "&Grunnleggende metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:189
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:413
 msgid "&Custom metadata"
-msgstr ""
+msgstr "&Brukervalgte metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:124
 msgid "Not a valid picture"
@@ -6530,11 +6530,13 @@ msgstr "Dette ISBN-nummeret er ugyldig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:528
 msgid "Cannot use tag editor"
-msgstr ""
+msgstr "Kan ikke bruke verktøy for emneordredigering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:529
 msgid "The tags editor cannot be used if you have modified the tags"
 msgstr ""
+"Verktøyet for emneordredigering kan ikke benyttes dersom du har modifisert "
+"emneordene"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:549
 msgid "Downloading cover..."
@@ -6682,34 +6684,35 @@ msgstr "Avbryter..."
 msgid ""
 "The current saved search will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"Gjeldende lagrede søk vil bli <b>slettet permanent</b>. er du sikker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:83
 msgid "Saved Search Editor"
-msgstr ""
+msgstr "Redigeringsverktøy for lagrede søk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:84
 msgid "Saved Search: "
-msgstr ""
+msgstr "Lagret søk: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:85
 msgid "Select a saved search to edit"
-msgstr ""
+msgstr "Velg et lagret søk som skal redigeres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:86
 msgid "Delete this selected saved search"
-msgstr ""
+msgstr "Slett gjeldende lagrede søk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:88
 msgid "Enter a new saved search name."
-msgstr ""
+msgstr "Legg inn et nytt lagret søkenavn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:89
 msgid "Add the new saved search"
-msgstr ""
+msgstr "Legg til det nye lagrede søket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:91
 msgid "Change the contents of the saved search"
-msgstr ""
+msgstr "Forandre innholdet i det lagrede søket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:119
 msgid "Need username and password"
@@ -6968,60 +6971,62 @@ msgstr "Forlag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:110
 msgid " (not on any book)"
-msgstr ""
+msgstr " (ikke i noen av bøkene)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:162
 msgid ""
 "The current tag category will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"Den gjeldende emneordkategorien vil bli <b>slettet permanent</b>. Er du "
+"sikker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:153
 msgid "User Categories Editor"
-msgstr ""
+msgstr "Verktøy for redigering av brukerkategorier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:154
 msgid "A&vailable items"
-msgstr ""
+msgstr "T&ilgjengelig innhold"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:155
 msgid "Apply tags to current tag category"
-msgstr ""
+msgstr "Legg inn emneord til gjeldende kategori"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:157
 msgid "A&pplied items"
-msgstr ""
+msgstr "Tillagt innhold"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:158
 msgid "Unapply (remove) tag from current tag category"
-msgstr ""
+msgstr "Fjern emneord fra gjeldende emneordkategori"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:160
 msgid "Category name: "
-msgstr ""
+msgstr "Kategorinavn: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:161
 msgid "Select a category to edit"
-msgstr ""
+msgstr "Velg en kategori som skal redigeres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:162
 msgid "Delete this selected tag category"
-msgstr ""
+msgstr "Slett den valgte emneordkategorien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:164
 msgid "Enter a new category name. Select the kind before adding it."
-msgstr ""
+msgstr "Legg til et nytt kategorinavn. Velg type før du legger det til."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:165
 msgid "Add the new category"
-msgstr ""
+msgstr "Legg til en ny kategori"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:167
 msgid "Category filter: "
-msgstr ""
+msgstr "Kategorifilter: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:168
 msgid "Select the content kind of the new category"
-msgstr ""
+msgstr "Velg type innhold for den nye kategorien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:101
@@ -7084,54 +7089,57 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:501
 msgid "Item is blank"
-msgstr ""
+msgstr "Inneholder ingenting"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:502
 msgid "An item cannot be set to nothing. Delete it instead."
 msgstr ""
+"Innholdet kan ikke stilles inn for å gjøre ingenting. Slett det istedet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:87
 msgid "No item selected"
-msgstr ""
+msgstr "Intet innhold ble valgt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:88
 msgid "You must select one item from the list of Available items."
-msgstr ""
+msgstr "Du må velge innhold fra listen over tilgjengelig innhold."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:97
 msgid "No items selected"
-msgstr ""
+msgstr "Intet innhold bel valgt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:98
 msgid "You must select at least one items from the list."
-msgstr ""
+msgstr "Du må velge minst ett av innholdet i listen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:102
 msgid "Are you certain you want to delete the following items?"
-msgstr ""
+msgstr "Er du sikker på at du ønsker å slette det følgende innholdet?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:72
 msgid "Category Editor"
-msgstr ""
+msgstr "Redigeringsverktøy for kategorier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:73
 msgid "Items in use"
-msgstr ""
+msgstr "Innhold i bruk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:74
 msgid ""
 "Delete item from database. This will unapply the item from all books and "
 "then remove it from the database."
 msgstr ""
+"Slett innhold fra databasen. Dette vil fjerne innholdet fra alle bøker og "
+"deretter fjerne det fra databasen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:76
 msgid "Rename the item in every book where it is used."
-msgstr ""
+msgstr "Foreta navneendring av innholdet i alle bøker der det benyttes."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:78
 msgid "Ctrl+S"
-msgstr ""
+msgstr "Ctr+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:51
 msgid "Test email settings"
@@ -7523,7 +7531,7 @@ msgstr "Lagre kun %s format til disken"
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:408
 msgid "Save only %s format to disk in a single directory"
-msgstr ""
+msgstr "Lagre kun %s formatet til disken i en enkelt mappe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:118
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:289
@@ -7552,7 +7560,7 @@ msgstr "Fjern omslag fra valgte bøker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:136
 msgid "Remove matching books from device"
-msgstr ""
+msgstr "Fjern samsvarende bøker fra enheten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:153
 msgid "Convert individually"
@@ -7576,26 +7584,26 @@ msgstr "Samsvarende bøker..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:231
 msgid "Add books to library"
-msgstr ""
+msgstr "Legg bøker til biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:233
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:240
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:247
 msgid "Manage collections"
-msgstr ""
+msgstr "Behandle samlinger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:327
 msgid "Cover Browser"
-msgstr ""
+msgstr "Omslagssøker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:345
 msgid "Tag Browser"
-msgstr ""
+msgstr "Emneordsøker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:393
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:402
 msgid "Book Details"
-msgstr ""
+msgstr "Bokdetaljer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:60
 msgid "Job"
@@ -7658,15 +7666,15 @@ msgstr " - Oppgave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:284
 msgid "N"
-msgstr ""
+msgstr "N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:284
 msgid "Y"
-msgstr ""
+msgstr "Y"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:57
 msgid "On Device"
-msgstr ""
+msgstr "i enheten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:59
 msgid "Size (MB)"
@@ -7685,19 +7693,19 @@ msgstr "Bok <karaktersett=\"serif\">%s</font> of %s."
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1168
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:399
 msgid "The lookup/search name is \"{0}\""
-msgstr ""
+msgstr "Søkenavnet er  \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:873
 msgid "In Library"
-msgstr ""
+msgstr "I biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:877
 msgid "Size"
-msgstr ""
+msgstr "Størrelse"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1148
 msgid "Marked for deletion"
-msgstr ""
+msgstr "Merket for sletting"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1151
 msgid "Double click to <b>edit</b> me<br><br>"
@@ -7705,43 +7713,43 @@ msgstr "Dobbelklikk til <b>rediger</b> me<br><br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:110
 msgid "Hide column %s"
-msgstr ""
+msgstr "Skjul kolonne %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:115
 msgid "Sort on %s"
-msgstr ""
+msgstr "Sorter blant %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:116
 msgid "Ascending"
-msgstr ""
+msgstr "Stigende"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:119
 msgid "Descending"
-msgstr ""
+msgstr "Synkende"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:131
 msgid "Change text alignment for %s"
-msgstr ""
+msgstr "Forandre tekstjustering for %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:133
 msgid "Left"
-msgstr ""
+msgstr "Venstre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:133
 msgid "Right"
-msgstr ""
+msgstr "Høyre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:134
 msgid "Center"
-msgstr ""
+msgstr "Senter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:153
 msgid "Show column"
-msgstr ""
+msgstr "Vis kolonne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:165
 msgid "Restore default layout"
-msgstr ""
+msgstr "Gjenopprett standard visning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:524
 msgid "Not allowed"
@@ -7852,7 +7860,7 @@ msgstr "Calibre-bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:84
 msgid "Choose a location for your calibre e-book library"
-msgstr ""
+msgstr "Velg en lokalisering for ditt calibre e-bokbibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:93
 msgid "Failed to create library"
