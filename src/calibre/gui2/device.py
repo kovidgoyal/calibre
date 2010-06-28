@@ -1416,7 +1416,6 @@ class DeviceMixin(object): # {{{
         # the application_id, which is really the db key, but as this can
         # accidentally match across libraries we also verify the title. The
         # db_id exists on Sony devices. Fallback is title and author match
-        resend_metadata = False
         for booklist in booklists:
             for book in booklist:
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
@@ -1433,12 +1432,10 @@ class DeviceMixin(object): # {{{
                     if getattr(book, 'application_id', None) in d['db_ids']:
                         book.in_library = True
                         book.smart_update(d['db_ids'][book.application_id])
-                        resend_metadata = True
                         continue
                     if book.db_id in d['db_ids']:
                         book.in_library = True
                         book.smart_update(d['db_ids'][book.db_id])
-                        resend_metadata = True
                         continue
                     if book.authors:
                         # Compare against both author and author sort, because
@@ -1448,21 +1445,13 @@ class DeviceMixin(object): # {{{
                         if book_authors in d['authors']:
                             book.in_library = True
                             book.smart_update(d['authors'][book_authors])
-                            resend_metadata = True
                         elif book_authors in d['author_sort']:
                             book.in_library = True
                             book.smart_update(d['author_sort'][book_authors])
-                            resend_metadata = True
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
                 if not asort and book.authors:
                     book.author_sort = self.library_view.model().db.author_sort_from_authors(book.authors)
-                    resend_metadata = True
-
-        if resend_metadata:
-            # Correct the metadata cache on device.
-            if self.device_manager.is_device_connected:
-                self.device_manager.sync_booklists(None, booklists)
 
     # }}}
 
