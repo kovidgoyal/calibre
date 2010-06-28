@@ -148,8 +148,8 @@ class FormatList(QListWidget):
 
 class ImageView(QLabel):
 
-    MAX_WIDTH  = 400
-    MAX_HEIGHT = 300
+    MAX_WIDTH  = 600
+    MAX_HEIGHT = 800
     DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS
 
     @classmethod
