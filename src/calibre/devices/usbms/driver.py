@@ -298,8 +298,9 @@ class USBMS(CLI, Device):
         # Clear the _new_book indication, as we are supposed to be done with
         # adding books at this point
         for blist in booklists:
-            for book in blist:
-                book._new_book = False
+            if blist is not None:
+                for book in blist:
+                    book._new_book = False
 
         self.report_progress(1.0, _('Sending metadata to device...'))
         debug_print('USBMS: finished sync_booklists')

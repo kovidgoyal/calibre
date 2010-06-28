@@ -11,7 +11,7 @@ import re
 import time
 import traceback
 
-from PyQt4.Qt import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDate, \
+from PyQt4.Qt import SIGNAL, QObject, Qt, QTimer, QThread, QDate, \
     QPixmap, QListWidgetItem, QDialog
 
 from calibre.gui2 import error_dialog, file_icon_provider, dynamic, \
@@ -25,7 +25,6 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import string_to_authors, \
         authors_to_string, check_isbn
 from calibre.ebooks.metadata.library_thing import cover_from_isbn
-from calibre import islinux, isfreebsd
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import qt_to_dt
@@ -311,7 +310,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.formats.setAcceptDrops(True)
         self.cover_changed = False
         self.cpixmap = None
-        self.cover.setAcceptDrops(True)
         self.pubdate.setMinimumDate(QDate(100,1,1))
         pubdate_format = tweaks['gui_pubdate_display_format']
         if pubdate_format is not None:
@@ -399,11 +397,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.series.lineEdit().editingFinished.connect(self.increment_series_index)
 
         self.show()
-        height_of_rest = self.frameGeometry().height() - self.cover.height()
-        width_of_rest  = self.frameGeometry().width() - self.cover.width()
-        ag = QCoreApplication.instance().desktop().availableGeometry(self)
-        self.cover.MAX_HEIGHT = ag.height()-(25 if (islinux or isfreebsd) else 0)-height_of_rest
-        self.cover.MAX_WIDTH = ag.width()-(25 if (islinux or isfreebsd) else 0)-width_of_rest
         pm = QPixmap()
         if cover:
             pm.loadFromData(cover)
