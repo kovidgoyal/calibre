@@ -189,13 +189,19 @@ class XMLCache(object):
         return playlist_map
 
     def reset_existing_playlists_map(self):
-            self._playlist_to_playlist_id_map = {}
+        '''
+        Call this method before calling get_or_create_playlist in the context of
+        a given job. Call it again after deleting any playlists. The current
+        implementation adds all new playlists before deleting any, so that
+        constraint is respected.
+        '''
+        self._playlist_to_playlist_id_map = {}
 
     def get_or_create_playlist(self, bl_idx, title):
-        root = self.record_roots[bl_idx]
         # maintain a private map of playlists to their ids. Don't check if it
         # exists, because reset_existing_playlist_map must be called before it
         # is used to ensure that deleted playlists are taken into account
+        root = self.record_roots[bl_idx]
         if bl_idx not in self._playlist_to_playlist_id_map:
             self._playlist_to_playlist_id_map[bl_idx] = {}
             for playlist in root.xpath('//*[local-name()="playlist"]'):
