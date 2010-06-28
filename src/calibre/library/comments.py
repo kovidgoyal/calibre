@@ -39,6 +39,11 @@ def comments_to_html(comments):
     if not isinstance(comments, unicode):
         comments = comments.decode(preferred_encoding, 'replace')
 
+    if '<' not in comments:
+        comments = prepare_string_for_xml(comments)
+        comments = comments.replace(u'\n', u'<br />')
+        return u'<p>%s</p>'%comments
+
     # Hackish - ignoring sentences ending or beginning in numbers to avoid
     # confusion with decimal points.
 
