@@ -4,6 +4,53 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.6
+  date: 2010-06-28
+
+  new features:
+    - title: "Add support for the new firmware of the Azbooka"
+      tickets: [5994]
+
+    - title: "A few speedups for calibre startup, should add up to a few seconds of startup time on slower machines"
+
+    - title: "Support for the Sweem MM300"
+
+    - title: "Add keyboard shorcut for Download metadata and covers"
+
+  bug fixes:
+    - title: "Fix regression in 0.7.5 that broke conversion of malformed HTML files (like those Microsoft Word outputs)"
+      type: major
+      tickets: [5991]
+
+    - title: "Don't download tags from librarything, as the tagging there is not very good"
+
+    - title: "Add mimetype for FB2 so that it can be served by the content server"
+      tickets: [6011]
+
+    - title: "Ensure cover is not resized to less than the available space in the Edit Meta Information dialog"
+      tickets: [6001]
+
+    - title: "SONY driver: Only update collections when sending book to device for the first time"
+
+    - title: "calibre should now work on windows when the location for the library contains non-ascii characters"
+      tickets: [5983]
+
+    - title: "Cover browser once again distorts instead of cropping covers that have an incorrect aspect ratio"
+
+    - title: "ISBNDb metadata plugin: Fix bug causing only first page of results to be fetched"
+
+    - title: "Move iTunes driver to the bottom so that it doesn't interfere with device detection for people that have iphones and an ereader plugged in"
+
+  improved recipes:
+    - Houston Chronicle
+    - Hindu
+    - Times of India
+    - New York Times
+
+  new recipes:
+    - title: Winnipeg Sun
+      author: rty
+
 - version: 0.7.5
   date: 2010-06-25
 
