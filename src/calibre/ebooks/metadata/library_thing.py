@@ -133,10 +133,10 @@ def get_social_metadata(title, authors, publisher, isbn, username=None,
                 if match is not None:
                     si = float(match.group())
                 mi.series_index = si
-        tags = root.xpath('//div[@class="tags"]/span[@class="tag"]/a')
-        if tags:
-            mi.tags = [html.tostring(x, method='text', encoding=unicode) for x
-                    in tags]
+        #tags = root.xpath('//div[@class="tags"]/span[@class="tag"]/a')
+        #if tags:
+        #    mi.tags = [html.tostring(x, method='text', encoding=unicode) for x
+        #            in tags]
         span = root.xpath(
                 '//table[@class="wsltable"]/tr[@class="wslcontent"]/td[4]//span')
         if span:
