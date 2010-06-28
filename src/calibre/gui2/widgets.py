@@ -13,7 +13,7 @@ from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QRegExp, QSettings, QSize, QModelIndex, QSplitter, \
                         QAbstractButton, QPainter, QLineEdit, QComboBox, \
                         QMenu, QStringListModel, QCompleter, QStringList, \
-                        QTimer
+                        QTimer, QRect
 
 from calibre.gui2 import NONE, error_dialog, pixmap_to_data, gprefs
 
@@ -146,10 +146,15 @@ class FormatList(QListWidget):
             return QListWidget.keyPressEvent(self, event)
 
 
-class ImageView(QLabel):
+class ImageView(QWidget):
 
-    MAX_WIDTH  = 600
-    MAX_HEIGHT = 800
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self._pixmap = QPixmap(self)
+        self.setMinimumSize(QSize(150, 200))
+        self.setAcceptDrops(True)
+
+    # Drag 'n drop {{{
     DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS
 
     @classmethod
@@ -186,13 +191,45 @@ class ImageView(QLabel):
 
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
+    # }}}
 
     def setPixmap(self, pixmap):
-        QLabel.setPixmap(self, pixmap)
-        width, height = fit_image(pixmap.width(), pixmap.height(), self.MAX_WIDTH, self.MAX_HEIGHT)[1:]
-        self.setMaximumWidth(width)
-        self.setMaximumHeight(height)
+        if not isinstance(pixmap, QPixmap):
+            raise TypeError('Must use a QPixmap')
+        self._pixmap = pixmap
+        self.updateGeometry()
+        self.update()
 
+    def pixmap(self):
+        return self._pixmap
+
+    def sizeHint(self):
+        if self._pixmap.isNull():
+            return self.minimumSize()
+        return self._pixmap.size()
+
+    def paintEvent(self, event):
+        QWidget.paintEvent(self, event)
+        pmap = self._pixmap
+        if pmap.isNull():
+            return
+        w, h = pmap.width(), pmap.height()
+        cw, ch = self.rect().width(), self.rect().height()
+        scaled, nw, nh = fit_image(w, h, cw, ch)
+        if scaled:
+            pmap = pmap.scaled(nw, nh, Qt.IgnoreAspectRatio,
+                    Qt.SmoothTransformation)
+        w, h = pmap.width(), pmap.height()
+        x = int(abs(cw - w)/2.)
+        y = int(abs(ch - h)/2.)
+        target = QRect(x, y, w, h)
+        p = QPainter(self)
+        p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+        p.drawPixmap(target, pmap)
+        p.end()
+
+
+    # Clipboard copy/paste # {{{
     def contextMenuEvent(self, ev):
         cm = QMenu(self)
         copy = cm.addAction(_('Copy Image'))
@@ -215,6 +252,7 @@ class ImageView(QLabel):
             self.setPixmap(pmap)
             self.emit(SIGNAL('cover_changed(PyQt_PyObject)'),
                     pixmap_to_data(pmap))
+    # }}}
 
 
 class LocationModel(QAbstractListModel):
