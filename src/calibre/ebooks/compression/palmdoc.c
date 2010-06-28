@@ -151,6 +151,7 @@ cpalmdoc_do_compress(buffer *b, char *output) {
             for (j=0; j < temp.len; j++) *(output++) = (char)temp.data[j];
         }
     }
+    PyMem_Free(temp.data);
     return output - head;
 }
 
@@ -168,7 +169,9 @@ cpalmdoc_compress(PyObject *self, PyObject *args) {
     for (j = 0; j < input_len; j++) 
         b.data[j] = (_input[j] < 0) ? _input[j]+256 : _input[j];
     b.len = input_len;
-    output = (char *)PyMem_Malloc(sizeof(char) * b.len);
+    // Make the output buffer larger than the input as sometimes
+    // compression results in a larger block
+    output = (char *)PyMem_Malloc(sizeof(char) * (int)(1.25*b.len));
     if (output == NULL) return PyErr_NoMemory();
     j = cpalmdoc_do_compress(&b, output);
     if ( j == 0) return PyErr_NoMemory();
