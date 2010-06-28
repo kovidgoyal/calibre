@@ -56,7 +56,8 @@ def convert_markdown(txt, title='', disable_toc=False):
     return HTML_TEMPLATE % (title, md.convert(txt))
 
 def separate_paragraphs_single_line(txt):
-    txt = txt.replace('(\r\n|\r)', '\n')
+    txt = txt.replace('\r\n', '\n')
+    txt = txt.replace('\r', '\n')
     txt = re.sub(u'(?<=.)\n(?=.)', u'\n\n', txt)
     return txt
 
