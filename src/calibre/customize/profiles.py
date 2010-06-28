@@ -279,6 +279,7 @@ class iPadOutput(OutputProfile):
                 width:18%;
 				}
             .article_link {
+            	color: #593f29;
                 font-style: italic;
                 }
             .article_next {
@@ -310,7 +311,7 @@ class iPadOutput(OutputProfile):
 				}
 
             .touchscreen_navbar {
-                background:#ccc;
+                background:#c3bab2;
                 border:#ccc 0px solid;
                 border-collapse:separate;
                 border-spacing:1px;
@@ -322,10 +323,16 @@ class iPadOutput(OutputProfile):
             .touchscreen_navbar td {
                 background:#fff;
                 font-family:Helvetica;
-                font-size:90%;
-                padding: 5px;
+                font-size:80%;
+                /* UI touchboxes use 8px padding */
+                padding: 6px;
                 text-align:center;
                 }
+
+			.touchscreen_navbar td a:link {
+				color: #593f29;
+				text-decoration: none;
+				}
 
 			/* Index formatting */
 			.publish_date {

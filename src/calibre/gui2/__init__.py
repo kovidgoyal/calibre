@@ -248,7 +248,7 @@ def info_dialog(parent, title, msg, det_msg='', show=False):
 
 class Dispatcher(QObject):
     '''Convenience class to ensure that a function call always happens in the
-    thread the reciver was created in.'''
+    thread the receiver was created in.'''
     dispatch_signal = pyqtSignal(object, object)
 
     def __init__(self, func):
@@ -507,7 +507,7 @@ def pixmap_to_data(pixmap, format='JPEG'):
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
     pixmap.save(buf, format)
-    return str(ba.data())
+    return bytes(ba.data())
 
 class ResizableDialog(QDialog):
 

@@ -96,19 +96,21 @@ class NewsItem(NewsTreeItem):
             builtin, custom, scheduler_config, parent):
         NewsTreeItem.__init__(self, builtin, custom, scheduler_config, parent)
         self.urn, self.title = urn, title
+        self.icon = self.default_icon = None
+        self.default_icon = default_icon
         if 'custom:' in self.urn:
             self.icon = custom_icon
-        else:
-            icon = I('news/%s.png'%self.urn[8:])
-            if os.path.exists(icon):
-                self.icon = QVariant(QIcon(icon))
-            else:
-                self.icon = default_icon
 
     def data(self, role):
         if role == Qt.DisplayRole:
             return QVariant(self.title)
         if role == Qt.DecorationRole:
+            if self.icon is None:
+                icon = I('news/%s.png'%self.urn[8:])
+                if os.path.exists(icon):
+                    self.icon = QVariant(QIcon(icon))
+                else:
+                    self.icon = self.default_icon
             return self.icon
         return NONE
 

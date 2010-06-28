@@ -38,6 +38,7 @@ if iswindows:
 class DriverBase(DeviceConfig, DevicePlugin):
     # Needed for config_widget to work
     FORMATS = ['epub', 'pdf']
+    #SUPPORTS_SUB_DIRS = True
 
     @classmethod
     def _config_base_name(cls):
@@ -87,7 +88,7 @@ class ITUNES(DriverBase):
     supported_platforms = ['osx','windows']
     author = 'GRiker'
     #: The version of this plugin as a 3-tuple (major, minor, revision)
-    version        = (0,8,0)
+    version        = (0,9,0)
 
     OPEN_FEEDBACK_MESSAGE = _(
         'Apple device detected, launching iTunes, please wait ...')
@@ -106,53 +107,55 @@ class ITUNES(DriverBase):
     BCD = [0x01]
 
     # iTunes enumerations
-    Sources = [
-                'Unknown',
-                'Library',
-                'iPod',
-                'AudioCD',
-                'MP3CD',
-                'Device',
-                'RadioTuner',
-                'SharedLibrary']
-
+    Audiobooks = [
+        'Audible file',
+        'MPEG audio file',
+        'Protected AAC audio file'
+        ]
     ArtworkFormat = [
-                'Unknown',
-                'JPEG',
-                'PNG',
-                'BMP'
-                ]
-
+        'Unknown',
+        'JPEG',
+        'PNG',
+        'BMP'
+        ]
     PlaylistKind = [
-                'Unknown',
-                'Library',
-                'User',
-                'CD',
-                'Device',
-                'Radio Tuner'
-                ]
-
+        'Unknown',
+        'Library',
+        'User',
+        'CD',
+        'Device',
+        'Radio Tuner'
+        ]
     PlaylistSpecialKind = [
-                'Unknown',
-                'Purchased Music',
-                'Party Shuffle',
-                'Podcasts',
-                'Folder',
-                'Video',
-                'Music',
-                'Movies',
-                'TV Shows',
-                'Books',
-                ]
-
+        'Unknown',
+        'Purchased Music',
+        'Party Shuffle',
+        'Podcasts',
+        'Folder',
+        'Video',
+        'Music',
+        'Movies',
+        'TV Shows',
+        'Books',
+        ]
     SearchField = [
-                'All',
-                'Visible',
-                'Artists',
-                'Albums',
-                'Composers',
-                'SongNames',
-                ]
+        'All',
+        'Visible',
+        'Artists',
+        'Albums',
+        'Composers',
+        'SongNames',
+        ]
+    Sources = [
+        'Unknown',
+        'Library',
+        'iPod',
+        'AudioCD',
+        'MP3CD',
+        'Device',
+        'RadioTuner',
+        'SharedLibrary'
+        ]
 
     # Cover art size limits
     MAX_COVER_WIDTH = 510
@@ -532,8 +535,11 @@ class ITUNES(DriverBase):
         # Turn off the Save template
         cw.opt_save_template.setVisible(False)
         cw.label.setVisible(False)
-        # Repurpose the checkbox
+        # Repurpose the metadata checkbox
         cw.opt_read_metadata.setText(_("Use Series as Category in iTunes/iBooks"))
+        # Repurpose the use_subdirs checkbox
+#         cw.opt_use_subdirs.setText(_("Do not display books in iTunes/iBooks database\n"
+#                                      "(shortens load time with very large collections)."))
         return cw
 
     def delete_books(self, paths, end_session=True):
@@ -1766,7 +1772,7 @@ class ITUNES(DriverBase):
 
                 for book in books:
                     # This may need additional entries for international iTunes users
-                    if book.kind() in ['MPEG audio file']:
+                    if book.kind() in self.Audiobooks:
                         if DEBUG:
                             self.log.info("   ignoring '%s' of type '%s'" % (book.name(), book.kind()))
                     else:
@@ -1798,7 +1804,7 @@ class ITUNES(DriverBase):
 
                     for book in dev_books:
                         # This may need additional entries for international iTunes users
-                        if book.KindAsString in ['MPEG audio file']:
+                        if book.KindAsString in self.Audiobooks:
                             if DEBUG:
                                 self.log.info("   ignoring '%s' of type '%s'" % (book.Name, book.KindAsString))
                         else:
@@ -1899,7 +1905,7 @@ class ITUNES(DriverBase):
                     lib_books = pl.file_tracks()
                     for book in lib_books:
                         # This may need additional entries for international iTunes users
-                        if book.kind() in ['MPEG audio file']:
+                        if book.kind() in self.Audiobooks:
                             if DEBUG:
                                 self.log.info("   ignoring '%s' of type '%s'" % (book.name(), book.kind()))
                         else:
@@ -1955,7 +1961,7 @@ class ITUNES(DriverBase):
                 try:
                     for book in lib_books:
                         # This may need additional entries for international iTunes users
-                        if book.KindAsString in ['MPEG audio file']:
+                        if book.KindAsString in self.Audiobooks:
                             if DEBUG:
                                 self.log.info("   ignoring %-30.30s of type '%s'" % (book.Name, book.KindAsString))
                         else:

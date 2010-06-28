@@ -56,7 +56,8 @@ class ToolbarMixin(object): # {{{
                 partial(self.edit_metadata, False, bulk=True))
         md.addSeparator()
         md.addAction(_('Download metadata and covers'),
-                partial(self.download_metadata, False, covers=True))
+                partial(self.download_metadata, False, covers=True),
+                Qt.ControlModifier+Qt.Key_D)
         md.addAction(_('Download only metadata'),
                 partial(self.download_metadata, False, covers=False))
         md.addAction(_('Download only covers'),
