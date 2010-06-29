@@ -172,7 +172,7 @@ class ITUNES(DriverBase):
     library_orphans = None
     log = Log()
     manual_sync_mode = False
-    path_template = 'iTunes/%s - %s.epub'
+    path_template = 'iTunes/%s - %s.%s'
     problem_titles = []
     problem_msg = None
     report_progress = None
@@ -256,7 +256,7 @@ class ITUNES(DriverBase):
                     (new_book.title, new_book.author))
             booklists[0].append(new_book)
 
-        if DEBUG:
+        if False:
             self._dump_booklist(booklists[0],header='after',indent=2)
             self._dump_cached_books(header='after',indent=2)
 
@@ -294,7 +294,8 @@ class ITUNES(DriverBase):
                     book_count = float(len(device_books))
                     for (i,book) in enumerate(device_books):
                         this_book = Book(book.name(), book.artist())
-                        this_book.path = self.path_template % (book.name(), book.artist())
+                        format = 'pdf' if book.kind().startswith('PDF') else 'epub'
+                        this_book.path = self.path_template % (book.name(), book.artist(),format)
                         try:
                             this_book.datetime = parse_date(str(book.date_added())).timetuple()
                         except:
@@ -332,7 +333,8 @@ class ITUNES(DriverBase):
                         book_count = float(len(device_books))
                         for (i,book) in enumerate(device_books):
                             this_book = Book(book.Name, book.Artist)
-                            this_book.path = self.path_template % (book.Name, book.Artist)
+                            format = 'pdf' if book.KindAsString.startswith('PDF') else 'epub'
+                            this_book.path = self.path_template % (book.Name, book.Artist,format)
                             try:
                                 this_book.datetime = parse_date(str(book.DateAdded)).timetuple()
                             except:
@@ -729,42 +731,61 @@ class ITUNES(DriverBase):
         if DEBUG:
             self.log.info("ITUNES.remove_books_from_metadata()")
         for path in paths:
-            #self._dump_cached_book(self.cached_books[path], indent=2)
+            if DEBUG:
+                self._dump_cached_book(self.cached_books[path], indent=2)
+                self.log.info("  looking for '%s' by '%s' (%s)" %
+                                (self.cached_books[path]['title'],
+                                 self.cached_books[path]['author'],
+                                 self.cached_books[path]['uuid']))
 
             # Purge the booklist, self.cached_books, thumb cache
             for i,bl_book in enumerate(booklists[0]):
                 if False:
-                    self.log.info(" evaluating '%s' '%s'" % (bl_book,bl_book.uuid))
-                if bl_book.uuid == self.cached_books[path]['uuid']:
-                    # Remove from booklists[0]
-                    booklists[0].pop(i)
+                    self.log.info(" evaluating '%s' by '%s' (%s)" %
+                                  (bl_book.title, bl_book.author,bl_book.uuid))
 
+                found = False
+                if bl_book.uuid == self.cached_books[path]['uuid']:
+                    if False:
+                        self.log.info("  matched with uuid")
+                    booklists[0].pop(i)
+                    found = True
+                elif bl_book.title == self.cached_books[path]['title'] and \
+                     bl_book.author[0] == self.cached_books[path]['author']:
+                    if False:
+                        self.log.info("  matched with title + author")
+                    booklists[0].pop(i)
+                    found = True
+
+                if found:
                     # Remove from self.cached_books
                     for cb in self.cached_books:
                         if self.cached_books[cb]['uuid'] == self.cached_books[path]['uuid']:
                             self.cached_books.pop(cb)
                             break
 
-                    # Remove from thumb cache
+                    # Remove from thumb from thumb cache
                     thumb_path = path.rpartition('.')[0] + '.jpg'
                     zf = ZipFile(self.archive_path,'a')
                     fnames = zf.namelist()
                     try:
-                        plist = [x for x in fnames if thumb_path in x][0]
+                        thumb = [x for x in fnames if thumb_path in x][0]
                     except:
-                        plist = None
-                    if plist:
+                        thumb = None
+                    if thumb:
                         if DEBUG:
                             self.log.info("  deleting '%s' from cover cache" % (thumb_path))
                             zf.delete(thumb_path)
                     else:
                         if DEBUG:
-                            self.log.info("  '%s' not found in cover cache")
+                            self.log.info("  '%s' not found in cover cache" % thumb_path)
                     zf.close()
 
                     break
-
-
+#                 else:
+#                     if DEBUG:
+#                         self.log.error("  unable to find '%s' by '%s' (%s)" %
+#                                         (bl_book.title, bl_book.author,bl_book.uuid))
 
         if False:
             self._dump_booklist(booklists[0], indent = 2)
@@ -874,7 +895,7 @@ class ITUNES(DriverBase):
         if isosx:
             for (i,file) in enumerate(files):
                 format = file.rpartition('.')[2].lower()
-                path = self.path_template % (metadata[i].title, metadata[i].author[0])
+                path = self.path_template % (metadata[i].title, metadata[i].author[0],format)
                 self._remove_existing_copy(path, metadata[i])
                 fpath = self._get_fpath(file, metadata[i], format, update_md=True)
                 db_added, lb_added = self._add_new_copy(fpath, metadata[i])
@@ -907,7 +928,7 @@ class ITUNES(DriverBase):
 
                 for (i,file) in enumerate(files):
                     format = file.rpartition('.')[2].lower()
-                    path = self.path_template % (metadata[i].title, metadata[i].author[0])
+                    path = self.path_template % (metadata[i].title, metadata[i].author[0],format)
                     self._remove_existing_copy(path, metadata[i])
                     fpath = self._get_fpath(file, metadata[i],format, update_md=True)
                     db_added, lb_added = self._add_new_copy(fpath, metadata[i])
@@ -1121,7 +1142,7 @@ class ITUNES(DriverBase):
         thumb = None
         if metadata.cover:
 
-            if (format == 'epub'):
+            if format == 'epub':
                 # Pre-shrink cover
                 # self.MAX_COVER_WIDTH, self.MAX_COVER_HEIGHT
                 try:
@@ -1210,7 +1231,9 @@ class ITUNES(DriverBase):
                 self.log.error("   error converting '%s' to thumb for '%s'" % (metadata.cover,metadata.title))
             finally:
                 zfw.close()
-
+        else:
+            if DEBUG:
+                self.log.info("   no cover defined in metadata for '%s'" % metadata.title)
         return thumb
 
     def _create_new_book(self,fpath, metadata, path, db_added, lb_added, thumb, format):
@@ -1219,8 +1242,9 @@ class ITUNES(DriverBase):
         if DEBUG:
             self.log.info(" ITUNES._create_new_book()")
 
-        this_book = Book(metadata.title, metadata.author[0])
-
+        #this_book = Book(metadata.title, metadata.author[0])
+        this_book = Book(metadata.title, ' & '.join(metadata.author))
+        this_book.datetime = time.gmtime()
         this_book.db_id = None
         this_book.device_collections = []
         this_book.format = format
@@ -1236,13 +1260,13 @@ class ITUNES(DriverBase):
                 try:
                     this_book.datetime = parse_date(str(lb_added.date_added())).timetuple()
                 except:
-                    this_book.datetime = time.gmtime()
+                    pass
             elif db_added:
                 this_book.size = self._get_device_book_size(fpath, db_added.size())
                 try:
                     this_book.datetime = parse_date(str(db_added.date_added())).timetuple()
                 except:
-                    this_book.datetime = time.gmtime()
+                    pass
 
         elif iswindows:
             if lb_added:
@@ -1250,13 +1274,13 @@ class ITUNES(DriverBase):
                 try:
                     this_book.datetime = parse_date(str(lb_added.DateAdded)).timetuple()
                 except:
-                    this_book.datetime = time.gmtime()
+                    pass
             elif db_added:
                 this_book.size = self._get_device_book_size(fpath, db_added.Size)
                 try:
                     this_book.datetime = parse_date(str(db_added.DateAdded)).timetuple()
                 except:
-                    this_book.datetime = time.gmtime()
+                    pass
 
         return this_book
 
@@ -1524,27 +1548,45 @@ class ITUNES(DriverBase):
         if iswindows:
             dev_books = self._get_device_books_playlist()
             if DEBUG:
-                self.log.info(" ITUNES._find_device_book(uuid)")
-                self.log.info("  searching for %s ('%s' by %s)" %
-                              (search['uuid'], search['title'], search['author']))
+                self.log.info(" ITUNES._find_device_book()")
+                self.log.info("  searching for '%s' by '%s' (%s)" %
+                              (search['title'], search['author'],search['uuid']))
             attempts = 9
             while attempts:
                 # Try by uuid - only one hit
-                hits = dev_books.Search(search['uuid'],self.SearchField.index('All'))
-                if hits:
-                    hit = hits[0]
-                    self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
-                    return hit
+                if 'uuid' in search and search['uuid']:
+                    if DEBUG:
+                        self.log.info("   searching by uuid '%s' ..." % search['uuid'])
+                    hits = dev_books.Search(search['uuid'],self.SearchField.index('All'))
+                    if hits:
+                        hit = hits[0]
+                        self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                        return hit
 
                 # Try by author - there could be multiple hits
-                hits = dev_books.Search(search['author'],self.SearchField.index('Artists'))
+                if search['author']:
+                    if DEBUG:
+                        self.log.info("   searching by author '%s' ..." % search['author'])
+                    hits = dev_books.Search(search['author'],self.SearchField.index('Artists'))
+                    if hits:
+                        for hit in hits:
+                            if hit.Name == search['title']:
+                                if DEBUG:
+                                    self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                                return hit
+
+                # Search by title if no author available
+                if DEBUG:
+                    self.log.info("   searching by title '%s' ..." % search['title'])
+                hits = dev_books.Search(search['title'],self.SearchField.index('All'))
                 if hits:
                     for hit in hits:
                         if hit.Name == search['title']:
                             if DEBUG:
-                                self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                                self.log.info("   found '%s'" % (hit.Name))
                             return hit
 
+                # PDF just sent, title not updated yet, look for export pattern
                 # PDF metadata was rewritten at export as 'safe(title) - safe(author)'
                 if search['format'] == 'pdf':
                     title = re.sub(r'[^0-9a-zA-Z ]', '_', search['title'])
@@ -1577,12 +1619,14 @@ class ITUNES(DriverBase):
         if iswindows:
             if DEBUG:
                 self.log.info(" ITUNES._find_library_book()")
+                '''
                 if 'uuid' in search:
                     self.log.info("  looking for '%s' by %s (%s)" %
                                 (search['title'], search['author'], search['uuid']))
                 else:
                     self.log.info("  looking for '%s' by %s" %
                                 (search['title'], search['author']))
+                '''
 
             for source in self.iTunes.sources:
                 if source.Kind == self.Sources.index('Library'):
@@ -1607,10 +1651,11 @@ class ITUNES(DriverBase):
                     if DEBUG:
                         self.log.error("  no Books playlist found")
 
+
             attempts = 9
             while attempts:
                 # Find book whose Album field = search['uuid']
-                if 'uuid' in search:
+                if 'uuid' in search and search['uuid']:
                     if DEBUG:
                         self.log.info("   searching by uuid '%s' ..." % search['uuid'])
                     hits = lib_books.Search(search['uuid'],self.SearchField.index('All'))
@@ -1620,16 +1665,30 @@ class ITUNES(DriverBase):
                             self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                         return hit
 
+                # Search by author if known
+                if search['author']:
+                    if DEBUG:
+                        self.log.info("   searching by author '%s' ..." % search['author'])
+                    hits = lib_books.Search(search['author'],self.SearchField.index('Artists'))
+                    if hits:
+                        for hit in hits:
+                            if hit.Name == search['title']:
+                                if DEBUG:
+                                    self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                                return hit
+
+                # Search by title if no author available
                 if DEBUG:
-                    self.log.info("   searching by author '%s' ..." % search['author'])
-                hits = lib_books.Search(search['author'],self.SearchField.index('Artists'))
+                    self.log.info("   searching by title '%s' ..." % search['title'])
+                hits = lib_books.Search(search['title'],self.SearchField.index('All'))
                 if hits:
                     for hit in hits:
                         if hit.Name == search['title']:
                             if DEBUG:
-                                self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                                self.log.info("   found '%s'" % (hit.Name))
                             return hit
 
+                # PDF just sent, title not updated yet, look for export pattern
                 # PDF metadata was rewritten at export as 'safe(title) - safe(author)'
                 if search['format'] == 'pdf':
                     title = re.sub(r'[^0-9a-zA-Z ]', '_', search['title'])
@@ -1666,111 +1725,113 @@ class ITUNES(DriverBase):
         # self.settings().use_subdirs is a repurposed DeviceConfig field
         # We're using it to skip fetching/caching covers to speed things up
         if not self.settings().use_subdirs:
-            return None
+            thumb_data = None
+            return thumb_data
 
         thumb_path = book_path.rpartition('.')[0] + '.jpg'
         format = book_path.rpartition('.')[2].lower()
+        if isosx:
+            title = book.name()
+        elif iswindows:
+            title = book.Name
 
         try:
             zfr = ZipFile(self.archive_path)
             thumb_data = zfr.read(thumb_path)
-            if thumb_data == '\x00\x00':
-                if DEBUG:
-                    self.log.info(" ITUNES._generate_thumbnail()\n   returning None for '%s'" % book.name())
+            if thumb_data == 'None':
+                if False:
+                    self.log.info(" ITUNES._generate_thumbnail()\n   returning None from cover cache for '%s'" % title)
                 zfr.close()
                 return None
         except:
             zfw = ZipFile(self.archive_path, mode='a')
         else:
+            if False:
+                self.log.info("   returning thumb from cache for '%s'" % title)
             return thumb_data
 
-        self.log.info(" ITUNES._generate_thumbnail():")
+        if DEBUG:
+            self.log.info(" ITUNES._generate_thumbnail():")
         if isosx:
-            if format == 'epub':
-                # Fetch the artwork
-                try:
-                    data = book.artworks[1].raw_data().data
-                except:
-                    # If no artwork, write an empty marker to cache
-                    if DEBUG:
-                        self.log.error("  error reading artwork from '%s'" % book.name())
-                    zfw.writestr(thumb_path, '\x00\x00')
-                    zfw.close()
-                    return None
 
-                # Generate a thumb
-                try:
-                    img_data = cStringIO.StringIO(data)
-                    im = PILImage.open(img_data)
-                    scaled, width, height = fit_image(im.size[0],im.size[1], 60, 80)
-                    im = im.resize((int(width),int(height)), PILImage.ANTIALIAS)
-
-                    thumb = cStringIO.StringIO()
-                    im.convert('RGB').save(thumb,'JPEG')
-                    thumb_data = thumb.getvalue()
-                    thumb.close()
-                    if DEBUG:
-                        self.log.info("  generated thumb for '%s', caching" % book.name())
-                except:
-                    if DEBUG:
-                        self.log.error("  error generating thumb for '%s', caching empty marker" % book.name())
-                        self._dump_hex(data[:32])
-                    thumb_data = '\x00\x00'
-                finally:
-                    # Cache the tagged thumb
-                    zfw.writestr(thumb_path, thumb_data)
-                    img_data.close()
-                    zfw.close()
-
-                return thumb_data
-
-            else:
+            # Fetch the artwork from iTunes
+            try:
+                data = book.artworks[1].raw_data().data
+            except:
+                # If no artwork, write an empty marker to cache
                 if DEBUG:
-                    self.log.info("  unable to generate PDF thumbs")
-                return None
-
-        elif iswindows:
-
-            # Fetch the artwork
-            if not book.Artwork.Count:
-                if DEBUG:
-                    self.log.info("  no artwork available for '%s'" % book.Name)
-                zfw.writestr(thumb_path, '\x00\x00')
+                    self.log.error("  error fetching iTunes artwork for '%s'" % title)
+                zfw.writestr(thumb_path, 'None')
                 zfw.close()
                 return None
 
-            if format == 'epub':
-                # Save the cover from iTunes
-                try:
-                    tmp_thumb = os.path.join(tempfile.gettempdir(), "thumb.%s" % self.ArtworkFormat[book.Artwork.Item(1).Format])
-                    book.Artwork.Item(1).SaveArtworkToFile(tmp_thumb)
-                    # Resize the cover
-                    im = PILImage.open(tmp_thumb)
-                    scaled, width, height = fit_image(im.size[0],im.size[1], 60, 80)
-                    im = im.resize((int(width),int(height)), PILImage.ANTIALIAS)
-                    thumb = cStringIO.StringIO()
-                    im.convert('RGB').save(thumb,'JPEG')
-                    thumb_data = thumb.getvalue()
-                    os.remove(tmp_thumb)
-                    thumb.close()
-                    if DEBUG:
-                        self.log.info("  generated thumb for '%s', caching" % book.Name)
+            # Generate a thumb
+            try:
+                img_data = cStringIO.StringIO(data)
+                im = PILImage.open(img_data)
+                scaled, width, height = fit_image(im.size[0],im.size[1], 60, 80)
+                im = im.resize((int(width),int(height)), PILImage.ANTIALIAS)
 
-                except:
-                    if DEBUG:
-                        self.log.error("  error generating thumb for '%s', caching empty marker" % book.Name)
-                        self._dump_hex(data[:32])
-                    thumb_data = '\x00\x00'
-                finally:
-                    # Cache the tagged thumb
-                    zfw.writestr(thumb_path, thumb_data)
-                    zfw.close()
-
-                return thumb_data
-            else:
+                thumb = cStringIO.StringIO()
+                im.convert('RGB').save(thumb,'JPEG')
+                thumb_data = thumb.getvalue()
+                thumb.close()
+                if False:
+                    self.log.info("  generated thumb for '%s', caching" % title)
+                # Cache the tagged thumb
+                zfw.writestr(thumb_path, thumb_data)
+            except:
                 if DEBUG:
-                    self.log.info("  unable to generate PDF thumbs")
+                    self.log.error("  error generating thumb for '%s', caching empty marker" % book.name())
+                    self._dump_hex(data[:32])
+                thumb_data = None
+                # Cache the empty cover
+                zfw.writestr(thumb_path, 'None')
+            finally:
+                img_data.close()
+                zfw.close()
+
+            return thumb_data
+
+
+        elif iswindows:
+            if not book.Artwork.Count:
+                if DEBUG:
+                    self.log.info("  no artwork available for '%s'" % book.Name)
+                zfw.writestr(thumb_path, 'None')
+                zfw.close()
                 return None
+
+            # Fetch the artwork from iTunes
+
+            try:
+                tmp_thumb = os.path.join(tempfile.gettempdir(), "thumb.%s" % self.ArtworkFormat[book.Artwork.Item(1).Format])
+                book.Artwork.Item(1).SaveArtworkToFile(tmp_thumb)
+                # Resize the cover
+                im = PILImage.open(tmp_thumb)
+                scaled, width, height = fit_image(im.size[0],im.size[1], 60, 80)
+                im = im.resize((int(width),int(height)), PILImage.ANTIALIAS)
+                thumb = cStringIO.StringIO()
+                im.convert('RGB').save(thumb,'JPEG')
+                thumb_data = thumb.getvalue()
+                os.remove(tmp_thumb)
+                thumb.close()
+                if False:
+                    self.log.info("  generated thumb for '%s', caching" % book.Name)
+                # Cache the tagged thumb
+                zfw.writestr(thumb_path, thumb_data)
+            except:
+                if DEBUG:
+                    self.log.error("  error generating thumb for '%s', caching empty marker" % book.Name)
+                    self._dump_hex(data[:32])
+                thumb_data = None
+                # Cache the empty cover
+                zfw.writestr(thumb_path,'None')
+
+            finally:
+                zfw.close()
+
+            return thumb_data
 
     def _get_device_book_size(self, file, compressed_size):
         '''
@@ -1952,7 +2013,8 @@ class ITUNES(DriverBase):
                                 self.log.info("   ignoring '%s' of type '%s'" % (book.name(), book.kind()))
                         else:
                             # Collect calibre orphans - remnants of recipe uploads
-                            path = self.path_template % (book.name(), book.artist())
+                            format = 'pdf' if book.kind().startswith('PDF') else 'epub'
+                            path = self.path_template % (book.name(), book.artist(),format)
                             if str(book.description()).startswith(self.description_prefix):
                                 try:
                                     if book.location() == appscript.k.missing_value:
@@ -1965,7 +2027,8 @@ class ITUNES(DriverBase):
 
                             library_books[path] = book
                             if DEBUG:
-                                self.log.info("   %-30.30s %-30.30s %-40.40s [%s]" % (book.name(), book.artist(), book.album(), book.kind()))
+                                self.log.info("   %-30.30s %-30.30s %-40.40s [%s]" %
+                                              (book.name(), book.artist(), book.album(), book.kind()))
                 else:
                     if DEBUG:
                         self.log.info('  no Library playlists')
@@ -2007,7 +2070,8 @@ class ITUNES(DriverBase):
                             if DEBUG:
                                 self.log.info("   ignoring %-30.30s of type '%s'" % (book.Name, book.KindAsString))
                         else:
-                            path = self.path_template % (book.Name, book.Artist)
+                            format = 'pdf' if book.KindAsString.startswith('PDF') else 'epub'
+                            path = self.path_template % (book.Name, book.Artist,format)
 
                             # Collect calibre orphans
                             if book.Description.startswith(self.description_prefix):
@@ -2222,7 +2286,9 @@ class ITUNES(DriverBase):
             # Delete existing from Device|Books, add to self.update_list
             # for deletion from booklist[0] during add_books_to_metadata
             for book in self.cached_books:
-                if self.cached_books[book]['uuid'] == metadata.uuid:
+                if self.cached_books[book]['uuid'] == metadata.uuid   and \
+                   self.cached_books[book]['title'] == metadata.title and \
+                   self.cached_books[book]['author'] == metadata.authors[0]:
                     self.update_list.append(self.cached_books[book])
                     self._remove_from_device(self.cached_books[book])
                     if DEBUG:
@@ -2239,9 +2305,9 @@ class ITUNES(DriverBase):
             # Delete existing from Library|Books, add to self.update_list
             # for deletion from booklist[0] during add_books_to_metadata
             for book in self.cached_books:
-                if (self.cached_books[book]['uuid'] == metadata.uuid) or \
-                   (self.cached_books[book]['title'] == metadata.title and \
-                    self.cached_books[book]['author'] == metadata.authors[0]):
+                if self.cached_books[book]['uuid'] == metadata.uuid   and \
+                   self.cached_books[book]['title'] == metadata.title and \
+                    self.cached_books[book]['author'] == metadata.authors[0]:
                     self.update_list.append(self.cached_books[book])
                     self._remove_from_iTunes(self.cached_books[book])
                     if DEBUG:
@@ -2257,18 +2323,20 @@ class ITUNES(DriverBase):
         '''
         self.log.info(" ITUNES._remove_from_device()")
         if isosx:
-            if False:
-                self.log.info("  deleting %s" % cached_book['dev_book'])
+            if DEBUG:
+                self.log.info("  deleting '%s' from iDevice" % cached_book['title'])
             cached_book['dev_book'].delete()
 
         elif iswindows:
-            dev_pl = self._get_device_books_playlist()
-            hits = dev_pl.Search(cached_book['uuid'],self.SearchField.index('All'))
-            if hits:
-                hit = hits[0]
-                if False:
-                    self.log.info("  deleting '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Album))
+            hit = self._find_device_book(cached_book)
+            if hit:
+                if DEBUG:
+                    self.log.info("  deleting '%s' from iDevice" % cached_book['title'])
                 hit.Delete()
+            else:
+                if DEBUG:
+                    self.log.warning("   unable to remove '%s' by '%s' (%s) from device" %
+                                     (cached_book['title'],cached_book['author'],cached_book['uuid']))
 
     def _remove_from_iTunes(self, cached_book):
         '''
@@ -2329,7 +2397,8 @@ class ITUNES(DriverBase):
                 path = book.Location
             except:
                 book = self._find_library_book(cached_book)
-                path = book.Location
+                if book:
+                    path = book.Location
 
             if book:
                 if self.iTunes_media and path.startswith(self.iTunes_media):
@@ -2479,7 +2548,8 @@ class ITUNES(DriverBase):
         if isosx:
             if lb_added:
                 lb_added.album.set(metadata.title)
-                lb_added.artist.set(metadata.authors[0])
+                #lb_added.artist.set(metadata.authors[0])
+                lb_added.artist.set(' & '.join(metadata.authors))
                 lb_added.composer.set(metadata.uuid)
                 lb_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.enabled.set(True)
@@ -2490,7 +2560,8 @@ class ITUNES(DriverBase):
 
             if db_added:
                 db_added.album.set(metadata.title)
-                db_added.artist.set(metadata.authors[0])
+                #db_added.artist.set(metadata.authors[0])
+                db_added.artist.set(' & '.join(metadata.authors))
                 db_added.composer.set(metadata.uuid)
                 db_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.enabled.set(True)
@@ -2547,7 +2618,8 @@ class ITUNES(DriverBase):
         elif iswindows:
             if lb_added:
                 lb_added.Album = metadata.title
-                lb_added.Artist = metadata.authors[0]
+                #lb_added.Artist = metadata.authors[0]
+                lb_added.Artist = ' & '.join(metadata.authors)
                 lb_added.Composer = metadata.uuid
                 lb_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.Enabled = True
@@ -2558,7 +2630,8 @@ class ITUNES(DriverBase):
 
             if db_added:
                 db_added.Album = metadata.title
-                db_added.Artist = metadata.authors[0]
+                #db_added.Artist = metadata.authors[0]
+                db_added.Artist = ' & '.join(metadata.authors)
                 db_added.Composer = metadata.uuid
                 db_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.Enabled = True
@@ -2690,9 +2763,11 @@ class ITUNES_ASYNC(ITUNES):
                 library_books = self._get_library_books()
                 book_count = float(len(library_books))
                 for (i,book) in enumerate(library_books):
+                    format = 'pdf' if library_books[book].kind().startswith('PDF') else 'epub'
                     this_book = Book(library_books[book].name(), library_books[book].artist())
                     this_book.path = self.path_template % (library_books[book].name(),
-                                                           library_books[book].artist())
+                                                           library_books[book].artist(),
+                                                           format)
                     try:
                         this_book.datetime = parse_date(str(library_books[book].date_added())).timetuple()
                     except:
@@ -2716,7 +2791,7 @@ class ITUNES_ASYNC(ITUNES):
                      'lib_book':library_books[book],
                      'dev_book':None,
                      'uuid': library_books[book].composer(),
-                     #'format': 'pdf' if book.KindAsString.startswith('PDF') else 'epub'
+                     'format': format
                      }
 
                     if self.report_progress is not None:
@@ -2730,8 +2805,10 @@ class ITUNES_ASYNC(ITUNES):
                     book_count = float(len(library_books))
                     for (i,book) in enumerate(library_books):
                         this_book = Book(library_books[book].Name, library_books[book].Artist)
+                        format = 'pdf' if library_books[book].KindAsString.startswith('PDF') else 'epub'
                         this_book.path = self.path_template % (library_books[book].Name,
-                                                               library_books[book].Artist)
+                                                               library_books[book].Artist,
+                                                               format)
                         try:
                             this_book.datetime = parse_date(str(library_books[book].DateAdded)).timetuple()
                         except:
@@ -2752,7 +2829,7 @@ class ITUNES_ASYNC(ITUNES):
                          'author':library_books[book].Artist,
                          'lib_book':library_books[book],
                          'uuid': library_books[book].Composer,
-                         'format': 'pdf' if library_books[book].KindAsString.startswith('PDF') else 'epub'
+                         'format': format
                          }
 
                         if self.report_progress is not None:
@@ -2772,13 +2849,6 @@ class ITUNES_ASYNC(ITUNES):
 
         else:
             return BookList(self.log)
-
-    def unmount_device(self):
-        '''
-        '''
-        if DEBUG:
-            self.log.info("ITUNES_ASYNC:unmount_device()")
-        self.connected = False
 
     def eject(self):
         '''
@@ -2844,6 +2914,13 @@ class ITUNES_ASYNC(ITUNES):
         self.problem_titles = []
         self.problem_msg = None
         self.update_list = []
+
+    def unmount_device(self):
+        '''
+        '''
+        if DEBUG:
+            self.log.info("ITUNES_ASYNC:unmount_device()")
+        self.connected = False
 
 class BookList(list):
     '''
