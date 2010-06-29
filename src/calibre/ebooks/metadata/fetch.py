@@ -313,6 +313,8 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
     def sort_func(x, y):
 
         def cleanup_title(s):
+            if s is None:
+                s = _('Unknown')
             s = s.strip().lower()
             s = prefix_pat.sub(' ', s)
             s = trailing_paren_pat.sub('', s)

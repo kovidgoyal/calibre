@@ -131,7 +131,7 @@ class OEBReader(object):
         stream = cStringIO.StringIO(etree.tostring(opf))
         mi = MetaInformation(OPF(stream))
         if not mi.language:
-            mi.language = get_lang()
+            mi.language = get_lang().replace('_', '-')
         self.oeb.metadata.add('language', mi.language)
         if not mi.title:
             mi.title = self.oeb.translate(__('Unknown'))
