@@ -2347,7 +2347,7 @@ class ITUNES(DriverBase):
                         self.log.info("   add timestamp: %s" % metadata.timestamp)
 
                 # Force the language declaration for iBooks 1.1
-                metadata.language = get_lang()
+                metadata.language = get_lang().replace('_', '-')
                 if DEBUG:
                     self.log.info("   rewriting language: <dc:language>%s</dc:language>" % metadata.language)
 

@@ -103,7 +103,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if _file:
             _file = os.path.abspath(_file)
             if not os.access(_file, os.R_OK):
-                d = error_dialog(self.window, _('Cannot read'),
+                d = error_dialog(self, _('Cannot read'),
                         _('You do not have permission to read the file: ') + _file)
                 d.exec_()
                 return
@@ -112,14 +112,14 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 cf = open(_file, "rb")
                 cover = cf.read()
             except IOError, e:
-                d = error_dialog(self.window, _('Error reading file'),
+                d = error_dialog(self, _('Error reading file'),
                         _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
                 d.exec_()
             if cover:
                 pix = QPixmap()
                 pix.loadFromData(cover)
                 if pix.isNull():
-                    d = error_dialog(self.window,
+                    d = error_dialog(self,
                         _("Not a valid picture"),
                             _file + _(" is not a valid picture"))
                     d.exec_()
@@ -162,7 +162,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.formats_changed = True
             added = True
         if bad_perms:
-            error_dialog(self.window, _('No permission'),
+            error_dialog(self, _('No permission'),
                     _('You do not have '
                 'permission to read the following files:'),
                 det_msg='\n'.join(bad_perms), show=True)
