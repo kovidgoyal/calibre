@@ -319,10 +319,9 @@ class TouchscreenFeedTemplate(Template):
                 continue
             tr = TR()
 
-            div_td = DIV(
+            div_td = DIV(CLASS('article_summary'),
                     A(article.title, CLASS('summary_headline','calibre_rescale_120',
-                                    href=article.url)),
-                    style="display:inline-block")
+                                    href=article.url)))
             if article.author:
                 div_td.append(DIV(article.author,
                     CLASS('summary_byline', 'calibre_rescale_100')))

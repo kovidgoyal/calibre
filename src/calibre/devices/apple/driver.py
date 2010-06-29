@@ -20,7 +20,7 @@ from calibre.utils.config import config_dir
 from calibre.utils.date import isoformat, now, parse_date
 from calibre.utils.localization import get_lang
 from calibre.utils.logging import Log
-from calibre.utils.zipfile import ZipFile
+from calibre.utils.zipfile import ZipFile, safe_replace
 
 from PIL import Image as PILImage
 
@@ -38,7 +38,7 @@ if iswindows:
 class DriverBase(DeviceConfig, DevicePlugin):
     # Needed for config_widget to work
     FORMATS = ['epub', 'pdf']
-    #SUPPORTS_SUB_DIRS = True
+    SUPPORTS_SUB_DIRS = True   # To enable second checkbox in customize widget
 
     @classmethod
     def _config_base_name(cls):
@@ -164,6 +164,7 @@ class ITUNES(DriverBase):
     # Properties
     cached_books = {}
     cache_dir = os.path.join(config_dir, 'caches', 'itunes')
+    archive_path = os.path.join(cache_dir, "thumbs.zip")
     description_prefix = "added by calibre"
     ejected = False
     iTunes= None
@@ -276,10 +277,13 @@ class ITUNES(DriverBase):
         """
         if not oncard:
             if DEBUG:
-                self.log.info("ITUNES:books(oncard=%s)" % oncard)
+                self.log.info("ITUNES:books():")
+                if self.settings().use_subdirs:
+                    self.log.info(" Cover fetching/caching enabled")
+                else:
+                    self.log.info(" Cover fetching/caching disabled")
 
             # Fetch a list of books from iPod device connected to iTunes
-
             if 'iPod' in self.sources:
                 booklist = BookList(self.log)
                 cached_books = {}
@@ -294,7 +298,7 @@ class ITUNES(DriverBase):
                         try:
                             this_book.datetime = parse_date(str(book.date_added())).timetuple()
                         except:
-                            pass
+                            this_book.datetime = time.gmtime()
                         this_book.db_id = None
                         this_book.device_collections = []
                         this_book.library_id = library_books[this_book.path] if this_book.path in library_books else None
@@ -332,7 +336,7 @@ class ITUNES(DriverBase):
                             try:
                                 this_book.datetime = parse_date(str(book.DateAdded)).timetuple()
                             except:
-                                pass
+                                this_book.datetime = time.gmtime()
                             this_book.db_id = None
                             this_book.device_collections = []
                             this_book.library_id = library_books[this_book.path] if this_book.path in library_books else None
@@ -538,8 +542,7 @@ class ITUNES(DriverBase):
         # Repurpose the metadata checkbox
         cw.opt_read_metadata.setText(_("Use Series as Category in iTunes/iBooks"))
         # Repurpose the use_subdirs checkbox
-#         cw.opt_use_subdirs.setText(_("Do not display books in iTunes/iBooks database\n"
-#                                      "(shortens load time with very large collections)."))
+        cw.opt_use_subdirs.setText(_("Cache covers from iTunes/iBooks"))
         return cw
 
     def delete_books(self, paths, end_session=True):
@@ -697,21 +700,19 @@ class ITUNES(DriverBase):
             self.log.info("ITUNES.open()")
 
         # Confirm/create thumbs archive
-        archive_path = os.path.join(self.cache_dir, "thumbs.zip")
-
         if not os.path.exists(self.cache_dir):
             if DEBUG:
                 self.log.info(" creating thumb cache '%s'" % self.cache_dir)
             os.makedirs(self.cache_dir)
 
-        if not os.path.exists(archive_path):
+        if not os.path.exists(self.archive_path):
             self.log.info(" creating zip archive")
-            zfw = ZipFile(archive_path, mode='w')
+            zfw = ZipFile(self.archive_path, mode='w')
             zfw.writestr("iTunes Thumbs Archive",'')
             zfw.close()
         else:
             if DEBUG:
-                self.log.info(" existing thumb cache at '%s'" % archive_path)
+                self.log.info(" existing thumb cache at '%s'" % self.archive_path)
 
     def remove_books_from_metadata(self, paths, booklists):
         '''
@@ -728,21 +729,42 @@ class ITUNES(DriverBase):
         if DEBUG:
             self.log.info("ITUNES.remove_books_from_metadata()")
         for path in paths:
-            self._dump_cached_book(self.cached_books[path], indent=2)
+            #self._dump_cached_book(self.cached_books[path], indent=2)
 
-            # Purge the booklist, self.cached_books
+            # Purge the booklist, self.cached_books, thumb cache
             for i,bl_book in enumerate(booklists[0]):
                 if False:
-                    self.log.info(" evaluating '%s'" % bl_book.uuid)
+                    self.log.info(" evaluating '%s' '%s'" % (bl_book,bl_book.uuid))
                 if bl_book.uuid == self.cached_books[path]['uuid']:
                     # Remove from booklists[0]
                     booklists[0].pop(i)
 
+                    # Remove from self.cached_books
                     for cb in self.cached_books:
                         if self.cached_books[cb]['uuid'] == self.cached_books[path]['uuid']:
                             self.cached_books.pop(cb)
                             break
+
+                    # Remove from thumb cache
+                    thumb_path = path.rpartition('.')[0] + '.jpg'
+                    zf = ZipFile(self.archive_path,'a')
+                    fnames = zf.namelist()
+                    try:
+                        plist = [x for x in fnames if thumb_path in x][0]
+                    except:
+                        plist = None
+                    if plist:
+                        if DEBUG:
+                            self.log.info("  deleting '%s' from cover cache" % (thumb_path))
+                            zf.delete(thumb_path)
+                    else:
+                        if DEBUG:
+                            self.log.info("  '%s' not found in cover cache")
+                    zf.close()
+
                     break
+
+
 
         if False:
             self._dump_booklist(booklists[0], indent = 2)
@@ -848,7 +870,6 @@ class ITUNES(DriverBase):
             self.log.info("ITUNES.upload_books()")
             self._dump_files(files, header='upload_books()',indent=2)
             self._dump_update_list(header='upload_books()',indent=2)
-            #self.log.info("  self.settings().format_map: %s" % self.settings().format_map)
 
         if isosx:
             for (i,file) in enumerate(files):
@@ -862,7 +883,10 @@ class ITUNES(DriverBase):
                 new_booklist.append(this_book)
                 self._update_iTunes_metadata(metadata[i], db_added, lb_added, this_book)
 
-                # Add new_book to self.cached_paths
+                # Add new_book to self.cached_books
+                if DEBUG:
+                    self.log.info(" adding '%s' by '%s' ['%s'] to self.cached_books" %
+                                  ( metadata[i].title, metadata[i].author, metadata[i].uuid))
                 self.cached_books[this_book.path] = {
                    'author': metadata[i].author,
                  'dev_book': db_added,
@@ -1177,14 +1201,13 @@ class ITUNES(DriverBase):
 
                 # Refresh the thumbnail cache
                 if DEBUG:
-                    self.log.info( "  refreshing cached thumb for '%s'" % metadata.title)
-                archive_path = os.path.join(self.cache_dir, "thumbs.zip")
-                zfw = ZipFile(archive_path, mode='a')
+                    self.log.info( "   refreshing cached thumb for '%s'" % metadata.title)
+                zfw = ZipFile(self.archive_path, mode='a')
                 thumb_path = path.rpartition('.')[0] + '.jpg'
                 zfw.writestr(thumb_path, thumb)
             except:
                 self.problem_titles.append("'%s' by %s" % (metadata.title, metadata.author[0]))
-                self.log.error("  error converting '%s' to thumb for '%s'" % (metadata.cover,metadata.title))
+                self.log.error("   error converting '%s' to thumb for '%s'" % (metadata.cover,metadata.title))
             finally:
                 zfw.close()
 
@@ -1250,7 +1273,8 @@ class ITUNES(DriverBase):
             plist = None
         if plist:
             if DEBUG:
-                self.log.info("   deleting %s from %s" % (pl_name,fpath))
+                self.log.info(" _delete_iTunesMetadata_plist():")
+                self.log.info("   deleting '%s'\n   from '%s'" % (pl_name,fpath))
                 zf.delete(pl_name)
         zf.close()
 
@@ -1639,52 +1663,67 @@ class ITUNES(DriverBase):
         as of iTunes 9.2, iBooks 1.1, can't set artwork for PDF files via automation
         '''
 
-        archive_path = os.path.join(self.cache_dir, "thumbs.zip")
+        # self.settings().use_subdirs is a repurposed DeviceConfig field
+        # We're using it to skip fetching/caching covers to speed things up
+        if not self.settings().use_subdirs:
+            return None
+
         thumb_path = book_path.rpartition('.')[0] + '.jpg'
         format = book_path.rpartition('.')[2].lower()
 
         try:
-            zfr = ZipFile(archive_path)
+            zfr = ZipFile(self.archive_path)
             thumb_data = zfr.read(thumb_path)
-            zfr.close()
+            if thumb_data == '\x00\x00':
+                if DEBUG:
+                    self.log.info(" ITUNES._generate_thumbnail()\n   returning None for '%s'" % book.name())
+                zfr.close()
+                return None
         except:
-            zfw = ZipFile(archive_path, mode='a')
+            zfw = ZipFile(self.archive_path, mode='a')
         else:
             return thumb_data
 
-        self.log.info(" ITUNES._generate_thumbnail()")
+        self.log.info(" ITUNES._generate_thumbnail():")
         if isosx:
             if format == 'epub':
+                # Fetch the artwork
                 try:
-                    if False:
-                        self.log.info("   fetching artwork from %s\n   %s" % (book_path,book))
-                    # Resize the cover
                     data = book.artworks[1].raw_data().data
-                    #self._dump_hex(data[:256])
+                except:
+                    # If no artwork, write an empty marker to cache
+                    if DEBUG:
+                        self.log.error("  error reading artwork from '%s'" % book.name())
+                    zfw.writestr(thumb_path, '\x00\x00')
+                    zfw.close()
+                    return None
+
+                # Generate a thumb
+                try:
                     img_data = cStringIO.StringIO(data)
                     im = PILImage.open(img_data)
                     scaled, width, height = fit_image(im.size[0],im.size[1], 60, 80)
                     im = im.resize((int(width),int(height)), PILImage.ANTIALIAS)
-                    img_data.close()
 
                     thumb = cStringIO.StringIO()
                     im.convert('RGB').save(thumb,'JPEG')
                     thumb_data = thumb.getvalue()
                     thumb.close()
-
-                    # Cache the tagged thumb
                     if DEBUG:
                         self.log.info("  generated thumb for '%s', caching" % book.name())
-                    zfw.writestr(thumb_path, thumb_data)
-                    zfw.close()
-                    return thumb_data
                 except:
-                    self.log.error("  error generating thumb for '%s'" % book.name())
-                    try:
-                        zfw.close()
-                    except:
-                        pass
-                    return None
+                    if DEBUG:
+                        self.log.error("  error generating thumb for '%s', caching empty marker" % book.name())
+                        self._dump_hex(data[:32])
+                    thumb_data = '\x00\x00'
+                finally:
+                    # Cache the tagged thumb
+                    zfw.writestr(thumb_path, thumb_data)
+                    img_data.close()
+                    zfw.close()
+
+                return thumb_data
+
             else:
                 if DEBUG:
                     self.log.info("  unable to generate PDF thumbs")
@@ -1692,9 +1731,12 @@ class ITUNES(DriverBase):
 
         elif iswindows:
 
+            # Fetch the artwork
             if not book.Artwork.Count:
                 if DEBUG:
                     self.log.info("  no artwork available for '%s'" % book.Name)
+                zfw.writestr(thumb_path, '\x00\x00')
+                zfw.close()
                 return None
 
             if format == 'epub':
@@ -1711,20 +1753,20 @@ class ITUNES(DriverBase):
                     thumb_data = thumb.getvalue()
                     os.remove(tmp_thumb)
                     thumb.close()
-
-                    # Cache the tagged thumb
                     if DEBUG:
                         self.log.info("  generated thumb for '%s', caching" % book.Name)
+
+                except:
+                    if DEBUG:
+                        self.log.error("  error generating thumb for '%s', caching empty marker" % book.Name)
+                        self._dump_hex(data[:32])
+                    thumb_data = '\x00\x00'
+                finally:
+                    # Cache the tagged thumb
                     zfw.writestr(thumb_path, thumb_data)
                     zfw.close()
-                    return thumb_data
-                except:
-                    self.log.error("  error generating thumb for '%s'" % book.Name)
-                    try:
-                        zfw.close()
-                    except:
-                        pass
-                    return None
+
+                return thumb_data
             else:
                 if DEBUG:
                     self.log.info("  unable to generate PDF thumbs")
@@ -2205,9 +2247,9 @@ class ITUNES(DriverBase):
                     if DEBUG:
                         self.log.info( "  deleting library book '%s'" %  metadata.title)
                     break
-                else:
-                    if DEBUG:
-                        self.log.info("  '%s' not found in cached_books" % metadata.title)
+            else:
+                if DEBUG:
+                    self.log.info("  '%s' not found in cached_books" % metadata.title)
 
     def _remove_from_device(self, cached_book):
         '''
@@ -2269,7 +2311,7 @@ class ITUNES(DriverBase):
             except:
                 # We get here if there was an error with .location().path
                 if DEBUG:
-                    self.log.info("   '%s' not found in iTunes" % cached_book['title'])
+                    self.log.info("   '%s' not in iTunes storage" % cached_book['title'])
 
             try:
                 self.iTunes.delete(cached_book['lib_book'])
@@ -2298,7 +2340,7 @@ class ITUNES(DriverBase):
                     try:
                         os.remove(path)
                     except:
-                        self.log.warning("   could not find '%s' in iTunes storage" % path)
+                        self.log.warning("   '%s' not in iTunes storage" % path)
                     try:
                         os.rmdir(storage_path[0])
                         self.log.info("   removed folder '%s'" % storage_path[0])
@@ -2633,7 +2675,11 @@ class ITUNES_ASYNC(ITUNES):
         """
         if not oncard:
             if DEBUG:
-                self.log.info("ITUNES_ASYNC:books(oncard=%s)" % oncard)
+                self.log.info("ITUNES_ASYNC:books()")
+                if self.settings().use_subdirs:
+                    self.log.info(" Cover fetching/caching enabled")
+                else:
+                    self.log.info(" Cover fetching/caching disabled")
 
             # Fetch a list of books from iTunes
 
@@ -2650,7 +2696,7 @@ class ITUNES_ASYNC(ITUNES):
                     try:
                         this_book.datetime = parse_date(str(library_books[book].date_added())).timetuple()
                     except:
-                        pass
+                        this_book.datetime = time.gmtime()
                     this_book.db_id = None
                     this_book.device_collections = []
                     #this_book.library_id = library_books[this_book.path] if this_book.path in library_books else None
@@ -2689,7 +2735,7 @@ class ITUNES_ASYNC(ITUNES):
                         try:
                             this_book.datetime = parse_date(str(library_books[book].DateAdded)).timetuple()
                         except:
-                            pass
+                            this_book.datetime = time.gmtime()
                         this_book.db_id = None
                         this_book.device_collections = []
                         this_book.library_id = library_books[book]
