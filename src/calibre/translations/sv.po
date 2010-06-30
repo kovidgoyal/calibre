@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-28 03:51+0000\n"
-"PO-Revision-Date: 2010-06-28 21:08+0000\n"
+"PO-Revision-Date: 2010-06-29 16:48+0000\n"
 "Last-Translator: Johan Segerstedt <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-29 03:35+0000\n"
+"X-Launchpad-Export-Date: 2010-06-30 03:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
@@ -5613,10 +5613,15 @@ msgid ""
 "unchecked, collections will be always reflect only the metadata in the "
 "calibre library."
 msgstr ""
+"Om detta alternativ väljs, kommer samlingar inte att tas bort även om en bok "
+"med ändrade metadata skickas igen och samlingen inte finns i bokens "
+"metadata. Dessutom blir det möjligt att redigera samlingar i enhetsvyn. Om "
+"alternativet inte väljs, kommer samlingar bara att reflektera metadata i "
+"Calibrebiblioteket."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:137
 msgid "  "
-msgstr ""
+msgstr "  "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:138
 msgid ""
@@ -5730,7 +5735,7 @@ msgstr "Visa omslags&bläddrare i ett separat fönster (kräver omstart)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:575
 msgid "Show &average ratings in the tags browser"
-msgstr ""
+msgstr "Visa medelbetyg i etikettbläddraren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:576
 msgid "Search as you type"
@@ -5800,10 +5805,11 @@ msgstr "Vy (omstart krävs)"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:597
 msgid "Disable all animations. Useful if you have a slow/old computer."
 msgstr ""
+"Inaktivera alla animationer. Används om du har en långsam/gammal dator."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:598
 msgid "Disable &animations"
-msgstr ""
+msgstr "Inaktivera animationer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:599
 msgid "Add an email address to which to send books"
@@ -6053,7 +6059,7 @@ msgstr "Lång texten, liksom kommentarer, som inte framgår av tagläsaren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:28
 msgid "Text column for keeping series-like information"
-msgstr ""
+msgstr "Textkolumn för information av typen serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:33
 msgid "Floating point numbers"
@@ -6231,7 +6237,7 @@ msgstr "FEL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:69
 msgid "Location"
-msgstr ""
+msgstr "Plats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1058
@@ -6240,15 +6246,15 @@ msgstr "Format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device_ui.py:50
 msgid "Delete from device"
-msgstr ""
+msgstr "Ta bort från enhet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:29
 msgid "Author sort"
-msgstr ""
+msgstr "Författarsortering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:47
 msgid "Manage authors"
-msgstr ""
+msgstr "Hantera författare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:60
 msgid "Author Sort"
@@ -7542,7 +7548,7 @@ msgstr "Ta bort omslag från valda böcker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:137
 msgid "Remove matching books from device"
-msgstr ""
+msgstr "Ta bort matchande böcker från enheten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:154
 msgid "Convert individually"
@@ -7566,13 +7572,13 @@ msgstr "Liknande böcker..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:232
 msgid "Add books to library"
-msgstr ""
+msgstr "Lägg till böcker i biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:234
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:241
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:248
 msgid "Manage collections"
-msgstr ""
+msgstr "Hantera samlingar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:328
 msgid "Cover Browser"
@@ -8213,11 +8219,11 @@ msgstr "&Alternativ snabbtangent:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:191
 msgid "Rename '%s'"
-msgstr ""
+msgstr "Byt namn på %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:195
 msgid "Edit sort for '%s'"
-msgstr ""
+msgstr "Redigera sorteringsinformation för %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:200
 msgid "Hide category %s"
@@ -8234,7 +8240,7 @@ msgstr "Visa alla kategorier"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:214
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:218
 msgid "Manage %s"
-msgstr ""
+msgstr "Hantera %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:221
 msgid "Manage Saved Searches"
@@ -8260,15 +8266,15 @@ msgstr "Namnet %s för den sparade sökningen används redan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:768
 msgid "Sort by name"
-msgstr ""
+msgstr "Sortera efter namn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:768
 msgid "Sort by popularity"
-msgstr ""
+msgstr "Sortera efter popularitet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:769
 msgid "Sort by average rating"
-msgstr ""
+msgstr "Sortera efter medelbetyg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:775
 msgid "Match all"
@@ -9997,7 +10003,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:70
 msgid "%sAverage rating is %3.1f"
-msgstr ""
+msgstr "%sMedelbetyget är %3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:525
 msgid "Main"
@@ -10373,7 +10379,7 @@ msgstr "Användarskapade tagkategoriläsare"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:702
 msgid "Preserve all collections even if not in library metadata."
-msgstr ""
+msgstr "Bevara samlingar även om det inte finns i bibliotekets metadata"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -10445,7 +10451,7 @@ msgstr "Engelska (Pakistan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
 msgid "English (Israel)"
-msgstr ""
+msgstr "Engelska (Israel)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 msgid "English (Singapore)"
