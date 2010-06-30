@@ -290,7 +290,7 @@ class USBMS(CLI, Device):
                 js = [item.to_json() for item in booklists[listid] if
                         hasattr(item, 'to_json')]
                 with open(self.normalize_path(os.path.join(prefix, self.METADATA_CACHE)), 'wb') as f:
-                    json.dump(js, f, indent=2, encoding='utf-8')
+                    f.write(json.dumps(js, indent=2, encoding='utf-8'))
         write_prefix(self._main_prefix, 0)
         write_prefix(self._card_a_prefix, 1)
         write_prefix(self._card_b_prefix, 2)

@@ -495,7 +495,7 @@ class DeviceMenu(QMenu): # {{{
         self.connect_to_folder_action = mitem
 
         mitem = self.addAction(QIcon(I('devices/itunes.png')),
-                _('Connect to iTunes (EXPERIMENTAL)'))
+                _('Connect to iTunes'))
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
         self.connect_to_itunes_action = mitem

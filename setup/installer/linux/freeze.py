@@ -46,7 +46,7 @@ class LinuxFreeze(Command):
                         '/usr/lib/libsqlite3.so.0',
                         '/usr/lib/libsqlite3.so.0',
                         '/usr/lib/libmng.so.1',
-                        '/usr/lib/libpodofo.so.0.6.99',
+                        '/usr/lib/libpodofo.so.0.8.1',
                         '/lib/libz.so.1',
                         '/lib/libuuid.so.1',
                         '/usr/lib/libtiff.so.3',

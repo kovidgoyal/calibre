@@ -162,9 +162,50 @@ SET(WANT_LIB64 FALSE)
 SET(PODOFO_BUILD_SHARED TRUE)
 SET(PODOFO_BUILD_STATIC FALSE)
 
-cp build/podofo-0.7.0/build/src/Release/podofo.dll bin/
-cp build/podofo-0.7.0/build/src/Release/podofo.lib lib/
-cp build/podofo-0.7.0/build/src/Release/podofo.exp lib/
+cp build/podofo/build/src/Release/podofo.dll bin/
+cp build/podofo/build/src/Release/podofo.lib lib/
+cp build/podofo/build/src/Release/podofo.exp lib/
+
+cp build/podofo/build/podofo_config.h include/podofo/
+cp -r build/podofo/src/* include/podofo/
+
+The following patch was required to get it to compile:
+
+Index: src/PdfImage.cpp
+===================================================================
+--- src/PdfImage.cpp    (revision 1261)
++++ src/PdfImage.cpp    (working copy)
+@@ -627,7 +627,7 @@
+ 
+     long lLen = static_cast<long>(pInfo->rowbytes * height);
+     char* pBuffer = static_cast<char*>(malloc(sizeof(char) * lLen));
+-    png_bytep pRows[height];
++    png_bytepp pRows = static_cast<png_bytepp>(malloc(sizeof(png_bytep)*height));
+     for(int y=0; y<height; y++)
+     {
+         pRows[y] = reinterpret_cast<png_bytep>(pBuffer + (y * pInfo->rowbytes));
+@@ -672,6 +672,7 @@
+     this->SetImageData( width, height, pInfo->bit_depth, &stream );
+     
+     free(pBuffer);
++       free(pRows);
+ }
+ #endif // PODOFO_HAVE_PNG_LIB
+
+Index: src/PdfFiltersPrivate.cpp
+===================================================================
+--- src/PdfFiltersPrivate.cpp   (revision 1261)
++++ src/PdfFiltersPrivate.cpp   (working copy)
+@@ -1019,7 +1019,7 @@
+ /*
+  * Prepare for input from a memory buffer.
+  */
+-GLOBAL(void)
++void
+ jpeg_memory_src (j_decompress_ptr cinfo, const JOCTET * buffer, size_t bufsize)
+ {
+     my_src_ptr src;
+
 
 ImageMagick
 --------------
