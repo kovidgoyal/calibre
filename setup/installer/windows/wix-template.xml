@@ -153,18 +153,10 @@
                 <Property Id="WixShellExecTarget" Value="[#{exe_map[calibre]}]" />
                 <CustomAction Id="LaunchApplication" BinaryKey="WixCA"
                     DllEntry="WixShellExec" Impersonate="yes"/>
-                <InstallExecuteSequence>
-                    <FileCost Suppress="yes" />
-                </InstallExecuteSequence>
+
                 <InstallUISequence>
                     <FileCost Suppress="yes" />
                 </InstallUISequence>
-                <AdminExecuteSequence>
-                    <FileCost Suppress="yes" />
-                </AdminExecuteSequence>
-                <AdminUISequence>
-                    <FileCost Suppress="yes" />
-                </AdminUISequence>
 
 		</Product>
 </Wix>
