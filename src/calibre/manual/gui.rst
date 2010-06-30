@@ -199,36 +199,59 @@ Searches are by default 'contains'. An item matches if the search string appears
 Two other kinds of searches are available: equality search and search using regular expressions.
 
 Equality searches are indicated by prefixing the search string with an equals sign (=). For example, the query
-``tag:"=science"`` will match "science", but not "science fiction". Regular expression searches are
+``tag:"=science"`` will match "science", but not "science fiction" or "hard science". Regular expression searches are
 indicated by prefixing the search string with a tilde (~). Any python-compatible regular expression can
 be used. Regular expression searches are contains searches unless the expression contains anchors.
 Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash. 
 
+Enclose search strings with quotes (") if the string contains parenthesis or spaces. For example, to search
+for the tag ``Science Fiction``, you would need to search for ``tag:"=science fiction"``. If you search for
+``tag:=science fiction``, you will find all books with the tag 'science' and containing the word 'fiction' in any
+metadata.
+
 You can build advanced search queries easily using the :guilabel:`Advanced Search Dialog`, accessed by 
 clicking the button |sbi|.
 
-Available fields for searching are: ``tag, title, author, publisher, series, rating cover, comments, format,
-isbn, date, pubdate, search, size``. To find the search name for a custom column, hover your mouse over the column header.
+Available fields for searching are: ``tag, title, author, publisher, series, rating, cover, comments, format,
+isbn, date, pubdate, search, size`` and custom columns. If a device is plugged in, the ``ondevice`` field
+becomes available. To find the search name for a custom column, hover your mouse over the column header.
 
-The syntax for searching for dates and publication dates is::
+The syntax for searching for dates is::
 
     pubdate:>2000-1 Will find all books published after Jan, 2000
     date:<=2000-1-3 Will find all books added to calibre before 3 Jan, 2000
     pubdate:=2009 Will find all books published in 2009
+
+If the date is ambiguous, the current locale is used for date comparison. For example, in an mm/dd/yyyy
+locale, 2/1/2009 is interpreted as 1 Feb 2009. In a dd/mm/yyyy locale, it is interpreted as 2 Jan 2009.
+
+Some special date strings are available. The string ``today`` translates to today's date, whatever it is. The
+strings `yesterday`` and ``thismonth`` also work. In addition, the string ``daysago`` can be used to compare
+to a date some number of days ago, for example: date:>10daysago, date:<=45daysago.
 
 You can search for books that have a format of a certain size like this::
 
     size:>1.1M Will find books with a format larger than 1.1MB
     size:<=1K  Will find books with a format smaller than 1KB
 
+Dates and numeric fields support the operators ``=`` (equals), ``>`` (greater than), ``>=`` (greater than or
+equal to), ``<`` (less than), ``<=`` (less than or equal to), and ``!=`` (not equal to).  Rating fields are
+considered to be numeric. For example, the search ``rating:>=3`` will find all books rated 3 or higher.
+
 The special field ``search`` is used for saved searches. So if you save a search with the name
-"My spouse's books" you can enter ``search:"My spouses' books"`` in the search bar to reuse the saved
+"My spouse's books" you can enter ``search:"My spouse's books"`` in the search bar to reuse the saved
 search. More about saving searches, below.
 
 You can search for the absence or presence of a field using the special "true" and "false" values. For example::
 
-    cover:false Will give you all books without a cover
-    series:true Will give you all books that belong to a series
+    cover:false will give you all books without a cover
+    series:true will give you all books that belong to a series
+    comments:false will give you all books with an empty comment
+
+Yes/no custom columns are searchable. Searching for ``false``, ``empty``, or ``blank`` will find all books
+with undefined values in the column. Searching for ``true`` will find all books that do not have undefined
+values in the column. Searching for ``yes`` or ``checked`` will find all books with ``Yes`` in the column.
+Searching for ``no`` or ``unchecked`` will find all books with ``No`` in the column.
 
 .. |sbi| image:: images/search_button.png
     :align: middle
