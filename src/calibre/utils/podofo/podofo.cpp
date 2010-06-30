@@ -164,7 +164,7 @@ podofo_convert_pystring(PyObject *py) {
     Py_UNICODE* u = PyUnicode_AS_UNICODE(py);
     PyObject *u8 = PyUnicode_EncodeUTF8(u, PyUnicode_GET_SIZE(py), "replace");
     if (u8 == NULL) { PyErr_NoMemory(); return NULL; }
-    pdf_utf8 *s8 = (pdf_utf8 *)PyString_AS_STRING(u8);
+    pdf_utf8 *s8 = reinterpret_cast<pdf_utf8 *>(PyString_AS_STRING(u8));
     PdfString *ans = new PdfString(s8);
     Py_DECREF(u8);
     if (ans == NULL) PyErr_NoMemory();
@@ -219,9 +219,10 @@ podofo_PDFDoc_setter(podofo_PDFDoc *self, PyObject *val, int field) {
         PyErr_SetString(PyExc_Exception, "You must first load a PDF Document");
         return -1;
     }
-
     PdfString *s = podofo_convert_pystring(val); 
     if (s == NULL) return -1;
+
+
     switch (field) {
         case 0:
             info->SetTitle(*s); break;
@@ -240,7 +241,9 @@ podofo_PDFDoc_setter(podofo_PDFDoc *self, PyObject *val, int field) {
             return -1;
     }
 
+
     self->doc->set_info(info);
+
     return 0;
 }
 
