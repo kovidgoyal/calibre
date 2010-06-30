@@ -38,7 +38,6 @@ from calibre.gui2.dialogs.config import ConfigDialog
 
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.library.database2 import LibraryDatabase2
-from calibre.library.caches import CoverCache
 from calibre.gui2.init import ToolbarMixin, LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
@@ -138,6 +137,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         self.restriction_in_effect = False
 
         self.progress_indicator = ProgressIndicator(self)
+        self.progress_indicator.pos = (0, 20)
         self.verbose = opts.verbose
         self.get_metadata = GetMetadata()
         self.upload_memory = {}
@@ -230,9 +230,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
 
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
-        self.cover_cache = CoverCache(self.library_path)
-        self.cover_cache.start()
-        self.library_view.model().cover_cache = self.cover_cache
         self.library_view.model().count_changed_signal.connect \
                                             (self.location_view.count_changed)
         if not gprefs.get('quick_start_guide_added', False):
@@ -606,9 +603,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         while self.spare_servers:
             self.spare_servers.pop().close()
         self.device_manager.keep_going = False
-        self.cover_cache.stop()
+        cc = self.library_view.model().cover_cache
+        if cc is not None:
+            cc.stop()
         self.hide_windows()
-        self.cover_cache.terminate()
         self.emailer.stop()
         try:
             try:

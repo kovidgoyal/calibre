@@ -645,6 +645,8 @@ class EditMetadataAction(object): # {{{
         if x.exception is None:
             self.library_view.model().refresh_ids(
                 x.updated, cr)
+            if self.cover_flow:
+                self.cover_flow.dataChanged()
             if x.failures:
                 details = ['%s: %s'%(title, reason) for title,
                         reason in x.failures.values()]
@@ -689,7 +691,6 @@ class EditMetadataAction(object): # {{{
         if rows:
             current = self.library_view.currentIndex()
             m = self.library_view.model()
-            m.refresh_cover_cache(map(m.id, rows))
             if self.cover_flow:
                 self.cover_flow.dataChanged()
             m.current_changed(current, previous)
@@ -711,6 +712,8 @@ class EditMetadataAction(object): # {{{
             self.library_view.model().resort(reset=False)
             self.library_view.model().research()
             self.tags_view.recount()
+            if self.cover_flow:
+                self.cover_flow.dataChanged()
 
     # Merge books {{{
     def merge_books(self, safe_merge=False):

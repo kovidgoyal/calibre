@@ -38,12 +38,16 @@ class ProgressIndicator(QWidget):
         self.status.setWordWrap(True)
         self.status.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
         self.setVisible(False)
+        self.pos = None
 
     def start(self, msg=''):
         view = self.parent()
         pwidth, pheight = view.size().width(), view.size().height()
         self.resize(pwidth, min(pheight, 250))
-        self.move(0, (pheight-self.size().height())/2.)
+        if self.pos is None:
+            self.move(0, (pheight-self.size().height())/2.)
+        else:
+            self.move(self.pos[0], self.pos[1])
         self.pi.resize(self.pi.sizeHint())
         self.pi.move(int((self.size().width()-self.pi.size().width())/2.), 0)
         self.status.resize(self.size().width(), self.size().height()-self.pi.size().height()-10)

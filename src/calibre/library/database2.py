@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 The database used to store ebook metadata
 '''
-import os, sys, shutil, cStringIO, glob,functools, traceback
+import os, sys, shutil, cStringIO, glob, time, functools, traceback
 from itertools import repeat
 from math import floor
 
@@ -440,12 +440,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if os.access(path, os.R_OK):
             if as_path:
                 return path
-            f = open(path, 'rb')
+            try:
+                f = open(path, 'rb')
+            except (IOError, OSError):
+                time.sleep(0.2)
+                f = open(path, 'rb')
             if as_image:
                 img = QImage()
                 img.loadFromData(f.read())
+                f.close()
                 return img
-            return f if as_file else f.read()
+            ans = f if as_file else f.read()
+            if ans is not f:
+                f.close()
+            return ans
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''
@@ -492,12 +500,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         return os.access(path, os.R_OK)
 
-    def remove_cover(self, id):
+    def remove_cover(self, id, notify=True):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if os.path.exists(path):
-            os.remove(path)
+            try:
+                os.remove(path)
+            except (IOError, OSError):
+                time.sleep(0.2)
+                os.remove(path)
+        if notify:
+            self.notify('cover', [id])
 
-    def set_cover(self, id, data):
+    def set_cover(self, id, data, notify=True):
         '''
         Set the cover for this book.
 
@@ -509,7 +523,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         else:
             if callable(getattr(data, 'read', None)):
                 data = data.read()
-            save_cover_data_to(data, path)
+            try:
+                save_cover_data_to(data, path)
+            except (IOError, OSError):
+                time.sleep(0.2)
+                save_cover_data_to(data, path)
+        if notify:
+            self.notify('cover', [id])
 
     def book_on_device(self, id):
         if callable(self.book_on_device_func):
