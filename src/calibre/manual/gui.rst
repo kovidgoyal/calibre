@@ -213,14 +213,14 @@ isbn, date, pubdate, search``.
 The syntax for searching for dates and publication dates is::
 
     pubdate:>2000-1 Will find all books published after Jan, 2000
-    date:<=2000-1-3 Will find all books added to calibre beforre 3 Jan, 2000
+    date:<=2000-1-3 Will find all books added to calibre before 3 Jan, 2000
     pubdate:=2009 Will find all books published in 2009
 
 The special field ``search`` is used for saved searches. So if you save a search with the name
 "My spouse's books" you can enter ``search:"My spouses' books"`` in the search bar to reuse the saved
 search. More about saving searches, below.
 
-You can search for the absence or presnce of a filed using the specia "true" and "false" values. For example::
+You can search for the absence or presence of a field using the special "true" and "false" values. For example::
 
     cover:false Will give you all books without a cover
     series:true Will give you all books that belong to a series
