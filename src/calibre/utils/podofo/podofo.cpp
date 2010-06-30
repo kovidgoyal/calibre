@@ -6,15 +6,10 @@
 #include <podofo.h>
 using namespace PoDoFo;
 
-class podofo_pdfmem_wrapper : public PdfMemDocument {
-    public:
-        inline void set_info(PdfInfo *i) { this->SetInfo(i); }
-};
-
 typedef struct {
     PyObject_HEAD
     /* Type-specific fields go here. */
-    podofo_pdfmem_wrapper *doc;
+    PdfMemDocument *doc;
 
 } podofo_PDFDoc;
 
@@ -33,7 +28,7 @@ podofo_PDFDoc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self = (podofo_PDFDoc *)type->tp_alloc(type, 0);
     if (self != NULL) {
-        self->doc = new podofo_pdfmem_wrapper();
+        self->doc = new PdfMemDocument();
         if (self->doc == NULL) { Py_DECREF(self); return NULL; }
     }
 
@@ -171,6 +166,19 @@ podofo_convert_pystring(PyObject *py) {
     return ans;
 }
 
+static PdfString *
+podofo_convert_pystring_single_byte(PyObject *py) {
+    Py_UNICODE* u = PyUnicode_AS_UNICODE(py);
+    PyObject *s = PyUnicode_Encode(u, PyUnicode_GET_SIZE(py), "cp1252", "replace");
+    if (s == NULL) { PyErr_NoMemory(); return NULL; }
+    PdfString *ans = new PdfString(PyString_AS_STRING(s));
+    Py_DECREF(s);
+    if (ans == NULL) PyErr_NoMemory();
+    return ans;
+}
+
+
+
 static PyObject *
 podofo_PDFDoc_getter(podofo_PDFDoc *self, int field)
 {
@@ -219,7 +227,10 @@ podofo_PDFDoc_setter(podofo_PDFDoc *self, PyObject *val, int field) {
         PyErr_SetString(PyExc_Exception, "You must first load a PDF Document");
         return -1;
     }
-    PdfString *s = podofo_convert_pystring(val); 
+    PdfString *s = NULL;
+
+    if (self->doc->GetEncrypted()) s = podofo_convert_pystring_single_byte(val);
+    else s = podofo_convert_pystring(val); 
     if (s == NULL) return -1;
 
 
@@ -240,9 +251,6 @@ podofo_PDFDoc_setter(podofo_PDFDoc *self, PyObject *val, int field) {
             PyErr_SetString(PyExc_Exception, "Bad field");
             return -1;
     }
-
-
-    self->doc->set_info(info);
 
     return 0;
 }
