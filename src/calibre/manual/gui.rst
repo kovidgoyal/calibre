@@ -208,13 +208,18 @@ You can build advanced search queries easily using the :guilabel:`Advanced Searc
 clicking the button |sbi|.
 
 Available fields for searching are: ``tag, title, author, publisher, series, rating cover, comments, format,
-isbn, date, pubdate, search``.
+isbn, date, pubdate, search, size``. To find the search name for a custom column, hover your mouse over the column header.
 
 The syntax for searching for dates and publication dates is::
 
     pubdate:>2000-1 Will find all books published after Jan, 2000
     date:<=2000-1-3 Will find all books added to calibre before 3 Jan, 2000
     pubdate:=2009 Will find all books published in 2009
+
+You can search for books that have a format of a certain size like this::
+
+    size:>1.1M Will find books with a format larger than 1.1MB
+    size:<=1K  Will find books with a format smaller than 1KB
 
 The special field ``search`` is used for saved searches. So if you save a search with the name
 "My spouse's books" you can enter ``search:"My spouses' books"`` in the search bar to reuse the saved
