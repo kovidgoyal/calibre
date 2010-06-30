@@ -341,8 +341,13 @@ class ResultCache(SearchQueryParser):
             cast = lambda x : float (x)
             adjust = lambda x: x
 
+        if len(query) > 1:
+            mult = query[-1:].lower()
+            if mult in ['k', 'm', 'g']:
+                query = query[:-1]
+                mult = {'k':1024., 'm': 1024.*1024, 'g': 1024.*1024*1024}[mult]
         try:
-            q = cast(query)
+            q = cast(query) * mult
         except:
             return matches
 
