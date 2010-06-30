@@ -343,9 +343,11 @@ class ResultCache(SearchQueryParser):
 
         if len(query) > 1:
             mult = query[-1:].lower()
-            if mult in ['k', 'm', 'g']:
+            mult = {'k':1024.,'m': 1024.**2, 'g': 1024.**3}.get(mult, 1.0)
+            if mult != 1.0:
                 query = query[:-1]
-                mult = {'k':1024., 'm': 1024.*1024, 'g': 1024.*1024*1024}[mult]
+        else:
+            mult = 1.0
         try:
             q = cast(query) * mult
         except:
