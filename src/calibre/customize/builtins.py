@@ -445,7 +445,7 @@ from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.nook.driver import NOOK
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.android.driver import ANDROID, S60
-from calibre.devices.nokia.driver import N770, N810, E71X
+from calibre.devices.nokia.driver import N770, N810, E71X, E52
 from calibre.devices.eslick.driver import ESLICK, EBK52
 from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
@@ -520,6 +520,7 @@ plugins += [
     S60,
     N770,
     E71X,
+    E52,
     N810,
     COOL_ER,
     ESLICK,
