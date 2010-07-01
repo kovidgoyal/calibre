@@ -6,11 +6,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import collections, glob, os, re, itertools, functools
+import re, itertools, functools
 from itertools import repeat
 from datetime import timedelta
+from threading import Thread, RLock
+from Queue import Queue, Empty
 
-from PyQt4.Qt import QThread, QReadWriteLock, QImage, Qt
+from PyQt4.Qt import QImage, Qt
 
 from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE
@@ -19,120 +21,73 @@ from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import title_sort
 from calibre import fit_image
 
-class CoverCache(QThread):
+class CoverCache(Thread):
 
-    def __init__(self, library_path, parent=None):
-        QThread.__init__(self, parent)
-        self.library_path = library_path
-        self.id_map = None
-        self.id_map_lock = QReadWriteLock()
-        self.load_queue = collections.deque()
-        self.load_queue_lock = QReadWriteLock(QReadWriteLock.Recursive)
-        self.cache = {}
-        self.cache_lock = QReadWriteLock()
-        self.id_map_stale = True
+    def __init__(self, db):
+        Thread.__init__(self)
+        self.daemon = True
+        self.db = db
+        self.load_queue = Queue()
         self.keep_running = True
-
-    def build_id_map(self):
-        self.id_map_lock.lockForWrite()
-        self.id_map = {}
-        for f in glob.glob(os.path.join(self.library_path, '*', '* (*)', 'cover.jpg')):
-            c = os.path.basename(os.path.dirname(f))
-            try:
-                id = int(re.search(r'\((\d+)\)', c[c.rindex('('):]).group(1))
-                self.id_map[id] = f
-            except:
-                continue
-        self.id_map_lock.unlock()
-        self.id_map_stale = False
-
-
-    def set_cache(self, ids):
-        self.cache_lock.lockForWrite()
-        already_loaded = set([])
-        for id in self.cache.keys():
-            if id in ids:
-                already_loaded.add(id)
-            else:
-                self.cache.pop(id)
-        self.cache_lock.unlock()
-        ids = [i for i in ids if i not in already_loaded]
-        self.load_queue_lock.lockForWrite()
-        self.load_queue = collections.deque(ids)
-        self.load_queue_lock.unlock()
-
-
-    def run(self):
-        while self.keep_running:
-            if self.id_map is None or self.id_map_stale:
-                self.build_id_map()
-            while True: # Load images from the load queue
-                self.load_queue_lock.lockForWrite()
-                try:
-                    id = self.load_queue.popleft()
-                except IndexError:
-                    break
-                finally:
-                    self.load_queue_lock.unlock()
-
-                self.cache_lock.lockForRead()
-                need = True
-                if id in self.cache.keys():
-                    need = False
-                self.cache_lock.unlock()
-                if not need:
-                    continue
-                path = None
-                self.id_map_lock.lockForRead()
-                if id in self.id_map.keys():
-                    path = self.id_map[id]
-                else:
-                    self.id_map_stale = True
-                self.id_map_lock.unlock()
-                if path and os.access(path, os.R_OK):
-                    try:
-                        img = QImage()
-                        data = open(path, 'rb').read()
-                        img.loadFromData(data)
-                        if img.isNull():
-                            continue
-                        scaled, nwidth, nheight = fit_image(img.width(),
-                                img.height(), 600, 800)
-                        if scaled:
-                            img = img.scaled(nwidth, nheight, Qt.KeepAspectRatio,
-                                    Qt.SmoothTransformation)
-                    except:
-                        continue
-                    self.cache_lock.lockForWrite()
-                    self.cache[id] = img
-                    self.cache_lock.unlock()
-
-            self.sleep(1)
+        self.cache = {}
+        self.lock = RLock()
+        self.null_image = QImage()
 
     def stop(self):
         self.keep_running = False
 
-    def cover(self, id):
-        val = None
-        if self.cache_lock.tryLockForRead(50):
-            val = self.cache.get(id, None)
-            self.cache_lock.unlock()
-        return val
+    def _image_for_id(self, id_):
+        img = self.db.cover(id_, index_is_id=True, as_image=True)
+        if img is None:
+            img = QImage()
+        if not img.isNull():
+            scaled, nwidth, nheight = fit_image(img.width(),
+                    img.height(), 600, 800)
+            if scaled:
+                img = img.scaled(nwidth, nheight, Qt.KeepAspectRatio,
+                        Qt.SmoothTransformation)
+
+        return img
+
+    def run(self):
+        while self.keep_running:
+            try:
+                id_ = self.load_queue.get(True, 1)
+            except Empty:
+                continue
+            try:
+                img = self._image_for_id(id_)
+            except:
+                import traceback
+                traceback.print_exc()
+                continue
+            with self.lock:
+                self.cache[id_] = img
+
+    def set_cache(self, ids):
+        with self.lock:
+            already_loaded = set([])
+            for id in self.cache.keys():
+                if id in ids:
+                    already_loaded.add(id)
+                else:
+                    self.cache.pop(id)
+        for id_ in set(ids) - already_loaded:
+            self.load_queue.put(id_)
+
+    def cover(self, id_):
+        with self.lock:
+            return self.cache.get(id_, self.null_image)
 
     def clear_cache(self):
-        self.cache_lock.lockForWrite()
-        self.cache = {}
-        self.cache_lock.unlock()
+        with self.lock:
+            self.cache = {}
 
     def refresh(self, ids):
-        self.cache_lock.lockForWrite()
-        for id in ids:
-            self.cache.pop(id, None)
-        self.cache_lock.unlock()
-        self.load_queue_lock.lockForWrite()
-        for id in ids:
-            self.load_queue.appendleft(id)
-        self.load_queue_lock.unlock()
+        with self.lock:
+            for id_ in ids:
+                self.cache.pop(id_, None)
+                self.load_queue.put(id_)
 
 ### Global utility function for get_match here and in gui2/library.py
 CONTAINS_MATCH = 0
@@ -341,8 +296,15 @@ class ResultCache(SearchQueryParser):
             cast = lambda x : float (x)
             adjust = lambda x: x
 
+        if len(query) > 1:
+            mult = query[-1:].lower()
+            mult = {'k':1024.,'m': 1024.**2, 'g': 1024.**3}.get(mult, 1.0)
+            if mult != 1.0:
+                query = query[:-1]
+        else:
+            mult = 1.0
         try:
-            q = cast(query)
+            q = cast(query) * mult
         except:
             return matches
 

@@ -6,7 +6,7 @@ from functools import partial
 from threading import Thread
 
 from PyQt4.Qt import QApplication, Qt, QIcon, QTimer, SIGNAL, QByteArray, \
-                     QDesktopServices, QDoubleSpinBox, QLabel, QTextBrowser, \
+                     QDoubleSpinBox, QLabel, QTextBrowser, \
                      QPainter, QBrush, QColor, QStandardItemModel, QPalette, \
                      QStandardItem, QUrl, QRegExpValidator, QRegExp, QLineEdit, \
                      QToolButton, QMenu, QInputDialog, QAction, QKeySequence
@@ -17,7 +17,7 @@ from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2 import Application, ORG_NAME, APP_UID, choose_files, \
-                         info_dialog, error_dialog
+                         info_dialog, error_dialog, open_url
 from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.ebooks import DRMError
 from calibre.constants import islinux, isfreebsd
@@ -472,7 +472,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             elif frag:
                 self.view.scroll_to(frag)
         else:
-            QDesktopServices.openUrl(url)
+            open_url(url)
 
     def load_started(self):
         self.open_progress_indicator(_('Loading flow...'))

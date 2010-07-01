@@ -3,13 +3,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import traceback
 
-from PyQt4.Qt import QThread, pyqtSignal, QDesktopServices, QUrl, Qt
+from PyQt4.Qt import QThread, pyqtSignal, Qt, QUrl
 import mechanize
 
 from calibre.constants import __appname__, __version__, iswindows, isosx
 from calibre import browser
 from calibre.utils.config import prefs
-from calibre.gui2 import config, dynamic, question_dialog
+from calibre.gui2 import config, dynamic, question_dialog, open_url
 
 URL = 'http://status.calibre-ebook.com/latest'
 
@@ -64,7 +64,7 @@ class UpdateMixin(object):
                     'ge?')%(__appname__, version)):
                 url = 'http://calibre-ebook.com/download_'+\
                     ('windows' if iswindows else 'osx' if isosx else 'linux')
-                QDesktopServices.openUrl(QUrl(url))
+                open_url(QUrl(url))
             dynamic.set('update to version %s'%version, False)
 
 

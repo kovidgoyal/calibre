@@ -5,11 +5,11 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, os, re
 
-from PyQt4.QtCore import QCoreApplication, SIGNAL, QModelIndex, QUrl, QTimer, Qt
-from PyQt4.QtGui import QDialog, QPixmap, QGraphicsScene, QIcon, QDesktopServices
+from PyQt4.QtCore import QCoreApplication, SIGNAL, QModelIndex, QTimer, Qt
+from PyQt4.QtGui import QDialog, QPixmap, QGraphicsScene, QIcon
 
 from calibre.gui2.dialogs.book_info_ui import Ui_BookInfo
-from calibre.gui2 import dynamic
+from calibre.gui2 import dynamic, open_local_file
 from calibre import fit_image
 from calibre.library.comments import comments_to_html
 
@@ -49,12 +49,12 @@ class BookInfo(QDialog, Ui_BookInfo):
 
     def open_book_path(self, path):
         if os.sep in unicode(path):
-            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+            open_local_file(path)
         else:
             format = unicode(path)
             path = self.view.model().db.format_abspath(self.current_row, format)
             if path is not None:
-                QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+                open_local_file(path)
 
 
     def next(self):
@@ -123,6 +123,7 @@ class BookInfo(QDialog, Ui_BookInfo):
         for key in info.keys():
             if key == 'id': continue
             txt  = info[key]
-            txt  = u'<br />\n'.join(textwrap.wrap(txt, 120))
+            if key != _('Path'):
+                txt  = u'<br />\n'.join(textwrap.wrap(txt, 120))
             rows += u'<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)
         self.text.setText(u'<table>'+rows+'</table>')

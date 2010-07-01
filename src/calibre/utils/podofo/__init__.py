@@ -14,6 +14,7 @@ from calibre.ebooks.metadata import MetaInformation, string_to_authors, \
 from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.ipc.server import Server
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre import prints
 
 podofo, podofo_err = plugins['podofo']
 
@@ -117,12 +118,18 @@ def set_metadata(stream, mi):
 
     job.update()
     server.close()
-    if job.result is not None:
+    if job.failed:
+        prints(job.details)
+    elif job.result is not None:
         stream.seek(0)
         stream.truncate()
         stream.write(job.result)
         stream.flush()
         stream.seek(0)
+    try:
+        os.remove(pt.name)
+    except:
+        pass
 
 
 

@@ -342,13 +342,6 @@ def detect_ncpus():
     return ans
 
 
-def launch(path_or_url):
-    from PyQt4.QtCore import QUrl
-    from PyQt4.QtGui  import QDesktopServices
-    if os.path.exists(path_or_url):
-        path_or_url = 'file:'+path_or_url
-    QDesktopServices.openUrl(QUrl(path_or_url))
-
 relpath = os.path.relpath
 _spat = re.compile(r'^the\s+|^a\s+|^an\s+', re.IGNORECASE)
 def english_sort(x, y):
