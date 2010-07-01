@@ -3,13 +3,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, os
 
-from PyQt4.Qt import SIGNAL, QUrl, QDesktopServices, QAbstractListModel, Qt, \
+from PyQt4.Qt import SIGNAL, QUrl, QAbstractListModel, Qt, \
         QVariant, QInputDialog
 
 from calibre.web.feeds.recipes import compile_recipe
 from calibre.web.feeds.news import AutomaticNewsRecipe
 from calibre.gui2.dialogs.user_profiles_ui import Ui_Dialog
-from calibre.gui2 import error_dialog, question_dialog, \
+from calibre.gui2 import error_dialog, question_dialog, open_url, \
                          choose_files, ResizableDialog, NONE
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.ptempfile import PersistentTemporaryFile
@@ -135,7 +135,7 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         url.addQueryItem('subject', subject)
         url.addQueryItem('body', body)
         url.addQueryItem('attachment', pt.name)
-        QDesktopServices.openUrl(url)
+        open_url(url)
 
 
     def current_changed(self, current, previous):

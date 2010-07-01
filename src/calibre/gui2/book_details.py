@@ -9,14 +9,14 @@ import os, collections
 
 from PyQt4.Qt import QLabel, QPixmap, QSize, QWidget, Qt, pyqtSignal, \
     QVBoxLayout, QScrollArea, QPropertyAnimation, QEasingCurve, \
-    QSizePolicy, QPainter, QRect, pyqtProperty, QDesktopServices, QUrl
+    QSizePolicy, QPainter, QRect, pyqtProperty
 
 from calibre import fit_image, prepare_string_for_xml
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.constants import preferred_encoding
 from calibre.library.comments import comments_to_html
-from calibre.gui2 import config
+from calibre.gui2 import config, open_local_file
 
 # render_rows(data) {{{
 WEIGHTS = collections.defaultdict(lambda : 100)
@@ -294,7 +294,7 @@ class BookDetails(QWidget): # {{{
             id_, fmt = val.split(':')
             self.view_specific_format.emit(int(id_), fmt)
         elif typ == 'devpath':
-            QDesktopServices.openUrl(QUrl.fromLocalFile(val))
+            open_local_file(val)
 
 
     def mouseReleaseEvent(self, ev):

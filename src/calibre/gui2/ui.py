@@ -12,9 +12,9 @@ __docformat__ = 'restructuredtext en'
 import collections, os, sys, textwrap, time
 from Queue import Queue, Empty
 from threading import Thread
-from PyQt4.Qt import Qt, SIGNAL, QObject, QUrl, QTimer, \
+from PyQt4.Qt import Qt, SIGNAL, QObject, QTimer, \
                      QPixmap, QMenu, QIcon, pyqtSignal, \
-                     QDialog, QDesktopServices, \
+                     QDialog, \
                      QSystemTrayIcon, QApplication, QKeySequence, QAction, \
                      QMessageBox, QHelpEvent
 
@@ -23,7 +23,7 @@ from calibre.constants import __version__, __appname__, isosx
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
-from calibre.gui2 import error_dialog, GetMetadata, \
+from calibre.gui2 import error_dialog, GetMetadata, open_local_file, \
         gprefs, max_available_height, config, info_dialog
 from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator
@@ -572,7 +572,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         pt = PersistentTemporaryFile('_donate.htm')
         pt.write(HTML.encode('utf-8'))
         pt.close()
-        QDesktopServices.openUrl(QUrl.fromLocalFile(pt.name))
+        open_local_file(pt.name)
 
 
     def confirm_quit(self):
