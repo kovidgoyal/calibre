@@ -2588,13 +2588,13 @@ class ITUNES(DriverBase):
                 if DEBUG:
                     self.log.info("   using Series name as Genre")
                 if lb_added:
-                    lb_added.sort_name.set("%s %03d" % (metadata.series, metadata.series_index))
+                    lb_added.sort_name.set("%s %04f" % (metadata.series, metadata.series_index))
                     lb_added.genre.set(metadata.series)
                     lb_added.episode_ID.set(metadata.series)
                     lb_added.episode_number.set(metadata.series_index)
 
                 if db_added:
-                    db_added.sort_name.set("%s %03d" % (metadata.series, metadata.series_index))
+                    db_added.sort_name.set("%s %04f" % (metadata.series, metadata.series_index))
                     db_added.genre.set(metadata.series)
                     db_added.episode_ID.set(metadata.series)
                     db_added.episode_number.set(metadata.series_index)
@@ -2660,7 +2660,7 @@ class ITUNES(DriverBase):
                 if DEBUG:
                     self.log.info("   using Series name as Genre")
                 if lb_added:
-                    lb_added.SortName = "%s %03d" % (metadata.series, metadata.series_index)
+                    lb_added.SortName = "%s %04f" % (metadata.series, metadata.series_index)
                     lb_added.Genre = metadata.series
                     lb_added.EpisodeID = metadata.series
                     try:
@@ -2668,7 +2668,7 @@ class ITUNES(DriverBase):
                     except:
                         pass
                 if db_added:
-                    db_added.SortName = "%s %03d" % (metadata.series, metadata.series_index)
+                    db_added.SortName = "%s %04f" % (metadata.series, metadata.series_index)
                     db_added.Genre = metadata.series
                     db_added.EpisodeID = metadata.series
                     try:
