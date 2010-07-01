@@ -20,7 +20,7 @@ from calibre.utils.config import config_dir
 from calibre.utils.date import isoformat, now, parse_date
 from calibre.utils.localization import get_lang
 from calibre.utils.logging import Log
-from calibre.utils.zipfile import ZipFile, safe_replace
+from calibre.utils.zipfile import ZipFile
 
 from PIL import Image as PILImage
 
@@ -1727,7 +1727,6 @@ class ITUNES(DriverBase):
             return thumb_data
 
         thumb_path = book_path.rpartition('.')[0] + '.jpg'
-        format = book_path.rpartition('.')[2].lower()
         if isosx:
             title = book.name()
         elif iswindows:
