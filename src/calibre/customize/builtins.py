@@ -30,6 +30,7 @@ every time you add an HTML file to the library.\
 
         with TemporaryDirectory('_plugin_html2zip') as tdir:
             recs =[('debug_pipeline', tdir, OptionRecommendation.HIGH)]
+            recs.append(['keep_ligatures', True, OptionRecommendation.HIGH])
             if self.site_customization and self.site_customization.strip():
                 recs.append(['input_encoding', self.site_customization.strip(),
                     OptionRecommendation.HIGH])
