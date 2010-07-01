@@ -13,7 +13,7 @@ from calibre.devices.errors import UserFeedback
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
 from calibre.utils.config import config_dir
@@ -84,7 +84,7 @@ class ITUNES(DriverBase):
     name = 'Apple device interface'
     gui_name = 'Apple device'
     icon = I('devices/ipad.png')
-    description    = _('Communicate with iBooks through iTunes.')
+    description    = _('Communicate with iTunes/iBooks.')
     supported_platforms = ['osx','windows']
     author = 'GRiker'
     #: The version of this plugin as a 3-tuple (major, minor, revision)
@@ -92,7 +92,6 @@ class ITUNES(DriverBase):
 
     OPEN_FEEDBACK_MESSAGE = _(
         'Apple device detected, launching iTunes, please wait ...')
-
 
     # Product IDs:
     #  0x1291   iPod Touch
@@ -1242,8 +1241,7 @@ class ITUNES(DriverBase):
         if DEBUG:
             self.log.info(" ITUNES._create_new_book()")
 
-        #this_book = Book(metadata.title, metadata.author[0])
-        this_book = Book(metadata.title, ' & '.join(metadata.author))
+        this_book = Book(metadata.title, authors_to_string(metadata.author))
         this_book.datetime = time.gmtime()
         this_book.db_id = None
         this_book.device_collections = []
@@ -2548,8 +2546,7 @@ class ITUNES(DriverBase):
         if isosx:
             if lb_added:
                 lb_added.album.set(metadata.title)
-                #lb_added.artist.set(metadata.authors[0])
-                lb_added.artist.set(' & '.join(metadata.authors))
+                lb_added.artist.set(authors_to_string(metadata.authors))
                 lb_added.composer.set(metadata.uuid)
                 lb_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.enabled.set(True)
@@ -2560,8 +2557,7 @@ class ITUNES(DriverBase):
 
             if db_added:
                 db_added.album.set(metadata.title)
-                #db_added.artist.set(metadata.authors[0])
-                db_added.artist.set(' & '.join(metadata.authors))
+                db_added.artist.set(authors_to_string(metadata.authors))
                 db_added.composer.set(metadata.uuid)
                 db_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.enabled.set(True)
@@ -2592,13 +2588,13 @@ class ITUNES(DriverBase):
                 if DEBUG:
                     self.log.info("   using Series name as Genre")
                 if lb_added:
-                    lb_added.sort_name.set("%s %03d" % (metadata.series, metadata.series_index))
+                    lb_added.sort_name.set("%s %04f" % (metadata.series, metadata.series_index))
                     lb_added.genre.set(metadata.series)
                     lb_added.episode_ID.set(metadata.series)
                     lb_added.episode_number.set(metadata.series_index)
 
                 if db_added:
-                    db_added.sort_name.set("%s %03d" % (metadata.series, metadata.series_index))
+                    db_added.sort_name.set("%s %04f" % (metadata.series, metadata.series_index))
                     db_added.genre.set(metadata.series)
                     db_added.episode_ID.set(metadata.series)
                     db_added.episode_number.set(metadata.series_index)
@@ -2618,8 +2614,7 @@ class ITUNES(DriverBase):
         elif iswindows:
             if lb_added:
                 lb_added.Album = metadata.title
-                #lb_added.Artist = metadata.authors[0]
-                lb_added.Artist = ' & '.join(metadata.authors)
+                lb_added.Artist = authors_to_string(metadata.authors)
                 lb_added.Composer = metadata.uuid
                 lb_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.Enabled = True
@@ -2630,8 +2625,7 @@ class ITUNES(DriverBase):
 
             if db_added:
                 db_added.Album = metadata.title
-                #db_added.Artist = metadata.authors[0]
-                db_added.Artist = ' & '.join(metadata.authors)
+                db_added.Artist = authors_to_string(metadata.authors)
                 db_added.Composer = metadata.uuid
                 db_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.Enabled = True
@@ -2666,7 +2660,7 @@ class ITUNES(DriverBase):
                 if DEBUG:
                     self.log.info("   using Series name as Genre")
                 if lb_added:
-                    lb_added.SortName = "%s %03d" % (metadata.series, metadata.series_index)
+                    lb_added.SortName = "%s %04f" % (metadata.series, metadata.series_index)
                     lb_added.Genre = metadata.series
                     lb_added.EpisodeID = metadata.series
                     try:
@@ -2674,7 +2668,7 @@ class ITUNES(DriverBase):
                     except:
                         pass
                 if db_added:
-                    db_added.SortName = "%s %03d" % (metadata.series, metadata.series_index)
+                    db_added.SortName = "%s %04f" % (metadata.series, metadata.series_index)
                     db_added.Genre = metadata.series
                     db_added.EpisodeID = metadata.series
                     try:
