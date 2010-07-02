@@ -82,7 +82,7 @@ class PML2PMLZ(FileTypePlugin):
 
         return of.name
 
-
+# Metadata reader plugins {{{
 class ComicMetadataReader(MetadataReaderPlugin):
 
     name = 'Read comic metadata'
@@ -320,7 +320,9 @@ class ZipMetadataReader(MetadataReaderPlugin):
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.zip import get_metadata
         return get_metadata(stream)
+# }}}
 
+# Metadata writer plugins {{{
 
 class EPUBMetadataWriter(MetadataWriterPlugin):
 
@@ -396,6 +398,7 @@ class TOPAZMetadataWriter(MetadataWriterPlugin):
         from calibre.ebooks.metadata.topaz import set_metadata
         set_metadata(stream, mi)
 
+# }}}
 
 from calibre.ebooks.comic.input import ComicInput
 from calibre.ebooks.epub.input import EPUBInput
