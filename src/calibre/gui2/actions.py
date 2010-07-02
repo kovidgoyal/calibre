@@ -5,17 +5,18 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import shutil, os, datetime, sys, time
+import shutil, os, datetime, time
 from functools import partial
 
 from PyQt4.Qt import QInputDialog, pyqtSignal, QModelIndex, QThread, Qt, \
-        SIGNAL, QPixmap, QTimer, QDesktopServices, QUrl, QDialog
+        SIGNAL, QPixmap, QTimer, QDialog
 
 from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.gui2 import error_dialog, Dispatcher, gprefs, choose_files, \
-    choose_dir, warning_dialog, info_dialog, question_dialog, config
+    choose_dir, warning_dialog, info_dialog, question_dialog, config, \
+    open_local_file
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
 from calibre.utils.filenames import ascii_filename
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
@@ -25,7 +26,7 @@ from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook, \
     fetch_scheduled_recipe, generate_catalog
 from calibre.constants import preferred_encoding, filesystem_encoding, \
-        isosx, isfrozen, islinux
+        isosx
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -645,6 +646,8 @@ class EditMetadataAction(object): # {{{
         if x.exception is None:
             self.library_view.model().refresh_ids(
                 x.updated, cr)
+            if self.cover_flow:
+                self.cover_flow.dataChanged()
             if x.failures:
                 details = ['%s: %s'%(title, reason) for title,
                         reason in x.failures.values()]
@@ -689,7 +692,6 @@ class EditMetadataAction(object): # {{{
         if rows:
             current = self.library_view.currentIndex()
             m = self.library_view.model()
-            m.refresh_cover_cache(map(m.id, rows))
             if self.cover_flow:
                 self.cover_flow.dataChanged()
             m.current_changed(current, previous)
@@ -711,6 +713,8 @@ class EditMetadataAction(object): # {{{
             self.library_view.model().resort(reset=False)
             self.library_view.model().research()
             self.tags_view.recount()
+            if self.cover_flow:
+                self.cover_flow.dataChanged()
 
     # Merge books {{{
     def merge_books(self, safe_merge=False):
@@ -917,7 +921,7 @@ class SaveToDiskAction(object): # {{{
             _('Could not save some books') + ', ' +
             _('Click the show details button to see which ones.'),
             u'\n\n'.join(failures), show=True)
-        QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+        open_local_file(path)
 
     def books_saved(self, job):
         if job.failed:
@@ -1183,15 +1187,7 @@ class ViewAction(object): # {{{
                 self.job_manager.launch_gui_app(viewer,
                         kwargs=dict(args=args))
             else:
-                paths = os.environ.get('LD_LIBRARY_PATH',
-                            '').split(os.pathsep)
-                paths = [x for x in paths if x]
-                if isfrozen and islinux and paths:
-                    npaths = [x for x in paths if x != sys.frozen_path]
-                    os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
-                QDesktopServices.openUrl(QUrl.fromLocalFile(name))#launch(name)
-                if isfrozen and islinux and paths:
-                    os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(paths)
+                open_local_file(name)
                 time.sleep(2) # User feedback
         finally:
             self.unsetCursor()
@@ -1237,11 +1233,11 @@ class ViewAction(object): # {{{
             return
         for row in rows:
             path = self.library_view.model().db.abspath(row.row())
-            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+            open_local_file(path)
 
     def view_folder_for_id(self, id_):
         path = self.library_view.model().db.abspath(id_, index_is_id=True)
-        QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+        open_local_file(path)
 
     def view_book(self, triggered):
         rows = self.current_view().selectionModel().selectedRows()

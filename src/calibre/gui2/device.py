@@ -31,6 +31,8 @@ from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
+from calibre.ebooks.metadata.meta import set_metadata
+from calibre.constants import DEBUG
 
 # }}}
 
@@ -304,6 +306,21 @@ class DeviceManager(Thread): # {{{
 
     def _upload_books(self, files, names, on_card=None, metadata=None):
         '''Upload books to device: '''
+        if metadata and files and len(metadata) == len(files):
+            for f, mi in zip(files, metadata):
+                if isinstance(f, unicode):
+                    ext = f.rpartition('.')[-1].lower()
+                    if ext:
+                        try:
+                            if DEBUG:
+                                prints('Setting metadata in:', mi.title, 'at:',
+                                        f, file=sys.__stdout__)
+                            with open(f, 'r+b') as stream:
+                                set_metadata(stream, mi, stream_type=ext)
+                        except:
+                            if DEBUG:
+                                prints(traceback.format_exc(), file=sys.__stdout__)
+
         return self.device.upload_books(files, names, on_card,
                                         metadata=metadata, end_session=False)
 
@@ -1145,7 +1162,6 @@ class DeviceMixin(object): # {{{
 
         _files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
                                     settings.format_map,
-                                    set_metadata=True,
                                     specific_format=specific_format,
                                     exclude_auto=do_auto_convert)
         if do_auto_convert:

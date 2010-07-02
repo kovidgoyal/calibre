@@ -20,7 +20,8 @@ from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
-from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
+from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
+    REGEXP_MATCH, CoverCache
 from calibre.library.cli import parse_series_string
 from calibre import strftime, isbytestring, prepare_string_for_xml
 from calibre.constants import filesystem_encoding
@@ -149,21 +150,22 @@ class BooksModel(QAbstractTableModel): # {{{
         self.build_data_convertors()
         self.reset()
         self.database_changed.emit(db)
+        if self.cover_cache is not None:
+            self.cover_cache.stop()
+        self.cover_cache = CoverCache(db)
+        self.cover_cache.start()
+        def refresh_cover(event, ids):
+            if event == 'cover' and self.cover_cache is not None:
+                self.cover_cache.refresh(ids)
+        db.add_listener(refresh_cover)
 
     def refresh_ids(self, ids, current_row=-1):
         rows = self.db.refresh_ids(ids)
         if rows:
             self.refresh_rows(rows, current_row=current_row)
 
-    def refresh_cover_cache(self, ids):
-        if self.cover_cache:
-            self.cover_cache.refresh(ids)
-
     def refresh_rows(self, rows, current_row=-1):
         for row in rows:
-            if self.cover_cache:
-                id = self.db.id(row)
-                self.cover_cache.refresh([id])
             if row == current_row:
                 self.new_bookdisplay_data.emit(
                           self.get_book_display_info(row))
@@ -326,7 +328,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_cache(self, idx):
         l, r = 0, self.count()-1
-        if self.cover_cache:
+        if self.cover_cache is not None:
             l = max(l, idx-self.buffer_size)
             r = min(r, idx+self.buffer_size)
             k = min(r-idx, idx-l)
@@ -494,11 +496,9 @@ class BooksModel(QAbstractTableModel): # {{{
         data = None
         try:
             id = self.db.id(row_number)
-            if self.cover_cache:
+            if self.cover_cache is not None:
                 img = self.cover_cache.cover(id)
-                if img:
-                    if img.isNull():
-                        img = self.default_image
+                if not img.isNull():
                     return img
             if not data:
                 data = self.db.cover(row_number)

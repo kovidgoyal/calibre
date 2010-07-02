@@ -55,8 +55,7 @@ podofo_PDFDoc_load(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
 } else return NULL;
 
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -73,8 +72,7 @@ podofo_PDFDoc_open(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
 } else return NULL;
 
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *

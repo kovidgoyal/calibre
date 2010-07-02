@@ -1069,8 +1069,10 @@ class OPFCreator(MetaInformation):
             dc_attrs={'id':__appname__+'_id'}))
         if getattr(self, 'pubdate', None) is not None:
             a(DC_ELEM('date', self.pubdate.isoformat()))
-        a(DC_ELEM('language', self.language if self.language else
-            get_lang().replace('_', '-')))
+        lang = self.language
+        if not lang or lang.lower() == 'und':
+            lang = get_lang().replace('_', '-')
+        a(DC_ELEM('language', lang))
         if self.comments:
             a(DC_ELEM('description', self.comments))
         if self.publisher:

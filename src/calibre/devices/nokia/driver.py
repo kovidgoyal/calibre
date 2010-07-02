@@ -67,3 +67,24 @@ class E71X(USBMS):
     VENDOR_NAME      = 'NOKIA'
     WINDOWS_MAIN_MEM = 'S60'
 
+class E52(USBMS):
+
+    name = 'Nokia E52 device interface'
+    gui_name = 'Nokia E52'
+    description = _('Communicate with the Nokia E52')
+    author = 'David Ignjic'
+    supported_platforms = ['windows', 'linux', 'osx']
+
+    VENDOR_ID = [0x421]
+    PRODUCT_ID = [0x1CD]
+    BCD = [0x100]
+
+
+    FORMATS = ['mobi', 'prc']
+
+    EBOOK_DIR_MAIN = 'eBooks'
+    SUPPORTS_SUB_DIRS = True
+
+    VENDOR_NAME = 'NOKIA'
+    WINDOWS_MAIN_MEM = 'S60'
+
