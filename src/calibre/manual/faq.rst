@@ -162,6 +162,9 @@ turned into a collection on the reader. Note that the PRS-500 does not support c
 How do I use |app| with my iPad/iPhone/iTouch?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Over the air
+^^^^^^^^^^^^^^
+
 The easiest way to browse your |app| collection on your Apple device (iPad/iPhone/iPod) is by using the *free* Stanza app, available from the Apple app store. You need at least Stanza version 3.0. Stanza allows you to access your |app| collection wirelessly, over the air.
 
 First perform the following steps in |app|
@@ -181,13 +184,13 @@ Replace ``192.168.1.2`` with the local IP address of the computer running |app|.
 
 If you get timeout errors while browsing the calibre catalog in Stanza, try increasing the connection timeout value in the stanza settings. Go to Info->Settings and increase the value of Download Timeout.
 
-Alternative for the iPad
+With the USB cable
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As of |app| version 0.7.0, you can plugin your iPad into the computer using its charging cable, and |app| will detect it and show you a list of books on the iPad. You can then use the Send to device button to send books directly to iBooks on the iPad.
+As of |app| version 0.7.0, you can plug your iDevice into the computer using its charging cable, and |app| will detect it and show you a list of books on the device. You can then use the *Send to device button* to send books directly to iBooks on the device. Note that you must have at least iOS 4 installed on your iPhone/iTouch for this to work.
 
-This method only works on Windows XP and higher and OS X 10.5 and higher. Linux is not supported (iTunes is not available in linux) and OS X 10.4 is not supported. For more details, see
-`this forum post <http://www.mobileread.com/forums/showpost.php?p=944079&postcount=1>`_.
+This method only works on Windows XP and higher and OS X 10.5 and higher. Linux is not supported (iTunes is not available in linux) and OS X 10.4 is not supported.
+For more details on how this works, see `this forum post <http://www.mobileread.com/forums/showpost.php?p=944079&postcount=1>`_.
 
 How do I use |app| with my Android phone?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
