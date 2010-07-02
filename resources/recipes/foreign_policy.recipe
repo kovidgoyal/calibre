@@ -1,0 +1,28 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1278059020(BasicNewsRecipe):
+    title          = u'Foreign Policy'
+    pubisher  = 'http://www.foreignpolicy.com'
+    category              = 'Magazine, USA Foreign Policy'
+    __author__            = 'rty'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    masthead_url = 'http://www.foreignpolicy.com/images/fp_logo.jpg'
+    feeds          = [(u'Feed', u'http://www.foreignpolicy.com/node/feed')]
+    remove_javascript = True
+    use_embedded_content   = False
+    no_stylesheets = True
+    language = 'en'
+    encoding               = 'utf-8'
+    conversion_options = {'linearize_tables':True}
+
+    def print_version(self, url):
+        return url + '?print=yes&hidecomments=no&page=full'
+
+    remove_tags = [
+                    dict(name='div', attrs={'id':'share-box'}),
+                        ]
+    keep_only_tags = [
+	# dict(name='div', attrs={'class':'cxArticleHeader'}),
+                     dict(name='div', attrs={'id':['art-mast','art-body']}),
+                               ]
