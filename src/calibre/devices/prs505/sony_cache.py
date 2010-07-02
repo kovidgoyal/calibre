@@ -350,9 +350,7 @@ class XMLCache(object):
                 record = lpath_map.get(book.lpath, None)
                 if record is None:
                     record = self.create_text_record(root, i, book.lpath)
-                date = self.check_timestamp(record, book, path)
-                if date is not None:
-                    self.update_text_record(record, book, date, path, i)
+                self.update_text_record(record, book, path, i)
                 # Ensure the collections in the XML database are recorded for
                 # this book
                 if book.device_collections is None:
@@ -443,23 +441,15 @@ class XMLCache(object):
         root.append(ans)
         return ans
 
-    def check_timestamp(self, record, book, path):
-        '''
-        Checks the timestamp in the Sony DB against the file. If different,
-        return the file timestamp. Otherwise return None.
-        '''
-        timestamp = os.path.getmtime(path)
-        date = strftime(timestamp)
-        if date != record.get('date', None):
-            return date
-        return None
-
-    def update_text_record(self, record, book, date, path, bl_index):
+    def update_text_record(self, record, book, path, bl_index):
         '''
         Update the Sony database from the book. This is done if the timestamp in
         the db differs from the timestamp on the file.
         '''
-        record.set('date', date)
+        timestamp = os.path.getmtime(path)
+        date = strftime(timestamp)
+        if date != record.get('date', None):
+            record.set('date', date)
         record.set('size', str(os.stat(path).st_size))
         title = book.title if book.title else _('Unknown')
         record.set('title', title)
