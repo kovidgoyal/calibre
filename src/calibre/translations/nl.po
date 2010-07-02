@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-28 03:51+0000\n"
-"PO-Revision-Date: 2010-06-30 22:03+0000\n"
+"PO-Revision-Date: 2010-07-01 19:56+0000\n"
 "Last-Translator: Bart Bone <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-01 03:43+0000\n"
+"X-Launchpad-Export-Date: 2010-07-02 03:31+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:359
@@ -1703,6 +1703,10 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
+"Gebruik geen SVG voor de omslag van het boek. Gebruik deze optie als uw EPUB "
+"gebruikt gaat worden op een apparaat dat  SVG niet ondersteunt, zoals de "
+"iPhone of de JetBook Lite. Zonder deze optie, zullen deze apparaten de "
+"omslag van het boek als een lege pagina laten zien."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
@@ -1712,6 +1716,12 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
+"Bij gebruik van een SVG hoes, zal deze optie ervoor zorgen dat de hoes het "
+"hele scherm zal bedekken, maar toch de aspect ratio (verhouding van breedte "
+"en hoogte) zal behouden. Dit betekent dat er sprake kan zijn van hoezen met "
+"witte randen aan de zijkanten of de boven-en onderkant van het beeld, maar "
+"het beeld zal nooit worden verstoord. Zonder deze optie kan het beeld "
+"enigszins worden verstoord, maar er zullen geen randen zijn."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:169
 msgid "Start"
@@ -3015,7 +3025,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:103
 msgid "The layout of the user interface"
-msgstr ""
+msgstr "De indeling van de gebruikers interface"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:105
 msgid "Show the average rating per item indication in the tag browser"
