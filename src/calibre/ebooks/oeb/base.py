@@ -844,7 +844,7 @@ class Manifest(object):
                 nroot = etree.fromstring('<html></html>')
                 has_body = False
                 for child in list(data):
-                    if barename(child.tag) == 'body':
+                    if isinstance(child.tag, (unicode, str)) and barename(child.tag) == 'body':
                         has_body = True
                         break
                 parent = nroot
