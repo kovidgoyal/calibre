@@ -106,6 +106,7 @@ class BOOX(HANLINV3):
     description    = _('Communicate with the BOOX eBook reader.')
     author         = 'Jesus Manuel Marinho Valcarce'
     supported_platforms = ['windows', 'osx', 'linux']
+    METADATA_CACHE = '.metadata.calibre'
 
     # Ordered list of supported formats
     FORMATS     = ['epub', 'fb2', 'djvu', 'pdf', 'html', 'txt', 'rtf', 'mobi', 'prc', 'chm']

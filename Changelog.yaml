@@ -4,6 +4,61 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.7
+  date: 2010-07-02
+
+  new features:
+    - title: "Support for the Nokia E52"
+
+    - title: "Searching on the size column"
+
+    - title: "iTunes driver: Add option to disable cover fetching for speeding up the fetching of large book collections"
+
+  bug fixes:
+    - title: "SONY driver: Only update metadata when books are sent to device."
+
+    - title: "TXT Input: Ensure the generated html is splittable"
+      tickets: [5904]
+
+    - title: "Fix infinite loop in default cover generation."
+      tickets: [6061]
+
+    - title: "HTML Input: Fix a parsing bug that was triggered in rare conditions"
+      tickets: [6064]
+
+    - title: "HTML2Zip plugin: Do not replace ligatures"
+      tickets: [6019]
+
+    - title: "iTunes driver: Fix transmission of non integral series numbers"
+      tickets: [6046]
+
+    - title: "Simplify implementation of cover caching and ensure cover browser is updated when covers are changed"
+
+    - title: "PDF metadata: Fix last character corrupted when setting metadata in encrypted files."
+
+    - title: "PDF metadata: Update the version of PoDoFo used to set metadata to 0.8.1. Hopefully that means more PDF files will work"
+
+    - title: "Device drivers: Speedup for dumping metadata cache to devices on Windows XP"
+
+    - title: "EPUB Output: Ensure that language setting is conformant to the specs"
+
+    - title: "MOBI Output: Fix a memory leak and a crash in the palmdoc compression routine"
+
+    - title: "Metadata download: Fix a regressiont at resulted in a failed download for some books"
+
+  new recipes:
+    - title: "Foreign Policy and Alo!"
+      author: Darko Miletic
+
+    - title: Statesman and ifzm
+      author: rty
+
+  improved recipes:
+    - Akter
+    - The Old New Thing
+
+
+
 - version: 0.7.6
   date: 2010-06-28
 

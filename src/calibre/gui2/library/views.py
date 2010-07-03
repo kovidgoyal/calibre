@@ -501,8 +501,9 @@ class DeviceBooksView(BooksView): # {{{
 
     def contextMenuEvent(self, event):
         self.edit_collections_menu.setVisible(
-                            self._model.db.supports_collections() and \
-                            prefs['preserve_user_collections'])
+            callable(getattr(self._model.db, 'supports_collections', None)) and \
+            self._model.db.supports_collections() and \
+            prefs['preserve_user_collections'])
         self.context_menu.popup(event.globalPos())
         event.accept()
 

@@ -84,6 +84,7 @@ typedef unsigned short QRgb565;
 #define REFLECTION_FACTOR 1.5
 
 #define MAX(x, y) ((x > y) ? x : y)
+#define MIN(x, y) ((x < y) ? x : y)
 
 #define RGB565_RED_MASK 0xF800
 #define RGB565_GREEN_MASK 0x07E0
@@ -800,7 +801,7 @@ QRect PictureFlowPrivate::renderCenterSlide(const SlideInfo &slide) {
   QRect rect(buffer.width()/2 - sw/2, 0, sw, h-1);
   int left = rect.left();
 
-  for(int x = 0; x < sh-1; x++)
+  for(int x = 0; x < MIN(h-1, sh-1); x++)
     for(int y = 0; y < sw; y++)
       buffer.setPixel(left + y, 1+x, src->pixel(x, y));
 
