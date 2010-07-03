@@ -1,4 +1,4 @@
-﻿from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1278162597(BasicNewsRecipe):
     __author__            = 'rty'
