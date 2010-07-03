@@ -351,9 +351,13 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
     if len(results) > 1:
         if not results[0].comments or len(results[0].comments) == 0:
             for r in results[1:]:
-                if title.lower() == r.title[:len(title)].lower() and r.comments and len(r.comments):
-                    results[0].comments = r.comments
-                    break
+                try:
+                    if title and title.lower() == r.title[:len(title)].lower() \
+                            and r.comments and len(r.comments):
+                        results[0].comments = r.comments
+                        break
+                except:
+                    pass
         # Find a pubdate
         pubdate = None
         for r in results:
