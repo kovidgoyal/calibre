@@ -109,7 +109,8 @@ class BOOX(HANLINV3):
     METADATA_CACHE = '.metadata.calibre'
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'fb2', 'djvu', 'pdf', 'html', 'txt', 'rtf', 'mobi', 'prc', 'chm']
+    FORMATS     = ['epub', 'fb2', 'djvu', 'pdf', 'html', 'txt', 'rtf', 'mobi',
+                   'prc', 'chm', 'doc']
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0xa4a5]
