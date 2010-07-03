@@ -267,10 +267,10 @@ class LocationModel(QAbstractListModel):
                       QVariant(QIcon(I('reader.svg'))),
                       QVariant(QIcon(I('sd.svg'))),
                       QVariant(QIcon(I('sd.svg')))]
-        self.text = [_('Library\n%d\nbooks'),
-                     _('Reader\n%s\navailable'),
-                     _('Card A\n%s\navailable'),
-                     _('Card B\n%s\navailable')]
+        self.text = [_('Library\n%d books'),
+                     _('Reader\n%s'),
+                     _('Card A\n%s'),
+                     _('Card B\n%s')]
         self.free = [-1, -1, -1]
         self.count = 0
         self.highlight_row = 0
@@ -309,7 +309,12 @@ class LocationModel(QAbstractListModel):
         elif role == Qt.DecorationRole:
             data = self.icons[drow]
         elif role == Qt.ToolTipRole:
-            data = QVariant(self.tooltips[drow])
+            ans = self.tooltips[row]
+            if row > 0:
+                fs = self.free[drow-1]
+                if fs > -1:
+                    ans += '\n\n%s '%(human_readable(fs)) + _('free')
+            data = QVariant(ans)
         elif role == Qt.SizeHintRole:
             data = QVariant(QSize(155, 90))
         elif role == Qt.FontRole:
