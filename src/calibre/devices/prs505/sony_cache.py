@@ -345,6 +345,7 @@ class XMLCache(object):
             debug_print('Updating XML Cache:', i)
             root = self.record_roots[i]
             lpath_map = self.build_lpath_map(root)
+            self.timezone_for_dates = None
             for book in booklist:
                 path = os.path.join(self.prefixes[i], *(book.lpath.split('/')))
                 record = lpath_map.get(book.lpath, None)
@@ -458,10 +459,38 @@ class XMLCache(object):
         Update the Sony database from the book. This is done if the timestamp in
         the db differs from the timestamp on the file.
         '''
+
+        # It seems that a Sony device can sometimes know what timezone it is in.
+        # In this case it appears to convert the dates to GMT when it writes
+        # them to the db. Unfortunately, we can't tell when it is doing this, so
+        # we use a horrible heuristic to tell. As we check dates, check both
+        # localtime and gmtime. If neither match, set the date using localtime
+        # and hope it is right. If one of them matches, then assume that the
+        # rest of the dates in that db use that timezone.
         timestamp = os.path.getmtime(path)
-        date = strftime(timestamp)
-        if date != record.get('date', None):
+        if self.timezone_for_dates is None:
+            tz = time.localtime
+        else:
+            tz = self.timezone_for_dates
+        date = strftime(timestamp, zone=tz)
+        rec_date = record.get('date', None)
+        if date != rec_date:
+            if self.timezone_for_dates is None:
+                # We haven't yet identified a timezone. See if gmtime() matches
+                date = strftime(timestamp, zone=time.gmtime)
+                if date == rec_date:
+                    # It did. Use gmtime for the rest of the dates.
+                    debug_print("Using GMT TZ for dates")
+                    self.timezone_for_dates = time.gmtime
+            # We now may or may not have identified a timezone. In either event,
+            # save the date. If gmtime matched, we are modifying it to itself,
+            # but that is OK for the one time it happens.
             record.set('date', date)
+        elif self.timezone_for_dates is None:
+            # Dates matched. Use localtime from here on.
+            debug_print("Using localtime TZ for dates")
+            self.timezone_for_dates = tz
+
         record.set('size', str(os.stat(path).st_size))
         title = book.title if book.title else _('Unknown')
         record.set('title', title)
