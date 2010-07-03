@@ -808,7 +808,8 @@ class Manifest(object):
                         pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
                         data = pat.sub(lambda m:user_entities[m.group(1)], data)
 
-            parser = etree.XMLParser(no_network=True, huge_tree=True)
+            # Setting huge_tree=True causes crashes in windows with large files
+            parser = etree.XMLParser(no_network=True)
             # Try with more & more drastic measures to parse
             def first_pass(data):
                 try:
