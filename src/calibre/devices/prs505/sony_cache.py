@@ -350,9 +350,7 @@ class XMLCache(object):
                 record = lpath_map.get(book.lpath, None)
                 if record is None:
                     record = self.create_text_record(root, i, book.lpath)
-                date = self.check_timestamp(record, book, path)
-                if date is not None:
-                    self.update_text_record(record, book, date, path, i)
+                self.update_text_record(record, book, path, i)
                 # Ensure the collections in the XML database are recorded for
                 # this book
                 if book.device_collections is None:
@@ -390,23 +388,35 @@ class XMLCache(object):
                 debug_print('WARNING: Some elements in the JSON cache were not'
                         ' found in the XML cache')
             records = [x for x in records if x is not None]
-            ids = set()
+            # Ensure each book has an ID.
             for rec in records:
-                id = rec.get('id', None)
-                if id is None:
+                if rec.get('id', None) is None:
                     rec.set('id', str(self.max_id(root)+1))
-                    id = rec.get('id', None)
-                ids.add(id)
-            # ids cannot contain None, so no reason to check
+            ids = [x.get('id', None) for x in records]
+            # Given that we set the ids, there shouldn't be any None's. But
+            # better to be safe...
+            if None in ids:
+                debug_print('WARNING: Some <text> elements do not have ids')
+                ids = [x for x in ids if x is not None]
 
             playlist = self.get_or_create_playlist(bl_index, category)
-            # Reduce ids to books not already in the playlist
+            # Get the books currently in the playlist. We will need them to be
+            # sure to put back any books that were manually added.
+            playlist_ids = []
             for item in playlist:
                 id_ = item.get('id', None)
                 if id_ is not None:
-                    ids.discard(id_)
-            # Add the books in ids that were not already in the playlist
-            for id_ in ids:
+                    playlist_ids.append(id_)
+            # Empty the playlist. We do this so that the playlist will have the
+            # order specified by get_collections
+            for item in list(playlist):
+                playlist.remove(item)
+
+            # Get a list of ids not known by get_collections
+            extra_ids = [x for x in playlist_ids if x not in ids]
+            # Rebuild the collection in the order specified by get_collections. Then
+            # add the ids that get_collections didn't know about.
+            for id_ in ids + extra_ids:
                 item = playlist.makeelement(
                         '{%s}item'%self.namespaces[bl_index],
                         nsmap=playlist.nsmap, attrib={'id':id_})
@@ -443,23 +453,15 @@ class XMLCache(object):
         root.append(ans)
         return ans
 
-    def check_timestamp(self, record, book, path):
-        '''
-        Checks the timestamp in the Sony DB against the file. If different,
-        return the file timestamp. Otherwise return None.
-        '''
-        timestamp = os.path.getmtime(path)
-        date = strftime(timestamp)
-        if date != record.get('date', None):
-            return date
-        return None
-
-    def update_text_record(self, record, book, date, path, bl_index):
+    def update_text_record(self, record, book, path, bl_index):
         '''
         Update the Sony database from the book. This is done if the timestamp in
         the db differs from the timestamp on the file.
         '''
-        record.set('date', date)
+        timestamp = os.path.getmtime(path)
+        date = strftime(timestamp)
+        if date != record.get('date', None):
+            record.set('date', date)
         record.set('size', str(os.stat(path).st_size))
         title = book.title if book.title else _('Unknown')
         record.set('title', title)

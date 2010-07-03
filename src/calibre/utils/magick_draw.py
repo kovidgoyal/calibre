@@ -65,6 +65,9 @@ class TextLine(object):
         self.bottom_margin = bottom_margin
         self.font_path = font_path
 
+    def __repr__(self):
+        return u'TextLine:%r:%f'%(self.text, self.font_size)
+
 def alloc_wand(name):
     ans = getattr(p, name)()
     if ans < 0:
@@ -120,6 +123,10 @@ def draw_centered_text(img, dw, text, top, margin=10):
     tokens = text.split(' ')
     while tokens:
         line, tokens = _get_line(img, dw, tokens, img_width-2*margin)
+        if not line:
+            # Could not fit the first token on the line
+            line = tokens[:1]
+            tokens = tokens[1:]
         bottom = draw_centered_line(img, dw, ' '.join(line), top)
         top = bottom
     return top
