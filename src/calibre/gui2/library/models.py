@@ -937,6 +937,7 @@ class DeviceBooksModel(BooksModel): # {{{
             cname = self.column_map[index.column()]
             if cname in ('title', 'authors') or \
                     (cname == 'collections' and \
+                     callable(getattr(self.db, 'supports_collections', None)) and \
                      self.db.supports_collections() and \
                      prefs['preserve_user_collections']):
                 flags |= Qt.ItemIsEditable
