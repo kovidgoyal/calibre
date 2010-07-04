@@ -375,6 +375,7 @@ class StatusBar(QStatusBar): # {{{
         self.update_label = QLabel('')
         self.update_label.setOpenExternalLinks(True)
         self.addPermanentWidget(self.update_label)
+        self.update_label.setVisible(False)
         self._font = QFont()
         self._font.setBold(True)
         self.setFont(self._font)
@@ -399,6 +400,7 @@ class StatusBar(QStatusBar): # {{{
                 _('Update found'), url, ver)
         self.update_label.setText(msg)
         self.update_label.setCursor(Qt.PointingHandCursor)
+        self.update_label.setVisible(True)
 
     def get_version(self):
         dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
