@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-03 01:21+0000\n"
-"PO-Revision-Date: 2010-07-02 18:29+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-07-03 10:14+0000\n"
+"Last-Translator: MeltingShell <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-03 03:44+0000\n"
+"X-Launchpad-Export-Date: 2010-07-04 03:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -490,7 +490,7 @@ msgstr "Comunica con i telefoni S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:87
 msgid "Communicate with iTunes/iBooks."
-msgstr ""
+msgstr "Comunica con iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:93
 msgid "Apple device detected, launching iTunes, please wait ..."
@@ -522,7 +522,7 @@ msgstr "Usa le serie come categoria per iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:546
 msgid "Cache covers from iTunes/iBooks"
-msgstr ""
+msgstr "Conserva le copertine da iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:558
 msgid ""
@@ -752,7 +752,7 @@ msgstr "Comunica con il Nokia 810 internet Tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
-msgstr ""
+msgstr "Comunica con il Nokia E52"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
@@ -2265,7 +2265,7 @@ msgstr "Nessuna copertina trovata"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:15
 msgid "Cover download"
-msgstr ""
+msgstr "Scarica cover"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/douban.py:42
 msgid "Downloads metadata from Douban.com"
@@ -5059,7 +5059,7 @@ msgstr "Connetti alla cartella"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:515
 msgid "Connect to iTunes"
-msgstr ""
+msgstr "Connetti ad iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:520
 msgid "Eject device"
@@ -5067,7 +5067,7 @@ msgstr "Espelli dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:528
 msgid "Fetch annotations (experimental)"
-msgstr "Prendi annotazioni (sperimentale)"
+msgstr "Preleva annotazioni (sperimentale)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:638
 msgid "Error communicating with device"
