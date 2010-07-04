@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import functools, sys, os
 
 from PyQt4.Qt import QMenu, Qt, pyqtSignal, QToolButton, QIcon, QStackedWidget, \
-        QSize, QSizePolicy, QStatusBar, QUrl, QLabel
+        QSize, QSizePolicy, QStatusBar, QUrl, QLabel, QFont
 
 from calibre.utils.config import prefs
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -375,6 +375,9 @@ class StatusBar(QStatusBar): # {{{
         self.update_label = QLabel('')
         self.update_label.setOpenExternalLinks(True)
         self.addPermanentWidget(self.update_label)
+        self._font = QFont()
+        self._font.setBold(True)
+        self.setFont(self._font)
 
     def initialize(self, systray=None):
         self.systray = systray
