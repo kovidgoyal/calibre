@@ -795,17 +795,20 @@ QRect PictureFlowPrivate::renderCenterSlide(const SlideInfo &slide) {
   int sw = src->height();
   int sh = src->width();
   int h = buffer.height();
-  QRect rect(buffer.width()/2 - sw/2, 0, sw, h-1);
-  int left = rect.left();
-
-  if (left >= 0) {
-    int xcon = MIN(h-1, sh-1);
-    int ycon = MIN(sw, buffer.width() - left);
-
-    for(int x = 0; x < xcon; x++)
-        for(int y = 0; y < ycon; y++)
-            buffer.setPixel(left + y, 1+x, src->pixel(x, y));
+  int srcoff = 0;
+  int left = buffer.width()/2 - sw/2;
+  if (left < 0) {
+      srcoff = -left;
+      sw += left;
+      left = 0;
   }
+  QRect rect(left, 0, sw, h-1);
+  int xcon = MIN(h-1, sh-1);
+  int ycon = MIN(sw, buffer.width() - left);
+
+  for(int x = 0; x < xcon; x++)
+      for(int y = 0; y < ycon; y++)
+          buffer.setPixel(left + y, 1+x, src->pixel(x, srcoff+y));
 
   return rect;
 }
