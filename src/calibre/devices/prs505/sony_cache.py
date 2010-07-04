@@ -483,7 +483,7 @@ class XMLCache(object):
                 tz = time.localtime
                 debug_print("Using localtime TZ for new book", book.lpath)
             else:
-                tz = self.time.gmtime
+                tz = time.gmtime
                 debug_print("Using GMT TZ for new book", book.lpath)
             date = strftime(timestamp, zone=tz)
             record.set('date', date)
