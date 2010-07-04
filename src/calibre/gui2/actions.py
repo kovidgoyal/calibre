@@ -323,7 +323,6 @@ class AddAction(object): # {{{
                 accept = True
         if accept:
             event.accept()
-            self.cover_cache.refresh([cid])
             self.library_view.model().current_changed(current_idx, current_idx)
 
     def __add_filesystem_book(self, paths, allow_device=True):
