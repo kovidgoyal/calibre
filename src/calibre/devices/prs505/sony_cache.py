@@ -345,18 +345,20 @@ class XMLCache(object):
             debug_print('Updating XML Cache:', i)
             root = self.record_roots[i]
             lpath_map = self.build_lpath_map(root)
-            self.timezone_for_dates = None
+            gtz_count = ltz_count = 0
             for book in booklist:
                 path = os.path.join(self.prefixes[i], *(book.lpath.split('/')))
                 record = lpath_map.get(book.lpath, None)
                 if record is None:
                     record = self.create_text_record(root, i, book.lpath)
-                self.update_text_record(record, book, path, i)
+                (gtz_count, ltz_count) = self.update_text_record(record, book,
+                                                path, i, gtz_count, ltz_count)
                 # Ensure the collections in the XML database are recorded for
                 # this book
                 if book.device_collections is None:
                     book.device_collections = []
                 book.device_collections = playlist_map.get(book.lpath, [])
+            debug_print('Timezone votes: %d GMT, %d LTZ'%(gtz_count, ltz_count))
             self.update_playlists(i, root, booklist, collections_attributes)
         # Update the device collections because update playlist could have added
         # some new ones.
@@ -454,42 +456,37 @@ class XMLCache(object):
         root.append(ans)
         return ans
 
-    def update_text_record(self, record, book, path, bl_index):
+    def update_text_record(self, record, book, path, bl_index, gtz_count, ltz_count):
         '''
         Update the Sony database from the book. This is done if the timestamp in
         the db differs from the timestamp on the file.
         '''
 
-        # It seems that a Sony device can sometimes know what timezone it is in.
-        # In this case it appears to convert the dates to GMT when it writes
-        # them to the db. Unfortunately, we can't tell when it is doing this, so
-        # we use a horrible heuristic to tell. As we check dates, check both
-        # localtime and gmtime. If neither match, set the date using localtime
-        # and hope it is right. If one of them matches, then assume that the
-        # rest of the dates in that db use that timezone.
+        # It seems that a Sony device can sometimes know what timezone it is in,
+        # and apparently converts the dates to GMT when it writes them to the
+        # db. Unfortunately, we can't tell when it does this, so we use a
+        # horrible heuristic. First, set dates only for new books, trying to
+        # avoid upsetting the sony. Use the timezone determined through the
+        # voting described next. Second, voting: if a book is not new, compare
+        # its Sony DB date against localtime and gmtime. Count the matches. When
+        # we must set a date, use the one with the most matches. Use localtime
+        # if the case of a tie, and hope it is right.
         timestamp = os.path.getmtime(path)
-        if self.timezone_for_dates is None:
-            tz = time.localtime
-        else:
-            tz = self.timezone_for_dates
-        date = strftime(timestamp, zone=tz)
         rec_date = record.get('date', None)
-        if date != rec_date:
-            if self.timezone_for_dates is None:
-                # We haven't yet identified a timezone. See if gmtime() matches
-                date = strftime(timestamp, zone=time.gmtime)
-                if date == rec_date:
-                    # It did. Use gmtime for the rest of the dates.
-                    debug_print("Using GMT TZ for dates")
-                    self.timezone_for_dates = time.gmtime
-            # We now may or may not have identified a timezone. In either event,
-            # save the date. If gmtime matched, we are modifying it to itself,
-            # but that is OK for the one time it happens.
+        if not getattr(book, '_new_book', False): # book is not new
+            if strftime(timestamp, zone=time.gmtime) == rec_date:
+                gtz_count += 1
+            elif strftime(timestamp, zone=time.localtime) == rec_date:
+                ltz_count += 1
+        else: # book is new. Set the time using the current votes
+            if ltz_count >= gtz_count:
+                tz = time.localtime
+                debug_print("Using localtime TZ for new book", book.lpath)
+            else:
+                tz = self.time.gmtime
+                debug_print("Using GMT TZ for new book", book.lpath)
+            date = strftime(timestamp, zone=tz)
             record.set('date', date)
-        elif self.timezone_for_dates is None:
-            # Dates matched. Use localtime from here on.
-            debug_print("Using localtime TZ for dates")
-            self.timezone_for_dates = tz
 
         record.set('size', str(os.stat(path).st_size))
         title = book.title if book.title else _('Unknown')
@@ -515,6 +512,7 @@ class XMLCache(object):
         if 'id' not in record.attrib:
             num = self.max_id(record.getroottree().getroot())
             record.set('id', str(num+1))
+        return (gtz_count, ltz_count)
     # }}}
 
     # Writing the XML files {{{
