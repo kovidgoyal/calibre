@@ -495,6 +495,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
                 li = i
         self.opt_gui_layout.setCurrentIndex(li)
         self.opt_disable_animations.setChecked(config['disable_animations'])
+        self.opt_show_donate_button.setChecked(config['show_donate_button'])
 
     def check_port_value(self, *args):
         port = self.port.value()
@@ -871,6 +872,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['overwrite_author_title_metadata'] = self.opt_overwrite_author_title_metadata.isChecked()
         config['enforce_cpu_limit'] = bool(self.opt_enforce_cpu_limit.isChecked())
         config['disable_animations'] = bool(self.opt_disable_animations.isChecked())
+        config['show_donate_button'] = bool(self.opt_show_donate_button.isChecked())
         gprefs['show_splash_screen'] = bool(self.show_splash_screen.isChecked())
         fmts = []
         for i in range(self.viewer.count()):
