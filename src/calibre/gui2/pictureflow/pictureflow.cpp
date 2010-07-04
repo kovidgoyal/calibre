@@ -706,9 +706,12 @@ void PictureFlowPrivate::render()
     painter.setPen(Qt::white);
     //painter.setPen(QColor(255,255,255,127));
 
-    if (centerIndex < slideCount() && centerIndex > -1) 
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2-fontSize*3),
+    if (centerIndex < slideCount() && centerIndex > -1) { 
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2-fontSize*4),
                       Qt::AlignCenter, slideImages->caption(centerIndex));
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2-fontSize*2),
+                      Qt::AlignCenter, slideImages->subtitle(centerIndex));
+    }
 
     painter.end();
 
@@ -759,15 +762,22 @@ void PictureFlowPrivate::render()
     int sc = slideCount();
 
     painter.setPen(QColor(255,255,255, (255-fade) ));
-    if (leftTextIndex < sc && leftTextIndex > -1)
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*3),
+    if (leftTextIndex < sc && leftTextIndex > -1) {
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*4),
                       Qt::AlignCenter, slideImages->caption(leftTextIndex));
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*2),
+                      Qt::AlignCenter, slideImages->subtitle(leftTextIndex));
+
+    }
 
     painter.setPen(QColor(255,255,255, fade));
-    if (leftTextIndex+1 < sc && leftTextIndex > -2)
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*3),
+    if (leftTextIndex+1 < sc && leftTextIndex > -2) {
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*4),
                       Qt::AlignCenter, slideImages->caption(leftTextIndex+1));
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*2),
+                      Qt::AlignCenter, slideImages->subtitle(leftTextIndex+1));
 
+    }
 
     painter.end();
   }
@@ -1372,5 +1382,6 @@ void PictureFlow::emitcurrentChanged(int index) { emit currentChanged(index); }
 int FlowImages::count() { return 0; }
 QImage FlowImages::image(int index) { index=0; return QImage(); }
 QString FlowImages::caption(int index) {index=0; return QString(); }
+QString FlowImages::subtitle(int index) {index=0; return QString(); }
 
 // }}}

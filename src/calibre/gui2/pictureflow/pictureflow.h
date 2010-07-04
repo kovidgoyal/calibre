@@ -67,6 +67,7 @@ public:
 	virtual int count();
 	virtual QImage image(int index);
 	virtual QString caption(int index);
+    virtual QString subtitle(int index);
 
 signals:
 	void dataChanged();
