@@ -281,6 +281,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
 
         self.read_settings()
         self.finalize_layout()
+        self.donate_button.set_normal_icon_size(64, 64)
+        self.donate_button.start_animation()
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)

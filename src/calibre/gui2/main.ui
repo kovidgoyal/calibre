@@ -96,22 +96,13 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="donate_button">
-        <property name="cursor">
-         <cursorShape>PointingHandCursor</cursorShape>
-        </property>
+       <widget class="ThrobbingButton" name="donate_button">
         <property name="text">
          <string>...</string>
         </property>
         <property name="icon">
          <iconset resource="../../../resources/images.qrc">
           <normaloff>:/images/donate.svg</normaloff>:/images/donate.svg</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>64</width>
-          <height>64</height>
-         </size>
         </property>
         <property name="autoRaise">
          <bool>true</bool>
@@ -551,6 +542,11 @@
    <class>SavedSearchBox</class>
    <extends>QComboBox</extends>
    <header>calibre.gui2.search_box</header>
+  </customwidget>
+  <customwidget>
+   <class>ThrobbingButton</class>
+   <extends>QToolButton</extends>
+   <header>calibre/gui2/throbber.h</header>
   </customwidget>
  </customwidgets>
  <resources>
