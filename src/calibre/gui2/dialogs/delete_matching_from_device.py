@@ -25,6 +25,12 @@ class tableItem(QTableWidgetItem):
     def __lt__(self, other):
         return self.sort < other.sort
 
+class centeredTableItem(tableItem):
+
+    def __init__(self, text):
+        tableItem.__init__(self, text)
+        self.setTextAlignment(Qt.AlignCenter)
+
 class titleTableItem(tableItem):
 
     def __init__(self, text):
@@ -64,10 +70,10 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
         self.buttonBox.accepted.connect(self.accepted)
         self.table.cellClicked.connect(self.cell_clicked)
         self.table.setSelectionMode(QAbstractItemView.NoSelection)
-        self.table.setColumnCount(5)
+        self.table.setColumnCount(7)
         self.table.setHorizontalHeaderLabels(
-                                    ['', _('Location'), _('Title'),
-                                     _('Author'), _('Date'), _('Format')])
+                                    ['', _('Location'), _('Title'), _('Author'),
+                                      _('Date'), _('Format'), _('Path')])
         rows = 0
         for card in items:
             rows += len(items[card][1])
@@ -85,7 +91,8 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
                 self.table.setItem(row, 2, titleTableItem(book.title))
                 self.table.setItem(row, 3, authorTableItem(book))
                 self.table.setItem(row, 4, dateTableItem(book.datetime))
-                self.table.setItem(row, 5, tableItem(book.path.rpartition('.')[2]))
+                self.table.setItem(row, 5, centeredTableItem(book.path.rpartition('.')[2]))
+                self.table.setItem(row, 6, tableItem(book.path))
                 row += 1
         self.table.setCurrentCell(0, 1)
         self.table.resizeColumnsToContents()
