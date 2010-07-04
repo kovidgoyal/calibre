@@ -44,7 +44,7 @@
 
     - title: "MOBI Output: Fix a memory leak and a crash in the palmdoc compression routine"
 
-    - title: "Metadata download: Fix a regressiont at resulted in a failed download for some books"
+    - title: "Metadata download: Fix a regression that resulted in a failed download for some books"
 
   new recipes:
     - title: "Foreign Policy and Alo!"

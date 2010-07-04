@@ -1,7 +1,7 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010, elsuave'
 '''
 estadao.com.br
 '''
@@ -10,12 +10,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Estadao(BasicNewsRecipe):
     title                 = 'O Estado de S. Paulo'
-    __author__            = 'Darko Miletic'
+    __author__            = 'elsuave (modified from Darko Miletic)'
     description           = 'News from Brasil in Portuguese'
     publisher             = 'O Estado de S. Paulo'
     category              = 'news, politics, Brasil'
     oldest_article        = 2
-    max_articles_per_feed = 100
+    max_articles_per_feed = 25
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf8'
@@ -30,13 +30,14 @@ class Estadao(BasicNewsRecipe):
 
     html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
-    keep_only_tags = [dict(name='div', attrs={'id':'c1'})]
+    keep_only_tags = [
+                          dict(name='div', attrs={'class':['bb-md-noticia','c5']})
+                     ]
 
     remove_tags = [
                      dict(name=['script','object','form','ul'])
-                    ,dict(name='div', attrs={'id':['votacao','estadaohoje']})
-                    ,dict(name='p', attrs={'id':'ctrl_texto'})
-                    ,dict(name='p', attrs={'class':'texto'})
+                    ,dict(name='div', attrs={'class':['fnt2 Color_04 bold','right fnt2 innerTop15 dvTmFont','™_01 right outerLeft15','tituloBox','tags']})
+                    ,dict(name='div', attrs={'id':['bb-md-noticia-subcom']})
                   ]
 
     feeds = [
@@ -51,13 +52,12 @@ class Estadao(BasicNewsRecipe):
               ,(u'Vida &', u'http://www.estadao.com.br/rss/vidae.xml')
             ]
 
-    def preprocess_html(self, soup):
-        ifr = soup.find('iframe')
-        if ifr:
-           ifr.extract()
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
+
 
     language = 'pt'
+
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if '/Multimidia/' not in url:
+            return url
 

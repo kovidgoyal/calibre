@@ -115,6 +115,7 @@ class CoverFlowMixin(object):
                     self.sync_cf_to_listview)
             self.db_images = DatabaseImages(self.library_view.model())
             self.cover_flow.setImages(self.db_images)
+            self.cover_flow.itemActivated.connect(self.view_specific_book)
         else:
             self.cover_flow = QLabel('<p>'+_('Cover browser could not be loaded')
                     +'<br>'+pictureflowerror)
