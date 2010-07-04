@@ -579,12 +579,10 @@ void PictureFlowPrivate::resetSlides()
 
 static QImage prepareSurface(QImage img, int w, int h)
 {
-  Qt::TransformationMode mode = Qt::SmoothTransformation;
-  img = img.scaled(w, h, Qt::IgnoreAspectRatio, mode);
+  img = img.scaled(w, h, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
   // slightly larger, to accommodate for the reflection
   int hs = int(h * REFLECTION_FACTOR);
-  int hofs = 0;
 
   // offscreen buffer: black is sweet
   QImage result(hs, w, QImage::Format_RGB16);  
@@ -595,21 +593,20 @@ static QImage prepareSurface(QImage img, int w, int h)
   // (and much better and faster to work row-wise, i.e in one scanline)
   for(int x = 0; x < w; x++)
     for(int y = 0; y < h; y++)
-      result.setPixel(hofs + y, x, img.pixel(x, y));
+      result.setPixel(y, x, img.pixel(x, y));
 
   // create the reflection
-  int ht = hs - h - hofs;
-  int hte = ht;
+  int ht = hs - h;
   for(int x = 0; x < w; x++)
     for(int y = 0; y < ht; y++)
     {
       QRgb color = img.pixel(x, img.height()-y-1);
       //QRgb565 color = img.scanLine(img.height()-y-1) + x*sizeof(QRgb565); //img.pixel(x, img.height()-y-1);
       int a = qAlpha(color);
-      int r = qRed(color)   * a / 256 * (hte - y) / hte * 3/5;
-      int g = qGreen(color) * a / 256 * (hte - y) / hte * 3/5;
-      int b = qBlue(color)  * a / 256 * (hte - y) / hte * 3/5;
-      result.setPixel(h+hofs+y, x, qRgb(r, g, b));
+      int r = qRed(color)   * a / 256 * (ht - y) / ht * 3/5;
+      int g = qGreen(color) * a / 256 * (ht - y) / ht * 3/5;
+      int b = qBlue(color)  * a / 256 * (ht - y) / ht * 3/5;
+      result.setPixel(h+y, x, qRgb(r, g, b));
     }
 
   return result;
@@ -801,9 +798,14 @@ QRect PictureFlowPrivate::renderCenterSlide(const SlideInfo &slide) {
   QRect rect(buffer.width()/2 - sw/2, 0, sw, h-1);
   int left = rect.left();
 
-  for(int x = 0; x < MIN(h-1, sh-1); x++)
-    for(int y = 0; y < sw; y++)
-      buffer.setPixel(left + y, 1+x, src->pixel(x, y));
+  if (left >= 0) {
+    int xcon = MIN(h-1, sh-1);
+    int ycon = MIN(sw, buffer.width() - left);
+
+    for(int x = 0; x < xcon; x++)
+        for(int y = 0; y < ycon; y++)
+            buffer.setPixel(left + y, 1+x, src->pixel(x, y));
+  }
 
   return rect;
 }
