@@ -163,6 +163,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         self.donate_action  = self.system_tray_menu.addAction(
                 QIcon(I('donate.svg')), _('&Donate to support calibre'))
         self.donate_button.setDefaultAction(self.donate_action)
+        self.donate_button.setStatusTip(self.donate_button.toolTip())
         self.eject_action = self.system_tray_menu.addAction(
                 QIcon(I('eject.svg')), _('&Eject connected device'))
         self.eject_action.setEnabled(False)

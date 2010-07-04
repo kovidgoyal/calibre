@@ -259,7 +259,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Choose saved search or enter name for new saved search</string>
+         <string/>
         </property>
         <property name="minimumContentsLength">
          <number>15</number>

@@ -298,6 +298,14 @@ class LocationModel(QAbstractListModel):
             row = 3
         return row
 
+    def get_tooltip(self, row, drow):
+        ans = self.tooltips[row]
+        if row > 0:
+            fs = self.free[drow-1]
+            if fs > -1:
+                ans += '\n\n%s '%(human_readable(fs)) + _('free')
+        return ans
+
     def data(self, index, role):
         row = index.row()
         drow = self.get_device_row(row)
@@ -308,12 +316,8 @@ class LocationModel(QAbstractListModel):
             data = QVariant(text)
         elif role == Qt.DecorationRole:
             data = self.icons[drow]
-        elif role == Qt.ToolTipRole:
-            ans = self.tooltips[row]
-            if row > 0:
-                fs = self.free[drow-1]
-                if fs > -1:
-                    ans += '\n\n%s '%(human_readable(fs)) + _('free')
+        elif role in (Qt.ToolTipRole, Qt.StatusTipRole):
+            ans = self.get_tooltip(row, drow)
             data = QVariant(ans)
         elif role == Qt.SizeHintRole:
             data = QVariant(QSize(155, 90))
@@ -1011,12 +1015,14 @@ class LayoutButton(QToolButton):
         label =_('Show')
         self.setText(label + ' ' + self.label)
         self.setToolTip(self.text())
+        self.setStatusTip(self.text())
 
     def set_state_to_hide(self, *args):
         self.setChecked(True)
         label = _('Hide')
         self.setText(label + ' ' + self.label)
         self.setToolTip(self.text())
+        self.setStatusTip(self.text())
 
     def update_state(self, *args):
         if self.splitter.is_side_index_hidden:

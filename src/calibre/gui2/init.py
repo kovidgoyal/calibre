@@ -20,7 +20,6 @@ from calibre.gui2.tag_view import TagBrowserWidget
 from calibre.gui2.book_details import BookDetails
 from calibre.gui2.notify import get_notifier
 
-
 _keep_refs = []
 
 def partial(*args, **kwargs):
@@ -182,6 +181,7 @@ class ToolbarMixin(object): # {{{
         for ch in self.tool_bar.children():
             if isinstance(ch, QToolButton):
                 ch.setCursor(Qt.PointingHandCursor)
+                ch.setStatusTip(ch.toolTip())
 
         self.tool_bar.contextMenuEvent = self.no_op
 
@@ -367,7 +367,7 @@ class StatusBar(QStatusBar): # {{{
         self.notifier = get_notifier(systray)
 
     def show_message(self, msg, timeout=0):
-        QStatusBar.showMessage(self, msg, timeout)
+        self.showMessage(msg, timeout)
         if self.notifier is not None and not config['disable_tray_notification']:
             if isosx and isinstance(msg, unicode):
                 try:
@@ -377,7 +377,8 @@ class StatusBar(QStatusBar): # {{{
             self.notifier(msg)
 
     def clear_message(self):
-        QStatusBar.clearMessage(self)
+        self.clearMessage()
+
 
 # }}}
 
