@@ -31,13 +31,19 @@ class AdvancedUserRecipe1278063072(BasicNewsRecipe):
     def parse_index(self):
             feeds = []
             for title, url in [
-                ('Editorial', 'http://news.singtao.ca/toronto/editorial.html'),
-                    (u'Toronto \xe5\x9f\x8e\xe5\xb8\x82/\xe7\xa4\xbe\xe5\x8d\x80', 'http://news.singtao.ca/toronto/city.html'),
-                    (u'Canada \xe5\x8a\xa0\xe5\x9c\x8b', 'http://news.singtao.ca/toronto/canada.html'),
-         ('Entertainment', 'http://news.singtao.ca/toronto/entertainment.html'),
-    ('World', 'http://news.singtao.ca/toronto/world.html'),
-    (u'Finance \xe5\x9c\x8b\xe9\x9a\x9b\xe8\xb2\xa1\xe7\xb6\x93', 'http://news.singtao.ca/toronto/finance.html'),
-    ('Sports', 'http://news.singtao.ca/toronto/sports.html'),
+               ('Editorial',
+                   'http://news.singtao.ca/toronto/editorial.html'),
+               ('Toronto   \xe5\x9f\x8e\xe5\xb8\x82/\xe7\xa4\xbe\xe5\x8d\x80'.decode('utf-8'),
+                   'http://news.singtao.ca/toronto/city.html'),
+               ('Canada \xe5\x8a\xa0\xe5\x9c\x8b'.decode('utf-8'),
+                   'http://news.singtao.ca/toronto/canada.html'),
+               ('Entertainment',
+                   'http://news.singtao.ca/toronto/entertainment.html'),
+               ('World',
+                   'http://news.singtao.ca/toronto/world.html'),
+               ('Finance \xe5\x9c\x8b\xe9\x9a\x9b\xe8\xb2\xa1\xe7\xb6\x93'.decode('utf-8'),
+                   'http://news.singtao.ca/toronto/finance.html'),
+               ('Sports', 'http://news.singtao.ca/toronto/sports.html'),
                             ]:
                articles = self.parse_section(url)
                if articles:
