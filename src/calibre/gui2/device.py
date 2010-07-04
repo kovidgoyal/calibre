@@ -758,10 +758,8 @@ class DeviceMixin(object): # {{{
             self.refresh_ondevice_info (device_connected = True, reset_only = True)
         else:
             self.device_connected = None
+            self.status_bar.device_disconnected()
             self.location_view.model().update_devices()
-            self.vanity.setText(self.vanity_template%\
-                    dict(version=self.latest_version, device=' '))
-            self.device_info = ' '
             if self.current_view() != self.library_view:
                 self.book_details.reset_info()
                 self.location_view.setCurrentIndex(self.location_view.model().index(0))
@@ -775,10 +773,7 @@ class DeviceMixin(object): # {{{
             return self.device_job_exception(job)
         info, cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
-        self.device_info = _('Connected ')+info[0]
-        self.vanity.setText(self.vanity_template%\
-                dict(version=self.latest_version, device=self.device_info))
-
+        self.status_bar.device_connected(info[0])
         self.device_manager.books(Dispatcher(self.metadata_downloaded))
 
     def metadata_downloaded(self, job):

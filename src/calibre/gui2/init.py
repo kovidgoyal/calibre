@@ -5,14 +5,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools
+import functools, sys, os
 
 from PyQt4.Qt import QMenu, Qt, pyqtSignal, QToolButton, QIcon, QStackedWidget, \
-        QSize, QSizePolicy, QStatusBar, QUrl
+        QSize, QSizePolicy, QStatusBar, QUrl, QLabel
 
 from calibre.utils.config import prefs
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.constants import isosx, __appname__, preferred_encoding
+from calibre.constants import isosx, __appname__, preferred_encoding, \
+    __version__
 from calibre.gui2 import config, is_widescreen, open_url
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.widgets import Splitter
@@ -366,13 +367,42 @@ class Stack(QStackedWidget): # {{{
 
 class StatusBar(QStatusBar): # {{{
 
+    def __init__(self, parent=None):
+        QStatusBar.__init__(self, parent)
+        self.default_message = __appname__ + ' ' + _('version') + ' ' + \
+                self.get_version() + ' ' + _('created by Kovid Goyal')
+        self.device_string = ''
+        self.update_label = QLabel('')
+        self.update_label.setOpenExternalLinks(True)
+        self.addPermanentWidget(self.update_label)
+
     def initialize(self, systray=None):
-        self.default_message = 'Welcome to calibre'
         self.systray = systray
         self.notifier = get_notifier(systray)
         self.messageChanged.connect(self.message_changed,
                 type=Qt.QueuedConnection)
         self.message_changed('')
+
+    def device_connected(self, devname):
+        self.device_string = _('Connected ') + devname
+        self.clearMessage()
+
+    def device_disconnected(self):
+        self.device_string = ''
+        self.clearMessage()
+
+    def new_version_available(self, ver, url):
+        msg = (u'<span style="color:red; font-weight: bold">%s: <a href="%s">%s<a></span>') % (
+                _('Update found'), url, ver)
+        self.update_label.setText(msg)
+        self.update_label.setCursor(Qt.PointingHandCursor)
+
+    def get_version(self):
+        dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+        v = __version__
+        if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
+            v += '*'
+        return v
 
     def show_message(self, msg, timeout=0):
         self.showMessage(msg, timeout)
@@ -389,7 +419,10 @@ class StatusBar(QStatusBar): # {{{
 
     def message_changed(self, msg):
         if not msg or msg.isEmpty() or msg.isNull():
-            self.showMessage(self.default_message)
+            extra = ''
+            if self.device_string:
+                extra = ' ..::.. ' + self.device_string
+            self.showMessage(self.default_message + extra)
 
 
 # }}}
