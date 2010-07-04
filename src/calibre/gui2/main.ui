@@ -353,6 +353,8 @@
    <addaction name="action_save"/>
    <addaction name="action_del"/>
    <addaction name="separator"/>
+   <addaction name="action_help"/>
+   <addaction name="separator"/>
    <addaction name="action_preferences"/>
   </widget>
   <action name="action_add">
@@ -542,6 +544,21 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="action_help">
+   <property name="icon">
+    <iconset resource="../../../resources/images.qrc">
+     <normaloff>:/images/help.svg</normaloff>:/images/help.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Help</string>
+   </property>
+   <property name="toolTip">
+    <string>Browse the calibre User Manual</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
    </property>
   </action>
  </widget>

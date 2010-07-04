@@ -8,12 +8,12 @@ __docformat__ = 'restructuredtext en'
 import functools
 
 from PyQt4.Qt import QMenu, Qt, pyqtSignal, QToolButton, QIcon, QStackedWidget, \
-        QSize, QSizePolicy, QStatusBar
+        QSize, QSizePolicy, QStatusBar, QUrl
 
 from calibre.utils.config import prefs
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.constants import isosx, __appname__, preferred_encoding
-from calibre.gui2 import config, is_widescreen
+from calibre.gui2 import config, is_widescreen, open_url
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.widgets import Splitter
 from calibre.gui2.tag_view import TagBrowserWidget
@@ -47,6 +47,7 @@ class SaveMenu(QMenu): # {{{
 class ToolbarMixin(object): # {{{
 
     def __init__(self):
+        self.action_help.triggered.connect(self.show_help)
         md = QMenu()
         md.addAction(_('Edit metadata individually'),
                 partial(self.edit_metadata, False, bulk=False))
@@ -184,6 +185,9 @@ class ToolbarMixin(object): # {{{
                 ch.setStatusTip(ch.toolTip())
 
         self.tool_bar.contextMenuEvent = self.no_op
+
+    def show_help(self, *args):
+        open_url(QUrl('http://calibre-ebook.com/user_manual'))
 
     def read_toolbar_settings(self):
         self.tool_bar.setIconSize(config['toolbar_icon_size'])
@@ -363,8 +367,12 @@ class Stack(QStackedWidget): # {{{
 class StatusBar(QStatusBar): # {{{
 
     def initialize(self, systray=None):
+        self.default_message = 'Welcome to calibre'
         self.systray = systray
         self.notifier = get_notifier(systray)
+        self.messageChanged.connect(self.message_changed,
+                type=Qt.QueuedConnection)
+        self.message_changed('')
 
     def show_message(self, msg, timeout=0):
         self.showMessage(msg, timeout)
@@ -378,6 +386,10 @@ class StatusBar(QStatusBar): # {{{
 
     def clear_message(self):
         self.clearMessage()
+
+    def message_changed(self, msg):
+        if not msg or msg.isEmpty() or msg.isNull():
+            self.showMessage(self.default_message)
 
 
 # }}}
