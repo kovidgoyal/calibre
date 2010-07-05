@@ -14,7 +14,7 @@
    <string>TabWidget</string>
   </property>
   <property name="currentIndex">
-   <number>0</number>
+   <number>2</number>
   </property>
   <widget class="QWidget" name="tab">
    <attribute name="title">
@@ -179,16 +179,34 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
    </attribute>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QCheckBox" name="preserve_user_collections">
-      <property name="text">
-       <string>Preserve device collections.</string>
-      </property>
+     <widget class="QComboBox" name="manage_device_metadata">
+      <item>
+       <property name="text">
+        <string extracomment="foobar">Manual management. Calibre updates cached metadata and adds collections, but never removes them</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Calibre manages metadata when sending books. Calibre updates cached metadata, and adds/remove collections</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Calibre manages metadata at device connection.  Calibre updates cached metadata, and adds/removes collections</string>
+       </property>
+      </item>
      </widget>
     </item>
     <item>
      <widget class="QLabel" name="label_41">
       <property name="text">
-       <string>If checked, collections will not be deleted even if a book with changed metadata is resent and the collection is not in the book's metadata. In addition, editing collections in the device view will be enabled. If unchecked, collections will be always reflect only the metadata in the calibre library.</string>
+       <string>Choose 'Manual Management', to have Calibre update the metadata cache (not the book) and add collections when a book is sent. With this option, calibre will never remove a collection. Choose 'Calibre manages metadata when sending books' to have Calibre  update the metadata cache and add/remove collections when you send a book to the device. Choose 'Calibre manages metadata when device is connected' to have Calibre update the metadata cache and add/remove collections when you connect the device. </string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::PlainText</enum>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -198,7 +216,7 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
     <item>
      <widget class="QLabel" name="label_42">
       <property name="text">
-       <string>  </string>
+       <string/>
       </property>
      </widget>
     </item>

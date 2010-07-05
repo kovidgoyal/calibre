@@ -58,7 +58,7 @@ class USBMS(CLI, Device):
 
         debug_print ('USBMS: Fetching list of books from device. oncard=', oncard)
 
-        dummy_bl = BookList(None, None, None)
+        dummy_bl = booklist_class(None, None, None)
 
         if oncard == 'carda' and not self._card_a_prefix:
             self.report_progress(1.0, _('Getting list of books on device...'))
