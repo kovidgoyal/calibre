@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>588</width>
+    <width>599</width>
     <height>516</height>
    </rect>
   </property>
@@ -200,7 +200,7 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
     <item>
      <widget class="QLabel" name="label_41">
       <property name="text">
-       <string>Choose 'Manual Management', to have Calibre update the metadata cache (not the book) and add collections when a book is sent. With this option, calibre will never remove a collection. Choose 'Calibre manages metadata when sending books' to have Calibre  update the metadata cache and add/remove collections when you send a book to the device. Choose 'Calibre manages metadata when device is connected' to have Calibre update the metadata cache and add/remove collections when you connect the device. </string>
+       <string>Choose 'Manual Management', to have Calibre update the metadata cache (not the book) and add collections when a book is sent. With this option, calibre will never remove a collection. Choose 'Calibre manages metadata when sending books' to have Calibre  update the metadata cache and add/remove collections for a book when it is sent to the device. Choose 'Calibre manages metadata when device is connected' to have Calibre update the metadata cache and add/remove collections when calibre connects to the device and when you send a book. </string>
       </property>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>

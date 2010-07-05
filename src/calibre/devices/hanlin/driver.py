@@ -119,13 +119,11 @@ class BOOX(HANLINV3):
     MAIN_MEMORY_VOLUME_LABEL  = 'BOOX Internal Memory'
     STORAGE_CARD_VOLUME_LABEL = 'BOOX Storage Card'
 
-    EBOOK_DIR_MAIN = ['MyBooks']
-    EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
-            'send e-books to on the device. The first one that exists will '
-            'be used.')
+    EBOOK_DIR_MAIN = ['MyBooks', 'MyBooks']
+    EXTRA_CUSTOMIZATION_MESSAGE = _('Directories to send e-books to on the device. '
+                    'The first directory is used for main memory. '
+                    'The second is used for cards.')
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(EBOOK_DIR_MAIN)
-
-    # EBOOK_DIR_CARD_A = 'MyBooks' ## Am quite sure we need this.
 
     def post_open_callback(self):
         opts = self.settings()
@@ -133,8 +131,13 @@ class BOOX(HANLINV3):
         if not dirs:
             dirs = self.EBOOK_DIR_MAIN
         else:
+            # will have at least one item ...
             dirs = [x.strip() for x in dirs.split(',')]
-        self.EBOOK_DIR_MAIN = dirs
+        self.EBOOK_DIR_MAIN = dirs[0]
+        if len(dirs) > 1:
+            self.EBOOK_DIR_CARD_A = self.EBOOK_DIR_CARD_B = dirs[1]
+        else:
+            self.EBOOK_DIR_CARD_A = self.EBOOK_DIR_CARD_B = dirs[0]
 
     def windows_sort_drives(self, drives):
         return drives
