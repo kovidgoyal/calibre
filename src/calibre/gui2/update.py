@@ -49,12 +49,8 @@ class UpdateMixin(object):
     def update_found(self, version):
         os = 'windows' if iswindows else 'osx' if isosx else 'linux'
         url = 'http://calibre-ebook.com/download_%s'%os
-        self.latest_version = '<br>' + _('<span style="color:red; font-weight:bold">'
-                'Latest version: <a href="%s">%s</a></span>')%(url, version)
-        self.vanity.setText(self.vanity_template%\
-                (dict(version=self.latest_version,
-                      device=self.device_info)))
-        self.vanity.update()
+        self.status_bar.new_version_available(version, url)
+
         if config.get('new_version_notification') and \
                 dynamic.get('update to version %s'%version, True):
             if question_dialog(self, _('Update available'),

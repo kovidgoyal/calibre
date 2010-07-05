@@ -67,6 +67,13 @@ if pictureflow is not None:
                 ans = ''
             return ans
 
+        def subtitle(self, index):
+            try:
+                return u'\u2605'*self.model.rating(index)
+            except:
+                pass
+            return ''
+
         def reset(self):
             self.dataChanged.emit()
 

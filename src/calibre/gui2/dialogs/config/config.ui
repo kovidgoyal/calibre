@@ -356,7 +356,7 @@
                </property>
               </widget>
              </item>
-             <item row="3" column="0" colspan="2">
+             <item row="3" column="0">
               <widget class="QCheckBox" name="show_splash_screen">
                <property name="text">
                 <string>Show &amp;splash screen at startup</string>
@@ -662,6 +662,13 @@
                </property>
                <property name="text">
                 <string>Disable &amp;animations</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QCheckBox" name="opt_show_donate_button">
+               <property name="text">
+                <string>Show &amp;donate button (restart)</string>
                </property>
               </widget>
              </item>

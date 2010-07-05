@@ -1752,7 +1752,7 @@
      sodipodi:cy="93.331604"
      sodipodi:cx="-166.53223"
      id="path6082"
-     style="opacity:1;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:1.08779998;stroke-opacity:1;filter:url(#filter6074)"
+     style="opacity:1;fill:url(#radialGradient6084);fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:1.08779998;stroke-opacity:1;filter:url(#filter6074)"
      sodipodi:type="arc" /></clipPath><radialGradient
    inkscape:collect="always"
    xlink:href="#linearGradient5990"
@@ -2513,7 +2513,7 @@
    transform="matrix(-1.7332269,0,0,1.7332269,-228.13814,-101.76485)"
    clip-path="none" /><path
    sodipodi:type="arc"
-   style="opacity:1;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:1.08779998;stroke-opacity:1;filter:url(#filter6074)"
+   style="opacity:1;fill:url(#radialGradient6084);fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:1.08779998;stroke-opacity:1;filter:url(#filter6074)"
    id="path3915"
    sodipodi:cx="-166.53223"
    sodipodi:cy="93.331604"
@@ -2901,22 +2901,8 @@
    id="g133">
 		<defs
    id="defs135" />
-		<use
-   
-   id="use138"
-   x="0"
-   y="0"
-   width="121"
-   height="120" />
 		<clipPath
    id="XMLID_215_">
-			<use
-   
-   id="use141"
-   x="0"
-   y="0"
-   width="121"
-   height="120" />
 		</clipPath>
 		<g
    clip-path="url(#XMLID_215_)"

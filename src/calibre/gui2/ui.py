@@ -19,7 +19,7 @@ from PyQt4.Qt import Qt, SIGNAL, QObject, QTimer, \
                      QMessageBox, QHelpEvent
 
 from calibre import  prints, patheq
-from calibre.constants import __version__, __appname__, isosx
+from calibre.constants import __appname__, isosx
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
@@ -163,6 +163,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         self.donate_action  = self.system_tray_menu.addAction(
                 QIcon(I('donate.svg')), _('&Donate to support calibre'))
         self.donate_button.setDefaultAction(self.donate_action)
+        self.donate_button.setStatusTip(self.donate_button.toolTip())
         self.eject_action = self.system_tray_menu.addAction(
                 QIcon(I('eject.svg')), _('&Eject connected device'))
         self.eject_action.setEnabled(False)
@@ -202,18 +203,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
                         self.device_manager.umount_device)
         self.eject_action.triggered.connect(self.device_manager.umount_device)
 
-        ####################### Vanity ########################
-        self.vanity_template  = _('<p>For help see the: <a href="%s">User Manual</a>'
-                '<br>')%'http://calibre-ebook.com/user_manual'
-        dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
-        v = __version__
-        if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
-            v += '*'
-        self.vanity_template += _('<b>%s</b>: %s by <b>Kovid Goyal '
-            '%%(version)s</b><br>%%(device)s</p>')%(__appname__, v)
-        self.latest_version = ' '
-        self.vanity.setText(self.vanity_template%dict(version=' ', device=' '))
-        self.device_info = ' '
+        #################### Update notification ###################
         UpdateMixin.__init__(self, opts)
 
         ####################### Setup Toolbar #####################
@@ -291,6 +281,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
 
         self.read_settings()
         self.finalize_layout()
+        self.donate_button.set_normal_icon_size(64, 64)
+        self.donate_button.start_animation()
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
