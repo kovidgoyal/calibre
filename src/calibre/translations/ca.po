@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-03 01:21+0000\n"
-"PO-Revision-Date: 2010-07-02 18:21+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-07-05 07:09+0000\n"
+"Last-Translator: Fike <Unknown>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-03 03:43+0000\n"
+"X-Launchpad-Export-Date: 2010-07-06 03:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -494,7 +494,7 @@ msgstr "Estableix comunicació amb els telèfons S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:87
 msgid "Communicate with iTunes/iBooks."
-msgstr ""
+msgstr "Comunicar-se amb iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:93
 msgid "Apple device detected, launching iTunes, please wait ..."
@@ -641,6 +641,8 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used."
 msgstr ""
+"Llista separada per comes dels directoris als quals enviar llibres "
+"electrònics en el dispositiu. S'usarà el primer que existeixi."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:18
 msgid "Communicate with the Hanvon N520 eBook reader."
@@ -757,7 +759,7 @@ msgstr "Comunicar-se amb Booq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:55
 msgid "Communicate with the Sweex MM300"
-msgstr ""
+msgstr "Comunicar-se amb el Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -769,7 +771,7 @@ msgstr "Estableix comunicació amb la tauleta d'Internet Nokia 810."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
-msgstr ""
+msgstr "Comunicar-se amb el Nokia E52"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
@@ -1812,12 +1814,19 @@ msgid ""
 "can result in various nasty side effects in the rest of of the conversion "
 "pipeline."
 msgstr ""
+"Normalment aquest complement d'entrada recol.loca tots els arxius d'entrada "
+"en un arbre de carpetes estàndard. Utilitza aquesta opció només si sap el "
+"que està fent, ja que pot ocasionar diversos efectes desagradables a la "
+"resta del procés de conversió."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:272
 msgid ""
 "Average line length for line breaking if the HTML is from a previous partial "
 "conversion of a PDF file. Default is %default which disables this."
 msgstr ""
+"Longitud de línia mitjana per a la divisió de línies si l'HTML ve d'una "
+"conversió parcial prèvia d'un arxiu PDF. El valor per defecte és %default, "
+"que desactiva aquesta opció."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -1837,7 +1846,7 @@ msgstr "\tS'ha detectat un fitxer Baen. S'està reanalitzant..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:361
 msgid "Written preprocessed HTML to "
-msgstr ""
+msgstr "HTML preprocessat escrit en "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:379
 msgid "Processing %s"
@@ -1866,11 +1875,11 @@ msgstr "No s'ha pogut afegir l'enllaç %s a la TDC"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:957
 msgid "Unable to process image %s. Error: %s"
-msgstr ""
+msgstr "Incapaç de processar la imatge %s. Error: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1002
 msgid "Unable to process interlaced PNG %s"
-msgstr ""
+msgstr "Incapaç de processar PNG entrellaçat %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1017
 msgid ""
@@ -1884,6 +1893,8 @@ msgstr ""
 msgid ""
 "An error occurred while processing a table: %s. Ignoring table markup."
 msgstr ""
+"S'ha produït un error en processar una taula: %s. S'obvia el codi de la "
+"taula."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1774
 msgid ""
@@ -1895,15 +1906,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1796
 msgid "Table has cell that is too large"
-msgstr ""
+msgstr "La taula conté una cel.la massa gran"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1862
 msgid "Could not read cover image: %s"
-msgstr ""
+msgstr "No s'ha pogut llegir la imatge de portada: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1865
 msgid "Cannot read from: %s"
-msgstr ""
+msgstr "No es pot llegir de: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1994
 msgid "Failed to process opf file"
@@ -1940,7 +1951,7 @@ msgstr "S'ha escrit l'LRS a "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:267
 msgid "Could not read from thumbnail file:"
-msgstr ""
+msgstr "No s'ha pogut llegir el fitxer de miniatura:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:287
 msgid ""
@@ -2011,25 +2022,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:104
 msgid "Add extra spacing below the header. Default is %default pt."
-msgstr ""
+msgstr "Afegir l'espai sota la capçalera. Valor per defecte: %default pt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:107
 msgid ""
 "Minimum paragraph indent (the indent of the first line of a paragraph) in "
 "pts. Default: %default"
 msgstr ""
+"Sagnat mínim per paràgrafs (el sagnat de la primera línia de cada paràgraf) "
+"a pt. Valor per defecte: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:112
 msgid ""
 "Render tables in the HTML as images (useful if the document has large or "
 "complex tables)"
 msgstr ""
+"Convertir les taules en documents HTML en imatges (molt útil si el document "
+"consta de taules grans o complexes.)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:117
 msgid ""
 "Multiply the size of text in rendered tables by this factor. Default is "
 "%default"
 msgstr ""
+"Multiplicar la mida del text en les taules convertides en imatges per aquest "
+"factor. Valor per defecte %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:121
 msgid "The serif family of fonts to embed"
@@ -2132,13 +2149,15 @@ msgstr "Drets"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:85
 msgid "EDITORIAL REVIEW"
-msgstr ""
+msgstr "REVISIÓ EDITORIAL"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/archive.py:41
 msgid ""
 "Extract common e-book formats from archives (zip/rar) files. Also try to "
 "autodetect if they are actually cbz/cbr files."
 msgstr ""
+"Extreure els formats de llibre digital comuns de fitxers (zip / rar). També "
+"intenta detectar automàticament si es tracta de fitxers cbz/cbr."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:20
 msgid "options"
@@ -2157,24 +2176,40 @@ msgid ""
 "some metadata on a file type that does not support it, the metadata will be\n"
 "silently ignored.\n"
 msgstr ""
+"\n"
+"Llegir / escriure metadades de / a fitxers de llibre electrònic.\n"
+"\n"
+"Formats suportats per llegir metadades: %s\n"
+"\n"
+"Formats suportats per escriure metadades: %s\n"
+"\n"
+"Els diferents tipus de fitxer admeten diferents tipus de metadades. Si "
+"s'intenten establir metadades en un tipus de fitxer que no els suporta, les "
+"metadades s'obviaran.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:40
 msgid ""
 "Set the authors. Multiple authors should be separated by the & character. "
 "Author names should be in the order Firstname Lastname."
 msgstr ""
+"Establir els autors. Si hi ha diversos autors s'han de separar per «&». Els "
+"noms dels autors han d'estar en el format Nom Cognom."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:44
 msgid ""
 "The version of the title to be used for sorting. If unspecified, and the "
 "title is specified, it will be auto-generated from the title."
 msgstr ""
+"La versió del títol que es fes servir per ordenar. Si no s'especifica "
+"aquesta opció i sí el títol, es generarà automàticament a partir del títol."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:48
 msgid ""
 "String to be used when sorting by author. If unspecified, and the author(s) "
 "are specified, it will be auto-generated from the author(s)."
 msgstr ""
+"Text que es farà servir per ordenar per autor. Si no s'especifica aquesta "
+"opció i si l'autor (s), es generarà automàticament a partir de l'autor (s)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:52
 msgid "Set the cover to the specified file."
@@ -2186,7 +2221,7 @@ msgstr "Establiu la categoria del llibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Set the published date."
-msgstr ""
+msgstr "Establir la data de publicació."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid "Get the cover from the ebook and save it at as the specified file."
@@ -2247,7 +2282,7 @@ msgstr "Metadades baixades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:111
 msgid "ratings"
-msgstr ""
+msgstr "classificació"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:111
 msgid "tags"
@@ -5404,7 +5439,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:297
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:201
 msgid "Preferences"
-msgstr ""
+msgstr "Preferències"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:552
 msgid ""
@@ -6648,12 +6683,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:46
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:76
 msgid "Authors"
-msgstr ""
+msgstr "Autors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:46
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:107
 msgid "Publishers"
-msgstr ""
+msgstr "Editors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:110
 msgid " (not on any book)"
@@ -7063,7 +7098,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:121
 msgid "Authors:"
-msgstr ""
+msgstr "Autors:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:122
 msgid "Regular expression (?P<author>)"
@@ -7593,7 +7628,7 @@ msgstr "calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:255
 msgid "&Restrict to:"
-msgstr ""
+msgstr "&Restringit a:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:256
 msgid ""
@@ -7744,7 +7779,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:61
 msgid "&Preferences"
-msgstr ""
+msgstr "&Preferències"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:62
 msgid "&Quit"
@@ -7773,7 +7808,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:355
 msgid "Search (For Advanced Search click the button to the left)"
-msgstr ""
+msgstr "Cerca (per avançada feu clic a Cerca al botó a l'esquerra)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:392
 msgid "Saved Searches"
@@ -7785,7 +7820,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:52
 msgid "(all books)"
-msgstr ""
+msgstr "(tots els llibres)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:54
 msgid "({0} of all)"
@@ -7900,15 +7935,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:768
 msgid "Sort by name"
-msgstr ""
+msgstr "Ordena segons el nom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:768
 msgid "Sort by popularity"
-msgstr ""
+msgstr "Ordena segons la popularitat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:769
 msgid "Sort by average rating"
-msgstr ""
+msgstr "Ordena segons la classificació"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:775
 msgid "Match all"
@@ -7916,7 +7951,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:775
 msgid "Match any"
-msgstr ""
+msgstr "Qualsevol coincidència"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:780
 msgid "Manage &user categories"
@@ -9423,7 +9458,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:118
 msgid "Ratings"
-msgstr ""
+msgstr "Classificació"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:24
 msgid "The title"
