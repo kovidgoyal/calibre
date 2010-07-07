@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-03 01:21+0000\n"
-"PO-Revision-Date: 2010-07-05 04:22+0000\n"
+"PO-Revision-Date: 2010-07-06 09:39+0000\n"
 "Last-Translator: Øyvind Øritsland <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-06 03:36+0000\n"
+"X-Launchpad-Export-Date: 2010-07-07 03:38+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1641,7 +1641,7 @@ msgstr "Kunne ikke finne noen bok i arkivet"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:647
 msgid "Values of series index and rating must be numbers. Ignoring"
 msgstr ""
-"Verdier av indekseringsserier og bedømming må være heltall. Ignorerer"
+"Verdier av indekseringsserier og vurdering må være heltall. Ignorerer"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:654
 msgid "Failed to parse date/time"
@@ -5684,7 +5684,7 @@ msgstr "Varsle når &ny versjon er tilgjengelig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:556
 msgid "Download &social metadata (tags/ratings/etc.) by default"
-msgstr "Last ned &sosiale metadata (emneord/bedømminger/osv.) som standard"
+msgstr "Last ned &sosiale metadata (emneord/vurdering/osv.) som standard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:557
 msgid "&Overwrite author and title by default when fetching metadata"
@@ -5757,7 +5757,7 @@ msgstr "Vis omslag &søk i eget vindu (krever omstart)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:575
 msgid "Show &average ratings in the tags browser"
-msgstr "Vis &gjennomsnittlig bedømming i emneordssøkeren"
+msgstr "Vis &gjennomsnittlig vurdering i emneordssøkeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:576
 msgid "Search as you type"
@@ -6093,7 +6093,7 @@ msgstr "Heltall"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:37
 msgid "Ratings, shown with stars"
-msgstr "Bedømming, vist ved stjerner"
+msgstr "Vurdering, vist ved stjerner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:40
 msgid "Yes/No"
@@ -6357,7 +6357,7 @@ msgstr "Velg boken som samsvarer mest med ditt eksemplar fra listen under"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:91
 msgid "Download &social metadata (tags/rating/etc.) for the selected book"
 msgstr ""
-"Last ned &sosiale metadata (emneord/bedømminger/osv.) for den valgte boken"
+"Last ned &sosiale metadata (emneord/vurderinger/osv.) for den valgte boken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:92
 msgid "Overwrite author and title with author and title of selected book"
@@ -10029,19 +10029,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:70
 msgid "%sAverage rating is %3.1f"
-msgstr ""
+msgstr "%sGjennomsnittlig vurdering er %3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:545
 msgid "Main"
-msgstr ""
+msgstr "Hovedvalg"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:547
 msgid "Card A"
-msgstr ""
+msgstr "Kort A"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:549
 msgid "Card B"
-msgstr ""
+msgstr "Kort B"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1770
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
@@ -10069,7 +10069,7 @@ msgstr "Sjekker ID"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:118
 msgid "Ratings"
-msgstr ""
+msgstr "Vurderinger"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:24
 msgid "The title"
@@ -10264,6 +10264,9 @@ msgid ""
 "more than this number of items. Default: %default. Set to a large number to "
 "disable grouping."
 msgstr ""
+"Grupperer elementer innen kategorier, som forfatter/emneord ved første "
+"bokstav, når det er fler enn dette antallet elementer. Standard: %standard. "
+"Still inn på høyt antall for å slå av grupperinger."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/base.py:93
 msgid "Password to access your calibre library. Username is "
@@ -10289,43 +10292,43 @@ msgstr "Skriv prosess PID til spesifisert fil"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:108
 msgid "%d books"
-msgstr ""
+msgstr "%d bøker"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:127
 msgid "%d items"
-msgstr ""
+msgstr "%d elementer"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:144
 msgid "RATING: %s<br />"
-msgstr ""
+msgstr "RANGERING: %s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:147
 msgid "TAGS: %s<br />"
-msgstr ""
+msgstr "EMNEORD: %s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:151
 msgid "SERIES: %s [%s]<br />"
-msgstr ""
+msgstr "SERIER: %s [%s]<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:192
 msgid "Library"
-msgstr ""
+msgstr "Bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:231
 msgid "Books in your library"
-msgstr ""
+msgstr "Bøker i ditt bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:237
 msgid "By "
-msgstr ""
+msgstr "Av "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:238
 msgid "Books sorted by "
-msgstr ""
+msgstr "Bøker sortert av "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:542
 msgid "Newest"
-msgstr ""
+msgstr "Nyeste"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:48
 msgid "%sUsage%s: %s\n"
@@ -10397,11 +10400,12 @@ msgstr "Liste av navngitte søk"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:700
 msgid "User-created tag browser categories"
-msgstr ""
+msgstr "Brukerdefinerte kategorier for emneordsøk"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:702
 msgid "Preserve all collections even if not in library metadata."
 msgstr ""
+"Behold alle samlinger selv om de ikke finnes i bibliotekets metadata."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -10473,7 +10477,7 @@ msgstr "Engelsk (Pakistan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
 msgid "English (Israel)"
-msgstr ""
+msgstr "Engelsk (Israelsk)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 msgid "English (Singapore)"
@@ -10489,7 +10493,7 @@ msgstr "Engelsk (Irsk)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "English (China)"
-msgstr ""
+msgstr "Engelsk (Kina)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "Spanish (Paraguay)"

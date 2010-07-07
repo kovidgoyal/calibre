@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-03 01:21+0000\n"
-"PO-Revision-Date: 2010-07-02 18:22+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-07-06 22:02+0000\n"
+"Last-Translator: Redmar <redmar.vdberg@gmail.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-03 03:44+0000\n"
+"X-Launchpad-Export-Date: 2010-07-07 03:37+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:362
@@ -225,7 +225,7 @@ msgstr "Haal de omslag uit bestanden met stripverhalen"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:297
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:307
 msgid "Read metadata from %s files"
-msgstr "Lees metadata van de %s bestanden"
+msgstr "Lees de metadata uit %s bestanden"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:266
 msgid "Read metadata from ebooks in RAR archives"
@@ -269,9 +269,9 @@ msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
-"Indien ingesteld, zal de uitvoerplugin proberen om uitvoer te maken die zo "
-"leesbaar mogelijk is. Het kan zijn dat dit geen enkel effect heeft op "
-"sommige uitvoerplugins."
+"Indien opgegeven, zal de uitvoerplug-in proberen om uitvoer te genereren die "
+"zo leesbaar mogelijk is. Het kan zijn dat dit op sommige uitvoerplug-ins "
+"geen enkel effect heeft."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:45
 msgid "Input profile"
@@ -373,6 +373,7 @@ msgstr ""
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
 msgstr ""
+"Bedoeld voor de iPad en soortgelijke apparaten met een resolutie van 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:425
 msgid "This profile is intended for the Kobo Reader."
@@ -392,7 +393,7 @@ msgid ""
 "landscape mode. Mainly useful for comics."
 msgstr ""
 "Dit profiel is bedoeld voor de SONY PRS reeks. De 300/600 etc, in "
-"landschapsmodus. Vooral handig voor stripboeken."
+"horizontale schermmodus. Vooral handig voor stripboeken."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:563
 msgid "This profile is intended for the Amazon Kindle DX."
@@ -416,7 +417,7 @@ msgstr "Uitgeschakelde plugins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Enabled plugins"
-msgstr ""
+msgstr "Ingeschakelde plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:83
 msgid "No valid plugin found in "
@@ -434,20 +435,21 @@ msgid ""
 "    "
 msgstr ""
 "    %prog opties\n"
-"    Pas Calibre aan door laden van externe plugins\n"
+"\n"
+"    Pas calibre aan door externe plug-ins te laden.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:499
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr ""
-"Voeg een plugin toe door het pad op te geven naar het zip bestand waarin het "
-"zich bevindt."
+"Voeg een plug-in toe door het pad op te geven naar het zip-bestand waarin "
+"deze zich bevindt."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:501
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
 msgstr ""
-"Verwijder een optionele plugin op naam. Heeft geen effect op ingebouwde "
-"plugins"
+"Verwijder een aangepaste plug-in op naam. Heeft geen effect op ingebouwde "
+"plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:503
 msgid ""
@@ -491,12 +493,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:93
 msgid "Apple device detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "Apple apparaat gevonden, iTunes wordt gestart, even geduld…"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:246
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:249
 msgid "Updating device metadata listing..."
-msgstr ""
+msgstr "Bijwerken van metadatalijst op het apparaat…"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:323
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:362
@@ -515,7 +517,7 @@ msgstr "voltooid"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:544
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "Gebruik Series als categorie in iTunes / iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:546
 msgid "Cache covers from iTunes/iBooks"
@@ -527,12 +529,17 @@ msgid ""
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Sommige boeken niet gevonden in de iTunes database.\n"
+"Verwijder met behulp van de iBooks app.\n"
+"Klik op 'Details weergeven' voor een lijst."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:886
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Sommige omslagafbeeldingen konden niet worden omgezet.\n"
+"Klik op 'Details weergeven' voor een overzicht."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2471
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:807
@@ -548,7 +555,7 @@ msgstr "Nieuws"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2698
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "Verbinden met iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -574,11 +581,11 @@ msgstr "Communiceer met de EB600 e-boek lezer."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr ""
+msgstr "Verbinden met Astak Mentor EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
-msgstr ""
+msgstr "Verbinden met PocketBook 301 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -599,7 +606,7 @@ msgstr "Er wordt met de Sigmatek eBook reader gecommuniceerd."
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:30
 msgid "Use an arbitrary folder as a device."
-msgstr ""
+msgstr "Gebruik een willekeurige map als apparaat."
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:26
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:23
@@ -638,7 +645,7 @@ msgstr "Communiceert met de SpringDesign Alex eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:67
 msgid "Communicate with the Azbooka"
-msgstr ""
+msgstr "Verbinden met de Azbooka"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:80
 msgid "Communicate with the Elonex EB 511 eBook reader."
@@ -726,7 +733,7 @@ msgstr "Communiceer met de Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:35
 msgid "Communicate with the Booq Avant"
-msgstr ""
+msgstr "Verbinden met de Booq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:55
 msgid "Communicate with the Sweex MM300"
@@ -762,7 +769,7 @@ msgstr "Communiceer met de Sony PRS-500 e-boek lezer."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with all the Sony eBook readers."
-msgstr ""
+msgstr "Verbinden met alle Sony eBook readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:61
 msgid ""
@@ -787,7 +794,7 @@ msgstr "Communicatie met Telecast K3 Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:37
 msgid "Communicate with the Newsmy reader."
-msgstr ""
+msgstr "Verbinden met de Newsmy reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:49
 msgid "Communicate with the iPapyrus reader."
@@ -1557,6 +1564,12 @@ msgid ""
 "corresponding pair of normal characters. This option will preserve them "
 "instead."
 msgstr ""
+"Bewaar ligaturen aanwezig in het invoer document. Een ligatuur is een "
+"speciale weergave van een paar tekens zoals ff, fi, fl enz. De meeste lezers "
+"hebben geen ondersteuning voor ligaturen in hun standaard lettertypes, dus "
+"ze worden waarschijnlijk niet juist weergegeven. Standaard zal calibre een "
+"ligatuur om zetten in het overeenkomstige paar normale tekens. Deze optie "
+"zal ze in plaats daarvan behouden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
@@ -2245,7 +2258,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/douban.py:42
 msgid "Downloads metadata from Douban.com"
-msgstr ""
+msgstr "Download metadata van Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:34
 msgid "Metadata download"
@@ -2289,7 +2302,7 @@ msgstr "Download sociale metadata van amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:213
 msgid "Downloads series/tags/rating information from librarything.com"
-msgstr ""
+msgstr "Download series/labels/waardering-informatie van librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:95
 msgid ""
@@ -2360,6 +2373,11 @@ msgid ""
 "Fetch a cover image/social metadata for the book identified by ISBN from "
 "LibraryThing.com\n"
 msgstr ""
+"\n"
+"%prog [options] ISBN\n"
+"\n"
+"Haal een boek afbeelding / sociale metadata voor het boek aangeduid met ISBN "
+"van LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1226
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1398
@@ -3074,6 +3092,7 @@ msgstr "Gebruik alleen de bibliotheek"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:246
 msgid "User annotations generated from main library only"
 msgstr ""
+"Annotaties van de gebruiker alleen gegenereerd in de hoofdbibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:612
@@ -8801,7 +8820,7 @@ msgstr "Geen zoekterm gevonden voor: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:478
 msgid "Loading flow..."
-msgstr "Laden Vloed..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:514
 msgid "Laying out %s"
@@ -9937,7 +9956,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:772
 msgid "y"
-msgstr ""
+msgstr "j"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:778
 msgid ""

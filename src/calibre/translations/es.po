@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-03 01:21+0000\n"
-"PO-Revision-Date: 2010-07-04 16:13+0000\n"
-"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
+"PO-Revision-Date: 2010-07-06 14:21+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-05 03:45+0000\n"
+"X-Launchpad-Export-Date: 2010-07-07 03:38+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:465
@@ -523,11 +523,11 @@ msgstr "terminado"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:544
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "Usar la serie como categoría en iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:546
 msgid "Cache covers from iTunes/iBooks"
-msgstr ""
+msgstr "Guardar las portadas de iTunes/iBooks en caché"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:558
 msgid ""
@@ -544,8 +544,8 @@ msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
-"Algunas portadas no pudieron ser convertidas.\n"
-"Pulsar en \"Mostrar Detalles\" para ver una lista."
+"Algunas portadas no se pudieron convertir.\n"
+"Pulse en \"Mostrar detalles\" para ver una lista."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2471
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:807
@@ -879,7 +879,7 @@ msgstr "Leer los metadatos de los archivos del dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:45
 msgid "Use author sort instead of author"
-msgstr ""
+msgstr "Usar el orden de autor en lugar del autor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:47
 msgid "Template to control how books are saved"
@@ -1725,6 +1725,10 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
+"No usar SVG para la portada del libro. Use esta opción si el EPUB va a "
+"usarse en un dispositivo que no soporta SVG, como el iPhone o el JetBook "
+"Lite. Sin esta opción, dichos dispositivos mostrarán la portada como una "
+"página en blanco."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
@@ -1734,12 +1738,12 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
-"Cuando se use una portada SVG esta opción podrá causar que la portada se "
-"escale para cubrir el área disponible de pantalla, pero conservara su "
-"relación de aspecto (la relación entre la anchura y la altura). Esto supone "
-"que puede haber margenes blancos a los lados o arriba y abajo de la imagen, "
-"pero la imagen no sera distorsionada. Sin esta opción la imagen puede estar "
-"ligeramente distorsionada pero no tendrá margenes en blanco."
+"Cuando se use una portada SVG esta opción hace que la portada se escale para "
+"cubrir el área disponible de pantalla, pero conserva su relación de aspecto "
+"(la relación entre la anchura y la altura). Esto supone que puede haber "
+"márgenes blancos a los lados o arriba y abajo de la imagen, pero la imagen "
+"no se distorsionará. Sin esta opción la imagen puede distorsionarse "
+"ligeramente pero no tendrá margenes en blanco."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:169
 msgid "Start"
@@ -2298,6 +2302,7 @@ msgstr "Descarga metadatos sociales de amazon.com"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:213
 msgid "Downloads series/tags/rating information from librarything.com"
 msgstr ""
+"Descargar información de serie/etiquetas/calificación de librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:95
 msgid ""
@@ -2975,7 +2980,7 @@ msgstr "Usar números romanos para los número de series"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:47
 msgid "Sort tags list by name, popularity, or rating"
-msgstr ""
+msgstr "Ordenar la lista de etiquetas por nombre, popularidad o calificación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:49
 msgid "Number of covers to show in the cover browsing mode"
@@ -3064,10 +3069,12 @@ msgstr "El diseño de la interfaz de usuario"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:105
 msgid "Show the average rating per item indication in the tag browser"
 msgstr ""
+"Mostrar la calificación promedio de cada elemento en el explorador de "
+"etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:107
 msgid "Disable UI animations"
-msgstr ""
+msgstr "Desactivar animaciones de la interfaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:476
@@ -3766,7 +3773,7 @@ msgstr "Ninguno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:310
 msgid "Click to open Book Details window"
-msgstr ""
+msgstr "Pulse para abrir la ventada de Detalles del libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -4054,7 +4061,7 @@ msgstr "&Sin portada SVG"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:52
 msgid "Preserve cover &aspect ratio"
-msgstr "Conservar la portada y la proporción de aspecto."
+msgstr "Mantener las &proporciones de la portada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:53
 msgid "Split files &larger than:"
@@ -4562,7 +4569,7 @@ msgstr "&Orientación:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:45
 msgid "Preserve &aspect ratio of cover"
-msgstr "Mantener relación de &aspecto de la portada"
+msgstr "Mantener las &proporciones de la portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
@@ -4883,7 +4890,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:119
 msgid "Cover browser could not be loaded"
-msgstr "No se ha podido cargar el navegador de carátulas"
+msgstr "No se ha podido cargar el explorador de portadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:171
 msgid "Browse by covers"
@@ -4971,7 +4978,7 @@ msgstr "Enviar metadatos al dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:305
 msgid "Send collections to device"
-msgstr ""
+msgstr "Enviar colecciones al dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:329
 msgid "Upload %d books to device"
@@ -5035,11 +5042,11 @@ msgstr "Conectar a carpeta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:515
 msgid "Connect to iTunes"
-msgstr ""
+msgstr "Conectar a iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:520
 msgid "Eject device"
-msgstr ""
+msgstr "Desconectar dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:528
 msgid "Fetch annotations (experimental)"
@@ -5226,7 +5233,7 @@ msgstr "Usar subdirectorios"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:83
 msgid "Use author sort for author"
-msgstr ""
+msgstr "Usar el orden de autor por autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:85
 msgid "Save &template:"
@@ -5608,6 +5615,15 @@ msgid ""
 "Title match ignores leading indefinite articles (\"the\", \"a\", \"an\"), "
 "punctuation, case, etc. Author match is exact."
 msgstr ""
+"Si se encuentra un libro ya existente con el mismo título y autor que no "
+"tiene el formato que está añadiendo,\n"
+"se añade el formato al libro existente, en lugar de crear una nueva entrada. "
+"Si el libro existente ya tiene el formato,\n"
+"se omite sin ningún mensaje.\n"
+"\n"
+"Al comparar títulos no se tienen en cuenta los artículos iniciales (\"the\", "
+"\"a\", \"an\"), puntuación, mayúsculas o minúsculas, etc. La comparación de "
+"autores es exacta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:122
 msgid ""
@@ -5671,7 +5687,7 @@ msgstr "&Guardar libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:135
 msgid "Preserve device collections."
-msgstr ""
+msgstr "Mantiene las colecciones del dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:136
 msgid ""
@@ -5681,6 +5697,11 @@ msgid ""
 "unchecked, collections will be always reflect only the metadata in the "
 "calibre library."
 msgstr ""
+"Si se activa, las colecciones no se borrarán incluso si un libro con los "
+"metadatos modificados se vuelve a enviar y la colección no está en los "
+"metadatos del libro. Además, se hace posible editar las colecciones en la "
+"vista del dispositivo. Si se desactiva, las colecciones corresponderán "
+"siempre a los metadatos en la biblioteca de calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:137
 msgid "  "
@@ -5801,7 +5822,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:575
 msgid "Show &average ratings in the tags browser"
-msgstr ""
+msgstr "Mostrar calificaciones &promedio en el explorador de etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:576
 msgid "Search as you type"
@@ -5873,10 +5894,11 @@ msgstr "Interfaz de usuario &diseño (necesario reiniciar):"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:597
 msgid "Disable all animations. Useful if you have a slow/old computer."
 msgstr ""
+"Desactiva todas las animaciones. Útil si tiene un ordenador lento o antiguo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:598
 msgid "Disable &animations"
-msgstr ""
+msgstr "Desactivar &animaciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:599
 msgid "Add an email address to which to send books"
@@ -6134,7 +6156,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:28
 msgid "Text column for keeping series-like information"
-msgstr ""
+msgstr "Columna de texto para información como la serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:33
 msgid "Floating point numbers"
@@ -6317,7 +6339,7 @@ msgstr "ERROR"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:69
 msgid "Location"
-msgstr ""
+msgstr "Ubicación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1058
@@ -6326,15 +6348,15 @@ msgstr "Formato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device_ui.py:50
 msgid "Delete from device"
-msgstr ""
+msgstr "Eliminar del dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:29
 msgid "Author sort"
-msgstr ""
+msgstr "Orden de autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:47
 msgid "Manage authors"
-msgstr ""
+msgstr "Administrar autores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:60
 msgid "Author Sort"
@@ -7650,11 +7672,11 @@ msgstr "Eliminar todos los formatos de los libros seleccionados, excepto..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:134
 msgid "Remove covers from selected books"
-msgstr "Eliminar cubiertas de los libros seleccionados"
+msgstr "Eliminar portadas de los libros seleccionados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:137
 msgid "Remove matching books from device"
-msgstr ""
+msgstr "Eliminar los libros que correspondan del dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:154
 msgid "Convert individually"
@@ -7678,17 +7700,17 @@ msgstr "Libros similares..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:232
 msgid "Add books to library"
-msgstr ""
+msgstr "Añadir libros a la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:234
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:241
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:248
 msgid "Manage collections"
-msgstr ""
+msgstr "Administrar colecciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:328
 msgid "Cover Browser"
-msgstr "Navegador de carátulas"
+msgstr "Explorador de portadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:346
 msgid "Tag Browser"
@@ -8333,11 +8355,11 @@ msgstr "&Atajo alternativo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:191
 msgid "Rename '%s'"
-msgstr ""
+msgstr "Renombrar \"%s\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:195
 msgid "Edit sort for '%s'"
-msgstr ""
+msgstr "Editar orden para \"%s\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:200
 msgid "Hide category %s"
@@ -8354,7 +8376,7 @@ msgstr "Ver todas las categorias"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:214
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:218
 msgid "Manage %s"
-msgstr ""
+msgstr "Administrar %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:221
 msgid "Manage Saved Searches"
@@ -8380,15 +8402,15 @@ msgstr "El nombre guardado buscado %s está en uso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:768
 msgid "Sort by name"
-msgstr ""
+msgstr "Ordenar por nombre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:768
 msgid "Sort by popularity"
-msgstr ""
+msgstr "Ordenar por popularidad"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:769
 msgid "Sort by average rating"
-msgstr ""
+msgstr "Ordenar por calificación promedio"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:775
 msgid "Match all"
@@ -10143,7 +10165,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:70
 msgid "%sAverage rating is %3.1f"
-msgstr ""
+msgstr "%sCalificación promedio es %3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:545
 msgid "Main"
@@ -10366,8 +10388,7 @@ msgstr "Nombre de usuario para acceder. Por defecto es: %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:37
 msgid "The maximum size for displayed covers. Default is %default."
-msgstr ""
-"Máximo tamaño para las portadas portadas. Valor por defecto: %default."
+msgstr "Máximo tamaño para las portadas. Valor por defecto: %default."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:39
 msgid ""
@@ -10527,6 +10548,8 @@ msgstr "Categorías del explorador de etiquetas creadas por el usuario"
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:702
 msgid "Preserve all collections even if not in library metadata."
 msgstr ""
+"Mantener todas las colecciones aunque no estén en los metadatos de la "
+"biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -10598,7 +10621,7 @@ msgstr "Inglés (Pakistán)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
 msgid "English (Israel)"
-msgstr ""
+msgstr "Inglés (Israel)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 msgid "English (Singapore)"
