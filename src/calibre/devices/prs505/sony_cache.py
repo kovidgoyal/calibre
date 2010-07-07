@@ -144,52 +144,73 @@ class XMLCache(object):
                         if title+str(i) not in seen:
                             title = title+str(i)
                             playlist.set('title', title)
+                            seen.add(title)
                             break
                 else:
                     seen.add(title)
 
-    def build_playlist_id_map(self):
-        debug_print('Start build_playlist_id_map')
-        ans = {}
-        self.ensure_unique_playlist_titles()
-        debug_print('after ensure_unique_playlist_titles')
-        self.prune_empty_playlists()
-        for i, root in self.record_roots.items():
-            debug_print('build_playlist_id_map loop', i)
-            id_map = self.build_id_map(root)
-            ans[i] = []
-            for playlist in root.xpath('//*[local-name()="playlist"]'):
-                items = []
-                for item in playlist:
-                    id_ = item.get('id', None)
-                    record = id_map.get(id_, None)
-                    if record is not None:
-                        items.append(record)
-                ans[i].append((playlist.get('title'), items))
-        debug_print('end build_playlist_id_map')
-        return ans
-
     def build_id_playlist_map(self, bl_index):
+        '''
+        Return a map of the collections in books: {lpaths: [collection names]}
+        '''
         debug_print('Start build_id_playlist_map')
-        pmap = self.build_playlist_id_map()[bl_index]
+        self.ensure_unique_playlist_titles()
+        self.prune_empty_playlists()
+        debug_print('after cleaning playlists')
+        root = self.record_roots[bl_index]
+        if root is None:
+            return
+        id_map = self.build_id_map(root)
         playlist_map = {}
-        for title, records in pmap:
-            for record in records:
-                path = record.get('path', None)
-                if path:
-                    if path not in playlist_map:
-                        playlist_map[path] = []
-                    playlist_map[path].append(title)
+        # foreach playlist, get the lpaths for the ids in it, then add to dict
+        for playlist in root.xpath('//*[local-name()="playlist"]'):
+            name = playlist.get('title')
+            if name is None:
+                debug_print('build_id_playlist_map: unnamed playlist!')
+                continue
+            for item in playlist:
+                # translate each id into its lpath
+                id_ = item.get('id', None)
+                if id_ is None:
+                    debug_print('build_id_playlist_map: id_ is None!')
+                    continue
+                bk = id_map.get(id_, None)
+                if bk is None:
+                    debug_print('build_id_playlist_map: book is None!', id_)
+                    continue
+                lpath = bk.get('path', None)
+                if lpath is None:
+                    debug_print('build_id_playlist_map: lpath is None!', id_)
+                    continue
+                if lpath not in playlist_map:
+                    playlist_map[lpath] = []
+                playlist_map[lpath].append(name)
         debug_print('Finish build_id_playlist_map. Found', len(playlist_map))
         return playlist_map
 
+    def reset_existing_playlists_map(self):
+        '''
+        Call this method before calling get_or_create_playlist in the context of
+        a given job. Call it again after deleting any playlists. The current
+        implementation adds all new playlists before deleting any, so that
+        constraint is respected.
+        '''
+        self._playlist_to_playlist_id_map = {}
+
     def get_or_create_playlist(self, bl_idx, title):
+        # maintain a private map of playlists to their ids. Don't check if it
+        # exists, because reset_existing_playlist_map must be called before it
+        # is used to ensure that deleted playlists are taken into account
         root = self.record_roots[bl_idx]
-        for playlist in root.xpath('//*[local-name()="playlist"]'):
-            if playlist.get('title', None) == title:
-                return playlist
-        if DEBUG:
-            debug_print('Creating playlist:', title)
+        if bl_idx not in self._playlist_to_playlist_id_map:
+            self._playlist_to_playlist_id_map[bl_idx] = {}
+            for playlist in root.xpath('//*[local-name()="playlist"]'):
+                pl_title = playlist.get('title', None)
+                if pl_title is not None:
+                    self._playlist_to_playlist_id_map[bl_idx][pl_title] = playlist
+        if title in self._playlist_to_playlist_id_map[bl_idx]:
+            return self._playlist_to_playlist_id_map[bl_idx][title]
+        debug_print('Creating playlist:', title)
         ans = root.makeelement('{%s}playlist'%self.namespaces[bl_idx],
                 nsmap=root.nsmap, attrib={
                     'uuid' : uuid(),
@@ -198,6 +219,7 @@ class XMLCache(object):
                     'sourceid': '1'
                     })
         root.append(ans)
+        self._playlist_to_playlist_id_map[bl_idx][title] = ans
         return ans
     # }}}
 
@@ -260,7 +282,9 @@ class XMLCache(object):
                 ensure_media_xml_base_ids(root)
 
             idmap = ensure_numeric_ids(root)
-            remap_playlist_references(root, idmap)
+            if len(idmap) > 0:
+                debug_print('fix_ids: found some non-numeric ids')
+                remap_playlist_references(root, idmap)
             if i == 0:
                 sourceid, playlist_sid = 1, 0
                 base = 0
@@ -321,17 +345,20 @@ class XMLCache(object):
             debug_print('Updating XML Cache:', i)
             root = self.record_roots[i]
             lpath_map = self.build_lpath_map(root)
+            gtz_count = ltz_count = 0
             for book in booklist:
                 path = os.path.join(self.prefixes[i], *(book.lpath.split('/')))
                 record = lpath_map.get(book.lpath, None)
                 if record is None:
                     record = self.create_text_record(root, i, book.lpath)
-                self.update_text_record(record, book, path, i)
+                (gtz_count, ltz_count) = self.update_text_record(record, book,
+                                                path, i, gtz_count, ltz_count)
                 # Ensure the collections in the XML database are recorded for
                 # this book
                 if book.device_collections is None:
                     book.device_collections = []
                 book.device_collections = playlist_map.get(book.lpath, [])
+            debug_print('Timezone votes: %d GMT, %d LTZ'%(gtz_count, ltz_count))
             self.update_playlists(i, root, booklist, collections_attributes)
         # Update the device collections because update playlist could have added
         # some new ones.
@@ -352,8 +379,10 @@ class XMLCache(object):
 
     def update_playlists(self, bl_index, root, booklist, collections_attributes):
         debug_print('Starting update_playlists', collections_attributes, bl_index)
+        self.reset_existing_playlists_map()
         collections = booklist.get_collections(collections_attributes)
         lpath_map = self.build_lpath_map(root)
+        debug_print('update_playlists: finished building maps')
         for category, books in collections.items():
             records = [lpath_map.get(b.lpath, None) for b in books]
             # Remove any books that were not found, although this
@@ -362,23 +391,34 @@ class XMLCache(object):
                 debug_print('WARNING: Some elements in the JSON cache were not'
                         ' found in the XML cache')
             records = [x for x in records if x is not None]
+            # Ensure each book has an ID.
             for rec in records:
                 if rec.get('id', None) is None:
                     rec.set('id', str(self.max_id(root)+1))
             ids = [x.get('id', None) for x in records]
+            # Given that we set the ids, there shouldn't be any None's. But
+            # better to be safe...
             if None in ids:
                 debug_print('WARNING: Some <text> elements do not have ids')
                 ids = [x for x in ids if x is not None]
+
             playlist = self.get_or_create_playlist(bl_index, category)
+            # Get the books currently in the playlist. We will need them to be
+            # sure to put back any books that were manually added.
             playlist_ids = []
             for item in playlist:
                 id_ = item.get('id', None)
                 if id_ is not None:
                     playlist_ids.append(id_)
+            # Empty the playlist. We do this so that the playlist will have the
+            # order specified by get_collections
             for item in list(playlist):
                 playlist.remove(item)
 
+            # Get a list of ids not known by get_collections
             extra_ids = [x for x in playlist_ids if x not in ids]
+            # Rebuild the collection in the order specified by get_collections. Then
+            # add the ids that get_collections didn't know about.
             for id_ in ids + extra_ids:
                 item = playlist.makeelement(
                         '{%s}item'%self.namespaces[bl_index],
@@ -416,11 +456,38 @@ class XMLCache(object):
         root.append(ans)
         return ans
 
-    def update_text_record(self, record, book, path, bl_index):
+    def update_text_record(self, record, book, path, bl_index, gtz_count, ltz_count):
+        '''
+        Update the Sony database from the book. This is done if the timestamp in
+        the db differs from the timestamp on the file.
+        '''
+
+        # It seems that a Sony device can sometimes know what timezone it is in,
+        # and apparently converts the dates to GMT when it writes them to the
+        # db. Unfortunately, we can't tell when it does this, so we use a
+        # horrible heuristic. First, set dates only for new books, trying to
+        # avoid upsetting the sony. Use the timezone determined through the
+        # voting described next. Second, voting: if a book is not new, compare
+        # its Sony DB date against localtime and gmtime. Count the matches. When
+        # we must set a date, use the one with the most matches. Use localtime
+        # if the case of a tie, and hope it is right.
         timestamp = os.path.getmtime(path)
-        date = strftime(timestamp)
-        if date != record.get('date', None):
+        rec_date = record.get('date', None)
+        if not getattr(book, '_new_book', False): # book is not new
+            if strftime(timestamp, zone=time.gmtime) == rec_date:
+                gtz_count += 1
+            elif strftime(timestamp, zone=time.localtime) == rec_date:
+                ltz_count += 1
+        else: # book is new. Set the time using the current votes
+            if ltz_count >= gtz_count:
+                tz = time.localtime
+                debug_print("Using localtime TZ for new book", book.lpath)
+            else:
+                tz = time.gmtime
+                debug_print("Using GMT TZ for new book", book.lpath)
+            date = strftime(timestamp, zone=tz)
             record.set('date', date)
+
         record.set('size', str(os.stat(path).st_size))
         title = book.title if book.title else _('Unknown')
         record.set('title', title)
@@ -445,6 +512,7 @@ class XMLCache(object):
         if 'id' not in record.attrib:
             num = self.max_id(record.getroottree().getroot())
             record.set('id', str(num+1))
+        return (gtz_count, ltz_count)
     # }}}
 
     # Writing the XML files {{{

@@ -5,21 +5,21 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools
+import functools, sys, os
 
 from PyQt4.Qt import QMenu, Qt, pyqtSignal, QToolButton, QIcon, QStackedWidget, \
-        QSize, QSizePolicy, QStatusBar
+        QSize, QSizePolicy, QStatusBar, QUrl, QLabel, QFont
 
 from calibre.utils.config import prefs
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.constants import isosx, __appname__, preferred_encoding
-from calibre.gui2 import config, is_widescreen
+from calibre.constants import isosx, __appname__, preferred_encoding, \
+    __version__
+from calibre.gui2 import config, is_widescreen, open_url
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.widgets import Splitter
 from calibre.gui2.tag_view import TagBrowserWidget
 from calibre.gui2.book_details import BookDetails
 from calibre.gui2.notify import get_notifier
-
 
 _keep_refs = []
 
@@ -48,6 +48,7 @@ class SaveMenu(QMenu): # {{{
 class ToolbarMixin(object): # {{{
 
     def __init__(self):
+        self.action_help.triggered.connect(self.show_help)
         md = QMenu()
         md.addAction(_('Edit metadata individually'),
                 partial(self.edit_metadata, False, bulk=False))
@@ -182,8 +183,12 @@ class ToolbarMixin(object): # {{{
         for ch in self.tool_bar.children():
             if isinstance(ch, QToolButton):
                 ch.setCursor(Qt.PointingHandCursor)
+                ch.setStatusTip(ch.toolTip())
 
         self.tool_bar.contextMenuEvent = self.no_op
+
+    def show_help(self, *args):
+        open_url(QUrl('http://calibre-ebook.com/user_manual'))
 
     def read_toolbar_settings(self):
         self.tool_bar.setIconSize(config['toolbar_icon_size'])
@@ -362,12 +367,50 @@ class Stack(QStackedWidget): # {{{
 
 class StatusBar(QStatusBar): # {{{
 
+    def __init__(self, parent=None):
+        QStatusBar.__init__(self, parent)
+        self.default_message = __appname__ + ' ' + _('version') + ' ' + \
+                self.get_version() + ' ' + _('created by Kovid Goyal')
+        self.device_string = ''
+        self.update_label = QLabel('')
+        self.update_label.setOpenExternalLinks(True)
+        self.addPermanentWidget(self.update_label)
+        self.update_label.setVisible(False)
+        self._font = QFont()
+        self._font.setBold(True)
+        self.setFont(self._font)
+
     def initialize(self, systray=None):
         self.systray = systray
         self.notifier = get_notifier(systray)
+        self.messageChanged.connect(self.message_changed,
+                type=Qt.QueuedConnection)
+        self.message_changed('')
+
+    def device_connected(self, devname):
+        self.device_string = _('Connected ') + devname
+        self.clearMessage()
+
+    def device_disconnected(self):
+        self.device_string = ''
+        self.clearMessage()
+
+    def new_version_available(self, ver, url):
+        msg = (u'<span style="color:red; font-weight: bold">%s: <a href="%s">%s<a></span>') % (
+                _('Update found'), url, ver)
+        self.update_label.setText(msg)
+        self.update_label.setCursor(Qt.PointingHandCursor)
+        self.update_label.setVisible(True)
+
+    def get_version(self):
+        dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+        v = __version__
+        if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
+            v += '*'
+        return v
 
     def show_message(self, msg, timeout=0):
-        QStatusBar.showMessage(self, msg, timeout)
+        self.showMessage(msg, timeout)
         if self.notifier is not None and not config['disable_tray_notification']:
             if isosx and isinstance(msg, unicode):
                 try:
@@ -377,7 +420,15 @@ class StatusBar(QStatusBar): # {{{
             self.notifier(msg)
 
     def clear_message(self):
-        QStatusBar.clearMessage(self)
+        self.clearMessage()
+
+    def message_changed(self, msg):
+        if not msg or msg.isEmpty() or msg.isNull():
+            extra = ''
+            if self.device_string:
+                extra = ' ..::.. ' + self.device_string
+            self.showMessage(self.default_message + extra)
+
 
 # }}}
 

@@ -84,6 +84,7 @@ typedef unsigned short QRgb565;
 #define REFLECTION_FACTOR 1.5
 
 #define MAX(x, y) ((x > y) ? x : y)
+#define MIN(x, y) ((x < y) ? x : y)
 
 #define RGB565_RED_MASK 0xF800
 #define RGB565_GREEN_MASK 0x07E0
@@ -578,12 +579,10 @@ void PictureFlowPrivate::resetSlides()
 
 static QImage prepareSurface(QImage img, int w, int h)
 {
-  Qt::TransformationMode mode = Qt::SmoothTransformation;
-  img = img.scaled(w, h, Qt::IgnoreAspectRatio, mode);
+  img = img.scaled(w, h, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
   // slightly larger, to accommodate for the reflection
   int hs = int(h * REFLECTION_FACTOR);
-  int hofs = 0;
 
   // offscreen buffer: black is sweet
   QImage result(hs, w, QImage::Format_RGB16);  
@@ -594,21 +593,20 @@ static QImage prepareSurface(QImage img, int w, int h)
   // (and much better and faster to work row-wise, i.e in one scanline)
   for(int x = 0; x < w; x++)
     for(int y = 0; y < h; y++)
-      result.setPixel(hofs + y, x, img.pixel(x, y));
+      result.setPixel(y, x, img.pixel(x, y));
 
   // create the reflection
-  int ht = hs - h - hofs;
-  int hte = ht;
+  int ht = hs - h;
   for(int x = 0; x < w; x++)
     for(int y = 0; y < ht; y++)
     {
       QRgb color = img.pixel(x, img.height()-y-1);
       //QRgb565 color = img.scanLine(img.height()-y-1) + x*sizeof(QRgb565); //img.pixel(x, img.height()-y-1);
       int a = qAlpha(color);
-      int r = qRed(color)   * a / 256 * (hte - y) / hte * 3/5;
-      int g = qGreen(color) * a / 256 * (hte - y) / hte * 3/5;
-      int b = qBlue(color)  * a / 256 * (hte - y) / hte * 3/5;
-      result.setPixel(h+hofs+y, x, qRgb(r, g, b));
+      int r = qRed(color)   * a / 256 * (ht - y) / ht * 3/5;
+      int g = qGreen(color) * a / 256 * (ht - y) / ht * 3/5;
+      int b = qBlue(color)  * a / 256 * (ht - y) / ht * 3/5;
+      result.setPixel(h+y, x, qRgb(r, g, b));
     }
 
   return result;
@@ -708,9 +706,12 @@ void PictureFlowPrivate::render()
     painter.setPen(Qt::white);
     //painter.setPen(QColor(255,255,255,127));
 
-    if (centerIndex < slideCount() && centerIndex > -1) 
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2-fontSize*3),
+    if (centerIndex < slideCount() && centerIndex > -1) { 
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2-fontSize*4),
                       Qt::AlignCenter, slideImages->caption(centerIndex));
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2-fontSize*2),
+                      Qt::AlignCenter, slideImages->subtitle(centerIndex));
+    }
 
     painter.end();
 
@@ -761,15 +762,22 @@ void PictureFlowPrivate::render()
     int sc = slideCount();
 
     painter.setPen(QColor(255,255,255, (255-fade) ));
-    if (leftTextIndex < sc && leftTextIndex > -1)
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*3),
+    if (leftTextIndex < sc && leftTextIndex > -1) {
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*4),
                       Qt::AlignCenter, slideImages->caption(leftTextIndex));
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*2),
+                      Qt::AlignCenter, slideImages->subtitle(leftTextIndex));
+
+    }
 
     painter.setPen(QColor(255,255,255, fade));
-    if (leftTextIndex+1 < sc && leftTextIndex > -2)
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*3),
+    if (leftTextIndex+1 < sc && leftTextIndex > -2) {
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*4),
                       Qt::AlignCenter, slideImages->caption(leftTextIndex+1));
+    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*2),
+                      Qt::AlignCenter, slideImages->subtitle(leftTextIndex+1));
 
+    }
 
     painter.end();
   }
@@ -797,12 +805,20 @@ QRect PictureFlowPrivate::renderCenterSlide(const SlideInfo &slide) {
   int sw = src->height();
   int sh = src->width();
   int h = buffer.height();
-  QRect rect(buffer.width()/2 - sw/2, 0, sw, h-1);
-  int left = rect.left();
+  int srcoff = 0;
+  int left = buffer.width()/2 - sw/2;
+  if (left < 0) {
+      srcoff = -left;
+      sw += left;
+      left = 0;
+  }
+  QRect rect(left, 0, sw, h-1);
+  int xcon = MIN(h-1, sh-1);
+  int ycon = MIN(sw, buffer.width() - left);
 
-  for(int x = 0; x < sh-1; x++)
-    for(int y = 0; y < sw; y++)
-      buffer.setPixel(left + y, 1+x, src->pixel(x, y));
+  for(int x = 0; x < xcon; x++)
+      for(int y = 0; y < ycon; y++)
+          buffer.setPixel(left + y, 1+x, src->pixel(x, srcoff+y));
 
   return rect;
 }
@@ -1366,5 +1382,6 @@ void PictureFlow::emitcurrentChanged(int index) { emit currentChanged(index); }
 int FlowImages::count() { return 0; }
 QImage FlowImages::image(int index) { index=0; return QImage(); }
 QString FlowImages::caption(int index) {index=0; return QString(); }
+QString FlowImages::subtitle(int index) {index=0; return QString(); }
 
 // }}}

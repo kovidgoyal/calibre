@@ -63,7 +63,8 @@ class TXTInput(InputFormatPlugin):
                 raise ValueError('This txt file has malformed markup, it cannot be'
                     ' converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
         else:
-            html = convert_basic(txt)
+            flow_size = getattr(options, 'flow_size', 0)
+            html = convert_basic(txt, epub_split_size_kb=flow_size)
 
         from calibre.customize.ui import plugin_for_input_format
         html_input = plugin_for_input_format('html')

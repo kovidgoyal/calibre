@@ -6,6 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import re
+
 from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, \
                      pyqtSignal, SIGNAL, QObject, QDialog, QCompleter, \
                      QAction, QKeySequence
@@ -368,6 +370,10 @@ class SearchBoxMixin(object):
         self.action_focus_search.triggered.connect(lambda x:
                 self.search.setFocus(Qt.OtherFocusReason))
         self.addAction(self.action_focus_search)
+        self.search.setStatusTip(re.sub(r'<\w+>', ' ',
+            unicode(self.search.toolTip())))
+        self.advanced_search_button.setStatusTip(self.advanced_search_button.toolTip())
+        self.clear_button.setStatusTip(self.clear_button.toolTip())
 
     def search_box_cleared(self):
         self.tags_view.clear()
@@ -396,6 +402,12 @@ class SavedSearchBoxMixin(object):
                 self.saved_search.delete_search_button_clicked)
         self.connect(self.copy_search_button, SIGNAL('clicked()'),
                 self.saved_search.copy_search_button_clicked)
+        self.saved_search.setToolTip(
+            _('Choose saved search or enter name for new saved search'))
+        self.saved_search.setStatusTip(self.saved_search.toolTip())
+        for x in ('copy', 'save', 'delete'):
+            b = getattr(self, x+'_search_button')
+            b.setStatusTip(b.toolTip())
 
 
     def saved_searches_changed(self):

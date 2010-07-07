@@ -134,9 +134,16 @@ class CollectionsBookList(BookList):
     def get_collections(self, collection_attributes):
         collections = {}
         series_categories = set([])
+        # This map of sets is used to avoid linear searches when testing for
+        # book equality
+        collections_lpaths = {}
         for book in self:
-            # The default: leave the book in all existing collections. Do not
-            # add any new ones.
+            # Make sure we can identify this book via the lpath
+            lpath = getattr(book, 'lpath', None)
+            if lpath is None:
+                continue
+            # Decide how we will build the collections. The default: leave the
+            # book in all existing collections. Do not add any new ones.
             attrs = ['device_collections']
             if getattr(book, '_new_book', False):
                 if prefs['preserve_user_collections']:
@@ -163,11 +170,12 @@ class CollectionsBookList(BookList):
                         continue
                     if category not in collections:
                         collections[category] = []
-                    if book not in collections[category]:
+                        collections_lpaths[category] = set()
+                    if lpath not in collections_lpaths[category]:
+                        collections_lpaths[category].add(lpath)
                         collections[category].append(book)
-                        if attr == 'series':
-                            series_categories.add(category)
-
+                    if attr == 'series':
+                        series_categories.add(category)
         # Sort collections
         for category, books in collections.items():
             def tgetter(x):

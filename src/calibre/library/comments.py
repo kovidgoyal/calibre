@@ -8,8 +8,13 @@ __docformat__ = 'restructuredtext en'
 import re
 
 from calibre.constants import preferred_encoding
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString, \
+        CData, Comment, Declaration, ProcessingInstruction
 from calibre import prepare_string_for_xml
+
+# Hackish - ignoring sentences ending or beginning in numbers to avoid
+# confusion with decimal points.
+lost_cr_pat = re.compile('([a-z])([\.\?!])([A-Z])')
 
 def comments_to_html(comments):
     '''
@@ -41,36 +46,25 @@ def comments_to_html(comments):
 
     if '<' not in comments:
         comments = prepare_string_for_xml(comments)
-        comments = comments.replace(u'\n', u'<br />')
-        return u'<p>%s</p>'%comments
-
-    # Hackish - ignoring sentences ending or beginning in numbers to avoid
-    # confusion with decimal points.
+        parts = [u'<p class="description">%s</p>'%x.replace(u'\n', u'<br />')
+                for x in comments.split('\n\n')]
+        return '\n'.join(parts)
 
     # Explode lost CRs to \n\n
-    for lost_cr in re.finditer('([a-z])([\.\?!])([A-Z])', comments):
+    for lost_cr in lost_cr_pat.finditer(comments):
         comments = comments.replace(lost_cr.group(),
                                     '%s%s\n\n%s' % (lost_cr.group(1),
                                                     lost_cr.group(2),
                                                     lost_cr.group(3)))
 
+    comments = comments.replace(u'\r', u'')
     # Convert \n\n to <p>s
-    if re.search('\n\n', comments):
-        soup = BeautifulSoup()
-        split_ps = comments.split(u'\n\n')
-        tsc = 0
-        for p in split_ps:
-            pTag = Tag(soup,'p')
-            pTag.insert(0,p)
-            soup.insert(tsc,pTag)
-            tsc += 1
-        comments = soup.renderContents(None)
-
+    comments = comments.replace(u'\n\n', u'<p>')
     # Convert solo returns to <br />
-    comments = re.sub('[\r\n]','<br />', comments)
-
+    comments = comments.replace(u'\n', '<br />')
     # Convert two hyphens to emdash
-    comments = re.sub('--', '&mdash;', comments)
+    comments = comments.replace('--', '&mdash;')
+
     soup = BeautifulSoup(comments)
     result = BeautifulSoup()
     rtc = 0
@@ -85,35 +79,52 @@ def comments_to_html(comments):
                 ptc = 0
             pTag.insert(ptc,prepare_string_for_xml(token))
             ptc += 1
-
-        elif token.name in ['br','b','i','em']:
+        elif type(token) in (CData, Comment, Declaration,
+                ProcessingInstruction):
+            continue
+        elif token.name in ['br', 'b', 'i', 'em', 'strong', 'span', 'font', 'a',
+                'hr']:
             if not open_pTag:
                 pTag = Tag(result,'p')
                 open_pTag = True
                 ptc = 0
             pTag.insert(ptc, token)
             ptc += 1
-
         else:
             if open_pTag:
                 result.insert(rtc, pTag)
                 rtc += 1
                 open_pTag = False
                 ptc = 0
-            # Clean up NavigableStrings for xml
-            sub_tokens = list(token.contents)
-            for sub_token in sub_tokens:
-                if type(sub_token) is NavigableString:
-                    sub_token.replaceWith(prepare_string_for_xml(sub_token))
             result.insert(rtc, token)
             rtc += 1
 
     if open_pTag:
         result.insert(rtc, pTag)
 
-    paras = result.findAll('p')
-    for p in paras:
+    for p in result.findAll('p'):
         p['class'] = 'description'
 
+    for t in result.findAll(text=True):
+        t.replaceWith(prepare_string_for_xml(unicode(t)))
+
     return result.renderContents(encoding=None)
+
+def test():
+    for pat, val in [
+            ('lineone\n\nlinetwo',
+                '<p class="description">lineone</p>\n<p class="description">linetwo</p>'),
+            ('a <b>b&c</b>\nf', '<p class="description">a <b>b&amp;c;</b><br />f</p>'),
+            ('a <?xml asd> b\n\ncd', '<p class="description">a  b</p><p class="description">cd</p>'),
+            ]:
+        print
+        print 'Testing: %r'%pat
+        cval = comments_to_html(pat)
+        print 'Value: %r'%cval
+        if comments_to_html(pat) != val:
+            print 'FAILED'
+            break
+
+if __name__ == '__main__':
+    test()
 

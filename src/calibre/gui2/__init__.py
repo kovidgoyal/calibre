@@ -1,18 +1,18 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
-import os
+import os, sys
 from threading import RLock
 
-from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
+from PyQt4.Qt import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
                          QByteArray, QTranslator, QCoreApplication, QThread, \
-                         QEvent, QTimer, pyqtSignal, QDate
-from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
-                        QIcon, QApplication, QDialog, QPushButton
+                         QEvent, QTimer, pyqtSignal, QDate, QDesktopServices, \
+                         QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
+                         QIcon, QApplication, QDialog, QPushButton, QUrl
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre import islinux, iswindows, isosx, isfreebsd
+from calibre.constants import islinux, iswindows, isosx, isfreebsd, isfrozen
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
@@ -578,6 +578,22 @@ class Application(QApplication):
             return QApplication.event(self, e)
 
 _store_app = None
+
+def open_url(qurl):
+    paths = os.environ.get('LD_LIBRARY_PATH',
+                '').split(os.pathsep)
+    paths = [x for x in paths if x]
+    if isfrozen and islinux and paths:
+        npaths = [x for x in paths if x != sys.frozen_path]
+        os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
+    QDesktopServices.openUrl(qurl)
+    if isfrozen and islinux and paths:
+        os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(paths)
+
+
+def open_local_file(path):
+    url = QUrl.fromLocalFile(path)
+    open_url(url)
 
 def is_ok_to_use_qt():
     global gui_thread, _store_app

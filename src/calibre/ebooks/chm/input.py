@@ -92,7 +92,7 @@ class CHMInput(InputFormatPlugin):
             metadata.add('identifier', mi.isbn, attrib={'scheme':'ISBN'})
         if not metadata.language:
             oeb.logger.warn(u'Language not specified')
-            metadata.add('language', get_lang())
+            metadata.add('language', get_lang().replace('_', '-'))
         if not metadata.creator:
             oeb.logger.warn('Creator not specified')
             metadata.add('creator', _('Unknown'))

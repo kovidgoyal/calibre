@@ -31,6 +31,8 @@ from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
+from calibre.ebooks.metadata.meta import set_metadata
+from calibre.constants import DEBUG
 
 # }}}
 
@@ -304,6 +306,21 @@ class DeviceManager(Thread): # {{{
 
     def _upload_books(self, files, names, on_card=None, metadata=None):
         '''Upload books to device: '''
+        if metadata and files and len(metadata) == len(files):
+            for f, mi in zip(files, metadata):
+                if isinstance(f, unicode):
+                    ext = f.rpartition('.')[-1].lower()
+                    if ext:
+                        try:
+                            if DEBUG:
+                                prints('Setting metadata in:', mi.title, 'at:',
+                                        f, file=sys.__stdout__)
+                            with open(f, 'r+b') as stream:
+                                set_metadata(stream, mi, stream_type=ext)
+                        except:
+                            if DEBUG:
+                                prints(traceback.format_exc(), file=sys.__stdout__)
+
         return self.device.upload_books(files, names, on_card,
                                         metadata=metadata, end_session=False)
 
@@ -495,7 +512,7 @@ class DeviceMenu(QMenu): # {{{
         self.connect_to_folder_action = mitem
 
         mitem = self.addAction(QIcon(I('devices/itunes.png')),
-                _('Connect to iTunes (EXPERIMENTAL)'))
+                _('Connect to iTunes'))
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
         self.connect_to_itunes_action = mitem
@@ -741,10 +758,8 @@ class DeviceMixin(object): # {{{
             self.refresh_ondevice_info (device_connected = True, reset_only = True)
         else:
             self.device_connected = None
+            self.status_bar.device_disconnected()
             self.location_view.model().update_devices()
-            self.vanity.setText(self.vanity_template%\
-                    dict(version=self.latest_version, device=' '))
-            self.device_info = ' '
             if self.current_view() != self.library_view:
                 self.book_details.reset_info()
                 self.location_view.setCurrentIndex(self.location_view.model().index(0))
@@ -758,10 +773,7 @@ class DeviceMixin(object): # {{{
             return self.device_job_exception(job)
         info, cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
-        self.device_info = _('Connected ')+info[0]
-        self.vanity.setText(self.vanity_template%\
-                dict(version=self.latest_version, device=self.device_info))
-
+        self.status_bar.device_connected(info[0])
         self.device_manager.books(Dispatcher(self.metadata_downloaded))
 
     def metadata_downloaded(self, job):
@@ -1145,7 +1157,6 @@ class DeviceMixin(object): # {{{
 
         _files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
                                     settings.format_map,
-                                    set_metadata=True,
                                     specific_format=specific_format,
                                     exclude_auto=do_auto_convert)
         if do_auto_convert:
@@ -1416,7 +1427,6 @@ class DeviceMixin(object): # {{{
         # the application_id, which is really the db key, but as this can
         # accidentally match across libraries we also verify the title. The
         # db_id exists on Sony devices. Fallback is title and author match
-        resend_metadata = False
         for booklist in booklists:
             for book in booklist:
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
@@ -1433,12 +1443,10 @@ class DeviceMixin(object): # {{{
                     if getattr(book, 'application_id', None) in d['db_ids']:
                         book.in_library = True
                         book.smart_update(d['db_ids'][book.application_id])
-                        resend_metadata = True
                         continue
                     if book.db_id in d['db_ids']:
                         book.in_library = True
                         book.smart_update(d['db_ids'][book.db_id])
-                        resend_metadata = True
                         continue
                     if book.authors:
                         # Compare against both author and author sort, because
@@ -1448,21 +1456,13 @@ class DeviceMixin(object): # {{{
                         if book_authors in d['authors']:
                             book.in_library = True
                             book.smart_update(d['authors'][book_authors])
-                            resend_metadata = True
                         elif book_authors in d['author_sort']:
                             book.in_library = True
                             book.smart_update(d['author_sort'][book_authors])
-                            resend_metadata = True
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
                 if not asort and book.authors:
                     book.author_sort = self.library_view.model().db.author_sort_from_authors(book.authors)
-                    resend_metadata = True
-
-        if resend_metadata:
-            # Correct the metadata cache on device.
-            if self.device_manager.is_device_connected:
-                self.device_manager.sync_booklists(None, booklists)
 
     # }}}
 

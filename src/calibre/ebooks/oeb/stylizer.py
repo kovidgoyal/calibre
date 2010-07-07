@@ -25,10 +25,17 @@ from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import XPNSMAP, xpath, urlnormalize
 from calibre.ebooks.oeb.profile import PROFILES
 
-html_css = open(P('templates/html.css'), 'rb').read()
+_html_css_stylesheet = None
+
+def html_css_stylesheet():
+    global _html_css_stylesheet
+    if _html_css_stylesheet is None:
+        html_css = open(P('templates/html.css'), 'rb').read()
+        _html_css_stylesheet = cssutils.parseString(html_css)
+        _html_css_stylesheet.namespaces['h'] = XHTML_NS
+    return _html_css_stylesheet
+
 XHTML_CSS_NAMESPACE = '@namespace "%s";\n' % XHTML_NS
-HTML_CSS_STYLESHEET = cssutils.parseString(html_css)
-HTML_CSS_STYLESHEET.namespaces['h'] = XHTML_NS
 
 INHERITED = set(['azimuth', 'border-collapse', 'border-spacing',
                  'caption-side', 'color', 'cursor', 'direction', 'elevation',
@@ -120,7 +127,7 @@ class Stylizer(object):
         item = oeb.manifest.hrefs[path]
         basename = os.path.basename(path)
         cssname = os.path.splitext(basename)[0] + '.css'
-        stylesheets = [HTML_CSS_STYLESHEET]
+        stylesheets = [html_css_stylesheet()]
         head = xpath(tree, '/h:html/h:head')
         if head:
             head = head[0]

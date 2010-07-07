@@ -7,7 +7,7 @@ class AdvancedUserRecipe1277228948(BasicNewsRecipe):
 
     __author__            = 'rty'
     __version__            = '1.0'
-    language = 'zh_CN'
+    language = 'zh'
     pubisher  = 'www.chinapressusa.com'
     description           = 'Overseas Chinese Network Newspaper in the USA'
     category              = 'News in Chinese, USA'

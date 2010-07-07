@@ -238,7 +238,7 @@ class RecursiveFetcher(object):
         soup = BeautifulSoup(u'<a href="'+url+'" />')
         self.log.debug('Downloading')
         res = self.process_links(soup, url, 0, into_dir='')
-        self.log.debug('%s saved to %s'%( url, res))
+        self.log.debug(url, 'saved to', res)
         return res
 
     def is_link_ok(self, url):
@@ -281,7 +281,7 @@ class RecursiveFetcher(object):
                 try:
                     data = self.fetch_url(iurl)
                 except Exception:
-                    self.log.exception('Could not fetch stylesheet %s'% iurl)
+                    self.log.exception('Could not fetch stylesheet ', iurl)
                     continue
                 stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
                 with self.stylemap_lock:
@@ -304,7 +304,7 @@ class RecursiveFetcher(object):
                         try:
                             data = self.fetch_url(iurl)
                         except Exception:
-                            self.log.exception('Could not fetch stylesheet %s'% iurl)
+                            self.log.exception('Could not fetch stylesheet ', iurl)
                             continue
                         c += 1
                         stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
@@ -337,7 +337,7 @@ class RecursiveFetcher(object):
                     # Skip empty GIF files as PIL errors on them anyway
                     continue
             except Exception:
-                self.log.exception('Could not fetch image %s'% iurl)
+                self.log.exception('Could not fetch image ', iurl)
                 continue
             c += 1
             fname = ascii_filename('img'+str(c))
@@ -423,7 +423,7 @@ class RecursiveFetcher(object):
                     newbaseurl = dsrc.newurl
                     if len(dsrc) == 0 or \
                        len(re.compile('<!--.*?-->', re.DOTALL).sub('', dsrc).strip()) == 0:
-                        raise ValueError('No content at URL %s'%iurl)
+                        raise ValueError('No content at URL %r'%iurl)
                     if callable(self.encoding):
                         dsrc = self.encoding(dsrc)
                     elif self.encoding is not None:

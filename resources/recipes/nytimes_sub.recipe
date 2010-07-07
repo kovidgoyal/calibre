@@ -76,6 +76,7 @@ class NYTimes(BasicNewsRecipe):
                             'relatedSearchesModule',
                             'side_tool',
                             'singleAd',
+                            'subNavigation clearfix',
                             'subNavigation tabContent active',
                             'subNavigation tabContent active clearfix',
                             ]}),
@@ -335,7 +336,7 @@ class NYTimes(BasicNewsRecipe):
                         self.log(">>> No class:'columnGroup  first' found <<<")
         # Change class="kicker" to <h3>
         kicker = soup.find(True, {'class':'kicker'})
-        if kicker and kicker.contents[0]:
+        if kicker and kicker.contents and kicker.contents[0]:
             h3Tag = Tag(soup, "h3")
             h3Tag.insert(0, self.fixChars(self.tag_to_string(kicker,
                              use_alt=False)))
@@ -350,8 +351,10 @@ class NYTimes(BasicNewsRecipe):
                 if mp_off >= 0:
                     c = c[:mp_off]
                 emTag.insert(0, c)
-                hrTag = Tag(soup, 'hr')
-                #hrTag['style'] = "margin-top:0em;margin-bottom:0em"
+                #hrTag = Tag(soup, 'hr')
+                #hrTag['class'] = 'caption_divider'
+                hrTag = Tag(soup, 'div')
+                hrTag['class'] = 'divider'
                 emTag.insert(1, hrTag)
                 caption.replaceWith(emTag)
 
@@ -457,8 +460,10 @@ class NYTimes(BasicNewsRecipe):
                         return self.massageNCXText(self.tag_to_string(p,use_alt=False))
                 return None
 
-        article.author = extract_author(soup)
-        article.summary = article.text_summary = extract_description(soup)
+        if not article.author:
+            article.author = extract_author(soup)
+        if not article.summary:
+            article.summary = article.text_summary = extract_description(soup)
 
     def strip_anchors(self,soup):
         paras = soup.findAll(True)
