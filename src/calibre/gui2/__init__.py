@@ -592,8 +592,11 @@ def open_url(qurl):
 
 
 def open_local_file(path):
-    url = QUrl.fromLocalFile(path)
-    open_url(url)
+    if iswindows:
+        os.startfile(os.path.normpath(path))
+    else:
+        url = QUrl.fromLocalFile(path)
+        open_url(url)
 
 def is_ok_to_use_qt():
     global gui_thread, _store_app
