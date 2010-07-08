@@ -546,7 +546,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         '''
         MSG = _('is the result of the efforts of many volunteers from all '
                 'over the world. If you find it useful, please consider '
-                'donating to support its development.')
+                'donating to support its development. Your donation helps '
+                'keep calibre development going.')
         HTML = u'''
         <html>
             <head>
