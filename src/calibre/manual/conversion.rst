@@ -504,7 +504,7 @@ Meaning, it is very difficult to determine where one paragraph ends and another 
 paragraphs using a configurable, :guilabel:`Line Un-Wrapping Factor`. This is a scale used to determine the length
 at which a line should be unwrapped. Valid values are a decimal
 between 0 and 1. The default is 0.5, this is the median line length. Lower this value to include more
-text in the unwrapping. Increase to include less.
+text in the unwrapping. Increase to include less. You can adjust this value in the conversion settings under PDF Input.
 
 Also, they often have headers and footers as part of the document that will become included with the text.
 Use the options to remove headers and footers to mitigate this issue. If the headers and footers are not
