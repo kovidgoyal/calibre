@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-03 01:21+0000\n"
-"PO-Revision-Date: 2010-07-03 10:14+0000\n"
+"PO-Revision-Date: 2010-07-07 13:36+0000\n"
 "Last-Translator: MeltingShell <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-04 03:44+0000\n"
+"X-Launchpad-Export-Date: 2010-07-08 03:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -380,7 +380,7 @@ msgstr "Inteso per iPad e simili dispositivi con una risoluzione di 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:425
 msgid "This profile is intended for the Kobo Reader."
-msgstr "Questo profilo e' inteso per il dispositivo Kobo Reader"
+msgstr "Questo profilo è pensato per il dispositivo Kobo Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:438
 msgid "This profile is intended for the SONY PRS-300."
@@ -1248,11 +1248,11 @@ msgid ""
 "fonts in the output bigger and vice versa. By default, the base font size is "
 "chosen based on the output profile you chose."
 msgstr ""
-"Dimensione base dei Font in pts. Tutte le dimensioni dei Font nel libro "
-"prodotto saranno scalate in base a questa dimensione. Scegliendo una "
-"dimensione maggiore si possono ottenere fonts piu' grandi nell'output e "
-"viceversa. Per default, la dimensione base dei Font e' scelta in base al "
-"profilo scelto"
+"Dimensione base dei caratteri in punti. Tutte le dimensioni dei caratteri "
+"nel libro prodotto saranno scalate in base a questa dimensione. Scegliendo "
+"una dimensione maggiore si possono ottenere caratteri piu' grandi "
+"nell'output e viceversa. Per default, la dimensione base dei caratteri è "
+"scelta in base al profilo scelto."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:143
 msgid ""
@@ -1417,29 +1417,29 @@ msgstr ""
 msgid ""
 "Set the top margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Imposta il margine superiore in pts. Il default e' %default. Nota: 72 pts "
-"equivalgono a 1 inch (circa (2,54 cm)"
+"Imposta il margine superiore in punti. Il default è %default. Nota: 72 punti "
+"equivalgono a 1 pollice (circa 2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:290
 msgid ""
 "Set the bottom margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Imposta il margine inferiore in pts. Il default e' %default. Nota: 72 pts "
-"equivalgono a 1 inch (circa (2,54 cm)"
+"Imposta il margine inferiore in punti. Il default è %default. Nota: 72 punti "
+"equivalgono a 1 pollice (circa 2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:295
 msgid ""
 "Set the left margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Imposta il margine sinistro in pts. Il default e' %default. Nota: 72 pts "
-"equivalgono a 1 inch (circa (2,54 cm)"
+"Imposta il margine sinistro in punti. Il default è %default. Nota: 72 punti "
+"equivalgono a 1 pollice (circa 2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:300
 msgid ""
 "Set the right margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Imposta il margine destro in pts. Il default e' %default. Nota: 72 pts "
-"equivalgono a 1 inch (circa (2,54 cm)"
+"Imposta il margine destro in punti. Il default è %default. Nota: 72 punti "
+"equivalgono a 1 pollice (circa 2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:306
 msgid ""
@@ -1497,7 +1497,7 @@ msgid ""
 "the source file is a cover and you are specifying an external cover."
 msgstr ""
 "Rimuovi la prima immagine dall'ebook di input. Utile se la prima immagine "
-"del file sorgente e' una copertina e si sta indicando una copertina esterna."
+"del file sorgente è una copertina e si sta indicando una copertina esterna."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:351
 msgid ""
@@ -1513,7 +1513,7 @@ msgid ""
 "source file. This may make things worse, so use with care."
 msgstr ""
 "Cerca di individuare e correggere le interruzioni di linea forzate ed altri "
-"problemi nel file sorgente. Usare con cautela perche' potrebbe peggiorare la "
+"problemi nel file sorgente. Usare con cautela perché potrebbe peggiorare la "
 "situazione."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:367
@@ -1587,11 +1587,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:437
 msgid "The version of the title to be used for sorting. "
-msgstr "la versione del titolo che sara' usata per l'ordinamento. "
+msgstr "La versione del titolo da usare per l'ordinamento. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:441
 msgid "String to be used when sorting by author. "
-msgstr "Stinga che sara' usata quando si ordina per autore. "
+msgstr "Stringa da usare nell'ordinamento per autore. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:445
 msgid "Set the cover to the specified file or URL"
@@ -1708,9 +1708,9 @@ msgid ""
 "most EPUB readers cannot handle large file sizes. The default of %defaultKB "
 "is the size required for Adobe Digital Editions."
 msgstr ""
-"Suddivide tutti i file HTML piu' grandi di questa dimensione (in KB). Cio' "
-"e' necessario perche' la maggioranza dei lettori EPUB non gestisce file di "
-"grandi dimensioni. Il default di %defaultKB e' la dimensione richiesta per "
+"Suddivide tutti i file HTML più grandi di questa dimensione (in KB). È "
+"necessario perché la maggioranza dei lettori EPUB non gestisce file di "
+"grandi dimensioni. Il default di %defaultKB è la dimensione richiesta per "
 "Adobe Digital Editions."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:80
@@ -2009,8 +2009,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:104
 msgid "Add extra spacing below the header. Default is %default pt."
 msgstr ""
-"Aggiunge spazio extra sotto l'intestazione. Il valore di default e' %default "
-"pt."
+"Aggiunge spazio extra sotto l'intestazione. Il valore di default è %default "
+"punti."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:107
 msgid ""
@@ -2189,18 +2189,16 @@ msgid ""
 "The version of the title to be used for sorting. If unspecified, and the "
 "title is specified, it will be auto-generated from the title."
 msgstr ""
-"La versione del titolo che sara' usata nell'ordinamento. Se non viene "
-"specificata e il titolo e' specificato, la versione verra' autogenerata dal "
-"titolo."
+"La versione del titolo da usare per l'ordinamento. Se non specificata, la "
+"versione verrà generata automaticamente dal titolo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:48
 msgid ""
 "String to be used when sorting by author. If unspecified, and the author(s) "
 "are specified, it will be auto-generated from the author(s)."
 msgstr ""
-"La stringa che sara' usata nell'ordinamento per autore. Se non viene "
-"specificata e l'autore e' specificato, la versione verra' autogenerata dal "
-"nome dell'autore."
+"La stringa che verrà usata nell'ordinamento per autore. Se non specificata, "
+"essa verrà generata automaticamente dal nome dell'autore."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:52
 msgid "Set the cover to the specified file."
@@ -2358,7 +2356,7 @@ msgstr "L'editore del libro da cercare"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:68
 msgid "LibraryThing.com timed out. Try again later."
-msgstr "Tempo di attesa per LibraryThing.com terminato. Riprovare più tardi."
+msgstr "Connessione con LibraryThing.com scaduta. Riprovare più tardi."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:75
 msgid ""
@@ -2550,8 +2548,8 @@ msgid ""
 "it will assume that every line represents a paragraph instead."
 msgstr ""
 "Normalmente Calibre considera linee vuote come segnale per terminare i "
-"paragrafi. Con questa opzione si assumera' che tutte le linee saranno "
-"trattate come paragrafi."
+"paragrafi. Con questa opzione si assumerà che ogni linea rappresenti un "
+"paragrafo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:27
@@ -3339,7 +3337,7 @@ msgstr "metadati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:631
 msgid "Downloading %s for %d book(s)"
-msgstr "Scaricamento %s per %d libri"
+msgstr "Scaricamento %s per %d libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:655
 msgid "Failed to download some metadata"
@@ -3480,7 +3478,7 @@ msgstr "Impossibile convertire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:1088
 msgid "Starting conversion of %d book(s)"
-msgstr "Conversione di %d libro(i) avviata"
+msgstr "Conversione di %d libri avviata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:1204
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:1265
@@ -4780,8 +4778,8 @@ msgid ""
 "advanced formatting. To learn more visit <a "
 "href=\"http://daringfireball.net/projects/markdown\">markdown</a>."
 msgstr ""
-"<p>Markdown e' un semplice linguaggio markup per documenti di testo che "
-"permette formattazione avanzata. Per maggiori informazioni andate su <a "
+"<p>Markdown è un semplice linguaggio markup per documenti di testo che "
+"permette la formattazione avanzata. Per maggiori informazioni visitare <a "
 "href=\"http://daringfireball.net/projects/markdown\">markdown</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:51
@@ -5317,7 +5315,7 @@ msgstr "&Titolo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:93
 msgid "&Author(s):"
-msgstr "&Autore(i)"
+msgstr "&Autore(i):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:95
 msgid "&Profile:"
@@ -5874,7 +5872,7 @@ msgstr "Piccola"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:584
 msgid "&Button size in toolbar"
-msgstr "&Dimensione bottoni nella barra degli strumenti"
+msgstr "&Dimensione dei pulsanti nella barra degli strumenti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:585
 msgid "Show &text in toolbar buttons"
@@ -8043,7 +8041,7 @@ msgstr "Se siete certi che l'operzione non é in corso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:285
 msgid "Cannot Start "
-msgstr "Non e' possibile incominciare "
+msgstr "Impossibile iniziare "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:286
 msgid "%s is already running."
@@ -8263,7 +8261,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:355
 msgid "Search (For Advanced Search click the button to the left)"
-msgstr "Cerca (Per la ricerca avanzata fare clic sul bottone a sinistra)"
+msgstr "Cerca (Per la ricerca avanzata fare clic sul pulsante di sinistra)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:392
 msgid "Saved Searches"
@@ -10188,7 +10186,7 @@ msgstr "Compattazione database"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1909
 msgid "Checking SQL integrity..."
-msgstr "Controllo di integrita' SQL..."
+msgstr "Controllo di integrità SQL..."
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1950
 msgid "Checking for missing files."
