@@ -1071,8 +1071,13 @@ class ZipFile:
 
         # Create all upper directories if necessary.
         upperdirs = os.path.dirname(targetpath)
-        if upperdirs and os.path.exists(upperdirs) and not os.path.isdir(upperdirs):
-            os.unlink(upperdirs)
+        while upperdirs:
+            if os.path.exists(upperdirs):
+                if os.path.isdir(upperdirs):
+                    break
+                os.remove(upperdirs)
+            upperdirs = os.path.dirname(upperdirs)
+        upperdirs = os.path.dirname(targetpath)
         if upperdirs and not os.path.exists(upperdirs):
             os.makedirs(upperdirs)
 
