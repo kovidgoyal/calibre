@@ -227,13 +227,13 @@ class KOBO(USBMS):
                 #print "kobo book"
                 ContentType = 6
                 ContentID = self.contentid_from_path(path, ContentType)
-            if extension == '.pdf' or extension == '.epub':
+            elif extension == '.pdf' or extension == '.epub':
                 # print "ePub or pdf"
                 ContentType = 16
                 #print "Path: " + path
                 ContentID = self.contentid_from_path(path, ContentType)
                 # print "ContentID: " + ContentID
-            if extension == '.html':
+            else: # if extension == '.html' or extension == '.txt':
                 ContentType = 999 # Yet another hack: to get around Kobo changing how ContentID is stored
                 ContentID = self.contentid_from_path(path, ContentType)
                  
