@@ -16,6 +16,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.fetch import MetadataSource
 from calibre.utils.config import make_config_dir, Config, ConfigProxy, \
                                  plugin_dir, OptionParser, prefs
+from calibre.ebooks.epub.fix import ePubFixer
 
 
 platform = 'linux'
@@ -193,7 +194,6 @@ def plugin_customization(plugin):
     return config['plugin_customization'].get(plugin.name, '')
 
 # }}}
-
 
 # Input/Output profiles {{{
 def input_profiles():
@@ -444,6 +444,14 @@ def device_plugins(): # {{{
                     yield plugin
 # }}}
 
+# epub fixers {{{
+def epub_fixers():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, ePubFixer):
+            if not is_disabled(plugin):
+                if platform in plugin.supported_platforms:
+                    yield plugin
+# }}}
 
 # Initialize plugins {{{
 

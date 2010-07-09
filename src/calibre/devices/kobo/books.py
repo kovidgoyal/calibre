@@ -54,7 +54,8 @@ class Book(MetaInformation):
         except:
              self.datetime = time.gmtime()
 
-        self.thumbnail = ImageWrapper(thumbnail_name)
+	if thumbnail_name is not None:
+	    self.thumbnail = ImageWrapper(thumbnail_name)
         self.tags = []
         if other:
             self.smart_update(other)

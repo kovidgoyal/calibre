@@ -10,6 +10,7 @@ from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces
+from calibre import _ent_pat, xml_entity_to_unicode
 
 class TXTInput(InputFormatPlugin):
 
@@ -54,6 +55,8 @@ class TXTInput(InputFormatPlugin):
             txt = separate_paragraphs_print_formatted(txt)
         if options.preserve_spaces:
             txt = preserve_spaces(txt)
+
+        txt = _ent_pat.sub(xml_entity_to_unicode, txt)
 
         if options.markdown:
             log.debug('Running text though markdown conversion...')
