@@ -85,9 +85,11 @@ class KOBO(USBMS):
 
                 idx = bl_cache.get(lpath, None)
                 if idx is not None:
-                    imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - NickelBookCover.parsed')
-                    #print "Image name Normalized: " + imagename
-                    bl[idx].thumbnail = ImageWrapper(imagename)
+                    if ImageID is not None:
+                        imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - NickelBookCover.parsed')
+                        #print "Image name Normalized: " + imagename
+                        if imagename is not None:
+                            bl[idx].thumbnail = ImageWrapper(imagename)
                     bl_cache[lpath] = None
                     if ContentType != '6':
                         if self.update_metadata_item(bl[idx]):
@@ -341,6 +343,7 @@ class KOBO(USBMS):
             else:
                 # if path.startswith("file:///mnt/onboard/"):
                 path = path.replace("file:///mnt/onboard/", self._main_prefix)
+                path = path.replace("/mnt/onboard/", self._main_prefix)
                     # print "Internal: " + filename
 
         return path
