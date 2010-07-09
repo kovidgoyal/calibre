@@ -264,7 +264,7 @@ class BasicNewsRecipe(Recipe):
             }
 
             .article_description {
-                font-family: sans; text-indent: 0pt;
+                text-indent: 0pt;
             }
 
             a.article {
