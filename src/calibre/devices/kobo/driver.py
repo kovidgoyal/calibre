@@ -233,6 +233,10 @@ class KOBO(USBMS):
                 #print "Path: " + path
                 ContentID = self.contentid_from_path(path, ContentType)
                 # print "ContentID: " + ContentID
+            if extension == '.html':
+                ContentType = 999 # Yet another hack: to get around Kobo changing how ContentID is stored
+                ContentID = self.contentid_from_path(path, ContentType)
+                 
             ImageID = self.delete_via_sql(ContentID, ContentType)
             #print " We would now delete the Images for" + ImageID
             self.delete_images(ImageID)
@@ -316,6 +320,11 @@ class KOBO(USBMS):
             ContentID = ContentID.replace(self._main_prefix, '')
             if self._card_a_prefix is not None:
                 ContentID = ContentID.replace(self._card_a_prefix, '')
+        elif ContentType == 999: # HTML Files
+            ContentID = path
+            ContentID = ContentID.replace(self._main_prefix, "/mnt/onboard/")
+            if self._card_a_prefix is not None:
+                ContentID = ContentID.replace(self._card_a_prefix, "/mnt/sd/")
         else: # ContentType = 16
             ContentID = path
             ContentID = ContentID.replace(self._main_prefix, "file:///mnt/onboard/")
