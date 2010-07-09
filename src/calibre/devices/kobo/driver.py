@@ -176,23 +176,22 @@ class KOBO(USBMS):
             ImageID = row[0]
         cursor.close()
 
+        cursor = connection.cursor()
+        if ContentType == 6:
+            # Delete the shortcover_pages first
+            cursor.execute('delete from shortcover_page where shortcoverid in (select ContentID from content where BookID = ?)', t)
+
+        #Delete the volume_shortcovers second
+        cursor.execute('delete from volume_shortcovers where volumeid = ?', t)
+
+        # Delete the chapters associated with the book next
+        t = (ContentID,ContentID,)
+        cursor.execute('delete from content where BookID  = ? or ContentID = ?', t)
+
+        connection.commit()
+
+        cursor.close()
         if ImageID != None:
-            cursor = connection.cursor()
-            if ContentType == 6:
-                # Delete the shortcover_pages first
-                cursor.execute('delete from shortcover_page where shortcoverid in (select ContentID from content where BookID = ?)', t)
-
-            #Delete the volume_shortcovers second
-            cursor.execute('delete from volume_shortcovers where volumeid = ?', t)
-
-            # Delete the chapters associated with the book next
-            t = (ContentID,ContentID,)
-            cursor.execute('delete from content where BookID  = ? or ContentID = ?', t)
-
-            connection.commit()
-
-            cursor.close()
-        else:
             print "Error condition ImageID was not found"
             print "You likely tried to delete a book that the kobo has not yet added to the database"
 
