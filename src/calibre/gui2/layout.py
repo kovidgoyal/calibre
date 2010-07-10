@@ -49,7 +49,7 @@ class ToolBar(QToolBar): # {{{
 
 # Location View {{{
 
-class LocationModel(QAbstractListModel):
+class LocationModel(QAbstractListModel): # {{{
 
     devicesChanged = pyqtSignal()
 
@@ -160,6 +160,8 @@ class LocationModel(QAbstractListModel):
         if row == 3: return 'cardb'
         return 'carda' if self.free[1] > -1 else 'cardb'
 
+# }}}
+
 class LocationView(QListView):
 
     unmount_device = pyqtSignal()
@@ -194,6 +196,7 @@ class LocationView(QListView):
         self.setViewMode(self.ListMode)
         self.setWordWrap(True)
         self.setObjectName("location_view")
+        self.setMaximumHeight(74)
 
     def eject_clicked(self, *args):
         self.unmount_device.emit()
@@ -359,8 +362,7 @@ class LocationBar(QWidget): # {{{
         self._layout.addWidget(donate)
 
         self._layout.insertWidget(3, location_view)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.setMaximumHeight(but.sizeHint().height()+5)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
 
     def button_for_action(self, ac):
         b = QToolButton(self)
