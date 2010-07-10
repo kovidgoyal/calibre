@@ -22,6 +22,7 @@ class ToolBar(QToolBar): # {{{
         QToolBar.__init__(self, parent)
         self.setContextMenuPolicy(Qt.PreventContextMenu)
         self.setMovable(False)
+        self.setFloatable(False)
         self.setOrientation(Qt.Horizontal)
         self.setAllowedAreas(Qt.TopToolBarArea|Qt.BottomToolBarArea)
         self.setIconSize(QSize(48, 48))
@@ -348,29 +349,29 @@ class SearchBar(QWidget): # {{{
 
 # }}}
 
-class LocationBar(QWidget): # {{{
+class LocationBar(ToolBar): # {{{
 
     def __init__(self, actions, donate, location_view, parent=None):
-        QWidget.__init__(self, parent)
-        self._layout = QHBoxLayout()
-        self.setLayout(self._layout)
+        ToolBar.__init__(self, parent)
 
         for ac in actions:
-            but = self.button_for_action(ac)
-            self._layout.addWidget(but)
+            self.addAction(ac)
 
-        self._layout.addWidget(donate)
-
-        self._layout.insertWidget(3, location_view)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        self.addWidget(location_view)
+        self.w = QWidget()
+        self.w.setLayout(QVBoxLayout())
+        self.w.layout().addWidget(donate)
+        donate.setAutoRaise(True)
+        donate.setCursor(Qt.PointingHandCursor)
+        self.addWidget(self.w)
+        self.setIconSize(QSize(50, 50))
+        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
     def button_for_action(self, ac):
         b = QToolButton(self)
         b.setDefaultAction(ac)
         for x in ('ToolTip', 'StatusTip', 'WhatsThis'):
             getattr(b, 'set'+x)(b.text())
-        b.setIconSize(QSize(50, 50))
-        b.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         return b
 # }}}
