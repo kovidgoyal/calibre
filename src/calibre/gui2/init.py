@@ -409,7 +409,8 @@ class StatusBar(QStatusBar): # {{{
         self.clearMessage()
 
     def message_changed(self, msg):
-        if not msg or msg.isEmpty() or msg.isNull():
+        if not msg or msg.isEmpty() or msg.isNull() or \
+                not unicode(msg).strip():
             extra = ''
             if self.device_string:
                 extra = ' ..::.. ' + self.device_string

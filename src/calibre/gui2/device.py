@@ -33,6 +33,7 @@ from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
+from calibre.utils.config import prefs
 
 # }}}
 
@@ -1424,19 +1425,24 @@ class DeviceMixin(object): # {{{
                     aus = re.sub('(?u)\W|[_]', '', aus)
                     self.db_book_title_cache[title]['author_sort'][aus] = mi
                 self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
-                self.db_book_uuid_cache[mi.uuid] = mi.application_id
+                self.db_book_uuid_cache[mi.uuid] = mi
 
         # Now iterate through all the books on the device, setting the
         # in_library field Fastest and most accurate key is the uuid. Second is
         # the application_id, which is really the db key, but as this can
         # accidentally match across libraries we also verify the title. The
         # db_id exists on Sony devices. Fallback is title and author match
+
+        update_metadata = prefs['manage_device_metadata'] == 'on_connect'
         for booklist in booklists:
             for book in booklist:
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
+                    if update_metadata:
+                        book.smart_update(self.db_book_uuid_cache[book.uuid])
                     book.in_library = True
                     # ensure that the correct application_id is set
-                    book.application_id = self.db_book_uuid_cache[book.uuid]
+                    book.application_id = \
+                        self.db_book_uuid_cache[book.uuid].application_id
                     continue
 
                 book_title = book.title.lower() if book.title else ''
@@ -1446,11 +1452,13 @@ class DeviceMixin(object): # {{{
                 if d is not None:
                     if getattr(book, 'application_id', None) in d['db_ids']:
                         book.in_library = True
-                        book.smart_update(d['db_ids'][book.application_id])
+                        if update_metadata:
+                            book.smart_update(d['db_ids'][book.application_id])
                         continue
                     if book.db_id in d['db_ids']:
                         book.in_library = True
-                        book.smart_update(d['db_ids'][book.db_id])
+                        if update_metadata:
+                            book.smart_update(d['db_ids'][book.db_id])
                         continue
                     if book.authors:
                         # Compare against both author and author sort, because
@@ -1459,14 +1467,19 @@ class DeviceMixin(object): # {{{
                         book_authors = re.sub('(?u)\W|[_]', '', book_authors)
                         if book_authors in d['authors']:
                             book.in_library = True
-                            book.smart_update(d['authors'][book_authors])
+                            if update_metadata:
+                                book.smart_update(d['authors'][book_authors])
                         elif book_authors in d['author_sort']:
                             book.in_library = True
-                            book.smart_update(d['author_sort'][book_authors])
+                            if update_metadata:
+                                book.smart_update(d['author_sort'][book_authors])
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
                 if not asort and book.authors:
                     book.author_sort = self.library_view.model().db.author_sort_from_authors(book.authors)
 
+        if update_metadata:
+            if self.device_manager.is_device_connected:
+                self.device_manager.sync_booklists(None, booklists)
     # }}}
 

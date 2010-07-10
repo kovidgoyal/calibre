@@ -944,7 +944,7 @@ class DeviceBooksModel(BooksModel): # {{{
                     (cname == 'collections' and \
                      callable(getattr(self.db, 'supports_collections', None)) and \
                      self.db.supports_collections() and \
-                     prefs['preserve_user_collections']):
+                     prefs['manage_device_metadata']=='manual'):
                 flags |= Qt.ItemIsEditable
         return flags
 
