@@ -1,4 +1,3 @@
-__license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Miscellaneous widgets used in the GUI
@@ -546,8 +545,7 @@ class ComboBoxWithHelp(QComboBox):
     '''
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
-        self.normal_background = 'rgb(255, 255, 255, 0%)'
-        self.connect(self, SIGNAL('currentIndexChanged(int)'), self.index_changed)
+        self.currentIndexChanged[int].connect(self.index_changed)
         self.help_text = ''
         self.state_set = False
 
@@ -559,14 +557,10 @@ class ComboBoxWithHelp(QComboBox):
         if not self.state_set:
             if self.currentIndex() == 0:
                 self.setItemText(0, self.help_text)
-                self.setStyleSheet(
-                        'QComboBox { color: gray; background-color: %s; }' %
-                        self.normal_background)
+                self.setStyleSheet('QComboBox { color: gray }')
             else:
                 self.setItemText(0, '')
-                self.setStyleSheet(
-                        'QComboBox { color: black; background-color: %s; }' %
-                        self.normal_background)
+                self.setStyleSheet('QComboBox { color: black }')
 
     def index_changed(self, index):
         self.state_set = False

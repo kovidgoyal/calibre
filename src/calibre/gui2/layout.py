@@ -8,13 +8,13 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import QIcon, Qt, QWidget, QAction, QToolBar, QSize, QVariant, \
     QAbstractListModel, QFont, QApplication, QPalette, pyqtSignal, QToolButton, \
     QModelIndex, QListView, QAbstractButton, QPainter, QPixmap, QColor, \
-    QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QComboBox
+    QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout
 
 from calibre.constants import __appname__, filesystem_encoding
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
-from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2 import NONE
+from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre import human_readable
 
 class ToolBar(QToolBar): # {{{

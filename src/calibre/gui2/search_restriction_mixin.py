@@ -7,7 +7,7 @@ Created on 10 Jun 2010
 class SearchRestrictionMixin(object):
 
     def __init__(self):
-        self.search_restriction.initialize(help_text=_('Restrict To'))
+        self.search_restriction.initialize(help_text=_('Restrict to'))
         self.search_restriction.activated[int].connect(self.apply_search_restriction)
         self.library_view.model().count_changed_signal.connect(self.restriction_count_changed)
         self.search_restriction.setSizeAdjustPolicy(self.search_restriction.AdjustToMinimumContentsLengthWithIcon)
