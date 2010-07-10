@@ -444,9 +444,9 @@ class MainWindowMixin(object):
         self.search_bar = SearchBar(self)
         self.location_bar = LocationBar([self.action_add, self.action_sync,
             self.action_news], self.donate_button, self.location_view, self)
+        self.addToolBar(Qt.TopToolBarArea, self.location_bar)
 
         l = self.centralwidget.layout()
-        l.addWidget(self.location_bar)
         l.addWidget(self.search_bar)
 
         for ch in list(self.tool_bar.children()) + list(self.location_bar.children()):
