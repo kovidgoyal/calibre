@@ -123,17 +123,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLabel" name="restriction_label">
-        <property name="text">
-         <string>&amp;Restrict to:</string>
-        </property>
-        <property name="buddy">
-         <cstring>search_restriction</cstring>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="search_restriction">
+       <widget class="ComboBoxWithHelp" name="search_restriction">
         <property name="maximumSize">
          <size>
           <width>150</width>
@@ -542,6 +532,11 @@
    <class>SavedSearchBox</class>
    <extends>QComboBox</extends>
    <header>calibre.gui2.search_box</header>
+  </customwidget>
+  <customwidget>
+   <class>ComboBoxWithHelp</class>
+   <extends>QComboBox</extends>
+   <header>calibre.gui2.widgets</header>
   </customwidget>
   <customwidget>
    <class>ThrobbingButton</class>

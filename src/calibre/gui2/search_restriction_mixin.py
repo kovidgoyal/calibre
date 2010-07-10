@@ -7,7 +7,8 @@ Created on 10 Jun 2010
 class SearchRestrictionMixin(object):
 
     def __init__(self):
-        self.search_restriction.activated[str].connect(self.apply_search_restriction)
+        self.search_restriction.initialize(help_text=_('Restrict To'))
+        self.search_restriction.activated[int].connect(self.apply_search_restriction)
         self.library_view.model().count_changed_signal.connect(self.restriction_count_changed)
         self.search_restriction.setSizeAdjustPolicy(self.search_restriction.AdjustToMinimumContentsLengthWithIcon)
         self.search_restriction.setMinimumContentsLength(10)
@@ -27,8 +28,8 @@ class SearchRestrictionMixin(object):
         if self.restriction_in_effect:
             self.set_number_of_books_shown()
 
-    def apply_search_restriction(self, r):
-        r = unicode(r)
+    def apply_search_restriction(self, i):
+        r = unicode(self.search_restriction.currentText())
         if r is not None and r != '':
             self.restriction_in_effect = True
             restriction = 'search:"%s"'%(r)
