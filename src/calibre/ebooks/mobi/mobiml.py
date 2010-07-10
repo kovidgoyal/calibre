@@ -58,6 +58,7 @@ class FormatState(object):
         self.fsize = 3
         self.ids = set()
         self.valign = 'baseline'
+        self.nest = False
         self.italic = False
         self.bold = False
         self.strikethrough = False
@@ -233,9 +234,17 @@ class MobiMLizer(object):
                 inline = etree.SubElement(inline, XHTML('a'), href=href)
                 bstate.anchor = inline
             if valign == 'super':
-                inline = etree.SubElement(inline, XHTML('sup'))
+                parent = inline
+                if istate.nest and bstate.inline is not None:
+                    parent = bstate.inline
+                    istate.nest = False
+                inline = etree.SubElement(parent, XHTML('sup'))
             elif valign == 'sub':
-                inline = etree.SubElement(inline, XHTML('sub'))
+                parent = inline
+                if istate.nest and bstate.inline is not None:
+                    parent = bstate.inline
+                    istate.nest = False
+                inline = etree.SubElement(parent, XHTML('sub'))
             elif fsize != 3:
                 inline = etree.SubElement(inline, XHTML('font'),
                                           size=str(fsize))
@@ -343,8 +352,10 @@ class MobiMLizer(object):
             istate.family = 'serif'
         valign = style['vertical-align']
         if valign in ('super', 'text-top') or asfloat(valign) > 0:
+            istate.nest = istate.valign in ('sub', 'super')
             istate.valign = 'super'
         elif valign == 'sub'  or asfloat(valign) < 0:
+            istate.nest = istate.valign in ('sub', 'super')
             istate.valign = 'sub'
         else:
             istate.valign = 'baseline'

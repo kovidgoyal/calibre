@@ -70,7 +70,10 @@ class EmbeddedContent(Template):
             div.text = elements[0]
             elements = list(elements)[1:]
         for elem in elements:
-            elem.getparent().remove(elem)
+            if hasattr(elem, 'getparent'):
+                elem.getparent().remove(elem)
+            else:
+                elem = SPAN(elem)
             div.append(elem)
 
 class IndexTemplate(Template):

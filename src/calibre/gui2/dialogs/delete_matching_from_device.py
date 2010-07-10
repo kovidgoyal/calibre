@@ -66,7 +66,7 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
 
         self.explanation.setText('<p>'+_('All checked books will be '
                                    '<b>permanently deleted</b> from your '
-                                   'device. Please verify the list.'+'</p>'))
+                                   'device. Please verify the list.')+'</p>')
         self.buttonBox.accepted.connect(self.accepted)
         self.table.cellClicked.connect(self.cell_clicked)
         self.table.setSelectionMode(QAbstractItemView.NoSelection)
