@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import functools, sys, os
 
-from PyQt4.Qt import QMenu, Qt, pyqtSignal, QToolButton, QIcon, QStackedWidget, \
+from PyQt4.Qt import QMenu, Qt, pyqtSignal, QIcon, QStackedWidget, \
         QSize, QSizePolicy, QStatusBar, QUrl, QLabel, QFont
 
 from calibre.utils.config import prefs
@@ -172,20 +172,6 @@ class ToolbarMixin(object): # {{{
         self.preferences_menu = pm
         for x in (self.preferences_action, self.action_preferences):
             x.triggered.connect(self.do_config)
-
-        for x in ('news', 'edit', 'sync', 'convert', 'save', 'add', 'view',
-                'del', 'preferences'):
-            w = self.tool_bar.widgetForAction(getattr(self, 'action_'+x))
-            w.setPopupMode(w.MenuButtonPopup)
-
-        self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
-
-        for ch in self.tool_bar.children():
-            if isinstance(ch, QToolButton):
-                ch.setCursor(Qt.PointingHandCursor)
-                ch.setStatusTip(ch.toolTip())
-
-        self.tool_bar.contextMenuEvent = self.no_op
 
     def show_help(self, *args):
         open_url(QUrl('http://calibre-ebook.com/user_manual'))
@@ -435,8 +421,6 @@ class StatusBar(QStatusBar): # {{{
 class LayoutMixin(object): # {{{
 
     def __init__(self):
-        self.setupUi(self)
-        self.setWindowTitle(__appname__)
 
         if config['gui_layout'] == 'narrow': # narrow {{{
             self.book_details = BookDetails(False, self)
