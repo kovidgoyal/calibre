@@ -15,6 +15,7 @@ from calibre.customize.conversion import OptionRecommendation
 from calibre.ebooks.conversion.config import load_defaults, \
         save_defaults as save_defaults_, \
     load_specifics, GuiRecommendations
+from calibre import prepare_string_for_xml
 
 class Widget(QWidget):
 
@@ -145,8 +146,10 @@ class Widget(QWidget):
             help = help_provider(name)
             if not help: continue
             g._help = help
-            g.setToolTip('\n'.join(w.wrap(help)))
-            g.setWhatsThis('\n'.join(w.wrap(help)))
+            htext = u'<div>%s</div>'%prepare_string_for_xml(
+                    '\n'.join(w.wrap(help)))
+            g.setToolTip(htext)
+            g.setWhatsThis(htext)
             g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
 
 

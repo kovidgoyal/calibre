@@ -56,6 +56,8 @@ def init_qt(args):
 
 def get_default_library_path():
     fname = _('Calibre Library')
+    if iswindows:
+        fname = 'Calibre Library'
     if isinstance(fname, unicode):
         try:
             fname = fname.encode(filesystem_encoding)

@@ -84,7 +84,7 @@ class EPUBOutput(OutputFormatPlugin):
 
         OptionRecommendation(name='no_svg_cover', recommended_value=False,
             help=_('Do not use SVG for the book cover. Use this option if '
-                'your EPUB is going to be used ona  device that does not '
+                'your EPUB is going to be used on a device that does not '
                 'support SVG, like the iPhone or the JetBook Lite. '
                 'Without this option, such devices will display the cover '
                 'as a blank page.')
@@ -380,10 +380,9 @@ class EPUBOutput(OutputFormatPlugin):
                     sel = '.'+lb.get('class')
                     for rule in stylesheet.data.cssRules.rulesOfType(CSSRule.STYLE_RULE):
                         if sel == rule.selectorList.selectorText:
-                            val = rule.style.removeProperty('margin-left')
-                            pval = rule.style.getProperty('padding-left')
-                            if val and not pval:
-                                rule.style.setProperty('padding-left', val)
+                            rule.style.removeProperty('margin-left')
+                            # padding-left breaks rendering in webkit and gecko
+                            rule.style.removeProperty('padding-left')
 
     # }}}
 

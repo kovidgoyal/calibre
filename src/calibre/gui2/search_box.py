@@ -6,6 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import re
+
 from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, \
                      pyqtSignal, SIGNAL, QObject, QDialog, QCompleter, \
                      QAction, QKeySequence
@@ -56,7 +58,8 @@ class SearchBox2(QComboBox):
     To use this class:
 
         * Call initialize()
-        * Connect to the search() and cleared() signals from this widget
+        * Connect to the search() and cleared() signals from this widget.
+        * Connect to the cleared() signal to know when the box content changes
         * Call search_done() after every search is complete
         * Use clear() to clear back to the help message
     '''
@@ -75,6 +78,7 @@ class SearchBox2(QComboBox):
                 type=Qt.DirectConnection)
         self.line_edit.mouse_released.connect(self.mouse_released,
                 type=Qt.DirectConnection)
+        self.activated.connect(self.history_selected)
         self.setEditable(True)
         self.help_state = False
         self.as_you_type = True
@@ -139,6 +143,9 @@ class SearchBox2(QComboBox):
 
     def key_pressed(self, event):
         self.normalize_state()
+        if self._in_a_search:
+            self.emit(SIGNAL('changed()'))
+            self._in_a_search = False
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             self.do_search()
         self.timer = self.startTimer(self.__class__.INTERVAL)
@@ -153,6 +160,10 @@ class SearchBox2(QComboBox):
         if event.timerId() == self.timer:
             self.timer = None
             self.do_search()
+
+    def history_selected(self, text):
+        self.emit(SIGNAL('changed()'))
+        self.do_search()
 
     @property
     def smart_text(self):
@@ -345,6 +356,7 @@ class SearchBoxMixin(object):
         self.search.initialize('main_search_history', colorize=True,
                 help_text=_('Search (For Advanced Search click the button to the left)'))
         self.connect(self.search, SIGNAL('cleared()'), self.search_box_cleared)
+        self.connect(self.search, SIGNAL('changed()'), self.search_box_changed)
         self.connect(self.clear_button, SIGNAL('clicked()'), self.search.clear)
         QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'),
                         self.do_advanced_search)
@@ -358,11 +370,18 @@ class SearchBoxMixin(object):
         self.action_focus_search.triggered.connect(lambda x:
                 self.search.setFocus(Qt.OtherFocusReason))
         self.addAction(self.action_focus_search)
+        self.search.setStatusTip(re.sub(r'<\w+>', ' ',
+            unicode(self.search.toolTip())))
+        self.advanced_search_button.setStatusTip(self.advanced_search_button.toolTip())
+        self.clear_button.setStatusTip(self.clear_button.toolTip())
 
     def search_box_cleared(self):
         self.tags_view.clear()
         self.saved_search.clear_to_help()
         self.set_number_of_books_shown()
+
+    def search_box_changed(self):
+        self.tags_view.clear()
 
     def do_advanced_search(self, *args):
         d = SearchDialog(self)
@@ -383,6 +402,12 @@ class SavedSearchBoxMixin(object):
                 self.saved_search.delete_search_button_clicked)
         self.connect(self.copy_search_button, SIGNAL('clicked()'),
                 self.saved_search.copy_search_button_clicked)
+        self.saved_search.setToolTip(
+            _('Choose saved search or enter name for new saved search'))
+        self.saved_search.setStatusTip(self.saved_search.toolTip())
+        for x in ('copy', 'save', 'delete'):
+            b = getattr(self, x+'_search_button')
+            b.setStatusTip(b.toolTip())
 
 
     def saved_searches_changed(self):

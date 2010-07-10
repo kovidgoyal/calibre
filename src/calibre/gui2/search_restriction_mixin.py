@@ -11,6 +11,7 @@ class SearchRestrictionMixin(object):
         self.library_view.model().count_changed_signal.connect(self.restriction_count_changed)
         self.search_restriction.setSizeAdjustPolicy(self.search_restriction.AdjustToMinimumContentsLengthWithIcon)
         self.search_restriction.setMinimumContentsLength(10)
+        self.search_restriction.setStatusTip(self.search_restriction.toolTip())
 
     '''
     Adding and deleting books while restricted creates a complexity. When added,

@@ -96,10 +96,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="donate_button">
-        <property name="cursor">
-         <cursorShape>PointingHandCursor</cursorShape>
-        </property>
+       <widget class="ThrobbingButton" name="donate_button">
         <property name="text">
          <string>...</string>
         </property>
@@ -107,45 +104,13 @@
          <iconset resource="../../../resources/images.qrc">
           <normaloff>:/images/donate.svg</normaloff>:/images/donate.svg</iconset>
         </property>
-        <property name="iconSize">
-         <size>
-          <width>64</width>
-          <height>64</height>
-         </size>
-        </property>
         <property name="autoRaise">
          <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <widget class="QLabel" name="vanity">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>90</height>
-           </size>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="textFormat">
-           <enum>Qt::RichText</enum>
-          </property>
-          <property name="openExternalLinks">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <layout class="QVBoxLayout" name="verticalLayout_3"/>
       </item>
      </layout>
     </item>
@@ -259,7 +224,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Choose saved search or enter name for new saved search</string>
+         <string/>
         </property>
         <property name="minimumContentsLength">
          <number>15</number>
@@ -352,6 +317,8 @@
    <addaction name="action_sync"/>
    <addaction name="action_save"/>
    <addaction name="action_del"/>
+   <addaction name="separator"/>
+   <addaction name="action_help"/>
    <addaction name="separator"/>
    <addaction name="action_preferences"/>
   </widget>
@@ -544,6 +511,21 @@
     <string>Ctrl+P</string>
    </property>
   </action>
+  <action name="action_help">
+   <property name="icon">
+    <iconset resource="../../../resources/images.qrc">
+     <normaloff>:/images/help.svg</normaloff>:/images/help.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Help</string>
+   </property>
+   <property name="toolTip">
+    <string>Browse the calibre User Manual</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -560,6 +542,11 @@
    <class>SavedSearchBox</class>
    <extends>QComboBox</extends>
    <header>calibre.gui2.search_box</header>
+  </customwidget>
+  <customwidget>
+   <class>ThrobbingButton</class>
+   <extends>QToolButton</extends>
+   <header>calibre/gui2/throbber.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -12,18 +12,18 @@ __docformat__ = 'restructuredtext en'
 import collections, os, sys, textwrap, time
 from Queue import Queue, Empty
 from threading import Thread
-from PyQt4.Qt import Qt, SIGNAL, QObject, QUrl, QTimer, \
+from PyQt4.Qt import Qt, SIGNAL, QObject, QTimer, \
                      QPixmap, QMenu, QIcon, pyqtSignal, \
-                     QDialog, QDesktopServices, \
+                     QDialog, \
                      QSystemTrayIcon, QApplication, QKeySequence, QAction, \
                      QMessageBox, QHelpEvent
 
 from calibre import  prints, patheq
-from calibre.constants import __version__, __appname__, isosx
+from calibre.constants import __appname__, isosx
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
-from calibre.gui2 import error_dialog, GetMetadata, \
+from calibre.gui2 import error_dialog, GetMetadata, open_local_file, \
         gprefs, max_available_height, config, info_dialog
 from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator
@@ -38,7 +38,6 @@ from calibre.gui2.dialogs.config import ConfigDialog
 
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.library.database2 import LibraryDatabase2
-from calibre.library.caches import CoverCache
 from calibre.gui2.init import ToolbarMixin, LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
@@ -138,6 +137,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         self.restriction_in_effect = False
 
         self.progress_indicator = ProgressIndicator(self)
+        self.progress_indicator.pos = (0, 20)
         self.verbose = opts.verbose
         self.get_metadata = GetMetadata()
         self.upload_memory = {}
@@ -163,6 +163,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         self.donate_action  = self.system_tray_menu.addAction(
                 QIcon(I('donate.svg')), _('&Donate to support calibre'))
         self.donate_button.setDefaultAction(self.donate_action)
+        self.donate_button.setStatusTip(self.donate_button.toolTip())
         self.eject_action = self.system_tray_menu.addAction(
                 QIcon(I('eject.svg')), _('&Eject connected device'))
         self.eject_action.setEnabled(False)
@@ -202,18 +203,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
                         self.device_manager.umount_device)
         self.eject_action.triggered.connect(self.device_manager.umount_device)
 
-        ####################### Vanity ########################
-        self.vanity_template  = _('<p>For help see the: <a href="%s">User Manual</a>'
-                '<br>')%'http://calibre-ebook.com/user_manual'
-        dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
-        v = __version__
-        if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
-            v += '*'
-        self.vanity_template += _('<b>%s</b>: %s by <b>Kovid Goyal '
-            '%%(version)s</b><br>%%(device)s</p>')%(__appname__, v)
-        self.latest_version = ' '
-        self.vanity.setText(self.vanity_template%dict(version=' ', device=' '))
-        self.device_info = ' '
+        #################### Update notification ###################
         UpdateMixin.__init__(self, opts)
 
         ####################### Setup Toolbar #####################
@@ -230,9 +220,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
 
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
-        self.cover_cache = CoverCache(self.library_path)
-        self.cover_cache.start()
-        self.library_view.model().cover_cache = self.cover_cache
         self.library_view.model().count_changed_signal.connect \
                                             (self.location_view.count_changed)
         if not gprefs.get('quick_start_guide_added', False):
@@ -294,6 +281,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
 
         self.read_settings()
         self.finalize_layout()
+        self.donate_button.set_normal_icon_size(64, 64)
+        self.donate_button.start_animation()
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
@@ -410,9 +399,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
             self.tags_view.set_new_model() # in case columns changed
             self.tags_view.recount()
             self.create_device_menu()
-            self.set_device_menu_items_state(bool(self.device_connected),
-                    self.device_connected == 'folder')
-
+            self.set_device_menu_items_state(bool(self.device_connected))
             if not patheq(self.library_path, d.database_location):
                 newloc = d.database_location
                 move_library(self.library_path, newloc, self,
@@ -473,6 +460,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
             self.search_restriction.setEnabled(False)
             for action in list(self.delete_menu.actions())[1:]:
                 action.setEnabled(False)
+            # Reset the view in case something changed while it was invisible
+            self.current_view().reset()
         self.set_number_of_books_shown()
 
 
@@ -557,7 +546,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         '''
         MSG = _('is the result of the efforts of many volunteers from all '
                 'over the world. If you find it useful, please consider '
-                'donating to support its development.')
+                'donating to support its development. Your donation helps '
+                'keep calibre development going.')
         HTML = u'''
         <html>
             <head>
@@ -575,7 +565,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         pt = PersistentTemporaryFile('_donate.htm')
         pt.write(HTML.encode('utf-8'))
         pt.close()
-        QDesktopServices.openUrl(QUrl.fromLocalFile(pt.name))
+        open_local_file(pt.name)
 
 
     def confirm_quit(self):
@@ -606,9 +596,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         while self.spare_servers:
             self.spare_servers.pop().close()
         self.device_manager.keep_going = False
-        self.cover_cache.stop()
+        cc = self.library_view.model().cover_cache
+        if cc is not None:
+            cc.stop()
         self.hide_windows()
-        self.cover_cache.terminate()
         self.emailer.stop()
         try:
             try:

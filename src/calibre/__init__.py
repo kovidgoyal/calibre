@@ -30,6 +30,7 @@ mimetypes.add_type('application/epub+zip',                '.epub')
 mimetypes.add_type('text/x-sony-bbeb+xml',                '.lrs')
 mimetypes.add_type('application/xhtml+xml',               '.xhtml')
 mimetypes.add_type('image/svg+xml',                       '.svg')
+mimetypes.add_type('text/fb2+xml',                        '.fb2')
 mimetypes.add_type('application/x-sony-bbeb',             '.lrf')
 mimetypes.add_type('application/x-sony-bbeb',             '.lrx')
 mimetypes.add_type('application/x-dtbncx+xml',            '.ncx')
@@ -43,6 +44,7 @@ mimetypes.add_type('application/x-mobipocket-ebook',      '.prc')
 mimetypes.add_type('application/x-mobipocket-ebook',      '.azw')
 mimetypes.add_type('application/x-cbz',                   '.cbz')
 mimetypes.add_type('application/x-cbr',                   '.cbr')
+mimetypes.add_type('application/x-koboreader-ebook',      '.kobo')
 mimetypes.add_type('image/wmf',                           '.wmf')
 guess_type = mimetypes.guess_type
 import cssutils
@@ -339,13 +341,6 @@ def detect_ncpus():
         ans = 1
     return ans
 
-
-def launch(path_or_url):
-    from PyQt4.QtCore import QUrl
-    from PyQt4.QtGui  import QDesktopServices
-    if os.path.exists(path_or_url):
-        path_or_url = 'file:'+path_or_url
-    QDesktopServices.openUrl(QUrl(path_or_url))
 
 relpath = os.path.relpath
 _spat = re.compile(r'^the\s+|^a\s+|^an\s+', re.IGNORECASE)

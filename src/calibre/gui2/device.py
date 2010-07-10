@@ -10,7 +10,7 @@ from functools import partial
 from binascii import unhexlify
 
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, QPixmap, \
-                     Qt, pyqtSignal, QColor, QPainter
+                     Qt, pyqtSignal, QColor, QPainter, QDialog, QMessageBox
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre.customize.ui import available_input_formats, available_output_formats, \
@@ -29,7 +29,10 @@ from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
+from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
+from calibre.ebooks.metadata.meta import set_metadata
+from calibre.constants import DEBUG
 
 # }}}
 
@@ -75,10 +78,16 @@ class DeviceJob(BaseJob): # {{{
             self.job_done()
 
     def abort(self, err):
+        call_job_done = False
+        if self.run_state == self.WAITING:
+            self.start_work()
+            call_job_done = True
         self._aborted = True
         self.failed = True
         self._details = unicode(err)
         self.exception = err
+        if call_job_done:
+            self.job_done()
 
     @property
     def log_file(self):
@@ -104,9 +113,9 @@ class DeviceManager(Thread): # {{{
         self.current_job    = None
         self.scanner        = DeviceScanner()
         self.connected_device = None
+        self.connected_device_kind = None
         self.ejected_devices  = set([])
-        self.connected_device_is_folder = False
-        self.folder_connection_requests = Queue.Queue(0)
+        self.mount_connection_requests = Queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
 
     def report_progress(self, *args):
@@ -120,7 +129,7 @@ class DeviceManager(Thread): # {{{
     def device(self):
         return self.connected_device
 
-    def do_connect(self, connected_devices, is_folder_device):
+    def do_connect(self, connected_devices, device_kind):
         for dev, detected_device in connected_devices:
             if dev.OPEN_FEEDBACK_MESSAGE is not None:
                 self.open_feedback_slot(dev.OPEN_FEEDBACK_MESSAGE)
@@ -133,8 +142,8 @@ class DeviceManager(Thread): # {{{
                 traceback.print_exc()
                 continue
             self.connected_device = dev
-            self.connected_device_is_folder = is_folder_device
-            self.connected_slot(True, is_folder_device)
+            self.connected_device_kind = device_kind
+            self.connected_slot(True, device_kind)
             return True
         return False
 
@@ -152,7 +161,7 @@ class DeviceManager(Thread): # {{{
         if self.connected_device in self.ejected_devices:
             self.ejected_devices.remove(self.connected_device)
         else:
-            self.connected_slot(False, self.connected_device_is_folder)
+            self.connected_slot(False, self.connected_device_kind)
         self.connected_device = None
 
     def detect_device(self):
@@ -174,18 +183,30 @@ class DeviceManager(Thread): # {{{
                     possibly_connected_devices.append((device, detected_device))
             if possibly_connected_devices:
                 if not self.do_connect(possibly_connected_devices,
-                                       is_folder_device=False):
+                                       device_kind='device'):
                     prints('Connect to device failed, retrying in 5 seconds...')
                     time.sleep(5)
                     if not self.do_connect(possibly_connected_devices,
-                                       is_folder_device=False):
+                                       device_kind='usb'):
                         prints('Device connect failed again, giving up')
 
+    # Mount devices that don't use USB, such as the folder device and iTunes
+    # This will be called on the GUI thread. Because of this, we must store
+    # information that the scanner thread will use to do the real work.
+    def mount_device(self, kls, kind, path):
+        self.mount_connection_requests.put((kls, kind, path))
+
+    # disconnect a device
     def umount_device(self, *args):
         if self.is_device_connected and not self.job_manager.has_device_jobs():
-            self.connected_device.eject()
-            self.ejected_devices.add(self.connected_device)
-            self.connected_slot(False, self.connected_device_is_folder)
+            if self.connected_device_kind == 'device':
+                self.connected_device.eject()
+                self.ejected_devices.add(self.connected_device)
+                self.connected_slot(False, self.connected_device_kind)
+            elif hasattr(self.connected_device, 'unmount_device'):
+                # As we are on the wrong thread, this call must *not* do
+                # anything besides set a flag that the right thread will see.
+                self.connected_device.unmount_device()
 
     def next(self):
         if not self.jobs.empty():
@@ -196,20 +217,19 @@ class DeviceManager(Thread): # {{{
 
     def run(self):
         while self.keep_going:
-            folder_path = None
+            kls = None
             while True:
                 try:
-                    folder_path = self.folder_connection_requests.get_nowait()
+                    (kls,device_kind, folder_path) = \
+                                self.mount_connection_requests.get_nowait()
                 except Queue.Empty:
                     break
-            if not folder_path or not os.access(folder_path, os.R_OK):
-                folder_path = None
-            if not self.is_device_connected and folder_path is not None:
+            if kls is not None:
                 try:
-                    dev = FOLDER_DEVICE(folder_path)
-                    self.do_connect([[dev, None],], is_folder_device=True)
+                    dev = kls(folder_path)
+                    self.do_connect([[dev, None],], device_kind=device_kind)
                 except:
-                    prints('Unable to open folder as device', folder_path)
+                    prints('Unable to open %s as device (%s)'%(device_kind, folder_path))
                     traceback.print_exc()
             else:
                 self.detect_device()
@@ -249,21 +269,6 @@ class DeviceManager(Thread): # {{{
         return self.create_job(self._get_device_information, done,
                     description=_('Get device information'))
 
-    # This will be called on the GUI thread. Because of this, we must store
-    # information that the scanner thread will use to do the real work.
-    def connect_to_folder(self, path):
-        self.folder_connection_requests.put(path)
-
-    # This is called on the GUI thread. No problem here, because it calls the
-    # device driver, telling it to tell the scanner when it passes by that the
-    # folder has disconnected.
-    def disconnect_folder(self):
-        if self.connected_device is not None:
-            if hasattr(self.connected_device, 'disconnect_from_folder'):
-                # As we are on the wrong thread, this call must *not* do
-                # anything besides set a flag that the right thread will see.
-                self.connected_device.disconnect_from_folder()
-
     def _books(self):
         '''Get metadata from device'''
         mainlist = self.device.books(oncard=None, end_session=False)
@@ -294,8 +299,28 @@ class DeviceManager(Thread): # {{{
         return self.create_job(self._sync_booklists, done, args=[booklists],
                         description=_('Send metadata to device'))
 
+    def upload_collections(self, done, booklist, on_card):
+        return self.create_job(booklist.rebuild_collections, done,
+                               args=[booklist, on_card],
+                        description=_('Send collections to device'))
+
     def _upload_books(self, files, names, on_card=None, metadata=None):
         '''Upload books to device: '''
+        if metadata and files and len(metadata) == len(files):
+            for f, mi in zip(files, metadata):
+                if isinstance(f, unicode):
+                    ext = f.rpartition('.')[-1].lower()
+                    if ext:
+                        try:
+                            if DEBUG:
+                                prints('Setting metadata in:', mi.title, 'at:',
+                                        f, file=sys.__stdout__)
+                            with open(f, 'r+b') as stream:
+                                set_metadata(stream, mi, stream_type=ext)
+                        except:
+                            if DEBUG:
+                                prints(traceback.format_exc(), file=sys.__stdout__)
+
         return self.device.upload_books(files, names, on_card,
                                         metadata=metadata, end_session=False)
 
@@ -370,7 +395,8 @@ class DeviceMenu(QMenu): # {{{
 
     fetch_annotations = pyqtSignal()
     connect_to_folder = pyqtSignal()
-    disconnect_from_folder = pyqtSignal()
+    connect_to_itunes = pyqtSignal()
+    disconnect_mounted_device = pyqtSignal()
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -485,10 +511,16 @@ class DeviceMenu(QMenu): # {{{
         mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
         self.connect_to_folder_action = mitem
 
-        mitem = self.addAction(QIcon(I('eject.svg')), _('Disconnect from folder'))
+        mitem = self.addAction(QIcon(I('devices/itunes.png')),
+                _('Connect to iTunes'))
+        mitem.setEnabled(True)
+        mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
+        self.connect_to_itunes_action = mitem
+
+        mitem = self.addAction(QIcon(I('eject.svg')), _('Eject device'))
         mitem.setEnabled(False)
-        mitem.triggered.connect(lambda x : self.disconnect_from_folder.emit())
-        self.disconnect_from_folder_action = mitem
+        mitem.triggered.connect(lambda x : self.disconnect_mounted_device.emit())
+        self.disconnect_mounted_device_action = mitem
 
         self.addSeparator()
         self.addMenu(self.set_default_menu)
@@ -602,7 +634,6 @@ class Emailer(Thread): # {{{
 class DeviceMixin(object): # {{{
 
     def __init__(self):
-        self.db_book_uuid_cache = set()
         self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
@@ -625,12 +656,17 @@ class DeviceMixin(object): # {{{
 
     def connect_to_folder(self):
         dir = choose_dir(self, 'Select Device Folder',
-                _('Select folder to open as device'))
-        if dir is not None:
-            self.device_manager.connect_to_folder(dir)
+                             _('Select folder to open as device'))
+        kls = FOLDER_DEVICE
+        self.device_manager.mount_device(kls=kls, kind='folder', path=dir)
 
-    def disconnect_from_folder(self):
-        self.device_manager.disconnect_folder()
+    def connect_to_itunes(self):
+        kls = ITUNES_ASYNC
+        self.device_manager.mount_device(kls=kls, kind='itunes', path=None)
+
+    # disconnect from both folder and itunes devices
+    def disconnect_mounted_device(self):
+        self.device_manager.umount_device()
 
     def _sync_action_triggered(self, *args):
         m = getattr(self, '_sync_menu', None)
@@ -645,18 +681,16 @@ class DeviceMixin(object): # {{{
                 self.dispatch_sync_event)
         self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
         self._sync_menu.connect_to_folder.connect(self.connect_to_folder)
-        self._sync_menu.disconnect_from_folder.connect(self.disconnect_from_folder)
+        self._sync_menu.connect_to_itunes.connect(self.connect_to_itunes)
+        self._sync_menu.disconnect_mounted_device.connect(self.disconnect_mounted_device)
         if self.device_connected:
             self._sync_menu.connect_to_folder_action.setEnabled(False)
-            if self.device_connected == 'folder':
-                self._sync_menu.disconnect_from_folder_action.setEnabled(True)
-            else:
-                self._sync_menu.disconnect_from_folder_action.setEnabled(False)
+            self._sync_menu.connect_to_itunes_action.setEnabled(False)
+            self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
         else:
             self._sync_menu.connect_to_folder_action.setEnabled(True)
-            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
-
-
+            self._sync_menu.connect_to_itunes_action.setEnabled(True)
+            self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
 
     def device_job_exception(self, job):
         '''
@@ -690,26 +724,27 @@ class DeviceMixin(object): # {{{
 
     # Device connected {{{
 
-    def set_device_menu_items_state(self, connected, is_folder_device):
+    def set_device_menu_items_state(self, connected):
         if connected:
             self._sync_menu.connect_to_folder_action.setEnabled(False)
-            if is_folder_device:
-                self._sync_menu.disconnect_from_folder_action.setEnabled(True)
+            self._sync_menu.connect_to_itunes_action.setEnabled(False)
+            self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
             self._sync_menu.enable_device_actions(True,
                     self.device_manager.device.card_prefix(),
                     self.device_manager.device)
             self.eject_action.setEnabled(True)
         else:
             self._sync_menu.connect_to_folder_action.setEnabled(True)
-            self._sync_menu.disconnect_from_folder_action.setEnabled(False)
+            self._sync_menu.connect_to_itunes_action.setEnabled(True)
+            self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
             self._sync_menu.enable_device_actions(False)
             self.eject_action.setEnabled(False)
 
-    def device_detected(self, connected, is_folder_device):
+    def device_detected(self, connected, device_kind):
         '''
         Called when a device is connected to the computer.
         '''
-        self.set_device_menu_items_state(connected, is_folder_device)
+        self.set_device_menu_items_state(connected)
         if connected:
             self.device_manager.get_device_information(\
                     Dispatcher(self.info_read))
@@ -718,15 +753,13 @@ class DeviceMixin(object): # {{{
             self.status_bar.show_message(_('Device: ')+\
                 self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
-            self.device_connected = 'device' if not is_folder_device else 'folder'
+            self.device_connected = device_kind
             self.location_view.model().device_connected(self.device_manager.device)
             self.refresh_ondevice_info (device_connected = True, reset_only = True)
         else:
             self.device_connected = None
+            self.status_bar.device_disconnected()
             self.location_view.model().update_devices()
-            self.vanity.setText(self.vanity_template%\
-                    dict(version=self.latest_version, device=' '))
-            self.device_info = ' '
             if self.current_view() != self.library_view:
                 self.book_details.reset_info()
                 self.location_view.setCurrentIndex(self.location_view.model().index(0))
@@ -740,10 +773,7 @@ class DeviceMixin(object): # {{{
             return self.device_job_exception(job)
         info, cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
-        self.device_info = _('Connected ')+info[0]
-        self.vanity.setText(self.vanity_template%\
-                dict(version=self.latest_version, device=self.device_info))
-
+        self.status_bar.device_connected(info[0])
         self.device_manager.books(Dispatcher(self.metadata_downloaded))
 
     def metadata_downloaded(self, job):
@@ -815,7 +845,8 @@ class DeviceMixin(object): # {{{
         if specific:
             d = ChooseFormatDialog(self, _('Choose format to send to device'),
                                 self.device_manager.device.settings().format_map)
-            d.exec_()
+            if d.exec_() != QDialog.Accepted:
+                return
             if d.format():
                 fmt = d.format().lower()
         dest, sub_dest = dest.split(':')
@@ -921,7 +952,8 @@ class DeviceMixin(object): # {{{
                 autos = '\n'.join('%s'%i for i in autos)
                 if question_dialog(self, _('No suitable formats'),
                     _('Auto convert the following books before sending via '
-                        'email?'), det_msg=autos):
+                        'email?'), det_msg=autos,
+                    buttons=QMessageBox.Yes|QMessageBox.Cancel):
                     self.auto_convert_mail(to, fmts, delete_from_library, auto, format)
 
         if bad:
@@ -1020,7 +1052,8 @@ class DeviceMixin(object): # {{{
                     autos = '\n'.join('%s'%i for i in autos)
                     if question_dialog(self, _('No suitable formats'),
                         _('Auto convert the following books before uploading to '
-                            'the device?'), det_msg=autos):
+                            'the device?'), det_msg=autos,
+                        buttons=QMessageBox.Yes|QMessageBox.Cancel):
                         self.auto_convert_catalogs(auto, format)
             files = [f for f in files if f is not None]
             if not files:
@@ -1081,7 +1114,8 @@ class DeviceMixin(object): # {{{
                     autos = '\n'.join('%s'%i for i in autos)
                     if question_dialog(self, _('No suitable formats'),
                         _('Auto convert the following books before uploading to '
-                            'the device?'), det_msg=autos):
+                            'the device?'), det_msg=autos,
+                        buttons=QMessageBox.Yes|QMessageBox.Cancel):
                         self.auto_convert_news(auto, format)
             files = [f for f in files if f is not None]
             for f in files:
@@ -1126,7 +1160,6 @@ class DeviceMixin(object): # {{{
 
         _files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
                                     settings.format_map,
-                                    set_metadata=True,
                                     specific_format=specific_format,
                                     exclude_auto=do_auto_convert)
         if do_auto_convert:
@@ -1200,7 +1233,8 @@ class DeviceMixin(object): # {{{
                 autos = '\n'.join('%s'%i for i in autos)
                 if question_dialog(self, _('No suitable formats'),
                     _('Auto convert the following books before uploading to '
-                        'the device?'), det_msg=autos):
+                        'the device?'), det_msg=autos,
+                    buttons=QMessageBox.Yes|QMessageBox.Cancel):
                     self.auto_convert(auto, on_card, format)
 
         if bad:
@@ -1228,6 +1262,19 @@ class DeviceMixin(object): # {{{
             return
         cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
+        # reset the views so that up-to-date info is shown. These need to be
+        # here because the sony driver updates collections in sync_booklists
+        self.memory_view.reset()
+        self.card_a_view.reset()
+        self.card_b_view.reset()
+
+    def _upload_collections(self, job):
+        if job.failed:
+            self.device_job_exception(job)
+
+    def upload_collections(self, booklist, view=None, oncard=None):
+        return self.device_manager.upload_collections(self._upload_collections,
+                                                       booklist, oncard)
 
     def upload_books(self, files, names, metadata, on_card=None, memory=None):
         '''
@@ -1350,11 +1397,18 @@ class DeviceMixin(object): # {{{
         return loc
 
     def set_books_in_library(self, booklists, reset=False):
-        if reset:
-            # First build a cache of the library, so the search isn't On**2
+        # Force a reset if the caches are not initialized
+        if reset or not hasattr(self, 'db_book_title_cache'):
+            # It might be possible to get here without having initialized the
+            # library view. In this case, simply give up
+            if not hasattr(self, 'library_view') or self.library_view is None:
+                return
+            db = getattr(self.library_view.model(), 'db', None)
+            if db is None:
+                return
+            # Build a cache (map) of the library, so the search isn't On**2
             self.db_book_title_cache = {}
             self.db_book_uuid_cache = {}
-            db = self.library_view.model().db
             for id in db.data.iterallids():
                 mi = db.get_metadata(id, index_is_id=True)
                 title = re.sub('(?u)\W|[_]', '', mi.title.lower())
@@ -1377,7 +1431,6 @@ class DeviceMixin(object): # {{{
         # the application_id, which is really the db key, but as this can
         # accidentally match across libraries we also verify the title. The
         # db_id exists on Sony devices. Fallback is title and author match
-        resend_metadata = False
         for booklist in booklists:
             for book in booklist:
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
@@ -1394,12 +1447,10 @@ class DeviceMixin(object): # {{{
                     if getattr(book, 'application_id', None) in d['db_ids']:
                         book.in_library = True
                         book.smart_update(d['db_ids'][book.application_id])
-                        resend_metadata = True
                         continue
                     if book.db_id in d['db_ids']:
                         book.in_library = True
                         book.smart_update(d['db_ids'][book.db_id])
-                        resend_metadata = True
                         continue
                     if book.authors:
                         # Compare against both author and author sort, because
@@ -1409,21 +1460,13 @@ class DeviceMixin(object): # {{{
                         if book_authors in d['authors']:
                             book.in_library = True
                             book.smart_update(d['authors'][book_authors])
-                            resend_metadata = True
                         elif book_authors in d['author_sort']:
                             book.in_library = True
                             book.smart_update(d['author_sort'][book_authors])
-                            resend_metadata = True
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
                 if not asort and book.authors:
                     book.author_sort = self.library_view.model().db.author_sort_from_authors(book.authors)
-                    resend_metadata = True
-
-        if resend_metadata:
-            # Correct the metadata cache on device.
-            if self.device_manager.is_device_connected:
-                self.device_manager.sync_booklists(None, booklists)
 
     # }}}
 

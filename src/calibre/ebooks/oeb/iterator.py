@@ -139,11 +139,18 @@ class EbookIterator(object):
                     if id != -1:
                         families = [unicode(f) for f in QFontDatabase.applicationFontFamilies(id)]
                         if family:
-                            family = family.group(1).strip().replace('"', '')
-                            bad_map[family] = families[0]
-                            if family not in families:
+                            family = family.group(1)
+                            specified_families = [x.strip().replace('"',
+                                '').replace("'", '') for x in family.split(',')]
+                            aliasing_ok = False
+                            for f in specified_families:
+                                bad_map[f] = families[0]
+                                if not aliasing_ok and f in families:
+                                    aliasing_ok = True
+
+                            if not aliasing_ok:
                                 prints('WARNING: Family aliasing not fully supported.')
-                                prints('\tDeclared family: %s not in actual families: %s'
+                                prints('\tDeclared family: %r not in actual families: %r'
                                         % (family, families))
                             else:
                                 prints('Loaded embedded font:', repr(family))

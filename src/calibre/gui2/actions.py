@@ -5,26 +5,28 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import shutil, os, datetime, sys, time
+import shutil, os, datetime, time
 from functools import partial
 
 from PyQt4.Qt import QInputDialog, pyqtSignal, QModelIndex, QThread, Qt, \
-        SIGNAL, QPixmap, QTimer, QDesktopServices, QUrl, QDialog
+        SIGNAL, QPixmap, QTimer, QDialog
 
 from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.gui2 import error_dialog, Dispatcher, gprefs, choose_files, \
-    choose_dir, warning_dialog, info_dialog, question_dialog, config
+    choose_dir, warning_dialog, info_dialog, question_dialog, config, \
+    open_local_file
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
 from calibre.utils.filenames import ascii_filename
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
+from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook, \
     fetch_scheduled_recipe, generate_catalog
 from calibre.constants import preferred_encoding, filesystem_encoding, \
-        isosx, isfrozen, islinux
+        isosx
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -176,7 +178,8 @@ class AnnotationsAction(object): # {{{
 
             def mark_book_as_read(self,id):
                 read_tag = gprefs.get('catalog_epub_mobi_read_tag')
-                self.db.set_tags(id, [read_tag], append=True)
+                if read_tag:
+                    self.db.set_tags(id, [read_tag], append=True)
 
             def canceled(self):
                 self.pd.hide()
@@ -320,7 +323,6 @@ class AddAction(object): # {{{
                 accept = True
         if accept:
             event.accept()
-            self.cover_cache.refresh([cid])
             self.library_view.model().current_changed(current_idx, current_idx)
 
     def __add_filesystem_book(self, paths, allow_device=True):
@@ -411,6 +413,34 @@ class AddAction(object): # {{{
         if hasattr(self._adder, 'cleanup'):
             self._adder.cleanup()
         self._adder = None
+
+    def _add_from_device_adder(self, paths=[], names=[], infos=[],
+                               on_card=None, model=None):
+        self._files_added(paths, names, infos, on_card=on_card)
+        # set the in-library flags, and as a consequence send the library's
+        # metadata for this book to the device. This sets the uuid to the
+        # correct value.
+        self.set_books_in_library(booklists=[model.db], reset=True)
+        model.reset()
+
+    def add_books_from_device(self, view):
+        rows = view.selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            d = error_dialog(self, _('Add to library'), _('No book selected'))
+            d.exec_()
+            return
+        paths = [p for p in view._model.paths(rows) if p is not None]
+        if not paths or len(paths) == 0:
+            d = error_dialog(self, _('Add to library'), _('No book files found'))
+            d.exec_()
+            return
+        from calibre.gui2.add import Adder
+        self.__adder_func = partial(self._add_from_device_adder, on_card=None,
+                                                    model=view._model)
+        self._adder = Adder(self, self.library_view.model().db,
+                Dispatcher(self.__adder_func), spare_server=self.spare_server)
+        self._adder.add(paths)
+
     # }}}
 
 class DeleteAction(object): # {{{
@@ -615,6 +645,8 @@ class EditMetadataAction(object): # {{{
         if x.exception is None:
             self.library_view.model().refresh_ids(
                 x.updated, cr)
+            if self.cover_flow:
+                self.cover_flow.dataChanged()
             if x.failures:
                 details = ['%s: %s'%(title, reason) for title,
                         reason in x.failures.values()]
@@ -659,7 +691,6 @@ class EditMetadataAction(object): # {{{
         if rows:
             current = self.library_view.currentIndex()
             m = self.library_view.model()
-            m.refresh_cover_cache(map(m.id, rows))
             if self.cover_flow:
                 self.cover_flow.dataChanged()
             m.current_changed(current, previous)
@@ -681,6 +712,8 @@ class EditMetadataAction(object): # {{{
             self.library_view.model().resort(reset=False)
             self.library_view.model().research()
             self.tags_view.recount()
+            if self.cover_flow:
+                self.cover_flow.dataChanged()
 
     # Merge books {{{
     def merge_books(self, safe_merge=False):
@@ -802,6 +835,23 @@ class EditMetadataAction(object): # {{{
         db.set_metadata(dest_id, dest_mi, ignore_errors=False)
         # }}}
 
+    def edit_device_collections(self, view, oncard=None):
+        model = view.model()
+        result = model.get_collections_with_ids()
+        compare = (lambda x,y:cmp(x.lower(), y.lower()))
+        d = TagListEditor(self, tag_to_match=None, data=result, compare=compare)
+        d.exec_()
+        if d.result() == d.Accepted:
+            to_rename = d.to_rename # dict of new text to old ids
+            to_delete = d.to_delete # list of ids
+            for text in to_rename:
+                for old_id in to_rename[text]:
+                    model.rename_collection(old_id, new_name=unicode(text))
+            for item in to_delete:
+                model.delete_collection_using_id(item)
+            self.upload_collections(model.db, view=view, oncard=oncard)
+            view.reset()
+
     # }}}
 
 class SaveToDiskAction(object): # {{{
@@ -870,7 +920,7 @@ class SaveToDiskAction(object): # {{{
             _('Could not save some books') + ', ' +
             _('Click the show details button to see which ones.'),
             u'\n\n'.join(failures), show=True)
-        QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+        open_local_file(path)
 
     def books_saved(self, job):
         if job.failed:
@@ -1136,15 +1186,7 @@ class ViewAction(object): # {{{
                 self.job_manager.launch_gui_app(viewer,
                         kwargs=dict(args=args))
             else:
-                paths = os.environ.get('LD_LIBRARY_PATH',
-                            '').split(os.pathsep)
-                paths = [x for x in paths if x]
-                if isfrozen and islinux and paths:
-                    npaths = [x for x in paths if x != sys.frozen_path]
-                    os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
-                QDesktopServices.openUrl(QUrl.fromLocalFile(name))#launch(name)
-                if isfrozen and islinux and paths:
-                    os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(paths)
+                open_local_file(name)
                 time.sleep(2) # User feedback
         finally:
             self.unsetCursor()
@@ -1190,11 +1232,11 @@ class ViewAction(object): # {{{
             return
         for row in rows:
             path = self.library_view.model().db.abspath(row.row())
-            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+            open_local_file(path)
 
     def view_folder_for_id(self, id_):
         path = self.library_view.model().db.abspath(id_, index_is_id=True)
-        QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+        open_local_file(path)
 
     def view_book(self, triggered):
         rows = self.current_view().selectionModel().selectedRows()

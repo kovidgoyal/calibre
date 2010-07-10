@@ -870,7 +870,7 @@ class Text(LRFStream):
         open_containers = collections.deque()
         for c in self.content:
             if isinstance(c, basestring):
-                s += prepare_string_for_xml(c)
+                s += prepare_string_for_xml(c).replace('\0', '')
             elif c is None:
                 if open_containers:
                     p = open_containers.pop()

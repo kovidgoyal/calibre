@@ -13,7 +13,7 @@ from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QRegExp, QSettings, QSize, QModelIndex, QSplitter, \
                         QAbstractButton, QPainter, QLineEdit, QComboBox, \
                         QMenu, QStringListModel, QCompleter, QStringList, \
-                        QTimer
+                        QTimer, QRect
 
 from calibre.gui2 import NONE, error_dialog, pixmap_to_data, gprefs
 
@@ -38,12 +38,16 @@ class ProgressIndicator(QWidget):
         self.status.setWordWrap(True)
         self.status.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
         self.setVisible(False)
+        self.pos = None
 
     def start(self, msg=''):
         view = self.parent()
         pwidth, pheight = view.size().width(), view.size().height()
         self.resize(pwidth, min(pheight, 250))
-        self.move(0, (pheight-self.size().height())/2.)
+        if self.pos is None:
+            self.move(0, (pheight-self.size().height())/2.)
+        else:
+            self.move(self.pos[0], self.pos[1])
         self.pi.resize(self.pi.sizeHint())
         self.pi.move(int((self.size().width()-self.pi.size().width())/2.), 0)
         self.status.resize(self.size().width(), self.size().height()-self.pi.size().height()-10)
@@ -146,10 +150,15 @@ class FormatList(QListWidget):
             return QListWidget.keyPressEvent(self, event)
 
 
-class ImageView(QLabel):
+class ImageView(QWidget):
 
-    MAX_WIDTH  = 400
-    MAX_HEIGHT = 300
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self._pixmap = QPixmap(self)
+        self.setMinimumSize(QSize(150, 200))
+        self.setAcceptDrops(True)
+
+    # Drag 'n drop {{{
     DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS
 
     @classmethod
@@ -186,13 +195,45 @@ class ImageView(QLabel):
 
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
+    # }}}
 
     def setPixmap(self, pixmap):
-        QLabel.setPixmap(self, pixmap)
-        width, height = fit_image(pixmap.width(), pixmap.height(), self.MAX_WIDTH, self.MAX_HEIGHT)[1:]
-        self.setMaximumWidth(width)
-        self.setMaximumHeight(height)
+        if not isinstance(pixmap, QPixmap):
+            raise TypeError('Must use a QPixmap')
+        self._pixmap = pixmap
+        self.updateGeometry()
+        self.update()
 
+    def pixmap(self):
+        return self._pixmap
+
+    def sizeHint(self):
+        if self._pixmap.isNull():
+            return self.minimumSize()
+        return self._pixmap.size()
+
+    def paintEvent(self, event):
+        QWidget.paintEvent(self, event)
+        pmap = self._pixmap
+        if pmap.isNull():
+            return
+        w, h = pmap.width(), pmap.height()
+        cw, ch = self.rect().width(), self.rect().height()
+        scaled, nw, nh = fit_image(w, h, cw, ch)
+        if scaled:
+            pmap = pmap.scaled(nw, nh, Qt.IgnoreAspectRatio,
+                    Qt.SmoothTransformation)
+        w, h = pmap.width(), pmap.height()
+        x = int(abs(cw - w)/2.)
+        y = int(abs(ch - h)/2.)
+        target = QRect(x, y, w, h)
+        p = QPainter(self)
+        p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+        p.drawPixmap(target, pmap)
+        p.end()
+
+
+    # Clipboard copy/paste # {{{
     def contextMenuEvent(self, ev):
         cm = QMenu(self)
         copy = cm.addAction(_('Copy Image'))
@@ -215,6 +256,7 @@ class ImageView(QLabel):
             self.setPixmap(pmap)
             self.emit(SIGNAL('cover_changed(PyQt_PyObject)'),
                     pixmap_to_data(pmap))
+    # }}}
 
 
 class LocationModel(QAbstractListModel):
@@ -225,10 +267,10 @@ class LocationModel(QAbstractListModel):
                       QVariant(QIcon(I('reader.svg'))),
                       QVariant(QIcon(I('sd.svg'))),
                       QVariant(QIcon(I('sd.svg')))]
-        self.text = [_('Library\n%d\nbooks'),
-                     _('Reader\n%s\navailable'),
-                     _('Card A\n%s\navailable'),
-                     _('Card B\n%s\navailable')]
+        self.text = [_('Library\n%d books'),
+                     _('Reader\n%s'),
+                     _('Card A\n%s'),
+                     _('Card B\n%s')]
         self.free = [-1, -1, -1]
         self.count = 0
         self.highlight_row = 0
@@ -256,6 +298,14 @@ class LocationModel(QAbstractListModel):
             row = 3
         return row
 
+    def get_tooltip(self, row, drow):
+        ans = self.tooltips[row]
+        if row > 0:
+            fs = self.free[drow-1]
+            if fs > -1:
+                ans += '\n\n%s '%(human_readable(fs)) + _('free')
+        return ans
+
     def data(self, index, role):
         row = index.row()
         drow = self.get_device_row(row)
@@ -266,8 +316,9 @@ class LocationModel(QAbstractListModel):
             data = QVariant(text)
         elif role == Qt.DecorationRole:
             data = self.icons[drow]
-        elif role == Qt.ToolTipRole:
-            data = QVariant(self.tooltips[drow])
+        elif role in (Qt.ToolTipRole, Qt.StatusTipRole):
+            ans = self.get_tooltip(row, drow)
+            data = QVariant(ans)
         elif role == Qt.SizeHintRole:
             data = QVariant(QSize(155, 90))
         elif role == Qt.FontRole:
@@ -957,16 +1008,21 @@ class LayoutButton(QToolButton):
 
         self.splitter = splitter
         splitter.state_changed.connect(self.update_state)
+        self.setCursor(Qt.PointingHandCursor)
 
     def set_state_to_show(self, *args):
         self.setChecked(False)
         label =_('Show')
         self.setText(label + ' ' + self.label)
+        self.setToolTip(self.text())
+        self.setStatusTip(self.text())
 
     def set_state_to_hide(self, *args):
         self.setChecked(True)
         label = _('Hide')
         self.setText(label + ' ' + self.label)
+        self.setToolTip(self.text())
+        self.setStatusTip(self.text())
 
     def update_state(self, *args):
         if self.splitter.is_side_index_hidden:

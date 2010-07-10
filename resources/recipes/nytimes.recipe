@@ -17,6 +17,7 @@ class NYTimes(BasicNewsRecipe):
     title       = 'New York Times Top Stories'
     __author__  = 'GRiker'
     language = 'en'
+    requires_version = (0, 7, 5)
     description = 'Top Stories from the New York Times'
 
     # List of sections typically included in Top Stories.  Use a keyword from the
@@ -64,6 +65,7 @@ class NYTimes(BasicNewsRecipe):
     timefmt = ''
     needs_subscription = True
     masthead_url = 'http://graphics8.nytimes.com/images/misc/nytlogo379x64.gif'
+    cover_margins = (18,18,'grey99')
 
     remove_tags_before = dict(id='article')
     remove_tags_after  = dict(id='article')
@@ -77,6 +79,7 @@ class NYTimes(BasicNewsRecipe):
                             'doubleRule',
                             'dottedLine',
                             'entry-meta',
+                            'entry-response module',
                             'icon enlargeThis',
                             'leftNavTabs',
                             'module box nav',
@@ -86,6 +89,7 @@ class NYTimes(BasicNewsRecipe):
                             'relatedSearchesModule',
                             'side_tool',
                             'singleAd',
+                            'subNavigation clearfix',
                             'subNavigation tabContent active',
                             'subNavigation tabContent active clearfix',
                             ]}),
@@ -108,6 +112,7 @@ class NYTimes(BasicNewsRecipe):
                             'navigation',
                             'portfolioInline',
                             'relatedArticles',
+                            'respond',
                             'side_search',
                             'side_index',
                             'side_tool',
@@ -182,6 +187,16 @@ class NYTimes(BasicNewsRecipe):
             except:
                 self.log("\nFailed to login")
         return br
+
+    def skip_ad_pages(self, soup):
+        # Skip ad pages served before actual article
+        skip_tag = soup.find(True, {'name':'skip'})
+        if skip_tag is not None:
+            self.log.warn("Found forwarding link: %s" % skip_tag.parent['href'])
+            url = 'http://www.nytimes.com' + re.sub(r'\?.*', '', skip_tag.parent['href'])
+            url += '?pagewanted=all'
+            self.log.warn("Skipping ad to article at '%s'" % url)
+            return self.index_to_soup(url, raw=True)
 
     def get_cover_url(self):
         cover = None
@@ -391,14 +406,6 @@ class NYTimes(BasicNewsRecipe):
         return ans
 
     def preprocess_html(self, soup):
-        # Skip ad pages served before actual article
-        skip_tag = soup.find(True, {'name':'skip'})
-        if skip_tag is not None:
-            self.log.error("Found forwarding link: %s" % skip_tag.parent['href'])
-            url = 'http://www.nytimes.com' + re.sub(r'\?.*', '', skip_tag.parent['href'])
-            url += '?pagewanted=all'
-            self.log.error("Skipping ad to article at '%s'" % url)
-            soup = self.index_to_soup(url)
         return self.strip_anchors(soup)
 
     def postprocess_html(self,soup, True):
@@ -454,8 +461,10 @@ class NYTimes(BasicNewsRecipe):
                 if mp_off >= 0:
                     c = c[:mp_off]
                 emTag.insert(0, c)
-                hrTag = Tag(soup, 'hr')
-                #hrTag['style'] = "margin-top:0em;margin-bottom:0em"
+                #hrTag = Tag(soup, 'hr')
+                #hrTag['class'] = 'caption_divider'
+                hrTag = Tag(soup, 'div')
+                hrTag['class'] = 'divider'
                 emTag.insert(1, hrTag)
                 caption.replaceWith(emTag)
 

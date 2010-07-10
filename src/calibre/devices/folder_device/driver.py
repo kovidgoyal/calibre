@@ -66,7 +66,7 @@ class FOLDER_DEVICE(USBMS):
               detected_device=None):
         pass
 
-    def disconnect_from_folder(self):
+    def unmount_device(self):
         self._main_prefix = ''
         self.is_connected = False
 

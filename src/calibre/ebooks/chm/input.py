@@ -49,7 +49,6 @@ class CHMInput(InputFormatPlugin):
             log.debug('stream.name=%s' % stream.name)
             mainname = self._chmtohtml(tdir, chm_name, no_images, log)
             mainpath = os.path.join(tdir, mainname)
-            #raw_input()
 
             metadata = get_metadata_from_reader(self._chm_reader)
 
@@ -92,7 +91,7 @@ class CHMInput(InputFormatPlugin):
             metadata.add('identifier', mi.isbn, attrib={'scheme':'ISBN'})
         if not metadata.language:
             oeb.logger.warn(u'Language not specified')
-            metadata.add('language', get_lang())
+            metadata.add('language', get_lang().replace('_', '-'))
         if not metadata.creator:
             oeb.logger.warn('Creator not specified')
             metadata.add('creator', _('Unknown'))
@@ -141,10 +140,9 @@ class CHMInput(InputFormatPlugin):
         log.debug('Found %d section nodes' % len(chapters))
         htmlpath = os.path.splitext(hhcpath)[0] + ".html"
         f = open(htmlpath, 'wb')
-        f.write('<html><head><meta http-equiv="Content-type"'
-                ' content="text/html;charset=UTF-8" /></head><body>\n')
-
         if chapters:
+            f.write('<html><head><meta http-equiv="Content-type"'
+                ' content="text/html;charset=UTF-8" /></head><body>\n')
             path0 = chapters[0][1]
             subpath = os.path.dirname(path0)
 
@@ -158,7 +156,9 @@ class CHMInput(InputFormatPlugin):
                     url = url.encode('utf-8')
                 f.write(url)
 
-        f.write("</body></html>")
+            f.write("</body></html>")
+        else:
+            f.write(hhcdata)
         f.close()
         return htmlpath
 

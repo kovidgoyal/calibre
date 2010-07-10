@@ -28,7 +28,7 @@ class OldNewThing(BasicNewsRecipe):
                         }
 
     remove_attributes = ['width','height']
-    keep_only_tags    = [dict(attrs={'class':['postsub','comment']})]
-
+    keep_only_tags    = [dict(attrs={'class':'full-post'})]
+    remove_tags       = [dict(attrs={'class':['post-attributes','post-tags','post-actions']})]
     feeds = [(u'Posts', u'http://blogs.msdn.com/oldnewthing/rss.xml')]
 

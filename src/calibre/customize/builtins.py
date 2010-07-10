@@ -9,6 +9,7 @@ from calibre.customize import FileTypePlugin, MetadataReaderPlugin, MetadataWrit
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 
+# To archive plugins {{{
 class HTML2ZIP(FileTypePlugin):
     name = 'HTML to ZIP'
     author = 'Kovid Goyal'
@@ -30,6 +31,7 @@ every time you add an HTML file to the library.\
 
         with TemporaryDirectory('_plugin_html2zip') as tdir:
             recs =[('debug_pipeline', tdir, OptionRecommendation.HIGH)]
+            recs.append(['keep_ligatures', True, OptionRecommendation.HIGH])
             if self.site_customization and self.site_customization.strip():
                 recs.append(['input_encoding', self.site_customization.strip(),
                     OptionRecommendation.HIGH])
@@ -81,7 +83,9 @@ class PML2PMLZ(FileTypePlugin):
 
         return of.name
 
+# }}}
 
+# Metadata reader plugins {{{
 class ComicMetadataReader(MetadataReaderPlugin):
 
     name = 'Read comic metadata'
@@ -319,7 +323,9 @@ class ZipMetadataReader(MetadataReaderPlugin):
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.zip import get_metadata
         return get_metadata(stream)
+# }}}
 
+# Metadata writer plugins {{{
 
 class EPUBMetadataWriter(MetadataWriterPlugin):
 
@@ -395,6 +401,7 @@ class TOPAZMetadataWriter(MetadataWriterPlugin):
         from calibre.ebooks.metadata.topaz import set_metadata
         set_metadata(stream, mi)
 
+# }}}
 
 from calibre.ebooks.comic.input import ComicInput
 from calibre.ebooks.epub.input import EPUBInput
@@ -436,7 +443,7 @@ from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK, \
-                BOOQ, ELONEX, POCKETBOOK301
+                BOOQ, ELONEX, POCKETBOOK301, MENTOR
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK
@@ -444,7 +451,7 @@ from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.nook.driver import NOOK
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.android.driver import ANDROID, S60
-from calibre.devices.nokia.driver import N770, N810, E71X
+from calibre.devices.nokia.driver import N770, N810, E71X, E52
 from calibre.devices.eslick.driver import ESLICK, EBK52
 from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
@@ -453,7 +460,7 @@ from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS
 from calibre.devices.sne.driver import SNE
-from calibre.devices.misc import PALMPRE, AVANT
+from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 
@@ -461,8 +468,11 @@ from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
     LibraryThing
 from calibre.ebooks.metadata.douban import DoubanBooks
 from calibre.library.catalog import CSV_XML, EPUB_MOBI
+from calibre.ebooks.epub.fix.unmanifested import Unmanifested
+from calibre.ebooks.epub.fix.epubcheck import Epubcheck
+
 plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
-        LibraryThing, DoubanBooks, CSV_XML, EPUB_MOBI]
+        LibraryThing, DoubanBooks, CSV_XML, EPUB_MOBI, Unmanifested, Epubcheck]
 plugins += [
     ComicInput,
     EPUBInput,
@@ -499,7 +509,6 @@ plugins += [
 ]
 # Order here matters. The first matched device is the one used.
 plugins += [
-    ITUNES,
     HANLINV3,
     HANLINV5,
     BLACKBERRY,
@@ -520,6 +529,7 @@ plugins += [
     S60,
     N770,
     E71X,
+    E52,
     N810,
     COOL_ER,
     ESLICK,
@@ -550,6 +560,10 @@ plugins += [
     AZBOOKA,
     FOLDER_DEVICE_FOR_CONFIG,
     AVANT,
+    MENTOR,
+    SWEEX,
+    PDNOVEL,
+    ITUNES,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]

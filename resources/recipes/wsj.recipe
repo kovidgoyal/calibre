@@ -3,15 +3,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-import string
 from calibre.web.feeds.news import BasicNewsRecipe
+import copy
 
 # http://online.wsj.com/page/us_in_todays_paper.html
 
 class WallStreetJournal(BasicNewsRecipe):
 
-    title = 'The Wall Street Journal (US)'
-    __author__ = 'Kovid Goyal and Sujata Raman'
+    title = 'The Wall Street Journal'
+    __author__ = 'Kovid Goyal, Sujata Raman, and Joshua Oster-Morris'
     description = 'News and current affairs'
     needs_subscription = True
     language = 'en'
@@ -66,7 +66,17 @@ class WallStreetJournal(BasicNewsRecipe):
         return soup
 
     def wsj_get_index(self):
-        return self.index_to_soup('http://online.wsj.com/page/us_in_todays_paper.html')
+        return self.index_to_soup('http://online.wsj.com/itp')
+
+    def wsj_add_feed(self,feeds,title,url):
+        self.log('Found section:', title)
+        if url.endswith('whatsnews'):
+           articles = self.wsj_find_wn_articles(url)
+        else:
+           articles = self.wsj_find_articles(url)
+        if articles:
+           feeds.append((title, articles))
+        return feeds  
 
     def parse_index(self):
         soup = self.wsj_get_index()
@@ -75,24 +85,72 @@ class WallStreetJournal(BasicNewsRecipe):
         if date is not None:
             self.timefmt = ' [%s]'%self.tag_to_string(date)
 
-        sections = {}
-        sec_order = []
+        cov = soup.find('a', attrs={'class':'icon pdf'}, href=True)
+        if cov is not None:
+            self.cover_url = cov['href']
+
+        feeds = []
+        div = soup.find('div', attrs={'class':'itpHeader'})
+        div = div.find('ul', attrs={'class':'tab'})
+        for a in div.findAll('a', href=lambda x: x and '/itp/' in x):
+            pageone = a['href'].endswith('pageone')
+            if pageone:
+               title = 'Front Section'
+               url = 'http://online.wsj.com' + a['href']
+               feeds = self.wsj_add_feed(feeds,title,url)
+               title = 'What''s News'
+               url = url.replace('pageone','whatsnews')             
+               feeds = self.wsj_add_feed(feeds,title,url)
+            else:
+               title = self.tag_to_string(a)
+               url = 'http://online.wsj.com' + a['href']
+               feeds = self.wsj_add_feed(feeds,title,url)
+        return feeds
+
+    def wsj_find_wn_articles(self, url):
+        soup = self.index_to_soup(url)
+        articles = []
+
+        whats_news = soup.find('div', attrs={'class':lambda x: x and 'whatsNews-simple' in x})
+        if whats_news is not None:
+          for a in whats_news.findAll('a', href=lambda x: x and '/article/' in x):
+            container = a.findParent(['p'])
+            meta = a.find(attrs={'class':'meta_sectionName'})
+            if meta is not None:
+                meta.extract()
+            title = self.tag_to_string(a).strip()
+            url = a['href']
+            desc = ''
+            if container is not None:
+                desc = self.tag_to_string(container)
+
+            articles.append({'title':title, 'url':url,
+                'description':desc, 'date':''})
+
+            self.log('\tFound WN article:', title)
+
+        return articles
+
+    def wsj_find_articles(self, url):
+        soup = self.index_to_soup(url)
+
+        whats_news = soup.find('div', attrs={'class':lambda x: x and 'whatsNews-simple' in x})
+        if whats_news is not None:
+           whats_news.extract()
+
+        articles = []
+
+        flavorarea = soup.find('div', attrs={'class':lambda x: x and 'ahed' in x})
+        if flavorarea is not None:        
+           flavorstory = flavorarea.find('a', href=lambda x: x and x.startswith('/article'))
+           if flavorstory is not None:
+              flavorstory['class'] = 'mjLinkItem'
+              metapage = soup.find('span', attrs={'class':lambda x: x and 'meta_sectionName' in x})
+              if metapage is not None:
+                 flavorstory.append( copy.copy(metapage) ) #metapage should always be A1 because that should be first on the page
+
         for a in soup.findAll('a', attrs={'class':'mjLinkItem'}, href=True):
             container = a.findParent(['li', 'div'])
-            if container.name == 'div':
-                section = 'Page One'
-            else:
-                section = ''
-                sec = container.find('a', href=lambda x: x and '/search?' in x)
-                if sec is not None:
-                    section = self.tag_to_string(sec).strip()
-                if not section:
-                    h = container.find(['h1','h2','h3','h4','h5','h6'])
-                    section = self.tag_to_string(h)
-            section = string.capitalize(section).replace('U.s.', 'U.S.')
-            if section not in sections:
-                sections[section] = []
-                sec_order.append(section)
             meta = a.find(attrs={'class':'meta_sectionName'})
             if meta is not None:
                 meta.extract()
@@ -103,30 +161,14 @@ class WallStreetJournal(BasicNewsRecipe):
             if p is not None:
                 desc = self.tag_to_string(p)
 
-            sections[section].append({'title':title, 'url':url,
+            articles.append({'title':title, 'url':url,
                 'description':desc, 'date':''})
 
-            self.log('Found article:', title)
+            self.log('\tFound article:', title)
 
-            a.extract()
-            for a in container.findAll('a', href=lambda x: x and '/article/'
-                    in x):
-                url = a['href']
-                if not url.startswith('http:'):
-                    url = 'http://online.wsj.com'+url
-                title = self.tag_to_string(a).strip()
-                if not title or title.startswith('['): continue
-                if title:
-                    sections[section].append({'title':self.tag_to_string(a),
-                        'url':url, 'description':'', 'date':''})
-                    self.log('\tFound related:', title)
-
-
-        feeds = [(sec, sections[sec]) for sec in sec_order]
-        return feeds
+        return articles
 
 
     def cleanup(self):
         self.browser.open('http://online.wsj.com/logout?url=http://online.wsj.com')
-
 

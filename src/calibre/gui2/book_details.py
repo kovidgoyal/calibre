@@ -9,13 +9,14 @@ import os, collections
 
 from PyQt4.Qt import QLabel, QPixmap, QSize, QWidget, Qt, pyqtSignal, \
     QVBoxLayout, QScrollArea, QPropertyAnimation, QEasingCurve, \
-    QSizePolicy, QPainter, QRect, pyqtProperty, QDesktopServices, QUrl
+    QSizePolicy, QPainter, QRect, pyqtProperty
 
 from calibre import fit_image, prepare_string_for_xml
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.constants import preferred_encoding
 from calibre.library.comments import comments_to_html
+from calibre.gui2 import config, open_local_file
 
 # render_rows(data) {{{
 WEIGHTS = collections.defaultdict(lambda : 100)
@@ -93,10 +94,16 @@ class CoverView(QWidget): # {{{
         self._current_pixmap_size = val
 
     def do_layout(self):
+        if self.rect().width() == 0 or self.rect().height() == 0:
+            return
         pixmap = self.pixmap
         pwidth, pheight = pixmap.width(), pixmap.height()
-        self.pwidth, self.pheight = fit_image(pwidth, pheight,
+        try:
+            self.pwidth, self.pheight = fit_image(pwidth, pheight,
                             self.rect().width(), self.rect().height())[1:]
+        except:
+            self.pwidth, self.pheight = self.rect().width()-1, \
+                    self.rect().height()-1
         self.current_pixmap_size = QSize(self.pwidth, self.pheight)
         self.animation.setEndValue(self.current_pixmap_size)
 
@@ -120,13 +127,14 @@ class CoverView(QWidget): # {{{
         self.data = {'id':data.get('id', None)}
         if data.has_key('cover'):
             self.pixmap = QPixmap.fromImage(data.pop('cover'))
-            if self.pixmap.isNull():
+            if self.pixmap.isNull() or self.pixmap.width() < 5 or \
+                    self.pixmap.height() < 5:
                 self.pixmap = self.default_pixmap
         else:
             self.pixmap = self.default_pixmap
         self.do_layout()
         self.update()
-        if not same_item:
+        if not same_item and not config['disable_animations']:
             self.animation.start()
 
     def paintEvent(self, event):
@@ -165,6 +173,7 @@ class Label(QLabel):
         self.setTextFormat(Qt.RichText)
         self.setText('')
         self.setWordWrap(True)
+        self.setAlignment(Qt.AlignTop)
         self.linkActivated.connect(self.link_activated)
         self._link_clicked = False
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -197,15 +206,15 @@ class BookInfo(QScrollArea):
         rows = render_rows(data)
         rows = u'\n'.join([u'<tr><td valign="top"><b>%s:</b></td><td valign="top">%s</td></tr>'%(k,t) for
             k, t in rows])
+        comments = ''
+        if data.get(_('Comments'), '') not in ('', u'None'):
+            comments = data[_('Comments')]
+            comments = comments_to_html(comments)
         if self.vertical:
-            if _('Comments') in data and data[_('Comments')]:
-                comments = comments_to_html(data[_('Comments')])
+            if comments:
                 rows += u'<tr><td colspan="2">%s</td></tr>'%comments
             self.label.setText(u'<table>%s</table>'%rows)
         else:
-            comments = ''
-            if _('Comments') in data:
-                comments = comments_to_html(data[_('Comments')])
             left_pane = u'<table>%s</table>'%rows
             right_pane = u'<div>%s</div>'%comments
             self.label.setText(u'<table><tr><td valign="top" '
@@ -285,7 +294,7 @@ class BookDetails(QWidget): # {{{
             id_, fmt = val.split(':')
             self.view_specific_format.emit(int(id_), fmt)
         elif typ == 'devpath':
-            QDesktopServices.openUrl(QUrl.fromLocalFile(val))
+            open_local_file(val)
 
 
     def mouseReleaseEvent(self, ev):

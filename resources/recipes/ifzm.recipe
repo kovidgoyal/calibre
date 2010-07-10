@@ -1,0 +1,50 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1277305250(BasicNewsRecipe):
+    title          = u'infzm - China Southern Weekly'
+    oldest_article = 14
+    max_articles_per_feed = 100
+
+    feeds          = [(u'\u5357\u65b9\u5468\u672b-\u70ed\u70b9\u65b0\u95fb', u'http://www.infzm.com/rss/home/rss2.0.xml'),
+	(u'\u5357\u65b9\u5468\u672b-\u7ecf\u6d4e\u65b0\u95fb', u'http://www.infzm.com/rss/economic.xml'),
+	(u'\u5357\u65b9\u5468\u672b-\u6587\u5316\u65b0\u95fb', u'http://www.infzm.com/rss/culture.xml'),
+	(u'\u5357\u65b9\u5468\u672b-\u751f\u6d3b\u65f6\u5c1a', u'http://www.infzm.com/rss/lifestyle.xml'),
+	(u'\u5357\u65b9\u5468\u672b-\u89c2\u70b9', u'http://www.infzm.com/rss/opinion.xml')
+	]
+    __author__            = 'rty'
+    __version__            = '1.0'
+    language = 'zh'
+    pubisher  = 'http://www.infzm.com'
+    description           = 'Chinese Weekly Tabloid'
+    category              = 'News, China'
+    remove_javascript = True
+    use_embedded_content   = False
+    no_stylesheets = True
+    #encoding               = 'GB2312'
+    encoding               = 'UTF-8'
+    conversion_options = {'linearize_tables':True}
+    masthead_url = 'http://i50.tinypic.com/2qmfb7l.jpg'
+
+    extra_css = '''
+             @font-face { font-family: "DroidFont", serif, sans-serif;  src: url(res:///system/fonts/DroidSansFallback.ttf); }\n
+             body {
+                  margin-right: 8pt;
+                  font-family: 'DroidFont', serif;}
+             .detailContent {font-family: 'DroidFont', serif, sans-serif}
+            '''
+
+    keep_only_tags = [
+                              dict(name='div', attrs={'id':'detailContent'}),
+                               ]
+    remove_tags = [
+                    dict(name='div', attrs={'id':['detailTools', 'detailSideL', 'pageNum']}),
+                         ]
+    remove_tags_after = [
+                  dict(name='div', attrs={'id':'pageNum'}),
+                         ]
+    def preprocess_html(self, soup):
+        for item in soup.findAll(color=True):
+            del item['font']
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup

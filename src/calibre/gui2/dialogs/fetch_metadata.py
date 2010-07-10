@@ -42,9 +42,6 @@ class Matches(QAbstractTableModel):
 
     def __init__(self, matches):
         self.matches = matches
-        self.matches.sort(cmp=lambda b, a: \
-                        cmp(len(a.comments if a.comments else ''),
-                            len(b.comments if b.comments else '')))
         QAbstractTableModel.__init__(self)
 
     def rowCount(self, *args):

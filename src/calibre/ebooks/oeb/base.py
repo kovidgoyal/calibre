@@ -17,6 +17,7 @@ from urlparse import urljoin
 
 from lxml import etree, html
 from cssutils import CSSParser
+from cssutils.css import CSSRule
 
 import calibre
 from calibre.constants import filesystem_encoding
@@ -24,6 +25,8 @@ from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
+
+RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
@@ -231,8 +234,6 @@ QNAME_RE      = re.compile(r'^[{][^{}]+[}][^{}]+$')
 PREFIXNAME_RE = re.compile(r'^[^:]+[:][^:]+')
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 CSSURL_RE     = re.compile(r'''url[(](?P<q>["']?)(?P<url>[^)]+)(?P=q)[)]''')
-
-RECOVER_PARSER = etree.XMLParser(recover=True)
 
 
 def element(parent, *args, **kwargs):
@@ -762,6 +763,7 @@ class Manifest(object):
             self.href = self.path = urlnormalize(href)
             self.media_type = media_type
             self.fallback = fallback
+            self.override_css_fetch = None
             self.spine_position = None
             self.linear = True
             if loader is None and data is None:
@@ -778,8 +780,7 @@ class Manifest(object):
                     assume_utf8=True, resolve_entities=True)[0]
             if not data:
                 return None
-            parser = etree.XMLParser(recover=True)
-            return etree.fromstring(data, parser=parser)
+            return etree.fromstring(data, parser=RECOVER_PARSER)
 
         def _parse_xhtml(self, data):
             self.oeb.log.debug('Parsing', self.href, '...')
@@ -807,16 +808,18 @@ class Manifest(object):
                         pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
                         data = pat.sub(lambda m:user_entities[m.group(1)], data)
 
+            # Setting huge_tree=True causes crashes in windows with large files
+            parser = etree.XMLParser(no_network=True)
             # Try with more & more drastic measures to parse
             def first_pass(data):
                 try:
-                    data = etree.fromstring(data)
+                    data = etree.fromstring(data, parser=parser)
                 except etree.XMLSyntaxError, err:
                     self.oeb.log.exception('Initial parse failed:')
                     repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
                     data = ENTITY_RE.sub(repl, data)
                     try:
-                        data = etree.fromstring(data)
+                        data = etree.fromstring(data, parser=parser)
                     except etree.XMLSyntaxError, err:
                         self.oeb.logger.warn('Parsing file %r as HTML' % self.href)
                         if err.args and err.args[0].startswith('Excessive depth'):
@@ -830,7 +833,7 @@ class Manifest(object):
                                 elem.text = elem.text.strip('-')
                         data = etree.tostring(data, encoding=unicode)
                         try:
-                            data = etree.fromstring(data)
+                            data = etree.fromstring(data, parser=parser)
                         except etree.XMLSyntaxError:
                             data = etree.fromstring(data, parser=RECOVER_PARSER)
                 return data
@@ -842,7 +845,7 @@ class Manifest(object):
                 nroot = etree.fromstring('<html></html>')
                 has_body = False
                 for child in list(data):
-                    if barename(child.tag) == 'body':
+                    if isinstance(child.tag, (unicode, str)) and barename(child.tag) == 'body':
                         has_body = True
                         break
                 parent = nroot
@@ -864,12 +867,12 @@ class Manifest(object):
                 data = etree.tostring(data, encoding=unicode)
 
                 try:
-                    data = etree.fromstring(data)
+                    data = etree.fromstring(data, parser=parser)
                 except:
                     data = data.replace(':=', '=').replace(':>', '>')
                     data = data.replace('<http:/>', '')
                     try:
-                        data = etree.fromstring(data)
+                        data = etree.fromstring(data, parser=parser)
                     except etree.XMLSyntaxError:
                         self.oeb.logger.warn('Stripping comments and meta tags from %s'%
                                 self.href)
@@ -880,7 +883,7 @@ class Manifest(object):
                                 "<?xml version='1.0' encoding='utf-8'?><o:p></o:p>",
                                 '')
                         data = data.replace("<?xml version='1.0' encoding='utf-8'??>", '')
-                        data = etree.fromstring(data)
+                        data = etree.fromstring(data, parser=RECOVER_PARSER)
             elif namespace(data.tag) != XHTML_NS:
                 # OEB_DOC_NS, but possibly others
                 ns = namespace(data.tag)
@@ -982,15 +985,40 @@ class Manifest(object):
 
 
         def _parse_css(self, data):
+
+            def get_style_rules_from_import(import_rule):
+                ans = []
+                if not import_rule.styleSheet:
+                    return ans
+                rules = import_rule.styleSheet.cssRules
+                for rule in rules:
+                    if rule.type == CSSRule.IMPORT_RULE:
+                        ans.extend(get_style_rules_from_import(rule))
+                    elif rule.type in (CSSRule.FONT_FACE_RULE,
+                            CSSRule.STYLE_RULE):
+                        ans.append(rule)
+                return ans
+
             self.oeb.log.debug('Parsing', self.href, '...')
             data = self.oeb.decode(data)
-            data = self.oeb.css_preprocessor(data)
-            data = XHTML_CSS_NAMESPACE + data
+            data = self.oeb.css_preprocessor(data, add_namespace=True)
             parser = CSSParser(loglevel=logging.WARNING,
-                               fetcher=self._fetch_css,
+                               fetcher=self.override_css_fetch or self._fetch_css,
                                log=_css_logger)
             data = parser.parseString(data, href=self.href)
             data.namespaces['h'] = XHTML_NS
+            import_rules = list(data.cssRules.rulesOfType(CSSRule.IMPORT_RULE))
+            rules_to_append = []
+            insert_index = None
+            for r in data.cssRules.rulesOfType(CSSRule.STYLE_RULE):
+                insert_index = data.cssRules.index(r)
+                break
+            for rule in import_rules:
+                rules_to_append.extend(get_style_rules_from_import(rule))
+            for r in reversed(rules_to_append):
+                data.insertRule(r, index=insert_index)
+            for rule in import_rules:
+                data.deleteRule(rule)
             return data
 
         def _fetch_css(self, path):

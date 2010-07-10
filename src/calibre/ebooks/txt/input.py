@@ -10,6 +10,7 @@ from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces
+from calibre import _ent_pat, xml_entity_to_unicode
 
 class TXTInput(InputFormatPlugin):
 
@@ -55,6 +56,8 @@ class TXTInput(InputFormatPlugin):
         if options.preserve_spaces:
             txt = preserve_spaces(txt)
 
+        txt = _ent_pat.sub(xml_entity_to_unicode, txt)
+
         if options.markdown:
             log.debug('Running text though markdown conversion...')
             try:
@@ -63,7 +66,8 @@ class TXTInput(InputFormatPlugin):
                 raise ValueError('This txt file has malformed markup, it cannot be'
                     ' converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
         else:
-            html = convert_basic(txt)
+            flow_size = getattr(options, 'flow_size', 0)
+            html = convert_basic(txt, epub_split_size_kb=flow_size)
 
         from calibre.customize.ui import plugin_for_input_format
         html_input = plugin_for_input_format('html')
