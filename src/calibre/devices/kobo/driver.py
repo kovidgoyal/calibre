@@ -85,9 +85,11 @@ class KOBO(USBMS):
 
                 idx = bl_cache.get(lpath, None)
                 if idx is not None:
-                    imagename = self.normalize_path(prefix + '.kobo/images/' + ImageID + ' - NickelBookCover.parsed')
-                    #print "Image name Normalized: " + imagename
-                    bl[idx].thumbnail = ImageWrapper(imagename)
+                    if ImageID is not None:
+                        imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - NickelBookCover.parsed')
+                        #print "Image name Normalized: " + imagename
+                        if imagename is not None:
+                            bl[idx].thumbnail = ImageWrapper(imagename)
                     bl_cache[lpath] = None
                     if ContentType != '6':
                         if self.update_metadata_item(bl[idx]):
@@ -174,23 +176,22 @@ class KOBO(USBMS):
             ImageID = row[0]
         cursor.close()
 
+        cursor = connection.cursor()
+        if ContentType == 6:
+            # Delete the shortcover_pages first
+            cursor.execute('delete from shortcover_page where shortcoverid in (select ContentID from content where BookID = ?)', t)
+
+        #Delete the volume_shortcovers second
+        cursor.execute('delete from volume_shortcovers where volumeid = ?', t)
+
+        # Delete the chapters associated with the book next
+        t = (ContentID,ContentID,)
+        cursor.execute('delete from content where BookID  = ? or ContentID = ?', t)
+
+        connection.commit()
+
+        cursor.close()
         if ImageID != None:
-            cursor = connection.cursor()
-            if ContentType == 6:
-                # Delete the shortcover_pages first
-                cursor.execute('delete from shortcover_page where shortcoverid in (select ContentID from content where BookID = ?)', t)
-
-            #Delete the volume_shortcovers second
-            cursor.execute('delete from volume_shortcovers where volumeid = ?', t)
-
-            # Delete the chapters associated with the book next
-            t = (ContentID,ContentID,)
-            cursor.execute('delete from content where BookID  = ? or ContentID = ?', t)
-
-            connection.commit()
-
-            cursor.close()
-        else:
             print "Error condition ImageID was not found"
             print "You likely tried to delete a book that the kobo has not yet added to the database"
 
@@ -225,12 +226,16 @@ class KOBO(USBMS):
                 #print "kobo book"
                 ContentType = 6
                 ContentID = self.contentid_from_path(path, ContentType)
-            if extension == '.pdf' or extension == '.epub':
+            elif extension == '.pdf' or extension == '.epub':
                 # print "ePub or pdf"
                 ContentType = 16
                 #print "Path: " + path
                 ContentID = self.contentid_from_path(path, ContentType)
                 # print "ContentID: " + ContentID
+            else: # if extension == '.html' or extension == '.txt':
+                ContentType = 999 # Yet another hack: to get around Kobo changing how ContentID is stored
+                ContentID = self.contentid_from_path(path, ContentType)
+                 
             ImageID = self.delete_via_sql(ContentID, ContentType)
             #print " We would now delete the Images for" + ImageID
             self.delete_images(ImageID)
@@ -314,6 +319,11 @@ class KOBO(USBMS):
             ContentID = ContentID.replace(self._main_prefix, '')
             if self._card_a_prefix is not None:
                 ContentID = ContentID.replace(self._card_a_prefix, '')
+        elif ContentType == 999: # HTML Files
+            ContentID = path
+            ContentID = ContentID.replace(self._main_prefix, "/mnt/onboard/")
+            if self._card_a_prefix is not None:
+                ContentID = ContentID.replace(self._card_a_prefix, "/mnt/sd/")
         else: # ContentType = 16
             ContentID = path
             ContentID = ContentID.replace(self._main_prefix, "file:///mnt/onboard/")
@@ -341,6 +351,7 @@ class KOBO(USBMS):
             else:
                 # if path.startswith("file:///mnt/onboard/"):
                 path = path.replace("file:///mnt/onboard/", self._main_prefix)
+                path = path.replace("/mnt/onboard/", self._main_prefix)
                     # print "Internal: " + filename
 
         return path

@@ -29,6 +29,7 @@ entry_points = {
              'calibre-complete   = calibre.utils.complete:main',
              'pdfmanipulate      = calibre.ebooks.pdf.manipulate.cli:main',
              'fetch-ebook-metadata = calibre.ebooks.metadata.fetch:main',
+             'epub-fix           = calibre.ebooks.epub.fix.main:main',
              'calibre-smtp = calibre.utils.smtp:main',
         ],
         'gui_scripts'    : [
@@ -180,6 +181,7 @@ class PostInstall:
             from calibre.ebooks.metadata.fetch import option_parser as fem_op
             from calibre.gui2.main import option_parser as guiop
             from calibre.utils.smtp import option_parser as smtp_op
+            from calibre.ebooks.epub.fix.main import option_parser as fix_op
             any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
                 'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt', 'lrf']
             bc = os.path.join(os.path.dirname(self.opts.staging_sharedir),
@@ -201,6 +203,7 @@ class PostInstall:
                 f.write(opts_and_exts('ebook-viewer', viewer_op, any_formats))
                 f.write(opts_and_words('fetch-ebook-metadata', fem_op, []))
                 f.write(opts_and_words('calibre-smtp', smtp_op, []))
+                f.write(opts_and_exts('epub-fix', fix_op, ['epub']))
                 f.write(textwrap.dedent('''
                 _ebook_device_ls()
                 {

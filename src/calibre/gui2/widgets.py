@@ -5,26 +5,25 @@ Miscellaneous widgets used in the GUI
 '''
 import re, os, traceback
 
-from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
+from PyQt4.Qt import QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
-                        QPixmap, QPalette, QSplitterHandle, QToolButton, \
+                        QPixmap, QSplitterHandle, QToolButton, \
                         QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal, \
-                        QRegExp, QSettings, QSize, QModelIndex, QSplitter, \
-                        QAbstractButton, QPainter, QLineEdit, QComboBox, \
+                        QRegExp, QSettings, QSize, QSplitter, \
+                        QPainter, QLineEdit, QComboBox, \
                         QMenu, QStringListModel, QCompleter, QStringList, \
                         QTimer, QRect
 
 from calibre.gui2 import NONE, error_dialog, pixmap_to_data, gprefs
 
 from calibre.gui2.filename_pattern_ui import Ui_Form
-from calibre import fit_image, human_readable
+from calibre import fit_image
 from calibre.utils.fonts import fontconfig
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs, XMLConfig
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
-from calibre.constants import filesystem_encoding
 
 history = XMLConfig('history')
 
@@ -257,189 +256,6 @@ class ImageView(QWidget):
             self.emit(SIGNAL('cover_changed(PyQt_PyObject)'),
                     pixmap_to_data(pmap))
     # }}}
-
-
-class LocationModel(QAbstractListModel):
-
-    def __init__(self, parent):
-        QAbstractListModel.__init__(self, parent)
-        self.icons = [QVariant(QIcon(I('library.png'))),
-                      QVariant(QIcon(I('reader.svg'))),
-                      QVariant(QIcon(I('sd.svg'))),
-                      QVariant(QIcon(I('sd.svg')))]
-        self.text = [_('Library\n%d\nbooks'),
-                     _('Reader\n%s\navailable'),
-                     _('Card A\n%s\navailable'),
-                     _('Card B\n%s\navailable')]
-        self.free = [-1, -1, -1]
-        self.count = 0
-        self.highlight_row = 0
-        self.library_tooltip = _('Click to see the books available on your computer')
-        self.tooltips = [
-                         self.library_tooltip,
-                         _('Click to see the books in the main memory of your reader'),
-                         _('Click to see the books on storage card A in your reader'),
-                         _('Click to see the books on storage card B in your reader')
-                         ]
-
-    def database_changed(self, db):
-        lp = db.library_path
-        if not isinstance(lp, unicode):
-            lp = lp.decode(filesystem_encoding, 'replace')
-        self.tooltips[0] = self.library_tooltip + '\n\n' + \
-                _('Books located at') + ' ' + lp
-        self.dataChanged.emit(self.index(0), self.index(0))
-
-    def rowCount(self, *args):
-        return 1 + len([i for i in self.free if i >= 0])
-
-    def get_device_row(self, row):
-        if row == 2 and self.free[1] == -1 and self.free[2] > -1:
-            row = 3
-        return row
-
-    def data(self, index, role):
-        row = index.row()
-        drow = self.get_device_row(row)
-        data = NONE
-        if role == Qt.DisplayRole:
-            text = self.text[drow]%(human_readable(self.free[drow-1])) if row > 0 \
-                            else self.text[drow]%self.count
-            data = QVariant(text)
-        elif role == Qt.DecorationRole:
-            data = self.icons[drow]
-        elif role == Qt.ToolTipRole:
-            data = QVariant(self.tooltips[drow])
-        elif role == Qt.SizeHintRole:
-            data = QVariant(QSize(155, 90))
-        elif role == Qt.FontRole:
-            font = QFont('monospace')
-            font.setBold(row == self.highlight_row)
-            data = QVariant(font)
-        elif role == Qt.ForegroundRole and row == self.highlight_row:
-            return QVariant(QApplication.palette().brush(
-                QPalette.HighlightedText))
-        elif role == Qt.BackgroundRole and row == self.highlight_row:
-            return QVariant(QApplication.palette().brush(
-                QPalette.Highlight))
-
-        return data
-
-    def device_connected(self, dev):
-        self.icons[1] = QIcon(dev.icon)
-        self.dataChanged.emit(self.index(1), self.index(1))
-
-    def headerData(self, section, orientation, role):
-        return NONE
-
-    def update_devices(self, cp=(None, None), fs=[-1, -1, -1]):
-        if cp is None:
-            cp = (None, None)
-        if isinstance(cp, (str, unicode)):
-            cp = (cp, None)
-        if len(fs) < 3:
-            fs = list(fs) + [0]
-        self.free[0] = fs[0]
-        self.free[1] = fs[1]
-        self.free[2] = fs[2]
-        cpa, cpb = cp
-        self.free[1] = fs[1] if fs[1] is not None and cpa is not None else -1
-        self.free[2] = fs[2] if fs[2] is not None and cpb is not None else -1
-        self.reset()
-        self.emit(SIGNAL('devicesChanged()'))
-
-    def location_changed(self, row):
-        self.highlight_row = row
-        self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
-                self.index(0), self.index(self.rowCount(QModelIndex())-1))
-
-    def location_for_row(self, row):
-        if row == 0: return 'library'
-        if row == 1: return 'main'
-        if row == 3: return 'cardb'
-        return 'carda' if self.free[1] > -1 else 'cardb'
-
-class LocationView(QListView):
-
-    def __init__(self, parent):
-        QListView.__init__(self, parent)
-        self.setModel(LocationModel(self))
-        self.reset()
-        self.currentChanged = self.current_changed
-
-        self.eject_button = EjectButton(self)
-        self.eject_button.hide()
-
-        self.connect(self, SIGNAL('entered(QModelIndex)'), self.item_entered)
-        self.connect(self, SIGNAL('viewportEntered()'), self.viewport_entered)
-        self.connect(self.eject_button, SIGNAL('clicked()'), lambda: self.emit(SIGNAL('umount_device()')))
-        self.connect(self.model(), SIGNAL('devicesChanged()'), self.eject_button.hide)
-
-    def count_changed(self, new_count):
-        self.model().count = new_count
-        self.model().reset()
-
-    def current_changed(self, current, previous):
-        if current.isValid():
-            i = current.row()
-            location = self.model().location_for_row(i)
-            self.emit(SIGNAL('location_selected(PyQt_PyObject)'), location)
-            self.model().location_changed(i)
-
-    def location_changed(self, row):
-        if 0 <= row and row <= 3:
-            self.model().location_changed(row)
-
-    def leaveEvent(self, event):
-        self.unsetCursor()
-        self.eject_button.hide()
-
-    def item_entered(self, location):
-        self.setCursor(Qt.PointingHandCursor)
-        self.eject_button.hide()
-
-        if location.row() == 1:
-            rect = self.visualRect(location)
-
-            self.eject_button.resize(rect.height()/2, rect.height()/2)
-
-            x, y = rect.left(), rect.top()
-            x = x + (rect.width() - self.eject_button.width() - 2)
-            y += 6
-
-            self.eject_button.move(x, y)
-            self.eject_button.show()
-
-    def viewport_entered(self):
-        self.unsetCursor()
-        self.eject_button.hide()
-
-
-class EjectButton(QAbstractButton):
-
-    def __init__(self, parent):
-        QAbstractButton.__init__(self, parent)
-        self.mouse_over = False
-
-    def enterEvent(self, event):
-        self.mouse_over = True
-
-    def leaveEvent(self, event):
-        self.mouse_over = False
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setClipRect(event.rect())
-        image = QPixmap(I('eject')).scaledToHeight(event.rect().height(),
-            Qt.SmoothTransformation)
-
-        if not self.mouse_over:
-            alpha_mask = QPixmap(image.width(), image.height())
-            color = QColor(128, 128, 128)
-            alpha_mask.fill(color)
-            image.setAlphaChannel(alpha_mask)
-
-        painter.drawPixmap(0, 0, image)
 
 
 
@@ -1006,12 +822,14 @@ class LayoutButton(QToolButton):
         label =_('Show')
         self.setText(label + ' ' + self.label)
         self.setToolTip(self.text())
+        self.setStatusTip(self.text())
 
     def set_state_to_hide(self, *args):
         self.setChecked(True)
         label = _('Hide')
         self.setText(label + ' ' + self.label)
         self.setToolTip(self.text())
+        self.setStatusTip(self.text())
 
     def update_state(self, *args):
         if self.splitter.is_side_index_hidden:

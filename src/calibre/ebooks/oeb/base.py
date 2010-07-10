@@ -26,7 +26,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
 
-RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True, huge_tree=True)
+RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'

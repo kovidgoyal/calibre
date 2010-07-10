@@ -9,6 +9,7 @@ from calibre.customize import FileTypePlugin, MetadataReaderPlugin, MetadataWrit
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 
+# To archive plugins {{{
 class HTML2ZIP(FileTypePlugin):
     name = 'HTML to ZIP'
     author = 'Kovid Goyal'
@@ -81,6 +82,8 @@ class PML2PMLZ(FileTypePlugin):
         pmlz.close()
 
         return of.name
+
+# }}}
 
 # Metadata reader plugins {{{
 class ComicMetadataReader(MetadataReaderPlugin):
@@ -457,7 +460,7 @@ from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS
 from calibre.devices.sne.driver import SNE
-from calibre.devices.misc import PALMPRE, AVANT, SWEEX
+from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 
@@ -465,8 +468,11 @@ from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
     LibraryThing
 from calibre.ebooks.metadata.douban import DoubanBooks
 from calibre.library.catalog import CSV_XML, EPUB_MOBI
+from calibre.ebooks.epub.fix.unmanifested import Unmanifested
+from calibre.ebooks.epub.fix.epubcheck import Epubcheck
+
 plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
-        LibraryThing, DoubanBooks, CSV_XML, EPUB_MOBI]
+        LibraryThing, DoubanBooks, CSV_XML, EPUB_MOBI, Unmanifested, Epubcheck]
 plugins += [
     ComicInput,
     EPUBInput,
@@ -556,6 +562,7 @@ plugins += [
     AVANT,
     MENTOR,
     SWEEX,
+    PDNOVEL,
     ITUNES,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \

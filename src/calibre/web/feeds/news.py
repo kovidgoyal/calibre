@@ -264,7 +264,7 @@ class BasicNewsRecipe(Recipe):
             }
 
             .article_description {
-                font-family: sans; text-indent: 0pt;
+                text-indent: 0pt;
             }
 
             a.article {
@@ -683,13 +683,15 @@ class BasicNewsRecipe(Recipe):
             base.extract()
 
         ans = self.postprocess_html(soup, first_fetch)
-        try:
-            article = self.feed_objects[f].articles[a]
-        except:
-            self.log.exception('Failed to get article object for postprocessing')
-            pass
-        else:
-            self.populate_article_metadata(article, ans, first_fetch)
+        if job_info:
+            url, f, a, feed_len = job_info
+            try:
+                article = self.feed_objects[f].articles[a]
+            except:
+                self.log.exception('Failed to get article object for postprocessing')
+                pass
+            else:
+                self.populate_article_metadata(article, ans, first_fetch)
         return ans
 
 

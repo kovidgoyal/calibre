@@ -10,7 +10,7 @@ from functools import partial
 from binascii import unhexlify
 
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, QPixmap, \
-                     Qt, pyqtSignal, QColor, QPainter, QDialog
+                     Qt, pyqtSignal, QColor, QPainter, QDialog, QMessageBox
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre.customize.ui import available_input_formats, available_output_formats, \
@@ -758,10 +758,8 @@ class DeviceMixin(object): # {{{
             self.refresh_ondevice_info (device_connected = True, reset_only = True)
         else:
             self.device_connected = None
+            self.status_bar.device_disconnected()
             self.location_view.model().update_devices()
-            self.vanity.setText(self.vanity_template%\
-                    dict(version=self.latest_version, device=' '))
-            self.device_info = ' '
             if self.current_view() != self.library_view:
                 self.book_details.reset_info()
                 self.location_view.setCurrentIndex(self.location_view.model().index(0))
@@ -775,10 +773,7 @@ class DeviceMixin(object): # {{{
             return self.device_job_exception(job)
         info, cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
-        self.device_info = _('Connected ')+info[0]
-        self.vanity.setText(self.vanity_template%\
-                dict(version=self.latest_version, device=self.device_info))
-
+        self.status_bar.device_connected(info[0])
         self.device_manager.books(Dispatcher(self.metadata_downloaded))
 
     def metadata_downloaded(self, job):
@@ -957,7 +952,8 @@ class DeviceMixin(object): # {{{
                 autos = '\n'.join('%s'%i for i in autos)
                 if question_dialog(self, _('No suitable formats'),
                     _('Auto convert the following books before sending via '
-                        'email?'), det_msg=autos):
+                        'email?'), det_msg=autos,
+                    buttons=QMessageBox.Yes|QMessageBox.Cancel):
                     self.auto_convert_mail(to, fmts, delete_from_library, auto, format)
 
         if bad:
@@ -1056,7 +1052,8 @@ class DeviceMixin(object): # {{{
                     autos = '\n'.join('%s'%i for i in autos)
                     if question_dialog(self, _('No suitable formats'),
                         _('Auto convert the following books before uploading to '
-                            'the device?'), det_msg=autos):
+                            'the device?'), det_msg=autos,
+                        buttons=QMessageBox.Yes|QMessageBox.Cancel):
                         self.auto_convert_catalogs(auto, format)
             files = [f for f in files if f is not None]
             if not files:
@@ -1117,7 +1114,8 @@ class DeviceMixin(object): # {{{
                     autos = '\n'.join('%s'%i for i in autos)
                     if question_dialog(self, _('No suitable formats'),
                         _('Auto convert the following books before uploading to '
-                            'the device?'), det_msg=autos):
+                            'the device?'), det_msg=autos,
+                        buttons=QMessageBox.Yes|QMessageBox.Cancel):
                         self.auto_convert_news(auto, format)
             files = [f for f in files if f is not None]
             for f in files:
@@ -1235,7 +1233,8 @@ class DeviceMixin(object): # {{{
                 autos = '\n'.join('%s'%i for i in autos)
                 if question_dialog(self, _('No suitable formats'),
                     _('Auto convert the following books before uploading to '
-                        'the device?'), det_msg=autos):
+                        'the device?'), det_msg=autos,
+                    buttons=QMessageBox.Yes|QMessageBox.Cancel):
                     self.auto_convert(auto, on_card, format)
 
         if bad:

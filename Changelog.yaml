@@ -4,6 +4,74 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.8
+  date: 2010-07-09
+
+  new features:
+    - title: "New tool to help prepare EPUBs for publication"
+      type: major
+      description: >
+        "calibre now contains a new command line tool called epub-fix that can automatically fix
+        common problems in EPUB files that cause them to be rejected by poorly designed publishing services.
+        The tool is plugin based for extensible functionality in the future. Currently, it can fix unmanifested files
+        and workaround the date and svg preserveaspectratio bugs of epubcheck."
+
+    - title: "New icons for the toolbar buttons by Kamil Tatara"
+
+    - title: "Display rating (when available) in cover browser"
+
+    - title: "Clicking on the central cover int the cover browser now opens that book in the viewer"
+
+    - title: "Use the status bar instead of the area to the right of the location view to display status information"
+
+    - title: "Driver for the Pandigital Novel e-book reader"
+
+  bug fixes:
+    - title: "News download: Don not specify a font family for article descriptions"
+
+    - title: "News download: Fix regression introduced in 0.7.0 that broke download of some embedded content feeds"
+
+    - title: "MOBI Output: Partial support for nested superscript and subscripts."
+      tickets: [6132]
+
+    - title: "CHM Input: Fix handling of buggy CHM files with no .hhc"
+      tickets: [6087]
+
+    - title: "EPUB Input: Fix bug in unzipping EPUB files that have been zipped in depth first order."
+      tickets: [6127]
+
+    - title: "TXT Input: Convert HTML entities to characters."
+      tickets: [6114]
+
+    - title: "LRF Input: Handle LRF files with random null bytes in the text"
+      tickets: [6097]
+
+    - title: "Kobo driver: Fix detection of txt/html files on the device"
+
+    - title: "Fix opening of books when calibre library is on an unmapped network share in windows"
+
+    - title: "SONY driver: Only update the timestamp in the XML db for newly added books"
+
+    - title: "Cover browser: Fix rendering of center cover when width of cover browser is less than the width of a single cover"
+
+    - title: "Cover browser: Correct fix for setPixel out of bounds warning causing UI slowdown in calibre"
+
+  new recipes:
+    - title: "evz.ro"
+      author: Darko Miletic
+
+    - title: "Anchorage Daily News, China Economic Net, BBC Chinese and Singtao Daily"
+      author: rty
+
+    - title: Big Oven
+      author: Starson17
+
+  improved recipes:
+    - Haaretz
+    - Editor and Publisher
+    - Estadao
+
+
 - version: 0.7.7
   date: 2010-07-02
 
@@ -44,7 +112,7 @@
 
     - title: "MOBI Output: Fix a memory leak and a crash in the palmdoc compression routine"
 
-    - title: "Metadata download: Fix a regressiont at resulted in a failed download for some books"
+    - title: "Metadata download: Fix a regression that resulted in a failed download for some books"
 
   new recipes:
     - title: "Foreign Policy and Alo!"

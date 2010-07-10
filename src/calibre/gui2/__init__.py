@@ -226,10 +226,11 @@ def error_dialog(parent, title, msg, det_msg='', show=False,
         return d.exec_()
     return d
 
-def question_dialog(parent, title, msg, det_msg='', show_copy_button=True):
-    d = MessageBox(QMessageBox.Question, title, msg, QMessageBox.Yes|QMessageBox.No,
+def question_dialog(parent, title, msg, det_msg='', show_copy_button=True,
+        buttons=QMessageBox.Yes|QMessageBox.No):
+    d = MessageBox(QMessageBox.Question, title, msg, buttons,
                     parent, det_msg)
-    d.setIconPixmap(QPixmap(I('dialog_information.svg')))
+    d.setIconPixmap(QPixmap(I('dialog_question.svg')))
     d.setEscapeButton(QMessageBox.No)
     if not show_copy_button:
         d.cb.setVisible(False)
@@ -592,8 +593,11 @@ def open_url(qurl):
 
 
 def open_local_file(path):
-    url = QUrl.fromLocalFile(path)
-    open_url(url)
+    if iswindows:
+        os.startfile(os.path.normpath(path))
+    else:
+        url = QUrl.fromLocalFile(path)
+        open_url(url)
 
 def is_ok_to_use_qt():
     global gui_thread, _store_app

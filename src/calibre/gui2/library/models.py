@@ -492,6 +492,11 @@ class BooksModel(QAbstractTableModel): # {{{
     def title(self, row_number):
         return self.db.title(row_number)
 
+    def rating(self, row_number):
+        ans = self.db.rating(row_number)
+        ans = ans/2 if ans else 0
+        return int(ans)
+
     def cover(self, row_number):
         data = None
         try:
@@ -937,6 +942,7 @@ class DeviceBooksModel(BooksModel): # {{{
             cname = self.column_map[index.column()]
             if cname in ('title', 'authors') or \
                     (cname == 'collections' and \
+                     callable(getattr(self.db, 'supports_collections', None)) and \
                      self.db.supports_collections() and \
                      prefs['preserve_user_collections']):
                 flags |= Qt.ItemIsEditable

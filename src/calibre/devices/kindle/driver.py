@@ -213,7 +213,7 @@ class KINDLE_DX(KINDLE2):
     PRODUCT_ID = [0x0003]
     BCD        = [0x0100]
 
-class Bookmark():
+class Bookmark(): # {{{
     '''
     A simple class fetching bookmark data
     Kindle-specific
@@ -517,3 +517,6 @@ class Bookmark():
 
         else:
             print "unsupported bookmark_extension: %s" % self.bookmark_extension
+
+# }}}
+

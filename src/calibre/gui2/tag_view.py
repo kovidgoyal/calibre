@@ -768,6 +768,9 @@ class TagBrowserWidget(QWidget): # {{{
         for x in (_('Sort by name'), _('Sort by popularity'),
                   _('Sort by average rating')):
             parent.sort_by.addItem(x)
+        parent.sort_by.setToolTip(
+                _('Set the sort order for entries in the Tag Browser'))
+        parent.sort_by.setStatusTip(parent.sort_by.toolTip())
         parent.sort_by.setCurrentIndex(0)
         self._layout.addWidget(parent.sort_by)
 
@@ -776,9 +779,16 @@ class TagBrowserWidget(QWidget): # {{{
             parent.tag_match.addItem(x)
         parent.tag_match.setCurrentIndex(0)
         self._layout.addWidget(parent.tag_match)
+        parent.tag_match.setToolTip(
+                _('When selecting multiple entries in the Tag Browser '
+                    'match any or all of them'))
+        parent.tag_match.setStatusTip(parent.tag_match.toolTip())
 
         parent.edit_categories = QPushButton(_('Manage &user categories'), parent)
         self._layout.addWidget(parent.edit_categories)
+        parent.edit_categories.setToolTip(
+                _('Add your own categories to the Tag Browser'))
+        parent.edit_categories.setStatusTip(parent.edit_categories.toolTip())
 
 
 # }}}
