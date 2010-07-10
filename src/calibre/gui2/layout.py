@@ -12,6 +12,7 @@ from PyQt4.Qt import QIcon, Qt, QWidget, QAction, QToolBar, QSize, QVariant, \
 
 from calibre.constants import __appname__, filesystem_encoding
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
+from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2 import NONE
 from calibre import human_readable
@@ -280,12 +281,7 @@ class SearchBar(QWidget): # {{{
         self._layout = l = QHBoxLayout()
         self.setLayout(self._layout)
 
-        self.restriction_label = QLabel(_("&Restrict to:"))
-        l.addWidget(self.restriction_label)
-        self.restriction_label.setSizePolicy(QSizePolicy.Minimum,
-                QSizePolicy.Minimum)
-
-        x = QComboBox(self)
+        x = ComboBoxWithHelp(self)
         x.setMaximumSize(QSize(150, 16777215))
         x.setObjectName("search_restriction")
         x.setToolTip(_("Books display will be restricted to those matching the selected saved search"))
@@ -344,7 +340,6 @@ class SearchBar(QWidget): # {{{
         x.setToolTip(_("Delete current saved search"))
 
         self.label.setBuddy(parent.search)
-        self.restriction_label.setBuddy(parent.search_restriction)
 
 
 # }}}
