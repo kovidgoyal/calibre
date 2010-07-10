@@ -31,7 +31,7 @@ from calibre.gui2.wizard import move_library
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import UpdateMixin
 from calibre.gui2.main_window import MainWindow
-from calibre.gui2.main_ui import Ui_MainWindow
+from calibre.gui2.layout import MainWindowMixin
 from calibre.gui2.device import DeviceMixin
 from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
 from calibre.gui2.dialogs.config import ConfigDialog
@@ -91,7 +91,7 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 # }}}
 
-class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
+class Main(MainWindow, MainWindowMixin, DeviceMixin, ToolbarMixin, # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
         SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
         AnnotationsAction, AddAction, DeleteAction,
@@ -120,7 +120,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
                 self.another_instance_wants_to_talk)
         self.check_messages_timer.start(1000)
 
-        Ui_MainWindow.__init__(self)
+        MainWindowMixin.__init__(self)
 
         # Jobs Button {{{
         self.job_manager = JobManager()
@@ -281,7 +281,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
 
         self.read_settings()
         self.finalize_layout()
-        self.donate_button.set_normal_icon_size(64, 64)
         self.donate_button.start_animation()
 
     def resizeEvent(self, ev):
