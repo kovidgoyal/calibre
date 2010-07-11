@@ -132,9 +132,11 @@ class DateEdit(QDateEdit):
 
     def focusInEvent(self, x):
         self.setSpecialValueText('')
+        QDateEdit.focusInEvent(self, x)
 
     def focusOutEvent(self, x):
         self.setSpecialValueText(_('Undefined'))
+        QDateEdit.focusOutEvent(self, x)
 
 class DateTime(Base):
 
@@ -142,7 +144,10 @@ class DateTime(Base):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 DateEdit(parent)]
         w = self.widgets[1]
-        w.setDisplayFormat('dd MMM yyyy')
+        format = self.col_metadata['display'].get('date_format','')
+        if not format:
+            format = 'dd MMM yyyy'
+        w.setDisplayFormat(format)
         w.setCalendarPopup(True)
         w.setMinimumDate(UNDEFINED_QDATE)
         w.setSpecialValueText(_('Undefined'))
@@ -156,7 +161,7 @@ class DateTime(Base):
 
     def getter(self):
         val = self.widgets[1].date()
-        if val == UNDEFINED_QDATE:
+        if val <= UNDEFINED_QDATE:
             val = None
         else:
             val = qt_to_dt(val)
