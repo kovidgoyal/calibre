@@ -70,6 +70,16 @@ class ANDROID(USBMS):
             dirs = [x.strip() for x in dirs.split(',')]
         self.EBOOK_DIR_MAIN = dirs
 
+    def get_main_ebook_dir(self, for_upload=False):
+        dirs = self.EBOOK_DIR_MAIN
+        if not for_upload:
+            def aldiko_tweak(x):
+                return 'eBooks' if x == 'eBooks/import' else x
+            if isinstance(dirs, basestring):
+                dirs = [dirs]
+            dirs = list(map(aldiko_tweak, dirs))
+        return dirs
+
 class S60(USBMS):
 
     name = 'S60 driver'
