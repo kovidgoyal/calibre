@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2010, Greg Riker <griker at hotmail.com>'
 
-import datetime, htmlentitydefs, os, re, shutil, codecs
+import datetime, htmlentitydefs, os, re, shutil
 
 from collections import namedtuple
 from copy import deepcopy
@@ -18,7 +18,7 @@ from calibre.utils.date import isoformat, now as nowf
 from calibre.utils.logging import default_log as log
 
 #Bibtex functions
-from calibre.library.bibtex import create_bibtex_entry, utf8ToBibtex
+from calibre.utils.bibtex import bibtex_author_format, utf8ToBibtex, ValidateCitationKey
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
@@ -216,8 +216,103 @@ class BIBTEX(CatalogPlugin):
                 'Available types: book, misc, mixed.\n'
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format"))]
-
+                
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
+    
+        import codecs
+        
+        def create_bibtex_entry(entry, fields, mode = "mixed"):
+            #Bibtex doesn't like UTF-8 but keep unicode until writing
+            #Define starting chain or if book valid strict and not book return a Fail string
+            
+            bibtex_entry = []
+            if mode != "misc" and check_entry_book_valid(entry) :
+                bibtex_entry.append(u'@book{')
+            elif mode != "book" :
+                bibtex_entry.append(u'@misc{')
+            else :
+                #case strict book
+                return ''
+                
+            # Citation tag (not the best should be a user defined thing with regexp)
+            if not len(entry["isbn"]) == 0 :
+                bibtex_entry.append(u'%s' % utf8ToBibtex(ValidateCitationKey(re.sub(u'[\D]',
+                    u'', entry["isbn"]))))
+            else :
+                bibtex_entry.append(u'%s' % utf8ToBibtex(ValidateCitationKey(str(entry["id"]))))
+            
+            bibtex_entry = [u' '.join(bibtex_entry)]
+            
+            for field in fields:
+                item = entry[field]
+                #check if the field should be included (none or empty)
+                if item is None:
+                    continue
+                try:
+                    if len(item) == 0 :
+                        continue
+                except TypeError:
+                    pass
+
+                if field == 'authors' :
+                    bibtex_entry.append(u'author = "%s"' % bibtex_author_format(item))
+                    
+                elif field in ['title', 'publisher', 'cover', 'uuid',
+                        'author_sort', 'series'] :
+                    bibtex_entry.append(u'%s = "%s"' % (field, utf8ToBibtex(item)))
+                    
+                elif field == 'id' :
+                    bibtex_entry.append(u'calibreid = "%s"' % int(item))
+                    
+                elif field == 'rating' :
+                    bibtex_entry.append(u'rating = "%s"' % int(item))
+                    
+                elif field == 'size' :
+                    bibtex_entry.append(u'%s = "%s octets"' % (field, int(item)))
+                    
+                elif field == 'tags' : 
+                    #A list to flatten
+                    bibtex_entry.append(u'tags = "%s"' % utf8ToBibtex(u', '.join(item)))
+                    
+                elif field == 'comments' : 
+                    #\n removal
+                    bibtex_entry.append(u'note = "%s"' % utf8ToBibtex(item.replace(u'\n',u' ')))
+                    
+                elif field == 'isbn' :
+                    # Could be 9, 10 or 13 digits
+                    bibtex_entry.append(u'isbn = "%s"' % re.sub(u'[\D]', u'', item))
+                    
+                elif field == 'formats' :
+                    item = u', '.join([format.rpartition('.')[2].lower() for format in item])
+                    bibtex_entry.append(u'formats = "%s"' % item)
+                    
+                elif field == 'series_index' :
+                    bibtex_entry.append(u'volume = "%s"' % int(item))
+                    
+                elif field == 'timestamp' :
+                    bibtex_entry.append(u'timestamp = "%s"' % isoformat(item).partition('T')[0])
+                    
+                elif field == 'pubdate' :
+                    bibtex_entry.append(u'year = "%s"' % item.year)
+                    #Messing locale in date string formatting
+                    bibtex_entry.append(u'month = "%s"' % utf8ToBibtex(item.strftime("%b").decode(preferred_encoding)))
+                    #bibtex_entry.append('month = "%s"' % utf8ToBibtex(item.strftime("%B").decode(getlocale()[1])))
+            
+            bibtex_entry = u',\n    '.join(bibtex_entry)
+            bibtex_entry += u' }\n\n'
+            
+            return bibtex_entry
+    
+        def check_entry_book_valid(entry):
+            #Check that the required fields are ok for a book entry
+            for field in ['title', 'authors', 'publisher'] :
+                if entry[field] is None or len(entry[field]) == 0 :
+                    return False
+            if entry['pubdate'] is None :
+                return False
+            else :
+                return True
+
         self.fmt = path_to_output.rpartition('.')[2]
         self.notification = notification
 
@@ -238,7 +333,6 @@ class BIBTEX(CatalogPlugin):
                 else:
                     log(" Fields: %s" % opts_dict['fields'])
 
-
         # If a list of ids are provided, don't use search_text
         if opts.ids:
             opts.search_text = None
@@ -255,15 +349,16 @@ class BIBTEX(CatalogPlugin):
             log.error("\nNo matching database entries for search criteria '%s'" % opts.search_text)
             
         #Open output and write entries
-        outfile = codecs.open(path_to_output, 'w', 'ascii')
+        #replace should be an option and not the default to generate errors for improving
+        outfile = codecs.open(path_to_output, 'w', 'ascii','replace')
         
         #File header
-        nb_entries = len(vars(opts)['ids'])
+        nb_entries = len(opts.ids)
         outfile.write(u'%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
         outfile.write(u'@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'
             % (nb_entries, nowf().strftime("%A, %d. %B %Y %H:%M").decode(preferred_encoding)))
         
-        #Entries
+        #Entries wrintng after Bibtex formating
         for entry in data:
             outfile.write(create_bibtex_entry(entry, fields))
         

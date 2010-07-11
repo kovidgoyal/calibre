@@ -3,6 +3,9 @@
 """ Collection of python utility-methodes commonly used by other
     bibliograph packages.
     From http://pypi.python.org/pypi/bibliograph.core/
+    from Tom Gross <itconsense@gmail.com>
+    
+    Adapted for calibre use
     
     Zope Public License (ZPL) Version 2.1
 
@@ -60,14 +63,9 @@
     """
 
 __docformat__ = 'reStructuredText'
-__author__  = 'Tom Gross <itconsense@gmail.com>'
+__author__  = 'sengian <sengian1 at gmail.com>'
 
 import os, re, string
-
-#from locale import getlocale
-from calibre.constants import preferred_encoding
-from calibre import strftime
-from calibre.utils.date import isoformat
 
 utf8enc2latex_mapping = {
     # This is a mapping of Unicode characters to LaTeX equivalents.
@@ -77,6 +75,37 @@ utf8enc2latex_mapping = {
     #
     # The extraction has been done by the "create_unimap.py" script
     # located at <http://docutils.sf.net/tools/dev/create_unimap.py>.
+    
+    #Fix some encoding problem between cp1252 and latin1
+    # from http://www.microsoft.com/typography/unicode/1252.htm
+    u'\x80': '{\\mbox{\\texteuro}}', # EURO SIGN
+    u'\x82': '{,}', # SINGLE LOW-9 QUOTATION MARK
+    u'\x83': '$f$', # LATIN SMALL LETTER F WITH HOOK
+    u'\x84': '{,,}', # DOUBLE LOW-9 QUOTATION MARK
+    u'\x85': '{\\ldots}', # HORIZONTAL ELLIPSIS
+    u'\x86': '{\\textdagger}', # DAGGER
+    u'\x87': '{\\textdaggerdbl}', # DOUBLE DAGGER
+    u'\x88': '{\textasciicircum}', # MODIFIER LETTER CIRCUMFLEX ACCENT
+    u'\x89': '{\\textperthousand}', # PER MILLE SIGN
+    u'\x8A': '{\\v{S}}', # LATIN CAPITAL LETTER S WITH CARON
+    u'\x8B': '{\\guilsinglleft}', # SINGLE LEFT-POINTING ANGLE QUOTATION MARK
+    u'\x8C': '{\\OE}', # LATIN CAPITAL LIGATURE OE
+    u'\x8E': '{\\v{Z}}', # LATIN CAPITAL LETTER Z WITH CARON
+    u'\x91': '{`}', # LEFT SINGLE QUOTATION MARK
+    u'\x92': "{'}", # RIGHT SINGLE QUOTATION MARK
+    u'\x93': '{\\textquotedblleft}', # LEFT DOUBLE QUOTATION MARK
+    u'\x94': '{\\textquotedblright}', # RIGHT DOUBLE QUOTATION MARK
+    u'\x95': '{\\textbullet}', # BULLET
+    u'\x96': '{\\textendash}', # EN DASH
+    u'\x97': '{\\textemdash}', # EM DASH
+    u'\x98': '{\\texttildelow}', # SMALL TILDE
+    u'\x99': '{\\texttrademark}', # TRADE MARK SIGN
+    u'\x9A': '{\\v{s}}', # LATIN SMALL LETTER S WITH CARON
+    u'\x9B': '{\\guilsinglright}', # SINGLE RIGHT-POINTING ANGLE QUOTATION MARK
+    u'\x9C': '{\\oe}', # LATIN SMALL LIGATURE OE
+    u'\x9E': '{\\v{z}}', # LATIN SMALL LETTER Z WITH CARON
+    u'\x9F': '{\\"{Y}}', # LATIN CAPITAL LETTER Y WITH DIAERESIS
+
     u'\xa0': '$~$',
     u'\xa1': '{\\textexclamdown}',
     u'\xa2': '{\\textcent}',
@@ -2494,100 +2523,22 @@ def escapeSpecialCharacters(text):
     return text
     
 #Calibre functions
-#Go from an unicode entry to ASCII Bibtex format without encoding (try to decode if needed)
-def utf8ToBibtex(text):
+#Go from an unicode entry to ASCII Bibtex format without encoding
+def utf8ToBibtex(text, asccii_bibtex = True):
     if len(text) == 0:
         return ''
-    try :
-        text = text.decode(preferred_encoding)
+    '''try :
+        text = text.decode('cp1252')
     except (TypeError, UnicodeDecodeError, ValueError):
-        pass
+        pass '''
     text.replace('\\', '\\\\')
     text = resolveEntities(text)
-    text = resolveUnicode(text)
-    text = escapeSpecialCharacters(text)
-    return text
+    if asccii_bibtex :
+        text = resolveUnicode(text)
+    return escapeSpecialCharacters(text)
     
-def create_bibtex_entry(entry, fields, mode = "mixed"):
-        #Bibtex doesn't like UTF-8 but keep unicode until writing
-        #Define starting chain as a misc then overide if book valid
-        bibtex_entry = []
-        if mode != "misc" and check_entry_book_valid(entry) :
-            bibtex_entry.append(u'@book{')
-        else :
-            bibtex_entry.append(u'@misc{')
-        
-        # Citation tag (not the best should be a user defined thing with regexp)
-        if not len(entry["isbn"]) == 0 :
-            bibtex_entry.append(u'%s' % utf8ToBibtex(ValidateCitationKey(re.sub(u'[\D]',
-                u'', entry["isbn"]))))
-        else :
-            bibtex_entry.append(u'%s' % utf8ToBibtex(ValidateCitationKey(str(entry["id"]))))
-        
-        bibtex_entry = [u' '.join(bibtex_entry)]
-        
-        for field in fields:
-            item = entry[field]
-            #check if the field should be included (none or empty)
-            if item is None:
-                continue
-            try:
-                if len(item) == 0 :
-                    continue
-            except TypeError:
-                pass
-
-            if field == 'authors' :
-                bibtex_entry.append(u'author = "%s"' % bibtex_author_format(item))
-            elif field in ['title', 'publisher', 'cover', 'uuid',
-                    'author_sort', 'series'] :
-                bibtex_entry.append(u'%s = "%s"' % (field, utf8ToBibtex(item)))
-            elif field == 'id' :
-                bibtex_entry.append(u'calibreid = "%s"' % int(item))
-            elif field == 'rating' :
-                bibtex_entry.append(u'rating = "%s"' % int(item))
-            elif field == 'size' :
-                bibtex_entry.append(u'%s = "%s octets"' % (field, int(item)))
-            elif field == 'tags' : 
-                #A list to flatten
-                bibtex_entry.append(u'tags = "%s"' % utf8ToBibtex(u', '.join(item)))
-            elif field == 'comments' : 
-                #\n removal
-                bibtex_entry.append(u'note = "%s"' % utf8ToBibtex(item.replace(u'\n',u' ')))
-            elif field == 'isbn' :
-                # Could be 9, 10 or 13 digits
-                bibtex_entry.append(u'isbn = "%s"' % re.sub(u'[\D]', u'', item))
-            elif field == 'formats' :
-                item = u', '.join([format.rpartition('.')[2].lower() for format in item])
-                bibtex_entry.append(u'formats = "%s"' % item)
-            elif field == 'series_index' :
-                bibtex_entry.append(u'volume = "%s"' % int(item))
-            elif field == 'timestamp' :
-                bibtex_entry.append(u'timestamp = "%s"' % isoformat(item).partition('T')[0])
-            elif field == 'pubdate' :
-                bibtex_entry.append(u'year = "%s"' % item.year)
-                #Messing locale in date string formatting
-                bibtex_entry.append(u'month = "%s"' % utf8ToBibtex(item.strftime("%b")))
-                #bibtex_entry.append('month = "%s"' % utf8ToBibtex(item.strftime("%B").decode(getlocale()[1])))
-        
-        bibtex_entry = u',\n    '.join(bibtex_entry)
-        bibtex_entry += u' }\n\n'
-        
-        return bibtex_entry
-    
-def check_entry_book_valid(entry):
-    #Check that the required fields are ok for a book entry
-    for field in ['title', 'authors', 'publisher'] :
-        if entry[field] is None or len(entry[field]) == 0 :
-            return False
-    if entry['pubdate'] is None :
-        return False
-    else :
-        return True    
-
 def bibtex_author_format(item):
-    #Format authors for Bibtex compliance
+    #Format authors for Bibtex compliance (get a list as input)
     item = u' and'.join([author for author in item])
     return utf8ToBibtex(item)
     
-  
