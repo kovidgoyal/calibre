@@ -10,9 +10,10 @@ from functools import partial
 
 from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
         QDate, QGroupBox, QVBoxLayout, QPlainTextEdit, QSizePolicy, \
-        QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL
+        QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL, \
+        QPushButton
 
-from calibre.utils.date import qt_to_dt
+from calibre.utils.date import qt_to_dt, now
 from calibre.gui2.widgets import TagsLineEdit, EnComboBox
 from calibre.gui2 import UNDEFINED_QDATE
 from calibre.utils.config import tweaks
@@ -132,20 +133,30 @@ class DateEdit(QDateEdit):
 
     def focusInEvent(self, x):
         self.setSpecialValueText('')
+        QDateEdit.focusInEvent(self, x)
 
     def focusOutEvent(self, x):
         self.setSpecialValueText(_('Undefined'))
+        QDateEdit.focusOutEvent(self, x)
+
+    def set_to_today(self):
+        self.setDate(now())
 
 class DateTime(Base):
 
     def setup_ui(self, parent):
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
-                DateEdit(parent)]
+        cm = self.col_metadata
+        self.widgets = [QLabel('&'+cm['name']+':', parent), DateEdit(parent),
+            QLabel(''), QPushButton(_('Set \'%s\' to today')%cm['name'], parent)]
         w = self.widgets[1]
-        w.setDisplayFormat('dd MMM yyyy')
+        format = cm['display'].get('date_format','')
+        if not format:
+            format = 'dd MMM yyyy'
+        w.setDisplayFormat(format)
         w.setCalendarPopup(True)
         w.setMinimumDate(UNDEFINED_QDATE)
         w.setSpecialValueText(_('Undefined'))
+        self.widgets[3].clicked.connect(w.set_to_today)
 
     def setter(self, val):
         if val is None:
@@ -156,7 +167,7 @@ class DateTime(Base):
 
     def getter(self):
         val = self.widgets[1].date()
-        if val == UNDEFINED_QDATE:
+        if val <= UNDEFINED_QDATE:
             val = None
         else:
             val = qt_to_dt(val)
