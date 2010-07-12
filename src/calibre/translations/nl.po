@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-10 16:12+0000\n"
-"PO-Revision-Date: 2010-07-10 12:21+0000\n"
+"PO-Revision-Date: 2010-07-11 12:11+0000\n"
 "Last-Translator: Koen Mercken <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-11 03:39+0000\n"
+"X-Launchpad-Export-Date: 2010-07-12 03:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:365
@@ -5743,6 +5743,15 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
+"<li><b>Handmatig beleid</b>: Calibre past de metadata aan en voegt "
+"collecties toe enkel op het moment dat er een boek wordt verstuurd. Als deze "
+"optie aan staat zal calibre nooit een collectie verwijderen.</li>\n"
+"<li><b>Enkel verzenden</b>: Calibre past de metadata aan en voegt collecties "
+"toe of verwijderd ze alleen op het moment dat er een boek naar het apparaat "
+"wordt verstuurd.</li>\n"
+"<li><b>Automatisch beleid</b>: Calibre syncroniseert metadata op het "
+"apparaat met de metadata in de calibre bibliotheek bij iedere connectie met "
+"het apparaat.</li></ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:162
 msgid ""
@@ -5936,7 +5945,7 @@ msgstr "Blokkeer &animaties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:602
 msgid "Show &donate button (restart)"
-msgstr ""
+msgstr "Geef &donatieknop weer (herstart)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:603
 msgid "Add an email address to which to send books"
@@ -6177,7 +6186,7 @@ msgstr "Maak en wijzig tag-gebaseerde kolommen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:19
 msgid "Text, column shown in the tag browser"
-msgstr ""
+msgstr "Text, kolom weergegeven in de label bladeraar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:22
 msgid "Comma separated text, like tags, shown in the tag browser"
@@ -6185,11 +6194,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:25
 msgid "Long text, like comments, not shown in the tag browser"
-msgstr ""
+msgstr "Lange text, zoals commentaren, niet weergeven in de label bladeraar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:28
 msgid "Text column for keeping series-like information"
-msgstr ""
+msgstr "Text kolom voor het bewaren van series informatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:33
 msgid "Floating point numbers"
@@ -6275,6 +6284,8 @@ msgstr ""
 msgid ""
 "Column heading in the library view and category name in the tag browser"
 msgstr ""
+"Kolom hoofd in de bibliotheek weergave en categorie naam in de label "
+"bladeraar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column_ui.py:106
 msgid "Column &type"
@@ -6373,6 +6384,8 @@ msgid ""
 "All checked books will be <b>permanently deleted</b> from your device. "
 "Please verify the list."
 msgstr ""
+"Alle aangevinkte boeken zullen <b>definitief verwijderd worden</b> van het "
+"apparaat. Gelieve de lijst te verifiëren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
 msgid "Location"
@@ -6670,11 +6683,13 @@ msgstr "Dit ISBN nummer is ongeldig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:521
 msgid "Cannot use tag editor"
-msgstr ""
+msgstr "Het is niet mogelijk om het labelopmaakprogramma te gebruiken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:522
 msgid "The tags editor cannot be used if you have modified the tags"
 msgstr ""
+"Het labelopmaakprogramma kan niet gebruikt worden als u de labels hebt "
+"gewijzigd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:542
 msgid "Downloading cover..."
@@ -6859,7 +6874,7 @@ msgstr "Voeg de nieuwe opgeslagen zoekopdracht toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:91
 msgid "Change the contents of the saved search"
-msgstr ""
+msgstr "Verander de inhoud van de opgeslagen zoekopdracht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:119
 msgid "Need username and password"
@@ -7132,54 +7147,58 @@ msgstr " (in geen enkel boek)"
 msgid ""
 "The current tag category will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"De huidige labelcategorie zal <b>definitief verwijderd worden</b>. Bent u "
+"zeker??"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:153
 msgid "User Categories Editor"
-msgstr ""
+msgstr "Gebruiker categorien opmaakprogramma"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:154
 msgid "A&vailable items"
-msgstr ""
+msgstr "Beschikbare items"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:155
 msgid "Apply tags to current tag category"
-msgstr ""
+msgstr "Pas labels toe op de huidige labelcategorie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:157
 msgid "A&pplied items"
-msgstr ""
+msgstr "Toegepaste items"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:158
 msgid "Unapply (remove) tag from current tag category"
-msgstr ""
+msgstr "Verwijder het label van de huidige labelcategorie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:160
 msgid "Category name: "
-msgstr ""
+msgstr "Categorienaam: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:161
 msgid "Select a category to edit"
-msgstr ""
+msgstr "Selecteer een categorie om te wijzigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:162
 msgid "Delete this selected tag category"
-msgstr ""
+msgstr "Verwijder de geselecteerde labelcategory"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:164
 msgid "Enter a new category name. Select the kind before adding it."
 msgstr ""
+"Geef een nieuwe categorienaam in. Selecteer het type voor dat u de naam "
+"toevoegd."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:165
 msgid "Add the new category"
-msgstr ""
+msgstr "Voeg de nieuwe categorie toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:167
 msgid "Category filter: "
-msgstr ""
+msgstr "Categoriefilter: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:168
 msgid "Select the content kind of the new category"
-msgstr ""
+msgstr "Selecteer het type inhoud voor de nieuwe categorie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:101
@@ -7241,37 +7260,38 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:20
 msgid "%s (was %s)"
-msgstr ""
+msgstr "%s (was %)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:501
 msgid "Item is blank"
-msgstr ""
+msgstr "Veld is leeg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:502
 msgid "An item cannot be set to nothing. Delete it instead."
-msgstr ""
+msgstr "Een veld kan niet leeg zijn. U dient het te verwijderen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:87
 msgid "No item selected"
-msgstr ""
+msgstr "Geen item geselecteerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:88
 msgid "You must select one item from the list of Available items."
 msgstr ""
+"U dient één van de items te selecteren uit de lijst van beschikbare items."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:97
 msgid "No items selected"
-msgstr ""
+msgstr "Geen items geselecteerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:98
 msgid "You must select at least one items from the list."
-msgstr ""
+msgstr "Je dient minstens één van de items uit de lijst te selecteren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:102
 msgid "Are you certain you want to delete the following items?"
-msgstr ""
+msgstr "Bent je zeker dat je deze items wilt verwijderen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:72
 msgid "Category Editor"
