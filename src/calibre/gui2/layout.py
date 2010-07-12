@@ -403,7 +403,7 @@ class MainWindowMixin(object):
 
         ac('add', _('Add books'), 'add_book.svg', _('A'))
         ac('del', _('Remove books'), 'trash.svg', _('Del'))
-        ac('edit', _('Edit meta info'), 'edit_input.svg', _('E'))
+        ac('edit', _('Edit metadata'), 'edit_input.svg', _('E'))
         ac('merge', _('Merge book records'), 'merge_books.svg', _('M'))
         ac('sync', _('Send to device'), 'sync.svg')
         ac('save', _('Save to disk'), 'save.svg', _('S'))
