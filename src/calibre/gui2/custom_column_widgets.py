@@ -133,9 +133,11 @@ class DateEdit(QDateEdit):
 
     def focusInEvent(self, x):
         self.setSpecialValueText('')
+        QDateEdit.focusInEvent(self, x)
 
     def focusOutEvent(self, x):
         self.setSpecialValueText(_('Undefined'))
+        QDateEdit.focusOutEvent(self, x)
 
     def set_to_today(self):
         self.setDate(now())
