@@ -765,6 +765,7 @@ class DeviceMixin(object): # {{{
                 self.book_details.reset_info()
                 self.location_view.setCurrentIndex(self.location_view.model().index(0))
             self.refresh_ondevice_info (device_connected = False)
+        self.tool_bar.device_status_changed(bool(connected))
 
     def info_read(self, job):
         '''

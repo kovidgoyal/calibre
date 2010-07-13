@@ -176,12 +176,6 @@ class ToolbarMixin(object): # {{{
     def show_help(self, *args):
         open_url(QUrl('http://calibre-ebook.com/user_manual'))
 
-    def read_toolbar_settings(self):
-        self.tool_bar.setIconSize(config['toolbar_icon_size'])
-        self.tool_bar.setToolButtonStyle(
-                Qt.ToolButtonTextUnderIcon if \
-                    config['show_text_in_toolbar'] else \
-                    Qt.ToolButtonIconOnly)
 
 # }}}
 
