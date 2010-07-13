@@ -213,7 +213,7 @@ class KINDLE_DX(KINDLE2):
     PRODUCT_ID = [0x0003]
     BCD        = [0x0100]
 
-class Bookmark():
+class Bookmark(): # {{{
     '''
     A simple class fetching bookmark data
     Kindle-specific
@@ -429,6 +429,7 @@ class Bookmark():
                 entries, = unpack('>I', data[9:13])
                 current_entry = 0
                 e_base = 0x0d
+                self.pdf_page_offset = 0
                 while current_entry < entries:
                     '''
                     location, = unpack('>I', data[e_base+2:e_base+6])
@@ -516,3 +517,6 @@ class Bookmark():
 
         else:
             print "unsupported bookmark_extension: %s" % self.bookmark_extension
+
+# }}}
+

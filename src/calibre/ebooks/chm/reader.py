@@ -8,7 +8,7 @@ import os, re
 from mimetypes import guess_type as guess_mimetype
 
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
-from calibre.constants import iswindows
+from calibre.constants import iswindows, filesystem_encoding
 from calibre.utils.chm.chm import CHMFile
 from calibre.utils.chm.chmlib import (
   CHM_RESOLVE_SUCCESS, CHM_ENUMERATE_NORMAL,
@@ -78,6 +78,8 @@ class CHMError(Exception):
 class CHMReader(CHMFile):
     def __init__(self, input, log):
         CHMFile.__init__(self)
+        if isinstance(input, unicode):
+            input = input.encode(filesystem_encoding)
         if not self.LoadCHM(input):
             raise CHMError("Unable to open CHM file '%s'"%(input,))
         self.log = log
@@ -90,7 +92,6 @@ class CHMReader(CHMFile):
         # location of '.hhc' file, which is the CHM TOC.
         self.root, ext = os.path.splitext(self.topics.lstrip('/'))
         self.hhc_path = self.root + ".hhc"
-
 
     def _parse_toc(self, ul, basedir=os.getcwdu()):
         toc = TOC(play_order=self._playorder, base_path=basedir, text='')
@@ -152,6 +153,8 @@ class CHMReader(CHMFile):
                 if f.lower() == self.hhc_path.lower():
                     self.hhc_path = f
                     break
+        if self.hhc_path not in files and files:
+            self.hhc_path = files[0]
 
     def _reformat(self, data):
         try:
@@ -159,7 +162,7 @@ class CHMReader(CHMFile):
             soup = BeautifulSoup(data)
         except ValueError:
             # hit some strange encoding problems...
-            print "Unable to parse html for cleaning, leaving it :("
+            self.log.exception("Unable to parse html for cleaning, leaving it")
             return data
         # nuke javascript...
         [s.extract() for s in soup('script')]

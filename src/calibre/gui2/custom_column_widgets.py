@@ -10,9 +10,10 @@ from functools import partial
 
 from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
         QDate, QGroupBox, QVBoxLayout, QPlainTextEdit, QSizePolicy, \
-        QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL
+        QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL, \
+        QPushButton
 
-from calibre.utils.date import qt_to_dt
+from calibre.utils.date import qt_to_dt, now
 from calibre.gui2.widgets import TagsLineEdit, EnComboBox
 from calibre.gui2 import UNDEFINED_QDATE
 from calibre.utils.config import tweaks
@@ -132,20 +133,30 @@ class DateEdit(QDateEdit):
 
     def focusInEvent(self, x):
         self.setSpecialValueText('')
+        QDateEdit.focusInEvent(self, x)
 
     def focusOutEvent(self, x):
         self.setSpecialValueText(_('Undefined'))
+        QDateEdit.focusOutEvent(self, x)
+
+    def set_to_today(self):
+        self.setDate(now())
 
 class DateTime(Base):
 
     def setup_ui(self, parent):
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
-                DateEdit(parent)]
+        cm = self.col_metadata
+        self.widgets = [QLabel('&'+cm['name']+':', parent), DateEdit(parent),
+            QLabel(''), QPushButton(_('Set \'%s\' to today')%cm['name'], parent)]
         w = self.widgets[1]
-        w.setDisplayFormat('dd MMM yyyy')
+        format = cm['display'].get('date_format','')
+        if not format:
+            format = 'dd MMM yyyy'
+        w.setDisplayFormat(format)
         w.setCalendarPopup(True)
         w.setMinimumDate(UNDEFINED_QDATE)
         w.setSpecialValueText(_('Undefined'))
+        self.widgets[3].clicked.connect(w.set_to_today)
 
     def setter(self, val):
         if val is None:
@@ -161,7 +172,6 @@ class DateTime(Base):
         else:
             val = qt_to_dt(val)
         return val
-
 
 class Comments(Base):
 
@@ -199,11 +209,7 @@ class Text(Base):
             w = EnComboBox(parent)
             w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
             w.setMinimumContentsLength(25)
-
-
-
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
-                w]
+        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
 
     def initialize(self, book_id):
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
@@ -221,7 +227,6 @@ class Text(Base):
             self.widgets[1].setEditText('')
             if idx is not None:
                 self.widgets[1].setCurrentIndex(idx)
-
 
     def setter(self, val):
         if self.col_metadata['is_multiple']:
@@ -241,6 +246,58 @@ class Text(Base):
             val = None
         return val
 
+class Series(Base):
+
+    def setup_ui(self, parent):
+        values = self.all_values = list(self.db.all_custom(num=self.col_id))
+        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        w = EnComboBox(parent)
+        w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
+        w.setMinimumContentsLength(25)
+        self.name_widget = w
+        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
+
+        self.widgets.append(QLabel('&'+self.col_metadata['name']+_(' index:'), parent))
+        w = QDoubleSpinBox(parent)
+        w.setRange(-100., float(sys.maxint))
+        w.setDecimals(2)
+        w.setSpecialValueText(_('Undefined'))
+        w.setSingleStep(1)
+        self.idx_widget=w
+        self.widgets.append(w)
+
+    def initialize(self, book_id):
+        val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+        s_index = self.db.get_custom_extra(book_id, num=self.col_id, index_is_id=True)
+        if s_index is None:
+            s_index = 0.0
+        self.idx_widget.setValue(s_index)
+        self.initial_index = s_index
+        self.initial_val = val
+        val = self.normalize_db_val(val)
+        idx = None
+        for i, c in enumerate(self.all_values):
+            if c == val:
+                idx = i
+            self.name_widget.addItem(c)
+        self.name_widget.setEditText('')
+        if idx is not None:
+            self.widgets[1].setCurrentIndex(idx)
+
+    def commit(self, book_id, notify=False):
+        val = unicode(self.name_widget.currentText()).strip()
+        val = self.normalize_ui_val(val)
+        s_index = self.idx_widget.value()
+        if val != self.initial_val or s_index != self.initial_index:
+            if s_index == 0.0:
+                if tweaks['series_index_auto_increment'] == 'next':
+                    s_index = self.db.get_next_cc_series_num_for(val,
+                                                             num=self.col_id)
+                else:
+                    s_index = None
+            self.db.set_custom(book_id, val, extra=s_index,
+                               num=self.col_id, notify=notify)
+
 widgets = {
         'bool' : Bool,
         'rating' : Rating,
@@ -249,6 +306,7 @@ widgets = {
         'datetime': DateTime,
         'text' : Text,
         'comments': Comments,
+        'series': Series,
 }
 
 def field_sort(y, z, x=None):
@@ -257,35 +315,65 @@ def field_sort(y, z, x=None):
     n2 = 'zzzzz' if m2['datatype'] == 'comments' else m2['name']
     return cmp(n1.lower(), n2.lower())
 
-def populate_single_metadata_page(left, right, db, book_id, parent=None):
+def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, parent=None):
+    def widget_factory(type, col):
+        if bulk:
+            w = bulk_widgets[type](db, col, parent)
+        else:
+            w = widgets[type](db, col, parent)
+        w.initialize(book_id)
+        return w
     x = db.custom_column_num_map
     cols = list(x)
     cols.sort(cmp=partial(field_sort, x=x))
+    count_non_comment = len([c for c in cols if x[c]['datatype'] != 'comments'])
+
+    layout.setColumnStretch(1, 10)
+    if two_column:
+        turnover_point = (count_non_comment+1)/2
+        layout.setColumnStretch(3, 10)
+    else:
+        # Avoid problems with multi-line widgets
+        turnover_point = count_non_comment + 1000
     ans = []
-    for i, col in enumerate(cols):
-        w = widgets[x[col]['datatype']](db, col, parent)
+    column = row = comments_row = 0
+    for col in cols:
+        dt = x[col]['datatype']
+        if dt == 'comments':
+            continue
+        w = widget_factory(dt, col)
         ans.append(w)
-        w.initialize(book_id)
-        layout = left if i%2 == 0 else right
-        row = layout.rowCount()
-        if len(w.widgets) == 1:
-            layout.addWidget(w.widgets[0], row, 0, 1, -1)
-        else:
-            w.widgets[0].setBuddy(w.widgets[1])
-            for c, widget in enumerate(w.widgets):
-                layout.addWidget(widget, row, c)
+        for c in range(0, len(w.widgets), 2):
+            w.widgets[c].setBuddy(w.widgets[c+1])
+            layout.addWidget(w.widgets[c], row, column)
+            layout.addWidget(w.widgets[c+1], row, column+1)
+            row += 1
+        comments_row = max(comments_row, row)
+        if row >= turnover_point:
+            column += 2
+            turnover_point = count_non_comment + 1000
+            row = 0
+    if not bulk: # Add the comments fields
+        row = comments_row
+        column = 0
+        for col in cols:
+            dt = x[col]['datatype']
+            if dt != 'comments':
+                continue
+            w = widget_factory(dt, col)
+            ans.append(w)
+            layout.addWidget(w.widgets[0], row, column, 1, 2)
+            if two_column and column == 0:
+                column = 2
+                continue
+            column = 0
+            row += 1
     items = []
     if len(ans) > 0:
         items.append(QSpacerItem(10, 10, QSizePolicy.Minimum,
             QSizePolicy.Expanding))
-        left.addItem(items[-1], left.rowCount(), 0, 1, 1)
-        left.setRowStretch(left.rowCount()-1, 100)
-    if len(ans) > 1:
-         items.append(QSpacerItem(10, 100, QSizePolicy.Minimum,
-             QSizePolicy.Expanding))
-         right.addItem(items[-1], left.rowCount(), 0, 1, 1)
-         right.setRowStretch(right.rowCount()-1, 100)
-
+        layout.addItem(items[-1], layout.rowCount(), 0, 1, 1)
+        layout.setRowStretch(layout.rowCount()-1, 100)
     return ans, items
 
 class BulkBase(Base):
@@ -341,6 +429,47 @@ class BulkRating(BulkBase, Rating):
 
 class BulkDateTime(BulkBase, DateTime):
     pass
+
+class BulkSeries(BulkBase):
+    def setup_ui(self, parent):
+        values = self.all_values = list(self.db.all_custom(num=self.col_id))
+        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        w = EnComboBox(parent)
+        w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
+        w.setMinimumContentsLength(25)
+        self.name_widget = w
+        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
+
+        self.widgets.append(QLabel(_('Automatically number books in this series'), parent))
+        self.idx_widget=QCheckBox(parent)
+        self.widgets.append(self.idx_widget)
+
+    def initialize(self, book_id):
+        self.idx_widget.setChecked(False)
+        for c in self.all_values:
+            self.name_widget.addItem(c)
+        self.name_widget.setEditText('')
+
+    def commit(self, book_ids, notify=False):
+        val = unicode(self.name_widget.currentText()).strip()
+        val = self.normalize_ui_val(val)
+        update_indices = self.idx_widget.checkState()
+        if val != '':
+            for book_id in book_ids:
+                if update_indices:
+                    if tweaks['series_index_auto_increment'] == 'next':
+                        s_index = self.db.get_next_cc_series_num_for\
+                                                        (val, num=self.col_id)
+                    else:
+                        s_index = 1.0
+                else:
+                    s_index = self.db.get_custom_extra(book_id, num=self.col_id,
+                                                       index_is_id=True)
+                self.db.set_custom(book_id, val, extra=s_index,
+                                   num=self.col_id, notify=notify)
+
+    def process_each_book(self):
+        return True
 
 class RemoveTags(QWidget):
 
@@ -431,35 +560,5 @@ bulk_widgets = {
         'float': BulkFloat,
         'datetime': BulkDateTime,
         'text' : BulkText,
+        'series': BulkSeries,
 }
-
-def populate_bulk_metadata_page(layout, db, book_ids, parent=None):
-    x = db.custom_column_num_map
-    cols = list(x)
-    cols.sort(cmp=partial(field_sort, x=x))
-    ans = []
-    for i, col in enumerate(cols):
-        dt = x[col]['datatype']
-        if dt == 'comments':
-            continue
-        w = bulk_widgets[dt](db, col, parent)
-        ans.append(w)
-        w.initialize(book_ids)
-        row = layout.rowCount()
-        if len(w.widgets) == 1:
-            layout.addWidget(w.widgets[0], row, 0, 1, -1)
-        else:
-            for c in range(0, len(w.widgets), 2):
-                w.widgets[c].setBuddy(w.widgets[c+1])
-                layout.addWidget(w.widgets[c], row, 0)
-                layout.addWidget(w.widgets[c+1], row, 1)
-                row += 1
-    items = []
-    if len(ans) > 0:
-        items.append(QSpacerItem(10, 10, QSizePolicy.Minimum,
-            QSizePolicy.Expanding))
-        layout.addItem(items[-1], layout.rowCount(), 0, 1, 1)
-        layout.setRowStretch(layout.rowCount()-1, 100)
-
-    return ans, items
-

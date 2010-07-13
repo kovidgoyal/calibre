@@ -17,14 +17,11 @@ __docformat__ = 'restructuredtext en'
 
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
 
-def convert_basic(txt, title=''):
-    lines = []
+def convert_basic(txt, title='', epub_split_size_kb=0):
     # Strip whitespace from the beginning and end of the line. Also replace
     # all line breaks with \n.
-    for line in txt.splitlines():
-        lines.append(line.strip())
-    txt = '\n'.join(lines)
-    
+    txt = '\n'.join([line.strip() for line in txt.splitlines()])
+
     # Condense redundant spaces
     txt = re.sub('[ ]{2,}', ' ', txt)
 
@@ -33,6 +30,15 @@ def convert_basic(txt, title=''):
     txt = re.sub('(?<=.)\s+$', '', txt)
     # Remove excessive line breaks.
     txt = re.sub('\n{3,}', '\n\n', txt)
+
+    #Takes care if there is no point to split
+    if epub_split_size_kb > 0:
+        length_byte = len(txt.encode('utf-8'))
+        #Calculating the average chunk value for easy splitting as EPUB (+2 as a safe margin)
+        chunk_size = long(length_byte / (int(length_byte / (epub_split_size_kb * 1024) ) + 2 ))
+        #if there are chunks with a superior size then go and break
+        if (len(filter(lambda x: len(x.encode('utf-8')) > chunk_size, txt.split('\n\n')))) :
+            txt = u'\n\n'.join([split_string_separator(line, chunk_size) for line in txt.split('\n\n')])
 
     lines = []
     # Split into paragraphs based on having a blank line between text.
@@ -70,4 +76,11 @@ def opf_writer(path, opf_name, manifest, spine, mi):
     opf.create_spine(spine)
     with open(os.path.join(path, opf_name), 'wb') as opffile:
         opf.render(opffile)
+
+def split_string_separator(txt, size) :
+    if len(txt.encode('utf-8')) > size:
+        txt = u''.join([re.sub(u'\.(?P<ends>[^.]*)$', u'.\n\n\g<ends>',
+            txt[i:i+size], 1) for i in
+            xrange(0, len(txt.encode('utf-8')), size)])
+    return txt
 

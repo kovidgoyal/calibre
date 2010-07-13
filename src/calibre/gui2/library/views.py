@@ -15,7 +15,7 @@ from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
     TextDelegate, DateDelegate, TagsDelegate, CcTextDelegate, \
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
-from calibre.utils.config import tweaks
+from calibre.utils.config import tweaks, prefs
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.library import DEFAULT_SORT
 
@@ -347,7 +347,7 @@ class BooksView(QTableView): # {{{
                     self.setItemDelegateForColumn(cm.index(colhead), delegate)
                 elif cc['datatype'] == 'comments':
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_comments_delegate)
-                elif cc['datatype'] == 'text':
+                elif cc['datatype'] in ('text', 'series'):
                     if cc['is_multiple']:
                         self.setItemDelegateForColumn(cm.index(colhead), self.tags_delegate)
                     else:
@@ -371,7 +371,8 @@ class BooksView(QTableView): # {{{
     # Context Menu {{{
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
                          save, open_folder, book_details, delete,
-                         similar_menu=None, add_to_library=None):
+                         similar_menu=None, add_to_library=None,
+                         edit_device_collections=None):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
         self.context_menu = QMenu(self)
         if edit_metadata is not None:
@@ -393,6 +394,10 @@ class BooksView(QTableView): # {{{
         if add_to_library is not None:
             func = partial(add_to_library[1], view=self)
             self.context_menu.addAction(add_to_library[0], func)
+        if edit_device_collections is not None:
+            func = partial(edit_device_collections[1], view=self)
+            self.edit_collections_menu = \
+                self.context_menu.addAction(edit_device_collections[0], func)
 
     def contextMenuEvent(self, event):
         self.context_menu.popup(event.globalPos())
@@ -494,6 +499,14 @@ class DeviceBooksView(BooksView): # {{{
         self.setDragDropMode(self.NoDragDrop)
         self.setAcceptDrops(False)
 
+    def contextMenuEvent(self, event):
+        self.edit_collections_menu.setVisible(
+            callable(getattr(self._model.db, 'supports_collections', None)) and \
+            self._model.db.supports_collections() and \
+            prefs['manage_device_metadata'] == 'manual')
+        self.context_menu.popup(event.globalPos())
+        event.accept()
+
     def set_database(self, db):
         self._model.set_database(db)
         self.restore_state()
@@ -504,6 +517,9 @@ class DeviceBooksView(BooksView): # {{{
 
     def connect_dirtied_signal(self, slot):
         self._model.booklist_dirtied.connect(slot)
+
+    def connect_upload_collections_signal(self, func=None, oncard=None):
+        self._model.upload_collections.connect(partial(func, view=self, oncard=oncard))
 
     def dropEvent(self, *args):
         error_dialog(self, _('Not allowed'),

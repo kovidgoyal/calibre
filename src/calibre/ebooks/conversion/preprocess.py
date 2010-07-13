@@ -25,13 +25,13 @@ convert_entities = functools.partial(entity_to_unicode,
 _span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
 
 LIGATURES = {
-        u'\u00c6': u'AE',
-        u'\u00e6': u'ae',
-        u'\u0152': u'OE',
-        u'\u0153': u'oe',
-        u'\u0132': u'IJ',
-        u'\u0133': u'ij',
-        u'\u1D6B': u'ue',
+#        u'\u00c6': u'AE',
+#        u'\u00e6': u'ae',
+#        u'\u0152': u'OE',
+#        u'\u0153': u'oe',
+#        u'\u0132': u'IJ',
+#        u'\u0133': u'ij',
+#        u'\u1D6B': u'ue',
         u'\uFB00': u'ff',
         u'\uFB01': u'fi',
         u'\uFB02': u'fl',
@@ -107,9 +107,21 @@ class CSSPreProcessor(object):
 
     PAGE_PAT   = re.compile(r'@page[^{]*?{[^}]*?}')
 
-    def __call__(self, data):
+    def __call__(self, data, add_namespace=False):
+        from calibre.ebooks.oeb.base import XHTML_CSS_NAMESPACE
         data = self.PAGE_PAT.sub('', data)
-        return data
+        if not add_namespace:
+            return data
+        ans, namespaced = [], False
+        for line in data.splitlines():
+            ll = line.lstrip()
+            if not (namespaced or ll.startswith('@import') or
+                        ll.startswith('@charset')):
+                ans.append(XHTML_CSS_NAMESPACE.strip())
+                namespaced = True
+            ans.append(line)
+
+        return u'\n'.join(ans)
 
 class HTMLPreProcessor(object):
 
@@ -268,7 +280,7 @@ class HTMLPreProcessor(object):
 
         if getattr(self.extra_opts, 'remove_footer', None):
             try:
-                rules.insert(0
+                rules.insert(0,
                     (re.compile(self.extra_opts.footer_regex), lambda match : '')
                 )
             except:

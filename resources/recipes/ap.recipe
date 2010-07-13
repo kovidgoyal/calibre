@@ -12,9 +12,9 @@ class AssociatedPress(BasicNewsRecipe):
 
     max_articles_per_feed = 15
     html2lrf_options = ['--force-page-break-before-tag="chapter"']
-    
-    
-    preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
+
+
+    preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
 [
         (r'<HEAD>.*?</HEAD>' , lambda match : '<HEAD></HEAD>'),
         (r'<body class="apple-rss-no-unread-mode" onLoad="setup(null)">.*?<!-- start Entries -->', lambda match : '<body>'),
@@ -25,10 +25,10 @@ class AssociatedPress(BasicNewsRecipe):
         (r'<p class="ap-story-p">', lambda match : '<p>'),
         (r'Learn more about our <a href="http://apdigitalnews.com/privacy.html">Privacy Policy</a>.*?</body>', lambda match : '</body>'),
     ]
-    ]   
-     
+    ]
 
-  
+
+
     feeds = [ ('AP Headlines', 'http://hosted.ap.org/lineups/TOPHEADS-rss_2.0.xml?SITE=ORAST&SECTION=HOME'),
                   ('AP US News', 'http://hosted.ap.org/lineups/USHEADS-rss_2.0.xml?SITE=CAVIC&SECTION=HOME'),
                    ('AP World News', 'http://hosted.ap.org/lineups/WORLDHEADS-rss_2.0.xml?SITE=SCAND&SECTION=HOME'),

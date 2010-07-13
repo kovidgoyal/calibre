@@ -45,6 +45,12 @@ class AddSave(QTabWidget, Ui_TabWidget):
         self.metadata_box.layout().insertWidget(0, self.filename_pattern)
         self.opt_swap_author_names.setChecked(prefs['swap_author_names'])
         self.opt_add_formats_to_existing.setChecked(prefs['add_formats_to_existing'])
+        if prefs['manage_device_metadata'] == 'manual':
+            self.manage_device_metadata.setCurrentIndex(0)
+        elif prefs['manage_device_metadata'] == 'on_send':
+            self.manage_device_metadata.setCurrentIndex(1)
+        else:
+            self.manage_device_metadata.setCurrentIndex(2)
         help = '\n'.join(textwrap.wrap(c.get_option('template').help, 75))
         self.save_template.initialize('save_to_disk', opts.template, help)
         self.send_template.initialize('send_to_device', opts.send_template, help)
@@ -71,10 +77,13 @@ class AddSave(QTabWidget, Ui_TabWidget):
         prefs['filename_pattern'] = pattern
         prefs['swap_author_names'] = bool(self.opt_swap_author_names.isChecked())
         prefs['add_formats_to_existing'] = bool(self.opt_add_formats_to_existing.isChecked())
-
+        if self.manage_device_metadata.currentIndex() == 0:
+            prefs['manage_device_metadata'] = 'manual'
+        elif self.manage_device_metadata.currentIndex() == 1:
+            prefs['manage_device_metadata'] = 'on_send'
+        else:
+            prefs['manage_device_metadata'] = 'on_connect'
         return True
-
-
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication

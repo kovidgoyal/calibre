@@ -11,11 +11,10 @@ import re
 import time
 import traceback
 
-import sip
-from PyQt4.Qt import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDate, \
-    QPixmap, QListWidgetItem, QDialog, QHBoxLayout, QGridLayout
+from PyQt4.Qt import SIGNAL, QObject, Qt, QTimer, QThread, QDate, \
+    QPixmap, QListWidgetItem, QDialog
 
-from calibre.gui2 import error_dialog, file_icon_provider, \
+from calibre.gui2 import error_dialog, file_icon_provider, dynamic, \
                            choose_files, choose_images, ResizableDialog, \
                            warning_dialog
 from calibre.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
@@ -26,13 +25,12 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import string_to_authors, \
         authors_to_string, check_isbn
 from calibre.ebooks.metadata.library_thing import cover_from_isbn
-from calibre import islinux, isfreebsd
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import qt_to_dt
 from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
 from calibre.gui2.dialogs.config.social import SocialMetadata
-from calibre.gui2.custom_column_widgets import populate_single_metadata_page
+from calibre.gui2.custom_column_widgets import populate_metadata_page
 
 class CoverFetcher(QThread):
 
@@ -91,7 +89,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     COVER_FETCH_TIMEOUT = 240 # seconds
 
     def do_reset_cover(self, *args):
-        pix = QPixmap(I('book.svg'))
+        pix = QPixmap(I('default_cover.svg'))
         self.cover.setPixmap(pix)
         self.cover_changed = True
         self.cover_data = None
@@ -105,7 +103,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if _file:
             _file = os.path.abspath(_file)
             if not os.access(_file, os.R_OK):
-                d = error_dialog(self.window, _('Cannot read'),
+                d = error_dialog(self, _('Cannot read'),
                         _('You do not have permission to read the file: ') + _file)
                 d.exec_()
                 return
@@ -114,14 +112,14 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 cf = open(_file, "rb")
                 cover = cf.read()
             except IOError, e:
-                d = error_dialog(self.window, _('Error reading file'),
+                d = error_dialog(self, _('Error reading file'),
                         _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
                 d.exec_()
             if cover:
                 pix = QPixmap()
                 pix.loadFromData(cover)
                 if pix.isNull():
-                    d = error_dialog(self.window,
+                    d = error_dialog(self,
                         _("Not a valid picture"),
                             _file + _(" is not a valid picture"))
                     d.exec_()
@@ -164,7 +162,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.formats_changed = True
             added = True
         if bad_perms:
-            error_dialog(self.window, _('No permission'),
+            error_dialog(self, _('No permission'),
                     _('You do not have '
                 'permission to read the following files:'),
                 det_msg='\n'.join(bad_perms), show=True)
@@ -301,6 +299,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.connect(self.__abort_button, SIGNAL('clicked()'),
                     self.do_cancel_all)
         self.splitter.setStretchFactor(100, 1)
+        self.read_state()
         self.db = db
         self.pi = ProgressIndicator(self)
         self.accepted_callback = accepted_callback
@@ -311,7 +310,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.formats.setAcceptDrops(True)
         self.cover_changed = False
         self.cpixmap = None
-        self.cover.setAcceptDrops(True)
         self.pubdate.setMinimumDate(QDate(100,1,1))
         pubdate_format = tweaks['gui_pubdate_display_format']
         if pubdate_format is not None:
@@ -399,16 +397,11 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.series.lineEdit().editingFinished.connect(self.increment_series_index)
 
         self.show()
-        height_of_rest = self.frameGeometry().height() - self.cover.height()
-        width_of_rest  = self.frameGeometry().width() - self.cover.width()
-        ag = QCoreApplication.instance().desktop().availableGeometry(self)
-        self.cover.MAX_HEIGHT = ag.height()-(25 if (islinux or isfreebsd) else 0)-height_of_rest
-        self.cover.MAX_WIDTH = ag.width()-(25 if (islinux or isfreebsd) else 0)-width_of_rest
         pm = QPixmap()
         if cover:
             pm.loadFromData(cover)
         if pm.isNull():
-            pm = QPixmap(I('book.svg'))
+            pm = QPixmap(I('default_cover.svg'))
         else:
             self.cover_data = cover
         self.cover.setPixmap(pm)
@@ -420,23 +413,19 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
-        top_layout = QHBoxLayout()
-        top_layout.setSpacing(20)
-        left_layout = QGridLayout()
-        right_layout = QGridLayout()
-        top_layout.addLayout(left_layout)
-
-        self.custom_column_widgets, self.__cc_spacers = populate_single_metadata_page(
-                left_layout, right_layout, self.db, self.id, w)
-        top_layout.addLayout(right_layout)
-        sip.delete(w.layout())
-        w.setLayout(top_layout)
-        self.__custom_col_layouts = [top_layout, left_layout, right_layout]
+        layout = w.layout()
+        self.custom_column_widgets, self.__cc_spacers = \
+                    populate_metadata_page(layout, self.db, self.id,
+                                           parent=w, bulk=False, two_column=True)
+        self.__custom_col_layouts = [layout]
         ans = self.custom_column_widgets
         for i in range(len(ans)-1):
-            w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[-1])
-
-
+            if len(ans[i+1].widgets) == 2:
+                w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[1])
+            else:
+                w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[0])
+            for c in range(2, len(ans[i].widgets), 2):
+                w.setTabOrder(ans[i].widgets[c-1], ans[i].widgets[c+1])
 
     def validate_isbn(self, isbn):
         isbn = unicode(isbn).strip()
@@ -720,7 +709,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         _('Could not open %s. Is it being used by another'
                         ' program?')%fname, show=True)
             raise
-
+        self.save_state()
         QDialog.accept(self)
         if callable(self.accepted_callback):
             self.accepted_callback(self.id)
@@ -732,3 +721,16 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             cf.wait()
 
         QDialog.reject(self, *args)
+
+    def read_state(self):
+        wg = dynamic.get('metasingle_window_geometry', None)
+        ss = dynamic.get('metasingle_splitter_state', None)
+        if wg is not None:
+          self.restoreGeometry(wg)
+        if ss is not None:
+          self.splitter.restoreState(ss)
+
+    def save_state(self):
+        dynamic.set('metasingle_window_geometry', bytes(self.saveGeometry()))
+        dynamic.set('metasingle_splitter_state',
+                bytes(self.splitter.saveState()))

@@ -100,9 +100,8 @@ html_use_smartypants = True
 html_title       = 'calibre User Manual'
 html_short_title = 'Start'
 html_logo        = 'resources/logo.png'
-epub_titlepage   = 'resources/titlepage.html'
-epub_logo        = 'resources/logo.png'
 epub_author      = 'Kovid Goyal'
+epub_cover       = 'resources/epub_cover.jpg'
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}

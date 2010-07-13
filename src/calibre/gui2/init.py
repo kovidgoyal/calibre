@@ -5,21 +5,21 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools
+import functools, sys, os
 
-from PyQt4.Qt import QMenu, Qt, pyqtSignal, QToolButton, QIcon, QStackedWidget, \
-        QSize, QSizePolicy, QStatusBar
+from PyQt4.Qt import QMenu, Qt, pyqtSignal, QIcon, QStackedWidget, \
+        QSize, QSizePolicy, QStatusBar, QUrl, QLabel, QFont
 
 from calibre.utils.config import prefs
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.constants import isosx, __appname__, preferred_encoding
-from calibre.gui2 import config, is_widescreen
+from calibre.constants import isosx, __appname__, preferred_encoding, \
+    __version__
+from calibre.gui2 import config, is_widescreen, open_url
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.widgets import Splitter
 from calibre.gui2.tag_view import TagBrowserWidget
 from calibre.gui2.book_details import BookDetails
 from calibre.gui2.notify import get_notifier
-
 
 _keep_refs = []
 
@@ -48,6 +48,7 @@ class SaveMenu(QMenu): # {{{
 class ToolbarMixin(object): # {{{
 
     def __init__(self):
+        self.action_help.triggered.connect(self.show_help)
         md = QMenu()
         md.addAction(_('Edit metadata individually'),
                 partial(self.edit_metadata, False, bulk=False))
@@ -56,7 +57,8 @@ class ToolbarMixin(object): # {{{
                 partial(self.edit_metadata, False, bulk=True))
         md.addSeparator()
         md.addAction(_('Download metadata and covers'),
-                partial(self.download_metadata, False, covers=True))
+                partial(self.download_metadata, False, covers=True),
+                Qt.ControlModifier+Qt.Key_D)
         md.addAction(_('Download only metadata'),
                 partial(self.download_metadata, False, covers=False))
         md.addAction(_('Download only covers'),
@@ -171,18 +173,8 @@ class ToolbarMixin(object): # {{{
         for x in (self.preferences_action, self.action_preferences):
             x.triggered.connect(self.do_config)
 
-        for x in ('news', 'edit', 'sync', 'convert', 'save', 'add', 'view',
-                'del', 'preferences'):
-            w = self.tool_bar.widgetForAction(getattr(self, 'action_'+x))
-            w.setPopupMode(w.MenuButtonPopup)
-
-        self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
-
-        for ch in self.tool_bar.children():
-            if isinstance(ch, QToolButton):
-                ch.setCursor(Qt.PointingHandCursor)
-
-        self.tool_bar.contextMenuEvent = self.no_op
+    def show_help(self, *args):
+        open_url(QUrl('http://calibre-ebook.com/user_manual'))
 
     def read_toolbar_settings(self):
         self.tool_bar.setIconSize(config['toolbar_icon_size'])
@@ -226,17 +218,30 @@ class LibraryViewMixin(object): # {{{
                                         self.action_show_book_details,
                                         self.action_del,
                                         add_to_library = None,
+                                        edit_device_collections=None,
                                         similar_menu=similar_menu)
         add_to_library = (_('Add books to library'), self.add_books_from_device)
+
+        edit_device_collections = (_('Manage collections'),
+                            partial(self.edit_device_collections, oncard=None))
         self.memory_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None, self.action_del,
-                add_to_library=add_to_library)
+                add_to_library=add_to_library,
+                edit_device_collections=edit_device_collections)
+
+        edit_device_collections = (_('Manage collections'),
+                            partial(self.edit_device_collections, oncard='carda'))
         self.card_a_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None, self.action_del,
-                add_to_library=add_to_library)
+                add_to_library=add_to_library,
+                edit_device_collections=edit_device_collections)
+
+        edit_device_collections = (_('Manage collections'),
+                            partial(self.edit_device_collections, oncard='cardb'))
         self.card_b_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None, self.action_del,
-                add_to_library=add_to_library)
+                add_to_library=add_to_library,
+                edit_device_collections=edit_device_collections)
 
         self.library_view.files_dropped.connect(self.files_dropped, type=Qt.QueuedConnection)
         for func, args in [
@@ -249,9 +254,14 @@ class LibraryViewMixin(object): # {{{
                 getattr(view, func)(*args)
 
         self.memory_view.connect_dirtied_signal(self.upload_booklists)
+        self.memory_view.connect_upload_collections_signal(
+                                    func=self.upload_collections, oncard=None)
         self.card_a_view.connect_dirtied_signal(self.upload_booklists)
+        self.card_a_view.connect_upload_collections_signal(
+                                    func=self.upload_collections, oncard='carda')
         self.card_b_view.connect_dirtied_signal(self.upload_booklists)
-
+        self.card_b_view.connect_upload_collections_signal(
+                                    func=self.upload_collections, oncard='cardb')
         self.book_on_device(None, reset=True)
         db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
@@ -343,12 +353,50 @@ class Stack(QStackedWidget): # {{{
 
 class StatusBar(QStatusBar): # {{{
 
+    def __init__(self, parent=None):
+        QStatusBar.__init__(self, parent)
+        self.default_message = __appname__ + ' ' + _('version') + ' ' + \
+                self.get_version() + ' ' + _('created by Kovid Goyal')
+        self.device_string = ''
+        self.update_label = QLabel('')
+        self.update_label.setOpenExternalLinks(True)
+        self.addPermanentWidget(self.update_label)
+        self.update_label.setVisible(False)
+        self._font = QFont()
+        self._font.setBold(True)
+        self.setFont(self._font)
+
     def initialize(self, systray=None):
         self.systray = systray
         self.notifier = get_notifier(systray)
+        self.messageChanged.connect(self.message_changed,
+                type=Qt.QueuedConnection)
+        self.message_changed('')
+
+    def device_connected(self, devname):
+        self.device_string = _('Connected ') + devname
+        self.clearMessage()
+
+    def device_disconnected(self):
+        self.device_string = ''
+        self.clearMessage()
+
+    def new_version_available(self, ver, url):
+        msg = (u'<span style="color:red; font-weight: bold">%s: <a href="%s">%s<a></span>') % (
+                _('Update found'), url, ver)
+        self.update_label.setText(msg)
+        self.update_label.setCursor(Qt.PointingHandCursor)
+        self.update_label.setVisible(True)
+
+    def get_version(self):
+        dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+        v = __version__
+        if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
+            v += '*'
+        return v
 
     def show_message(self, msg, timeout=0):
-        QStatusBar.showMessage(self, msg, timeout)
+        self.showMessage(msg, timeout)
         if self.notifier is not None and not config['disable_tray_notification']:
             if isosx and isinstance(msg, unicode):
                 try:
@@ -358,15 +406,22 @@ class StatusBar(QStatusBar): # {{{
             self.notifier(msg)
 
     def clear_message(self):
-        QStatusBar.clearMessage(self)
+        self.clearMessage()
+
+    def message_changed(self, msg):
+        if not msg or msg.isEmpty() or msg.isNull() or \
+                not unicode(msg).strip():
+            extra = ''
+            if self.device_string:
+                extra = ' ..::.. ' + self.device_string
+            self.showMessage(self.default_message + extra)
+
 
 # }}}
 
 class LayoutMixin(object): # {{{
 
     def __init__(self):
-        self.setupUi(self)
-        self.setWindowTitle(__appname__)
 
         if config['gui_layout'] == 'narrow': # narrow {{{
             self.book_details = BookDetails(False, self)

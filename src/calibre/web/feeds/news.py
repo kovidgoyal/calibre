@@ -264,7 +264,7 @@ class BasicNewsRecipe(Recipe):
             }
 
             .article_description {
-                font-family: sans; text-indent: 0pt;
+                text-indent: 0pt;
             }
 
             a.article {
@@ -585,6 +585,8 @@ class BasicNewsRecipe(Recipe):
         self.lrf = options.lrf
         self.output_profile = options.output_profile
         self.touchscreen = getattr(self.output_profile, 'touchscreen', False)
+        if self.touchscreen:
+            self.template_css += self.output_profile.touchscreen_news_css
 
         self.output_dir = os.path.abspath(self.output_dir)
         if options.test:
@@ -638,7 +640,8 @@ class BasicNewsRecipe(Recipe):
         if self.delay > 0:
             self.simultaneous_downloads = 1
 
-        self.navbar = templates.TouchscreenNavBarTemplate() if self.touchscreen else templates.NavBarTemplate()
+        self.navbar = templates.TouchscreenNavBarTemplate() if self.touchscreen else \
+                      templates.NavBarTemplate()
         self.failed_downloads = []
         self.partial_failures = []
 
@@ -680,13 +683,15 @@ class BasicNewsRecipe(Recipe):
             base.extract()
 
         ans = self.postprocess_html(soup, first_fetch)
-        try:
-            article = self.feed_objects[f].articles[a]
-        except:
-            self.log.exception('Failed to get article object for postprocessing')
-            pass
-        else:
-            self.populate_article_metadata(article, ans, first_fetch)
+        if job_info:
+            url, f, a, feed_len = job_info
+            try:
+                article = self.feed_objects[f].articles[a]
+            except:
+                self.log.exception('Failed to get article object for postprocessing')
+                pass
+            else:
+                self.populate_article_metadata(article, ans, first_fetch)
         return ans
 
 
@@ -726,7 +731,6 @@ class BasicNewsRecipe(Recipe):
         timefmt = self.timefmt
         if self.touchscreen:
             templ = templates.TouchscreenIndexTemplate()
-            timefmt = '%A, %d %b %Y'
         return templ.generate(self.title, "mastheadImage.jpg", timefmt, feeds,
                               extra_css=css).render(doctype='xhtml')
 
@@ -752,7 +756,8 @@ class BasicNewsRecipe(Recipe):
 
 
 
-    def feed2index(self, feed):
+    def feed2index(self, f, feeds):
+        feed = feeds[f]
         if feed.image_url is not None: # Download feed image
             imgdir = os.path.join(self.output_dir, 'images')
             if not os.path.isdir(imgdir):
@@ -782,33 +787,9 @@ class BasicNewsRecipe(Recipe):
         css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
 
         if self.touchscreen:
-            touchscreen_css = u'''
-                    .summary_headline {
-                        font-weight:bold; text-align:left;
-                    }
-
-                    .summary_byline {
-                        text-align:left;
-                        font-family:monospace;
-                    }
-
-                    .summary_text {
-                        text-align:left;
-                    }
-
-                    .feed {
-                        font-family:sans-serif; font-weight:bold; font-size:larger;
-                    }
-
-                    .calibre_navbar {
-                        font-family:monospace;
-                    }
-
-            '''
-
             templ = templates.TouchscreenFeedTemplate()
-            css = touchscreen_css + '\n\n' + (self.extra_css if self.extra_css else '')
-        return templ.generate(feed, self.description_limiter,
+
+        return templ.generate(f, feeds, self.description_limiter,
                               extra_css=css).render(doctype='xhtml')
 
 
@@ -951,7 +932,7 @@ class BasicNewsRecipe(Recipe):
         #feeds.restore_duplicates()
 
         for f, feed in enumerate(feeds):
-            html = self.feed2index(feed)
+            html = self.feed2index(f,feeds)
             feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
             with open(os.path.join(feed_dir, 'index.html'), 'wb') as fi:
                 fi.write(html)

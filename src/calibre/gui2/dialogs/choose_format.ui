@@ -39,7 +39,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Ok|QDialogButtonBox::Cancel</set>
      </property>
     </widget>
    </item>

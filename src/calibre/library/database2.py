@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 The database used to store ebook metadata
 '''
-import os, sys, shutil, cStringIO, glob,functools, traceback
+import os, sys, shutil, cStringIO, glob, time, functools, traceback
 from itertools import repeat
 from math import floor
 
@@ -126,7 +126,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dbpath = os.path.join(library_path, 'metadata.db')
         self.dbpath = os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH',
                 self.dbpath)
-        if isinstance(self.dbpath, unicode):
+        if isinstance(self.dbpath, unicode) and not iswindows:
             self.dbpath = self.dbpath.encode(filesystem_encoding)
 
         self.connect()
@@ -237,6 +237,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         self.custom_column_num_map[col]['label'],
                                         base,
                                         prefer_custom=True)
+            if self.custom_column_num_map[col]['datatype'] == 'series':
+                # account for the series index column. Field_metadata knows that
+                # the series index is one larger than the series. If you change
+                # it here, be sure to change it there as well.
+                self.FIELD_MAP[str(col)+'_s_index'] = base = base+1
 
         self.FIELD_MAP['cover'] = base+1
         self.field_metadata.set_field_record_index('cover', base+1, prefer_custom=False)
@@ -435,12 +440,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if os.access(path, os.R_OK):
             if as_path:
                 return path
-            f = open(path, 'rb')
+            try:
+                f = open(path, 'rb')
+            except (IOError, OSError):
+                time.sleep(0.2)
+                f = open(path, 'rb')
             if as_image:
                 img = QImage()
                 img.loadFromData(f.read())
+                f.close()
                 return img
-            return f if as_file else f.read()
+            ans = f if as_file else f.read()
+            if ans is not f:
+                f.close()
+            return ans
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''
@@ -487,12 +500,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         return os.access(path, os.R_OK)
 
-    def remove_cover(self, id):
+    def remove_cover(self, id, notify=True):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if os.path.exists(path):
-            os.remove(path)
+            try:
+                os.remove(path)
+            except (IOError, OSError):
+                time.sleep(0.2)
+                os.remove(path)
+        if notify:
+            self.notify('cover', [id])
 
-    def set_cover(self, id, data):
+    def set_cover(self, id, data, notify=True):
         '''
         Set the cover for this book.
 
@@ -504,7 +523,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         else:
             if callable(getattr(data, 'read', None)):
                 data = data.read()
-            save_cover_data_to(data, path)
+            try:
+                save_cover_data_to(data, path)
+            except (IOError, OSError):
+                time.sleep(0.2)
+                save_cover_data_to(data, path)
+        if notify:
+            self.notify('cover', [id])
 
     def book_on_device(self, id):
         if callable(self.book_on_device_func):
@@ -763,7 +788,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if datatype == 'rating':
                 # eliminate the zero ratings line as well as count == 0
                 item_not_zero_func = (lambda x: x[1] > 0 and x[2] > 0)
-                formatter = (lambda x:u'\u2605'*int(round(x/2.)))
+                formatter = (lambda x:u'\u2605'*int(x/2))
             elif category == 'authors':
                 item_not_zero_func = (lambda x: x[2] > 0)
                 # Clean up the authors strings to human-readable form
@@ -776,6 +801,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         avg=r[3], sort=r[4],
                                         icon=icon, tooltip=tooltip)
                                     for r in data if item_not_zero_func(r)]
+
+        # Needed for legacy databases that have multiple ratings that
+        # map to n stars
+        for r in categories['rating']:
+            for x in categories['rating']:
+                if r.name == x.name and r.id != x.id:
+                    r.count = r.count + x.count
+                    categories['rating'].remove(x)
+                    break
 
         # We delayed computing the standard formats category because it does not
         # use a view, but is computed dynamically

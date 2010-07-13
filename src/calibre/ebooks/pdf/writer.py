@@ -154,20 +154,24 @@ class PDFWriter(QObject): # {{{
 
         self.view.load(QUrl.fromLocalFile(item))
 
-    def get_printer(self):
+    def get_printer(self, set_horz_margins=False):
         printer = get_pdf_printer()
         printer.setPaperSize(QSizeF(self.size[0] * 10, self.size[1] * 10), QPrinter.Millimeter)
-        printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
+        if set_horz_margins:
+            printer.setPageMargins(0., self.opts.margin_top, 0.,
+                    self.opts.margin_bottom, QPrinter.Point)
+        else:
+            printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
         printer.setOrientation(orientation(self.opts.orientation))
         printer.setOutputFormat(QPrinter.PdfFormat)
-        printer.setFullPage(True)
+        printer.setFullPage(not set_horz_margins)
         return printer
 
     def _render_html(self, ok):
         if ok:
             item_path = os.path.join(self.tmp_path, '%i.pdf' % len(self.combine_queue))
             self.logger.debug('\tRendering item %s as %i' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue)))
-            printer = self.get_printer()
+            printer = self.get_printer(set_horz_margins=True)
             printer.setOutputFileName(item_path)
             self.view.print_(printer)
         self._render_book()

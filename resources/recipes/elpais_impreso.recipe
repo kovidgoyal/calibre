@@ -1,0 +1,86 @@
+# -*- coding: utf-8 -*-
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.elpais.com/diario/
+'''
+
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ElPaisImpresa(BasicNewsRecipe):
+    title                 = 'El País - edicion impresa'
+    __author__            = 'Darko Miletic'
+    description           = 'el periodico global en Español'
+    publisher             = 'EDICIONES EL PAIS, S.L.'
+    category              = 'news, politics,Spain,actualidad,noticias,informacion,videos,fotografias,audios,graficos,nacional,internacional,deportes,economia,tecnologia,cultura,gente,television,sociedad,opinion,blogs,foros,chats,encuestas,entrevistas,participacion'
+    no_stylesheets        = True
+    encoding              = 'latin1'
+    use_embedded_content  = False
+    language              = 'es'
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://www.elpais.com/im/tit_logo_global.gif'
+    index                 = 'http://www.elpais.com/diario/'
+    extra_css             = ' p{text-align: justify} body{ text-align: left; font-family: Georgia,"Times New Roman",Times,serif } h2{font-family: Arial,Helvetica,sans-serif} img{margin-bottom: 0.4em} '
+
+    conversion_options = {
+                          'comment'      : description
+                        , 'tags'         : category
+                        , 'publisher'    : publisher
+                        , 'language'     : language
+                        }
+
+    feeds          = [
+                        (u'Internacional'     , index + u'internacional/'     )
+                       ,(u'España'            , index + u'espana/'            )
+                       ,(u'Economia'          , index + u'economia/'          )
+                       ,(u'Opinion'           , index + u'opinion/'           )
+                       ,(u'Viñetas'           , index + u'vineta/'            )
+                       ,(u'Sociedad'          , index + u'sociedad/'          )
+                       ,(u'Cultura'           , index + u'cultura/'           )
+                       ,(u'Tendencias'        , index + u'tendencias/'        )
+                       ,(u'Gente'             , index + u'gente/'             )
+                       ,(u'Obituarios'        , index + u'obituarios/'        )
+                       ,(u'Deportes'          , index + u'deportes/'          )
+                       ,(u'Pantallas'         , index + u'radioytv/'          )
+                       ,(u'Ultima'            , index + u'ultima/'            )
+                       ,(u'Educacion'         , index + u'educacion/'         )
+                       ,(u'Saludo'            , index + u'salud/'             )
+                       ,(u'Ciberpais'         , index + u'ciberpais/'         )
+                       ,(u'EP3'               , index + u'ep3/'               )
+                       ,(u'Cine'              , index + u'cine/'              )
+                       ,(u'Babelia'           , index + u'babelia/'           )
+                       ,(u'El viajero'        , index + u'viajero/'           )
+                       ,(u'Negocios'          , index + u'negocios/'          )
+                       ,(u'Domingo'           , index + u'domingo/'           )
+                       ,(u'El Pais semanal'   , index + u'eps/'               )
+                       ,(u'Quadern Catalunya' , index + u'quadern-catalunya/' )
+                     ]
+
+    keep_only_tags=[dict(attrs={'class':['cabecera_noticia','contenido_noticia']})]
+    remove_attributes=['width','height']
+    remove_tags=[dict(name='link')]
+
+    def parse_index(self):
+        totalfeeds = []
+        lfeeds = self.get_feeds()
+        for feedobj in lfeeds:
+            feedtitle, feedurl = feedobj
+            self.report_progress(0, _('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
+            articles = []
+            soup = self.index_to_soup(feedurl)
+            for item in soup.findAll('a',attrs={'class':['g19r003','g19i003','g17r003','g17i003']}):
+                url   = 'http://www.elpais.com' + item['href'].rpartition('/')[0]
+                title = self.tag_to_string(item)
+                date  = strftime(self.timefmt)
+                articles.append({
+                                      'title'      :title
+                                     ,'date'       :date
+                                     ,'url'        :url
+                                     ,'description':''
+                                    })
+            totalfeeds.append((feedtitle, articles))
+        return totalfeeds
+
+    def print_version(self, url):
+        return url + '?print=1'

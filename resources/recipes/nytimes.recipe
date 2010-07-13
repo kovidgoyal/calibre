@@ -17,7 +17,7 @@ class NYTimes(BasicNewsRecipe):
     title       = 'New York Times Top Stories'
     __author__  = 'GRiker'
     language = 'en'
-    requires_version = (0, 7, 3)
+    requires_version = (0, 7, 5)
     description = 'Top Stories from the New York Times'
 
     # List of sections typically included in Top Stories.  Use a keyword from the
@@ -79,6 +79,7 @@ class NYTimes(BasicNewsRecipe):
                             'doubleRule',
                             'dottedLine',
                             'entry-meta',
+                            'entry-response module',
                             'icon enlargeThis',
                             'leftNavTabs',
                             'module box nav',
@@ -88,6 +89,7 @@ class NYTimes(BasicNewsRecipe):
                             'relatedSearchesModule',
                             'side_tool',
                             'singleAd',
+                            'subNavigation clearfix',
                             'subNavigation tabContent active',
                             'subNavigation tabContent active clearfix',
                             ]}),
@@ -110,6 +112,7 @@ class NYTimes(BasicNewsRecipe):
                             'navigation',
                             'portfolioInline',
                             'relatedArticles',
+                            'respond',
                             'side_search',
                             'side_index',
                             'side_tool',
@@ -458,8 +461,10 @@ class NYTimes(BasicNewsRecipe):
                 if mp_off >= 0:
                     c = c[:mp_off]
                 emTag.insert(0, c)
-                hrTag = Tag(soup, 'hr')
-                #hrTag['style'] = "margin-top:0em;margin-bottom:0em"
+                #hrTag = Tag(soup, 'hr')
+                #hrTag['class'] = 'caption_divider'
+                hrTag = Tag(soup, 'div')
+                hrTag['class'] = 'divider'
                 emTag.insert(1, hrTag)
                 caption.replaceWith(emTag)
 

@@ -265,6 +265,9 @@ class Py2App(object):
     @flush
     def get_local_dependencies(self, path_to_lib):
         for x in self.get_dependencies(path_to_lib):
+            if x.startswith('libpodofo'):
+                yield x, x
+                continue
             for y in (SW+'/lib/', '/usr/local/lib/', SW+'/qt/lib/',
                     '/opt/local/lib/',
                     '/Library/Frameworks/Python.framework/', SW+'/freetype/lib/'):
@@ -397,7 +400,7 @@ class Py2App(object):
     @flush
     def add_podofo(self):
         info('\nAdding PoDoFo')
-        pdf = join(SW, 'lib', 'libpodofo.0.6.99.dylib')
+        pdf = join(SW, 'lib', 'libpodofo.0.8.1.dylib')
         self.install_dylib(pdf)
 
     @flush

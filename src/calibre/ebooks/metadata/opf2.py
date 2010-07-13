@@ -18,7 +18,7 @@ from calibre.constants import __appname__, __version__, filesystem_encoding
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.utils.date import parse_date, isoformat
-
+from calibre.utils.localization import get_lang
 
 class Resource(object):
     '''
@@ -1069,7 +1069,10 @@ class OPFCreator(MetaInformation):
             dc_attrs={'id':__appname__+'_id'}))
         if getattr(self, 'pubdate', None) is not None:
             a(DC_ELEM('date', self.pubdate.isoformat()))
-        a(DC_ELEM('language', self.language if self.language else 'UND'))
+        lang = self.language
+        if not lang or lang.lower() == 'und':
+            lang = get_lang().replace('_', '-')
+        a(DC_ELEM('language', lang))
         if self.comments:
             a(DC_ELEM('description', self.comments))
         if self.publisher:
@@ -1184,7 +1187,6 @@ def metadata_to_opf(mi, as_string=True):
     factory(DC('contributor'), mi.book_producer, __appname__, 'bkp')
     if hasattr(mi.pubdate, 'isoformat'):
         factory(DC('date'), isoformat(mi.pubdate))
-    factory(DC('language'), mi.language)
     if mi.category:
         factory(DC('type'), mi.category)
     if mi.comments:
@@ -1195,6 +1197,8 @@ def metadata_to_opf(mi, as_string=True):
         factory(DC('identifier'), mi.isbn, scheme='ISBN')
     if mi.rights:
         factory(DC('rights'), mi.rights)
+    factory(DC('language'), mi.language if mi.language and mi.language.lower()
+            != 'und' else get_lang().replace('_', '-'))
     if mi.tags:
         for tag in mi.tags:
             factory(DC('subject'), tag)

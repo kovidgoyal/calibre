@@ -15,7 +15,7 @@ class Akter(BasicNewsRecipe):
     category              = 'vesti, online vesti, najnovije vesti, politika, sport, ekonomija, biznis, finansije, berza, kultura, zivot, putovanja, auto, automobili, tehnologija, politicki magazin, dogadjaji, desavanja, lifestyle, zdravlje, zdravstvo, vest, novine, nedeljnik, srbija, novi sad, vojvodina, svet, drustvo, zabava, republika srpska, beograd, intervju, komentar, reportaza, arhiva vesti, news, serbia, politics'
     oldest_article        = 8
     max_articles_per_feed = 100
-    no_stylesheets        = False
+    no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'
     masthead_url          = 'http://www.akter.co.rs/templates/gk_thenews2/images/style2/logo.png'
@@ -23,9 +23,9 @@ class Akter(BasicNewsRecipe):
     publication_type      = 'magazine'
     remove_empty_feeds    = True
     PREFIX                 = 'http://www.akter.co.rs'
-    extra_css             = """ @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
+    extra_css             = """
                                 @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
-                                .article_description,body,.lokacija{font-family: Arial,Helvetica,sans1,sans-serif}
+                                .article_description,body{font-family: Arial,Helvetica,sans1,sans-serif}
                                 .color-2{display:block; margin-bottom: 10px; padding: 5px, 10px;
                                 border-left: 1px solid #D00000; color: #D00000}
                                 img{margin-bottom: 0.8em} """

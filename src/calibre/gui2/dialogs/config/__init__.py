@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, re, time, textwrap, copy, sys
 
 from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
-                        QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit, \
+                        QVBoxLayout, QLabel, QPlainTextEdit, \
                         QStringListModel, QAbstractItemModel, QFont, \
                         SIGNAL, QThread, Qt, QSize, QVariant, QUrl, \
                         QModelIndex, QAbstractTableModel, \
@@ -15,8 +15,9 @@ from calibre.constants import iswindows, isosx
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
 from calibre.gui2.dialogs.config.create_custom_column import CreateCustomColumn
 from calibre.gui2 import choose_dir, error_dialog, config, gprefs, \
-                         ALL_COLUMNS, NONE, info_dialog, choose_files, \
-                         warning_dialog, ResizableDialog, question_dialog
+        open_url, open_local_file, \
+        ALL_COLUMNS, NONE, info_dialog, choose_files, \
+        warning_dialog, ResizableDialog, question_dialog
 from calibre.utils.config import prefs
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
@@ -493,6 +494,8 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             if x == config['gui_layout']:
                 li = i
         self.opt_gui_layout.setCurrentIndex(li)
+        self.opt_disable_animations.setChecked(config['disable_animations'])
+        self.opt_show_donate_button.setChecked(config['show_donate_button'])
 
     def check_port_value(self, *args):
         port = self.port.value()
@@ -511,7 +514,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
 
     def open_config_dir(self):
         from calibre.utils.config import config_dir
-        QDesktopServices.openUrl(QUrl.fromLocalFile(config_dir))
+        open_local_file(config_dir)
 
     def create_symlinks(self):
         from calibre.utils.osx_symlinks import create_symlinks
@@ -804,7 +807,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.stop.setEnabled(False)
 
     def test_server(self):
-        QDesktopServices.openUrl(QUrl('http://127.0.0.1:'+str(self.port.value())))
+        open_url(QUrl('http://127.0.0.1:'+str(self.port.value())))
 
     def compact(self, toggled):
         d = CheckIntegrity(self.db, self)
@@ -868,6 +871,8 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['get_social_metadata'] = self.opt_get_social_metadata.isChecked()
         config['overwrite_author_title_metadata'] = self.opt_overwrite_author_title_metadata.isChecked()
         config['enforce_cpu_limit'] = bool(self.opt_enforce_cpu_limit.isChecked())
+        config['disable_animations'] = bool(self.opt_disable_animations.isChecked())
+        config['show_donate_button'] = bool(self.opt_show_donate_button.isChecked())
         gprefs['show_splash_screen'] = bool(self.show_splash_screen.isChecked())
         fmts = []
         for i in range(self.viewer.count()):

@@ -4,6 +4,255 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.8
+  date: 2010-07-09
+
+  new features:
+    - title: "New tool to help prepare EPUBs for publication"
+      type: major
+      description: >
+        "calibre now contains a new command line tool called epub-fix that can automatically fix
+        common problems in EPUB files that cause them to be rejected by poorly designed publishing services.
+        The tool is plugin based for extensible functionality in the future. Currently, it can fix unmanifested files
+        and workaround the date and svg preserveaspectratio bugs of epubcheck."
+
+    - title: "New icons for the toolbar buttons by Kamil Tatara"
+
+    - title: "Display rating (when available) in cover browser"
+
+    - title: "Clicking on the central cover int the cover browser now opens that book in the viewer"
+
+    - title: "Use the status bar instead of the area to the right of the location view to display status information"
+
+    - title: "Driver for the Pandigital Novel e-book reader"
+
+  bug fixes:
+    - title: "News download: Don not specify a font family for article descriptions"
+
+    - title: "News download: Fix regression introduced in 0.7.0 that broke download of some embedded content feeds"
+
+    - title: "MOBI Output: Partial support for nested superscript and subscripts."
+      tickets: [6132]
+
+    - title: "CHM Input: Fix handling of buggy CHM files with no .hhc"
+      tickets: [6087]
+
+    - title: "EPUB Input: Fix bug in unzipping EPUB files that have been zipped in depth first order."
+      tickets: [6127]
+
+    - title: "TXT Input: Convert HTML entities to characters."
+      tickets: [6114]
+
+    - title: "LRF Input: Handle LRF files with random null bytes in the text"
+      tickets: [6097]
+
+    - title: "Kobo driver: Fix detection of txt/html files on the device"
+
+    - title: "Fix opening of books when calibre library is on an unmapped network share in windows"
+
+    - title: "SONY driver: Only update the timestamp in the XML db for newly added books"
+
+    - title: "Cover browser: Fix rendering of center cover when width of cover browser is less than the width of a single cover"
+
+    - title: "Cover browser: Correct fix for setPixel out of bounds warning causing UI slowdown in calibre"
+
+  new recipes:
+    - title: "evz.ro"
+      author: Darko Miletic
+
+    - title: "Anchorage Daily News, China Economic Net, BBC Chinese and Singtao Daily"
+      author: rty
+
+    - title: Big Oven
+      author: Starson17
+
+  improved recipes:
+    - Haaretz
+    - Editor and Publisher
+    - Estadao
+
+
+- version: 0.7.7
+  date: 2010-07-02
+
+  new features:
+    - title: "Support for the Nokia E52"
+
+    - title: "Searching on the size column"
+
+    - title: "iTunes driver: Add option to disable cover fetching for speeding up the fetching of large book collections"
+
+  bug fixes:
+    - title: "SONY driver: Only update metadata when books are sent to device."
+
+    - title: "TXT Input: Ensure the generated html is splittable"
+      tickets: [5904]
+
+    - title: "Fix infinite loop in default cover generation."
+      tickets: [6061]
+
+    - title: "HTML Input: Fix a parsing bug that was triggered in rare conditions"
+      tickets: [6064]
+
+    - title: "HTML2Zip plugin: Do not replace ligatures"
+      tickets: [6019]
+
+    - title: "iTunes driver: Fix transmission of non integral series numbers"
+      tickets: [6046]
+
+    - title: "Simplify implementation of cover caching and ensure cover browser is updated when covers are changed"
+
+    - title: "PDF metadata: Fix last character corrupted when setting metadata in encrypted files."
+
+    - title: "PDF metadata: Update the version of PoDoFo used to set metadata to 0.8.1. Hopefully that means more PDF files will work"
+
+    - title: "Device drivers: Speedup for dumping metadata cache to devices on Windows XP"
+
+    - title: "EPUB Output: Ensure that language setting is conformant to the specs"
+
+    - title: "MOBI Output: Fix a memory leak and a crash in the palmdoc compression routine"
+
+    - title: "Metadata download: Fix a regression that resulted in a failed download for some books"
+
+  new recipes:
+    - title: "Foreign Policy and Alo!"
+      author: Darko Miletic
+
+    - title: Statesman and ifzm
+      author: rty
+
+  improved recipes:
+    - Akter
+    - The Old New Thing
+
+
+
+- version: 0.7.6
+  date: 2010-06-28
+
+  new features:
+    - title: "Add support for the new firmware of the Azbooka"
+      tickets: [5994]
+
+    - title: "A few speedups for calibre startup, should add up to a few seconds of startup time on slower machines"
+
+    - title: "Support for the Sweem MM300"
+
+    - title: "Add keyboard shorcut for Download metadata and covers"
+
+  bug fixes:
+    - title: "Fix regression in 0.7.5 that broke conversion of malformed HTML files (like those Microsoft Word outputs)"
+      type: major
+      tickets: [5991]
+
+    - title: "Don't download tags from librarything, as the tagging there is not very good"
+
+    - title: "Add mimetype for FB2 so that it can be served by the content server"
+      tickets: [6011]
+
+    - title: "Ensure cover is not resized to less than the available space in the Edit Meta Information dialog"
+      tickets: [6001]
+
+    - title: "SONY driver: Only update collections when sending book to device for the first time"
+
+    - title: "calibre should now work on windows when the location for the library contains non-ascii characters"
+      tickets: [5983]
+
+    - title: "Cover browser once again distorts instead of cropping covers that have an incorrect aspect ratio"
+
+    - title: "ISBNDb metadata plugin: Fix bug causing only first page of results to be fetched"
+
+    - title: "Move iTunes driver to the bottom so that it doesn't interfere with device detection for people that have iphones and an ereader plugged in"
+
+  improved recipes:
+    - Houston Chronicle
+    - Hindu
+    - Times of India
+    - New York Times
+
+  new recipes:
+    - title: Winnipeg Sun
+      author: rty
+
+- version: 0.7.5
+  date: 2010-06-25
+
+  new features:
+    - title: "New driver for the Kobo featuring closer integration with the device."
+
+    - title: "Support for the Dell Streak, Eken Android tablet and the Astak Mentor EB600"
+
+    - title: "New series type custom column"
+
+    - title: "Add option in Send to device menu to connect to iTunes without any iDevice (experimental)"
+
+    - title: "iPad driver: Make setting iTunes Category from series optional. News download now optimizations for iPad output."
+
+    - title: "Add option to disable book cover animation"
+      tickets: [5909]
+
+    - title: "Edit meta information dialog: Remember last used size and splitter position."
+      tickets: [5908]
+
+    - title: "Metadata download: If any results have a published date, ensure they all do"
+
+    - title: "SONY driver: Add a preference setting in Preferences->Add/Save->Send to device to control how colelctions are managed on the device by calibre"
+
+    - title: "Metadata download: Filter out non book results. Also sort results by availability of covers for the isbn"
+      tickets: [5946]
+
+    - title: "Bulk editing for device collections in the device view via the context menu"
+
+  bug fixes:
+    - title: "When converting books using the calibre GUI, set the language of the output book to be the same as the language of the User Interface, instead of undefined. Fixes use of dictionary in iBooks"
+
+    - title: "PDF Output: Fix setting top/bottom margnis has no effect" 
+
+    - title: "Conversion pipeline: Fix typo causing remove footer regex to always fail"
+
+    - title: "Handle device being yanked with queued device jobs gracefully"
+
+    - title: "Conversion pipeline: Handle deeply nested XML structures"
+      tickets: [5931]
+
+    - title: "Conversion pipeline: Fix handling of lists with a specified left margin"
+      tickets: [5877]
+
+    - title: "Restore workaround for ADE buggy rendering of anchors as links. However, make it overridable by extra CSS"
+
+    - title: "Fix LibraryThing metadata download plugin"
+
+    - title: "Fix multiple ratings displayed in Tag Browser for some legacy databases"
+
+    - title: "Fix invocation of postprocess file type plugins plugins"
+
+    - title: "HTML Input: Handle @import directives in linked css files."
+      tickets: [5135]
+
+    - title: "HTML Input: Handle absolute paths in resource links on windows correctly."
+      tickets: [3031]
+
+    - title: "E-book viewer: Handle font-face rules specify multiple families to be substituted"
+
+    - title: "Cover browser: Set aspect ratio of covers to 3:4 instead of 2:3. Crop rather than distort covers whoose aspect ratio is different from this. Antialias the rendering of the central cover"
+
+    - title: "Reset Tag browser if the text in the search box is edited"
+
+    - title: "Fix detection of SD card in Samsung Galaxy windows driver"
+
+  new recipes:
+    - title: "L'Osservatore Romano"
+      author: Darko Miletic
+
+    - title: China Press, London Free Press, People Daily
+      author: rty
+
+  improved recipes:
+    - Zaobao
+    - New Scientist
+    - National Post
+    - London review of books
+
 - version: 0.7.4
   date: 2010-06-19
 

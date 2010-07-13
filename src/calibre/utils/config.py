@@ -698,6 +698,8 @@ def _prefs():
     # calibre server can execute searches
     c.add_opt('saved_searches', default={}, help=_('List of named saved searches'))
     c.add_opt('user_categories', default={}, help=_('User-created tag browser categories'))
+    c.add_opt('manage_device_metadata', default='manual',
+        help=_('How and when calibre updates metadata on the device.'))
 
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c

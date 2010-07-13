@@ -15,7 +15,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre.utils.config import prefs
 
-class DuplicatesAdder(QThread):
+class DuplicatesAdder(QThread): # {{{
     # Add duplicate books
     def __init__(self, parent, db, duplicates, db_adder):
         QThread.__init__(self, parent)
@@ -34,9 +34,9 @@ class DuplicatesAdder(QThread):
             self.emit(SIGNAL('added(PyQt_PyObject)'), count)
             count += 1
         self.emit(SIGNAL('adding_done()'))
+# }}}
 
-
-class RecursiveFind(QThread):
+class RecursiveFind(QThread): # {{{
 
     def __init__(self, parent, db, root, single):
         QThread.__init__(self, parent)
@@ -79,7 +79,9 @@ class RecursiveFind(QThread):
         if not self.canceled:
             self.emit(SIGNAL('found(PyQt_PyObject)'), self.books)
 
-class DBAdder(Thread):
+# }}}
+
+class DBAdder(Thread): # {{{
 
     def __init__(self, db, ids, nmap):
         self.db, self.ids, self.nmap = db, dict(**ids), dict(**nmap)
@@ -219,8 +221,9 @@ class DBAdder(Thread):
                 self.db.add_format(id, fmt, f, index_is_id=True,
                         notify=False, replace=replace)
 
+# }}}
 
-class Adder(QObject):
+class Adder(QObject): # {{{
 
     ADD_TIMEOUT = 600 # seconds
 
@@ -410,6 +413,7 @@ class Adder(QObject):
         return getattr(getattr(self, 'db_adder', None), 'infos',
                 [])
 
+# }}}
 
 ###############################################################################
 ############################## END ADDER ######################################

@@ -43,6 +43,15 @@
          <height>0</height>
         </size>
        </property>
+       <property name="maximumSize">
+        <size>
+         <width>500</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="minimumContentsLength">
+        <number>30</number>
+       </property>
       </widget>
      </item>
     </layout>

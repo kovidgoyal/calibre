@@ -1,18 +1,18 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
-import os
+import os, sys
 from threading import RLock
 
-from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
+from PyQt4.Qt import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
                          QByteArray, QTranslator, QCoreApplication, QThread, \
-                         QEvent, QTimer, pyqtSignal, QDate
-from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
-                        QIcon, QApplication, QDialog, QPushButton
+                         QEvent, QTimer, pyqtSignal, QDate, QDesktopServices, \
+                         QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
+                         QIcon, QApplication, QDialog, QPushButton, QUrl
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre import islinux, iswindows, isosx, isfreebsd
+from calibre.constants import islinux, iswindows, isosx, isfreebsd, isfrozen
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
@@ -103,6 +103,8 @@ def _config():
             help=_('The layout of the user interface'), default='wide')
     c.add_opt('show_avg_rating', default=True,
             help=_('Show the average rating per item indication in the tag browser'))
+    c.add_opt('disable_animations', default=False,
+            help=_('Disable UI animations'))
     return ConfigProxy(c)
 
 config = _config()
@@ -224,10 +226,11 @@ def error_dialog(parent, title, msg, det_msg='', show=False,
         return d.exec_()
     return d
 
-def question_dialog(parent, title, msg, det_msg='', show_copy_button=True):
-    d = MessageBox(QMessageBox.Question, title, msg, QMessageBox.Yes|QMessageBox.No,
+def question_dialog(parent, title, msg, det_msg='', show_copy_button=True,
+        buttons=QMessageBox.Yes|QMessageBox.No):
+    d = MessageBox(QMessageBox.Question, title, msg, buttons,
                     parent, det_msg)
-    d.setIconPixmap(QPixmap(I('dialog_information.svg')))
+    d.setIconPixmap(QPixmap(I('dialog_question.svg')))
     d.setEscapeButton(QMessageBox.No)
     if not show_copy_button:
         d.cb.setVisible(False)
@@ -246,7 +249,7 @@ def info_dialog(parent, title, msg, det_msg='', show=False):
 
 class Dispatcher(QObject):
     '''Convenience class to ensure that a function call always happens in the
-    thread the reciver was created in.'''
+    thread the receiver was created in.'''
     dispatch_signal = pyqtSignal(object, object)
 
     def __init__(self, func):
@@ -505,7 +508,7 @@ def pixmap_to_data(pixmap, format='JPEG'):
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
     pixmap.save(buf, format)
-    return str(ba.data())
+    return bytes(ba.data())
 
 class ResizableDialog(QDialog):
 
@@ -576,6 +579,25 @@ class Application(QApplication):
             return QApplication.event(self, e)
 
 _store_app = None
+
+def open_url(qurl):
+    paths = os.environ.get('LD_LIBRARY_PATH',
+                '').split(os.pathsep)
+    paths = [x for x in paths if x]
+    if isfrozen and islinux and paths:
+        npaths = [x for x in paths if x != sys.frozen_path]
+        os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
+    QDesktopServices.openUrl(qurl)
+    if isfrozen and islinux and paths:
+        os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(paths)
+
+
+def open_local_file(path):
+    if iswindows:
+        os.startfile(os.path.normpath(path))
+    else:
+        url = QUrl.fromLocalFile(path)
+        open_url(url)
 
 def is_ok_to_use_qt():
     global gui_thread, _store_app

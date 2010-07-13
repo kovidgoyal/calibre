@@ -81,7 +81,7 @@ class FieldMetadata(dict):
                            'column':'name',
                            'link_column':'series',
                            'category_sort':'(title_sort(name))',
-                           'datatype':'text',
+                           'datatype':'series',
                            'is_multiple':None,
                            'kind':'field',
                            'name':_('Series'),
@@ -253,7 +253,7 @@ class FieldMetadata(dict):
                            'is_multiple':None,
                            'kind':'field',
                            'name':None,
-                           'search_terms':[],
+                           'search_terms':['size'],
                            'is_custom':False,
                            'is_category':False}),
             ('timestamp', {'table':None,
@@ -398,6 +398,8 @@ class FieldMetadata(dict):
             if val['is_category'] and val['kind'] in ('user', 'search'):
                 del self._tb_cats[key]
 
+    def cc_series_index_column_for(self, key):
+        return self._tb_cats[key]['rec_index'] + 1
 
     def add_user_category(self, label, name):
         if label in self._tb_cats:

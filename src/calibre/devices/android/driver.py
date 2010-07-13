@@ -34,6 +34,12 @@ class ANDROID(USBMS):
 
             # Acer
             0x502 : { 0x3203 : [0x0100]},
+
+            # Dell
+            0x413c : { 0xb007 : [0x0100]},
+
+            # Eken?
+            0x040d : { 0x0851 : [0x0001]},
             }
     EBOOK_DIR_MAIN = ['wordplayer/calibretransfer', 'eBooks/import', 'Books']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
@@ -42,11 +48,12 @@ class ANDROID(USBMS):
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(EBOOK_DIR_MAIN)
 
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
-            'GT-I5700', 'SAMSUNG']
+            'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD',
-            'PROD_GT-I9000']
-    WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'PROD_GT-I9000_CARD']
+            'GT-I9000', 'FILE-STOR_GADGET']
+    WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD',
+            'FILE-STOR_GADGET']
 
     OSX_MAIN_MEM = 'HTC Android Phone Media'
 
@@ -62,6 +69,16 @@ class ANDROID(USBMS):
         else:
             dirs = [x.strip() for x in dirs.split(',')]
         self.EBOOK_DIR_MAIN = dirs
+
+    def get_main_ebook_dir(self, for_upload=False):
+        dirs = self.EBOOK_DIR_MAIN
+        if not for_upload:
+            def aldiko_tweak(x):
+                return 'eBooks' if x == 'eBooks/import' else x
+            if isinstance(dirs, basestring):
+                dirs = [dirs]
+            dirs = list(map(aldiko_tweak, dirs))
+        return dirs
 
 class S60(USBMS):
 

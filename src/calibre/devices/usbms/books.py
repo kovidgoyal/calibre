@@ -11,10 +11,11 @@ from calibre.devices.mime import mime_type_ext
 from calibre.devices.interface import BookList as _BookList
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre import isbytestring
+from calibre.utils.config import prefs
 
 class Book(MetaInformation):
 
-    BOOK_ATTRS = ['lpath', 'size', 'mime', 'device_collections']
+    BOOK_ATTRS = ['lpath', 'size', 'mime', 'device_collections', '_new_book']
 
     JSON_ATTRS = [
         'lpath', 'title', 'authors', 'mime', 'size', 'tags', 'author_sort',
@@ -29,6 +30,7 @@ class Book(MetaInformation):
 
         MetaInformation.__init__(self, '')
 
+        self._new_book = False
         self.device_collections = []
         self.path = os.path.join(prefix, lpath)
         if os.sep == '\\':
@@ -76,7 +78,7 @@ class Book(MetaInformation):
         in C{other} takes precedence, unless the information in C{other} is NULL.
         '''
 
-        MetaInformation.smart_update(self, other)
+        MetaInformation.smart_update(self, other, replace_tags=True)
 
         for attr in self.BOOK_ATTRS:
             if hasattr(other, attr):
@@ -130,12 +132,37 @@ class CollectionsBookList(BookList):
         return True
 
     def get_collections(self, collection_attributes):
+        from calibre.devices.usbms.driver import debug_print
+        debug_print('Starting get_collections:', prefs['manage_device_metadata'])
         collections = {}
         series_categories = set([])
-        collection_attributes = list(collection_attributes)+['device_collections']
-        for attr in collection_attributes:
-            attr = attr.strip()
-            for book in self:
+        # This map of sets is used to avoid linear searches when testing for
+        # book equality
+        collections_lpaths = {}
+        for book in self:
+            # Make sure we can identify this book via the lpath
+            lpath = getattr(book, 'lpath', None)
+            if lpath is None:
+                continue
+            # Decide how we will build the collections. The default: leave the
+            # book in all existing collections. Do not add any new ones.
+            attrs = ['device_collections']
+            if getattr(book, '_new_book', False):
+                if prefs['manage_device_metadata'] == 'manual':
+                    # Ensure that the book is in all the book's existing
+                    # collections plus all metadata collections
+                    attrs += collection_attributes
+                else:
+                    # For new books, both 'on_send' and 'on_connect' do the same
+                    # thing. The book's existing collections are ignored. Put
+                    # the book in collections defined by its metadata.
+                    attrs = collection_attributes
+            elif prefs['manage_device_metadata'] == 'on_connect':
+                # For existing books, modify the collections only if the user
+                # specified 'on_connect'
+                attrs = collection_attributes
+            for attr in attrs:
+                attr = attr.strip()
                 val = getattr(book, attr, None)
                 if not val: continue
                 if isbytestring(val):
@@ -150,11 +177,12 @@ class CollectionsBookList(BookList):
                         continue
                     if category not in collections:
                         collections[category] = []
-                    if book not in collections[category]:
+                        collections_lpaths[category] = set()
+                    if lpath not in collections_lpaths[category]:
+                        collections_lpaths[category].add(lpath)
                         collections[category].append(book)
-                        if attr == 'series':
-                            series_categories.add(category)
-
+                    if attr == 'series':
+                        series_categories.add(category)
         # Sort collections
         for category, books in collections.items():
             def tgetter(x):
@@ -167,3 +195,15 @@ class CollectionsBookList(BookList):
                 books.sort(cmp=lambda x,y:cmp(getter(x), getter(y)))
         return collections
 
+    def rebuild_collections(self, booklist, oncard):
+        '''
+        For each book in the booklist for the card oncard, remove it from all
+        its current collections, then add it to the collections specified in
+        device_collections.
+
+        oncard is None for the main memory, carda for card A, cardb for card B,
+        etc.
+
+        booklist is the object created by the :method:`books` call above.
+        '''
+        pass

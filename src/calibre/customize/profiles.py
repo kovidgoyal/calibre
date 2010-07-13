@@ -36,7 +36,7 @@ class Plugin(_Plugin):
         self.fnames = dict((name, sz) for name, _, sz in self.fsizes if name)
         self.fnums = dict((num, sz) for _, num, sz in self.fsizes if num)
 
-
+# Input profiles {{{
 class InputProfile(Plugin):
 
     author = 'Kovid Goyal'
@@ -218,6 +218,8 @@ input_profiles = [InputProfile, SonyReaderInput, SonyReader300Input,
 
 input_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
 
+# }}}
+
 class OutputProfile(Plugin):
 
     author = 'Kovid Goyal'
@@ -237,11 +239,12 @@ class OutputProfile(Plugin):
     # If True the MOBI renderer on the device supports MOBI indexing
     supports_mobi_indexing = False
 
-    # Device supports displaying a nested TOC
-    supports_nested_toc = True
-
     # If True output should be optimized for a touchscreen interface
     touchscreen = False
+    touchscreen_news_css = ''
+    # A list of extra (beyond CSS 2.1) modules supported by the device
+    # Format is a cssutils profile dictionary (see iPad for example)
+    extra_css_modules = []
 
     @classmethod
     def tags_to_string(cls, tags):
@@ -256,8 +259,151 @@ class iPadOutput(OutputProfile):
     screen_size = (768, 1024)
     comic_screen_size = (768, 1024)
     dpi = 132.0
-    supports_nested_toc = False
+    extra_css_modules = [
+        {
+            'name':'webkit',
+            'props': { '-webkit-border-bottom-left-radius':'{length}',
+                '-webkit-border-bottom-right-radius':'{length}',
+                '-webkit-border-top-left-radius':'{length}',
+                '-webkit-border-top-right-radius':'{length}',
+                '-webkit-border-radius': r'{border-width}(\s+{border-width}){0,3}|inherit',
+            },
+            'macros': {'border-width': '{length}|medium|thick|thin'}
+        }
+    ]
     touchscreen = True
+    # touchscreen_news_css {{{
+    touchscreen_news_css = u'''
+			/* hr used in articles */
+			.article_articles_list {
+                width:18%;
+				}
+            .article_link {
+            	color: #593f29;
+                font-style: italic;
+                }
+            .article_next {
+				-webkit-border-top-right-radius:4px;
+				-webkit-border-bottom-right-radius:4px;
+                font-style: italic;
+                width:32%;
+                }
+
+            .article_prev {
+				-webkit-border-top-left-radius:4px;
+				-webkit-border-bottom-left-radius:4px;
+                font-style: italic;
+                width:32%;
+                }
+			.article_sections_list {
+                width:18%;
+				}
+            .articles_link {
+                font-weight: bold;
+                }
+            .sections_link {
+                font-weight: bold;
+                }
+
+
+            .caption_divider {
+            	border:#ccc 1px solid;
+				}
+
+            .touchscreen_navbar {
+                background:#c3bab2;
+                border:#ccc 0px solid;
+                border-collapse:separate;
+                border-spacing:1px;
+                margin-left: 5%;
+                margin-right: 5%;
+                width: 90%;
+                -webkit-border-radius:4px;
+                }
+            .touchscreen_navbar td {
+                background:#fff;
+                font-family:Helvetica;
+                font-size:80%;
+                /* UI touchboxes use 8px padding */
+                padding: 6px;
+                text-align:center;
+                }
+
+			.touchscreen_navbar td a:link {
+				color: #593f29;
+				text-decoration: none;
+				}
+
+			/* Index formatting */
+			.publish_date {
+				text-align:center;
+				}
+			.divider {
+				border-bottom:1em solid white;
+				border-top:1px solid gray;
+				}
+
+			hr.caption_divider {
+				border-color:black;
+				border-style:solid;
+				border-width:1px;
+				}
+
+            /* Feed summary formatting */
+            .article_summary {
+            	display:inline-block;
+            	}
+            .feed {
+                font-family:sans-serif;
+                font-weight:bold;
+                font-size:larger;
+				}
+
+            .feed_link {
+                font-style: italic;
+                }
+
+            .feed_next {
+				-webkit-border-top-right-radius:4px;
+				-webkit-border-bottom-right-radius:4px;
+                font-style: italic;
+                width:40%;
+                }
+
+            .feed_prev {
+				-webkit-border-top-left-radius:4px;
+				-webkit-border-bottom-left-radius:4px;
+                font-style: italic;
+                width:40%;
+                }
+
+            .feed_title {
+                text-align: center;
+                font-size: 160%;
+                }
+
+			.feed_up {
+                font-weight: bold;
+                width:20%;
+				}
+
+            .summary_headline {
+                font-weight:bold;
+                text-align:left;
+				}
+
+            .summary_byline {
+                text-align:left;
+                font-family:monospace;
+				}
+
+            .summary_text {
+                text-align:left;
+				}
+
+        '''
+        # }}}
+
 
 class SonyReaderOutput(OutputProfile):
 

@@ -87,6 +87,9 @@ class MetadataWidget(Widget, Ui_Form):
             if not pm.isNull():
                 self.cover.setPixmap(pm)
                 self.cover_data = cover
+        else:
+            self.cover.setPixmap(QPixmap(I('default_cover.svg')))
+
 
     def initialize_combos(self):
         self.initalize_authors()

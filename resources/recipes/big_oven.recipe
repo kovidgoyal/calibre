@@ -1,0 +1,64 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class BigOven(BasicNewsRecipe):
+    title               = 'BigOven'
+    __author__          = 'Starson17'
+    description         = 'Recipes for the Foodie in us all. Registration is free. A fake username and password just gives smaller photos.'
+    language            = 'en'
+    category            = 'news, food, recipes, gourmet'
+    publisher           = 'Starson17'
+    use_embedded_content= False
+    no_stylesheets      = True
+    oldest_article      = 24
+    remove_javascript   = True
+    remove_empty_feeds    = True
+    cover_url           = 'http://www.software.com/images/products/BigOven%20Logo_177_216.JPG'
+    max_articles_per_feed = 30
+    needs_subscription = True
+
+    conversion_options = {'linearize_tables'  : True
+                        , 'comment'           : description
+                        , 'tags'              : category
+                        , 'publisher'         : publisher
+                        , 'language'          : language
+                        }
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://www.bigoven.com/')
+            br.select_form(name='form1')
+            br['TopMenu_bo1$email']  = self.username
+            br['TopMenu_bo1$password'] = self.password
+            br.submit()
+        return br
+
+    remove_attributes = ['style', 'font']
+
+    keep_only_tags     = [dict(name='h1')
+                          ,dict(name='div', attrs={'class':'img'})
+                          ,dict(name='div', attrs={'id':'intro'})
+                          ]
+
+    remove_tags = [dict(name='div', attrs={'style':["overflow: visible;"]})
+                   ,dict(name='div', attrs={'class':['ctas']})
+                   #,dict(name='a', attrs={'class':['edit']})
+                   ,dict(name='p', attrs={'class':['byline']})
+                   ]
+
+    feeds = [(u'4 & 5 Star Rated Recipes', u'http://feeds.feedburner.com/Bigovencom-RecipeRaves?format=xml')]
+
+    def preprocess_html(self, soup):
+        for tag in soup.findAll(name='a', attrs={'class':['edit']}):
+          tag.parent.extract()
+        for tag in soup.findAll(name='a', attrs={'class':['deflink']}):
+          tag.replaceWith(tag.string)
+        return soup
+
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:medium;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+		            '''
+
