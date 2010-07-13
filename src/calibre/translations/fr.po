@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-10 16:12+0000\n"
-"PO-Revision-Date: 2010-07-11 18:00+0000\n"
-"Last-Translator: mcstrother <Unknown>\n"
+"PO-Revision-Date: 2010-07-12 23:25+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-12 03:44+0000\n"
+"X-Launchpad-Export-Date: 2010-07-13 03:43+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -743,7 +743,7 @@ msgstr "Communiquer avec le Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:75
 msgid "Communicate with the Pandigital Novel"
-msgstr ""
+msgstr "Communiquer avec le Pandigital Novel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1692,11 +1692,11 @@ msgstr "Création"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:18
 msgid "ePub Fixer"
-msgstr ""
+msgstr "Réparateur d'ePub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:18
 msgid "Workaround epubcheck bugs"
-msgstr ""
+msgstr "Solution de rechange pour les bogues d'epubcheck"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:22
 msgid ""
@@ -1705,6 +1705,12 @@ msgid ""
 "detect these and replace them with constructs that epubcheck likes. This may "
 "cause significant changes to your epub, complain to the epubcheck project."
 msgstr ""
+"Solution de rechange pour les bogues dans la dernière distribution "
+"d'epubcheck. epubcheck décèle beaucoup de fausses erreurs. epub-fix va "
+"essayer de trouver ces fausses erreurs et de les changer en forme qui ne "
+"gène pas epubcheck. Il est possible que cette action change "
+"significativement votre fichier epub. Veuillez adresser vos plaintes au "
+"projet epubcheck."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:19
 msgid ""
@@ -1716,6 +1722,14 @@ msgid ""
 "By default, no fixing is done and messages are printed out for each error "
 "detected. Use the options to control which errors are automatically fixed."
 msgstr ""
+"%prog [options] file.epub\n"
+"\n"
+"Résoudre des problèmes fréquentes dans des fichiers EPUB qui peut provoquer "
+"leur rejet par des services de publication mal conçus.\n"
+"\n"
+"Par défaut, les problèmes trouvée ne sont pas résolue et une message est "
+"affichée pour chacune.  Utiliser ces options pour décider lesquelles de ces "
+"erreurs sera résolue automatiquement."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:50
 msgid "You must specify an epub file"
@@ -1723,17 +1737,22 @@ msgstr "Vous devez préciser un fichier epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
-msgstr ""
+msgstr "Réparer les fichiers ne contenant pas de manifeste"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:21
 msgid ""
 "Fix unmanifested files. epub-fix can either add them to the manifest or "
 "delete them as specified by the delete unmanifested option."
 msgstr ""
+"Ajouter les fichiers pas déjà dans le manifeste.  epub-fix peut soit ajouter "
+"les fichier au manifeste soit les supprimer selon l'option \"delete "
+"unmanifested\"."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:32
 msgid "Delete unmanifested files instead of adding them to the manifest"
 msgstr ""
+"Supprimer les fichiers qui ne sont pas dans le manifeste au lieu de les "
+"ajouter au manifeste."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:56
 msgid ""
@@ -5766,19 +5785,19 @@ msgstr "&Sauvegarde de livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:155
 msgid "Metadata &management:"
-msgstr ""
+msgstr "Métadonnée &management"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:156
 msgid "Manual management"
-msgstr ""
+msgstr "Gestion manuelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:157
 msgid "Only on send"
-msgstr ""
+msgstr "Seulement en envoyant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:158
 msgid "Automatic management"
-msgstr ""
+msgstr "Gestion automatique"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:159
 msgid ""
@@ -5790,6 +5809,15 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
+"<li><b>Gestion manuelle</b>: Calibre met à jour les métadonnée et ajoute des "
+"collections uniquement quand un livre est envoyé.  Avec cette option, "
+"calibre ne supprimera jamais une collection.</li>\n"
+"<li><b>Seulement en envoyant</b>: Calibre met à jour la métadonnée et "
+"ajoute/supprime des collections pour un livre uniquement si elle est envoyée "
+"à un appareil.</li>\n"
+"<li><b>Gestion automatique</b>: Calibre synchronise automatiquement les "
+"métadonnées sur l’appareil avec celle de la bibliothèque de calibre chaque "
+"fois que l'appareil est connecté."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:162
 msgid ""
@@ -5993,7 +6021,7 @@ msgstr "Désactiver les &animations"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:602
 msgid "Show &donate button (restart)"
-msgstr ""
+msgstr "Afficher le boutton de"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:603
 msgid "Add an email address to which to send books"
@@ -6440,6 +6468,8 @@ msgid ""
 "All checked books will be <b>permanently deleted</b> from your device. "
 "Please verify the list."
 msgstr ""
+"Tous les livres sélectionnés sera <b>supprimés définitivement</b> de votre "
+"appareil.  Veuillez vérifier vos sélections."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
 msgid "Location"
@@ -7317,7 +7347,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:20
 msgid "%s (was %s)"
-msgstr ""
+msgstr "%s (autrefois %s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:501
@@ -7926,24 +7956,32 @@ msgid ""
 "Library\n"
 "%d books"
 msgstr ""
+"Bibliothèque\n"
+"%d livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:65
 msgid ""
 "Reader\n"
 "%s"
 msgstr ""
+"Lecteur\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:66
 msgid ""
 "Card A\n"
 "%s"
 msgstr ""
+"Carte A\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:67
 msgid ""
 "Card B\n"
 "%s"
 msgstr ""
+"Carte B\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:71
 msgid "Click to see the books available on your computer"
@@ -7970,7 +8008,7 @@ msgstr "Livres situés à"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:100
 msgid "free"
-msgstr ""
+msgstr "free"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:287
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:134
@@ -8040,7 +8078,7 @@ msgstr "Suppression"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:406
 msgid "Edit meta info"
-msgstr ""
+msgstr "Éditer métadonnée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:406
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:156
@@ -8080,7 +8118,7 @@ msgstr "F"
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:164
 msgid "Convert books"
-msgstr ""
+msgstr "Convertir les livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:165
@@ -8135,7 +8173,7 @@ msgstr "Aide"
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:426
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:178
 msgid "Browse the calibre User Manual"
-msgstr ""
+msgstr "Parcourir le manuel de l'utilisateur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:426
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:179
@@ -8666,6 +8704,7 @@ msgstr "Trier par note moyenne"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:772
 msgid "Set the sort order for entries in the Tag Browser"
 msgstr ""
+"Définir l'order de tri pour les entrées dans le navigateur d'étiquettes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:778
 msgid "Match all"
@@ -8679,6 +8718,8 @@ msgstr "Aucune correspondance"
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
 msgstr ""
+"Quand de multiples entrées sont sélectionnées dans le navigateur "
+"d'étiquettes, fait correspondre à tout ou partie de celles-ci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:787
 msgid "Manage &user categories"
@@ -8801,6 +8842,10 @@ msgid ""
 "you find it useful, please consider donating to support its development. "
 "Your donation helps keep calibre development going."
 msgstr ""
+"est le résultat de l'effort de plusieurs bénévoles qui viennent de partout "
+"dans le monde entier.  Si vous le trouver utile, prier de considérer faire "
+"une donation pour soutenir son développement.  Votre donation assure le "
+"développement continué de calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:572
 msgid "There are active jobs. Are you sure you want to quit?"
@@ -10740,7 +10785,7 @@ msgstr "Catégories définies par l'utilisateur du navigateur d'étiquettes"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:702
 msgid "How and when calibre updates metadata on the device."
-msgstr ""
+msgstr "Comment et quand calibre met à jour la métadonné sur l'appareil."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."

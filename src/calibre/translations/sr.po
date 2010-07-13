@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-10 16:12+0000\n"
-"PO-Revision-Date: 2010-07-10 09:36+0000\n"
+"PO-Revision-Date: 2010-07-12 16:48+0000\n"
 "Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-11 03:39+0000\n"
+"X-Launchpad-Export-Date: 2010-07-13 03:43+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1674,6 +1674,11 @@ msgid ""
 "detect these and replace them with constructs that epubcheck likes. This may "
 "cause significant changes to your epub, complain to the epubcheck project."
 msgstr ""
+"Privremena rešenja za greške u najnovijoj verziji epubchecka. epubcheck kao "
+"greške prijavljuje mnoge koje to u stvari nisu. epub-fix će pokušati da "
+"otkrije ovakve konstrukcije i zameni ih takvim kakve će biti više po volji "
+"epubchecka. Ovo može značajno da izmeni vaše epub fajlove. Za sve probleme "
+"obratite se projektu epubcheck."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:19
 msgid ""
@@ -1707,6 +1712,9 @@ msgid ""
 "Fix unmanifested files. epub-fix can either add them to the manifest or "
 "delete them as specified by the delete unmanifested option."
 msgstr ""
+"Popravi fajlove koji nisu u manifestu. epub-fix ih može ili dodati u "
+"manifest, ili ih izbrisati, što je određeno opcijom za brisanje fajlova koji "
+"nisu u manifestu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:32
 msgid "Delete unmanifested files instead of adding them to the manifest"
@@ -5671,19 +5679,19 @@ msgstr "&Snimanje knjiga"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:155
 msgid "Metadata &management:"
-msgstr ""
+msgstr "Upravljanje &metapodacima:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:156
 msgid "Manual management"
-msgstr ""
+msgstr "Ručno upravljanje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:157
 msgid "Only on send"
-msgstr ""
+msgstr "Samo pri slanju"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:158
 msgid "Automatic management"
-msgstr ""
+msgstr "Automatsko upravljanje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:159
 msgid ""
@@ -5695,6 +5703,14 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
+"<li><b>Ručno upravljanje</b>: Calibre osvežava metapodatke i dodaje "
+"kolekcije samo ak oje knjiga poslata. Sa ovom opcijom, calibre nikada neće "
+"ukloniti kolekciju.</li>\n"
+"<li><b>Samo pri salnju</b>: Calibre osvežava metapodatke i dodaje/briše "
+"kolekcije samo kada se knjiga šalje na uređaj. </li>\n"
+"<li><b>Automatsko upravljanje</b>: Calibre automatski sinhronizuje "
+"metapodatke na uređaju s calibre bibliotekom, pri svakom "
+"povezivanju.</li></ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:162
 msgid ""
@@ -7902,7 +7918,7 @@ msgstr "Del"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:406
 msgid "Edit meta info"
-msgstr ""
+msgstr "Uredi metapodatke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:406
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:156
@@ -7942,7 +7958,7 @@ msgstr "F"
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:164
 msgid "Convert books"
-msgstr ""
+msgstr "Konvertuj knjige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:165
@@ -8383,7 +8399,7 @@ msgstr "Izaberite sačuvanu pretragu, ili unesite ime za novu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:10
 msgid "Restrict to"
-msgstr ""
+msgstr "Ograniči na"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:48
 msgid "({0} of {1})"
@@ -10557,7 +10573,7 @@ msgstr "Korisničke kategorije za izlog etiketa"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:702
 msgid "How and when calibre updates metadata on the device."
-msgstr ""
+msgstr "Kako i kada će calibre osvežiti metapodatke na uređaju."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
