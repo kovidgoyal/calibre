@@ -3,10 +3,10 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre import __appname__
 
 class GoogleReaderUber(BasicNewsRecipe):
-    title   = 'Google Reader Uber'
-    description = 'This recipe downloads all unread feedsfrom your Google Reader account.'
+    title   = 'Google Reader uber'
+    description = 'Fetches all feeds from your Google Reader account including the uncategorized items.'
     needs_subscription = True
-    __author__ = 'rollercoaster, davec'
+    __author__ = 'davec, rollercoaster, Starson17'
     base_url = 'http://www.google.com/reader/atom/'
     oldest_article = 365
     max_articles_per_feed = 250
@@ -14,19 +14,16 @@ class GoogleReaderUber(BasicNewsRecipe):
     use_embedded_content = True
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
-
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             request = urllib.urlencode([('Email', self.username), ('Passwd', self.password),
-                                        ('service', 'reader'), ('source', __appname__)])
+                                        ('service', 'reader'), ('accountType', 'HOSTED_OR_GOOGLE'), ('source', __appname__)])
             response = br.open('https://www.google.com/accounts/ClientLogin', request)
-            sid = re.search('SID=(\S*)', response.read()).group(1)
-
+            auth = re.search('Auth=(\S*)', response.read()).group(1)
             cookies = mechanize.CookieJar()
             br = mechanize.build_opener(mechanize.HTTPCookieProcessor(cookies))
-            cookies.set_cookie(mechanize.Cookie(None, 'SID', sid, None, False, '.google.com', True, True, '/', True, False, None, True, '', '', None))
+            br.addheaders = [('Authorization', 'GoogleLogin auth='+auth)]
         return br
-
 
     def get_feeds(self):
         feeds = []
