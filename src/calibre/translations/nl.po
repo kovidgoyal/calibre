@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-10 16:12+0000\n"
-"PO-Revision-Date: 2010-07-11 12:11+0000\n"
+"PO-Revision-Date: 2010-07-13 20:26+0000\n"
 "Last-Translator: Koen Mercken <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-12 03:44+0000\n"
+"X-Launchpad-Export-Date: 2010-07-14 03:34+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:365
@@ -5723,15 +5723,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:156
 msgid "Manual management"
-msgstr ""
+msgstr "Handmatige instellingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:157
 msgid "Only on send"
-msgstr ""
+msgstr "Enkel bij het versturen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:158
 msgid "Automatic management"
-msgstr ""
+msgstr "Automatische instellingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:159
 msgid ""
@@ -7295,25 +7295,27 @@ msgstr "Bent je zeker dat je deze items wilt verwijderen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:72
 msgid "Category Editor"
-msgstr ""
+msgstr "Categorieën bewerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:73
 msgid "Items in use"
-msgstr ""
+msgstr "Items in gebruik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:74
 msgid ""
 "Delete item from database. This will unapply the item from all books and "
 "then remove it from the database."
 msgstr ""
+"Wis item uit de database. Dit zal het item in alle boeken ongedaan maken en "
+"het uit de database verwijderen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:76
 msgid "Rename the item in every book where it is used."
-msgstr ""
+msgstr "Hernoem het item in ieder boek waar het mee geassocieerd is."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:78
 msgid "Ctrl+S"
-msgstr ""
+msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:51
 msgid "Test email settings"
@@ -7707,7 +7709,7 @@ msgstr "Bewaar alleen %s formaat op schijf"
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:111
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:396
 msgid "Save only %s format to disk in a single directory"
-msgstr ""
+msgstr "Bewaar enkel %s formaat op de harde schijf, in één enkele map"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:412
@@ -7738,7 +7740,7 @@ msgstr "Verwijder omslagen van de geselecteerde boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:138
 msgid "Remove matching books from device"
-msgstr ""
+msgstr "Verwijder de boeken die aan de criteria voldoen van het apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:155
 msgid "Convert individually"
@@ -7762,17 +7764,17 @@ msgstr "Vergelijkbare boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:223
 msgid "Add books to library"
-msgstr ""
+msgstr "Voeg boeken toe aan de bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:225
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:239
 msgid "Manage collections"
-msgstr ""
+msgstr "Bewerk collecties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:319
 msgid "Cover Browser"
-msgstr ""
+msgstr "Kaft bladeraar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:337
 msgid "Tag Browser"
@@ -7780,7 +7782,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:358
 msgid "version"
-msgstr ""
+msgstr "versie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:359
 msgid "created by Kovid Goyal"
@@ -7797,7 +7799,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:430
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:439
 msgid "Book Details"
-msgstr ""
+msgstr "Details van het boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:60
 msgid "Job"
@@ -7905,7 +7907,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:100
 msgid "free"
-msgstr ""
+msgstr "vrij"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:287
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:134
@@ -8061,7 +8063,7 @@ msgstr "Ctrl+P"
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:426
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:177
 msgid "Help"
-msgstr ""
+msgstr "Hulp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:426
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:178
@@ -8071,15 +8073,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:426
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:179
 msgid "F1"
-msgstr ""
+msgstr "F1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:284
 msgid "N"
-msgstr ""
+msgstr "N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:284
 msgid "Y"
-msgstr ""
+msgstr "Y"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:66
 msgid "On Device"
@@ -8110,7 +8112,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:890
 msgid "Size"
-msgstr ""
+msgstr "Grootte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1162
 msgid "Marked for deletion"
@@ -8130,11 +8132,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:116
 msgid "Ascending"
-msgstr ""
+msgstr "Oplopend"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:119
 msgid "Descending"
-msgstr ""
+msgstr "Aflopend"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:131
 msgid "Change text alignment for %s"
@@ -8142,15 +8144,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:133
 msgid "Left"
-msgstr ""
+msgstr "Links"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:133
 msgid "Right"
-msgstr ""
+msgstr "Rechts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:134
 msgid "Center"
-msgstr ""
+msgstr "Midden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:153
 msgid "Show column"
@@ -8278,7 +8280,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:96
 msgid "Failed to create calibre library at: %r."
-msgstr ""
+msgstr "Mislukken van de creatie van de calibre bibliotheek in: %r."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:184
@@ -8370,7 +8372,7 @@ msgstr "Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:133
 msgid "&Restrict to:"
-msgstr ""
+msgstr "&Beperkt tot:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:135
 msgid "set in ui.py"
@@ -8448,7 +8450,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:48
 msgid "({0} of {1})"
-msgstr ""
+msgstr "({0} of {1})"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:54
 msgid "(all books)"
@@ -8456,7 +8458,7 @@ msgstr "(alle boeken)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:56
 msgid "({0} of all)"
-msgstr ""
+msgstr "({0} van het geheel)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:58
 msgid "Press a key..."
@@ -8536,12 +8538,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:207
 msgid "Show all categories"
-msgstr ""
+msgstr "Bekijk alle categorieën"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:214
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:218
 msgid "Manage %s"
-msgstr ""
+msgstr "Beheer %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:221
 msgid "Manage Saved Searches"
@@ -8567,7 +8569,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:768
 msgid "Sort by name"
-msgstr ""
+msgstr "Sorteer op naam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:768
 msgid "Sort by popularity"

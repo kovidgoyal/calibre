@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-10 16:12+0000\n"
-"PO-Revision-Date: 2010-07-12 21:16+0000\n"
+"PO-Revision-Date: 2010-07-13 20:48+0000\n"
 "Last-Translator: Zhilin Ruslan <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-13 03:43+0000\n"
+"X-Launchpad-Export-Date: 2010-07-14 03:35+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -489,7 +489,7 @@ msgstr "Устанавливает связь с телефоном S60"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:87
 msgid "Communicate with iTunes/iBooks."
-msgstr ""
+msgstr "Устанавливать связь с iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:93
 msgid "Apple device detected, launching iTunes, please wait ..."
@@ -521,7 +521,7 @@ msgstr "Использовать Серии как Категории в iTunes/
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:546
 msgid "Cache covers from iTunes/iBooks"
-msgstr ""
+msgstr "Кэш обложек iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:558
 msgid ""
@@ -641,6 +641,8 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used."
 msgstr ""
+"Запятая разделяет список каталогов, для отправки электронных книг на "
+"устройство. Будет использоваться первый существующий."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:18
 msgid "Communicate with the Hanvon N520 eBook reader."
@@ -764,7 +766,7 @@ msgstr "Устанавливает связь с Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:75
 msgid "Communicate with the Pandigital Novel"
-msgstr ""
+msgstr "Устанавливать связь с Pandigital Novel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -776,7 +778,7 @@ msgstr "Устанавливает связь с Nokia 810 internet tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
-msgstr ""
+msgstr "Устанавливать связь с Nokia E52"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
@@ -1459,6 +1461,12 @@ msgid ""
 "\"original\" (the default) does not change justification in the source file. "
 "Note that only some output formats support justification."
 msgstr ""
+"Изменить выравнивание текста . Значение \"Влево\" преобразует все "
+"выравнивание текста из источника в выравнивание по левому краю (то есть не "
+"выравненому). Значение \"Выравнить\" преобразует весь не выравненный текст в "
+"выровненный. Значение \"оригинал\" (по умолчанию) не изменяет выравнивание в "
+"исходном файле. Обратите внимание, что только некоторые выходные форматы "
+"поддерживают выравнивание."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:316
 msgid ""
@@ -1571,6 +1579,12 @@ msgid ""
 "corresponding pair of normal characters. This option will preserve them "
 "instead."
 msgstr ""
+"Сохранить лигатуры в этом входном документе. Лигатура - специальный "
+"рендеринг пары символов, таких как ff, fi, fl и так далее. У большинства "
+"устройств для чтения электронных книг нет поддержки лигатур в их заданных по "
+"умолчанию шрифтах, таким образом, они вряд ли отобразятся правильно. По "
+"умолчанию, calibre превратит лигатуру в соответствующую пару нормальных "
+"символов. Эта опция сохранит их вместо этого."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
@@ -1674,7 +1688,7 @@ msgstr "Создаю"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:18
 msgid "ePub Fixer"
-msgstr ""
+msgstr "Наладчик ePub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:18
 msgid "Workaround epubcheck bugs"
