@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 __license__   = 'GPL v3'
 __copyright__ = '2010, Greg Riker <griker at hotmail.com>'
 
@@ -17,14 +19,15 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import isoformat, now as nowf
 from calibre.utils.logging import default_log as log
 
-#Bibtex functions
-from calibre.utils.bibtex import bibtex_author_format, utf8ToBibtex, ValidateCitationKey
-
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
           'series_index', 'series', 'size', 'tags', 'timestamp', 'title',
           'uuid']
           
+#Allowed fields for template
+TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate',
+    'publisher', 'series_index', 'series', 'tags', 'timestamp', 'title', 'uuid' ]
+
 class CSV_XML(CatalogPlugin):
     'CSV/XML catalog generator'
 
@@ -115,7 +118,8 @@ class CSV_XML(CatalogPlugin):
                         item = u'%s' % re.sub(r'[\D]', '', item)
                     elif field in ['pubdate', 'timestamp']:
                         item = isoformat(item)
-
+                    
+                    #Format the line
                     if x < len(fields) - 1:
                         if item is not None:
                             outstr += u'"%s",' % unicode(item).replace('"','""')
@@ -207,21 +211,74 @@ class BIBTEX(CatalogPlugin):
                     'Available fields: %s.\n'
                     "Default: '%%default'\n"
                     "Applies to: BIBTEX output format")%', '.join(FIELDS)),
+                    
+            Option('--sort-by',
+                default = 'id',
+                dest = 'sort_by',
+                action = None,
+                help = _('Output field to sort on.\n'
+                'Available fields: author_sort, id, rating, size, timestamp, title.\n'
+                "Default: '%default'\n"
+                "Applies to: BIBTEX output format")),
+                
+            Option('--create-citation',
+                default = 'True',
+                dest = 'impcit',
+                action = None,
+                help = _('Create a citation for BibTeX entries.\n'
+                'Boolean value: True, False\n'
+                "Default: '%default'\n"
+                "Applies to: BIBTEX output format")),
+                
+            Option('--citation-template',
+                default = '{authors}{id}',
+                dest = 'bib_cit',
+                action = None,
+                help = _('The template for citation creation from database fields.\n'
+                    ' Should be a template with {} enclosed fields.\n'
+                    'Available fields: %s.\n'
+                    "Default: '%%default'\n"
+                    "Applies to: BIBTEX output format")%', '.join(TEMPLATE_ALLOWED_FIELDS)),
+            
+            Option('--choose-encoding',
+                default = 'utf8',
+                dest = 'bibfile_enc',
+                action = None,
+                help = _('BibTeX file encoding output.\n'
+                'Available types: utf8, cp1252, ascii.\n'
+                "Default: '%default'\n"
+                "Applies to: BIBTEX output format")),
+            
+            Option('--choose-encoding-configuration',
+                default = 'strict',
+                dest = 'bibfile_enctag',
+                action = None,
+                help = _('BibTeX file encoding flag.\n'
+                'Available types: strict, replace, ignore, backslashreplace.\n'
+                "Default: '%default'\n"
+                "Applies to: BIBTEX output format")),
 
             Option('--entry-type',
                 default = 'book',
-                dest = 'entry_type',
+                dest = 'bib_entry',
                 action = None,
-                help = _('Entry type for BIBTEX catalog.\n'
+                help = _('Entry type for BibTeX catalog.\n'
                 'Available types: book, misc, mixed.\n'
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format"))]
-                
+                     
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
     
         import codecs
+        from types import StringType, UnicodeType
         
-        def create_bibtex_entry(entry, fields, mode = "mixed"):
+        from calibre.library.save_to_disk import preprocess_template
+        #Bibtex functions
+        from calibre.utils.bibtex import bibtex_author_format, utf8ToBibtex, ValidateCitationKey
+        
+        def create_bibtex_entry(entry, fields, mode, template_citation, 
+            asccii_bibtex = True, citation_bibtex = True):
+            
             #Bibtex doesn't like UTF-8 but keep unicode until writing
             #Define starting chain or if book valid strict and not book return a Fail string
             
@@ -234,14 +291,10 @@ class BIBTEX(CatalogPlugin):
                 #case strict book
                 return ''
                 
-            # Citation tag (not the best should be a user defined thing with regexp)
-            if not len(entry["isbn"]) == 0 :
-                bibtex_entry.append(u'%s' % utf8ToBibtex(ValidateCitationKey(re.sub(u'[\D]',
-                    u'', entry["isbn"]))))
-            else :
-                bibtex_entry.append(u'%s' % utf8ToBibtex(ValidateCitationKey(str(entry["id"]))))
-            
-            bibtex_entry = [u' '.join(bibtex_entry)]
+            if citation_bibtex :
+                # Citation tag
+                bibtex_entry.append(make_bibtex_citation(entry, template_citation, asccii_bibtex))
+                bibtex_entry = [u' '.join(bibtex_entry)]
             
             for field in fields:
                 item = entry[field]
@@ -259,7 +312,7 @@ class BIBTEX(CatalogPlugin):
                     
                 elif field in ['title', 'publisher', 'cover', 'uuid',
                         'author_sort', 'series'] :
-                    bibtex_entry.append(u'%s = "%s"' % (field, utf8ToBibtex(item)))
+                    bibtex_entry.append(u'%s = "%s"' % (field, utf8ToBibtex(item, asccii_bibtex)))
                     
                 elif field == 'id' :
                     bibtex_entry.append(u'calibreid = "%s"' % int(item))
@@ -272,11 +325,13 @@ class BIBTEX(CatalogPlugin):
                     
                 elif field == 'tags' : 
                     #A list to flatten
-                    bibtex_entry.append(u'tags = "%s"' % utf8ToBibtex(u', '.join(item)))
+                    bibtex_entry.append(u'tags = "%s"' % utf8ToBibtex(u', '.join(item), asccii_bibtex))
                     
                 elif field == 'comments' : 
                     #\n removal
-                    bibtex_entry.append(u'note = "%s"' % utf8ToBibtex(item.replace(u'\n',u' ')))
+                    item = item.replace(u'\r\n',u' ')
+                    item = item.replace(u'\n',u' ')
+                    bibtex_entry.append(u'note = "%s"' % utf8ToBibtex(item, asccii_bibtex))
                     
                 elif field == 'isbn' :
                     # Could be 9, 10 or 13 digits
@@ -295,8 +350,8 @@ class BIBTEX(CatalogPlugin):
                 elif field == 'pubdate' :
                     bibtex_entry.append(u'year = "%s"' % item.year)
                     #Messing locale in date string formatting
-                    bibtex_entry.append(u'month = "%s"' % utf8ToBibtex(item.strftime("%b").decode(preferred_encoding)))
-                    #bibtex_entry.append('month = "%s"' % utf8ToBibtex(item.strftime("%B").decode(getlocale()[1])))
+                    bibtex_entry.append(u'month = "%s"' % utf8ToBibtex(item.strftime("%b").decode(preferred_encoding),
+                        asccii_bibtex))
             
             bibtex_entry = u',\n    '.join(bibtex_entry)
             bibtex_entry += u' }\n\n'
@@ -313,8 +368,73 @@ class BIBTEX(CatalogPlugin):
             else :
                 return True
 
+        def make_bibtex_citation(entry, template_citation, asccii_bibtex):
+            
+            #define a function to replace the template entry by its value
+            def tpl_replace(objtplname) :
+            
+                tpl_field = re.sub(u'[\{\}]', u'', objtplname.group())
+                
+                if tpl_field in TEMPLATE_ALLOWED_FIELDS :
+                    if tpl_field in ['pubdate', 'timestamp'] :
+                        tpl_field = isoformat(entry[tpl_field]).partition('T')[0]
+                    elif tpl_field in ['tags', 'authors'] :
+                        tpl_field =entry[tpl_field][0]
+                    elif tpl_field in ['id', 'series_index'] :
+                        tpl_field = str(entry[tpl_field])
+                    else :
+                        tpl_field = entry[tpl_field]
+                    return tpl_field
+                else:
+                    return u''            
+
+            if len(template_citation) >0 :
+                tpl_citation = utf8ToBibtex(ValidateCitationKey(re.sub(u'\{[^{}]*\}', 
+                    tpl_replace, template_citation)), asccii_bibtex)
+
+                if len(tpl_citation) >0 :
+                    return tpl_citation
+                
+            if len(entry["isbn"]) > 0 :
+                template_citation = u'%s' % re.sub(u'[\D]',u'', entry["isbn"])
+                
+            else :
+                template_citation = u'%s' % str(entry["id"])
+            
+            if asccii_bibtex :
+                return ValidateCitationKey(template_citation.encode('ascii', 'replace'))
+            else :
+                return ValidateCitationKey(template_citation)
+        
         self.fmt = path_to_output.rpartition('.')[2]
         self.notification = notification
+        
+        # Combobox options
+        bibfile_enc = ['utf8', 'cp1252', 'ascii']
+        bibfile_enctag = ['strict', 'replace', 'ignore', 'backslashreplace']
+        bib_entry = ['mixed', 'misc', 'book']
+        
+        # Needed beacause CLI return str vs int by widget
+        try:
+            bibfile_enc = bibfile_enc[opts.bibfile_enc]
+            bibfile_enctag = bibfile_enctag[opts.bibfile_enctag]
+            bib_entry = bib_entry[opts.bib_entry]
+        except:
+            if opts.bibfile_enc in bibfile_enc :
+                bibfile_enc = opts.bibfile_enc
+            else :
+                log(" WARNING: incorrect --choose-encoding flag, revert to default")
+                bibfile_enc = bibfile_enc[0]
+            if opts.bibfile_enctag in bibfile_enctag :
+                bibfile_enctag = opts.bibfile_enctag
+            else :
+                log(" WARNING: incorrect --choose-encoding-configuration flag, revert to default")
+                bibfile_enctag = bibfile_enctag[0]
+            if opts.bib_entry in bib_entry :
+                bib_entry = opts.bib_entry
+            else :
+                log(" WARNING: incorrect --entry-type flag, revert to default")
+                bib_entry = bib_entry[0]
 
         if opts.verbose:
             opts_dict = vars(opts)
@@ -332,6 +452,10 @@ class BIBTEX(CatalogPlugin):
                     log(" Fields: %s" % ', '.join(FIELDS[1:]))
                 else:
                     log(" Fields: %s" % opts_dict['fields'])
+                    
+            log(" Output file will be encoded in %s with %s flag" % (bibfile_enc, bibfile_enctag))
+            
+            log(" BibTeX entry type is %s with a citation like '%s' flag" % (bib_entry, opts_dict['bib_cit']))
 
         # If a list of ids are provided, don't use search_text
         if opts.ids:
@@ -347,20 +471,47 @@ class BIBTEX(CatalogPlugin):
         
         if not len(data):
             log.error("\nNo matching database entries for search criteria '%s'" % opts.search_text)
-            
+        
+        #Entries writing after Bibtex formating (or not)
+        if bibfile_enc != 'ascii' :
+            asccii_bibtex = False
+        else :
+            asccii_bibtex = True
+        
+        #Check and go to default in case of bad CLI
+        if isinstance(opts.impcit, (StringType, UnicodeType)) :
+            if opts.impcit == 'False' :
+                citation_bibtex= False
+            elif opts.impcit == 'True' :
+                citation_bibtex= True
+            else :
+                log(" WARNING: incorrect --create-citation, revert to default")
+                citation_bibtex= True
+        else :
+            citation_bibtex= opts.impcit
+        
+        template_citation = preprocess_template(opts.bib_cit)
+        
         #Open output and write entries
-        #replace should be an option and not the default to generate errors for improving
-        outfile = codecs.open(path_to_output, 'w', 'ascii','replace')
+        outfile = codecs.open(path_to_output, 'w', bibfile_enc, bibfile_enctag)
         
         #File header
-        nb_entries = len(opts.ids)
+        nb_entries = len(data)
+        
+        #check in book strict if all is ok else throw a warning into log
+        if bib_entry == 'book' :
+            nb_books = len(filter(check_entry_book_valid, data))
+            if nb_books < nb_entries :
+                log(" WARNING: only %d entries in %d are book compatible" % (nb_books, nb_entries))
+                nb_entries = nb_books
+        
         outfile.write(u'%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
         outfile.write(u'@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'
             % (nb_entries, nowf().strftime("%A, %d. %B %Y %H:%M").decode(preferred_encoding)))
         
-        #Entries wrintng after Bibtex formating
         for entry in data:
-            outfile.write(create_bibtex_entry(entry, fields))
+            outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation, 
+                asccii_bibtex, citation_bibtex))
         
         outfile.close()
 

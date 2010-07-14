@@ -15,16 +15,39 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QLabel" name="label_6">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>Fields to include in output:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+      <string>Bib file encoding:</string>
      </property>
     </widget>
    </item>
    <item row="0" column="1">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Fields to include in output:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QComboBox" name="bibfile_enc">
+     <item>
+      <property name="text">
+       <string notr="true">utf-8</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">cp1252</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ascii/LaTeX</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="1" column="1" rowspan="12">
     <widget class="QListWidget" name="db_fields">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -37,6 +60,109 @@
      </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::MultiSelection</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Encoding configuration (change if you have errors) :</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QComboBox" name="bibfile_enctag">
+     <item>
+      <property name="text">
+       <string>strict</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>replace</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ignore</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>backslashreplace</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>60</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>BibTeX entry type:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QComboBox" name="bib_entry">
+     <item>
+      <property name="text">
+       <string>mixed</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>misc</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>book</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QCheckBox" name="impcit">
+     <property name="text">
+      <string>Create a citation tag?</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Expression to form the BibTeX citation tag:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLineEdit" name="bib_cit"/>
+   </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Some explanation about this template:
+ -The fields availables are 'author_sort', 'authors', 'id',
+    'isbn', 'pubdate', 'publisher', 'series_index', 'series',
+   'tags', 'timestamp', 'title', 'uuid'
+ -For list types ie authors and tags, only the first element
+   wil be selected.
+ -For time field, only the date will be used. </string>
+     </property>
+     <property name="scaledContents">
+      <bool>false</bool>
      </property>
     </widget>
    </item>

@@ -2502,14 +2502,14 @@ def BraceUppercase(text):
     return text
 
 def resolveEntities(text):
-    for entity in entity_mapping.keys():
-        text = text.replace(entity, entity_mapping[entity])
+    for entity, entity_map in entity_mapping.iteritems():
+        text = text.replace(entity, entity_map)
     return text
 
 def resolveUnicode(text):
     #UTF-8 text as entry
-    for unichar in utf8enc2latex_mapping.keys():
-        text = text.replace(unichar, utf8enc2latex_mapping[unichar])
+    for unichar, latexenc in utf8enc2latex_mapping.iteritems() :
+        text = text.replace(unichar, latexenc)
     return text.replace(u'$}{$', u'')
 
 def escapeSpecialCharacters(text):
@@ -2524,13 +2524,10 @@ def escapeSpecialCharacters(text):
     
 #Calibre functions
 #Go from an unicode entry to ASCII Bibtex format without encoding
+#Option to go to official ASCII Bibtex or unofficial UTF-8
 def utf8ToBibtex(text, asccii_bibtex = True):
     if len(text) == 0:
         return ''
-    '''try :
-        text = text.decode('cp1252')
-    except (TypeError, UnicodeDecodeError, ValueError):
-        pass '''
     text.replace('\\', '\\\\')
     text = resolveEntities(text)
     if asccii_bibtex :
@@ -2539,6 +2536,4 @@ def utf8ToBibtex(text, asccii_bibtex = True):
     
 def bibtex_author_format(item):
     #Format authors for Bibtex compliance (get a list as input)
-    item = u' and'.join([author for author in item])
-    return utf8ToBibtex(item)
-    
+    return utf8ToBibtex(u' and'.join([author for author in item]))
