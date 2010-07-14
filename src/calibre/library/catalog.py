@@ -3,7 +3,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2010, Greg Riker <griker at hotmail.com>'
 
-import datetime, htmlentitydefs, os, re, shutil
+import datetime, htmlentitydefs, os, re, shutil, codecs
 
 from collections import namedtuple
 from copy import deepcopy
@@ -96,17 +96,20 @@ class CSV_XML(CatalogPlugin):
         fields = self.get_output_fields(opts)
 
         if self.fmt == 'csv':
-            outfile = open(path_to_output, 'w')
+            outfile = codecs.open(path_to_output, 'w', 'utf8')
 
             # Output the field headers
             outfile.write(u'%s\n' % u','.join(fields))
 
             # Output the entry fields
             for entry in data:
-                outstr = ''
-                for (x, field) in enumerate(fields):
+                outstr = []
+                for field in fields:
                     item = entry[field]
-                    if field == 'formats':
+                    if item is None:
+                        outstr.append('""')
+                        continue
+                    elif field == 'formats':
                         fmt_list = []
                         for format in item:
                             fmt_list.append(format.rpartition('.')[2].lower())
@@ -118,19 +121,13 @@ class CSV_XML(CatalogPlugin):
                         item = u'%s' % re.sub(r'[\D]', '', item)
                     elif field in ['pubdate', 'timestamp']:
                         item = isoformat(item)
-                    
-                    #Format the line
-                    if x < len(fields) - 1:
-                        if item is not None:
-                            outstr += u'"%s",' % unicode(item).replace('"','""')
-                        else:
-                            outstr += '"",'
-                    else:
-                        if item is not None:
-                            outstr += u'"%s"\n' % unicode(item).replace('"','""')
-                        else:
-                            outstr += '""\n'
-                outfile.write(outstr.encode('utf-8'))
+                    elif field == 'comments':
+                        item = item.replace(u'\r\n',u' ')
+                        item = item.replace(u'\n',u' ')
+
+                    outstr.append(u'"%s"' % unicode(item).replace('"','""'))
+                
+                outfile.write(u','.join(outstr) + u'\n')
             outfile.close()
 
         elif self.fmt == 'xml':
@@ -269,7 +266,6 @@ class BIBTEX(CatalogPlugin):
                      
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
     
-        import codecs
         from types import StringType, UnicodeType
         
         from calibre.library.save_to_disk import preprocess_template

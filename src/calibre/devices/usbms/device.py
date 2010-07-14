@@ -732,7 +732,7 @@ class Device(DeviceConfig, DevicePlugin):
                 traceback.print_exc()
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
 
-    def get_main_ebook_dir(self):
+    def get_main_ebook_dir(self, for_upload=False):
         return self.EBOOK_DIR_MAIN
 
     def _sanity_check(self, on_card, files):
@@ -750,7 +750,7 @@ class Device(DeviceConfig, DevicePlugin):
             path = os.path.join(self._card_b_prefix,
                     *(self.EBOOK_DIR_CARD_B.split('/')))
         else:
-            candidates = self.get_main_ebook_dir()
+            candidates = self.get_main_ebook_dir(for_upload=True)
             if isinstance(candidates, basestring):
                 candidates = [candidates]
             candidates = [

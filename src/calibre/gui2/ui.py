@@ -167,8 +167,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, ToolbarMixin, # {{{
         self.eject_action = self.system_tray_menu.addAction(
                 QIcon(I('eject.svg')), _('&Eject connected device'))
         self.eject_action.setEnabled(False)
-        if not config['show_donate_button']:
-            self.donate_button.setVisible(False)
         self.addAction(self.quit_action)
         self.action_restart = QAction(_('&Restart'), self)
         self.addAction(self.action_restart)
@@ -220,8 +218,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, ToolbarMixin, # {{{
 
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
-        self.library_view.model().count_changed_signal.connect \
-                                            (self.location_view.count_changed)
+        for t in (self.location_view, self.tool_bar):
+            self.library_view.model().count_changed_signal.connect \
+                                            (t.count_changed)
         if not gprefs.get('quick_start_guide_added', False):
             from calibre.ebooks.metadata import MetaInformation
             mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
@@ -273,8 +272,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, ToolbarMixin, # {{{
         self.connect(self.scheduler,
                 SIGNAL('start_recipe_fetch(PyQt_PyObject)'),
                 self.download_scheduled_recipe, Qt.QueuedConnection)
-
-        self.location_view.setCurrentIndex(self.location_view.model().index(0))
 
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
         AddAction.__init__(self)

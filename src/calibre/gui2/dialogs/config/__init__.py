@@ -334,7 +334,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
 
     def __init__(self, parent, library_view, server=None):
         ResizableDialog.__init__(self, parent)
-        self.ICON_SIZES = {0:QSize(48, 48), 1:QSize(32,32), 2:QSize(24,24)}
         self._category_model = CategoryModel()
 
         self.category_view.currentChanged = self.category_current_changed
@@ -388,10 +387,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.del_custcol_button.clicked.connect(self.del_custcol)
         self.add_custcol_button.clicked.connect(self.add_custcol)
         self.edit_custcol_button.clicked.connect(self.edit_custcol)
-
-        icons = config['toolbar_icon_size']
-        self.toolbar_button_size.setCurrentIndex(0 if icons == self.ICON_SIZES[0] else 1 if icons == self.ICON_SIZES[1] else 2)
-        self.show_toolbar_text.setChecked(config['show_text_in_toolbar'])
 
         output_formats = sorted(available_output_formats())
         output_formats.remove('oeb')
@@ -845,8 +840,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
 
         must_restart = self.apply_custom_column_changes()
 
-        config['toolbar_icon_size'] = self.ICON_SIZES[self.toolbar_button_size.currentIndex()]
-        config['show_text_in_toolbar'] = bool(self.show_toolbar_text.isChecked())
         config['separate_cover_flow'] = bool(self.separate_cover_flow.isChecked())
         config['disable_tray_notification'] = not self.systray_notifications.isChecked()
         p = {0:'normal', 1:'high', 2:'low'}[self.priority.currentIndex()]
