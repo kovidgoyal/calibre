@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-10 16:12+0000\n"
-"PO-Revision-Date: 2010-07-13 20:26+0000\n"
+"PO-Revision-Date: 2010-07-14 16:39+0000\n"
 "Last-Translator: Koen Mercken <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-14 03:34+0000\n"
+"X-Launchpad-Export-Date: 2010-07-15 03:34+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:365
@@ -6186,15 +6186,16 @@ msgstr "Maak en wijzig tag-gebaseerde kolommen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:19
 msgid "Text, column shown in the tag browser"
-msgstr "Text, kolom weergegeven in de label bladeraar"
+msgstr "Text, kolom weergegeven in de labelbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:22
 msgid "Comma separated text, like tags, shown in the tag browser"
 msgstr ""
+"Door comma's gescheiden text, zoals labels, weergeven in de labelbrowser."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:25
 msgid "Long text, like comments, not shown in the tag browser"
-msgstr "Lange text, zoals commentaren, niet weergeven in de label bladeraar."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:28
 msgid "Text column for keeping series-like information"
@@ -6284,8 +6285,7 @@ msgstr ""
 msgid ""
 "Column heading in the library view and category name in the tag browser"
 msgstr ""
-"Kolom hoofd in de bibliotheek weergave en categorie naam in de label "
-"bladeraar"
+"Kolom hoofd in de bibliotheek weergave en categorie naam in de labelbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column_ui.py:106
 msgid "Column &type"
@@ -7641,7 +7641,7 @@ msgstr "Bewerk metagegevens individueel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:56
 msgid "Edit metadata in bulk"
-msgstr "Bewerk metagegevens op groepsnivo"
+msgstr "Bewerk metagegevens op groepsniveau"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:59
 msgid "Download metadata and covers"
@@ -7774,11 +7774,11 @@ msgstr "Bewerk collecties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:319
 msgid "Cover Browser"
-msgstr "Kaft bladeraar"
+msgstr "Omslagbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:337
 msgid "Tag Browser"
-msgstr ""
+msgstr "Labelbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:358
 msgid "version"
@@ -9191,7 +9191,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:199
 msgid "F3"
-msgstr ""
+msgstr "F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:200
 msgid "Copy to clipboard"
@@ -9215,7 +9215,7 @@ msgstr "Afdrukken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Find previous"
-msgstr ""
+msgstr "Zoek vorige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:207
 msgid "Find previous occurrence"
@@ -9223,7 +9223,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:208
 msgid "Shift+F3"
-msgstr ""
+msgstr "Shift+F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:114
 msgid "Print eBook"
@@ -9263,11 +9263,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:869
 msgid "Show"
-msgstr ""
+msgstr "Weergeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:876
 msgid "Hide"
-msgstr ""
+msgstr "Verberg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:367
 msgid ""
@@ -9574,11 +9574,11 @@ msgstr "Schakel de &content server in"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:230
 msgid "today"
-msgstr ""
+msgstr "vandaag"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:233
 msgid "yesterday"
-msgstr ""
+msgstr "gisteren"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:236
 msgid "thismonth"
@@ -9592,30 +9592,30 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:398
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:408
 msgid "no"
-msgstr ""
+msgstr "nee"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:398
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:408
 msgid "unchecked"
-msgstr ""
+msgstr "niet aangevinkt"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:401
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:411
 msgid "checked"
-msgstr ""
+msgstr "aangevinkt"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:401
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:411
 msgid "yes"
-msgstr ""
+msgstr "ja"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:405
 msgid "blank"
-msgstr ""
+msgstr "leeg"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:405
 msgid "empty"
-msgstr ""
+msgstr "leeg"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:41
 msgid ""
@@ -9906,7 +9906,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:288
 msgid "Set the ISBN of the added empty book"
-msgstr ""
+msgstr "Leg de ISBN code van het toegevoegde lege boek vast"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:313
 msgid "You must specify at least one file to add"
@@ -10071,6 +10071,12 @@ msgid ""
 "column.\n"
 "datatype is one of: {0}\n"
 msgstr ""
+"%prog add_custom_column [options] label name datatype\n"
+"\n"
+"Creëer een zelf gedefinieerde kolom. label is de naam van de kolom die door "
+"de computer wordt gebruikt. Dit label mag geen spaties of dubbele punten "
+"bevatten: name is de aan de menselijke taal aangepaste naam van de kolom.\n"
+"datatype is één van: {0}\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:556
 msgid ""
