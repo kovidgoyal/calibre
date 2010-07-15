@@ -268,10 +268,12 @@ class MetaInformation(object):
                   ):
             prints(x, getattr(self, x, 'None'))
 
-    def smart_update(self, mi, replace_tags=False):
+    def smart_update(self, mi, replace_metadata=False):
         '''
-        Merge the information in C{mi} into self. In case of conflicts, the information
-        in C{mi} takes precedence, unless the information in mi is NULL.
+        Merge the information in C{mi} into self. In case of conflicts, the
+        information in C{mi} takes precedence, unless the information in mi is
+        NULL. If replace_metadata is True, then the information in mi always
+        takes precedence.
         '''
         if mi.title and mi.title != _('Unknown'):
             self.title = mi.title
@@ -285,13 +287,15 @@ class MetaInformation(object):
                      'cover', 'guide', 'book_producer',
                      'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate', 'rights',
                      'publication_type', 'uuid'):
-            if hasattr(mi, attr):
+            if replace_metadata:
+                setattr(self, attr, getattr(mi, attr, None))
+            elif hasattr(mi, attr):
                 val = getattr(mi, attr)
                 if val is not None:
                     setattr(self, attr, val)
 
         if mi.tags:
-            if replace_tags:
+            if replace_metadata:
                 self.tags = mi.tags
             else:
                 self.tags += mi.tags

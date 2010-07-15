@@ -78,7 +78,7 @@ class Book(MetaInformation):
         in C{other} takes precedence, unless the information in C{other} is NULL.
         '''
 
-        MetaInformation.smart_update(self, other, replace_tags=True)
+        MetaInformation.smart_update(self, other, replace_metadata=True)
 
         for attr in self.BOOK_ATTRS:
             if hasattr(other, attr):
