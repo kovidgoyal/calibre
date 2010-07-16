@@ -20,6 +20,30 @@
       <string>Book Cover</string>
      </property>
      <layout class="QGridLayout" name="_2">
+      <item row="0" column="0">
+       <layout class="QHBoxLayout" name="_3">
+        <item>
+         <widget class="ImageView" name="cover" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="opt_prefer_metadata_cover">
+        <property name="text">
+         <string>Use cover from &amp;source file</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="0">
        <layout class="QVBoxLayout" name="_4">
         <property name="spacing">
@@ -68,30 +92,6 @@
            </widget>
           </item>
          </layout>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="opt_prefer_metadata_cover">
-        <property name="text">
-         <string>Use cover from &amp;source file</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <layout class="QHBoxLayout" name="_3">
-        <item>
-         <widget class="ImageView" name="cover" native="true">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
         </item>
        </layout>
       </item>
@@ -231,9 +231,6 @@
          </property>
          <property name="insertPolicy">
           <enum>QComboBox::InsertAlphabetically</enum>
-         </property>
-         <property name="sizeAdjustPolicy">
-          <enum>QComboBox::AdjustToContents</enum>
          </property>
         </widget>
        </item>
