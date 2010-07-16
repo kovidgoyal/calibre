@@ -4,9 +4,9 @@
     bibliograph packages.
     From http://pypi.python.org/pypi/bibliograph.core/
     from Tom Gross <itconsense@gmail.com>
-    
+
     Adapted for calibre use
-    
+
     Zope Public License (ZPL) Version 2.1
 
     A copyright notice accompanies this license document that
@@ -65,7 +65,7 @@
 __docformat__ = 'reStructuredText'
 __author__  = 'sengian <sengian1 at gmail.com>'
 
-import os, re, string
+import re, string
 
 utf8enc2latex_mapping = {
     # This is a mapping of Unicode characters to LaTeX equivalents.
@@ -75,7 +75,7 @@ utf8enc2latex_mapping = {
     #
     # The extraction has been done by the "create_unimap.py" script
     # located at <http://docutils.sf.net/tools/dev/create_unimap.py>.
-    
+
     #Fix some encoding problem between cp1252 and latin1
     # from http://www.microsoft.com/typography/unicode/1252.htm
     u'\x80': '{\\mbox{\\texteuro}}', # EURO SIGN
@@ -2521,7 +2521,7 @@ def escapeSpecialCharacters(text):
     for c in escape:
         text = text.replace(c, '\\' + c )
     return text
-    
+
 #Calibre functions
 #Go from an unicode entry to ASCII Bibtex format without encoding
 #Option to go to official ASCII Bibtex or unofficial UTF-8
@@ -2533,7 +2533,7 @@ def utf8ToBibtex(text, asccii_bibtex = True):
     if asccii_bibtex :
         text = resolveUnicode(text)
     return escapeSpecialCharacters(text)
-    
+
 def bibtex_author_format(item):
     #Format authors for Bibtex compliance (get a list as input)
     return utf8ToBibtex(u' and'.join([author for author in item]))
