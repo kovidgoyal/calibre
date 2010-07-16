@@ -30,7 +30,8 @@ class ANDROID(USBMS):
             0x18d1 : { 0x4e11 : [0x0100, 0x226], 0x4e12: [0x0100, 0x226]},
 
             # Samsung
-            0x04e8 : { 0x681d : [0x0222, 0x0400], 0x681c : [0x0222, 0x0224]},
+            0x04e8 : { 0x681d : [0x0222, 0x0400],
+                       0x681c : [0x0222, 0x0224, 0x0400]},
 
             # Acer
             0x502 : { 0x3203 : [0x0100]},
@@ -69,6 +70,16 @@ class ANDROID(USBMS):
         else:
             dirs = [x.strip() for x in dirs.split(',')]
         self.EBOOK_DIR_MAIN = dirs
+
+    def get_main_ebook_dir(self, for_upload=False):
+        dirs = self.EBOOK_DIR_MAIN
+        if not for_upload:
+            def aldiko_tweak(x):
+                return 'eBooks' if x == 'eBooks/import' else x
+            if isinstance(dirs, basestring):
+                dirs = [dirs]
+            dirs = list(map(aldiko_tweak, dirs))
+        return dirs
 
 class S60(USBMS):
 

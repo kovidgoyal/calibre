@@ -58,7 +58,7 @@ class USBMS(CLI, Device):
 
         debug_print ('USBMS: Fetching list of books from device. oncard=', oncard)
 
-        dummy_bl = BookList(None, None, None)
+        dummy_bl = self.booklist_class(None, None, None)
 
         if oncard == 'carda' and not self._card_a_prefix:
             self.report_progress(1.0, _('Getting list of books on device...'))
@@ -77,6 +77,8 @@ class USBMS(CLI, Device):
         ebook_dirs = self.EBOOK_DIR_CARD_A if oncard == 'carda' else \
             self.EBOOK_DIR_CARD_B if oncard == 'cardb' else \
             self.get_main_ebook_dir()
+
+        debug_print ('USBMS: dirs are:', prefix, ebook_dirs)
 
         # get the metadata cache
         bl = self.booklist_class(oncard, prefix, self.settings)

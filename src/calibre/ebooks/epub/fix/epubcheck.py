@@ -21,7 +21,7 @@ class Epubcheck(ePubFixer):
     def long_description(self):
         return _('Workarounds for bugs in the latest release of epubcheck. '
                 'epubcheck reports many things as errors that are not '
-                'actually errors. %prog will try to detect these and replace '
+                'actually errors. epub-fix will try to detect these and replace '
                 'them with constructs that epubcheck likes. This may cause '
                 'significant changes to your epub, complain to the epubcheck '
                 'project.')

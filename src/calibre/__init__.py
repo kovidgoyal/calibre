@@ -361,6 +361,8 @@ def strftime(fmt, t=None):
     before 1900 '''
     if t is None:
         t = time.localtime()
+    if hasattr(t, 'timetuple'):
+        t = t.timetuple()
     early_year = t[0] < 1900
     if early_year:
         replacement = 1900 if t[0]%4 == 0 else 1901

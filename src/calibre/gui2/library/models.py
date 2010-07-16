@@ -944,7 +944,7 @@ class DeviceBooksModel(BooksModel): # {{{
                     (cname == 'collections' and \
                      callable(getattr(self.db, 'supports_collections', None)) and \
                      self.db.supports_collections() and \
-                     prefs['preserve_user_collections']):
+                     prefs['manage_device_metadata']=='manual'):
                 flags |= Qt.ItemIsEditable
         return flags
 
@@ -1216,7 +1216,9 @@ class DeviceBooksModel(BooksModel): # {{{
         return done
 
     def set_editable(self, editable):
-        self.editable = editable
+        # Cannot edit if metadata is sent on connect. Reason: changes will
+        # revert to what is in the library on next connect.
+        self.editable = editable and prefs['manage_device_metadata']!='on_connect'
 
     def set_search_restriction(self, s):
         pass

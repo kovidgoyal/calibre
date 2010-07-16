@@ -72,13 +72,13 @@ class Book(MetaInformation):
     def thumbnail(self):
         return None
 
-    def smart_update(self, other):
+    def smart_update(self, other, replace_metadata=False):
         '''
         Merge the information in C{other} into self. In case of conflicts, the information
         in C{other} takes precedence, unless the information in C{other} is NULL.
         '''
 
-        MetaInformation.smart_update(self, other, replace_tags=True)
+        MetaInformation.smart_update(self, other, replace_metadata)
 
         for attr in self.BOOK_ATTRS:
             if hasattr(other, attr):
@@ -116,7 +116,7 @@ class BookList(_BookList):
             self.append(book)
             return True
         if replace_metadata:
-            self[b].smart_update(book)
+            self[b].smart_update(book, replace_metadata=True)
             return True
         return False
 
@@ -132,6 +132,8 @@ class CollectionsBookList(BookList):
         return True
 
     def get_collections(self, collection_attributes):
+        from calibre.devices.usbms.driver import debug_print
+        debug_print('Starting get_collections:', prefs['manage_device_metadata'])
         collections = {}
         series_categories = set([])
         # This map of sets is used to avoid linear searches when testing for
@@ -146,14 +148,19 @@ class CollectionsBookList(BookList):
             # book in all existing collections. Do not add any new ones.
             attrs = ['device_collections']
             if getattr(book, '_new_book', False):
-                if prefs['preserve_user_collections']:
+                if prefs['manage_device_metadata'] == 'manual':
                     # Ensure that the book is in all the book's existing
                     # collections plus all metadata collections
                     attrs += collection_attributes
                 else:
-                    # The book's existing collections are ignored. Put the book
-                    # in collections defined by its metadata.
+                    # For new books, both 'on_send' and 'on_connect' do the same
+                    # thing. The book's existing collections are ignored. Put
+                    # the book in collections defined by its metadata.
                     attrs = collection_attributes
+            elif prefs['manage_device_metadata'] == 'on_connect':
+                # For existing books, modify the collections only if the user
+                # specified 'on_connect'
+                attrs = collection_attributes
             for attr in attrs:
                 attr = attr.strip()
                 val = getattr(book, attr, None)

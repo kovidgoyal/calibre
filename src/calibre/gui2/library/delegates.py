@@ -96,7 +96,7 @@ class DateDelegate(QStyledItemDelegate): # {{{
 
     def displayText(self, val, locale):
         d = val.toDate()
-        if d == UNDEFINED_QDATE:
+        if d <= UNDEFINED_QDATE:
             return ''
         return format_date(d.toPyDate(), 'dd MMM yyyy')
 
@@ -116,7 +116,7 @@ class PubDateDelegate(QStyledItemDelegate): # {{{
 
     def displayText(self, val, locale):
         d = val.toDate()
-        if d == UNDEFINED_QDATE:
+        if d <= UNDEFINED_QDATE:
             return ''
         format = tweaks['gui_pubdate_display_format']
         if format is None:
@@ -194,7 +194,7 @@ class CcDateDelegate(QStyledItemDelegate): # {{{
 
     def displayText(self, val, locale):
         d = val.toDate()
-        if d == UNDEFINED_QDATE:
+        if d <= UNDEFINED_QDATE:
             return ''
         return format_date(d.toPyDate(), self.format)
 
@@ -217,7 +217,7 @@ class CcDateDelegate(QStyledItemDelegate): # {{{
 
     def setModelData(self, editor, model, index):
         val = editor.date()
-        if val == UNDEFINED_QDATE:
+        if val <= UNDEFINED_QDATE:
             val = None
         model.setData(index, QVariant(val), Qt.EditRole)
 

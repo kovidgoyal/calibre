@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, posixpath, urllib, sys
+import os, posixpath, urllib, sys, re
 
 from lxml import etree
 
@@ -160,8 +160,26 @@ class Container(object):
         mt = mimetype.lower()
         if mt.endswith('+xml'):
             parser = etree.XMLParser(no_network=True, huge_tree=not iswindows)
-            return etree.fromstring(xml_to_unicode(raw,
-                strip_encoding_pats=True, assume_utf8=True)[0], parser=parser)
+            raw = xml_to_unicode(raw,
+                strip_encoding_pats=True, assume_utf8=True,
+                resolve_entities=True)[0].strip()
+            idx = raw.find('<html')
+            if idx == -1:
+                idx = raw.find('<HTML')
+            if idx > -1:
+                pre = raw[:idx]
+                raw = raw[idx:]
+                if '<!DOCTYPE' in pre:
+                    user_entities = {}
+                    for match in re.finditer(r'<!ENTITY\s+(\S+)\s+([^>]+)', pre):
+                        val = match.group(2)
+                        if val.startswith('"') and val.endswith('"'):
+                            val = val[1:-1]
+                        user_entities[match.group(1)] = val
+                    if user_entities:
+                        pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
+                        raw = pat.sub(lambda m:user_entities[m.group(1)], raw)
+            return etree.fromstring(raw, parser=parser)
         return raw
 
     def write(self, path):

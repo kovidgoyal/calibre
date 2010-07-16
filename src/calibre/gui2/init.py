@@ -176,12 +176,6 @@ class ToolbarMixin(object): # {{{
     def show_help(self, *args):
         open_url(QUrl('http://calibre-ebook.com/user_manual'))
 
-    def read_toolbar_settings(self):
-        self.tool_bar.setIconSize(config['toolbar_icon_size'])
-        self.tool_bar.setToolButtonStyle(
-                Qt.ToolButtonTextUnderIcon if \
-                    config['show_text_in_toolbar'] else \
-                    Qt.ToolButtonIconOnly)
 
 # }}}
 
@@ -409,7 +403,8 @@ class StatusBar(QStatusBar): # {{{
         self.clearMessage()
 
     def message_changed(self, msg):
-        if not msg or msg.isEmpty() or msg.isNull():
+        if not msg or msg.isEmpty() or msg.isNull() or \
+                not unicode(msg).strip():
             extra = ''
             if self.device_string:
                 extra = ' ..::.. ' + self.device_string

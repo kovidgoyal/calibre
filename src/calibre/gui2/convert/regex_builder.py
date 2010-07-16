@@ -28,9 +28,10 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 
         if not db or not book_id:
             self.button_box.addButton(QDialogButtonBox.Open)
-        else:
-            self.select_format(db, book_id)
-
+        elif not self.select_format(db, book_id):
+            self.cancelled = True
+            return
+        self.cancelled = False
         self.connect(self.button_box, SIGNAL('clicked(QAbstractButton*)'), self.button_clicked)
         self.connect(self.regex, SIGNAL('textChanged(QString)'), self.regex_valid)
         self.connect(self.test, SIGNAL('clicked()'), self.do_test)
@@ -79,10 +80,12 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                 format = d.format()
 
         if not format:
-            error_dialog(self, _('No formats available'), _('Cannot build regex using the GUI builder without a book.'))
-            QDialog.reject()
-        else:
-            self.open_book(db.format_abspath(book_id, format, index_is_id=True))
+            error_dialog(self, _('No formats available'),
+                         _('Cannot build regex using the GUI builder without a book.'),
+                         show=True)
+            return False
+        self.open_book(db.format_abspath(book_id, format, index_is_id=True))
+        return True
 
     def open_book(self, pathtoebook):
         self.iterator = EbookIterator(pathtoebook)
@@ -117,6 +120,8 @@ class RegexEdit(QWidget, Ui_Edit):
 
     def builder(self):
         bld = RegexBuilder(self.db, self.book_id, self.edit.text(), self)
+        if bld.cancelled:
+            return
         if bld.exec_() == bld.Accepted:
             self.edit.setText(bld.regex.text())
 

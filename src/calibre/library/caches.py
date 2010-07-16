@@ -209,13 +209,13 @@ class ResultCache(SearchQueryParser):
         if query == 'false':
             for item in self._data:
                 if item is None: continue
-                if item[loc] is None or item[loc] == UNDEFINED_DATE:
+                if item[loc] is None or item[loc] <= UNDEFINED_DATE:
                     matches.add(item[0])
             return matches
         if query == 'true':
             for item in self._data:
                 if item is None: continue
-                if item[loc] is not None and item[loc] != UNDEFINED_DATE:
+                if item[loc] is not None and item[loc] > UNDEFINED_DATE:
                     matches.add(item[0])
             return matches
 

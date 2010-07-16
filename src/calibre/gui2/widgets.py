@@ -490,6 +490,7 @@ class EnComboBox(QComboBox):
         QComboBox.__init__(self, *args)
         self.setLineEdit(EnLineEdit(self))
         self.setAutoCompletionCaseSensitivity(Qt.CaseSensitive)
+        self.setMinimumContentsLength(20)
 
     def text(self):
         return unicode(self.currentText())
@@ -537,6 +538,53 @@ class HistoryLineEdit(QComboBox):
 
     def text(self):
         return self.currentText()
+
+class ComboBoxWithHelp(QComboBox):
+    '''
+    A combobox where item 0 is help text. CurrentText will return '' for item 0.
+    Be sure to always fetch the text with currentText. Don't use the signals
+    that pass a string, because they will not correct the text.
+    '''
+    def __init__(self, parent=None):
+        QComboBox.__init__(self, parent)
+        self.currentIndexChanged[int].connect(self.index_changed)
+        self.help_text = ''
+        self.state_set = False
+
+    def initialize(self, help_text=_('Search')):
+        self.help_text = help_text
+        self.set_state()
+
+    def set_state(self):
+        if not self.state_set:
+            if self.currentIndex() == 0:
+                self.setItemText(0, self.help_text)
+                self.setStyleSheet('QComboBox { color: gray }')
+            else:
+                self.setItemText(0, '')
+                self.setStyleSheet('QComboBox { color: black }')
+
+    def index_changed(self, index):
+        self.state_set = False
+        self.set_state()
+
+    def currentText(self):
+        if self.currentIndex() == 0:
+            return ''
+        return QComboBox.currentText(self)
+
+    def itemText(self, idx):
+        if idx == 0:
+            return ''
+        return QComboBox.itemText(self, idx)
+
+    def showPopup(self):
+        self.setItemText(0, '')
+        QComboBox.showPopup(self)
+
+    def hidePopup(self):
+        QComboBox.hidePopup(self)
+        self.set_state()
 
 class PythonHighlighter(QSyntaxHighlighter):
 

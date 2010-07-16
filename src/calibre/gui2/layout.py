@@ -5,48 +5,21 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from operator import attrgetter
+
 from PyQt4.Qt import QIcon, Qt, QWidget, QAction, QToolBar, QSize, QVariant, \
     QAbstractListModel, QFont, QApplication, QPalette, pyqtSignal, QToolButton, \
     QModelIndex, QListView, QAbstractButton, QPainter, QPixmap, QColor, \
-    QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QComboBox
+    QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout
 
 from calibre.constants import __appname__, filesystem_encoding
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
 from calibre.gui2.throbber import ThrobbingButton
-from calibre.gui2 import NONE
+from calibre.gui2 import NONE, config
+from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre import human_readable
 
-class ToolBar(QToolBar): # {{{
-
-    def __init__(self, parent=None):
-        QToolBar.__init__(self, parent)
-        self.setContextMenuPolicy(Qt.PreventContextMenu)
-        self.setMovable(False)
-        self.setFloatable(False)
-        self.setOrientation(Qt.Horizontal)
-        self.setAllowedAreas(Qt.TopToolBarArea|Qt.BottomToolBarArea)
-        self.setIconSize(QSize(48, 48))
-        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-
-    def add_actions(self, *args):
-        self.left_space = QWidget(self)
-        self.left_space.setSizePolicy(QSizePolicy.Expanding,
-                QSizePolicy.Minimum)
-        self.addWidget(self.left_space)
-        for action in args:
-            if action is None:
-                self.addSeparator()
-            else:
-                self.addAction(action)
-        self.right_space = QWidget(self)
-        self.right_space.setSizePolicy(QSizePolicy.Expanding,
-                QSizePolicy.Minimum)
-        self.addWidget(self.right_space)
-
-    def contextMenuEvent(self, *args):
-        pass
-
-# }}}
+ICON_SIZE = 48
 
 # Location View {{{
 
@@ -165,7 +138,7 @@ class LocationModel(QAbstractListModel): # {{{
 
 class LocationView(QListView):
 
-    unmount_device = pyqtSignal()
+    umount_device = pyqtSignal()
     location_selected = pyqtSignal(object)
 
     def __init__(self, parent):
@@ -190,21 +163,26 @@ class LocationView(QListView):
         self.setTabKeyNavigation(True)
         self.setProperty("showDropIndicator", True)
         self.setSelectionMode(self.SingleSelection)
-        self.setIconSize(QSize(40, 40))
+        self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.setMovement(self.Static)
         self.setFlow(self.LeftToRight)
-        self.setGridSize(QSize(175, 90))
+        self.setGridSize(QSize(175, ICON_SIZE))
         self.setViewMode(self.ListMode)
         self.setWordWrap(True)
         self.setObjectName("location_view")
-        self.setMaximumHeight(74)
+        self.setMaximumSize(QSize(600, ICON_SIZE+16))
+        self.setMinimumWidth(400)
 
     def eject_clicked(self, *args):
-        self.unmount_device.emit()
+        self.umount_device.emit()
 
     def count_changed(self, new_count):
         self.model().count = new_count
         self.model().reset()
+
+    @property
+    def book_count(self):
+        return self.model().count
 
     def current_changed(self, current, previous):
         if current.isValid():
@@ -247,12 +225,15 @@ class EjectButton(QAbstractButton):
     def __init__(self, parent):
         QAbstractButton.__init__(self, parent)
         self.mouse_over = False
+        self.setMouseTracking(True)
 
     def enterEvent(self, event):
         self.mouse_over = True
+        QAbstractButton.enterEvent(self, event)
 
     def leaveEvent(self, event):
         self.mouse_over = False
+        QAbstractButton.leaveEvent(self, event)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -280,12 +261,7 @@ class SearchBar(QWidget): # {{{
         self._layout = l = QHBoxLayout()
         self.setLayout(self._layout)
 
-        self.restriction_label = QLabel(_("&Restrict to:"))
-        l.addWidget(self.restriction_label)
-        self.restriction_label.setSizePolicy(QSizePolicy.Minimum,
-                QSizePolicy.Minimum)
-
-        x = QComboBox(self)
+        x = ComboBoxWithHelp(self)
         x.setMaximumSize(QSize(150, 16777215))
         x.setObjectName("search_restriction")
         x.setToolTip(_("Books display will be restricted to those matching the selected saved search"))
@@ -344,37 +320,87 @@ class SearchBar(QWidget): # {{{
         x.setToolTip(_("Delete current saved search"))
 
         self.label.setBuddy(parent.search)
-        self.restriction_label.setBuddy(parent.search_restriction)
 
 
 # }}}
 
-class LocationBar(ToolBar): # {{{
+class ToolBar(QToolBar): # {{{
 
     def __init__(self, actions, donate, location_view, parent=None):
-        ToolBar.__init__(self, parent)
-
-        for ac in actions:
-            self.addAction(ac)
-
-        self.addWidget(location_view)
-        self.w = QWidget()
-        self.w.setLayout(QVBoxLayout())
-        self.w.layout().addWidget(donate)
-        donate.setAutoRaise(True)
-        donate.setCursor(Qt.PointingHandCursor)
-        self.addWidget(self.w)
-        self.setIconSize(QSize(50, 50))
+        QToolBar.__init__(self, parent)
+        self.setContextMenuPolicy(Qt.PreventContextMenu)
+        self.setMovable(False)
+        self.setFloatable(False)
+        self.setOrientation(Qt.Horizontal)
+        self.setAllowedAreas(Qt.TopToolBarArea|Qt.BottomToolBarArea)
+        self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-    def button_for_action(self, ac):
-        b = QToolButton(self)
-        b.setDefaultAction(ac)
-        for x in ('ToolTip', 'StatusTip', 'WhatsThis'):
-            getattr(b, 'set'+x)(b.text())
+        self.showing_device = False
+        self.all_actions = actions
+        self.donate = donate
+        self.location_view = location_view
+        self.d_widget = QWidget()
+        self.d_widget.setLayout(QVBoxLayout())
+        self.d_widget.layout().addWidget(donate)
+        donate.setAutoRaise(True)
+        donate.setCursor(Qt.PointingHandCursor)
+        self.build_bar()
 
-        return b
+    def contextMenuEvent(self, *args):
+        pass
+
+    def device_status_changed(self, connected):
+        self.showing_device = connected
+        self.build_bar()
+
+    def build_bar(self):
+        order_field = 'device' if self.showing_device else 'normal'
+        o = attrgetter(order_field+'_order')
+        sepvals = [2] if self.showing_device else [1]
+        sepvals += [3]
+        actions = [x for x in self.all_actions if o(x) > -1]
+        actions.sort(cmp=lambda x,y : cmp(o(x), o(y)))
+        self.clear()
+        for x in actions:
+            self.addAction(x)
+            ch = self.widgetForAction(x)
+            ch.setCursor(Qt.PointingHandCursor)
+            ch.setAutoRaise(True)
+
+            if x.action_name == 'choose_library':
+                self.location_action = self.addWidget(self.location_view)
+                self.choose_action = x
+                if config['show_donate_button']:
+                    self.addWidget(self.d_widget)
+            if x.action_name not in ('choose_library', 'help'):
+                ch.setPopupMode(ch.MenuButtonPopup)
+
+
+        for x in actions:
+            if x.separator_before in sepvals:
+                self.insertSeparator(x)
+
+
+        self.location_action.setVisible(self.showing_device)
+        self.choose_action.setVisible(not self.showing_device)
+
+    def count_changed(self, new_count):
+        text = _('%d books')%new_count
+        a = self.choose_action
+        a.setText(text)
+
+    def resizeEvent(self, ev):
+        style = Qt.ToolButtonTextUnderIcon
+        if self.size().width() < 1260:
+            style = Qt.ToolButtonIconOnly
+        self.setToolButtonStyle(style)
+        QToolBar.resizeEvent(self, ev)
+
 # }}}
+
+class Action(QAction):
+    pass
 
 class MainWindowMixin(object):
 
@@ -390,12 +416,19 @@ class MainWindowMixin(object):
         self.centralwidget.setLayout(self._central_widget_layout)
         self.resize(1012, 740)
         self.donate_button = ThrobbingButton(self.centralwidget)
-        self.donate_button.set_normal_icon_size(64, 64)
+        self.donate_button.set_normal_icon_size(ICON_SIZE, ICON_SIZE)
 
         # Actions {{{
 
-        def ac(name, text, icon, shortcut=None, tooltip=None):
-            action = QAction(QIcon(I(icon)), text, self)
+        all_actions = []
+
+        def ac(normal_order, device_order, separator_before,
+                name, text, icon, shortcut=None, tooltip=None):
+            action = Action(QIcon(I(icon)), text, self)
+            action.normal_order = normal_order
+            action.device_order = device_order
+            action.separator_before = separator_before
+            action.action_name = name
             text = tooltip if tooltip else text
             action.setToolTip(text)
             action.setStatusTip(text)
@@ -405,56 +438,46 @@ class MainWindowMixin(object):
             if shortcut:
                 action.setShortcut(shortcut)
             setattr(self, 'action_'+name, action)
+            all_actions.append(action)
 
-        ac('add', _('Add books'), 'add_book.svg', _('A'))
-        ac('del', _('Remove books'), 'trash.svg', _('Del'))
-        ac('edit', _('Edit meta info'), 'edit_input.svg', _('E'))
-        ac('merge', _('Merge book records'), 'merge_books.svg', _('M'))
-        ac('sync', _('Send to device'), 'sync.svg')
-        ac('save', _('Save to disk'), 'save.svg', _('S'))
-        ac('news', _('Fetch news'), 'news.svg', _('F'))
-        ac('convert', _('Convert books'), 'convert.svg', _('C'))
-        ac('view', _('View'), 'view.svg', _('V'))
-        ac('open_containing_folder', _('Open containing folder'),
+        ac(0,  7,  0, 'add', _('Add books'), 'add_book.svg', _('A'))
+        ac(1,  1,  0, 'edit', _('Edit metadata'), 'edit_input.svg', _('E'))
+        ac(2,  2,  3, 'convert', _('Convert books'), 'convert.svg', _('C'))
+        ac(3,  3,  0, 'view', _('View'), 'view.svg', _('V'))
+        ac(4,  4,  3, 'choose_library', _('%d books')%0, 'lt.png',
+                tooltip=_('Choose calibre library to work with'))
+        ac(5,  5,  3, 'news', _('Fetch news'), 'news.svg', _('F'))
+        ac(6,  6,  0, 'save', _('Save to disk'), 'save.svg', _('S'))
+        ac(7,  0,  0, 'sync', _('Send to device'), 'sync.svg')
+        ac(8,  8,  3, 'del', _('Remove books'), 'trash.svg', _('Del'))
+        ac(9,  9,  3, 'help', _('Help'), 'help.svg', _('F1'), _("Browse the calibre User Manual"))
+        ac(10, 10, 0, 'preferences', _('Preferences'), 'config.svg', _('Ctrl+P'))
+
+        ac(-1, -1, 0, 'merge', _('Merge book records'), 'merge_books.svg', _('M'))
+        ac(-1, -1, 0, 'open_containing_folder', _('Open containing folder'),
                 'document_open.svg')
-        ac('show_book_details', _('Show book details'),
+        ac(-1, -1, 0, 'show_book_details', _('Show book details'),
                 'dialog_information.svg')
-        ac('books_by_same_author', _('Books by same author'),
+        ac(-1, -1, 0, 'books_by_same_author', _('Books by same author'),
                 'user_profile.svg')
-        ac('books_in_this_series', _('Books in this series'),
+        ac(-1, -1, 0, 'books_in_this_series', _('Books in this series'),
                 'books_in_series.svg')
-        ac('books_by_this_publisher', _('Books by this publisher'),
+        ac(-1, -1, 0, 'books_by_this_publisher', _('Books by this publisher'),
                 'publisher.png')
-        ac('books_with_the_same_tags', _('Books with the same tags'),
+        ac(-1, -1, 0, 'books_with_the_same_tags', _('Books with the same tags'),
                 'tags.svg')
-        ac('preferences', _('Preferences'), 'config.svg', _('Ctrl+P'))
-        ac('help', _('Help'), 'help.svg', _('F1'), _("Browse the calibre User Manual"))
 
         # }}}
 
-        self.tool_bar = ToolBar(self)
-        self.addToolBar(Qt.BottomToolBarArea, self.tool_bar)
-        self.tool_bar.add_actions(self.action_convert, self.action_view,
-                None, self.action_edit, None,
-                self.action_save, self.action_del,
-                None,
-                self.action_help, None, self.action_preferences)
-
         self.location_view = LocationView(self.centralwidget)
         self.search_bar = SearchBar(self)
-        self.location_bar = LocationBar([self.action_add, self.action_sync,
-            self.action_news], self.donate_button, self.location_view, self)
-        self.addToolBar(Qt.TopToolBarArea, self.location_bar)
+        self.tool_bar = ToolBar(all_actions, self.donate_button, self.location_view, self)
+        self.addToolBar(Qt.TopToolBarArea, self.tool_bar)
 
         l = self.centralwidget.layout()
         l.addWidget(self.search_bar)
 
-        for ch in list(self.tool_bar.children()) + list(self.location_bar.children()):
-            if isinstance(ch, QToolButton):
-                ch.setCursor(Qt.PointingHandCursor)
-                ch.setAutoRaise(True)
-                if ch is not self.donate_button:
-                    ch.setPopupMode(ch.MenuButtonPopup)
 
-
+    def read_toolbar_settings(self):
+        pass
 
