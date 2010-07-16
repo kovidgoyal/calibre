@@ -12,6 +12,7 @@ from math import floor
 
 from calibre import prints
 from calibre.constants import preferred_encoding
+from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import parse_date
 
 class CustomColumns(object):
@@ -30,6 +31,10 @@ class CustomColumns(object):
 
 
     def __init__(self):
+        # Verify that CUSTOM_DATA_TYPES is a (possibly improper) subset of
+        # VALID_DATA_TYPES
+        if len(self.CUSTOM_DATA_TYPES - FieldMetadata.VALID_DATA_TYPES) > 0:
+            raise ValueError('Unknown custom column type in set')
         # Delete marked custom columns
         for record in self.conn.get(
                 'SELECT id FROM custom_columns WHERE mark_for_delete=1'):
