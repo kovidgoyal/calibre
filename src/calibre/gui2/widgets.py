@@ -490,6 +490,7 @@ class EnComboBox(QComboBox):
         QComboBox.__init__(self, *args)
         self.setLineEdit(EnLineEdit(self))
         self.setAutoCompletionCaseSensitivity(Qt.CaseSensitive)
+        self.setMinimumContentsLength(20)
 
     def text(self):
         return unicode(self.currentText())

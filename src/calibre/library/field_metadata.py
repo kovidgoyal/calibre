@@ -30,8 +30,8 @@ class FieldMetadata(dict):
 
     label: the actual column label. No prefixing.
 
-    datatype: the type of the information in the field. Valid values are float,
-    int, rating, bool, comments, datetime, text.
+    datatype: the type of information in the field. Valid values are listed in
+    VALID_DATA_TYPES below.
     is_multiple: valid for the text datatype. If None, the field is to be
     treated as a single term. If not None, it contains a string, and the field
     is assumed to contain a list of terms separated by that string
@@ -65,6 +65,10 @@ class FieldMetadata(dict):
     rec_index: the index of the field in the db metadata record.
 
     '''
+
+    VALID_DATA_TYPES = frozenset([None, 'rating', 'text', 'comments', 'datetime',
+                                  'int', 'float', 'bool', 'series'])
+
     _field_metadata = [
             ('authors',   {'table':'authors',
                            'column':'name',
@@ -296,6 +300,8 @@ class FieldMetadata(dict):
         self._search_term_map = {}
         self.custom_label_to_key_map = {}
         for k,v in self._field_metadata:
+            if v['kind'] == 'field' and v['datatype'] not in self.VALID_DATA_TYPES:
+                raise ValueError('Unknown datatype %s for field %s'%(v['datatype'], k))
             self._tb_cats[k] = v
             self._tb_cats[k]['label'] = k
             self._tb_cats[k]['display'] = {}
@@ -377,6 +383,8 @@ class FieldMetadata(dict):
         key = self.custom_field_prefix + label
         if key in self._tb_cats:
             raise ValueError('Duplicate custom field [%s]'%(label))
+        if datatype not in self.VALID_DATA_TYPES:
+            raise ValueError('Unknown datatype %s for field %s'%(datatype, key))
         self._tb_cats[key] = {'table':table,       'column':column,
                              'datatype':datatype,  'is_multiple':is_multiple,
                              'kind':'field',       'name':name,
