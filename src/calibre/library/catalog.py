@@ -23,10 +23,6 @@ FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
           'series_index', 'series', 'size', 'tags', 'timestamp', 'title',
           'uuid']
-          
-#Allowed fields for template
-TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate',
-    'publisher', 'series_index', 'series', 'tags', 'timestamp', 'title', 'uuid' ]
 
 #Allowed fields for template
 TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate',
@@ -130,11 +126,7 @@ class CSV_XML(CatalogPlugin):
                         item = item.replace(u'\n',u' ')
 
                     outstr.append(u'"%s"' % unicode(item).replace('"','""'))
-<<<<<<< TREE
-                
-=======
 
->>>>>>> MERGE-SOURCE
                 outfile.write(u','.join(outstr) + u'\n')
             outfile.close()
 
@@ -216,11 +208,7 @@ class BIBTEX(CatalogPlugin):
                     'Available fields: %s.\n'
                     "Default: '%%default'\n"
                     "Applies to: BIBTEX output format")%', '.join(FIELDS)),
-<<<<<<< TREE
-                    
-=======
 
->>>>>>> MERGE-SOURCE
             Option('--sort-by',
                 default = 'id',
                 dest = 'sort_by',
@@ -229,11 +217,7 @@ class BIBTEX(CatalogPlugin):
                 'Available fields: author_sort, id, rating, size, timestamp, title.\n'
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format")),
-<<<<<<< TREE
-                
-=======
 
->>>>>>> MERGE-SOURCE
             Option('--create-citation',
                 default = 'True',
                 dest = 'impcit',
@@ -242,11 +226,7 @@ class BIBTEX(CatalogPlugin):
                 'Boolean value: True, False\n'
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format")),
-<<<<<<< TREE
-                
-=======
 
->>>>>>> MERGE-SOURCE
             Option('--citation-template',
                 default = '{authors}{id}',
                 dest = 'bib_cit',
@@ -256,11 +236,7 @@ class BIBTEX(CatalogPlugin):
                     'Available fields: %s.\n'
                     "Default: '%%default'\n"
                     "Applies to: BIBTEX output format")%', '.join(TEMPLATE_ALLOWED_FIELDS)),
-<<<<<<< TREE
-            
-=======
 
->>>>>>> MERGE-SOURCE
             Option('--choose-encoding',
                 default = 'utf8',
                 dest = 'bibfile_enc',
@@ -269,11 +245,7 @@ class BIBTEX(CatalogPlugin):
                 'Available types: utf8, cp1252, ascii.\n'
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format")),
-<<<<<<< TREE
-            
-=======
 
->>>>>>> MERGE-SOURCE
             Option('--choose-encoding-configuration',
                 default = 'strict',
                 dest = 'bibfile_enctag',
@@ -291,46 +263,21 @@ class BIBTEX(CatalogPlugin):
                 'Available types: book, misc, mixed.\n'
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format"))]
-<<<<<<< TREE
-                     
-=======
 
->>>>>>> MERGE-SOURCE
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
-<<<<<<< TREE
-    
-=======
 
->>>>>>> MERGE-SOURCE
         from types import StringType, UnicodeType
-<<<<<<< TREE
-        
-=======
 
->>>>>>> MERGE-SOURCE
         from calibre.library.save_to_disk import preprocess_template
         #Bibtex functions
         from calibre.utils.bibtex import bibtex_author_format, utf8ToBibtex, ValidateCitationKey
-<<<<<<< TREE
-        
-        def create_bibtex_entry(entry, fields, mode, template_citation, 
-=======
 
         def create_bibtex_entry(entry, fields, mode, template_citation,
->>>>>>> MERGE-SOURCE
             asccii_bibtex = True, citation_bibtex = True):
-<<<<<<< TREE
-            
-=======
 
->>>>>>> MERGE-SOURCE
             #Bibtex doesn't like UTF-8 but keep unicode until writing
             #Define starting chain or if book valid strict and not book return a Fail string
-<<<<<<< TREE
-            
-=======
 
->>>>>>> MERGE-SOURCE
             bibtex_entry = []
             if mode != "misc" and check_entry_book_valid(entry) :
                 bibtex_entry.append(u'@book{')
@@ -339,20 +286,12 @@ class BIBTEX(CatalogPlugin):
             else :
                 #case strict book
                 return ''
-<<<<<<< TREE
-                
-=======
 
->>>>>>> MERGE-SOURCE
             if citation_bibtex :
                 # Citation tag
                 bibtex_entry.append(make_bibtex_citation(entry, template_citation, asccii_bibtex))
                 bibtex_entry = [u' '.join(bibtex_entry)]
-<<<<<<< TREE
-            
-=======
 
->>>>>>> MERGE-SOURCE
             for field in fields:
                 item = entry[field]
                 #check if the field should be included (none or empty)
@@ -366,117 +305,54 @@ class BIBTEX(CatalogPlugin):
 
                 if field == 'authors' :
                     bibtex_entry.append(u'author = "%s"' % bibtex_author_format(item))
-<<<<<<< TREE
-                    
-=======
 
->>>>>>> MERGE-SOURCE
                 elif field in ['title', 'publisher', 'cover', 'uuid',
                         'author_sort', 'series'] :
                     bibtex_entry.append(u'%s = "%s"' % (field, utf8ToBibtex(item, asccii_bibtex)))
-<<<<<<< TREE
-                    
-=======
 
->>>>>>> MERGE-SOURCE
                 elif field == 'id' :
                     bibtex_entry.append(u'calibreid = "%s"' % int(item))
-<<<<<<< TREE
-                    
-=======
 
->>>>>>> MERGE-SOURCE
                 elif field == 'rating' :
                     bibtex_entry.append(u'rating = "%s"' % int(item))
-<<<<<<< TREE
-                    
-=======
 
->>>>>>> MERGE-SOURCE
                 elif field == 'size' :
                     bibtex_entry.append(u'%s = "%s octets"' % (field, int(item)))
-<<<<<<< TREE
-                    
-                elif field == 'tags' : 
-=======
 
                 elif field == 'tags' :
->>>>>>> MERGE-SOURCE
                     #A list to flatten
                     bibtex_entry.append(u'tags = "%s"' % utf8ToBibtex(u', '.join(item), asccii_bibtex))
-<<<<<<< TREE
-                    
-                elif field == 'comments' : 
-=======
 
                 elif field == 'comments' :
->>>>>>> MERGE-SOURCE
                     #\n removal
                     item = item.replace(u'\r\n',u' ')
                     item = item.replace(u'\n',u' ')
                     bibtex_entry.append(u'note = "%s"' % utf8ToBibtex(item, asccii_bibtex))
-<<<<<<< TREE
-                    
-=======
 
->>>>>>> MERGE-SOURCE
                 elif field == 'isbn' :
                     # Could be 9, 10 or 13 digits
                     bibtex_entry.append(u'isbn = "%s"' % re.sub(u'[\D]', u'', item))
-<<<<<<< TREE
-                    
-=======
 
->>>>>>> MERGE-SOURCE
                 elif field == 'formats' :
                     item = u', '.join([format.rpartition('.')[2].lower() for format in item])
                     bibtex_entry.append(u'formats = "%s"' % item)
-<<<<<<< TREE
-                    
-=======
 
->>>>>>> MERGE-SOURCE
                 elif field == 'series_index' :
                     bibtex_entry.append(u'volume = "%s"' % int(item))
-<<<<<<< TREE
-                    
-=======
 
->>>>>>> MERGE-SOURCE
                 elif field == 'timestamp' :
                     bibtex_entry.append(u'timestamp = "%s"' % isoformat(item).partition('T')[0])
-<<<<<<< TREE
-                    
-=======
 
->>>>>>> MERGE-SOURCE
                 elif field == 'pubdate' :
                     bibtex_entry.append(u'year = "%s"' % item.year)
-<<<<<<< TREE
-                    #Messing locale in date string formatting
-                    bibtex_entry.append(u'month = "%s"' % utf8ToBibtex(item.strftime("%b").decode(preferred_encoding),
-=======
                     bibtex_entry.append(u'month = "%s"' % utf8ToBibtex(strftime("%b", item),
->>>>>>> MERGE-SOURCE
                         asccii_bibtex))
-<<<<<<< TREE
-            
-=======
 
->>>>>>> MERGE-SOURCE
             bibtex_entry = u',\n    '.join(bibtex_entry)
             bibtex_entry += u' }\n\n'
-<<<<<<< TREE
-            
-=======
 
->>>>>>> MERGE-SOURCE
             return bibtex_entry
-<<<<<<< TREE
-    
-=======
 
->>>>>>> MERGE-SOURCE
         def check_entry_book_valid(entry):
             #Check that the required fields are ok for a book entry
             for field in ['title', 'authors', 'publisher'] :
@@ -488,24 +364,12 @@ class BIBTEX(CatalogPlugin):
                 return True
 
         def make_bibtex_citation(entry, template_citation, asccii_bibtex):
-<<<<<<< TREE
-            
-=======
 
->>>>>>> MERGE-SOURCE
             #define a function to replace the template entry by its value
             def tpl_replace(objtplname) :
-<<<<<<< TREE
-            
-=======
 
->>>>>>> MERGE-SOURCE
                 tpl_field = re.sub(u'[\{\}]', u'', objtplname.group())
-<<<<<<< TREE
-                
-=======
 
->>>>>>> MERGE-SOURCE
                 if tpl_field in TEMPLATE_ALLOWED_FIELDS :
                     if tpl_field in ['pubdate', 'timestamp'] :
                         tpl_field = isoformat(entry[tpl_field]).partition('T')[0]
@@ -517,66 +381,34 @@ class BIBTEX(CatalogPlugin):
                         tpl_field = entry[tpl_field]
                     return tpl_field
                 else:
-<<<<<<< TREE
-                    return u''            
-=======
                     return u''
->>>>>>> MERGE-SOURCE
 
             if len(template_citation) >0 :
-<<<<<<< TREE
-                tpl_citation = utf8ToBibtex(ValidateCitationKey(re.sub(u'\{[^{}]*\}', 
-=======
                 tpl_citation = utf8ToBibtex(ValidateCitationKey(re.sub(u'\{[^{}]*\}',
->>>>>>> MERGE-SOURCE
                     tpl_replace, template_citation)), asccii_bibtex)
 
                 if len(tpl_citation) >0 :
                     return tpl_citation
-<<<<<<< TREE
-                
-=======
 
->>>>>>> MERGE-SOURCE
             if len(entry["isbn"]) > 0 :
                 template_citation = u'%s' % re.sub(u'[\D]',u'', entry["isbn"])
-<<<<<<< TREE
-                
-=======
 
->>>>>>> MERGE-SOURCE
             else :
                 template_citation = u'%s' % str(entry["id"])
-<<<<<<< TREE
-            
-=======
 
->>>>>>> MERGE-SOURCE
             if asccii_bibtex :
                 return ValidateCitationKey(template_citation.encode('ascii', 'replace'))
             else :
                 return ValidateCitationKey(template_citation)
-<<<<<<< TREE
-        
-=======
 
->>>>>>> MERGE-SOURCE
         self.fmt = path_to_output.rpartition('.')[2]
         self.notification = notification
-<<<<<<< TREE
-        
-=======
 
->>>>>>> MERGE-SOURCE
         # Combobox options
         bibfile_enc = ['utf8', 'cp1252', 'ascii']
         bibfile_enctag = ['strict', 'replace', 'ignore', 'backslashreplace']
         bib_entry = ['mixed', 'misc', 'book']
-<<<<<<< TREE
-        
-=======
 
->>>>>>> MERGE-SOURCE
         # Needed beacause CLI return str vs int by widget
         try:
             bibfile_enc = bibfile_enc[opts.bibfile_enc]
@@ -615,17 +447,9 @@ class BIBTEX(CatalogPlugin):
                     log(" Fields: %s" % ', '.join(FIELDS[1:]))
                 else:
                     log(" Fields: %s" % opts_dict['fields'])
-<<<<<<< TREE
-                    
-=======
 
->>>>>>> MERGE-SOURCE
             log(" Output file will be encoded in %s with %s flag" % (bibfile_enc, bibfile_enctag))
-<<<<<<< TREE
-            
-=======
 
->>>>>>> MERGE-SOURCE
             log(" BibTeX entry type is %s with a citation like '%s' flag" % (bib_entry, opts_dict['bib_cit']))
 
         # If a list of ids are provided, don't use search_text
@@ -639,28 +463,16 @@ class BIBTEX(CatalogPlugin):
 
         # Get the requested output fields as a list
         fields = self.get_output_fields(opts)
-<<<<<<< TREE
-        
-=======
 
->>>>>>> MERGE-SOURCE
         if not len(data):
             log.error("\nNo matching database entries for search criteria '%s'" % opts.search_text)
-<<<<<<< TREE
-        
-=======
 
->>>>>>> MERGE-SOURCE
         #Entries writing after Bibtex formating (or not)
         if bibfile_enc != 'ascii' :
             asccii_bibtex = False
         else :
             asccii_bibtex = True
-<<<<<<< TREE
-        
-=======
 
->>>>>>> MERGE-SOURCE
         #Check and go to default in case of bad CLI
         if isinstance(opts.impcit, (StringType, UnicodeType)) :
             if opts.impcit == 'False' :
@@ -672,62 +484,30 @@ class BIBTEX(CatalogPlugin):
                 citation_bibtex= True
         else :
             citation_bibtex= opts.impcit
-<<<<<<< TREE
-        
-=======
 
->>>>>>> MERGE-SOURCE
         template_citation = preprocess_template(opts.bib_cit)
-<<<<<<< TREE
-        
-=======
 
->>>>>>> MERGE-SOURCE
         #Open output and write entries
         outfile = codecs.open(path_to_output, 'w', bibfile_enc, bibfile_enctag)
-<<<<<<< TREE
-        
-=======
 
->>>>>>> MERGE-SOURCE
         #File header
         nb_entries = len(data)
-<<<<<<< TREE
-        
-=======
 
->>>>>>> MERGE-SOURCE
         #check in book strict if all is ok else throw a warning into log
         if bib_entry == 'book' :
             nb_books = len(filter(check_entry_book_valid, data))
             if nb_books < nb_entries :
                 log(" WARNING: only %d entries in %d are book compatible" % (nb_books, nb_entries))
                 nb_entries = nb_books
-<<<<<<< TREE
-        
-=======
 
->>>>>>> MERGE-SOURCE
         outfile.write(u'%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
         outfile.write(u'@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'
             % (nb_entries, nowf().strftime("%A, %d. %B %Y %H:%M").decode(preferred_encoding)))
-<<<<<<< TREE
-        
-=======
 
->>>>>>> MERGE-SOURCE
         for entry in data:
-<<<<<<< TREE
-            outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation, 
-=======
             outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation,
->>>>>>> MERGE-SOURCE
                 asccii_bibtex, citation_bibtex))
-<<<<<<< TREE
-        
-=======
 
->>>>>>> MERGE-SOURCE
         outfile.close()
 
 class EPUB_MOBI(CatalogPlugin):
