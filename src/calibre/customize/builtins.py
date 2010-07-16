@@ -446,7 +446,7 @@ from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
                 BOOQ, ELONEX, POCKETBOOK301, MENTOR
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
-from calibre.devices.jetbook.driver import JETBOOK
+from calibre.devices.jetbook.driver import JETBOOK, MIBUK
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.nook.driver import NOOK
 from calibre.devices.prs505.driver import PRS505
@@ -467,12 +467,12 @@ from calibre.devices.kobo.driver import KOBO
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
     LibraryThing
 from calibre.ebooks.metadata.douban import DoubanBooks
-from calibre.library.catalog import CSV_XML, EPUB_MOBI
+from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
 from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
 plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
-        LibraryThing, DoubanBooks, CSV_XML, EPUB_MOBI, Unmanifested, Epubcheck]
+        LibraryThing, DoubanBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested, Epubcheck]
 plugins += [
     ComicInput,
     EPUBInput,
@@ -517,6 +517,7 @@ plugins += [
     IREXDR1000,
     IREXDR800,
     JETBOOK,
+    MIBUK,
     SHINEBOOK,
     POCKETBOOK360,
     POCKETBOOK301,
