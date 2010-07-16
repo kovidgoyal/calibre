@@ -111,7 +111,6 @@
                 or (@shadow = 'true')
                 or (@hidden = 'true')
                 or (@outline = 'true')
-
                 ">
                <emph rend = "paragraph-emph">
                     <xsl:apply-templates/>
@@ -276,6 +275,26 @@
                 <xsl:text>[</xsl:text>
                 <xsl:value-of select="count(preceding::rtf:footnote) + 1"/>
                 <xsl:text>]</xsl:text>
+            </xsl:when>
+            <xsl:when test="(@superscript = 'true')">
+                <xsl:element name="sup">
+                    <xsl:element name="span">
+                        <xsl:attribute name="class">
+                            <c:inline-class/>
+                        </xsl:attribute>
+                        <xsl:apply-templates/>
+                    </xsl:element>
+                </xsl:element>
+            </xsl:when>
+            <xsl:when test="(@underscript = 'true')">
+                <xsl:element name="sub">
+                    <xsl:element name="span">
+                        <xsl:attribute name="class">
+                            <c:inline-class/>
+                        </xsl:attribute>
+                        <xsl:apply-templates/>
+                    </xsl:element>
+                </xsl:element>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:element name="span">

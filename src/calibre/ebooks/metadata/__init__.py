@@ -288,7 +288,8 @@ class MetaInformation(object):
                      'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate', 'rights',
                      'publication_type', 'uuid'):
             if replace_metadata:
-                setattr(self, attr, getattr(mi, attr, None))
+                setattr(self, attr, getattr(mi, attr, 1.0 if \
+                        attr == 'series_index' else None))
             elif hasattr(mi, attr):
                 val = getattr(mi, attr)
                 if val is not None:
