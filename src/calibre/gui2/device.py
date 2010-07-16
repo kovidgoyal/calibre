@@ -1439,7 +1439,8 @@ class DeviceMixin(object): # {{{
             for book in booklist:
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
                     if update_metadata:
-                        book.smart_update(self.db_book_uuid_cache[book.uuid])
+                        book.smart_update(self.db_book_uuid_cache[book.uuid],
+                                          replace_metadata=True)
                     book.in_library = True
                     # ensure that the correct application_id is set
                     book.application_id = \
@@ -1454,12 +1455,14 @@ class DeviceMixin(object): # {{{
                     if getattr(book, 'application_id', None) in d['db_ids']:
                         book.in_library = True
                         if update_metadata:
-                            book.smart_update(d['db_ids'][book.application_id])
+                            book.smart_update(d['db_ids'][book.application_id],
+                                              replace_metadata=True)
                         continue
                     if book.db_id in d['db_ids']:
                         book.in_library = True
                         if update_metadata:
-                            book.smart_update(d['db_ids'][book.db_id])
+                            book.smart_update(d['db_ids'][book.db_id],
+                                              replace_metadata=True)
                         continue
                     if book.authors:
                         # Compare against both author and author sort, because
@@ -1469,11 +1472,13 @@ class DeviceMixin(object): # {{{
                         if book_authors in d['authors']:
                             book.in_library = True
                             if update_metadata:
-                                book.smart_update(d['authors'][book_authors])
+                                book.smart_update(d['authors'][book_authors],
+                                                  replace_metadata=True)
                         elif book_authors in d['author_sort']:
                             book.in_library = True
                             if update_metadata:
-                                book.smart_update(d['author_sort'][book_authors])
+                                book.smart_update(d['author_sort'][book_authors],
+                                                  replace_metadata=True)
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
                 if not asort and book.authors:

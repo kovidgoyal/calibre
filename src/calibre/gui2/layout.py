@@ -138,7 +138,7 @@ class LocationModel(QAbstractListModel): # {{{
 
 class LocationView(QListView):
 
-    unmount_device = pyqtSignal()
+    umount_device = pyqtSignal()
     location_selected = pyqtSignal(object)
 
     def __init__(self, parent):
@@ -174,7 +174,7 @@ class LocationView(QListView):
         self.setMinimumWidth(400)
 
     def eject_clicked(self, *args):
-        self.unmount_device.emit()
+        self.umount_device.emit()
 
     def count_changed(self, new_count):
         self.model().count = new_count
