@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-10 16:12+0000\n"
-"PO-Revision-Date: 2010-07-12 23:25+0000\n"
+"PO-Revision-Date: 2010-07-15 14:45+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-14 03:35+0000\n"
+"X-Launchpad-Export-Date: 2010-07-16 03:37+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1696,7 +1696,7 @@ msgstr "Réparateur d'ePub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:18
 msgid "Workaround epubcheck bugs"
-msgstr "Solution de rechange pour les bogues d'epubcheck"
+msgstr "Solution provisoire pour les bugs epubcheck"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:22
 msgid ""
@@ -1722,18 +1722,18 @@ msgid ""
 "By default, no fixing is done and messages are printed out for each error "
 "detected. Use the options to control which errors are automatically fixed."
 msgstr ""
-"%prog [options] file.epub\n"
+"%prog [options] fichier.epub\n"
 "\n"
-"Résoudre des problèmes fréquentes dans des fichiers EPUB qui peut provoquer "
-"leur rejet par des services de publication mal conçus.\n"
+"Résout des problèmes courants de fichiers EPUB pouvant causer leur rejet par "
+"des services de publication mal conçus.\n"
 "\n"
-"Par défaut, les problèmes trouvée ne sont pas résolue et une message est "
-"affichée pour chacune.  Utiliser ces options pour décider lesquelles de ces "
-"erreurs sera résolue automatiquement."
+"Par défaut, aucune réparation n'est effectuée et un message est affiché pour "
+"chaque erreur détectée. Utilisez les options pour contrôler quelles erreurs "
+"sont résolues automatiquement."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:50
 msgid "You must specify an epub file"
-msgstr "Vous devez préciser un fichier epub"
+msgstr "Vous devez spécifiez un fichier epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
@@ -1751,8 +1751,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:32
 msgid "Delete unmanifested files instead of adding them to the manifest"
 msgstr ""
-"Supprimer les fichiers qui ne sont pas dans le manifeste au lieu de les "
-"ajouter au manifeste."
+"Supprimer les fichiers absents du manifeste au lieu de les ajouter au "
+"manifeste."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:56
 msgid ""
@@ -6468,8 +6468,8 @@ msgid ""
 "All checked books will be <b>permanently deleted</b> from your device. "
 "Please verify the list."
 msgstr ""
-"Tous les livres sélectionnés sera <b>supprimés définitivement</b> de votre "
-"appareil.  Veuillez vérifier vos sélections."
+"Tous les livres sélectionnés vont être <b>supprimés définitivement</b> de "
+"votre appareil.  Veuillez vérifier vos sélections."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
 msgid "Location"
@@ -7972,7 +7972,7 @@ msgid ""
 "Card A\n"
 "%s"
 msgstr ""
-"Carte A\n"
+"Carte mémoire A\n"
 "%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:67
@@ -7980,7 +7980,7 @@ msgid ""
 "Card B\n"
 "%s"
 msgstr ""
-"Carte B\n"
+"Carte mémoire B\n"
 "%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:71
@@ -8008,7 +8008,7 @@ msgstr "Livres situés à"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:100
 msgid "free"
-msgstr "free"
+msgstr "libre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:287
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:134
@@ -8173,7 +8173,7 @@ msgstr "Aide"
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:426
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:178
 msgid "Browse the calibre User Manual"
-msgstr "Parcourir le manuel de l'utilisateur"
+msgstr "Parcourir le manuel utilisateur de Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:426
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:179
@@ -8703,8 +8703,7 @@ msgstr "Trier par note moyenne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:772
 msgid "Set the sort order for entries in the Tag Browser"
-msgstr ""
-"Définir l'order de tri pour les entrées dans le navigateur d'étiquettes"
+msgstr "Définir l'ordre de tri des entrées dans le navigateur d'étiquettes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:778
 msgid "Match all"
@@ -8842,10 +8841,9 @@ msgid ""
 "you find it useful, please consider donating to support its development. "
 "Your donation helps keep calibre development going."
 msgstr ""
-"est le résultat de l'effort de plusieurs bénévoles qui viennent de partout "
-"dans le monde entier.  Si vous le trouver utile, prier de considérer faire "
-"une donation pour soutenir son développement.  Votre donation assure le "
-"développement continué de calibre."
+"est le résultat des efforts de multiples volontaires bénévoles partout dans "
+"le monde. Si vous le trouvez utile, vous pouvez donner pour soutenir son "
+"développement. Vos donations aident Calibre à continuer à se développer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:572
 msgid "There are active jobs. Are you sure you want to quit?"
