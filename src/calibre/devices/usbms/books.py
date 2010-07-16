@@ -72,13 +72,13 @@ class Book(MetaInformation):
     def thumbnail(self):
         return None
 
-    def smart_update(self, other):
+    def smart_update(self, other, replace_metadata=False):
         '''
         Merge the information in C{other} into self. In case of conflicts, the information
         in C{other} takes precedence, unless the information in C{other} is NULL.
         '''
 
-        MetaInformation.smart_update(self, other, replace_tags=True)
+        MetaInformation.smart_update(self, other, replace_metadata)
 
         for attr in self.BOOK_ATTRS:
             if hasattr(other, attr):
@@ -116,7 +116,7 @@ class BookList(_BookList):
             self.append(book)
             return True
         if replace_metadata:
-            self[b].smart_update(book)
+            self[b].smart_update(book, replace_metadata=True)
             return True
         return False
 
