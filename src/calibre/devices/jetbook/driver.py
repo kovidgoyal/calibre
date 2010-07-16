@@ -80,3 +80,21 @@ class JETBOOK(USBMS):
 
         return mi
 
+class MIBUK(USBMS):
+
+    name           = 'MiBuk Wolder Device Interface'
+    description    = _('Communicate with the MiBuk Wolder reader.')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    FORMATS     = ['epub', 'mobi', 'prc', 'fb2', 'txt', 'rtf', 'pdf']
+
+    VENDOR_ID   = [0x0525]
+    PRODUCT_ID  = [0xa4a5]
+    BCD         = [0x314]
+    SUPPORTS_SUB_DIRS = True
+
+    VENDOR_NAME      = 'LINUX'
+    WINDOWS_MAIN_MEM = 'WOLDERMIBUK'
+
+
