@@ -329,6 +329,7 @@ class MainWindowMixin(object):
         self.tool_bar = ToolBar(all_actions, self.donate_button,
                 self.location_manager, self)
         self.addToolBar(Qt.TopToolBarArea, self.tool_bar)
+        self.tool_bar.choose_action.triggered.connect(self.choose_library)
 
         l = self.centralwidget.layout()
         l.addWidget(self.search_bar)
@@ -336,6 +337,12 @@ class MainWindowMixin(object):
 
     def read_toolbar_settings(self):
         pass
+
+    def choose_library(self, *args):
+        from calibre.gui2.dialogs.choose_library import ChooseLibrary
+        db = self.library_view.model().db
+        c = ChooseLibrary(db, self.library_moved, self)
+        c.exec_()
 
     def setup_actions(self): # {{{
         all_actions = []

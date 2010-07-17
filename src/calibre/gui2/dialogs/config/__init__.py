@@ -14,7 +14,7 @@ from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
 from calibre.constants import iswindows, isosx
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
 from calibre.gui2.dialogs.config.create_custom_column import CreateCustomColumn
-from calibre.gui2 import choose_dir, error_dialog, config, gprefs, \
+from calibre.gui2 import error_dialog, config, gprefs, \
         open_url, open_local_file, \
         ALL_COLUMNS, NONE, info_dialog, choose_files, \
         warning_dialog, ResizableDialog, question_dialog
@@ -343,9 +343,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.model = library_view.model()
         self.db = self.model.db
         self.server = server
-        path = prefs['library_path']
-        self.location.setText(path if path else '')
-        self.connect(self.browse_button, SIGNAL('clicked(bool)'), self.browse)
         self.connect(self.compact_button, SIGNAL('clicked(bool)'), self.compact)
 
         input_map = prefs['input_format_order']
@@ -808,12 +805,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         d = CheckIntegrity(self.db, self)
         d.exec_()
 
-    def browse(self):
-        dir = choose_dir(self, 'database location dialog',
-                         _('Select location for books'))
-        if dir:
-            self.location.setText(dir)
-
     def accept(self):
         mcs = unicode(self.max_cover_size.text()).strip()
         if not re.match(r'\d+x\d+', mcs):
@@ -834,7 +825,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
         prefs['network_timeout'] = int(self.timeout.value())
-        path = unicode(self.location.text())
         input_cols = [unicode(self.input_order.item(i).data(Qt.UserRole).toString()) for i in range(self.input_order.count())]
         prefs['input_format_order'] = input_cols
 
@@ -875,24 +865,13 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         val = self.opt_gui_layout.itemData(self.opt_gui_layout.currentIndex()).toString()
         config['gui_layout'] = unicode(val)
 
-        if not path or not os.path.exists(path) or not os.path.isdir(path):
-            d = error_dialog(self, _('Invalid database location'),
-                             _('Invalid database location ')+path+
-                             _('<br>Must be a directory.'))
-            d.exec_()
-        elif not os.access(path, os.W_OK):
-            d = error_dialog(self, _('Invalid database location'),
-                     _('Invalid database location.<br>Cannot write to ')+path)
-            d.exec_()
-        else:
-            self.database_location = os.path.abspath(path)
-            if must_restart:
-                warning_dialog(self, _('Must restart'),
-                        _('The changes you made require that Calibre be '
-                            'restarted. Please restart as soon as practical.'),
-                        show=True, show_copy_button=False)
-                self.parent.must_restart_before_config = True
-            QDialog.accept(self)
+        if must_restart:
+            warning_dialog(self, _('Must restart'),
+                    _('The changes you made require that Calibre be '
+                        'restarted. Please restart as soon as practical.'),
+                    show=True, show_copy_button=False)
+            self.parent.must_restart_before_config = True
+        QDialog.accept(self)
 
 class VacThread(QThread):
 

@@ -18,7 +18,7 @@ from PyQt4.Qt import Qt, SIGNAL, QTimer, \
                      QSystemTrayIcon, QApplication, QKeySequence, QAction, \
                      QMessageBox, QHelpEvent
 
-from calibre import  prints, patheq
+from calibre import  prints
 from calibre.constants import __appname__, isosx
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
@@ -27,7 +27,6 @@ from calibre.gui2 import error_dialog, GetMetadata, open_local_file, \
         gprefs, max_available_height, config, info_dialog
 from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator
-from calibre.gui2.wizard import move_library
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import UpdateMixin
 from calibre.gui2.main_window import MainWindow
@@ -389,10 +388,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
             self.tags_view.recount()
             self.create_device_menu()
             self.set_device_menu_items_state(bool(self.device_connected))
-            if not patheq(self.library_path, d.database_location):
-                newloc = d.database_location
-                move_library(self.library_path, newloc, self,
-                        self.library_moved)
 
     def library_moved(self, newloc):
         if newloc is None: return
