@@ -235,6 +235,7 @@ class Scheduler(QObject):
         self.oldest = gconf['oldest_news']
         self.oldest_timer.start(int(60 * 60000))
         self.oldest_check()
+        self.database_changed = self.recipe_model.database_changed
 
     def oldest_check(self):
         if self.oldest > 0:

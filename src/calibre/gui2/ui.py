@@ -394,6 +394,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.search.clear_to_help()
         self.book_details.reset_info()
         self.library_view.model().count_changed()
+        self.scheduler.database_changed(db)
         prefs['library_path'] = self.library_path
 
     def show_book_info(self, *args):
