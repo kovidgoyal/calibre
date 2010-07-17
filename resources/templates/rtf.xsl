@@ -265,8 +265,19 @@
             <xsl:value-of select="@line-height"/>
             <xsl:text>pt;</xsl:text>
         </xsl:if>
+        <xsl:if test="(@align = 'just')">
+            <xsl:text>text-align: justify;</xsl:text>
+        </xsl:if>
+        <xsl:if test="(@align = 'cent')">
+            <xsl:text>text-align: center;</xsl:text>
+        </xsl:if>
+        <xsl:if test="(@align = 'left')">
+            <xsl:text>text-align: left;</xsl:text>
+        </xsl:if>
+        <xsl:if test="(@align = 'right')">
+            <xsl:text>text-align: right;</xsl:text>
+        </xsl:if>
     </xsl:template>
-
 
     <xsl:template match="rtf:inline">
         <xsl:variable name="num-attrs" select="count(@*)"/>
