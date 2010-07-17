@@ -27,7 +27,6 @@ from calibre.gui2 import error_dialog, GetMetadata, open_local_file, \
         gprefs, max_available_height, config, info_dialog
 from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator
-from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import UpdateMixin
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.layout import MainWindowMixin
@@ -119,7 +118,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
                 self.another_instance_wants_to_talk)
         self.check_messages_timer.start(1000)
 
-        MainWindowMixin.__init__(self)
+        MainWindowMixin.__init__(self, db)
 
         # Jobs Button {{{
         self.job_manager = JobManager()
@@ -253,24 +252,17 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
                     db, server_config().parse())
             self.test_server_timer = QTimer.singleShot(10000, self.test_server)
 
-
-        self.scheduler = Scheduler(self, self.library_view.model().db)
-        self.action_news.setMenu(self.scheduler.news_menu)
-        self.connect(self.action_news, SIGNAL('triggered(bool)'),
-                self.scheduler.show_dialog)
-        self.connect(self.scheduler, SIGNAL('delete_old_news(PyQt_PyObject)'),
-                self.library_view.model().delete_books_by_id,
-                Qt.QueuedConnection)
-        self.connect(self.scheduler,
-                SIGNAL('start_recipe_fetch(PyQt_PyObject)'),
-                self.download_scheduled_recipe, Qt.QueuedConnection)
-
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
         AddAction.__init__(self)
 
         self.read_settings()
         self.finalize_layout()
         self.donate_button.start_animation()
+
+        self.scheduler.delete_old_news.connect(
+                self.library_view.model().delete_books_by_id,
+                type=Qt.QueuedConnection)
+
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)

@@ -21,6 +21,7 @@ from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre import human_readable
 from calibre.utils.config import prefs
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.gui2.dialogs.scheduler import Scheduler
 
 ICON_SIZE = 48
 
@@ -307,7 +308,7 @@ class Action(QAction):
 
 class MainWindowMixin(object):
 
-    def __init__(self):
+    def __init__(self, db):
         self.device_connected = None
         self.setObjectName('MainWindow')
         self.setWindowIcon(QIcon(I('library.png')))
@@ -323,6 +324,7 @@ class MainWindowMixin(object):
         self.donate_button.set_normal_icon_size(ICON_SIZE, ICON_SIZE)
         self.location_manager = LocationManager(self)
 
+        self.init_scheduler(db)
         all_actions = self.setup_actions()
 
         self.search_bar = SearchBar(self)
@@ -333,6 +335,11 @@ class MainWindowMixin(object):
 
         l = self.centralwidget.layout()
         l.addWidget(self.search_bar)
+
+    def init_scheduler(self, db):
+        self.scheduler = Scheduler(self, db)
+        self.scheduler.start_recipe_fetch.connect(
+                self.download_scheduled_recipe, type=Qt.QueuedConnection)
 
 
     def read_toolbar_settings(self):
@@ -391,6 +398,10 @@ class MainWindowMixin(object):
                 'publisher.png')
         ac(-1, -1, 0, 'books_with_the_same_tags', _('Books with the same tags'),
                 'tags.svg')
+
+        self.action_news.setMenu(self.scheduler.news_menu)
+        self.action_news.triggered.connect(
+                self.scheduler.show_dialog)
 
         self.action_help.triggered.connect(self.show_help)
         md = QMenu()

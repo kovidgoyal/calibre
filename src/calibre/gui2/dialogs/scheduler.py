@@ -10,7 +10,7 @@ Scheduler for automated recipe downloads
 from datetime import timedelta
 
 from PyQt4.Qt import QDialog, SIGNAL, Qt, QTime, QObject, QMenu, \
-        QAction, QIcon, QMutex, QTimer
+        QAction, QIcon, QMutex, QTimer, pyqtSignal
 
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
 from calibre.gui2.search_box import SearchBox2
@@ -203,6 +203,9 @@ class Scheduler(QObject):
 
     INTERVAL = 1 # minutes
 
+    delete_old_news = pyqtSignal(object)
+    start_recipe_fetch = pyqtSignal(object)
+
     def __init__(self, parent, db):
         QObject.__init__(self, parent)
         self.internet_connection_failed = False
@@ -238,7 +241,7 @@ class Scheduler(QObject):
             delta = timedelta(days=self.oldest)
             ids = self.recipe_model.db.tags_older_than(_('News'), delta)
             if ids:
-                self.emit(SIGNAL('delete_old_news(PyQt_PyObject)'), ids)
+                self.delete_old_news.emit(ids)
 
     def show_dialog(self, *args):
         self.lock.lock()
@@ -282,7 +285,7 @@ class Scheduler(QObject):
                     'urn':urn,
                    }
             self.download_queue.add(urn)
-            self.emit(SIGNAL('start_recipe_fetch(PyQt_PyObject)'), arg)
+            self.start_recipe_fetch.emit(arg)
         finally:
             self.lock.unlock()
 
