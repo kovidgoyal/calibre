@@ -6,108 +6,105 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from operator import attrgetter
+from functools import partial
 
-from PyQt4.Qt import QIcon, Qt, QWidget, QAction, QToolBar, QSize, QVariant, \
-    QAbstractListModel, QFont, QApplication, QPalette, pyqtSignal, QToolButton, \
-    QModelIndex, QListView, QAbstractButton, QPainter, QPixmap, QColor, \
-    QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout
+from PyQt4.Qt import QIcon, Qt, QWidget, QAction, QToolBar, QSize, \
+    pyqtSignal, QToolButton, \
+    QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup, \
+    QMenu, QUrl
 
-from calibre.constants import __appname__, filesystem_encoding
+from calibre.constants import __appname__, isosx
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
 from calibre.gui2.throbber import ThrobbingButton
-from calibre.gui2 import NONE, config
+from calibre.gui2 import config, open_url
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre import human_readable
+from calibre.utils.config import prefs
+from calibre.ebooks import BOOK_EXTENSIONS
 
 ICON_SIZE = 48
 
-# Location View {{{
+class SaveMenu(QMenu): # {{{
 
-class LocationModel(QAbstractListModel): # {{{
-
-    devicesChanged = pyqtSignal()
+    save_fmt = pyqtSignal(object)
 
     def __init__(self, parent):
-        QAbstractListModel.__init__(self, parent)
-        self.icons = [QVariant(QIcon(I('library.png'))),
-                      QVariant(QIcon(I('reader.svg'))),
-                      QVariant(QIcon(I('sd.svg'))),
-                      QVariant(QIcon(I('sd.svg')))]
-        self.text = [_('Library\n%d books'),
-                     _('Reader\n%s'),
-                     _('Card A\n%s'),
-                     _('Card B\n%s')]
+        QMenu.__init__(self, _('Save single format to disk...'), parent)
+        for ext in sorted(BOOK_EXTENSIONS):
+            action = self.addAction(ext.upper())
+            setattr(self, 'do_'+ext, partial(self.do, ext))
+            action.triggered.connect(
+                    getattr(self, 'do_'+ext))
+
+    def do(self, ext, *args):
+        self.save_fmt.emit(ext)
+
+# }}}
+
+class LocationManager(QObject): # {{{
+
+    locations_changed = pyqtSignal()
+    unmount_device = pyqtSignal()
+    location_selected = pyqtSignal(object)
+
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent)
         self.free = [-1, -1, -1]
         self.count = 0
-        self.highlight_row = 0
-        self.library_tooltip = _('Click to see the books available on your computer')
-        self.tooltips = [
-                         self.library_tooltip,
-                         _('Click to see the books in the main memory of your reader'),
-                         _('Click to see the books on storage card A in your reader'),
-                         _('Click to see the books on storage card B in your reader')
-                         ]
+        self.location_actions = QActionGroup(self)
+        self.location_actions.setExclusive(True)
+        self.current_location = 'library'
+        self._mem = []
+        self.tooltips = {}
 
-    def database_changed(self, db):
-        lp = db.library_path
-        if not isinstance(lp, unicode):
-            lp = lp.decode(filesystem_encoding, 'replace')
-        self.tooltips[0] = self.library_tooltip + '\n\n' + \
-                _('Books located at') + ' ' + lp
-        self.dataChanged.emit(self.index(0), self.index(0))
+        def ac(name, text, icon, tooltip):
+            icon = QIcon(I(icon))
+            ac = self.location_actions.addAction(icon, text)
+            setattr(self, 'location_'+name, ac)
+            ac.setAutoRepeat(False)
+            ac.setCheckable(True)
+            receiver = partial(self._location_selected, name)
+            ac.triggered.connect(receiver)
+            self.tooltips[name] = tooltip
+            if name != 'library':
+                m = QMenu(parent)
+                self._mem.append(m)
+                a = m.addAction(icon, tooltip)
+                a.triggered.connect(receiver)
+                self._mem.append(a)
+                a = m.addAction(QIcon(I('eject.svg')), _('Eject this device'))
+                a.triggered.connect(self._eject_requested)
+                ac.setMenu(m)
+                self._mem.append(a)
+            else:
+                ac.setToolTip(tooltip)
 
-    def rowCount(self, *args):
-        return 1 + len([i for i in self.free if i >= 0])
+            return ac
 
-    def get_device_row(self, row):
-        if row == 2 and self.free[1] == -1 and self.free[2] > -1:
-            row = 3
-        return row
+        ac('library', _('Library'), 'lt.png',
+                _('Show books in calibre library'))
+        ac('main', _('Main'), 'reader.svg',
+                _('Show books in the main memory of the device'))
+        ac('carda', _('Card A'), 'sd.svg',
+                _('Show books in storage card A'))
+        ac('cardb', _('Card B'), 'sd.svg',
+                _('Show books in storage card B'))
 
-    def get_tooltip(self, row, drow):
-        ans = self.tooltips[row]
-        if row > 0:
-            fs = self.free[drow-1]
-            if fs > -1:
-                ans += '\n\n%s '%(human_readable(fs)) + _('free')
-        return ans
+    def _location_selected(self, location, *args):
+        if location != self.current_location and hasattr(self,
+                'location_'+location):
+            self.current_location = location
+            self.location_selected.emit(location)
+            getattr(self, 'location_'+location).setChecked(True)
 
-    def data(self, index, role):
-        row = index.row()
-        drow = self.get_device_row(row)
-        data = NONE
-        if role == Qt.DisplayRole:
-            text = self.text[drow]%(human_readable(self.free[drow-1])) if row > 0 \
-                            else self.text[drow]%self.count
-            data = QVariant(text)
-        elif role == Qt.DecorationRole:
-            data = self.icons[drow]
-        elif role in (Qt.ToolTipRole, Qt.StatusTipRole):
-            ans = self.get_tooltip(row, drow)
-            data = QVariant(ans)
-        elif role == Qt.SizeHintRole:
-            data = QVariant(QSize(155, 90))
-        elif role == Qt.FontRole:
-            font = QFont('monospace')
-            font.setBold(row == self.highlight_row)
-            data = QVariant(font)
-        elif role == Qt.ForegroundRole and row == self.highlight_row:
-            return QVariant(QApplication.palette().brush(
-                QPalette.HighlightedText))
-        elif role == Qt.BackgroundRole and row == self.highlight_row:
-            return QVariant(QApplication.palette().brush(
-                QPalette.Highlight))
+    def _eject_requested(self, *args):
+        self.unmount_device.emit()
 
-        return data
-
-    def device_connected(self, dev):
-        self.icons[1] = QIcon(dev.icon)
-        self.dataChanged.emit(self.index(1), self.index(1))
-
-    def headerData(self, section, orientation, role):
-        return NONE
-
-    def update_devices(self, cp=(None, None), fs=[-1, -1, -1]):
+    def update_devices(self, cp=(None, None), fs=[-1, -1, -1], icon=None):
+        if icon is None:
+            icon = I('reader.svg')
+        self.location_main.setIcon(QIcon(icon))
+        had_device = self.has_device
         if cp is None:
             cp = (None, None)
         if isinstance(cp, (str, unicode)):
@@ -120,137 +117,34 @@ class LocationModel(QAbstractListModel): # {{{
         cpa, cpb = cp
         self.free[1] = fs[1] if fs[1] is not None and cpa is not None else -1
         self.free[2] = fs[2] if fs[2] is not None and cpb is not None else -1
-        self.reset()
-        self.devicesChanged.emit()
+        self.update_tooltips()
+        if self.has_device != had_device:
+            self.locations_changed.emit()
+            if not self.has_device:
+                self.location_library.trigger()
 
-    def location_changed(self, row):
-        self.highlight_row = row
-        self.dataChanged.emit(
-                self.index(0), self.index(self.rowCount(QModelIndex())-1))
+    def update_tooltips(self):
+        for i, loc in enumerate(('main', 'carda', 'cardb')):
+            t = self.tooltips[loc]
+            if self.free[i] > -1:
+                t += u'\n\n%s '%human_readable(self.free[i]) + _('available')
+            ac = getattr(self, 'location_'+loc)
+            ac.setToolTip(t)
+            ac.setWhatsThis(t)
+            ac.setStatusTip(t)
 
-    def location_for_row(self, row):
-        if row == 0: return 'library'
-        if row == 1: return 'main'
-        if row == 3: return 'cardb'
-        return 'carda' if self.free[1] > -1 else 'cardb'
-
-# }}}
-
-class LocationView(QListView):
-
-    umount_device = pyqtSignal()
-    location_selected = pyqtSignal(object)
-
-    def __init__(self, parent):
-        QListView.__init__(self, parent)
-        self.setModel(LocationModel(self))
-        self.reset()
-        self.currentChanged = self.current_changed
-
-        self.eject_button = EjectButton(self)
-        self.eject_button.hide()
-
-        self.entered.connect(self.item_entered)
-        self.viewportEntered.connect(self.viewport_entered)
-        self.eject_button.clicked.connect(self.eject_clicked)
-        self.model().devicesChanged.connect(self.eject_button.hide)
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
-            QSizePolicy.Expanding))
-        self.setMouseTracking(True)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.setEditTriggers(self.NoEditTriggers)
-        self.setTabKeyNavigation(True)
-        self.setProperty("showDropIndicator", True)
-        self.setSelectionMode(self.SingleSelection)
-        self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
-        self.setMovement(self.Static)
-        self.setFlow(self.LeftToRight)
-        self.setGridSize(QSize(175, ICON_SIZE))
-        self.setViewMode(self.ListMode)
-        self.setWordWrap(True)
-        self.setObjectName("location_view")
-        self.setMaximumSize(QSize(600, ICON_SIZE+16))
-        self.setMinimumWidth(400)
-
-    def eject_clicked(self, *args):
-        self.umount_device.emit()
-
-    def count_changed(self, new_count):
-        self.model().count = new_count
-        self.model().reset()
 
     @property
-    def book_count(self):
-        return self.model().count
+    def has_device(self):
+        return max(self.free) > -1
 
-    def current_changed(self, current, previous):
-        if current.isValid():
-            i = current.row()
-            location = self.model().location_for_row(i)
-            self.location_selected.emit(location)
-            self.model().location_changed(i)
-
-    def location_changed(self, row):
-        if 0 <= row and row <= 3:
-            self.model().location_changed(row)
-
-    def leaveEvent(self, event):
-        self.unsetCursor()
-        self.eject_button.hide()
-
-    def item_entered(self, location):
-        self.setCursor(Qt.PointingHandCursor)
-        self.eject_button.hide()
-
-        if location.row() == 1:
-            rect = self.visualRect(location)
-
-            self.eject_button.resize(rect.height()/2, rect.height()/2)
-
-            x, y = rect.left(), rect.top()
-            x = x + (rect.width() - self.eject_button.width() - 2)
-            y += 6
-
-            self.eject_button.move(x, y)
-            self.eject_button.show()
-
-    def viewport_entered(self):
-        self.unsetCursor()
-        self.eject_button.hide()
-
-
-class EjectButton(QAbstractButton):
-
-    def __init__(self, parent):
-        QAbstractButton.__init__(self, parent)
-        self.mouse_over = False
-        self.setMouseTracking(True)
-
-    def enterEvent(self, event):
-        self.mouse_over = True
-        QAbstractButton.enterEvent(self, event)
-
-    def leaveEvent(self, event):
-        self.mouse_over = False
-        QAbstractButton.leaveEvent(self, event)
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setClipRect(event.rect())
-        image = QPixmap(I('eject')).scaledToHeight(event.rect().height(),
-            Qt.SmoothTransformation)
-
-        if not self.mouse_over:
-            alpha_mask = QPixmap(image.width(), image.height())
-            color = QColor(128, 128, 128)
-            alpha_mask.fill(color)
-            image.setAlphaChannel(alpha_mask)
-
-        painter.drawPixmap(0, 0, image)
-
-
-
+    @property
+    def available_actions(self):
+        ans = [self.location_library]
+        for i, loc in enumerate(('main', 'carda', 'cardb')):
+            if self.free[i] > -1:
+                ans.append(getattr(self, 'location_'+loc))
+        return ans
 
 # }}}
 
@@ -326,7 +220,7 @@ class SearchBar(QWidget): # {{{
 
 class ToolBar(QToolBar): # {{{
 
-    def __init__(self, actions, donate, location_view, parent=None):
+    def __init__(self, actions, donate, location_manager, parent=None):
         QToolBar.__init__(self, parent)
         self.setContextMenuPolicy(Qt.PreventContextMenu)
         self.setMovable(False)
@@ -335,11 +229,12 @@ class ToolBar(QToolBar): # {{{
         self.setAllowedAreas(Qt.TopToolBarArea|Qt.BottomToolBarArea)
         self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.setStyleSheet('QToolButton:checked { font-weight: bold }')
 
-        self.showing_device = False
         self.all_actions = actions
         self.donate = donate
-        self.location_view = location_view
+        self.location_manager = location_manager
+        self.location_manager.locations_changed.connect(self.build_bar)
         self.d_widget = QWidget()
         self.d_widget.setLayout(QVBoxLayout())
         self.d_widget.layout().addWidget(donate)
@@ -350,40 +245,45 @@ class ToolBar(QToolBar): # {{{
     def contextMenuEvent(self, *args):
         pass
 
-    def device_status_changed(self, connected):
-        self.showing_device = connected
-        self.build_bar()
-
     def build_bar(self):
-        order_field = 'device' if self.showing_device else 'normal'
+        showing_device = self.location_manager.has_device
+        order_field = 'device' if showing_device else 'normal'
         o = attrgetter(order_field+'_order')
-        sepvals = [2] if self.showing_device else [1]
+        sepvals = [2] if showing_device else [1]
         sepvals += [3]
         actions = [x for x in self.all_actions if o(x) > -1]
         actions.sort(cmp=lambda x,y : cmp(o(x), o(y)))
         self.clear()
-        for x in actions:
-            self.addAction(x)
-            ch = self.widgetForAction(x)
+
+
+        def setup_tool_button(ac):
+            ch = self.widgetForAction(ac)
             ch.setCursor(Qt.PointingHandCursor)
             ch.setAutoRaise(True)
-
-            if x.action_name == 'choose_library':
-                self.location_action = self.addWidget(self.location_view)
-                self.choose_action = x
-                if config['show_donate_button']:
-                    self.addWidget(self.d_widget)
-            if x.action_name not in ('choose_library', 'help'):
+            if ac.menu() is not None:
                 ch.setPopupMode(ch.MenuButtonPopup)
 
+        for x in actions:
+            self.addAction(x)
+            setup_tool_button(x)
+
+            if x.action_name == 'choose_library':
+                self.choose_action = x
+                if showing_device:
+                    self.addSeparator()
+                    for ac in self.location_manager.available_actions:
+                        self.addAction(ac)
+                        setup_tool_button(ac)
+                    self.addSeparator()
+                    self.location_manager.location_library.trigger()
+                elif config['show_donate_button']:
+                    self.addWidget(self.d_widget)
 
         for x in actions:
             if x.separator_before in sepvals:
                 self.insertSeparator(x)
 
-
-        self.location_action.setVisible(self.showing_device)
-        self.choose_action.setVisible(not self.showing_device)
+        self.choose_action.setVisible(not showing_device)
 
     def count_changed(self, new_count):
         text = _('%d books')%new_count
@@ -397,6 +297,9 @@ class ToolBar(QToolBar): # {{{
         self.setToolButtonStyle(style)
         QToolBar.resizeEvent(self, ev)
 
+    def database_changed(self, db):
+        pass
+
 # }}}
 
 class Action(QAction):
@@ -405,6 +308,7 @@ class Action(QAction):
 class MainWindowMixin(object):
 
     def __init__(self):
+        self.device_connected = None
         self.setObjectName('MainWindow')
         self.setWindowIcon(QIcon(I('library.png')))
         self.setWindowTitle(__appname__)
@@ -417,9 +321,23 @@ class MainWindowMixin(object):
         self.resize(1012, 740)
         self.donate_button = ThrobbingButton(self.centralwidget)
         self.donate_button.set_normal_icon_size(ICON_SIZE, ICON_SIZE)
+        self.location_manager = LocationManager(self)
 
-        # Actions {{{
+        all_actions = self.setup_actions()
 
+        self.search_bar = SearchBar(self)
+        self.tool_bar = ToolBar(all_actions, self.donate_button,
+                self.location_manager, self)
+        self.addToolBar(Qt.TopToolBarArea, self.tool_bar)
+
+        l = self.centralwidget.layout()
+        l.addWidget(self.search_bar)
+
+
+    def read_toolbar_settings(self):
+        pass
+
+    def setup_actions(self): # {{{
         all_actions = []
 
         def ac(normal_order, device_order, separator_before,
@@ -467,17 +385,135 @@ class MainWindowMixin(object):
         ac(-1, -1, 0, 'books_with_the_same_tags', _('Books with the same tags'),
                 'tags.svg')
 
-        # }}}
+        self.action_help.triggered.connect(self.show_help)
+        md = QMenu()
+        md.addAction(_('Edit metadata individually'),
+                partial(self.edit_metadata, False, bulk=False))
+        md.addSeparator()
+        md.addAction(_('Edit metadata in bulk'),
+                partial(self.edit_metadata, False, bulk=True))
+        md.addSeparator()
+        md.addAction(_('Download metadata and covers'),
+                partial(self.download_metadata, False, covers=True),
+                Qt.ControlModifier+Qt.Key_D)
+        md.addAction(_('Download only metadata'),
+                partial(self.download_metadata, False, covers=False))
+        md.addAction(_('Download only covers'),
+                partial(self.download_metadata, False, covers=True,
+                    set_metadata=False, set_social_metadata=False))
+        md.addAction(_('Download only social metadata'),
+                partial(self.download_metadata, False, covers=False,
+                    set_metadata=False, set_social_metadata=True))
+        self.metadata_menu = md
 
-        self.location_view = LocationView(self.centralwidget)
-        self.search_bar = SearchBar(self)
-        self.tool_bar = ToolBar(all_actions, self.donate_button, self.location_view, self)
-        self.addToolBar(Qt.TopToolBarArea, self.tool_bar)
+        mb = QMenu()
+        mb.addAction(_('Merge into first selected book - delete others'),
+                self.merge_books)
+        mb.addSeparator()
+        mb.addAction(_('Merge into first selected book - keep others'),
+                partial(self.merge_books, safe_merge=True))
+        self.merge_menu = mb
+        self.action_merge.setMenu(mb)
+        md.addSeparator()
+        md.addAction(self.action_merge)
 
-        l = self.centralwidget.layout()
-        l.addWidget(self.search_bar)
+        self.add_menu = QMenu()
+        self.add_menu.addAction(_('Add books from a single directory'),
+                self.add_books)
+        self.add_menu.addAction(_('Add books from directories, including '
+            'sub-directories (One book per directory, assumes every ebook '
+            'file is the same book in a different format)'),
+            self.add_recursive_single)
+        self.add_menu.addAction(_('Add books from directories, including '
+            'sub directories (Multiple books per directory, assumes every '
+            'ebook file is a different book)'), self.add_recursive_multiple)
+        self.add_menu.addAction(_('Add Empty book. (Book entry with no '
+            'formats)'), self.add_empty)
+        self.action_add.setMenu(self.add_menu)
+        self.action_add.triggered.connect(self.add_books)
+        self.action_del.triggered.connect(self.delete_books)
+        self.action_edit.triggered.connect(self.edit_metadata)
+        self.action_merge.triggered.connect(self.merge_books)
 
+        self.action_save.triggered.connect(self.save_to_disk)
+        self.save_menu = QMenu()
+        self.save_menu.addAction(_('Save to disk'), partial(self.save_to_disk,
+            False))
+        self.save_menu.addAction(_('Save to disk in a single directory'),
+                partial(self.save_to_single_dir, False))
+        self.save_menu.addAction(_('Save only %s format to disk')%
+                prefs['output_format'].upper(),
+                partial(self.save_single_format_to_disk, False))
+        self.save_menu.addAction(
+                _('Save only %s format to disk in a single directory')%
+                prefs['output_format'].upper(),
+                partial(self.save_single_fmt_to_single_dir, False))
+        self.save_sub_menu = SaveMenu(self)
+        self.save_menu.addMenu(self.save_sub_menu)
+        self.save_sub_menu.save_fmt.connect(self.save_specific_format_disk)
 
-    def read_toolbar_settings(self):
-        pass
+        self.action_view.triggered.connect(self.view_book)
+        self.view_menu = QMenu()
+        self.view_menu.addAction(_('View'), partial(self.view_book, False))
+        ac = self.view_menu.addAction(_('View specific format'))
+        ac.setShortcut((Qt.ControlModifier if isosx else Qt.AltModifier)+Qt.Key_V)
+        self.action_view.setMenu(self.view_menu)
+        ac.triggered.connect(self.view_specific_format, type=Qt.QueuedConnection)
+
+        self.delete_menu = QMenu()
+        self.delete_menu.addAction(_('Remove selected books'), self.delete_books)
+        self.delete_menu.addAction(
+                _('Remove files of a specific format from selected books..'),
+                self.delete_selected_formats)
+        self.delete_menu.addAction(
+                _('Remove all formats from selected books, except...'),
+                self.delete_all_but_selected_formats)
+        self.delete_menu.addAction(
+                _('Remove covers from selected books'), self.delete_covers)
+        self.delete_menu.addSeparator()
+        self.delete_menu.addAction(
+                _('Remove matching books from device'),
+                self.remove_matching_books_from_device)
+        self.action_del.setMenu(self.delete_menu)
+
+        self.action_open_containing_folder.setShortcut(Qt.Key_O)
+        self.addAction(self.action_open_containing_folder)
+        self.action_open_containing_folder.triggered.connect(self.view_folder)
+        self.action_sync.setShortcut(Qt.Key_D)
+        self.action_sync.setEnabled(True)
+        self.create_device_menu()
+        self.action_sync.triggered.connect(
+                self._sync_action_triggered)
+
+        self.action_edit.setMenu(md)
+        self.action_save.setMenu(self.save_menu)
+
+        cm = QMenu()
+        cm.addAction(_('Convert individually'), partial(self.convert_ebook,
+            False, bulk=False))
+        cm.addAction(_('Bulk convert'),
+                partial(self.convert_ebook, False, bulk=True))
+        cm.addSeparator()
+        ac = cm.addAction(
+                _('Create catalog of books in your calibre library'))
+        ac.triggered.connect(self.generate_catalog)
+        self.action_convert.setMenu(cm)
+        self.action_convert.triggered.connect(self.convert_ebook)
+        self.convert_menu = cm
+
+        pm = QMenu()
+        pm.addAction(QIcon(I('config.svg')), _('Preferences'), self.do_config)
+        pm.addAction(QIcon(I('wizard.svg')), _('Run welcome wizard'),
+                self.run_wizard)
+        self.action_preferences.setMenu(pm)
+        self.preferences_menu = pm
+        for x in (self.preferences_action, self.action_preferences):
+            x.triggered.connect(self.do_config)
+
+        return all_actions
+    # }}}
+
+    def show_help(self, *args):
+        open_url(QUrl('http://calibre-ebook.com/user_manual'))
+
 

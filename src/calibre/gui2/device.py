@@ -638,7 +638,6 @@ class DeviceMixin(object): # {{{
         self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
-        self.device_connected = None
         self.emailer = Emailer()
         self.emailer.start()
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
@@ -755,17 +754,14 @@ class DeviceMixin(object): # {{{
                 self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
             self.device_connected = device_kind
-            self.location_view.model().device_connected(self.device_manager.device)
             self.refresh_ondevice_info (device_connected = True, reset_only = True)
         else:
             self.device_connected = None
             self.status_bar.device_disconnected()
-            self.location_view.model().update_devices()
             if self.current_view() != self.library_view:
                 self.book_details.reset_info()
-                self.location_view.setCurrentIndex(self.location_view.model().index(0))
-            self.refresh_ondevice_info (device_connected = False)
-        self.tool_bar.device_status_changed(bool(connected))
+            self.location_manager.update_devices()
+            self.refresh_ondevice_info(device_connected=False)
 
     def info_read(self, job):
         '''
@@ -774,7 +770,8 @@ class DeviceMixin(object): # {{{
         if job.failed:
             return self.device_job_exception(job)
         info, cp, fs = job.result
-        self.location_view.model().update_devices(cp, fs)
+        self.location_manager.update_devices(cp, fs,
+                self.device_manager.device.icon)
         self.status_bar.device_connected(info[0])
         self.device_manager.books(Dispatcher(self.metadata_downloaded))
 
@@ -1076,9 +1073,9 @@ class DeviceMixin(object): # {{{
             dynamic.set('catalogs_to_be_synced', set([]))
             if files:
                 remove = []
-                space = { self.location_view.model().free[0] : None,
-                    self.location_view.model().free[1] : 'carda',
-                    self.location_view.model().free[2] : 'cardb' }
+                space = { self.location_manager.free[0] : None,
+                    self.location_manager.free[1] : 'carda',
+                    self.location_manager.free[2] : 'cardb' }
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
@@ -1140,9 +1137,9 @@ class DeviceMixin(object): # {{{
             dynamic.set('news_to_be_synced', set([]))
             if config['upload_news_to_device'] and files:
                 remove = ids if del_on_upload else []
-                space = { self.location_view.model().free[0] : None,
-                    self.location_view.model().free[1] : 'carda',
-                    self.location_view.model().free[2] : 'cardb' }
+                space = { self.location_manager.free[0] : None,
+                    self.location_manager.free[1] : 'carda',
+                    self.location_manager.free[2] : 'cardb' }
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
@@ -1263,7 +1260,8 @@ class DeviceMixin(object): # {{{
             self.device_job_exception(job)
             return
         cp, fs = job.result
-        self.location_view.model().update_devices(cp, fs)
+        self.location_manager.update_devices(cp, fs,
+                self.device_manager.device.icon)
         # reset the views so that up-to-date info is shown. These need to be
         # here because the sony driver updates collections in sync_booklists
         self.memory_view.reset()

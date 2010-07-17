@@ -12,7 +12,7 @@ __docformat__ = 'restructuredtext en'
 import collections, os, sys, textwrap, time
 from Queue import Queue, Empty
 from threading import Thread
-from PyQt4.Qt import Qt, SIGNAL, QObject, QTimer, \
+from PyQt4.Qt import Qt, SIGNAL, QTimer, \
                      QPixmap, QMenu, QIcon, pyqtSignal, \
                      QDialog, \
                      QSystemTrayIcon, QApplication, QKeySequence, QAction, \
@@ -38,7 +38,7 @@ from calibre.gui2.dialogs.config import ConfigDialog
 
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.library.database2 import LibraryDatabase2
-from calibre.gui2.init import ToolbarMixin, LibraryViewMixin, LayoutMixin
+from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_view import TagBrowserMixin
@@ -91,7 +91,7 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 # }}}
 
-class Main(MainWindow, MainWindowMixin, DeviceMixin, ToolbarMixin, # {{{
+class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
         SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
         AnnotationsAction, AddAction, DeleteAction,
@@ -192,20 +192,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, ToolbarMixin, # {{{
         ####################### Start spare job server ########################
         QTimer.singleShot(1000, self.add_spare_server)
 
-        ####################### Location View ########################
-        QObject.connect(self.location_view,
-                SIGNAL('location_selected(PyQt_PyObject)'),
-                        self.location_selected)
-        QObject.connect(self.location_view,
-                SIGNAL('umount_device()'),
-                        self.device_manager.umount_device)
+        ####################### Location Manager ########################
+        self.location_manager.location_selected.connect(self.location_selected)
+        self.location_manager.unmount_device.connect(self.device_manager.umount_device)
         self.eject_action.triggered.connect(self.device_manager.umount_device)
 
         #################### Update notification ###################
         UpdateMixin.__init__(self, opts)
-
-        ####################### Setup Toolbar #####################
-        ToolbarMixin.__init__(self)
 
         ####################### Search boxes ########################
         SavedSearchBoxMixin.__init__(self)
@@ -218,7 +211,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, ToolbarMixin, # {{{
 
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
-        for t in (self.location_view, self.tool_bar):
+        for t in (self.tool_bar, ):
             self.library_view.model().count_changed_signal.connect \
                                             (t.count_changed)
         if not gprefs.get('quick_start_guide_added', False):
@@ -235,8 +228,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, ToolbarMixin, # {{{
                 self.db_images.reset()
 
         self.library_view.model().count_changed()
-        self.location_view.model().database_changed(self.library_view.model().db)
-        self.library_view.model().database_changed.connect(self.location_view.model().database_changed,
+        self.tool_bar.database_changed(self.library_view.model().db)
+        self.library_view.model().database_changed.connect(self.tool_bar.database_changed,
                 type=Qt.QueuedConnection)
 
         ########################### Tags Browser ##############################
