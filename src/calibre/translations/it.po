@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-10 16:12+0000\n"
-"PO-Revision-Date: 2010-07-11 17:14+0000\n"
+"PO-Revision-Date: 2010-07-16 07:15+0000\n"
 "Last-Translator: MeltingShell <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-12 03:45+0000\n"
+"X-Launchpad-Export-Date: 2010-07-17 03:51+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -5850,7 +5850,7 @@ msgstr " secondi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:564
 msgid "Choose &language (requires restart):"
-msgstr "Ling&ua (richiede il riavvio):"
+msgstr "Ling&ua (richiede riavvio):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:565
 msgid "Normal"
@@ -5882,7 +5882,7 @@ msgstr "&Usa numeri romani per i numeri di serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:574
 msgid "Enable system &tray icon (needs restart)"
-msgstr "Abilita l'icona nel vassoio di sistema (richiede il riavvio)"
+msgstr "Abilita l'icona nel vassoio di sistema (richiede riavvio)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:575
 msgid "Show &notifications in system tray"
