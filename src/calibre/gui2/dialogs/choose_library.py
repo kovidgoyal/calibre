@@ -24,6 +24,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
         self.db = db
         self.new_db = None
         self.callback = callback
+        self.location.initialize('choose_library_dialog')
 
         lp = db.library_path
         if isbytestring(lp):
@@ -85,4 +86,5 @@ class ChooseLibrary(QDialog, Ui_Dialog):
                 loc):
             return
         QDialog.accept(self)
+        self.location.save_history()
         self.perform_action(action, loc)
