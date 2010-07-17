@@ -228,13 +228,13 @@ class Scheduler(QObject):
                 self.download_all_scheduled)
 
         self.timer = QTimer(self)
-        self.timer.start(int(self.INTERVAL * 60000))
+        self.timer.start(int(self.INTERVAL * 60 * 1000))
         self.oldest_timer = QTimer()
         self.connect(self.oldest_timer, SIGNAL('timeout()'), self.oldest_check)
         self.connect(self.timer, SIGNAL('timeout()'), self.check)
         self.oldest = gconf['oldest_news']
-        self.oldest_timer.start(int(60 * 60000))
-        self.oldest_check()
+        self.oldest_timer.start(int(60 * 60 * 1000))
+        QTimer.singleShot(10 * 1000, self.oldest_check)
         self.database_changed = self.recipe_model.database_changed
 
     def oldest_check(self):
@@ -242,7 +242,9 @@ class Scheduler(QObject):
             delta = timedelta(days=self.oldest)
             ids = self.recipe_model.db.tags_older_than(_('News'), delta)
             if ids:
-                self.delete_old_news.emit(ids)
+                ids = list(ids)
+                if ids:
+                    self.delete_old_news.emit(ids)
 
     def show_dialog(self, *args):
         self.lock.lock()
