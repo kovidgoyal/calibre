@@ -475,7 +475,8 @@ class Style(object):
             value = float(m.group(1))
             unit = m.group(2)
             if unit == '%':
-                base = base or self.width
+                if base is None:
+                    base = self.width
                 result = (value / 100.0) * base
             elif unit == 'px':
                 result = value * 72.0 / self._profile.dpi
