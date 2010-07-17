@@ -83,7 +83,7 @@ class LocationManager(QObject): # {{{
 
         ac('library', _('Library'), 'lt.png',
                 _('Show books in calibre library'))
-        ac('main', _('Main'), 'reader.svg',
+        ac('main', _('Reader'), 'reader.svg',
                 _('Show books in the main memory of the device'))
         ac('carda', _('Card A'), 'sd.svg',
                 _('Show books in storage card A'))
