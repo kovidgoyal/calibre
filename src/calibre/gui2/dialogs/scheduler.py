@@ -234,7 +234,7 @@ class Scheduler(QObject):
         self.connect(self.timer, SIGNAL('timeout()'), self.check)
         self.oldest = gconf['oldest_news']
         self.oldest_timer.start(int(60 * 60 * 1000))
-        QTimer.singleShot(10 * 1000, self.oldest_check)
+        QTimer.singleShot(5 * 1000, self.oldest_check)
         self.database_changed = self.recipe_model.database_changed
 
     def oldest_check(self):
