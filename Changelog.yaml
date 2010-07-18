@@ -4,6 +4,72 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.9
+  date: 2010-07-17
+
+  new features:
+    - title: "New unified toolbar"
+      type: major
+      description: >
+        "A new unified toolbar combines the old toolbar and device display, to save space. Now when a device is connected, buttons 
+        are created in the unified toolbar for the device and its storage cards. Click the arrow next to the button to eject the device."
+
+    - title: "Device drivers: Add option to allow calibre to automatically manage metadata on the device in Preferences->Add/Save->Sending to device"
+
+    - title: "BibTeX output for catalogs. The list of books in calibre can now also be output as a .bib file"
+
+    - title: "A new toolbar button to choose/create different calibre libraries. Be careful using it if you also use custom columns."
+
+    - title: "Support for the MiBuk"
+
+  bug fixes:
+    - title: "MOBI metadata: Replace HTML entities in the title read from the MOBI file"
+
+    - title: "Conversion pipeline: Handle elements with percentage sizes that are children of zero size parents correctly."
+      tickets: [6155]
+
+    - title: "Fix regression that made LRF conversion less robust"
+      tickets: [6180]
+
+    - title: "FB2 Input: Handle embedded images correctly, so that EPUB generated from FB2 works with Adobe Digital Editions."
+      tickets: [6183]
+
+    - title: "Fix regression that prevented old news from being deleted in the calibre library if calibre is never kept running for more than an hour"
+
+    - title: "RTF Input: Fix handling of text align and superscript/subscripts"
+      tickets: [3644,5060]
+
+    - title: "Fix long series or publisher names causing convert dialog to become too wide"
+
+    - title: "SONY driver: Fix handling of invalid XML databases with null bytes"
+      tickets: [6165]
+
+    - title: "iTunes driver: Better series_index sorting"
+
+    - title: "Improved editing of dates for custom columns"
+
+    - title: "Linux USB scanner: Don't fail to start calibre if SYFS is not present. Instead simply fail to detect devices"
+      tickets: [6156]
+
+    - title: "Android driver: Show books on device if Aldiko is being used"
+      tickets: [6100]
+
+    - title: "Upgrade to Qt 4.6.3 in all binary builds to ensure proper rendering of the new toolbar icons"
+
+    - title: "Fix handling of entities in epub files by the epub-fix command"
+      tickets: [6136]
+
+  new recipes:
+    - title: "EL Pain Impresso"
+      author: Darko Miletic
+
+    - title: "MIT Technology Review, Alternet, Waco Tribune Herald and Orlando Sentinel"
+      author: rty
+
+  improved recipes:
+    - Google Reader
+
+
 - version: 0.7.8
   date: 2010-07-09
 
