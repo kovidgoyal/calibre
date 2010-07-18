@@ -60,6 +60,9 @@ class FB2Input(InputFormatPlugin):
 
         transform = etree.XSLT(styledoc)
         result = transform(doc)
+        for img in result.xpath('//img[@src]'):
+            src = img.get('src')
+            img.set('src', self.binary_map.get(src, src))
         open('index.xhtml', 'wb').write(transform.tostring(result))
         stream.seek(0)
         mi = get_metadata(stream, 'fb2')
@@ -83,9 +86,15 @@ class FB2Input(InputFormatPlugin):
         return os.path.join(os.getcwd(), 'metadata.opf')
 
     def extract_embedded_content(self, doc):
+        self.binary_map = {}
         for elem in doc.xpath('./*'):
             if 'binary' in elem.tag and elem.attrib.has_key('id'):
+                ct = elem.get('content-type', '')
                 fname = elem.attrib['id']
+                ext = ct.rpartition('/')[-1].lower()
+                if ext in ('png', 'jpeg', 'jpg'):
+                    fname += '.' + ext
+                    self.binary_map[elem.get('id')] = fname
                 data = b64decode(elem.text.strip())
                 open(fname, 'wb').write(data)
 

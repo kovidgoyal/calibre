@@ -60,7 +60,7 @@
    <item>
     <widget class="QPushButton" name="stop_all_jobs_button">
      <property name="text">
-      <string>Stop &amp;all jobs</string>
+      <string>Stop &amp;all non device jobs</string>
      </property>
     </widget>
    </item>

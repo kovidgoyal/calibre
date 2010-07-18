@@ -15,7 +15,7 @@ class Alternet(BasicNewsRecipe):
 	(u'Top Ten Campaigns', u'http://feeds.feedblitz.com/alternet_top_10_campaigns'),
 	(u'Special Coverage Areas', u'http://feeds.feedblitz.com/alternet_coverage')
 	]
-
+    remove_attributes = ['width', 'align','cellspacing']
     remove_javascript = True
     use_embedded_content   = False
     no_stylesheets = True
