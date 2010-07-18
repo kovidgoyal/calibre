@@ -387,3 +387,14 @@ class SchemaUpgrade(object):
 
         self.conn.execute('UPDATE authors SET sort=author_to_author_sort(name)')
 
+    def upgrade_version_12(self):
+        'DB based preference store'
+        script = '''
+        DROP TABLE IF EXISTS preferences;
+        CREATE TABLE preferences(id INTEGER PRIMARY KEY,
+                                 key TEXT NON NULL,
+                                 val TEXT NON NULL,
+                                 UNIQUE(key));
+        '''
+        self.conn.executescript(script)
+

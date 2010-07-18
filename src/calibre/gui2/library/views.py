@@ -218,9 +218,10 @@ class BooksView(QTableView): # {{{
         # Only save if we have been initialized (set_database called)
         if len(self.column_map) > 0 and self.was_restored:
             state = self.get_state()
+            db = getattr(self.model(), 'db', None)
             name = unicode(self.objectName())
-            if name:
-                gprefs.set(name + ' books view state', state)
+            if name and db is not None:
+                db.prefs.set(name + ' books view state', state)
 
     def cleanup_sort_history(self, sort_history):
         history = []
@@ -298,11 +299,27 @@ class BooksView(QTableView): # {{{
                     old_state['column_sizes'][name] += 12
         return old_state
 
-    def restore_state(self):
+    def get_old_state(self):
+        ans = None
         name = unicode(self.objectName())
-        old_state = None
         if name:
-            old_state = gprefs.get(name + ' books view state', None)
+            name += ' books view state'
+            db = getattr(self.model(), 'db', None)
+            if db is not None:
+                ans = db.prefs.get(name, None)
+                if ans is None:
+                    ans = gprefs.get(name, None)
+                    try:
+                        del gprefs[name]
+                    except:
+                        pass
+                    if ans is not None:
+                        db.prefs[name] = ans
+        return ans
+
+
+    def restore_state(self):
+        old_state = self.get_old_state()
         if old_state is None:
             old_state = self.get_default_state()
 
