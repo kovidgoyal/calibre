@@ -192,12 +192,18 @@ class RTFInput(InputFormatPlugin):
         from calibre.ebooks.rtf2xml.ParseRtf import RtfInvalidCodeException
         self.log = log
         self.log('Converting RTF to XML...')
+        #Name of the preprocesssed RTF file
         fname = self.preprocess(stream.name)
         try:
             xml = self.generate_xml(fname)
         except RtfInvalidCodeException, e:
             raise ValueError(_('This RTF file has a feature calibre does not '
             'support. Convert it to HTML first and then try it.\n%s')%e)
+        
+        '''dataxml = open('dataxml.xml', 'w')
+        dataxml.write(xml)
+        dataxml.close'''
+        
         d = glob.glob(os.path.join('*_rtf_pict_dir', 'picts.rtf'))
         if d:
             imap = {}
@@ -205,6 +211,7 @@ class RTFInput(InputFormatPlugin):
                 imap = self.extract_images(d[0])
             except:
                 self.log.exception('Failed to extract images...')
+        
         self.log('Parsing XML...')
         parser = etree.XMLParser(recover=True, no_network=True)
         doc = etree.fromstring(xml, parser=parser)
@@ -214,10 +221,10 @@ class RTFInput(InputFormatPlugin):
             name = imap.get(num, None)
             if name is not None:
                 pict.set('num', name)
+
         self.log('Converting XML to HTML...')
         inline_class = InlineClass(self.log)
         styledoc = etree.fromstring(P('templates/rtf.xsl', data=True))
-
         extensions = { ('calibre', 'inline-class') : inline_class }
         transform = etree.XSLT(styledoc, extensions=extensions)
         result = transform(doc)

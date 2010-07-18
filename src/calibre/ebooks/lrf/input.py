@@ -368,7 +368,15 @@ class LRFInput(InputFormatPlugin):
         if options.verbose > 2:
             open('lrs.xml', 'wb').write(xml.encode('utf-8'))
         parser = etree.XMLParser(no_network=True, huge_tree=True)
-        doc = etree.fromstring(xml, parser=parser)
+        try:
+            doc = etree.fromstring(xml, parser=parser)
+        except:
+            self.log.warn('Failed to parse XML. Trying to recover')
+            parser = etree.XMLParser(no_network=True, huge_tree=True,
+                    recover=True)
+            doc = etree.fromstring(xml, parser=parser)
+
+
         char_button_map = {}
         for x in doc.xpath('//CharButton[@refobj]'):
             ro = x.get('refobj')

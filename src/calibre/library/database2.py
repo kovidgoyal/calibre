@@ -116,6 +116,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # missing functions
         self.books_list_filter = self.conn.create_dynamic_filter('books_list_filter')
 
+    @classmethod
+    def exists_at(cls, path):
+        return path and os.path.exists(os.path.join(path, 'metadata.db'))
+
     def __init__(self, library_path, row_factory=False):
         self.field_metadata = FieldMetadata()
         if not os.path.exists(library_path):
