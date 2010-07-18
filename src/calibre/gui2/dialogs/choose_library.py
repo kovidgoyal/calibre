@@ -10,7 +10,7 @@ import os
 from PyQt4.Qt import QDialog
 
 from calibre.gui2.dialogs.choose_library_ui import Ui_Dialog
-from calibre.gui2 import error_dialog, choose_dir
+from calibre.gui2 import error_dialog, choose_dir, warning_dialog
 from calibre.constants import filesystem_encoding
 from calibre import isbytestring, patheq
 from calibre.utils.config import prefs
@@ -24,6 +24,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
         self.db = db
         self.new_db = None
         self.callback = callback
+        self.location.initialize('choose_library_dialog')
 
         lp = db.library_path
         if isbytestring(lp):
@@ -62,6 +63,12 @@ class ChooseLibrary(QDialog, Ui_Dialog):
 
     def perform_action(self, ac, loc):
         if ac in ('new', 'existing'):
+            warning_dialog(self.parent(), _('Custom columns'),
+                    _('If you use custom columns and they differ between '
+                        'libraries, you will have various problems. Best '
+                        'to ensure you have the same custom columns in each '
+                        'library.'), show=True)
+        if ac in ('new', 'existing'):
             prefs['library_path'] = loc
             self.callback(loc)
         else:
@@ -79,4 +86,5 @@ class ChooseLibrary(QDialog, Ui_Dialog):
                 loc):
             return
         QDialog.accept(self)
+        self.location.save_history()
         self.perform_action(action, loc)

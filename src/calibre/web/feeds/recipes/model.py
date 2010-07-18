@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, copy
 
 from PyQt4.Qt import QAbstractItemModel, QVariant, Qt, QColor, QFont, QIcon, \
-        QModelIndex, SIGNAL
+        QModelIndex, SIGNAL, QMetaObject, pyqtSlot
 
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.gui2 import NONE
@@ -130,6 +130,16 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         self.builtin_recipe_collection = get_builtin_recipe_collection()
         self.scheduler_config = SchedulerConfig()
         self.do_refresh()
+
+    @pyqtSlot()
+    def do_database_change(self):
+        self.db = self.newdb
+        self.newdb = None
+        self.do_refresh()
+
+    def database_changed(self, db):
+        self.newdb = db
+        QMetaObject.invokeMethod(self, 'do_database_change', Qt.QueuedConnection)
 
     def get_builtin_recipe(self, urn, download=True):
         if download:

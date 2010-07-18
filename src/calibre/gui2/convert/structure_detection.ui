@@ -58,7 +58,7 @@
    <item row="9" column="0" colspan="2">
     <widget class="XPathEdit" name="opt_page_breaks_before" native="true"/>
    </item>
-   <item row="10" column="0">
+   <item row="10" column="0" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
