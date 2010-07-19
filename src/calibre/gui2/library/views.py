@@ -214,14 +214,17 @@ class BooksView(QTableView): # {{{
                 state['column_sizes'][name] = h.sectionSize(i)
         return state
 
+    def write_state(self, state):
+        db = getattr(self.model(), 'db', None)
+        name = unicode(self.objectName())
+        if name and db is not None:
+            db.prefs.set(name + ' books view state', state)
+
     def save_state(self):
         # Only save if we have been initialized (set_database called)
         if len(self.column_map) > 0 and self.was_restored:
             state = self.get_state()
-            db = getattr(self.model(), 'db', None)
-            name = unicode(self.objectName())
-            if name and db is not None:
-                db.prefs.set(name + ' books view state', state)
+            self.write_state(state)
 
     def cleanup_sort_history(self, sort_history):
         history = []
@@ -523,6 +526,19 @@ class DeviceBooksView(BooksView): # {{{
             prefs['manage_device_metadata'] == 'manual')
         self.context_menu.popup(event.globalPos())
         event.accept()
+
+    def get_old_state(self):
+        ans = None
+        name = unicode(self.objectName())
+        if name:
+            name += ' books view state'
+            ans = gprefs.get(name, None)
+        return ans
+
+    def write_state(self, state):
+        name = unicode(self.objectName())
+        if name:
+            gprefs.set(name + ' books view state', state)
 
     def set_database(self, db):
         self._model.set_database(db)
