@@ -148,16 +148,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             ans = self.prefs.get(name, None)
             if ans is None:
                 ans = prefs[name]
-                try:
-                    del prefs[name]
-                except:
-                    pass
-                if ans is not None:
-                    self.prefs[name] = ans
+                if ans is None:
+                    raise ValueError('Preference %s is None!'%name)
+                prefs[name] = '###OBSOLETE--DON\'T USE ME###'
+                self.prefs[name] = ans
 
         migrate_preference('user_categories')
         migrate_preference('saved_searches')
-
         set_saved_searches(self, 'saved_searches')
 
         self.conn.executescript('''
