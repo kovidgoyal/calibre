@@ -397,4 +397,3 @@ class SchemaUpgrade(object):
                                  UNIQUE(key));
         '''
         self.conn.executescript(script)
-
