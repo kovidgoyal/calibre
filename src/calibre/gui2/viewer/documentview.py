@@ -448,7 +448,7 @@ class DocumentView(QWebView):
         self.unimplemented_actions = list(map(self.pageAction,
             [d.DownloadImageToDisk, d.OpenLinkInNewWindow, d.DownloadLinkToDisk,
                 d.OpenImageInNewWindow, d.OpenLink]))
-        self.dictionary_action = QAction(QIcon(I('dictionary.png')),
+        self.dictionary_action = QAction(QIcon(I('dictionary.svg')),
                 _('&Lookup in dictionary'), self)
         self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)
         self.dictionary_action.triggered.connect(self.lookup)
