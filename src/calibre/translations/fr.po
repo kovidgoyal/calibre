@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-18 02:33+0000\n"
-"PO-Revision-Date: 2010-07-18 01:55+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-07-18 10:48+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-18 03:35+0000\n"
+"X-Launchpad-Export-Date: 2010-07-19 03:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -681,7 +681,7 @@ msgstr "Communiquer avec le lecteur d'ebook JetBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:86
 msgid "Communicate with the MiBuk Wolder reader."
-msgstr ""
+msgstr "Communiquer avec le le lecteur MiBuk Wolder."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:42
 msgid "Communicate with the Kindle eBook reader."
@@ -3865,7 +3865,7 @@ msgstr "Cliquer pour ouvrir la fenêtre Détail du livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
-msgstr ""
+msgstr "Options de BibTeX"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
@@ -3935,7 +3935,7 @@ msgstr "Formulaire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:82
 msgid "Bib file encoding:"
-msgstr ""
+msgstr "Encodage du fichier bib:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:38
@@ -3944,51 +3944,51 @@ msgstr "Champs à inclure en sortie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:84
 msgid "ascii/LaTeX"
-msgstr ""
+msgstr "ascii/LaTeX"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:85
 msgid "Encoding configuration (change if you have errors) :"
-msgstr ""
+msgstr "Configuration de l'encodeur (modifier si vous avez des erreurs):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:86
 msgid "strict"
-msgstr ""
+msgstr "stricte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:87
 msgid "replace"
-msgstr ""
+msgstr "remplacer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:88
 msgid "ignore"
-msgstr ""
+msgstr "ignorer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:89
 msgid "backslashreplace"
-msgstr ""
+msgstr "remplacer par le code caractère"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:90
 msgid "BibTeX entry type:"
-msgstr ""
+msgstr "Type des entrées BibTeX:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:91
 msgid "mixed"
-msgstr ""
+msgstr "mélangées (misc/livre)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:92
 msgid "misc"
-msgstr ""
+msgstr "misc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:93
 msgid "book"
-msgstr ""
+msgstr "livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:94
 msgid "Create a citation tag?"
-msgstr ""
+msgstr "Créer une étiquette de citation?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:95
 msgid "Expression to form the BibTeX citation tag:"
-msgstr ""
+msgstr "Expression pour créer la citation:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:96
 msgid ""
@@ -4000,6 +4000,13 @@ msgid ""
 "   wil be selected.\n"
 " -For time field, only the date will be used. "
 msgstr ""
+"Quelques explications à propos de ce modèle:\n"
+" -Les champs disponibles sont 'author_sort', 'authors', 'id',\n"
+"    'isbn', 'pubdate', 'publisher', 'series_index', 'series',\n"
+"   'tags', 'timestamp', 'title', 'uuid'\n"
+" -Pour les champs de type liste ie auteurs et étiquettes, \n"
+"   seul le premier élément sera utilisé.\n"
+" -Dans le cas des champs de temps, seule la date sera utilisée. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -5095,7 +5102,7 @@ msgstr "Non noté"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:150
 msgid "Set '%s' to today"
-msgstr ""
+msgstr "Définir '%s' à aujourd'hui"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:260
 msgid " index:"
@@ -5451,35 +5458,35 @@ msgstr "Choisir le format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:38
 msgid "Choose location for calibre library"
-msgstr ""
+msgstr "Choissisez l'emplacement de la bibliothèque Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:45
 msgid "Same as current"
-msgstr ""
+msgstr "Identique à l'actuel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:46
 msgid "The location %s contains the current calibre library"
-msgstr ""
+msgstr "L'emplacement %s contient la bibliothèque Calibre actuelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:51
 msgid "No existing library found"
-msgstr ""
+msgstr "Aucune bibliothèque préexistante n'a été trouvée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:52
 msgid "There is no existing calibre library at %s"
-msgstr ""
+msgstr "Il n'y a pas de bibliothèque Calibre préexistante à %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:56
 msgid "Not empty"
-msgstr ""
+msgstr "N'est pas vide"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:57
 msgid "The folder %s is not empty. Please choose an empty folder"
-msgstr ""
+msgstr "Le dossier %s n'est pas vide. Veillez choisir un dossier vide."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:66
 msgid "Custom columns"
-msgstr ""
+msgstr "Colonnes personnalisées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:67
 msgid ""
@@ -5487,30 +5494,33 @@ msgid ""
 "various problems. Best to ensure you have the same custom columns in each "
 "library."
 msgstr ""
+"Si vous créez des colonnes personnalisées qui différent entre les "
+"bibliothèques, vous aurez divers problèmes. Il vaut mieux s'assurer d'avoir "
+"les mêmes colonnes personnalisées dans chaque bibliothèque."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:66
 msgid "Choose your calibre library"
-msgstr ""
+msgstr "Choisissez votre bibliothèque Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:67
 msgid "Your calibre library is currently located at {0}"
-msgstr ""
+msgstr "Votre bibliothèque Calibre est actuellement situé à {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:68
 msgid "New &Location:"
-msgstr ""
+msgstr "Nouvel emp&lacement:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:69
 msgid "Use &existing library at the new location"
-msgstr ""
+msgstr "Utiliser la bibliothèque &existante au nouvel emplacement"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:70
 msgid "&Create an empty library at the new location"
-msgstr ""
+msgstr "&Créer une bibliothèque vide au nouvel emplacement"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:71
 msgid "&Move current library to new location"
-msgstr ""
+msgstr "&Déplacer la bibliothèque actuelle vers ce nouvel emplacement"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:33
 msgid "Set defaults for conversion of comics (CBR/CBZ files)"
@@ -6089,7 +6099,7 @@ msgstr "Désactiver les &animations"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:553
 msgid "Show &donate button (restart)"
-msgstr "Afficher le boutton de"
+msgstr "Afficher le bouton de &donation (redémarrage nécessaire)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:554
 msgid "Add an email address to which to send books"
@@ -7897,7 +7907,7 @@ msgstr "Sauvegarder un seul format vers le disque..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:76
 msgid "Eject this device"
-msgstr ""
+msgstr "Ejecter cet appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:85
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:192
@@ -7906,15 +7916,15 @@ msgstr "Bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:86
 msgid "Show books in calibre library"
-msgstr ""
+msgstr "Afficher les livres dans la bibliothèque calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:87
 msgid "Reader"
-msgstr ""
+msgstr "Lecteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:88
 msgid "Show books in the main memory of the device"
-msgstr ""
+msgstr "Afficher les livres dans mémoire principale de l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:89
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:551
@@ -7923,7 +7933,7 @@ msgstr "Carte A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:90
 msgid "Show books in storage card A"
-msgstr ""
+msgstr "Afficher les livres dans la carte mémoire A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:91
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:553
@@ -7932,11 +7942,11 @@ msgstr "Carte B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:92
 msgid "Show books in storage card B"
-msgstr ""
+msgstr "Afficher les livres dans la carte mémoire B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:131
 msgid "available"
-msgstr ""
+msgstr "disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:162
 msgid ""
@@ -7995,7 +8005,7 @@ msgstr "E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:376
 msgid "Edit metadata"
-msgstr ""
+msgstr "Editer les métadonnées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:377
 msgid "C"
@@ -8016,7 +8026,7 @@ msgstr "Visualiser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:380
 msgid "Choose calibre library to work with"
-msgstr ""
+msgstr "Choisissez la bibliothèque Calibre aves laquelle travailler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:381
 msgid "F"
@@ -9767,9 +9777,9 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
-"Champ à afficher lors du parcours du catalogue de livres. Liste de champs à "
+"Champs à afficher lors du parcours du catalogue de livres. Liste de champs à "
 "séparer par des virgules\n"
-"Champs disponible: %s.\n"
+"Champs disponibles: %s.\n"
 "Par défaut: '%%default'\n"
 "S'applique au formats : CSV, XML"
 
@@ -9780,8 +9790,8 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
-"Champ de sortie à trier.\n"
-"Champs disponible: auteur, nom, note, taille, date, titre.\n"
+"Champ de tri pour la sortie.\n"
+"Champs disponible: author_sort, id, rating, size, timestamp, title.\n"
 "Défaut: '%default'\n"
 "S'applique au formats : CSV, XML"
 
@@ -9793,6 +9803,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Champs à afficher lors du parcours du catalogue de livres. Liste de champs à "
+"séparer par des virgules\n"
+"Champs disponibles: %s.\n"
+"Par défaut: '%%default'\n"
+"S'applique au format : BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:216
 msgid ""
@@ -9801,6 +9816,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Champ de tri pour la sortie\n"
+"Champs disponibles: author_sort, id, rating, size, timestamp, title.\n"
+"Par défaut: '%%default'\n"
+"S'applique au format : BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:225
 msgid ""
@@ -9809,6 +9828,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Créer une citation pour les entrées BibTeX\n"
+"Booléen: True, False.\n"
+"Par défaut: '%%default'\n"
+"S'applique au format : BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:234
 msgid ""
@@ -9818,6 +9841,12 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Modèle pour la création de citations à partir des champs de la base de "
+"données\n"
+"Doit être un modèle avec des champs inclus dans {}\n"
+"Champs disponibles: %s.\n"
+"Par défaut: '%%default'\n"
+"S'applique au format : BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:244
 msgid ""
@@ -9826,6 +9855,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Encodage du fichier de sortie BibTeX\n"
+"Encodages disponibles: utf8, cp1252, ascii.\n"
+"Par défaut: '%%default'\n"
+"S'applique au format : BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:253
 msgid ""
@@ -9834,6 +9867,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Drapeau d'encodage du fichier de sortie BibTeX\n"
+"Types disponibles: strict, replace, ignore, backslashreplace.\n"
+"Par défaut: '%%default'\n"
+"S'applique au format : BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:262
 msgid ""
@@ -9842,6 +9879,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Types d'entrées du catalogue BibTeX\n"
+"Types disponibles: book, misc, mixed.\n"
+"Par défaut: '%%default'\n"
+"S'applique au format : BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:530
 msgid ""

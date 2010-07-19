@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-18 02:33+0000\n"
-"PO-Revision-Date: 2010-07-18 02:14+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-07-18 16:01+0000\n"
+"Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-18 03:35+0000\n"
+"X-Launchpad-Export-Date: 2010-07-19 03:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -682,7 +682,7 @@ msgstr "Kommunikér med JetBook eBook læser."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:86
 msgid "Communicate with the MiBuk Wolder reader."
-msgstr ""
+msgstr "Kommunikér med MiBuk Wolder læser."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:42
 msgid "Communicate with the Kindle eBook reader."
@@ -959,7 +959,7 @@ msgstr "Udpak miniaturebillede fra LRF-fil"
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:63
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:608
 msgid "Set the publisher"
-msgstr "Angiv forlag"
+msgstr "Angiv udgiver"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:64
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:609
@@ -1585,7 +1585,7 @@ msgstr "Angiv e-bogsbeskrivelse."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:453
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:56
 msgid "Set the ebook publisher."
-msgstr "Angiv e-bogsforlaget."
+msgstr "Angiv e-bogsudgiver."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:457
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:60
@@ -2102,7 +2102,7 @@ msgstr "Forfatter(e)"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:72
 msgid "Publisher"
-msgstr "Forlag"
+msgstr "Udgiver"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:397
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:49
@@ -2376,7 +2376,7 @@ msgstr "Bogens titel der søges efter"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:112
 msgid "The publisher of the book to search for."
-msgstr "Bogens forlag der søges efter."
+msgstr "Bogens udgiver der søges efter."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:68
 msgid "LibraryThing.com timed out. Try again later."
@@ -3734,7 +3734,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:313
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1065
 msgid "Path"
-msgstr "Søgesti"
+msgstr "Sti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:24
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:48
@@ -3778,7 +3778,7 @@ msgstr "Klik for at åbne bog detalje vindue"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
-msgstr ""
+msgstr "BibTeX valg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
@@ -3848,7 +3848,7 @@ msgstr "Formular"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:82
 msgid "Bib file encoding:"
-msgstr ""
+msgstr "Bib-fil kodning:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:38
@@ -3857,23 +3857,23 @@ msgstr "Felter at inkluderer i output:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:84
 msgid "ascii/LaTeX"
-msgstr ""
+msgstr "ascii/LaTeX"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:85
 msgid "Encoding configuration (change if you have errors) :"
-msgstr ""
+msgstr "Kodningskonfiguration (ændr hvis hvis du har fejl) :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:86
 msgid "strict"
-msgstr ""
+msgstr "striks"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:87
 msgid "replace"
-msgstr ""
+msgstr "erstat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:88
 msgid "ignore"
-msgstr ""
+msgstr "ignorér"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:89
 msgid "backslashreplace"
@@ -3881,27 +3881,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:90
 msgid "BibTeX entry type:"
-msgstr ""
+msgstr "BibTeX-indgang type:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:91
 msgid "mixed"
-msgstr ""
+msgstr "blandet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:92
 msgid "misc"
-msgstr ""
+msgstr "forskelligt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:93
 msgid "book"
-msgstr ""
+msgstr "bog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:94
 msgid "Create a citation tag?"
-msgstr ""
+msgstr "Opret et citationsmærke?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:95
 msgid "Expression to form the BibTeX citation tag:"
-msgstr ""
+msgstr "Udtryk til at danne to BibTeX-citationsmærke:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:96
 msgid ""
@@ -3913,6 +3913,13 @@ msgid ""
 "   wil be selected.\n"
 " -For time field, only the date will be used. "
 msgstr ""
+"Nogle forklaringer om denne skabelon:\n"
+" -De tilgængelige felter er 'author_sort', 'authors', 'id',\n"
+"    'isbn', 'pubdate', 'publisher', 'series_index', 'series',\n"
+"   'tags', 'timestamp', 'title', 'uuid'\n"
+" -For listetyper f.eks. authors og tags, vil kun det første\n"
+"   element blive valgt.\n"
+" -For tidsfelt vil kun datoen blive anvendt. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -4480,7 +4487,7 @@ msgstr "F&orlag: "
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:371
 msgid "Ta&gs: "
-msgstr "&Mærkater: "
+msgstr "&Mærker: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:179
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:169
@@ -4489,7 +4496,7 @@ msgid ""
 "Tags categorize the book. This is particularly useful while searching. "
 "<br><br>They can be any words or phrases, separated by commas."
 msgstr ""
-"Mærkater placerer bogen i kategorier. Dette er særdeles brugbart til "
+"Mærker placerer bogen i kategorier. Dette er særdeles brugbart til "
 "søgninger. <br><br>De kan være vilkårlige ord eller sætninger, adskilt af "
 "kommaer."
 
@@ -4997,7 +5004,7 @@ msgstr "Ikke bedømt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:150
 msgid "Set '%s' to today"
-msgstr ""
+msgstr "Sæt '%s' til idag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:260
 msgid " index:"
@@ -5345,35 +5352,35 @@ msgstr "Vælg format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:38
 msgid "Choose location for calibre library"
-msgstr ""
+msgstr "Vælg placering til calibre-bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:45
 msgid "Same as current"
-msgstr ""
+msgstr "Samme som aktuelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:46
 msgid "The location %s contains the current calibre library"
-msgstr ""
+msgstr "Placeringen %s indeholder det aktuelle calibre-bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:51
 msgid "No existing library found"
-msgstr ""
+msgstr "Intet eksisterende bibliotek fundet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:52
 msgid "There is no existing calibre library at %s"
-msgstr ""
+msgstr "Der er intet eksisterende calibre-bibliotek i %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:56
 msgid "Not empty"
-msgstr ""
+msgstr "Ikke tom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:57
 msgid "The folder %s is not empty. Please choose an empty folder"
-msgstr ""
+msgstr "Mappen %s er ikke tom. Venligst vælg en tom mappe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:66
 msgid "Custom columns"
-msgstr ""
+msgstr "Brugerdefinerede søjler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:67
 msgid ""
@@ -5381,30 +5388,33 @@ msgid ""
 "various problems. Best to ensure you have the same custom columns in each "
 "library."
 msgstr ""
+"Hvis du anvender brugerdefinerede søjler og disse er forskellige mellem "
+"biblioteker, vil du have visse problemer. Det er bedst at du sikrer samme "
+"brugerdefinerede søjler i hvert bibliotek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:66
 msgid "Choose your calibre library"
-msgstr ""
+msgstr "Vælg dit calibre-bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:67
 msgid "Your calibre library is currently located at {0}"
-msgstr ""
+msgstr "Dit calibre-bibliotek er i øjeblikket placeret i {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:68
 msgid "New &Location:"
-msgstr ""
+msgstr "Ny &placering:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:69
 msgid "Use &existing library at the new location"
-msgstr ""
+msgstr "Anvend &eksisterende bibliotek i den nye placering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:70
 msgid "&Create an empty library at the new location"
-msgstr ""
+msgstr "&Opret et tomt bibliotek i den nye placering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:71
 msgid "&Move current library to new location"
-msgstr ""
+msgstr "&Flyt aktuelt bibliotek til den nye placering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:33
 msgid "Set defaults for conversion of comics (CBR/CBZ files)"
@@ -5745,7 +5755,7 @@ msgstr "Gem &omslag separat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:147
 msgid "Update &metadata in saved copies"
-msgstr "Update &metadata i gemte kopier"
+msgstr "Opdatér &metadata i gemte kopier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:148
 msgid "Save metadata in &OPF file"
@@ -5761,7 +5771,7 @@ msgstr "Formater &datoer som:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:151
 msgid "File &formats to save:"
-msgstr "Fil&formater ttil gemning:"
+msgstr "Fil&formater til gemning:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:152
 msgid "Replace space with &underscores"
@@ -5781,7 +5791,7 @@ msgstr "Metadata &administrering:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:156
 msgid "Manual management"
-msgstr "Manual administering"
+msgstr "Manual administrering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:157
 msgid "Only on send"
@@ -5801,12 +5811,12 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
-"<li><b>Manual administering</b>: Calibre opdaterer metadata og tilføjer "
-"collections kun når en bog bliver sendt. Med denne valgmulighed, vil calibre "
-"aldrig fjerne en collection.</li>\n"
+"<li><b>Manual administrering</b>: Calibre opdaterer metadata og tilføjer "
+"collections kun, når en bog bliver sendt. Med denne valgmulighed, vil "
+"calibre aldrig fjerne en collection.</li>\n"
 "<li><b>Kun på send</b>: Calibre opdaterer metadata og tilføjer/fjerner kun "
-"en bog fra collections når den sendes til en enhed. </li>\n"
-"<li><b>Automatisk forvaltning</b>: Calibre holder automatisk metadata på "
+"en bog fra collections, når den sendes til en enhed. </li>\n"
+"<li><b>Automatisk administrering</b>: Calibre holder automatisk metadata på "
 "enheden synkroniseret med calibre biblioteket, ved hver forbindelse</li></ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:162
@@ -5841,7 +5851,7 @@ msgstr "Download &sociale metadata (mærker/vurderinger/osv.) som standard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:517
 msgid "&Overwrite author and title by default when fetching metadata"
-msgstr "&Overskriv forfatter og titel som standard når metadata hentes"
+msgstr "&Overskriv forfatter og titel som standard, når metadata hentes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:518
 msgid "Default network &timeout:"
@@ -6021,9 +6031,9 @@ msgid ""
 "collection using a browser from anywhere in the world. Any changes to the "
 "settings will only take effect after a server restart."
 msgstr ""
-"Calibre indeholder en netværksserver som tillader dig at tilgå dine "
-"bogsamling via en  browser fra overalt i verden. Enhver ændring af "
-"indstillingerne tager først effekt efter en server genstart."
+"Calibre indeholder en netværksserver, som tillader dig at tilgå dine "
+"bogsamling via en browser fra overalt i verden. Enhver ændring af "
+"indstillingerne, tager først effekt efter en servergenstart."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:566
 msgid "Server &port:"
@@ -6110,7 +6120,7 @@ msgstr ""
 "<p>Stanza skulle automatisk se din calibre samling. Hvis ikke, så prøv at "
 "tilføje URL http://mitværtsnavn:8080 som et nyt katalog i Stanza læseren på "
 "din iPhone. Her skal mitværtsnavn være det fuldt kvalificerede domænenavn "
-"(FQDN) eller IP-adressen på computeren calibre kører på."
+"(FQDN) eller IP-adressen på computeren, calibre kører på."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:582
 msgid ""
@@ -6576,15 +6586,15 @@ msgstr "Tilføj &mærker: "
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:373
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:374
 msgid "Open Tag Editor"
-msgstr "Åben mærkat editor"
+msgstr "Åben mærke-editor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:172
 msgid "&Remove tags:"
-msgstr "&Fjern mærkater:"
+msgstr "&Fjern mærker:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:173
 msgid "Comma separated list of tags to remove from the books. "
-msgstr "Kommasepareret liste over mærkater, der skal fjernes fra bøgerne. "
+msgstr "Kommasepareret liste over mærker, der skal fjernes fra bøgerne. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:177
 msgid "Remove &format:"
@@ -6687,11 +6697,11 @@ msgstr "Dette ISBN-nummer er ugyldigt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:521
 msgid "Cannot use tag editor"
-msgstr "Kan ikke anvende mærkat-editor"
+msgstr "Kan ikke anvende mærke-editor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:522
 msgid "The tags editor cannot be used if you have modified the tags"
-msgstr "Mærkat-editor kan ikke anvendes hvis du har ændret mærkaterne"
+msgstr "Mærke-editor kan ikke anvendes hvis du har ændret mærkaterne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:542
 msgid "Downloading cover..."
@@ -6738,7 +6748,7 @@ msgstr "Kan ikke hente metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:637
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
-msgstr "Du skal mindst angive ISBN, titel, forfatter eller forlag"
+msgstr "Du skal mindst angive ISBN, titel, forfatter eller udgiver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:708
 msgid "Permission denied"
@@ -7010,7 +7020,7 @@ msgstr "Tilføj &titel som mærkat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:218
 msgid "&Extra  tags:"
-msgstr "&Ekstra mærkater:"
+msgstr "&Ekstra mærker:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:219
 msgid "&Advanced"
@@ -7122,7 +7132,7 @@ msgstr "Forfattere"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:46
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:111
 msgid "Publishers"
-msgstr "Forlag"
+msgstr "Udgiver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:110
 msgid " (not on any book)"
@@ -7132,8 +7142,7 @@ msgstr " (ikke i nogen bøger)"
 msgid ""
 "The current tag category will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
-"Den aktuelle mærkat kategori vil blive <b>permanent slettet</b>. Er du "
-"sikker?"
+"Den aktuelle mærkekategori vil blive <b>permanent slettet</b>. Er du sikker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:153
 msgid "User Categories Editor"
@@ -7145,7 +7154,7 @@ msgstr "T&ilgængelige genstande"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:155
 msgid "Apply tags to current tag category"
-msgstr "Påfør mærkater på aktuelle mærkatkategori"
+msgstr "Påfør mærker på aktuelle mærkekategori"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:157
 msgid "A&pplied items"
@@ -7153,7 +7162,7 @@ msgstr "A&nvendte genstande"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:158
 msgid "Unapply (remove) tag from current tag category"
-msgstr "Påføringsannullering (fjerne) mærkat på aktuelle mærkatkategori"
+msgstr "Påføringsannullering (fjerne) mærke på aktuelle mærkekategori"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:160
 msgid "Category name: "
@@ -7165,7 +7174,7 @@ msgstr "Vælg en kategori der skal redigeres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:162
 msgid "Delete this selected tag category"
-msgstr "Slet den valgte mærkatkategori"
+msgstr "Slet den valgte mærkekategori"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:164
 msgid "Enter a new category name. Select the kind before adding it."
@@ -7177,7 +7186,7 @@ msgstr "Tilføj den nye kategori"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:167
 msgid "Category filter: "
-msgstr "Kategori filter: "
+msgstr "Kategorifilter: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:168
 msgid "Select the content kind of the new category"
@@ -7193,7 +7202,7 @@ msgid ""
 "The following tags are used by one or more books. Are you certain you want "
 "to delete them?"
 msgstr ""
-"De følgende mærkater bliver anvendt af en eller flere bøger. Er du sikker på "
+"De følgende mærker bliver anvendt af en eller flere bøger. Er du sikker på "
 "at du vil slette dem?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:123
@@ -7202,44 +7211,44 @@ msgstr "Mærke-editor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:124
 msgid "A&vailable tags"
-msgstr "T&ilgængelige mærkater"
+msgstr "T&ilgængelige mærker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:125
 msgid ""
 "Delete tag from database. This will unapply the tag from all books and then "
 "remove it from the database."
 msgstr ""
-"Slet mærkat fra database. Dette vil fjerne mærkatet fra alle bøger og "
-"herefter fjerne den fra databasen."
+"Slet mærke fra database. Dette vil fjerne mærket fra alle bøger og herefter "
+"fjerne den fra databasen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:127
 msgid "Apply tag to current book"
-msgstr "Anvend mærkat på den aktuelle bog"
+msgstr "Anvend mærke på den aktuelle bog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:129
 msgid "A&pplied tags"
-msgstr "A&nvendte mærkater"
+msgstr "A&nvendte mærker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:130
 msgid "Unapply (remove) tag from current book"
-msgstr "Fjern mærkat fra den aktuelle bog"
+msgstr "Fjern mærke fra den aktuelle bog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:132
 msgid "&Add tag:"
-msgstr "&Tilføj mærkat:"
+msgstr "&Tilføj mærke:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:133
 msgid ""
 "If the tag you want is not in the available list, you can add it here. "
 "Accepts a comma separated list of tags."
 msgstr ""
-"Hvis mærkaten du ønsker ikke er i den tilgængelige liste, kan du tilføje den "
-"her. Accepterer en kommasepareret liste af mærkater."
+"Hvis mærket du ønsker ikke er i den tilgængelige liste, kan du tilføje den "
+"her. Accepterer en kommasepareret liste af mærker."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:134
 msgid "Add tag to available tags and apply it to current book"
 msgstr ""
-"Tilføj mærkat til tilgængelige mærkater og anvend den på den aktuelle bog"
+"Tilføj mærke til tilgængelige mærker og anvend den på den aktuelle bog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:20
 msgid "%s (was %s)"
@@ -7407,7 +7416,7 @@ msgstr "Tilgængelige brugeropskrifter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:250
 msgid "Add/Update &recipe"
-msgstr "Tilføj/opdater &opskrift"
+msgstr "Tilføj/opdatér &opskrift"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:251
 msgid "&Remove recipe"
@@ -7628,11 +7637,11 @@ msgstr "Administrér collections"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:161
 msgid "Cover Browser"
-msgstr "Omslags-browser"
+msgstr "omslags-browser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:179
 msgid "Tag Browser"
-msgstr "Mærkat-browser"
+msgstr "Mærke-browser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:200
 msgid "version"
@@ -7653,7 +7662,7 @@ msgstr "Opdatering fundet"
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:272
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:281
 msgid "Book Details"
-msgstr "Bog detaljer"
+msgstr "bog detaljer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:60
 msgid "Job"
@@ -7720,7 +7729,7 @@ msgstr "Gem enkelt format til disk..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:76
 msgid "Eject this device"
-msgstr ""
+msgstr "Skup denne enhed ud"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:85
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:192
@@ -7729,15 +7738,15 @@ msgstr "Bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:86
 msgid "Show books in calibre library"
-msgstr ""
+msgstr "Vis bøger i calibre-bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:87
 msgid "Reader"
-msgstr ""
+msgstr "Læser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:88
 msgid "Show books in the main memory of the device"
-msgstr ""
+msgstr "Vis bøger i enhedens arbejdshukommelse"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:89
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:551
@@ -7746,7 +7755,7 @@ msgstr "Kort A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:90
 msgid "Show books in storage card A"
-msgstr ""
+msgstr "Vis bøger i hukommelseskort A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:91
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:553
@@ -7755,18 +7764,17 @@ msgstr "Kort B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:92
 msgid "Show books in storage card B"
-msgstr ""
+msgstr "Vis bøger i hukommelseskort B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:131
 msgid "available"
-msgstr ""
+msgstr "tilgængelige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:162
 msgid ""
 "Books display will be restricted to those matching the selected saved search"
 msgstr ""
-"Bøger vist vil blive begrænset til disse der matcher de valgte gemte "
-"søgninger"
+"Bøger vist, vil blive begrænset til dem, der matcher den valgte gemte søgning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:175
 msgid "Advanced search"
@@ -7777,8 +7785,8 @@ msgid ""
 "<p>Search the list of books by title, author, publisher, tags, comments, "
 "etc.<br><br>Words separated by spaces are ANDed"
 msgstr ""
-"<p>Søg i listen af bøger efter titel, forfatter, forlag, mærkater, "
-"kommentarer, osv.<br><br>Ord separeres af mellemrum bliver ANDed"
+"<p>Søg i listen af bøger efter titel, forfatter, udgiver, mærker, "
+"kommentarer, osv.<br><br>Ord separeret af mellemrum ANDes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:191
 msgid "Reset Quick Search"
@@ -7816,7 +7824,7 @@ msgstr "E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:376
 msgid "Edit metadata"
-msgstr ""
+msgstr "Redigér metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:377
 msgid "C"
@@ -7837,7 +7845,7 @@ msgstr "Vis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:380
 msgid "Choose calibre library to work with"
-msgstr ""
+msgstr "Vælg calibre-bibliotek at arbejde med"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:381
 msgid "F"
@@ -7910,11 +7918,11 @@ msgstr "Bøger i denne serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:397
 msgid "Books by this publisher"
-msgstr "Bøger fra dette forlag"
+msgstr "Bøger fra denne udgiver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:399
 msgid "Books with the same tags"
-msgstr "Bøger med samme mærkater"
+msgstr "Bøger med samme mærker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:408
 msgid "Edit metadata individually"
@@ -8369,7 +8377,7 @@ msgstr "Gemte søgninger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:406
 msgid "Choose saved search or enter name for new saved search"
-msgstr "Vælg gemte søgninget eller indtast navn for ny gemt søgning"
+msgstr "Vælg gemte søgninger eller indtast navn for ny gemt søgning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:10
 msgid "Restrict to"
@@ -8509,7 +8517,7 @@ msgstr "Sortér efter middelvurdering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:772
 msgid "Set the sort order for entries in the Tag Browser"
-msgstr "Angiv sorteringsrækkefølgen for indgange mærkat-browser"
+msgstr "Angiv sorteringsrækkefølgen for indgange mærke-browser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:778
 msgid "Match all"
@@ -8523,7 +8531,7 @@ msgstr "Match enhver"
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
 msgstr ""
-"Når multiple indgange vælges i mærkat-browser, match enhver eller dem alle"
+"Når flere indgange vælges i mærke-browser, match enhver eller dem alle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:787
 msgid "Manage &user categories"
@@ -8531,7 +8539,7 @@ msgstr "Administrér &brugerkategorier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:790
 msgid "Add your own categories to the Tag Browser"
-msgstr "Tilføj dine egne kategorier til mærkat-browseren"
+msgstr "Tilføj dine egne kategorier til mærke-browseren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:182
@@ -8677,7 +8685,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:56
 msgid "Update available"
-msgstr "Opdateringer tilgængelig"
+msgstr "Opdatering tilgængelig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:57
 msgid ""
@@ -9223,7 +9231,7 @@ msgid ""
 msgstr ""
 "Du skal tilføje URL http://mitværtsnavn:8080 som dit calibre bibliotek i "
 "WordPlayer. Her skal mitværtsnavn være det fuldt kvalificerede værtsnavn "
-"eller IP-adresse, computeren calibre kører på."
+"(FQDN) eller IP-adresse, computeren calibre kører på."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:450
 msgid "Moving library..."
@@ -9583,6 +9591,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Felterne der skal til output, når katalogisering af bøger i databasen.  Skal "
+"være en kommasepareret feltliste.\n"
+"Tilgængelige felter: %s.\n"
+"Standard: '%%default'\n"
+"Anvendes til: BIBTEX output-format"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:216
 msgid ""
@@ -9591,6 +9604,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Output-felt at sortere på.\n"
+"Tilgængelige felter: author_sort, id, rating, size, timestamp, title.\n"
+"Standard: '%default'\n"
+"Anvendes til: BIBTEX output-format"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:225
 msgid ""
@@ -9599,6 +9616,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Opretter en citation til BibTeX-indgange.\n"
+"Boolske værdier: True, False\n"
+"Standard: '%default'\n"
+"Anvendes til: BIBTEX output-format"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:234
 msgid ""
@@ -9608,6 +9629,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Skabelonen til citationsoprettelse fra databasefelter.\n"
+" Skal være en skabelon med {} omsluttede felter.\n"
+"Tilgængelige felter: %s.\n"
+"Standard: '%%default'\n"
+"Anvendes til: BIBTEX output-format"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:244
 msgid ""
@@ -9616,6 +9642,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"BibTeX filkodnings-output.\n"
+"Tilgængelige typer: utf8, cp1252, ascii.\n"
+"Standard: '%default'\n"
+"Anvendes til: BIBTEX output-format"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:253
 msgid ""
@@ -9624,6 +9654,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"BibTeX filkodningsflag.\n"
+"Tilgængelige typer: strict, replace, ignore, backslashreplace.\n"
+"Standard: '%default'\n"
+"Anvendes til: BIBTEX output-format"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:262
 msgid ""
@@ -9632,6 +9666,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Indgangstype til BibTeX-katalog.\n"
+"Tilgængelige typer: book, misc, mixed.\n"
+"Standard: '%default'\n"
+"Anvendes til: BIBTEX output-format"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:530
 msgid ""
@@ -9663,9 +9701,8 @@ msgid ""
 "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Regex beskrivende mærkater til at eksludere som genre.\n"
-"Standard: '%default' eksluderer parantesomsluttede mærkater, f.eks. "
-"'[<tag>]'\n"
+"Regex beskrivende mærker til at eksludere som genre.\n"
+"Standard: '%default' eksluderer parantesomsluttede mærker, f.eks. '[<tag>]'\n"
 "Anvendes til: ePub, MOBI output-formater"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:553
@@ -9676,8 +9713,8 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Kommasepareret ordmærkatliste der indikerer hvilke bøger som skal "
-"ekskluderes fra output.  Stor/små-bogstav-uafhængig.\n"
+"Kommasepareret ordmærkeliste der indikerer hvilke bøger som skal ekskluderes "
+"fra output.  Stor/små-bogstav-uafhængig.\n"
 "--exclude-tags=skip vil matche 'skip this book' og 'Skip will like this'.\n"
 "Standard: '%default'\n"
 "Anvendes til: ePub, MOBI output-formater"
@@ -9708,7 +9745,7 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Mærkatpræfiks til brugernoter, f.eks. '*Jeff might enjoy reading this'.\n"
+"Mærkepræfiks til brugernoter, f.eks. '*Jeff might enjoy reading this'.\n"
 "Standard: '%default'\n"
 "Anvendes til: ePub, MOBI output-formater"
 
@@ -9748,7 +9785,7 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Mærkat der markerer at bogen er blevet læst.\n"
+"Mærke der markerer at bogen er blevet læst.\n"
 "Standard: '%default'\n"
 "Anvendes til: ePub, MOBI output-formater"
 
@@ -10065,7 +10102,7 @@ msgid ""
 "This column stores tag like data (i.e. multiple comma separated values). "
 "Only applies if datatype is text."
 msgstr ""
-"Denne kolonne gemmer mærkater ligesom data (f.eks. multiple kommaseparerede "
+"Denne kolonne gemmer mærker ligesom data (f.eks. multiple kommaseparerede "
 "værdier). Giver kun mening hvis datatypen er tekst."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:560
@@ -10287,7 +10324,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:28
 msgid "The tags"
-msgstr "Mærkaterne"
+msgstr "Mærkerne"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:29
 msgid "The series"
@@ -10311,7 +10348,7 @@ msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:35
 msgid "The publisher"
-msgstr "Forlaget"
+msgstr "Udgiveren"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:36
 msgid "The date"
@@ -10460,7 +10497,7 @@ msgid ""
 "more than this number of items. Default: %default. Set to a large number to "
 "disable grouping."
 msgstr ""
-"Gruppér emner i kategorier, såsom forfatter/mærkat efter første bogstav, når "
+"Gruppér emner i kategorier, såsom forfatter/mærke efter første bogstav, når "
 "der er mere end dette antal emner. Standard: %default. Angiv et stort tal "
 "for at deaktivere gruppering."
 
@@ -10588,7 +10625,7 @@ msgstr "Liste af navne gemte søgninger"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:700
 msgid "User-created tag browser categories"
-msgstr "Brugeroprettede mærkat-browser kategorier"
+msgstr "Brugeroprettede mærke-browser kategorier"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:702
 msgid "How and when calibre updates metadata on the device."
