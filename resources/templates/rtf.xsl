@@ -262,7 +262,7 @@
         </xsl:if>
         <xsl:if test="@line-spacing">
             <xsl:text>line-height:</xsl:text>
-            <xsl:value-of select="@line-height"/>
+            <xsl:value-of select="@line-spacing"/>
             <xsl:text>pt;</xsl:text>
         </xsl:if>
         <xsl:if test="(@align = 'just')">
