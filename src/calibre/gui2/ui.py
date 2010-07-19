@@ -351,7 +351,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
 
-    def do_config(self, *args):
+    def do_config(self, checked=False, initial_category='general'):
         if self.job_manager.has_jobs():
             d = error_dialog(self, _('Cannot configure'),
                     _('Cannot configure while there are running jobs.'))
@@ -363,7 +363,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
             d.exec_()
             return
         d = ConfigDialog(self, self.library_view,
-                server=self.content_server)
+                server=self.content_server, initial_category=initial_category)
 
         d.exec_()
         self.content_server = d.server

@@ -59,6 +59,7 @@ class LibraryViewMixin(object): # {{{
                                         self.action_open_containing_folder,
                                         self.action_show_book_details,
                                         self.action_del,
+                                        self.action_conn_share,
                                         add_to_library = None,
                                         edit_device_collections=None,
                                         similar_menu=similar_menu)
@@ -67,21 +68,24 @@ class LibraryViewMixin(object): # {{{
         edit_device_collections = (_('Manage collections'),
                             partial(self.edit_device_collections, oncard=None))
         self.memory_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del,
+                self.action_view, self.action_save, None, None,
+                self.action_del, None,
                 add_to_library=add_to_library,
                 edit_device_collections=edit_device_collections)
 
         edit_device_collections = (_('Manage collections'),
                             partial(self.edit_device_collections, oncard='carda'))
         self.card_a_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del,
+                self.action_view, self.action_save, None, None,
+                self.action_del, None,
                 add_to_library=add_to_library,
                 edit_device_collections=edit_device_collections)
 
         edit_device_collections = (_('Manage collections'),
                             partial(self.edit_device_collections, oncard='cardb'))
         self.card_b_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del,
+                self.action_view, self.action_save, None, None,
+                self.action_del, None,
                 add_to_library=add_to_library,
                 edit_device_collections=edit_device_collections)
 

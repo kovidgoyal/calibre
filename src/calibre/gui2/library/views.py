@@ -390,7 +390,7 @@ class BooksView(QTableView): # {{{
 
     # Context Menu {{{
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
-                         save, open_folder, book_details, delete,
+                         save, open_folder, book_details, delete, conn_share,
                          similar_menu=None, add_to_library=None,
                          edit_device_collections=None):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
@@ -401,6 +401,8 @@ class BooksView(QTableView): # {{{
             self.context_menu.addAction(send_to_device)
         if convert is not None:
             self.context_menu.addAction(convert)
+        if conn_share is not None:
+            self.context_menu.addAction(conn_share)
         self.context_menu.addAction(view)
         self.context_menu.addAction(save)
         if open_folder is not None:

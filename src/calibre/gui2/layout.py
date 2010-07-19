@@ -22,6 +22,7 @@ from calibre import human_readable
 from calibre.utils.config import prefs
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2.dialogs.scheduler import Scheduler
+from calibre.utils.smtp import config as email_config
 
 ICON_SIZE = 48
 
@@ -262,7 +263,9 @@ class ToolBar(QToolBar): # {{{
             ch.setCursor(Qt.PointingHandCursor)
             ch.setAutoRaise(True)
             if ac.menu() is not None:
-                ch.setPopupMode(ch.MenuButtonPopup)
+                name = getattr(ac, 'action_name', None)
+                ch.setPopupMode(ch.InstantPopup if name == 'conn_share'
+                        else ch.MenuButtonPopup)
 
         for x in actions:
             self.addAction(x)
@@ -306,6 +309,60 @@ class ToolBar(QToolBar): # {{{
 class Action(QAction):
     pass
 
+class ShareConnMenu(QMenu):
+
+    connect_to_folder = pyqtSignal()
+    connect_to_itunes = pyqtSignal()
+    config_email = pyqtSignal()
+
+    def __init__(self, parent=None):
+        QMenu.__init__(self, parent)
+        mitem = self.addAction(QIcon(I('devices/folder.svg')), _('Connect to folder'))
+        mitem.setEnabled(True)
+        mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
+        self.connect_to_folder_action = mitem
+
+        mitem = self.addAction(QIcon(I('devices/itunes.png')),
+                _('Connect to iTunes'))
+        mitem.setEnabled(True)
+        mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
+        self.connect_to_itunes_action = mitem
+        self.addSeparator()
+        self.email_actions = []
+
+    def build_email_entries(self, sync_menu):
+        from calibre.gui2.device import DeviceAction
+        for ac in self.email_actions:
+            self.removeAction(ac)
+        self.email_actions = []
+        opts = email_config().parse()
+        if opts.accounts:
+            self.email_to_menu = QMenu(_('Email to')+'...', self)
+            keys = sorted(opts.accounts.keys())
+            for account in keys:
+                formats, auto, default = opts.accounts[account]
+                dest = 'mail:'+account+';'+formats
+                action1 = DeviceAction(dest, False, False, I('mail.svg'),
+                        _('Email to')+' '+account)
+                action2 = DeviceAction(dest, True, False, I('mail.svg'),
+                        _('Email to')+' '+account+ _(' and delete from library'))
+                map(self.email_to_menu.addAction, (action1, action2))
+                if default:
+                    map(self.addAction, (action1, action2))
+                    map(self.email_actions.append, (action1, action2))
+                self.email_to_menu.addSeparator()
+                action1.a_s.connect(sync_menu.action_triggered)
+                action2.a_s.connect(sync_menu.action_triggered)
+            ac = self.addMenu(self.email_to_menu)
+            self.email_actions.append(ac)
+        else:
+            ac = self.addAction(_('Setup email based sharing of books'))
+            self.email_actions.append(ac)
+            ac.triggered.connect(self.setup_email)
+
+    def setup_email(self, *args):
+        self.config_email.emit()
+
 class MainWindowMixin(object):
 
     def __init__(self, db):
@@ -341,7 +398,6 @@ class MainWindowMixin(object):
         self.scheduler.start_recipe_fetch.connect(
                 self.download_scheduled_recipe, type=Qt.QueuedConnection)
 
-
     def read_toolbar_settings(self):
         pass
 
@@ -372,18 +428,19 @@ class MainWindowMixin(object):
             setattr(self, 'action_'+name, action)
             all_actions.append(action)
 
-        ac(0,  7,  0, 'add', _('Add books'), 'add_book.svg', _('A'))
+        ac(0,  0,  0, 'add', _('Add books'), 'add_book.svg', _('A'))
         ac(1,  1,  0, 'edit', _('Edit metadata'), 'edit_input.svg', _('E'))
         ac(2,  2,  3, 'convert', _('Convert books'), 'convert.svg', _('C'))
         ac(3,  3,  0, 'view', _('View'), 'view.svg', _('V'))
-        ac(4,  4,  3, 'choose_library', _('%d books')%0, 'lt.png',
+        ac(-1, 4,  0, 'sync', _('Send to device'), 'sync.svg')
+        ac(5,  5,  3, 'choose_library', _('%d books')%0, 'lt.png',
                 tooltip=_('Choose calibre library to work with'))
-        ac(5,  5,  3, 'news', _('Fetch news'), 'news.svg', _('F'))
-        ac(6,  6,  0, 'save', _('Save to disk'), 'save.svg', _('S'))
-        ac(7,  0,  0, 'sync', _('Send to device'), 'sync.svg')
-        ac(8,  8,  3, 'del', _('Remove books'), 'trash.svg', _('Del'))
-        ac(9,  9,  3, 'help', _('Help'), 'help.svg', _('F1'), _("Browse the calibre User Manual"))
-        ac(10, 10, 0, 'preferences', _('Preferences'), 'config.svg', _('Ctrl+P'))
+        ac(6,  6,  3, 'news', _('Fetch news'), 'news.svg', _('F'))
+        ac(7,  7,  0, 'save', _('Save to disk'), 'save.svg', _('S'))
+        ac(8,  8,  0, 'conn_share', _('Connect/share'), 'connect_share.svg')
+        ac(9,  9,  3, 'del', _('Remove books'), 'trash.svg', _('Del'))
+        ac(10, 10,  3, 'help', _('Help'), 'help.svg', _('F1'), _("Browse the calibre User Manual"))
+        ac(11, 11, 0, 'preferences', _('Preferences'), 'config.svg', _('Ctrl+P'))
 
         ac(-1, -1, 0, 'merge', _('Merge book records'), 'merge_books.svg', _('M'))
         ac(-1, -1, 0, 'open_containing_folder', _('Open containing folder'),
@@ -402,6 +459,10 @@ class MainWindowMixin(object):
         self.action_news.setMenu(self.scheduler.news_menu)
         self.action_news.triggered.connect(
                 self.scheduler.show_dialog)
+        self.share_conn_menu = ShareConnMenu(self)
+        self.share_conn_menu.config_email.connect(partial(self.do_config,
+            initial_category='email'))
+        self.action_conn_share.setMenu(self.share_conn_menu)
 
         self.action_help.triggered.connect(self.show_help)
         md = QMenu()
@@ -527,6 +588,7 @@ class MainWindowMixin(object):
         self.preferences_menu = pm
         for x in (self.preferences_action, self.action_preferences):
             x.triggered.connect(self.do_config)
+
 
         return all_actions
     # }}}
