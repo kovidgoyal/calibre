@@ -10,7 +10,7 @@ import re
 
 from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, \
                      pyqtSignal, SIGNAL, QObject, QDialog, QCompleter, \
-                     QAction, QKeySequence
+                     QAction, QKeySequence, QTimer
 
 from calibre.gui2 import config
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -82,7 +82,9 @@ class SearchBox2(QComboBox):
         self.help_state = False
         self.as_you_type = True
         self.prev_search = ''
-        self.timer = None
+        self.timer = QTimer()
+        self.timer.setSingleShot(True)
+        self.timer.timeout.connect(self.timer_event)
         self.setInsertPolicy(self.NoInsert)
         self.setMaxCount(self.MAX_COUNT)
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
@@ -116,9 +118,6 @@ class SearchBox2(QComboBox):
         self.search.emit('')
         self._in_a_search = False
         self.setEditText(self.help_text)
-        if self.timer is not None: # Turn off any timers that got started in setEditText
-            self.killTimer(self.timer)
-            self.timer = None
         self.line_edit.home(False)
         self.line_edit.setStyleSheet(
                 'QLineEdit { color: gray; background-color: %s; }' %
@@ -147,18 +146,15 @@ class SearchBox2(QComboBox):
             self._in_a_search = False
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             self.do_search()
-        self.timer = self.startTimer(self.__class__.INTERVAL)
+        self.timer.start(1500)
 
     def mouse_released(self, event):
         self.normalize_state()
         if self.as_you_type:
-            self.timer = self.startTimer(self.__class__.INTERVAL)
+            self.timer.start(1500)
 
-    def timerEvent(self, event):
-        self.killTimer(event.timerId())
-        if event.timerId() == self.timer:
-            self.timer = None
-            self.do_search()
+    def timer_event(self):
+        self.do_search()
 
     def history_selected(self, text):
         self.emit(SIGNAL('changed()'))
@@ -212,9 +208,6 @@ class SearchBox2(QComboBox):
             return
         self.normalize_state()
         self.setEditText(txt)
-        if self.timer is not None: # Turn off any timers that got started in setEditText
-            self.killTimer(self.timer)
-            self.timer = None
         self.search.emit(txt)
         self.line_edit.end(False)
         self.initial_state = False

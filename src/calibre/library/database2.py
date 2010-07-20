@@ -144,14 +144,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.prefs = DBPrefs(self)
 
         # Migrate saved search and user categories to db preference scheme
-        def migrate_preference(name, default):
-            ans = self.prefs.get(name, None)
-            if ans is None:
-                ans = prefs[name]
-                if ans is None:
-                    ans = default
-                self.prefs[name] = ans
-                prefs[name] = default
+        def migrate_preference(key, default):
+            oldval = prefs[key]
+            if oldval != default:
+                self.prefs[key] = oldval
+                prefs[key] = default
+            if key not in self.prefs:
+                self.prefs[key] = default
 
         migrate_preference('user_categories', {})
         migrate_preference('saved_searches', {})
