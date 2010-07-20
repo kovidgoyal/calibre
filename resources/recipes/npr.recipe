@@ -6,6 +6,7 @@ class AdvancedUserRecipe1257302745(BasicNewsRecipe):
     language = 'en'
     __author__ = 'onyxrev'
     max_articles_per_feed = 100
+    no_stylesheets = True
 
     remove_tags_before = {'class':'storytitle'}
     remove_tags_after =  dict(name='div', attrs={'id':'storytext' })
