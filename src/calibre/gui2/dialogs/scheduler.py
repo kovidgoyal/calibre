@@ -62,6 +62,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
                 self.search_done)
         self.disconnect(self.recipe_model,  SIGNAL('searched(PyQt_PyObject)'),
                 self.search.search_done)
+        self.search.search.disconnect()
         self.recipe_model = None
 
     def search_done(self, *args):
