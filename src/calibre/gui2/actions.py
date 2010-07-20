@@ -578,9 +578,7 @@ class DeleteAction(object): # {{{
             if row is not None:
                 ci = view.model().index(row, 0)
                 if ci.isValid():
-                    view.setCurrentIndex(ci)
-                    sm = view.selectionModel()
-                    sm.select(ci, sm.Select)
+                    view.set_current_row(row)
         else:
             if not confirm('<p>'+_('The selected books will be '
                                    '<b>permanently deleted</b> '
