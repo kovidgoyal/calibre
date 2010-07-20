@@ -84,7 +84,7 @@ class SearchBox2(QComboBox):
         self.prev_search = ''
         self.timer = QTimer()
         self.timer.setSingleShot(True)
-        self.timer.timeout.connect(self.timer_event, Qt.QueuedConnection)
+        self.timer.timeout.connect(self.timer_event, type=Qt.QueuedConnection)
         self.setInsertPolicy(self.NoInsert)
         self.setMaxCount(self.MAX_COUNT)
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)

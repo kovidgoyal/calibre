@@ -243,6 +243,7 @@ class ToolBar(QToolBar): # {{{
         donate.setAutoRaise(True)
         donate.setCursor(Qt.PointingHandCursor)
         self.build_bar()
+        self.preferred_width = self.sizeHint().width()
 
     def contextMenuEvent(self, *args):
         pass
@@ -295,11 +296,13 @@ class ToolBar(QToolBar): # {{{
         a.setText(text)
 
     def resizeEvent(self, ev):
-        style = Qt.ToolButtonTextUnderIcon
-        if self.size().width() < 1260:
-            style = Qt.ToolButtonIconOnly
-        self.setToolButtonStyle(style)
         QToolBar.resizeEvent(self, ev)
+        style = Qt.ToolButtonTextUnderIcon
+
+        if self.preferred_width > self.width()+35:
+            style = Qt.ToolButtonIconOnly
+
+        self.setToolButtonStyle(style)
 
     def database_changed(self, db):
         pass
@@ -309,7 +312,7 @@ class ToolBar(QToolBar): # {{{
 class Action(QAction):
     pass
 
-class ShareConnMenu(QMenu):
+class ShareConnMenu(QMenu): # {{{
 
     connect_to_folder = pyqtSignal()
     connect_to_itunes = pyqtSignal()
@@ -362,6 +365,8 @@ class ShareConnMenu(QMenu):
 
     def setup_email(self, *args):
         self.config_email.emit()
+
+# }}}
 
 class MainWindowMixin(object):
 
