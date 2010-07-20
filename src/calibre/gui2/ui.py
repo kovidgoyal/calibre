@@ -380,6 +380,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
             self.tags_view.recount()
             self.create_device_menu()
             self.set_device_menu_items_state(bool(self.device_connected))
+            self.tool_bar.apply_settings()
 
     def library_moved(self, newloc):
         if newloc is None: return

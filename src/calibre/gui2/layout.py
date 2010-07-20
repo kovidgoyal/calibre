@@ -16,7 +16,7 @@ from PyQt4.Qt import QIcon, Qt, QWidget, QAction, QToolBar, QSize, \
 from calibre.constants import __appname__, isosx
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
 from calibre.gui2.throbber import ThrobbingButton
-from calibre.gui2 import config, open_url
+from calibre.gui2 import config, open_url, gprefs
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre import human_readable
 from calibre.utils.config import prefs
@@ -24,7 +24,6 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.utils.smtp import config as email_config
 
-ICON_SIZE = 48
 
 class SaveMenu(QMenu): # {{{
 
@@ -229,12 +228,11 @@ class ToolBar(QToolBar): # {{{
         self.setFloatable(False)
         self.setOrientation(Qt.Horizontal)
         self.setAllowedAreas(Qt.TopToolBarArea|Qt.BottomToolBarArea)
-        self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
-        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.setStyleSheet('QToolButton:checked { font-weight: bold }')
+        self.donate = donate
+        self.apply_settings()
 
         self.all_actions = actions
-        self.donate = donate
         self.location_manager = location_manager
         self.location_manager.locations_changed.connect(self.build_bar)
         self.d_widget = QWidget()
@@ -244,6 +242,16 @@ class ToolBar(QToolBar): # {{{
         donate.setCursor(Qt.PointingHandCursor)
         self.build_bar()
         self.preferred_width = self.sizeHint().width()
+
+    def apply_settings(self):
+        sz = gprefs.get('toolbar_icon_size', 'medium')
+        sz = {'small':24, 'medium':48, 'large':64}[sz]
+        self.setIconSize(QSize(sz, sz))
+        style = Qt.ToolButtonTextUnderIcon
+        if gprefs.get('toolbar_text', 'auto') == 'never':
+            style = Qt.ToolButtonIconOnly
+        self.setToolButtonStyle(style)
+        self.donate.set_normal_icon_size(sz, sz)
 
     def contextMenuEvent(self, *args):
         pass
@@ -298,8 +306,11 @@ class ToolBar(QToolBar): # {{{
     def resizeEvent(self, ev):
         QToolBar.resizeEvent(self, ev)
         style = Qt.ToolButtonTextUnderIcon
+        p = gprefs.get('toolbar_text', 'auto')
+        if p == 'never':
+            style = Qt.ToolButtonIconOnly
 
-        if self.preferred_width > self.width()+35:
+        if p == 'auto' and self.preferred_width > self.width()+35:
             style = Qt.ToolButtonIconOnly
 
         self.setToolButtonStyle(style)
@@ -383,7 +394,6 @@ class MainWindowMixin(object):
         self.centralwidget.setLayout(self._central_widget_layout)
         self.resize(1012, 740)
         self.donate_button = ThrobbingButton(self.centralwidget)
-        self.donate_button.set_normal_icon_size(ICON_SIZE, ICON_SIZE)
         self.location_manager = LocationManager(self)
 
         self.init_scheduler(db)
