@@ -199,7 +199,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         UpdateMixin.__init__(self, opts)
 
         ####################### Search boxes ########################
-        SavedSearchBoxMixin.__init__(self)
+        SavedSearchBoxMixin.__init__(self, db)
         SearchBoxMixin.__init__(self)
 
         ####################### Library view ########################
@@ -392,6 +392,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.library_view.model().set_book_on_device_func(self.book_on_device)
         self.status_bar.clear_message()
         self.search.clear_to_help()
+        self.saved_search.clear_to_help()
         self.book_details.reset_info()
         self.library_view.model().count_changed()
         self.scheduler.database_changed(db)

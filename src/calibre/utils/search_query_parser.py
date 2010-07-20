@@ -21,7 +21,6 @@ import sys, string, operator
 from calibre.utils.pyparsing import Keyword, Group, Forward, CharsNotIn, Suppress, \
                       OneOrMore, oneOf, CaselessLiteral, Optional, NoMatch, ParseException
 from calibre.constants import preferred_encoding
-from calibre.utils.config import prefs
 
 '''
 This class manages access to the preference holding the saved search queries.
@@ -32,9 +31,13 @@ class SavedSearchQueries(object):
     queries = {}
     opt_name = ''
 
-    def __init__(self, _opt_name):
+    def __init__(self, db, _opt_name):
         self.opt_name = _opt_name;
-        self.queries = prefs[self.opt_name]
+        self.db = db
+        if db is not None:
+            self.queries = db.prefs.get(self.opt_name, {})
+        else:
+            self.queries = {}
 
     def force_unicode(self, x):
         if not isinstance(x, unicode):
@@ -43,20 +46,20 @@ class SavedSearchQueries(object):
 
     def add(self, name, value):
         self.queries[self.force_unicode(name)] = self.force_unicode(value).strip()
-        prefs[self.opt_name] = self.queries
+        self.db.prefs[self.opt_name] = self.queries
 
     def lookup(self, name):
         return self.queries.get(self.force_unicode(name), None)
 
     def delete(self, name):
         self.queries.pop(self.force_unicode(name), False)
-        prefs[self.opt_name] = self.queries
+        self.db.prefs[self.opt_name] = self.queries
 
     def rename(self, old_name, new_name):
         self.queries[self.force_unicode(new_name)] = \
                     self.queries.get(self.force_unicode(old_name), None)
         self.queries.pop(self.force_unicode(old_name), False)
-        prefs[self.opt_name] = self.queries
+        self.db.prefs[self.opt_name] = self.queries
 
     def names(self):
         return sorted(self.queries.keys(),
@@ -66,8 +69,15 @@ class SavedSearchQueries(object):
 Create a global instance of the saved searches. It is global so that the searches
 are common across all instances of the parser (devices, library, etc).
 '''
-saved_searches = SavedSearchQueries('saved_searches')
+ss = SavedSearchQueries(None, None)
 
+def set_saved_searches(db, opt_name):
+    global ss
+    ss = SavedSearchQueries(db, opt_name)
+
+def saved_searches():
+    global ss
+    return ss
 
 class SearchQueryParser(object):
     '''
@@ -209,7 +219,7 @@ class SearchQueryParser(object):
                     raise ParseException(query, len(query), 'undefined saved search', self)
                 if self.recurse_level > 5:
                     self.searches_seen.add(query)
-                return self._parse(saved_searches.lookup(query))
+                return self._parse(saved_searches().lookup(query))
             except: # convert all exceptions (e.g., missing key) to a parse error
                 raise ParseException(query, len(query), 'undefined saved search', self)
         return self.get_matches(location, query)

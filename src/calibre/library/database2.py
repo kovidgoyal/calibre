@@ -30,7 +30,7 @@ from calibre.customize.ui import run_plugins_on_import
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.search_query_parser import saved_searches
+from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick_draw import save_cover_data_to
 
@@ -142,6 +142,22 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def initialize_dynamic(self):
         self.prefs = DBPrefs(self)
+
+        # Migrate saved search and user categories to db preference scheme
+        def migrate_preference(name, default):
+            obsolete = '###OBSOLETE--DON\'T USE ME###'
+            ans = self.prefs.get(name, None)
+            if ans is None:
+                ans = prefs[name]
+                if ans in (None, obsolete):
+                    ans = default
+                prefs[name] = obsolete
+                self.prefs[name] = ans
+
+        migrate_preference('user_categories', {})
+        migrate_preference('saved_searches', {})
+        set_saved_searches(self, 'saved_searches')
+
         self.conn.executescript('''
         DROP TRIGGER IF EXISTS author_insert_trg;
         CREATE TEMP TRIGGER author_insert_trg
@@ -270,10 +286,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for k in tb_cats.keys():
             if tb_cats[k]['kind'] in ['user', 'search']:
                 del tb_cats[k]
-        for user_cat in sorted(prefs['user_categories'].keys()):
+        for user_cat in sorted(self.prefs.get('user_categories', {}).keys()):
             cat_name = user_cat+':' # add the ':' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
-        if len(saved_searches.names()):
+        if len(saved_searches().names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
 
         self.book_on_device_func = None
@@ -845,7 +861,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             categories['formats'].sort(key = lambda x:x.name)
 
         #### Now do the user-defined categories. ####
-        user_categories = prefs['user_categories']
+        user_categories = self.prefs['user_categories']
 
         # We want to use same node in the user category as in the source
         # category. To do that, we need to find the original Tag node. There is
@@ -882,8 +898,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         icon = None
         if icon_map and 'search' in icon_map:
                 icon = icon_map['search']
-        for srch in saved_searches.names():
-            items.append(Tag(srch, tooltip=saved_searches.lookup(srch), icon=icon))
+        for srch in saved_searches().names():
+            items.append(Tag(srch, tooltip=saved_searches().lookup(srch), icon=icon))
         if len(items):
             if icon_map is not None:
                 icon_map['search'] = icon_map['search']
