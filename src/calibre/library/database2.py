@@ -145,14 +145,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         # Migrate saved search and user categories to db preference scheme
         def migrate_preference(name, default):
-            obsolete = '###OBSOLETE--DON\'T USE ME###'
             ans = self.prefs.get(name, None)
             if ans is None:
                 ans = prefs[name]
-                if ans in (None, obsolete):
+                if ans is None:
                     ans = default
-                prefs[name] = obsolete
-                self.prefs[name] = ans
+                prefs[name] = self.prefs[name] = ans
 
         migrate_preference('user_categories', {})
         migrate_preference('saved_searches', {})
