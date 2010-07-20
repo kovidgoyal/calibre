@@ -214,14 +214,17 @@ class BooksView(QTableView): # {{{
                 state['column_sizes'][name] = h.sectionSize(i)
         return state
 
+    def write_state(self, state):
+        db = getattr(self.model(), 'db', None)
+        name = unicode(self.objectName())
+        if name and db is not None:
+            db.prefs.set(name + ' books view state', state)
+
     def save_state(self):
         # Only save if we have been initialized (set_database called)
         if len(self.column_map) > 0 and self.was_restored:
             state = self.get_state()
-            db = getattr(self.model(), 'db', None)
-            name = unicode(self.objectName())
-            if name and db is not None:
-                db.prefs.set(name + ' books view state', state)
+            self.write_state(state)
 
     def cleanup_sort_history(self, sort_history):
         history = []
@@ -387,7 +390,7 @@ class BooksView(QTableView): # {{{
 
     # Context Menu {{{
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
-                         save, open_folder, book_details, delete,
+                         save, open_folder, book_details, delete, conn_share,
                          similar_menu=None, add_to_library=None,
                          edit_device_collections=None):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
@@ -398,6 +401,8 @@ class BooksView(QTableView): # {{{
             self.context_menu.addAction(send_to_device)
         if convert is not None:
             self.context_menu.addAction(convert)
+        if conn_share is not None:
+            self.context_menu.addAction(conn_share)
         self.context_menu.addAction(view)
         self.context_menu.addAction(save)
         if open_folder is not None:
@@ -523,6 +528,19 @@ class DeviceBooksView(BooksView): # {{{
             prefs['manage_device_metadata'] == 'manual')
         self.context_menu.popup(event.globalPos())
         event.accept()
+
+    def get_old_state(self):
+        ans = None
+        name = unicode(self.objectName())
+        if name:
+            name += ' books view state'
+            ans = gprefs.get(name, None)
+        return ans
+
+    def write_state(self, state):
+        name = unicode(self.objectName())
+        if name:
+            gprefs.set(name + ' books view state', state)
 
     def set_database(self, db):
         self._model.set_database(db)
