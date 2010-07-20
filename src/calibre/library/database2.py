@@ -150,7 +150,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 ans = prefs[name]
                 if ans is None:
                     ans = default
-                prefs[name] = self.prefs[name] = ans
+                self.prefs[name] = ans
+                prefs[name] = default
 
         migrate_preference('user_categories', {})
         migrate_preference('saved_searches', {})
