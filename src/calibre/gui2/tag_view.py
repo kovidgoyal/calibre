@@ -17,7 +17,6 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
 
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE
-from calibre.utils.config import prefs
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
@@ -224,7 +223,7 @@ class TagsView(QTreeView): # {{{
 
             # Always show the user categories editor
             self.context_menu.addSeparator()
-            if category in self.db.prefs['user_categories'].keys():
+            if category in self.db.prefs.get('user_categories', {}).keys():
                 self.context_menu.addAction(_('Manage User Categories'),
                         partial(self.context_menu_handler, action='manage_categories',
                                 category=category))
@@ -426,7 +425,7 @@ class TagsModel(QAbstractItemModel): # {{{
         for k in tb_cats.keys():
             if tb_cats[k]['kind'] in ['user', 'search']:
                 del tb_cats[k]
-        for user_cat in sorted(self.db.prefs['user_categories'].keys()):
+        for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys()):
             cat_name = user_cat+':' # add the ':' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
         if len(saved_searches().names()):

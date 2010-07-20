@@ -16,7 +16,6 @@ from calibre.gui2 import config
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
-from calibre.utils.config import prefs
 from calibre.utils.search_query_parser import saved_searches
 
 class SearchLineEdit(QLineEdit):

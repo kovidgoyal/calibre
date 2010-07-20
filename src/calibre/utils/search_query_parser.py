@@ -35,7 +35,7 @@ class SavedSearchQueries(object):
         self.opt_name = _opt_name;
         self.db = db
         if db is not None:
-            self.queries = db.prefs[self.opt_name]
+            self.queries = db.prefs.get(self.opt_name, {})
         else:
             self.queries = {}
 

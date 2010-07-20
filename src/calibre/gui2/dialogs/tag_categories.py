@@ -62,7 +62,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                 self.all_items.append(t)
                 self.all_items_dict[label+':'+n] = t
 
-        self.categories = dict.copy(db.prefs['user_categories'])
+        self.categories = dict.copy(db.prefs.get('user_categories', {}))
         if self.categories is None:
             self.categories = {}
         for cat in self.categories:

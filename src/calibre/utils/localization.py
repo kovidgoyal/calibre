@@ -42,6 +42,8 @@ def get_lang():
             lang = match.group()
     if lang == 'zh':
         lang = 'zh_CN'
+    if lang is None:
+        lang = 'en'
     return lang
 
 def messages_path(lang):
