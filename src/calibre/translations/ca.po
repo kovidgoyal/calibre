@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-18 02:33+0000\n"
-"PO-Revision-Date: 2010-07-18 21:59+0000\n"
+"PO-Revision-Date: 2010-07-19 07:24+0000\n"
 "Last-Translator: Fike <Unknown>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-19 03:35+0000\n"
+"X-Launchpad-Export-Date: 2010-07-20 03:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -2511,7 +2511,7 @@ msgstr "Etiquetar el llibre marcat per a ser arxivat com documents personals"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:108
 msgid "All articles"
-msgstr ""
+msgstr "Tots els articles"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:259
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -2763,7 +2763,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:54
 msgid "Encrypt Options:"
-msgstr ""
+msgstr "Opcions d'encriptació:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:21
 msgid ""
@@ -2776,7 +2776,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:29
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:47
 msgid "Subject"
@@ -2820,7 +2820,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/reverse.py:54
 msgid "Reverse Options:"
-msgstr ""
+msgstr "Opcions d'inversió:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:24
 msgid ""
@@ -2831,7 +2831,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 msgid "Rotate Options:"
-msgstr ""
+msgstr "Opcions de rotació:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:25
 msgid ""
@@ -3068,11 +3068,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:151
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:476
 msgid "Copied"
-msgstr ""
+msgstr "Copiat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:185
 msgid "Copy"
-msgstr ""
+msgstr "Copia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:185
 msgid "Copy to Clipboard"
@@ -3080,12 +3080,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:396
 msgid "Choose Files"
-msgstr ""
+msgstr "Escull fitxers"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:67
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:245
 msgid "Use library only"
-msgstr ""
+msgstr "Fes servir només la llibreria"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:246
@@ -3133,65 +3133,65 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:291
 msgid "How many empty books?"
-msgstr ""
+msgstr "Quants llibres buits?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:292
 msgid "How many empty books should be added?"
-msgstr ""
+msgstr "Quants llibres buits haurien d'afegir-se?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:339
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:390
 msgid "Uploading books to device."
-msgstr ""
+msgstr "Pujant llibres a l'aparell."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:350
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:137
 msgid "Books"
-msgstr ""
+msgstr "Llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:351
 msgid "EPUB Books"
-msgstr ""
+msgstr "Llibres EPUB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:352
 msgid "LRF Books"
-msgstr ""
+msgstr "Llibres LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:353
 msgid "HTML Books"
-msgstr ""
+msgstr "Llibres HTML"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:354
 msgid "LIT Books"
-msgstr ""
+msgstr "Llibres LIT"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:355
 msgid "MOBI Books"
-msgstr ""
+msgstr "Llibres Mobi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:356
 msgid "Topaz books"
-msgstr ""
+msgstr "Llibres Topaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:357
 msgid "Text books"
-msgstr ""
+msgstr "Llibres de text"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:358
 msgid "PDF Books"
-msgstr ""
+msgstr "Llibres PDF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:359
 msgid "Comics"
-msgstr ""
+msgstr "Còmics"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:360
 msgid "Archives"
-msgstr ""
+msgstr "Arxius"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:364
 msgid "Supported books"
-msgstr ""
+msgstr "Llibres admesos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:399
 msgid "Merged some books"
@@ -3240,7 +3240,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:507
 msgid "Cannot delete books"
-msgstr ""
+msgstr "No puc esborrar llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:508
 msgid "No device is connected"
@@ -3248,23 +3248,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:518
 msgid "Main memory"
-msgstr ""
+msgstr "Memòria principal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:519
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:445
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:454
 msgid "Storage Card A"
-msgstr ""
+msgstr "Tarja de memòria A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:520
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:447
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:456
 msgid "Storage Card B"
-msgstr ""
+msgstr "Tarja de memòria B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:525
 msgid "No books to delete"
-msgstr ""
+msgstr "Cap llibre per esborrar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:526
 msgid "None of the selected books are on the device"
@@ -3297,7 +3297,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:628
 msgid "covers"
-msgstr ""
+msgstr "portades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:628
 msgid "metadata"
@@ -3325,7 +3325,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:923
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:53
 msgid "Error"
-msgstr ""
+msgstr "Error"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:669
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:706
@@ -3401,7 +3401,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:964
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:264
 msgid "No books found"
-msgstr ""
+msgstr "No trobo llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:965
 msgid ""
@@ -3411,7 +3411,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:975
 msgid "Catalog generated."
-msgstr ""
+msgstr "Catàleg generat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:978
 msgid "Export Catalog Directory"
@@ -3473,7 +3473,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:232
 msgid "Adding..."
-msgstr ""
+msgstr "Afegint..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:245
 msgid "Searching in all sub-directories..."
@@ -3490,11 +3490,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:263
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:839
 msgid "No books"
-msgstr ""
+msgstr "Cap llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:330
 msgid "Added"
-msgstr ""
+msgstr "Afegit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:343
 msgid "Adding failed"
@@ -3508,7 +3508,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:356
 msgid "Duplicates found!"
-msgstr ""
+msgstr "N'he trobat de repetits!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:357
 msgid ""
@@ -3522,11 +3522,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:427
 msgid "Saving..."
-msgstr ""
+msgstr "Desant..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:480
 msgid "Saved"
-msgstr ""
+msgstr "Desat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:57
 msgid "Searching for sub-folders"
@@ -3695,12 +3695,12 @@ msgstr "Formats"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:891
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1068
 msgid "Collections"
-msgstr ""
+msgstr "Col·leccions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:56
 msgid "Click to open"
-msgstr ""
+msgstr "Clica per obrir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:305
@@ -3787,7 +3787,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:107
 msgid "Form"
-msgstr ""
+msgstr "Forma"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:82
 msgid "Bib file encoding:"
@@ -3836,7 +3836,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:93
 msgid "book"
-msgstr ""
+msgstr "llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:94
 msgid "Create a citation tag?"
@@ -4427,7 +4427,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:42
 msgid "Default"
-msgstr ""
+msgstr "Per defecte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:67
 msgid "&Title for Table of Contents:"
@@ -4870,17 +4870,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:133
 msgid "Yes"
-msgstr ""
+msgstr "Sí"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:134
 msgid "No"
-msgstr ""
+msgstr "No"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:116
 msgid "star(s)"
-msgstr ""
+msgstr "estrella/es"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:117
 msgid "Unrated"
@@ -5331,11 +5331,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:200
 msgid "Conversion"
-msgstr ""
+msgstr "Conversió"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:200
 msgid "General"
-msgstr ""
+msgstr "General"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:200
 msgid "Interface"
@@ -5363,7 +5363,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:202
 msgid "Plugins"
-msgstr ""
+msgstr "Plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:220
 msgid "Auto send"
@@ -5474,7 +5474,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:683
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:48
 msgid "Are you sure?"
-msgstr ""
+msgstr "N'estàs segur?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:684
 msgid "Do you really want to delete column %s and all its data?"
@@ -5692,7 +5692,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:520
 msgid " seconds"
-msgstr ""
+msgstr " segons"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:521
 msgid "Choose &language (requires restart):"
@@ -8798,7 +8798,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:199
 msgid "F3"
-msgstr ""
+msgstr "F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:200
 msgid "Copy to clipboard"
@@ -8830,7 +8830,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:208
 msgid "Shift+F3"
-msgstr ""
+msgstr "Shift+F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:114
 msgid "Print eBook"
@@ -8838,11 +8838,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:238
 msgid "Copy Image"
-msgstr ""
+msgstr "Copia Imatge"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:239
 msgid "Paste Image"
-msgstr ""
+msgstr "Enganxa Imatge"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:364
 msgid "Change Case"
@@ -8870,7 +8870,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:870
 msgid "Show"
-msgstr ""
+msgstr "Mostra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:877
 msgid "Hide"
@@ -9142,25 +9142,25 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:230
 msgid "today"
-msgstr ""
+msgstr "avui"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:233
 msgid "yesterday"
-msgstr ""
+msgstr "ahir"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:236
 msgid "thismonth"
-msgstr ""
+msgstr "aquestmes"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:239
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:240
 msgid "daysago"
-msgstr ""
+msgstr "dies"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:398
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:408
 msgid "no"
-msgstr ""
+msgstr "no"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:398
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:408
@@ -9175,7 +9175,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:401
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:411
 msgid "yes"
-msgstr ""
+msgstr "sí"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:405
 msgid "blank"
@@ -9183,7 +9183,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:405
 msgid "empty"
-msgstr ""
+msgstr "buit"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:48
 msgid ""
