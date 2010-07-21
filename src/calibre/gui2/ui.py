@@ -199,7 +199,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         UpdateMixin.__init__(self, opts)
 
         ####################### Search boxes ########################
-        SavedSearchBoxMixin.__init__(self)
+        SavedSearchBoxMixin.__init__(self, db)
         SearchBoxMixin.__init__(self)
 
         ####################### Library view ########################
@@ -351,7 +351,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
 
-    def do_config(self, *args):
+    def do_config(self, checked=False, initial_category='general'):
         if self.job_manager.has_jobs():
             d = error_dialog(self, _('Cannot configure'),
                     _('Cannot configure while there are running jobs.'))
@@ -363,7 +363,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
             d.exec_()
             return
         d = ConfigDialog(self, self.library_view,
-                server=self.content_server)
+                server=self.content_server, initial_category=initial_category)
 
         d.exec_()
         self.content_server = d.server
@@ -380,6 +380,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
             self.tags_view.recount()
             self.create_device_menu()
             self.set_device_menu_items_state(bool(self.device_connected))
+            self.tool_bar.apply_settings()
 
     def library_moved(self, newloc):
         if newloc is None: return
@@ -392,6 +393,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.library_view.model().set_book_on_device_func(self.book_on_device)
         self.status_bar.clear_message()
         self.search.clear_to_help()
+        self.saved_search.clear_to_help()
         self.book_details.reset_info()
         self.library_view.model().count_changed()
         self.scheduler.database_changed(db)

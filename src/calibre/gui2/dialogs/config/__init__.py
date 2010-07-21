@@ -195,21 +195,31 @@ class PluginModel(QAbstractItemModel):
 
 class CategoryModel(QStringListModel):
 
+    CATEGORIES = [
+             ('general', _('General'), 'dialog_information.svg'),
+             ('interface', _('Interface'), 'lookfeel.svg'),
+             ('conversion', _('Conversion'), 'convert.svg'),
+             ('email', _('Email\nDelivery'), 'mail.svg'),
+             ('add/save', _('Add/Save'), 'save.svg'),
+             ('advanced', _('Advanced'), 'view.svg'),
+             ('server', _('Content\nServer'), 'network-server.svg'),
+             ('plugins', _('Plugins'), 'plugins.svg'),
+    ]
+
     def __init__(self, *args):
         QStringListModel.__init__(self, *args)
-        self.setStringList([_('General'), _('Interface'), _('Conversion'),
-                            _('Email\nDelivery'), _('Add/Save'),
-                            _('Advanced'), _('Content\nServer'), _('Plugins')])
-        self.icons = list(map(QVariant, map(QIcon,
-            [I('dialog_information.svg'), I('lookfeel.svg'),
-                I('convert.svg'),
-                I('mail.svg'), I('save.svg'), I('view.svg'),
-             I('network-server.svg'), I('plugins.svg')])))
+        self.setStringList([x[1] for x in self.CATEGORIES])
 
     def data(self, index, role):
         if role == Qt.DecorationRole:
-            return self.icons[index.row()]
+            return QVariant(QIcon(I(self.CATEGORIES[index.row()][2])))
         return QStringListModel.data(self, index, role)
+
+    def index_for_name(self, name):
+        for i, x in enumerate(self.CATEGORIES):
+            if x[0] == name:
+                return self.index(i)
+        return self.index(0)
 
 class EmailAccounts(QAbstractTableModel):
 
@@ -332,7 +342,8 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
     def category_current_changed(self, n, p):
         self.stackedWidget.setCurrentIndex(n.row())
 
-    def __init__(self, parent, library_view, server=None):
+    def __init__(self, parent, library_view, server=None,
+            initial_category='general'):
         ResizableDialog.__init__(self, parent)
         self._category_model = CategoryModel()
 
@@ -461,7 +472,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.button_osx_symlinks.setVisible(isosx)
         self.separate_cover_flow.setChecked(config['separate_cover_flow'])
         self.setup_email_page()
-        self.category_view.setCurrentIndex(self.category_view.model().index(0))
         self.delete_news.setEnabled(bool(self.sync_news.isChecked()))
         self.connect(self.sync_news, SIGNAL('toggled(bool)'),
                 self.delete_news.setEnabled)
@@ -488,6 +498,22 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.opt_gui_layout.setCurrentIndex(li)
         self.opt_disable_animations.setChecked(config['disable_animations'])
         self.opt_show_donate_button.setChecked(config['show_donate_button'])
+        idx = 0
+        for i, x in enumerate([(_('Small'), 'small'), (_('Medium'), 'medium'),
+            (_('Large'), 'large')]):
+            if x[1] == gprefs.get('toolbar_icon_size', 'medium'):
+                idx = i
+            self.opt_toolbar_icon_size.addItem(x[0], x[1])
+        self.opt_toolbar_icon_size.setCurrentIndex(idx)
+        idx = 0
+        for i, x in enumerate([(_('Automatic'), 'auto'), (_('Always'), 'always'),
+            (_('Never'), 'never')]):
+            if x[1] == gprefs.get('toolbar_text', 'auto'):
+                idx = i
+            self.opt_toolbar_text.addItem(x[0], x[1])
+        self.opt_toolbar_text.setCurrentIndex(idx)
+
+        self.category_view.setCurrentIndex(self.category_view.model().index_for_name(initial_category))
 
     def check_port_value(self, *args):
         port = self.port.value()
@@ -857,6 +883,10 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['disable_animations'] = bool(self.opt_disable_animations.isChecked())
         config['show_donate_button'] = bool(self.opt_show_donate_button.isChecked())
         gprefs['show_splash_screen'] = bool(self.show_splash_screen.isChecked())
+        for x in ('toolbar_icon_size', 'toolbar_text'):
+            w = getattr(self, 'opt_'+x)
+            data = w.itemData(w.currentIndex()).toString()
+            gprefs[x] = unicode(data)
         fmts = []
         for i in range(self.viewer.count()):
             if self.viewer.item(i).checkState() == Qt.Checked:
@@ -942,6 +972,5 @@ if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     app = QApplication([])
     d=ConfigDialog(None, LibraryDatabase2('/tmp'))
-    d.category_view.setCurrentIndex(d.category_view.model().index(0))
     d.show()
     app.exec_()
