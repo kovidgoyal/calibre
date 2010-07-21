@@ -44,6 +44,11 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         QDialog.__init__(self, parent)
         Ui_QCreateCustomColumn.__init__(self)
         self.setupUi(self)
+        # Remove help icon on title bar
+        icon = self.windowIcon()
+        self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
+        self.setWindowIcon(icon)
+
         self.simple_error = partial(error_dialog, self, show=True,
             show_copy_button=False)
         self.connect(self.button_box, SIGNAL("accepted()"), self.accept)
