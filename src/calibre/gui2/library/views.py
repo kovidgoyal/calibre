@@ -478,14 +478,20 @@ class BooksView(QTableView): # {{{
     def set_current_row(self, row, select=True):
         if row > -1:
             h = self.horizontalHeader()
-            for i in range(h.count()):
-                if not h.isSectionHidden(i):
-                    index = self.model().index(row, i)
-                    self.setCurrentIndex(index)
-                    if select:
-                        sm = self.selectionModel()
-                        sm.select(index, sm.ClearAndSelect|sm.Rows)
-                    break
+            logical_indices = list(range(h.count()))
+            logical_indices = [x for x in logical_indices if not
+                    h.isSectionHidden(x)]
+            pairs = [(x, h.visualIndex(x)) for x in logical_indices if
+                    h.visualIndex(x) > -1]
+            if not pairs:
+                pairs = [(0, 0)]
+            pairs.sort(cmp=lambda x,y:cmp(x[1], y[1]))
+            i = pairs[0][0]
+            index = self.model().index(row, i)
+            self.setCurrentIndex(index)
+            if select:
+                sm = self.selectionModel()
+                sm.select(index, sm.ClearAndSelect|sm.Rows)
 
     def close(self):
         self._model.close()
