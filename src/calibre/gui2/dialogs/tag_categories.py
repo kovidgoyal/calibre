@@ -28,6 +28,11 @@ class TagCategories(QDialog, Ui_TagCategories):
         Ui_TagCategories.__init__(self)
         self.setupUi(self)
 
+        # Remove help icon on title bar
+        icon = self.windowIcon()
+        self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
+        self.setWindowIcon(icon)
+
         self.db = db
         self.applied_items = []
 
