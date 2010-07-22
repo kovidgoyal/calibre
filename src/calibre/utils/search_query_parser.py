@@ -168,8 +168,6 @@ class SearchQueryParser(object):
             self._tests_failed = bool(failed)
 
         self._parser = Or
-        #self._parser.setDebug(True)
-        #self.parse('x ore')
         self._parser.setDebug(False)
 
 
