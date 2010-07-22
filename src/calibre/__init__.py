@@ -2,6 +2,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
+
 import sys, os, re, logging, time, mimetypes, \
        __builtin__, warnings, multiprocessing
 from urllib import getproxies
@@ -13,12 +14,13 @@ from functools import partial
 warnings.simplefilter('ignore', DeprecationWarning)
 
 
-from calibre.startup import plugins, winutil, winutilerror
 from calibre.constants import iswindows, isosx, islinux, isfreebsd, isfrozen, \
                               terminal_controller, preferred_encoding, \
                               __appname__, __version__, __author__, \
                               win32event, win32api, winerror, fcntl, \
-                              filesystem_encoding
+                              filesystem_encoding, plugins, config_dir
+from calibre.startup import winutil, winutilerror
+
 import mechanize
 
 if False:
@@ -486,7 +488,6 @@ def ipython(user_ns=None):
     sys.argv = ['ipython']
     if user_ns is None:
         user_ns = locals()
-    from calibre.utils.config import config_dir
     ipydir = os.path.join(config_dir, ('_' if iswindows else '.')+'ipython')
     os.environ['IPYTHONDIR'] = ipydir
     if not os.path.exists(ipydir):

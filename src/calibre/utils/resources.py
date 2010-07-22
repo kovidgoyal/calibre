@@ -9,26 +9,54 @@ __docformat__ = 'restructuredtext en'
 
 import __builtin__, sys, os
 
-_dev_path = os.environ.get('CALIBRE_DEVELOP_FROM', None)
-if _dev_path is not None:
-    _dev_path = os.path.join(os.path.abspath(os.path.dirname(_dev_path)), 'resources')
-    if not os.path.exists(_dev_path):
-        _dev_path = None
+from calibre import config_dir
 
-_path_cache = {}
+class PathResolver(object):
+
+    def __init__(self):
+        self.locations = [sys.resources_location]
+        self.cache = {}
+
+        def suitable(path):
+            try:
+                return os.path.exists(path) and os.path.isdir(path) and \
+                       os.listdir(path)
+            except:
+                pass
+            return False
+
+        dev_path = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+        if dev_path is not None:
+            dev_path = os.path.join(os.path.abspath(
+                os.path.dirname(dev_path)), 'resources')
+            if suitable(dev_path):
+                self.locations.insert(0, dev_path)
+
+        user_path = os.path.join(config_dir, 'resources')
+        if suitable(user_path):
+            self.locations.insert(0, user_path)
+
+    def __call__(self, path):
+        path = path.replace(os.sep, '/')
+        ans = self.cache.get(path, None)
+        if ans is None:
+            for base in self.locations:
+                fpath = os.path.join(base, *path.split('/'))
+                if os.path.exists(fpath):
+                    ans = fpath
+                    break
+
+            if ans is None:
+                ans = os.path.join(self.location[0], *path.split('/'))
+
+            self.cache[path] = ans
+
+        return ans
+
+_resolver = PathResolver()
 
 def get_path(path, data=False):
-    global _dev_path
-    path = path.replace(os.sep, '/')
-    base = sys.resources_location
-    if _dev_path is not None:
-        if path in _path_cache:
-            return _path_cache[path]
-        if os.path.exists(os.path.join(_dev_path, *path.split('/'))):
-            base = _dev_path
-    fpath = os.path.join(base, *path.split('/'))
-    if _dev_path is not None:
-        _path_cache[path] = fpath
+    fpath = _resolver(path)
     if data:
         return open(fpath, 'rb').read()
     return fpath
