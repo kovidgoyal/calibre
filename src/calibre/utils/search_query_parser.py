@@ -169,7 +169,7 @@ class SearchQueryParser(object):
 
         self._parser = Or
         #self._parser.setDebug(True)
-        #self.parse('(tolstoy)')
+        #self.parse('x ore')
         self._parser.setDebug(False)
 
 
@@ -584,7 +584,10 @@ class Tester(SearchQueryParser):
 
 
 def main(args=sys.argv):
-    tester = Tester(test=True)
+    tester = Tester(['authors', 'author', 'series', 'formats', 'format',
+        'publisher', 'rating', 'tags', 'tag', 'comments', 'comment', 'cover',
+        'isbn', 'ondevice', 'pubdate', 'size', 'date', 'title', u'#read',
+        'all', 'search'], test=True)
     failed = tester.run_tests()
     if tester._tests_failed or failed:
         print '>>>>>>>>>>>>>> Tests Failed <<<<<<<<<<<<<<<'
