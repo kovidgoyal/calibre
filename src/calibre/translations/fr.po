@@ -9847,7 +9847,7 @@ msgid ""
 msgstr ""
 "Champ de tri pour la sortie\n"
 "Champs disponibles: author_sort, id, rating, size, timestamp, title.\n"
-"Par défaut: '%%default'\n"
+"Par défaut: '%default'\n"
 "S'applique au format : BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:225
@@ -9859,7 +9859,7 @@ msgid ""
 msgstr ""
 "Créer une citation pour les entrées BibTeX\n"
 "Booléen: True, False.\n"
-"Par défaut: '%%default'\n"
+"Par défaut: '%default'\n"
 "S'applique au format : BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:234
@@ -9886,7 +9886,7 @@ msgid ""
 msgstr ""
 "Encodage du fichier de sortie BibTeX\n"
 "Encodages disponibles: utf8, cp1252, ascii.\n"
-"Par défaut: '%%default'\n"
+"Par défaut: '%default'\n"
 "S'applique au format : BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:253
@@ -9898,7 +9898,7 @@ msgid ""
 msgstr ""
 "Drapeau d'encodage du fichier de sortie BibTeX\n"
 "Types disponibles: strict, replace, ignore, backslashreplace.\n"
-"Par défaut: '%%default'\n"
+"Par défaut: '%default'\n"
 "S'applique au format : BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:262
@@ -9910,7 +9910,7 @@ msgid ""
 msgstr ""
 "Types d'entrées du catalogue BibTeX\n"
 "Types disponibles: book, misc, mixed.\n"
-"Par défaut: '%%default'\n"
+"Par défaut: '%default'\n"
 "S'applique au format : BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:530

@@ -9646,7 +9646,10 @@ msgid ""
 "Boolean value: True, False\n"
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
-msgstr "Skapa citation för BibTeX-poster"
+msgstr ""
+"Skapa citation för BibTeX-posterBoolean value: True, False\n"
+"Default: '%default'\n"
+"Applies to: BIBTEX output format"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:234
 msgid ""
