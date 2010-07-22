@@ -8,7 +8,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class BBC(BasicNewsRecipe):
     title                  = 'BBC News (fast)'
-    __author__             = 'Darko Miletic'
+    __author__             = 'Darko Miletic, Starson17'
     description            = 'News from UK. A much faster version that does not download pictures'
     oldest_article         = 2
     max_articles_per_feed  = 100
@@ -31,14 +31,15 @@ class BBC(BasicNewsRecipe):
                          }
 
     keep_only_tags    = [
-                           dict(attrs={'id'   :['meta-information','story-body']})
-                          ,dict(attrs={'class':['mxb'             ,'storybody' ]})
+                       dict(name='div', attrs={'class':['story-body']})
                         ]
-    remove_tags       = [
-                           dict(name=['object','link','table','img'])
-                          ,dict(attrs={'class':['caption','caption full-width','story-actions','hidden','sharesb','audioInStoryC']})
+
+    remove_tags = [
+                       dict(name='div', attrs={'class':['story-feature related narrow', 'share-help', 'embedded-hyper', \
+                       'story-feature wide ', 'story-feature narrow']})
+                       , dict(name=['img'])
                         ]
-    remove_tags_after = dict(attrs={'class':'sharesb'})
+
     remove_attributes = ['width','height']
 
     feeds          = [
@@ -56,4 +57,3 @@ class BBC(BasicNewsRecipe):
                       ('Asia-Pacific', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/asia-pacific/rss.xml'),
                       ('Africa', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/africa/rss.xml'),
                     ]
-

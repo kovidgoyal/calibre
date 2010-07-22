@@ -3,14 +3,13 @@ __copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 news.bbc.co.uk
 '''
-
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class BBC(BasicNewsRecipe):
-    title                  = 'The BBC'
-    __author__             = 'Darko Miletic'
-    description            = 'Global news and current affairs from the British Broadcasting Corporation'
+    title                  = 'BBC News'
+    __author__             = 'Darko Miletic, Starson17'
+    description            = 'News from UK. A much faster version that does not download pictures'
     oldest_article         = 2
     max_articles_per_feed  = 100
     no_stylesheets         = True
@@ -23,7 +22,6 @@ class BBC(BasicNewsRecipe):
     publication_type       = 'newsportal'
     extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
     preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
-
     conversion_options = {
                              'comments'        : description
                             ,'tags'            : category
@@ -33,14 +31,14 @@ class BBC(BasicNewsRecipe):
                          }
 
     keep_only_tags    = [
-                           dict(attrs={'id'   :['meta-information','story-body']})
-                          ,dict(attrs={'class':['mxb'             ,'storybody' ]})
+                       dict(name='div', attrs={'class':['story-body']})
                         ]
-    remove_tags       = [
-                           dict(name=['object','link','table'])
-                          ,dict(attrs={'class':['caption','caption full-width','story-actions','hidden','sharesb','audioInStoryC']})
+
+    remove_tags = [
+                       dict(name='div', attrs={'class':['story-feature related narrow', 'share-help', 'embedded-hyper', \
+                       'story-feature wide ', 'story-feature narrow']})
                         ]
-    remove_tags_after = dict(attrs={'class':'sharesb'})
+
     remove_attributes = ['width','height']
 
     feeds          = [
@@ -58,4 +56,5 @@ class BBC(BasicNewsRecipe):
                       ('Asia-Pacific', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/asia-pacific/rss.xml'),
                       ('Africa', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/africa/rss.xml'),
                     ]
+
 
