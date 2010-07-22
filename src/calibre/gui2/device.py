@@ -72,7 +72,14 @@ class DeviceJob(BaseJob): # {{{
             if self._aborted:
                 return
             self.failed = True
-            self._details = unicode(err) + '\n\n' + \
+            try:
+                ex = unicode(err)
+            except:
+                try:
+                    ex = str(err).decode(preferred_encoding, 'replace')
+                except:
+                    ex = repr(err)
+            self._details = ex + '\n\n' + \
                 traceback.format_exc()
             self.exception = err
         finally:
