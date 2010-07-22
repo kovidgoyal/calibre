@@ -47,7 +47,7 @@ class PathResolver(object):
                     break
 
             if ans is None:
-                ans = os.path.join(self.location[0], *path.split('/'))
+                ans = os.path.join(self.locations[0], *path.split('/'))
 
             self.cache[path] = ans
 
