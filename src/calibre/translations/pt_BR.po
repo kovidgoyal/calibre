@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-20 22:48+0000\n"
-"PO-Revision-Date: 2010-07-20 15:30+0000\n"
-"Last-Translator: Thomaz Rodrigues Botelho <Unknown>\n"
+"PO-Revision-Date: 2010-07-22 20:44+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-21 03:41+0000\n"
+"X-Launchpad-Export-Date: 2010-07-23 04:06+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -878,7 +878,7 @@ msgstr "Ler metadados dos arquivos no aparelho"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:45
 msgid "Use author sort instead of author"
-msgstr ""
+msgstr "Use autor ordenado em vez de autor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:47
 msgid "Template to control how books are saved"
@@ -2218,7 +2218,7 @@ msgid ""
 "String to be used when sorting by author. If unspecified, and the author(s) "
 "are specified, it will be auto-generated from the author(s)."
 msgstr ""
-"Sequencia de caracteres para ser usada quando for usada a ordenação por "
+"Sequência de caracteres para ser usada quando for usada a ordenação por "
 "autor. Se não especificada, e o(s) autor(es) for especificado, ela será "
 "gerada automaticamente a partir do(s) autor(es)."
 
@@ -2407,7 +2407,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:26
 msgid "When present, use author sort field as author."
-msgstr ""
+msgstr "Quando presente, use o campo autor ordenado como autor."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:30
 msgid ""
@@ -4346,13 +4346,15 @@ msgstr "&Autor(es): "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:175
 msgid "Author So&rt:"
-msgstr ""
+msgstr "Autor O&rdenado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:176
 msgid ""
 "Change the author(s) of this book. Multiple authors should be separated by a "
 "comma"
 msgstr ""
+"Mudar o(s) autor(es) deste livro. Múltiplos autores devem ser separados por "
+"uma virgula"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:167
@@ -4414,7 +4416,7 @@ msgstr "Redimensionar imagens para dispositivos &Palm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:69
 msgid "Use author &sort for author"
-msgstr ""
+msgstr "Use autor &ordenado como autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:70
 msgid "Disable compression of the file contents"
@@ -5140,7 +5142,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:83
 msgid "Use author sort for author"
-msgstr ""
+msgstr "Use autor ordenado como autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:85
 msgid "Save &template:"
@@ -5224,27 +5226,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:66
 msgid "Choose your calibre library"
-msgstr ""
+msgstr "Escolha sua biblioteca do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:67
 msgid "Your calibre library is currently located at {0}"
-msgstr ""
+msgstr "Sua biblioteca do calibre está atualmente localizada em {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:68
 msgid "New &Location:"
-msgstr ""
+msgstr "Nova &Localização:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:69
 msgid "Use &existing library at the new location"
-msgstr ""
+msgstr "Use uma biblioteca &existente na nova localização"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:70
 msgid "&Create an empty library at the new location"
-msgstr ""
+msgstr "&Criar uma biblioteca vazia na nova localização"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:71
 msgid "&Move current library to new location"
-msgstr ""
+msgstr "&Mover a biblioteca atual para a nova localização"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:33
 msgid "Set defaults for conversion of comics (CBR/CBZ files)"
@@ -5260,7 +5262,7 @@ msgstr "&Título:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:93
 msgid "&Author(s):"
-msgstr "&Autor(s):"
+msgstr "&Autor(es):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:95
 msgid "&Profile:"
@@ -5531,10 +5533,13 @@ msgid ""
 "to it. calibre can either read metadata from the contents of the file, or "
 "from the filename."
 msgstr ""
+"Aqui você poder controlar como o calibre irá ler metadados dos arquivos que "
+"você adiciona. Calibre pode ler metadados dos conteúdos de um arquivo, ou do "
+"nome do arquivo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:135
 msgid "Read metadata only from &file name"
-msgstr ""
+msgstr "Ler os metadados somente do nome do &arquivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:136
 msgid ""
@@ -5597,7 +5602,7 @@ msgstr "Salvar metadados no arquivo &OPF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:149
 msgid "Convert non-English characters to &English equivalents"
-msgstr ""
+msgstr "Converter caracteres não-ingleses para &Ingleses equivalentes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:150
 msgid "Format &dates as:"
@@ -5609,11 +5614,11 @@ msgstr "&formatos de arquivo para salvar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:152
 msgid "Replace space with &underscores"
-msgstr ""
+msgstr "Substituir espaços por &underlines"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:153
 msgid "Change paths to &lowercase"
-msgstr ""
+msgstr "Trocar caminhos para &letras minúsculas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:154
 msgid "&Saving books"
@@ -5621,19 +5626,19 @@ msgstr "&Salvando livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:155
 msgid "Metadata &management:"
-msgstr ""
+msgstr "Gerenciamento de &metadados:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:156
 msgid "Manual management"
-msgstr ""
+msgstr "Gerenciamento Manual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:157
 msgid "Only on send"
-msgstr ""
+msgstr "Somente no envio"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:158
 msgid "Automatic management"
-msgstr ""
+msgstr "Gerenciamento automático"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:159
 msgid ""
@@ -5645,6 +5650,15 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
+"<li><b>Gerenciamento manual</b>: Calibre atualiza os metadados e adiciona "
+"coleções somente quando um livro é enviado. Com esta opção, calibre nunca "
+"irá remover uma coleção.</li>\n"
+"<li><b>Somente no envio</b>: Calibre atualiza metadados e adiciona/remove "
+"coleções para um livro somente quando este livro é enviado para o "
+"dispositivo. </li>\n"
+"<li><b>Gerenciamento automático</b>: Calibre automaticamente manterá os "
+"metadados no dispositivo em sincronismo com a biblioteca do calibre, em cada "
+"conexão.</li></ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:162
 msgid ""
@@ -5955,6 +5969,12 @@ msgid ""
 "on your iPhone. Here myhostname should be the fully qualified hostname or "
 "the IP address of the computer calibre is running on."
 msgstr ""
+"<p>Lembre-se de deixar o calibre rodando uma vez que o servidor somente "
+"funciona enquanto o calibre está rodando.\n"
+"<p>O Stanza deverá ver sua coleção do calibre automaticamente. Se não, tente "
+"adicionar a URL http://myhostname:8080 como um novo catálogo no leitor "
+"Stanza em seu iPhone. Onde myhostname deverá ser o hostname ou o endereço IP "
+"do computador que o calibre está rodando."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:604
 msgid ""
@@ -6251,15 +6271,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:29
 msgid "Author sort"
-msgstr ""
+msgstr "Autor ordenado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:47
 msgid "Manage authors"
-msgstr ""
+msgstr "Gerenciar autores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:60
 msgid "Author Sort"
-msgstr ""
+msgstr "Autor Ordenado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:62
 msgid "ISBN"
@@ -6338,6 +6358,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:92
 msgid "Overwrite author and title with author and title of selected book"
 msgstr ""
+"Sobrescrever autor e título com o autor e título do livro selecionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/job_view_ui.py:37
 msgid "Details of job"
@@ -6369,11 +6390,11 @@ msgstr "Editar informação Meta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:159
 msgid "A&utomatically set author sort"
-msgstr ""
+msgstr "Escrever o autor ordenado &automaticamente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:160
 msgid "Author s&ort: "
-msgstr ""
+msgstr "Autor &ordenado: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:363
@@ -6381,6 +6402,8 @@ msgid ""
 "Specify how the author(s) of this book should be sorted. For example Charles "
 "Dickens should be sorted as Dickens, Charles."
 msgstr ""
+"Especificar como o(s) autor(es) deste livro devem ser organizados. Por "
+"exemplo Charles Dickens deve ser organizado como Dickens,Charles."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:366
@@ -6599,12 +6622,14 @@ msgstr "Inverter o autor e o título"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:362
 msgid "Author S&ort: "
-msgstr ""
+msgstr "Autor &organizado: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:364
 msgid ""
 "Automatically create the author sort entry based on the current author entry"
 msgstr ""
+"Automaticamente criar o texto de autor ordenado baseado no texto atual de "
+"autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:378
 msgid "Remove unused series (Series that have no books)"
@@ -7392,7 +7417,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:99
 msgid "No match"
-msgstr ""
+msgstr "Não coincide"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:121
 msgid "Authors:"
@@ -7400,7 +7425,7 @@ msgstr "Autores:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:122
 msgid "Regular expression (?P<author>)"
-msgstr ""
+msgstr "Expressão regular (?P<author>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:124
 msgid "Series:"
@@ -7591,6 +7616,8 @@ msgid ""
 "<p>Search the list of books by title, author, publisher, tags, comments, "
 "etc.<br><br>Words separated by spaces are ANDed"
 msgstr ""
+"<p>Procura a lista de livros por título, autor, editora, tags, comentários, "
+"etc.<br><br>Palavras separadas por espaços e AND"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:191
 msgid "Reset Quick Search"
@@ -7985,11 +8012,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 msgid "<b>No matches</b> for the search phrase <i>%s</i> were found."
 msgstr ""
+"<b>Nenhuma ocorrência</b> para a frase de pesquisa <i>%s</i> foi encontrada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:440
 msgid "No matches found"
-msgstr ""
+msgstr "Nenhuma correspondência encontrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:128
 msgid "LRF Viewer"
@@ -8185,7 +8213,7 @@ msgstr "O livro não possui nem título nem ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:115
 msgid "No matches found for this book"
-msgstr ""
+msgstr "Nenhuma correspondência foi encontrada para este livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:254
@@ -8626,7 +8654,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:167
 msgid "Remember last used &window size"
-msgstr ""
+msgstr "Lembrar do último tamanho da &janela"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:169
 msgid "Maximum &view width:"
@@ -8679,7 +8707,7 @@ msgstr "Opções de personalização do visualizador de eBooks"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:675
 msgid "Remember last used window size"
-msgstr ""
+msgstr "Lembrar do último tamanho da janela"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:81
@@ -8857,7 +8885,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:441
 msgid "No matches found for: %s"
-msgstr ""
+msgstr "Nenhuma correspondência encontrada para: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:478
 msgid "Loading flow..."
@@ -9050,6 +9078,9 @@ msgid ""
 "WordPlayer. Here myhostname should be the fully qualified hostname or the IP "
 "address of the computer calibre is running on."
 msgstr ""
+"Você tem que adicionar a URL http://myhostname:8080 como sua biblioteca do "
+"calibre no WordPlayer. Onde myhostname deve ser o hostname ou endereço IP do "
+"computador que o calibre está sendo executado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:450
 msgid "Moving library..."
@@ -9150,7 +9181,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:52
 msgid "Choose your &language:"
-msgstr ""
+msgstr "Escolha sua &linguagem:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:53
 msgid ""
@@ -9645,7 +9676,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:286
 msgid "Set the authors of the added empty book"
-msgstr ""
+msgstr "Escolhe os autores do livro em branco adicionado"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:288
 msgid "Set the ISBN of the added empty book"
@@ -9989,7 +10020,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:25
 msgid "The authors"
-msgstr ""
+msgstr "Os autores"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:26
 msgid ""
@@ -10160,6 +10191,9 @@ msgid ""
 "more than this number of items. Default: %default. Set to a large number to "
 "disable grouping."
 msgstr ""
+"Agrupa intens em categorias como autores/tags pela primeira lera quando á "
+"mais que este número de itens. Padrão: %default. Escolha um número grande "
+"para desligar o agrupamento."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/base.py:93
 msgid "Password to access your calibre library. Username is "

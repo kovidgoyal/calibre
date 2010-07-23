@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-20 22:48+0000\n"
-"PO-Revision-Date: 2010-07-21 16:42+0000\n"
-"Last-Translator: MeltingShell <Unknown>\n"
+"PO-Revision-Date: 2010-07-22 21:11+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-22 03:54+0000\n"
+"X-Launchpad-Export-Date: 2010-07-23 04:05+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -284,16 +284,16 @@ msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
 msgstr ""
-"Questo profilo imposta valori di default ottimali ed è utile per chi non sa "
-"nulla sul documento di origine."
+"Questo profilo imposta valori predefiniti adeguati ed è utile quando non si "
+"sa nulla sul documento di origine."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:57
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:412
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
-"Questo profilo è adatto per la linea SONY PRS. (ad esempio: 500/505/600/700 "
-"ecc)."
+"Questo profilo è adatto per la linea SONY PRS. Ad esempio: 500/505/600/700 "
+"ecc."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:69
 msgid "This profile is intended for the SONY PRS 300."
@@ -352,7 +352,7 @@ msgstr "Questo profilo è adatto per l'IRex Digital Reader 1000."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:194
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:607
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr "Il profilo è adatto per l'IRex Digital Reader 800"
+msgstr "Questo profilo adatto per l'IRex Digital Reader 800."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:206
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:621
@@ -369,18 +369,20 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
-"Questo profilo cerca di fornire adeguate impostazioni ed è utile se vuoi "
-"produrre un documento che dovrebbe essere letto tramite computer o su vari "
-"dispositivi di lettura"
+"Questo profilo cerca di fornire adeguate impostazioni ed è utile per "
+"produrre un documento da poter leggere tramite computer o su vari "
+"dispositivi."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:257
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr "Inteso per iPad e simili dispositivi con una risoluzione di 768x1024"
+msgstr ""
+"Questo profilo è adatto per l'iPad e dispositivi simili con una risoluzione "
+"di 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:425
 msgid "This profile is intended for the Kobo Reader."
-msgstr "Questo profilo è pensato per il dispositivo Kobo Reader."
+msgstr "Questo profilo è adatto per il Kobo Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:438
 msgid "This profile is intended for the SONY PRS-300."
@@ -388,15 +390,15 @@ msgstr "Questo profilo è adatto per il Sony PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:456
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr "Questo profilo è adatto per il JetBook 5-inch."
+msgstr "Questo profilo è adatto per il JetBook da 5 pollici."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:465
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
-"Questo profilo è adatto per la linea SONY PRS. Il 500/505/700 etc., in "
-"modalità landscape. Utile principalmente per i fumetti."
+"Questo profilo è adatto per la linea SONY PRS. Il 500/505/700 ecc, in "
+"modalità panoramica. Utile principalmente per i fumetti."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:563
 msgid "This profile is intended for the Amazon Kindle DX."
@@ -481,8 +483,8 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
-"Lista delle cartelle separate da virgole da inviare come e-book al "
-"dispositivo. Verrà usata Ia prima esistente."
+"Lista delle cartelle separate da virgole dei libri da inviare al "
+"dispositivo. Verrà usata la prima cartella esistente."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:88
 msgid "Communicate with S60 phones."
@@ -1269,13 +1271,12 @@ msgid ""
 "algorithm uses these sizes to intelligently rescale fonts. The default is to "
 "use a mapping based on the output profile you chose."
 msgstr ""
-"Rappresentare le dimensioni di caratteri dalla definizione dei caratteri dal "
-"CSS in punti. Un esempio di valori è 10,12,14,16,18,20,22,24. Questi sono i "
-"valori usati per riprodurre le dimensioni da xx-small a xx-large, con la "
-"dimensione più grande per i caratteri enormi. L'algoritmo di "
-"ridimensionamento usa questi riferimenti per ridimensionare i caratteri. Il "
-"valore predefinito è di utilizzare un modello basato sul tipo di output "
-"scelto."
+"Rappresentare le dimensioni di caratteri dai nomi in CSS alle dimensioni in "
+"punti. Un esempio di valori è 10,12,14,16,18,20,22,24. Questi sono i valori "
+"usati per riprodurre le dimensioni da xx-small a xx-large, con l'ultima "
+"dimensione per i caratteri enormi. L'algoritmo di ridimensionamento usa "
+"questi riferimenti per ridimensionare i caratteri. Il valore predefinito è "
+"di utilizzare un modello basato sul tipo di output scelto."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:155
 msgid "Disable all rescaling of font sizes."
@@ -1408,10 +1409,9 @@ msgid ""
 "the style rules from the source file, so it can be used to override those "
 "rules."
 msgstr ""
-"Questo puó essere il percorso a un documento di stili CSS or al codice CSS. "
-"Il codice CSS usato sará aggiunto alla lista degli stili del documento "
-"sorgente e pertanto puó essere usato per avere precedenza sulle regle giá "
-"definite."
+"Questo può essere il percorso a un documento di stile CSS o al codice CSS. "
+"Il CSS verrà aggiunto agli stili del documento sorgente e pertanto può "
+"essere usato per ridefinire gli stili esistenti."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:279
 msgid ""
@@ -1468,9 +1468,9 @@ msgid ""
 "1.5em. Spacing removal will not work if the source file does not use "
 "paragraphs (<p> or <div> tags)."
 msgstr ""
-"Rimuovi gli spazi fra i paragrafi. Specifica anche un rientro all'inizio dei "
-"paragrafi di 1.5em. Rimuovere gli spazi non funzionerá se il documento "
-"sorgente non usa la notazione per i paragrafi del tipo <p> o <div>."
+"Rimuove gli spazi fra i paragrafi. Imposta anche un rientro dei paragrafi di "
+"1.5em. La rimozione degli spazi non funzionerà se il documento sorgente non "
+"usa la notazione per i paragrafi del tipo <p> o <div>."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:323
 msgid ""
@@ -1557,13 +1557,13 @@ msgid ""
 "by Chinese and Japanese for instance) the representation used by the largest "
 "number of people will be used (Chinese in the previous example)."
 msgstr ""
-"Trasforma i caratteri unicode nella loro controparte in ASCII. Utilizzare "
-"con cautela perché questa operazione modifica i caratteri unicode in codici "
-"ASCII. Per esempio rimpiazzerá \"%s\" con \"Mikhail Gorbachiov\". Inoltre, "
-"se esistono casi in cui ci sono presenti rappresentazioni multiple per un "
-"carattere (per esempio caratti condivisi nel Cinese e Giapponese), la "
-"rappresentazione usata dal maggior numero di persone viene utilizzata (e.g. "
-"il cinese nell'ultimo esempio)."
+"Trasforma i caratteri unicode nei corrispondenti in ASCII. Utilizzare con "
+"cautela perché questa operazione sostituisce i caratteri unicode con ASCII. "
+"Per esempio rimpiazzerà \"%s\" con \"Mikhail Gorbachiov\". Inoltre, se "
+"esistono casi in cui sono presenti più rappresentazioni per un carattere "
+"(per esempio caratteri condivisi nel Cinese e Giapponese), viene utlizzata "
+"la rappresentazione usata dal maggior numero di persone (es. il cinese "
+"nell'esempio precedente)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:416
 msgid ""
@@ -2671,14 +2671,14 @@ msgid ""
 "\n"
 "Manipulate a PDF.\n"
 msgstr ""
-"command ...\n"
+"comando ...\n"
 "\n"
-"command puó essere uno dei seguenti:\n"
-"[%%commands]\n"
+"comando può essere uno dei seguenti:\n"
+"[%%comandi]\n"
 "\n"
-"Usare %prog command --help per ottenere maggiori informazioni sul comando\n"
+"Usare %prog comando --help per ottenere maggiori informazioni sul comando\n"
 "\n"
-"Manipolare il PDF.\n"
+"Manipolare un PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:29
 msgid ""
@@ -2896,7 +2896,7 @@ msgid ""
 "override the unit for margins!"
 msgstr ""
 "L'unità di misura. Il valore predefinito è il pollice. Le opzioni sono %s. "
-"Nota:Questa opzione non influisce sull'unità per i margini!"
+"Nota: questa opzione non influenza l'unità per i margini!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:36
 msgid ""
@@ -2995,7 +2995,7 @@ msgid ""
 "'system' will default to the newline type used by this OS."
 msgstr ""
 "Tipo di interruzione di linea da usare. Le opzioni sono %s. Il valore "
-"predefinito è 'system'. Usare 'old_mac' per compatibilitá con Mac OS 9 e "
+"predefinito è 'system'. Usare 'old_mac' per compatibilità con Mac OS 9 e "
 "precedenti. Per Mac OS X usare 'unix'. 'system' è il valore predefinito per "
 "il tipo di interruzioni di linea usato da questo sistema operativo."
 
@@ -3015,11 +3015,11 @@ msgid ""
 "the space after and will exceed the specified value. Also, there is a "
 "minimum of 25 characters. Use 0 to disable line splitting."
 msgstr ""
-"Il numero massimo di caratteri per linea. Questa operazione divide al primo "
-"spazio presente prima del valore specificato. Se non esistono spazi, la "
-"linea sará troncata allo spazio successivo e oltrepasserá il valore "
-"indicato. Inoltre, esiste un minimo di 25 caratteri. Si usi 0 per "
-"disattivare l'opzione di tronacamento di linea."
+"Il numero massimo di caratteri per linea. Questo divide al primo spazio "
+"presente prima del valore specificato. Se non esistono spazi, la linea sarà "
+"troncata allo spazio successivo e oltrepasserà il valore indicato. Inoltre, "
+"esiste un minimo di 25 caratteri. Usare 0 per disattivare il troncamento di "
+"linea."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:45
 msgid ""
@@ -3548,7 +3548,7 @@ msgstr "Scegliere il formato da leggere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:1217
 msgid "Multiple Books Selected"
-msgstr "Piú di un libro selezionato"
+msgstr "Più libri selezionati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:1218
 msgid ""
@@ -3559,7 +3559,7 @@ msgid ""
 msgstr ""
 "Tentativo di aprire %d libri. Aprire molti libri allo stesso tempo può "
 "essere molto lento e causare effetti indesiderati nella reattività del "
-"computer. Una volta avviato il processo questo non puó essere fermato fino "
+"computer. Una volta avviato il processo questo non può essere fermato fino "
 "al completamento. Continuare comunque?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:1227
@@ -3621,8 +3621,8 @@ msgid ""
 "Books with the same title as the following already exist in the database. "
 "Add them anyway?"
 msgstr ""
-"Libri con lo stesso titolo sono giá presenti nella lista. Volete aggiungere "
-"in ogni caso?"
+"Dei libri con lo stesso titolo sono già presenti nel database. Aggiungerli "
+"comunque?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:360
 msgid "Adding duplicates..."
@@ -4052,7 +4052,7 @@ msgid ""
 "in a previous conversion (if they exist) instead of using the defaults "
 "specified in the Preferences"
 msgstr ""
-"Per opzioni che non sono presenti in questa finestra, utilizza i valori giá "
+"Per le opzioni che non sono presenti in questa finestra, usare i valori "
 "salvati in una conversione precedente (se esistente) invece di usare i "
 "valori predefiniti nelle Preferenze"
 
@@ -4142,11 +4142,11 @@ msgstr "Disabilita la conversione delle immagini in bianco e nero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
-msgstr "Rilevamento Errori"
+msgstr "Debug"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:21
 msgid "Debug the conversion process."
-msgstr "Rilevamento errori nel processo di conversione."
+msgstr "Debug del processo di conversione."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:51
@@ -4155,7 +4155,7 @@ msgstr "Selezionare una cartella per il rilevamento errori"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:57
 msgid "Invalid debug directory"
-msgstr "Cartella per il rilevamento errori non valida"
+msgstr "Cartella di debug non valida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:58
 msgid "Failed to create debug directory"
@@ -4170,7 +4170,7 @@ msgid ""
 msgstr ""
 "Selezionare una cartella per salvare il risultato del processo di "
 "eliminazione errori. Se si specifica una cartella, calibre scriverà molti "
-"messaggi d'errore. Questa opzione é utile per capire il processo di "
+"messaggi d'errore. Questa opzione è utile per capire il processo di "
 "conversione e trovare i parametri di conversione corretti per l'indice e "
 "l'identificazione automatica dei capitoli."
 
@@ -4180,10 +4180,9 @@ msgid ""
 "of the conversion process. This HTML can sometimes serve as a good starting "
 "point for hand editing a conversion."
 msgstr ""
-"Il processo di eliminazione di errori crea un passo intermedio nella "
-"generazione del codice HTML creato nelle varie fasi del processo di "
-"conversione. Questo codice HTML é un ottimo punto di partenza per adattare "
-"manualmente il processo di conversione."
+"Il processo di debug genera il codice HTML intermedio creato nelle varie "
+"fasi del processo di conversione. Questo codice HTML può essere un ottimo "
+"punto di partenza per adattare manualmente il processo di conversione."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
@@ -4308,7 +4307,7 @@ msgstr "&Font grandezza "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:113
 msgid " will map to size: "
-msgstr " sará reso come grandezza: "
+msgstr " sarà utilizzato come dimensione: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:114
 msgid "0.0 pt"
@@ -4464,7 +4463,7 @@ msgid ""
 "Set the metadata. The output file will contain as much of this metadata as "
 "possible."
 msgstr ""
-"Specificare i metadati. Il documento di output conterrá quanti più metadati "
+"Specificare i metadati. Il documento di output conterrà quanti più metadati "
 "possibili."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:164
@@ -4777,15 +4776,15 @@ msgid ""
 "Structure\n"
 "Detection"
 msgstr ""
-"Rilevazione\n"
+"Rilevamento\n"
 "della struttura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:19
 msgid ""
 "Fine tune the detection of chapter headings and other document structure."
 msgstr ""
-"Controllo preciso per la rilevazione dei titoli di capitolo e altri elementi "
-"della struttura del documento."
+"Rilevamento approfondito dei capitoli e del resto della struttura del "
+"documento."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:34
 msgid "Detect chapters at (XPath expression):"
@@ -5553,7 +5552,7 @@ msgstr "Posta elettronica"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:235
 msgid "Formats to email. The first matching format will be sent."
-msgstr "Formati per email. Verrá inviato il primo formato compatibile."
+msgstr "Formati per email. Verrà inviato il primo formato compatibile."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:236
 msgid ""
@@ -5631,8 +5630,8 @@ msgstr "Strumenti per i comandi di linea installati in"
 msgid ""
 "If you move calibre.app, you have to re-install the command line tools."
 msgstr ""
-"Se muovete calibre.app, sará necessario reinstallare anche gli strumenti per "
-"i comandi di linea."
+"Se calibre.app viene spostato, sarà necessario reinstallare anche gli "
+"strumenti a riga di comando."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:598
 msgid "No valid plugin path"
@@ -5648,11 +5647,11 @@ msgstr "Selezionare plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:614
 msgid "Plugin cannot be disabled"
-msgstr "Il plugin non puó essere disattivato"
+msgstr "Il plugin non può essere disattivato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:615
 msgid "The plugin: %s cannot be disabled"
-msgstr "il plugin: %s non puó essere disattivato"
+msgstr "Il plugin: %s non può essere disattivato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:624
 msgid "Plugin not customizable"
@@ -5695,7 +5694,7 @@ msgstr "Eliminare veramente la colonna %s e tutti i sui dati?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:777
 msgid "Error log:"
-msgstr "File di log degli errori:"
+msgstr "Log degli errori:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:784
 msgid "Access log:"
@@ -5729,11 +5728,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:934
 msgid "Checking database integrity"
-msgstr "Controllo dell'integritá del database."
+msgstr "Controllo d'integrità del database"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:954
 msgid "Failed to check database integrity"
-msgstr "Controllo dell'integritá del database fallito."
+msgstr "Controllo d'integrità del database fallito"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:959
 msgid "Some inconsistencies found"
@@ -6016,7 +6015,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:558
 msgid "&Number of covers to show in browse mode (needs restart):"
 msgstr ""
-"&Numero di copertine da visualizzare in modalitá sfoglia (richiede riavvio):"
+"&Numero di copertine da visualizzare in modalità sfoglia (richiede riavvio):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:559
 msgid "Select visible &columns in library view"
@@ -6098,7 +6097,7 @@ msgstr "Numero &massimo di processi in attesa (richiede riavvio):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:582
 msgid "&Check database integrity"
-msgstr "&Controllo dell'integritá del database"
+msgstr "&Controllo d'integrità del database"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:583
 msgid "&Install command line tools"
@@ -6214,8 +6213,8 @@ msgstr ""
 "quando calibre è aperto.\n"
 "<p>Stanza dovrebbe essere in grado di trovare calibre automaticamente. Se "
 "non è così, provare ad aggiungere l'indirizzo URL http://myhostname:8080 "
-"come un nuovo catalogo sull'iPhone. In questo caso myhostname é l'hostname o "
-"l'indirizzo IP del computer su cui calibre é attivo."
+"come un nuovo catalogo sull'iPhone. In questo caso myhostname è l'host o "
+"l'indirizzo IP del computer su cui calibre è attivo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:604
 msgid ""
@@ -6544,7 +6543,7 @@ msgstr "Impossibile trovare i metadati"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:177
 msgid "The metadata download seems to have stalled. Try again later."
 msgstr ""
-"Sembra che lo scaricamento dei metadati si sia bloccato. Riprovare piú tardi."
+"Sembra che lo scaricamento dei metadati si sia bloccato. Riprovare più tardi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:186
 msgid "Warning"
@@ -7311,7 +7310,7 @@ msgstr "Confermare?"
 msgid ""
 "The following tags are used by one or more books. Are you certain you want "
 "to delete them?"
-msgstr "Questi tag sono usati da uno o piú libri. Eliminarli comunque?"
+msgstr "Questi tag sono usati da uno o più libri. Eliminarli comunque?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:123
 msgid "Tag Editor"
@@ -8720,8 +8719,8 @@ msgid ""
 "The following books have already been converted to %s format. Do you wish to "
 "reconvert them?"
 msgstr ""
-"I libri nella lista sono giá stati convertiti nel formato %s. Volete "
-"convertirli nuovamente?"
+"I libri nella lista sono già stati convertiti nel formato %s. Convertirli "
+"nuovamente?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:160
 msgid "&Restore"
@@ -9221,8 +9220,8 @@ msgstr "Opzioni per controllare il visualizzatore di libri"
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr ""
-"Se selezionata, questa opzione forzerá la finestra di visualizzazione ad "
-"apparire davanti quando inizializzata"
+"Se specificato, la finestra di visualizzazione tenterà di apparire in primo "
+"piano quando avviata."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:677
 msgid "Print javascript alert and console messages to the console"
@@ -9403,7 +9402,7 @@ msgid ""
 "<p>An invalid library already exists at %s, delete it before trying to move "
 "the existing library.<br>Error: %s"
 msgstr ""
-"<p>Una biblioteca non valida esiste giá in %s, eliminarla prima di tentare "
+"<p>Una biblioteca non valida esiste già in %s, eliminarla prima di tentare "
 "di spostare la biblioteca esistente.<br> Errore: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:533
@@ -9433,15 +9432,14 @@ msgstr "Benvenuti in Calibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:43
 msgid "The one stop solution to all your e-book needs."
-msgstr ""
-"La soluzione unica per tutte le vostre necessitá di libri elettronici"
+msgstr "La soluzione unica per tutto ciò che riguarda i libri elettronici."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:51
 msgid ""
 "Choose your book reader. This will set the conversion options to produce "
 "books optimized for your device."
 msgstr ""
-"Selezionare il lettore di ebook. Questo consentirá di impostare le opzioni "
+"Selezionare il lettore di ebook. Questo consentirà di impostare le opzioni "
 "di conversione ottimizzate per il lettore."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:52
@@ -9517,8 +9515,8 @@ msgid ""
 "location. If a calibre library already exists at the new location, calibre "
 "will switch to using it."
 msgstr ""
-"Se esiste già una biblioteca di Calibre, questa verrà copiata nella nuova "
-"posizione. Se una biblioteca di Calibre esiste nella nuova posizione, "
+"Se esiste già una biblioteca di calibre, questa verrà copiata nella nuova "
+"posizione. Se nella nuova posizione già esiste una biblioteca di calibre, "
 "calibre utilizzerà quest'ultima."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:32
@@ -9570,9 +9568,8 @@ msgid ""
 "<p>This is what will be present in the From: field of emails sent by "
 "calibre.<br> Set it to your email address"
 msgstr ""
-"<p>Questo sará immesso nel campo mittente Da: per i messaggi di posta "
-"elettronica invitai da Calibre.<br>Si consiglia di specificare il vostro "
-"indirizzo di posta elettronica."
+"<p>Questo sarà immesso nel campo Da: per le email inviate da "
+"calibre.<br>Specificare il proprio indirizzo email"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:110
 msgid ""
@@ -9589,7 +9586,7 @@ msgstr "&Server di posta elettronica"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:112
 msgid "calibre can <b>optionally</b> use a server to send mail"
 msgstr ""
-"Calibre puó <b>opzionalmente</b> usare un server per inviare posta "
+"calibre può <b>opzionalmente</b> usare un server per inviare la posta "
 "elettronica"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:113
@@ -9872,10 +9869,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Lista di etichette separate da virgole per indicare quali libri devono "
-"essere esclusi dall'output. Si noti che le maiuscole sono ignorate.\n"
-"--exclude-tags=ignorare troverá risultati nelle frasi 'ignorare questo "
-"libro' e 'Ignorare sarà come questo'\n"
+"Lista di tag separate da virgole per indicare quali libri devono essere "
+"esclusi dall'output. Non rispetta maiuscole/minuscole.\n"
+"--exclude-tags=ignora troverà risultati nelle frasi 'ignora questo libro' e "
+"'Ignora sarà come questo'.\n"
 "Valore predefinito: '%default'\n"
 "Applicabile ai formati di output: ePub, MOBI"
 
@@ -10240,7 +10237,7 @@ msgstr "Esporta tutti i libri nella stessa cartella"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:511
 msgid "Specifying this switch will turn this behavior off."
-msgstr "Selezionando questa opzioni renderá la funzione disabilitata."
+msgstr "Selezionando questa opzione verrà disattivata questa funzione."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:534
 msgid "You must specify some ids or the %s option"
@@ -10540,24 +10537,25 @@ msgid ""
 "Normally, calibre will update the metadata in the saved files from what is "
 "in the calibre library. Makes saving to disk slower."
 msgstr ""
-"Normalmente Calibre aggiornerá i metadati nei file salvati da quanto si "
-"trova nella biblioteca di Calibre. Ció rende il salvataggio piú lento."
+"Normalmente calibre aggiorna i metadati nei file salvati usando quelli che "
+"si trovano nella biblioteca di calibre. Questo rende il salvataggio più "
+"lento."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:57
 msgid ""
 "Normally, calibre will write the metadata into a separate OPF file along "
 "with the actual e-book files."
 msgstr ""
-"Normalmente Calibre scriverá i metadati in documenti OPF separati in "
-"parallelo con i documenti contenenti i libri elettronici."
+"Normalmente calibre scrive i metadati in documenti OPF separati assieme ai "
+"file contenenti i libri."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:60
 msgid ""
 "Normally, calibre will save the cover in a separate file along with the "
 "actual e-book file(s)."
 msgstr ""
-"Normalmente Calibre salverá le copertine in documenti separati in parallelo "
-"con i documenti contenti i libri elettronici."
+"Normalmente calibre salva le copertine in un file separato assieme ai file "
+"contenti i libri."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:63
 msgid ""
