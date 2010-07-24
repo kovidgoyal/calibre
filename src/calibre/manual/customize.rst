@@ -45,7 +45,8 @@ All static resources are stored in the resources sub-folder of the calibre insta
 from the calibre website it will be :file:`/opt/calibre/resources`. These paths can change depending on where you choose to install |app|. 
 
 You should not change the files in this resources folder, as your changes will get overwritten the next time you update |app|. Instead, go to
-:guilabel:`Preferences->Advanced` and click :guilabel:`Open calibre configuration directory`. In this configuration directory, create a sub-folder called resources and place the files you want to override in it. |app| will automatically use your custom file in preference to the builtin one the next time it is started.
+:guilabel:`Preferences->Advanced` and click :guilabel:`Open calibre configuration directory`. In this configuration directory, create a sub-folder called resources and place the files you want to override in it. Place the files in the appropriate sub folders, for example place images in :file:`resources/images`, etc. 
+|app| will automatically use your custom file in preference to the builtin one the next time it is started.
 
 For example, if you wanted to change the icon for the :guilabel:`Remove books` action, you would first look in the builtin resources folder and see that the relevant file is
 :file:`resources/images/trash.svg`. Assuming you have an alternate icon in svg format called :file:`mytrash.svg` you would save it in the configuration directory as :file:`resources/images/trash.svg`. All the icons used by the calibre user interface are in :file:`resources/images` and its sub-folders.

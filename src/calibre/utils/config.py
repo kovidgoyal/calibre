@@ -312,10 +312,10 @@ class OptionSet(object):
 
     def parse_string(self, src):
         options = {'cPickle':cPickle}
-        if not isinstance(src, unicode):
-            src = src.decode('utf-8')
         if src is not None:
             try:
+                if not isinstance(src, unicode):
+                    src = src.decode('utf-8')
                 exec src in options
             except:
                 print 'Failed to parse options string:'
