@@ -66,7 +66,7 @@ and save it to a new file.
 
 
 """
-import ctypes, sys, os
+import ctypes, sys, os, glob
 from ctypes import util
 iswindows = 'win32' in sys.platform or 'win64' in sys.platform
 isosx     = 'darwin' in sys.platform
@@ -85,7 +85,8 @@ elif iswindows:
     _lib = flib if isfrozen else 'CORE_RL_wand_'
 else:
     if isfrozen:
-        _lib = os.path.join(sys.frozen_path, 'libMagickWand.so.2')
+        _lib = glob.glob(os.path.join(sys.frozen_path,
+            'libMagickWand.so.*'))[-1]
     else:
         _lib = util.find_library('MagickWand')
         if _lib is None:

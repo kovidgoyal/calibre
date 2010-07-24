@@ -72,7 +72,14 @@ class DeviceJob(BaseJob): # {{{
             if self._aborted:
                 return
             self.failed = True
-            self._details = unicode(err) + '\n\n' + \
+            try:
+                ex = unicode(err)
+            except:
+                try:
+                    ex = str(err).decode(preferred_encoding, 'replace')
+                except:
+                    ex = repr(err)
+            self._details = ex + '\n\n' + \
                 traceback.format_exc()
             self.exception = err
         finally:
@@ -395,8 +402,6 @@ class DeviceAction(QAction): # {{{
 class DeviceMenu(QMenu): # {{{
 
     fetch_annotations = pyqtSignal()
-    connect_to_folder = pyqtSignal()
-    connect_to_itunes = pyqtSignal()
     disconnect_mounted_device = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -408,26 +413,6 @@ class DeviceMenu(QMenu): # {{{
         self.set_default_menu = QMenu(_('Set default send to device action'))
         self.set_default_menu.setIcon(QIcon(I('config.svg')))
 
-        opts = email_config().parse()
-        default_account = None
-        if opts.accounts:
-            self.email_to_menu = self.addMenu(_('Email to')+'...')
-            keys = sorted(opts.accounts.keys())
-            for account in keys:
-                formats, auto, default = opts.accounts[account]
-                dest = 'mail:'+account+';'+formats
-                if default:
-                    default_account = (dest, False, False, I('mail.svg'),
-                            _('Email to')+' '+account)
-                action1 = DeviceAction(dest, False, False, I('mail.svg'),
-                        _('Email to')+' '+account)
-                action2 = DeviceAction(dest, True, False, I('mail.svg'),
-                        _('Email to')+' '+account+ _(' and delete from library'))
-                map(self.email_to_menu.addAction, (action1, action2))
-                map(self._memory.append, (action1, action2))
-                self.email_to_menu.addSeparator()
-                action1.a_s.connect(self.action_triggered)
-                action2.a_s.connect(self.action_triggered)
 
         basic_actions = [
                 ('main:', False, False,  I('reader.svg'),
@@ -456,13 +441,6 @@ class DeviceMenu(QMenu): # {{{
                     _('Storage Card B')),
         ]
 
-
-        if default_account is not None:
-            for x in (basic_actions, delete_actions):
-                ac = list(default_account)
-                if x is delete_actions:
-                    ac[1] = True
-                x.insert(1, tuple(ac))
 
         for menu in (self, self.set_default_menu):
             for actions, desc in (
@@ -502,21 +480,7 @@ class DeviceMenu(QMenu): # {{{
             config['default_send_to_device_action'] = repr(action)
 
         self.group.triggered.connect(self.change_default_action)
-        if opts.accounts:
-            self.addSeparator()
-            self.addMenu(self.email_to_menu)
-
         self.addSeparator()
-        mitem = self.addAction(QIcon(I('document_open.svg')), _('Connect to folder'))
-        mitem.setEnabled(True)
-        mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
-        self.connect_to_folder_action = mitem
-
-        mitem = self.addAction(QIcon(I('devices/itunes.png')),
-                _('Connect to iTunes'))
-        mitem.setEnabled(True)
-        mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
-        self.connect_to_itunes_action = mitem
 
         mitem = self.addAction(QIcon(I('eject.svg')), _('Eject device'))
         mitem.setEnabled(False)
@@ -638,6 +602,8 @@ class DeviceMixin(object): # {{{
         self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
+        self.share_conn_menu.connect_to_folder.connect(self.connect_to_folder)
+        self.share_conn_menu.connect_to_itunes.connect(self.connect_to_itunes)
         self.emailer = Emailer()
         self.emailer.start()
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
@@ -675,21 +641,20 @@ class DeviceMixin(object): # {{{
 
     def create_device_menu(self):
         self._sync_menu = DeviceMenu(self)
+        self.share_conn_menu.build_email_entries(self._sync_menu)
         self.action_sync.setMenu(self._sync_menu)
         self.connect(self._sync_menu,
                 SIGNAL('sync(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                 self.dispatch_sync_event)
         self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
-        self._sync_menu.connect_to_folder.connect(self.connect_to_folder)
-        self._sync_menu.connect_to_itunes.connect(self.connect_to_itunes)
         self._sync_menu.disconnect_mounted_device.connect(self.disconnect_mounted_device)
         if self.device_connected:
-            self._sync_menu.connect_to_folder_action.setEnabled(False)
-            self._sync_menu.connect_to_itunes_action.setEnabled(False)
+            self.share_conn_menu.connect_to_folder_action.setEnabled(False)
+            self.share_conn_menu.connect_to_itunes_action.setEnabled(False)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
         else:
-            self._sync_menu.connect_to_folder_action.setEnabled(True)
-            self._sync_menu.connect_to_itunes_action.setEnabled(True)
+            self.share_conn_menu.connect_to_folder_action.setEnabled(True)
+            self.share_conn_menu.connect_to_itunes_action.setEnabled(True)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
 
     def device_job_exception(self, job):
@@ -726,16 +691,16 @@ class DeviceMixin(object): # {{{
 
     def set_device_menu_items_state(self, connected):
         if connected:
-            self._sync_menu.connect_to_folder_action.setEnabled(False)
-            self._sync_menu.connect_to_itunes_action.setEnabled(False)
+            self.share_conn_menu.connect_to_folder_action.setEnabled(False)
+            self.share_conn_menu.connect_to_itunes_action.setEnabled(False)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
             self._sync_menu.enable_device_actions(True,
                     self.device_manager.device.card_prefix(),
                     self.device_manager.device)
             self.eject_action.setEnabled(True)
         else:
-            self._sync_menu.connect_to_folder_action.setEnabled(True)
-            self._sync_menu.connect_to_itunes_action.setEnabled(True)
+            self.share_conn_menu.connect_to_folder_action.setEnabled(True)
+            self.share_conn_menu.connect_to_itunes_action.setEnabled(True)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
             self._sync_menu.enable_device_actions(False)
             self.eject_action.setEnabled(False)
@@ -983,6 +948,8 @@ class DeviceMixin(object): # {{{
         else:
             self.status_bar.show_message(_('Sent by email:') + ', '.join(good),
                     5000)
+            if remove:
+                self.library_view.model().delete_books_by_id(remove)
 
     def cover_to_thumbnail(self, data):
         p = QPixmap()

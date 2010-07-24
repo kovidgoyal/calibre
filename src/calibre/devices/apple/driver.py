@@ -2668,7 +2668,7 @@ class ITUNES(DriverBase):
                 index = metadata.series_index
                 integer = int(index)
                 fraction = index-integer
-                series_index = '%04d%%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
+                series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
                 if lb_added:
                     lb_added.SortName = "%s %s" % (metadata.series, series_index)
                     lb_added.Genre = metadata.series

@@ -9,7 +9,8 @@ Customizing |app|
 
 |app| has a highly modular design. Various parts of it can be customized. You can learn how to create
 *recipes* to add new sources of online content to |app| in the Section :ref:`news`. Here, you will learn,
-first, how to use environment variables and *tweaks* to customize |app|'s behavior and then how to
+first, how to use environment variables and *tweaks* to customize |app|'s behavior,  and then how to
+specify your own static resources like icons and templates to override the defaults and finally how to 
 use *plugins* to add funtionality to |app|.
 
 .. contents::
@@ -34,6 +35,20 @@ The default tweaks.py file is reproduced below
 
 .. literalinclude:: ../../../resources/default_tweaks.py
 
+
+Overriding icons, templates, etcetera
+----------------------------------------
+
+|app| allows you to override the static resources, like icons, templates, javascript, etc. with customized versions that you like.
+All static resources are stored in the resources sub-folder of the calibre install location. On Windows, this is usually
+:file:`C:\Program Files\Calibre2\resources`. On OS X, :file:`/Applications/calibre.app/Contents/Resources/resources/`. On linux, if you are using the binary installer
+from the calibre website it will be :file:`/opt/calibre/resources`. These paths can change depending on where you choose to install |app|. 
+
+You should not change the files in this resources folder, as your changes will get overwritten the next time you update |app|. Instead, go to
+:guilabel:`Preferences->Advanced` and click :guilabel:`Open calibre configuration directory`. In this configuration directory, create a sub-folder called resources and place the files you want to override in it. |app| will automatically use your custom file in preference to the builtin one the next time it is started.
+
+For example, if you wanted to change the icon for the :guilabel:`Remove books` action, you would first look in the builtin resources folder and see that the relevant file is
+:file:`resources/images/trash.svg`. Assuming you have an alternate icon in svg format called :file:`mytrash.svg` you would save it in the configuration directory as :file:`resources/images/trash.svg`. All the icons used by the calibre user interface are in :file:`resources/images` and its sub-folders.
 
 A Hello World plugin
 ------------------------

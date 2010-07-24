@@ -262,8 +262,11 @@ class CSSFlattener(object):
             indent = asfloat(style['text-indent'], 0)
             left += margin
             if (left + indent) < 0:
-                percent = (margin - indent) / style['width']
-                cssdict['margin-left'] = "%d%%" % (percent * 100)
+                try:
+                    percent = (margin - indent) / style['width']
+                    cssdict['margin-left'] = "%d%%" % (percent * 100)
+                except ZeroDivisionError:
+                    pass
                 left -= indent
             if 'display' in cssdict and cssdict['display'] == 'in-line':
                 cssdict['display'] = 'inline'

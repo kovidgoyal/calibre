@@ -615,7 +615,7 @@ class ResultCache(SearchQueryParser):
                 q = self.search_restriction
         else:
             q = query
-            if not ignore_search_restriction:
+            if not ignore_search_restriction and self.search_restriction:
                 q = u'%s (%s)' % (self.search_restriction, query)
         if not q:
             if return_matches:

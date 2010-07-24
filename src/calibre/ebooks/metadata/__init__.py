@@ -295,11 +295,10 @@ class MetaInformation(object):
                 if val is not None:
                     setattr(self, attr, val)
 
-        if mi.tags:
-            if replace_metadata:
-                self.tags = mi.tags
-            else:
-                self.tags += mi.tags
+        if replace_metadata:
+            self.tags = mi.tags
+        elif mi.tags:
+            self.tags += mi.tags
         self.tags = list(set(self.tags))
 
         if mi.author_sort_map:
@@ -313,14 +312,17 @@ class MetaInformation(object):
             if len(other_cover) > len(self_cover):
                 self.cover_data = mi.cover_data
 
-        my_comments = getattr(self, 'comments', '')
-        other_comments = getattr(mi, 'comments', '')
-        if not my_comments:
-            my_comments = ''
-        if not other_comments:
-            other_comments = ''
-        if len(other_comments.strip()) > len(my_comments.strip()):
-            self.comments = other_comments
+        if replace_metadata:
+            self.comments = getattr(mi, 'comments', '')
+        else:
+            my_comments = getattr(self, 'comments', '')
+            other_comments = getattr(mi, 'comments', '')
+            if not my_comments:
+                my_comments = ''
+            if not other_comments:
+                other_comments = ''
+            if len(other_comments.strip()) > len(my_comments.strip()):
+                self.comments = other_comments
 
         other_lang = getattr(mi, 'language', None)
         if other_lang and other_lang.lower() != 'und':
