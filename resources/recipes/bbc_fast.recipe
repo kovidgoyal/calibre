@@ -31,7 +31,8 @@ class BBC(BasicNewsRecipe):
                          }
 
     keep_only_tags    = [
-                       dict(name='div', attrs={'class':['story-body']})
+                       dict(name='div', attrs={'class':['layout-block-a layout-block']})
+                       ,dict(attrs={'class':['story-body','storybody']})
                         ]
 
     remove_tags = [
@@ -57,3 +58,4 @@ class BBC(BasicNewsRecipe):
                       ('Asia-Pacific', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/asia-pacific/rss.xml'),
                       ('Africa', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/africa/rss.xml'),
                     ]
+

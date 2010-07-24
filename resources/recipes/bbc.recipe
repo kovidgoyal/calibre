@@ -9,7 +9,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class BBC(BasicNewsRecipe):
     title                  = 'BBC News'
     __author__             = 'Darko Miletic, Starson17'
-    description            = 'News from UK. A much faster version that does not download pictures'
+    description            = 'News from UK. '
     oldest_article         = 2
     max_articles_per_feed  = 100
     no_stylesheets         = True
@@ -31,7 +31,8 @@ class BBC(BasicNewsRecipe):
                          }
 
     keep_only_tags    = [
-                       dict(name='div', attrs={'class':['story-body']})
+                       dict(name='div', attrs={'class':['layout-block-a layout-block']})
+                       ,dict(attrs={'class':['story-body','storybody']})
                         ]
 
     remove_tags = [
@@ -56,5 +57,4 @@ class BBC(BasicNewsRecipe):
                       ('Asia-Pacific', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/asia-pacific/rss.xml'),
                       ('Africa', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/africa/rss.xml'),
                     ]
-
 
