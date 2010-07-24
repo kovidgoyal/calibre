@@ -2,6 +2,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
+
 import sys, os, re, logging, time, mimetypes, \
        __builtin__, warnings, multiprocessing
 from urllib import getproxies
@@ -13,12 +14,13 @@ from functools import partial
 warnings.simplefilter('ignore', DeprecationWarning)
 
 
-from calibre.startup import plugins, winutil, winutilerror
 from calibre.constants import iswindows, isosx, islinux, isfreebsd, isfrozen, \
                               terminal_controller, preferred_encoding, \
                               __appname__, __version__, __author__, \
                               win32event, win32api, winerror, fcntl, \
-                              filesystem_encoding
+                              filesystem_encoding, plugins, config_dir
+from calibre.startup import winutil, winutilerror
+
 import mechanize
 
 if False:
@@ -361,6 +363,8 @@ def strftime(fmt, t=None):
     before 1900 '''
     if t is None:
         t = time.localtime()
+    if hasattr(t, 'timetuple'):
+        t = t.timetuple()
     early_year = t[0] < 1900
     if early_year:
         replacement = 1900 if t[0]%4 == 0 else 1901
@@ -438,6 +442,9 @@ xml_entity_to_unicode = partial(entity_to_unicode, result_exceptions = {
     '>' : '&gt;',
     '&' : '&amp;'})
 
+def replace_entities(raw):
+    return _ent_pat.sub(entity_to_unicode, raw)
+
 def prepare_string_for_xml(raw, attribute=False):
     raw = _ent_pat.sub(entity_to_unicode, raw)
     raw = raw.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
@@ -481,7 +488,6 @@ def ipython(user_ns=None):
     sys.argv = ['ipython']
     if user_ns is None:
         user_ns = locals()
-    from calibre.utils.config import config_dir
     ipydir = os.path.join(config_dir, ('_' if iswindows else '.')+'ipython')
     os.environ['IPYTHONDIR'] = ipydir
     if not os.path.exists(ipydir):

@@ -177,6 +177,7 @@ class CHMInput(InputFormatPlugin):
 
             chapter_path = None
             if match_string(node.tag, 'object') and match_string(node.attrib['type'], 'text/sitemap'):
+                chapter_title = None
                 for child in node:
                     if match_string(child.tag,'param') and match_string(child.attrib['name'], 'name'):
                         chapter_title = child.attrib['value']

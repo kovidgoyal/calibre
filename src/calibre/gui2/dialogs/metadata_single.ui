@@ -277,12 +277,6 @@
                     </property>
                     <item>
                      <widget class="EnComboBox" name="series">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
                       <property name="toolTip">
                        <string>List of known series. You can add new series.</string>
                       </property>
@@ -294,9 +288,6 @@
                       </property>
                       <property name="insertPolicy">
                        <enum>QComboBox::InsertAlphabetically</enum>
-                      </property>
-                      <property name="sizeAdjustPolicy">
-                       <enum>QComboBox::AdjustToContents</enum>
                       </property>
                      </widget>
                     </item>

@@ -27,10 +27,11 @@ from calibre.ebooks.metadata import string_to_authors, \
 from calibre.ebooks.metadata.library_thing import cover_from_isbn
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.date import qt_to_dt
+from calibre.utils.date import qt_to_dt, local_tz, utcfromtimestamp
 from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
 from calibre.gui2.dialogs.config.social import SocialMetadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
+from calibre import strftime
 
 class CoverFetcher(QThread):
 
@@ -75,13 +76,20 @@ class CoverFetcher(QThread):
 
 
 class Format(QListWidgetItem):
-    def __init__(self, parent, ext, size, path=None):
+
+    def __init__(self, parent, ext, size, path=None, timestamp=None):
         self.path = path
         self.ext = ext
         self.size = float(size)/(1024*1024)
         text = '%s (%.2f MB)'%(self.ext.upper(), self.size)
         QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext),
                                  text, parent, QListWidgetItem.UserType)
+        if timestamp is not None:
+            ts = timestamp.astimezone(local_tz)
+            t = strftime('%a, %d %b %Y [%H:%M:%S]', ts.timetuple())
+            text = _('Last modified: %s')%t
+            self.setToolTip(text)
+            self.setStatusTip(text)
 
 
 class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
@@ -151,14 +159,16 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             nfile = run_plugins_on_import(_file)
             if nfile is not None:
                 _file = nfile
-            size = os.stat(_file).st_size
+            stat = os.stat(_file)
+            size = stat.st_size
             ext = os.path.splitext(_file)[1].lower().replace('.', '')
+            timestamp = utcfromtimestamp(stat.st_mtime)
             for row in range(self.formats.count()):
                 fmt = self.formats.item(row)
                 if fmt.ext.lower() == ext:
                     self.formats.takeItem(row)
                     break
-            Format(self.formats, ext, size, path=_file)
+            Format(self.formats, ext, size, path=_file, timestamp=timestamp)
             self.formats_changed = True
             added = True
         if bad_perms:
@@ -379,9 +389,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 if not ext:
                     ext = ''
                 size = self.db.sizeof_format(row, ext)
+                timestamp = self.db.format_last_modified(self.id, ext)
                 if size is None:
                     continue
-                Format(self.formats, ext, size)
+                Format(self.formats, ext, size, timestamp=timestamp)
 
 
         self.initialize_combos()

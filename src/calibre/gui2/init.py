@@ -7,14 +7,13 @@ __docformat__ = 'restructuredtext en'
 
 import functools, sys, os
 
-from PyQt4.Qt import QMenu, Qt, pyqtSignal, QIcon, QStackedWidget, \
-        QSize, QSizePolicy, QStatusBar, QUrl, QLabel, QFont
+from PyQt4.Qt import QMenu, Qt, QStackedWidget, \
+        QSize, QSizePolicy, QStatusBar, QLabel, QFont
 
 from calibre.utils.config import prefs
-from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.constants import isosx, __appname__, preferred_encoding, \
     __version__
-from calibre.gui2 import config, is_widescreen, open_url
+from calibre.gui2 import config, is_widescreen
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.widgets import Splitter
 from calibre.gui2.tag_view import TagBrowserWidget
@@ -27,163 +26,6 @@ def partial(*args, **kwargs):
     ans = functools.partial(*args, **kwargs)
     _keep_refs.append(ans)
     return ans
-
-class SaveMenu(QMenu): # {{{
-
-    save_fmt = pyqtSignal(object)
-
-    def __init__(self, parent):
-        QMenu.__init__(self, _('Save single format to disk...'), parent)
-        for ext in sorted(BOOK_EXTENSIONS):
-            action = self.addAction(ext.upper())
-            setattr(self, 'do_'+ext, partial(self.do, ext))
-            action.triggered.connect(
-                    getattr(self, 'do_'+ext))
-
-    def do(self, ext, *args):
-        self.save_fmt.emit(ext)
-
-# }}}
-
-class ToolbarMixin(object): # {{{
-
-    def __init__(self):
-        self.action_help.triggered.connect(self.show_help)
-        md = QMenu()
-        md.addAction(_('Edit metadata individually'),
-                partial(self.edit_metadata, False, bulk=False))
-        md.addSeparator()
-        md.addAction(_('Edit metadata in bulk'),
-                partial(self.edit_metadata, False, bulk=True))
-        md.addSeparator()
-        md.addAction(_('Download metadata and covers'),
-                partial(self.download_metadata, False, covers=True),
-                Qt.ControlModifier+Qt.Key_D)
-        md.addAction(_('Download only metadata'),
-                partial(self.download_metadata, False, covers=False))
-        md.addAction(_('Download only covers'),
-                partial(self.download_metadata, False, covers=True,
-                    set_metadata=False, set_social_metadata=False))
-        md.addAction(_('Download only social metadata'),
-                partial(self.download_metadata, False, covers=False,
-                    set_metadata=False, set_social_metadata=True))
-        self.metadata_menu = md
-
-        mb = QMenu()
-        mb.addAction(_('Merge into first selected book - delete others'),
-                self.merge_books)
-        mb.addSeparator()
-        mb.addAction(_('Merge into first selected book - keep others'),
-                partial(self.merge_books, safe_merge=True))
-        self.merge_menu = mb
-        self.action_merge.setMenu(mb)
-        md.addSeparator()
-        md.addAction(self.action_merge)
-
-        self.add_menu = QMenu()
-        self.add_menu.addAction(_('Add books from a single directory'),
-                self.add_books)
-        self.add_menu.addAction(_('Add books from directories, including '
-            'sub-directories (One book per directory, assumes every ebook '
-            'file is the same book in a different format)'),
-            self.add_recursive_single)
-        self.add_menu.addAction(_('Add books from directories, including '
-            'sub directories (Multiple books per directory, assumes every '
-            'ebook file is a different book)'), self.add_recursive_multiple)
-        self.add_menu.addAction(_('Add Empty book. (Book entry with no '
-            'formats)'), self.add_empty)
-        self.action_add.setMenu(self.add_menu)
-        self.action_add.triggered.connect(self.add_books)
-        self.action_del.triggered.connect(self.delete_books)
-        self.action_edit.triggered.connect(self.edit_metadata)
-        self.action_merge.triggered.connect(self.merge_books)
-
-        self.action_save.triggered.connect(self.save_to_disk)
-        self.save_menu = QMenu()
-        self.save_menu.addAction(_('Save to disk'), partial(self.save_to_disk,
-            False))
-        self.save_menu.addAction(_('Save to disk in a single directory'),
-                partial(self.save_to_single_dir, False))
-        self.save_menu.addAction(_('Save only %s format to disk')%
-                prefs['output_format'].upper(),
-                partial(self.save_single_format_to_disk, False))
-        self.save_menu.addAction(
-                _('Save only %s format to disk in a single directory')%
-                prefs['output_format'].upper(),
-                partial(self.save_single_fmt_to_single_dir, False))
-        self.save_sub_menu = SaveMenu(self)
-        self.save_menu.addMenu(self.save_sub_menu)
-        self.save_sub_menu.save_fmt.connect(self.save_specific_format_disk)
-
-        self.action_view.triggered.connect(self.view_book)
-        self.view_menu = QMenu()
-        self.view_menu.addAction(_('View'), partial(self.view_book, False))
-        ac = self.view_menu.addAction(_('View specific format'))
-        ac.setShortcut((Qt.ControlModifier if isosx else Qt.AltModifier)+Qt.Key_V)
-        self.action_view.setMenu(self.view_menu)
-        ac.triggered.connect(self.view_specific_format, type=Qt.QueuedConnection)
-
-        self.delete_menu = QMenu()
-        self.delete_menu.addAction(_('Remove selected books'), self.delete_books)
-        self.delete_menu.addAction(
-                _('Remove files of a specific format from selected books..'),
-                self.delete_selected_formats)
-        self.delete_menu.addAction(
-                _('Remove all formats from selected books, except...'),
-                self.delete_all_but_selected_formats)
-        self.delete_menu.addAction(
-                _('Remove covers from selected books'), self.delete_covers)
-        self.delete_menu.addSeparator()
-        self.delete_menu.addAction(
-                _('Remove matching books from device'),
-                self.remove_matching_books_from_device)
-        self.action_del.setMenu(self.delete_menu)
-
-        self.action_open_containing_folder.setShortcut(Qt.Key_O)
-        self.addAction(self.action_open_containing_folder)
-        self.action_open_containing_folder.triggered.connect(self.view_folder)
-        self.action_sync.setShortcut(Qt.Key_D)
-        self.action_sync.setEnabled(True)
-        self.create_device_menu()
-        self.action_sync.triggered.connect(
-                self._sync_action_triggered)
-
-        self.action_edit.setMenu(md)
-        self.action_save.setMenu(self.save_menu)
-
-        cm = QMenu()
-        cm.addAction(_('Convert individually'), partial(self.convert_ebook,
-            False, bulk=False))
-        cm.addAction(_('Bulk convert'),
-                partial(self.convert_ebook, False, bulk=True))
-        cm.addSeparator()
-        ac = cm.addAction(
-                _('Create catalog of books in your calibre library'))
-        ac.triggered.connect(self.generate_catalog)
-        self.action_convert.setMenu(cm)
-        self.action_convert.triggered.connect(self.convert_ebook)
-        self.convert_menu = cm
-
-        pm = QMenu()
-        pm.addAction(QIcon(I('config.svg')), _('Preferences'), self.do_config)
-        pm.addAction(QIcon(I('wizard.svg')), _('Run welcome wizard'),
-                self.run_wizard)
-        self.action_preferences.setMenu(pm)
-        self.preferences_menu = pm
-        for x in (self.preferences_action, self.action_preferences):
-            x.triggered.connect(self.do_config)
-
-    def show_help(self, *args):
-        open_url(QUrl('http://calibre-ebook.com/user_manual'))
-
-    def read_toolbar_settings(self):
-        self.tool_bar.setIconSize(config['toolbar_icon_size'])
-        self.tool_bar.setToolButtonStyle(
-                Qt.ToolButtonTextUnderIcon if \
-                    config['show_text_in_toolbar'] else \
-                    Qt.ToolButtonIconOnly)
-
-# }}}
 
 class LibraryViewMixin(object): # {{{
 
@@ -217,6 +59,7 @@ class LibraryViewMixin(object): # {{{
                                         self.action_open_containing_folder,
                                         self.action_show_book_details,
                                         self.action_del,
+                                        self.action_conn_share,
                                         add_to_library = None,
                                         edit_device_collections=None,
                                         similar_menu=similar_menu)
@@ -225,21 +68,24 @@ class LibraryViewMixin(object): # {{{
         edit_device_collections = (_('Manage collections'),
                             partial(self.edit_device_collections, oncard=None))
         self.memory_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del,
+                self.action_view, self.action_save, None, None,
+                self.action_del, None,
                 add_to_library=add_to_library,
                 edit_device_collections=edit_device_collections)
 
         edit_device_collections = (_('Manage collections'),
                             partial(self.edit_device_collections, oncard='carda'))
         self.card_a_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del,
+                self.action_view, self.action_save, None, None,
+                self.action_del, None,
                 add_to_library=add_to_library,
                 edit_device_collections=edit_device_collections)
 
         edit_device_collections = (_('Manage collections'),
                             partial(self.edit_device_collections, oncard='cardb'))
         self.card_b_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None, self.action_del,
+                self.action_view, self.action_save, None, None,
+                self.action_del, None,
                 add_to_library=add_to_library,
                 edit_device_collections=edit_device_collections)
 

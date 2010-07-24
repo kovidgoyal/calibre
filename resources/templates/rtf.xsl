@@ -111,7 +111,6 @@
                 or (@shadow = 'true')
                 or (@hidden = 'true')
                 or (@outline = 'true')
-
                 ">
                <emph rend = "paragraph-emph">
                     <xsl:apply-templates/>
@@ -266,8 +265,19 @@
             <xsl:value-of select="@line-height"/>
             <xsl:text>pt;</xsl:text>
         </xsl:if>
+        <xsl:if test="(@align = 'just')">
+            <xsl:text>text-align: justify;</xsl:text>
+        </xsl:if>
+        <xsl:if test="(@align = 'cent')">
+            <xsl:text>text-align: center;</xsl:text>
+        </xsl:if>
+        <xsl:if test="(@align = 'left')">
+            <xsl:text>text-align: left;</xsl:text>
+        </xsl:if>
+        <xsl:if test="(@align = 'right')">
+            <xsl:text>text-align: right;</xsl:text>
+        </xsl:if>
     </xsl:template>
-
 
     <xsl:template match="rtf:inline">
         <xsl:variable name="num-attrs" select="count(@*)"/>
@@ -276,6 +286,26 @@
                 <xsl:text>[</xsl:text>
                 <xsl:value-of select="count(preceding::rtf:footnote) + 1"/>
                 <xsl:text>]</xsl:text>
+            </xsl:when>
+            <xsl:when test="(@superscript = 'true')">
+                <xsl:element name="sup">
+                    <xsl:element name="span">
+                        <xsl:attribute name="class">
+                            <c:inline-class/>
+                        </xsl:attribute>
+                        <xsl:apply-templates/>
+                    </xsl:element>
+                </xsl:element>
+            </xsl:when>
+            <xsl:when test="(@underscript = 'true')">
+                <xsl:element name="sub">
+                    <xsl:element name="span">
+                        <xsl:attribute name="class">
+                            <c:inline-class/>
+                        </xsl:attribute>
+                        <xsl:apply-templates/>
+                    </xsl:element>
+                </xsl:element>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:element name="span">

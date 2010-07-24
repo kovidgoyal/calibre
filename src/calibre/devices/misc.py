@@ -6,6 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
+
 from calibre.devices.usbms.driver import USBMS
 
 class PALMPRE(USBMS):
@@ -83,7 +85,14 @@ class PDNOVEL(USBMS):
 
     VENDOR_NAME = 'ANDROID'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '__UMS_COMPOSITE'
+    THUMBNAIL_HEIGHT = 144
 
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = False
+
+    def upload_cover(self, path, filename, metadata):
+        coverdata = getattr(metadata, 'thumbnail', None)
+        if coverdata and coverdata[2]:
+            with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
+                coverfile.write(coverdata[2])
 

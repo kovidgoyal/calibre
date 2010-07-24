@@ -114,50 +114,6 @@
            <widget class="QWidget" name="page_3">
             <layout class="QVBoxLayout" name="verticalLayout">
              <item>
-              <layout class="QVBoxLayout" name="_2">
-               <item>
-                <widget class="QLabel" name="label">
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>70</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>&amp;Location of ebooks (The ebooks are stored in folders sorted by author and metadata is stored in the file metadata.db)</string>
-                 </property>
-                 <property name="wordWrap">
-                  <bool>true</bool>
-                 </property>
-                 <property name="buddy">
-                  <cstring>location</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="_3">
-                 <item>
-                  <widget class="QLineEdit" name="location"/>
-                 </item>
-                 <item>
-                  <widget class="QToolButton" name="browse_button">
-                   <property name="toolTip">
-                    <string>Browse for the new database location</string>
-                   </property>
-                   <property name="text">
-                    <string>...</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="../../../../../resources/images.qrc">
-                     <normaloff>:/images/mimetypes/dir.svg</normaloff>:/images/mimetypes/dir.svg</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </item>
-             <item>
               <widget class="QCheckBox" name="new_version_notification">
                <property name="text">
                 <string>Show notification when &amp;new version is available</string>
@@ -390,21 +346,21 @@
                </property>
               </widget>
              </item>
-             <item row="7" column="0" colspan="2">
+             <item row="8" column="0" colspan="2">
               <widget class="QCheckBox" name="sync_news">
                <property name="text">
                 <string>Automatically send downloaded &amp;news to ebook reader</string>
                </property>
               </widget>
              </item>
-             <item row="8" column="0" colspan="2">
+             <item row="9" column="0" colspan="2">
               <widget class="QCheckBox" name="delete_news">
                <property name="text">
                 <string>&amp;Delete news from library when it is automatically sent to reader</string>
                </property>
               </widget>
              </item>
-             <item row="9" column="0" colspan="2">
+             <item row="10" column="0" colspan="2">
               <layout class="QHBoxLayout" name="horizontalLayout">
                <item>
                 <widget class="QLabel" name="label_6">
@@ -420,54 +376,6 @@
                 <widget class="QSpinBox" name="cover_browse"/>
                </item>
               </layout>
-             </item>
-             <item row="10" column="0" colspan="2">
-              <widget class="QGroupBox" name="groupBox_2">
-               <property name="title">
-                <string>Toolbar</string>
-               </property>
-               <layout class="QGridLayout" name="gridLayout">
-                <item row="0" column="1">
-                 <widget class="QComboBox" name="toolbar_button_size">
-                  <item>
-                   <property name="text">
-                    <string>Large</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Medium</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Small</string>
-                   </property>
-                  </item>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_4">
-                  <property name="text">
-                   <string>&amp;Button size in toolbar</string>
-                  </property>
-                  <property name="buddy">
-                   <cstring>toolbar_button_size</cstring>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QCheckBox" name="show_toolbar_text">
-                  <property name="text">
-                   <string>Show &amp;text in toolbar buttons</string>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
              </item>
              <item row="11" column="0" colspan="2">
               <layout class="QHBoxLayout" name="horizontalLayout_7">
@@ -670,6 +578,41 @@
                <property name="text">
                 <string>Show &amp;donate button (restart)</string>
                </property>
+              </widget>
+             </item>
+             <item row="7" column="0" colspan="2">
+              <widget class="QGroupBox" name="groupBox_2">
+               <property name="title">
+                <string>&amp;Toolbar</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout">
+                <item row="0" column="1">
+                 <widget class="QComboBox" name="opt_toolbar_icon_size"/>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label">
+                  <property name="text">
+                   <string>&amp;Icon size:</string>
+                  </property>
+                  <property name="buddy">
+                   <cstring>opt_toolbar_icon_size</cstring>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QComboBox" name="opt_toolbar_text"/>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_4">
+                  <property name="text">
+                   <string>Show &amp;text under icons:</string>
+                  </property>
+                  <property name="buddy">
+                   <cstring>opt_toolbar_text</cstring>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
             </layout>

@@ -21,6 +21,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         QDialog.__init__(self, parent)
         Ui_EditAuthorsDialog.__init__(self)
         self.setupUi(self)
+        # Remove help icon on title bar
+        icon = self.windowIcon()
+        self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
+        self.setWindowIcon(icon)
 
         self.buttonBox.accepted.connect(self.accepted)
 

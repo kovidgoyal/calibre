@@ -13,6 +13,7 @@ class SearchRestrictionMixin(object):
         self.search_restriction.setSizeAdjustPolicy(self.search_restriction.AdjustToMinimumContentsLengthWithIcon)
         self.search_restriction.setMinimumContentsLength(10)
         self.search_restriction.setStatusTip(self.search_restriction.toolTip())
+        self.search_count.setText(_("(all books)"))
 
     '''
     Adding and deleting books while restricted creates a complexity. When added,

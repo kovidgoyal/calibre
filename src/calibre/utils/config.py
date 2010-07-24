@@ -6,30 +6,16 @@ __docformat__ = 'restructuredtext en'
 '''
 Manage application-wide preferences.
 '''
-import os, re, cPickle, textwrap, traceback, plistlib, json, base64
+import os, re, cPickle, textwrap, traceback, plistlib, json, base64, datetime
 from copy import deepcopy
 from functools import partial
 from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
-from calibre.constants import terminal_controller, iswindows, isosx, \
-                              __appname__, __version__, __author__, plugins
-from calibre.utils.lock import LockError, ExclusiveFile
 from collections import defaultdict
 
-if os.environ.has_key('CALIBRE_CONFIG_DIRECTORY'):
-    config_dir = os.path.abspath(os.environ['CALIBRE_CONFIG_DIRECTORY'])
-elif iswindows:
-    if plugins['winutil'][0] is None:
-        raise Exception(plugins['winutil'][1])
-    config_dir = plugins['winutil'][0].special_folder_path(plugins['winutil'][0].CSIDL_APPDATA)
-    if not os.access(config_dir, os.W_OK|os.X_OK):
-        config_dir = os.path.expanduser('~')
-    config_dir = os.path.join(config_dir, 'calibre')
-elif isosx:
-    config_dir = os.path.expanduser('~/Library/Preferences/calibre')
-else:
-    bdir = os.path.abspath(os.path.expanduser(os.environ.get('XDG_CONFIG_HOME', '~/.config')))
-    config_dir = os.path.join(bdir, 'calibre')
+from calibre.constants import terminal_controller, config_dir, \
+                              __appname__, __version__, __author__
+from calibre.utils.lock import LockError, ExclusiveFile
 
 plugin_dir = os.path.join(config_dir, 'plugins')
 
@@ -326,10 +312,10 @@ class OptionSet(object):
 
     def parse_string(self, src):
         options = {'cPickle':cPickle}
-        if not isinstance(src, unicode):
-            src = src.decode('utf-8')
         if src is not None:
             try:
+                if not isinstance(src, unicode):
+                    src = src.decode('utf-8')
                 exec src in options
             except:
                 print 'Failed to parse options string:'
@@ -632,27 +618,34 @@ class XMLConfig(dict):
                 f.truncate()
                 f.write(raw)
 
+def to_json(obj):
+    if isinstance(obj, bytearray):
+        return {'__class__': 'bytearray',
+                '__value__': base64.standard_b64encode(bytes(obj))}
+    if isinstance(obj, datetime.datetime):
+        from calibre.utils.date import isoformat
+        return {'__class__': 'datetime.datetime',
+                '__value__': isoformat(obj, as_utc=True)}
+    raise TypeError(repr(obj) + ' is not JSON serializable')
+
+def from_json(obj):
+    if '__class__' in obj:
+        if obj['__class__'] == 'bytearray':
+            return bytearray(base64.standard_b64decode(obj['__value__']))
+        if obj['__class__'] == 'datetime.datetime':
+            from calibre.utils.date import parse_date
+            return parse_date(obj['__value__'], assume_utc=True)
+    return obj
+
 class JSONConfig(XMLConfig):
 
     EXTENSION = '.json'
 
-    def to_json(self, obj):
-        if isinstance(obj, bytearray):
-            return {'__class__': 'bytearray',
-                    '__value__': base64.standard_b64encode(bytes(obj))}
-        raise TypeError(repr(obj) + ' is not JSON serializable')
-
-    def from_json(self, obj):
-        if '__class__' in obj:
-            if obj['__class__'] == 'bytearray':
-                return bytearray(base64.standard_b64decode(obj['__value__']))
-        return obj
-
     def raw_to_object(self, raw):
-        return json.loads(raw.decode('utf-8'), object_hook=self.from_json)
+        return json.loads(raw.decode('utf-8'), object_hook=from_json)
 
     def to_raw(self):
-        return json.dumps(self, indent=2, default=self.to_json)
+        return json.dumps(self, indent=2, default=to_json)
 
     def __getitem__(self, key):
         return dict.__getitem__(self, key)

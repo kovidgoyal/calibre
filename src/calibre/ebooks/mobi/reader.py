@@ -14,7 +14,8 @@ except ImportError:
 
 from lxml import html, etree
 
-from calibre import xml_entity_to_unicode, CurrentDir, entity_to_unicode
+from calibre import xml_entity_to_unicode, CurrentDir, entity_to_unicode, \
+    replace_entities
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import parse_date
 from calibre.ptempfile import TemporaryDirectory
@@ -70,7 +71,7 @@ class EXTHHeader(object):
             #else:
             #    print 'unknown record', id, repr(content)
         if title:
-            self.mi.title = title
+            self.mi.title = replace_entities(title)
 
     def process_metadata(self, id, content, codec):
         if id == 100:

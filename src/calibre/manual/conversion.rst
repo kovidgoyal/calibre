@@ -349,7 +349,7 @@ table of contents, check the :guilabel:`Do not add detected chapters` option.
 
 If less than the :guilabel:`Chapter threshold` number of chapters were detected, |app| will then add any hyperlinks
 it finds in the input document to the Table of Contents. This often works well many input documents include a
-hyperlinked Table of Contents right at the start. The :guilabel:`Number fo links` option can be used to control
+hyperlinked Table of Contents right at the start. The :guilabel:`Number of links` option can be used to control
 this behavior. If set to zero, no links are added. If set to a number greater than zero, at most that number of links
 is added.
 
