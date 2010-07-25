@@ -412,6 +412,10 @@
             <xsl:attribute name="style">page-break-after:always</xsl:attribute>
         </xsl:element>
     </xsl:template>
+    
+    <xsl:template match="rtf:hardline-break">
+        <xsl:element name="br"/>
+    </xsl:template>
 
     <xsl:template match="rtf:rtf-definition|rtf:font-table|rtf:color-table|rtf:style-table|rtf:page-definition|rtf:list-table|rtf:override-table|rtf:override-list|rtf:list-text"/>
 

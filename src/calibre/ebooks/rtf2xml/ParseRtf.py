@@ -90,8 +90,8 @@ class ParseRtf:
                 out_file = '',
                 out_dir = None,
                 dtd = '',
-                debug = 0,
-                deb_dir=None,
+                #debug = 0, #why? calibre
+                deb_dir = None,
                 convert_symbol = None,
                 convert_wingdings = None,
                 convert_zapf = None,
@@ -132,7 +132,7 @@ class ParseRtf:
         self.__dtd_path = dtd
         self.__check_file(in_file,"file_to_parse")
         self.__char_data = char_data
-        self.__debug_dir = debug
+        self.__debug_dir = deb_dir #self.__debug_dir = debug calibre
         self.__check_dir(self.__temp_dir)
         self.__copy = self.__check_dir(self.__debug_dir)
         self.__convert_caps = convert_caps
