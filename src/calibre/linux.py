@@ -341,7 +341,6 @@ class PostInstall:
                     p = QImage(I('lt.png')).scaledToHeight(128,
                             Qt.SmoothTransformation)
                     p.save('calibre-gui.png')
-                    QFile(I('l.png')).copy('calibre-gui.png')
                     check_call('xdg-icon-resource install --noupdate --size 128 calibre-gui.png calibre-gui', shell=True)
                     self.icon_resources.append(('apps', 'calibre-gui', '128'))
                     render_svg(QFile(I('viewer.svg')), 'calibre-viewer.png')
