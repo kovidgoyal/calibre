@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-23 17:37+0000\n"
-"PO-Revision-Date: 2010-07-23 20:09+0000\n"
+"PO-Revision-Date: 2010-07-24 05:10+0000\n"
 "Last-Translator: Thomaz Rodrigues Botelho <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-24 03:57+0000\n"
+"X-Launchpad-Export-Date: 2010-07-25 04:06+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -5375,15 +5375,15 @@ msgstr "Grande"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:509
 msgid "Always"
-msgstr ""
+msgstr "Sempre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:509
 msgid "Automatic"
-msgstr ""
+msgstr "Automático"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:510
 msgid "Never"
-msgstr ""
+msgstr "Nunca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:521
 msgid "System port selected"
@@ -5820,15 +5820,15 @@ msgstr "Mostrar botão de &doação (reiniciar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:573
 msgid "&Toolbar"
-msgstr ""
+msgstr "Barra de ferramen&tas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:574
 msgid "&Icon size:"
-msgstr ""
+msgstr "Tamanho do &Icone:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:575
 msgid "Show &text under icons:"
-msgstr ""
+msgstr "Mostrar &texto abaixo dos icones:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:576
 msgid "Add an email address to which to send books"
@@ -8957,7 +8957,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:187
 msgid "toolBar"
-msgstr "barraDeFerramentas"
+msgstr "Barra de ferramentas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:190
 msgid "Next page"
