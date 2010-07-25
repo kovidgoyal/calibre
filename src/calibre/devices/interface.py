@@ -1,10 +1,5 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-"""
-Define the minimum interface that a device backend must satisfy to be used in
-the GUI. A device backend must subclass the L{Device} class. See prs500.py for
-a backend that implement the Device interface for the SONY PRS500 Reader.
-"""
 import os
 from collections import namedtuple
 
@@ -15,32 +10,38 @@ class DevicePlugin(Plugin):
     """
     Defines the interface that should be implemented by backends that
     communicate with an ebook reader.
-
-    The C{end_session} variables are used for USB session management. Sometimes
-    the front-end needs to call several methods one after another, in which case
-    the USB session should not be closed after each method call.
     """
     type = _('Device Interface')
 
-    # Ordered list of supported formats
+    #: Ordered list of supported formats
     FORMATS     = ["lrf", "rtf", "pdf", "txt"]
+
     #: VENDOR_ID can be either an integer, a list of integers or a dictionary
-    #: If it is a dictionary, it must be a dictionary of dictionaries, of the form
-    #: {
-    #:  integer_vendor_id : { product_id : [list of BCDs], ... },
-    #:  ...
-    #: }
+    #: If it is a dictionary, it must be a dictionary of dictionaries,
+    #: of the form::
+    #:
+    #:   {
+    #:    integer_vendor_id : { product_id : [list of BCDs], ... },
+    #:    ...
+    #:   }
+    #:
     VENDOR_ID   = 0x0000
+
     #: An integer or a list of integers
     PRODUCT_ID  = 0x0000
-    # BCD can be either None to not distinguish between devices based on BCD, or
-    # it can be a list of the BCD numbers of all devices supported by this driver.
+    #: BCD can be either None to not distinguish between devices based on BCD, or
+    #: it can be a list of the BCD numbers of all devices supported by this driver.
     BCD         = None
-    THUMBNAIL_HEIGHT = 68 # Height for thumbnails on device
-    # Whether the metadata on books can be set via the GUI.
+
+    #: Height for thumbnails on the device
+    THUMBNAIL_HEIGHT = 68
+
+    #: Whether the metadata on books can be set via the GUI.
     CAN_SET_METADATA = True
+
     #: Path separator for paths to books on device
     path_sep = os.sep
+
     #: Icon for this device
     icon = I('reader.svg')
 
@@ -121,6 +122,7 @@ class DevicePlugin(Plugin):
         Return True, device_info if a device handled by this plugin is currently connected.
 
         :param devices_on_system: List of devices currently connected
+
         '''
         if iswindows:
             return self.is_usb_connected_windows(devices_on_system,
@@ -157,13 +159,14 @@ class DevicePlugin(Plugin):
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None) :
         """
-        :key: The key to unlock the device
-        :log_packets: If true the packet stream to/from the device is logged
-        :report_progress: Function that is called with a % progress
+        :param key: The key to unlock the device
+        :param log_packets: If true the packet stream to/from the device is logged
+        :param report_progress: Function that is called with a % progress
                                 (number between 0 and 100) for various tasks
                                 If it is called with -1 that means that the
                                 task does not have any progress information
-        :detected_device: Device information from the device scanner
+        :param detected_device: Device information from the device scanner
+
         """
         raise NotImplementedError()
 
@@ -174,19 +177,21 @@ class DevicePlugin(Plugin):
         is only called after the vendor, product ids and the bcd have matched, so
         it can do some relatively time intensive checks. The default implementation
         returns True. This method is called only on windows. See also
-        :method:`can_handle`.
+        :meth:`can_handle`.
 
         :param device_info: On windows a device ID string. On Unix a tuple of
-        ``(vendor_id, product_id, bcd)``.
+                            ``(vendor_id, product_id, bcd)``.
+
         '''
         return True
 
     def can_handle(self, device_info, debug=False):
         '''
-        Unix version of :method:`can_handle_windows`
+        Unix version of :meth:`can_handle_windows`
 
         :param device_info: Is a tupe of (vid, pid, bcd, manufacturer, product,
-        serial number)
+                            serial number)
+
         '''
 
         return True
@@ -198,7 +203,8 @@ class DevicePlugin(Plugin):
         For example: For devices that present themselves as USB Mass storage
         devices, this method would be responsible for mounting the device or
         if the device has been automounted, for finding out where it has been
-        mounted. The base class within USBMS device.py has a implementation of
+        mounted. The method :meth:`calibre.devices.usbms.device.Device.open` has
+        an implementation of
         this function that should serve as a good example for USB Mass storage
         devices.
         '''
@@ -219,17 +225,20 @@ class DevicePlugin(Plugin):
 
     def set_progress_reporter(self, report_progress):
         '''
-        @param report_progress: Function that is called with a % progress
+        :param report_progress: Function that is called with a % progress
                                 (number between 0 and 100) for various tasks
                                 If it is called with -1 that means that the
                                 task does not have any progress information
+
         '''
         raise NotImplementedError()
 
     def get_device_information(self, end_session=True):
         """
         Ask device for device information. See L{DeviceInfoQuery}.
-        @return: (device name, device version, software version on device, mime type)
+
+        :return: (device name, device version, software version on device, mime type)
+
         """
         raise NotImplementedError()
 
@@ -252,8 +261,9 @@ class DevicePlugin(Plugin):
             2. Memory Card A
             3. Memory Card B
 
-        @return: A 3 element list with total space in bytes of (1, 2, 3). If a
-        particular device doesn't have any of these locations it should return 0.
+        :return: A 3 element list with total space in bytes of (1, 2, 3). If a
+                 particular device doesn't have any of these locations it should return 0.
+
         """
         raise NotImplementedError()
 
@@ -264,19 +274,23 @@ class DevicePlugin(Plugin):
           2. Card A
           3. Card B
 
-        @return: A 3 element list with free space in bytes of (1, 2, 3). If a
-        particular device doesn't have any of these locations it should return -1.
+        :return: A 3 element list with free space in bytes of (1, 2, 3). If a
+                 particular device doesn't have any of these locations it should return -1.
+
         """
         raise NotImplementedError()
 
     def books(self, oncard=None, end_session=True):
         """
         Return a list of ebooks on the device.
-        @param oncard:  If 'carda' or 'cardb' return a list of ebooks on the
+
+        :param oncard:  If 'carda' or 'cardb' return a list of ebooks on the
                         specific storage card, otherwise return list of ebooks
                         in main memory of device. If a card is specified and no
                         books are on the card return empty list.
-        @return: A BookList.
+
+        :return: A BookList.
+
         """
         raise NotImplementedError()
 
@@ -285,25 +299,27 @@ class DevicePlugin(Plugin):
         '''
         Upload a list of books to the device. If a file already
         exists on the device, it should be replaced.
-        This method should raise a L{FreeSpaceError} if there is not enough
+        This method should raise a :class:`FreeSpaceError` if there is not enough
         free space on the device. The text of the FreeSpaceError must contain the
-        word "card" if C{on_card} is not None otherwise it must contain the word "memory".
-        :files: A list of paths and/or file-like objects. If they are paths and
-        the paths point to temporary files, they may have an additional
-        attribute, original_file_path pointing to the originals. They may have
-        another optional attribute, deleted_after_upload which if True means
-        that the file pointed to by original_file_path will be deleted after
-        being uploaded to the device.
-        :names: A list of file names that the books should have
-        once uploaded to the device. len(names) == len(files)
+        word "card" if ``on_card`` is not None otherwise it must contain the word "memory".
+
+        :param files: A list of paths and/or file-like objects. If they are paths and
+                      the paths point to temporary files, they may have an additional
+                      attribute, original_file_path pointing to the originals. They may have
+                      another optional attribute, deleted_after_upload which if True means
+                      that the file pointed to by original_file_path will be deleted after
+                      being uploaded to the device.
+        :param names: A list of file names that the books should have
+                      once uploaded to the device. len(names) == len(files)
+        :param metadata: If not None, it is a list of :class:`MetaInformation` objects.
+                         The idea is to use the metadata to determine where on the device to
+                         put the book. len(metadata) == len(files). Apart from the regular
+                         cover (path to cover), there may also be a thumbnail attribute, which should
+                         be used in preference. The thumbnail attribute is of the form
+                         (width, height, cover_data as jpeg).
+
         :return: A list of 3-element tuples. The list is meant to be passed
-        to L{add_books_to_metadata}.
-        :metadata: If not None, it is a list of :class:`MetaInformation` objects.
-        The idea is to use the metadata to determine where on the device to
-        put the book. len(metadata) == len(files). Apart from the regular
-        cover (path to cover), there may also be a thumbnail attribute, which should
-        be used in preference. The thumbnail attribute is of the form
-        (width, height, cover_data as jpeg).
+                 to :meth:`add_books_to_metadata`.
         '''
         raise NotImplementedError()
 
@@ -312,12 +328,15 @@ class DevicePlugin(Plugin):
         '''
         Add locations to the booklists. This function must not communicate with
         the device.
-        @param locations: Result of a call to L{upload_books}
-        @param metadata: List of MetaInformation objects, same as for
-        :method:`upload_books`.
-        @param booklists: A tuple containing the result of calls to
-                                (L{books}(oncard=None), L{books}(oncard='carda'),
-                                L{books}(oncard='cardb')).
+
+        :param locations: Result of a call to L{upload_books}
+        :param metadata: List of :class:`MetaInformation` objects, same as for
+                         :meth:`upload_books`.
+        :param booklists: A tuple containing the result of calls to
+                          (:meth:`books(oncard=None)`,
+                          :meth:`books(oncard='carda')`,
+                          :meth`books(oncard='cardb')`).
+
         '''
         raise NotImplementedError
 
@@ -332,26 +351,35 @@ class DevicePlugin(Plugin):
         '''
         Remove books from the metadata list. This function must not communicate
         with the device.
-        @param paths: paths to books on the device.
-        @param booklists:  A tuple containing the result of calls to
-                                (L{books}(oncard=None), L{books}(oncard='carda'),
-                                L{books}(oncard='cardb')).
+
+        :param paths: paths to books on the device.
+        :param booklists: A tuple containing the result of calls to
+                          (:meth:`books(oncard=None)`,
+                          :meth:`books(oncard='carda')`,
+                          :meth`books(oncard='cardb')`).
+
         '''
         raise NotImplementedError()
 
     def sync_booklists(self, booklists, end_session=True):
         '''
         Update metadata on device.
-        @param booklists: A tuple containing the result of calls to
-                                (L{books}(oncard=None), L{books}(oncard='carda'),
-                                L{books}(oncard='cardb')).
+
+        :param booklists: A tuple containing the result of calls to
+                          (:meth:`books(oncard=None)`,
+                          :meth:`books(oncard='carda')`,
+                          :meth`books(oncard='cardb')`).
+
         '''
         raise NotImplementedError()
 
     def get_file(self, path, outfile, end_session=True):
         '''
-        Read the file at C{path} on the device and write it to outfile.
-        @param outfile: file object like C{sys.stdout} or the result of an C{open} call
+        Read the file at ``path`` on the device and write it to outfile.
+
+        :param outfile: file object like ``sys.stdout`` or the result of an
+                       :func:`open` call.
+
         '''
         raise NotImplementedError()
 
@@ -365,8 +393,8 @@ class DevicePlugin(Plugin):
     @classmethod
     def save_settings(cls, settings_widget):
         '''
-        Should save settings to disk. Takes the widget created in config_widget
-        and saves all settings to disk.
+        Should save settings to disk. Takes the widget created in
+        :meth:`config_widget` and saves all settings to disk.
         '''
         raise NotImplementedError()
 
@@ -381,16 +409,18 @@ class DevicePlugin(Plugin):
 
 class BookList(list):
     '''
-    A list of books. Each Book object must have the fields:
-      1. title
-      2. authors
-      3. size (file size of the book)
-      4. datetime (a UTC time tuple)
-      5. path (path on the device to the book)
-      6. thumbnail (can be None) thumbnail is either a str/bytes object with the
+    A list of books. Each Book object must have the fields
+
+      #. title
+      #. authors
+      #. size (file size of the book)
+      #. datetime (a UTC time tuple)
+      #. path (path on the device to the book)
+      #. thumbnail (can be None) thumbnail is either a str/bytes object with the
          image data or it should have an attribute image_path that stores an
          absolute (platform native) path to the image
-      7. tags (a list of strings, can be empty).
+      #. tags (a list of strings, can be empty).
+
     '''
 
     __getslice__ = None
@@ -427,6 +457,7 @@ class BookList(list):
         created from series, in which case series_index is used.
 
         :param collection_attributes: A list of attributes of the Book object
+
         '''
         raise NotImplementedError()
 

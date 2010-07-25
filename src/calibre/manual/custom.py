@@ -3,17 +3,13 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import sys, os, inspect, re, textwrap
+import sys, os, re, textwrap
 
 sys.path.insert(0, os.path.abspath('../../'))
 sys.extensions_location = '../plugins'
 sys.resources_location  = '../../../resources'
 
-from sphinx.util import rpartition
 from sphinx.util.console import bold
-from sphinx.ext.autodoc import prepare_docstring
-from docutils.statemachine import ViewList
-from docutils import nodes
 
 sys.path.append(os.path.abspath('../../../'))
 from calibre.linux import entry_points
@@ -244,61 +240,9 @@ def cli_docs(app):
             raw += '\n'+'\n'.join(lines)
             update_cli_doc(os.path.join('cli', cmd+'.rst'), raw, info)
 
-def auto_member(dirname, arguments, options, content, lineno,
-                    content_offset, block_text, state, state_machine):
-    name = arguments[0]
-    env = state.document.settings.env
-
-    mod_cls, obj = rpartition(name, '.')
-    if not mod_cls and hasattr(env, 'autodoc_current_class'):
-        mod_cls = env.autodoc_current_class
-    if not mod_cls:
-        mod_cls = env.currclass
-    mod, cls = rpartition(mod_cls, '.')
-    if not mod and hasattr(env, 'autodoc_current_module'):
-        mod = env.autodoc_current_module
-    if not mod:
-        mod = env.currmodule
-
-    module = __import__(mod, None, None, ['foo'])
-    cls = getattr(module, cls)
-    lines = inspect.getsourcelines(cls)[0]
-
-    comment_lines = []
-    for i, line in enumerate(lines):
-        if re.search(r'%s\s*=\s*\S+'%obj, line) and not line.strip().startswith('#:'):
-            for j in range(i-1, 0, -1):
-                raw = lines[j].strip()
-                if not raw.startswith('#:'):
-                    break
-                comment_lines.append(raw[2:])
-            break
-    comment_lines.reverse()
-    docstring = '\n'.join(comment_lines)
-
-    if module is not None and docstring is not None:
-        docstring = docstring.decode('utf-8')
-
-    result = ViewList()
-    result.append('.. attribute:: %s.%s'%(cls.__name__, obj), '<autodoc>')
-    result.append('', '<autodoc>')
-
-    docstring = prepare_docstring(docstring)
-    for i, line in enumerate(docstring):
-        result.append('    ' + line, '<docstring of %s>' % name, i)
-
-    result.append('', '')
-    result.append('    **Default**: ``%s``'%repr(getattr(cls, obj, None)), '<default memeber value>')
-    result.append('', '')
-    node = nodes.paragraph()
-    state.nested_parse(result, content_offset, node)
-
-    return list(node)
-
 def setup(app):
     app.add_config_value('epub_cover', None, False)
     app.add_builder(EPUBHelpBuilder)
-    app.add_directive('automember', auto_member, 1, (1, 0, 1))
     app.connect('doctree-read', substitute)
     app.connect('builder-inited', cli_docs)
     app.connect('build-finished', finished)

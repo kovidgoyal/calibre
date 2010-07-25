@@ -37,7 +37,10 @@ class DownloadDenied(ValueError):
 
 class BasicNewsRecipe(Recipe):
     '''
-    Abstract base class that contains logic needed in all feed fetchers.
+    Base class that contains logic needed in all recipes. By overriding
+    progressively more of the functionality in this class, you can make
+    progressively more customized/powerful recipes. For a tutorial introduction
+    to creating recipes, see :doc:`news`.
     '''
 
     #: The title to use for the ebook
@@ -127,7 +130,7 @@ class BasicNewsRecipe(Recipe):
     #: embedded content.
     use_embedded_content   = None
 
-    #: Set to True and implement :method:`get_obfuscated_article` to handle
+    #: Set to True and implement :meth:`get_obfuscated_article` to handle
     #: websites that try to make it difficult to scrape content.
     articles_are_obfuscated = False
 
@@ -147,7 +150,7 @@ class BasicNewsRecipe(Recipe):
     #: If True empty feeds are removed from the output.
     #: This option has no effect if parse_index is overriden in
     #: the sub class. It is meant only for recipes that return a list
-    #: of feeds using `feeds` or :method:`get_feeds`.
+    #: of feeds using `feeds` or :meth:`get_feeds`.
     remove_empty_feeds = False
 
     #: List of regular expressions that determines which links to follow
@@ -538,8 +541,7 @@ class BasicNewsRecipe(Recipe):
         HTML fetching engine, so it can contain links to pages/images on the web.
 
         This method is typically useful for sites that try to make it difficult to
-        access article content automatically. See for example the
-        :module:`calibre.web.recipes.iht` recipe.
+        access article content automatically.
         '''
         raise NotImplementedError
 
@@ -700,8 +702,7 @@ class BasicNewsRecipe(Recipe):
         Download and pre-process all articles from the feeds in this recipe.
         This method should be called only once on a particular Recipe instance.
         Calling it more than once will lead to undefined behavior.
-        @return: Path to index.html
-        @rtype: string
+        :return: Path to index.html
         '''
         try:
             res = self.build_index()
@@ -1359,7 +1360,7 @@ class BasicNewsRecipe(Recipe):
          '''
          If your recipe when converted to EPUB has problems with images when
          viewed in Adobe Digital Editions, call this method from within
-         :method:`postprocess_html`.
+         :meth:`postprocess_html`.
          '''
          for item in soup.findAll('img'):
              for attrib in ['height','width','border','align','style']:
