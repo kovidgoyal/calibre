@@ -3,12 +3,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 ''' Post installation script for linux '''
 
-import sys, os, shutil, cPickle, textwrap, stat
+import sys, os, cPickle, textwrap, stat
 from subprocess import check_call
 
 from calibre import  __appname__, prints, guess_type
 from calibre.constants import islinux, isfreebsd
 from calibre.customize.ui import all_input_formats
+from calibre.ptempfile import TemporaryDirectory
+from calibre import CurrentDir
 
 
 entry_points = {
@@ -323,65 +325,62 @@ class PostInstall:
 
     def setup_desktop_integration(self):
         try:
-            from PyQt4.QtCore import QFile
-            from tempfile import mkdtemp
+            from PyQt4.Qt import QFile, QImage, Qt
 
             self.info('Setting up desktop integration...')
 
 
-            tdir = mkdtemp()
-            cwd = os.getcwdu()
-            try:
-                os.chdir(tdir)
-                render_svg(QFile(I('mimetypes/lrf.svg')), os.path.join(tdir, 'calibre-lrf.png'))
-                check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
-                self.icon_resources.append(('mimetypes', 'application-lrf', '128'))
-                check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
-                self.icon_resources.append(('mimetypes', 'application-lrs',
-                '128'))
-                QFile(I('library.png')).copy(os.path.join(tdir, 'calibre-gui.png'))
-                check_call('xdg-icon-resource install --noupdate --size 128 calibre-gui.png calibre-gui', shell=True)
-                self.icon_resources.append(('apps', 'calibre-gui', '128'))
-                render_svg(QFile(I('viewer.svg')), os.path.join(tdir, 'calibre-viewer.png'))
-                check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
-                self.icon_resources.append(('apps', 'calibre-viewer', '128'))
+            with TemporaryDirectory() as tdir:
+                with CurrentDir(tdir):
+                    render_svg(QFile(I('mimetypes/lrf.svg')), 'calibre-lrf.png')
+                    check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
+                    self.icon_resources.append(('mimetypes', 'application-lrf', '128'))
+                    check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
+                    self.icon_resources.append(('mimetypes', 'application-lrs',
+                    '128'))
+                    p = QImage(I('lt.png')).scaledToHeight(128,
+                            Qt.SmoothTransformation)
+                    p.save('calibre-gui.png')
+                    QFile(I('l.png')).copy('calibre-gui.png')
+                    check_call('xdg-icon-resource install --noupdate --size 128 calibre-gui.png calibre-gui', shell=True)
+                    self.icon_resources.append(('apps', 'calibre-gui', '128'))
+                    render_svg(QFile(I('viewer.svg')), 'calibre-viewer.png')
+                    check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
+                    self.icon_resources.append(('apps', 'calibre-viewer', '128'))
 
-                mimetypes = set([])
-                for x in all_input_formats():
-                    mt = guess_type('dummy.'+x)[0]
-                    if mt and 'chemical' not in mt:
-                        mimetypes.add(mt)
+                    mimetypes = set([])
+                    for x in all_input_formats():
+                        mt = guess_type('dummy.'+x)[0]
+                        if mt and 'chemical' not in mt:
+                            mimetypes.add(mt)
 
-                def write_mimetypes(f):
-                    f.write('MimeType=%s;\n'%';'.join(mimetypes))
+                    def write_mimetypes(f):
+                        f.write('MimeType=%s;\n'%';'.join(mimetypes))
 
-                f = open('calibre-lrfviewer.desktop', 'wb')
-                f.write(VIEWER)
-                f.close()
-                f = open('calibre-ebook-viewer.desktop', 'wb')
-                f.write(EVIEWER)
-                write_mimetypes(f)
-                f.close()
-                f = open('calibre-gui.desktop', 'wb')
-                f.write(GUI)
-                write_mimetypes(f)
-                f.close()
-                des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
-                        'calibre-ebook-viewer.desktop')
-                for x in des:
-                    cmd = ['xdg-desktop-menu', 'install', './'+x]
-                    if x != des[-1]:
-                        cmd.insert(2, '--noupdate')
-                    check_call(' '.join(cmd), shell=True)
-                    self.menu_resources.append(x)
-                f = open('calibre-mimetypes', 'wb')
-                f.write(MIME)
-                f.close()
-                self.mime_resources.append('calibre-mimetypes')
-                check_call('xdg-mime install ./calibre-mimetypes', shell=True)
-            finally:
-                os.chdir(cwd)
-                shutil.rmtree(tdir)
+                    f = open('calibre-lrfviewer.desktop', 'wb')
+                    f.write(VIEWER)
+                    f.close()
+                    f = open('calibre-ebook-viewer.desktop', 'wb')
+                    f.write(EVIEWER)
+                    write_mimetypes(f)
+                    f.close()
+                    f = open('calibre-gui.desktop', 'wb')
+                    f.write(GUI)
+                    write_mimetypes(f)
+                    f.close()
+                    des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
+                            'calibre-ebook-viewer.desktop')
+                    for x in des:
+                        cmd = ['xdg-desktop-menu', 'install', './'+x]
+                        if x != des[-1]:
+                            cmd.insert(2, '--noupdate')
+                        check_call(' '.join(cmd), shell=True)
+                        self.menu_resources.append(x)
+                    f = open('calibre-mimetypes', 'wb')
+                    f.write(MIME)
+                    f.close()
+                    self.mime_resources.append('calibre-mimetypes')
+                    check_call('xdg-mime install ./calibre-mimetypes', shell=True)
         except Exception:
             if self.opts.fatal_errors:
                 raise
