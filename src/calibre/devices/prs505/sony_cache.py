@@ -328,7 +328,10 @@ class XMLCache(object):
                             'descendant::*[local-name()="jpeg"]|'
                             'descendant::*[local-name()="png"]'):
                         if img.text:
-                            raw = b64decode(img.text.strip())
+                            try:
+                                raw = b64decode(img.text.strip())
+                            except:
+                                continue
                             book.thumbnail = raw
                             break
                     break
