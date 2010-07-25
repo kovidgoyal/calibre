@@ -171,7 +171,7 @@ class PostInstall:
             self.task_failed('Creating uninstaller failed')
 
 
-    def setup_completion(self):
+    def setup_completion(self): # {{{
         try:
             self.info('Setting up bash completion...')
             from calibre.ebooks.metadata.cli import option_parser as metaop, filetypes as meta_filetypes
@@ -287,8 +287,9 @@ class PostInstall:
             if self.opts.fatal_errors:
                 raise
             self.task_failed('Setting up completion failed')
+    # }}}
 
-    def install_man_pages(self):
+    def install_man_pages(self): # {{{
         try:
             from calibre.utils.help2man import create_man_page
             if isfreebsd:
@@ -318,6 +319,7 @@ class PostInstall:
             if self.opts.fatal_errors:
                 raise
             self.task_failed('Installing MAN pages failed')
+    # }}}
 
     def setup_desktop_integration(self):
         try:
