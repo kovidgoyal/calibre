@@ -9,9 +9,6 @@ sys.path.insert(0, os.path.abspath('../../'))
 sys.extensions_location = '../plugins'
 sys.resources_location  = '../../../resources'
 
-from sphinx.builders.html import StandaloneHTMLBuilder
-from qthelp import QtHelpBuilder
-from epub import EPUBHelpBuilder
 from sphinx.util import rpartition
 from sphinx.util.console import bold
 from sphinx.ext.autodoc import prepare_docstring
@@ -20,12 +17,7 @@ from docutils import nodes
 
 sys.path.append(os.path.abspath('../../../'))
 from calibre.linux import entry_points
-
-class CustomBuilder(StandaloneHTMLBuilder):
-    name = 'custom'
-
-class CustomQtBuild(QtHelpBuilder):
-    name = 'customqt'
+from epub import EPUBHelpBuilder
 
 def substitute(app, doctree):
     pass
@@ -305,9 +297,6 @@ def auto_member(dirname, arguments, options, content, lineno,
 
 def setup(app):
     app.add_config_value('epub_cover', None, False)
-    app.add_config_value('epub_author', '', False)
-    app.add_builder(CustomBuilder)
-    app.add_builder(CustomQtBuild)
     app.add_builder(EPUBHelpBuilder)
     app.add_directive('automember', auto_member, 1, (1, 0, 1))
     app.connect('doctree-read', substitute)

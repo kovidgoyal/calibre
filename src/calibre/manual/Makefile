@@ -37,7 +37,7 @@ qthelp:
 
 epub:
 	mkdir -p .build/qthelp .build/doctrees
-	$(SPHINXBUILD) -b epub $(ALLSPHINXOPTS) .build/epub
+	$(SPHINXBUILD) -b myepub $(ALLSPHINXOPTS) .build/epub
 	@echo
 	@echo "Build finished."
 
