@@ -5,7 +5,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2 import dynamic
 from calibre.gui2.dialogs.confirm_delete_ui import Ui_Dialog
-from PyQt4.Qt import QDialog, SIGNAL, Qt
+from PyQt4.Qt import QDialog, Qt, QPixmap, QIcon
 
 def _config_name(name):
     return name + '_again'
@@ -18,15 +18,17 @@ class Dialog(QDialog, Ui_Dialog):
 
         self.msg.setText(msg)
         self.name = name
-        self.connect(self.again, SIGNAL('stateChanged(int)'), self.toggle)
+        self.again.stateChanged.connect(self.toggle)
         self.buttonBox.setFocus(Qt.OtherFocusReason)
 
 
-    def toggle(self, x):
+    def toggle(self, *args):
         dynamic[_config_name(self.name)] = self.again.isChecked()
 
-def confirm(msg, name, parent=None):
+def confirm(msg, name, parent=None, pixmap='dialog_warning.svg'):
     if not dynamic.get(_config_name(name), True):
         return True
     d = Dialog(msg, name, parent)
+    d.label.setPixmap(QPixmap(I(pixmap)))
+    d.setWindowIcon(QIcon(I(pixmap)))
     return d.exec_() == d.Accepted

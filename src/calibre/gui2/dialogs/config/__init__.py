@@ -512,8 +512,17 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
                 idx = i
             self.opt_toolbar_text.addItem(x[0], x[1])
         self.opt_toolbar_text.setCurrentIndex(idx)
+        self.reset_confirmation_button.clicked.connect(self.reset_confirmation)
 
         self.category_view.setCurrentIndex(self.category_view.model().index_for_name(initial_category))
+
+    def reset_confirmation(self):
+        from calibre.gui2 import dynamic
+        for key in dynamic.keys():
+            if key.endswith('_again') and dynamic[key] is False:
+                dynamic[key] = True
+        info_dialog(self, _('Done'),
+                _('Confirmation dialogs have all been reset'), show=True)
 
     def check_port_value(self, *args):
         port = self.port.value()
