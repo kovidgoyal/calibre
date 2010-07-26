@@ -119,10 +119,11 @@ class RTFMLizer(object):
                 output += '{\\page } '
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to RTF markup...' % item.href)
-            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
-            content = unicode(etree.tostring(item.data.find(XHTML('body')), encoding=unicode))
+            content = unicode(etree.tostring(item.data, encoding=unicode))
             content = self.remove_newlines(content)
-            output += self.dump_text(etree.fromstring(content), stylizer)
+            content = etree.fromstring(content)
+            stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)
+            output += self.dump_text(content.find(XHTML('body')), stylizer)
         output += self.footer()
         output = self.insert_images(output)
         output = self.clean_text(output)

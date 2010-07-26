@@ -33,6 +33,10 @@ def debug_print(*args):
 # CLI must come before Device as it implements the CLI functions that
 # are inherited from the device interface in Device.
 class USBMS(CLI, Device):
+    '''
+    The base class for all USBMS devices. Implements the logic for
+    sending/getting/updating metadata/caching metadata/etc.
+    '''
 
     description    = _('Communicate with an eBook reader.')
     author         = _('John Schember')
@@ -195,10 +199,13 @@ class USBMS(CLI, Device):
 
     def upload_cover(self, path, filename, metadata):
         '''
-        :path: the full path were the associated book is located.
-        :filename: the name of the book file without the extension.
-        :metadata: metadata belonging to the book. Use metadata.thumbnail
-        for cover
+        Upload book cover to the device. Default implementation does nothing.
+
+        :param path: the full path were the associated book is located.
+        :param filename: the name of the book file without the extension.
+        :param metadata: metadata belonging to the book. Use metadata.thumbnail
+                         for cover
+
         '''
         pass
 

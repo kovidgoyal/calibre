@@ -115,7 +115,7 @@ class Feed(object):
                            max_articles_per_feed=100):
         entries = feed.entries
         feed = feed.feed
-        self.title        = feed.get('title', _('Unknown feed')) if not title else title
+        self.title        = feed.get('title', _('Unknown section')) if not title else title
         self.description  = feed.get('description', '')
         image             = feed.get('image', {})
         self.image_url    = image.get('href', None)

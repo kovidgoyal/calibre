@@ -15,6 +15,22 @@ from calibre.ebooks.metadata.library_thing import check_for_cover
 metadata_config = None
 
 class MetadataSource(Plugin): # {{{
+    '''
+    Represents a source to query for metadata. Subclasses must implement
+    at least the fetch method.
+
+    When :meth:`fetch` is called, the `self` object will have the following
+    useful attributes (each of which may be None)::
+
+        title, book_author, publisher, isbn, log, verbose and extra
+
+    Use these attributes to construct the search query. extra is reserved for
+    future use.
+
+    The fetch method must store the results in `self.results` as a list of
+    :class:`MetaInformation` objects. If there is an error, it should be stored
+    in `self.exception` and `self.tb` (for the traceback).
+    '''
 
     author = 'Kovid Goyal'
 

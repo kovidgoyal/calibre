@@ -89,8 +89,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>724</width>
-          <height>683</height>
+          <width>720</width>
+          <height>679</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_7">
@@ -221,6 +221,13 @@
                 <widget class="QComboBox" name="output_format"/>
                </item>
               </layout>
+             </item>
+             <item>
+              <widget class="QPushButton" name="reset_confirmation_button">
+               <property name="text">
+                <string>Reset all disabled &amp;confirmation dialogs</string>
+               </property>
+              </widget>
              </item>
              <item>
               <widget class="QGroupBox" name="groupBox_5">
