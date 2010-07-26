@@ -325,25 +325,22 @@ class PostInstall:
 
     def setup_desktop_integration(self):
         try:
-            from PyQt4.Qt import QFile, QImage, Qt
 
             self.info('Setting up desktop integration...')
 
 
             with TemporaryDirectory() as tdir:
                 with CurrentDir(tdir):
-                    render_svg(QFile(I('mimetypes/lrf.svg')), 'calibre-lrf.png')
+                    render_img('mimetypes/lrf.svg', 'calibre-lrf.png')
                     check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
                     self.icon_resources.append(('mimetypes', 'application-lrf', '128'))
                     check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
                     self.icon_resources.append(('mimetypes', 'application-lrs',
                     '128'))
-                    p = QImage(I('lt.png')).scaledToHeight(128,
-                            Qt.SmoothTransformation)
-                    p.save('calibre-gui.png')
+                    render_img('lt.png', 'calibre-gui.png')
                     check_call('xdg-icon-resource install --noupdate --size 128 calibre-gui.png calibre-gui', shell=True)
                     self.icon_resources.append(('apps', 'calibre-gui', '128'))
-                    render_svg(QFile(I('viewer.svg')), 'calibre-viewer.png')
+                    render_img('viewer.svg', 'calibre-viewer.png')
                     check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
                     self.icon_resources.append(('apps', 'calibre-viewer', '128'))
 
@@ -542,21 +539,10 @@ MIME = '''\
 </mime-info>
 '''
 
-def render_svg(image, dest, width=128, height=128):
-    from PyQt4.QtGui import QPainter, QImage
-    from PyQt4.QtSvg import QSvgRenderer
-    image = image.readAll() if hasattr(image, 'readAll') else image
-    svg = QSvgRenderer(image)
-    painter = QPainter()
-    image = QImage(width, height, QImage.Format_ARGB32)
-    painter.begin(image)
-    painter.setRenderHints(QPainter.Antialiasing|QPainter.TextAntialiasing|QPainter.SmoothPixmapTransform|QPainter.HighQualityAntialiasing)
-    painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-    svg.render(painter)
-    painter.end()
-    if dest is None:
-        return image
-    image.save(dest)
+def render_img(image, dest, width=128, height=128):
+    from PyQt4.Qt import QImage, Qt
+    img = QImage(I(image)).scaled(width, height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+    img.save(dest)
 
 def main():
     p = option_parser()
