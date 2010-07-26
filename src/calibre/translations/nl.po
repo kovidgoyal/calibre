@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-23 17:37+0000\n"
-"PO-Revision-Date: 2010-07-24 14:20+0000\n"
+"PO-Revision-Date: 2010-07-25 14:31+0000\n"
 "Last-Translator: Koen Mercken <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-25 04:05+0000\n"
+"X-Launchpad-Export-Date: 2010-07-26 04:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:365
@@ -10281,6 +10281,8 @@ msgid ""
 "A dictionary of options to customize how the data in this column will be "
 "interpreted."
 msgstr ""
+"Een woordenboek met opties voor het personaliseren van de manier waarop de "
+"gegevens in deze kolom worden geïnterpreteerd"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:573
 msgid "You must specify label, name and datatype"
@@ -10347,12 +10349,24 @@ msgid ""
 "    command.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog set_custom [options] kolom identificatie waarde\n"
+"\n"
+"    Stel de waarde in van een gepersonaliseerde kolom voor het boek "
+"geïdentificeerd door de identificatie.\n"
+"    Je kan een lijst van identificaties krijgen via de list opdracht.\n"
+"    Je kan een lijst van gepersonaliseerde kolom namen krijgen door gebruik "
+"van de custom_columns\n"
+"    opdracht.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:721
 msgid ""
 "If the column stores multiple values, append the specified values to the "
 "existing ones, instead of replacing them."
 msgstr ""
+"Als de kolom meerdere gegevens bevat, voeg dan de gespecificeerde waardes "
+"toe aan de bestaande, in plaats van ze te vervangen."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:732
 msgid "Error: You must specify a field name, id and value"
@@ -10366,6 +10380,12 @@ msgid ""
 "    List available custom columns. Shows column labels and ids.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog custom_columns [options]\n"
+"\n"
+"    Maak een lijst van alle beschikbare gepersonaliseerde kolommen. Toon "
+"kolom labels en identificaties.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:758
 msgid "Show details for each column."
@@ -10374,6 +10394,7 @@ msgstr "Toon details voor iedere kolom."
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:770
 msgid "You will lose all data in the column: %r. Are you sure (y/n)? "
 msgstr ""
+"Je zult alle gegevens in de kolom: %r verliezen. Ben je zeker (j/n)? "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:772
 msgid "y"
@@ -10388,6 +10409,13 @@ msgid ""
 "    columns with the custom_columns command.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog remove_custom_column [options] label\n"
+"\n"
+"    Verwijder de gepersonaliseerde kolom geïdentificeerd via het label. Je "
+"kan beschikbare\n"
+"    kolommen zien via de opdracht custom_columns.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:786
 msgid "Do not ask for confirmation"
@@ -10419,11 +10447,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:71
 msgid "%sAverage rating is %3.1f"
-msgstr ""
+msgstr "%sGemiddelde waardering is %3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:566
 msgid "Main"
-msgstr ""
+msgstr "Algemeen"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1796
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
@@ -10647,6 +10675,9 @@ msgid ""
 "more than this number of items. Default: %default. Set to a large number to "
 "disable grouping."
 msgstr ""
+"Groepeer items in categorieën zoals auteur/labels op de eerste letter als er "
+"meer dan dit aantal items zijn. Standaard: %default. Maak hier een groot "
+"getal van om groeperen uit te zetten."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/base.py:93
 msgid "Password to access your calibre library. Username is "
@@ -10674,35 +10705,35 @@ msgstr "Schrijf het proces-PID naar het opgegeven bestand."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:127
 msgid "%d items"
-msgstr ""
+msgstr "%d items"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:144
 msgid "RATING: %s<br />"
-msgstr ""
+msgstr "SCORE: %s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:147
 msgid "TAGS: %s<br />"
-msgstr ""
+msgstr "LABELS: %s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:151
 msgid "SERIES: %s [%s]<br />"
-msgstr ""
+msgstr "SERIES: %s [%s]<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:231
 msgid "Books in your library"
-msgstr ""
+msgstr "Boeken in uw bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:237
 msgid "By "
-msgstr ""
+msgstr "Door "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:238
 msgid "Books sorted by "
-msgstr ""
+msgstr "Boeken gesorteerd op "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:542
 msgid "Newest"
-msgstr ""
+msgstr "Nieuwste"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:34
 msgid "%sUsage%s: %s\n"
@@ -10776,11 +10807,11 @@ msgstr "Lijst van opgeslagen zoekopdrachten"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:693
 msgid "User-created tag browser categories"
-msgstr ""
+msgstr "Door de gebruiker gecreëerde labelbrowser categoriën"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:695
 msgid "How and when calibre updates metadata on the device."
-msgstr ""
+msgstr "Hoe en wanneer calibre metadata actualiseert op het apparaat."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -10852,7 +10883,7 @@ msgstr "Engels (Pakistan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "English (Israel)"
-msgstr ""
+msgstr "Engels (Israël)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (Singapore)"
@@ -10868,7 +10899,7 @@ msgstr "Engels (Ierland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
 msgid "English (China)"
-msgstr ""
+msgstr "Engels (China)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
 msgid "Spanish (Paraguay)"

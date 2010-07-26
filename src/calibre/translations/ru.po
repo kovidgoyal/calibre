@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-23 17:37+0000\n"
-"PO-Revision-Date: 2010-07-23 16:11+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-07-26 01:34+0000\n"
+"Last-Translator: HelioS <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-24 03:56+0000\n"
+"X-Launchpad-Export-Date: 2010-07-26 04:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -513,7 +513,7 @@ msgstr "%d из %d"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:962
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2847
 msgid "finished"
-msgstr ""
+msgstr "Готово"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:544
 msgid "Use Series as Category in iTunes/iBooks"
@@ -701,7 +701,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:86
 msgid "Communicate with the MiBuk Wolder reader."
-msgstr ""
+msgstr "Соединиться с MiBuk Wolder"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:42
 msgid "Communicate with the Kindle eBook reader."
@@ -1809,7 +1809,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:169
 msgid "Start"
-msgstr ""
+msgstr "Начать"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:144
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
@@ -2432,6 +2432,10 @@ msgid ""
 "Fetch a cover image/social metadata for the book identified by ISBN from "
 "LibraryThing.com\n"
 msgstr ""
+"\n"
+"%prog [options] ISBN\n"
+"Получить изображение обложки, информацию о книге по номеру ISBN из "
+"LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1226
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1399
@@ -3000,7 +3004,7 @@ msgstr "Использовать Римские цифры для нумерац
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:43
 msgid "Sort tags list by name, popularity, or rating"
-msgstr ""
+msgstr "Сортировать список меток по названию, популярности, или рейтингу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:45
 msgid "Number of covers to show in the cover browsing mode"
@@ -3134,7 +3138,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:101
 msgid "Merging user annotations into database"
-msgstr ""
+msgstr "Добавить пользовательские аннотации в базу данных"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:129
 msgid "%s<br />Last Page Read: %d (%d%%)"
@@ -3420,11 +3424,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:977
 msgid "No books selected to generate catalog for"
-msgstr ""
+msgstr "Не выбрано книг, для которых необходимо создать каталог"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:994
 msgid "Generating %s catalog..."
-msgstr ""
+msgstr "Создается каталог %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:999
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:264
@@ -3486,6 +3490,10 @@ msgid ""
 "started the process cannot be stopped until complete. Do you wish to "
 "continue?"
 msgstr ""
+"Вы хотите открыть %d книг. Одновременное открытие большого количества книг "
+"может быть медленным и отрицательно скажется на отклике компьютера. "
+"Запущенный процесс не сможет быть остановлен пока не будет завершен. Вы "
+"хотите продолжить?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:1262
 msgid "Cannot open folder"
@@ -3561,15 +3569,15 @@ msgstr "Сохранено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:57
 msgid "Searching for sub-folders"
-msgstr ""
+msgstr "Искать в подпапках."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:62
 msgid "Searching for books"
-msgstr ""
+msgstr "Поиск книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:74
 msgid "Looking for duplicates based on file hash"
-msgstr ""
+msgstr "Поиск дубликатов по хешу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:65
@@ -3607,7 +3615,7 @@ msgstr "Это может занять несколько минут"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:58
 msgid "Choose the location to add books from"
-msgstr ""
+msgstr "Добавить книги по указанному пути"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:59
 msgid "Select a folder on your hard disk"
@@ -3642,6 +3650,8 @@ msgid ""
 "This folder and its sub-folders will be scanned for books to import into "
 "calibre's library"
 msgstr ""
+"Данная папка и её подпапки будут просканированы на предмет добавление книг в "
+"бибилиотеку calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:52
@@ -3760,7 +3770,7 @@ msgstr "Щелкните, чтобы открыть окно Book Details"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
-msgstr ""
+msgstr "Настройки BibTeX"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
@@ -3830,7 +3840,7 @@ msgstr "Форма"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:82
 msgid "Bib file encoding:"
-msgstr ""
+msgstr "Кодировка файла Bib"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:38
@@ -3839,11 +3849,11 @@ msgstr "Поля для добавления к результату:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:84
 msgid "ascii/LaTeX"
-msgstr ""
+msgstr "ascii/LaTeX"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:85
 msgid "Encoding configuration (change if you have errors) :"
-msgstr ""
+msgstr "Настройка кодировки (изменять при наличии ошибок):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:86
 msgid "strict"
@@ -3851,11 +3861,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:87
 msgid "replace"
-msgstr ""
+msgstr "заменить"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:88
 msgid "ignore"
-msgstr ""
+msgstr "игнорировать"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:89
 msgid "backslashreplace"
@@ -3867,15 +3877,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:91
 msgid "mixed"
-msgstr ""
+msgstr "смешанный"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:92
 msgid "misc"
-msgstr ""
+msgstr "разное"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:93
 msgid "book"
-msgstr ""
+msgstr "книга"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:94
 msgid "Create a citation tag?"
@@ -4110,7 +4120,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:52
 msgid "Preserve cover &aspect ratio"
-msgstr ""
+msgstr "Сохранять соотношение сторон обложки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:53
 msgid "Split files &larger than:"
@@ -4222,7 +4232,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:31
 msgid "Left align"
-msgstr ""
+msgstr "Выровнять влево"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:32
 msgid "Justify text"
@@ -4269,7 +4279,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:132
 msgid " em"
-msgstr ""
+msgstr " em"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:133
 msgid "Text justification:"
@@ -4293,7 +4303,7 @@ msgstr "Вставить пустую строку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:138
 msgid "Keep &ligatures"
-msgstr ""
+msgstr "Сохранять лигатуры"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -4301,7 +4311,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:116
 msgid "Enable &autorotation of wide images"
-msgstr ""
+msgstr "Включить автоповорот широких изображений"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:117
 msgid "&Wordspace:"
@@ -4313,7 +4323,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:121
 msgid "Render &tables as images"
-msgstr ""
+msgstr "Отображать &таблицы как изображения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:122
 msgid "Text size multiplier for text in rendered tables:"
@@ -4321,7 +4331,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:123
 msgid "Add &header"
-msgstr ""
+msgstr "Добавить &верхний колонтитул"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:124
 msgid "Header &separation:"
@@ -4329,7 +4339,7 @@ msgstr "Разделитель заголовка:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:126
 msgid "Header &format:"
-msgstr ""
+msgstr "&Формат верхнего колонтитула"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:127
 msgid "&Embed fonts"
@@ -4487,11 +4497,11 @@ msgstr "По умолчанию"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:67
 msgid "&Title for Table of Contents:"
-msgstr ""
+msgstr "&Заголовок оглавления"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:68
 msgid "Rescale images for &Palm devices"
-msgstr ""
+msgstr "&Масштабировать изображения для Palm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:69
 msgid "Use author &sort for author"
@@ -4507,7 +4517,7 @@ msgstr "Не добавлять содержание в книгу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:72
 msgid "Kindle options"
-msgstr ""
+msgstr "Настройки Kindle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:73
 msgid "Periodical masthead font:"
@@ -4593,7 +4603,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:43
 msgid "&Paper Size:"
-msgstr ""
+msgstr "Размер &бумаги:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:44
 msgid "&Orientation:"
@@ -9919,7 +9929,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:786
 msgid "Do not ask for confirmation"
-msgstr ""
+msgstr "Не запрашивать подтверждения"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:796
 msgid "Error: You must specify a column label"
@@ -9947,7 +9957,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:71
 msgid "%sAverage rating is %3.1f"
-msgstr ""
+msgstr "%s Средня оценка %3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:566
 msgid "Main"
@@ -10090,6 +10100,7 @@ msgid ""
 "The format in which to display dates. %d - day, %b - month, %Y - year. "
 "Default is: %b, %Y"
 msgstr ""
+"Формат отображения дат. %d - день, %b - месяц, %Y год. По-умолчанию: %b, Y"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:87
 msgid "Convert paths to lowercase."
@@ -10097,7 +10108,7 @@ msgstr "Преобразовать пути в нижний регистр."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:89
 msgid "Replace whitespace with underscores."
-msgstr ""
+msgstr "Заменить пробел символом подчеркивания"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:258
 msgid "Requested formats not available"
@@ -10254,7 +10265,7 @@ msgstr "Приоритет рабочих процессов"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:685
 msgid "Swap author first and last names when reading metadata"
-msgstr ""
+msgstr "Поменять местами имя и фамилию автора при чтении метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:687
 msgid "Add new formats to existing book records"
@@ -10262,7 +10273,7 @@ msgstr "Добавить новые форматы к существующим �
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:692
 msgid "List of named saved searches"
-msgstr ""
+msgstr "Список сохраненных поисковых запросов"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:693
 msgid "User-created tag browser categories"
@@ -10270,11 +10281,11 @@ msgstr "Разработанные пользователем тэги брау�
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:695
 msgid "How and when calibre updates metadata on the device."
-msgstr ""
+msgstr "Как и когда calibre обновляет метаданные на устройстве"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
-msgstr ""
+msgstr "Ожидание..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:51
 msgid "Stopped"
@@ -10286,7 +10297,7 @@ msgstr "Закончил"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:75
 msgid "Working..."
-msgstr ""
+msgstr "Выполняется..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:95
 msgid "Brazilian Portuguese"

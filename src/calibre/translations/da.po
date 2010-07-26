@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-23 17:37+0000\n"
-"PO-Revision-Date: 2010-07-24 08:48+0000\n"
+"PO-Revision-Date: 2010-07-25 09:24+0000\n"
 "Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-25 04:05+0000\n"
+"X-Launchpad-Export-Date: 2010-07-26 04:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1440,9 +1440,9 @@ msgid ""
 "\"original\" (the default) does not change justification in the source file. "
 "Note that only some output formats support justification."
 msgstr ""
-"Vælg afsnitsjustering. \"left\" giver venstrestillet tekst. \"justify\" "
-"giver centreret tekst. \"original\" (standard) - ingen ændring. Bemærk at "
-"kunnogle output-formater understøtter centreret tekst."
+"Vælg afsnitsjustering. \"left\" giver venstremargin. \"justify\" giver lige "
+"margin. \"original\" (standard) - ingen ændring. Bemærk at kun nogle output-"
+"formater understøtter lige margin."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:316
 msgid ""
@@ -4268,7 +4268,7 @@ msgstr "Venstrestillet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:32
 msgid "Justify text"
-msgstr "Ligestil tekst"
+msgstr "Lige margin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:120
 msgid "&Disable font size rescaling"
