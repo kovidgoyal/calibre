@@ -41,6 +41,7 @@ entry_points = {
                             ],
       }
 
+# Uninstall script {{{
 UNINSTALL = '''\
 #!{python}
 euid = {euid}
@@ -80,6 +81,8 @@ for f in mr:
 
 os.remove(os.path.abspath(__file__))
 '''
+
+# }}}
 
 class PostInstall:
 
@@ -323,7 +326,7 @@ class PostInstall:
             self.task_failed('Installing MAN pages failed')
     # }}}
 
-    def setup_desktop_integration(self):
+    def setup_desktop_integration(self): # {{{
         try:
 
             self.info('Setting up desktop integration...')
@@ -381,6 +384,8 @@ class PostInstall:
             if self.opts.fatal_errors:
                 raise
             self.task_failed('Setting up desktop integration failed')
+
+    # }}}
 
 def option_parser():
     from calibre.utils.config import OptionParser
