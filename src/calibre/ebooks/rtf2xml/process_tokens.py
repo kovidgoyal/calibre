@@ -680,7 +680,7 @@ class ProcessTokens:
         return the_string
     def divide_num(self, numerator, denominator):
         try:
-            numerator = float(re.search('[0-9.]+', numerator).group())            
+            numerator = float(re.search('[0-9.\-]+', numerator).group()) #calibre why ignore negative number? Wrong in case of \fi
         except TypeError, msg:
             if self.__run_level > 3:
                 msg = 'no number to process?\n'
