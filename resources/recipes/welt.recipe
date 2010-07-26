@@ -22,7 +22,7 @@ class weltDe(BasicNewsRecipe):
     remove_stylesheets = True
     remove_javascript = True
     encoding = 'utf-8'
-    html2epub_options = 'linearize_tables = True\nbase_font_size2=10'
+    html2epub_options = 'base_font_size=10'
     BasicNewsRecipe.summary_length = 100
 
 
@@ -83,10 +83,9 @@ class weltDe(BasicNewsRecipe):
 		   dict(name='div', attrs={'class':'articleOptions clear'}),
 		   dict(name='div', attrs={'class':'noPrint galleryIndex'}),
 		   dict(name='div', attrs={'class':'inlineBox inlineTagCloud'}),
+		   dict(name='div', attrs={'class':'clear module imageGalleryBig bgColor1'}),
 		   dict(name='div', attrs={'class':'clear module writeComment bgColor1'}),
 		   dict(name='div', attrs={'class':'clear module textGallery bgColor1'}),
-		   dict(name='div', attrs={'class':'clear module socialMedia bgColor1'}),
-		   dict(name='div', attrs={'class':'clear module continuativeLinks'}),
 		   dict(name='div', attrs={'class':'moreArtH3'}),
 		   dict(name='div', attrs={'class':'jqmWindow'}),
 		   dict(name='div', attrs={'class':'clear gap4'}),
@@ -99,7 +98,7 @@ class weltDe(BasicNewsRecipe):
 		   dict(name='div', attrs={'class':'headLineH3'}),
 		   dict(name='div', attrs={'class':'print'}),
 		   dict(name='div', attrs={'class':'clear menu'}),
-		   dict(name='div', attrs={'class':'clear galleryContent'}),
+		   dict(name='div', attrs={'class':'themenalarm'}),
 		   dict(name='p', attrs={'class':'jump'}),
 		   dict(name='a', attrs={'class':'commentLink'}),
 		   dict(name='h2', attrs={'class':'jumpHeading'}),
@@ -110,7 +109,7 @@ class weltDe(BasicNewsRecipe):
 		   dict(name='table', attrs={'class':'textGallery'}),
 		   dict(name='li', attrs={'class':'active'})]
 
-    remove_tags_after = [dict(name='div', attrs={'class':'clear departmentLine'})]
+    remove_tags_after = [dict(name='div', attrs={'class':'themenalarm'})]
 
     extra_css = '''
                     h2{font-family:Arial,Helvetica,sans-serif; font-size: x-small; color: #003399;}
@@ -122,6 +121,7 @@ class weltDe(BasicNewsRecipe):
                     .photo {font-family:Arial,Helvetica,sans-serif; font-size: x-small; color: #666666;}                 '''
 
     feeds =  [ ('Politik', 'http://welt.de/politik/?service=Rss'),
+	       ('Deutsche Dinge', 'http://www.welt.de/deutsche-dinge/?service=Rss'),
 	       ('Wirtschaft', 'http://welt.de/wirtschaft/?service=Rss'),
 	       ('Finanzen', 'http://welt.de/finanzen/?service=Rss'),
 	       ('Sport', 'http://welt.de/sport/?service=Rss'),
@@ -136,4 +136,5 @@ class weltDe(BasicNewsRecipe):
 
     def print_version(self, url):
         return url.replace ('.html', '.html?print=true')
+
 
