@@ -10,35 +10,34 @@ from calibre.ebooks.BeautifulSoup import Tag
 
 class ZeitDe(BasicNewsRecipe):
 
-    title = 'ZEIT Online Reader Edition'
+    title = 'ZEIT Online'
     description = 'ZEIT Online'
     language = 'de'
     lang = 'de_DE'
 
     __author__ = 'Martin Pitt, Sujata Raman and Ingo Paschke'
     use_embedded_content   = False
-    max_articles_per_feed = 100
+    max_articles_per_feed = 40
     remove_empty_feeds = True
     no_stylesheets = True
     no_javascript = True
     encoding = 'utf-8'
-    delay = 0
 
     feeds =  [
-               ('Seite 1', 'http://newsfeed.zeit.de/index'),
-               ('Politik', 'http://www.zeit.de/solr/select/?q=ressort:%22Politik%22%20type:article&version=2.2&start=0&rows=50&sort=date-first-released%20desc&indent=on&wt=xslt&tr=solr2rss.xsl'),
-               ('Wirtschaft', 'http://www.zeit.de/solr/select/?q=ressort:%22Wirtschaft%22%20type:article&version=2.2&start=0&rows=50&sort=date-first-released%20desc&indent=on&wt=xslt&tr=solr2rss.xsl'),
-               ('Meinung', 'http://www.zeit.de/solr/select/?q=ressort:%22Meinung%22%20type:article&version=2.2&start=0&rows=50&sort=date-first-released%20desc&indent=on&wt=xslt&tr=solr2rss.xsl'),
-               ('Gesellschaft', 'http://www.zeit.de/solr/select/?q=ressort:%22Gesellschaft%22%20type:article&version=2.2&start=0&rows=50&sort=date-first-released%20desc&indent=on&wt=xslt&tr=solr2rss.xsl'),
-               ('Kultur', 'http://www.zeit.de/solr/select/?q=ressort:%22Kultur%22%20type:article&version=2.2&start=0&rows=50&sort=date-first-released%20desc&indent=on&wt=xslt&tr=solr2rss.xsl'),
-               ('Wissen', 'http://www.zeit.de/solr/select/?q=ressort:%22Wissen%22%20type:article&version=2.2&start=0&rows=50&sort=date-first-released%20desc&indent=on&wt=xslt&tr=solr2rss.xsl'),
-               ('Digital', 'http://www.zeit.de/solr/select/?q=ressort:%22Digital%22%20type:article&version=2.2&start=0&rows=50&sort=date-first-released%20desc&indent=on&wt=xslt&tr=solr2rss.xsl'),
-               ('Studium', 'http://www.zeit.de/solr/select/?q=ressort:%22Studium%22%20type:article&version=2.2&start=0&rows=50&sort=date-first-released%20desc&indent=on&wt=xslt&tr=solr2rss.xsl'),
-               ('Karriere', 'http://www.zeit.de/solr/select/?q=ressort:%22Karriere%22%20type:article&version=2.2&start=0&rows=50&sort=date-first-released%20desc&indent=on&wt=xslt&tr=solr2rss.xsl'),
-               ('Lebensart', 'http://www.zeit.de/solr/select/?q=ressort:%22Lebensart%22%20type:article&version=2.2&start=0&rows=50&sort=date-first-released%20desc&indent=on&wt=xslt&tr=solr2rss.xsl'),
-               ('Reisen', 'http://www.zeit.de/solr/select/?q=ressort:%22Reisen%22%20type:article&version=2.2&start=0&rows=50&sort=date-first-released%20desc&indent=on&wt=xslt&tr=solr2rss.xsl'),
-               ('Auto', 'http://www.zeit.de/solr/select/?q=ressort:%22Auto%22%20type:article&version=2.2&start=0&rows=50&sort=date-first-released%20desc&indent=on&wt=xslt&tr=solr2rss.xsl'),
-               ('Sport', 'http://www.zeit.de/solr/select/?q=ressort:%22Sport%22%20type:article&version=2.2&start=0&rows=50&sort=date-first-released%20desc&indent=on&wt=xslt&tr=solr2rss.xsl'),
+               ('Seite 1', 'http://newsfeed.zeit.de/index_xml'),
+               ('Politik', 'http://newsfeed.zeit.de/politik/index'),
+               ('Wirtschaft', 'http://newsfeed.zeit.de/wirtschaft/index'),
+               ('Meinung', 'http://newsfeed.zeit.de/meinung/index'),
+               ('Gesellschaft', 'http://newsfeed.zeit.de/gesellschaft/index'),
+               ('Kultur', 'http://newsfeed.zeit.de/kultur/index'),
+               ('Wissen', 'http://newsfeed.zeit.de/wissen/index'),
+               ('Digital', 'http://newsfeed.zeit.de/digital/index'),
+               ('Studium', 'http://newsfeed.zeit.de/studium/index'),
+               ('Karriere', 'http://newsfeed.zeit.de/karriere/index'),
+               ('Lebensart', 'http://newsfeed.zeit.de/lebensart/index'),
+               ('Reisen', 'http://newsfeed.zeit.de/reisen/index'),
+               ('Auto', 'http://newsfeed.zeit.de/auto/index'),
+               ('Sport', 'http://newsfeed.zeit.de/sport/index'),
              ]
 
     extra_css = '''
@@ -77,7 +76,7 @@ class ZeitDe(BasicNewsRecipe):
         ans = article.get('link',None)
         ans += "?page=all"
 
-        if 'video' in ans or 'quiz' or 'blog.zeit.de/' in ans :
+        if 'video' in ans or 'quiz' in ans :
               ans = None
         return ans
 
@@ -107,4 +106,5 @@ class ZeitDe(BasicNewsRecipe):
         title.parent.insert(0,info)
         tools.extract()
         return soup
+
 
