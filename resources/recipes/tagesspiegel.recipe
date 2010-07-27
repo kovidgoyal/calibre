@@ -26,7 +26,7 @@ class TagesspiegelRSS(BasicNewsRecipe):
                 .quote .cite{font-family:Georgia,Palatino,Palatino Linotype,FreeSerif,serif;font-size:xx-small}
                 .hcf-inline-left{float:left;margin-right:15px;position:relative;}
                 .hcf-inline-right{float:right;margin-right:15px;position:relative;}
-	            .hcf-smart-box{font-family: Arial, Helvetica, sans-serif; font-size: xx-small; margin: 0px 15px 8px 0px; width: 300px;}
+                .hcf-smart-box{font-family: Arial, Helvetica, sans-serif; font-size: xx-small; margin: 0px 15px 8px 0px; width: 300px;}
                 '''
 
     no_stylesheets = True
@@ -40,7 +40,7 @@ class TagesspiegelRSS(BasicNewsRecipe):
                     dict(name='div', attrs={'class':["hcf-jump-to-comments","hcf-clear","hcf-magnify hcf-media-control"] }),
                     dict(name='span', attrs={'class':["hcf-mainsearch",] }),
                     dict(name='ul', attrs={'class':["hcf-tools"]}),
-	            dict(name='ul', attrs={'class': re.compile('hcf-services')})
+                    dict(name='ul', attrs={'class': re.compile('hcf-services')})
                   ]
 
     def parse_index(self):
@@ -58,9 +58,9 @@ class TagesspiegelRSS(BasicNewsRecipe):
 
              if div['class'] == 'hcf-header':
                  try:
-                 key = string.capwords(feed_title(div.em.a))
-                 articles[key] = []
-                 ans.append(key)
+                     key = string.capwords(feed_title(div.em.a))
+                     articles[key] = []
+                     ans.append(key)
                  except:
                      continue
 
@@ -88,5 +88,3 @@ class TagesspiegelRSS(BasicNewsRecipe):
         ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
 
         return ans
-
-
