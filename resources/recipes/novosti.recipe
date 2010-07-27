@@ -11,7 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Novosti(BasicNewsRecipe):
     title                 = 'Vecernje Novosti'
     __author__            = 'Darko Miletic'
-    description           = 'Vesti'
+    description           = 'U početku su bile istinske večernje novine - pokrenute u vreme Tršćanske krize, Italijansko-jugoslovenskog konflikta oko grada Trsta - ali su brzo izrasle u dnevni informativno-politički list, koji već godinama ima najveći tiraž u Srbiji.'
     publisher             = 'Kompanija Novosti'
     category              = 'news, politics, Serbia'
     oldest_article        = 2
@@ -21,24 +21,22 @@ class Novosti(BasicNewsRecipe):
     encoding              = 'utf-8'
     language              = 'sr'
     publication_type      = 'newspaper'
-    extra_css             = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} .article_description,body{font-family: Tahoma,Arial,Helvetica,sans1,sans-serif} '
+    extra_css             = """ @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} 
+                                .article_description,body{font-family: Arial,Helvetica,sans1,sans-serif} 
+                                .author{font-size: small}
+                                .articleLead{font-size: large; font-weight: bold}
+                            """
 
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
-                        , 'linearize_tables' : True
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
                         }
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
-    keep_only_tags     = [dict(name='div', attrs={'class':'jednaVest'})]
-    remove_tags        = [dict(name='div', attrs={'class':['info','info_bottom','clip_div']})]
+    keep_only_tags     = [dict(attrs={'class':['articleTitle','author','articleLead','articleBody']})]
+    remove_tags        = [dict(name=['embed','object','iframe','base'])]
 
-    feeds              = [(u'Vesti', u'http://www.novosti.rs/php/vesti/rss.php')]
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']    
-        return self.adeify_images(soup)
+    feeds              = [(u'Vesti', u'http://www.novosti.rs/rss/rss-vesti')]
