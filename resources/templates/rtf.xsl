@@ -81,7 +81,6 @@
         </xsl:if>
     </xsl:template>
 
-
     <xsl:template name = "para-content">
         <xsl:apply-templates/>
     </xsl:template>
@@ -182,13 +181,11 @@
 
     <xsl:template match="rtf:operator|rtf:editing-time|rtf:number-of-pages|rtf:number-of-words|rtf:number-of-characters"/>
 
-
     <xsl:template match="rtf:title">
         <xsl:element name="title">
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
-
 
     <xsl:template name="html-head">
         <title>unnamed</title>
@@ -385,7 +382,6 @@
     <xsl:output method = "xml"/>
 
     <xsl:key name="style-types" match="rtf:paragraph-definition" use="@style-number"/>
-
 
     <xsl:variable name = "delete-list-text">true</xsl:variable>
     <xsl:variable name = "delete-field-blocks">true</xsl:variable>

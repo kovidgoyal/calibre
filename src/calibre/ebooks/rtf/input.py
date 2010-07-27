@@ -141,7 +141,6 @@ class RTFInput(InputFormatPlugin):
 
         return name
 
-
     def write_inline_css(self, ic):
         font_size_classes = ['span.fs%d { font-size: %spt }'%(i, x) for i, x in
                 enumerate(ic.font_sizes)]
@@ -152,17 +151,11 @@ class RTFInput(InputFormatPlugin):
             text-decoration: none; font-weight: normal;
             font-style: normal; font-variant: normal
         }
-
         span.italics { font-style: italic }
-
         span.bold { font-weight: bold }
-
         span.small-caps { font-variant: small-caps }
-
         span.underlined { text-decoration: underline }
-
         span.strike-through { text-decoration: line-through }
-
         ''')
         css += '\n'+'\n'.join(font_size_classes)
         css += '\n' +'\n'.join(color_classes)
