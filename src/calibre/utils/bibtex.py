@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """ Collection of python utility-methodes commonly used by other
     bibliograph packages.
     From http://pypi.python.org/pypi/bibliograph.core/
@@ -62,10 +60,14 @@
       DAMAGE.
     """
 
-__docformat__ = 'reStructuredText'
 __author__  = 'sengian <sengian1 at gmail.com>'
+__docformat__ = 'restructuredtext en'
 
 import re, string
+from UserDict import UserDict
+
+from calibre.constants import preferred_encoding
+from calibre.utils.mreplace import MReplace
 
 utf8enc2latex_mapping = {
     # This is a mapping of Unicode characters to LaTeX equivalents.
@@ -2842,69 +2844,66 @@ entity_mapping = {
                 '"':'{"}',
                 }
 
-def ValidateCitationKey(text):
-    """
-    removes characters not allowed in BibTeX keys
+class BibTeX:
+    def __init__(self):
+        self.rep_utf8 = MReplace(utf8enc2latex_mapping)
+        self.rep_ent = MReplace(entity_mapping)
+        #Set default conversion to ASCII BibTeX
+        self.ascii_bibtex = True
+        # This substitution is based on the description of cite key restrictions at
+        # http://bibdesk.sourceforge.net/manual/BibDesk%20Help_2.html
+        self.invalid_cit = re.compile(u'[ "@\',\\#}{~%&$^]')
+        self.upper = re.compile(u'[' + 
+            string.uppercase.decode(preferred_encoding) + u']')
+        self.escape = re.compile(u'[~#&%_]')
+        
+    def ValidateCitationKey(self, text):
+        """
+        removes characters not allowed in BibTeX keys
+        >>> ValidateCitationKey(DummyEntry('my@id'))
+        'myid'
+        """
+        return self.invalid_cit.sub(u'', text)
 
-    >>> from bibliograph.core.utils import _validKey
-    >>> _validKey(DummyEntry('Foo Bar'))
-    'FooBar'
+    def braceUppercase(self, text):
+        """ Convert uppercase letters to bibtex encoded uppercase
+            >>> braceUppercase('Foo Bar')
+            '{F}oo {B}ar'
+        """
+        return self.upper.sub(lambda m: u'{%s}' % m.group(), text)
 
-    >>> _validKey(DummyEntry('my@id'))
-    'myid'
+    def resolveEntities(self, text):
+        #for entity, entity_map in entity_mapping.iteritems():
+        #   text = text.replace(entity, entity_map)
+        #return text
+        return self.rep_ent.mreplace(text)
 
-    """
-    # This substitution is based on the description of cite key restrictions at
-    # http://bibdesk.sourceforge.net/manual/BibDesk%20Help_2.html
-    return re.sub(u'[ "@\',\\#}{~%&$^]', u'', text)
+    def resolveUnicode(self, text):
+        #UTF-8 text as entry
+        #for unichar, latexenc in utf8enc2latex_mapping.iteritems() :
+        #    text = text.replace(unichar, latexenc)
+        text = self.rep_utf8.mreplace(text)
+        return text.replace(u'$}{$', u'')
 
-def BraceUppercase(text):
-    """ Convert uppercase letters to bibtex encoded uppercase
+    def escapeSpecialCharacters(self, text):
+        """
+        latex escaping some (not all) special characters
+        """
+        text.replace('\\', '\\\\')
+        return self.escape.sub(lambda m: u'\\%s' % m.group(), text)
 
-        >>> from bibliograph.core.utils import _braceUppercase
-        >>> _braceUppercase('foo bar')
-        'foo bar'
+    #Calibre functions
+    #Option to go to official ASCII Bibtex or unofficial UTF-8     
+    #Go from an unicode entry to ASCII Bibtex format without encoding
+    def utf8ToBibtex(self, text):
+        if len(text) == 0:
+            return ''
+        text.replace('\\', '\\\\')
+        text = self.resolveEntities(text)
+        if self.ascii_bibtex :
+            text = self.resolveUnicode(text)
+        return self.escapeSpecialCharacters(text)
 
-        >>> _braceUppercase('Foo Bar')
-        '{F}oo {B}ar'
-    """
-    for uc in string.uppercase:
-        text = text.replace(uc, u'{%s}' % uc)
-    return text
-
-def resolveEntities(text):
-    for entity, entity_map in entity_mapping.iteritems():
-        text = text.replace(entity, entity_map)
-    return text
-
-def resolveUnicode(text):
-    #UTF-8 text as entry
-    for unichar, latexenc in utf8enc2latex_mapping.iteritems() :
-        text = text.replace(unichar, latexenc)
-    return text.replace(u'$}{$', u'')
-
-def escapeSpecialCharacters(text):
-    """
-    latex escaping some (not all) special characters
-    """
-    text.replace('\\', '\\\\')
-    escape = ['~', '#', '&', '%', '_']
-    for c in escape:
-        text = text.replace(c, '\\' + c )
-    return text
-
-#Calibre functions
-#Go from an unicode entry to ASCII Bibtex format without encoding
-#Option to go to official ASCII Bibtex or unofficial UTF-8
-def utf8ToBibtex(text, asccii_bibtex = True):
-    if len(text) == 0:
-        return ''
-    text.replace('\\', '\\\\')
-    text = resolveEntities(text)
-    if asccii_bibtex :
-        text = resolveUnicode(text)
-    return escapeSpecialCharacters(text)
-
-def bibtex_author_format(item):
-    #Format authors for Bibtex compliance (get a list as input)
-    return utf8ToBibtex(u' and'.join([author for author in item]))
+    def bibtex_author_format(self, item):
+        #Format authors for Bibtex compliance (get a list as input)
+        return self.utf8ToBibtex(u' and'.join([author for author in item]))
