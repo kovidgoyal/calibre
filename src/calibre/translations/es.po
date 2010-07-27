@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-23 17:37+0000\n"
-"PO-Revision-Date: 2010-07-24 15:51+0000\n"
+"PO-Revision-Date: 2010-07-26 16:50+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-25 04:06+0000\n"
+"X-Launchpad-Export-Date: 2010-07-27 03:57+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:465
@@ -2329,7 +2329,7 @@ msgstr "Descarga los metadatos de Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:34
 msgid "Metadata download"
-msgstr "Metadatos descargados"
+msgstr "Descarga de metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:111
 msgid "ratings"
@@ -3828,7 +3828,7 @@ msgstr "Ninguno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:310
 msgid "Click to open Book Details window"
-msgstr "Pulse para abrir la ventada de Detalles del libro"
+msgstr "Pulse para abrir la ventana de Detalles del libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -4130,7 +4130,7 @@ msgstr "Formato de &salida:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:101
 msgid "Disable conversion of images to &black and white"
-msgstr "Deshabilitar la conversión de imagenes a blanco y negro"
+msgstr "Deshabilitar la conversión de imagenes a &blanco y negro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
@@ -5970,7 +5970,7 @@ msgstr "Orden de preferenc&ia de formatos de entrada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:549
 msgid "Use &Roman numerals for series number"
-msgstr "Uso de números &romanos para los números dentro de una serie"
+msgstr "Usar números &romanos para los números dentro de una serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:550
 msgid "Enable system &tray icon (needs restart)"
@@ -5991,7 +5991,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:554
 msgid "Show &average ratings in the tags browser"
-msgstr "Mostrar calificaciones &promedio en el explorador de etiquetas"
+msgstr "Mostrar &calificaciones promedio en el explorador de etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:555
 msgid "Search as you type"
@@ -6000,7 +6000,7 @@ msgstr "&Buscar mientras se escribe"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:556
 msgid "Automatically send downloaded &news to ebook reader"
 msgstr ""
-"Enviar noticias &descargadas automáticamente al lector de libros electrónicos"
+"Enviar n&oticias descargadas automáticamente al lector de libros electrónicos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:557
 msgid "&Delete news from library when it is automatically sent to reader"
@@ -6014,7 +6014,7 @@ msgstr "Nú&mero de portadas a mostrar en el explorador (requiere reinicio):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:559
 msgid "Select visible &columns in library view"
-msgstr "Seleccione las &columnas visibles en la vista de la biblioteca"
+msgstr "&Seleccione las columnas visibles en la vista de la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:561
 msgid "Remove a user-defined column"
@@ -6034,7 +6034,7 @@ msgstr "&Usar visor interno para:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:569
 msgid "User Interface &layout (needs restart):"
-msgstr "Interfaz de usuario &diseño (necesario reiniciar):"
+msgstr "Diseño de la interfa&z de usuario (requiere reinicio):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:570
 msgid "Disable all animations. Useful if you have a slow/old computer."
@@ -6051,7 +6051,7 @@ msgstr "Mostrar botón de &donar (reinicia)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:573
 msgid "&Toolbar"
-msgstr "&Barra de herramientas"
+msgstr "Barra de herramientas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:574
 msgid "&Icon size:"

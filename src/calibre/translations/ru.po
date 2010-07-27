@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-23 17:37+0000\n"
-"PO-Revision-Date: 2010-07-26 01:34+0000\n"
+"PO-Revision-Date: 2010-07-26 10:04+0000\n"
 "Last-Translator: HelioS <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-26 04:04+0000\n"
+"X-Launchpad-Export-Date: 2010-07-27 03:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -3142,11 +3142,11 @@ msgstr "Добавить пользовательские аннотации в 
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:129
 msgid "%s<br />Last Page Read: %d (%d%%)"
-msgstr ""
+msgstr "%s<br />Последняя прочтенная страница: %d (%d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:135
 msgid "%s<br />Last Page Read: Location %d (%d%%)"
-msgstr ""
+msgstr "%s<br />Последняя прочтенная страница: Положение %d (%d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:154
 msgid "<b>Location %d &bull; %s</b><br />%s<br />"
@@ -4930,7 +4930,7 @@ msgstr "Просмотр по обложкам"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:238
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:242
 msgid "Undefined"
-msgstr ""
+msgstr "Не определено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_ct_column_ui.py:131
@@ -5350,7 +5350,7 @@ msgstr "&Профиль:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog_ui.py:41
 msgid "Edit Comments"
-msgstr ""
+msgstr "Редактировать комментарии"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:174
 msgid "%(plugin_type)s %(plugins)s"
@@ -5455,15 +5455,15 @@ msgstr "Большой"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:509
 msgid "Always"
-msgstr ""
+msgstr "Всегда"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:509
 msgid "Automatic"
-msgstr ""
+msgstr "Автоматически"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:510
 msgid "Never"
-msgstr ""
+msgstr "Никогда"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:521
 msgid "System port selected"
