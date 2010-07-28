@@ -17,7 +17,8 @@
 #########################################################################
 # $Revision: 1.41 $
 # $Date: 2006/03/24 23:50:07 $
-import sys,os
+import sys, os, codecs
+
 from calibre.ebooks.rtf2xml import headings_to_sections, \
     line_endings, footnote, fields_small, default_encoding, \
     make_lists, preamble_div, header, colors, group_borders, \
@@ -90,7 +91,6 @@ class ParseRtf:
                 out_file = '',
                 out_dir = None,
                 dtd = '',
-                #debug = 0, #why? calibre
                 deb_dir = None,
                 convert_symbol = None,
                 convert_wingdings = None,
@@ -107,6 +107,7 @@ class ParseRtf:
                 no_dtd = 0,
                 char_data = '',
                 ):
+                
         """
         Requires:
         'file' --file to parse
@@ -125,14 +126,16 @@ class ParseRtf:
             through a file. Only for debugging.
         Returns: Nothing
         """
+        
         self.__file = in_file
         self.__out_file = out_file
         self.__out_dir = out_dir
         self.__temp_dir = out_dir
         self.__dtd_path = dtd
         self.__check_file(in_file,"file_to_parse")
+        self.__check_ascii(in_file)
         self.__char_data = char_data
-        self.__debug_dir = deb_dir #self.__debug_dir = debug calibre
+        self.__debug_dir = deb_dir
         self.__check_dir(self.__temp_dir)
         self.__copy = self.__check_dir(self.__debug_dir)
         self.__convert_caps = convert_caps
@@ -149,19 +152,17 @@ class ParseRtf:
         self.__group_borders = group_borders
         self.__empty_paragraphs = empty_paragraphs
         self.__no_dtd = no_dtd
-
     def __check_file(self, the_file, type):
         """Check to see if files exist"""
         if hasattr(the_file, 'read'): return
         if the_file == None:
             if type == "file_to_parse":
-                message = "You must provide a file for the script to work"
-            msg = message
+                msg = "\nYou must provide a file for the script to work"
             raise RtfInvalidCodeException, msg
         elif os.path.exists(the_file):
             pass # do nothing
         else:
-            message = "The file '%s' cannot be found" % the_file
+            message = "\nThe file '%s' cannot be found" % the_file
             msg = message
             raise RtfInvalidCodeException, msg
     def __check_dir(self, the_dir):
@@ -170,7 +171,16 @@ class ParseRtf:
             return
         dir_exists = os.path.isdir(the_dir)
         if not dir_exists:
-            message = "%s is not a directory" % the_dir
+            msg = "\n%s is not a directory" % the_dir
+            raise RtfInvalidCodeException, msg
+        return 1
+    def __check_ascii(self, the_file):
+        """Check to see if the file is correct ascii"""
+        try:
+            test = codecs.open(the_file, 'r', 'ascii', 'strict')
+            test.close()
+        except UnicodeError:
+            message= "\n%s is not a correct ascii file" % the_file
             msg = message
             raise RtfInvalidCodeException, msg
         return 1
