@@ -349,6 +349,7 @@ class ShareConnMenu(QMenu): # {{{
         for ac in self.email_actions:
             self.removeAction(ac)
         self.email_actions = []
+        self.memory = []
         opts = email_config().parse()
         if opts.accounts:
             self.email_to_menu = QMenu(_('Email to')+'...', self)
@@ -361,6 +362,7 @@ class ShareConnMenu(QMenu): # {{{
                 action2 = DeviceAction(dest, True, False, I('mail.svg'),
                         _('Email to')+' '+account+ _(' and delete from library'))
                 map(self.email_to_menu.addAction, (action1, action2))
+                map(self.memory.append, (action1, action2))
                 if default:
                     map(self.addAction, (action1, action2))
                     map(self.email_actions.append, (action1, action2))

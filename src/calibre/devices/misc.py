@@ -96,3 +96,20 @@ class PDNOVEL(USBMS):
             with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
                 coverfile.write(coverdata[2])
 
+class PROMEDIA(USBMS):
+
+    name = 'Promedia eBook Reader'
+    gui_name = 'Promedia'
+    description = _('Communicate with the Promedia eBook reader')
+    author = 'Kovid Goyal'
+    supported_platforms = ['windows', 'linux', 'osx']
+    FORMATS = ['epub', 'rtf', 'pdf']
+
+    VENDOR_ID   = [0x525]
+    PRODUCT_ID  = [0xa4a5]
+    BCD         = [0x319]
+
+    EBOOK_DIR_MAIN = 'calibre'
+    SUPPORTS_SUB_DIRS = True
+
+
