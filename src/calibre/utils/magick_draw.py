@@ -144,6 +144,8 @@ def compose_image(canvas, image, left, top):
             int(top))
 
 def load_image(path):
+    if isinstance(path, unicode):
+        path = path.encode(filesystem_encoding)
     img = alloc_wand('NewMagickWand')
     if not p.MagickReadImage(img, path):
         severity = p.ExceptionType(0)
