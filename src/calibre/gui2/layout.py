@@ -302,6 +302,7 @@ class ToolBar(QToolBar): # {{{
         text = _('%d books')%new_count
         a = self.choose_action
         a.setText(text)
+        a.setToolTip(_('Choose calibre library to work with') + '\n\n' + text)
 
     def resizeEvent(self, ev):
         QToolBar.resizeEvent(self, ev)
