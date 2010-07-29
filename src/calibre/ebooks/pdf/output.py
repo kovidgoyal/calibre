@@ -72,6 +72,7 @@ class PDFOutput(OutputFormatPlugin):
             for rule in stylesheet.data.cssRules.rulesOfType(CSSRule.STYLE_RULE):
                 if rule.selectorList.selectorText == '.calibre':
                     rule.style.removeProperty('page-break-before')
+                    rule.style.removeProperty('page-break-after')
 
 
         if input_plugin.is_image_collection:
