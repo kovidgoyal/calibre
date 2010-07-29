@@ -341,7 +341,7 @@ class OPDSServer(object):
         items = items[offsets.offset:offsets.offset+max_items]
         updated = self.db.last_modified()
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
-        cherrypy.response.headers['Content-Type'] = 'text/xml'
+        cherrypy.response.headers['Content-Type'] = 'application/atom+xml;profile=opds-catalog'
         return str(AcquisitionFeed(updated, id_, items, offsets,
             page_url, up_url, version, self.db.FIELD_MAP))
 
@@ -413,7 +413,7 @@ class OPDSServer(object):
         items = list(items)[offsets.offset:offsets.offset+max_items]
 
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
-        cherrypy.response.headers['Content-Type'] = 'text/xml'
+        cherrypy.response.headers['Content-Type'] = 'application/atom+xml'
 
         return str(CategoryFeed(items, category, id_, updated, version, offsets,
             page_url, up_url))
@@ -478,7 +478,7 @@ class OPDSServer(object):
                 page_url, up_url)
 
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
-        cherrypy.response.headers['Content-Type'] = 'text/xml'
+        cherrypy.response.headers['Content-Type'] = 'application/atom+xml'
 
         return str(ans)
 
@@ -552,7 +552,7 @@ class OPDSServer(object):
         updated = self.db.last_modified()
 
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
-        cherrypy.response.headers['Content-Type'] = 'text/xml'
+        cherrypy.response.headers['Content-Type'] = 'application/atom+xml'
 
         feed = TopLevel(updated, cats, version)
 
