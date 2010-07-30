@@ -362,7 +362,8 @@ class KOBO(USBMS):
         if extension == '.kobo':
             from calibre.devices.errors import UserFeedback
             raise UserFeedback(_("Not Implemented"),
-                    _('".kobo" files do not exist on the device but are rows in the sqlitedatabase. '
+                    _('".kobo" files do not exist on the device as books '
+                        'instead, they are rows in the sqlite database. '
                     'Currently they cannot be exported or viewed.'),
                     UserFeedback.WARN)
 
