@@ -64,6 +64,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache):
             break
         self.opts = opts
         self.embedded = embedded
+        self.state_callback = None
         self.max_cover_width, self.max_cover_height = \
                         map(int, self.opts.max_cover.split('x'))
         path = P('content_server')
@@ -159,11 +160,22 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache):
                 import traceback
                 cherrypy.log.error('Failed to stop BonJour:')
                 cherrypy.log.error(traceback.format_exc())
+            try:
+                if callable(self.state_callback):
+                    self.state_callback(self.is_running)
+            except:
+                pass
 
     def exit(self):
         try:
             cherrypy.engine.exit()
         finally:
             cherrypy.server.httpserver = None
+            self.is_running = False
+            try:
+                if callable(self.state_callback):
+                    self.state_callback(self.is_running)
+            except:
+                pass
 
 
