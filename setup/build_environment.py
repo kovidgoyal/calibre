@@ -115,7 +115,6 @@ if iswindows:
     poppler_lib_dirs = consolidate('POPPLER_LIB_DIR', sw_lib_dir)
     popplerqt4_lib_dirs = poppler_lib_dirs
     poppler_libs = ['poppler']
-    popplerqt4_libs = poppler_libs + ['QtCore4', 'QtGui4']
     magick_inc_dirs = [os.path.join(prefix, 'build', 'ImageMagick-6.5.6')]
     magick_lib_dirs = [os.path.join(magick_inc_dirs[0], 'VisualMagick', 'lib')]
     magick_libs = ['CORE_RL_wand_', 'CORE_RL_magick_']
@@ -130,7 +129,6 @@ elif isosx:
     poppler_lib_dirs = consolidate('POPPLER_LIB_DIR',
             '/sw/lib')
     popplerqt4_lib_dirs = poppler_lib_dirs
-    poppler_libs     = popplerqt4_libs = ['poppler']
     podofo_inc = '/sw/podofo'
     podofo_lib = '/sw/lib'
     magick_inc_dirs = consolidate('MAGICK_INC',
@@ -162,9 +160,6 @@ else:
     poppler_libs = pkgconfig_libs('poppler', '', '')
     if not poppler_libs:
         poppler_libs = ['poppler']
-    popplerqt4_libs = pkgconfig_libs('poppler-qt4', '', '')
-    if not popplerqt4_libs:
-        popplerqt4_libs = ['poppler-qt4', 'poppler']
     magick_libs = pkgconfig_libs('MagickWand', '', '')
     if not magick_libs:
         magick_libs = ['MagickWand', 'MagickCore']
