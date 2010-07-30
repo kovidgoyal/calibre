@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-23 17:37+0000\n"
-"PO-Revision-Date: 2010-07-26 16:50+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2010-07-29 13:09+0000\n"
+"Last-Translator: Ismael Aladro <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-27 03:57+0000\n"
+"X-Launchpad-Export-Date: 2010-07-30 03:35+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:465
@@ -205,7 +205,7 @@ msgid ""
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
 "Codificación de los archivos HTML de entrada. Las opciones comunes incluyen: "
-"cp1252, latin1, iso-8859-1 and utf-8."
+"cp1252, latin1, iso-8859-1 y utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:59
 msgid ""
@@ -276,7 +276,7 @@ msgid ""
 msgstr ""
 "Especificar la codificación del documento de entrada. Esta opción tiene "
 "preferencia sobre la codificación que pueda declarar el propio documento. Es "
-"particularmente útil para documentos que no declaran ninguna codificación o "
+"particularmente útil para documentos que no declaran ninguna codificación, o "
 "que lo hacen incorrectamente."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:241
@@ -301,8 +301,8 @@ msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
 msgstr ""
-"Este perfil intenta proporcionar valores predeterminados adecuados y es útil "
-"si no sabe nada del documento de entrada."
+"Este perfil intenta proporcionar valores predeterminados adecuados, y es "
+"útil si no sabe nada del documento de entrada."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:57
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:412
@@ -386,8 +386,8 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
-"Este perfil intenta proporcionar valores predeterminados adecuados y es útil "
-"si quiere generar un documento que pueda ser leido en el PC o en varios "
+"Este perfil intenta proporcionar valores predeterminados adecuados, y es "
+"útil si quiere generar un documento que pueda ser leido en el PC o en varios "
 "dispositivos diferentes."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:257
