@@ -645,10 +645,8 @@ class ProcessTokens:
         return 'tx<nu<__________<%s\n' % token
     def ob_func(self, pre, token, num=None):
         self.__bracket_count += 1
-        ##return 'ob<%04d\n' % self.__bracket_count
         return 'ob<nu<open-brack<%04d\n' % self.__bracket_count
     def cb_func(self, pre, token, num=None):
-        ##line = 'cb<%04d\n' % self.__bracket_count
         line = 'cb<nu<clos-brack<%04d\n' % self.__bracket_count
         self.__bracket_count -= 1
         return line

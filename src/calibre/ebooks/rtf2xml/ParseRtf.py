@@ -143,7 +143,7 @@ class ParseRtf:
         self.__convert_wingdings = convert_wingdings
         self.__convert_zapf = convert_zapf
         self.__run_level = run_level
-        self.__exit_level = 0
+        #self.__exit_level = 0
         self.__indent = indent
         self.__replace_illegals = replace_illegals
         self.__form_lists = form_lists
@@ -162,8 +162,7 @@ class ParseRtf:
         elif os.path.exists(the_file):
             pass # do nothing
         else:
-            message = "\nThe file '%s' cannot be found" % the_file
-            msg = message
+            msg = "\nThe file '%s' cannot be found" % the_file
             raise RtfInvalidCodeException, msg
     def __check_dir(self, the_dir):
         """Check to see if directory exists"""
@@ -180,8 +179,7 @@ class ParseRtf:
             test = codecs.open(the_file, 'r', 'ascii', 'strict')
             test.close()
         except UnicodeError:
-            message= "\n%s is not a correct ascii file" % the_file
-            msg = message
+            msg = "\n%s is not a correct ascii file" % the_file
             raise RtfInvalidCodeException, msg
         return 1
     def parse_rtf(self):
@@ -204,27 +202,29 @@ class ParseRtf:
             copy_obj.set_dir(self.__debug_dir)
             copy_obj.remove_files()
             copy_obj.copy_file(self.__temp_file, "original_file")
-        # new as of 2005-08-02. Do I want this?
+        # Function to check if bracket are well handled
         if self.__debug_dir or self.__run_level > 2:
             self.__check_brack_obj = check_brackets.CheckBrackets\
             (file = self.__temp_file,
                 bug_handler = RtfInvalidCodeException,
                     )
-        # convert Macintosh line endings to Unix line endings
+        # convert Macintosh and Windows line endings to Unix line endings
+        #why do this if you don't wb after?
         line_obj = line_endings.FixLineEndings(
                 in_file = self.__temp_file,
                 bug_handler = RtfInvalidCodeException,
                 copy = self.__copy,
-                run_level = self.__run_level,
+                #run_level = self.__run_level,
                 replace_illegals = self.__replace_illegals,
                 )
-        return_value = line_obj.fix_endings()
-        self.__return_code(return_value)
+        line_obj.fix_endings()
+        #return_value = line_obj.fix_endings() #calibre: no return in this function, why keep it?
+        #self.__return_code(return_value)
         tokenize_obj = tokenize.Tokenize(
                 bug_handler = RtfInvalidCodeException,
                 in_file = self.__temp_file,
-                copy = self.__copy,
-                run_level = self.__run_level,)
+                copy = self.__copy,)
+                #run_level = self.__run_level,)
         tokenize_obj.tokenize()
         process_tokens_obj = process_tokens.ProcessTokens(
             in_file = self.__temp_file,
@@ -529,36 +529,27 @@ class ParseRtf:
             )
         output_obj.output()
         os.remove(self.__temp_file)
-        return self.__exit_level
+        #return self.__exit_level
     def __bracket_match(self, file_name):
         if self.__run_level > 2:
             good_br, msg =  self.__check_brack_obj.check_brackets()
             if good_br:
                 pass
-                # sys.stderr.write( msg + ' in ' + file_name + "\n")
+                #sys.stderr.write( msg + ' in ' + file_name + "\n")
             else:
                 msg += msg +  " in file '" + file_name + "'\n"
                 raise RtfInvalidCodeException, msg
-    def __return_code(self, num):
-        if num == None:
-            return
-        if int(num) > self.__exit_level:
-            self.__exit_level = num
+    #def __return_code(self, num): calibre not used
+    #   if num == None:
+    #       return
+    #   if int(num) > self.__exit_level:
+    #       self.__exit_level = num
     def __make_temp_file(self,file):
         """Make a temporary file to parse"""
         write_file="rtf_write_file"
         read_obj = file if hasattr(file, 'read') else open(file,'r')
         write_obj = open(write_file, 'w')
-        line = "dummy"
-        while line:
-            line = read_obj.read(1000)
-            write_obj.write(line )
+        for line in read_obj:
+            write_obj.write(line)
         write_obj.close()
         return write_file
-    """
-mi<tg<open______<style-sheet\n
-mi<tg<close_____<style-sheet\n
-mi<tg<open-att__<footnote<num>1\n
-mi<tg<empty-att_<page-definition<margin>33\n
-mi<tg<empty_____<para\n
-"""

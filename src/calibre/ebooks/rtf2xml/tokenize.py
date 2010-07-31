@@ -23,7 +23,7 @@ class Tokenize:
             in_file,
             bug_handler,
             copy = None,
-            run_level = 1,
+            #run_level = 1,
     ):
         self.__file = in_file
         self.__bug_handler = bug_handler
@@ -80,7 +80,7 @@ class Tokenize:
     def __create_tokens(self):
         self.__compile_expressions()
         read_obj = open(self.__file, 'r')
-        write_obj = open(self.__write_to, 'w')
+        write_obj = open(self.__write_to, 'wb')
         line_to_read = "dummy"
         while line_to_read:
             line_to_read = read_obj.readline()
@@ -106,7 +106,7 @@ class Tokenize:
         write_obj.close()
     def tokenize(self):
         """Main class for handling other methods. Reads in one line \
-        at a time, usues method self.sub_line to make basic substitutions,\
+        at a time, uses method self.sub_line to make basic substitutions,\
         uses ? to process tokens"""
         self.__create_tokens()
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)

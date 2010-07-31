@@ -34,18 +34,16 @@ class CheckBrackets:
         try:
             last_num = self.__open_bracket_num.pop()
         except:
-            return 0
+            return False
         if num != last_num:
-            return 0
+            return False
         self.__bracket_count -= 1
-        return 1
+        return True
     def check_brackets(self):
         read_obj = open(self.__file, 'r')
-        line = 'dummy'
         line_count = 0
-        while line:
+        for line in read_obj:
             line_count += 1
-            line = read_obj.readline()
             self.__token_info = line[:16]
             if self.__token_info == 'ob<nu<open-brack':
                 self.open_brack(line)

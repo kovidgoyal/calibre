@@ -4,8 +4,7 @@
 Read content from txt file.
 '''
 
-import os
-import re
+import os, re
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.markdown import markdown
@@ -30,7 +29,7 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
     txt = re.sub('(?<=.)\s+$', '', txt)
     # Remove excessive line breaks.
     txt = re.sub('\n{3,}', '\n\n', txt)
-
+    
     #Takes care if there is no point to split
     if epub_split_size_kb > 0:
         length_byte = len(txt.encode('utf-8'))
