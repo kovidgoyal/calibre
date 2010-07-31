@@ -376,7 +376,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         if self.content_server is not None:
             self.content_server.state_callback = \
                 Dispatcher(self.content_server_state_changed)
-        self.content_server.state_callback(self.content_server.is_running)
+            self.content_server.state_callback(self.content_server.is_running)
 
         if d.result() == d.Accepted:
             self.read_toolbar_settings()
