@@ -128,6 +128,7 @@ elif isosx:
     popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[0]+'/qt4']
     poppler_lib_dirs = consolidate('POPPLER_LIB_DIR',
             '/sw/lib')
+    poppler_libs = ['poppler']
     popplerqt4_lib_dirs = poppler_lib_dirs
     podofo_inc = '/sw/podofo'
     podofo_lib = '/sw/lib'

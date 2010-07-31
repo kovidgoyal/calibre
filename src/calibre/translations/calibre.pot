@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.7.11\n"
-"POT-Creation-Date: 2010-07-30 14:13+MDT\n"
-"PO-Revision-Date: 2010-07-30 14:13+MDT\n"
+"Project-Id-Version: calibre 0.7.12\n"
+"POT-Creation-Date: 2010-07-30 19:04+MDT\n"
+"PO-Revision-Date: 2010-07-30 19:04+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -6955,12 +6955,12 @@ msgid "Save to disk in a single directory"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:555
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:384
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:385
 msgid "Save only %s format to disk"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:559
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:387
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:388
 msgid "Save only %s format to disk in a single directory"
 msgstr ""
 
@@ -7559,51 +7559,51 @@ msgstr ""
 msgid "Cannot configure before calibre is restarted."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:414
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:415
 msgid "No detailed info available"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:415
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:416
 msgid "No detailed information is available for books on the device."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:467
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:495
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:468
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:496
 msgid "Conversion Error"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:468
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:469
 msgid "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must first remove the DRM using third party tools."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:481
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:482
 msgid "Recipe Disabled"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:496
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:497
 msgid "<b>Failed</b>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:536
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:537
 msgid "is the result of the efforts of many volunteers from all over the world. If you find it useful, please consider donating to support its development. Your donation helps keep calibre development going."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:562
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:563
 msgid "There are active jobs. Are you sure you want to quit?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:565
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:566
 msgid ""
 " is communicating with the device!<br>\n"
 "                      Quitting may cause corruption on the device.<br>\n"
 "                      Are you sure you want to quit?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:569
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:570
 msgid "WARNING: Active jobs"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:624
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:625
 msgid "will keep running in the system tray. To close it, choose <b>Quit</b> in the context menu of the system tray."
 msgstr ""
 
