@@ -677,6 +677,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
 
     def accept(self):
+        cf = getattr(self, 'cover_fetcher', None)
+        if cf is not None and hasattr(cf, 'terminate'):
+            cf.terminate()
+            cf.wait()
         try:
             if self.formats_changed:
                 self.sync_formats()

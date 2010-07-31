@@ -24,7 +24,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.gui2 import error_dialog, GetMetadata, open_local_file, \
-        gprefs, max_available_height, config, info_dialog
+        gprefs, max_available_height, config, info_dialog, Dispatcher
 from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.update import UpdateMixin
@@ -106,6 +106,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         opts = self.opts
         self.preferences_action, self.quit_action = actions
         self.library_path = library_path
+        self.content_server = None
         self.spare_servers = []
         self.must_restart_before_config = False
         # Initialize fontconfig in a separate thread as this can be a lengthy
@@ -146,7 +147,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.default_thumbnail = None
         self.tb_wrapper = textwrap.TextWrapper(width=40)
         self.viewers = collections.deque()
-        self.content_server = None
         self.system_tray_icon = SystemTrayIcon(QIcon(I('library.png')), self)
         self.system_tray_icon.setToolTip('calibre')
         self.system_tray_icon.tooltip_requested.connect(
@@ -246,11 +246,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
 
         if config['autolaunch_server']:
-            from calibre.library.server.main import start_threaded_server
-            from calibre.library.server import server_config
-            self.content_server = start_threaded_server(
-                    db, server_config().parse())
-            self.test_server_timer = QTimer.singleShot(10000, self.test_server)
+            self.start_content_server()
 
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
         AddAction.__init__(self)
@@ -262,6 +258,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.scheduler.delete_old_news.connect(
                 self.library_view.model().delete_books_by_id,
                 type=Qt.QueuedConnection)
+
+    def start_content_server(self):
+        from calibre.library.server.main import start_threaded_server
+        from calibre.library.server import server_config
+        self.content_server = start_threaded_server(
+                self.library_view.model().db, server_config().parse())
+        self.content_server.state_callback = Dispatcher(self.content_server_state_changed)
+        self.content_server.state_callback(True)
+        self.test_server_timer = QTimer.singleShot(10000, self.test_server)
 
 
     def resizeEvent(self, ev):
@@ -308,7 +313,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
                 setattr(window, '__systray_minimized', False)
 
     def test_server(self, *args):
-        if self.content_server.exception is not None:
+        if self.content_server is not None and \
+                self.content_server.exception is not None:
             error_dialog(self, _('Failed to start content server'),
                          unicode(self.content_server.exception)).exec_()
 
@@ -367,6 +373,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         d.exec_()
         self.content_server = d.server
+        if self.content_server is not None:
+            self.content_server.state_callback = \
+                Dispatcher(self.content_server_state_changed)
+            self.content_server.state_callback(self.content_server.is_running)
+
         if d.result() == d.Accepted:
             self.read_toolbar_settings()
             self.search.search_as_you_type(config['search_as_you_type'])
@@ -583,7 +594,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         try:
             try:
                 if self.content_server is not None:
-                    self.content_server.exit()
+                    s = self.content_server
+                    self.content_server = None
+                    s.exit()
             except:
                 pass
             time.sleep(2)

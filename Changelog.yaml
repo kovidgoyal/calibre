@@ -4,6 +4,78 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.12
+  date: 2010-07-30
+
+  bug fixes:
+    - title: "Fix a typo that caused a harmless error message after setting preferences"
+
+    - title: "Linux build system: No longer search for poppler-qt4 libraries as they are not needed"
+
+- version: 0.7.11
+  date: 2010-07-30
+
+  new features:
+    - title: "EPUB metadata: When setting metadata in an EPUB file, if it has a well defined image based cover, update it"
+
+    - title: "Support for Droid X, Samsung Vibrant and Promedia ebook reader"
+
+    - title: "Add entry to Connect/share menu to conveniently stop and start the Content Server"
+
+    - title: "News download: Make the navbars on the section index pages more useful, adding links to net and previous section"
+
+    - title: "Add a button to reset confirm dialogs to Preferences->General"
+
+
+  bug fixes:
+    - title: "Fix crash in edit metadata dialog if you click OK before cover download completes"
+      tickets: [6337]
+
+    - title: "Kobo driver: Show a warning when the user tries to export/view .kobo files. Also add support for the new sofroot vendor id"
+
+    - title: "Update check. Do not be fooled by a redirecting proxy when checking for new version"
+      tickets: [6325]
+
+    - title: "Add book count to tooltip of library button in toolbar"
+      tickets: [6340]
+
+    - title: "Content server: When serving OPDS feeds send the correct content-type header."
+      tickets: [6329]
+
+    - title: "PDF Output: Don't insert blank pages before every individual HTML file in the ebook."
+      tickets: [6315]
+
+    - title: "Fix saving of cover when path to book folder contains non ascii characters"
+      tickets: [6328]
+
+    - title: "Fix regression that broke showing send to actions for multiple email accounts"
+
+    - title: "Fix bug in handlling of hexadecimal entities"
+      tickets: [6305]
+
+    - title: "SONY driver: More fixes to handle broken media.xml files"
+      tickets: [6296]
+
+    - title: "Linux installer: Fix rendering of viewer icon and restrict all icons to 128x128 since GNOME can't handle large icons"
+
+    - title: "RTF Input: Fix handling of hard linebreaks"
+      tickets: [6208]
+
+    - title: "RTF Output: Fix regression that broke rendering of bold and italic text"
+      tickets: [6098]
+
+  new recipes:
+    - title: "Draw and Cook"
+      author: Startson17
+
+  improved recipes:
+    - La Nacion
+    - Vecernje Novosti
+    - Der Tagesspiegel
+    - Die Zeit Nachrichten
+    - Toms Hardware (DE)
+    - Welt Online
+
 - version: 0.7.10
   date: 2010-07-23
 

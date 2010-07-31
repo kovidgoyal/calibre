@@ -302,6 +302,7 @@ class ToolBar(QToolBar): # {{{
         text = _('%d books')%new_count
         a = self.choose_action
         a.setText(text)
+        a.setToolTip(_('Choose calibre library to work with') + '\n\n' + text)
 
     def resizeEvent(self, ev):
         QToolBar.resizeEvent(self, ev)
@@ -328,6 +329,7 @@ class ShareConnMenu(QMenu): # {{{
     connect_to_folder = pyqtSignal()
     connect_to_itunes = pyqtSignal()
     config_email = pyqtSignal()
+    toggle_server = pyqtSignal()
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -335,14 +337,26 @@ class ShareConnMenu(QMenu): # {{{
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
         self.connect_to_folder_action = mitem
-
         mitem = self.addAction(QIcon(I('devices/itunes.png')),
                 _('Connect to iTunes'))
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
         self.connect_to_itunes_action = mitem
         self.addSeparator()
+        self.toggle_server_action = \
+            self.addAction(QIcon(I('network-server.svg')),
+            _('Start Content Server'))
+        self.toggle_server_action.triggered.connect(lambda x:
+                self.toggle_server.emit())
+        self.addSeparator()
+
         self.email_actions = []
+
+    def server_state_changed(self, running):
+        text = _('Start Content Server')
+        if running:
+            text = _('Stop Content Server')
+        self.toggle_server_action.setText(text)
 
     def build_email_entries(self, sync_menu):
         from calibre.gui2.device import DeviceAction
@@ -477,6 +491,7 @@ class MainWindowMixin(object):
         self.action_news.triggered.connect(
                 self.scheduler.show_dialog)
         self.share_conn_menu = ShareConnMenu(self)
+        self.share_conn_menu.toggle_server.connect(self.toggle_content_server)
         self.share_conn_menu.config_email.connect(partial(self.do_config,
             initial_category='email'))
         self.action_conn_share.setMenu(self.share_conn_menu)
@@ -613,4 +628,12 @@ class MainWindowMixin(object):
     def show_help(self, *args):
         open_url(QUrl('http://calibre-ebook.com/user_manual'))
 
+    def content_server_state_changed(self, running):
+        self.share_conn_menu.server_state_changed(running)
 
+    def toggle_content_server(self):
+        if self.content_server is None:
+           self.start_content_server()
+        else:
+            self.content_server.exit()
+            self.content_server = None

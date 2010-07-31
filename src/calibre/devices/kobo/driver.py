@@ -235,7 +235,7 @@ class KOBO(USBMS):
             else: # if extension == '.html' or extension == '.txt':
                 ContentType = 999 # Yet another hack: to get around Kobo changing how ContentID is stored
                 ContentID = self.contentid_from_path(path, ContentType)
-                 
+
             ImageID = self.delete_via_sql(ContentID, ContentType)
             #print " We would now delete the Images for" + ImageID
             self.delete_images(ImageID)
@@ -355,3 +355,17 @@ class KOBO(USBMS):
                     # print "Internal: " + filename
 
         return path
+
+    def get_file(self, path, *args, **kwargs):
+        tpath = self.munge_path(path)
+        extension =  os.path.splitext(tpath)[1]
+        if extension == '.kobo':
+            from calibre.devices.errors import UserFeedback
+            raise UserFeedback(_("Not Implemented"),
+                    _('".kobo" files do not exist on the device as books '
+                        'instead, they are rows in the sqlite database. '
+                    'Currently they cannot be exported or viewed.'),
+                    UserFeedback.WARN)
+
+        return USBMS.get_file(self, path, *args, **kwargs)
+

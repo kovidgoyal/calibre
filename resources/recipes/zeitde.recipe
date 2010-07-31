@@ -98,7 +98,7 @@ class ZeitDe(BasicNewsRecipe):
             return soup
         info = Tag(soup,'ul',[('class','ebinfobox')])
         tools = soup.find('ul', attrs={'class':'tools'})
-        author = tools.find('li','author first')
+        #author = tools.find('li','author first')
         for tag in ['author first', 'date', 'date first', 'author', 'source']:
             line = tools.find('li', tag)
             if line:

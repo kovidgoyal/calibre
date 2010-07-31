@@ -144,6 +144,8 @@ def compose_image(canvas, image, left, top):
             int(top))
 
 def load_image(path):
+    if isinstance(path, unicode):
+        path = path.encode(filesystem_encoding)
     img = alloc_wand('NewMagickWand')
     if not p.MagickReadImage(img, path):
         severity = p.ExceptionType(0)
@@ -221,7 +223,7 @@ def create_cover_page(top_lines, logo_path, width=590, height=750,
 def save_cover_data_to(data, path, bgcolor='white'):
     '''
     Saves image in data to path, in the format specified by the path
-    extension. Composes the image onto a blank cancas so as to
+    extension. Composes the image onto a blank canvas so as to
     properly convert transparent images.
     '''
     with open(path, 'wb') as f:
