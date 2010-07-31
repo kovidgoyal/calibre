@@ -57,7 +57,6 @@ class TXTInput(InputFormatPlugin):
             txt = preserve_spaces(txt)
 
         txt = _ent_pat.sub(xml_entity_to_unicode, txt)
-        txt = txt.encode('utf-8')
 
         if options.markdown:
             log.debug('Running text though markdown conversion...')
@@ -80,7 +79,7 @@ class TXTInput(InputFormatPlugin):
             base = os.path.dirname(stream.name)
         htmlfile = open(os.path.join(base, 'temp_calibre_txt_input_to_html.html'),
                 'wb')
-        htmlfile.write(html) #html.encode('utf-8')
+        htmlfile.write(html.encode('utf-8'))
         htmlfile.close()
         cwd = os.getcwdu()
         odi = options.debug_pipeline

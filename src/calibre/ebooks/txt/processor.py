@@ -19,7 +19,7 @@ HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html
 def convert_basic(txt, title='', epub_split_size_kb=0):
     # Strip whitespace from the beginning and end of the line. Also replace
     # all line breaks with \n.
-    txt = u'\n'.join([line.strip() for line in txt.splitlines()])
+    txt = '\n'.join([line.strip() for line in txt.splitlines()])
 
     # Condense redundant spaces
     txt = re.sub('[ ]{2,}', ' ', txt)
@@ -30,9 +30,9 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
     # Remove excessive line breaks.
     txt = re.sub('\n{3,}', '\n\n', txt)
     #remove ASCII invalid chars : 0 to 8 and 11-14 to 24
-    #illegal_char = re.compile('\x00|\x01|\x02|\x03|\x04|\x05|\x06|\x07|\x08| \
-     #   \x0B|\x0E|\x0F|\x10|\x11|\x12|\x13|\x14|\x15|\x16|\x17|\x18')
-    txt = re.sub('\u000[0-8]|\u001[14-9]|\u002[0-4]', '', txt)
+    illegal_char = re.compile('\x00|\x01|\x02|\x03|\x04|\x05|\x06|\x07|\x08| \
+        \x0B|\x0E|\x0F|\x10|\x11|\x12|\x13|\x14|\x15|\x16|\x17|\x18')
+    txt = illegal_char.sub('', txt)
     
     #Takes care if there is no point to split
     if epub_split_size_kb > 0:
@@ -41,7 +41,7 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
         chunk_size = long(length_byte / (int(length_byte / (epub_split_size_kb * 1024) ) + 2 ))
         #if there are chunks with a superior size then go and break
         if (len(filter(lambda x: len(x) > chunk_size, txt.split('\n\n')))) :
-            txt = u'\n\n'.join([split_string_separator(line, chunk_size) 
+            txt = '\n\n'.join([split_string_separator(line, chunk_size) 
                 for line in txt.split('\n\n')])
 
     lines = []
@@ -83,7 +83,7 @@ def opf_writer(path, opf_name, manifest, spine, mi):
 
 def split_string_separator(txt, size) :
     if len(txt) > size:
-        txt = u''.join([re.sub(u'\.(?P<ends>[^.]*)$', u'.\n\n\g<ends>',
+        txt = ''.join([re.sub(u'\.(?P<ends>[^.]*)$', '.\n\n\g<ends>',
             txt[i:i+size], 1) for i in
             xrange(0, len(txt), size)])
     return txt
