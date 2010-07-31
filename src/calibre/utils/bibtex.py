@@ -80,7 +80,7 @@ utf8enc2latex_mapping = {
 
     #Fix some encoding problem between cp1252 and latin1
     # from http://www.microsoft.com/typography/unicode/1252.htm
-    u'\x80': '{\\mbox{\\texteuro}}', # EURO SIGN
+    u'\x80': '{\\texteuro}', # EURO SIGN
     u'\x82': '{,}', # SINGLE LOW-9 QUOTATION MARK
     u'\x83': '$f$', # LATIN SMALL LETTER F WITH HOOK
     u'\x84': '{,,}', # DOUBLE LOW-9 QUOTATION MARK
@@ -746,7 +746,7 @@ utf8enc2latex_mapping = {
     u'\u205f': '{\\mkern4mu}',
     u'\u2060': '{\\nolinebreak}',
     u'\u20a7': '{\\ensuremath{\\Elzpes}}',
-    u'\u20ac': '{\\mbox{\\texteuro}}',
+    u'\u20ac': '{\\texteuro}',
     u'\u20db': '$\\dddot$',
     u'\u20dc': '$\\ddddot$',
     u'\u2102': '$\\mathbb{C}$',
