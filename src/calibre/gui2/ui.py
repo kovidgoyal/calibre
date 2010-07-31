@@ -373,8 +373,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         d.exec_()
         self.content_server = d.server
-        self.content_server.state_callback = \
-            Dispatcher(self.content_server_state_changed)
+        if self.content_server is not None:
+            self.content_server.state_callback = \
+                Dispatcher(self.content_server_state_changed)
         self.content_server.state_callback(self.content_server.is_running)
 
         if d.result() == d.Accepted:
