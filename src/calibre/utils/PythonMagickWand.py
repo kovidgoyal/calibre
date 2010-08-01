@@ -2661,7 +2661,7 @@ else:
     MagickGetImageSignature = _magick.MagickGetImageSignature
 #   MagickGetImageFormat
 try:
-    _magick.MagickGetImageFormat.restype = ctypes.POINTER(ctypes.c_char)
+    _magick.MagickGetImageFormat.restype = ctypes.c_char_p
     _magick.MagickGetImageFormat.argtypes = (MagickWand,)
 except AttributeError,e:
     pass

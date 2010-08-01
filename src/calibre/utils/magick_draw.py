@@ -220,7 +220,7 @@ def create_cover_page(top_lines, logo_path, width=590, height=750,
         p.DestroyMagickWand(canvas)
     return ans
 
-def save_cover_data_to(data, path, bgcolor='white'):
+def save_cover_data_to(data, path, bgcolor='white', resize_to=None):
     '''
     Saves image in data to path, in the format specified by the path
     extension. Composes the image onto a blank canvas so as to
@@ -230,12 +230,30 @@ def save_cover_data_to(data, path, bgcolor='white'):
         f.write(data)
     with p.ImageMagick():
         img = load_image(path)
+        if resize_to is not None:
+            p.MagickResizeImage(img, resize_to[0], resize_to[1], p.CatromFilter, 1.0)
         canvas = create_canvas(p.MagickGetImageWidth(img),
                 p.MagickGetImageHeight(img), bgcolor)
         compose_image(canvas, img, 0, 0)
         p.MagickWriteImage(canvas, path)
         p.DestroyMagickWand(img)
         p.DestroyMagickWand(canvas)
+
+def identify(path):
+    '''
+    Identify the image at path. Returns a 3-tuple
+    (width, height, format)
+    or raises an IOError.
+    '''
+    with p.ImageMagick():
+        img = load_image(path)
+        width = p.MagickGetImageWidth(img)
+        height = p.MagickGetImageHeight(img)
+        fmt = p.MagickGetImageFormat(img)
+        if not fmt:
+            fmt = ''
+        fmt = fmt.decode('utf-8', 'replace')
+    return (width, height, fmt)
 
 def test():
     import subprocess
