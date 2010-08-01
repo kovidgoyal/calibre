@@ -71,7 +71,7 @@ class HeadRequest(mechanize.Request):
     def get_method(self):
         return 'HEAD'
 
-class OpenLibraryCovers(CoverDownload):
+class OpenLibraryCovers(CoverDownload): # {{{
     'Download covers from openlibrary.org'
 
     OPENLIBRARY = 'http://covers.openlibrary.org/b/isbn/%s-L.jpg?default=false'
@@ -109,7 +109,9 @@ class OpenLibraryCovers(CoverDownload):
                 result_queue.put((False, self.exception_to_string(e),
                     traceback.format_exc(), self.name))
 
-class LibraryThingCovers(CoverDownload):
+# }}}
+
+class LibraryThingCovers(CoverDownload): # {{{
 
     name = 'librarything.com covers'
     description = _('Download covers from librarything.com')
@@ -161,7 +163,9 @@ class LibraryThingCovers(CoverDownload):
             result_queue.put((False, self.exception_to_string(e),
                 traceback.format_exc(), self.name))
 
-def check_for_cover(mi, timeout=5.):
+# }}}
+
+def check_for_cover(mi, timeout=5.): # {{{
     from calibre.customize.ui import cover_sources
     ans = Event()
     checkers = [partial(p.has_cover, mi, ans, timeout=timeout) for p in
@@ -176,7 +180,9 @@ def check_for_cover(mi, timeout=5.):
             break
     return ans.is_set()
 
-def download_covers(mi, result_queue, max_covers=50, timeout=5.):
+# }}}
+
+def download_covers(mi, result_queue, max_covers=50, timeout=5.): # {{{
     from calibre.customize.ui import cover_sources
     abort = Event()
     temp = Queue()
@@ -208,7 +214,9 @@ def download_covers(mi, result_queue, max_covers=50, timeout=5.):
         except Empty:
             break
 
-def download_cover(mi, timeout=5.):
+# }}}
+
+def download_cover(mi, timeout=5.): # {{{
     results = Queue()
     download_covers(mi, results, max_covers=1, timeout=timeout)
     errors, ans = [], None
@@ -223,8 +231,9 @@ def download_cover(mi, timeout=5.):
             break
     return ans, errors
 
+# }}}
 
-def test(isbns):
+def test(isbns): # {{{
     from calibre.ebooks.metadata import MetaInformation
     mi = MetaInformation('test', ['test'])
     for isbn in isbns:
@@ -241,6 +250,7 @@ def test(isbns):
                 prints('\t', err[-1]+':', err[1])
         print '\n'
 
+# }}}
 
 if __name__ == '__main__':
     isbns = sys.argv[1:] + ['9781591025412', '9780307272119']
