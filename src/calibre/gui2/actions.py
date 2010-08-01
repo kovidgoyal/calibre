@@ -430,6 +430,20 @@ class AddAction(object): # {{{
             d.exec_()
             return
         paths = [p for p in view._model.paths(rows) if p is not None]
+        ve = self.device_manager.device.VIRTUAL_BOOK_EXTENSIONS
+        def ext(x):
+            ans = os.path.splitext(x)[1]
+            ans = ans[1:] if len(ans) > 1 else ans
+            return ans.lower()
+        remove = set([p for p in paths if ext(p) in ve])
+        if remove:
+            paths = [p for p in paths if p not in remove]
+            info_dialog(self,  _('Not Implemented'),
+                        _('The following books are virtual and cannot be added'
+                          ' to the calibre library:'), '\n'.join(remove),
+                        show=True)
+            if not paths:
+                return
         if not paths or len(paths) == 0:
             d = error_dialog(self, _('Add to library'), _('No book files found'))
             d.exec_()
@@ -830,7 +844,7 @@ class EditMetadataAction(object): # {{{
                 dest_mi.series = src_mi.series
                 dest_mi.series_index = src_mi.series_index
         db.set_metadata(dest_id, dest_mi, ignore_errors=False)
-        
+
         for key in db.field_metadata: #loop thru all defined fields
           if db.field_metadata[key]['is_custom']:
             colnum = db.field_metadata[key]['colnum']
@@ -841,12 +855,12 @@ class EditMetadataAction(object): # {{{
               dest_value = db.get_custom(dest_id, num=colnum, index_is_id=True)
               src_value = db.get_custom(src_id, num=colnum, index_is_id=True)
               if db.field_metadata[key]['datatype'] == 'comments':
-                if src_value and src_value != orig_dest_value:                         
-                  if not dest_value:                                                   
-                    db.set_custom(dest_id, src_value, num=colnum)                      
-                  else:                                                                
-                    dest_value = unicode(dest_value) + u'\n\n' + unicode(src_value)    
-                    db.set_custom(dest_id, dest_value, num=colnum)                     
+                if src_value and src_value != orig_dest_value:
+                  if not dest_value:
+                    db.set_custom(dest_id, src_value, num=colnum)
+                  else:
+                    dest_value = unicode(dest_value) + u'\n\n' + unicode(src_value)
+                    db.set_custom(dest_id, dest_value, num=colnum)
               if db.field_metadata[key]['datatype'] in \
                 ('bool', 'int', 'float', 'rating', 'datetime') \
                 and not dest_value:
@@ -861,7 +875,7 @@ class EditMetadataAction(object): # {{{
                 and not dest_value:
                 db.set_custom(dest_id, src_value, num=colnum)
               if db.field_metadata[key]['datatype'] == 'text' \
-                and db.field_metadata[key]['is_multiple']: 
+                and db.field_metadata[key]['is_multiple']:
                 if src_value:
                   if not dest_value:
                     dest_value = src_value
