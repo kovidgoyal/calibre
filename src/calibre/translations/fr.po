@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-31 01:57+0000\n"
-"PO-Revision-Date: 2010-07-30 20:59+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-07-31 19:51+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-31 03:36+0000\n"
+"X-Launchpad-Export-Date: 2010-08-01 03:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -735,13 +735,16 @@ msgstr "Ajoute les livres à liste des métadonnées de l'appareil..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:364
 msgid "Not Implemented"
-msgstr ""
+msgstr "Non implémenté"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:365
 msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
+"Les fichiers \".kobo\" n'existent pas sur l'appareil en tant que livres mais "
+"comme lignes dans la base de données sqlite. A l'heure actuelle, ils ne "
+"peuvent être importés ou visionnés."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:17
 msgid "Communicate with the Palm Pre"
@@ -761,7 +764,7 @@ msgstr "Communiquer avec le Pandigital Novel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:103
 msgid "Communicate with the Promedia eBook reader"
-msgstr ""
+msgstr "Communiquer avec le lecteur d'eBooks Promedia"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -5643,11 +5646,11 @@ msgstr "Jamais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:524
 msgid "Done"
-msgstr ""
+msgstr "Terminé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:525
 msgid "Confirmation dialogs have all been reset"
-msgstr ""
+msgstr "Tous les dialogues de confirmation ont été réinitialisés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:530
 msgid "System port selected"
@@ -6027,7 +6030,7 @@ msgstr "Format de &sortie préféré:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:549
 msgid "Reset all disabled &confirmation dialogs"
-msgstr ""
+msgstr "Réinitialiser tous les dialogues de &confirmation"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:550
 msgid "Preferred &input format order:"
@@ -8040,11 +8043,11 @@ msgstr "Connecter à iTunes"
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:348
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:356
 msgid "Start Content Server"
-msgstr ""
+msgstr "Démarrer le serveur de contenu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:358
 msgid "Stop Content Server"
-msgstr ""
+msgstr "Arrêter le serveur de contenu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:369
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:375
@@ -11067,7 +11070,7 @@ msgstr "Contrôler l'envoi d'email"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:118
 msgid "Unknown section"
-msgstr ""
+msgstr "Section inconnue"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:140
 msgid "Unknown feed"

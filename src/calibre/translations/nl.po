@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-31 01:57+0000\n"
-"PO-Revision-Date: 2010-07-30 21:53+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-07-31 22:20+0000\n"
+"Last-Translator: Koen Mercken <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-31 03:36+0000\n"
+"X-Launchpad-Export-Date: 2010-08-01 03:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:365
@@ -735,13 +735,16 @@ msgstr "Toevoegen boeken aan apparaat metagegevens lijst..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:364
 msgid "Not Implemented"
-msgstr ""
+msgstr "Niet geïmplementeerd"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:365
 msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
+"\".kobo\" bestanden bevinden zich niet op het apparaat als boeken, in plaats "
+"daarvan zijn het rijen in de sqlite database. Op dit moment kunnen ze niet "
+"geëxporteerd of bekeken worden."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:17
 msgid "Communicate with the Palm Pre"
@@ -761,7 +764,7 @@ msgstr "Communiceer met de Pandigital Novel."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:103
 msgid "Communicate with the Promedia eBook reader"
-msgstr ""
+msgstr "Communicatie met de Promedia eBook reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -5599,7 +5602,7 @@ msgstr "Nooit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:524
 msgid "Done"
-msgstr ""
+msgstr "Voltooid"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:525
 msgid "Confirmation dialogs have all been reset"

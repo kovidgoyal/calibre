@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-31 01:57+0000\n"
-"PO-Revision-Date: 2010-07-30 21:43+0000\n"
-"Last-Translator: Imendez <ivan.mendez.lopez@gmail.com>\n"
+"PO-Revision-Date: 2010-07-31 20:25+0000\n"
+"Last-Translator: Antón Méixome <meixome@gmail.com>\n"
 "Language-Team: Galician <gl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-31 03:37+0000\n"
+"X-Launchpad-Export-Date: 2010-08-01 03:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -417,7 +417,7 @@ msgstr "Engadidos desactivados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:36
 msgid "Enabled plugins"
-msgstr ""
+msgstr "Complementos activados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:84
 msgid "No valid plugin found in "
@@ -488,7 +488,7 @@ msgstr "Comunicar con teléfonos S60"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:87
 msgid "Communicate with iTunes/iBooks."
-msgstr ""
+msgstr "Conectar con iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:93
 msgid "Apple device detected, launching iTunes, please wait ..."
@@ -517,11 +517,11 @@ msgstr "ramtouse"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:544
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "Usar Serie como categoría en iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:546
 msgid "Cache covers from iTunes/iBooks"
-msgstr ""
+msgstr "Gardar as portadas de iTunes/iBooks en caché"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:558
 msgid ""
@@ -552,7 +552,7 @@ msgstr "Noticias"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2709
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "Conectar con iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -578,11 +578,11 @@ msgstr "Comunicar co lector EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr ""
+msgstr "Conectar co Astak Mentor EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
-msgstr ""
+msgstr "Conectar co lector PocketBook 301."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -598,7 +598,7 @@ msgstr "Comunicar co lector ESlick"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
-msgstr ""
+msgstr "Conectar co lector de libros electrónicos Sigmatek"
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:30
@@ -627,6 +627,8 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used."
 msgstr ""
+"Lista separada por comas dos cartafoles aos que enviar libros electrónicos "
+"no dispositivo. Usarase o primeiro que exista."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:18
 msgid "Communicate with the Hanvon N520 eBook reader."
@@ -676,7 +678,7 @@ msgstr "Comunicar co lector JetBook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:86
 msgid "Communicate with the MiBuk Wolder reader."
-msgstr ""
+msgstr "Conectar lector MiBuk Wolder"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:42
 msgid "Communicate with the Kindle eBook reader."
@@ -730,13 +732,15 @@ msgstr "Engadindo libros á lista de metatados do dispositivo..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:364
 msgid "Not Implemented"
-msgstr ""
+msgstr "Non implementado"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:365
 msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
+"Os ficheiros «.kobo» non existen no dispositivo como libros, senón que son "
+"filas nunha base de datos sqlite. Actualmente, no se poden exportar nin ver."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:17
 msgid "Communicate with the Palm Pre"
@@ -748,15 +752,15 @@ msgstr "Comunicar co Booq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:57
 msgid "Communicate with the Sweex MM300"
-msgstr ""
+msgstr "Conectar co Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:77
 msgid "Communicate with the Pandigital Novel"
-msgstr ""
+msgstr "Conectar co Pandigital Novel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:103
 msgid "Communicate with the Promedia eBook reader"
-msgstr ""
+msgstr "Conectar co lector Promedia eBook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -768,7 +772,7 @@ msgstr "Comunicar co táboa de internet Nokia 810."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
-msgstr ""
+msgstr "Conectar co Nokia E52"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
@@ -889,7 +893,7 @@ msgstr "Ler os metadatos dos ficheiros no dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:45
 msgid "Use author sort instead of author"
-msgstr ""
+msgstr "Usar a orden por autor en lugar do autor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:47
 msgid "Template to control how books are saved"
@@ -1457,6 +1461,11 @@ msgid ""
 "\"original\" (the default) does not change justification in the source file. "
 "Note that only some output formats support justification."
 msgstr ""
+"Cambiar a xustificación do texto. O valor «esquerda» fai que o texto "
+"xustificado na orixe quede aliñado  á esquerda (non xustificado). O valor "
+"«xustificar» fai que o texto non xustificado quede xustificado. O valor "
+"«orixinal» (o predeterminado) non altera a xustificación do ficheiro fonte. "
+"Teña en conta que non todos os formatos de saída admiten xustificación."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:316
 msgid ""
@@ -1569,6 +1578,12 @@ msgid ""
 "corresponding pair of normal characters. This option will preserve them "
 "instead."
 msgstr ""
+"Preservar os vínculos no documento de entrada. Un vínculo é unha forma "
+"especial de escribir un par de caracteres como ff, fi, fl, etc. A maioría "
+"dos lectores no admiten vínculos nos tipos de letra predeterminados, polo "
+"que non as poden mostrar correctamente. Por omisión, calibre converterá un "
+"vínculo nos seus dous caracteres separados. Polo contrario, seleccionar esta "
+"opción preservaraas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
@@ -1673,7 +1688,7 @@ msgstr "A crear"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:18
 msgid "ePub Fixer"
-msgstr ""
+msgstr "Corrector de ePub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:18
 msgid "Workaround epubcheck bugs"

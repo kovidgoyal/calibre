@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-31 01:57+0000\n"
-"PO-Revision-Date: 2010-07-30 22:34+0000\n"
+"PO-Revision-Date: 2010-07-31 10:46+0000\n"
 "Last-Translator: Mori <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-31 03:38+0000\n"
+"X-Launchpad-Export-Date: 2010-08-01 03:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1460,7 +1460,7 @@ msgid ""
 "ebook reader does not support displaying/searching metadata directly."
 msgstr ""
 "Wstaw metadane książki na początku książki. Jest to przydatne, jeśli czytnik "
-"ebook nie obsługuje wyświetlania / wyszukiwanie metadanych bezpośrednio."
+"ebook nie obsługuje wyświetlania/wyszukiwania metadanych bezpośrednio."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:359
 msgid ""
@@ -4822,7 +4822,7 @@ msgstr "Ustaw domyślne działanie przesyłania na urządzenie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:419
 msgid "Send to main memory"
-msgstr "Prześlij do głównej pamięci"
+msgstr "Prześlij do pamięci głownej"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:421
 msgid "Send to storage card A"
@@ -4835,7 +4835,7 @@ msgstr "Prześlij na kartę pamięci B"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:428
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:437
 msgid "Main Memory"
-msgstr "Główna pamięć"
+msgstr "Pamięć głowna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:448
 msgid "Send and delete from library"
@@ -5861,12 +5861,12 @@ msgid ""
 "on your iPhone. Here myhostname should be the fully qualified hostname or "
 "the IP address of the computer calibre is running on."
 msgstr ""
-"<p> Pamiętaj, aby dodać kalibru działa jako serwer działa tylko tak długo, "
-"jak kalibru działa.\n"
-"<p> Stanza powinien zobaczyć kalibru biblioteka automatycznie. Jeśli nie, "
+"<p>Pamiętaj, by pozostawić calibre załączone, jako że serwer działa tylko "
+"wtedy, gdy calibre pracuje.\n"
+"<p>Stanza powinien automatycznie zobaczyć bibliotekę calibre. Jeśli nie, "
 "spróbuj dodać URL http://myhostname:8080 jako nowy katalog w czytniku Stanza "
-"na urządzeniu iPhone. Oto myhostname powinny być w pełni kwalifikowaną nazwę "
-"hosta lub adres IP klasy komputer jest zasilany."
+"na urządzeniu iPhone. myhostname powinien być poprawną nazwą hosta lub "
+"adresem IP komputera, na którym działa calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:608
 msgid ""
@@ -6809,7 +6809,7 @@ msgstr "&Wszystkie te słowa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:116
 msgid "This exact &phrase:"
-msgstr "Dokładnie tą &frazę:"
+msgstr "Dokładnie tę &frazę:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:117
 msgid "&One or more of these words:"
@@ -6952,7 +6952,7 @@ msgid ""
 "Delete tag from database. This will unapply the tag from all books and then "
 "remove it from the database."
 msgstr ""
-"Usuń etykietę z bazy danych. To działanie usunie tą etykietę ze wszystkich "
+"Usuń etykietę z bazy danych. To działanie usunie tę etykietę ze wszystkich "
 "książek i usunie ją z bazy danych."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:127
@@ -7447,7 +7447,7 @@ msgstr "Czytnik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:88
 msgid "Show books in the main memory of the device"
-msgstr "Pokaż książki w głównej pamięci urządzenia"
+msgstr "Pokaż książki w pamięci głownej urządzenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:89
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:568
