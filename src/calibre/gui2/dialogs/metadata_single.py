@@ -24,8 +24,9 @@ from calibre.gui2.widgets import ProgressIndicator
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import string_to_authors, \
         authors_to_string, check_isbn
-from calibre.ebooks.metadata.library_thing import cover_from_isbn
+from calibre.ebooks.metadata.covers import download_cover
 from calibre.ebooks.metadata.meta import get_metadata
+from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import qt_to_dt, local_tz, utcfromtimestamp
 from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
@@ -48,12 +49,13 @@ class CoverFetcher(QThread):
 
     def run(self):
         try:
+            au = self.author if self.author else None
+            mi = MetaInformation(self.title, [au])
             if not self.isbn:
                 from calibre.ebooks.metadata.fetch import search
                 if not self.title:
                     self.needs_isbn = True
                     return
-                au = self.author if self.author else None
                 key = get_isbndb_key()
                 if not key:
                     key = None
@@ -66,8 +68,10 @@ class CoverFetcher(QThread):
                     return
                 self.isbn = results[0]
 
-            self.cover_data = cover_from_isbn(self.isbn, timeout=self.timeout,
-                    username=self.username, password=self.password)[0]
+            mi.isbn = self.isbn
+
+            self.cover_data, self.errors = download_cover(mi,
+                    timeout=self.timeout)
         except Exception, e:
             self.exception = e
             self.traceback = traceback.format_exc()
@@ -575,6 +579,13 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 err = self.cover_fetcher.exception
                 error_dialog(self, _('Cannot fetch cover'),
                     _('<b>Could not fetch cover.</b><br/>')+unicode(err)).exec_()
+                return
+            if self.cover_fetcher.errors and self.cover_fetcher.cover_data is None:
+                details = u'\n\n'.join([e[-1] + ': ' + e[1] for e in self.cover_fetcher.errors])
+                error_dialog(self, _('Cannot fetch cover'),
+                    _('<b>Could not fetch cover.</b><br/>') +
+                    _('For the error message from each cover source, '
+                      'click Show details below.'), det_msg=details, show=True)
                 return
 
             pix = QPixmap()
