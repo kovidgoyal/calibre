@@ -60,6 +60,7 @@ if plugins is None:
                 'pictureflow',
                 'lzx',
                 'msdes',
+                'magick',
                 'podofo',
                 'cPalmdoc',
                 'fontconfig',

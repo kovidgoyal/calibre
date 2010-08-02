@@ -421,7 +421,7 @@ initpodofo(void)
         return;
 
     m = Py_InitModule3("podofo", podofo_methods,
-                       "Wrapper for the PoDoFo pDF library");
+                       "Wrapper for the PoDoFo PDF library");
 
     Py_INCREF(&podofo_PDFDocType);
     PyModule_AddObject(m, "PDFDoc", (PyObject *)&podofo_PDFDocType);
