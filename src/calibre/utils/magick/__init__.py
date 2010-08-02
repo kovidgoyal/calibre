@@ -50,17 +50,16 @@ class Image(_magick.Image):
     @dynamic_property
     def format(self):
         def fget(self):
-            ans = super(Image, self).format
-            return ans.decode('utf-8', 'ignore').lower()
+            return self.format_.decode('utf-8', 'ignore').lower()
         def fset(self, val):
-            super(Image, self).format = str(val)
-        return property(fget=fget, fset=fset, doc=_magick.Image.format.__doc__)
+            self.format_ = str(val)
+        return property(fget=fget, fset=fset, doc=_magick.Image.format_.__doc__)
 
 
     @dynamic_property
     def size(self):
         def fget(self):
-            return super(Image, self).size
+            return self.size_
         def fset(self, val):
             filter = 'CatromFilter'
             if len(val) > 2:
@@ -69,9 +68,8 @@ class Image(_magick.Image):
             blur = 1.0
             if len(val) > 3:
                 blur = float(val[3])
-            super(Image, self).format = (int(val[0]), int(val[1]), filter,
-                    blur)
-        return property(fget=fget, fset=fset, doc=_magick.Image.size.__doc__)
+            self.size_ = (int(val[0]), int(val[1]), filter, blur)
+        return property(fget=fget, fset=fset, doc=_magick.Image.size_.__doc__)
 
 
     def save(self, path, format=None):

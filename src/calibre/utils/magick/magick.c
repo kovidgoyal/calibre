@@ -52,10 +52,15 @@ static PyObject *
 magick_Image_load(magick_Image *self, PyObject *args, PyObject *kwargs) {
     const char *data;
 	Py_ssize_t dlen;
+    MagickBooleanType res;
     
     if (!PyArg_ParseTuple(args, "s#", &data, &dlen)) return NULL;
 
-    if (!MagickReadImageBlob(self->wand, data, dlen))
+    Py_BEGIN_ALLOW_THREADS
+    res = MagickReadImageBlob(self->wand, data, dlen);
+    Py_END_ALLOW_THREADS
+
+    if (!res)
         return magick_set_exception(self->wand);
 
     Py_RETURN_NONE;
@@ -75,7 +80,10 @@ magick_Image_export(magick_Image *self, PyObject *args, PyObject *kwargs) {
         return NULL;
     }
 
+    Py_BEGIN_ALLOW_THREADS
     data = MagickGetImageBlob(self->wand, &len);
+    Py_END_ALLOW_THREADS
+
     if (data == NULL || len < 1) 
         return magick_set_exception(self->wand);
 
@@ -100,6 +108,7 @@ magick_Image_size_setter(magick_Image *self, PyObject *val, void *closure) {
     Py_ssize_t width, height;
     FilterTypes filter;
     double blur;
+    MagickBooleanType res;
 
     if (val == NULL) {
         return -1;
@@ -126,7 +135,11 @@ magick_Image_size_setter(magick_Image *self, PyObject *val, void *closure) {
         return -1;
     }
 
-    if (!MagickResizeImage(self->wand, width, height, filter, blur)) {
+    Py_BEGIN_ALLOW_THREADS
+    res = MagickResizeImage(self->wand, width, height, filter, blur);
+    Py_END_ALLOW_THREADS
+
+    if (!res) {
         magick_set_exception(self->wand);
         return -1;
     }
@@ -143,6 +156,25 @@ magick_Image_format_getter(magick_Image *self, void *closure) {
     return Py_BuildValue("s", fmt);
 }
 
+static int
+magick_Image_format_setter(magick_Image *self, PyObject *val, void *closure) {
+    char *fmt;
+
+    if (val == NULL) {
+        return -1;
+        PyErr_SetString(PyExc_TypeError, "Cannot delete image format");
+    }
+
+    fmt = PyString_AsString(val);
+    if (fmt == NULL) return -1;
+
+    if (!MagickSetImageFormat(self->wand, fmt)) {
+        PyErr_SetString(PyExc_ValueError, "Unknown image format");
+        return -1;
+    }
+
+    return 0;
+}
 
 static PyMethodDef magick_Image_methods[] = {
     {"load", (PyCFunction)magick_Image_load, METH_VARARGS,
@@ -157,13 +189,13 @@ static PyMethodDef magick_Image_methods[] = {
 };
 
 static PyGetSetDef  magick_Image_getsetters[] = {
-    {(char *)"size", 
+    {(char *)"size_", 
      (getter)magick_Image_size_getter, (setter)magick_Image_size_setter,
      (char *)"Image size (width, height). When setting pass in (width, height, filter, blur). See MagickResizeImage docs.",
      NULL},
 
-    {(char *)"format", 
-     (getter)magick_Image_format_getter, NULL,
+    {(char *)"format_", 
+     (getter)magick_Image_format_getter, (setter)magick_Image_format_setter,
      (char *)"Image format",
      NULL},
 
