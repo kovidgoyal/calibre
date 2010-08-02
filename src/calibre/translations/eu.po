@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-31 01:57+0000\n"
-"PO-Revision-Date: 2010-07-30 22:03+0000\n"
+"PO-Revision-Date: 2010-08-02 00:01+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-01 03:45+0000\n"
+"X-Launchpad-Export-Date: 2010-08-02 03:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -160,11 +160,11 @@ msgstr "Fitxategi mota"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:206
 msgid "Metadata reader"
-msgstr "Metadatu irakurlea"
+msgstr "Metadatuen irakurlea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:235
 msgid "Metadata writer"
-msgstr "Metadatu idazlea"
+msgstr "Metadatuen idazlea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:263
 msgid "Catalog generator"
@@ -176,9 +176,9 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Jarraitu HTML fitxategiko esteka lokal guztiak eta sortu ZIP fitxategi bat  "
+"Jarraitu HTML fitxategiko esteka lokal guztiei eta sortu ZIP fitxategi bat "
 "estekatutako fitxategi guztiak barne dituelarik. Gehigarri hau, liburutegira "
-"HTML fitxategi bat geitzen duzun bakoitzean exekutatzen da."
+"HTML fitxategi bat gehitzen duzun bakoitzean exekutatzen da."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:52
 msgid ""
@@ -194,13 +194,13 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
-"Sortu PMLZ fitxategi bat PML fitxategiarekin eta images edo pmlname_img "
-"direktorioan dauden irudi guztiekin. Gehigarri hau, liburutegira PML "
-"fitxategi bat  gehitzen duzun bakoitzean exekutatzen da."
+"Sortu PMLZ fitxategi bat PML fitxategiarekin eta images (irudiak) edo "
+"pmlname_img direktorioan dauden irudi guztiekin. Gehigarri hau, liburutegira "
+"PML fitxategi bat  gehitzen duzun bakoitzean exekutatzen da."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:93
 msgid "Extract cover from comic files"
-msgstr "Atera azal-orria komiki fitxategietatik"
+msgstr "Atera ezazu liburu-azala komiki fitxategietatik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:120
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:131
@@ -221,15 +221,15 @@ msgstr "Atera azal-orria komiki fitxategietatik"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:300
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:310
 msgid "Read metadata from %s files"
-msgstr "Irakurri metadatuak %s fitxategietatik"
+msgstr "Irakur itzazu metadatuak %s fitxategietatik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:269
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Irakurri ebook-en metadatuak RAR fitxategietan"
+msgstr "Irakur itzazu metadatuak liburu elektronikoetatik RAR fitxategietan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:321
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Irakurri ebook-en metadatuak ZIP fitxategietan"
+msgstr "Irakur itzazu metadatuak liburu elektronikoetatik ZIP fitxategietan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:334
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:344
@@ -255,23 +255,24 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
-"Zehaztu sarrerako dokumentuaren karaktere-kodeketa. Aukera hau ezartzen "
-"bada, dokumentu berak ekar ditzakeen karaktere-kodeketa gainidatziko da. "
-"Kodeketa bat zehazten ez duten edota okerreko kodeketa duten dokumentuetan "
-"lagungarria da bereiziki."
+"Zehaztu ezazu input dokumentuaren, sarrerako dokumentuaren, karaktere-"
+"kodeketa. Aukera hau ezartzen bada, dokumentu berak ekar ditzakeen karaktere-"
+"kodeketa adierazpen guztien gainetik geratuko da. Kodeketa bat zehazten ez "
+"duten edota okerreko kodeketa adierazten duten dokumentuetan lagungarria da "
+"bereiziki."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:237
 msgid "Conversion Output"
-msgstr "Bihurketa-irteera"
+msgstr "Bihurketaren outputa"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:251
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
-"Zehaztuz gero, irteerako gehigarriak gizaki batek oberen irakur ditzakeen "
-"irteera egiten saiatuko da. Irteerako gehigarri batzuek efekturik gabe gera "
-"daitezke."
+"Zehaztuz gero, irteerako gehigarria gizaki batek ahalik eta hoberen "
+"irakurtzeko moduko outputa ekoizten saiatuko da. Irteerako gehigarri "
+"batzuetan efekturik ez izatea gerta liteke."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:45
 msgid "Input profile"
@@ -320,8 +321,7 @@ msgstr "Profil hau Hanlin V3 eta bere klonentzat zuzendua dago."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:122
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:513
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr ""
-"Profil hau \"Hanlin V5\" horretara zuzendurik dago, eta bere klonetara."
+msgstr "Profil hau \"Hanlin V5\" eta bere klonetara zuzendurik dago."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:132
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:521

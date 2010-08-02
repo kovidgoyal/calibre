@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-31 01:57+0000\n"
-"PO-Revision-Date: 2010-07-30 22:08+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-08-01 20:13+0000\n"
+"Last-Translator: Giuseppe Terrasi <giuseppeterrasi.liste@gmail.com>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-01 03:47+0000\n"
+"X-Launchpad-Export-Date: 2010-08-02 03:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -738,7 +738,7 @@ msgstr "Aggiunta dei libri alla lista metadati del dispositivo..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:364
 msgid "Not Implemented"
-msgstr ""
+msgstr "Non Implementato"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:365
 msgid ""
@@ -5617,7 +5617,7 @@ msgstr "Mai"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:524
 msgid "Done"
-msgstr ""
+msgstr "Completato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:525
 msgid "Confirmation dialogs have all been reset"
@@ -10972,7 +10972,7 @@ msgstr "Controllo dell'invio delle email"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:118
 msgid "Unknown section"
-msgstr ""
+msgstr "Sezione sconosciuta"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:140
 msgid "Unknown feed"

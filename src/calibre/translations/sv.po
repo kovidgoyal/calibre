@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-31 01:57+0000\n"
-"PO-Revision-Date: 2010-07-30 20:43+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-08-01 14:11+0000\n"
+"Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-31 03:38+0000\n"
+"X-Launchpad-Export-Date: 2010-08-02 03:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
@@ -734,13 +734,15 @@ msgstr "Lägger till böcker till enhetens metadatalista..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:364
 msgid "Not Implemented"
-msgstr ""
+msgstr "Inte implementerad"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:365
 msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
+"\". Kobo\" filer inte finns på enheten som böcker i stället, är de rader i "
+"sqlite-databasen. De kan förnärvarande inte exporteras eller visas."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:17
 msgid "Communicate with the Palm Pre"
@@ -760,7 +762,7 @@ msgstr "Kommunicera med Pandigital Novel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:103
 msgid "Communicate with the Promedia eBook reader"
-msgstr ""
+msgstr "Kommunicera med Promedia eBook läsaren"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -5545,11 +5547,11 @@ msgstr "Aldrig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:524
 msgid "Done"
-msgstr ""
+msgstr "Färdig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:525
 msgid "Confirmation dialogs have all been reset"
-msgstr ""
+msgstr "Alla bekräftelsedialogrutor har återställts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:530
 msgid "System port selected"
@@ -5916,7 +5918,7 @@ msgstr "Önskat &utformat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:549
 msgid "Reset all disabled &confirmation dialogs"
-msgstr ""
+msgstr "Återställ alla avstängnings och bekräftelsedialogrutor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:550
 msgid "Preferred &input format order:"
@@ -7865,11 +7867,11 @@ msgstr "Anslut till iTunes"
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:348
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:356
 msgid "Start Content Server"
-msgstr ""
+msgstr "Starta mediaserver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:358
 msgid "Stop Content Server"
-msgstr ""
+msgstr "Stoppa mediaserver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:369
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:375
@@ -10834,7 +10836,7 @@ msgstr "Styr e-postleverans"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:118
 msgid "Unknown section"
-msgstr ""
+msgstr "Okänt avsnitt"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:140
 msgid "Unknown feed"
