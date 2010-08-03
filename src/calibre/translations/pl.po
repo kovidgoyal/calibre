@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-31 01:57+0000\n"
-"PO-Revision-Date: 2010-07-31 10:46+0000\n"
-"Last-Translator: Mori <Unknown>\n"
+"PO-Revision-Date: 2010-08-02 21:54+0000\n"
+"Last-Translator: Piotr Strębski <strebski@o2.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-01 03:47+0000\n"
+"X-Launchpad-Export-Date: 2010-08-03 03:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -893,7 +893,7 @@ msgstr "Odczytaj dane meta z książek na urządzeniu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:45
 msgid "Use author sort instead of author"
-msgstr ""
+msgstr "Użyj sortowania według autora zamiast autora"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:47
 msgid "Template to control how books are saved"
@@ -1226,6 +1226,10 @@ msgid ""
 "cases, an output profile is required to produce documents that will work on "
 "a device. For example EPUB on the SONY reader. Choices are:"
 msgstr ""
+"Określ profil wyjścia. Profil wyjścia informuje system konwersji, jak "
+"zoptymalizować stworzony dokument dla określonego urządzenia. W niektórych "
+"przypadkach profil wyjścia jest konieczny, aby stworzyć dokument działający "
+"na urządzeniu. Na przykład EPUB na czytniku SONY. Do wyboru jest:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:133
 msgid ""
@@ -1247,6 +1251,11 @@ msgid ""
 "algorithm uses these sizes to intelligently rescale fonts. The default is to "
 "use a mapping based on the output profile you chose."
 msgstr ""
+"Mapowanie z CSS nazw czcionek do rozmiaru w punktach. Przykładowe ustawienia "
+"to: 10,12,14,16,18,20,22,24. Są to mapowania dla rozmiarów od xx-mały do xx-"
+"duży, gdzie ostatni rozmiar jest bardzo duży. Algorytm przeskalowywania "
+"używa tych rozmiarów, aby inteligentnie zmieniać wielkość czcionki. "
+"Domyślnie używane jest mapowanie bazujące na wybranym profilu wyjściowym."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:155
 msgid "Disable all rescaling of font sizes."
@@ -1573,7 +1582,7 @@ msgstr "Wpisz etykiety dla książki. Kolejne etykiety oddzielaj przecinkami."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:477
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:70
 msgid "Set the book producer."
-msgstr ""
+msgstr "Ustaw producenta książki."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:481
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:72
