@@ -90,7 +90,7 @@ class PDNOVEL(USBMS):
 
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = False
-    DELETE_EXTS = ['.jpg']
+    DELETE_EXTS = ['.jpg', '.jpeg', '.png']
 
 
     def upload_cover(self, path, filename, metadata):
