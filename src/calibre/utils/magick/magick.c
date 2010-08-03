@@ -5,6 +5,7 @@
 
 #include "magick_constants.h"
 
+// magick_set_exception {{{
 PyObject* magick_set_exception(MagickWand *wand) {
     ExceptionType ext;
     char *desc = MagickGetException(wand, &ext);
@@ -13,6 +14,7 @@ PyObject* magick_set_exception(MagickWand *wand) {
     desc = MagickRelinquishMemory(desc);
     return NULL;
 }
+// }}}
 
 // Image object definition {{{
 typedef struct {
@@ -21,6 +23,10 @@ typedef struct {
     MagickWand *wand;
 
 } magick_Image;
+
+// Method declarations {{{
+static PyObject* magick_Image_compose(magick_Image *self, PyObject *args, PyObject *kwargs);
+// }}}
 
 static void
 magick_Image_dealloc(magick_Image* self)
@@ -48,6 +54,7 @@ magick_Image_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
+// Image.load {{{
 static PyObject *
 magick_Image_load(magick_Image *self, PyObject *args, PyObject *kwargs) {
     const char *data;
@@ -56,15 +63,39 @@ magick_Image_load(magick_Image *self, PyObject *args, PyObject *kwargs) {
     
     if (!PyArg_ParseTuple(args, "s#", &data, &dlen)) return NULL;
 
-    Py_BEGIN_ALLOW_THREADS
     res = MagickReadImageBlob(self->wand, data, dlen);
-    Py_END_ALLOW_THREADS
 
     if (!res)
         return magick_set_exception(self->wand);
 
     Py_RETURN_NONE;
 }
+
+// }}}
+
+// Image.create_canvas {{{
+static PyObject *
+magick_Image_create_canvas(magick_Image *self, PyObject *args, PyObject *kwargs)
+{
+    Py_ssize_t width, height;
+    char *bgcolor;
+    PixelWand *pw;
+    MagickBooleanType res = MagickFalse;
+
+    if (!PyArg_ParseTuple(args, "nns", &width, &height, &bgcolor)) return NULL;
+
+    pw = NewPixelWand();
+    if (pw == NULL) return PyErr_NoMemory();
+    PixelSetColor(pw, bgcolor);
+    res = MagickNewImage(self->wand, width, height, pw);
+    pw = DestroyPixelWand(pw);
+    if (!res) return magick_set_exception(self->wand);
+
+    Py_RETURN_NONE;
+}
+// }}}
+
+// Image.export {{{
 
 static PyObject *
 magick_Image_export(magick_Image *self, PyObject *args, PyObject *kwargs) {
@@ -80,9 +111,7 @@ magick_Image_export(magick_Image *self, PyObject *args, PyObject *kwargs) {
         return NULL;
     }
 
-    Py_BEGIN_ALLOW_THREADS
     data = MagickGetImageBlob(self->wand, &len);
-    Py_END_ALLOW_THREADS
 
     if (data == NULL || len < 1) 
         return magick_set_exception(self->wand);
@@ -92,15 +121,15 @@ magick_Image_export(magick_Image *self, PyObject *args, PyObject *kwargs) {
 
     return ans;
 }
+// }}}
 
-
-
+// Image.size {{{
 static PyObject *
 magick_Image_size_getter(magick_Image *self, void *closure) {
     size_t width, height;
     width = MagickGetImageWidth(self->wand);
     height = MagickGetImageHeight(self->wand);
-    return Py_BuildValue("II", width, height);
+    return Py_BuildValue("nn", width, height);
 }
 
 static int
@@ -123,7 +152,7 @@ magick_Image_size_setter(magick_Image *self, PyObject *val, void *closure) {
     width = PyInt_AsSsize_t(PySequence_ITEM(val, 0));
     height = PyInt_AsSsize_t(PySequence_ITEM(val, 1));
     filter = (FilterTypes)PyInt_AsSsize_t(PySequence_ITEM(val, 2));
-    blur = PyFloat_AsDouble(PySequence_ITEM(val, 2));
+    blur = PyFloat_AsDouble(PySequence_ITEM(val, 3));
 
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "Width, height, filter or blur not a number");
@@ -135,9 +164,7 @@ magick_Image_size_setter(magick_Image *self, PyObject *val, void *closure) {
         return -1;
     }
 
-    Py_BEGIN_ALLOW_THREADS
     res = MagickResizeImage(self->wand, width, height, filter, blur);
-    Py_END_ALLOW_THREADS
 
     if (!res) {
         magick_set_exception(self->wand);
@@ -147,8 +174,9 @@ magick_Image_size_setter(magick_Image *self, PyObject *val, void *closure) {
     return 0;
     
 }
+// }}}
 
-
+// Image.format {{{
 static PyObject *
 magick_Image_format_getter(magick_Image *self, void *closure) {
     const char *fmt;
@@ -176,6 +204,9 @@ magick_Image_format_setter(magick_Image *self, PyObject *val, void *closure) {
     return 0;
 }
 
+// }}}
+
+// Image attr list {{{
 static PyMethodDef magick_Image_methods[] = {
     {"load", (PyCFunction)magick_Image_load, METH_VARARGS,
      "Load an image from a byte buffer (string)"
@@ -183,6 +214,16 @@ static PyMethodDef magick_Image_methods[] = {
 
     {"export", (PyCFunction)magick_Image_export, METH_VARARGS,
      "export(format) -> bytestring\n\n Export the image as the specified format"
+    },
+
+    {"create_canvas", (PyCFunction)magick_Image_create_canvas, METH_VARARGS,
+     "create_canvas(width, height, bgcolor)\n\n"
+            "Create a blank canvas\n"
+    		"bgcolor should be an ImageMagick color specification (string)"
+    },
+
+    {"compose", (PyCFunction)magick_Image_compose, METH_VARARGS,
+     "compose(img, left, top, op) \n\n Compose img using operation op at (left, top)"
     },
 
     {NULL}  /* Sentinel */
@@ -202,7 +243,9 @@ static PyGetSetDef  magick_Image_getsetters[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyTypeObject magick_ImageType = {
+// }}}
+
+static PyTypeObject magick_ImageType = { // {{{
     PyObject_HEAD_INIT(NULL)
     0,                         /*ob_size*/
     "magick.Image",            /*tp_name*/
@@ -242,8 +285,35 @@ static PyTypeObject magick_ImageType = {
     0,      /* tp_init */
     0,                         /* tp_alloc */
     magick_Image_new,                 /* tp_new */
-};
+}; // }}}
 
+// Image.compose {{{
+static PyObject *
+magick_Image_compose(magick_Image *self, PyObject *args, PyObject *kwargs)
+{
+    PyObject *img, *op_;
+    ssize_t left, top;
+    CompositeOperator op;
+    magick_Image *src;
+    MagickBooleanType res = MagickFalse;
+
+    if (!PyArg_ParseTuple(args, "O!nnO", &magick_ImageType, &img, &left, &top, &op_)) return NULL;
+    src = (magick_Image*)img;
+    if (!IsMagickWand(src->wand)) {PyErr_SetString(PyExc_TypeError, "Not a valid ImageMagick wand"); return NULL;}
+
+    op = (CompositeOperator)PyInt_AsSsize_t(op_);
+    if (PyErr_Occurred() || op <= UndefinedCompositeOp) {
+        PyErr_SetString(PyExc_TypeError, "Invalid composite operator");
+        return NULL;
+    }
+
+    res = MagickCompositeImage(self->wand, src->wand, op, left, top);
+
+    if (!res) return magick_set_exception(self->wand);
+
+    Py_RETURN_NONE;
+}
+// }}}
 
 
 // }}}
@@ -264,6 +334,7 @@ magick_terminus(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+
 static PyMethodDef magick_methods[] = {
     {"genesis", magick_genesis, METH_VARARGS,
     "genesis()\n\n"
@@ -276,6 +347,7 @@ static PyMethodDef magick_methods[] = {
             "Cleans up ImageMagick memory structures.\n"
     		"Must be called after you are done using this module. You can call genesis() again after this to resume using the module."
     },
+
 
     {NULL}  /* Sentinel */
 };
@@ -297,5 +369,6 @@ initmagick(void)
     PyModule_AddObject(m, "Image", (PyObject *)&magick_ImageType);
 
     magick_add_module_constants(m);
+    MagickWandGenesis();
 }
 // }}}

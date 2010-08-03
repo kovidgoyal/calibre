@@ -14,30 +14,10 @@ _magick, _merr = plugins['magick']
 if _magick is None:
     raise RuntimeError('Failed to load ImageMagick: '+_merr)
 
-# class ImageMagick {{{
-_initialized = False
-def initialize():
-    global _initialized
-    if not _initialized:
-        _magick.genesis()
-        _initialized = True
-
-def finalize():
-    global _initialized
-    if _initialized:
-        _magick.terminus()
-        _initialized = False
-
-class ImageMagick(object):
-
-    def __enter__(self):
-        initialize()
-
-    def __exit__(self, *args):
-        finalize()
-# }}}
-
 class Image(_magick.Image):
+
+    def load(self, data):
+        return _magick.Image.load(self, bytes(data))
 
     def open(self, path_or_file):
         data = path_or_file
@@ -78,6 +58,19 @@ class Image(_magick.Image):
             if len(ext) < 2:
                 raise ValueError('No format specified')
             format = ext[1:]
+        format = format.upper()
 
         with open(path, 'wb') as f:
             f.write(self.export(format))
+
+    def compose(self, img, left=0, top=0, operation='OverCompositeOp'):
+        op = getattr(_magick, operation)
+        bounds = self.size
+        if left < 0 or top < 0 or left >= bounds[0] or top >= bounds[1]:
+            raise ValueError('left and/or top out of bounds')
+        _magick.Image.compose(self, img, int(left), int(top), op)
+
+def create_canvas(width, height, bgcolor):
+    canvas = Image()
+    canvas.create_canvas(int(width), int(height), str(bgcolor))
+    return canvas
