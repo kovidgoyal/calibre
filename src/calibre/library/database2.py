@@ -32,7 +32,7 @@ from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
-from calibre.utils.magick_draw import save_cover_data_to
+from calibre.utils.magick.draw import save_cover_data_to
 
 if iswindows:
     import calibre.utils.winshell as winshell

@@ -24,7 +24,6 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.web.feeds import feed_from_xml, templates, feeds_from_index, Feed
 from calibre.web.fetch.simple import option_parser as web2disk_option_parser
 from calibre.web.fetch.simple import RecursiveFetcher
-from calibre.utils.magick_draw import add_borders_to_image
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
@@ -964,6 +963,7 @@ class BasicNewsRecipe(Recipe):
                 with nested(open(cpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
                     cfile.write(r.read())
                 if self.cover_margins[0] or self.cover_margins[1]:
+                    from calibre.utils.magick.draw import add_borders_to_image
                     add_borders_to_image(cpath,
                                          left=self.cover_margins[0],right=self.cover_margins[0],
                                          top=self.cover_margins[1],bottom=self.cover_margins[1],
@@ -1018,7 +1018,7 @@ class BasicNewsRecipe(Recipe):
         Create a generic cover for recipes that dont have a cover
         '''
         try:
-            from calibre.utils.magick_draw import create_cover_page, TextLine
+            from calibre.utils.magick.draw import create_cover_page, TextLine
             title = self.title if isinstance(self.title, unicode) else \
                     self.title.decode(preferred_encoding, 'replace')
             date = strftime(self.timefmt)

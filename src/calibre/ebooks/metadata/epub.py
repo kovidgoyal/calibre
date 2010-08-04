@@ -205,7 +205,7 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
             cover_replacable = not reader.encryption_meta.is_encrypted(cpath) and \
                     os.path.splitext(cpath)[1].lower() in ('.png', '.jpg', '.jpeg')
             if cover_replacable:
-                from calibre.utils.magick_draw import save_cover_data_to, \
+                from calibre.utils.magick.draw import save_cover_data_to, \
                     identify
                 new_cover = PersistentTemporaryFile(suffix=os.path.splitext(cpath)[1])
                 resize_to = None
