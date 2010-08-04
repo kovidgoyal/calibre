@@ -7,14 +7,41 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.constants import plugins
+from calibre.constants import plugins, filesystem_encoding
 
 _magick, _merr = plugins['magick']
 
 if _magick is None:
     raise RuntimeError('Failed to load ImageMagick: '+_merr)
 
-class Image(_magick.Image):
+_gravity_map = dict([(getattr(_magick, x), x) for x in dir(_magick) if
+    x.endswith('Gravity')])
+
+class DrawingWand(_magick.DrawingWand): # {{{
+
+    @dynamic_property
+    def font(self):
+        def fget(self):
+            return self.font_.decode(filesystem_encoding, 'replace').lower()
+        def fset(self, val):
+            if isinstance(val, unicode):
+                val = val.encode(filesystem_encoding)
+            self.font_ = str(val)
+        return property(fget=fget, fset=fset, doc=_magick.DrawingWand.font_.__doc__)
+
+    @dynamic_property
+    def gravity(self):
+        def fget(self):
+            val = self.gravity_
+            return _gravity_map[val]
+        def fset(self, val):
+            val = getattr(_magick, str(val))
+            self.gravity_ = val
+        return property(fget=fget, fset=fset, doc=_magick.DrawingWand.gravity_.__doc__)
+
+# }}}
+
+class Image(_magick.Image): # {{{
 
     def load(self, data):
         return _magick.Image.load(self, bytes(data))
@@ -69,6 +96,8 @@ class Image(_magick.Image):
         if left < 0 or top < 0 or left >= bounds[0] or top >= bounds[1]:
             raise ValueError('left and/or top out of bounds')
         _magick.Image.compose(self, img, int(left), int(top), op)
+
+# }}}
 
 def create_canvas(width, height, bgcolor):
     canvas = Image()

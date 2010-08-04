@@ -16,6 +16,220 @@ PyObject* magick_set_exception(MagickWand *wand) {
 }
 // }}}
 
+// DrawingWand object definition {{{
+typedef struct {
+    PyObject_HEAD
+    // Type-specific fields go here.
+    DrawingWand *wand;
+
+} magick_DrawingWand;
+
+static void
+magick_DrawingWand_dealloc(magick_DrawingWand* self)
+{
+    if (self->wand != NULL) self->wand = DestroyDrawingWand(self->wand);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+magick_DrawingWand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    magick_DrawingWand *self;
+
+    self = (magick_DrawingWand *)type->tp_alloc(type, 0);
+    if (self != NULL) {
+        self->wand = NewDrawingWand();
+        if (self->wand == NULL || self->wand < 0) { 
+            PyErr_SetString(PyExc_Exception, "Failed to allocate wand.");
+            self->wand = NULL;
+            Py_DECREF(self);
+            return NULL;
+        }
+    }
+
+    return (PyObject *)self;
+}
+
+// DrawingWand.font {{{
+static PyObject *
+magick_DrawingWand_font_getter(magick_DrawingWand *self, void *closure) {
+    const char *fp;
+    fp = DrawGetFont(self->wand);
+    return Py_BuildValue("s", fp);
+}
+
+static int
+magick_DrawingWand_font_setter(magick_DrawingWand *self, PyObject *val, void *closure) {
+    char *fmt;
+
+    if (val == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete DrawingWand font");
+        return -1;
+    }
+
+    fmt = PyString_AsString(val);
+    if (fmt == NULL) return -1;
+
+    if (!DrawSetFont(self->wand, fmt)) {
+        PyErr_SetString(PyExc_ValueError, "Unknown font");
+        return -1;
+    }
+
+    return 0;
+}
+
+// }}}
+
+// DrawingWand.font_size {{{
+static PyObject *
+magick_DrawingWand_fontsize_getter(magick_DrawingWand *self, void *closure) {
+    return Py_BuildValue("d", DrawGetFontSize(self->wand));
+}
+
+static int
+magick_DrawingWand_fontsize_setter(magick_DrawingWand *self, PyObject *val, void *closure) {
+    if (val == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete DrawingWand fontsize");
+        return -1;
+    }
+
+    if (!PyFloat_Check(val))  {
+        PyErr_SetString(PyExc_TypeError, "Font size must be a float");
+        return -1;
+    }
+
+    DrawSetFontSize(self->wand, PyFloat_AsDouble(val));
+
+    return 0;
+}
+
+// }}}
+
+// DrawingWand.text_antialias {{{
+static PyObject *
+magick_DrawingWand_textantialias_getter(magick_DrawingWand *self, void *closure) {
+    return PyBool_FromLong((long)DrawGetTextAntialias(self->wand));
+}
+
+static int
+magick_DrawingWand_textantialias_setter(magick_DrawingWand *self, PyObject *val, void *closure) {
+    if (val == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete DrawingWand textantialias");
+        return -1;
+    }
+    DrawSetTextAntialias(self->wand, (MagickBooleanType)PyObject_IsTrue(val));
+
+    return 0;
+}
+
+// }}}
+
+// DrawingWand.gravity {{{
+static PyObject *
+magick_DrawingWand_gravity_getter(magick_DrawingWand *self, void *closure) {
+    return Py_BuildValue("n", DrawGetGravity(self->wand));
+}
+
+static int
+magick_DrawingWand_gravity_setter(magick_DrawingWand *self, PyObject *val, void *closure) {
+    GravityType grav;
+
+    if (val == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete DrawingWand gravity");
+        return -1;
+    }
+
+    if (!PyInt_Check(val))  {
+        PyErr_SetString(PyExc_TypeError, "Gravity must be an integer");
+        return -1;
+    }
+
+    grav = PyInt_AsSsize_t(val);
+
+    DrawSetGravity(self->wand, grav);
+
+    return 0;
+}
+
+// }}}
+
+
+// DrawingWand attr list {{{
+static PyMethodDef magick_DrawingWand_methods[] = {
+    {NULL}  /* Sentinel */
+};
+
+static PyGetSetDef  magick_DrawingWand_getsetters[] = {
+    {(char *)"font_", 
+     (getter)magick_DrawingWand_font_getter, (setter)magick_DrawingWand_font_setter,
+     (char *)"DrawingWand font path. Absolute path to font file.",
+     NULL},
+
+    {(char *)"font_size", 
+     (getter)magick_DrawingWand_fontsize_getter, (setter)magick_DrawingWand_fontsize_setter,
+     (char *)"DrawingWand fontsize",
+     NULL},
+
+    {(char *)"text_antialias", 
+     (getter)magick_DrawingWand_textantialias_getter, (setter)magick_DrawingWand_textantialias_setter,
+     (char *)"DrawingWand text antialias",
+     NULL},
+
+    {(char *)"gravity_", 
+     (getter)magick_DrawingWand_gravity_getter, (setter)magick_DrawingWand_gravity_setter,
+     (char *)"DrawingWand gravity",
+     NULL},
+
+    {NULL}  /* Sentinel */
+};
+
+// }}}
+
+static PyTypeObject magick_DrawingWandType = { // {{{
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "magick.DrawingWand",            /*tp_name*/
+    sizeof(magick_DrawingWand),      /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)magick_DrawingWand_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,        /*tp_flags*/
+    "DrawingWand",                  /* tp_doc */
+    0,		               /* tp_traverse */
+    0,		               /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    magick_DrawingWand_methods,             /* tp_methods */
+    0,             /* tp_members */
+    magick_DrawingWand_getsetters,                         /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    magick_DrawingWand_new,                 /* tp_new */
+}; // }}}
+
+
+// }}}
+
 // Image object definition {{{
 typedef struct {
     PyObject_HEAD
@@ -44,7 +258,7 @@ magick_Image_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (self != NULL) {
         self->wand = NewMagickWand();
         if (self->wand == NULL || self->wand < 0) { 
-            PyErr_SetString(PyExc_Exception, "Failed to allocate wand. Did you initialize ImageMgick?");
+            PyErr_SetString(PyExc_Exception, "Failed to allocate wand.");
             self->wand = NULL;
             Py_DECREF(self);
             return NULL;
@@ -140,8 +354,8 @@ magick_Image_size_setter(magick_Image *self, PyObject *val, void *closure) {
     MagickBooleanType res;
 
     if (val == NULL) {
-        return -1;
         PyErr_SetString(PyExc_TypeError, "Cannot delete image size");
+        return -1;
     }
 
     if (!PySequence_Check(val) || PySequence_Length(val) < 4) {
@@ -189,8 +403,8 @@ magick_Image_format_setter(magick_Image *self, PyObject *val, void *closure) {
     char *fmt;
 
     if (val == NULL) {
-        return -1;
         PyErr_SetString(PyExc_TypeError, "Cannot delete image format");
+        return -1;
     }
 
     fmt = PyString_AsString(val);
@@ -361,12 +575,16 @@ initmagick(void)
 
     if (PyType_Ready(&magick_ImageType) < 0)
         return;
+    if (PyType_Ready(&magick_DrawingWandType) < 0)
+        return;
 
     m = Py_InitModule3("magick", magick_methods,
                        "Wrapper for the ImageMagick imaging library");
 
     Py_INCREF(&magick_ImageType);
     PyModule_AddObject(m, "Image", (PyObject *)&magick_ImageType);
+    Py_INCREF(&magick_DrawingWandType);
+    PyModule_AddObject(m, "DrawingWand", (PyObject *)&magick_DrawingWandType);
 
     magick_add_module_constants(m);
     MagickWandGenesis();
