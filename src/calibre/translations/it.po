@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-31 01:57+0000\n"
-"PO-Revision-Date: 2010-08-01 20:13+0000\n"
-"Last-Translator: Giuseppe Terrasi <giuseppeterrasi.liste@gmail.com>\n"
+"PO-Revision-Date: 2010-08-03 08:48+0000\n"
+"Last-Translator: MeltingShell <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-02 03:47+0000\n"
+"X-Launchpad-Export-Date: 2010-08-04 03:32+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -584,7 +584,7 @@ msgstr "Comunica con il lettore EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr "Comunica con l'Astak Mentor EB600"
+msgstr "Comunica con l'Astak Mentor EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
@@ -596,7 +596,7 @@ msgstr "Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr "Comunica con Entourage Edge."
+msgstr "Comunica con l'Entourage Edge."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
@@ -626,7 +626,7 @@ msgstr "Comunica con i lettori Hanlin V5."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:106
 msgid "Communicate with the BOOX eBook reader."
-msgstr "Comunica con i lettori BOOX."
+msgstr "Comunica con il lettore BOOX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:123
 msgid ""
@@ -650,7 +650,7 @@ msgstr "Comunica con il lettore SpringDesign Alex."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:68
 msgid "Communicate with the Azbooka"
-msgstr "Comunica con l'Azbooka"
+msgstr "Comunica con l'Azbooka."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:81
 msgid "Communicate with the Elonex EB 511 eBook reader."
@@ -668,7 +668,7 @@ msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
-msgstr "Comunica con il lettore IRex Digital Reader."
+msgstr "Comunica con il lettore IRex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:42
 msgid "Communicate with the IRex Digital Reader 800"
@@ -700,7 +700,7 @@ msgstr "Comunica con il lettore Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:22
 msgid "Communicate with the Kobo Reader"
-msgstr "Comunica con il Kobo Reader"
+msgstr "Comunica con il Kobo Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:54
@@ -745,38 +745,41 @@ msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
+"I file \".kobo\" non esistono sul dispositivo come libri, sono invece "
+"presenti nel database sqlite. Attualmente non possono essere esportati o "
+"visualizzati."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:17
 msgid "Communicate with the Palm Pre"
-msgstr "Comunica con il Palm Pre"
+msgstr "Comunica con il Palm Pre."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:37
 msgid "Communicate with the Booq Avant"
-msgstr "Comunica con il Booq Avant"
+msgstr "Comunica con il Booq Avant."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:57
 msgid "Communicate with the Sweex MM300"
-msgstr "Comunica con il Sweex MM300"
+msgstr "Comunica con il Sweex MM300."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:77
 msgid "Communicate with the Pandigital Novel"
-msgstr "Comunica con il Pandigital Novel"
+msgstr "Comunica con il Pandigital Novel."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:103
 msgid "Communicate with the Promedia eBook reader"
-msgstr ""
+msgstr "Comunica con il lettore Promedia."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr "Comunica con il Nokia 770 Internet Tablet."
+msgstr "Comunica con l'internet tablet Nokia 770."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810 internet tablet."
-msgstr "Comunica con il Nokia 810 internet Tablet."
+msgstr "Comunica con l'internet tablet Nokia 810."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
-msgstr "Comunica con il Nokia E52"
+msgstr "Comunica con il Nokia E52."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
@@ -1713,11 +1716,11 @@ msgid ""
 "detect these and replace them with constructs that epubcheck likes. This may "
 "cause significant changes to your epub, complain to the epubcheck project."
 msgstr ""
-"Alternativa per i bug dell'ultima versione di epubcheck. epubcheck segnala "
-"molte cose come errori anche se non lo sono. epub-fix tenterà di "
-"individuarli e di sostituirli con una forma accettata da epubcheck. Questo "
-"può causare cambiamenti significativi al documento epub, i problemi sono "
-"però causati dal progetto epubcheck."
+"Aggira gli errori dell'ultima versione di epubcheck. epubcheck segnala "
+"troppe cose come errori anche se non lo sono. epub-fix tenterà  individuarli "
+"e sostituirli con una forma accettata da epubcheck. Questo può causare "
+"cambiamenti rilevanti nell'epub, il problema è però causato unicamente dal "
+"progetto epubcheck."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:19
 msgid ""
@@ -4287,12 +4290,12 @@ msgstr "&Output documento"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:109
 msgid "&Base font size:"
-msgstr "&Base Grandezza dei caratteri"
+msgstr "Grandezza caratteri di &base:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:123
 msgid "Font size &key:"
-msgstr "Grandezza dei caratteri &key:"
+msgstr "Grandezza caratteri &chiave:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:110
@@ -4311,7 +4314,7 @@ msgstr " pt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:107
 msgid "Use &default values"
-msgstr "Usare i valori predefiniti &default"
+msgstr "Usare valori &predefiniti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
 msgid "&Input document"
@@ -4355,7 +4358,7 @@ msgstr "&Disattiva l'aggiustamento proporzionale dei caratteri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:121
 msgid "Base &font size:"
-msgstr "&Grandezza caratteri di base:"
+msgstr "Grandezza caratteri di &base:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:124
 msgid "Wizard to help you choose an appropriate font size key"
@@ -5621,7 +5624,7 @@ msgstr "Completato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:525
 msgid "Confirmation dialogs have all been reset"
-msgstr ""
+msgstr "I dialoghi di conferma sono stati ripristinati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:530
 msgid "System port selected"
@@ -5994,7 +5997,7 @@ msgstr "Formato preferito per l'&output:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:549
 msgid "Reset all disabled &confirmation dialogs"
-msgstr ""
+msgstr "Ripristina tutti i dialoghi di &conferma disattivati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:550
 msgid "Preferred &input format order:"
@@ -6045,7 +6048,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:563
 msgid "Select visible &columns in library view"
-msgstr "&Selezionare le colonne visibili nella vista biblioteca"
+msgstr "Selezionare le &colonne visibili nella vista biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:565
 msgid "Remove a user-defined column"
@@ -6061,7 +6064,7 @@ msgstr "Modifica le opzioni di una colonna personalizzata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:572
 msgid "Use internal &viewer for:"
-msgstr "Utilizza il &visualizzatore interno per:"
+msgstr "Utilizzare il &visualizzatore interno per:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:573
 msgid "User Interface &layout (needs restart):"
@@ -6085,7 +6088,7 @@ msgstr "&Barra degli Strumenti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:578
 msgid "&Icon size:"
-msgstr "Dimensione &icona:"
+msgstr "Dimensione &icone:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:579
 msgid "Show &text under icons:"
@@ -6207,7 +6210,7 @@ msgstr "Elementi OPDS &sparsi massimi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:601
 msgid "&Start Server"
-msgstr "A&vvia il server"
+msgstr "&Avvia il server"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:602
 msgid "St&op Server"
@@ -6252,7 +6255,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:609
 msgid "Enable/&Disable plugin"
-msgstr "Attivare/&Disattiva il plugin"
+msgstr "Attiva/Disattiva il &plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:610
 msgid "&Customize plugin"
@@ -7964,11 +7967,11 @@ msgstr "Connetti ad iTunes"
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:348
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:356
 msgid "Start Content Server"
-msgstr ""
+msgstr "Avvia server di contenuti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:358
 msgid "Stop Content Server"
-msgstr ""
+msgstr "Ferma server di contenuti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:369
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:375
@@ -9956,7 +9959,7 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Ordina i titoli con numeri iniziali come testo, e.g.\n"
+"Ordina i titoli con numeri iniziali come testo, ad esempio\n"
 "'2001: Odissea nello spazio' viene ordinato come\n"
 "'Duemilauno: Odissea nello spazio'.\n"
 "Valore predefinito: '%default'\n"

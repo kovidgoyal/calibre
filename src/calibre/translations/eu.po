@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-31 01:57+0000\n"
-"PO-Revision-Date: 2010-08-02 00:01+0000\n"
+"PO-Revision-Date: 2010-08-04 01:05+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-03 03:35+0000\n"
+"X-Launchpad-Export-Date: 2010-08-04 03:32+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -336,7 +336,7 @@ msgstr "Profil hau Cybook Opus-arentzat zuzendua dago."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:157
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:545
 msgid "This profile is intended for the Amazon Kindle."
-msgstr "Profil hau Amazon Kindle-arentzat zuendua dago."
+msgstr "Profil hau Amazon Kindle gailuarentzat dago prestaturik."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:169
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:580
@@ -351,12 +351,12 @@ msgstr "Profil hau IRex Digital Reader 1000-rentzat zuzendua dago."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:194
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:607
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr "Profil hau \"IRex Digital Reader 800\" horretara bideraturik dago."
+msgstr "Profil hau \"IRex Digital Reader 800\" horrentzat dago prestaturik."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:206
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:621
 msgid "This profile is intended for the B&N Nook."
-msgstr "Profil hau \"B&N Nook\" horretara bideraturik dago."
+msgstr "Profil hau \"B&N Nook\" horrentzat dago prestaturik."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:228
 msgid "Output profile"
@@ -389,15 +389,16 @@ msgstr "Profil hau \"SONY PRS 300\" horretara zuzendurik dago."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:456
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr "Profil hau 5 hazbeteko JetBook-arentzat zuzenduta dago."
+msgstr "Profil hau 5 hazbeteko JetBook gailuarentzat dago prestaturik."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:465
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
-"Profil hau SONY PRS modeluentzat zuzendua dago. 500/505/700 etab, horizontal "
-"moduan. Lagungarri komikiekin gehienbat."
+"Profil hau \"SONY PRS line\" gailuetarako dago prestaturik. 500/505/700 "
+"etab, horizontal moduan ikusteko. Lagungarri izan daiteke batez ere "
+"komikiekin."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:563
 msgid "This profile is intended for the Amazon Kindle DX."
@@ -425,7 +426,7 @@ msgstr "Plugin-ak gaituak"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:84
 msgid "No valid plugin found in "
-msgstr "Baliogabeko gehigarria aurkitu da ondoren: "
+msgstr "Baliogabeko gehigarria aurkitu da hemen: "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:468
 msgid "Initialization of plugin %s failed with traceback:"
@@ -595,15 +596,15 @@ msgstr "Jar zaitez harremanetan \"PocketBook 301 reader\" horrekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr ""
+msgstr "Abangoardiako laguntaldea"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr ""
+msgstr "Jar zaitez harremanetan Abangoardiako Laguntaldearekin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr "Komunikatu ESlick eBook irakurgailuarekin."
+msgstr "Jar zaitez harremanetan \"ESlick eBook reader\" horrekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
@@ -617,7 +618,7 @@ msgstr "Erabil ezazu arbitrarioki edozein karpeta gailu gisa."
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:26
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:14
 msgid "Device Interface"
-msgstr "Gailu-interfazea"
+msgstr "Gailuaren interfazea"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
@@ -723,7 +724,7 @@ msgstr "Liburu zerrenda gailutik eskuratzen..."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:253
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:271
 msgid "Removing books from device..."
-msgstr "Gailutik liburuak kentzen..."
+msgstr "Gailutik liburuak ezabatzen..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:267
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:274
@@ -741,7 +742,7 @@ msgstr "Gailuaren metadatu zerrendara liburuak gehitzen..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:364
 msgid "Not Implemented"
-msgstr ""
+msgstr "Abiarazi gabea"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:365
 msgid ""
@@ -767,7 +768,7 @@ msgstr "Jar zaitez harremanetan \"Pandigital Novel\" horrekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:103
 msgid "Communicate with the Promedia eBook reader"
-msgstr ""
+msgstr "Jar zaitez harremanetan \"Promedia eBook reader\" horrekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1080,6 +1081,8 @@ msgid ""
 "Keep aspect ratio and scale image using screen height as image width for "
 "viewing in landscape mode."
 msgstr ""
+"Manter a relação de aspecto e escala da imagem usando a altura do écran como "
+"largura da imagem para visualização em modo paisagem."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:298
 msgid ""
@@ -1112,6 +1115,10 @@ msgid ""
 "experiment to see which format gives you optimal size and look on your "
 "device."
 msgstr ""
+"Sortu berri den liburu elektronikoaren irudien formatu berria.  Saiakera "
+"batzuk egin beharko dituzu ikusteko ea sor daitezkeen formatuetatik zein "
+"egokitzen zaizun hoberen zure irakurtzeko gailuari, ea zeinek daukan "
+"neurririk eta itxurarik egokiena."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:313
 msgid "Apply no processing to the image"
@@ -1174,7 +1181,7 @@ msgstr "Outputaren, irteerako emaitzaren itxura osoa kontrolatzeko aukerak"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:135
 msgid "Control auto-detection of document structure."
-msgstr ""
+msgstr "Dokumentuaren estrukturaren detektatze automatikoaren kontrola."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:145
 msgid ""
@@ -1196,7 +1203,7 @@ msgstr "Bihurketaren arazketarekin laguntzeko aukerak"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:183
 msgid "List builtin recipes"
-msgstr ""
+msgstr "\"Nola eraiki zen\" formulen edo errezeten zerrenda"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:256
 msgid "Output saved to"
@@ -1214,6 +1221,9 @@ msgid ""
 "specified directory. Useful if you are unsure at which stage of the "
 "conversion process a bug is occurring."
 msgstr ""
+"Gorde itzazu zehaztutako direktorioan bihurketa prozesuaren atal guztien "
+"outputak, irteera-emaitzak. Erabilgarria ez badakizu prozesuaren zein unetan "
+"gertatu egiten den errorea."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:111
 msgid ""
