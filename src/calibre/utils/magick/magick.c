@@ -736,7 +736,7 @@ magick_Image_add_border(magick_Image *self, PyObject *args, PyObject *kwargs) {
     PyObject *obj;
     magick_PixelWand *pw;
    
-    if (!PyArg_ParseTuple(args, "O!dd", &magick_PixelWandType, &obj, &dx, &dy)) return NULL;
+    if (!PyArg_ParseTuple(args, "O!nn", &magick_PixelWandType, &obj, &dx, &dy)) return NULL;
     pw = (magick_PixelWand*)obj;
     if (!IsPixelWand(pw->wand)) { PyErr_SetString(PyExc_TypeError, "Invalid PixelWand"); return NULL; }
 
