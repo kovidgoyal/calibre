@@ -14,56 +14,35 @@ class DiscoverMagazine(BasicNewsRecipe):
 
     title = u'Discover Magazine'
     description = u'Science, Technology and the Future'
-    __author__ = 'Starson17'
+    __author__ = 'Starson17 and Sujata Raman'
     language = 'en'
 
     oldest_article = 33
     max_articles_per_feed = 20
+
     no_stylesheets = True
     remove_javascript = True
     use_embedded_content  = False
+    linearize_tables = True
     encoding = 'utf-8'
+
     extra_css = '.headline {font-size: x-large;} \n .fact {padding-top: 10pt}'
 
+
+    keep_only_tags = [ dict(name='div', attrs={'class':['content']}),]
     remove_tags = [
-                   dict(name='div', attrs={'id':['searchModule', 'mainMenu', 'tool-box']}),
-                   dict(name='div', attrs={'id':['footer','teaser','already-subscriber','teaser-suite','related-articles']}),
-                   dict(name='div', attrs={'class':['column']}),
-                   dict(name='img', attrs={'src':'http://discovermagazine.com/onebyone.gif'})]
-
-    remove_tags_after = [dict(name='div', attrs={'class':'listingBar'})]
-
-    def append_page(self, soup, appendtag, position):
-        pager = soup.find('span',attrs={'class':'next'})
-        if pager:
-           nexturl = pager.a['href']
-           soup2 = self.index_to_soup(nexturl)
-           texttag = soup2.find('div', attrs={'class':'articlebody'})
-           newpos = len(texttag.contents)
-           self.append_page(soup2,texttag,newpos)
-           texttag.extract()
-           appendtag.insert(position,texttag)
-
-    def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="Content-Language" content="en-US"/>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>'
-        soup.head.insert(0,mtag)
-        self.append_page(soup, soup.body, 3)
-        pager = soup.find('div',attrs={'class':'listingBar'})
-        if pager:
-           pager.extract()
-        return soup
+                   dict(name='div', attrs={'class':['navigation','socialcontainer']}),
+                   dict(name='span', attrs={'class':['sociableButton']}),
+                   dict(name='p', attrs={'class':'footerBlogResume'}),
+                   dict(name='h3', attrs={'id':['comments','respond']}),
+                   dict(name='ol', attrs={'class':'commentlist'}),
+                   ]
 
     def postprocess_html(self, soup, first_fetch):
-        for tag in soup.findAll(text=re.compile('^This article is a sample')):
+
+        for tag in soup.findAll(text=re.compile('Related content')):
             tag.parent.extract()
-        for tag in soup.findAll(['table', 'tr', 'td']):
-            tag.name = 'div'
-        for tag in soup.findAll('div', attrs={'class':'discreet advert'}):
-            tag.extract()
-        for tag in soup.findAll('hr', attrs={'size':'1'}):
-            tag.extract()
-        for tag in soup.findAll('br'):
-            tag.extract()
+
         return soup
 
     feeds = [
