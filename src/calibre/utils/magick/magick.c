@@ -165,7 +165,7 @@ static PyGetSetDef  magick_DrawingWand_getsetters[] = {
      (char *)"DrawingWand font path. Absolute path to font file.",
      NULL},
 
-    {(char *)"font_size", 
+    {(char *)"font_size_", 
      (getter)magick_DrawingWand_fontsize_getter, (setter)magick_DrawingWand_fontsize_setter,
      (char *)"DrawingWand fontsize",
      NULL},
@@ -309,6 +309,53 @@ magick_Image_create_canvas(magick_Image *self, PyObject *args, PyObject *kwargs)
 }
 // }}}
 
+// Image.font_metrics {{{
+
+static PyObject *
+magick_Image_font_metrics(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    char *text;
+    PyObject *dw_, *ans, *m;
+    Py_ssize_t i;
+    DrawingWand *dw;
+    double *metrics;
+    
+    if (!PyArg_ParseTuple(args, "O!s", &magick_DrawingWandType, &dw_, &text)) return NULL;
+    dw = ((magick_DrawingWand*)dw_)->wand;
+    if (!IsDrawingWand(dw)) { PyErr_SetString(PyExc_TypeError, "Invalid drawing wand"); return NULL; }
+    ans = PyTuple_New(13);
+    if (ans == NULL)  return PyErr_NoMemory();
+
+    metrics = MagickQueryFontMetrics(self->wand, dw, text);
+
+    for (i = 0; i < 13; i++) {
+        m = PyFloat_FromDouble(metrics[i]);
+        if (m == NULL) { return PyErr_NoMemory(); }
+        PyTuple_SET_ITEM(ans, i, m);
+    }
+
+    return ans;
+}
+// }}}
+
+// Image.annotate {{{
+
+static PyObject *
+magick_Image_annotate(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    char *text;
+    PyObject *dw_;
+    DrawingWand *dw;
+    double x, y, angle;
+    
+    if (!PyArg_ParseTuple(args, "O!ddds", &magick_DrawingWandType, &dw_, &x, &y, &angle, &text)) return NULL;
+    dw = ((magick_DrawingWand*)dw_)->wand;
+    if (!IsDrawingWand(dw)) { PyErr_SetString(PyExc_TypeError, "Invalid drawing wand"); return NULL; }
+
+    if (!MagickAnnotateImage(self->wand, dw, x, y, angle, text)) return magick_set_exception(self->wand);
+
+    Py_RETURN_NONE;
+}
+// }}}
+
 // Image.export {{{
 
 static PyObject *
@@ -420,6 +467,55 @@ magick_Image_format_setter(magick_Image *self, PyObject *val, void *closure) {
 
 // }}}
 
+// Image.distort {{{
+
+static PyObject *
+magick_Image_distort(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    DistortImageMethod method;
+    Py_ssize_t i, number;
+    PyObject *bestfit, *argv, *t;
+    MagickBooleanType res;
+    double *arguments = NULL;
+   
+    if (!PyArg_ParseTuple(args, "nOO", &method, &argv, &bestfit)) return NULL;
+
+    if (!PySequence_Check(argv)) { PyErr_SetString(PyExc_TypeError, "arguments must be a sequence"); return NULL; }
+
+    number = PySequence_Length(argv);
+    if (number > 0) {
+        arguments = (double *)PyMem_Malloc(sizeof(double) * number);
+        if (arguments == NULL) return PyErr_NoMemory(); 
+        for (i = 0; i < number; i++) {
+            t = PySequence_ITEM(argv, i);
+            if (t == NULL || !PyFloat_Check(t)) { PyErr_SetString(PyExc_TypeError, "Arguments must all be floats"); PyMem_Free(arguments); return NULL; }
+            arguments[i] = PyFloat_AsDouble(t);
+        }
+    }
+
+    res = MagickDistortImage(self->wand, method, number, arguments, PyObject_IsTrue(bestfit));
+    if (arguments != NULL) PyMem_Free(arguments);
+
+    if (!res) return magick_set_exception(self->wand);
+
+    Py_RETURN_NONE;
+}
+// }}}
+
+// Image.trim {{{
+
+static PyObject *
+magick_Image_trim(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    double fuzz;
+    
+    if (!PyArg_ParseTuple(args, "d", &fuzz)) return NULL;
+
+    if (!MagickTrimImage(self->wand, fuzz)) return magick_set_exception(self->wand);
+
+    Py_RETURN_NONE;
+}
+// }}}
+
+
 // Image attr list {{{
 static PyMethodDef magick_Image_methods[] = {
     {"load", (PyCFunction)magick_Image_load, METH_VARARGS,
@@ -438,6 +534,22 @@ static PyMethodDef magick_Image_methods[] = {
 
     {"compose", (PyCFunction)magick_Image_compose, METH_VARARGS,
      "compose(img, left, top, op) \n\n Compose img using operation op at (left, top)"
+    },
+
+    {"font_metrics", (PyCFunction)magick_Image_font_metrics, METH_VARARGS,
+     "font_metrics(drawing_wand, text) \n\n Return font metrics for specified drawing wand and text."
+    },
+
+    {"annotate", (PyCFunction)magick_Image_annotate, METH_VARARGS,
+     "annotate(drawing_wand, x, y, angle, text) \n\n Annotate image with text."
+    },
+
+    {"distort", (PyCFunction)magick_Image_distort, METH_VARARGS,
+     "distort(method, arguments, best_fit) \n\n Distort image."
+    },
+
+    {"trim", (PyCFunction)magick_Image_trim, METH_VARARGS,
+     "trim(fuzz) \n\n Trim image."
     },
 
     {NULL}  /* Sentinel */

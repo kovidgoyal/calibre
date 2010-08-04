@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from calibre.utils.magick import Image, create_canvas
+from calibre.utils.magick import Image, DrawingWand, create_canvas
 
 def save_cover_data_to(data, path, bgcolor='white', resize_to=None):
     '''
@@ -42,5 +42,39 @@ def identify(path):
     '''
     data = open(path, 'rb').read()
     return identify_data(data)
+
+def add_borders_to_image(path_to_image, left=0, top=0, right=0, bottom=0,
+        border_color='white'):
+    img = Image()
+    img.open(path_to_image)
+    lwidth, lheight = img.size
+    canvas = create_canvas(lwidth+left+right, lheight+top+bottom,
+                border_color)
+    canvas.compose(img, left, top)
+    canvas.save(path_to_image)
+
+def create_text_wand(font_size, font_path=None):
+    if font_path is None:
+        font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
+    ans = DrawingWand()
+    ans.font = font_path
+    ans.font_size = font_size
+    ans.gravity = 'CenterGravity'
+    ans.text_alias = True
+    return ans
+
+def create_text_arc(text, font_size, font=None, bgcolor='white'):
+    if isinstance(text, unicode):
+        text = text.encode('utf-8')
+
+    canvas = create_canvas(300, 300, bgcolor)
+
+    tw = create_text_wand(font_size, font_path=font)
+    m = canvas.font_metrics(tw, text)
+    canvas = create_canvas(int(m.text_width)+20, int(m.text_height*3.5), bgcolor)
+    canvas.annotate(tw, 0, 0, 0, text)
+    canvas.distort("ArcDistortion", [120], True)
+    canvas.trim(0)
+    return canvas
 
 
