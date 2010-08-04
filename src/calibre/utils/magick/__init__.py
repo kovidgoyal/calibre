@@ -17,6 +17,9 @@ if _magick is None:
 _gravity_map = dict([(getattr(_magick, x), x) for x in dir(_magick) if
     x.endswith('Gravity')])
 
+_type_map = dict([(getattr(_magick, x), x) for x in dir(_magick) if
+    x.endswith('Type')])
+
 # Font metrics {{{
 class Rect(object):
 
@@ -57,6 +60,11 @@ class FontMetrics(object):
 
 # }}}
 
+class PixelWand(_magick.PixelWand): # {{{
+    pass
+
+# }}}
+
 class DrawingWand(_magick.DrawingWand): # {{{
 
     @dynamic_property
@@ -91,6 +99,12 @@ class DrawingWand(_magick.DrawingWand): # {{{
 
 class Image(_magick.Image): # {{{
 
+    @property
+    def clone(self):
+        ans = Image()
+        ans.copy(self)
+        return ans
+
     def load(self, data):
         return _magick.Image.load(self, bytes(data))
 
@@ -109,6 +123,15 @@ class Image(_magick.Image): # {{{
         def fset(self, val):
             self.format_ = str(val)
         return property(fget=fget, fset=fset, doc=_magick.Image.format_.__doc__)
+
+    @dynamic_property
+    def type(self):
+        def fget(self):
+            return _type_map[self.type_]
+        def fset(self, val):
+            val = getattr(_magick, str(val))
+            self.type_ = val
+        return property(fget=fget, fset=fset, doc=_magick.Image.type_.__doc__)
 
 
     @dynamic_property
@@ -160,6 +183,14 @@ class Image(_magick.Image): # {{{
         arguments = [float(x) for x in arguments]
         _magick.Image.distort(self, method, arguments, bestfit)
 
+    def rotate(self, background_pixel_wand, degrees):
+        _magick.Image.rotate(self, background_pixel_wand, float(degrees))
+
+    def quantize(self, number_colors, colorspace='RGBColorspace', treedepth=0, dither=True,
+            measure_error=False):
+        colorspace = getattr(_magick, colorspace)
+        _magick.Image.quantize(self, number_colors, colorspace, treedepth, dither,
+                measure_error)
 
 # }}}
 

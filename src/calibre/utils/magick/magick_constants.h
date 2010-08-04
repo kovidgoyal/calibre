@@ -263,4 +263,27 @@ static void magick_add_module_constants(PyObject *m) {
     PyModule_AddIntConstant(m, "SouthGravity", 8);
     PyModule_AddIntConstant(m, "SouthEastGravity", 9);
     PyModule_AddIntConstant(m, "StaticGravity", 10);
+    PyModule_AddIntConstant(m, "UndefinedColorspace", 0);
+    PyModule_AddIntConstant(m, "RGBColorspace", 1);
+    PyModule_AddIntConstant(m, "GRAYColorspace", 2);
+    PyModule_AddIntConstant(m, "TransparentColorspace", 3);
+    PyModule_AddIntConstant(m, "OHTAColorspace", 4);
+    PyModule_AddIntConstant(m, "LabColorspace", 5);
+    PyModule_AddIntConstant(m, "XYZColorspace", 6);
+    PyModule_AddIntConstant(m, "YCbCrColorspace", 7);
+    PyModule_AddIntConstant(m, "YCCColorspace", 8);
+    PyModule_AddIntConstant(m, "YIQColorspace", 9);
+    PyModule_AddIntConstant(m, "YPbPrColorspace", 10);
+    PyModule_AddIntConstant(m, "YUVColorspace", 11);
+    PyModule_AddIntConstant(m, "CMYKColorspace", 12);
+    PyModule_AddIntConstant(m, "sRGBColorspace", 13);
+    PyModule_AddIntConstant(m, "HSBColorspace", 14);
+    PyModule_AddIntConstant(m, "HSLColorspace", 15);
+    PyModule_AddIntConstant(m, "HWBColorspace", 16);
+    PyModule_AddIntConstant(m, "Rec601LumaColorspace", 17);
+    PyModule_AddIntConstant(m, "Rec601YCbCrColorspace", 18);
+    PyModule_AddIntConstant(m, "Rec709LumaColorspace", 19);
+    PyModule_AddIntConstant(m, "Rec709YCbCrColorspace", 20);
+    PyModule_AddIntConstant(m, "LogColorspace", 21);
+    PyModule_AddIntConstant(m, "CMYColorspace", 22);
 }
