@@ -655,6 +655,9 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="generate_cover_button">
+                      <property name="toolTip">
+                       <string>Generate a default cover based on the title and author</string>
+                      </property>
                       <property name="text">
                        <string>&amp;Generate cover</string>
                       </property>
