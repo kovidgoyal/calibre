@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 
 from calibre.utils.magick import Image, DrawingWand, create_canvas
+from calibre.constants import __appname__, __version__
 
 def save_cover_data_to(data, path, bgcolor='white', resize_to=None):
     '''
@@ -77,4 +78,87 @@ def create_text_arc(text, font_size, font=None, bgcolor='white'):
     canvas.trim(0)
     return canvas
 
+def _get_line(img, dw, tokens, line_width):
+    line, rest = tokens, []
+    while True:
+        m = img.font_metrics(dw, ' '.join(line))
+        width, height = m.text_width, m.text_height
+        if width < line_width:
+            return line, rest
+        rest = line[-1:] + rest
+        line = line[:-1]
+
+def annotate_img(img, dw, left, top, rotate, text,
+        translate_from_top_left=True):
+    if isinstance(text, unicode):
+        text = text.encode('utf-8')
+    if translate_from_top_left:
+        m = img.font_metrics(dw, text)
+        img_width, img_height = img.size
+        left = left - img_width/2. + m.text_width/2.
+        top  = top - img_height/2. + m.text_height/2.
+    img.annotate(dw, left, top, rotate, text)
+
+def draw_centered_line(img, dw, line, top):
+    m = img.font_metrics(dw, line)
+    width, height = m.text_width, m.text_height
+    img_width = img.size[0]
+    left = max(int((img_width - width)/2.), 0)
+    annotate_img(img, dw, left, top, 0, line)
+    return top + height
+
+def draw_centered_text(img, dw, text, top, margin=10):
+    img_width = img.size[0]
+    tokens = text.split(' ')
+    while tokens:
+        line, tokens = _get_line(img, dw, tokens, img_width-2*margin)
+        if not line:
+            # Could not fit the first token on the line
+            line = tokens[:1]
+            tokens = tokens[1:]
+        bottom = draw_centered_line(img, dw, ' '.join(line), top)
+        top = bottom
+    return top
+
+class TextLine(object):
+
+    def __init__(self, text, font_size, bottom_margin=30, font_path=None):
+        self.text, self.font_size, = text, font_size
+        self.bottom_margin = bottom_margin
+        self.font_path = font_path
+
+    def __repr__(self):
+        return u'TextLine:%r:%f'%(self.text, self.font_size)
+
+
+def create_cover_page(top_lines, logo_path, width=590, height=750,
+        bgcolor='white', output_format='jpg'):
+    '''
+    Create the standard calibre cover page and return it as a byte string in
+    the specified output_format.
+    '''
+    canvas = create_canvas(width, height, bgcolor)
+
+    bottom = 10
+    for line in top_lines:
+        twand = create_text_wand(line.font_size, font_path=line.font_path)
+        bottom = draw_centered_text(canvas, twand, line.text, bottom)
+        bottom += line.bottom_margin
+    bottom -= top_lines[-1].bottom_margin
+
+    vanity = create_text_arc(__appname__ + ' ' + __version__, 24,
+            font=P('fonts/liberation/LiberationMono-Regular.ttf'))
+    lwidth, lheight = vanity.size
+    left = int(max(0, (width - lwidth)/2.))
+    top  = height - lheight - 10
+    canvas.compose(vanity, left, top)
+
+    logo = Image()
+    logo.open(logo_path)
+    lwidth, lheight = logo.size
+    left = int(max(0, (width - lwidth)/2.))
+    top  = max(int((height - lheight)/2.), bottom+20)
+    canvas.compose(logo, left, top)
+
+    return canvas.export(output_format)
 

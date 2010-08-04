@@ -653,6 +653,13 @@
                       </property>
                      </widget>
                     </item>
+                    <item>
+                     <widget class="QPushButton" name="generate_cover_button">
+                      <property name="text">
+                       <string>&amp;Generate cover</string>
+                      </property>
+                     </widget>
+                    </item>
                    </layout>
                   </item>
                  </layout>
@@ -736,15 +743,17 @@
   <tabstop>fetch_metadata_button</tabstop>
   <tabstop>add_format_button</tabstop>
   <tabstop>remove_format_button</tabstop>
+  <tabstop>button_set_cover</tabstop>
+  <tabstop>button_set_metadata</tabstop>
+  <tabstop>formats</tabstop>
   <tabstop>cover_path</tabstop>
   <tabstop>cover_button</tabstop>
   <tabstop>reset_cover</tabstop>
   <tabstop>fetch_cover_button</tabstop>
-  <tabstop>button_set_cover</tabstop>
-  <tabstop>formats</tabstop>
-  <tabstop>button_set_metadata</tabstop>
-  <tabstop>button_box</tabstop>
+  <tabstop>generate_cover_button</tabstop>
   <tabstop>scrollArea</tabstop>
+  <tabstop>central_widget</tabstop>
+  <tabstop>button_box</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../resources/images.qrc"/>

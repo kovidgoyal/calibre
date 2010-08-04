@@ -142,6 +142,21 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     self.cpixmap = pix
                     self.cover_data = cover
 
+    def generate_cover(self, *args):
+        from calibre.utils.magick.draw import create_cover_page, TextLine
+        title = unicode(self.title.text()).strip()
+        author = unicode(self.authors.text()).strip()
+        if not title or not author:
+            return error_dialog(self, _('Specify title and author'),
+                    _('You must specify a title and author before generating '
+                        'a cover'), show=True)
+        lines = [TextLine(title, 44), TextLine(author, 32)]
+        self.cover_data = create_cover_page(lines, I('library.png'))
+        pix = QPixmap()
+        pix.loadFromData(self.cover_data)
+        self.cover.setPixmap(pix)
+        self.cover_changed = True
+        self.cpixmap = pix
 
     def add_format(self, x):
         files = choose_files(self, 'add formats dialog',
@@ -425,6 +440,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.central_widget.tabBar().setVisible(False)
         else:
             self.create_custom_column_editors()
+        self.generate_cover_button.clicked.connect(self.generate_cover)
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
