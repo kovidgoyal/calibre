@@ -233,7 +233,8 @@ magick_DrawingWand_fontsize_setter(magick_DrawingWand *self, PyObject *val, void
 // DrawingWand.text_antialias {{{
 static PyObject *
 magick_DrawingWand_textantialias_getter(magick_DrawingWand *self, void *closure) {
-    return PyBool_FromLong((long)DrawGetTextAntialias(self->wand));
+    if (DrawGetTextAntialias(self->wand)) Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
 }
 
 static int
@@ -257,7 +258,7 @@ magick_DrawingWand_gravity_getter(magick_DrawingWand *self, void *closure) {
 
 static int
 magick_DrawingWand_gravity_setter(magick_DrawingWand *self, PyObject *val, void *closure) {
-    GravityType grav;
+    int grav;
 
     if (val == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete DrawingWand gravity");
@@ -269,7 +270,7 @@ magick_DrawingWand_gravity_setter(magick_DrawingWand *self, PyObject *val, void 
         return -1;
     }
 
-    grav = PyInt_AsSsize_t(val);
+    grav = (int)PyInt_AS_LONG(val);
 
     DrawSetGravity(self->wand, grav);
 
@@ -522,7 +523,7 @@ magick_Image_size_getter(magick_Image *self, void *closure) {
 static int
 magick_Image_size_setter(magick_Image *self, PyObject *val, void *closure) {
     Py_ssize_t width, height;
-    FilterTypes filter;
+    int filter;
     double blur;
     MagickBooleanType res;
 
@@ -536,9 +537,15 @@ magick_Image_size_setter(magick_Image *self, PyObject *val, void *closure) {
         return -1;
     }
 
+    if (!PyInt_Check(PySequence_ITEM(val, 2))) {
+        PyErr_SetString(PyExc_TypeError, "Filter must be an integer");
+        return -1;
+    }
+
+
     width = PyInt_AsSsize_t(PySequence_ITEM(val, 0));
     height = PyInt_AsSsize_t(PySequence_ITEM(val, 1));
-    filter = (FilterTypes)PyInt_AsSsize_t(PySequence_ITEM(val, 2));
+    filter = (int)PyInt_AS_LONG(PySequence_ITEM(val, 2));
     blur = PyFloat_AsDouble(PySequence_ITEM(val, 3));
 
     if (PyErr_Occurred()) {
@@ -597,13 +604,13 @@ magick_Image_format_setter(magick_Image *self, PyObject *val, void *closure) {
 
 static PyObject *
 magick_Image_distort(magick_Image *self, PyObject *args, PyObject *kwargs) {
-    DistortImageMethod method;
+    int method;
     Py_ssize_t i, number;
     PyObject *bestfit, *argv, *t;
     MagickBooleanType res;
     double *arguments = NULL;
    
-    if (!PyArg_ParseTuple(args, "nOO", &method, &argv, &bestfit)) return NULL;
+    if (!PyArg_ParseTuple(args, "iOO", &method, &argv, &bestfit)) return NULL;
 
     if (!PySequence_Check(argv)) { PyErr_SetString(PyExc_TypeError, "arguments must be a sequence"); return NULL; }
 
@@ -661,7 +668,7 @@ static PyObject *
 magick_Image_crop(magick_Image *self, PyObject *args, PyObject *kwargs) {
     Py_ssize_t width, height, x, y;
     
-    if (!PyArg_ParseTuple(args, "dddd", &width, &height, &x, &y)) return NULL;
+    if (!PyArg_ParseTuple(args, "nnnn", &width, &height, &x, &y)) return NULL;
 
     if (!MagickCropImage(self->wand, width, height, x, y)) return magick_set_exception(self->wand);
 
@@ -710,7 +717,7 @@ static PyObject *
 magick_Image_set_page(magick_Image *self, PyObject *args, PyObject *kwargs) {
     Py_ssize_t width, height, x, y;
     
-    if (!PyArg_ParseTuple(args, "dddd", &width, &height, &x, &y)) return NULL;
+    if (!PyArg_ParseTuple(args, "nnnn", &width, &height, &x, &y)) return NULL;
 
     if (!MagickSetImagePage(self->wand, width, height, x, y)) return magick_set_exception(self->wand);
 
@@ -765,10 +772,10 @@ magick_Image_sharpen(magick_Image *self, PyObject *args, PyObject *kwargs) {
 static PyObject *
 magick_Image_quantize(magick_Image *self, PyObject *args, PyObject *kwargs) {
     Py_ssize_t number_colors, treedepth;
-    ColorspaceType colorspace;
+    int colorspace;
     PyObject *dither, *measure_error;
    
-    if (!PyArg_ParseTuple(args, "nnnOO", &number_colors, &colorspace, &treedepth, &dither, &measure_error)) return NULL;
+    if (!PyArg_ParseTuple(args, "ninOO", &number_colors, &colorspace, &treedepth, &dither, &measure_error)) return NULL;
 
     if (!MagickQuantizeImage(self->wand, number_colors, colorspace, treedepth, PyObject_IsTrue(dither), PyObject_IsTrue(measure_error))) return magick_set_exception(self->wand);
 
@@ -794,14 +801,19 @@ magick_Image_type_getter(magick_Image *self, void *closure) {
 
 static int
 magick_Image_type_setter(magick_Image *self, PyObject *val, void *closure) {
-    ImageType type;
+    int type;
 
     if (val == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete image type");
         return -1;
     }
 
-    type = (ImageType)PyInt_AsSsize_t(val);
+    if (!PyInt_Check(val)) {
+        PyErr_SetString(PyExc_TypeError, "Type must be an integer");
+        return -1;
+    }
+
+    type = (int)PyInt_AS_LONG(val);
     if (!MagickSetImageType(self->wand, type)) {
         PyErr_SetString(PyExc_ValueError, "Unknown image type");
         return -1;
