@@ -8,13 +8,13 @@ __docformat__ = 'restructuredtext en'
 
 import os, traceback, cStringIO, re
 
-from calibre.utils.config import Config, StringConfig
+from calibre.utils.config import Config, StringConfig, tweaks
 from calibre.utils.filenames import shorten_components_to, supports_long_names, \
                                     ascii_filename, sanitize_file_name
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import preferred_encoding, filesystem_encoding
-
+from calibre.ebooks.metadata import title_sort
 from calibre import strftime
 
 DEFAULT_TEMPLATE = '{author_sort}/{title}/{title} - {authors}'
@@ -110,9 +110,11 @@ def safe_format(x, format_args):
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,
         to_lowercase=False):
+    library_order = tweaks['save_template_title_series_sorting'] == 'library_order'
+    tsfmt = title_sort if library_order else lambda x: x
     format_args = dict(**FORMAT_ARGS)
     if mi.title:
-        format_args['title'] = mi.title
+        format_args['title'] = tsfmt(mi.title)
     if mi.authors:
         format_args['authors'] = mi.format_authors()
         format_args['author'] = format_args['authors']
@@ -123,7 +125,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
         if format_args['tags'].startswith('/'):
             format_args['tags'] = format_args['tags'][1:]
     if mi.series:
-        format_args['series'] = mi.series
+        format_args['series'] = tsfmt(mi.series)
         if mi.series_index is not None:
             format_args['series_index'] = mi.format_series_index()
     else:
