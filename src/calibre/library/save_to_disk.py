@@ -99,7 +99,8 @@ def preprocess_template(template):
 
 def safe_format(x, format_args):
     try:
-        return x.format(**format_args).strip()
+        ans = x.format(**format_args).strip()
+        return re.sub(r'\s+', ' ', ans)
     except IndexError: # Thrown if user used [] and index is out of bounds
         pass
     except AttributeError: # Thrown if user used a non existing attribute
