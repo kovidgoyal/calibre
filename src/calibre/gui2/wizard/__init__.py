@@ -29,6 +29,8 @@ from calibre.utils.config import dynamic, prefs
 from calibre.gui2 import NONE, choose_dir, error_dialog
 from calibre.gui2.dialogs.progress import ProgressDialog
 
+# Devices {{{
+
 class Device(object):
 
     output_profile = 'default'
@@ -209,6 +211,7 @@ class EZReaderPP(HanlinV5):
     manufacturer = 'Astak'
     id = 'ezreader_pp'
 
+# }}}
 
 def get_devices():
     for x in globals().values():
