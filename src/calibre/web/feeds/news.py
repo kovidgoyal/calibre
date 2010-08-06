@@ -1095,7 +1095,10 @@ class BasicNewsRecipe(Recipe):
     def create_opf(self, feeds, dir=None):
         if dir is None:
             dir = self.output_dir
-        mi = MetaInformation(self.short_title() + strftime(self.timefmt), [__appname__])
+        title = self.short_title()
+        if self.output_profile.periodical_date_in_title:
+            title += strftime(self.timefmt)
+        mi = MetaInformation(title, [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
         mi.publication_type = 'periodical:'+self.publication_type

@@ -166,9 +166,9 @@ class iPhone(Device):
 
 class Android(Device):
 
-    name = 'Adroid phone + WordPlayer'
+    name = 'Adroid phone + WordPlayer/Aldiko'
     output_format = 'EPUB'
-    manufacturer = 'Google/HTC'
+    manufacturer = 'Android'
     id = 'android'
 
 class HanlinV3(Device):
