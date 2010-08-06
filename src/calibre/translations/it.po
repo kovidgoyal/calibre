@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-31 01:57+0000\n"
-"PO-Revision-Date: 2010-08-03 08:48+0000\n"
+"PO-Revision-Date: 2010-08-05 13:32+0000\n"
 "Last-Translator: MeltingShell <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-04 03:32+0000\n"
+"X-Launchpad-Export-Date: 2010-08-06 03:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -4248,7 +4248,7 @@ msgstr "Output FB2"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:47
 msgid "&Inline TOC"
-msgstr "&Tavola dei contenuti nel testo"
+msgstr "&Indice nel testo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:99
 msgid "Font rescaling wizard"
@@ -4856,7 +4856,7 @@ msgstr "Inserire i &metadati come prima pagina del libro"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "&Preprocess input file to possibly improve structure detection"
 msgstr ""
-"&Preprocess il documento sorgente per migliorare il rilevamento della "
+"&Preprocessa il documento sorgente per migliorare il rilevamento della "
 "struttura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:65
@@ -4871,9 +4871,7 @@ msgstr "Rimuovi l'&intestazione"
 msgid ""
 "Table of\n"
 "Contents"
-msgstr ""
-"Indice dei\n"
-"Contenuti"
+msgstr "Indice"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:18
 msgid "Control the creation/conversion of the Table of Contents."
@@ -4881,15 +4879,15 @@ msgstr "Controllo della creazione/conversione dell'indice."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:29
 msgid "Level &1 TOC (XPath expression):"
-msgstr "Livello &1 tavola dei contenuti (espressione XPath)"
+msgstr "Livello &1 indice (espressione XPath):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:30
 msgid "Level &2 TOC (XPath expression):"
-msgstr "Livello &2 tavola dei contenuti (espressione XPath)"
+msgstr "Livello &2 indice (espressione XPath):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:31
 msgid "Level &3 TOC (XPath expression):"
-msgstr "Livello &3 tavola dei contenuti (espressione XPath)"
+msgstr "Livello &3 indice (espressione XPath):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:63
 msgid "Do not add &detected chapters to the Table of Contents"
