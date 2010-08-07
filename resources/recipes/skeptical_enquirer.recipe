@@ -1,0 +1,50 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class TheSkepticalInquirer(BasicNewsRecipe):
+    title          = u'The Skeptical Inquirer'
+    description    = 'Investigation of fringe science and paranormal claims.'
+    language       = 'en'
+    __author__     = 'Starson17'
+    oldest_article = 31
+    cover_url           = 'http://www.skeptricks.com/images/Skeptical_Inquirer_Magazine.jpg'
+    remove_empty_feeds    = True
+    remove_javascript   = True
+    max_articles_per_feed = 50
+    no_stylesheets = True
+
+    keep_only_tags = [dict(name='div', attrs={'id':['content', 'bio']})]
+
+    remove_tags = [
+                  dict(name='div', attrs={'id':['socialMedia']}),
+                  ]
+
+    preprocess_regexps = [
+        (re.compile(r'\.\(JavaScript must be enabled to view this email address\)', re.DOTALL|re.IGNORECASE), lambda match: ''),
+        ]
+
+    def parse_index(self):
+        feeds = []
+        for title, url in [("The Skeptical Inquirer", "http://www.csicop.org")]:
+            articles = self.make_links(url)
+            if articles:
+                feeds.append((title, articles))
+        return feeds
+
+    def make_links(self, url):
+        soup = self.index_to_soup(url)
+        title = ''
+        current_articles = []
+        for item in soup.findAll(attrs={'class':['article-single bigger']}):
+            page_url = url + str(item.a["href"])
+            title = str(item.a.string)
+            current_articles.append({'title': title, 'url': page_url, 'description':'', 'date':''})
+        return current_articles
+
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+		'''
+
