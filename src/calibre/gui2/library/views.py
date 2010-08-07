@@ -214,13 +214,17 @@ class BooksView(QTableView): # {{{
                 state['column_sizes'][name] = h.sectionSize(i)
         return state
 
+    def write_state(self, state):
+        db = getattr(self.model(), 'db', None)
+        name = unicode(self.objectName())
+        if name and db is not None:
+            db.prefs.set(name + ' books view state', state)
+
     def save_state(self):
         # Only save if we have been initialized (set_database called)
         if len(self.column_map) > 0 and self.was_restored:
             state = self.get_state()
-            name = unicode(self.objectName())
-            if name:
-                gprefs.set(name + ' books view state', state)
+            self.write_state(state)
 
     def cleanup_sort_history(self, sort_history):
         history = []
@@ -298,11 +302,27 @@ class BooksView(QTableView): # {{{
                     old_state['column_sizes'][name] += 12
         return old_state
 
-    def restore_state(self):
+    def get_old_state(self):
+        ans = None
         name = unicode(self.objectName())
-        old_state = None
         if name:
-            old_state = gprefs.get(name + ' books view state', None)
+            name += ' books view state'
+            db = getattr(self.model(), 'db', None)
+            if db is not None:
+                ans = db.prefs.get(name, None)
+                if ans is None:
+                    ans = gprefs.get(name, None)
+                    try:
+                        del gprefs[name]
+                    except:
+                        pass
+                    if ans is not None:
+                        db.prefs[name] = ans
+        return ans
+
+
+    def restore_state(self):
+        old_state = self.get_old_state()
         if old_state is None:
             old_state = self.get_default_state()
 
@@ -370,7 +390,7 @@ class BooksView(QTableView): # {{{
 
     # Context Menu {{{
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
-                         save, open_folder, book_details, delete,
+                         save, open_folder, book_details, delete, conn_share,
                          similar_menu=None, add_to_library=None,
                          edit_device_collections=None):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
@@ -381,6 +401,8 @@ class BooksView(QTableView): # {{{
             self.context_menu.addAction(send_to_device)
         if convert is not None:
             self.context_menu.addAction(convert)
+        if conn_share is not None:
+            self.context_menu.addAction(conn_share)
         self.context_menu.addAction(view)
         self.context_menu.addAction(save)
         if open_folder is not None:
@@ -456,14 +478,20 @@ class BooksView(QTableView): # {{{
     def set_current_row(self, row, select=True):
         if row > -1:
             h = self.horizontalHeader()
-            for i in range(h.count()):
-                if not h.isSectionHidden(i):
-                    index = self.model().index(row, i)
-                    self.setCurrentIndex(index)
-                    if select:
-                        sm = self.selectionModel()
-                        sm.select(index, sm.ClearAndSelect|sm.Rows)
-                    break
+            logical_indices = list(range(h.count()))
+            logical_indices = [x for x in logical_indices if not
+                    h.isSectionHidden(x)]
+            pairs = [(x, h.visualIndex(x)) for x in logical_indices if
+                    h.visualIndex(x) > -1]
+            if not pairs:
+                pairs = [(0, 0)]
+            pairs.sort(cmp=lambda x,y:cmp(x[1], y[1]))
+            i = pairs[0][0]
+            index = self.model().index(row, i)
+            self.setCurrentIndex(index)
+            if select:
+                sm = self.selectionModel()
+                sm.select(index, sm.ClearAndSelect|sm.Rows)
 
     def close(self):
         self._model.close()
@@ -503,9 +531,22 @@ class DeviceBooksView(BooksView): # {{{
         self.edit_collections_menu.setVisible(
             callable(getattr(self._model.db, 'supports_collections', None)) and \
             self._model.db.supports_collections() and \
-            prefs['preserve_user_collections'])
+            prefs['manage_device_metadata'] == 'manual')
         self.context_menu.popup(event.globalPos())
         event.accept()
+
+    def get_old_state(self):
+        ans = None
+        name = unicode(self.objectName())
+        if name:
+            name += ' books view state'
+            ans = gprefs.get(name, None)
+        return ans
+
+    def write_state(self, state):
+        name = unicode(self.objectName())
+        if name:
+            gprefs.set(name + ' books view state', state)
 
     def set_database(self, db):
         self._model.set_database(db)

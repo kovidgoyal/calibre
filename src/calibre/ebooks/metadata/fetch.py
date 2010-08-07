@@ -10,11 +10,27 @@ from calibre import prints
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import default_log
 from calibre.customize import Plugin
-from calibre.ebooks.metadata.library_thing import check_for_cover
+from calibre.ebooks.metadata.covers import check_for_cover
 
 metadata_config = None
 
 class MetadataSource(Plugin): # {{{
+    '''
+    Represents a source to query for metadata. Subclasses must implement
+    at least the fetch method.
+
+    When :meth:`fetch` is called, the `self` object will have the following
+    useful attributes (each of which may be None)::
+
+        title, book_author, publisher, isbn, log, verbose and extra
+
+    Use these attributes to construct the search query. extra is reserved for
+    future use.
+
+    The fetch method must store the results in `self.results` as a list of
+    :class:`MetaInformation` objects. If there is an error, it should be stored
+    in `self.exception` and `self.tb` (for the traceback).
+    '''
 
     author = 'Kovid Goyal'
 
@@ -273,11 +289,10 @@ def filter_metadata_results(item):
 
 def do_cover_check(item):
     item.has_cover = False
-    if item.isbn:
-        try:
-            item.has_cover = check_for_cover(item.isbn)
-        except:
-            pass # Cover not found
+    try:
+        item.has_cover = check_for_cover(item)
+    except:
+        pass # Cover not found
 
 def check_for_covers(items):
     threads = [Thread(target=do_cover_check, args=(item,)) for item in items]

@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys
 from threading import RLock
 
-from PyQt4.Qt import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
+from PyQt4.Qt import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, \
                          QByteArray, QTranslator, QCoreApplication, QThread, \
                          QEvent, QTimer, pyqtSignal, QDate, QDesktopServices, \
                          QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
@@ -33,10 +33,6 @@ def _config():
               help=_('Send file to storage card instead of main memory by default'))
     c.add_opt('confirm_delete', default=False,
               help=_('Confirm before deleting'))
-    c.add_opt('toolbar_icon_size', default=QSize(48, 48),
-              help=_('Toolbar icon size')) # value QVariant.toSize
-    c.add_opt('show_text_in_toolbar', default=True,
-              help=_('Show button labels in the toolbar'))
     c.add_opt('main_window_geometry', default=None,
               help=_('Main window geometry')) # value QVariant.toByteArray
     c.add_opt('new_version_notification', default=True,
@@ -333,6 +329,7 @@ class FileIconProvider(QFileIconProvider):
              'epub'    : 'epub',
              'fb2'     : 'fb2',
              'rtf'     : 'rtf',
+             'odt'     : 'odt',
              }
 
     def __init__(self):

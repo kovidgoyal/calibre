@@ -5,7 +5,7 @@
 API Documentation for plugins
 ===============================
 
-.. module:: calibre.customize.__init__
+.. module:: calibre.customize
     :synopsis: Defines various abstract base classes that can be subclassed to create plugins.
 
 Defines various abstract base classes that can be subclassed to create powerful plugins. The useful
@@ -20,113 +20,141 @@ classes are:
 Plugin
 -----------------
 
-.. class:: Plugin
-
-    Abstract base class that contains a number of members and methods to create your plugin. All
-    plugins must inherit from this class or a subclass of it.
-
-    The members and methods are:
-
-.. automember:: Plugin.name
-
-.. automember:: Plugin.author
-
-.. automember:: Plugin.description
-
-.. automember:: Plugin.version
-
-.. automember:: Plugin.supported_platforms
-
-.. automember:: Plugin.priority
-
-.. automember:: Plugin.minimum_calibre_version
-
-.. automember:: Plugin.can_be_disabled
-
-.. automethod:: Plugin.initialize
-
-.. automethod:: Plugin.customization_help
-
-.. automethod:: Plugin.temporary_file
+.. autoclass:: Plugin
+   :members:
+   :member-order: bysource
 
 .. _pluginsFTPlugin:
 
 FileTypePlugin
 -----------------
 
-.. class:: Plugin
-
-    Abstract base class that contains a number of members and methods to create your file type plugin. All file type
-    plugins must inherit from this class or a subclass of it.
-
-    The members and methods are:
-
-.. automember:: FileTypePlugin.file_types
-
-.. automember:: FileTypePlugin.on_import
-
-.. automember:: FileTypePlugin.on_preprocess
-
-.. automember:: FileTypePlugin.on_postprocess
-
-.. automethod:: FileTypePlugin.run
+.. autoclass:: FileTypePlugin
+   :show-inheritance:
+   :members:
+   :member-order: bysource
 
 .. _pluginsMetadataPlugin:
 
 Metadata plugins
 -------------------
 
-.. class:: MetadataReaderPlugin
-
-    Abstract base class that contains a number of members and methods to create your metadata reader plugin. All metadata
-    reader plugins must inherit from this class or a subclass of it.
-
-    The members and methods are:
-
-.. automember:: MetadataReaderPlugin.file_types
-
-.. automethod:: MetadataReaderPlugin.get_metadata
+.. autoclass:: MetadataReaderPlugin
+   :show-inheritance:
+   :members:
+   :member-order: bysource
 
 
-.. class:: MetadataWriterPlugin
-
-    Abstract base class that contains a number of members and methods to create your metadata writer plugin. All metadata
-    writer plugins must inherit from this class or a subclass of it.
-
-    The members and methods are:
-
-.. automember:: MetadataWriterPlugin.file_types
-
-.. automethod:: MetadataWriterPlugin.set_metadata
-
+.. autoclass:: MetadataWriterPlugin
+   :show-inheritance:
+   :members:
+   :member-order: bysource
 
 .. _pluginsMetadataSource:
+
+Catalog plugins
+----------------
+
+.. autoclass:: CatalogPlugin
+   :show-inheritance:
+   :members:
+   :member-order: bysource
+
 
 Metadata download plugins
 --------------------------
 
-.. class:: calibre.ebooks.metadata.fetch.MetadataSource
+.. module:: calibre.ebooks.metadata.fetch
 
-    Represents a source to query for metadata. Subclasses must implement
-    at least the fetch method.
+.. autoclass:: MetadataSource
+   :show-inheritance:
+   :members:
+   :member-order: bysource
 
-    When :meth:`fetch` is called, the `self` object will have the following
-    useful attributes (each of which may be None)::
+.. autoclass:: calibre.ebooks.metadata.covers.CoverDownload
+   :show-inheritance:
+   :members:
+   :member-order: bysource
 
-        title, book_author, publisher, isbn, log, verbose and extra
+Conversion plugins
+--------------------
 
-    Use these attributes to construct the search query. extra is reserved for
-    future use.
+.. module:: calibre.customize.conversion
 
-    The fetch method must store the results in `self.results` as a list of
-    :class:`MetaInformation` objects. If there is an error, it should be stored
-    in `self.exception` and `self.tb` (for the traceback).
+.. autoclass:: InputFormatPlugin
+   :show-inheritance:
+   :members:
+   :member-order: bysource
 
-.. automember:: calibre.ebooks.metadata.fetch.MetadataSource.metadata_type
+.. autoclass:: OutputFormatPlugin
+   :show-inheritance:
+   :members:
+   :member-order: bysource
 
-.. automember:: calibre.ebooks.metadata.fetch.MetadataSource.string_customization_help
+Device Drivers
+-----------------
 
-.. automethod:: calibre.ebooks.metadata.fetch.MetadataSource.fetch
+.. module:: calibre.devices.interface
 
+The base class for all device drivers is :class:`DevicePlugin`. However, if your device exposes itself as a USBMS drive to the operating system, you should use the USBMS class instead as it implements all the logic needed to support these kinds of devices.
+
+.. autoclass:: DevicePlugin
+   :show-inheritance:
+   :members:
+   :member-order: bysource
+
+.. autoclass:: BookList
+   :show-inheritance:
+   :members:
+   :member-order: bysource
+
+
+USB Mass Storage based devices
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The base class for such devices is :class:`calibre.devices.usbms.driver.USBMS`. This class in turn inherits some of its functionality from its bases, documented below. A typical basic USBMS based driver looks like this:
+
+.. code-block:: python
+
+    from calibre.devices.usbms.driver import USBMS
+
+    class PDNOVEL(USBMS):
+        name = 'Pandigital Novel device interface'
+        gui_name = 'PD Novel'
+        description = _('Communicate with the Pandigital Novel')
+        author = 'Kovid Goyal'
+        supported_platforms = ['windows', 'linux', 'osx']
+        FORMATS = ['epub', 'pdf']
+
+        VENDOR_ID   = [0x18d1]
+        PRODUCT_ID  = [0xb004]
+        BCD         = [0x224]
+
+        VENDOR_NAME = 'ANDROID'
+        WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '__UMS_COMPOSITE'
+        THUMBNAIL_HEIGHT = 144
+
+        EBOOK_DIR_MAIN = 'eBooks'
+        SUPPORTS_SUB_DIRS = False
+
+        def upload_cover(self, path, filename, metadata):
+            coverdata = getattr(metadata, 'thumbnail', None)
+            if coverdata and coverdata[2]:
+                with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
+                    coverfile.write(coverdata[2])
+
+.. autoclass:: calibre.devices.usbms.device.Device
+   :show-inheritance:
+   :members:
+   :member-order: bysource
+
+.. autoclass:: calibre.devices.usbms.cli.CLI
+   :members:
+   :member-order: bysource
+
+.. autoclass:: calibre.devices.usbms.driver.USBMS
+   :show-inheritance:
+   :members:
+   :member-order: bysource
 
 

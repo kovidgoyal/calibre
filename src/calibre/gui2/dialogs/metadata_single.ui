@@ -277,12 +277,6 @@
                     </property>
                     <item>
                      <widget class="EnComboBox" name="series">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
                       <property name="toolTip">
                        <string>List of known series. You can add new series.</string>
                       </property>
@@ -294,9 +288,6 @@
                       </property>
                       <property name="insertPolicy">
                        <enum>QComboBox::InsertAlphabetically</enum>
-                      </property>
-                      <property name="sizeAdjustPolicy">
-                       <enum>QComboBox::AdjustToContents</enum>
                       </property>
                      </widget>
                     </item>
@@ -662,6 +653,16 @@
                       </property>
                      </widget>
                     </item>
+                    <item>
+                     <widget class="QPushButton" name="generate_cover_button">
+                      <property name="toolTip">
+                       <string>Generate a default cover based on the title and author</string>
+                      </property>
+                      <property name="text">
+                       <string>&amp;Generate cover</string>
+                      </property>
+                     </widget>
+                    </item>
                    </layout>
                   </item>
                  </layout>
@@ -745,15 +746,17 @@
   <tabstop>fetch_metadata_button</tabstop>
   <tabstop>add_format_button</tabstop>
   <tabstop>remove_format_button</tabstop>
+  <tabstop>button_set_cover</tabstop>
+  <tabstop>button_set_metadata</tabstop>
+  <tabstop>formats</tabstop>
   <tabstop>cover_path</tabstop>
   <tabstop>cover_button</tabstop>
   <tabstop>reset_cover</tabstop>
   <tabstop>fetch_cover_button</tabstop>
-  <tabstop>button_set_cover</tabstop>
-  <tabstop>formats</tabstop>
-  <tabstop>button_set_metadata</tabstop>
-  <tabstop>button_box</tabstop>
+  <tabstop>generate_cover_button</tabstop>
   <tabstop>scrollArea</tabstop>
+  <tabstop>central_widget</tabstop>
+  <tabstop>button_box</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../resources/images.qrc"/>

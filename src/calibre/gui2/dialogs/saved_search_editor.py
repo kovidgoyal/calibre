@@ -25,8 +25,8 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
         self.current_search_name = None
         self.searches = {}
         self.searches_to_delete = []
-        for name in saved_searches.names():
-            self.searches[name] = saved_searches.lookup(name)
+        for name in saved_searches().names():
+            self.searches[name] = saved_searches().lookup(name)
 
         self.populate_search_list()
         if initial_search is not None and initial_search in self.searches:
@@ -78,7 +78,7 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
         if self.current_search_name:
             self.searches[self.current_search_name] = unicode(self.search_text.toPlainText())
         for name in self.searches_to_delete:
-            saved_searches.delete(name)
+            saved_searches().delete(name)
         for name in self.searches:
-            saved_searches.add(name, self.searches[name])
+            saved_searches().add(name, self.searches[name])
         QDialog.accept(self)

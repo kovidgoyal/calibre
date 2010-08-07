@@ -183,7 +183,8 @@ class ContentServer(object):
             fmt = TemporaryFile()
             fmt.write(raw)
             fmt.seek(0)
-            set_metadata(fmt, self.db.get_metadata(id, index_is_id=True),
+            set_metadata(fmt, self.db.get_metadata(id, index_is_id=True,
+                get_cover=True),
                     'epub')
             fmt.seek(0)
         mt = guess_type('dummy.'+format.lower())[0]

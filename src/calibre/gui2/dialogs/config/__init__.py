@@ -14,7 +14,7 @@ from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
 from calibre.constants import iswindows, isosx
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
 from calibre.gui2.dialogs.config.create_custom_column import CreateCustomColumn
-from calibre.gui2 import choose_dir, error_dialog, config, gprefs, \
+from calibre.gui2 import error_dialog, config, gprefs, \
         open_url, open_local_file, \
         ALL_COLUMNS, NONE, info_dialog, choose_files, \
         warning_dialog, ResizableDialog, question_dialog
@@ -195,21 +195,31 @@ class PluginModel(QAbstractItemModel):
 
 class CategoryModel(QStringListModel):
 
+    CATEGORIES = [
+             ('general', _('General'), 'dialog_information.svg'),
+             ('interface', _('Interface'), 'lookfeel.svg'),
+             ('conversion', _('Conversion'), 'convert.svg'),
+             ('email', _('Email\nDelivery'), 'mail.svg'),
+             ('add/save', _('Add/Save'), 'save.svg'),
+             ('advanced', _('Advanced'), 'view.svg'),
+             ('server', _('Content\nServer'), 'network-server.svg'),
+             ('plugins', _('Plugins'), 'plugins.svg'),
+    ]
+
     def __init__(self, *args):
         QStringListModel.__init__(self, *args)
-        self.setStringList([_('General'), _('Interface'), _('Conversion'),
-                            _('Email\nDelivery'), _('Add/Save'),
-                            _('Advanced'), _('Content\nServer'), _('Plugins')])
-        self.icons = list(map(QVariant, map(QIcon,
-            [I('dialog_information.svg'), I('lookfeel.svg'),
-                I('convert.svg'),
-                I('mail.svg'), I('save.svg'), I('view.svg'),
-             I('network-server.svg'), I('plugins.svg')])))
+        self.setStringList([x[1] for x in self.CATEGORIES])
 
     def data(self, index, role):
         if role == Qt.DecorationRole:
-            return self.icons[index.row()]
+            return QVariant(QIcon(I(self.CATEGORIES[index.row()][2])))
         return QStringListModel.data(self, index, role)
+
+    def index_for_name(self, name):
+        for i, x in enumerate(self.CATEGORIES):
+            if x[0] == name:
+                return self.index(i)
+        return self.index(0)
 
 class EmailAccounts(QAbstractTableModel):
 
@@ -332,9 +342,9 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
     def category_current_changed(self, n, p):
         self.stackedWidget.setCurrentIndex(n.row())
 
-    def __init__(self, parent, library_view, server=None):
+    def __init__(self, parent, library_view, server=None,
+            initial_category='general'):
         ResizableDialog.__init__(self, parent)
-        self.ICON_SIZES = {0:QSize(48, 48), 1:QSize(32,32), 2:QSize(24,24)}
         self._category_model = CategoryModel()
 
         self.category_view.currentChanged = self.category_current_changed
@@ -344,9 +354,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.model = library_view.model()
         self.db = self.model.db
         self.server = server
-        path = prefs['library_path']
-        self.location.setText(path if path else '')
-        self.connect(self.browse_button, SIGNAL('clicked(bool)'), self.browse)
         self.connect(self.compact_button, SIGNAL('clicked(bool)'), self.compact)
 
         input_map = prefs['input_format_order']
@@ -388,10 +395,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.del_custcol_button.clicked.connect(self.del_custcol)
         self.add_custcol_button.clicked.connect(self.add_custcol)
         self.edit_custcol_button.clicked.connect(self.edit_custcol)
-
-        icons = config['toolbar_icon_size']
-        self.toolbar_button_size.setCurrentIndex(0 if icons == self.ICON_SIZES[0] else 1 if icons == self.ICON_SIZES[1] else 2)
-        self.show_toolbar_text.setChecked(config['show_text_in_toolbar'])
 
         output_formats = sorted(available_output_formats())
         output_formats.remove('oeb')
@@ -469,7 +472,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.button_osx_symlinks.setVisible(isosx)
         self.separate_cover_flow.setChecked(config['separate_cover_flow'])
         self.setup_email_page()
-        self.category_view.setCurrentIndex(self.category_view.model().index(0))
         self.delete_news.setEnabled(bool(self.sync_news.isChecked()))
         self.connect(self.sync_news, SIGNAL('toggled(bool)'),
                 self.delete_news.setEnabled)
@@ -496,6 +498,31 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.opt_gui_layout.setCurrentIndex(li)
         self.opt_disable_animations.setChecked(config['disable_animations'])
         self.opt_show_donate_button.setChecked(config['show_donate_button'])
+        idx = 0
+        for i, x in enumerate([(_('Small'), 'small'), (_('Medium'), 'medium'),
+            (_('Large'), 'large')]):
+            if x[1] == gprefs.get('toolbar_icon_size', 'medium'):
+                idx = i
+            self.opt_toolbar_icon_size.addItem(x[0], x[1])
+        self.opt_toolbar_icon_size.setCurrentIndex(idx)
+        idx = 0
+        for i, x in enumerate([(_('Automatic'), 'auto'), (_('Always'), 'always'),
+            (_('Never'), 'never')]):
+            if x[1] == gprefs.get('toolbar_text', 'auto'):
+                idx = i
+            self.opt_toolbar_text.addItem(x[0], x[1])
+        self.opt_toolbar_text.setCurrentIndex(idx)
+        self.reset_confirmation_button.clicked.connect(self.reset_confirmation)
+
+        self.category_view.setCurrentIndex(self.category_view.model().index_for_name(initial_category))
+
+    def reset_confirmation(self):
+        from calibre.gui2 import dynamic
+        for key in dynamic.keys():
+            if key.endswith('_again') and dynamic[key] is False:
+                dynamic[key] = True
+        info_dialog(self, _('Done'),
+                _('Confirmation dialogs have all been reset'), show=True)
 
     def check_port_value(self, *args):
         port = self.port.value()
@@ -813,12 +840,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         d = CheckIntegrity(self.db, self)
         d.exec_()
 
-    def browse(self):
-        dir = choose_dir(self, 'database location dialog',
-                         _('Select location for books'))
-        if dir:
-            self.location.setText(dir)
-
     def accept(self):
         mcs = unicode(self.max_cover_size.text()).strip()
         if not re.match(r'\d+x\d+', mcs):
@@ -839,14 +860,11 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
         prefs['network_timeout'] = int(self.timeout.value())
-        path = unicode(self.location.text())
         input_cols = [unicode(self.input_order.item(i).data(Qt.UserRole).toString()) for i in range(self.input_order.count())]
         prefs['input_format_order'] = input_cols
 
         must_restart = self.apply_custom_column_changes()
 
-        config['toolbar_icon_size'] = self.ICON_SIZES[self.toolbar_button_size.currentIndex()]
-        config['show_text_in_toolbar'] = bool(self.show_toolbar_text.isChecked())
         config['separate_cover_flow'] = bool(self.separate_cover_flow.isChecked())
         config['disable_tray_notification'] = not self.systray_notifications.isChecked()
         p = {0:'normal', 1:'high', 2:'low'}[self.priority.currentIndex()]
@@ -874,6 +892,10 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['disable_animations'] = bool(self.opt_disable_animations.isChecked())
         config['show_donate_button'] = bool(self.opt_show_donate_button.isChecked())
         gprefs['show_splash_screen'] = bool(self.show_splash_screen.isChecked())
+        for x in ('toolbar_icon_size', 'toolbar_text'):
+            w = getattr(self, 'opt_'+x)
+            data = w.itemData(w.currentIndex()).toString()
+            gprefs[x] = unicode(data)
         fmts = []
         for i in range(self.viewer.count()):
             if self.viewer.item(i).checkState() == Qt.Checked:
@@ -882,24 +904,13 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         val = self.opt_gui_layout.itemData(self.opt_gui_layout.currentIndex()).toString()
         config['gui_layout'] = unicode(val)
 
-        if not path or not os.path.exists(path) or not os.path.isdir(path):
-            d = error_dialog(self, _('Invalid database location'),
-                             _('Invalid database location ')+path+
-                             _('<br>Must be a directory.'))
-            d.exec_()
-        elif not os.access(path, os.W_OK):
-            d = error_dialog(self, _('Invalid database location'),
-                     _('Invalid database location.<br>Cannot write to ')+path)
-            d.exec_()
-        else:
-            self.database_location = os.path.abspath(path)
-            if must_restart:
-                warning_dialog(self, _('Must restart'),
-                        _('The changes you made require that Calibre be '
-                            'restarted. Please restart as soon as practical.'),
-                        show=True, show_copy_button=False)
-                self.parent.must_restart_before_config = True
-            QDialog.accept(self)
+        if must_restart:
+            warning_dialog(self, _('Must restart'),
+                    _('The changes you made require that Calibre be '
+                        'restarted. Please restart as soon as practical.'),
+                    show=True, show_copy_button=False)
+            self.parent.must_restart_before_config = True
+        QDialog.accept(self)
 
 class VacThread(QThread):
 
@@ -970,6 +981,5 @@ if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     app = QApplication([])
     d=ConfigDialog(None, LibraryDatabase2('/tmp'))
-    d.category_view.setCurrentIndex(d.category_view.model().index(0))
     d.show()
     app.exec_()

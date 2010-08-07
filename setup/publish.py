@@ -73,11 +73,11 @@ class Manual(Command):
                 os.makedirs(d)
             if not os.path.exists('.build'+os.sep+'html'):
                 os.makedirs('.build'+os.sep+'html')
-            os.environ['__appname__']= __appname__
-            os.environ['__version__']= __version__
-            subprocess.check_call(['sphinx-build', '-b', 'custom', '-t', 'online',
+            os.environ['__appname__'] = __appname__
+            os.environ['__version__'] = __version__
+            subprocess.check_call(['sphinx-build', '-b', 'html', '-t', 'online',
                                    '-d', '.build/doctrees', '.', '.build/html'])
-            subprocess.check_call(['sphinx-build', '-b', 'epub', '-d',
+            subprocess.check_call(['sphinx-build', '-b', 'myepub', '-d',
                                    '.build/doctrees', '.', '.build/epub'])
             shutil.copyfile(self.j('.build', 'epub', 'calibre.epub'), self.j('.build',
                 'html', 'calibre.epub'))

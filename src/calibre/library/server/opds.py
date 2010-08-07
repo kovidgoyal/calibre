@@ -341,7 +341,7 @@ class OPDSServer(object):
         items = items[offsets.offset:offsets.offset+max_items]
         updated = self.db.last_modified()
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
-        cherrypy.response.headers['Content-Type'] = 'text/xml'
+        cherrypy.response.headers['Content-Type'] = 'application/atom+xml;profile=opds-catalog'
         return str(AcquisitionFeed(updated, id_, items, offsets,
             page_url, up_url, version, self.db.FIELD_MAP))
 
@@ -400,7 +400,9 @@ class OPDSServer(object):
         owhich = hexlify('N'+which)
         up_url = url_for('opdsnavcatalog', version, which=owhich)
         items = categories[category]
-        items = [x for x in items if getattr(x, 'sort', x.name).startswith(which)]
+        def belongs(x, which):
+            return getattr(x, 'sort', x.name).lower().startswith(which.lower())
+        items = [x for x in items if belongs(x, which)]
         if not items:
             raise cherrypy.HTTPError(404, 'No items in group %r:%r'%(category,
                 which))
@@ -413,7 +415,7 @@ class OPDSServer(object):
         items = list(items)[offsets.offset:offsets.offset+max_items]
 
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
-        cherrypy.response.headers['Content-Type'] = 'text/xml'
+        cherrypy.response.headers['Content-Type'] = 'application/atom+xml'
 
         return str(CategoryFeed(items, category, id_, updated, version, offsets,
             page_url, up_url))
@@ -465,7 +467,12 @@ class OPDSServer(object):
                 def __init__(self, text, count):
                     self.text, self.count = text, count
 
-            starts = set([getattr(x, 'sort', x.name)[0] for x in items])
+            starts = set([])
+            for x in items:
+                val = getattr(x, 'sort', x.name)
+                if not val:
+                    val = 'A'
+                starts.add(val[0].upper())
             category_groups = OrderedDict()
             for x in sorted(starts, cmp=lambda x,y:cmp(x.lower(), y.lower())):
                 category_groups[x] = len([y for y in items if
@@ -478,7 +485,7 @@ class OPDSServer(object):
                 page_url, up_url)
 
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
-        cherrypy.response.headers['Content-Type'] = 'text/xml'
+        cherrypy.response.headers['Content-Type'] = 'application/atom+xml'
 
         return str(ans)
 
@@ -552,7 +559,7 @@ class OPDSServer(object):
         updated = self.db.last_modified()
 
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
-        cherrypy.response.headers['Content-Type'] = 'text/xml'
+        cherrypy.response.headers['Content-Type'] = 'application/atom+xml'
 
         feed = TopLevel(updated, cats, version)
 

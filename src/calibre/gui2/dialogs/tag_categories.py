@@ -7,7 +7,6 @@ from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QDialog, QIcon, QListWidgetItem
 
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
-from calibre.utils.config import prefs
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.constants import islinux
 
@@ -28,6 +27,11 @@ class TagCategories(QDialog, Ui_TagCategories):
         QDialog.__init__(self, window)
         Ui_TagCategories.__init__(self)
         self.setupUi(self)
+
+        # Remove help icon on title bar
+        icon = self.windowIcon()
+        self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
+        self.setWindowIcon(icon)
 
         self.db = db
         self.applied_items = []
@@ -63,7 +67,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                 self.all_items.append(t)
                 self.all_items_dict[label+':'+n] = t
 
-        self.categories = dict.copy(prefs['user_categories'])
+        self.categories = dict.copy(db.prefs.get('user_categories', {}))
         if self.categories is None:
             self.categories = {}
         for cat in self.categories:
@@ -182,7 +186,7 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     def accept(self):
         self.save_category()
-        prefs['user_categories'] = self.categories
+        self.db.prefs['user_categories'] = self.categories
         QDialog.accept(self)
 
     def save_category(self):

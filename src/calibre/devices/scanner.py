@@ -98,6 +98,9 @@ class LinuxScanner(object):
 
     def __call__(self):
         ans = set([])
+        if not self.ok:
+            raise RuntimeError('DeviceScanner requires the /sys filesystem to work.')
+
         for x in os.listdir(self.base):
             base = os.path.join(self.base, x)
             ven = os.path.join(base, 'idVendor')
@@ -145,8 +148,6 @@ class DeviceScanner(object):
     def __init__(self, *args):
         if isosx and osx_scanner is None:
             raise RuntimeError('The Python extension usbobserver must be available on OS X.')
-        if islinux and not linux_scanner.ok:
-            raise RuntimeError('DeviceScanner requires the /sys filesystem to work.')
         self.scanner = win_scanner if iswindows else osx_scanner if isosx else linux_scanner
         self.devices = []
 

@@ -104,30 +104,46 @@ will appear in the next release of |app|.
 How does |app| manage collections on my SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When |app| connects with the device, it retrieves all collections for the books on the device. The collections
+When |app| connects with the reader, it retrieves all collections for the books on the reader. The collections
 of which books are members are shown on the device view.
 
-When you send a book to the device, |app| will add the book to collections based on the metadata for that book. By
+When you send a book to the reader, |app| will add the book to collections based on the metadata for that book. By
 default, collections are created from tags and series. You can control what metadata is used by going to
 Preferences->Plugins->Device Interface plugins and customizing the SONY device interface plugin. If you remove all
 values, |app| will not add the book to any collection.
 
-Collection management is largely controlled by 'Preserve device collections' found at Preferences->Add/Save->Sending
-to device. If checked (the default), managing collections is left to the user; |app| will not delete already
-existing collections for a book on your device when you resend the book to the device, but |app| will add the book to
-collections if necessary.  To ensure that the collections for a book are based only on current |app| metadata, first
-delete the books from the device, then resend the books.  You can edit collections directly on the device view by
-double-clicking or right-clicking in the collections column.
+Collection management is largely controlled by the 'Metadata management' option found at
+Preferences->Add/Save->Sending to device. If set to 'Manual' (the default), managing collections is left to
+the user; |app| will not delete already existing collections for a book on your reader when you resend the
+book to the reader, but |app| will add the book to collections if necessary.  To ensure that the collections
+for a book are based only on current |app| metadata, first delete the books from the reader, then resend the
+books.  You can edit collections directly on the device view by double-clicking or right-clicking in the
+collections column.
 
-If 'Preserve device collections' is not checked, then |app| will manage collections. Collections will be built using
-|app| metadata exclusively.  Sending a book to the device will correct the collections for that book so its
-collections exactly match the book's metadata. Collections are added and deleted as necessary.  Editing collections on
-the device pane is not permitted, because collections not in the metadata will be removed automatically.
+If 'Metadata management' is set to 'Only on send', then |app| will manage collections more aggressively.
+Collections will be built using |app| metadata exclusively.  Sending a book to the reader will correct the
+collections for that book so its collections exactly match the book's metadata, adding and deleting
+collections as necessary.  Editing collections on the device view is not permitted, because collections not in
+the metadata will be removed automatically.
 
-In summary, check 'Preserve device collections' if you want to manage collections yourself.  Collections for a book
-will never be removed by |app|, but can be removed by you by editing on the device view.  Uncheck 'Preserve device
-collections' if you want |app| to manage the collections, adding books to and removing books from collections as
-needed.  
+If 'Metadata management' is set to 'Automatic management', then |app| will update metadata and collections
+both when the reader is connected and when books are sent. When calibre detects the reader and generates the
+list of books on the reader, it will send metadata from the library to the reader for all books on the reader
+that are in the library (On device is True), adding and removing books from collections as indicated by the
+metadata and device customization. When a book is sent, |app| corrects the metadata for that book, adding and
+deleting collections. Manual editing of metadata on the device view is not allowed. Note that this option
+specifies sending metadata, not books. The book files on the reader are not changed.
+
+In summary, choose 'manual management' if you want to manage collections yourself.  Collections for a book
+will never be removed by |app|, but can be removed by you by editing on the device view.  Choose 'Only on
+send' if you want |app| to manage collections when you send a book, adding books to and removing books from
+collections as needed.  Choose 'Automatic management' if you want |app| to keep collections up to date
+whenever the reader is connected.
+
+If you use multiple installations of calibre to manage your reader, then option 'Automatic management' may not
+be what you want.  Connecting the reader to one library will reset the metadata to what is in that library.
+Connecting to the other library will reset the metadata to what is in that other library. Metadata in books
+found in both libraries will be flopped back and forth.
 
 Can I use both |app| and the SONY software to manage my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -265,7 +281,7 @@ Why doesn't |app| have a column for foo?
 
 How do I move my |app| library from one computer to another?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking Preferences. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder.
+Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking the calibre icon in the toolbar. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder.
 
 Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also go to Preferences->Advanced and click the Check database integrity button. It will warn you about missing files, if any, which you should then transfer by hand.
 
@@ -360,6 +376,12 @@ How do I use purchased EPUB books with |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Most purchased EPUB books have `DRM <http://wiki.mobileread.com/wiki/DRM>`_. This prevents |app| from opening them. You can still use |app| to store and transfer them to your e-book reader. First, you must authorize your reader on a windows machine with Adobe Digital Editions. Once this is done, EPUB books transferred with |app| will work fine on your reader. When you purchase an epub book from a website, you will get an ".acsm" file. This file should be opened with Adobe Digital Editions, which will then download the actual ".epub" e-book. The e-book file will be stored in the folder "My Digital Editions", from where you can add it to |app|.
 
+Can I have the comment metadata show up on my reader?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Most readers do not support this. You should complain to the manufacturer about it and hopefully if enough people complain, things will change. In the meantime, you can insert the metadata, including comments into a "Jacket page" at the start of the ebook, by using the option to "Insert metadata as page at start of book" during conversion. The option is found in the :guilabel:`Structure Detection` section of the conversion settings. Note that for this to have effect you have to *convert* the book. If your book is already in a format that does not need conversion, you can convert from that format to the same format. 
+
+Another alternative is to create a catalog in ebook form containing a listing of all the books in your calibre library, with their metadata. Click the arrow next to the convert button to access the catalog creation tool. And before you ask, no you cannot have the catalog "link directly to" books on your reader. 
 
 I want some feature added to |app|. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

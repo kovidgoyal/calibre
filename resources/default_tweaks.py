@@ -72,4 +72,11 @@ gui_pubdate_display_format = 'MMM yyyy'
 # without changing anything is sufficient to change the sort.
 title_series_sorting = 'library_order'
 
+# Control how title and series names are formatted when saving to disk/sending
+# to device. If set to library_order, leading articles such as The and A will
+# be put at the end
+# If set to 'strictly_alphabetic', the titles will be sorted without processing
+# For example, with library_order, "The Client" will become "Client, The". With
+# strictly_alphabetic, it would remain "The Client".
+save_template_title_series_sorting = 'library_order'
 

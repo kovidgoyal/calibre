@@ -28,7 +28,11 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QComboBox" name="opt_chapter_mark"/>
+    <widget class="QComboBox" name="opt_chapter_mark">
+     <property name="minimumContentsLength">
+      <number>20</number>
+     </property>
+    </widget>
    </item>
    <item row="2" column="0">
     <widget class="QCheckBox" name="opt_remove_first_image">
@@ -54,7 +58,7 @@
    <item row="9" column="0" colspan="2">
     <widget class="XPathEdit" name="opt_page_breaks_before" native="true"/>
    </item>
-   <item row="10" column="0">
+   <item row="10" column="0" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

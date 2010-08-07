@@ -10,10 +10,10 @@ from base64 import b64decode
 from uuid import uuid4
 from lxml import etree
 
-from calibre import prints, guess_type
+from calibre import prints, guess_type, isbytestring
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.driver import debug_print
-from calibre.constants import DEBUG
+from calibre.constants import DEBUG, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, title_sort
 
@@ -46,7 +46,11 @@ def strptime(src):
     return time.strptime(' '.join(src), '%w, %d %m %Y %H:%M:%S %Z')
 
 def strftime(epoch, zone=time.localtime):
-    src = time.strftime("%w, %d %m %Y %H:%M:%S GMT", zone(epoch)).split()
+    try:
+        src = time.strftime("%w, %d %m %Y %H:%M:%S GMT", zone(epoch)).split()
+    except:
+        src = time.strftime("%w, %d %m %Y %H:%M:%S GMT", zone()).split()
+
     src[0] = INVERSE_DAY_MAP[int(src[0][:-1])]+','
     src[2] = INVERSE_MONTH_MAP[int(src[2])]
     return ' '.join(src)
@@ -328,7 +332,10 @@ class XMLCache(object):
                             'descendant::*[local-name()="jpeg"]|'
                             'descendant::*[local-name()="png"]'):
                         if img.text:
-                            raw = b64decode(img.text.strip())
+                            try:
+                                raw = b64decode(img.text.strip())
+                            except:
+                                continue
                             book.thumbnail = raw
                             break
                     break
@@ -473,6 +480,13 @@ class XMLCache(object):
         # if the case of a tie, and hope it is right.
         timestamp = os.path.getmtime(path)
         rec_date = record.get('date', None)
+
+        def clean(x):
+            if isbytestring(x):
+                x = x.decode(preferred_encoding, 'replace')
+            x.replace(u'\0', '')
+            return x
+
         if not getattr(book, '_new_book', False): # book is not new
             if strftime(timestamp, zone=time.gmtime) == rec_date:
                 gtz_count += 1
@@ -486,19 +500,19 @@ class XMLCache(object):
                 tz = time.gmtime
                 debug_print("Using GMT TZ for new book", book.lpath)
             date = strftime(timestamp, zone=tz)
-            record.set('date', date)
+            record.set('date', clean(date))
 
-        record.set('size', str(os.stat(path).st_size))
+        record.set('size', clean(str(os.stat(path).st_size)))
         title = book.title if book.title else _('Unknown')
-        record.set('title', title)
+        record.set('title', clean(title))
         ts = book.title_sort
         if not ts:
             ts = title_sort(title)
-        record.set('titleSorter', ts)
+        record.set('titleSorter', clean(ts))
         if self.use_author_sort and book.author_sort is not None:
-            record.set('author', book.author_sort)
+            record.set('author', clean(book.author_sort))
         else:
-            record.set('author', authors_to_string(book.authors))
+            record.set('author', clean(authors_to_string(book.authors)))
         ext = os.path.splitext(path)[1]
         if ext:
             ext = ext[1:].lower()
@@ -506,7 +520,7 @@ class XMLCache(object):
             if mime is None:
                 mime = guess_type('a.'+ext)[0]
             if mime is not None:
-                record.set('mime', mime)
+                record.set('mime', clean(mime))
         if 'sourceid' not in record.attrib:
             record.set('sourceid', '1')
         if 'id' not in record.attrib:

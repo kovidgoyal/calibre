@@ -26,7 +26,7 @@ class NOOK(USBMS):
     # Ordered list of supported formats
     FORMATS     = ['epub', 'pdb', 'pdf']
 
-    VENDOR_ID   = [0x2080]
+    VENDOR_ID   = [0x2080, 0x18d1] # 0x18d1 is for softrooted nook
     PRODUCT_ID  = [0x001]
     BCD         = [0x322]
 

@@ -72,6 +72,13 @@ extensions = [
             lib_dirs=chmlib_lib_dirs,
             cflags=["-D__PYTHON__"]),
 
+    Extension('magick',
+        ['calibre/utils/magick/magick.c'],
+        headers=['calibre/utils/magick/magick_constants.h'],
+        libraries=magick_libs,
+        lib_dirs=magick_lib_dirs,
+        inc_dirs=magick_inc_dirs
+        ),
 
     Extension('pdfreflow',
                 reflow_sources,

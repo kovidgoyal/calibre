@@ -19,6 +19,7 @@ from calibre.library.schema_upgrades import SchemaUpgrade
 from calibre.library.caches import ResultCache
 from calibre.library.custom_columns import CustomColumns
 from calibre.library.sqlite import connect, IntegrityError, DBThread
+from calibre.library.prefs import DBPrefs
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, \
                                     MetaInformation
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
@@ -29,9 +30,9 @@ from calibre.customize.ui import run_plugins_on_import
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.search_query_parser import saved_searches
+from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
-from calibre.utils.magick_draw import save_cover_data_to
+from calibre.utils.magick.draw import save_cover_data_to
 
 if iswindows:
     import calibre.utils.winshell as winshell
@@ -116,6 +117,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # missing functions
         self.books_list_filter = self.conn.create_dynamic_filter('books_list_filter')
 
+    @classmethod
+    def exists_at(cls, path):
+        return path and os.path.exists(os.path.join(path, 'metadata.db'))
+
     def __init__(self, library_path, row_factory=False):
         self.field_metadata = FieldMetadata()
         if not os.path.exists(library_path):
@@ -136,6 +141,21 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.initialize_dynamic()
 
     def initialize_dynamic(self):
+        self.prefs = DBPrefs(self)
+
+        # Migrate saved search and user categories to db preference scheme
+        def migrate_preference(key, default):
+            oldval = prefs[key]
+            if oldval != default:
+                self.prefs[key] = oldval
+                prefs[key] = default
+            if key not in self.prefs:
+                self.prefs[key] = default
+
+        migrate_preference('user_categories', {})
+        migrate_preference('saved_searches', {})
+        set_saved_searches(self, 'saved_searches')
+
         self.conn.executescript('''
         DROP TRIGGER IF EXISTS author_insert_trg;
         CREATE TEMP TRIGGER author_insert_trg
@@ -264,10 +284,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for k in tb_cats.keys():
             if tb_cats[k]['kind'] in ['user', 'search']:
                 del tb_cats[k]
-        for user_cat in sorted(prefs['user_categories'].keys()):
+        for user_cat in sorted(self.prefs.get('user_categories', {}).keys()):
             cat_name = user_cat+':' # add the ':' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
-        if len(saved_searches.names()):
+        if len(saved_searches().names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
 
         self.book_on_device_func = None
@@ -306,6 +326,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''
         return utcfromtimestamp(os.stat(self.dbpath).st_mtime)
+
 
     def check_if_modified(self):
         if self.last_modified() > self.last_update_check:
@@ -577,6 +598,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def has_format(self, index, format, index_is_id=False):
         return self.format_abspath(index, format, index_is_id) is not None
 
+    def format_last_modified(self, id_, fmt):
+        path = self.format_abspath(id_, fmt, index_is_id=True)
+        if path is not None:
+            return utcfromtimestamp(os.stat(path).st_mtime)
+
     def format_abspath(self, index, format, index_is_id=False):
         'Return absolute path to the ebook file of format `format`'
         id = index if index_is_id else self.id(index)
@@ -839,7 +865,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             categories['formats'].sort(key = lambda x:x.name)
 
         #### Now do the user-defined categories. ####
-        user_categories = prefs['user_categories']
+        user_categories = self.prefs['user_categories']
 
         # We want to use same node in the user category as in the source
         # category. To do that, we need to find the original Tag node. There is
@@ -876,8 +902,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         icon = None
         if icon_map and 'search' in icon_map:
                 icon = icon_map['search']
-        for srch in saved_searches.names():
-            items.append(Tag(srch, tooltip=saved_searches.lookup(srch), icon=icon))
+        for srch in saved_searches().names():
+            items.append(Tag(srch, tooltip=saved_searches().lookup(srch), icon=icon))
         if len(items):
             if icon_map is not None:
                 icon_map['search'] = icon_map['search']

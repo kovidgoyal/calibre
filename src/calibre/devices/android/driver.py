@@ -19,10 +19,12 @@ class ANDROID(USBMS):
 
     VENDOR_ID   = {
             # HTC
-            0x0bb4 : { 0x0c02 : [0x100], 0x0c01 : [0x100], 0x0ff9 : [0x0100]},
+            0x0bb4 : { 0x0c02 : [0x100, 0x227], 0x0c01 : [0x100, 0x227], 0x0ff9
+                : [0x0100, 0x227]},
 
             # Motorola
-            0x22b8 : { 0x41d9 : [0x216], 0x2d67 : [0x100], 0x41db : [0x216]},
+            0x22b8 : { 0x41d9 : [0x216], 0x2d67 : [0x100], 0x41db : [0x216],
+                0x4285 : [0x216]},
 
             # Sony Ericsson
             0xfce : { 0xd12e : [0x0100]},
@@ -30,7 +32,8 @@ class ANDROID(USBMS):
             0x18d1 : { 0x4e11 : [0x0100, 0x226], 0x4e12: [0x0100, 0x226]},
 
             # Samsung
-            0x04e8 : { 0x681d : [0x0222, 0x0400], 0x681c : [0x0222, 0x0224]},
+            0x04e8 : { 0x681d : [0x0222, 0x0400],
+                       0x681c : [0x0222, 0x0224, 0x0400]},
 
             # Acer
             0x502 : { 0x3203 : [0x0100]},
@@ -51,9 +54,9 @@ class ANDROID(USBMS):
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD',
-            'GT-I9000', 'FILE-STOR_GADGET']
+            'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD',
-            'FILE-STOR_GADGET']
+            'FILE-STOR_GADGET', 'SGH-T959']
 
     OSX_MAIN_MEM = 'HTC Android Phone Media'
 
@@ -69,6 +72,16 @@ class ANDROID(USBMS):
         else:
             dirs = [x.strip() for x in dirs.split(',')]
         self.EBOOK_DIR_MAIN = dirs
+
+    def get_main_ebook_dir(self, for_upload=False):
+        dirs = self.EBOOK_DIR_MAIN
+        if not for_upload:
+            def aldiko_tweak(x):
+                return 'eBooks' if x == 'eBooks/import' else x
+            if isinstance(dirs, basestring):
+                dirs = [dirs]
+            dirs = list(map(aldiko_tweak, dirs))
+        return dirs
 
 class S60(USBMS):
 

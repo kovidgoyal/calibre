@@ -47,8 +47,8 @@ class Device(DeviceConfig, DevicePlugin):
 
     '''
     This class provides logic common to all drivers for devices that export themselves
-    as USB Mass Storage devices. If you are writing such a driver, inherit from this
-    class.
+    as USB Mass Storage devices. Provides implementations for mounting/ejecting
+    of USBMS devices on all platforms.
     '''
 
     VENDOR_ID   = 0x0
@@ -57,9 +57,19 @@ class Device(DeviceConfig, DevicePlugin):
 
     VENDOR_NAME = None
 
-    # These can be None, string, list of strings or compiled regex
+    #: String identifying the main memory of the device in the windows PnP id
+    #: strings
+    #: This can be None, string, list of strings or compiled regex
     WINDOWS_MAIN_MEM = None
+
+    #: String identifying the first card of the device in the windows PnP id
+    #: strings
+    #: This can be None, string, list of strings or compiled regex
     WINDOWS_CARD_A_MEM = None
+
+    #: String identifying the second card of the device in the windows PnP id
+    #: strings
+    #: This can be None, string, list of strings or compiled regex
     WINDOWS_CARD_B_MEM = None
 
     # The following are used by the check_ioreg_line method and can be either:
@@ -68,9 +78,9 @@ class Device(DeviceConfig, DevicePlugin):
     OSX_CARD_A_MEM = None
     OSX_CARD_B_MEM = None
 
-    # Used by the new driver detection to disambiguate main memory from
-    # storage cards. Should be a regular expression that matches the
-    # main memory mount point assigned by OS X
+    #: Used by the new driver detection to disambiguate main memory from
+    #: storage cards. Should be a regular expression that matches the
+    #: main memory mount point assigned by OS X
     OSX_MAIN_MEM_VOL_PAT = None
     OSX_EJECT_COMMAND = ['diskutil', 'eject']
 
@@ -732,7 +742,7 @@ class Device(DeviceConfig, DevicePlugin):
                 traceback.print_exc()
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
 
-    def get_main_ebook_dir(self):
+    def get_main_ebook_dir(self, for_upload=False):
         return self.EBOOK_DIR_MAIN
 
     def _sanity_check(self, on_card, files):
@@ -750,7 +760,7 @@ class Device(DeviceConfig, DevicePlugin):
             path = os.path.join(self._card_b_prefix,
                     *(self.EBOOK_DIR_CARD_B.split('/')))
         else:
-            candidates = self.get_main_ebook_dir()
+            candidates = self.get_main_ebook_dir(for_upload=True)
             if isinstance(candidates, basestring):
                 candidates = [candidates]
             candidates = [
@@ -780,7 +790,7 @@ class Device(DeviceConfig, DevicePlugin):
     def filename_callback(self, default, mi):
         '''
         Callback to allow drivers to change the default file name
-        set by :method:`create_upload_path`.
+        set by :meth:`create_upload_path`.
         '''
         return default
 

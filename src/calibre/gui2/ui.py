@@ -12,33 +12,31 @@ __docformat__ = 'restructuredtext en'
 import collections, os, sys, textwrap, time
 from Queue import Queue, Empty
 from threading import Thread
-from PyQt4.Qt import Qt, SIGNAL, QObject, QTimer, \
+from PyQt4.Qt import Qt, SIGNAL, QTimer, \
                      QPixmap, QMenu, QIcon, pyqtSignal, \
                      QDialog, \
                      QSystemTrayIcon, QApplication, QKeySequence, QAction, \
                      QMessageBox, QHelpEvent
 
-from calibre import  prints, patheq
+from calibre import  prints
 from calibre.constants import __appname__, isosx
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.gui2 import error_dialog, GetMetadata, open_local_file, \
-        gprefs, max_available_height, config, info_dialog
+        gprefs, max_available_height, config, info_dialog, Dispatcher
 from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator
-from calibre.gui2.wizard import move_library
-from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import UpdateMixin
 from calibre.gui2.main_window import MainWindow
-from calibre.gui2.main_ui import Ui_MainWindow
+from calibre.gui2.layout import MainWindowMixin
 from calibre.gui2.device import DeviceMixin
 from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
 from calibre.gui2.dialogs.config import ConfigDialog
 
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.library.database2 import LibraryDatabase2
-from calibre.gui2.init import ToolbarMixin, LibraryViewMixin, LayoutMixin
+from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_view import TagBrowserMixin
@@ -91,7 +89,7 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 # }}}
 
-class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
+class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
         SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
         AnnotationsAction, AddAction, DeleteAction,
@@ -108,6 +106,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         opts = self.opts
         self.preferences_action, self.quit_action = actions
         self.library_path = library_path
+        self.content_server = None
         self.spare_servers = []
         self.must_restart_before_config = False
         # Initialize fontconfig in a separate thread as this can be a lengthy
@@ -120,7 +119,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
                 self.another_instance_wants_to_talk)
         self.check_messages_timer.start(1000)
 
-        Ui_MainWindow.__init__(self)
+        MainWindowMixin.__init__(self, db)
 
         # Jobs Button {{{
         self.job_manager = JobManager()
@@ -148,7 +147,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         self.default_thumbnail = None
         self.tb_wrapper = textwrap.TextWrapper(width=40)
         self.viewers = collections.deque()
-        self.content_server = None
         self.system_tray_icon = SystemTrayIcon(QIcon(I('library.png')), self)
         self.system_tray_icon.setToolTip('calibre')
         self.system_tray_icon.tooltip_requested.connect(
@@ -167,8 +165,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         self.eject_action = self.system_tray_menu.addAction(
                 QIcon(I('eject.svg')), _('&Eject connected device'))
         self.eject_action.setEnabled(False)
-        if not config['show_donate_button']:
-            self.donate_button.setVisible(False)
         self.addAction(self.quit_action)
         self.action_restart = QAction(_('&Restart'), self)
         self.addAction(self.action_restart)
@@ -194,23 +190,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         ####################### Start spare job server ########################
         QTimer.singleShot(1000, self.add_spare_server)
 
-        ####################### Location View ########################
-        QObject.connect(self.location_view,
-                SIGNAL('location_selected(PyQt_PyObject)'),
-                        self.location_selected)
-        QObject.connect(self.location_view,
-                SIGNAL('umount_device()'),
-                        self.device_manager.umount_device)
+        ####################### Location Manager ########################
+        self.location_manager.location_selected.connect(self.location_selected)
+        self.location_manager.unmount_device.connect(self.device_manager.umount_device)
         self.eject_action.triggered.connect(self.device_manager.umount_device)
 
         #################### Update notification ###################
         UpdateMixin.__init__(self, opts)
 
-        ####################### Setup Toolbar #####################
-        ToolbarMixin.__init__(self)
-
         ####################### Search boxes ########################
-        SavedSearchBoxMixin.__init__(self)
+        SavedSearchBoxMixin.__init__(self, db)
         SearchBoxMixin.__init__(self)
 
         ####################### Library view ########################
@@ -220,8 +209,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
 
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
-        self.library_view.model().count_changed_signal.connect \
-                                            (self.location_view.count_changed)
+        for t in (self.tool_bar, ):
+            self.library_view.model().count_changed_signal.connect \
+                                            (t.count_changed)
         if not gprefs.get('quick_start_guide_added', False):
             from calibre.ebooks.metadata import MetaInformation
             mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
@@ -236,8 +226,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
                 self.db_images.reset()
 
         self.library_view.model().count_changed()
-        self.location_view.model().database_changed(self.library_view.model().db)
-        self.library_view.model().database_changed.connect(self.location_view.model().database_changed,
+        self.tool_bar.database_changed(self.library_view.model().db)
+        self.library_view.model().database_changed.connect(self.tool_bar.database_changed,
                 type=Qt.QueuedConnection)
 
         ########################### Tags Browser ##############################
@@ -256,33 +246,28 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
 
 
         if config['autolaunch_server']:
-            from calibre.library.server.main import start_threaded_server
-            from calibre.library.server import server_config
-            self.content_server = start_threaded_server(
-                    db, server_config().parse())
-            self.test_server_timer = QTimer.singleShot(10000, self.test_server)
-
-
-        self.scheduler = Scheduler(self, self.library_view.model().db)
-        self.action_news.setMenu(self.scheduler.news_menu)
-        self.connect(self.action_news, SIGNAL('triggered(bool)'),
-                self.scheduler.show_dialog)
-        self.connect(self.scheduler, SIGNAL('delete_old_news(PyQt_PyObject)'),
-                self.library_view.model().delete_books_by_id,
-                Qt.QueuedConnection)
-        self.connect(self.scheduler,
-                SIGNAL('start_recipe_fetch(PyQt_PyObject)'),
-                self.download_scheduled_recipe, Qt.QueuedConnection)
-
-        self.location_view.setCurrentIndex(self.location_view.model().index(0))
+            self.start_content_server()
 
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
         AddAction.__init__(self)
 
         self.read_settings()
         self.finalize_layout()
-        self.donate_button.set_normal_icon_size(64, 64)
         self.donate_button.start_animation()
+
+        self.scheduler.delete_old_news.connect(
+                self.library_view.model().delete_books_by_id,
+                type=Qt.QueuedConnection)
+
+    def start_content_server(self):
+        from calibre.library.server.main import start_threaded_server
+        from calibre.library.server import server_config
+        self.content_server = start_threaded_server(
+                self.library_view.model().db, server_config().parse())
+        self.content_server.state_callback = Dispatcher(self.content_server_state_changed)
+        self.content_server.state_callback(True)
+        self.test_server_timer = QTimer.singleShot(10000, self.test_server)
+
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
@@ -328,7 +313,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
                 setattr(window, '__systray_minimized', False)
 
     def test_server(self, *args):
-        if self.content_server.exception is not None:
+        if self.content_server is not None and \
+                self.content_server.exception is not None:
             error_dialog(self, _('Failed to start content server'),
                          unicode(self.content_server.exception)).exec_()
 
@@ -371,7 +357,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
 
-    def do_config(self, *args):
+    def do_config(self, checked=False, initial_category='general'):
         if self.job_manager.has_jobs():
             d = error_dialog(self, _('Cannot configure'),
                     _('Cannot configure while there are running jobs.'))
@@ -383,10 +369,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
             d.exec_()
             return
         d = ConfigDialog(self, self.library_view,
-                server=self.content_server)
+                server=self.content_server, initial_category=initial_category)
 
         d.exec_()
         self.content_server = d.server
+        if self.content_server is not None:
+            self.content_server.state_callback = \
+                Dispatcher(self.content_server_state_changed)
+            self.content_server.state_callback(self.content_server.is_running)
+
         if d.result() == d.Accepted:
             self.read_toolbar_settings()
             self.search.search_as_you_type(config['search_as_you_type'])
@@ -400,10 +391,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
             self.tags_view.recount()
             self.create_device_menu()
             self.set_device_menu_items_state(bool(self.device_connected))
-            if not patheq(self.library_path, d.database_location):
-                newloc = d.database_location
-                move_library(self.library_path, newloc, self,
-                        self.library_moved)
+            self.tool_bar.apply_settings()
 
     def library_moved(self, newloc):
         if newloc is None: return
@@ -416,8 +404,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         self.library_view.model().set_book_on_device_func(self.book_on_device)
         self.status_bar.clear_message()
         self.search.clear_to_help()
+        self.saved_search.clear_to_help()
         self.book_details.reset_info()
         self.library_view.model().count_changed()
+        self.scheduler.database_changed(db)
         prefs['library_path'] = self.library_path
 
     def show_book_info(self, *args):
@@ -604,7 +594,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceMixin, ToolbarMixin, # {{{
         try:
             try:
                 if self.content_server is not None:
-                    self.content_server.exit()
+                    s = self.content_server
+                    self.content_server = None
+                    s.exit()
             except:
                 pass
             time.sleep(2)

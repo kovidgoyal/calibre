@@ -18,7 +18,7 @@ class Unmanifested(ePubFixer):
 
     @property
     def long_description(self):
-        return _('Fix unmanifested files. %prog can either add them to '
+        return _('Fix unmanifested files. epub-fix can either add them to '
         'the manifest or delete them as specified by the '
         'delete unmanifested option.')
 

@@ -82,7 +82,7 @@ class Metadata(object):
     def print_all_attributes(self):
         pass
 
-    def smart_update(self, other):
+    def smart_update(self, other, replace_metadata=False):
         pass
 
     def format_series_index(self):

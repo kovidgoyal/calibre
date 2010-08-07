@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = 'calibre'
-__version__   = '0.7.8'
+__version__   = '0.7.13'
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 
 import re
@@ -14,7 +14,7 @@ numeric_version = tuple(_ver)
 Various run time constants.
 '''
 
-import sys, locale, codecs
+import sys, locale, codecs, os
 from calibre.utils.terminfo import TerminalController
 
 terminal_controller = TerminalController(sys.stdout)
@@ -47,7 +47,7 @@ def debug():
     global DEBUG
     DEBUG = True
 
-################################################################################
+# plugins {{{
 plugins = None
 if plugins is None:
     # Load plugins
@@ -60,6 +60,7 @@ if plugins is None:
                 'pictureflow',
                 'lzx',
                 'msdes',
+                'magick',
                 'podofo',
                 'cPalmdoc',
                 'fontconfig',
@@ -80,3 +81,22 @@ if plugins is None:
         return plugins
 
     plugins = load_plugins()
+# }}}
+
+# config_dir {{{
+if os.environ.has_key('CALIBRE_CONFIG_DIRECTORY'):
+    config_dir = os.path.abspath(os.environ['CALIBRE_CONFIG_DIRECTORY'])
+elif iswindows:
+    if plugins['winutil'][0] is None:
+        raise Exception(plugins['winutil'][1])
+    config_dir = plugins['winutil'][0].special_folder_path(plugins['winutil'][0].CSIDL_APPDATA)
+    if not os.access(config_dir, os.W_OK|os.X_OK):
+        config_dir = os.path.expanduser('~')
+    config_dir = os.path.join(config_dir, 'calibre')
+elif isosx:
+    config_dir = os.path.expanduser('~/Library/Preferences/calibre')
+else:
+    bdir = os.path.abspath(os.path.expanduser(os.environ.get('XDG_CONFIG_HOME', '~/.config')))
+    config_dir = os.path.join(bdir, 'calibre')
+# }}}
+

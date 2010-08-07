@@ -25,7 +25,7 @@ clean:
 
 html:
 	mkdir -p .build/html .build/doctrees
-	$(SPHINXBUILD) -b custom $(ALLSPHINXOPTS) .build/html
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) .build/html
 	@echo
 	@echo "Build finished. The HTML pages are in .build/html."
 
@@ -37,7 +37,7 @@ qthelp:
 
 epub:
 	mkdir -p .build/qthelp .build/doctrees
-	$(SPHINXBUILD) -b epub $(ALLSPHINXOPTS) .build/epub
+	$(SPHINXBUILD) -b myepub $(ALLSPHINXOPTS) .build/epub
 	@echo
 	@echo "Build finished."
 

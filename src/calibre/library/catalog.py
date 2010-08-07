@@ -1,14 +1,17 @@
+# -*- coding: utf-8 -*-
+
 __license__   = 'GPL v3'
 __copyright__ = '2010, Greg Riker <griker at hotmail.com>'
 
-import datetime, htmlentitydefs, os, re, shutil
+import datetime, htmlentitydefs, os, re, shutil, codecs
 
 from collections import namedtuple
 from copy import deepcopy
 
 from xml.sax.saxutils import escape
 
-from calibre import filesystem_encoding, prints, prepare_string_for_xml, strftime
+from calibre import prints, prepare_string_for_xml, strftime
+from calibre.constants import preferred_encoding
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
@@ -20,6 +23,10 @@ FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
           'series_index', 'series', 'size', 'tags', 'timestamp', 'title',
           'uuid']
+
+#Allowed fields for template
+TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate',
+    'publisher', 'series_index', 'series', 'tags', 'timestamp', 'title', 'uuid' ]
 
 class CSV_XML(CatalogPlugin):
     'CSV/XML catalog generator'
@@ -89,17 +96,20 @@ class CSV_XML(CatalogPlugin):
         fields = self.get_output_fields(opts)
 
         if self.fmt == 'csv':
-            outfile = open(path_to_output, 'w')
+            outfile = codecs.open(path_to_output, 'w', 'utf8')
 
             # Output the field headers
             outfile.write(u'%s\n' % u','.join(fields))
 
             # Output the entry fields
             for entry in data:
-                outstr = ''
-                for (x, field) in enumerate(fields):
+                outstr = []
+                for field in fields:
                     item = entry[field]
-                    if field == 'formats':
+                    if item is None:
+                        outstr.append('""')
+                        continue
+                    elif field == 'formats':
                         fmt_list = []
                         for format in item:
                             fmt_list.append(format.rpartition('.')[2].lower())
@@ -111,18 +121,13 @@ class CSV_XML(CatalogPlugin):
                         item = u'%s' % re.sub(r'[\D]', '', item)
                     elif field in ['pubdate', 'timestamp']:
                         item = isoformat(item)
+                    elif field == 'comments':
+                        item = item.replace(u'\r\n',u' ')
+                        item = item.replace(u'\n',u' ')
 
-                    if x < len(fields) - 1:
-                        if item is not None:
-                            outstr += u'"%s",' % unicode(item).replace('"','""')
-                        else:
-                            outstr += '"",'
-                    else:
-                        if item is not None:
-                            outstr += u'"%s"\n' % unicode(item).replace('"','""')
-                        else:
-                            outstr += '""\n'
-                outfile.write(outstr.encode('utf-8'))
+                    outstr.append(u'"%s"' % unicode(item).replace('"','""'))
+
+                outfile.write(u','.join(outstr) + u'\n')
             outfile.close()
 
         elif self.fmt == 'xml':
@@ -181,6 +186,329 @@ class CSV_XML(CatalogPlugin):
                 f.write(etree.tostring(root, encoding='utf-8',
                     xml_declaration=True, pretty_print=True))
 
+class BIBTEX(CatalogPlugin):
+    'BIBTEX catalog generator'
+
+    Option = namedtuple('Option', 'option, default, dest, action, help')
+
+    name = 'Catalog_BIBTEX'
+    description = 'BIBTEX catalog generator'
+    supported_platforms = ['windows', 'osx', 'linux']
+    author = 'Sengian'
+    version = (1, 0, 0)
+    file_types = set(['bib'])
+
+    cli_options = [
+            Option('--fields',
+                default = 'all',
+                dest = 'fields',
+                action = None,
+                help = _('The fields to output when cataloging books in the '
+                    'database.  Should be a comma-separated list of fields.\n'
+                    'Available fields: %s.\n'
+                    "Default: '%%default'\n"
+                    "Applies to: BIBTEX output format")%', '.join(FIELDS)),
+
+            Option('--sort-by',
+                default = 'id',
+                dest = 'sort_by',
+                action = None,
+                help = _('Output field to sort on.\n'
+                'Available fields: author_sort, id, rating, size, timestamp, title.\n'
+                "Default: '%default'\n"
+                "Applies to: BIBTEX output format")),
+
+            Option('--create-citation',
+                default = 'True',
+                dest = 'impcit',
+                action = None,
+                help = _('Create a citation for BibTeX entries.\n'
+                'Boolean value: True, False\n'
+                "Default: '%default'\n"
+                "Applies to: BIBTEX output format")),
+
+            Option('--citation-template',
+                default = '{authors}{id}',
+                dest = 'bib_cit',
+                action = None,
+                help = _('The template for citation creation from database fields.\n'
+                    ' Should be a template with {} enclosed fields.\n'
+                    'Available fields: %s.\n'
+                    "Default: '%%default'\n"
+                    "Applies to: BIBTEX output format")%', '.join(TEMPLATE_ALLOWED_FIELDS)),
+
+            Option('--choose-encoding',
+                default = 'utf8',
+                dest = 'bibfile_enc',
+                action = None,
+                help = _('BibTeX file encoding output.\n'
+                'Available types: utf8, cp1252, ascii.\n'
+                "Default: '%default'\n"
+                "Applies to: BIBTEX output format")),
+
+            Option('--choose-encoding-configuration',
+                default = 'strict',
+                dest = 'bibfile_enctag',
+                action = None,
+                help = _('BibTeX file encoding flag.\n'
+                'Available types: strict, replace, ignore, backslashreplace.\n'
+                "Default: '%default'\n"
+                "Applies to: BIBTEX output format")),
+
+            Option('--entry-type',
+                default = 'book',
+                dest = 'bib_entry',
+                action = None,
+                help = _('Entry type for BibTeX catalog.\n'
+                'Available types: book, misc, mixed.\n'
+                "Default: '%default'\n"
+                "Applies to: BIBTEX output format"))]
+
+    def run(self, path_to_output, opts, db, notification=DummyReporter()):
+
+        from types import StringType, UnicodeType
+
+        from calibre.library.save_to_disk import preprocess_template
+        #Bibtex functions
+        from calibre.utils.bibtex import bibtex_author_format, utf8ToBibtex, ValidateCitationKey
+
+        def create_bibtex_entry(entry, fields, mode, template_citation,
+            asccii_bibtex = True, citation_bibtex = True):
+
+            #Bibtex doesn't like UTF-8 but keep unicode until writing
+            #Define starting chain or if book valid strict and not book return a Fail string
+
+            bibtex_entry = []
+            if mode != "misc" and check_entry_book_valid(entry) :
+                bibtex_entry.append(u'@book{')
+            elif mode != "book" :
+                bibtex_entry.append(u'@misc{')
+            else :
+                #case strict book
+                return ''
+
+            if citation_bibtex :
+                # Citation tag
+                bibtex_entry.append(make_bibtex_citation(entry, template_citation, asccii_bibtex))
+                bibtex_entry = [u' '.join(bibtex_entry)]
+
+            for field in fields:
+                item = entry[field]
+                #check if the field should be included (none or empty)
+                if item is None:
+                    continue
+                try:
+                    if len(item) == 0 :
+                        continue
+                except TypeError:
+                    pass
+
+                if field == 'authors' :
+                    bibtex_entry.append(u'author = "%s"' % bibtex_author_format(item))
+
+                elif field in ['title', 'publisher', 'cover', 'uuid',
+                        'author_sort', 'series'] :
+                    bibtex_entry.append(u'%s = "%s"' % (field, utf8ToBibtex(item, asccii_bibtex)))
+
+                elif field == 'id' :
+                    bibtex_entry.append(u'calibreid = "%s"' % int(item))
+
+                elif field == 'rating' :
+                    bibtex_entry.append(u'rating = "%s"' % int(item))
+
+                elif field == 'size' :
+                    bibtex_entry.append(u'%s = "%s octets"' % (field, int(item)))
+
+                elif field == 'tags' :
+                    #A list to flatten
+                    bibtex_entry.append(u'tags = "%s"' % utf8ToBibtex(u', '.join(item), asccii_bibtex))
+
+                elif field == 'comments' :
+                    #\n removal
+                    item = item.replace(u'\r\n',u' ')
+                    item = item.replace(u'\n',u' ')
+                    bibtex_entry.append(u'note = "%s"' % utf8ToBibtex(item, asccii_bibtex))
+
+                elif field == 'isbn' :
+                    # Could be 9, 10 or 13 digits
+                    bibtex_entry.append(u'isbn = "%s"' % re.sub(u'[\D]', u'', item))
+
+                elif field == 'formats' :
+                    item = u', '.join([format.rpartition('.')[2].lower() for format in item])
+                    bibtex_entry.append(u'formats = "%s"' % item)
+
+                elif field == 'series_index' :
+                    bibtex_entry.append(u'volume = "%s"' % int(item))
+
+                elif field == 'timestamp' :
+                    bibtex_entry.append(u'timestamp = "%s"' % isoformat(item).partition('T')[0])
+
+                elif field == 'pubdate' :
+                    bibtex_entry.append(u'year = "%s"' % item.year)
+                    bibtex_entry.append(u'month = "%s"' % utf8ToBibtex(strftime("%b", item),
+                        asccii_bibtex))
+
+            bibtex_entry = u',\n    '.join(bibtex_entry)
+            bibtex_entry += u' }\n\n'
+
+            return bibtex_entry
+
+        def check_entry_book_valid(entry):
+            #Check that the required fields are ok for a book entry
+            for field in ['title', 'authors', 'publisher'] :
+                if entry[field] is None or len(entry[field]) == 0 :
+                    return False
+            if entry['pubdate'] is None :
+                return False
+            else :
+                return True
+
+        def make_bibtex_citation(entry, template_citation, asccii_bibtex):
+
+            #define a function to replace the template entry by its value
+            def tpl_replace(objtplname) :
+
+                tpl_field = re.sub(u'[\{\}]', u'', objtplname.group())
+
+                if tpl_field in TEMPLATE_ALLOWED_FIELDS :
+                    if tpl_field in ['pubdate', 'timestamp'] :
+                        tpl_field = isoformat(entry[tpl_field]).partition('T')[0]
+                    elif tpl_field in ['tags', 'authors'] :
+                        tpl_field =entry[tpl_field][0]
+                    elif tpl_field in ['id', 'series_index'] :
+                        tpl_field = str(entry[tpl_field])
+                    else :
+                        tpl_field = entry[tpl_field]
+                    return tpl_field
+                else:
+                    return u''
+
+            if len(template_citation) >0 :
+                tpl_citation = utf8ToBibtex(ValidateCitationKey(re.sub(u'\{[^{}]*\}',
+                    tpl_replace, template_citation)), asccii_bibtex)
+
+                if len(tpl_citation) >0 :
+                    return tpl_citation
+
+            if len(entry["isbn"]) > 0 :
+                template_citation = u'%s' % re.sub(u'[\D]',u'', entry["isbn"])
+
+            else :
+                template_citation = u'%s' % str(entry["id"])
+
+            if asccii_bibtex :
+                return ValidateCitationKey(template_citation.encode('ascii', 'replace'))
+            else :
+                return ValidateCitationKey(template_citation)
+
+        self.fmt = path_to_output.rpartition('.')[2]
+        self.notification = notification
+
+        # Combobox options
+        bibfile_enc = ['utf8', 'cp1252', 'ascii']
+        bibfile_enctag = ['strict', 'replace', 'ignore', 'backslashreplace']
+        bib_entry = ['mixed', 'misc', 'book']
+
+        # Needed beacause CLI return str vs int by widget
+        try:
+            bibfile_enc = bibfile_enc[opts.bibfile_enc]
+            bibfile_enctag = bibfile_enctag[opts.bibfile_enctag]
+            bib_entry = bib_entry[opts.bib_entry]
+        except:
+            if opts.bibfile_enc in bibfile_enc :
+                bibfile_enc = opts.bibfile_enc
+            else :
+                log(" WARNING: incorrect --choose-encoding flag, revert to default")
+                bibfile_enc = bibfile_enc[0]
+            if opts.bibfile_enctag in bibfile_enctag :
+                bibfile_enctag = opts.bibfile_enctag
+            else :
+                log(" WARNING: incorrect --choose-encoding-configuration flag, revert to default")
+                bibfile_enctag = bibfile_enctag[0]
+            if opts.bib_entry in bib_entry :
+                bib_entry = opts.bib_entry
+            else :
+                log(" WARNING: incorrect --entry-type flag, revert to default")
+                bib_entry = bib_entry[0]
+
+        if opts.verbose:
+            opts_dict = vars(opts)
+            log("%s(): Generating %s" % (self.name,self.fmt))
+            if opts_dict['search_text']:
+                log(" --search='%s'" % opts_dict['search_text'])
+
+            if opts_dict['ids']:
+                log(" Book count: %d" % len(opts_dict['ids']))
+                if opts_dict['search_text']:
+                    log(" (--search ignored when a subset of the database is specified)")
+
+            if opts_dict['fields']:
+                if opts_dict['fields'] == 'all':
+                    log(" Fields: %s" % ', '.join(FIELDS[1:]))
+                else:
+                    log(" Fields: %s" % opts_dict['fields'])
+
+            log(" Output file will be encoded in %s with %s flag" % (bibfile_enc, bibfile_enctag))
+
+            log(" BibTeX entry type is %s with a citation like '%s' flag" % (bib_entry, opts_dict['bib_cit']))
+
+        # If a list of ids are provided, don't use search_text
+        if opts.ids:
+            opts.search_text = None
+
+        data = self.search_sort_db(db, opts)
+
+        if not len(data):
+            log.error("\nNo matching database entries for search criteria '%s'" % opts.search_text)
+
+        # Get the requested output fields as a list
+        fields = self.get_output_fields(opts)
+
+        if not len(data):
+            log.error("\nNo matching database entries for search criteria '%s'" % opts.search_text)
+
+        #Entries writing after Bibtex formating (or not)
+        if bibfile_enc != 'ascii' :
+            asccii_bibtex = False
+        else :
+            asccii_bibtex = True
+
+        #Check and go to default in case of bad CLI
+        if isinstance(opts.impcit, (StringType, UnicodeType)) :
+            if opts.impcit == 'False' :
+                citation_bibtex= False
+            elif opts.impcit == 'True' :
+                citation_bibtex= True
+            else :
+                log(" WARNING: incorrect --create-citation, revert to default")
+                citation_bibtex= True
+        else :
+            citation_bibtex= opts.impcit
+
+        template_citation = preprocess_template(opts.bib_cit)
+
+        #Open output and write entries
+        outfile = codecs.open(path_to_output, 'w', bibfile_enc, bibfile_enctag)
+
+        #File header
+        nb_entries = len(data)
+
+        #check in book strict if all is ok else throw a warning into log
+        if bib_entry == 'book' :
+            nb_books = len(filter(check_entry_book_valid, data))
+            if nb_books < nb_entries :
+                log(" WARNING: only %d entries in %d are book compatible" % (nb_books, nb_entries))
+                nb_entries = nb_books
+
+        outfile.write(u'%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
+        outfile.write(u'@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'
+            % (nb_entries, nowf().strftime("%A, %d. %B %Y %H:%M").decode(preferred_encoding)))
+
+        for entry in data:
+            outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation,
+                asccii_bibtex, citation_bibtex))
+
+        outfile.close()
 
 class EPUB_MOBI(CatalogPlugin):
     'ePub catalog generator'
@@ -874,9 +1202,7 @@ class EPUB_MOBI(CatalogPlugin):
                     self.generateHTMLByDateRead()
             self.generateHTMLByTags()
 
-            from calibre.utils.PythonMagickWand import ImageMagick
-            with ImageMagick():
-                self.generateThumbnails()
+            self.generateThumbnails()
 
             self.generateOPF()
             self.generateNCXHeader()
@@ -3729,29 +4055,15 @@ class EPUB_MOBI(CatalogPlugin):
             return ' '.join(translated)
 
         def generateThumbnail(self, title, image_dir, thumb_file):
-            import calibre.utils.PythonMagickWand as pw
+            from calibre.utils.magick import Image
             try:
-                img = pw.NewMagickWand()
-                if img < 0:
-                    raise RuntimeError('generateThumbnail(): Cannot create wand')
-                # Read the cover
-                if not pw.MagickReadImage(img,
-                        title['cover'].encode(filesystem_encoding)):
-                    self.opts.log.error('generateThumbnail(): Failed to read cover image from: %s' % title['cover'])
-                    raise IOError
-                thumb = pw.CloneMagickWand(img)
-                if thumb < 0:
-                    self.opts.log.error('generateThumbnail(): Cannot clone cover')
-                    raise RuntimeError
+                img = Image()
+                img.open(title['cover'])
                 # img, width, height
-                pw.MagickThumbnailImage(thumb, self.thumbWidth, self.thumbHeight)
-                pw.MagickWriteImage(thumb, os.path.join(image_dir, thumb_file))
-                pw.DestroyMagickWand(thumb)
-                pw.DestroyMagickWand(img)
-            except IOError:
-                self.opts.log.error("generateThumbnail(): IOError with %s" % title['title'])
-            except RuntimeError:
-                self.opts.log.error("generateThumbnail(): RuntimeError with %s" % title['title'])
+                img.thumbnail(self.thumbWidth, self.thumbHeight)
+                img.save(os.path.join(image_dir, thumb_file))
+            except:
+                self.opts.log.error("generateThumbnail(): Error with %s" % title['title'])
 
         def getMarkerTags(self):
             ''' Return a list of special marker tags to be excluded from genre list '''

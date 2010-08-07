@@ -221,7 +221,7 @@ def fetch_scheduled_recipe(arg):
     if lf.get('base_font_size', 0.0) != 0.0:
         recs.append(('base_font_size', lf['base_font_size'],
             OptionRecommendation.HIGH))
-        recs.append(('keep_ligatures', lf['keep_ligatures'],
+        recs.append(('keep_ligatures', lf.get('keep_ligatures', False),
             OptionRecommendation.HIGH))
 
     lr = load_defaults('lrf_output')

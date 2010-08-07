@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>588</width>
+    <width>671</width>
     <height>516</height>
    </rect>
   </property>
@@ -177,32 +177,81 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
    <attribute name="title">
     <string>Sending to &amp;device</string>
    </attribute>
-   <layout class="QVBoxLayout" name="verticalLayout_2">
-    <item>
-     <widget class="QCheckBox" name="preserve_user_collections">
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="text">
-       <string>Preserve device collections.</string>
+       <string>Metadata &amp;management:</string>
+      </property>
+      <property name="buddy">
+       <cstring>manage_device_metadata</cstring>
       </property>
      </widget>
     </item>
-    <item>
+    <item row="0" column="1">
+     <widget class="QComboBox" name="manage_device_metadata">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <item>
+       <property name="text">
+        <string extracomment="foobar">Manual management</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Only on send</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Automatic management</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>313</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="1" column="0" colspan="3">
      <widget class="QLabel" name="label_41">
       <property name="text">
-       <string>If checked, collections will not be deleted even if a book with changed metadata is resent and the collection is not in the book's metadata. In addition, editing collections in the device view will be enabled. If unchecked, collections will be always reflect only the metadata in the calibre library.</string>
+       <string>&lt;li&gt;&lt;b&gt;Manual Management&lt;/b&gt;: Calibre updates the metadata and adds collections only when a book is sent. With this option, calibre will never remove a collection.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Only on send&lt;/b&gt;: Calibre updates metadata and adds/removes collections for a book only when it is sent to the device. &lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Automatic management&lt;/b&gt;: Calibre automatically keeps metadata on the device in sync with the calibre library, on every connect&lt;/li&gt;&lt;/ul&gt;</string>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
       </property>
      </widget>
     </item>
-    <item>
+    <item row="2" column="0">
      <widget class="QLabel" name="label_42">
       <property name="text">
-       <string>  </string>
+       <string/>
       </property>
      </widget>
     </item>
-    <item>
+    <item row="3" column="0" colspan="3">
      <widget class="QLabel" name="label_43">
       <property name="text">
        <string>Here you can control how calibre will save your books when you click the Send to Device button. This setting can be overriden for individual devices by customizing the device interface plugins in Preferences-&gt;Plugins</string>
@@ -212,7 +261,7 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
       </property>
      </widget>
     </item>
-    <item>
+    <item row="4" column="0" colspan="3">
      <widget class="SaveTemplate" name="send_template" native="true"/>
     </item>
    </layout>

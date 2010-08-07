@@ -33,6 +33,7 @@ from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
+from calibre.utils.config import prefs
 
 # }}}
 
@@ -71,7 +72,14 @@ class DeviceJob(BaseJob): # {{{
             if self._aborted:
                 return
             self.failed = True
-            self._details = unicode(err) + '\n\n' + \
+            try:
+                ex = unicode(err)
+            except:
+                try:
+                    ex = str(err).decode(preferred_encoding, 'replace')
+                except:
+                    ex = repr(err)
+            self._details = ex + '\n\n' + \
                 traceback.format_exc()
             self.exception = err
         finally:
@@ -394,8 +402,6 @@ class DeviceAction(QAction): # {{{
 class DeviceMenu(QMenu): # {{{
 
     fetch_annotations = pyqtSignal()
-    connect_to_folder = pyqtSignal()
-    connect_to_itunes = pyqtSignal()
     disconnect_mounted_device = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -407,26 +413,6 @@ class DeviceMenu(QMenu): # {{{
         self.set_default_menu = QMenu(_('Set default send to device action'))
         self.set_default_menu.setIcon(QIcon(I('config.svg')))
 
-        opts = email_config().parse()
-        default_account = None
-        if opts.accounts:
-            self.email_to_menu = self.addMenu(_('Email to')+'...')
-            keys = sorted(opts.accounts.keys())
-            for account in keys:
-                formats, auto, default = opts.accounts[account]
-                dest = 'mail:'+account+';'+formats
-                if default:
-                    default_account = (dest, False, False, I('mail.svg'),
-                            _('Email to')+' '+account)
-                action1 = DeviceAction(dest, False, False, I('mail.svg'),
-                        _('Email to')+' '+account)
-                action2 = DeviceAction(dest, True, False, I('mail.svg'),
-                        _('Email to')+' '+account+ _(' and delete from library'))
-                map(self.email_to_menu.addAction, (action1, action2))
-                map(self._memory.append, (action1, action2))
-                self.email_to_menu.addSeparator()
-                action1.a_s.connect(self.action_triggered)
-                action2.a_s.connect(self.action_triggered)
 
         basic_actions = [
                 ('main:', False, False,  I('reader.svg'),
@@ -455,13 +441,6 @@ class DeviceMenu(QMenu): # {{{
                     _('Storage Card B')),
         ]
 
-
-        if default_account is not None:
-            for x in (basic_actions, delete_actions):
-                ac = list(default_account)
-                if x is delete_actions:
-                    ac[1] = True
-                x.insert(1, tuple(ac))
 
         for menu in (self, self.set_default_menu):
             for actions, desc in (
@@ -501,21 +480,7 @@ class DeviceMenu(QMenu): # {{{
             config['default_send_to_device_action'] = repr(action)
 
         self.group.triggered.connect(self.change_default_action)
-        if opts.accounts:
-            self.addSeparator()
-            self.addMenu(self.email_to_menu)
-
         self.addSeparator()
-        mitem = self.addAction(QIcon(I('document_open.svg')), _('Connect to folder'))
-        mitem.setEnabled(True)
-        mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
-        self.connect_to_folder_action = mitem
-
-        mitem = self.addAction(QIcon(I('devices/itunes.png')),
-                _('Connect to iTunes'))
-        mitem.setEnabled(True)
-        mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
-        self.connect_to_itunes_action = mitem
 
         mitem = self.addAction(QIcon(I('eject.svg')), _('Eject device'))
         mitem.setEnabled(False)
@@ -637,7 +602,8 @@ class DeviceMixin(object): # {{{
         self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
-        self.device_connected = None
+        self.share_conn_menu.connect_to_folder.connect(self.connect_to_folder)
+        self.share_conn_menu.connect_to_itunes.connect(self.connect_to_itunes)
         self.emailer = Emailer()
         self.emailer.start()
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
@@ -675,21 +641,20 @@ class DeviceMixin(object): # {{{
 
     def create_device_menu(self):
         self._sync_menu = DeviceMenu(self)
+        self.share_conn_menu.build_email_entries(self._sync_menu)
         self.action_sync.setMenu(self._sync_menu)
         self.connect(self._sync_menu,
                 SIGNAL('sync(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                 self.dispatch_sync_event)
         self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
-        self._sync_menu.connect_to_folder.connect(self.connect_to_folder)
-        self._sync_menu.connect_to_itunes.connect(self.connect_to_itunes)
         self._sync_menu.disconnect_mounted_device.connect(self.disconnect_mounted_device)
         if self.device_connected:
-            self._sync_menu.connect_to_folder_action.setEnabled(False)
-            self._sync_menu.connect_to_itunes_action.setEnabled(False)
+            self.share_conn_menu.connect_to_folder_action.setEnabled(False)
+            self.share_conn_menu.connect_to_itunes_action.setEnabled(False)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
         else:
-            self._sync_menu.connect_to_folder_action.setEnabled(True)
-            self._sync_menu.connect_to_itunes_action.setEnabled(True)
+            self.share_conn_menu.connect_to_folder_action.setEnabled(True)
+            self.share_conn_menu.connect_to_itunes_action.setEnabled(True)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
 
     def device_job_exception(self, job):
@@ -726,16 +691,16 @@ class DeviceMixin(object): # {{{
 
     def set_device_menu_items_state(self, connected):
         if connected:
-            self._sync_menu.connect_to_folder_action.setEnabled(False)
-            self._sync_menu.connect_to_itunes_action.setEnabled(False)
+            self.share_conn_menu.connect_to_folder_action.setEnabled(False)
+            self.share_conn_menu.connect_to_itunes_action.setEnabled(False)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
             self._sync_menu.enable_device_actions(True,
                     self.device_manager.device.card_prefix(),
                     self.device_manager.device)
             self.eject_action.setEnabled(True)
         else:
-            self._sync_menu.connect_to_folder_action.setEnabled(True)
-            self._sync_menu.connect_to_itunes_action.setEnabled(True)
+            self.share_conn_menu.connect_to_folder_action.setEnabled(True)
+            self.share_conn_menu.connect_to_itunes_action.setEnabled(True)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
             self._sync_menu.enable_device_actions(False)
             self.eject_action.setEnabled(False)
@@ -754,16 +719,14 @@ class DeviceMixin(object): # {{{
                 self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
             self.device_connected = device_kind
-            self.location_view.model().device_connected(self.device_manager.device)
             self.refresh_ondevice_info (device_connected = True, reset_only = True)
         else:
             self.device_connected = None
             self.status_bar.device_disconnected()
-            self.location_view.model().update_devices()
             if self.current_view() != self.library_view:
                 self.book_details.reset_info()
-                self.location_view.setCurrentIndex(self.location_view.model().index(0))
-            self.refresh_ondevice_info (device_connected = False)
+            self.location_manager.update_devices()
+            self.refresh_ondevice_info(device_connected=False)
 
     def info_read(self, job):
         '''
@@ -772,7 +735,8 @@ class DeviceMixin(object): # {{{
         if job.failed:
             return self.device_job_exception(job)
         info, cp, fs = job.result
-        self.location_view.model().update_devices(cp, fs)
+        self.location_manager.update_devices(cp, fs,
+                self.device_manager.device.icon)
         self.status_bar.device_connected(info[0])
         self.device_manager.books(Dispatcher(self.metadata_downloaded))
 
@@ -984,6 +948,8 @@ class DeviceMixin(object): # {{{
         else:
             self.status_bar.show_message(_('Sent by email:') + ', '.join(good),
                     5000)
+            if remove:
+                self.library_view.model().delete_books_by_id(remove)
 
     def cover_to_thumbnail(self, data):
         p = QPixmap()
@@ -1074,9 +1040,9 @@ class DeviceMixin(object): # {{{
             dynamic.set('catalogs_to_be_synced', set([]))
             if files:
                 remove = []
-                space = { self.location_view.model().free[0] : None,
-                    self.location_view.model().free[1] : 'carda',
-                    self.location_view.model().free[2] : 'cardb' }
+                space = { self.location_manager.free[0] : None,
+                    self.location_manager.free[1] : 'carda',
+                    self.location_manager.free[2] : 'cardb' }
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
@@ -1138,9 +1104,9 @@ class DeviceMixin(object): # {{{
             dynamic.set('news_to_be_synced', set([]))
             if config['upload_news_to_device'] and files:
                 remove = ids if del_on_upload else []
-                space = { self.location_view.model().free[0] : None,
-                    self.location_view.model().free[1] : 'carda',
-                    self.location_view.model().free[2] : 'cardb' }
+                space = { self.location_manager.free[0] : None,
+                    self.location_manager.free[1] : 'carda',
+                    self.location_manager.free[2] : 'cardb' }
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
@@ -1261,7 +1227,8 @@ class DeviceMixin(object): # {{{
             self.device_job_exception(job)
             return
         cp, fs = job.result
-        self.location_view.model().update_devices(cp, fs)
+        self.location_manager.update_devices(cp, fs,
+                self.device_manager.device.icon)
         # reset the views so that up-to-date info is shown. These need to be
         # here because the sony driver updates collections in sync_booklists
         self.memory_view.reset()
@@ -1424,19 +1391,25 @@ class DeviceMixin(object): # {{{
                     aus = re.sub('(?u)\W|[_]', '', aus)
                     self.db_book_title_cache[title]['author_sort'][aus] = mi
                 self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
-                self.db_book_uuid_cache[mi.uuid] = mi.application_id
+                self.db_book_uuid_cache[mi.uuid] = mi
 
         # Now iterate through all the books on the device, setting the
         # in_library field Fastest and most accurate key is the uuid. Second is
         # the application_id, which is really the db key, but as this can
         # accidentally match across libraries we also verify the title. The
         # db_id exists on Sony devices. Fallback is title and author match
+
+        update_metadata = prefs['manage_device_metadata'] == 'on_connect'
         for booklist in booklists:
             for book in booklist:
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
+                    if update_metadata:
+                        book.smart_update(self.db_book_uuid_cache[book.uuid],
+                                          replace_metadata=True)
                     book.in_library = True
                     # ensure that the correct application_id is set
-                    book.application_id = self.db_book_uuid_cache[book.uuid]
+                    book.application_id = \
+                        self.db_book_uuid_cache[book.uuid].application_id
                     continue
 
                 book_title = book.title.lower() if book.title else ''
@@ -1446,11 +1419,15 @@ class DeviceMixin(object): # {{{
                 if d is not None:
                     if getattr(book, 'application_id', None) in d['db_ids']:
                         book.in_library = True
-                        book.smart_update(d['db_ids'][book.application_id])
+                        if update_metadata:
+                            book.smart_update(d['db_ids'][book.application_id],
+                                              replace_metadata=True)
                         continue
                     if book.db_id in d['db_ids']:
                         book.in_library = True
-                        book.smart_update(d['db_ids'][book.db_id])
+                        if update_metadata:
+                            book.smart_update(d['db_ids'][book.db_id],
+                                              replace_metadata=True)
                         continue
                     if book.authors:
                         # Compare against both author and author sort, because
@@ -1459,14 +1436,21 @@ class DeviceMixin(object): # {{{
                         book_authors = re.sub('(?u)\W|[_]', '', book_authors)
                         if book_authors in d['authors']:
                             book.in_library = True
-                            book.smart_update(d['authors'][book_authors])
+                            if update_metadata:
+                                book.smart_update(d['authors'][book_authors],
+                                                  replace_metadata=True)
                         elif book_authors in d['author_sort']:
                             book.in_library = True
-                            book.smart_update(d['author_sort'][book_authors])
+                            if update_metadata:
+                                book.smart_update(d['author_sort'][book_authors],
+                                                  replace_metadata=True)
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
                 if not asort and book.authors:
                     book.author_sort = self.library_view.model().db.author_sort_from_authors(book.authors)
 
+        if update_metadata:
+            if self.device_manager.is_device_connected:
+                self.device_manager.sync_booklists(None, booklists)
     # }}}
 

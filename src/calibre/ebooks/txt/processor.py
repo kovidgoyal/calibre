@@ -4,10 +4,9 @@
 Read content from txt file.
 '''
 
-import os
-import re
+import os, re
 
-from calibre import prepare_string_for_xml
+from calibre import prepare_string_for_xml, isbytestring
 from calibre.ebooks.markdown import markdown
 from calibre.ebooks.metadata.opf2 import OPFCreator
 
@@ -18,6 +17,8 @@ __docformat__ = 'restructuredtext en'
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
 
 def convert_basic(txt, title='', epub_split_size_kb=0):
+    if isbytestring(txt):
+        txt = txt.decode('utf-8', 'replace')
     # Strip whitespace from the beginning and end of the line. Also replace
     # all line breaks with \n.
     txt = '\n'.join([line.strip() for line in txt.splitlines()])
@@ -30,23 +31,32 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
     txt = re.sub('(?<=.)\s+$', '', txt)
     # Remove excessive line breaks.
     txt = re.sub('\n{3,}', '\n\n', txt)
-
+    #remove ASCII invalid chars : 0 to 8 and 11-14 to 24
+    chars = list(range(8)) + [0x0B, 0x0E, 0x0F] + list(range(0x10, 0x19))
+    illegal_chars = re.compile(u'|'.join(map(unichr, chars)))
+    txt = illegal_chars.sub('', txt)
     #Takes care if there is no point to split
     if epub_split_size_kb > 0:
-        length_byte = len(txt.encode('utf-8'))
+        if isinstance(txt, unicode):
+            txt = txt.encode('utf-8')
+        length_byte = len(txt)
         #Calculating the average chunk value for easy splitting as EPUB (+2 as a safe margin)
         chunk_size = long(length_byte / (int(length_byte / (epub_split_size_kb * 1024) ) + 2 ))
         #if there are chunks with a superior size then go and break
-        if (len(filter(lambda x: len(x.encode('utf-8')) > chunk_size, txt.split('\n\n')))) :
-            txt = u'\n\n'.join([split_string_separator(line, chunk_size) for line in txt.split('\n\n')])
+        if (len(filter(lambda x: len(x) > chunk_size, txt.split('\n\n')))) :
+            txt = '\n\n'.join([split_string_separator(line, chunk_size)
+                for line in txt.split('\n\n')])
+    if isbytestring(txt):
+        txt = txt.decode('utf-8')
+
 
     lines = []
     # Split into paragraphs based on having a blank line between text.
     for line in txt.split('\n\n'):
         if line.strip():
-            lines.append('<p>%s</p>' % prepare_string_for_xml(line.replace('\n', ' ')))
+            lines.append(u'<p>%s</p>' % prepare_string_for_xml(line.replace('\n', ' ')))
 
-    return HTML_TEMPLATE % (title, '\n'.join(lines))
+    return HTML_TEMPLATE % (title, u'\n'.join(lines))
 
 def convert_markdown(txt, title='', disable_toc=False):
     md = markdown.Markdown(
@@ -58,11 +68,11 @@ def convert_markdown(txt, title='', disable_toc=False):
 def separate_paragraphs_single_line(txt):
     txt = txt.replace('\r\n', '\n')
     txt = txt.replace('\r', '\n')
-    txt = re.sub(u'(?<=.)\n(?=.)', u'\n\n', txt)
+    txt = re.sub(u'(?<=.)\n(?=.)', '\n\n', txt)
     return txt
 
 def separate_paragraphs_print_formatted(txt):
-    txt = re.sub('(?miu)^(\t+|[ ]{2,})(?=.)', '\n\t', txt)
+    txt = re.sub(u'(?miu)^(\t+|[ ]{2,})(?=.)', '\n\t', txt)
     return txt
 
 def preserve_spaces(txt):
@@ -78,9 +88,9 @@ def opf_writer(path, opf_name, manifest, spine, mi):
         opf.render(opffile)
 
 def split_string_separator(txt, size) :
-    if len(txt.encode('utf-8')) > size:
-        txt = u''.join([re.sub(u'\.(?P<ends>[^.]*)$', u'.\n\n\g<ends>',
+    if len(txt) > size:
+        txt = ''.join([re.sub(u'\.(?P<ends>[^.]*)$', '.\n\n\g<ends>',
             txt[i:i+size], 1) for i in
-            xrange(0, len(txt.encode('utf-8')), size)])
+            xrange(0, len(txt), size)])
     return txt
 

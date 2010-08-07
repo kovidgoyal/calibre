@@ -10,7 +10,7 @@ Scheduler for automated recipe downloads
 from datetime import timedelta
 
 from PyQt4.Qt import QDialog, SIGNAL, Qt, QTime, QObject, QMenu, \
-        QAction, QIcon, QMutex, QTimer
+        QAction, QIcon, QMutex, QTimer, pyqtSignal
 
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
 from calibre.gui2.search_box import SearchBox2
@@ -62,6 +62,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
                 self.search_done)
         self.disconnect(self.recipe_model,  SIGNAL('searched(PyQt_PyObject)'),
                 self.search.search_done)
+        self.search.search.disconnect()
         self.recipe_model = None
 
     def search_done(self, *args):
@@ -203,6 +204,9 @@ class Scheduler(QObject):
 
     INTERVAL = 1 # minutes
 
+    delete_old_news = pyqtSignal(object)
+    start_recipe_fetch = pyqtSignal(object)
+
     def __init__(self, parent, db):
         QObject.__init__(self, parent)
         self.internet_connection_failed = False
@@ -225,20 +229,23 @@ class Scheduler(QObject):
                 self.download_all_scheduled)
 
         self.timer = QTimer(self)
-        self.timer.start(int(self.INTERVAL * 60000))
+        self.timer.start(int(self.INTERVAL * 60 * 1000))
         self.oldest_timer = QTimer()
         self.connect(self.oldest_timer, SIGNAL('timeout()'), self.oldest_check)
         self.connect(self.timer, SIGNAL('timeout()'), self.check)
         self.oldest = gconf['oldest_news']
-        self.oldest_timer.start(int(60 * 60000))
-        self.oldest_check()
+        self.oldest_timer.start(int(60 * 60 * 1000))
+        QTimer.singleShot(5 * 1000, self.oldest_check)
+        self.database_changed = self.recipe_model.database_changed
 
     def oldest_check(self):
         if self.oldest > 0:
             delta = timedelta(days=self.oldest)
             ids = self.recipe_model.db.tags_older_than(_('News'), delta)
             if ids:
-                self.emit(SIGNAL('delete_old_news(PyQt_PyObject)'), ids)
+                ids = list(ids)
+                if ids:
+                    self.delete_old_news.emit(ids)
 
     def show_dialog(self, *args):
         self.lock.lock()
@@ -282,7 +289,7 @@ class Scheduler(QObject):
                     'urn':urn,
                    }
             self.download_queue.add(urn)
-            self.emit(SIGNAL('start_recipe_fetch(PyQt_PyObject)'), arg)
+            self.start_recipe_fetch.emit(arg)
         finally:
             self.lock.unlock()
 

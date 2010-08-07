@@ -6,6 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
+
 from calibre.devices.usbms.driver import USBMS
 
 class PALMPRE(USBMS):
@@ -44,12 +46,13 @@ class AVANT(USBMS):
     BCD         = [0x0319]
 
     VENDOR_NAME = 'E-BOOK'
-    WINDOWS_MAIN_MEM = 'READER'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'READER'
 
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
 
 class SWEEX(USBMS):
+    # Identical to the Promedia
     name           = 'Sweex Device Interface'
     gui_name       = 'Sweex'
     description    = _('Communicate with the Sweex MM300')
@@ -83,7 +86,17 @@ class PDNOVEL(USBMS):
 
     VENDOR_NAME = 'ANDROID'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '__UMS_COMPOSITE'
+    THUMBNAIL_HEIGHT = 144
 
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = False
+    DELETE_EXTS = ['.jpg', '.jpeg', '.png']
+
+
+    def upload_cover(self, path, filename, metadata):
+        coverdata = getattr(metadata, 'thumbnail', None)
+        if coverdata and coverdata[2]:
+            with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
+                coverfile.write(coverdata[2])
+
 

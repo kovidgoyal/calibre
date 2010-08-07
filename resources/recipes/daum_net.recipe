@@ -1,0 +1,112 @@
+import re
+from datetime import date, timedelta
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class MediaDaumRecipe(BasicNewsRecipe):
+    title = u'\uBBF8\uB514\uC5B4 \uB2E4\uC74C \uC624\uB298\uC758 \uC8FC\uC694 \uB274\uC2A4'
+    description = 'Articles from media.daum.net'
+    __author__ = 'trustin'
+    language  = 'ko'
+    max_articles = 100
+
+    timefmt = ''
+    masthead_url = 'http://img-media.daum-img.net/2010ci/service_news.gif'
+    cover_margins = (18,18,'grey99')
+    no_stylesheets = True
+    remove_tags_before = dict(id='GS_con')
+    remove_tags_after  = dict(id='GS_con')
+    remove_tags = [dict(attrs={'class':[
+                            'bline',
+                            'GS_vod',
+                            ]}),
+                   dict(id=[
+                            'GS_swf_poll',
+                            'ad250',
+                            ]),
+                   dict(name=['script', 'noscript', 'style', 'object'])]
+    preprocess_regexps = [
+       (re.compile(r'<\s+', re.DOTALL|re.IGNORECASE),
+        lambda match: '&lt; '),
+       (re.compile(r'(<br[^>]*>[ \t\r\n]*){3,}', re.DOTALL|re.IGNORECASE),
+        lambda match: ''),
+       (re.compile(r'(<br[^>]*>[ \t\r\n]*)*</div>', re.DOTALL|re.IGNORECASE),
+        lambda match: '</div>'),
+       (re.compile(r'(<br[^>]*>[ \t\r\n]*)*</p>', re.DOTALL|re.IGNORECASE),
+        lambda match: '</p>'),
+       (re.compile(r'(<br[^>]*>[ \t\r\n]*)*</td>', re.DOTALL|re.IGNORECASE),
+        lambda match: '</td>'),
+       (re.compile(r'(<br[^>]*>[ \t\r\n]*)*</strong>', re.DOTALL|re.IGNORECASE),
+        lambda match: '</strong>'),
+       (re.compile(r'(<br[^>]*>[ \t\r\n]*)*</b>', re.DOTALL|re.IGNORECASE),
+        lambda match: '</b>'),
+       (re.compile(r'(<br[^>]*>[ \t\r\n]*)*</em>', re.DOTALL|re.IGNORECASE),
+        lambda match: '</em>'),
+       (re.compile(r'(<br[^>]*>[ \t\r\n]*)*</i>', re.DOTALL|re.IGNORECASE),
+        lambda match: '</i>'),
+       (re.compile(u'\(\uB05D\)[ \t\r\n]*<br[^>]*>.*</div>', re.DOTALL|re.IGNORECASE),
+        lambda match: '</div>'),
+       (re.compile(r'(<br[^>]*>[ \t\r\n]*)*<div', re.DOTALL|re.IGNORECASE),
+        lambda match: '<div'),
+       (re.compile(r'(<br[^>]*>[ \t\r\n]*)*<p', re.DOTALL|re.IGNORECASE),
+        lambda match: '<p'),
+       (re.compile(r'(<br[^>]*>[ \t\r\n]*)*<table', re.DOTALL|re.IGNORECASE),
+        lambda match: '<table'),
+       (re.compile(r'<strong>(<br[^>]*>[ \t\r\n]*)*', re.DOTALL|re.IGNORECASE),
+        lambda match: '<strong>'),
+       (re.compile(r'<b>(<br[^>]*>[ \t\r\n]*)*', re.DOTALL|re.IGNORECASE),
+        lambda match: '<b>'),
+       (re.compile(r'<em>(<br[^>]*>[ \t\r\n]*)*', re.DOTALL|re.IGNORECASE),
+        lambda match: '<em>'),
+       (re.compile(r'<i>(<br[^>]*>[ \t\r\n]*)*', re.DOTALL|re.IGNORECASE),
+        lambda match: '<i>'),
+       (re.compile(u'(<br[^>]*>[ \t\r\n]*)*(\u25B6|\u25CF|\u261E|\u24D2|\(c\))*\[[^\]]*(\u24D2|\(c\)|\uAE30\uC0AC|\uC778\uAE30[^\]]*\uB274\uC2A4)[^\]]*\].*</div>', re.DOTALL|re.IGNORECASE),
+        lambda match: '</div>'),
+    ]
+
+    def parse_index(self):
+        today = date.today();
+        articles = []
+        articles = self.parse_list_page(articles, today)
+        articles = self.parse_list_page(articles, today - timedelta(1))
+        return [('\uBBF8\uB514\uC5B4 \uB2E4\uC74C \uC624\uB298\uC758 \uC8FC\uC694 \uB274\uC2A4', articles)]
+
+
+    def parse_list_page(self, articles, date):
+        if len(articles) >= self.max_articles:
+            return articles
+
+        for page in range(1, 10):
+            soup = self.index_to_soup('http://media.daum.net/primary/total/list.html?cateid=100044&date=%(date)s&page=%(page)d' % {'date': date.strftime('%Y%m%d'), 'page': page})
+            done = True
+            for item in soup.findAll('dl'):
+                dt = item.find('dt', { 'class': 'tit' })
+                dd = item.find('dd', { 'class': 'txt' })
+                if dt is None:
+                    break
+                a = dt.find('a', href=True)
+                url = 'http://media.daum.net/primary/total/' + a['href']
+                title = self.tag_to_string(dt)
+                if dd is None:
+                    description = ''
+                else:
+                    description = self.tag_to_string(dd)
+                articles.append(dict(title=title, description=description, url=url, content=''))
+                done = len(articles) >= self.max_articles
+                if done:
+                    break
+            if done:
+                break
+        return articles
+
+
+    def preprocess_html(self, soup):
+        return self.strip_anchors(soup)
+
+    def strip_anchors(self, soup):
+        for para in soup.findAll(True):
+            aTags = para.findAll('a')
+            for a in aTags:
+                if a.img is None:
+                    a.replaceWith(a.renderContents().decode('utf-8','replace'))
+        return soup
