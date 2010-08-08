@@ -32,7 +32,7 @@ from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
-from calibre.utils.magick_draw import save_cover_data_to
+from calibre.utils.magick.draw import save_cover_data_to
 
 if iswindows:
     import calibre.utils.winshell as winshell
@@ -327,6 +327,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ''' Return last modified time as a UTC datetime object'''
         return utcfromtimestamp(os.stat(self.dbpath).st_mtime)
 
+
     def check_if_modified(self):
         if self.last_modified() > self.last_update_check:
             self.refresh()
@@ -596,6 +597,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def has_format(self, index, format, index_is_id=False):
         return self.format_abspath(index, format, index_is_id) is not None
+
+    def format_last_modified(self, id_, fmt):
+        path = self.format_abspath(id_, fmt, index_is_id=True)
+        if path is not None:
+            return utcfromtimestamp(os.stat(path).st_mtime)
 
     def format_abspath(self, index, format, index_is_id=False):
         'Return absolute path to the ebook file of format `format`'

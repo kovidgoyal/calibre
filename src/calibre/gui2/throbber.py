@@ -26,7 +26,10 @@ class ThrobbingButton(QToolButton):
     def set_normal_icon_size(self, w, h):
         self.normal_icon_size = QSize(w, h)
         self.setIconSize(self.normal_icon_size)
-        self.setMinimumSize(self.sizeHint())
+        try:
+            self.setMinimumSize(self.sizeHint())
+        except:
+            self.setMinimumSize(QSize(w+5, h+5))
 
     def animation_finished(self):
         self.setIconSize(self.normal_icon_size)

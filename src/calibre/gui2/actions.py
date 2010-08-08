@@ -430,6 +430,20 @@ class AddAction(object): # {{{
             d.exec_()
             return
         paths = [p for p in view._model.paths(rows) if p is not None]
+        ve = self.device_manager.device.VIRTUAL_BOOK_EXTENSIONS
+        def ext(x):
+            ans = os.path.splitext(x)[1]
+            ans = ans[1:] if len(ans) > 1 else ans
+            return ans.lower()
+        remove = set([p for p in paths if ext(p) in ve])
+        if remove:
+            paths = [p for p in paths if p not in remove]
+            info_dialog(self,  _('Not Implemented'),
+                        _('The following books are virtual and cannot be added'
+                          ' to the calibre library:'), '\n'.join(remove),
+                        show=True)
+            if not paths:
+                return
         if not paths or len(paths) == 0:
             d = error_dialog(self, _('Add to library'), _('No book files found'))
             d.exec_()
@@ -578,9 +592,7 @@ class DeleteAction(object): # {{{
             if row is not None:
                 ci = view.model().index(row, 0)
                 if ci.isValid():
-                    view.setCurrentIndex(ci)
-                    sm = view.selectionModel()
-                    sm.select(ci, sm.Select)
+                    view.set_current_row(row)
         else:
             if not confirm('<p>'+_('The selected books will be '
                                    '<b>permanently deleted</b> '
@@ -806,11 +818,11 @@ class EditMetadataAction(object): # {{{
         for src_id in src_ids:
             src_mi = db.get_metadata(src_id, index_is_id=True, get_cover=True)
             if src_mi.comments and orig_dest_comments != src_mi.comments:
-                if not dest_mi.comments or len(dest_mi.comments) == 0:
+                if not dest_mi.comments:
                     dest_mi.comments = src_mi.comments
                 else:
                     dest_mi.comments = unicode(dest_mi.comments) + u'\n\n' + unicode(src_mi.comments)
-            if src_mi.title and src_mi.title and (not dest_mi.title or
+            if src_mi.title and (not dest_mi.title or
                     dest_mi.title == _('Unknown')):
                 dest_mi.title = src_mi.title
             if src_mi.title and (not dest_mi.authors or dest_mi.authors[0] ==
@@ -821,8 +833,7 @@ class EditMetadataAction(object): # {{{
                 if not dest_mi.tags:
                     dest_mi.tags = src_mi.tags
                 else:
-                    for tag in src_mi.tags:
-                        dest_mi.tags.append(tag)
+                    dest_mi.tags.extend(src_mi.tags)
             if src_mi.cover and not dest_mi.cover:
                 dest_mi.cover = src_mi.cover
             if not dest_mi.publisher:
@@ -833,6 +844,44 @@ class EditMetadataAction(object): # {{{
                 dest_mi.series = src_mi.series
                 dest_mi.series_index = src_mi.series_index
         db.set_metadata(dest_id, dest_mi, ignore_errors=False)
+
+        for key in db.field_metadata: #loop thru all defined fields
+          if db.field_metadata[key]['is_custom']:
+            colnum = db.field_metadata[key]['colnum']
+            # Get orig_dest_comments before it gets changed
+            if db.field_metadata[key]['datatype'] == 'comments':
+              orig_dest_value = db.get_custom(dest_id, num=colnum, index_is_id=True)
+            for src_id in src_ids:
+              dest_value = db.get_custom(dest_id, num=colnum, index_is_id=True)
+              src_value = db.get_custom(src_id, num=colnum, index_is_id=True)
+              if db.field_metadata[key]['datatype'] == 'comments':
+                if src_value and src_value != orig_dest_value:
+                  if not dest_value:
+                    db.set_custom(dest_id, src_value, num=colnum)
+                  else:
+                    dest_value = unicode(dest_value) + u'\n\n' + unicode(src_value)
+                    db.set_custom(dest_id, dest_value, num=colnum)
+              if db.field_metadata[key]['datatype'] in \
+                ('bool', 'int', 'float', 'rating', 'datetime') \
+                and not dest_value:
+                db.set_custom(dest_id, src_value, num=colnum)
+              if db.field_metadata[key]['datatype'] == 'series' \
+                and not dest_value:
+                if src_value:
+                  src_index = db.get_custom_extra(src_id, num=colnum, index_is_id=True)
+                  db.set_custom(dest_id, src_value, num=colnum, extra=src_index)
+              if db.field_metadata[key]['datatype'] == 'text' \
+                and not db.field_metadata[key]['is_multiple'] \
+                and not dest_value:
+                db.set_custom(dest_id, src_value, num=colnum)
+              if db.field_metadata[key]['datatype'] == 'text' \
+                and db.field_metadata[key]['is_multiple']:
+                if src_value:
+                  if not dest_value:
+                    dest_value = src_value
+                  else:
+                    dest_value.extend(src_value)
+                  db.set_custom(dest_id, dest_value, num=colnum)
         # }}}
 
     def edit_device_collections(self, view, oncard=None):
@@ -878,6 +927,14 @@ class SaveToDiskAction(object): # {{{
                 _('Choose destination directory'))
         if not path:
             return
+        dpath = os.path.abspath(path).replace('/', os.sep)
+        lpath = self.library_view.model().db.library_path.replace('/', os.sep)
+        if dpath.startswith(lpath):
+            return error_dialog(self, _('Not allowed'),
+                    _('You are tying to save files into the calibre '
+                      'library. This can cause corruption of your '
+                      'library. Save to disk is meant to export '
+                      'files from your calibre library elsewhere.'), show=True)
 
         if self.current_view() is self.library_view:
             from calibre.gui2.add import Saver

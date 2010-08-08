@@ -16,7 +16,7 @@ from PyQt4.Qt import QIcon, Qt, QWidget, QAction, QToolBar, QSize, \
 from calibre.constants import __appname__, isosx
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
 from calibre.gui2.throbber import ThrobbingButton
-from calibre.gui2 import config, open_url
+from calibre.gui2 import config, open_url, gprefs
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre import human_readable
 from calibre.utils.config import prefs
@@ -24,7 +24,6 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.utils.smtp import config as email_config
 
-ICON_SIZE = 48
 
 class SaveMenu(QMenu): # {{{
 
@@ -229,12 +228,11 @@ class ToolBar(QToolBar): # {{{
         self.setFloatable(False)
         self.setOrientation(Qt.Horizontal)
         self.setAllowedAreas(Qt.TopToolBarArea|Qt.BottomToolBarArea)
-        self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
-        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.setStyleSheet('QToolButton:checked { font-weight: bold }')
+        self.donate = donate
+        self.apply_settings()
 
         self.all_actions = actions
-        self.donate = donate
         self.location_manager = location_manager
         self.location_manager.locations_changed.connect(self.build_bar)
         self.d_widget = QWidget()
@@ -243,6 +241,17 @@ class ToolBar(QToolBar): # {{{
         donate.setAutoRaise(True)
         donate.setCursor(Qt.PointingHandCursor)
         self.build_bar()
+        self.preferred_width = self.sizeHint().width()
+
+    def apply_settings(self):
+        sz = gprefs.get('toolbar_icon_size', 'medium')
+        sz = {'small':24, 'medium':48, 'large':64}[sz]
+        self.setIconSize(QSize(sz, sz))
+        style = Qt.ToolButtonTextUnderIcon
+        if gprefs.get('toolbar_text', 'auto') == 'never':
+            style = Qt.ToolButtonIconOnly
+        self.setToolButtonStyle(style)
+        self.donate.set_normal_icon_size(sz, sz)
 
     def contextMenuEvent(self, *args):
         pass
@@ -293,13 +302,19 @@ class ToolBar(QToolBar): # {{{
         text = _('%d books')%new_count
         a = self.choose_action
         a.setText(text)
+        a.setToolTip(_('Choose calibre library to work with') + '\n\n' + text)
 
     def resizeEvent(self, ev):
-        style = Qt.ToolButtonTextUnderIcon
-        if self.size().width() < 1260:
-            style = Qt.ToolButtonIconOnly
-        self.setToolButtonStyle(style)
         QToolBar.resizeEvent(self, ev)
+        style = Qt.ToolButtonTextUnderIcon
+        p = gprefs.get('toolbar_text', 'auto')
+        if p == 'never':
+            style = Qt.ToolButtonIconOnly
+
+        if p == 'auto' and self.preferred_width > self.width()+35:
+            style = Qt.ToolButtonIconOnly
+
+        self.setToolButtonStyle(style)
 
     def database_changed(self, db):
         pass
@@ -309,11 +324,12 @@ class ToolBar(QToolBar): # {{{
 class Action(QAction):
     pass
 
-class ShareConnMenu(QMenu):
+class ShareConnMenu(QMenu): # {{{
 
     connect_to_folder = pyqtSignal()
     connect_to_itunes = pyqtSignal()
     config_email = pyqtSignal()
+    toggle_server = pyqtSignal()
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -321,20 +337,33 @@ class ShareConnMenu(QMenu):
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
         self.connect_to_folder_action = mitem
-
         mitem = self.addAction(QIcon(I('devices/itunes.png')),
                 _('Connect to iTunes'))
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
         self.connect_to_itunes_action = mitem
         self.addSeparator()
+        self.toggle_server_action = \
+            self.addAction(QIcon(I('network-server.svg')),
+            _('Start Content Server'))
+        self.toggle_server_action.triggered.connect(lambda x:
+                self.toggle_server.emit())
+        self.addSeparator()
+
         self.email_actions = []
+
+    def server_state_changed(self, running):
+        text = _('Start Content Server')
+        if running:
+            text = _('Stop Content Server')
+        self.toggle_server_action.setText(text)
 
     def build_email_entries(self, sync_menu):
         from calibre.gui2.device import DeviceAction
         for ac in self.email_actions:
             self.removeAction(ac)
         self.email_actions = []
+        self.memory = []
         opts = email_config().parse()
         if opts.accounts:
             self.email_to_menu = QMenu(_('Email to')+'...', self)
@@ -347,6 +376,7 @@ class ShareConnMenu(QMenu):
                 action2 = DeviceAction(dest, True, False, I('mail.svg'),
                         _('Email to')+' '+account+ _(' and delete from library'))
                 map(self.email_to_menu.addAction, (action1, action2))
+                map(self.memory.append, (action1, action2))
                 if default:
                     map(self.addAction, (action1, action2))
                     map(self.email_actions.append, (action1, action2))
@@ -363,6 +393,8 @@ class ShareConnMenu(QMenu):
     def setup_email(self, *args):
         self.config_email.emit()
 
+# }}}
+
 class MainWindowMixin(object):
 
     def __init__(self, db):
@@ -378,7 +410,6 @@ class MainWindowMixin(object):
         self.centralwidget.setLayout(self._central_widget_layout)
         self.resize(1012, 740)
         self.donate_button = ThrobbingButton(self.centralwidget)
-        self.donate_button.set_normal_icon_size(ICON_SIZE, ICON_SIZE)
         self.location_manager = LocationManager(self)
 
         self.init_scheduler(db)
@@ -460,6 +491,7 @@ class MainWindowMixin(object):
         self.action_news.triggered.connect(
                 self.scheduler.show_dialog)
         self.share_conn_menu = ShareConnMenu(self)
+        self.share_conn_menu.toggle_server.connect(self.toggle_content_server)
         self.share_conn_menu.config_email.connect(partial(self.do_config,
             initial_category='email'))
         self.action_conn_share.setMenu(self.share_conn_menu)
@@ -596,4 +628,12 @@ class MainWindowMixin(object):
     def show_help(self, *args):
         open_url(QUrl('http://calibre-ebook.com/user_manual'))
 
+    def content_server_state_changed(self, running):
+        self.share_conn_menu.server_state_changed(running)
 
+    def toggle_content_server(self):
+        if self.content_server is None:
+           self.start_content_server()
+        else:
+            self.content_server.exit()
+            self.content_server = None

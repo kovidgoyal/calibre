@@ -262,30 +262,20 @@ class CatalogPlugin(Plugin):
 
     type = _('Catalog generator')
 
-    #: CLI parser options specific to this plugin, declared as namedtuple Option
+    #: CLI parser options specific to this plugin, declared as namedtuple Option::
     #:
-    #: from collections import namedtuple
-    #: Option = namedtuple('Option', 'option, default, dest, help')
-    #: cli_options = [Option('--catalog-title',
+    #:  from collections import namedtuple
+    #:  Option = namedtuple('Option', 'option, default, dest, help')
+    #:  cli_options = [Option('--catalog-title',
     #:                       default = 'My Catalog',
     #:                       dest = 'catalog_title',
     #:                       help = (_('Title of generated catalog. \nDefault:') + " '" +
     #:                       '%default' + "'"))]
-    #: cli_options parsed in library.cli:catalog_option_parser()
-
+    #:  cli_options parsed in library.cli:catalog_option_parser()
     cli_options = []
 
 
     def search_sort_db(self, db, opts):
-
-        '''
-        # Don't add Catalogs to the generated Catalogs
-        cat = _('Catalog')
-        if opts.search_text:
-            opts.search_text += ' not tag:'+cat
-        else:
-            opts.search_text = 'not tag:'+cat
-        '''
 
         db.search(opts.search_text)
 
@@ -349,8 +339,7 @@ class CatalogPlugin(Plugin):
         It should generate the catalog in the format specified
         in file_types, returning the absolute path to the
         generated catalog file. If an error is encountered
-        it should raise an Exception and return None. The default
-        implementation simply returns None.
+        it should raise an Exception.
 
         The generated catalog file should be created with the
         :meth:`temporary_file` method.
@@ -358,9 +347,6 @@ class CatalogPlugin(Plugin):
         :param path_to_output: Absolute path to the generated catalog file.
         :param opts: A dictionary of keyword arguments
         :param db: A LibraryDatabase2 object
-
-        :return: None
-
         '''
         # Default implementation does nothing
         raise NotImplementedError('CatalogPlugin.generate_catalog() default '

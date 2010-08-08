@@ -46,6 +46,7 @@ def authors_to_sort_string(authors):
     return ' & '.join(map(author_to_author_sort, authors))
 
 _title_pat = re.compile('^(A|The|An)\s+', re.IGNORECASE)
+
 def title_sort(title):
     match = _title_pat.search(title)
     if match:

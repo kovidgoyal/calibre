@@ -36,7 +36,7 @@ class Vijesti(BasicNewsRecipe):
 
     keep_only_tags = [dict(name='div', attrs={'id':'mainnews'})]
 
-    remove_tags = [dict(name=['object','link','embed'])]
+    remove_tags = [dict(name=['object','link','embed','form'])]
 
     feeds = [(u'Sve vijesti', u'http://www.vijesti.me/rss.php' )]
 

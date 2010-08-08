@@ -24,13 +24,15 @@ from calibre.gui2.widgets import ProgressIndicator
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import string_to_authors, \
         authors_to_string, check_isbn
-from calibre.ebooks.metadata.library_thing import cover_from_isbn
+from calibre.ebooks.metadata.covers import download_cover
 from calibre.ebooks.metadata.meta import get_metadata
+from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.date import qt_to_dt
+from calibre.utils.date import qt_to_dt, local_tz, utcfromtimestamp
 from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
 from calibre.gui2.dialogs.config.social import SocialMetadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
+from calibre import strftime
 
 class CoverFetcher(QThread):
 
@@ -47,12 +49,13 @@ class CoverFetcher(QThread):
 
     def run(self):
         try:
+            au = self.author if self.author else None
+            mi = MetaInformation(self.title, [au])
             if not self.isbn:
                 from calibre.ebooks.metadata.fetch import search
                 if not self.title:
                     self.needs_isbn = True
                     return
-                au = self.author if self.author else None
                 key = get_isbndb_key()
                 if not key:
                     key = None
@@ -65,8 +68,10 @@ class CoverFetcher(QThread):
                     return
                 self.isbn = results[0]
 
-            self.cover_data = cover_from_isbn(self.isbn, timeout=self.timeout,
-                    username=self.username, password=self.password)[0]
+            mi.isbn = self.isbn
+
+            self.cover_data, self.errors = download_cover(mi,
+                    timeout=self.timeout)
         except Exception, e:
             self.exception = e
             self.traceback = traceback.format_exc()
@@ -75,13 +80,20 @@ class CoverFetcher(QThread):
 
 
 class Format(QListWidgetItem):
-    def __init__(self, parent, ext, size, path=None):
+
+    def __init__(self, parent, ext, size, path=None, timestamp=None):
         self.path = path
         self.ext = ext
         self.size = float(size)/(1024*1024)
         text = '%s (%.2f MB)'%(self.ext.upper(), self.size)
         QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext),
                                  text, parent, QListWidgetItem.UserType)
+        if timestamp is not None:
+            ts = timestamp.astimezone(local_tz)
+            t = strftime('%a, %d %b %Y [%H:%M:%S]', ts.timetuple())
+            text = _('Last modified: %s')%t
+            self.setToolTip(text)
+            self.setStatusTip(text)
 
 
 class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
@@ -130,6 +142,21 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     self.cpixmap = pix
                     self.cover_data = cover
 
+    def generate_cover(self, *args):
+        from calibre.utils.magick.draw import create_cover_page, TextLine
+        title = unicode(self.title.text()).strip()
+        author = unicode(self.authors.text()).strip()
+        if not title or not author:
+            return error_dialog(self, _('Specify title and author'),
+                    _('You must specify a title and author before generating '
+                        'a cover'), show=True)
+        lines = [TextLine(title, 44), TextLine(author, 32)]
+        self.cover_data = create_cover_page(lines, I('library.png'))
+        pix = QPixmap()
+        pix.loadFromData(self.cover_data)
+        self.cover.setPixmap(pix)
+        self.cover_changed = True
+        self.cpixmap = pix
 
     def add_format(self, x):
         files = choose_files(self, 'add formats dialog',
@@ -151,14 +178,16 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             nfile = run_plugins_on_import(_file)
             if nfile is not None:
                 _file = nfile
-            size = os.stat(_file).st_size
+            stat = os.stat(_file)
+            size = stat.st_size
             ext = os.path.splitext(_file)[1].lower().replace('.', '')
+            timestamp = utcfromtimestamp(stat.st_mtime)
             for row in range(self.formats.count()):
                 fmt = self.formats.item(row)
                 if fmt.ext.lower() == ext:
                     self.formats.takeItem(row)
                     break
-            Format(self.formats, ext, size, path=_file)
+            Format(self.formats, ext, size, path=_file, timestamp=timestamp)
             self.formats_changed = True
             added = True
         if bad_perms:
@@ -379,9 +408,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 if not ext:
                     ext = ''
                 size = self.db.sizeof_format(row, ext)
+                timestamp = self.db.format_last_modified(self.id, ext)
                 if size is None:
                     continue
-                Format(self.formats, ext, size)
+                Format(self.formats, ext, size, timestamp=timestamp)
 
 
         self.initialize_combos()
@@ -410,6 +440,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.central_widget.tabBar().setVisible(False)
         else:
             self.create_custom_column_editors()
+        self.generate_cover_button.clicked.connect(self.generate_cover)
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
@@ -565,6 +596,13 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 error_dialog(self, _('Cannot fetch cover'),
                     _('<b>Could not fetch cover.</b><br/>')+unicode(err)).exec_()
                 return
+            if self.cover_fetcher.errors and self.cover_fetcher.cover_data is None:
+                details = u'\n\n'.join([e[-1] + ': ' + e[1] for e in self.cover_fetcher.errors])
+                error_dialog(self, _('Cannot fetch cover'),
+                    _('<b>Could not fetch cover.</b><br/>') +
+                    _('For the error message from each cover source, '
+                      'click Show details below.'), det_msg=details, show=True)
+                return
 
             pix = QPixmap()
             pix.loadFromData(self.cover_fetcher.cover_data)
@@ -666,6 +704,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
 
     def accept(self):
+        cf = getattr(self, 'cover_fetcher', None)
+        if cf is not None and hasattr(cf, 'terminate'):
+            cf.terminate()
+            cf.wait()
         try:
             if self.formats_changed:
                 self.sync_formats()

@@ -467,12 +467,15 @@ from calibre.devices.kobo.driver import KOBO
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
     LibraryThing
 from calibre.ebooks.metadata.douban import DoubanBooks
+from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
+        LibraryThingCovers
 from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
 from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
 plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
-        LibraryThing, DoubanBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested, Epubcheck]
+        LibraryThing, DoubanBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
+        Epubcheck, OpenLibraryCovers, LibraryThingCovers]
 plugins += [
     ComicInput,
     EPUBInput,

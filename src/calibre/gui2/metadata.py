@@ -13,8 +13,10 @@ from Queue import Queue, Empty
 
 from calibre.ebooks.metadata.fetch import search, get_social_metadata
 from calibre.gui2 import config
-from calibre.ebooks.metadata.library_thing import cover_from_isbn
+from calibre.ebooks.metadata.covers import download_cover
 from calibre.customize.ui import get_isbndb_key
+from calibre import prints
+from calibre.constants import DEBUG
 
 class Worker(Thread):
 
@@ -26,13 +28,15 @@ class Worker(Thread):
 
     def run(self):
         while True:
-            isbn = self.jobs.get()
-            if not isbn:
+            mi = self.jobs.get()
+            if not getattr(mi, 'isbn', False):
                 break
             try:
-                cdata, _ = cover_from_isbn(isbn)
+                cdata, errors = download_cover(mi)
                 if cdata:
-                    self.results.put((isbn, cdata))
+                    self.results.put((mi.isbn, cdata))
+                elif DEBUG:
+                    prints('Cover download failed:', errors)
             except:
                 traceback.print_exc()
 
@@ -98,7 +102,7 @@ class DownloadMetadata(Thread):
                     fmi = results[0]
                     self.fetched_metadata[id] = fmi
                     if fmi.isbn and self.get_covers:
-                        self.worker.jobs.put(fmi.isbn)
+                        self.worker.jobs.put(fmi)
                     if (not config['overwrite_author_title_metadata']):
                         fmi.authors = mi.authors
                         fmi.author_sort = mi.author_sort

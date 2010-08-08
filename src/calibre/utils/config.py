@@ -13,24 +13,9 @@ from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
 from collections import defaultdict
 
-from calibre.constants import terminal_controller, iswindows, isosx, \
-                              __appname__, __version__, __author__, plugins
+from calibre.constants import terminal_controller, config_dir, \
+                              __appname__, __version__, __author__
 from calibre.utils.lock import LockError, ExclusiveFile
-
-if os.environ.has_key('CALIBRE_CONFIG_DIRECTORY'):
-    config_dir = os.path.abspath(os.environ['CALIBRE_CONFIG_DIRECTORY'])
-elif iswindows:
-    if plugins['winutil'][0] is None:
-        raise Exception(plugins['winutil'][1])
-    config_dir = plugins['winutil'][0].special_folder_path(plugins['winutil'][0].CSIDL_APPDATA)
-    if not os.access(config_dir, os.W_OK|os.X_OK):
-        config_dir = os.path.expanduser('~')
-    config_dir = os.path.join(config_dir, 'calibre')
-elif isosx:
-    config_dir = os.path.expanduser('~/Library/Preferences/calibre')
-else:
-    bdir = os.path.abspath(os.path.expanduser(os.environ.get('XDG_CONFIG_HOME', '~/.config')))
-    config_dir = os.path.join(bdir, 'calibre')
 
 plugin_dir = os.path.join(config_dir, 'plugins')
 
@@ -327,10 +312,10 @@ class OptionSet(object):
 
     def parse_string(self, src):
         options = {'cPickle':cPickle}
-        if not isinstance(src, unicode):
-            src = src.decode('utf-8')
         if src is not None:
             try:
+                if not isinstance(src, unicode):
+                    src = src.decode('utf-8')
                 exec src in options
             except:
                 print 'Failed to parse options string:'

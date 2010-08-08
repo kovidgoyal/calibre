@@ -19,6 +19,32 @@ class heiseDe(BasicNewsRecipe):
     max_articles_per_feed = 40
     no_stylesheets = True
 
+    extra_css = '''
+    .bild_links, .bild_bu_links {
+        float:left;
+        line-height:105%;
+        margin:12px 1.4em 12px 0;
+    }
+
+    .bild_rechts, .bild_bu {
+            float:right;
+            line-height:105%;
+            margin:12px 0 12px 1em;
+            text-align:right;
+    }
+
+    .bild_zentriert {
+            clear:both;
+            line-height:105%;
+            margin:.2em auto;
+            text-align:center;
+    }
+
+    span.bild_links, span.bild_rechts, span.bild_zentriert {
+            display:block;
+    }
+    '''
+
     remove_tags = [dict(id='navi_top'),
 		   dict(id='navi_bottom'),
 		   dict(id='logo'),

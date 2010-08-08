@@ -1362,7 +1362,7 @@ class ZipFile:
             self.fp.close()
         self.fp = None
 
-def safe_replace(zipstream, name, datastream):
+def safe_replace(zipstream, name, datastream, extra_replacements={}):
     '''
     Replace a file in a zip file in a safe manner. This proceeds by extracting
     and re-creating the zipfile. This is necessary because :method:`ZipFile.replace`
@@ -1371,13 +1371,19 @@ def safe_replace(zipstream, name, datastream):
     :param zipstream:  Stream from a zip file
     :param name:       The name of the file to replace
     :param datastream: The data to replace the file with.
+    :param extra_replacements: Extra replacements. Mapping of name to file-like
+                               objects
+
     '''
     z = ZipFile(zipstream, 'r')
+    replacements = {name:datastream}
+    replacements.update(extra_replacements)
+    names = frozenset(replacements.keys())
     with SpooledTemporaryFile(max_size=100*1024*1024) as temp:
         ztemp = ZipFile(temp, 'w')
         for obj in z.infolist():
-            if obj.filename == name:
-                ztemp.writestr(obj, datastream.read())
+            if obj.filename in names:
+                ztemp.writestr(obj, replacements[obj.filename].read())
             else:
                 ztemp.writestr(obj, z.read_raw(obj), raw_bytes=True)
         ztemp.close()

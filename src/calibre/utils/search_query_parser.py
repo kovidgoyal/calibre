@@ -18,9 +18,11 @@ If this module is run, it will perform a series of unit tests.
 
 import sys, string, operator
 
-from calibre.utils.pyparsing import Keyword, Group, Forward, CharsNotIn, Suppress, \
-                      OneOrMore, oneOf, CaselessLiteral, Optional, NoMatch, ParseException
+from calibre.utils.pyparsing import CaselessKeyword, Group, Forward, CharsNotIn, Suppress, \
+                      OneOrMore, MatchFirst, CaselessLiteral, Optional, NoMatch, ParseException
 from calibre.constants import preferred_encoding
+
+
 
 '''
 This class manages access to the preference holding the saved search queries.
@@ -149,18 +151,19 @@ class SearchQueryParser(object):
 
         Not = Forward()
         Not << (Group(
-            Suppress(Keyword("not", caseless=True)) + Not
+            Suppress(CaselessKeyword("not")) + Not
         ).setResultsName("not") | Parenthesis)
 
         And = Forward()
         And << (Group(
-            Not + Suppress(Keyword("and", caseless=True)) + And
+            Not + Suppress(CaselessKeyword("and")) + And
         ).setResultsName("and") | Group(
-            Not + OneOrMore(~oneOf("and or", caseless=True) + And)
+            Not + OneOrMore(~MatchFirst(list(map(CaselessKeyword,
+                ('and', 'or')))) + And)
         ).setResultsName("and") | Not)
 
         Or << (Group(
-            And + Suppress(Keyword("or", caseless=True)) + Or
+            And + Suppress(CaselessKeyword("or")) + Or
         ).setResultsName("or") | And)
 
         if test:
@@ -168,8 +171,6 @@ class SearchQueryParser(object):
             self._tests_failed = bool(failed)
 
         self._parser = Or
-        #self._parser.setDebug(True)
-        #self.parse('(tolstoy)')
         self._parser.setDebug(False)
 
 
@@ -293,7 +294,7 @@ class Tester(SearchQueryParser):
  28: [u"Kushiel's Scion", u'Jacqueline Carey', None, u'lrf,rar'],
  29: [u'Underworld', u'Don DeLillo', None, u'lrf,rar'],
  30: [u'Genghis Khan and The Making of the Modern World',
-      u'Jack Weatherford',
+      u'Jack Weatherford Orc',
       u'Three Rivers Press',
       u'lrf,zip'],
  31: [u'The Best and the Brightest',
@@ -545,6 +546,7 @@ class Tester(SearchQueryParser):
              'london:thames': set([13]),
              'publisher:london:thames': set([13]),
              '"(1977)"': set([13]),
+             'jack weatherford orc': set([30]),
              }
     fields = {'title':0, 'author':1, 'publisher':2, 'tag':3}
 
@@ -584,7 +586,10 @@ class Tester(SearchQueryParser):
 
 
 def main(args=sys.argv):
-    tester = Tester(test=True)
+    tester = Tester(['authors', 'author', 'series', 'formats', 'format',
+        'publisher', 'rating', 'tags', 'tag', 'comments', 'comment', 'cover',
+        'isbn', 'ondevice', 'pubdate', 'size', 'date', 'title', u'#read',
+        'all', 'search'], test=True)
     failed = tester.run_tests()
     if tester._tests_failed or failed:
         print '>>>>>>>>>>>>>> Tests Failed <<<<<<<<<<<<<<<'

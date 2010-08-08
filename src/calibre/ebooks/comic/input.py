@@ -8,7 +8,6 @@ Based on ideas from comiclrf created by FangornUK.
 '''
 
 import os, shutil, traceback, textwrap, time, codecs
-from ctypes import byref
 from Queue import Empty
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
@@ -71,141 +70,119 @@ class PageProcessor(list):
 
 
     def render(self):
-        import calibre.utils.PythonMagickWand as pw
-        img = pw.NewMagickWand()
-        if img < 0:
-            raise RuntimeError('Cannot create wand.')
-        if not pw.MagickReadImage(img, self.path_to_page):
-            severity = pw.ExceptionType(0)
-            msg = pw.MagickGetException(img, byref(severity))
-            raise IOError('Failed to read image from: %s: %s'
-                    %(self.path_to_page, msg))
-        width  = pw.MagickGetImageWidth(img)
-        height = pw.MagickGetImageHeight(img)
+        from calibre.utils.magick import Image
+        img = Image()
+        img.open(self.path_to_page)
+        width, height = img.size
         if self.num == 0: # First image so create a thumbnail from it
-            thumb = pw.CloneMagickWand(img)
-            if thumb < 0:
-                raise RuntimeError('Cannot create wand.')
-            pw.MagickThumbnailImage(thumb, 60, 80)
-            pw.MagickWriteImage(thumb, os.path.join(self.dest, 'thumbnail.png'))
-            pw.DestroyMagickWand(thumb)
+            thumb = img.clone
+            thumb.thumbnail(60, 80)
+            thumb.save(os.path.join(self.dest, 'thumbnail.png'))
         self.pages = [img]
         if width > height:
             if self.opts.landscape:
                 self.rotate = True
             else:
-                split1, split2 = map(pw.CloneMagickWand, (img, img))
-                pw.DestroyMagickWand(img)
-                if split1 < 0 or split2 < 0:
-                    raise RuntimeError('Cannot create wand.')
-                pw.MagickCropImage(split1, (width/2)-1, height, 0, 0)
-                pw.MagickCropImage(split2, (width/2)-1, height, width/2, 0 )
+                split1, split2 = img.clone, img.clone
+                half = int(width/2)
+                split1.crop(half-1, height, 0, 0)
+                split2.crop(half-1, height, half, 0)
                 self.pages = [split2, split1] if self.opts.right2left else [split1, split2]
         self.process_pages()
 
     def process_pages(self):
-        import calibre.utils.PythonMagickWand as p
+        from calibre.utils.magick import PixelWand
         for i, wand in enumerate(self.pages):
-            pw = p.NewPixelWand()
-            try:
-                if pw < 0:
-                    raise RuntimeError('Cannot create wand.')
-                p.PixelSetColor(pw, 'white')
+            pw = PixelWand()
+            pw.color = 'white'
 
-                p.MagickSetImageBorderColor(wand, pw)
-                if self.rotate:
-                    p.MagickRotateImage(wand, pw, -90)
+            wand.set_border_color(pw)
+            if self.rotate:
+                wand.rotate(pw, -90)
 
-                # 25 percent fuzzy trim?
-                if not self.opts.disable_trim:
-                    p.MagickTrimImage(wand, 25*65535/100)
-                p.MagickSetImagePage(wand, 0,0,0,0)   #Clear page after trim, like a "+repage"
-                # Do the Photoshop "Auto Levels" equivalent
-                if not self.opts.dont_normalize:
-                    p.MagickNormalizeImage(wand)
-                sizex = p.MagickGetImageWidth(wand)
-                sizey = p.MagickGetImageHeight(wand)
+            # 25 percent fuzzy trim?
+            if not self.opts.disable_trim:
+                wand.trim(25*65535/100)
+            wand.set_page(0, 0, 0, 0)   #Clear page after trim, like a "+repage"
+            # Do the Photoshop "Auto Levels" equivalent
+            if not self.opts.dont_normalize:
+                wand.normalize()
+            sizex, sizey = wand.size
 
-                SCRWIDTH, SCRHEIGHT = self.opts.output_profile.comic_screen_size
+            SCRWIDTH, SCRHEIGHT = self.opts.output_profile.comic_screen_size
 
-                if self.opts.keep_aspect_ratio:
-                    # Preserve the aspect ratio by adding border
-                    aspect = float(sizex) / float(sizey)
-                    if aspect <= (float(SCRWIDTH) / float(SCRHEIGHT)):
-                        newsizey = SCRHEIGHT
-                        newsizex = int(newsizey * aspect)
-                        deltax = (SCRWIDTH - newsizex) / 2
-                        deltay = 0
-                    else:
-                        newsizex = SCRWIDTH
-                        newsizey = int(newsizex / aspect)
-                        deltax = 0
-                        deltay = (SCRHEIGHT - newsizey) / 2
-                    p.MagickResizeImage(wand, newsizex, newsizey, p.CatromFilter, 1.0)
-                    p.MagickSetImageBorderColor(wand, pw)
-                    p.MagickBorderImage(wand, pw, deltax, deltay)
-                elif self.opts.wide:
-                    # Keep aspect and Use device height as scaled image width so landscape mode is clean
-                    aspect = float(sizex) / float(sizey)
-                    screen_aspect = float(SCRWIDTH) / float(SCRHEIGHT)
-                    # Get dimensions of the landscape mode screen
-                    # Add 25px back to height for the battery bar.
-                    wscreenx = SCRHEIGHT + 25
-                    wscreeny = int(wscreenx / screen_aspect)
-                    if aspect <= screen_aspect:
-                        newsizey = wscreeny
-                        newsizex = int(newsizey * aspect)
-                        deltax = (wscreenx - newsizex) / 2
-                        deltay = 0
-                    else:
-                        newsizex = wscreenx
-                        newsizey = int(newsizex / aspect)
-                        deltax = 0
-                        deltay = (wscreeny - newsizey) / 2
-                    p.MagickResizeImage(wand, newsizex, newsizey, p.CatromFilter, 1.0)
-                    p.MagickSetImageBorderColor(wand, pw)
-                    p.MagickBorderImage(wand, pw, deltax, deltay)
+            if self.opts.keep_aspect_ratio:
+                # Preserve the aspect ratio by adding border
+                aspect = float(sizex) / float(sizey)
+                if aspect <= (float(SCRWIDTH) / float(SCRHEIGHT)):
+                    newsizey = SCRHEIGHT
+                    newsizex = int(newsizey * aspect)
+                    deltax = (SCRWIDTH - newsizex) / 2
+                    deltay = 0
                 else:
-                    p.MagickResizeImage(wand, SCRWIDTH, SCRHEIGHT, p.CatromFilter, 1.0)
+                    newsizex = SCRWIDTH
+                    newsizey = int(newsizex / aspect)
+                    deltax = 0
+                    deltay = (SCRHEIGHT - newsizey) / 2
+                wand.size = (newsizex, newsizey)
+                wand.set_border_color(pw)
+                wand.add_border(pw, deltax, deltay)
+            elif self.opts.wide:
+                # Keep aspect and Use device height as scaled image width so landscape mode is clean
+                aspect = float(sizex) / float(sizey)
+                screen_aspect = float(SCRWIDTH) / float(SCRHEIGHT)
+                # Get dimensions of the landscape mode screen
+                # Add 25px back to height for the battery bar.
+                wscreenx = SCRHEIGHT + 25
+                wscreeny = int(wscreenx / screen_aspect)
+                if aspect <= screen_aspect:
+                    newsizey = wscreeny
+                    newsizex = int(newsizey * aspect)
+                    deltax = (wscreenx - newsizex) / 2
+                    deltay = 0
+                else:
+                    newsizex = wscreenx
+                    newsizey = int(newsizex / aspect)
+                    deltax = 0
+                    deltay = (wscreeny - newsizey) / 2
+                wand.size = (newsizex, newsizey)
+                wand.set_border_color(pw)
+                wand.add_border(pw, deltax, deltay)
+            else:
+                wand.size = (SCRWIDTH, SCRHEIGHT)
 
-                if not self.opts.dont_sharpen:
-                    p.MagickSharpenImage(wand, 0.0, 1.0)
+            if not self.opts.dont_sharpen:
+                wand.sharpen(0.0, 1.0)
 
-                if not self.opts.dont_grayscale:
-                    p.MagickSetImageType(wand, p.GrayscaleType)
+            if not self.opts.dont_grayscale:
+                wand.type = 'GrayscaleType'
 
-                if self.opts.despeckle:
-                    p.MagickDespeckleImage(wand)
+            if self.opts.despeckle:
+                wand.despeckle()
 
-                p.MagickQuantizeImage(wand, self.opts.colors, p.RGBColorspace, 0, 1, 0)
-                dest = '%d_%d.%s'%(self.num, i, self.opts.output_format)
-                dest = os.path.join(self.dest, dest)
-                p.MagickWriteImage(wand, dest+'8')
-                os.rename(dest+'8', dest)
-                self.append(dest)
-            finally:
-                if pw > 0:
-                    p.DestroyPixelWand(pw)
-                p.DestroyMagickWand(wand)
+            wand.quantize(self.opts.colors)
+            dest = '%d_%d.%s'%(self.num, i, self.opts.output_format)
+            dest = os.path.join(self.dest, dest)
+            wand.save(dest+'8')
+            os.rename(dest+'8', dest)
+            self.append(dest)
 
 def render_pages(tasks, dest, opts, notification=lambda x, y: x):
     '''
     Entry point for the job server.
     '''
     failures, pages = [], []
-    from calibre.utils.PythonMagickWand import ImageMagick
-    with ImageMagick():
-        for num, path in tasks:
-            try:
-                pages.extend(PageProcessor(path, dest, opts, num))
-                msg = _('Rendered %s')%path
-            except:
-                failures.append(path)
-                msg = _('Failed %s')%path
-                if opts.verbose:
-                    msg += '\n' + traceback.format_exc()
-            prints(msg)
-            notification(0.5, msg)
+    for num, path in tasks:
+        try:
+            pages.extend(PageProcessor(path, dest, opts, num))
+            msg = _('Rendered %s')%path
+        except:
+            failures.append(path)
+            msg = _('Failed %s')%path
+            if opts.verbose:
+                msg += '\n' + traceback.format_exc()
+        prints(msg)
+        notification(0.5, msg)
 
     return pages, failures
 
@@ -226,9 +203,6 @@ def process_pages(pages, opts, update, tdir):
     '''
     Render all identified comic pages.
     '''
-    from calibre.utils.PythonMagickWand import ImageMagick
-    ImageMagick
-
     progress = Progress(len(pages), update)
     server = Server()
     jobs = []

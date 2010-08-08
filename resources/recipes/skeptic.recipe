@@ -1,0 +1,49 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class Skeptic(BasicNewsRecipe):
+    title          = u'The Skeptic'
+    description         = 'Discussions with leading experts and investigation of fringe science and paranormal claims.'
+    language       = 'en'
+    __author__     = 'Starson17'
+    oldest_article = 31
+    cover_url           = 'http://www.skeptricks.com/images/Skeptic_Magazine.jpg'
+    remove_empty_feeds    = True
+    remove_javascript   = True
+    max_articles_per_feed = 50
+    no_stylesheets = True
+
+    remove_tags = [dict(name='div', attrs={'class':['Introduction','divider']}),
+                  dict(name='div', attrs={'id':['feature', 'podcast']}),
+                  dict(name='div', attrs={'id':re.compile(r'follow.*', re.DOTALL|re.IGNORECASE)}),
+                  dict(name='hr'),
+                  ]
+
+
+    feeds = [
+            ('The Skeptic', 'http://www.skeptic.com/feed'),
+            ('E-Skeptic', 'http://www.skeptic.com/eskeptic'),
+            ('All-SkepticBlog', 'http://skepticblog.org/feed'),
+            ('Brian Dunning', 'http://skepticblog.org/author/dunning/feed/'),
+            ('Daniel Loxton', 'http://skepticblog.org/author/loxton/feed/'),
+            ('Kirsten Sanford', 'http://skepticblog.org/author/sanford/feed/'),
+            ('Mark Edward', 'http://skepticblog.org/author/edward/feed/'),
+            ('Michael Shermer', 'http://skepticblog.org/author/shermer/feed/'),
+            ('Phil Plait', 'http://skepticblog.org/author/plait/feed/'),
+            ('Ryan Johnson', 'http://skepticblog.org/author/johnson/feed/'),
+            ('Steven Novella', 'http://skepticblog.org/author/novella/feed/'),
+            ('Yau-Man Chan', 'http://skepticblog.org/author/chan/feed/'),
+            ]
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.addheaders = [('Accept', 'text/html')]
+        return br
+
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+		'''
+

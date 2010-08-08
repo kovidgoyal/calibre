@@ -14,7 +14,7 @@ class ScientificAmerican(BasicNewsRecipe):
     description = u'Popular science. Monthly magazine.'
     __author__ = 'Kovid Goyal and Sujata Raman'
     language = 'en'
-
+    remove_javascript   = True
     oldest_article = 30
     max_articles_per_feed = 100
     no_stylesheets = True
@@ -31,11 +31,13 @@ class ScientificAmerican(BasicNewsRecipe):
     remove_tags_after  = dict(id=['article'])
     remove_tags        = [
                           dict(id=['sharetools', 'reddit']),
-                          dict(name='script'),
+                          #dict(name='script'),
                           {'class':['float_left', 'atools']},
                           {"class": re.compile(r'also-in-this')},
                           dict(name='a',title = ["Get the Rest of the Article","Subscribe","Buy this Issue"]),
                           dict(name = 'img',alt = ["Graphic - Get the Rest of the Article"]),
+                          dict(name='div', attrs={'class':['commentbox']}),
+                          dict(name='h2', attrs={'class':['discuss_h2']}),
                          ]
 
     html2lrf_options = ['--base-font-size', '8']
@@ -110,3 +112,10 @@ class ScientificAmerican(BasicNewsRecipe):
                     div.extract()
 
         return soup
+
+    preprocess_regexps = [
+        (re.compile(r'Already a Digital subscriber.*Now</a>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+        (re.compile(r'If your institution has site license access, enter.*here</a>.', re.DOTALL|re.IGNORECASE), lambda match: ''),
+        (re.compile(r'to subscribe to our.*;.*\}', re.DOTALL|re.IGNORECASE), lambda match: ''),
+        (re.compile(r'\)\(jQuery\);.*-->', re.DOTALL|re.IGNORECASE), lambda match: ''),
+        ]

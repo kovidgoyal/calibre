@@ -75,7 +75,11 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             action = 'existing'
         elif self.empty_library.isChecked():
             action = 'new'
-        loc = os.path.abspath(unicode(self.location.text()).strip())
+        text = unicode(self.location.text()).strip()
+        if not text:
+            return error_dialog(self, _('No location'), _('No location selected'),
+                    show=True)
+        loc = os.path.abspath(text)
         if not loc or not os.path.exists(loc) or not self.check_action(action,
                 loc):
             return

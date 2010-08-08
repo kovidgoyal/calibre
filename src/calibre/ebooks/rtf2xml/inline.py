@@ -1,4 +1,4 @@
-import sys, os,  tempfile
+import sys, os, tempfile
 from calibre.ebooks.rtf2xml import copy
 """
 States.
@@ -51,6 +51,7 @@ class Inline:
             'tx<ut<__________'  :       self.__found_text_func,
             'mi<mk<inline-fld'  :       self.__found_text_func,
             'text'              :       self.__found_text_func,
+            'cw<nu<hard-lineb'  :       self.__found_text_func, #calibre
             'cb<nu<clos-brack'  :       self.__close_bracket_func,
             'mi<mk<par-end___'  :       self.__end_para_func,
             'mi<mk<footnt-ope'  :       self.__end_para_func,
@@ -62,6 +63,7 @@ class Inline:
             'tx<hx<__________'  :       self.__found_text_func,
             'tx<ut<__________'  :       self.__found_text_func,
             'text'              :       self.__found_text_func,
+            'cw<nu<hard-lineb'  :       self.__found_text_func, #calibre
             'mi<mk<inline-fld'  :       self.__found_text_func,
             'ob<nu<open-brack':         self.__found_open_bracket_func,
             'mi<mk<par-end___'  :       self.__end_para_func,
@@ -80,32 +82,32 @@ class Inline:
         self.__inline_list = self.__body_inline_list
         self.__in_para = 0 #  not in paragraph
         self.__char_dict = {
-        # character info => ci
-        'annotation'    :       'annotation',
-        'blue______'    :	'blue',
-        'bold______'    :	'bold',
-        'caps______'    :       'caps',
-        'char-style'    :       'character-style',
-        'dbl-strike'   :	'double-strike-through',
-        'emboss____'    :	'emboss',
-        'engrave___'    :	'engrave',
-        'font-color'    :	'font-color',
-        'font-down_'    :	'subscript',
-        'font-size_'    :	'font-size',
-        'font-style'    :	'font-style',
-        'font-up___'    :	'superscript',
-        'footnot-mk'    :       'footnote-marker',
-        'green_____'    :	'green',
-        'hidden____'    :	'hidden',
-        'italics___'    :	'italics',
-        'outline___'   :	'outline',
-        'red_______'    :	'red',
-        'shadow____'   :	'shadow',
-        'small-caps'   :	'small-caps',
-        'strike-thr'   :	'strike-through',
-        'subscript_'    :	'subscript',
-        'superscrip'    :	'superscript',
-        'underlined'    :       'underlined',
+            # character info => ci
+            'annotation'    :       'annotation',
+            'blue______'    :   'blue',
+            'bold______'    :   'bold',
+            'caps______'    :       'caps',
+            'char-style'    :       'character-style',
+            'dbl-strike'    :    'double-strike-through',
+            'emboss____'    :   'emboss',
+            'engrave___'    :   'engrave',
+            'font-color'    :   'font-color',
+            'font-down_'    :   'subscript',
+            'font-size_'    :   'font-size',
+            'font-style'    :   'font-style',
+            'font-up___'    :   'superscript',
+            'footnot-mk'    :       'footnote-marker',
+            'green_____'    :   'green',
+            'hidden____'    :   'hidden',
+            'italics___'    :   'italics',
+            'outline___'    :   'outline',
+            'red_______'    :   'red',
+            'shadow____'    :   'shadow',
+            'small-caps'    :   'small-caps',
+            'strike-thr'    :   'strike-through',
+            'subscript_'    :   'subscript',
+            'superscrip'    :   'superscript',
+            'underlined'    :       'underlined',
         }
         self.__caps_list = ['false']
     def __set_list_func(self, line):
@@ -133,11 +135,13 @@ class Inline:
         Returns:
             nothing
         Logic:
+            Write if not hardline break
         """
         action = self.__default_dict.get(self.__token_info)
         if action:
             action(line)
-        self.__write_obj.write(line)
+        if self.__token_info != 'cw<nu<hard-lineb': #calibre
+            self.__write_obj.write(line)
     def __found_open_bracket_func(self, line):
         """
         Requires:
@@ -164,7 +168,7 @@ class Inline:
             Use the dictionary to get the approriate function.
             Always print out the line.
         """
-        if line[0:2] == 'cw':
+        if line[0:5] == 'cw<ci': #calibre: bug in original function no diff between cw<ci and cw<pf
             self.__handle_control_word(line)
         else:
             action = self.__after_open_bracket_dict.get(self.__token_info)
@@ -247,12 +251,13 @@ class Inline:
         Return:
             nothing
         Logic:
-            Two cases:
+            Three cases:
             1. in a list. Simply write inline
             2. Not in a list
                 Text can mark the start of a paragraph.
                 If already in a paragraph, check to see if any groups are waiting
                 to be added. If so, use another method to write these groups.
+            3. If not check if hardline break, then write
         """
         if self.__place == 'in_list':
             self.__write_inline()
@@ -261,8 +266,11 @@ class Inline:
                 self.__in_para = 1
                 self.__start_para_func(line)
             else:
+                if self.__token_info == 'cw<nu<hard-lineb': #calibre
+                    self.__write_obj.write('mi<tg<empty_____<hardline-break\n')
                 if self.__groups_in_waiting[0] != 0:
                     self.__write_inline()
+                
     def __write_inline(self):
         """
         Required:
@@ -279,7 +287,7 @@ class Inline:
             Get the keys in each dictionary. If 'font-style' is in the keys,
             write a marker tag. (I will use this marker tag later when conerting
             hext text to utf8.)
-            Write a tag for the inline vaues.
+            Write a tag for the inline values.
         """
         if self.__groups_in_waiting[0] != 0:
             last_index = -1 * self.__groups_in_waiting[0]

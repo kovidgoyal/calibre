@@ -1,13 +1,13 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 sp.rian.ru
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class Ria_eng(BasicNewsRecipe):
+class Ria_esp(BasicNewsRecipe):
     title                 = 'Ria Novosti'
     __author__            = 'Darko Miletic'
     description           = 'Noticias desde Russia en Castellano'
@@ -28,14 +28,10 @@ class Ria_eng(BasicNewsRecipe):
                         }
 
 
-    keep_only_tags = [dict(name='div', attrs={'class':'articletxt'})]
+    keep_only_tags = [dict(name='div', attrs={'class':['mainnewsrubric','titleblock','mainnewstxt']})]
     remove_tags = [dict(name=['object','link','iframe','base'])]
-    remove_tags_after = dict(name='div',attrs={'class':'text'})
 
 
-    feeds = [(u'Noticias', u'http://sp.rian.ru/export/rss2/index.xml')]
-
-    def print_version(self, url):
-        return url.replace('.html','-print.html')
+    feeds = [(u'Noticias', u'http://rss.feedsportal.com/c/860/fe.ed/sp.rian.ru/export/rss2/index.xml')]
 
 

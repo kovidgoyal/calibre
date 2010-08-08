@@ -6,10 +6,9 @@ www.standardmedia.co.ke
 
 import os
 from calibre import strftime, __appname__, __version__
-import calibre.utils.PythonMagickWand as pw
-from ctypes import byref
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.constants import preferred_encoding
+from calibre.utils.magick import Image
 
 class NationKeRecipe(BasicNewsRecipe):
 
@@ -95,19 +94,9 @@ class NationKeRecipe(BasicNewsRecipe):
             self.cover_img_path = None
 
     def prepare_cover_image(self, path_to_image, out_path):
-        with pw.ImageMagick():
-            img = pw.NewMagickWand()
-            if img < 0:
-                raise RuntimeError('Out of memory')
-            if not pw.MagickReadImage(img, path_to_image):
-                severity = pw.ExceptionType(0)
-                msg = pw.MagickGetException(img, byref(severity))
-                raise IOError('Failed to read image from: %s: %s'
-                        %(path_to_image, msg))
-            if not pw.MagickWriteImage(img, out_path):
-                raise RuntimeError('Failed to save image to %s'%out_path)
-            pw.DestroyMagickWand(img)
-
+        img = Image()
+        img.open(path_to_image)
+        img.save(out_path)
 
     def default_cover(self, cover_file):
         '''

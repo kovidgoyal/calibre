@@ -498,8 +498,31 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.opt_gui_layout.setCurrentIndex(li)
         self.opt_disable_animations.setChecked(config['disable_animations'])
         self.opt_show_donate_button.setChecked(config['show_donate_button'])
+        idx = 0
+        for i, x in enumerate([(_('Small'), 'small'), (_('Medium'), 'medium'),
+            (_('Large'), 'large')]):
+            if x[1] == gprefs.get('toolbar_icon_size', 'medium'):
+                idx = i
+            self.opt_toolbar_icon_size.addItem(x[0], x[1])
+        self.opt_toolbar_icon_size.setCurrentIndex(idx)
+        idx = 0
+        for i, x in enumerate([(_('Automatic'), 'auto'), (_('Always'), 'always'),
+            (_('Never'), 'never')]):
+            if x[1] == gprefs.get('toolbar_text', 'auto'):
+                idx = i
+            self.opt_toolbar_text.addItem(x[0], x[1])
+        self.opt_toolbar_text.setCurrentIndex(idx)
+        self.reset_confirmation_button.clicked.connect(self.reset_confirmation)
 
         self.category_view.setCurrentIndex(self.category_view.model().index_for_name(initial_category))
+
+    def reset_confirmation(self):
+        from calibre.gui2 import dynamic
+        for key in dynamic.keys():
+            if key.endswith('_again') and dynamic[key] is False:
+                dynamic[key] = True
+        info_dialog(self, _('Done'),
+                _('Confirmation dialogs have all been reset'), show=True)
 
     def check_port_value(self, *args):
         port = self.port.value()
@@ -869,6 +892,10 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['disable_animations'] = bool(self.opt_disable_animations.isChecked())
         config['show_donate_button'] = bool(self.opt_show_donate_button.isChecked())
         gprefs['show_splash_screen'] = bool(self.show_splash_screen.isChecked())
+        for x in ('toolbar_icon_size', 'toolbar_text'):
+            w = getattr(self, 'opt_'+x)
+            data = w.itemData(w.currentIndex()).toString()
+            gprefs[x] = unicode(data)
         fmts = []
         for i in range(self.viewer.count()):
             if self.viewer.item(i).checkState() == Qt.Checked:
