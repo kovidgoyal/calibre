@@ -31,7 +31,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="input_formats"/>
+      <widget class="QComboBox" name="input_formats">
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+       </property>
+       <property name="minimumContentsLength">
+        <number>5</number>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="opt_individual_saved_settings">
@@ -64,7 +71,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="output_formats"/>
+      <widget class="QComboBox" name="output_formats">
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+       </property>
+       <property name="minimumContentsLength">
+        <number>5</number>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -115,8 +129,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>810</width>
-        <height>489</height>
+        <width>805</width>
+        <height>484</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
