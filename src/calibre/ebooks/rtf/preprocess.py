@@ -228,8 +228,9 @@ class RtfTokenizer():
     def tokenize(self):
         i = 0
         lastDataStart = -1
+        #on parse caractere par caractere
         while i < len(self.rtfData):
-
+            #si ça commence un grpupe
             if isChar(self.rtfData[i], '{'):
                 if lastDataStart > -1:
                     self.tokens.append(tokenData(self.rtfData[lastDataStart : i]))
@@ -237,7 +238,7 @@ class RtfTokenizer():
                 self.tokens.append(tokenDelimitatorStart())
                 i = i + 1
                 continue
-
+            #si ça fini un grpupe
             if isChar(self.rtfData[i], '}'):
                 if lastDataStart > -1:
                     self.tokens.append(tokenData(self.rtfData[lastDataStart : i]))
@@ -245,7 +246,7 @@ class RtfTokenizer():
                 self.tokens.append(tokenDelimitatorEnd())
                 i = i + 1
                 continue
-
+            #on copie si il y a un charactere de controle
             if isChar(self.rtfData[i], '\\'):
                 if i + 1 >= len(self.rtfData):
                     raise Exception('Error: Control character found at the end of the document.')
@@ -254,6 +255,7 @@ class RtfTokenizer():
                     self.tokens.append(tokenData(self.rtfData[lastDataStart : i]))
                     lastDataStart = -1
 
+                # le token commence ici
                 tokenStart = i
                 i = i + 1
 

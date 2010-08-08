@@ -50,7 +50,7 @@ class RTFInput(InputFormatPlugin):
         parser = ParseRtf(
             in_file    = stream,
             out_file   = ofile,
-            #deb_dir = 'I:\\Calibre\\rtfdebug',
+            deb_dir = 'I:\\Calibre\\rtfdebug',
             # Convert symbol fonts to unicode equivalents. Default
             # is 1
             convert_symbol = 1,
@@ -187,16 +187,17 @@ class RTFInput(InputFormatPlugin):
         self.log = log
         self.log('Converting RTF to XML...')
         #Name of the preprocesssed RTF file
-        fname = self.preprocess(stream.name)
+        #fname = self.preprocess(stream.name)
+        fname = stream.name
         try:
             xml = self.generate_xml(fname)
         except RtfInvalidCodeException, e:
             raise ValueError(_('This RTF file has a feature calibre does not '
             'support. Convert it to HTML first and then try it.\n%s')%e)
         
-        '''dataxml = open('dataxml.xml', 'w')
+        dataxml = open('dataxml.xml', 'w')
         dataxml.write(xml)
-        dataxml.close'''
+        dataxml.close
         
         d = glob.glob(os.path.join('*_rtf_pict_dir', 'picts.rtf'))
         if d:

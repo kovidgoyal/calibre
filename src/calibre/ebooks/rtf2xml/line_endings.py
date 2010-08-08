@@ -32,7 +32,7 @@ class FixLineEndings:
         self.__write_to = tempfile.mktemp()
         self.__replace_illegals = replace_illegals
     def fix_endings(self):
-        illegal_regx = re.compile( '\x00|\x01|\x02|\x03|\x04|\x05|\x06|\x07|\x08|\x0B|\x0E|\x0F|\x10|\x11|\x12|\x13')
+        illegal_regx = re.compile('\x00|\x01|\x02|\x03|\x04|\x05|\x06|\x07|\x08|\x0B|\x0E|\x0F|\x10|\x11|\x12|\x13')
         # always check since I have to get rid of illegal characters
         #read
         read_obj = open(self.__file, 'r')
