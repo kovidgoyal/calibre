@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-07 01:39+0000\n"
-"PO-Revision-Date: 2010-08-06 20:30+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-08-07 10:14+0000\n"
+"Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-07 03:38+0000\n"
+"X-Launchpad-Export-Date: 2010-08-08 03:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -200,7 +200,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:93
 msgid "Extract cover from comic files"
-msgstr "Udtræk forside fra tegneserie-filer"
+msgstr "Udtræk omslag fra tegneserie-filer"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:120
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:131
@@ -2305,16 +2305,16 @@ msgstr "Download omslag"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:79
 msgid "Download covers from openlibrary.org"
-msgstr ""
+msgstr "Download omslag fra openlibrary.org"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:107
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:136
 msgid "ISBN: %s not found"
-msgstr ""
+msgstr "ISBN: %s ikke fundet"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:117
 msgid "Download covers from librarything.com"
-msgstr ""
+msgstr "Download omslag fra librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:128
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:68
@@ -2373,7 +2373,7 @@ msgid ""
 "access key below."
 msgstr ""
 "For at anvende isbndb.com må du oprette en konto %sfree account%s og angive "
-"din adgangskode herunder."
+"din access key herunder (se isbndb.com/account/dev/keys/)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:210
 msgid "Downloads social metadata from amazon.com"
@@ -2403,8 +2403,8 @@ msgstr ""
 "eller dens titel og forfatter. Hvis du angiver titel og forfatter,\n"
 "så kan mere end en bogs oplysninger bliver more modtaget.\n"
 "\n"
-"adgangskoden er kontoens adgangskode, som du danner efter oprettelse af en "
-"gratis konto hos isbndb.com.\n"
+"Adgangsnøglen er access key, som du danner efter oprettelse af en gratis "
+"konto hos isbndb.com/account/dev/keys/.\n"
 "\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:106
@@ -3028,7 +3028,7 @@ msgstr "Sortér mærkeliste efter navn, popularitet eller vurdering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:45
 msgid "Number of covers to show in the cover browsing mode"
-msgstr "Antallet af omslag der vises i omslags browser-tilstand"
+msgstr "Antallet af omslag, der vises i omslags browser-tilstand"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:47
 msgid "Defaults for conversion to LRF"
@@ -3070,7 +3070,7 @@ msgstr "Slet bøger fra bibliotek efter upload til enhed"
 msgid ""
 "Show the cover flow in a separate window instead of in the main calibre "
 "window"
-msgstr "Vis omslag i et separat vindue istedet for i calibres arbejdsvindue"
+msgstr "Vis omslag i et separat vindue, istedet for i calibres arbejdsvindue"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:65
 msgid "Disable notifications from the system tray icon"
@@ -3274,6 +3274,7 @@ msgstr "Ingen bog valgt"
 msgid ""
 "The following books are virtual and cannot be added to the calibre library:"
 msgstr ""
+"Følgende bøger er virtuelle og kan ikke tilføjes til calibre-biblioteket:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:448
 msgid "No book files found"
@@ -3453,6 +3454,9 @@ msgid ""
 "corruption of your library. Save to disk is meant to export files from your "
 "calibre library elsewhere."
 msgstr ""
+"Du prøver på at gemme filer i calibre-biblioteket. Dette kan forårsage "
+"ødelæggelse af dit bibliotek. Gem-til-disk er ment til at eksportere filer "
+"fra dit calibre-bibliotek andre steder."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:968
 msgid "Error while saving"
@@ -4185,7 +4189,7 @@ msgstr "Intet &SVG omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:52
 msgid "Preserve cover &aspect ratio"
-msgstr "Bevar omslags &aspektforhold"
+msgstr "Bevar omslag &aspektforhold"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:53
 msgid "Split files &larger than:"
@@ -4490,12 +4494,12 @@ msgstr "Brug omslag fra &kildefilen"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:169
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:402
 msgid "Change &cover image:"
-msgstr "Skift &cover billede:"
+msgstr "Skift &omslagsbillede:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:403
 msgid "Browse for an image to use as the cover of this book."
-msgstr "Browse efter et billede til at bruge som denne bogs omslag."
+msgstr "Browse efter et billede til anvendelse som denne bogs omslag."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:362
@@ -5407,11 +5411,11 @@ msgstr "Mappen %s er ikke tom. Venligst vælg en tom mappe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:80
 msgid "No location"
-msgstr ""
+msgstr "Ingen placering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:80
 msgid "No location selected"
-msgstr ""
+msgstr "Ingen placering valgt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:66
 msgid "Choose your calibre library"
@@ -6551,11 +6555,11 @@ msgstr ""
 "<p>calibre kan finde metadata om dine bøger to steder: <b>Google Books</b> "
 "og <b>isbndb.com</b>. <p>For at bruge isbndb.com skal du oprette en <a "
 "href=\"http://www.isbndb.com\">gratis konto</a> og nedenfor indtaste din "
-"adgangskode."
+"access key."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:87
 msgid "&Access Key:"
-msgstr "&Adgangskode:"
+msgstr "&Access key:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:88
 msgid "Fetch"
@@ -6719,11 +6723,11 @@ msgstr "Ikke et gyldigt billede"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:150
 msgid "Specify title and author"
-msgstr ""
+msgstr "Angiv titel og forfatter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:151
 msgid "You must specify a title and author before generating a cover"
-msgstr ""
+msgstr "Du skal angive en titel og forfatter før et omslag kan laves"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:163
 msgid "Choose formats for "
@@ -6813,6 +6817,8 @@ msgstr "Kunne ikke finde et omslag til denne bog. Prøv at angive ISBN først."
 msgid ""
 "For the error message from each cover source, click Show details below."
 msgstr ""
+"For hver fejlmeddelse fra hver omslagskilde, tryk på \"Vis detaljer\" "
+"herunder."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:610
 msgid "Bad cover"
@@ -6927,11 +6933,11 @@ msgstr "Hent &omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:408
 msgid "Generate a default cover based on the title and author"
-msgstr ""
+msgstr "Lav et standard omslag baseret på titlen og forfatteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:409
 msgid "&Generate cover"
-msgstr ""
+msgstr "&Lav omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:56
 msgid "Password needed"
@@ -8110,7 +8116,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:541
 msgid "Add Empty book. (Book entry with no formats)"
-msgstr "Tilføj tom e-bog. (Bogindgange uden formater)"
+msgstr "Tilføj tom e-bog. (Bogindgang uden formater)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:553
 msgid "Save to disk in a single directory"
@@ -10709,7 +10715,7 @@ msgstr "Mønster til at gætte metadata fra filenavne"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:667
 msgid "Access key for isbndb.com"
-msgstr "Adgangskode til isbndb.com"
+msgstr "Access key til isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:669
 msgid "Default timeout for network operations (seconds)"
