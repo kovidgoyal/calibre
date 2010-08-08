@@ -50,14 +50,34 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         # set up the signal after the table is filled
         self.table.cellChanged.connect(self.cell_changed)
+        self.sort_by_author.setCheckable(True)
+        self.sort_by_author.setChecked(False)
+        self.sort_by_author.clicked.connect(self.do_sort_by_author)
+        self.author_order = 1
 
-        self.table.setSortingEnabled(True)
         self.table.sortByColumn(1, Qt.AscendingOrder)
+        self.sort_by_author_sort.clicked.connect(self.do_sort_by_author_sort)
+        self.sort_by_author_sort.setCheckable(True)
+        self.sort_by_author_sort.setChecked(True)
+        self.author_sort_order = 1
+
         if select_item is not None:
             self.table.setCurrentItem(select_item)
             self.table.editItem(select_item)
         else:
             self.table.setCurrentCell(0, 0)
+
+    def do_sort_by_author(self):
+        self.author_order = 1 if self.author_order == 0 else 0
+        self.table.sortByColumn(0, self.author_order)
+        self.sort_by_author.setChecked(True)
+        self.sort_by_author_sort.setChecked(False)
+
+    def do_sort_by_author_sort(self):
+        self.author_sort_order = 1 if self.author_sort_order == 0 else 0
+        self.table.sortByColumn(1, self.author_sort_order)
+        self.sort_by_author.setChecked(False)
+        self.sort_by_author_sort.setChecked(True)
 
     def accepted(self):
         self.result = []
@@ -79,8 +99,4 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         else:
             item  = self.table.item(row, 1)
         self.table.setCurrentItem(item)
-        # disable and reenable sorting to force the sort now, so we can scroll
-        # to the item after it moves
-        self.table.setSortingEnabled(False)
-        self.table.setSortingEnabled(True)
         self.table.scrollToItem(item)
