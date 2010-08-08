@@ -24,7 +24,6 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.web.feeds import feed_from_xml, templates, feeds_from_index, Feed
 from calibre.web.fetch.simple import option_parser as web2disk_option_parser
 from calibre.web.fetch.simple import RecursiveFetcher
-from calibre.utils.magick_draw import add_borders_to_image
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
@@ -964,6 +963,7 @@ class BasicNewsRecipe(Recipe):
                 with nested(open(cpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
                     cfile.write(r.read())
                 if self.cover_margins[0] or self.cover_margins[1]:
+                    from calibre.utils.magick.draw import add_borders_to_image
                     add_borders_to_image(cpath,
                                          left=self.cover_margins[0],right=self.cover_margins[0],
                                          top=self.cover_margins[1],bottom=self.cover_margins[1],
@@ -1018,7 +1018,7 @@ class BasicNewsRecipe(Recipe):
         Create a generic cover for recipes that dont have a cover
         '''
         try:
-            from calibre.utils.magick_draw import create_cover_page, TextLine
+            from calibre.utils.magick.draw import create_cover_page, TextLine
             title = self.title if isinstance(self.title, unicode) else \
                     self.title.decode(preferred_encoding, 'replace')
             date = strftime(self.timefmt)
@@ -1075,51 +1075,30 @@ class BasicNewsRecipe(Recipe):
         img.save(open(out_path, 'wb'), 'JPEG')
 
     def prepare_masthead_image(self, path_to_image, out_path):
-        import calibre.utils.PythonMagickWand as pw
-        from ctypes import byref
         from calibre import fit_image
+        from calibre.utils.magick import Image, create_canvas
 
-        with pw.ImageMagick():
-            img = pw.NewMagickWand()
-            img2 = pw.NewMagickWand()
-            frame = pw.NewMagickWand()
-            p = pw.NewPixelWand()
-            if img < 0 or img2 < 0 or p < 0 or frame < 0:
-                raise RuntimeError('Out of memory')
-            if not pw.MagickReadImage(img, path_to_image):
-                severity = pw.ExceptionType(0)
-                msg = pw.MagickGetException(img, byref(severity))
-                raise IOError('Failed to read image from: %s: %s'
-                        %(path_to_image, msg))
-            pw.PixelSetColor(p, 'white')
-            width, height = pw.MagickGetImageWidth(img),pw.MagickGetImageHeight(img)
-            scaled, nwidth, nheight = fit_image(width, height, self.MI_WIDTH, self.MI_HEIGHT)
-            if not pw.MagickNewImage(img2, width, height, p):
-                raise RuntimeError('Out of memory')
-            if not pw.MagickNewImage(frame,  self.MI_WIDTH, self.MI_HEIGHT, p):
-                raise RuntimeError('Out of memory')
-            if not pw.MagickCompositeImage(img2, img, pw.OverCompositeOp, 0, 0):
-                raise RuntimeError('Out of memory')
-            if scaled:
-                if not pw.MagickResizeImage(img2, nwidth, nheight, pw.LanczosFilter,
-                        0.5):
-                    raise RuntimeError('Out of memory')
-            left = int((self.MI_WIDTH - nwidth)/2.0)
-            top = int((self.MI_HEIGHT - nheight)/2.0)
-            if not pw.MagickCompositeImage(frame, img2, pw.OverCompositeOp,
-                    left, top):
-                raise RuntimeError('Out of memory')
-            if not pw.MagickWriteImage(frame, out_path):
-                raise RuntimeError('Failed to save image to %s'%out_path)
-
-            pw.DestroyPixelWand(p)
-            for x in (img, img2, frame):
-                pw.DestroyMagickWand(x)
+        img = Image()
+        img.open(path_to_image)
+        width, height = img.size
+        scaled, nwidth, nheight = fit_image(width, height, self.MI_WIDTH, self.MI_HEIGHT)
+        img2 = create_canvas(width, height)
+        frame = create_canvas(self.MI_WIDTH, self.MI_HEIGHT)
+        img2.compose(img)
+        if scaled:
+            img2.size = (nwidth, nheight, 'LanczosFilter', 0.5)
+        left = int((self.MI_WIDTH - nwidth)/2.0)
+        top = int((self.MI_HEIGHT - nheight)/2.0)
+        frame.compose(img2, left, top)
+        frame.save(out_path)
 
     def create_opf(self, feeds, dir=None):
         if dir is None:
             dir = self.output_dir
-        mi = MetaInformation(self.short_title() + strftime(self.timefmt), [__appname__])
+        title = self.short_title()
+        if self.output_profile.periodical_date_in_title:
+            title += strftime(self.timefmt)
+        mi = MetaInformation(title, [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
         mi.publication_type = 'periodical:'+self.publication_type

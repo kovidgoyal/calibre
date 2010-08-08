@@ -5,18 +5,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, os
 import __builtin__
 
 import cherrypy
 from lxml import html
-from lxml.html.builder import HTML, HEAD, TITLE, STYLE, LINK, DIV, IMG, BODY, \
+from lxml.html.builder import HTML, HEAD, TITLE, LINK, DIV, IMG, BODY, \
         OPTION, SELECT, INPUT, FORM, SPAN, TABLE, TR, TD, A, HR
 
 from calibre.library.server.utils import strftime
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import __appname__
 from calibre import human_readable
+from calibre.utils.date import utcfromtimestamp
 
 def CLASS(*args, **kwargs): # class is a reserved word in Python
     kwargs['class'] = ' '.join(args)
@@ -140,85 +141,7 @@ def build_index(books, num, search, sort, order, start, total, url_base):
             TITLE(__appname__ + ' Library'),
             LINK(rel='icon', href='http://calibre-ebook.com/favicon.ico',
                 type='image/x-icon'),
-            STYLE( # {{{
-                '''
-.navigation table.buttons {
-    width: 100%;
-}
-.navigation .button {
-    width: 50%;
-}
-.button a, .button:visited a {
-    padding: 0.5em;
-    font-size: 1.25em;
-    border: 1px solid black;
-    text-color: black;
-    background-color: #ddd;
-    border-top: 1px solid ThreeDLightShadow;
-    border-right: 1px solid ButtonShadow;
-    border-bottom: 1px solid ButtonShadow;
-    border-left: 1 px solid ThreeDLightShadow;
-    -moz-border-radius: 0.25em;
-    -webkit-border-radius: 0.25em;
-}
-
-.button:hover a {
-    border-top: 1px solid #666;
-    border-right: 1px solid #CCC;
-    border-bottom: 1 px solid #CCC;
-    border-left: 1 px solid #666;
-
-
-}
-div.navigation {
-    padding-bottom: 1em;
-    clear: both;
-}
-
-#search_box {
-    border: 1px solid #393;
-    -moz-border-radius: 0.5em;
-    -webkit-border-radius: 0.5em;
-    padding: 1em;
-    margin-bottom: 0.5em;
-    float: right;
-}
-
-#listing {
-    width: 100%;
-    border-collapse: collapse;
-}
-#listing td {
-    padding: 0.25em;
-}
-
-#listing td.thumbnail {
-    height: 60px;
-    width: 60px;
-}
-
-#listing tr:nth-child(even) {
-
-    background: #eee;
-}
-
-#listing .button a{
-    display: inline-block;
-    width: 2.5em;
-    padding-left: 0em;
-    padding-right: 0em;
-    overflow: hidden;
-    text-align: center;
-}
-
-#logo {
-    float: left;
-}
-#spacer {
-    clear: both;
-}
-
-                ''', type='text/css') # }}}
+            LINK(rel='stylesheet', type='text/css', href='/mobile/style.css')
         ), # End head
         body
     ) # End html
@@ -231,6 +154,14 @@ class MobileServer(object):
 
     def add_routes(self, connect):
         connect('mobile', '/mobile', self.mobile)
+        connect('mobile_css', '/mobile/style.css', self.mobile_css)
+
+    def mobile_css(self, *args, **kwargs):
+        path = P('content_server/mobile.css')
+        cherrypy.response.headers['Content-Type'] = 'text/css; charset=utf-8'
+        updated = utcfromtimestamp(os.stat(path).st_mtime)
+        cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
+        return open(path, 'rb').read()
 
     def mobile(self, start='1', num='25', sort='date', search='',
                 _=None, order='descending'):

@@ -38,6 +38,8 @@ class KOBO(USBMS):
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
 
+    VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo'])
+
     def initialize(self):
         USBMS.initialize(self)
         self.book_class = Book

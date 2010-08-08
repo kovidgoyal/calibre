@@ -52,6 +52,11 @@ class DevicePlugin(Plugin):
     #: long time
     OPEN_FEEDBACK_MESSAGE = None
 
+    #: Set of extensions that are "virtual books" on the device
+    #: and therefore cannot be viewed/saved/added to library
+    #: For example: ``frozenset(['kobo'])``
+    VIRTUAL_BOOK_EXTENSIONS = frozenset([])
+
     @classmethod
     def get_gui_name(cls):
         if hasattr(cls, 'gui_name'):

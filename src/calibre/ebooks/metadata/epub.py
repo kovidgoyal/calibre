@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Read meta information from epub files'''
 
-import os, re, posixpath
+import os, re, posixpath, shutil
 from cStringIO import StringIO
 from contextlib import closing
 
@@ -13,7 +13,7 @@ from calibre.utils.zipfile import ZipFile, BadZipfile, safe_replace
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.ptempfile import TemporaryDirectory
+from calibre.ptempfile import TemporaryDirectory, PersistentTemporaryFile
 from calibre import CurrentDir
 
 class EPubException(Exception):
@@ -205,11 +205,19 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
             cover_replacable = not reader.encryption_meta.is_encrypted(cpath) and \
                     os.path.splitext(cpath)[1].lower() in ('.png', '.jpg', '.jpeg')
             if cover_replacable:
-                from calibre.ptempfile import PersistentTemporaryFile
-                from calibre.utils.magick_draw import save_cover_data_to
+                from calibre.utils.magick.draw import save_cover_data_to, \
+                    identify
                 new_cover = PersistentTemporaryFile(suffix=os.path.splitext(cpath)[1])
-                new_cover.close()
-                save_cover_data_to(new_cdata, new_cover.name)
+                resize_to = None
+                if False: # Resize new cover to same size as old cover
+                    shutil.copyfileobj(reader.open(cpath), new_cover)
+                    new_cover.close()
+                    width, height, fmt = identify(new_cover.name)
+                    resize_to = (width, height)
+                else:
+                    new_cover.close()
+                save_cover_data_to(new_cdata, new_cover.name,
+                        resize_to=resize_to)
                 replacements[cpath] = open(new_cover.name, 'rb')
         except:
             import traceback

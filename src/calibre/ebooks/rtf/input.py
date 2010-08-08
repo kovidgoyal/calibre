@@ -50,7 +50,7 @@ class RTFInput(InputFormatPlugin):
         parser = ParseRtf(
             in_file    = stream,
             out_file   = ofile,
-            deb_dir = 'I:\\Calibre\\rtfdebug',
+			deb_dir = 'I:\\Calibre\\rtfdebug',
             # Convert symbol fonts to unicode equivalents. Default
             # is 1
             convert_symbol = 1,
@@ -121,26 +121,22 @@ class RTFInput(InputFormatPlugin):
         return self.convert_images(imap)
 
     def convert_images(self, imap):
-        from calibre.utils.PythonMagickWand import ImageMagick
-        with ImageMagick():
-            for count, val in imap.items():
-                try:
-                    imap[count] = self.convert_image(val)
-                except:
-                    self.log.exception('Failed to convert', val)
+        for count, val in imap.items():
+            try:
+                imap[count] = self.convert_image(val)
+            except:
+                self.log.exception('Failed to convert', val)
         return imap
 
     def convert_image(self, name):
-        import calibre.utils.PythonMagickWand as p
-        img = p.NewMagickWand()
-        if img < 0:
-            raise RuntimeError('Cannot create wand.')
-        if not p.MagickReadImage(img, name):
-            self.log.warn('Failed to read image:', name)
+        from calibre.utils.magick import Image
+        img = Image()
+        img.open(name)
         name = name.replace('.wmf', '.jpg')
-        p.MagickWriteImage(img, name)
-
+        img.save(name)
         return name
+
+
 
     def write_inline_css(self, ic):
         font_size_classes = ['span.fs%d { font-size: %spt }'%(i, x) for i, x in
@@ -152,11 +148,17 @@ class RTFInput(InputFormatPlugin):
             text-decoration: none; font-weight: normal;
             font-style: normal; font-variant: normal
         }
+
         span.italics { font-style: italic }
+
         span.bold { font-weight: bold }
+
         span.small-caps { font-variant: small-caps }
+
         span.underlined { text-decoration: underline }
+
         span.strike-through { text-decoration: line-through }
+
         ''')
         css += '\n'+'\n'.join(font_size_classes)
         css += '\n' +'\n'.join(color_classes)
@@ -194,11 +196,11 @@ class RTFInput(InputFormatPlugin):
         except RtfInvalidCodeException, e:
             raise ValueError(_('This RTF file has a feature calibre does not '
             'support. Convert it to HTML first and then try it.\n%s')%e)
-        
+
         dataxml = open('dataxml.xml', 'w')
         dataxml.write(xml)
         dataxml.close
-        
+
         d = glob.glob(os.path.join('*_rtf_pict_dir', 'picts.rtf'))
         if d:
             imap = {}
@@ -206,7 +208,7 @@ class RTFInput(InputFormatPlugin):
                 imap = self.extract_images(d[0])
             except:
                 self.log.exception('Failed to extract images...')
-        
+
         self.log('Parsing XML...')
         parser = etree.XMLParser(recover=True, no_network=True)
         doc = etree.fromstring(xml, parser=parser)

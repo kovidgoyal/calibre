@@ -71,6 +71,11 @@ Metadata download plugins
    :members:
    :member-order: bysource
 
+.. autoclass:: calibre.ebooks.metadata.covers.CoverDownload
+   :show-inheritance:
+   :members:
+   :member-order: bysource
+
 Conversion plugins
 --------------------
 

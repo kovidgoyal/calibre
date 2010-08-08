@@ -4,6 +4,57 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.13
+  date: 2010-08-06
+
+  new features:
+    - title: "Add a button to the edit metadata dialog to generate a cover based on the book metadata"
+      tickets: [5959]
+
+    - title: "When using series or title in a save template to generate a file path, remove leading prepositions. This behavior can be controlled via a tweak."
+
+    - title: "News download: When downloading news for the Kindle, do not add date to the title, to allow the Kindle's periodical archiving to work."
+      tickets: [6411]
+
+    - title: "Content Server OPDS feeds: Grouping of items by first alphabet is now case-insensitive."
+
+    - title: "Do not allow the user to use save to disk to save files into the calibre library"
+      tickets: [6392]
+
+    - title: "Switch to a new C based API for using ImageMagick. More robust and a minor speedup when doing image manipulations"
+
+    - title: "Move cover downloading to a plugin based API. You can now add new cover sources to calibre using plugins."
+
+  bug fixes:
+    - title: "Content server OPDS feeds: Handle the case when the author field is blank"
+      tickets: [6371]
+
+    - title: "TXT Input: Strip out illegal chars from txt files."
+      tickets: [6335]
+
+    - title: "Save to disk/send to device templates: Always render {series_index} as an empty string when the book has no series."
+      tickets: [6409]
+
+    - title: "PD Novel driver: Remove covers when deleting books"
+
+
+  new recipes:
+    - title: "Snopes"
+      author: Startson17
+
+    - title: "dr.dk and Balkan Insight"
+      author: Darko Miletic
+
+    - title: Folha de Sao Paulo
+      author: Saverio Palmieri Neto
+
+  improved recipes:
+    - Honolulu Star Advertiser
+    - Nature News
+    - Associated Press
+    - Scientific American
+    - New Scientist
+
 - version: 0.7.12
   date: 2010-07-30
 

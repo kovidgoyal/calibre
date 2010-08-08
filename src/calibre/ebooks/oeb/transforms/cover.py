@@ -98,7 +98,7 @@ class CoverManager(object):
         authors = [unicode(x) for x in m.creator if x.role == 'aut']
 
         try:
-            from calibre.utils.magick_draw import create_cover_page, TextLine
+            from calibre.utils.magick.draw import create_cover_page, TextLine
             lines = [TextLine(title, 44), TextLine(authors_to_string(authors),
                 32)]
             img_data = create_cover_page(lines, I('library.png'))

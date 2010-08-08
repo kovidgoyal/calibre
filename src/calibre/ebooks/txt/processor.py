@@ -6,7 +6,7 @@ Read content from txt file.
 
 import os, re
 
-from calibre import prepare_string_for_xml
+from calibre import prepare_string_for_xml, isbytestring
 from calibre.ebooks.markdown import markdown
 from calibre.ebooks.metadata.opf2 import OPFCreator
 
@@ -17,6 +17,8 @@ __docformat__ = 'restructuredtext en'
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
 
 def convert_basic(txt, title='', epub_split_size_kb=0):
+    if isbytestring(txt):
+        txt = txt.decode('utf-8', 'replace')
     # Strip whitespace from the beginning and end of the line. Also replace
     # all line breaks with \n.
     txt = '\n'.join([line.strip() for line in txt.splitlines()])
@@ -30,19 +32,23 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
     # Remove excessive line breaks.
     txt = re.sub('\n{3,}', '\n\n', txt)
     #remove ASCII invalid chars : 0 to 8 and 11-14 to 24
-    illegal_char = re.compile('\x00|\x01|\x02|\x03|\x04|\x05|\x06|\x07|\x08| \
-        \x0B|\x0E|\x0F|\x10|\x11|\x12|\x13|\x14|\x15|\x16|\x17|\x18')
-    txt = illegal_char.sub('', txt)
-    
+    chars = list(range(8)) + [0x0B, 0x0E, 0x0F] + list(range(0x10, 0x19))
+    illegal_chars = re.compile(u'|'.join(map(unichr, chars)))
+    txt = illegal_chars.sub('', txt)
     #Takes care if there is no point to split
     if epub_split_size_kb > 0:
+        if isinstance(txt, unicode):
+            txt = txt.encode('utf-8')
         length_byte = len(txt)
         #Calculating the average chunk value for easy splitting as EPUB (+2 as a safe margin)
         chunk_size = long(length_byte / (int(length_byte / (epub_split_size_kb * 1024) ) + 2 ))
         #if there are chunks with a superior size then go and break
         if (len(filter(lambda x: len(x) > chunk_size, txt.split('\n\n')))) :
-            txt = '\n\n'.join([split_string_separator(line, chunk_size) 
+            txt = '\n\n'.join([split_string_separator(line, chunk_size)
                 for line in txt.split('\n\n')])
+    if isbytestring(txt):
+        txt = txt.decode('utf-8')
+
 
     lines = []
     # Split into paragraphs based on having a blank line between text.
