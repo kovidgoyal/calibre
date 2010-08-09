@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-08-07 01:39+0000\n"
-"PO-Revision-Date: 2010-08-07 01:31+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-08-08 17:41+0000\n"
+"Last-Translator: MeltingShell <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-08 03:41+0000\n"
+"X-Launchpad-Export-Date: 2010-08-09 03:38+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -2347,16 +2347,16 @@ msgstr "Scarica cover"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:79
 msgid "Download covers from openlibrary.org"
-msgstr ""
+msgstr "Scarica copertine da openlibrary.org"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:107
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:136
 msgid "ISBN: %s not found"
-msgstr ""
+msgstr "ISBN: %s non trovato"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:117
 msgid "Download covers from librarything.com"
-msgstr ""
+msgstr "Scarica copertine da librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:128
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:68
@@ -3342,6 +3342,8 @@ msgstr "Nessun libro selezionato"
 msgid ""
 "The following books are virtual and cannot be added to the calibre library:"
 msgstr ""
+"I seguenti libri sono virtuali e non possono essere aggiunti alla biblioteca "
+"calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:448
 msgid "No book files found"
@@ -3518,6 +3520,9 @@ msgid ""
 "corruption of your library. Save to disk is meant to export files from your "
 "calibre library elsewhere."
 msgstr ""
+"Si sta tentando di salvare dei file nella biblioteca calibre. Questo può "
+"danneggiare la biblioteca. Salva su disco è pensato per esportare i libri "
+"dalla biblioteca calibre in un altro posto."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions.py:968
 msgid "Error while saving"
@@ -4400,7 +4405,7 @@ msgstr "&Altezza delle righe:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:128
 msgid "Input character &encoding:"
-msgstr "&Encoding dei caratteri di input"
+msgstr "&Codifica dei caratteri di input:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:129
 msgid "Remove &spacing between paragraphs"
@@ -5486,11 +5491,11 @@ msgstr "La cartella %s non è vuota. Selezionare una cartella vuota"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:80
 msgid "No location"
-msgstr ""
+msgstr "Nessuna posizione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:80
 msgid "No location selected"
-msgstr ""
+msgstr "Nessuna posizione selezionata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:66
 msgid "Choose your calibre library"
@@ -6815,11 +6820,13 @@ msgstr "L'immagine non ee valida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:150
 msgid "Specify title and author"
-msgstr ""
+msgstr "Specificare titolo e autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:151
 msgid "You must specify a title and author before generating a cover"
 msgstr ""
+"È necessario specificare un titolo e un autore prima di generare una "
+"copertina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:163
 msgid "Choose formats for "
@@ -6911,6 +6918,8 @@ msgstr ""
 msgid ""
 "For the error message from each cover source, click Show details below."
 msgstr ""
+"Per il messaggio di errore di ogni sorgente di copertine, fare clic su "
+"«Mostra dettagli»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:610
 msgid "Bad cover"
@@ -7026,11 +7035,11 @@ msgstr "Scarica &copertina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:408
 msgid "Generate a default cover based on the title and author"
-msgstr ""
+msgstr "Genera una copertina predefinita basata sul titolo e l'autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:409
 msgid "&Generate cover"
-msgstr ""
+msgstr "&Genera copertina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:56
 msgid "Password needed"
@@ -11241,7 +11250,7 @@ msgid ""
 "default is to try and guess the encoding."
 msgstr ""
 "La codifica caratteri del sito web che si sta cercando di scaricare. "
-"L'impostazione predefinita è quella di provare a indovinare la codifica"
+"L'impostazione predefinita è quella di provare e indovinare la codifica."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:500
 msgid ""
