@@ -50,6 +50,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="recalc_author_sort">
+       <property name="text">
+        <string>Recalculate all author sort values</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
