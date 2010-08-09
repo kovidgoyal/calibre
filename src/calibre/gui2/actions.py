@@ -931,7 +931,7 @@ class SaveToDiskAction(object): # {{{
         lpath = self.library_view.model().db.library_path.replace('/', os.sep)
         if dpath.startswith(lpath):
             return error_dialog(self, _('Not allowed'),
-                    _('You are tying to save files into the calibre '
+                    _('You are trying to save files into the calibre '
                       'library. This can cause corruption of your '
                       'library. Save to disk is meant to export '
                       'files from your calibre library elsewhere.'), show=True)
