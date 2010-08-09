@@ -177,7 +177,7 @@ def extract(path, dir):
     try:
         if open_archive_data.OpenResult != 0:
             raise UnRARException(_interpret_open_error(open_archive_data.OpenResult, path))
-        prints('Archive:', path)
+        #prints('Archive:', path)
         #print get_archive_info(open_archive_data.Flags)
         header_data = RARHeaderDataEx(CmtBuf=None)
         #_libunrar.RARSetCallback(arc_data, callback_func, mode)
