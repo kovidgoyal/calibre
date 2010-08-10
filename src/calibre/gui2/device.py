@@ -118,6 +118,7 @@ class DeviceManager(Thread): # {{{
         self.jobs           = Queue.Queue(0)
         self.keep_going     = True
         self.job_manager    = job_manager
+        self.reported_errors = set([])
         self.current_job    = None
         self.scanner        = DeviceScanner()
         self.connected_device = None
@@ -141,13 +142,16 @@ class DeviceManager(Thread): # {{{
         for dev, detected_device in connected_devices:
             if dev.OPEN_FEEDBACK_MESSAGE is not None:
                 self.open_feedback_slot(dev.OPEN_FEEDBACK_MESSAGE)
-            dev.reset(detected_device=detected_device,
-                    report_progress=self.report_progress)
             try:
+                dev.reset(detected_device=detected_device,
+                    report_progress=self.report_progress)
                 dev.open()
             except:
-                prints('Unable to open device', str(dev))
-                traceback.print_exc()
+                tb = traceback.format_exc()
+                if DEBUG or tb not in self.reported_errors:
+                    self.reported_errors.add(tb)
+                    prints('Unable to open device', str(dev))
+                    prints(tb)
                 continue
             self.connected_device = dev
             self.connected_device_kind = device_kind
@@ -192,11 +196,13 @@ class DeviceManager(Thread): # {{{
             if possibly_connected_devices:
                 if not self.do_connect(possibly_connected_devices,
                                        device_kind='device'):
-                    prints('Connect to device failed, retrying in 5 seconds...')
+                    if DEBUG:
+                        prints('Connect to device failed, retrying in 5 seconds...')
                     time.sleep(5)
                     if not self.do_connect(possibly_connected_devices,
                                        device_kind='usb'):
-                        prints('Device connect failed again, giving up')
+                        if DEBUG:
+                            prints('Device connect failed again, giving up')
 
     # Mount devices that don't use USB, such as the folder device and iTunes
     # This will be called on the GUI thread. Because of this, we must store

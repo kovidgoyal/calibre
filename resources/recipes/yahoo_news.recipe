@@ -1,0 +1,34 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class YahooNews(BasicNewsRecipe):
+    title               = 'Yahoo News'
+    __author__          = 'Starson17'
+    description         = 'Yahoo-Science'
+    language            = 'en'
+    use_embedded_content= False
+    no_stylesheets      = True
+    linearize_tables      = True
+    oldest_article      = 24
+    remove_javascript   = True
+    remove_empty_feeds    = True
+    max_articles_per_feed = 10
+
+    feeds = [#There are dozens of other feeds at http://news.yahoo.com/rss
+             (u'Top Stories', u'http://rss.news.yahoo.com/rss/topstories'),
+             (u'Science', u'http://rss.news.yahoo.com/rss/science')
+             ]
+
+    keep_only_tags     = [dict(name='div', attrs={'id':'yn-story'})]
+
+    remove_tags     = [dict(name='div', attrs={'class':['hd', 'ft', 'yn-share-social']}),
+                                   dict(name='div', attrs={'id':['yn-story-minor-media']})]
+
+    preprocess_regexps = [(re.compile(r'<span>Play Video</span>', re.DOTALL),lambda match: '<span></span>')]
+
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+		'''
