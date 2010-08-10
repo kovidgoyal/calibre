@@ -1082,8 +1082,8 @@ class BasicNewsRecipe(Recipe):
         img.open(path_to_image)
         width, height = img.size
         scaled, nwidth, nheight = fit_image(width, height, self.MI_WIDTH, self.MI_HEIGHT)
-        img2 = create_canvas(width, height,'white')
-        frame = create_canvas(self.MI_WIDTH, self.MI_HEIGHT,'white')
+        img2 = create_canvas(width, height)
+        frame = create_canvas(self.MI_WIDTH, self.MI_HEIGHT)
         img2.compose(img)
         if scaled:
             img2.size = (nwidth, nheight, 'LanczosFilter', 0.5)
