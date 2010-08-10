@@ -15,6 +15,7 @@ from calibre import prepare_string_for_xml
 # Hackish - ignoring sentences ending or beginning in numbers to avoid
 # confusion with decimal points.
 lost_cr_pat = re.compile('([a-z])([\.\?!])([A-Z])')
+lost_cr_exception_pat = re.compile(r'(Ph\.D)|(D\.Phil)|((Dr|Mr|Mrs|Ms)\.[A-Z])')
 
 def comments_to_html(comments):
     '''
@@ -51,6 +52,8 @@ def comments_to_html(comments):
         return '\n'.join(parts)
 
     # Explode lost CRs to \n\n
+    comments = lost_cr_exception_pat.sub(lambda m: m.group().replace('.',
+        '.\r'), comments)
     for lost_cr in lost_cr_pat.finditer(comments):
         comments = comments.replace(lost_cr.group(),
                                     '%s%s\n\n%s' % (lost_cr.group(1),

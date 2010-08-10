@@ -317,6 +317,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                      'title', 'timestamp', 'uuid', 'pubdate'):
             setattr(self, prop, functools.partial(get_property,
                     loc=self.FIELD_MAP['comments' if prop == 'comment' else prop]))
+        setattr(self, 'title_sort', functools.partial(get_property,
+                loc=self.FIELD_MAP['sort']))
 
     def initialize_database(self):
         metadata_sqlite = open(P('metadata_sqlite.sql'), 'rb').read()
@@ -494,6 +496,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.timestamp   = self.timestamp(idx, index_is_id=index_is_id)
         mi.pubdate     = self.pubdate(idx, index_is_id=index_is_id)
         mi.uuid        = self.uuid(idx, index_is_id=index_is_id)
+        mi.title_sort  = self.title_sort(idx, index_is_id=index_is_id)
         tags = self.tags(idx, index_is_id=index_is_id)
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]

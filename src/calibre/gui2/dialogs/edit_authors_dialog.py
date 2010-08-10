@@ -48,16 +48,41 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                 select_item = sort
         self.table.resizeColumnsToContents()
 
-        # set up the signal after the table is filled
+        # set up the cellChanged signal only after the table is filled
         self.table.cellChanged.connect(self.cell_changed)
 
-        self.table.setSortingEnabled(True)
+        # set up sort buttons
+        self.sort_by_author.setCheckable(True)
+        self.sort_by_author.setChecked(False)
+        self.sort_by_author.clicked.connect(self.do_sort_by_author)
+        self.author_order = 1
+
         self.table.sortByColumn(1, Qt.AscendingOrder)
+        self.sort_by_author_sort.clicked.connect(self.do_sort_by_author_sort)
+        self.sort_by_author_sort.setCheckable(True)
+        self.sort_by_author_sort.setChecked(True)
+        self.author_sort_order = 1
+
+        # set up author sort calc button
+        self.recalc_author_sort.clicked.connect(self.do_recalc_author_sort)
+
         if select_item is not None:
             self.table.setCurrentItem(select_item)
             self.table.editItem(select_item)
         else:
             self.table.setCurrentCell(0, 0)
+
+    def do_sort_by_author(self):
+        self.author_order = 1 if self.author_order == 0 else 0
+        self.table.sortByColumn(0, self.author_order)
+        self.sort_by_author.setChecked(True)
+        self.sort_by_author_sort.setChecked(False)
+
+    def do_sort_by_author_sort(self):
+        self.author_sort_order = 1 if self.author_sort_order == 0 else 0
+        self.table.sortByColumn(1, self.author_sort_order)
+        self.sort_by_author.setChecked(False)
+        self.sort_by_author_sort.setChecked(True)
 
     def accepted(self):
         self.result = []
@@ -69,6 +94,17 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             if orig_aut != aut or orig_sort != sort:
                 self.result.append((id, orig_aut, aut, sort))
 
+    def do_recalc_author_sort(self):
+        self.table.cellChanged.disconnect()
+        for row in range(0,self.table.rowCount()):
+            item = self.table.item(row, 0)
+            aut  = unicode(item.text()).strip()
+            c = self.table.item(row, 1)
+            # Sometimes trailing commas are left by changing between copy algs
+            c.setText(author_to_author_sort(aut).rstrip(','))
+        self.table.setFocus(Qt.OtherFocusReason)
+        self.table.cellChanged.connect(self.cell_changed)
+
     def cell_changed(self, row, col):
         if col == 0:
             item = self.table.item(row, 0)
@@ -79,8 +115,4 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         else:
             item  = self.table.item(row, 1)
         self.table.setCurrentItem(item)
-        # disable and reenable sorting to force the sort now, so we can scroll
-        # to the item after it moves
-        self.table.setSortingEnabled(False)
-        self.table.setSortingEnabled(True)
         self.table.scrollToItem(item)
