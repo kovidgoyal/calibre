@@ -1,187 +1,279 @@
 <html>
 <head>
 <style type='text/css'>
-.toc { page-break-after: always; text-indent: 0em; }
-.tocpn            {text-align: right; }
-.tocchr           {text-align: right;}
-.hanging_indent   { padding-left:4em; text-indent:-4em }
-.drop             { text-indent: 0pt}
-.drop:first-letter { font-size:xx-large}
+.toc {
+	page-break-after: always;
+	text-indent: 0em;
+}
+
+.tocpn {
+	text-align: right;
+}
+
+.tocchr {
+	text-align: right;
+}
+
+.hanging_indent {
+	padding-left: 4em;
+	text-indent: -4em
+}
+
+.drop {
+	text-indent: 0pt
+}
+
+.drop:first-letter {
+	font-size: xx-large
+}
 </style>
 </head>
-  <h1>Demo of <span style='font-family:monospace'>html2lrf</span></h1>  
-  <p>
-  This document contains a demonstration of the capabilities of <span style='font-family:monospace'>html2lrf</span>, the HTML to LRF converter   from <em>calibre.</em> To obtain calibre visit<br/><span style='font:sans-serif'>http://calibre-ebook.com</span>
-  </p>
-  <br/>
-  <h2 id="toc">Table of Contents</h2>
-  <ul style='page-break-after:always'>
-    <li><a href='#lists'>Lists</a></li>
-    <li><a href='#tables'>Tables</a></li>
-    <li><a href='#text'>Text formatting and ruled lines</a></li>
-    <li><a href='#images'>Inline images</a></li>
-    <li><a href='#fonts'>Embedded Fonts</a></li>
-    <li><a href='#dropcaps'>Paragraph Emphasis</a></li>
-    <li><a href='#recursive'>Recursive link following</a></li>
- </ul>
+<h1>Demo of <span style='font-family: monospace'>html2lrf</span></h1>
+<p>This document contains a demonstration of the capabilities of <span
+	style='font-family: monospace'>html2lrf</span>, the HTML to LRF
+converter from <em>calibre.</em> To obtain calibre visit<br />
+<span style='font: sans-serif'>http://calibre-ebook.com</span></p>
+<br />
+<h2 id="toc">Table of Contents</h2>
+<ul style='page-break-after: always'>
+	<li><a href='#lists'>Lists</a></li>
+	<li><a href='#tables'>Tables</a></li>
+	<li><a href='#text'>Text formatting and ruled lines</a></li>
+	<li><a href='#images'>Inline images</a></li>
+	<li><a href='#fonts'>Embedded Fonts</a></li>
+	<li><a href='#dropcaps'>Paragraph Emphasis</a></li>
+	<li><a href='#recursive'>Recursive link following</a></li>
+</ul>
 
- <h2 id="lists">Lists</h2>
- 
- <h3>Nested lists</h3>
- <ol>
-   <li>Item 1</li>
-   <ul>
-   <li>Sub item 1</li>
-   <li>Sub item 2</li>
-   <ol>
-   <li>Sub sub item 1. This is a multiline item with <i>almost</i> correct blocking.</li>
-   <li>Sub sub item 2</li>
-   </ol>
-   </ul>
-   <li>Item 2</li>
- </ol> 
- <p></p>
- <h3>Definition Lists</h3>
- <dl>
- <dt>Term 1</dt>
- <dd>Definition of Term 1. A multi line definition showing correct blocking.</dd>
- <dt>Term 2</dt>
- <dd>Definition of Term 2</dd>
- </dl>
- <p class='toc'>
- <hr />
- <a href='#toc'>Table of Contents</a>
- </p>
+<h2 id="lists">Lists</h2>
 
- <h2><a name='tables'>Tables</a></h2>
- <table>
- <tr><td colspan=4><h3 style="text-align:center">A matrix</h3></td></tr>
- <tr><td></td><td style="text-align:center"><b>Column 1</b></td><td style="text-align:center"><b>Column 2</b></td><td style="text-align:center"><b>Column 3</b></td></tr>
- <tr><td><b>Row 1</b></td><td><p style="text-align:center">(1, 1)</p></tr>
- <tr><td><b>Row 2</b></td><td></td><td style="text-align:center"><p>(2, 2)</p></td><td></td></tr>
- <tr><td><b>Row 3</b></td><td></td><td></td><td><p style="text-align:center">(3, 3)</p></td></tr>
- </table>
- <br/>
- <p>
- html2lrf supports both rowspan and colspan, but no other HTML table attributes, as it uses its own algorithm to determine optimal placement of cells. 
- </p>
- <p>
- Note that if you have custom fonts on your reader, the table may not be properly aligned. Also html2lrf does not support nested tables.
- </p>
- <p style="page-break-after:always">
- On the next page you'll see a real life example taken from a Project Gutenberg text with no modifications. It shows off html2lrf's handling of rowspan and colspan.
- </p>
- <h3 align="center">Sample Complex Table of Contents</h3>
- <table summary="TOC">
- <tr><td colspan="3">&nbsp;</td><td align="right">PAGE</td></tr>
- <tr><td class="tocch" colspan="3">Preface</td><td class="tocpn">v</td></tr>
- <tr><td class="tocch" colspan="3">List of Works of Reference</td><td class="tocpn">vii</td></tr>
- <tr><td class="tocch" colspan="3">List of Illustrations</td><td class="tocpn">xi</td></tr>
- <tr><td class="tocch">Chapter</td><td class="tocchr">I.</td><td class="tocch">History of the Foundation</td><td class="tocpn">3</td></tr>
- <tr><td class="tocchr" colspan="2">II.</td><td class="tocch">Exterior of the Church</td><td class="tocpn">25</td></tr>
- <tr><td class="tocchr" colspan="2">III.</td><td class="tocch">Interior of the Church</td><td class="tocpn">33</td></tr>
- <tr><td class="tocchr" colspan="2">IV.</td><td class="tocch">St. Bartholomew-the-Less and the Hospital</td><td class="tocpn">63</td></tr>
- <tr><td class="tocch">Appendix</td><td class="tocchr">I.</td><td class="tocch">The Priory Seals</td><td class="tocpn">73</td></tr>
- <tr><td class="tocchr" colspan="2">II.</td><td class="tocch">The Priors and Rectors</td><td class="tocpn">77</td></tr>
- <tr><td class="tocchr" colspan="2">III.</td><td class="tocch">Inventory of Vestments, etc.</td><td class="tocpn">79</td></tr>
- <tr><td class="tocchr" colspan="2">IV.</td><td class="tocch">The Organ</td><td class="tocpn">80</td></tr>
- <tr><td class="tocch" colspan="3">Index</td><td class="tocpn">83</td></tr>
- </table>
- 
- <p class='toc'>
- <hr />
- <a href='#toc'>Table of Contents</a>
- </p>
-
- <h2><a name='text'>Text formatting</a></h2>
- <p>
- A simple <i>paragraph</i> of <b>formatted 
-   <i>text</i></b>, with a <u>ruled line</u> following it. 
-   Super<sup>scripts</sup> and Sub<sub>scripts</sub>.
- </p>
- <hr/>
- <br/>
- <p>  A 
- <span style='font-style:italic'>similar</span> 
- paragraph, but now <span style="text-decoration:overline">using</span>  
- <span style='font-weight:bold'><i>CSS</i></span> 
- to perform the text formatting.</p>
- <hr/>
- <center>A centered phrase</center>
- <span style='text-align:right'>A right aligned phrase</span>
- A normal phrase
- <hr />
- <p> A paragraph containing a <em>&lt;blockquote&gt;</em>
- <blockquote>This is blockquoted text. It is rendered in a separate block with margins.</blockquote>The above text should be distinct from the rest of the paragraph.
- </p>
- <hr/>
- <p style='text-indent:10em'>A very indented paragraph</p>
- <p style='text-indent:0em'>An unindented paragraph</p>
- <p>A default indented paragraph</p>
- <p class='toc'>
- <hr />
- <a href='#toc'>Table of Contents</a>
- </p>
-
- 
- <h2><a name='images'>Inline images</a></h2>
- <p>
- Here I demonstrate the use of inline images in the midst of text. Here is a  small image <img src='small.jpg' /> embedded in a sentence. Now we have a  slightly larger image that is automatically put in its own block  <img style="text-align:center" src='medium.jpg' /> and finally we have a large image which is put on a page by itself. Try changing sizes from S to M to L and see how the images behave.  <img align='center' src='large.jpg' />
- </p>
+<h3>Nested lists</h3>
+<ol>
+	<li>Item 1</li>
+	<ul>
+		<li>Sub item 1</li>
+		<li>Sub item 2</li>
+		<ol>
+			<li>Sub sub item 1. This is a multiline item with <i>almost</i>
+			correct blocking.</li>
+			<li>Sub sub item 2</li>
+		</ol>
+	</ul>
+	<li>Item 2</li>
+</ol>
+<p></p>
+<h3>Definition Lists</h3>
+<dl>
+	<dt>Term 1</dt>
+	<dd>Definition of Term 1. A multi line definition showing correct
+	blocking.</dd>
+	<dt>Term 2</dt>
+	<dd>Definition of Term 2</dd>
+</dl>
 <p class='toc'>
- <hr />
- <a href='#toc'>Table of Contents</a>
- </p>
+<hr />
+<a href='#toc'>Table of Contents</a></p>
 
- <h2><a name='fonts'>Embedded fonts</a></h2>
- <p>This LRF file has been prepared by embedding Times New Roman and Andale Mono
- as the default serif and monospace fonts. This allows it to correctly display
- non English characters such as: </p>
- <ul>
- <li>mouse in German: mūs</li>
- <li>mouse in Russian: мышь</li>
- </ul>
- <p>
- Note that embedding fonts in LRF files slows down page turns slightly.
- <br />
- </p>
- 
- <p class='toc'>
- <hr />
- <a href='#toc'>Table of Contents</a>
- </p>
- 
- <h2><a name='dropcaps'>Paragraph Emphasis</a></h2>
- <br/>
- <p><img class='libprs500_dropcaps' src='a.png' /> beautiful image based dropcaps to emphasize this 
- paragraph. Image based dropcaps are specified by adding the <code>class = 'libprs500_dropcaps'</code>
- attribute to an <code>&lt;img&gt;</code> tag.<p/>
- <br/>
- 
- <p class="drop">This is a plain text based dropcaps. It
- is not nearly as dramatic, but easier to code ;-)
- </p>
- <br/>
- 
- <p><span style="font-variant: small-caps">This is an Example</span> of small-caps.
- It can also be used to highlight the start of a paragraph very effectively.
- </p>
- <br/>
- <p class='hanging_indent'>A paragraph with a hanging indent. This is especially 
- useful for highly structured text like verse, or dialogue.<br/></p>
- <p class='toc'> 
- <hr />
- <a href='#toc'>Table of Contents</a>
- </p>
+<h2><a name='tables'>Tables</a></h2>
+<table>
+	<tr>
+		<td colspan=4>
+		<h3 style="text-align: center">A matrix</h3>
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td style="text-align: center"><b>Column 1</b></td>
+		<td style="text-align: center"><b>Column 2</b></td>
+		<td style="text-align: center"><b>Column 3</b></td>
+	</tr>
+	<tr>
+		<td><b>Row 1</b></td>
+		<td>
+		<p style="text-align: center">(1, 1)</p>
+	</tr>
+	<tr>
+		<td><b>Row 2</b></td>
+		<td></td>
+		<td style="text-align: center">
+		<p>(2, 2)</p>
+		</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td><b>Row 3</b></td>
+		<td></td>
+		<td></td>
+		<td>
+		<p style="text-align: center">(3, 3)</p>
+		</td>
+	</tr>
+</table>
+<br />
+<p>html2lrf supports both rowspan and colspan, but no other HTML
+table attributes, as it uses its own algorithm to determine optimal
+placement of cells.</p>
+<p>Note that if you have custom fonts on your reader, the table may
+not be properly aligned. Also html2lrf does not support nested tables.</p>
+<p style="page-break-after: always">On the next page you'll see a
+real life example taken from a Project Gutenberg text with no
+modifications. It shows off html2lrf's handling of rowspan and colspan.
+</p>
+<h3 align="center">Sample Complex Table of Contents</h3>
+<table summary="TOC">
+	<tr>
+		<td colspan="3">&nbsp;</td>
+		<td align="right">PAGE</td>
+	</tr>
+	<tr>
+		<td class="tocch" colspan="3">Preface</td>
+		<td class="tocpn">v</td>
+	</tr>
+	<tr>
+		<td class="tocch" colspan="3">List of Works of Reference</td>
+		<td class="tocpn">vii</td>
+	</tr>
+	<tr>
+		<td class="tocch" colspan="3">List of Illustrations</td>
+		<td class="tocpn">xi</td>
+	</tr>
+	<tr>
+		<td class="tocch">Chapter</td>
+		<td class="tocchr">I.</td>
+		<td class="tocch">History of the Foundation</td>
+		<td class="tocpn">3</td>
+	</tr>
+	<tr>
+		<td class="tocchr" colspan="2">II.</td>
+		<td class="tocch">Exterior of the Church</td>
+		<td class="tocpn">25</td>
+	</tr>
+	<tr>
+		<td class="tocchr" colspan="2">III.</td>
+		<td class="tocch">Interior of the Church</td>
+		<td class="tocpn">33</td>
+	</tr>
+	<tr>
+		<td class="tocchr" colspan="2">IV.</td>
+		<td class="tocch">St. Bartholomew-the-Less and the Hospital</td>
+		<td class="tocpn">63</td>
+	</tr>
+	<tr>
+		<td class="tocch">Appendix</td>
+		<td class="tocchr">I.</td>
+		<td class="tocch">The Priory Seals</td>
+		<td class="tocpn">73</td>
+	</tr>
+	<tr>
+		<td class="tocchr" colspan="2">II.</td>
+		<td class="tocch">The Priors and Rectors</td>
+		<td class="tocpn">77</td>
+	</tr>
+	<tr>
+		<td class="tocchr" colspan="2">III.</td>
+		<td class="tocch">Inventory of Vestments, etc.</td>
+		<td class="tocpn">79</td>
+	</tr>
+	<tr>
+		<td class="tocchr" colspan="2">IV.</td>
+		<td class="tocch">The Organ</td>
+		<td class="tocpn">80</td>
+	</tr>
+	<tr>
+		<td class="tocch" colspan="3">Index</td>
+		<td class="tocpn">83</td>
+	</tr>
+</table>
 
- <h2><a name='recursive'>Recursive link following</a></h2>
- <p>
- <span style='font:monospace'>html2lrf</span> follows links in HTML files that point to other files, recursively. Thus it can be used to convert a whole tree of HTML files into a single LRF file.
- <br />
- </p>
 <p class='toc'>
- <hr />
- <a href='#toc'>Table of Contents</a>
- </p>
+<hr />
+<a href='#toc'>Table of Contents</a></p>
 
+<h2><a name='text'>Text formatting</a></h2>
+<p>A simple <i>paragraph</i> of <b>formatted <i>text</i></b>, with a
+<u>ruled line</u> following it. Super<sup>scripts</sup> and Sub<sub>scripts</sub>.
+</p>
+<hr />
+<br />
+<p>A <span style='font-style: italic'>similar</span> paragraph, but
+now <span style="text-decoration: overline">using</span> <span
+	style='font-weight: bold'><i>CSS</i></span> to perform the text
+formatting.</p>
+<hr />
+<center>A centered phrase</center>
+<span style='text-align: right'>A right aligned phrase</span>
+A normal phrase
+<hr />
+<p>A paragraph containing a <em>&lt;blockquote&gt;</em>
+<blockquote>This is blockquoted text. It is rendered in a
+separate block with margins.</blockquote>
+The above text should be distinct from the rest of the paragraph.</p>
+<hr />
+<p style='text-indent: 10em'>A very indented paragraph</p>
+<p style='text-indent: 0em'>An unindented paragraph</p>
+<p>A default indented paragraph</p>
+<p class='toc'>
+<hr />
+<a href='#toc'>Table of Contents</a></p>
+
+
+<h2><a name='images'>Inline images</a></h2>
+<p>Here I demonstrate the use of inline images in the midst of text.
+Here is a small image <img src='small.jpg' /> embedded in a sentence.
+Now we have a slightly larger image that is automatically put in its own
+block <img style="text-align: center" src='medium.jpg' /> and finally
+we have a large image which is put on a page by itself. Try changing
+sizes from S to M to L and see how the images behave. <img
+	align='center' src='large.jpg' /></p>
+<p class='toc'>
+<hr />
+<a href='#toc'>Table of Contents</a></p>
+
+<h2><a name='fonts'>Embedded fonts</a></h2>
+<p>This LRF file has been prepared by embedding Times New Roman and
+Andale Mono as the default serif and monospace fonts. This allows it to
+correctly display non English characters such as:</p>
+<ul>
+	<li>mouse in German: mūs</li>
+	<li>mouse in Russian: мышь</li>
+</ul>
+<p>Note that embedding fonts in LRF files slows down page turns
+slightly. <br />
+</p>
+
+<p class='toc'>
+<hr />
+<a href='#toc'>Table of Contents</a></p>
+
+<h2><a name='dropcaps'>Paragraph Emphasis</a></h2>
+<br />
+<p><img class='libprs500_dropcaps' src='a.png' /> beautiful image
+based dropcaps to emphasize this paragraph. Image based dropcaps are
+specified by adding the <code>class = 'libprs500_dropcaps'</code>
+attribute to an <code>&lt;img&gt;</code> tag.
+<p /><br />
+
+<p class="drop">This is a plain text based dropcaps. It is not
+nearly as dramatic, but easier to code ;-)</p>
+<br />
+
+<p><span style="font-variant: small-caps">This is an Example</span>
+of small-caps. It can also be used to highlight the start of a paragraph
+very effectively.</p>
+<br />
+<p class='hanging_indent'>A paragraph with a hanging indent. This is
+especially useful for highly structured text like verse, or dialogue.<br />
+</p>
+<p class='toc'>
+<hr />
+<a href='#toc'>Table of Contents</a></p>
+
+<h2><a name='recursive'>Recursive link following</a></h2>
+<p><span style='font: monospace'>html2lrf</span> follows links in
+HTML files that point to other files, recursively. Thus it can be used
+to convert a whole tree of HTML files into a single LRF file. <br />
+</p>
+<p class='toc'>
+<hr />
+<a href='#toc'>Table of Contents</a></p>
 </html>

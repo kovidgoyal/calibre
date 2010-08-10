@@ -1,102 +1,104 @@
-body { background-color: white; }
+body {
+	background-color: white;
+}
 
-p.title  {
-	margin-top:0em;
-	margin-bottom:1em;
-	text-align:center;
-	font-style:italic;
-	font-size:xx-large;
-    border-bottom: solid black 4px;
-	}
+p.title {
+	margin-top: 0em;
+	margin-bottom: 1em;
+	text-align: center;
+	font-style: italic;
+	font-size: xx-large;
+	border-bottom: solid black 4px;
+}
 
 p.author {
-	margin-top:0em;
-	margin-bottom:0em;
+	margin-top: 0em;
+	margin-bottom: 0em;
 	text-align: left;
 	text-indent: 1em;
-	font-size:large;
-  	}
+	font-size: large;
+}
 
 p.tags {
-	margin-top:0em;
-	margin-bottom:0em;
+	margin-top: 0em;
+	margin-bottom: 0em;
 	text-align: left;
 	text-indent: 1em;
-	font-size:small;
-	}
+	font-size: small;
+}
 
 p.description {
-	text-align:left;
-	font-style:normal;
+	text-align: left;
+	font-style: normal;
 	margin-top: 0em;
-	}
+}
 
 p.date_index {
-	font-size:x-large;
-	text-align:center;
-	font-weight:bold;
-	margin-top:1em;
-	margin-bottom:0px;
-	}
+	font-size: x-large;
+	text-align: center;
+	font-weight: bold;
+	margin-top: 1em;
+	margin-bottom: 0px;
+}
 
 p.letter_index {
-	font-size:x-large;
-	text-align:center;
-	font-weight:bold;
-	margin-top:1em;
-	margin-bottom:0px;
-	}
+	font-size: x-large;
+	text-align: center;
+	font-weight: bold;
+	margin-top: 1em;
+	margin-bottom: 0px;
+}
 
 p.author_index {
-	font-size:large;
-	text-align:left;
-	margin-top:0px;
-	margin-bottom:0px;
+	font-size: large;
+	text-align: left;
+	margin-top: 0px;
+	margin-bottom: 0px;
 	text-indent: 0em;
-	}
+}
 
 p.series {
 	text-align: left;
-	margin-top:0px;
-	margin-bottom:0px;
-	margin-left:2em;
-	text-indent:-2em;
-	}
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-left: 2em;
+	text-indent: -2em;
+}
 
 p.read_book {
-	text-align:left;
-	margin-top:0px;
-	margin-bottom:0px;
-	margin-left:2em;
-	text-indent:-2em;
-	}
+	text-align: left;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-left: 2em;
+	text-indent: -2em;
+}
 
 p.unread_book {
-	text-align:left;
-	margin-top:0px;
-	margin-bottom:0px;
-	margin-left:2em;
-	text-indent:-2em;
-	}
+	text-align: left;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-left: 2em;
+	text-indent: -2em;
+}
 
 p.date_read {
-	text-align:left;
-	margin-top:0px;
-	margin-bottom:0px;
-	margin-left:6em;
-	text-indent:-6em;
-	}
+	text-align: left;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-left: 6em;
+	text-indent: -6em;
+}
 
 hr.series_divider {
-	width:50%;
-	margin-left:1em;
-	margin-top:0em;
-	margin-bottom:0em;
-	}
+	width: 50%;
+	margin-left: 1em;
+	margin-top: 0em;
+	margin-bottom: 0em;
+}
 
 hr.annotations_divider {
-	width:50%;
-	margin-left:1em;
-	margin-top:0em;
-	margin-bottom:0em;
-	}
+	width: 50%;
+	margin-left: 1em;
+	margin-top: 0em;
+	margin-bottom: 0em;
+}

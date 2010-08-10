@@ -34,380 +34,367 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
+@
+namespace url (http: //www.w3.org /1999/xhtml);
+ @namespace svg url (http: //www.w3.org /2000/svg);
+	/* blocks */ 
 
-@namespace url(http://www.w3.org/1999/xhtml);
-@namespace svg url(http://www.w3.org/2000/svg);
-
-/* blocks */
-
-html, div, map, dt, isindex, form {
-  display: block;
+html,div,map,dt,isindex,form {
+	display: block;
 }
 
 body {
-  display: block;
+	display: block;
 }
 
-p, dl, multicol {
-  display: block;
-  margin: 1em 0;
+p,dl,multicol {
+	display: block;
+	margin: 1em 0;
 }
 
 dd {
-  display: block;
-  margin-left: 40px;
+	display: block;
+	margin-left: 40px;
 }
 
 blockquote {
-  display: block;
-  margin: 1em;
+	display: block;
+	margin: 1em;
 }
 
 address {
-  display: block;
-  font-style: italic;
+	display: block;
+	font-style: italic;
 }
 
 center {
-  display: block;
-  text-align: center;
+	display: block;
+	text-align: center;
 }
 
 blockquote[type=cite] {
-  display: block;
-  margin: 1em 0em;
-  border-color: blue;
-  border-width: thin;
+	display: block;
+	margin: 1em 0em;
+	border-color: blue;
+	border-width: thin;
 }
 
 span[_moz_quote=true] {
-  color: blue;
+	color: blue;
 }
 
 pre[_moz_quote=true] {
-  color: blue;
+	color: blue;
 }
 
 h1 {
-  display: block;
-  font-size: 2em;
-  font-weight: bold;
-  margin: .67em 0;
+	display: block;
+	font-size: 2em;
+	font-weight: bold;
+	margin: .67em 0;
 }
 
 h2 {
-  display: block;
-  font-size: 1.5em;
-  font-weight: bold;
-  margin: .83em 0;
+	display: block;
+	font-size: 1.5em;
+	font-weight: bold;
+	margin: .83em 0;
 }
 
 h3 {
-  display: block;
-  font-size: 1.17em;
-  font-weight: bold;
-  margin: 1em 0;
+	display: block;
+	font-size: 1.17em;
+	font-weight: bold;
+	margin: 1em 0;
 }
 
 h4 {
-  display: block;
-  font-weight: bold;
-  margin: 1.33em 0;
+	display: block;
+	font-weight: bold;
+	margin: 1.33em 0;
 }
 
 h5 {
-  display: block;
-  font-size: 0.83em;
-  font-weight: bold;
-  margin: 1.67em 0;
+	display: block;
+	font-size: 0.83em;
+	font-weight: bold;
+	margin: 1.67em 0;
 }
 
 h6 {
-  display: block;
-  font-size: 0.67em;
-  font-weight: bold;
-  margin: 2.33em 0;
+	display: block;
+	font-size: 0.67em;
+	font-weight: bold;
+	margin: 2.33em 0;
 }
 
 listing {
-  display: block;
-  font-family: monospace;
-  font-size: medium;
-  white-space: pre;
-  margin: 1em 0;
+	display: block;
+	font-family: monospace;
+	font-size: medium;
+	white-space: pre;
+	margin: 1em 0;
 }
 
-xmp, pre, plaintext {
-  display: block;
-  font-family: monospace;
-  white-space: pre;
-  margin: 1em 0;
+xmp,pre,plaintext {
+	display: block;
+	font-family: monospace;
+	white-space: pre;
+	margin: 1em 0;
 }
 
 /* tables */
-
 table {
-  display: table;
-  border-spacing: 2px;
-  border-collapse: separate;
-  margin-top: 0;
-  margin-bottom: 0;
-  text-indent: 0;
+	display: table;
+	border-spacing: 2px;
+	border-collapse: separate;
+	margin-top: 0;
+	margin-bottom: 0;
+	text-indent: 0;
 }
 
 table[align="left"] {
-  float: left;
+	float: left;
 }
 
 table[align="right"] {
-  float: right;
+	float: right;
 }
 
-table[rules]:not([rules="none"]) {
-  border-collapse: collapse;
+table[rules]:not ([rules="none"] ) {
+	border-collapse: collapse;
 }
-   
-/* caption inherits from table not table-outer */  
+
+/* caption inherits from table not table-outer */
 caption {
-  display: table-caption;
-  text-align: center;
+	display: table-caption;
+	text-align: center;
 }
 
-table[align="center"] > caption {
-  margin-left: auto;
-  margin-right: auto;
+table[align="center"]>caption {
+	margin-left: auto;
+	margin-right: auto;
 }
 
-table[align="center"] > caption[align="left"] {
-  margin-right: 0;
+table[align="center"]>caption[align="left"] {
+	margin-right: 0;
 }
 
-table[align="center"] > caption[align="right"] {
-  margin-left: 0;
+table[align="center"]>caption[align="right"] {
+	margin-left: 0;
 }
 
 tr {
-  display: table-row;
-  vertical-align: inherit;
+	display: table-row;
+	vertical-align: inherit;
 }
 
 col {
-  display: table-column;
+	display: table-column;
 }
 
 colgroup {
-  display: table-column-group;
+	display: table-column-group;
 }
 
 tbody {
-  display: table-row-group;
-  vertical-align: middle;
+	display: table-row-group;
+	vertical-align: middle;
 }
 
 thead {
-  display: table-header-group;
-  vertical-align: middle;
+	display: table-header-group;
+	vertical-align: middle;
 }
 
 tfoot {
-  display: table-footer-group;
-  vertical-align: middle;
+	display: table-footer-group;
+	vertical-align: middle;
 }
 
 /* for XHTML tables without tbody */
-table > tr {
-  vertical-align: middle;
+table>tr {
+	vertical-align: middle;
 }
 
-td { 
-  display: table-cell;
-  vertical-align: inherit;
-  text-align: inherit; 
-  padding: 1px;
+td {
+	display: table-cell;
+	vertical-align: inherit;
+	text-align: inherit;
+	padding: 1px;
 }
 
 th {
-  display: table-cell;
-  vertical-align: inherit;
-  font-weight: bold;
-  padding: 1px;
+	display: table-cell;
+	vertical-align: inherit;
+	font-weight: bold;
+	padding: 1px;
 }
 
 /* inlines */
-
-b, strong {
-  font-weight: bolder;
+b,strong {
+	font-weight: bolder;
 }
 
-i, cite, em, var, dfn {
-  font-style: italic;
+i,cite,em,var,dfn {
+	font-style: italic;
 }
 
-tt, code, kbd, samp {
-  font-family: monospace;
+tt,code,kbd,samp {
+	font-family: monospace;
 }
 
-u, ins {
-  text-decoration: underline;
+u,ins {
+	text-decoration: underline;
 }
 
-s, strike, del {
-  text-decoration: line-through;
+s,strike,del {
+	text-decoration: line-through;
 }
 
 blink {
-  text-decoration: blink;
+	text-decoration: blink;
 }
 
 big {
-  font-size: larger;
+	font-size: larger;
 }
 
 small {
-  font-size: smaller;
+	font-size: smaller;
 }
 
 sub {
-  vertical-align: sub;
-  font-size: smaller;
-  line-height: normal;
+	vertical-align: sub;
+	font-size: smaller;
+	line-height: normal;
 }
 
 sup {
-  vertical-align: super;
-  font-size: smaller;
-  line-height: normal;
+	vertical-align: super;
+	font-size: smaller;
+	line-height: normal;
 }
 
 nobr {
-  white-space: nowrap;
+	white-space: nowrap;
 }
 
 /* titles */
-abbr[title], acronym[title] {
-  border-bottom: dotted 1px;
+abbr[title],acronym[title] {
+	border-bottom: dotted 1px;
 }
 
 /* lists */
-
-ul, menu, dir {
-  display: block;
-  list-style-type: disc;
-  margin: 1em 0;
+ul,menu,dir {
+	display: block;
+	list-style-type: disc;
+	margin: 1em 0;
 }
 
 ol {
-  display: block;
-  list-style-type: decimal;
-  margin: 1em 0;
+	display: block;
+	list-style-type: decimal;
+	margin: 1em 0;
 }
 
 li {
-  display: list-item;
+	display: list-item;
 }
 
 /* nested lists have no top/bottom margins */
-ul ul,   ul ol,   ul dir,   ul menu,   ul dl,
-ol ul,   ol ol,   ol dir,   ol menu,   ol dl,
-dir ul,  dir ol,  dir dir,  dir menu,  dir dl,
-menu ul, menu ol, menu dir, menu menu, menu dl,
-dl ul,   dl ol,   dl dir,   dl menu,   dl dl {
-  margin-top: 0;
-  margin-bottom: 0;
+ul ul,ul ol,ul dir,ul menu,ul dl,ol ul,ol ol,ol dir,ol menu,ol dl,dir ul,dir ol,dir dir,dir menu,dir dl,menu ul,menu ol,menu dir,menu menu,menu dl,dl ul,dl ol,dl dir,dl menu,dl dl
+	{
+	margin-top: 0;
+	margin-bottom: 0;
 }
 
 /* 2 deep unordered lists use a circle */
-ol ul,   ul ul,   menu ul,   dir ul,
-ol menu, ul menu, menu menu, dir menu,
-ol dir,  ul dir,  menu dir,  dir dir {
-  list-style-type: circle;
+ol ul,ul ul,menu ul,dir ul,ol menu,ul menu,menu menu,dir menu,ol dir,ul dir,menu dir,dir dir
+	{
+	list-style-type: circle;
 }
 
 /* 3 deep (or more) unordered lists use a square */
-ol ol ul,     ol ul ul,     ol menu ul,     ol dir ul,
-ol ol menu,   ol ul menu,   ol menu menu,   ol dir menu,
-ol ol dir,    ol ul dir,    ol menu dir,    ol dir dir,
-ul ol ul,     ul ul ul,     ul menu ul,     ul dir ul,
-ul ol menu,   ul ul menu,   ul menu menu,   ul dir menu,
-ul ol dir,    ul ul dir,    ul menu dir,    ul dir dir,
-menu ol ul,   menu ul ul,   menu menu ul,   menu dir ul,
-menu ol menu, menu ul menu, menu menu menu, menu dir menu,
-menu ol dir,  menu ul dir,  menu menu dir,  menu dir dir,
-dir ol ul,    dir ul ul,    dir menu ul,    dir dir ul,
-dir ol menu,  dir ul menu,  dir menu menu,  dir dir menu,
-dir ol dir,   dir ul dir,   dir menu dir,   dir dir dir {
-  list-style-type: square;
+ol ol ul,ol ul ul,ol menu ul,ol dir ul,ol ol menu,ol ul menu,ol menu menu,ol dir menu,ol ol dir,ol ul dir,ol menu dir,ol dir dir,ul ol ul,ul ul ul,ul menu ul,ul dir ul,ul ol menu,ul ul menu,ul menu menu,ul dir menu,ul ol dir,ul ul dir,ul menu dir,ul dir dir,menu ol ul,menu ul ul,menu menu ul,menu dir ul,menu ol menu,menu ul menu,menu menu menu,menu dir menu,menu ol dir,menu ul dir,menu menu dir,menu dir dir,dir ol ul,dir ul ul,dir menu ul,dir dir ul,dir ol menu,dir ul menu,dir menu menu,dir dir menu,dir ol dir,dir ul dir,dir menu dir,dir dir dir
+	{
+	list-style-type: square;
 }
 
-
 /* leafs */
-
-/* <hr> noshade and color attributes are handled completely by
+	/* <hr> noshade and color attributes are handled completely by
  * the nsHTMLHRElement attribute mapping code
  */
 hr {
-  display: block;
-  height: 2px;
-  border: 1px inset;
-  margin: 0.5em auto 0.5em auto;
-  color: gray;
+	display: block;
+	height: 2px;
+	border: 1px inset;
+	margin: 0.5em auto 0.5em auto;
+	color: gray;
 }
 
 hr[size="1"] {
-  border-style: solid none none none;
+	border-style: solid none none none;
 }
 
-img[usemap], object[usemap] {
-  color: blue;
+img[usemap],object[usemap] {
+	color: blue;
 }
 
 frameset {
-  display: block ! important;
-  position: static ! important;
-  float: none ! important;
-  border: none ! important;
+	display: block ! important;
+	position: static ! important;
+	float: none ! important;
+	border: none ! important;
 }
 
 frame {
-  border: none ! important;
+	border: none ! important;
 }
 
 iframe {
-  border: 2px inset;
+	border: 2px inset;
 }
 
 noframes {
-  display: none;
+	display: none;
 }
 
 spacer {
-  position: static ! important;
-  float: none ! important;
+	position: static ! important;
+	float: none ! important;
 }
 
 /* hidden elements */
-area, base, basefont, head, meta, script, style, title,
-noembed, param, link {
-   display: none;
+area,base,basefont,head,meta,script,style,title,noembed,param,link {
+	display: none;
 }
 
 /* Page breaks at body tags, to help out with LIT-generation */
 body {
-  page-break-before: always;
+	page-break-before: always;
 }
 
 /* Explicit line-breaks are blocks, sure... */
 br {
-  display: block;
+	display: block;
 }
 
 /* Images, embedded object, and SVG size defaults */
-img, object, svg|svg {
-    width: auto;
-    height: auto;
+img,object,svg |svg {
+	width: auto;
+	height: auto;
 }
 
 /* These are needed because ADE renders anchors the same as links */
+a {
+	text-decoration: inherit;
+	color: inherit;
+	cursor: inherit
+}
 
-a { text-decoration: inherit; color: inherit; cursor: inherit }
-a[href] { text-decoration: underline; color: blue; cursor: pointer }
+a[href] {
+	text-decoration: underline;
+	color: blue;
+	cursor: pointer
+}
