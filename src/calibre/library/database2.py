@@ -1673,6 +1673,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.data.refresh_ids(self, [id]) # Needed to update format list and size
         if notify:
             self.notify('add', [id])
+        return id
 
     def get_top_level_move_items(self):
         items = set(os.listdir(self.library_path))
