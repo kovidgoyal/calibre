@@ -247,6 +247,7 @@ You can search for the absence or presence of a field using the special "true" a
     cover:false will give you all books without a cover
     series:true will give you all books that belong to a series
     comments:false will give you all books with an empty comment
+    format:false will give you all books with no actual files (empty records)
 
 Yes/no custom columns are searchable. Searching for ``false``, ``empty``, or ``blank`` will find all books
 with undefined values in the column. Searching for ``true`` will find all books that do not have undefined

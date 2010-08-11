@@ -296,6 +296,17 @@ class AddAction(object): # {{{
                 self.library_view.model().db.import_book(MetaInformation(None), [])
             self.library_view.model().books_added(num)
 
+    def add_isbns(self, isbns):
+        from calibre.ebooks.metadata import MetaInformation
+        ids = set([])
+        for x in isbns:
+            mi = MetaInformation(None)
+            mi.isbn = x
+            ids.add(self.library_view.model().db.import_book(mi, []))
+        self.library_view.model().books_added(len(isbns))
+        self.do_download_metadata(ids)
+
+
     def files_dropped(self, paths):
         to_device = self.stack.currentIndex() != 0
         self._add_books(paths, to_device)
@@ -341,6 +352,12 @@ class AddAction(object): # {{{
 
     def add_filesystem_book(self, paths, allow_device=True):
         self._add_filesystem_book(paths, allow_device=allow_device)
+
+    def add_from_isbn(self, *args):
+        from calibre.gui2.dialogs.add_from_isbn import AddFromISBN
+        d = AddFromISBN(self)
+        if d.exec_() == d.Accepted:
+            self.add_isbns(d.isbns)
 
     def add_books(self, *args):
         '''
@@ -625,6 +642,13 @@ class EditMetadataAction(object): # {{{
             return
         db = self.library_view.model().db
         ids = [db.id(row.row()) for row in rows]
+        self.do_download_metadata(ids, covers=covers,
+                set_metadata=set_metadata,
+                set_social_metadata=set_social_metadata)
+
+    def do_download_metadata(self, ids, covers=True, set_metadata=True,
+            set_social_metadata=None):
+        db = self.library_view.model().db
         if set_social_metadata is None:
             get_social_metadata = config['get_social_metadata']
         else:
