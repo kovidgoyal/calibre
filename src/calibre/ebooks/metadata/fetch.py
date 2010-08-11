@@ -9,6 +9,7 @@ from threading import Thread
 from calibre import prints
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import default_log
+from calibre.utils.titlecase import titlecase
 from calibre.customize import Plugin
 from calibre.ebooks.metadata.covers import check_for_cover
 
@@ -383,6 +384,16 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
             for r in results:
                 if r.pubdate is None:
                     r.pubdate = pubdate
+
+    def fix_case(x):
+        if x and x.isupper():
+            x = titlecase(x)
+        return x
+
+    for r in results:
+        r.title = fix_case(r.title)
+        if r.authors:
+            r.authors = list(map(fix_case, r.authors))
 
     return results, [(x.name, x.exception, x.tb) for x in fetchers]
 
