@@ -12,7 +12,7 @@ from ctypes import Structure as _Structure, c_char_p, c_uint, c_void_p, POINTER,
 from tempfile import NamedTemporaryFile
 from StringIO import StringIO
 
-from calibre import iswindows, load_library, CurrentDir, prints
+from calibre import iswindows, load_library, CurrentDir
 from calibre.ptempfile import TemporaryDirectory
 
 _librar_name = 'libunrar'
