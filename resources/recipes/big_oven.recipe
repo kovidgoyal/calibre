@@ -1,4 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+import re
 
 class BigOven(BasicNewsRecipe):
     title               = 'BigOven'
@@ -22,43 +23,42 @@ class BigOven(BasicNewsRecipe):
                         , 'publisher'         : publisher
                         , 'language'          : language
                         }
-
+    
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         if self.username is not None and self.password is not None:
-            br.open('http://www.bigoven.com/')
-            br.select_form(name='form1')
-            br['TopMenu_bo1$email']  = self.username
-            br['TopMenu_bo1$password'] = self.password
+            br.open('http://www.bigoven.com/account/login?ReturnUrl=/')
+            br.select_form(nr=1)
+            br['Email']  = self.username
+            br['Password'] = self.password
             br.submit()
         return br
 
     remove_attributes = ['style', 'font']
 
-    keep_only_tags     = [dict(name='h1')
-                          ,dict(name='div', attrs={'class':'img'})
-                          ,dict(name='div', attrs={'id':'intro'})
-                          ]
-
-    remove_tags = [dict(name='div', attrs={'style':["overflow: visible;"]})
-                   ,dict(name='div', attrs={'class':['ctas']})
-                   #,dict(name='a', attrs={'class':['edit']})
-                   ,dict(name='p', attrs={'class':['byline']})
-                   ]
-
-    feeds = [(u'4 & 5 Star Rated Recipes', u'http://feeds.feedburner.com/Bigovencom-RecipeRaves?format=xml')]
+    remove_tags     = [dict(name='div', attrs={'class':['ppy-caption']})
+                                  ,dict(name='div', attrs={'id':['float_corner']})
+                                  ]
 
     def preprocess_html(self, soup):
-        for tag in soup.findAll(name='a', attrs={'class':['edit']}):
-          tag.parent.extract()
         for tag in soup.findAll(name='a', attrs={'class':['deflink']}):
           tag.replaceWith(tag.string)
+        for tag in soup.findAll(name='a', text=re.compile(r'.*View Metric.*', re.DOTALL)):
+          tag.parent.parent.extract()
+        for tag in soup.findAll(name='a', text=re.compile(r'.*Add my own photo.*', re.DOTALL)):
+          tag.parent.parent.extract()
+        for tag in soup.findAll(name='div', attrs={'class':['container']}):
+          if tag.find(name='h1'):
+              continue
+          if tag.find(name='h2', text=re.compile(r'.*Ingredients.*', re.DOTALL)):
+              print 'tag found Ingred h2'
+              continue
+          if tag.find(name='h2', text=re.compile(r'Preparation.*', re.DOTALL)):
+              print 'tag found Prep h2'
+              continue
+          tag.extract()
         return soup
 
-    extra_css = '''
-                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
-                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:medium;}
-                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-		            '''
+    feeds = [(u'4 & 5 Star Rated Recipes', u'http://feeds.feedburner.com/Bigovencom-RecipeRaves?format=xml')]
+    
 
