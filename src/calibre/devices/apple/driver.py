@@ -95,11 +95,11 @@ class ITUNES(DriverBase):
 
     # Product IDs:
     #  0x1291   iPod Touch
-    #  0x1292   iPhone 3G
     #  0x1293   iPod Touch 2G
+    #  0x1299   iPod Touch 3G
+    #  0x1292   iPhone 3G
     #  0x1294   iPhone 3GS
     #  0x1297   iPhone 4
-    #  0x1299   iPod Touch 3G
     #  0x129a   iPad
     VENDOR_ID = [0x05ac]
     PRODUCT_ID = [0x1292,0x1293,0x1294,0x1297,0x1299,0x129a]
@@ -1029,8 +1029,13 @@ class ITUNES(DriverBase):
                         sys.stdout.write("\n")
                         sys.stdout.flush()
 
-                    # This doesn't seem to work with Device, just Library
                     if False:
+                        '''
+                        Preferred
+                        Disabled because op_status.Tracks never returns a value after adding file
+                        This would be the preferred approach (as under OSX)
+                        It works in _add_library_book()
+                        '''
                         if DEBUG:
                             sys.stdout.write("  waiting for handle to added '%s' ..." % metadata.title)
                             sys.stdout.flush()
@@ -1044,15 +1049,19 @@ class ITUNES(DriverBase):
                             print
                         added = op_status.Tracks[0]
                     else:
-                        # This approach simply scans Library|Books for the book we just added
-
-                        # Try the calibre metadata first
+                        '''
+                        Hackish
+                        Search Library|Books for the book we just added
+                        PDF file name is added title - need to search for base filename w/o extension
+                        '''
+                        format = fpath.rpartition('.')[2].lower()
+                        base_fn = fpath.rpartition(os.sep)[2]
+                        base_fn = base_fn.rpartition('.')[0]
                         db_added = self._find_device_book(
-                                     {'title': metadata.title,
-                                     'author': metadata.authors[0],
-                                       'uuid': metadata.uuid,
-                                     'format': fpath.rpartition('.')[2].lower()})
-
+                            { 'title': base_fn if format == 'pdf' else metadata.title,
+                             'author': metadata.authors[0],
+                               'uuid': metadata.uuid,
+                             'format': format})
                     return db_added
 
     def _add_library_book(self,file, metadata):
@@ -1087,7 +1096,12 @@ class ITUNES(DriverBase):
                 sys.stdout.write("\n")
                 sys.stdout.flush()
 
-            if False:
+            if True:
+                '''
+                Preferable
+                Originally disabled because op_status.Tracks never returned a value
+                after adding file.  Seems to be working with iTunes 9.2.1.5 06 Aug 2010
+                '''
                 if DEBUG:
                     sys.stdout.write("  waiting for handle to added '%s' ..." % metadata.title)
                     sys.stdout.flush()
@@ -1100,12 +1114,19 @@ class ITUNES(DriverBase):
                     print
                 added = op_status.Tracks[0]
             else:
-                # This approach simply scans Library|Books for the book we just added
+                '''
+                Hackish
+                Search Library|Books for the book we just added
+                PDF file name is added title - need to search for base filename w/o extension
+                '''
+                format = file.rpartition('.')[2].lower()
+                base_fn = file.rpartition(os.sep)[2]
+                base_fn = base_fn.rpartition('.')[0]
                 added = self._find_library_book(
-                    { 'title': metadata.title,
+                    { 'title': base_fn if format == 'pdf' else metadata.title,
                      'author': metadata.author[0],
                        'uuid': metadata.uuid,
-                     'format': file.rpartition('.')[2].lower()})
+                     'format': format})
         return added
 
     def _add_new_copy(self, fpath, metadata):
@@ -1820,7 +1841,6 @@ class ITUNES(DriverBase):
             except:
                 if DEBUG:
                     self.log.error("  error generating thumb for '%s', caching empty marker" % book.Name)
-                    self._dump_hex(data[:32])
                 thumb_data = None
                 # Cache the empty cover
                 zfw.writestr(thumb_path,'None')

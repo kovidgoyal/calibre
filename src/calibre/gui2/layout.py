@@ -538,8 +538,10 @@ class MainWindowMixin(object):
         self.add_menu.addAction(_('Add books from directories, including '
             'sub directories (Multiple books per directory, assumes every '
             'ebook file is a different book)'), self.add_recursive_multiple)
+        self.add_menu.addSeparator()
         self.add_menu.addAction(_('Add Empty book. (Book entry with no '
             'formats)'), self.add_empty)
+        self.add_menu.addAction(_('Add from ISBN'), self.add_from_isbn)
         self.action_add.setMenu(self.add_menu)
         self.action_add.triggered.connect(self.add_books)
         self.action_del.triggered.connect(self.delete_books)
