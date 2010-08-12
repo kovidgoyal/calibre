@@ -23,7 +23,7 @@ class FixLineEndings:
             bug_handler,
             in_file = None,
             copy = None,
-            #run_level = 1, calibre why keep it?
+            run_level = 1,
             replace_illegals = 1,
             ):
         self.__file = in_file
@@ -32,8 +32,11 @@ class FixLineEndings:
         self.__write_to = tempfile.mktemp()
         self.__replace_illegals = replace_illegals
     def fix_endings(self):
-        illegal_regx = re.compile('\x00|\x01|\x02|\x03|\x04|\x05|\x06|\x07|\x08|\x0B|\x0E|\x0F|\x10|\x11|\x12|\x13')
-        # always check since I have to get rid of illegal characters
+        #remove ASCII invalid chars : 0 to 8 and 11-14 to 24
+        #always check since I have to get rid of illegal characters
+        chars = list(range(8)) + [0x0B, 0x0E, 0x0F] + list(range(0x10, 0x19))
+        illegal_regx = re.compile(u'|'.join(map(unichr, chars)))
+        #illegal_regx = re.compile('\x00|\x01|\x02|\x03|\x04|\x05|\x06|\x07|\x08|\x0B|\x0E|\x0F|\x10|\x11|\x12|\x13')
         #read
         read_obj = open(self.__file, 'r')
         input_file = read_obj.read()
@@ -42,7 +45,7 @@ class FixLineEndings:
         input_file = input_file.replace ('\r\n', '\n')
         input_file = input_file.replace ('\r', '\n')
         if self.__replace_illegals:
-            input_file = re.sub(illegal_regx, '', input_file)
+            input_file = illegal_regx.sub('', input_file)
         #write
         write_obj = open(self.__write_to, 'wb')
         write_obj.write(input_file)

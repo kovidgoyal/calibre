@@ -133,7 +133,6 @@ class ParseRtf:
         self.__temp_dir = out_dir
         self.__dtd_path = dtd
         self.__check_file(in_file,"file_to_parse")
-        self.__check_ascii(in_file)
         self.__char_data = char_data
         self.__debug_dir = deb_dir
         self.__check_dir(self.__temp_dir)
@@ -152,6 +151,7 @@ class ParseRtf:
         self.__group_borders = group_borders
         self.__empty_paragraphs = empty_paragraphs
         self.__no_dtd = no_dtd
+
     def __check_file(self, the_file, type):
         """Check to see if files exist"""
         if hasattr(the_file, 'read'): return
@@ -164,6 +164,7 @@ class ParseRtf:
         else:
             msg = "\nThe file '%s' cannot be found" % the_file
             raise RtfInvalidCodeException, msg
+
     def __check_dir(self, the_dir):
         """Check to see if directory exists"""
         if not the_dir :
@@ -173,15 +174,7 @@ class ParseRtf:
             msg = "\n%s is not a directory" % the_dir
             raise RtfInvalidCodeException, msg
         return 1
-    def __check_ascii(self, the_file):
-        """Check to see if the file is correct ascii"""
-        try:
-            test = codecs.open(the_file, 'r', 'ascii', 'strict')
-            test.close()
-        except UnicodeError:
-            msg = "\n%s is not a correct ascii file" % the_file
-            raise RtfInvalidCodeException, msg
-        return 1
+
     def parse_rtf(self):
         """
         Parse the file by calling on other classes.
@@ -192,6 +185,18 @@ class ParseRtf:
             depending on the value of 'output' when the instance was created.
         """
         self.__temp_file = self.__make_temp_file(self.__file)
+        #Check to see if the file is correct ascii first
+        check_encoding_obj = check_encoding.CheckEncoding(
+                bug_handler = RtfInvalidCodeException,
+                    )
+        if check_encoding_obj.check_encoding(self.__file):
+            try:
+                os.remove(self.__temp_file)
+            except OSError:
+                pass
+            sys.stderr.write('File "%s" does not appear to be ascii.\n' \
+                 % self.__file if isinstance(self.__file, str) else self.__file.encode('utf-8'))
+            raise InvalidRtfException
         # if the self.__deb_dir is true, then create a copy object,
         # set the directory to write to, remove files, and copy
         # the new temporary file to this directory
@@ -214,7 +219,7 @@ class ParseRtf:
                 in_file = self.__temp_file,
                 bug_handler = RtfInvalidCodeException,
                 copy = self.__copy,
-                #run_level = self.__run_level,
+                run_level = self.__run_level,
                 replace_illegals = self.__replace_illegals,
                 )
         line_obj.fix_endings()
@@ -223,8 +228,8 @@ class ParseRtf:
         tokenize_obj = tokenize.Tokenize(
                 bug_handler = RtfInvalidCodeException,
                 in_file = self.__temp_file,
-                copy = self.__copy,)
-                #run_level = self.__run_level,)
+                copy = self.__copy,
+                run_level = self.__run_level)
         tokenize_obj.tokenize()
         process_tokens_obj = process_tokens.ProcessTokens(
             in_file = self.__temp_file,
@@ -240,10 +245,6 @@ class ParseRtf:
                 os.remove(self.__temp_file)
             except OSError:
                 pass
-            check_encoding_obj = check_encoding.CheckEncoding(
-                bug_handler = RtfInvalidCodeException,
-                    )
-            check_encoding_obj.check_encoding(self.__file)
             sys.stderr.write('File "%s" does not appear to be RTF.\n' % self.__file if isinstance(self.__file, str) else self.__file.encode('utf-8'))
             raise InvalidRtfException, msg
         delete_info_obj = delete_info.DeleteInfo(
@@ -548,8 +549,7 @@ class ParseRtf:
         """Make a temporary file to parse"""
         write_file="rtf_write_file"
         read_obj = file if hasattr(file, 'read') else open(file,'r')
-        write_obj = open(write_file, 'w')
-        for line in read_obj:
-            write_obj.write(line)
+        write_obj = open(write_file, 'wb')
+        write_obj.write(read_obj.read())
         write_obj.close()
         return write_file

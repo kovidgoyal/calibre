@@ -30,7 +30,6 @@ class CheckBrackets:
         self.__bracket_count += 1
     def close_brack(self, line):
         num = line[-5:-1]
-        ##self.__open_bracket_num.append(num)
         try:
             last_num = self.__open_bracket_num.pop()
         except:
