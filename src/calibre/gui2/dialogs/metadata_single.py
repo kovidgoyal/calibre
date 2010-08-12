@@ -12,7 +12,7 @@ import time
 import traceback
 
 from PyQt4.Qt import SIGNAL, QObject, Qt, QTimer, QThread, QDate, \
-    QPixmap, QListWidgetItem, QDialog
+    QPixmap, QListWidgetItem, QDialog, pyqtSignal
 
 from calibre.gui2 import error_dialog, file_icon_provider, dynamic, \
                            choose_files, choose_images, ResizableDialog, \
@@ -99,6 +99,7 @@ class Format(QListWidgetItem):
 class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     COVER_FETCH_TIMEOUT = 240 # seconds
+    view_format = pyqtSignal(object)
 
     def do_reset_cover(self, *args):
         pix = QPixmap(I('default_cover.svg'))
@@ -474,7 +475,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def show_format(self, item, *args):
         fmt = item.ext
-        self.emit(SIGNAL('view_format(PyQt_PyObject)'), fmt)
+        self.view_format.emit(fmt)
 
     def deduce_author_sort(self):
         au = unicode(self.authors.text())
