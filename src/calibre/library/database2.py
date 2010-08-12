@@ -440,12 +440,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # system. This can lead to having the directory names not match the
             # title/author, which leads to trouble when libraries are copied to
             # a case-sensitive system. The following code fixes this by checking
-            # each segment. If they are different (must be because of case),
-            # then rename the segment to some temp file name, then rename it
-            # back to the correct name. Note that the code above correctly
-            # handles files in the directories, so no need to do them here.
+            # each segment. If they are different because of case, then rename
+            # the segment to some temp file name, then rename it back to the
+            # correct name. Note that the code above correctly handles files in
+            # the directories, so no need to do them here.
             for oldseg,newseg in zip(current_path.split('/'), path.split('/')):
-                if oldseg != newseg:
+                if oldseg.lower() == newseg.lower() and oldseg != newseg:
                     while True:
                         # need a temp name in the current segment for renames
                         tempname = 'TEMP.%f'%time.time()
