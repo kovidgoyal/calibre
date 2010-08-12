@@ -150,7 +150,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.get_metadata = GetMetadata()
         self.upload_memory = {}
         self.delete_memory = {}
-        self.conversion_jobs = {}
         self.persistent_files = []
         self.metadata_dialogs = []
         self.default_thumbnail = None

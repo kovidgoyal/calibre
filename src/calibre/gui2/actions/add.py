@@ -23,9 +23,6 @@ class AddAction(InterfaceAction):
 
     name = 'Add Books'
     action_spec = (_('Add books'), 'add_book.svg', None, _('A'))
-    positions = frozenset([
-        ('toolbar', 'all', 0),
-        ])
 
     def genesis(self):
         self._add_filesystem_book = self.Dispatcher(self.__add_filesystem_book)

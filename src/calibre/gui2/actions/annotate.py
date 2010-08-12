@@ -17,7 +17,7 @@ from calibre.gui2.actions import InterfaceAction
 class FetchAnnotationsAction(InterfaceAction):
 
     name = 'Fetch Annotations'
-    action_spec = (_('Fetch Annotations'), None, None, None)
+    action_spec = (_('Fetch annotations (experimental)'), None, None, None)
 
     def genesis(self):
         pass

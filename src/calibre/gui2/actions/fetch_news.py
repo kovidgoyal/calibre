@@ -11,6 +11,9 @@ from calibre.utils.config import dynamic
 
 class FetchNewsAction(object):
 
+    def genesis(self):
+        self.conversion_jobs = {}
+
     def download_scheduled_recipe(self, arg):
         func, args, desc, fmt, temp_files = \
                 fetch_scheduled_recipe(arg)

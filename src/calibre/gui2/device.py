@@ -925,7 +925,7 @@ class DeviceMixin(object): # {{{
                     _('Auto convert the following books before sending via '
                         'email?'), det_msg=autos,
                     buttons=QMessageBox.Yes|QMessageBox.Cancel):
-                    self.auto_convert_mail(to, fmts, delete_from_library, auto, format)
+                    self.iactions['Convert Books'].auto_convert_mail(to, fmts, delete_from_library, auto, format)
 
         if bad:
             bad = '\n'.join('%s'%(i,) for i in bad)
@@ -1027,7 +1027,7 @@ class DeviceMixin(object): # {{{
                         _('Auto convert the following books before uploading to '
                             'the device?'), det_msg=autos,
                         buttons=QMessageBox.Yes|QMessageBox.Cancel):
-                        self.auto_convert_catalogs(auto, format)
+                        self.iactions['Convert Books'].auto_convert_catalogs(auto, format)
             files = [f for f in files if f is not None]
             if not files:
                 dynamic.set('catalogs_to_be_synced', set([]))
@@ -1089,7 +1089,7 @@ class DeviceMixin(object): # {{{
                         _('Auto convert the following books before uploading to '
                             'the device?'), det_msg=autos,
                         buttons=QMessageBox.Yes|QMessageBox.Cancel):
-                        self.auto_convert_news(auto, format)
+                        self.iactions['Convert Books'].auto_convert_news(auto, format)
             files = [f for f in files if f is not None]
             for f in files:
                 f.deleted_after_upload = del_on_upload
@@ -1208,7 +1208,7 @@ class DeviceMixin(object): # {{{
                     _('Auto convert the following books before uploading to '
                         'the device?'), det_msg=autos,
                     buttons=QMessageBox.Yes|QMessageBox.Cancel):
-                    self.auto_convert(auto, on_card, format)
+                    self.iactions['Convert Books'].auto_convert(auto, on_card, format)
 
         if bad:
             bad = '\n'.join('%s'%(i,) for i in bad)

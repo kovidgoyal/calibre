@@ -16,17 +16,16 @@ class InterfaceAction(QObject):
     name = 'Implement me'
     priority = 1
     positions = frozenset([])
-    separators = frozenset([])
-
     popup_type = QToolButton.MenuPopup
 
     #: Of the form: (text, icon_path, tooltip, keyboard shortcut)
-    #: tooltip and keybard shortcut can be None
+    #: icon, tooltip and keybard shortcut can be None
     #: shortcut must be a translated string if not None
     action_spec = ('text', 'icon', None, None)
 
     def __init__(self, parent, site_customization):
         QObject.__init__(self, parent)
+        self.setObjectName(self.name)
         self.gui = parent
         self.site_customization = site_customization
 

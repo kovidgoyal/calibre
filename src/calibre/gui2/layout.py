@@ -585,18 +585,6 @@ class MainWindowMixin(object):
         self.action_edit.setMenu(md)
         self.action_save.setMenu(self.save_menu)
 
-        cm = QMenu()
-        cm.addAction(_('Convert individually'), partial(self.convert_ebook,
-            False, bulk=False))
-        cm.addAction(_('Bulk convert'),
-                partial(self.convert_ebook, False, bulk=True))
-        cm.addSeparator()
-        ac = cm.addAction(
-                _('Create catalog of books in your calibre library'))
-        ac.triggered.connect(self.generate_catalog)
-        self.action_convert.setMenu(cm)
-        self.action_convert.triggered.connect(self.convert_ebook)
-        self.convert_menu = cm
 
         pm = QMenu()
         pm.addAction(QIcon(I('config.svg')), _('Preferences'), self.do_config)

@@ -578,11 +578,20 @@ plugins += input_profiles + output_profiles
 from calibre.customize import InterfaceActionBase
 
 class ActionAdd(InterfaceActionBase):
-    name = 'action_add'
+    name = 'Add Books'
     actual_plugin = 'calibre.gui2.actions.add:AddAction'
 
 class ActionFetchAnnotations(InterfaceActionBase):
-    name = 'action_fetch_annotations'
+    name = 'Fetch Annotations'
     actual_plugin = 'calibre.gui2.actions.annotate:FetchAnnotationsAction'
 
-plugins += [ActionAdd, ActionFetchAnnotations]
+class ActionGenerateCatalog(InterfaceActionBase):
+    name = 'Generate Catalog'
+    actual_plugin = 'calibre.gui2.actions.catalog:GenerateCatalogAction'
+
+class ActionConvert(InterfaceActionBase):
+    name = 'Convert Books'
+    actual_plugin = 'calibre.gui2.actions.convert:ConvertAction'
+
+plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
+        ActionConvert]
