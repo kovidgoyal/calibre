@@ -17,12 +17,14 @@ from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import ascii_filename
 from calibre.constants import preferred_encoding, filesystem_encoding
+from calibre.gui2.actions import InterfaceAction
 
+class AddAction(InterfaceAction):
 
-class AddAction(object):
+    def genesis(self):
+        self._add_filesystem_book = Dispatcher(self.__add_filesystem_book,
+                parent=self.gui)
 
-    def __init__(self):
-        self._add_filesystem_book = Dispatcher(self.__add_filesystem_book)
 
     def add_recursive(self, single):
         root = choose_dir(self, 'recursive book import root dir dialog',
