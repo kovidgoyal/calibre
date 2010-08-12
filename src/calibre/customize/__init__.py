@@ -353,4 +353,10 @@ class CatalogPlugin(Plugin):
                 'method, should be overridden in subclass')
 
 class InterfaceActionBase(Plugin):
-    pass
+
+    supported_platforms = ['windows', 'osx', 'linux']
+    author         = 'Kovid Goyal'
+    type = _('User Interface Action')
+    can_be_disabled = False
+
+    actual_plugin = None

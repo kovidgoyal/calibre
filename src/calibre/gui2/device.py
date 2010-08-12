@@ -652,7 +652,8 @@ class DeviceMixin(object): # {{{
         self.connect(self._sync_menu,
                 SIGNAL('sync(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                 self.dispatch_sync_event)
-        self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
+        self._sync_menu.fetch_annotations.connect(
+                self.iactions['Fetch Annotations'].fetch_annotations)
         self._sync_menu.disconnect_mounted_device.connect(self.disconnect_mounted_device)
         if self.device_connected:
             self.share_conn_menu.connect_to_folder_action.setEnabled(False)

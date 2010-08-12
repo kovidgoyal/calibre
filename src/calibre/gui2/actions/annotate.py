@@ -9,19 +9,26 @@ import os, datetime
 
 from PyQt4.Qt import pyqtSignal, QModelIndex, QThread, Qt
 
-from calibre.gui2 import error_dialog, Dispatcher, gprefs
+from calibre.gui2 import error_dialog, gprefs
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
 from calibre import strftime
+from calibre.gui2.actions import InterfaceAction
 
-class AnnotationsAction(object):
+class FetchAnnotationsAction(InterfaceAction):
+
+    name = 'Fetch Annotations'
+    action_spec = (_('Fetch Annotations'), None, None, None)
+
+    def genesis(self):
+        pass
 
     def fetch_annotations(self, *args):
         # Generate a path_map from selected ids
         def get_ids_from_selected_rows():
-            rows = self.library_view.selectionModel().selectedRows()
+            rows = self.gui.library_view.selectionModel().selectedRows()
             if not rows or len(rows) < 2:
-                rows = xrange(self.library_view.model().rowCount(QModelIndex()))
-            ids = map(self.library_view.model().id, rows)
+                rows = xrange(self.gui.library_view.model().rowCount(QModelIndex()))
+            ids = map(self.gui.library_view.model().id, rows)
             return ids
 
         def get_formats(id):
@@ -42,18 +49,18 @@ class AnnotationsAction(object):
                 path_map[id] = dict(path=a_path, fmts=get_formats(id))
             return path_map
 
-        device = self.device_manager.device
+        device = self.gui.device_manager.device
 
-        if self.current_view() is not self.library_view:
-            return error_dialog(self, _('Use library only'),
+        if self.gui.current_view() is not self.gui.library_view:
+            return error_dialog(self.gui, _('Use library only'),
                     _('User annotations generated from main library only'),
                     show=True)
-        db = self.library_view.model().db
+        db = self.gui.library_view.model().db
 
         # Get the list of ids
         ids = get_ids_from_selected_rows()
         if not ids:
-            return error_dialog(self, _('No books selected'),
+            return error_dialog(self.gui, _('No books selected'),
                     _('No books selected to fetch annotations from'),
                     show=True)
 
@@ -61,7 +68,7 @@ class AnnotationsAction(object):
         path_map = generate_annotation_paths(ids, db, device)
 
         # Dispatch to devices.kindle.driver.get_annotations()
-        self.device_manager.annotations(Dispatcher(self.annotations_fetched),
+        self.gui.device_manager.annotations(self.Dispatcher(self.annotations_fetched),
                 path_map)
 
     def annotations_fetched(self, job):
@@ -70,7 +77,7 @@ class AnnotationsAction(object):
         from calibre.gui2.dialogs.progress import ProgressDialog
         from calibre.library.cli import do_add_format
 
-        class Updater(QThread):
+        class Updater(QThread): # {{{
 
             update_progress = pyqtSignal(int)
             update_done     = pyqtSignal()
@@ -220,16 +227,18 @@ class AnnotationsAction(object):
                 self.update_done.emit()
                 self.done_callback(self.am.keys())
 
+        # }}}
+
         if not job.result: return
 
-        if self.current_view() is not self.library_view:
-            return error_dialog(self, _('Use library only'),
+        if self.gui.current_view() is not self.gui.library_view:
+            return error_dialog(self.gui, _('Use library only'),
                     _('User annotations generated from main library only'),
                     show=True)
-        db = self.library_view.model().db
+        db = self.gui.library_view.model().db
 
-        self.__annotation_updater = Updater(self, db, job.result,
-                Dispatcher(self.library_view.model().refresh_ids))
+        self.__annotation_updater = Updater(self.gui, db, job.result,
+                self.Dispatcher(self.gui.library_view.model().refresh_ids))
         self.__annotation_updater.start()
 
 

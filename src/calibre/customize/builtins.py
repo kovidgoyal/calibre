@@ -574,3 +574,15 @@ plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataWriter')]
 plugins += input_profiles + output_profiles
+
+from calibre.customize import InterfaceActionBase
+
+class ActionAdd(InterfaceActionBase):
+    name = 'action_add'
+    actual_plugin = 'calibre.gui2.actions.add:AddAction'
+
+class ActionFetchAnnotations(InterfaceActionBase):
+    name = 'action_fetch_annotations'
+    actual_plugin = 'calibre.gui2.actions.annotate:FetchAnnotationsAction'
+
+plugins += [ActionAdd, ActionFetchAnnotations]

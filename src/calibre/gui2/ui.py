@@ -23,6 +23,8 @@ from calibre.constants import __appname__, isosx
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
+from calibre.library.database2 import LibraryDatabase2
+from calibre.customize import interface_actions
 from calibre.gui2 import error_dialog, GetMetadata, open_local_file, \
         gprefs, max_available_height, config, info_dialog, Dispatcher
 from calibre.gui2.cover_flow import CoverFlowMixin
@@ -33,16 +35,11 @@ from calibre.gui2.layout import MainWindowMixin
 from calibre.gui2.device import DeviceMixin
 from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
 from calibre.gui2.dialogs.config import ConfigDialog
-
 from calibre.gui2.dialogs.book_info import BookInfo
-from calibre.library.database2 import LibraryDatabase2
 from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_view import TagBrowserMixin
-from calibre.gui2.actions import AnnotationsAction, AddAction, DeleteAction, \
-    EditMetadataAction, SaveToDiskAction, GenerateCatalogAction, FetchNewsAction, \
-    ConvertAction, ViewAction
 
 
 class Listener(Thread): # {{{
@@ -91,16 +88,26 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
-        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
-        AnnotationsAction, AddAction, DeleteAction,
-        EditMetadataAction, SaveToDiskAction, GenerateCatalogAction, FetchNewsAction,
-        ConvertAction, ViewAction):
+        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin
+        ):
     'The main GUI'
 
 
     def __init__(self, opts, parent=None):
         MainWindow.__init__(self, opts, parent)
         self.opts = opts
+        acmap = {}
+        for action in interface_actions():
+            mod, cls = action.actual_plugin.split(':')
+            ac = getattr(__import__(mod, fromlist=['1'], level=0), cls)(self,
+                    action.site_customization)
+            if ac.name in acmap:
+                if ac.priority >= acmap[ac.name].priority:
+                    acmap[ac.name] = ac
+            else:
+                acmap[ac.name] = ac
+
+        self.iactions = acmap
 
     def initialize(self, library_path, db, listener, actions):
         opts = self.opts
@@ -120,6 +127,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.check_messages_timer.start(1000)
 
         MainWindowMixin.__init__(self, db)
+        for ac in self.iactions.values():
+            ac.do_genesis()
 
         # Jobs Button {{{
         self.job_manager = JobManager()
@@ -249,7 +258,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
             self.start_content_server()
 
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
-        AddAction.__init__(self)
 
         self.read_settings()
         self.finalize_layout()

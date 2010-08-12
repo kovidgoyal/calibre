@@ -7,17 +7,14 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QToolButton, QAction, QIcon
+from PyQt4.Qt import QToolButton, QAction, QIcon, QObject
 
-from calibre.customize import InterfaceActionBase
 from calibre.gui2 import Dispatcher
 
-class InterfaceAction(InterfaceActionBase):
+class InterfaceAction(QObject):
 
-    supported_platforms = ['windows', 'osx', 'linux']
-    author         = 'Kovid Goyal'
-    type = _('User Interface Action')
-
+    name = 'Implement me'
+    priority = 1
     positions = frozenset([])
     separators = frozenset([])
 
@@ -28,15 +25,22 @@ class InterfaceAction(InterfaceActionBase):
     #: shortcut must be a translated string if not None
     action_spec = ('text', 'icon', None, None)
 
-    def do_genesis(self, gui):
-        self.gui = gui
-        self.Dispatcher = partial(Dispatcher, parent=gui)
+    def __init__(self, parent, site_customization):
+        QObject.__init__(self, parent)
+        self.gui = parent
+        self.site_customization = site_customization
+
+    def do_genesis(self):
+        self.Dispatcher = partial(Dispatcher, parent=self)
         self.create_action()
         self.genesis()
 
     def create_action(self):
         text, icon, tooltip, shortcut = self.action_spec
-        action = QAction(QIcon(I(icon)), text, self)
+        if icon is not None:
+            action = QAction(QIcon(I(icon)), text, self.gui)
+        else:
+            action = QAction(text, self.gui)
         text = tooltip if tooltip else text
         action.setToolTip(text)
         action.setStatusTip(text)
