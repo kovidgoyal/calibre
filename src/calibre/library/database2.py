@@ -419,7 +419,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             for format in formats:
                 # Get data as string (can't use file as source and target files may be the same)
                 f = self.format(id, format, index_is_id=True, as_file=False)
-                if not  f:
+                if not f:
                     continue
                 stream = cStringIO.StringIO(f)
                 self.add_format(id, format, stream, index_is_id=True, path=tpath)
@@ -430,11 +430,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if current_path and os.path.exists(spath):
             if self.normpath(spath) != self.normpath(tpath):
                 self.rmtree(spath, permanent=True)
-                parent  = os.path.dirname(spath)
+                parent = os.path.dirname(spath)
                 if len(os.listdir(parent)) == 0:
                     self.rmtree(parent, permanent=True)
         curpath = self.library_path
-        if not self.is_case_sensitive:
+        c1, c2 = current_path.split('/'), path.split('/')
+        if not self.is_case_sensitive and len(c1) == len(c2):
             # On case-insensitive systems, title and author renames that only
             # change case don't cause any changes to the directories in the file
             # system. This can lead to having the directory names not match the
@@ -444,12 +445,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # the segment to some temp file name, then rename it back to the
             # correct name. Note that the code above correctly handles files in
             # the directories, so no need to do them here.
-            for oldseg,newseg in zip(current_path.split('/'), path.split('/')):
+            for oldseg, newseg in zip(c1, c2):
                 if oldseg.lower() == newseg.lower() and oldseg != newseg:
                     while True:
                         # need a temp name in the current segment for renames
-                        tempname = 'TEMP.%f'%time.time()
-                        if not os.path.exists(os.path.join(curpath, tempname)):
+                        tempname = os.path.join(curpath, 'TEMP.%f'%time.time())
+                        if not os.path.exists(tempname):
                             break
                     os.rename(os.path.join(curpath, oldseg), tempname)
                     os.rename(tempname, os.path.join(curpath, newseg))
