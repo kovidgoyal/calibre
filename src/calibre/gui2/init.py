@@ -63,7 +63,8 @@ class LibraryViewMixin(object): # {{{
                                         add_to_library = None,
                                         edit_device_collections=None,
                                         similar_menu=similar_menu)
-        add_to_library = (_('Add books to library'), self.add_books_from_device)
+        add_to_library = (_('Add books to library'),
+                self.iactions['Add Books'].add_books_from_device)
 
         edit_device_collections = (_('Manage collections'),
                             partial(self.edit_device_collections, oncard=None))
@@ -89,7 +90,7 @@ class LibraryViewMixin(object): # {{{
                 add_to_library=add_to_library,
                 edit_device_collections=edit_device_collections)
 
-        self.library_view.files_dropped.connect(self.files_dropped, type=Qt.QueuedConnection)
+        self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.QueuedConnection)
         for func, args in [
                              ('connect_to_search_box', (self.search,
                                  self.search_done)),
@@ -305,7 +306,7 @@ class LayoutMixin(object): # {{{
     def finalize_layout(self):
         self.status_bar.initialize(self.system_tray_icon)
         self.book_details.show_book_info.connect(self.show_book_info)
-        self.book_details.files_dropped.connect(self.files_dropped_on_book)
+        self.book_details.files_dropped.connect(self.iactions['Add Books'].files_dropped_on_book)
         self.book_details.open_containing_folder.connect(self.view_folder_for_id)
         self.book_details.view_specific_format.connect(self.view_format_by_id)
 

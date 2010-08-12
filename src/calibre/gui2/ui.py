@@ -329,7 +329,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
             if len(argv) > 1:
                 path = os.path.abspath(argv[1])
                 if os.access(path, os.R_OK):
-                    self.add_filesystem_book(path)
+                    self.iactions['Add Books'].add_filesystem_book(path)
             self.setWindowState(self.windowState() & \
                     ~Qt.WindowMinimized|Qt.WindowActive)
             self.show_windows()
