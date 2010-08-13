@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import functools, sys, os
 
-from PyQt4.Qt import QMenu, Qt, QStackedWidget, \
+from PyQt4.Qt import Qt, QStackedWidget, \
         QSize, QSizePolicy, QStatusBar, QLabel, QFont
 
 from calibre.utils.config import prefs
@@ -30,28 +30,6 @@ def partial(*args, **kwargs):
 class LibraryViewMixin(object): # {{{
 
     def __init__(self, db):
-        similar_menu = QMenu(_('Similar books...'))
-        similar_menu.addAction(self.action_books_by_same_author)
-        similar_menu.addAction(self.action_books_in_this_series)
-        similar_menu.addAction(self.action_books_with_the_same_tags)
-        similar_menu.addAction(self.action_books_by_this_publisher)
-        self.action_books_by_same_author.setShortcut(Qt.ALT + Qt.Key_A)
-        self.action_books_in_this_series.setShortcut(Qt.ALT + Qt.Key_S)
-        self.action_books_by_this_publisher.setShortcut(Qt.ALT + Qt.Key_P)
-        self.action_books_with_the_same_tags.setShortcut(Qt.ALT+Qt.Key_T)
-        self.addAction(self.action_books_by_same_author)
-        self.addAction(self.action_books_by_this_publisher)
-        self.addAction(self.action_books_in_this_series)
-        self.addAction(self.action_books_with_the_same_tags)
-        self.similar_menu = similar_menu
-        self.action_books_by_same_author.triggered.connect(
-                partial(self.show_similar_books, 'authors'))
-        self.action_books_in_this_series.triggered.connect(
-                partial(self.show_similar_books, 'series'))
-        self.action_books_with_the_same_tags.triggered.connect(
-                partial(self.show_similar_books, 'tag'))
-        self.action_books_by_this_publisher.triggered.connect(
-                partial(self.show_similar_books, 'publisher'))
 
         self.library_view.set_context_menu(self.action_edit, self.action_sync,
                                         self.action_convert, self.action_view,
@@ -121,33 +99,6 @@ class LibraryViewMixin(object): # {{{
             view.verticalHeader().sectionDoubleClicked.connect(self.iactions['View'].view_specific_book)
 
 
-
-    def show_similar_books(self, type, *args):
-        search, join = [], ' '
-        idx = self.library_view.currentIndex()
-        if not idx.isValid():
-            return
-        row = idx.row()
-        if type == 'series':
-            series = idx.model().db.series(row)
-            if series:
-                search = ['series:"'+series+'"']
-        elif type == 'publisher':
-            publisher = idx.model().db.publisher(row)
-            if publisher:
-                search = ['publisher:"'+publisher+'"']
-        elif type == 'tag':
-            tags = idx.model().db.tags(row)
-            if tags:
-                search = ['tag:"='+t+'"' for t in tags.split(',')]
-        elif type in ('author', 'authors'):
-            authors = idx.model().db.authors(row)
-            if authors:
-                search = ['author:"='+a.strip().replace('|', ',')+'"' \
-                                for a in authors.split(',')]
-                join = ' or '
-        if search:
-            self.search.set_search_string(join.join(search))
 
     def search_done(self, view, ok):
         if view is self.current_view():

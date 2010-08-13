@@ -373,15 +373,6 @@ class MainWindowMixin(object):
         ac(5,  5,  3, 'choose_library', _('%d books')%0, 'lt.png',
                 tooltip=_('Choose calibre library to work with'))
 
-        ac(-1, -1, 0, 'books_by_same_author', _('Books by same author'),
-                'user_profile.svg')
-        ac(-1, -1, 0, 'books_in_this_series', _('Books in this series'),
-                'books_in_series.svg')
-        ac(-1, -1, 0, 'books_by_this_publisher', _('Books by this publisher'),
-                'publisher.png')
-        ac(-1, -1, 0, 'books_with_the_same_tags', _('Books with the same tags'),
-                'tags.svg')
-
 
 
         return all_actions

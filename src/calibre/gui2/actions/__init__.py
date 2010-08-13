@@ -51,6 +51,7 @@ class InterfaceAction(QObject):
         if shortcut:
             action.setShortcut(shortcut)
         setattr(self, attr, action)
+        return action
 
     def genesis(self):
         pass

@@ -641,9 +641,13 @@ class ActionPreferences(InterfaceActionBase):
     name = 'Preferences'
     actual_plugin = 'calibre.gui2.actions.preferences:PreferencesAction'
 
+class ActionSimilarBooks(InterfaceActionBase):
+    name = 'Similar Books'
+    actual_plugin = 'calibre.gui2.actions.similar_books:SimilarBooksAction'
+
 
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
-        ActionSendToDevice, ActionHelp, ActionPreferences]
+        ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks]
