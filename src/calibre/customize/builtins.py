@@ -645,6 +645,10 @@ class ActionSimilarBooks(InterfaceActionBase):
     name = 'Similar Books'
     actual_plugin = 'calibre.gui2.actions.similar_books:SimilarBooksAction'
 
+class ActionChooseLibrary(InterfaceActionBase):
+    name = 'Choose Library'
+    actual_plugin = 'calibre.gui2.actions.choose_library:ChooseLibraryAction'
+
 
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,

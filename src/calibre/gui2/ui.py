@@ -204,9 +204,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
-        for t in (self.tool_bar, ):
-            self.library_view.model().count_changed_signal.connect \
-                                            (t.count_changed)
+        self.library_view.model().count_changed_signal.connect(
+                self.iactions['Choose Library'].count_changed)
         if not gprefs.get('quick_start_guide_added', False):
             from calibre.ebooks.metadata import MetaInformation
             mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
@@ -250,9 +249,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.finalize_layout()
         self.donate_button.start_animation()
 
-        self.scheduler.delete_old_news.connect(
-                self.library_view.model().delete_books_by_id,
-                type=Qt.QueuedConnection)
+        self.iactions['Fetch News'].connect_scheduler()
 
     def start_content_server(self):
         from calibre.library.server.main import start_threaded_server
@@ -368,7 +365,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.saved_search.clear_to_help()
         self.book_details.reset_info()
         self.library_view.model().count_changed()
-        self.scheduler.database_changed(db)
+        self.iactions['Fetch News'].database_changed(db)
         prefs['library_path'] = self.library_path
 
 

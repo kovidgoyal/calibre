@@ -19,7 +19,6 @@ from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2 import config, gprefs
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre import human_readable
-from calibre.gui2.dialogs.scheduler import Scheduler
 
 
 
@@ -279,11 +278,6 @@ class ToolBar(QToolBar): # {{{
 
         self.choose_action.setVisible(not showing_device)
 
-    def count_changed(self, new_count):
-        text = _('%d books')%new_count
-        a = self.choose_action
-        a.setText(text)
-        a.setToolTip(_('Choose calibre library to work with') + '\n\n' + text)
 
     def resizeEvent(self, ev):
         QToolBar.resizeEvent(self, ev)
@@ -322,61 +316,20 @@ class MainWindowMixin(object):
         self.donate_button = ThrobbingButton(self.centralwidget)
         self.location_manager = LocationManager(self)
 
-        self.init_scheduler(db)
-        all_actions = self.setup_actions()
+        self.iactions['Fetch News'].init_scheduler(db)
 
         self.search_bar = SearchBar(self)
         self.tool_bar = ToolBar(all_actions, self.donate_button,
                 self.location_manager, self)
         self.addToolBar(Qt.TopToolBarArea, self.tool_bar)
-        self.tool_bar.choose_action.triggered.connect(self.choose_library)
 
         l = self.centralwidget.layout()
         l.addWidget(self.search_bar)
 
-    def init_scheduler(self, db):
-        self.scheduler = Scheduler(self, db)
-        self.scheduler.start_recipe_fetch.connect(
-                self.iactions['Fetch News'].download_scheduled_recipe, type=Qt.QueuedConnection)
-        self.iactions['Fetch News'].connect_scheduler(self.scheduler)
 
     def read_toolbar_settings(self):
         pass
 
-    def choose_library(self, *args):
-        from calibre.gui2.dialogs.choose_library import ChooseLibrary
-        db = self.library_view.model().db
-        c = ChooseLibrary(db, self.library_moved, self)
-        c.exec_()
-
-    def setup_actions(self): # {{{
-        all_actions = []
-
-        def ac(normal_order, device_order, separator_before,
-                name, text, icon, shortcut=None, tooltip=None):
-            action = Action(QIcon(I(icon)), text, self)
-            action.normal_order = normal_order
-            action.device_order = device_order
-            action.separator_before = separator_before
-            action.action_name = name
-            text = tooltip if tooltip else text
-            action.setToolTip(text)
-            action.setStatusTip(text)
-            action.setWhatsThis(text)
-            action.setAutoRepeat(False)
-            action.setObjectName('action_'+name)
-            if shortcut:
-                action.setShortcut(shortcut)
-            setattr(self, 'action_'+name, action)
-            all_actions.append(action)
-
-        ac(5,  5,  3, 'choose_library', _('%d books')%0, 'lt.png',
-                tooltip=_('Choose calibre library to work with'))
-
-
-
-        return all_actions
-    # }}}
 
 
 

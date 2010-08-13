@@ -5,6 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from PyQt4.Qt import Qt
+
 from calibre.gui2 import Dispatcher
 from calibre.gui2.tools import fetch_scheduled_recipe
 from calibre.utils.config import dynamic
@@ -22,10 +24,19 @@ class FetchNewsAction(InterfaceAction):
     def genesis(self):
         self.conversion_jobs = {}
 
-    def connect_scheduler(self, scheduler):
-        self.qaction.setMenu(scheduler.news_menu)
+    def init_scheduler(self, db):
+        from calibre.gui2.dialogs.scheduler import Scheduler
+        self.scheduler = Scheduler(self.gui, db)
+        self.scheduler.start_recipe_fetch.connect(self.download_scheduled_recipe, type=Qt.QueuedConnection)
+        self.qaction.setMenu(self.scheduler.news_menu)
         self.qaction.triggered.connect(
-                scheduler.show_dialog)
+                self.scheduler.show_dialog)
+        self.database_changed = self.scheduler.database_changed
+
+    def connect_scheduler(self):
+        self.scheduler.delete_old_news.connect(
+                self.gui.library_view.model().delete_books_by_id,
+                type=Qt.QueuedConnection)
 
     def download_scheduled_recipe(self, arg):
         func, args, desc, fmt, temp_files = \
