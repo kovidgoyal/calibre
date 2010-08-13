@@ -19,18 +19,18 @@ from calibre.ptempfile import PersistentTemporaryFile
 class ViewAction(object):
 
     def view_format(self, row, format):
-        fmt_path = self.library_view.model().db.format_abspath(row, format)
+        fmt_path = self.gui.library_view.model().db.format_abspath(row, format)
         if fmt_path:
             self._view_file(fmt_path)
 
     def view_format_by_id(self, id_, format):
-        fmt_path = self.library_view.model().db.format_abspath(id_, format,
+        fmt_path = self.gui.library_view.model().db.format_abspath(id_, format,
                 index_is_id=True)
         if fmt_path:
             self._view_file(fmt_path)
 
     def metadata_view_format(self, fmt):
-        fmt_path = self.library_view.model().db.\
+        fmt_path = self.gui.library_view.model().db.\
                 format_abspath(self._metadata_view_id,
                         fmt, index_is_id=True)
         if fmt_path:
@@ -67,14 +67,14 @@ class ViewAction(object):
         self._launch_viewer(name, viewer, internal)
 
     def view_specific_format(self, triggered):
-        rows = self.library_view.selectionModel().selectedRows()
+        rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             d = error_dialog(self, _('Cannot view'), _('No book selected'))
             d.exec_()
             return
 
         row = rows[0].row()
-        formats = self.library_view.model().db.formats(row).upper().split(',')
+        formats = self.gui.library_view.model().db.formats(row).upper().split(',')
         d = ChooseFormatDialog(self, _('Choose the format to view'), formats)
         if d.exec_() == d.Accepted:
             format = d.format()
@@ -91,7 +91,7 @@ class ViewAction(object):
                 ) % num)
 
     def view_folder(self, *args):
-        rows = self.current_view().selectionModel().selectedRows()
+        rows = self.gui.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             d = error_dialog(self, _('Cannot open folder'),
                     _('No book selected'))
@@ -100,15 +100,15 @@ class ViewAction(object):
         if not self._view_check(len(rows)):
             return
         for row in rows:
-            path = self.library_view.model().db.abspath(row.row())
+            path = self.gui.library_view.model().db.abspath(row.row())
             open_local_file(path)
 
     def view_folder_for_id(self, id_):
-        path = self.library_view.model().db.abspath(id_, index_is_id=True)
+        path = self.gui.library_view.model().db.abspath(id_, index_is_id=True)
         open_local_file(path)
 
     def view_book(self, triggered):
-        rows = self.current_view().selectionModel().selectedRows()
+        rows = self.gui.current_view().selectionModel().selectedRows()
         self._view_books(rows)
 
     def view_specific_book(self, index):
@@ -122,13 +122,13 @@ class ViewAction(object):
         if not self._view_check(len(rows)):
             return
 
-        if self.current_view() is self.library_view:
+        if self.gui.current_view() is self.gui.library_view:
             for row in rows:
                 if hasattr(row, 'row'):
                     row = row.row()
 
-                formats = self.library_view.model().db.formats(row)
-                title   = self.library_view.model().db.title(row)
+                formats = self.gui.library_view.model().db.formats(row)
+                title   = self.gui.library_view.model().db.title(row)
                 if not formats:
                     error_dialog(self, _('Cannot view'),
                         _('%s has no available formats.')%(title,), show=True)
@@ -146,7 +146,7 @@ class ViewAction(object):
                 if not in_prefs:
                     self.view_format(row, formats[0])
         else:
-            paths = self.current_view().model().paths(rows)
+            paths = self.gui.current_view().model().paths(rows)
             for path in paths:
                 pt = PersistentTemporaryFile('_viewer_'+\
                         os.path.splitext(path)[1])

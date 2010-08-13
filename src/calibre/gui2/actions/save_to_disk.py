@@ -28,7 +28,7 @@ class SaveToDiskAction(object):
                 single_format=prefs['output_format'])
 
     def save_to_disk(self, checked, single_dir=False, single_format=None):
-        rows = self.current_view().selectionModel().selectedRows()
+        rows = self.gui.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return error_dialog(self, _('Cannot save to disk'),
                     _('No books selected'), show=True)
@@ -37,7 +37,7 @@ class SaveToDiskAction(object):
         if not path:
             return
         dpath = os.path.abspath(path).replace('/', os.sep)
-        lpath = self.library_view.model().db.library_path.replace('/', os.sep)
+        lpath = self.gui.library_view.model().db.library_path.replace('/', os.sep)
         if dpath.startswith(lpath):
             return error_dialog(self, _('Not allowed'),
                     _('You are trying to save files into the calibre '
@@ -45,7 +45,7 @@ class SaveToDiskAction(object):
                       'library. Save to disk is meant to export '
                       'files from your calibre library elsewhere.'), show=True)
 
-        if self.current_view() is self.library_view:
+        if self.gui.current_view() is self.gui.library_view:
             from calibre.gui2.add import Saver
             from calibre.library.save_to_disk import config
             opts = config().parse()
@@ -61,12 +61,12 @@ class SaveToDiskAction(object):
                 opts.template = opts.template.split('/')[-1].strip()
                 if not opts.template:
                     opts.template = '{title} - {authors}'
-            self._saver = Saver(self, self.library_view.model().db,
+            self._saver = Saver(self, self.gui.library_view.model().db,
                     Dispatcher(self._books_saved), rows, path, opts,
                     spare_server=self.spare_server)
 
         else:
-            paths = self.current_view().model().paths(rows)
+            paths = self.gui.current_view().model().paths(rows)
             self.device_manager.save_books(
                     Dispatcher(self.books_saved), paths, path)
 

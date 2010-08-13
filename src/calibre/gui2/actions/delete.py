@@ -13,19 +13,19 @@ class DeleteAction(object):
 
     def _get_selected_formats(self, msg):
         from calibre.gui2.dialogs.select_formats import SelectFormats
-        fmts = self.library_view.model().db.all_formats()
+        fmts = self.gui.library_view.model().db.all_formats()
         d = SelectFormats([x.lower() for x in fmts], msg, parent=self)
         if d.exec_() != d.Accepted:
             return None
         return d.selected_formats
 
     def _get_selected_ids(self, err_title=_('Cannot delete')):
-        rows = self.library_view.selectionModel().selectedRows()
+        rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             d = error_dialog(self, err_title, _('No book selected'))
             d.exec_()
             return set([])
-        return set(map(self.library_view.model().id, rows))
+        return set(map(self.gui.library_view.model().id, rows))
 
     def delete_selected_formats(self, *args):
         ids = self._get_selected_ids()
@@ -37,11 +37,11 @@ class DeleteAction(object):
             return
         for id in ids:
             for fmt in fmts:
-                self.library_view.model().db.remove_format(id, fmt,
+                self.gui.library_view.model().db.remove_format(id, fmt,
                         index_is_id=True, notify=False)
-        self.library_view.model().refresh_ids(ids)
-        self.library_view.model().current_changed(self.library_view.currentIndex(),
-                self.library_view.currentIndex())
+        self.gui.library_view.model().refresh_ids(ids)
+        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
+                self.gui.library_view.currentIndex())
         if ids:
             self.tags_view.recount()
 
@@ -54,17 +54,17 @@ class DeleteAction(object):
         if fmts is None:
             return
         for id in ids:
-            bfmts = self.library_view.model().db.formats(id, index_is_id=True)
+            bfmts = self.gui.library_view.model().db.formats(id, index_is_id=True)
             if bfmts is None:
                 continue
             bfmts = set([x.lower() for x in bfmts.split(',')])
             rfmts = bfmts - set(fmts)
             for fmt in rfmts:
-                self.library_view.model().db.remove_format(id, fmt,
+                self.gui.library_view.model().db.remove_format(id, fmt,
                         index_is_id=True, notify=False)
-        self.library_view.model().refresh_ids(ids)
-        self.library_view.model().current_changed(self.library_view.currentIndex(),
-                self.library_view.currentIndex())
+        self.gui.library_view.model().refresh_ids(ids)
+        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
+                self.gui.library_view.currentIndex())
         if ids:
             self.tags_view.recount()
 
@@ -113,16 +113,16 @@ class DeleteAction(object):
         if not ids:
             return
         for id in ids:
-            self.library_view.model().db.remove_cover(id)
-        self.library_view.model().refresh_ids(ids)
-        self.library_view.model().current_changed(self.library_view.currentIndex(),
-                self.library_view.currentIndex())
+            self.gui.library_view.model().db.remove_cover(id)
+        self.gui.library_view.model().refresh_ids(ids)
+        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
+                self.gui.library_view.currentIndex())
 
     def delete_books(self, *args):
         '''
         Delete selected books from device or library.
         '''
-        view = self.current_view()
+        view = self.gui.current_view()
         rows = view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return

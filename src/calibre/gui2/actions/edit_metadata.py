@@ -19,13 +19,13 @@ class EditMetadataAction(object):
 
     def download_metadata(self, checked, covers=True, set_metadata=True,
             set_social_metadata=None):
-        rows = self.library_view.selectionModel().selectedRows()
+        rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             d = error_dialog(self, _('Cannot download metadata'),
                              _('No books selected'))
             d.exec_()
             return
-        db = self.library_view.model().db
+        db = self.gui.library_view.model().db
         ids = [db.id(row.row()) for row in rows]
         self.do_download_metadata(ids, covers=covers,
                 set_metadata=set_metadata,
@@ -33,7 +33,7 @@ class EditMetadataAction(object):
 
     def do_download_metadata(self, ids, covers=True, set_metadata=True,
             set_social_metadata=None):
-        db = self.library_view.model().db
+        db = self.gui.library_view.model().db
         if set_social_metadata is None:
             get_social_metadata = config['get_social_metadata']
         else:
@@ -59,11 +59,11 @@ class EditMetadataAction(object):
             return
         self._book_metadata_download_check.stop()
         self.progress_indicator.stop()
-        cr = self.library_view.currentIndex().row()
+        cr = self.gui.library_view.currentIndex().row()
         x = self._download_book_metadata
         self._download_book_metadata = None
         if x.exception is None:
-            self.library_view.model().refresh_ids(
+            self.gui.library_view.model().refresh_ids(
                 x.updated, cr)
             if self.cover_flow:
                 self.cover_flow.dataChanged()
@@ -83,8 +83,8 @@ class EditMetadataAction(object):
         '''
         Edit metadata of selected books in library.
         '''
-        rows = self.library_view.selectionModel().selectedRows()
-        previous = self.library_view.currentIndex()
+        rows = self.gui.library_view.selectionModel().selectedRows()
+        previous = self.gui.library_view.currentIndex()
         if not rows or len(rows) == 0:
             d = error_dialog(self, _('Cannot edit metadata'),
                              _('No books selected'))
@@ -95,12 +95,12 @@ class EditMetadataAction(object):
             return self.edit_bulk_metadata(checked)
 
         def accepted(id):
-            self.library_view.model().refresh_ids([id])
+            self.gui.library_view.model().refresh_ids([id])
 
         for row in rows:
-            self._metadata_view_id = self.library_view.model().db.id(row.row())
+            self._metadata_view_id = self.gui.library_view.model().db.id(row.row())
             d = MetadataSingleDialog(self, row.row(),
-                                    self.library_view.model().db,
+                                    self.gui.library_view.model().db,
                                     accepted_callback=accepted,
                                     cancel_all=rows.index(row) < len(rows)-1)
             d.view_format.connect(self.metadata_view_format)
@@ -108,8 +108,8 @@ class EditMetadataAction(object):
             if d.cancel_all:
                 break
         if rows:
-            current = self.library_view.currentIndex()
-            m = self.library_view.model()
+            current = self.gui.library_view.currentIndex()
+            m = self.gui.library_view.model()
             if self.cover_flow:
                 self.cover_flow.dataChanged()
             m.current_changed(current, previous)
@@ -120,16 +120,16 @@ class EditMetadataAction(object):
         Edit metadata of selected books in library in bulk.
         '''
         rows = [r.row() for r in \
-                self.library_view.selectionModel().selectedRows()]
+                self.gui.library_view.selectionModel().selectedRows()]
         if not rows or len(rows) == 0:
             d = error_dialog(self, _('Cannot edit metadata'),
                     _('No books selected'))
             d.exec_()
             return
         if MetadataBulkDialog(self, rows,
-                self.library_view.model().db).changed:
-            self.library_view.model().resort(reset=False)
-            self.library_view.model().research()
+                self.gui.library_view.model().db).changed:
+            self.gui.library_view.model().resort(reset=False)
+            self.gui.library_view.model().research()
             self.tags_view.recount()
             if self.cover_flow:
                 self.cover_flow.dataChanged()
@@ -141,7 +141,7 @@ class EditMetadataAction(object):
         '''
         if self.stack.currentIndex() != 0:
             return
-        rows = self.library_view.selectionModel().selectedRows()
+        rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return error_dialog(self, _('Cannot merge books'),
                                 _('No books selected'), show=True)
@@ -186,22 +186,22 @@ class EditMetadataAction(object):
             for row in rows:
                 if row.row() < rows[0].row():
                     dest_row -= 1
-            ci = self.library_view.model().index(dest_row, 0)
+            ci = self.gui.library_view.model().index(dest_row, 0)
             if ci.isValid():
-                self.library_view.setCurrentIndex(ci)
+                self.gui.library_view.setCurrentIndex(ci)
 
     def add_formats(self, dest_id, src_books, replace=False):
         for src_book in src_books:
             if src_book:
                 fmt = os.path.splitext(src_book)[-1].replace('.', '').upper()
                 with open(src_book, 'rb') as f:
-                    self.library_view.model().db.add_format(dest_id, fmt, f, index_is_id=True,
+                    self.gui.library_view.model().db.add_format(dest_id, fmt, f, index_is_id=True,
                             notify=False, replace=replace)
 
     def books_to_merge(self, rows):
         src_books = []
         src_ids = []
-        m = self.library_view.model()
+        m = self.gui.library_view.model()
         for i, row in enumerate(rows):
             id_ = m.id(row)
             if i == 0:
@@ -216,10 +216,10 @@ class EditMetadataAction(object):
         return [dest_id, src_books, src_ids]
 
     def delete_books_after_merge(self, ids_to_delete):
-        self.library_view.model().delete_books_by_id(ids_to_delete)
+        self.gui.library_view.model().delete_books_by_id(ids_to_delete)
 
     def merge_metadata(self, dest_id, src_ids):
-        db = self.library_view.model().db
+        db = self.gui.library_view.model().db
         dest_mi = db.get_metadata(dest_id, index_is_id=True, get_cover=True)
         orig_dest_comments = dest_mi.comments
         for src_id in src_ids:

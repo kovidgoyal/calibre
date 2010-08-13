@@ -29,8 +29,8 @@ class FetchNewsAction(object):
         if job.failed:
             self.scheduler.recipe_download_failed(arg)
             return self.job_exception(job)
-        id = self.library_view.model().add_news(pt.name, arg)
-        self.library_view.model().reset()
+        id = self.gui.library_view.model().add_news(pt.name, arg)
+        self.gui.library_view.model().reset()
         sync = dynamic.get('news_to_be_synced', set([]))
         sync.add(id)
         dynamic.set('news_to_be_synced', sync)
