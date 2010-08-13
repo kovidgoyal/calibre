@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from operator import attrgetter
 from functools import partial
 
-from PyQt4.Qt import QIcon, Qt, QWidget, QAction, QToolBar, QSize, \
+from PyQt4.Qt import QIcon, Qt, QWidget, QToolBar, QSize, \
     pyqtSignal, QToolButton, \
     QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup, \
     QMenu
@@ -201,7 +201,7 @@ class SearchBar(QWidget): # {{{
 
 class ToolBar(QToolBar): # {{{
 
-    def __init__(self, actions, donate, location_manager, parent=None):
+    def __init__(self, donate, location_manager, parent):
         QToolBar.__init__(self, parent)
         self.setContextMenuPolicy(Qt.PreventContextMenu)
         self.setMovable(False)
@@ -212,7 +212,6 @@ class ToolBar(QToolBar): # {{{
         self.donate = donate
         self.apply_settings()
 
-        self.all_actions = actions
         self.location_manager = location_manager
         self.location_manager.locations_changed.connect(self.build_bar)
         self.d_widget = QWidget()
@@ -296,9 +295,6 @@ class ToolBar(QToolBar): # {{{
 
 # }}}
 
-class Action(QAction):
-    pass
-
 class MainWindowMixin(object):
 
     def __init__(self, db):
@@ -319,7 +315,7 @@ class MainWindowMixin(object):
         self.iactions['Fetch News'].init_scheduler(db)
 
         self.search_bar = SearchBar(self)
-        self.tool_bar = ToolBar(all_actions, self.donate_button,
+        self.tool_bar = ToolBar(self.donate_button,
                 self.location_manager, self)
         self.addToolBar(Qt.TopToolBarArea, self.tool_bar)
 
