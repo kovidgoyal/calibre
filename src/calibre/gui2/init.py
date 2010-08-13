@@ -119,7 +119,8 @@ class LibraryWidget(Splitter): # {{{
                 I('cover_flow.svg'),
                 orientation=orientation, parent=parent,
                 connect_button=not config['separate_cover_flow'],
-                side_index=idx, initial_side_size=size, initial_show=False)
+                side_index=idx, initial_side_size=size, initial_show=False,
+                shortcut=_('Shift+Alt+B'))
         parent.library_view = BooksView(parent)
         parent.library_view.setObjectName('library_view')
         self.addWidget(parent.library_view)
@@ -134,7 +135,8 @@ class Stack(QStackedWidget): # {{{
         self.tb_widget = TagBrowserWidget(parent)
         parent.tb_splitter = Splitter('tag_browser_splitter',
                 _('Tag Browser'), I('tags.svg'),
-                parent=parent, side_index=0, initial_side_size=200)
+                parent=parent, side_index=0, initial_side_size=200,
+                shortcut=_('Shift+Alt+T'))
         parent.tb_splitter.addWidget(self.tb_widget)
         parent.tb_splitter.addWidget(parent.cb_splitter)
         parent.tb_splitter.setCollapsible(parent.tb_splitter.other_index, False)
@@ -227,7 +229,8 @@ class LayoutMixin(object): # {{{
             self.stack = Stack(self)
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.svg'),
-                    orientation=Qt.Vertical, parent=self, side_index=1)
+                    orientation=Qt.Vertical, parent=self, side_index=1,
+                    shortcut=_('Alt+D'))
             self.bd_splitter.addWidget(self.stack)
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
@@ -236,7 +239,8 @@ class LayoutMixin(object): # {{{
         else: # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.svg'), initial_side_size=200,
-                    orientation=Qt.Horizontal, parent=self, side_index=1)
+                    orientation=Qt.Horizontal, parent=self, side_index=1,
+                    shortcut=_('Shift+Alt+D'))
             self.stack = Stack(self)
             self.bd_splitter.addWidget(self.stack)
             self.book_details = BookDetails(True, self)
