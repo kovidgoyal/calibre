@@ -90,7 +90,7 @@ class AddAction(InterfaceAction):
             mi.isbn = x
             ids.add(self.gui.library_view.model().db.import_book(mi, []))
         self.gui.library_view.model().books_added(len(isbns))
-        self.gui.do_download_metadata(ids)
+        self.gui.iactions['Edit Metadata'].do_download_metadata(ids)
 
 
     def files_dropped(self, paths):

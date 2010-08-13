@@ -34,8 +34,10 @@ class InterfaceAction(QObject):
         self.create_action()
         self.genesis()
 
-    def create_action(self):
-        text, icon, tooltip, shortcut = self.action_spec
+    def create_action(self, spec=None, attr='qaction'):
+        if spec is None:
+            spec = self.action_spec
+        text, icon, tooltip, shortcut = spec
         if icon is not None:
             action = QAction(QIcon(I(icon)), text, self.gui)
         else:
@@ -47,7 +49,7 @@ class InterfaceAction(QObject):
         action.setAutoRepeat(False)
         if shortcut:
             action.setShortcut(shortcut)
-        self.qaction = action
+        setattr(self, attr, action)
 
     def genesis(self):
         pass

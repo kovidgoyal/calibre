@@ -6,20 +6,64 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
+from functools import partial
 
-from PyQt4.Qt import Qt, QTimer
+from PyQt4.Qt import Qt, QTimer, QMenu
 
 from calibre.gui2 import error_dialog, config, warning_dialog
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
+from calibre.gui2.actions import InterfaceAction
 
-class EditMetadataAction(object):
+class EditMetadataAction(InterfaceAction):
+
+    name = 'Edit Metadata'
+    action_spec = (_('Edit metadata'), 'edit_input.svg', None, _('E'))
+
+    def genesis(self):
+        self.create_action(spec=(_('Merge book records'), 'merge_books.svg',
+            None, _('M')), attr='action_merge')
+        md = QMenu()
+        md.addAction(_('Edit metadata individually'),
+                partial(self.edit_metadata, False, bulk=False))
+        md.addSeparator()
+        md.addAction(_('Edit metadata in bulk'),
+                partial(self.edit_metadata, False, bulk=True))
+        md.addSeparator()
+        md.addAction(_('Download metadata and covers'),
+                partial(self.download_metadata, False, covers=True),
+                Qt.ControlModifier+Qt.Key_D)
+        md.addAction(_('Download only metadata'),
+                partial(self.download_metadata, False, covers=False))
+        md.addAction(_('Download only covers'),
+                partial(self.download_metadata, False, covers=True,
+                    set_metadata=False, set_social_metadata=False))
+        md.addAction(_('Download only social metadata'),
+                partial(self.download_metadata, False, covers=False,
+                    set_metadata=False, set_social_metadata=True))
+        self.metadata_menu = md
+
+        mb = QMenu()
+        mb.addAction(_('Merge into first selected book - delete others'),
+                self.merge_books)
+        mb.addSeparator()
+        mb.addAction(_('Merge into first selected book - keep others'),
+                partial(self.merge_books, safe_merge=True))
+        self.merge_menu = mb
+        self.action_merge.setMenu(mb)
+        md.addSeparator()
+        md.addAction(self.action_merge)
+
+        self.qaction.triggered.connect(self.edit_metadata)
+        self.qaction.setMenu(md)
+        self.action_merge.triggered.connect(self.merge_books)
 
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.action_merge.setEnabled(enabled)
 
     def download_metadata(self, checked, covers=True, set_metadata=True,
             set_social_metadata=None):
@@ -51,9 +95,9 @@ class EditMetadataAction(object):
             x = _('social metadata')
         else:
             x = _('covers') if covers and not set_metadata else _('metadata')
-        self.progress_indicator.start(
+        self.gui.progress_indicator.start(
             _('Downloading %s for %d book(s)')%(x, len(ids)))
-        self._book_metadata_download_check = QTimer(self)
+        self._book_metadata_download_check = QTimer(self.gui)
         self._book_metadata_download_check.timeout.connect(self.book_metadata_download_check,
                 type=Qt.QueuedConnection)
         self._book_metadata_download_check.start(100)
@@ -62,15 +106,15 @@ class EditMetadataAction(object):
         if self._download_book_metadata.is_alive():
             return
         self._book_metadata_download_check.stop()
-        self.progress_indicator.stop()
+        self.gui.progress_indicator.stop()
         cr = self.gui.library_view.currentIndex().row()
         x = self._download_book_metadata
         self._download_book_metadata = None
         if x.exception is None:
             self.gui.library_view.model().refresh_ids(
                 x.updated, cr)
-            if self.cover_flow:
-                self.cover_flow.dataChanged()
+            if self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
             if x.failures:
                 details = ['%s: %s'%(title, reason) for title,
                         reason in x.failures.values()]
@@ -102,22 +146,22 @@ class EditMetadataAction(object):
             self.gui.library_view.model().refresh_ids([id])
 
         for row in rows:
-            self._metadata_view_id = self.gui.library_view.model().db.id(row.row())
-            d = MetadataSingleDialog(self, row.row(),
+            self.gui.iactions['View'].metadata_view_id = self.gui.library_view.model().db.id(row.row())
+            d = MetadataSingleDialog(self.gui, row.row(),
                                     self.gui.library_view.model().db,
                                     accepted_callback=accepted,
                                     cancel_all=rows.index(row) < len(rows)-1)
-            d.view_format.connect(self.metadata_view_format)
+            d.view_format.connect(self.gui.iactions['View'].metadata_view_format)
             d.exec_()
             if d.cancel_all:
                 break
         if rows:
             current = self.gui.library_view.currentIndex()
             m = self.gui.library_view.model()
-            if self.cover_flow:
-                self.cover_flow.dataChanged()
+            if self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
             m.current_changed(current, previous)
-            self.tags_view.recount()
+            self.gui.tags_view.recount()
 
     def edit_bulk_metadata(self, checked):
         '''
@@ -130,20 +174,20 @@ class EditMetadataAction(object):
                     _('No books selected'))
             d.exec_()
             return
-        if MetadataBulkDialog(self, rows,
+        if MetadataBulkDialog(self.gui, rows,
                 self.gui.library_view.model().db).changed:
             self.gui.library_view.model().resort(reset=False)
             self.gui.library_view.model().research()
-            self.tags_view.recount()
-            if self.cover_flow:
-                self.cover_flow.dataChanged()
+            self.gui.tags_view.recount()
+            if self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
 
     # Merge books {{{
     def merge_books(self, safe_merge=False):
         '''
         Merge selected books in library.
         '''
-        if self.stack.currentIndex() != 0:
+        if self.gui.stack.currentIndex() != 0:
             return
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
@@ -161,7 +205,7 @@ class EditMetadataAction(object):
                 'The second and subsequently selected books will not '
                 'be deleted or changed.<br><br>'
                 'Please confirm you want to proceed.')
-            +'</p>', 'merge_books_safe', self):
+            +'</p>', 'merge_books_safe', self.gui):
                 return
             self.add_formats(dest_id, src_books)
             self.merge_metadata(dest_id, src_ids)
@@ -175,12 +219,12 @@ class EditMetadataAction(object):
                 'and any duplicate formats in the second and subsequently selected books '
                 'will be permanently <b>deleted</b> from your computer.<br><br>  '
                 'Are you <b>sure</b> you want to proceed?')
-            +'</p>', 'merge_books', self):
+            +'</p>', 'merge_books', self.gui):
                 return
             if len(rows)>5:
                 if not confirm('<p>'+_('You are about to merge more than 5 books.  '
                                         'Are you <b>sure</b> you want to proceed?')
-                                    +'</p>', 'merge_too_many_books', self):
+                                    +'</p>', 'merge_too_many_books', self.gui):
                     return
             self.add_formats(dest_id, src_books)
             self.merge_metadata(dest_id, src_ids)
@@ -299,7 +343,7 @@ class EditMetadataAction(object):
         model = view.model()
         result = model.get_collections_with_ids()
         compare = (lambda x,y:cmp(x.lower(), y.lower()))
-        d = TagListEditor(self, tag_to_match=None, data=result, compare=compare)
+        d = TagListEditor(self.gui, tag_to_match=None, data=result, compare=compare)
         d.exec_()
         if d.result() == d.Accepted:
             to_rename = d.to_rename # dict of new text to old ids
@@ -309,7 +353,7 @@ class EditMetadataAction(object):
                     model.rename_collection(old_id, new_name=unicode(text))
             for item in to_delete:
                 model.delete_collection_using_id(item)
-            self.upload_collections(model.db, view=view, oncard=oncard)
+            self.gui.upload_collections(model.db, view=view, oncard=oncard)
             view.reset()
 
 

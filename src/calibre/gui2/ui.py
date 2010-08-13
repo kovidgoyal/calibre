@@ -439,12 +439,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         for action in self.iactions.values():
             action.location_selected(location)
         if location == 'library':
-            self.action_merge.setEnabled(True)
             self.action_open_containing_folder.setEnabled(True)
             self.action_sync.setEnabled(True)
             self.search_restriction.setEnabled(True)
         else:
-            self.action_merge.setEnabled(False)
             self.action_open_containing_folder.setEnabled(False)
             self.action_sync.setEnabled(False)
             self.search_restriction.setEnabled(False)

@@ -18,6 +18,11 @@ from calibre.ptempfile import PersistentTemporaryFile
 
 class ViewAction(object):
 
+    name = 'View'
+
+    def genesis(self):
+        self.metadata_view_id = None
+
     def location_selected(self, loc):
         enabled = loc == 'library'
         for action in list(self.view_menu.actions())[1:]:
@@ -36,7 +41,7 @@ class ViewAction(object):
 
     def metadata_view_format(self, fmt):
         fmt_path = self.gui.library_view.model().db.\
-                format_abspath(self._metadata_view_id,
+                format_abspath(self.metadata_view_id,
                         fmt, index_is_id=True)
         if fmt_path:
             self._view_file(fmt_path)

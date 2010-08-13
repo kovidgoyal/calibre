@@ -459,10 +459,6 @@ class MainWindowMixin(object):
             setattr(self, 'action_'+name, action)
             all_actions.append(action)
 
-        ac(0,  0,  0, 'add', _('Add books'), 'add_book.svg', _('A'))
-        ac(1,  1,  0, 'edit', _('Edit metadata'), 'edit_input.svg', _('E'))
-        ac(2,  2,  3, 'convert', _('Convert books'), 'convert.svg', _('C'))
-        ac(3,  3,  0, 'view', _('View'), 'view.svg', _('V'))
         ac(-1, 4,  0, 'sync', _('Send to device'), 'sync.svg')
         ac(5,  5,  3, 'choose_library', _('%d books')%0, 'lt.png',
                 tooltip=_('Choose calibre library to work with'))
@@ -473,7 +469,6 @@ class MainWindowMixin(object):
         ac(10, 10,  3, 'help', _('Help'), 'help.svg', _('F1'), _("Browse the calibre User Manual"))
         ac(11, 11, 0, 'preferences', _('Preferences'), 'config.svg', _('Ctrl+P'))
 
-        ac(-1, -1, 0, 'merge', _('Merge book records'), 'merge_books.svg', _('M'))
         ac(-1, -1, 0, 'open_containing_folder', _('Open containing folder'),
                 'document_open.svg')
         ac(-1, -1, 0, 'show_book_details', _('Show book details'),
@@ -497,39 +492,6 @@ class MainWindowMixin(object):
         self.action_conn_share.setMenu(self.share_conn_menu)
 
         self.action_help.triggered.connect(self.show_help)
-        md = QMenu()
-        md.addAction(_('Edit metadata individually'),
-                partial(self.edit_metadata, False, bulk=False))
-        md.addSeparator()
-        md.addAction(_('Edit metadata in bulk'),
-                partial(self.edit_metadata, False, bulk=True))
-        md.addSeparator()
-        md.addAction(_('Download metadata and covers'),
-                partial(self.download_metadata, False, covers=True),
-                Qt.ControlModifier+Qt.Key_D)
-        md.addAction(_('Download only metadata'),
-                partial(self.download_metadata, False, covers=False))
-        md.addAction(_('Download only covers'),
-                partial(self.download_metadata, False, covers=True,
-                    set_metadata=False, set_social_metadata=False))
-        md.addAction(_('Download only social metadata'),
-                partial(self.download_metadata, False, covers=False,
-                    set_metadata=False, set_social_metadata=True))
-        self.metadata_menu = md
-
-        mb = QMenu()
-        mb.addAction(_('Merge into first selected book - delete others'),
-                self.merge_books)
-        mb.addSeparator()
-        mb.addAction(_('Merge into first selected book - keep others'),
-                partial(self.merge_books, safe_merge=True))
-        self.merge_menu = mb
-        self.action_merge.setMenu(mb)
-        md.addSeparator()
-        md.addAction(self.action_merge)
-
-        self.action_edit.triggered.connect(self.edit_metadata)
-        self.action_merge.triggered.connect(self.merge_books)
 
         self.action_save.triggered.connect(self.save_to_disk)
         self.save_menu = QMenu()
@@ -566,7 +528,6 @@ class MainWindowMixin(object):
         self.action_sync.triggered.connect(
                 self._sync_action_triggered)
 
-        self.action_edit.setMenu(md)
         self.action_save.setMenu(self.save_menu)
 
 

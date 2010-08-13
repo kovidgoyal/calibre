@@ -597,5 +597,9 @@ class ActionDelete(InterfaceActionBase):
     name = 'Remove Books'
     actual_plugin = 'calibre.gui2.actions.delete:DeleteAction'
 
+class ActionEditMetadata(InterfaceActionBase):
+    name = 'Edit Metadata'
+    actual_plugin = 'calibre.gui2.actions.delete:EditMetadataAction'
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
-        ActionConvert, ActionDelete]
+        ActionConvert, ActionDelete, ActionEditMetadata]

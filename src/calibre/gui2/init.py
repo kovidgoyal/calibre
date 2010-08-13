@@ -66,8 +66,9 @@ class LibraryViewMixin(object): # {{{
         add_to_library = (_('Add books to library'),
                 self.iactions['Add Books'].add_books_from_device)
 
+        edc = self.iactions['Edit Metadata'].edit_device_collections
         edit_device_collections = (_('Manage collections'),
-                            partial(self.edit_device_collections, oncard=None))
+                            partial(edc, oncard=None))
         self.memory_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None,
                 self.action_del, None,
@@ -75,7 +76,7 @@ class LibraryViewMixin(object): # {{{
                 edit_device_collections=edit_device_collections)
 
         edit_device_collections = (_('Manage collections'),
-                            partial(self.edit_device_collections, oncard='carda'))
+                            partial(edc, oncard='carda'))
         self.card_a_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None,
                 self.action_del, None,
@@ -83,7 +84,7 @@ class LibraryViewMixin(object): # {{{
                 edit_device_collections=edit_device_collections)
 
         edit_device_collections = (_('Manage collections'),
-                            partial(self.edit_device_collections, oncard='cardb'))
+                            partial(edc, oncard='cardb'))
         self.card_b_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None,
                 self.action_del, None,
