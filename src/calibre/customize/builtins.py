@@ -633,9 +633,17 @@ class ActionConnectShare(InterfaceActionBase):
     name = 'Connect Share'
     actual_plugin = 'calibre.gui2.actions.device:ConnectShareAction'
 
+class ActionHelp(InterfaceActionBase):
+    name = 'Help'
+    actual_plugin = 'calibre.gui2.actions.help:HelpAction'
+
+class ActionPreferences(InterfaceActionBase):
+    name = 'Preferences'
+    actual_plugin = 'calibre.gui2.actions.preferences:PreferencesAction'
+
 
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
-        ActionSendToDevice, ]
+        ActionSendToDevice, ActionHelp, ActionPreferences]

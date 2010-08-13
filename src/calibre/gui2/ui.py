@@ -34,7 +34,6 @@ from calibre.gui2.main_window import MainWindow
 from calibre.gui2.layout import MainWindowMixin
 from calibre.gui2.device import DeviceMixin
 from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
-from calibre.gui2.dialogs.config import ConfigDialog
 from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
@@ -354,36 +353,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
 
-    def do_config(self, checked=False, initial_category='general'):
-        if self.job_manager.has_jobs():
-            d = error_dialog(self, _('Cannot configure'),
-                    _('Cannot configure while there are running jobs.'))
-            d.exec_()
-            return
-        if self.must_restart_before_config:
-            d = error_dialog(self, _('Cannot configure'),
-                    _('Cannot configure before calibre is restarted.'))
-            d.exec_()
-            return
-        d = ConfigDialog(self, self.library_view,
-                server=self.content_server, initial_category=initial_category)
-
-        d.exec_()
-        self.content_server = d.server
-        if self.content_server is not None:
-            self.content_server.state_callback = \
-                Dispatcher(self.iactions['Connect Share'].content_server_state_changed)
-            self.content_server.state_callback(self.content_server.is_running)
-
-        if d.result() == d.Accepted:
-            self.read_toolbar_settings()
-            self.search.search_as_you_type(config['search_as_you_type'])
-            self.tags_view.set_new_model() # in case columns changed
-            self.iactions['Save To Disk'].reread_prefs()
-            self.tags_view.recount()
-            self.create_device_menu()
-            self.set_device_menu_items_state(bool(self.device_connected))
-            self.tool_bar.apply_settings()
 
     def library_moved(self, newloc):
         if newloc is None: return

@@ -11,12 +11,12 @@ from functools import partial
 from PyQt4.Qt import QIcon, Qt, QWidget, QAction, QToolBar, QSize, \
     pyqtSignal, QToolButton, \
     QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup, \
-    QMenu, QUrl
+    QMenu
 
 from calibre.constants import __appname__
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
 from calibre.gui2.throbber import ThrobbingButton
-from calibre.gui2 import config, open_url, gprefs
+from calibre.gui2 import config, gprefs
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre import human_readable
 from calibre.gui2.dialogs.scheduler import Scheduler
@@ -372,8 +372,6 @@ class MainWindowMixin(object):
 
         ac(5,  5,  3, 'choose_library', _('%d books')%0, 'lt.png',
                 tooltip=_('Choose calibre library to work with'))
-        ac(10, 10,  3, 'help', _('Help'), 'help.svg', _('F1'), _("Browse the calibre User Manual"))
-        ac(11, 11, 0, 'preferences', _('Preferences'), 'config.svg', _('Ctrl+P'))
 
         ac(-1, -1, 0, 'books_by_same_author', _('Books by same author'),
                 'user_profile.svg')
@@ -385,26 +383,9 @@ class MainWindowMixin(object):
                 'tags.svg')
 
 
-        self.action_help.triggered.connect(self.show_help)
-
-
-
-
-        pm = QMenu()
-        pm.addAction(QIcon(I('config.svg')), _('Preferences'), self.do_config)
-        pm.addAction(QIcon(I('wizard.svg')), _('Run welcome wizard'),
-                self.run_wizard)
-        self.action_preferences.setMenu(pm)
-        self.preferences_menu = pm
-        for x in (self.preferences_action, self.action_preferences):
-            x.triggered.connect(self.do_config)
-
 
         return all_actions
     # }}}
-
-    def show_help(self, *args):
-        open_url(QUrl('http://calibre-ebook.com/user_manual'))
 
 
 
