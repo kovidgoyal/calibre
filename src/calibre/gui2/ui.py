@@ -149,7 +149,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.verbose = opts.verbose
         self.get_metadata = GetMetadata()
         self.upload_memory = {}
-        self.delete_memory = {}
         self.persistent_files = []
         self.metadata_dialogs = []
         self.default_thumbnail = None
@@ -437,26 +436,18 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         for x in ('tb', 'cb'):
             splitter = getattr(self, x+'_splitter')
             splitter.button.setEnabled(location == 'library')
+        for action in self.iactions.values():
+            action.location_selected(location)
         if location == 'library':
-            self.action_edit.setEnabled(True)
             self.action_merge.setEnabled(True)
-            self.action_convert.setEnabled(True)
-            self.view_menu.actions()[1].setEnabled(True)
             self.action_open_containing_folder.setEnabled(True)
             self.action_sync.setEnabled(True)
             self.search_restriction.setEnabled(True)
-            for action in list(self.delete_menu.actions())[1:]:
-                action.setEnabled(True)
         else:
-            self.action_edit.setEnabled(False)
             self.action_merge.setEnabled(False)
-            self.action_convert.setEnabled(False)
-            self.view_menu.actions()[1].setEnabled(False)
             self.action_open_containing_folder.setEnabled(False)
             self.action_sync.setEnabled(False)
             self.search_restriction.setEnabled(False)
-            for action in list(self.delete_menu.actions())[1:]:
-                action.setEnabled(False)
             # Reset the view in case something changed while it was invisible
             self.current_view().reset()
         self.set_number_of_books_shown()

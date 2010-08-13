@@ -18,6 +18,11 @@ from calibre.ptempfile import PersistentTemporaryFile
 
 class ViewAction(object):
 
+    def location_selected(self, loc):
+        enabled = loc == 'library'
+        for action in list(self.view_menu.actions())[1:]:
+            action.setEnabled(enabled)
+
     def view_format(self, row, format):
         fmt_path = self.gui.library_view.model().db.format_abspath(row, format)
         if fmt_path:

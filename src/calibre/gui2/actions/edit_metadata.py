@@ -17,6 +17,10 @@ from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 
 class EditMetadataAction(object):
 
+    def location_selected(self, loc):
+        enabled = loc == 'library'
+        self.qaction.setEnabled(enabled)
+
     def download_metadata(self, checked, covers=True, set_metadata=True,
             set_social_metadata=None):
         rows = self.gui.library_view.selectionModel().selectedRows()

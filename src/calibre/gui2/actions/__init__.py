@@ -52,3 +52,6 @@ class InterfaceAction(QObject):
     def genesis(self):
         pass
 
+    def location_selected(self, loc):
+        pass
+

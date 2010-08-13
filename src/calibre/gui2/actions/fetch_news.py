@@ -11,6 +11,10 @@ from calibre.utils.config import dynamic
 
 class FetchNewsAction(object):
 
+    def location_selected(self, loc):
+        enabled = loc == 'library'
+        self.qaction.setEnabled(enabled)
+
     def genesis(self):
         self.conversion_jobs = {}
 

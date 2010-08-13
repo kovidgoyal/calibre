@@ -792,8 +792,9 @@ class DeviceMixin(object): # {{{
             self.device_job_exception(job)
             return
 
-        if self.delete_memory.has_key(job):
-            paths, model = self.delete_memory.pop(job)
+        dm = self.iactions['Remove Books'].delete_memory
+        if dm.has_key(job):
+            paths, model = dm.pop(job)
             self.device_manager.remove_books_from_metadata(paths,
                     self.booklists())
             model.paths_deleted(paths)

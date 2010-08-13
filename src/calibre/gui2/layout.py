@@ -528,7 +528,6 @@ class MainWindowMixin(object):
         md.addSeparator()
         md.addAction(self.action_merge)
 
-        self.action_del.triggered.connect(self.delete_books)
         self.action_edit.triggered.connect(self.edit_metadata)
         self.action_merge.triggered.connect(self.merge_books)
 
@@ -557,21 +556,6 @@ class MainWindowMixin(object):
         self.action_view.setMenu(self.view_menu)
         ac.triggered.connect(self.view_specific_format, type=Qt.QueuedConnection)
 
-        self.delete_menu = QMenu()
-        self.delete_menu.addAction(_('Remove selected books'), self.delete_books)
-        self.delete_menu.addAction(
-                _('Remove files of a specific format from selected books..'),
-                self.delete_selected_formats)
-        self.delete_menu.addAction(
-                _('Remove all formats from selected books, except...'),
-                self.delete_all_but_selected_formats)
-        self.delete_menu.addAction(
-                _('Remove covers from selected books'), self.delete_covers)
-        self.delete_menu.addSeparator()
-        self.delete_menu.addAction(
-                _('Remove matching books from device'),
-                self.remove_matching_books_from_device)
-        self.action_del.setMenu(self.delete_menu)
 
         self.action_open_containing_folder.setShortcut(Qt.Key_O)
         self.addAction(self.action_open_containing_folder)

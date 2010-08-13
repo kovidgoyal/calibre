@@ -593,5 +593,9 @@ class ActionConvert(InterfaceActionBase):
     name = 'Convert Books'
     actual_plugin = 'calibre.gui2.actions.convert:ConvertAction'
 
+class ActionDelete(InterfaceActionBase):
+    name = 'Remove Books'
+    actual_plugin = 'calibre.gui2.actions.delete:DeleteAction'
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
-        ActionConvert]
+        ActionConvert, ActionDelete]
