@@ -30,7 +30,7 @@ class SaveToDiskAction(object):
     def save_to_disk(self, checked, single_dir=False, single_format=None):
         rows = self.gui.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            return error_dialog(self, _('Cannot save to disk'),
+            return error_dialog(self.gui, _('Cannot save to disk'),
                     _('No books selected'), show=True)
         path = choose_dir(self, 'save to disk dialog',
                 _('Choose destination directory'))
@@ -39,7 +39,7 @@ class SaveToDiskAction(object):
         dpath = os.path.abspath(path).replace('/', os.sep)
         lpath = self.gui.library_view.model().db.library_path.replace('/', os.sep)
         if dpath.startswith(lpath):
-            return error_dialog(self, _('Not allowed'),
+            return error_dialog(self.gui, _('Not allowed'),
                     _('You are trying to save files into the calibre '
                       'library. This can cause corruption of your '
                       'library. Save to disk is meant to export '
@@ -74,7 +74,7 @@ class SaveToDiskAction(object):
     def _books_saved(self, path, failures, error):
         self._saver = None
         if error:
-            return error_dialog(self, _('Error while saving'),
+            return error_dialog(self.gui, _('Error while saving'),
                     _('There was an error while saving.'),
                     error, show=True)
         if failures:
@@ -82,7 +82,7 @@ class SaveToDiskAction(object):
                     (title, '\n\t'.join(err.splitlines())) for title, err in
                     failures]
 
-            warning_dialog(self, _('Could not save some books'),
+            warning_dialog(self.gui, _('Could not save some books'),
             _('Could not save some books') + ', ' +
             _('Click the show details button to see which ones.'),
             u'\n\n'.join(failures), show=True)

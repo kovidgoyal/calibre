@@ -21,7 +21,7 @@ class FetchNewsAction(object):
                 Dispatcher(self.scheduled_recipe_fetched), func, args=args,
                            description=desc)
         self.conversion_jobs[job] = (temp_files, fmt, arg)
-        self.status_bar.show_message(_('Fetching news from ')+arg['title'], 2000)
+        self.gui.status_bar.show_message(_('Fetching news from ')+arg['title'], 2000)
 
     def scheduled_recipe_fetched(self, job):
         temp_files, fmt, arg = self.conversion_jobs.pop(job)
@@ -35,7 +35,7 @@ class FetchNewsAction(object):
         sync.add(id)
         dynamic.set('news_to_be_synced', sync)
         self.scheduler.recipe_downloaded(arg)
-        self.status_bar.show_message(arg['title'] + _(' fetched.'), 3000)
+        self.gui.status_bar.show_message(arg['title'] + _(' fetched.'), 3000)
         self.email_news(id)
         self.sync_news()
 

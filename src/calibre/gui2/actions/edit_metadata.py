@@ -21,7 +21,7 @@ class EditMetadataAction(object):
             set_social_metadata=None):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            d = error_dialog(self, _('Cannot download metadata'),
+            d = error_dialog(self.gui, _('Cannot download metadata'),
                              _('No books selected'))
             d.exec_()
             return
@@ -71,12 +71,12 @@ class EditMetadataAction(object):
                 details = ['%s: %s'%(title, reason) for title,
                         reason in x.failures.values()]
                 details = '%s\n'%('\n'.join(details))
-                warning_dialog(self, _('Failed to download some metadata'),
+                warning_dialog(self.gui, _('Failed to download some metadata'),
                     _('Failed to download metadata for the following:'),
                     det_msg=details).exec_()
         else:
             err = _('Failed to download metadata:')
-            error_dialog(self, _('Error'), err, det_msg=x.tb).exec_()
+            error_dialog(self.gui, _('Error'), err, det_msg=x.tb).exec_()
 
 
     def edit_metadata(self, checked, bulk=None):
@@ -86,7 +86,7 @@ class EditMetadataAction(object):
         rows = self.gui.library_view.selectionModel().selectedRows()
         previous = self.gui.library_view.currentIndex()
         if not rows or len(rows) == 0:
-            d = error_dialog(self, _('Cannot edit metadata'),
+            d = error_dialog(self.gui, _('Cannot edit metadata'),
                              _('No books selected'))
             d.exec_()
             return
@@ -122,7 +122,7 @@ class EditMetadataAction(object):
         rows = [r.row() for r in \
                 self.gui.library_view.selectionModel().selectedRows()]
         if not rows or len(rows) == 0:
-            d = error_dialog(self, _('Cannot edit metadata'),
+            d = error_dialog(self.gui, _('Cannot edit metadata'),
                     _('No books selected'))
             d.exec_()
             return
@@ -143,10 +143,10 @@ class EditMetadataAction(object):
             return
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            return error_dialog(self, _('Cannot merge books'),
+            return error_dialog(self.gui, _('Cannot merge books'),
                                 _('No books selected'), show=True)
         if len(rows) < 2:
-            return error_dialog(self, _('Cannot merge books'),
+            return error_dialog(self.gui, _('Cannot merge books'),
                         _('At least two books must be selected for merging'),
                         show=True)
         dest_id, src_books, src_ids = self.books_to_merge(rows)

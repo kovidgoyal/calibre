@@ -69,7 +69,7 @@ class ViewAction(object):
     def view_specific_format(self, triggered):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            d = error_dialog(self, _('Cannot view'), _('No book selected'))
+            d = error_dialog(self.gui, _('Cannot view'), _('No book selected'))
             d.exec_()
             return
 
@@ -83,7 +83,7 @@ class ViewAction(object):
     def _view_check(self, num, max_=3):
         if num <= max_:
             return True
-        return question_dialog(self, _('Multiple Books Selected'),
+        return question_dialog(self.gui, _('Multiple Books Selected'),
                 _('You are attempting to open %d books. Opening too many '
                 'books at once can be slow and have a negative effect on the '
                 'responsiveness of your computer. Once started the process '
@@ -93,7 +93,7 @@ class ViewAction(object):
     def view_folder(self, *args):
         rows = self.gui.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            d = error_dialog(self, _('Cannot open folder'),
+            d = error_dialog(self.gui, _('Cannot open folder'),
                     _('No book selected'))
             d.exec_()
             return
@@ -130,7 +130,7 @@ class ViewAction(object):
                 formats = self.gui.library_view.model().db.formats(row)
                 title   = self.gui.library_view.model().db.title(row)
                 if not formats:
-                    error_dialog(self, _('Cannot view'),
+                    error_dialog(self.gui, _('Cannot view'),
                         _('%s has no available formats.')%(title,), show=True)
                     continue
 
