@@ -149,7 +149,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.verbose = opts.verbose
         self.get_metadata = GetMetadata()
         self.upload_memory = {}
-        self.persistent_files = []
         self.metadata_dialogs = []
         self.default_thumbnail = None
         self.tb_wrapper = textwrap.TextWrapper(width=40)

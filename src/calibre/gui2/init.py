@@ -118,7 +118,7 @@ class LibraryViewMixin(object): # {{{
 
         for view in ('library', 'memory', 'card_a', 'card_b'):
             view = getattr(self, view+'_view')
-            view.verticalHeader().sectionDoubleClicked.connect(self.view_specific_book)
+            view.verticalHeader().sectionDoubleClicked.connect(self.iactions['View'].view_specific_book)
 
 
 
@@ -308,8 +308,8 @@ class LayoutMixin(object): # {{{
         self.status_bar.initialize(self.system_tray_icon)
         self.book_details.show_book_info.connect(self.show_book_info)
         self.book_details.files_dropped.connect(self.iactions['Add Books'].files_dropped_on_book)
-        self.book_details.open_containing_folder.connect(self.view_folder_for_id)
-        self.book_details.view_specific_format.connect(self.view_format_by_id)
+        self.book_details.open_containing_folder.connect(self.iactions['View'].view_folder_for_id)
+        self.book_details.view_specific_format.connect(self.iactions['View'].view_format_by_id)
 
         m = self.library_view.model()
         if m.rowCount(None) > 0:

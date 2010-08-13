@@ -599,7 +599,11 @@ class ActionDelete(InterfaceActionBase):
 
 class ActionEditMetadata(InterfaceActionBase):
     name = 'Edit Metadata'
-    actual_plugin = 'calibre.gui2.actions.delete:EditMetadataAction'
+    actual_plugin = 'calibre.gui2.actions.edit_metadata:EditMetadataAction'
+
+class ActionView(InterfaceActionBase):
+    name = 'View'
+    actual_plugin = 'calibre.gui2.actions.view:ViewAction'
 
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
-        ActionConvert, ActionDelete, ActionEditMetadata]
+        ActionConvert, ActionDelete, ActionEditMetadata, ActionView]

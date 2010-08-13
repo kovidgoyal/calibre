@@ -13,7 +13,7 @@ from PyQt4.Qt import QIcon, Qt, QWidget, QAction, QToolBar, QSize, \
     QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup, \
     QMenu, QUrl
 
-from calibre.constants import __appname__, isosx
+from calibre.constants import __appname__
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
 from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2 import config, open_url, gprefs
@@ -510,18 +510,10 @@ class MainWindowMixin(object):
         self.save_menu.addMenu(self.save_sub_menu)
         self.save_sub_menu.save_fmt.connect(self.save_specific_format_disk)
 
-        self.action_view.triggered.connect(self.view_book)
-        self.view_menu = QMenu()
-        self.view_menu.addAction(_('View'), partial(self.view_book, False))
-        ac = self.view_menu.addAction(_('View specific format'))
-        ac.setShortcut((Qt.ControlModifier if isosx else Qt.AltModifier)+Qt.Key_V)
-        self.action_view.setMenu(self.view_menu)
-        ac.triggered.connect(self.view_specific_format, type=Qt.QueuedConnection)
-
 
         self.action_open_containing_folder.setShortcut(Qt.Key_O)
         self.addAction(self.action_open_containing_folder)
-        self.action_open_containing_folder.triggered.connect(self.view_folder)
+        self.action_open_containing_folder.triggered.connect(self.iactions['View'].view_folder)
         self.action_sync.setShortcut(Qt.Key_D)
         self.action_sync.setEnabled(True)
         self.create_device_menu()
