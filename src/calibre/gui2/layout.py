@@ -19,28 +19,10 @@ from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2 import config, open_url, gprefs
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre import human_readable
-from calibre.utils.config import prefs
-from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.utils.smtp import config as email_config
 
 
-class SaveMenu(QMenu): # {{{
-
-    save_fmt = pyqtSignal(object)
-
-    def __init__(self, parent):
-        QMenu.__init__(self, _('Save single format to disk...'), parent)
-        for ext in sorted(BOOK_EXTENSIONS):
-            action = self.addAction(ext.upper())
-            setattr(self, 'do_'+ext, partial(self.do, ext))
-            action.triggered.connect(
-                    getattr(self, 'do_'+ext))
-
-    def do(self, ext, *args):
-        self.save_fmt.emit(ext)
-
-# }}}
 
 class LocationManager(QObject): # {{{
 
@@ -463,9 +445,7 @@ class MainWindowMixin(object):
         ac(-1, 4,  0, 'sync', _('Send to device'), 'sync.svg')
         ac(5,  5,  3, 'choose_library', _('%d books')%0, 'lt.png',
                 tooltip=_('Choose calibre library to work with'))
-        ac(7,  7,  0, 'save', _('Save to disk'), 'save.svg', _('S'))
         ac(8,  8,  0, 'conn_share', _('Connect/share'), 'connect_share.svg')
-        ac(9,  9,  3, 'del', _('Remove books'), 'trash.svg', _('Del'))
         ac(10, 10,  3, 'help', _('Help'), 'help.svg', _('F1'), _("Browse the calibre User Manual"))
         ac(11, 11, 0, 'preferences', _('Preferences'), 'config.svg', _('Ctrl+P'))
 
@@ -490,23 +470,6 @@ class MainWindowMixin(object):
 
         self.action_help.triggered.connect(self.show_help)
 
-        self.action_save.triggered.connect(self.save_to_disk)
-        self.save_menu = QMenu()
-        self.save_menu.addAction(_('Save to disk'), partial(self.save_to_disk,
-            False))
-        self.save_menu.addAction(_('Save to disk in a single directory'),
-                partial(self.save_to_single_dir, False))
-        self.save_menu.addAction(_('Save only %s format to disk')%
-                prefs['output_format'].upper(),
-                partial(self.save_single_format_to_disk, False))
-        self.save_menu.addAction(
-                _('Save only %s format to disk in a single directory')%
-                prefs['output_format'].upper(),
-                partial(self.save_single_fmt_to_single_dir, False))
-        self.save_sub_menu = SaveMenu(self)
-        self.save_menu.addMenu(self.save_sub_menu)
-        self.save_sub_menu.save_fmt.connect(self.save_specific_format_disk)
-
 
         self.action_open_containing_folder.setShortcut(Qt.Key_O)
         self.addAction(self.action_open_containing_folder)
@@ -517,7 +480,6 @@ class MainWindowMixin(object):
         self.action_sync.triggered.connect(
                 self._sync_action_triggered)
 
-        self.action_save.setMenu(self.save_menu)
 
 
         pm = QMenu()

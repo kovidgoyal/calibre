@@ -6,13 +6,65 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
+from functools import partial
+
+from PyQt4.Qt import QMenu, pyqtSignal
 
 from calibre.utils.config import prefs
 from calibre.gui2 import error_dialog, Dispatcher, \
     choose_dir, warning_dialog, open_local_file
+from calibre.gui2.actions import InterfaceAction
+from calibre.ebooks import BOOK_EXTENSIONS
+
+class SaveMenu(QMenu): # {{{
+
+    save_fmt = pyqtSignal(object)
+
+    def __init__(self, parent):
+        QMenu.__init__(self, _('Save single format to disk...'), parent)
+        for ext in sorted(BOOK_EXTENSIONS):
+            action = self.addAction(ext.upper())
+            setattr(self, 'do_'+ext, partial(self.do, ext))
+            action.triggered.connect(
+                    getattr(self, 'do_'+ext))
+
+    def do(self, ext, *args):
+        self.save_fmt.emit(ext)
+
+# }}}
 
 
-class SaveToDiskAction(object):
+class SaveToDiskAction(InterfaceAction):
+
+    name = "Save To Disk"
+    action_spec = (_('Save to disk'), 'save.svg', None, _('S'))
+
+    def genesis(self):
+        self.qaction.triggered.connect(self.save_to_disk)
+        self.save_menu = QMenu()
+        self.save_menu.addAction(_('Save to disk'), partial(self.save_to_disk,
+            False))
+        self.save_menu.addAction(_('Save to disk in a single directory'),
+                partial(self.save_to_single_dir, False))
+        self.save_menu.addAction(_('Save only %s format to disk')%
+                prefs['output_format'].upper(),
+                partial(self.save_single_format_to_disk, False))
+        self.save_menu.addAction(
+                _('Save only %s format to disk in a single directory')%
+                prefs['output_format'].upper(),
+                partial(self.save_single_fmt_to_single_dir, False))
+        self.save_sub_menu = SaveMenu(self.gui)
+        self.save_sub_menu_action = self.save_menu.addMenu(self.save_sub_menu)
+        self.save_sub_menu.save_fmt.connect(self.save_specific_format_disk)
+        self.qaction.setMenu(self.save_menu)
+
+    def reread_prefs(self):
+        self.save_menu.actions()[2].setText(
+            _('Save only %s format to disk')%
+            prefs['output_format'].upper())
+        self.save_menu.actions()[3].setText(
+            _('Save only %s format to disk in a single directory')%
+            prefs['output_format'].upper())
 
     def save_single_format_to_disk(self, checked):
         self.save_to_disk(checked, False, prefs['output_format'])
@@ -32,7 +84,7 @@ class SaveToDiskAction(object):
         if not rows or len(rows) == 0:
             return error_dialog(self.gui, _('Cannot save to disk'),
                     _('No books selected'), show=True)
-        path = choose_dir(self, 'save to disk dialog',
+        path = choose_dir(self.gui, 'save to disk dialog',
                 _('Choose destination directory'))
         if not path:
             return
@@ -61,13 +113,13 @@ class SaveToDiskAction(object):
                 opts.template = opts.template.split('/')[-1].strip()
                 if not opts.template:
                     opts.template = '{title} - {authors}'
-            self._saver = Saver(self, self.gui.library_view.model().db,
+            self._saver = Saver(self.gui, self.gui.library_view.model().db,
                     Dispatcher(self._books_saved), rows, path, opts,
-                    spare_server=self.spare_server)
+                    spare_server=self.gui.spare_server)
 
         else:
             paths = self.gui.current_view().model().paths(rows)
-            self.device_manager.save_books(
+            self.gui.device_manager.save_books(
                     Dispatcher(self.books_saved), paths, path)
 
 
@@ -90,6 +142,6 @@ class SaveToDiskAction(object):
 
     def books_saved(self, job):
         if job.failed:
-            return self.device_job_exception(job)
+            return self.gui.device_job_exception(job)
 
 

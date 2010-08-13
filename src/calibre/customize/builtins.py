@@ -609,6 +609,10 @@ class ActionFetchNews(InterfaceActionBase):
     name = 'Fetch News'
     actual_plugin = 'calibre.gui2.actions.fetch_news:FetchNewsAction'
 
+class ActionSaveToDisk(InterfaceActionBase):
+    name = 'Save To Disk'
+    actual_plugin = 'calibre.gui2.actions.save_to_disk:SaveToDiskAction'
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
-        ActionFetchNews]
+        ActionFetchNews, ActionSaveToDisk]

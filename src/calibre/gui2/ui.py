@@ -387,13 +387,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         if d.result() == d.Accepted:
             self.read_toolbar_settings()
             self.search.search_as_you_type(config['search_as_you_type'])
-            self.save_menu.actions()[2].setText(
-                _('Save only %s format to disk')%
-                prefs['output_format'].upper())
-            self.save_menu.actions()[3].setText(
-                _('Save only %s format to disk in a single directory')%
-                prefs['output_format'].upper())
             self.tags_view.set_new_model() # in case columns changed
+            self.iactions['Save To Disk'].reread_prefs()
             self.tags_view.recount()
             self.create_device_menu()
             self.set_device_menu_items_state(bool(self.device_connected))
