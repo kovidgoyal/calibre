@@ -20,7 +20,6 @@ from calibre.gui2 import config, open_url, gprefs
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre import human_readable
 from calibre.gui2.dialogs.scheduler import Scheduler
-from calibre.utils.smtp import config as email_config
 
 
 
@@ -306,77 +305,6 @@ class ToolBar(QToolBar): # {{{
 class Action(QAction):
     pass
 
-class ShareConnMenu(QMenu): # {{{
-
-    connect_to_folder = pyqtSignal()
-    connect_to_itunes = pyqtSignal()
-    config_email = pyqtSignal()
-    toggle_server = pyqtSignal()
-
-    def __init__(self, parent=None):
-        QMenu.__init__(self, parent)
-        mitem = self.addAction(QIcon(I('devices/folder.svg')), _('Connect to folder'))
-        mitem.setEnabled(True)
-        mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
-        self.connect_to_folder_action = mitem
-        mitem = self.addAction(QIcon(I('devices/itunes.png')),
-                _('Connect to iTunes'))
-        mitem.setEnabled(True)
-        mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
-        self.connect_to_itunes_action = mitem
-        self.addSeparator()
-        self.toggle_server_action = \
-            self.addAction(QIcon(I('network-server.svg')),
-            _('Start Content Server'))
-        self.toggle_server_action.triggered.connect(lambda x:
-                self.toggle_server.emit())
-        self.addSeparator()
-
-        self.email_actions = []
-
-    def server_state_changed(self, running):
-        text = _('Start Content Server')
-        if running:
-            text = _('Stop Content Server')
-        self.toggle_server_action.setText(text)
-
-    def build_email_entries(self, sync_menu):
-        from calibre.gui2.device import DeviceAction
-        for ac in self.email_actions:
-            self.removeAction(ac)
-        self.email_actions = []
-        self.memory = []
-        opts = email_config().parse()
-        if opts.accounts:
-            self.email_to_menu = QMenu(_('Email to')+'...', self)
-            keys = sorted(opts.accounts.keys())
-            for account in keys:
-                formats, auto, default = opts.accounts[account]
-                dest = 'mail:'+account+';'+formats
-                action1 = DeviceAction(dest, False, False, I('mail.svg'),
-                        _('Email to')+' '+account)
-                action2 = DeviceAction(dest, True, False, I('mail.svg'),
-                        _('Email to')+' '+account+ _(' and delete from library'))
-                map(self.email_to_menu.addAction, (action1, action2))
-                map(self.memory.append, (action1, action2))
-                if default:
-                    map(self.addAction, (action1, action2))
-                    map(self.email_actions.append, (action1, action2))
-                self.email_to_menu.addSeparator()
-                action1.a_s.connect(sync_menu.action_triggered)
-                action2.a_s.connect(sync_menu.action_triggered)
-            ac = self.addMenu(self.email_to_menu)
-            self.email_actions.append(ac)
-        else:
-            ac = self.addAction(_('Setup email based sharing of books'))
-            self.email_actions.append(ac)
-            ac.triggered.connect(self.setup_email)
-
-    def setup_email(self, *args):
-        self.config_email.emit()
-
-# }}}
-
 class MainWindowMixin(object):
 
     def __init__(self, db):
@@ -442,17 +370,11 @@ class MainWindowMixin(object):
             setattr(self, 'action_'+name, action)
             all_actions.append(action)
 
-        ac(-1, 4,  0, 'sync', _('Send to device'), 'sync.svg')
         ac(5,  5,  3, 'choose_library', _('%d books')%0, 'lt.png',
                 tooltip=_('Choose calibre library to work with'))
-        ac(8,  8,  0, 'conn_share', _('Connect/share'), 'connect_share.svg')
         ac(10, 10,  3, 'help', _('Help'), 'help.svg', _('F1'), _("Browse the calibre User Manual"))
         ac(11, 11, 0, 'preferences', _('Preferences'), 'config.svg', _('Ctrl+P'))
 
-        ac(-1, -1, 0, 'open_containing_folder', _('Open containing folder'),
-                'document_open.svg')
-        ac(-1, -1, 0, 'show_book_details', _('Show book details'),
-                'dialog_information.svg')
         ac(-1, -1, 0, 'books_by_same_author', _('Books by same author'),
                 'user_profile.svg')
         ac(-1, -1, 0, 'books_in_this_series', _('Books in this series'),
@@ -462,23 +384,9 @@ class MainWindowMixin(object):
         ac(-1, -1, 0, 'books_with_the_same_tags', _('Books with the same tags'),
                 'tags.svg')
 
-        self.share_conn_menu = ShareConnMenu(self)
-        self.share_conn_menu.toggle_server.connect(self.toggle_content_server)
-        self.share_conn_menu.config_email.connect(partial(self.do_config,
-            initial_category='email'))
-        self.action_conn_share.setMenu(self.share_conn_menu)
 
         self.action_help.triggered.connect(self.show_help)
 
-
-        self.action_open_containing_folder.setShortcut(Qt.Key_O)
-        self.addAction(self.action_open_containing_folder)
-        self.action_open_containing_folder.triggered.connect(self.iactions['View'].view_folder)
-        self.action_sync.setShortcut(Qt.Key_D)
-        self.action_sync.setEnabled(True)
-        self.create_device_menu()
-        self.action_sync.triggered.connect(
-                self._sync_action_triggered)
 
 
 
@@ -498,12 +406,5 @@ class MainWindowMixin(object):
     def show_help(self, *args):
         open_url(QUrl('http://calibre-ebook.com/user_manual'))
 
-    def content_server_state_changed(self, running):
-        self.share_conn_menu.server_state_changed(running)
 
-    def toggle_content_server(self):
-        if self.content_server is None:
-           self.start_content_server()
-        else:
-            self.content_server.exit()
-            self.content_server = None
+

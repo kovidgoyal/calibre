@@ -613,6 +613,29 @@ class ActionSaveToDisk(InterfaceActionBase):
     name = 'Save To Disk'
     actual_plugin = 'calibre.gui2.actions.save_to_disk:SaveToDiskAction'
 
+class ActionShowBookDetails(InterfaceActionBase):
+    name = 'Show Book Details'
+    actual_plugin = 'calibre.gui2.actions.show_book_details:ShowBookDetailsAction'
+
+class ActionRestart(InterfaceActionBase):
+    name = 'Restart'
+    actual_plugin = 'calibre.gui2.actions.restart:RestartAction'
+
+class ActionOpenFolder(InterfaceActionBase):
+    name = 'OpenFolder'
+    actual_plugin = 'calibre.gui2.actions.open:OpenFolderAction'
+
+class ActionSendToDevice(InterfaceActionBase):
+    name = 'Send To Device'
+    actual_plugin = 'calibre.gui2.actions.device:SendToDeviceAction'
+
+class ActionConnectShare(InterfaceActionBase):
+    name = 'Connect Share'
+    actual_plugin = 'calibre.gui2.actions.device:ConnectShareAction'
+
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
-        ActionFetchNews, ActionSaveToDisk]
+        ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
+        ActionRestart, ActionOpenFolder, ActionConnectShare,
+        ActionSendToDevice, ]

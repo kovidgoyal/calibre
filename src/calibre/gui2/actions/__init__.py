@@ -32,6 +32,7 @@ class InterfaceAction(QObject):
     def do_genesis(self):
         self.Dispatcher = partial(Dispatcher, parent=self)
         self.create_action()
+        self.gui.addAction(self.qaction)
         self.genesis()
 
     def create_action(self, spec=None, attr='qaction'):

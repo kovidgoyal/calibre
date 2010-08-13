@@ -306,7 +306,7 @@ class LayoutMixin(object): # {{{
 
     def finalize_layout(self):
         self.status_bar.initialize(self.system_tray_icon)
-        self.book_details.show_book_info.connect(self.show_book_info)
+        self.book_details.show_book_info.connect(self.iactions['Show Book Details'].show_book_info)
         self.book_details.files_dropped.connect(self.iactions['Add Books'].files_dropped_on_book)
         self.book_details.open_containing_folder.connect(self.iactions['View'].view_folder_for_id)
         self.book_details.view_specific_format.connect(self.iactions['View'].view_format_by_id)

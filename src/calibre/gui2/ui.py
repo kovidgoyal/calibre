@@ -15,7 +15,7 @@ from threading import Thread
 from PyQt4.Qt import Qt, SIGNAL, QTimer, \
                      QPixmap, QMenu, QIcon, pyqtSignal, \
                      QDialog, \
-                     QSystemTrayIcon, QApplication, QKeySequence, QAction, \
+                     QSystemTrayIcon, QApplication, QKeySequence, \
                      QMessageBox, QHelpEvent
 
 from calibre import  prints
@@ -35,7 +35,6 @@ from calibre.gui2.layout import MainWindowMixin
 from calibre.gui2.device import DeviceMixin
 from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
 from calibre.gui2.dialogs.config import ConfigDialog
-from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
@@ -172,22 +171,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
                 QIcon(I('eject.svg')), _('&Eject connected device'))
         self.eject_action.setEnabled(False)
         self.addAction(self.quit_action)
-        self.action_restart = QAction(_('&Restart'), self)
-        self.addAction(self.action_restart)
         self.system_tray_menu.addAction(self.quit_action)
         self.quit_action.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Q))
-        self.action_restart.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_R))
-        self.action_show_book_details.setShortcut(QKeySequence(Qt.Key_I))
-        self.addAction(self.action_show_book_details)
         self.system_tray_icon.setContextMenu(self.system_tray_menu)
         self.connect(self.quit_action, SIGNAL('triggered(bool)'), self.quit)
         self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
         self.connect(self.restore_action, SIGNAL('triggered()'),
                         self.show_windows)
-        self.connect(self.action_show_book_details,
-                     SIGNAL('triggered(bool)'), self.show_book_info)
-        self.connect(self.action_restart, SIGNAL('triggered()'),
-                     self.restart)
         self.connect(self.system_tray_icon,
                      SIGNAL('activated(QSystemTrayIcon::ActivationReason)'),
                      self.system_tray_icon_activated)
@@ -270,7 +260,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         from calibre.library.server import server_config
         self.content_server = start_threaded_server(
                 self.library_view.model().db, server_config().parse())
-        self.content_server.state_callback = Dispatcher(self.content_server_state_changed)
+        self.content_server.state_callback = Dispatcher(
+                self.iactions['Connect Share'].content_server_state_changed)
         self.content_server.state_callback(True)
         self.test_server_timer = QTimer.singleShot(10000, self.test_server)
 
@@ -381,7 +372,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.content_server = d.server
         if self.content_server is not None:
             self.content_server.state_callback = \
-                Dispatcher(self.content_server_state_changed)
+                Dispatcher(self.iactions['Connect Share'].content_server_state_changed)
             self.content_server.state_callback(self.content_server.is_running)
 
         if d.result() == d.Accepted:
@@ -411,15 +402,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.scheduler.database_changed(db)
         prefs['library_path'] = self.library_path
 
-    def show_book_info(self, *args):
-        if self.current_view() is not self.library_view:
-            error_dialog(self, _('No detailed info available'),
-                _('No detailed information is available for books '
-                  'on the device.')).exec_()
-            return
-        index = self.library_view.currentIndex()
-        if index.isValid():
-            BookInfo(self, self.library_view, index).show()
 
     def location_selected(self, location):
         '''
@@ -434,12 +416,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         for action in self.iactions.values():
             action.location_selected(location)
         if location == 'library':
-            self.action_open_containing_folder.setEnabled(True)
-            self.action_sync.setEnabled(True)
             self.search_restriction.setEnabled(True)
         else:
-            self.action_open_containing_folder.setEnabled(False)
-            self.action_sync.setEnabled(False)
             self.search_restriction.setEnabled(False)
             # Reset the view in case something changed while it was invisible
             self.current_view().reset()
@@ -502,9 +480,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         config.set('main_window_geometry', self.saveGeometry())
         dynamic.set('sort_history', self.library_view.model().sort_history)
         self.save_layout_state()
-
-    def restart(self):
-        self.quit(restart=True)
 
     def quit(self, checked=True, restart=False):
         if not self.confirm_quit():

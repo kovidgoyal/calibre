@@ -608,8 +608,6 @@ class DeviceMixin(object): # {{{
         self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
-        self.share_conn_menu.connect_to_folder.connect(self.connect_to_folder)
-        self.share_conn_menu.connect_to_itunes.connect(self.connect_to_itunes)
         self.emailer = Emailer()
         self.emailer.start()
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
@@ -647,21 +645,18 @@ class DeviceMixin(object): # {{{
 
     def create_device_menu(self):
         self._sync_menu = DeviceMenu(self)
-        self.share_conn_menu.build_email_entries(self._sync_menu)
-        self.action_sync.setMenu(self._sync_menu)
+        self.iactions['Send To Device'].qaction.setMenu(self._sync_menu)
+        self.iactions['Connect Share'].build_email_entries()
         self.connect(self._sync_menu,
                 SIGNAL('sync(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                 self.dispatch_sync_event)
         self._sync_menu.fetch_annotations.connect(
                 self.iactions['Fetch Annotations'].fetch_annotations)
         self._sync_menu.disconnect_mounted_device.connect(self.disconnect_mounted_device)
+        self.iactions['Connect Share'].set_state(self.device_connected)
         if self.device_connected:
-            self.share_conn_menu.connect_to_folder_action.setEnabled(False)
-            self.share_conn_menu.connect_to_itunes_action.setEnabled(False)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
         else:
-            self.share_conn_menu.connect_to_folder_action.setEnabled(True)
-            self.share_conn_menu.connect_to_itunes_action.setEnabled(True)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
 
     def device_job_exception(self, job):
@@ -697,17 +692,14 @@ class DeviceMixin(object): # {{{
     # Device connected {{{
 
     def set_device_menu_items_state(self, connected):
+        self.iactions['Connect Share'].set_state(connected)
         if connected:
-            self.share_conn_menu.connect_to_folder_action.setEnabled(False)
-            self.share_conn_menu.connect_to_itunes_action.setEnabled(False)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
             self._sync_menu.enable_device_actions(True,
                     self.device_manager.device.card_prefix(),
                     self.device_manager.device)
             self.eject_action.setEnabled(True)
         else:
-            self.share_conn_menu.connect_to_folder_action.setEnabled(True)
-            self.share_conn_menu.connect_to_itunes_action.setEnabled(True)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
             self._sync_menu.enable_device_actions(False)
             self.eject_action.setEnabled(False)
