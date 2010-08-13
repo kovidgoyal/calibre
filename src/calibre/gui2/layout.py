@@ -327,8 +327,6 @@ class MainWindowMixin(object):
         l.addWidget(self.search_bar)
 
 
-    def read_toolbar_settings(self):
-        pass
 
 
 
