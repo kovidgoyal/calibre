@@ -49,7 +49,6 @@ class PreferencesAction(InterfaceAction):
             self.gui.content_server.state_callback(self.gui.content_server.is_running)
 
         if d.result() == d.Accepted:
-            self.gui.read_toolbar_settings()
             self.gui.search.search_as_you_type(config['search_as_you_type'])
             self.gui.tags_view.set_new_model() # in case columns changed
             self.gui.iactions['Save To Disk'].reread_prefs()

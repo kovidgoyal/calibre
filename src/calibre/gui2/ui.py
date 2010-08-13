@@ -439,7 +439,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         geometry = config['main_window_geometry']
         if geometry is not None:
             self.restoreGeometry(geometry)
-        self.read_toolbar_settings()
         self.read_layout_settings()
 
     def write_settings(self):
