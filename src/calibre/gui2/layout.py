@@ -427,7 +427,8 @@ class MainWindowMixin(object):
     def init_scheduler(self, db):
         self.scheduler = Scheduler(self, db)
         self.scheduler.start_recipe_fetch.connect(
-                self.download_scheduled_recipe, type=Qt.QueuedConnection)
+                self.iactions['Fetch News'].download_scheduled_recipe, type=Qt.QueuedConnection)
+        self.iactions['Fetch News'].connect_scheduler(self.scheduler)
 
     def read_toolbar_settings(self):
         pass
@@ -462,7 +463,6 @@ class MainWindowMixin(object):
         ac(-1, 4,  0, 'sync', _('Send to device'), 'sync.svg')
         ac(5,  5,  3, 'choose_library', _('%d books')%0, 'lt.png',
                 tooltip=_('Choose calibre library to work with'))
-        ac(6,  6,  3, 'news', _('Fetch news'), 'news.svg', _('F'))
         ac(7,  7,  0, 'save', _('Save to disk'), 'save.svg', _('S'))
         ac(8,  8,  0, 'conn_share', _('Connect/share'), 'connect_share.svg')
         ac(9,  9,  3, 'del', _('Remove books'), 'trash.svg', _('Del'))
@@ -482,9 +482,6 @@ class MainWindowMixin(object):
         ac(-1, -1, 0, 'books_with_the_same_tags', _('Books with the same tags'),
                 'tags.svg')
 
-        self.action_news.setMenu(self.scheduler.news_menu)
-        self.action_news.triggered.connect(
-                self.scheduler.show_dialog)
         self.share_conn_menu = ShareConnMenu(self)
         self.share_conn_menu.toggle_server.connect(self.toggle_content_server)
         self.share_conn_menu.config_email.connect(partial(self.do_config,

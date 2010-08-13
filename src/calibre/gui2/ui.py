@@ -256,6 +256,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
 
+
         self.read_settings()
         self.finalize_layout()
         self.donate_button.start_animation()

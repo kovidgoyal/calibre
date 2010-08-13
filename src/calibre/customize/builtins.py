@@ -605,5 +605,10 @@ class ActionView(InterfaceActionBase):
     name = 'View'
     actual_plugin = 'calibre.gui2.actions.view:ViewAction'
 
+class ActionFetchNews(InterfaceActionBase):
+    name = 'Fetch News'
+    actual_plugin = 'calibre.gui2.actions.fetch_news:FetchNewsAction'
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
-        ActionConvert, ActionDelete, ActionEditMetadata, ActionView]
+        ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
+        ActionFetchNews]
