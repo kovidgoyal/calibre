@@ -129,6 +129,8 @@ class CoverFlowMixin(object):
             self.cover_flow.setWordWrap(True)
         if config['separate_cover_flow']:
             self.cb_splitter.button.clicked.connect(self.toggle_cover_browser)
+            self.cb_splitter.button.set_state_to_show()
+            self.cb_splitter.action_toggle.triggered.connect(self.toggle_cover_browser)
             if CoverFlow is not None:
                 self.cover_flow.stop.connect(self.hide_cover_browser)
         else:
@@ -137,7 +139,7 @@ class CoverFlowMixin(object):
                 self.cover_flow.stop.connect(self.cb_splitter.hide_side_pane)
         self.cb_splitter.button.toggled.connect(self.cover_browser_toggled)
 
-    def toggle_cover_browser(self):
+    def toggle_cover_browser(self, *args):
         cbd = getattr(self, 'cb_dialog', None)
         if cbd is not None:
             self.hide_cover_browser()
@@ -182,14 +184,21 @@ class CoverFlowMixin(object):
         self.cover_flow.setFocus(Qt.OtherFocusReason)
         d.show()
         self.cb_splitter.button.set_state_to_hide()
-        d.finished.connect(self.cb_splitter.button.set_state_to_show)
+        d.finished.connect(self.cover_browser_closed)
         self.cb_dialog = d
+        self.cb_splitter.button.set_state_to_hide()
 
-    def hide_cover_browser(self):
+    def cover_browser_closed(self, *args):
+        self.cb_dialog = None
+        self.cb_splitter.button.set_state_to_show()
+
+    def hide_cover_browser(self, *args):
         cbd = getattr(self, 'cb_dialog', None)
         if cbd is not None:
             cbd.accept()
             self.cb_dialog = None
+        self.cb_splitter.button.set_state_to_show()
+
 
     def sync_cf_to_listview(self, current, previous):
         if self.cover_flow_sync_flag and self.cover_flow.isVisible() and \
