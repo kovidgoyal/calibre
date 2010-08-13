@@ -15,7 +15,7 @@ class OpenFolderAction(InterfaceAction):
             _('O'))
 
     def genesis(self):
-        self.action_open_containing_folder.triggered.connect(self.iactions['View'].view_folder)
+        self.qaction.triggered.connect(self.gui.iactions['View'].view_folder)
 
     def location_selected(self, loc):
         enabled = loc == 'library'
