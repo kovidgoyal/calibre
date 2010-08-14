@@ -237,28 +237,10 @@ cp build/podofo/build/src/Release/podofo.exp lib/
 cp build/podofo/build/podofo_config.h include/podofo/
 cp -r build/podofo/src/* include/podofo/
 
-The following patch (against 0.8.1) was required to get it to compile:
+You have to use >0.8.1 (>= revision 1269)
 
-Index: src/PdfImage.cpp
-===================================================================
---- src/PdfImage.cpp    (revision 1261)
-+++ src/PdfImage.cpp    (working copy)
-@@ -627,7 +627,7 @@
- 
-     long lLen = static_cast<long>(pInfo->rowbytes * height);
-     char* pBuffer = static_cast<char*>(malloc(sizeof(char) * lLen));
--    png_bytep pRows[height];
-+    png_bytepp pRows = static_cast<png_bytepp>(malloc(sizeof(png_bytep)*height));
-     for(int y=0; y<height; y++)
-     {
-         pRows[y] = reinterpret_cast<png_bytep>(pBuffer + (y * pInfo->rowbytes));
-@@ -672,6 +672,7 @@
-     this->SetImageData( width, height, pInfo->bit_depth, &stream );
-     
-     free(pBuffer);
-+       free(pRows);
- }
- #endif // PODOFO_HAVE_PNG_LIB
+The following patch (against -r1269) was required to get it to compile:
+
 
 Index: src/PdfFiltersPrivate.cpp
 ===================================================================
