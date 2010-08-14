@@ -622,7 +622,7 @@ class ActionRestart(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.restart:RestartAction'
 
 class ActionOpenFolder(InterfaceActionBase):
-    name = 'OpenFolder'
+    name = 'Open Folder'
     actual_plugin = 'calibre.gui2.actions.open:OpenFolderAction'
 
 class ActionSendToDevice(InterfaceActionBase):
@@ -649,9 +649,17 @@ class ActionChooseLibrary(InterfaceActionBase):
     name = 'Choose Library'
     actual_plugin = 'calibre.gui2.actions.choose_library:ChooseLibraryAction'
 
+class ActionAddToLibrary(InterfaceActionBase):
+    name = 'Add To Library'
+    actual_plugin = 'calibre.gui2.actions.add_to_library:AddToLibraryAction'
+
+class ActionEditCollections(InterfaceActionBase):
+    name = 'Edit Collections'
+    actual_plugin = 'calibre.gui2.actions.edit_collections:EditCollectionsAction'
 
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
-        ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks]
+        ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
+        ActionAddToLibrary, ActionEditCollections]

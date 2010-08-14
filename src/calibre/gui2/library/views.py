@@ -389,37 +389,9 @@ class BooksView(QTableView): # {{{
         #}}}
 
     # Context Menu {{{
-    def set_context_menu(self, edit_metadata, send_to_device, convert, view,
-                         save, open_folder, book_details, delete, conn_share,
-                         similar_menu=None, add_to_library=None,
-                         edit_device_collections=None):
+    def set_context_menu(self, menu):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
-        self.context_menu = QMenu(self)
-        if edit_metadata is not None:
-            self.context_menu.addAction(edit_metadata)
-        if send_to_device is not None:
-            self.context_menu.addAction(send_to_device)
-        if convert is not None:
-            self.context_menu.addAction(convert)
-        if conn_share is not None:
-            self.context_menu.addAction(conn_share)
-        self.context_menu.addAction(view)
-        self.context_menu.addAction(save)
-        if open_folder is not None:
-            self.context_menu.addAction(open_folder)
-        if delete is not None:
-            self.context_menu.addAction(delete)
-        if book_details is not None:
-            self.context_menu.addAction(book_details)
-        if similar_menu is not None:
-            self.context_menu.addMenu(similar_menu)
-        if add_to_library is not None:
-            func = partial(add_to_library[1], view=self)
-            self.context_menu.addAction(add_to_library[0], func)
-        if edit_device_collections is not None:
-            func = partial(edit_device_collections[1], view=self)
-            self.edit_collections_menu = \
-                self.context_menu.addAction(edit_device_collections[0], func)
+        self.context_menu = menu
 
     def contextMenuEvent(self, event):
         self.context_menu.popup(event.globalPos())

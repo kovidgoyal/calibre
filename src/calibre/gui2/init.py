@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import functools, sys, os
 
-from PyQt4.Qt import Qt, QStackedWidget, \
+from PyQt4.Qt import Qt, QStackedWidget, QMenu, \
         QSize, QSizePolicy, QStatusBar, QLabel, QFont
 
 from calibre.utils.config import prefs
@@ -27,47 +27,32 @@ def partial(*args, **kwargs):
     _keep_refs.append(ans)
     return ans
 
+LIBRARY_CONTEXT_MENU = (
+        'Edit Metadata', 'Send To Device', 'Save To Disk', 'Connect Share', None,
+        'Convert Books', 'View', 'Open Folder', 'Show Book Details', None,
+        'Remove Books',
+        )
+
+DEVICE_CONTEXT_MENU = ('View', 'Save To Disk', None, 'Remove Books', None,
+                       'Add To Library', 'Edit Collections',
+        )
+
 class LibraryViewMixin(object): # {{{
 
     def __init__(self, db):
-
-        self.library_view.set_context_menu(self.action_edit, self.action_sync,
-                                        self.action_convert, self.action_view,
-                                        self.action_save,
-                                        self.action_open_containing_folder,
-                                        self.action_show_book_details,
-                                        self.action_del,
-                                        self.action_conn_share,
-                                        add_to_library = None,
-                                        edit_device_collections=None,
-                                        similar_menu=similar_menu)
-        add_to_library = (_('Add books to library'),
-                self.iactions['Add Books'].add_books_from_device)
-
-        edc = self.iactions['Edit Metadata'].edit_device_collections
-        edit_device_collections = (_('Manage collections'),
-                            partial(edc, oncard=None))
-        self.memory_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None,
-                self.action_del, None,
-                add_to_library=add_to_library,
-                edit_device_collections=edit_device_collections)
-
-        edit_device_collections = (_('Manage collections'),
-                            partial(edc, oncard='carda'))
-        self.card_a_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None,
-                self.action_del, None,
-                add_to_library=add_to_library,
-                edit_device_collections=edit_device_collections)
-
-        edit_device_collections = (_('Manage collections'),
-                            partial(edc, oncard='cardb'))
-        self.card_b_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None,
-                self.action_del, None,
-                add_to_library=add_to_library,
-                edit_device_collections=edit_device_collections)
+        lm = QMenu(self)
+        def populate_menu(m, items):
+            for what in items:
+                if what is None:
+                    lm.addSeparator()
+                elif what in self.iactions:
+                    lm.addAction(self.iactions[what].qaction)
+        populate_menu(lm, LIBRARY_CONTEXT_MENU)
+        dm = QMenu(self)
+        populate_menu(dm, DEVICE_CONTEXT_MENU)
+        self.library_view.set_context_menu(lm)
+        for v in (self.memory_view, self.card_a_view, self.card_b_view):
+            v.set_context_menu(dm)
 
         self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.QueuedConnection)
         for func, args in [

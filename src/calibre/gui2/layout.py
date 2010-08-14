@@ -5,7 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from operator import attrgetter
 from functools import partial
 
 from PyQt4.Qt import QIcon, Qt, QWidget, QToolBar, QSize, \
@@ -20,7 +19,18 @@ from calibre.gui2 import config, gprefs
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre import human_readable
 
+TOOLBAR_NO_DEVICE = (
+        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
+        'Choose Library', 'Donate', None, 'Fetch News', 'Save To Disk',
+        'Connect Share', None, 'Remove Books', None, 'Help', 'Preferences',
+        )
 
+TOOLBAR_DEVICE = (
+        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
+        'Send To Device', None, None, 'Location Manager', None, None,
+        'Fetch News', 'Save To Disk', 'Connect Share', None,
+        'Remove Books', None, 'Help', 'Preferences',
+        )
 
 class LocationManager(QObject): # {{{
 
@@ -203,6 +213,7 @@ class ToolBar(QToolBar): # {{{
 
     def __init__(self, donate, location_manager, parent):
         QToolBar.__init__(self, parent)
+        self.gui = parent
         self.setContextMenuPolicy(Qt.PreventContextMenu)
         self.setMovable(False)
         self.setFloatable(False)
@@ -237,46 +248,30 @@ class ToolBar(QToolBar): # {{{
 
     def build_bar(self):
         showing_device = self.location_manager.has_device
-        order_field = 'device' if showing_device else 'normal'
-        o = attrgetter(order_field+'_order')
-        sepvals = [2] if showing_device else [1]
-        sepvals += [3]
-        actions = [x for x in self.all_actions if o(x) > -1]
-        actions.sort(cmp=lambda x,y : cmp(o(x), o(y)))
+        actions = TOOLBAR_DEVICE if showing_device else TOOLBAR_NO_DEVICE
+
         self.clear()
 
+        for what in actions:
+            if what is None:
+                self.addSeparator()
+            elif what == 'Location Manager':
+                for ac in self.location_manager.available_actions:
+                    self.addAction(ac)
+                    self.setup_tool_button(ac, QToolButton.MenuPopup)
+            elif what == 'Donate' and config['show_donate_button']:
+                self.addWidget(self.d_widget)
+            elif what in self.gui.iactions:
+                action = self.gui.iactions[what]
+                self.addAction(action.qaction)
+                self.setup_tool_button(action.qaction, action.popup_type)
 
-        def setup_tool_button(ac):
-            ch = self.widgetForAction(ac)
-            ch.setCursor(Qt.PointingHandCursor)
-            ch.setAutoRaise(True)
-            if ac.menu() is not None:
-                name = getattr(ac, 'action_name', None)
-                ch.setPopupMode(ch.InstantPopup if name == 'conn_share'
-                        else ch.MenuButtonPopup)
-
-        for x in actions:
-            self.addAction(x)
-            setup_tool_button(x)
-
-            if x.action_name == 'choose_library':
-                self.choose_action = x
-                if showing_device:
-                    self.addSeparator()
-                    for ac in self.location_manager.available_actions:
-                        self.addAction(ac)
-                        setup_tool_button(ac)
-                    self.addSeparator()
-                    self.location_manager.location_library.trigger()
-                elif config['show_donate_button']:
-                    self.addWidget(self.d_widget)
-
-        for x in actions:
-            if x.separator_before in sepvals:
-                self.insertSeparator(x)
-
-        self.choose_action.setVisible(not showing_device)
-
+    def setup_tool_button(self, ac, menu_mode=None):
+        ch = self.widgetForAction(ac)
+        ch.setCursor(Qt.PointingHandCursor)
+        ch.setAutoRaise(True)
+        if ac.menu() is not None and menu_mode is not None:
+            ch.setPopupMode(menu_mode)
 
     def resizeEvent(self, ev):
         QToolBar.resizeEvent(self, ev)
