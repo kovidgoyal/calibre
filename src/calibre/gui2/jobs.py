@@ -198,8 +198,9 @@ class JobManager(QAbstractTableModel):
         return False
 
     def run_job(self, done, name, args=[], kwargs={},
-                           description=''):
+                           description='', core_usage=1):
         job = ParallelJob(name, description, done, args=args, kwargs=kwargs)
+        job.core_usage = core_usage
         self.add_job(job)
         self.server.add_job(job)
         return job

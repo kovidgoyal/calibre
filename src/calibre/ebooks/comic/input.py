@@ -247,6 +247,7 @@ class ComicInput(InputFormatPlugin):
     description = 'Optimize comic files (.cbz, .cbr, .cbc) for viewing on portable devices'
     file_types  = set(['cbz', 'cbr', 'cbc'])
     is_image_collection = True
+    core_usage = -1
 
     options = set([
         OptionRecommendation(name='colors', recommended_value=256,
