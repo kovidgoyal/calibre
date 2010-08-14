@@ -251,6 +251,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.donate_button.start_animation()
 
         self.iactions['Fetch News'].connect_scheduler()
+        self.iactions['Choose Library'].library_used(self.library_view.model().db)
 
     def start_content_server(self):
         from calibre.library.server.main import start_threaded_server
@@ -368,6 +369,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.library_view.model().count_changed()
         self.iactions['Fetch News'].database_changed(db)
         prefs['library_path'] = self.library_path
+        self.iactions['Choose Library'].library_used(self.library_view.model().db)
 
 
     def location_selected(self, location):
