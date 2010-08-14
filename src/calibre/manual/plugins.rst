@@ -157,4 +157,11 @@ The base class for such devices is :class:`calibre.devices.usbms.driver.USBMS`. 
    :members:
    :member-order: bysource
 
+User Interface Actions
+--------------------------
+
+.. autoclass:: calibre.gui2.actions.InterfaceAction
+   :show-inheritance:
+   :members:
+   :member-order: bysource
 
