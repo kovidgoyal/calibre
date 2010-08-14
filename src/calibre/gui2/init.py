@@ -44,9 +44,9 @@ class LibraryViewMixin(object): # {{{
         def populate_menu(m, items):
             for what in items:
                 if what is None:
-                    lm.addSeparator()
+                    m.addSeparator()
                 elif what in self.iactions:
-                    lm.addAction(self.iactions[what].qaction)
+                    m.addAction(self.iactions[what].qaction)
         populate_menu(lm, LIBRARY_CONTEXT_MENU)
         dm = QMenu(self)
         populate_menu(dm, DEVICE_CONTEXT_MENU)

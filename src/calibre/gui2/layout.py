@@ -258,7 +258,7 @@ class ToolBar(QToolBar): # {{{
             elif what == 'Location Manager':
                 for ac in self.location_manager.available_actions:
                     self.addAction(ac)
-                    self.setup_tool_button(ac, QToolButton.MenuPopup)
+                    self.setup_tool_button(ac, QToolButton.MenuButtonPopup)
             elif what == 'Donate' and config['show_donate_button']:
                 self.addWidget(self.d_widget)
             elif what in self.gui.iactions:
@@ -293,7 +293,6 @@ class ToolBar(QToolBar): # {{{
 class MainWindowMixin(object):
 
     def __init__(self, db):
-        self.device_connected = None
         self.setObjectName('MainWindow')
         self.setWindowIcon(QIcon(I('library.png')))
         self.setWindowTitle(__appname__)

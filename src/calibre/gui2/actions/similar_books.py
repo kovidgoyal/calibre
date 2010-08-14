@@ -21,8 +21,8 @@ class SimilarBooksAction(InterfaceAction):
         for text, icon, target, shortcut in [
         (_('Books by same author'), 'user_profile.svg', 'authors', _('Alt+A')),
         (_('Books in this series'), 'books_in_series.svg', 'series', _('Alt+S')),
-        (_('Books by this publisher'), 'publisher.png', 'publisher', _('Alt+P'))
-        (_('Books with the same tags'), 'tags.svg', 'tag', _('Alt+T'))]:
+        (_('Books by this publisher'), 'publisher.png', 'publisher', _('Alt+P')),
+        (_('Books with the same tags'), 'tags.svg', 'tag', _('Alt+T')),]:
             ac = self.create_action(spec=(text, icon, None, shortcut),
                     attr=target)
             m.addAction(ac)

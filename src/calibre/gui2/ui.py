@@ -24,7 +24,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.library.database2 import LibraryDatabase2
-from calibre.customize import interface_actions
+from calibre.customize.ui import interface_actions
 from calibre.gui2 import error_dialog, GetMetadata, open_local_file, \
         gprefs, max_available_height, config, info_dialog, Dispatcher
 from calibre.gui2.cover_flow import CoverFlowMixin
@@ -94,6 +94,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
     def __init__(self, opts, parent=None):
         MainWindow.__init__(self, opts, parent)
         self.opts = opts
+        self.device_connected = None
         acmap = {}
         for action in interface_actions():
             mod, cls = action.actual_plugin.split(':')
@@ -124,9 +125,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
                 self.another_instance_wants_to_talk)
         self.check_messages_timer.start(1000)
 
-        MainWindowMixin.__init__(self, db)
         for ac in self.iactions.values():
             ac.do_genesis()
+        MainWindowMixin.__init__(self, db)
 
         # Jobs Button {{{
         self.job_manager = JobManager()

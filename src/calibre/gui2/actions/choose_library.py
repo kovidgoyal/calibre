@@ -10,11 +10,11 @@ from calibre.gui2.actions import InterfaceAction
 class ChooseLibraryAction(InterfaceAction):
 
     name = 'Choose Library'
-    action_spec = (_('%d books')%0, 'lt.png',
+    action_spec = (_('%d books'), 'lt.png',
             _('Choose calibre library to work with'), None)
 
     def genesis(self):
-        pass
+        self.count_changed(0)
 
     def location_selected(self, loc):
         enabled = loc == 'library'

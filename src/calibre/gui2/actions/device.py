@@ -11,6 +11,7 @@ from PyQt4.Qt import QToolButton, QMenu, pyqtSignal, QIcon
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.smtp import config as email_config
+from calibre.constants import iswindows, isosx
 
 class ShareConnMenu(QMenu): # {{{
 
@@ -30,6 +31,8 @@ class ShareConnMenu(QMenu): # {{{
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
         self.connect_to_itunes_action = mitem
+        if not (iswindows or isosx):
+            mitem.setVisible(False)
         self.addSeparator()
         self.toggle_server_action = \
             self.addAction(QIcon(I('network-server.svg')),

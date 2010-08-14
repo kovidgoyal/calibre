@@ -16,7 +16,7 @@ class InterfaceAction(QObject):
     name = 'Implement me'
     priority = 1
     positions = frozenset([])
-    popup_type = QToolButton.MenuPopup
+    popup_type = QToolButton.MenuButtonPopup
 
     #: Of the form: (text, icon_path, tooltip, keyboard shortcut)
     #: icon, tooltip and keybard shortcut can be None
