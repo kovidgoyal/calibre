@@ -17,6 +17,7 @@ class InterfaceAction(QObject):
     priority = 1
     positions = frozenset([])
     popup_type = QToolButton.MenuButtonPopup
+    auto_repeat = False
 
     #: Of the form: (text, icon_path, tooltip, keyboard shortcut)
     #: icon, tooltip and keybard shortcut can be None
@@ -43,6 +44,7 @@ class InterfaceAction(QObject):
             action = QAction(QIcon(I(icon)), text, self.gui)
         else:
             action = QAction(text, self.gui)
+        action.setAutoRepeat(self.auto_repeat)
         text = tooltip if tooltip else text
         action.setToolTip(text)
         action.setStatusTip(text)
