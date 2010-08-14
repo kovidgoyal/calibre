@@ -23,7 +23,7 @@
 
     - title: "Allow editing of tweaks via Preferences->Advanced"
 
-    - title: "Add button to manage authors dialog to automatically reset all author sort values"
+    - title: "Add button to the manage authors dialog to automatically reset all author sort values"
 
   bug fixes:
     - title: "Fix regression in 0.7.13 that broke changing libraries"
