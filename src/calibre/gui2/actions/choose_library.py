@@ -15,11 +15,11 @@ class ChooseLibraryAction(InterfaceAction):
 
     def genesis(self):
         self.count_changed(0)
+        self.qaction.triggered.connect(self.choose_library)
 
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
-        self.qaction.triggered.connect(self.choose_library)
 
     def count_changed(self, new_count):
         text = self.action_spec[0]%new_count
