@@ -58,6 +58,11 @@ class SaveToDiskAction(InterfaceAction):
         self.save_sub_menu.save_fmt.connect(self.save_specific_format_disk)
         self.qaction.setMenu(self.save_menu)
 
+    def location_selected(self, loc):
+        enabled = loc == 'library'
+        for action in list(self.save_menu.actions())[1:]:
+            action.setEnabled(enabled)
+
     def reread_prefs(self):
         self.save_menu.actions()[2].setText(
             _('Save only %s format to disk')%
@@ -88,8 +93,9 @@ class SaveToDiskAction(InterfaceAction):
                 _('Choose destination directory'))
         if not path:
             return
-        dpath = os.path.abspath(path).replace('/', os.sep)
-        lpath = self.gui.library_view.model().db.library_path.replace('/', os.sep)
+        dpath = os.path.abspath(path).replace('/', os.sep)+os.sep
+        lpath = self.gui.library_view.model().db.library_path.replace('/',
+                os.sep)+os.sep
         if dpath.startswith(lpath):
             return error_dialog(self.gui, _('Not allowed'),
                     _('You are trying to save files into the calibre '

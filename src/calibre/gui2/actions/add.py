@@ -43,6 +43,10 @@ class AddAction(InterfaceAction):
         self.qaction.setMenu(self.add_menu)
         self.qaction.triggered.connect(self.add_books)
 
+    def location_selected(self, loc):
+        enabled = loc == 'library'
+        for action in list(self.add_menu.actions())[1:]:
+            action.setEnabled(enabled)
 
     def add_recursive(self, single):
         root = choose_dir(self.gui, 'recursive book import root dir dialog',

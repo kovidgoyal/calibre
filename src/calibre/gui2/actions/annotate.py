@@ -91,7 +91,7 @@ class FetchAnnotationsAction(InterfaceAction):
 
                 self.am = annotation_map
                 self.done_callback = done_callback
-                self.pd.canceled.connect(self.canceled)
+                self.pd.canceled_signal.connect(self.canceled)
                 self.pd.setModal(True)
                 self.pd.show()
                 self.update_progress.connect(self.pd.set_value,

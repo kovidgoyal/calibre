@@ -50,9 +50,10 @@ class LibraryViewMixin(object): # {{{
         populate_menu(lm, LIBRARY_CONTEXT_MENU)
         dm = QMenu(self)
         populate_menu(dm, DEVICE_CONTEXT_MENU)
-        self.library_view.set_context_menu(lm)
+        ec = self.iactions['Edit Collections'].qaction
+        self.library_view.set_context_menu(lm, ec)
         for v in (self.memory_view, self.card_a_view, self.card_b_view):
-            v.set_context_menu(dm)
+            v.set_context_menu(dm, ec)
 
         self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.QueuedConnection)
         for func, args in [

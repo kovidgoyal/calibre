@@ -389,9 +389,10 @@ class BooksView(QTableView): # {{{
         #}}}
 
     # Context Menu {{{
-    def set_context_menu(self, menu):
+    def set_context_menu(self, menu, edit_collections_action):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
         self.context_menu = menu
+        self.edit_collections_action = edit_collections_action
 
     def contextMenuEvent(self, event):
         self.context_menu.popup(event.globalPos())
@@ -500,10 +501,11 @@ class DeviceBooksView(BooksView): # {{{
         self.setAcceptDrops(False)
 
     def contextMenuEvent(self, event):
-        self.edit_collections_menu.setVisible(
-            callable(getattr(self._model.db, 'supports_collections', None)) and \
+        edit_collections = callable(getattr(self._model.db, 'supports_collections', None)) and \
             self._model.db.supports_collections() and \
-            prefs['manage_device_metadata'] == 'manual')
+            prefs['manage_device_metadata'] == 'manual'
+
+        self.edit_collections_action.setVisible(edit_collections)
         self.context_menu.popup(event.globalPos())
         event.accept()
 

@@ -443,7 +443,7 @@ class Saver(QObject):
         from calibre.ebooks.metadata.worker import SaveWorker
         self.worker = SaveWorker(self.rq, db, self.ids, path, self.opts,
                 spare_server=self.spare_server)
-        self.pd.canceled.connect(self.canceled)
+        self.pd.canceled_signal.connect(self.canceled)
         self.timer = QTimer(self)
         self.connect(self.timer, SIGNAL('timeout()'), self.update)
         self.timer.start(200)

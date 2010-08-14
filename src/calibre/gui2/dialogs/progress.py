@@ -11,7 +11,7 @@ from calibre.gui2.dialogs.progress_ui import Ui_Dialog
 
 class ProgressDialog(QDialog, Ui_Dialog):
 
-    canceled = pyqtSignal()
+    canceled_signal = pyqtSignal()
 
     def __init__(self, title, msg='', min=0, max=99, parent=None):
         QDialog.__init__(self, parent)
@@ -52,7 +52,7 @@ class ProgressDialog(QDialog, Ui_Dialog):
         self.canceled = True
         self.button_box.setDisabled(True)
         self.title.setText(_('Aborting...'))
-        self.canceled.emit()
+        self.canceled_signal.emit()
 
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_Escape:
