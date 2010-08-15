@@ -376,15 +376,19 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.jobs_view.setItemDelegateForColumn(2, self.pb_delegate)
         self.jobs_view.doubleClicked.connect(self.show_job_details)
         self.jobs_view.horizontalHeader().setMovable(True)
-        state = gprefs.get('jobs view column layout', None)
-        if state is not None:
-            try:
-                self.jobs_view.horizontalHeader().restoreState(bytes(state))
-            except:
-                pass
+        self.restore_state()
 
+    def restore_state(self):
         geom = gprefs.get('jobs_dialog_geometry', bytearray(''))
         self.restoreGeometry(QByteArray(geom))
+        state = gprefs.get('jobs view column layout', bytearray(''))
+        self.jobs_view.horizontalHeader().restoreState(QByteArray(state))
+
+    def save_state(self):
+        state = bytearray(self.jobs_view.horizontalHeader().saveState())
+        gprefs['jobs view column layout'] = state
+        geom = bytearray(self.saveGeometry())
+        gprefs['jobs_dialog_geometry'] = geom
 
 
     def show_job_details(self, index):
@@ -409,11 +413,13 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.model.kill_all_jobs()
 
     def closeEvent(self, e):
-        try:
-            state = bytearray(self.jobs_view.horizontalHeader().saveState())
-            gprefs['jobs view column layout'] = state
-            geom = bytearray(self.saveGeometry())
-            gprefs['jobs_dialog_geometry'] = geom
-        except:
-            pass
-        e.accept()
+        self.save_state()
+        return QDialog.closeEvent(self, e)
+
+    def show(self, *args):
+        self.restore_state()
+        return QDialog.show(self, *args)
+
+    def hide(self, *args):
+        self.save_state()
+        return QDialog.hide(self, *args)
