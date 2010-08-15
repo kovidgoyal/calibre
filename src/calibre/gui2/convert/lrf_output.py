@@ -18,9 +18,10 @@ class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('LRF Output')
     HELP = _('Options specific to')+' LRF '+_('output')
+    COMMIT_NAME = 'lrf_output'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'lrf_output',
+        Widget.__init__(self, parent,
                 ['wordspace', 'header', 'header_format',
                 'minimum_indent', 'serif_family',
                 'render_tables_as_images', 'sans_family', 'mono_family',

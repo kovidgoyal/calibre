@@ -19,9 +19,10 @@ class DebugWidget(Widget, Ui_Form):
     TITLE = _('Debug')
     ICON  = I('debug.svg')
     HELP  = _('Debug the conversion process.')
+    COMMIT_NAME = 'debug'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'debug',
+        Widget.__init__(self, parent,
                 ['debug_pipeline']
                 )
         self.db, self.book_id = db, book_id

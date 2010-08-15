@@ -14,9 +14,10 @@ class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('Comic Input')
     HELP = _('Options specific to')+' comic '+_('input')
+    COMMIT_NAME = 'comic_input'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'comic_input',
+        Widget.__init__(self, parent,
                 ['colors', 'dont_normalize', 'keep_aspect_ratio', 'right2left',
                     'despeckle', 'no_sort', 'no_process', 'landscape',
                     'dont_sharpen', 'disable_trim', 'wide', 'output_format',

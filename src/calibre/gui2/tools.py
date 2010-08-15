@@ -22,6 +22,7 @@ from calibre.customize.conversion import OptionRecommendation
 from calibre.utils.config import prefs
 from calibre.ebooks.conversion.config import GuiRecommendations, \
     load_defaults, load_specifics, save_specifics
+from calibre.gui2.convert import bulk_defaults_for_input_format
 
 def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format=None):
     changed = False
@@ -148,7 +149,7 @@ class QueueBulk(QProgressDialog):
             temp_files = []
 
             combined_recs = GuiRecommendations()
-            default_recs = load_defaults('%s_input' % input_format)
+            default_recs = bulk_defaults_for_input_format(input_format)
             for key in default_recs:
                 combined_recs[key] = default_recs[key]
             if self.use_saved_single_settings:
@@ -208,7 +209,6 @@ class QueueBulk(QProgressDialog):
         self.queue(self.jobs, self.changed, self.bad, *self.args)
 
 def fetch_scheduled_recipe(arg):
-    from calibre.ebooks.conversion.config import load_defaults
     fmt = prefs['output_format'].lower()
     pt = PersistentTemporaryFile(suffix='_recipe_out.%s'%fmt.lower())
     pt.close()

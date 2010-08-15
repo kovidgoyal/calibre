@@ -18,9 +18,10 @@ class StructureDetectionWidget(Widget, Ui_Form):
     ICON  = I('chapters.svg')
     HELP  = _('Fine tune the detection of chapter headings and '
             'other document structure.')
+    COMMIT_NAME = 'structure_detection'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'structure_detection',
+        Widget.__init__(self, parent,
                 ['chapter', 'chapter_mark',
                 'remove_first_image',
                 'insert_metadata', 'page_breaks_before',
