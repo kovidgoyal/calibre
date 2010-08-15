@@ -78,7 +78,7 @@ class TagsView(QTreeView): # {{{
         self.setAnimated(True)
         self.setHeaderHidden(True)
         self.setItemDelegate(TagDelegate(self))
-        self.clicked.connect(self.toggle)
+        self.made_connections = False
 
     def set_database(self, db, tag_match, sort_by):
         self.hidden_categories = config['tag_browser_hidden_categories']
@@ -91,11 +91,14 @@ class TagsView(QTreeView): # {{{
         self.search_restriction = None
         self.setModel(self._model)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_context_menu)
         pop = config['sort_tags_by']
         self.sort_by.setCurrentIndex(self.db.CATEGORY_SORTS.index(pop))
-        self.sort_by.currentIndexChanged.connect(self.sort_changed)
-        self.refresh_required.connect(self.recount, type=Qt.QueuedConnection)
+        if not self.made_connections:
+            self.clicked.connect(self.toggle)
+            self.customContextMenuRequested.connect(self.show_context_menu)
+            self.refresh_required.connect(self.recount, type=Qt.QueuedConnection)
+            self.sort_by.currentIndexChanged.connect(self.sort_changed)
+            self.made_connections = True
         db.add_listener(self.database_changed)
 
     def database_changed(self, event, ids):
