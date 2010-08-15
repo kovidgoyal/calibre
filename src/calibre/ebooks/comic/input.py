@@ -163,8 +163,12 @@ class PageProcessor(list):
             wand.quantize(self.opts.colors)
             dest = '%d_%d.%s'%(self.num, i, self.opts.output_format)
             dest = os.path.join(self.dest, dest)
-            wand.save(dest+'8')
-            os.rename(dest+'8', dest)
+            if dest.lower().endswith('.png'):
+                dest += '8'
+            wand.save(dest)
+            if dest.endswith('8'):
+                dest = dest[:-1]
+                os.rename(dest+'8', dest)
             self.append(dest)
 
 def render_pages(tasks, dest, opts, notification=lambda x, y: x):
