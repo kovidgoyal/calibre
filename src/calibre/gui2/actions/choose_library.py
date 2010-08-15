@@ -13,7 +13,7 @@ from PyQt4.Qt import QMenu
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.utils.config import prefs
-from calibre.gui2 import gprefs
+from calibre.gui2 import gprefs, warning_dialog
 from calibre.gui2.actions import InterfaceAction
 
 class LibraryUsageStats(object):
@@ -33,6 +33,10 @@ class LibraryUsageStats(object):
         for key in locs[15:]:
             self.stats.pop(key)
         gprefs.set('library_usage_stats', self.stats)
+
+    def remove(self, location):
+        self.stats.pop(location, None)
+        self.write_stats()
 
     def canonicalize_path(self, lpath):
         if isbytestring(lpath):
@@ -123,6 +127,16 @@ class ChooseLibraryAction(InterfaceAction):
 
     def switch_requested(self, location):
         loc = location.replace('/', os.sep)
+        exists = self.gui.library_view.model().db.exists_at(loc)
+        if not exists:
+            warning_dialog(self.gui, _('No library found'),
+                    _('No existing calibre library was found at %s.'
+                    ' It will be removed from the list of known '
+                    ' libraries.')%loc, show=True)
+            self.stats.remove(location)
+            self.build_menus()
+            return
+
         prefs['library_path'] = loc
         self.gui.library_moved(loc)
 
