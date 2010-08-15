@@ -103,7 +103,7 @@ class Server(Thread):
                 authkey=self.auth_key, backlog=4)
         self.add_jobs_queue, self.changed_jobs_queue = Queue(), Queue()
         self.kill_queue = Queue()
-        self.waiting_jobs, self.processing_jobs = [], deque()
+        self.waiting_jobs = []
         self.pool, self.workers = deque(), deque()
         self.launched_worker_count = 0
         self._worker_launch_lock = RLock()
@@ -227,8 +227,15 @@ class Server(Thread):
 
     def suitable_waiting_job(self):
         available_workers = len(self.pool)
-        if available_workers == 0:
-            return None
+        for worker in self.workers:
+            job = worker.job
+            if job.core_usage == -1:
+                available_workers = 0
+            elif job.core_usage > 1:
+                available_workers -= job.core_usage - 1
+            if available_workers < 1:
+                return None
+
         for i, job in enumerate(self.waiting_jobs):
             if job.core_usage == -1:
                 if available_workers >= self.pool_size:

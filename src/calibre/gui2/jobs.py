@@ -175,6 +175,7 @@ class JobManager(QAbstractTableModel):
         self.jobs.append(job)
         self.jobs.sort()
         self.job_added.emit(len(self.unfinished_jobs()))
+        self.layoutChanged.emit()
 
     def done_jobs(self):
         return [j for j in self.jobs if j.is_finished]
