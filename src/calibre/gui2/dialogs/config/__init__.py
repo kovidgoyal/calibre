@@ -29,12 +29,14 @@ from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin
                                  input_format_plugins, \
                                  output_format_plugins, available_output_formats
 from calibre.utils.smtp import config as smtp_prefs
+from calibre.gui2.convert import config_widget_for_input_plugin
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.ebooks.conversion.plumber import Plumber
 from calibre.utils.logging import Log
 from calibre.gui2.convert.toc import TOCWidget
+
 
 class ConfigTabs(QTabWidget):
 
@@ -58,15 +60,10 @@ class ConfigTabs(QTabWidget):
         self.widgets = [lf, ps, sd, toc]
 
         for plugin in input_format_plugins():
-            name = plugin.name.lower().replace(' ', '_')
-            try:
-                input_widget = __import__('calibre.gui2.convert.'+name,
-                        fromlist=[1])
-                pw = input_widget.PluginWidget
+            pw = config_widget_for_input_plugin(plugin)
+            if pw is not None:
                 pw.ICON = I('forward.svg')
                 self.widgets.append(widget_factory(pw))
-            except ImportError:
-                continue
 
         for plugin in output_format_plugins():
             name = plugin.name.lower().replace(' ', '_')
@@ -515,15 +512,15 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.reset_confirmation_button.clicked.connect(self.reset_confirmation)
 
         deft, curt = read_raw_tweaks()
-        self.current_tweaks.setPlainText(curt)
-        self.default_tweaks.setPlainText(deft)
+        self.current_tweaks.setPlainText(curt.decode('utf-8'))
+        self.default_tweaks.setPlainText(deft.decode('utf-8'))
         self.restore_tweaks_to_default_button.clicked.connect(self.restore_tweaks_to_default)
 
         self.category_view.setCurrentIndex(self.category_view.model().index_for_name(initial_category))
 
     def restore_tweaks_to_default(self, *args):
         deft, curt = read_raw_tweaks()
-        self.current_tweaks.setPlainText(deft)
+        self.current_tweaks.setPlainText(deft.decode('utf-8'))
 
 
     def reset_confirmation(self):
@@ -698,8 +695,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             self.input_order.setCurrentRow(idx-1)
 
     def set_tweaks(self):
-        raw = unicode(self.current_tweaks.toPlainText())
-        raw = re.sub(r'(?m)^#.*fileencoding.*', '# ', raw)
+        raw = unicode(self.current_tweaks.toPlainText()).encode('utf-8')
         try:
             exec raw
         except:

@@ -185,7 +185,7 @@ class Serializer(object):
         buffer.write('<guide>')
         for ref in self.oeb.guide.values():
             path = urldefrag(ref.href)[0]
-            if hrefs[path].media_type not in OEB_DOCS:
+            if path not in hrefs or hrefs[path].media_type not in OEB_DOCS:
                 continue
 
             buffer.write('<reference type="')

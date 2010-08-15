@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json
+import json, re
 from functools import partial
 from math import floor
 
@@ -430,6 +430,10 @@ class CustomColumns(object):
 
     def create_custom_column(self, label, name, datatype, is_multiple,
             editable=True, display={}):
+        if not label:
+            raise ValueError(_('No label was provided'))
+        if re.match('^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
+            raise ValueError(_('The label must contain only lower case letters, digits and underscores, and start with a letter'))
         if datatype not in self.CUSTOM_DATA_TYPES:
             raise ValueError('%r is not a supported data type'%datatype)
         normalized  = datatype not in ('datetime', 'comments', 'int', 'bool',

@@ -9,9 +9,9 @@ from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElPaisImpresa(BasicNewsRecipe):
-    title                 = 'El País - edicion impresa'
+    title                 = u'El Pa\xeds - edicion impresa'
     __author__            = 'Darko Miletic'
-    description           = 'el periodico global en Español'
+    description           = u'el periodico global en Espa\xf1ol'
     publisher             = 'EDICIONES EL PAIS, S.L.'
     category              = 'news, politics,Spain,actualidad,noticias,informacion,videos,fotografias,audios,graficos,nacional,internacional,deportes,economia,tecnologia,cultura,gente,television,sociedad,opinion,blogs,foros,chats,encuestas,entrevistas,participacion'
     no_stylesheets        = True
@@ -32,10 +32,10 @@ class ElPaisImpresa(BasicNewsRecipe):
 
     feeds          = [
                         (u'Internacional'     , index + u'internacional/'     )
-                       ,(u'España'            , index + u'espana/'            )
+                       ,(u'Espa\xf1a'            , index + u'espana/'            )
                        ,(u'Economia'          , index + u'economia/'          )
                        ,(u'Opinion'           , index + u'opinion/'           )
-                       ,(u'Viñetas'           , index + u'vineta/'            )
+                       ,(u'Vi\xf1etas'           , index + u'vineta/'            )
                        ,(u'Sociedad'          , index + u'sociedad/'          )
                        ,(u'Cultura'           , index + u'cultura/'           )
                        ,(u'Tendencias'        , index + u'tendencias/'        )

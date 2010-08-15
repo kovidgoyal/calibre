@@ -19,10 +19,10 @@ class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('MOBI Output')
     HELP = _('Options specific to')+' MOBI '+_('output')
-
+    COMMIT_NAME = 'mobi_output'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'mobi_output',
+        Widget.__init__(self, parent,
                 ['prefer_author_sort', 'rescale_images', 'toc_title',
                 'dont_compress', 'no_inline_toc', 'masthead_font','personal_doc']
                 )

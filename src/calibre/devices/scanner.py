@@ -56,6 +56,8 @@ class WinPNPScanner(object):
     def drive_order(self, pnp_id):
         order = 0
         match = re.search(r'REV_.*?&(\d+)#', pnp_id)
+        if match is None:
+            match = re.search(r'REV_.*?&(\d+)', pnp_id)
         if match is not None:
             order = int(match.group(1))
         return order

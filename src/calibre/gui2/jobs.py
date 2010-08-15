@@ -175,6 +175,7 @@ class JobManager(QAbstractTableModel):
         self.jobs.append(job)
         self.jobs.sort()
         self.job_added.emit(len(self.unfinished_jobs()))
+        self.layoutChanged.emit()
 
     def done_jobs(self):
         return [j for j in self.jobs if j.is_finished]
@@ -198,8 +199,9 @@ class JobManager(QAbstractTableModel):
         return False
 
     def run_job(self, done, name, args=[], kwargs={},
-                           description=''):
+                           description='', core_usage=1):
         job = ParallelJob(name, description, done, args=args, kwargs=kwargs)
+        job.core_usage = core_usage
         self.add_job(job)
         self.server.add_job(job)
         return job

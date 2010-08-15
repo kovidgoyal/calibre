@@ -42,6 +42,7 @@ class BaseJob(object):
         self._message      = None
         self._status_text  = _('Waiting...')
         self._done_called  = False
+        self.core_usage    = 1
 
     def update(self, consume_notifications=True):
         if self.duration is not None:

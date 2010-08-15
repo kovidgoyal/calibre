@@ -166,6 +166,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def __init__(self, pathtoebook=None, debug_javascript=False):
         MainWindow.__init__(self, None)
         self.setupUi(self)
+        self.base_window_title = unicode(self.windowTitle())
         self.iterator          = None
         self.current_page      = None
         self.pending_search    = None
@@ -602,7 +603,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 self.toc_model = TOC(self.iterator.toc)
                 self.toc.setModel(self.toc_model)
             self.current_title = title
-            self.setWindowTitle(unicode(self.windowTitle())+' - '+title)
+            self.setWindowTitle(self.base_window_title+' - '+title)
             self.pos.setMaximum(sum(self.iterator.pages))
             self.pos.setSuffix(' / %d'%sum(self.iterator.pages))
             self.vertical_scrollbar.setMinimum(100)

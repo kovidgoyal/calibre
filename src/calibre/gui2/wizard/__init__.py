@@ -61,7 +61,7 @@ class Kindle(Device):
 
     output_profile = 'kindle'
     output_format  = 'MOBI'
-    name = 'Kindle 1 or 2'
+    name = 'Kindle 1, 2 or 3'
     manufacturer = 'Amazon'
     id = 'kindle'
 

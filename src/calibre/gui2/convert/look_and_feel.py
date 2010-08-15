@@ -16,9 +16,10 @@ class LookAndFeelWidget(Widget, Ui_Form):
     TITLE = _('Look & Feel')
     ICON  = I('lookfeel.svg')
     HELP  = _('Control the look and feel of the output')
+    COMMIT_NAME = 'look_and_feel'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'look_and_feel',
+        Widget.__init__(self, parent,
                 ['change_justification', 'extra_css', 'base_font_size',
                     'font_size_mapping', 'line_height',
                     'linearize_tables',
