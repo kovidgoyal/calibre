@@ -46,7 +46,7 @@ class ANDROID(USBMS):
             # Eken?
             0x040d : { 0x0851 : [0x0001]},
             }
-    EBOOK_DIR_MAIN = ['wordplayer/calibretransfer', 'eBooks/import', 'Books']
+    EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
             'send e-books to on the device. The first one that exists will '
             'be used')
