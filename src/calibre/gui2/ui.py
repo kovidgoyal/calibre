@@ -352,8 +352,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
-
-
     def library_moved(self, newloc):
         if newloc is None: return
         db = LibraryDatabase2(newloc)
@@ -376,7 +374,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
     def set_window_title(self):
         self.setWindowTitle(__appname__ + u' - ||%s||'%self.iactions['Choose Library'].library_name())
-
 
     def location_selected(self, location):
         '''
@@ -517,6 +514,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
 
     def shutdown(self, write_settings=True):
+        for action in self.iactions.values():
+            if not action.shutting_down():
+                return
         if write_settings:
             self.write_settings()
         self.check_messages_timer.stop()
