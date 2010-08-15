@@ -26,8 +26,8 @@ class InterfaceAction(QObject):
     If two :class:`InterfaceAction` objects have the same name, the one with higher
     priority takes precedence.
 
-    Sub-classes should implement the :meth:`genesis` and
-    :meth:`location_selected` methods.
+    Sub-classes should implement the :meth:`genesis`, :meth:`library_moved`,
+    :meth:`location_selected` and :meth:`initialization_complete` methods.
 
     Once initialized, this plugin has access to the main calibre GUI via the
     :attr:`gui` member. You can access other plugins by name, for example::
@@ -108,3 +108,17 @@ class InterfaceAction(QObject):
         '''
         pass
 
+    def library_changed(self, db):
+        '''
+        Called whenever the current library is changed.
+
+        :param db: The LibraryDatabase corresponding to the current library.
+        '''
+        pass
+
+    def initialization_complete(self):
+        '''
+        Called once per action when the initialization of the main GUI is
+        completed.
+        '''
+        pass

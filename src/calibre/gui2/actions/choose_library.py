@@ -97,9 +97,20 @@ class ChooseLibraryAction(InterfaceAction):
             ac.triggered.connect(partial(self.qs_requested, i))
             self.choose_menu.addAction(ac)
 
-    def library_used(self, db):
+    def library_name(self):
+        db = self.gui.library_view.model().db
+        path = db.library_path
+        if isbytestring(path):
+            path = path.decode(filesystem_encoding)
+        path = path.replace(os.sep, '/')
+        return self.stats.pretty(path)
+
+    def library_changed(self, db):
         self.stats.library_used(db)
         self.build_menus()
+
+    def initialization_complete(self):
+        self.library_changed(self.gui.library_view.model().db)
 
     def build_menus(self):
         db = self.gui.library_view.model().db

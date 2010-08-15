@@ -249,9 +249,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.read_settings()
         self.finalize_layout()
         self.donate_button.start_animation()
+        self.set_window_title()
 
-        self.iactions['Fetch News'].connect_scheduler()
-        self.iactions['Choose Library'].library_used(self.library_view.model().db)
+        for ac in self.iactions.values():
+            ac.initialization_complete()
 
     def start_content_server(self):
         from calibre.library.server.main import start_threaded_server
@@ -367,9 +368,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.saved_search.clear_to_help()
         self.book_details.reset_info()
         self.library_view.model().count_changed()
-        self.iactions['Fetch News'].database_changed(db)
         prefs['library_path'] = self.library_path
-        self.iactions['Choose Library'].library_used(self.library_view.model().db)
+        db = self.library_view.model().db
+        for action in self.iactions.values():
+            action.library_changed(db)
+        self.set_window_title()
+
+    def set_window_title(self):
+        self.setWindowTitle(__appname__ + u' - ||%s||'%self.iactions['Choose Library'].library_name())
 
 
     def location_selected(self, location):
