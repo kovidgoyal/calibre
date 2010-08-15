@@ -60,9 +60,8 @@ class ConfigTabs(QTabWidget):
         self.widgets = [lf, ps, sd, toc]
 
         for plugin in input_format_plugins():
-            input_widget = config_widget_for_input_plugin(plugin)
-            if input_widget is not None:
-                pw = input_widget.PluginWidget
+            pw = config_widget_for_input_plugin(plugin)
+            if pw is not None:
                 pw.ICON = I('forward.svg')
                 self.widgets.append(widget_factory(pw))
 

@@ -22,7 +22,7 @@ def config_widget_for_input_plugin(plugin):
     name = plugin.name.lower().replace(' ', '_')
     try:
         return __import__('calibre.gui2.convert.'+name,
-                fromlist=[1])
+                fromlist=[1]).PluginWidget
     except ImportError:
         pass
 
