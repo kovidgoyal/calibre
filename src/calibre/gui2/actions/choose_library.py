@@ -131,7 +131,7 @@ class ChooseLibraryAction(InterfaceAction):
         if not exists:
             warning_dialog(self.gui, _('No library found'),
                     _('No existing calibre library was found at %s.'
-                    ' It will be removed from the list of known '
+                    ' It will be removed from the list of known'
                     ' libraries.')%loc, show=True)
             self.stats.remove(location)
             self.build_menus()

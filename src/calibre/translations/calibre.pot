@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.7.14\n"
-"POT-Creation-Date: 2010-08-14 23:13+MDT\n"
-"PO-Revision-Date: 2010-08-14 23:13+MDT\n"
+"POT-Creation-Date: 2010-08-14 23:17+MDT\n"
+"PO-Revision-Date: 2010-08-14 23:17+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -2679,7 +2679,7 @@ msgid "No library found"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:133
-msgid "No existing calibre library was found at %s. It will be removed from the list of known  libraries."
+msgid "No existing calibre library was found at %s. It will be removed from the list of known libraries."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
