@@ -657,9 +657,14 @@ class ActionEditCollections(InterfaceActionBase):
     name = 'Edit Collections'
     actual_plugin = 'calibre.gui2.actions.edit_collections:EditCollectionsAction'
 
+class ActionCopyToLibrary(InterfaceActionBase):
+    name = 'Copy To Library'
+    actual_plugin = 'calibre.gui2.actions.copy_to_library:CopyToLibraryAction'
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
-        ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary]
+        ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
+        ActionCopyToLibrary]
