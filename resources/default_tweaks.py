@@ -24,6 +24,7 @@ series_index_auto_increment = 'next'
 #  invert: use "fn ln" -> "ln, fn" (the original algorithm)
 #  copy  : copy author to author_sort without modification
 #  comma : use 'copy' if there is a ',' in the name, otherwise use 'invert'
+#  nocomma : "fn ln" -> "ln fn" (without the comma)
 author_sort_copy_method = 'invert'
 
 
