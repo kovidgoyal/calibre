@@ -407,7 +407,9 @@ class BulkBase(Base):
         if self.process_each_book():
             for book_id in book_ids:
                 val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
-                self.db.set_custom(book_id, self.getter(val), num=self.col_id, notify=notify)
+                new_val = self.getter(val)
+                if set(val) != new_val or True:
+                    self.db.set_custom(book_id, new_val, num=self.col_id, notify=notify)
         else:
             val = self.getter()
             val = self.normalize_ui_val(val)
@@ -544,8 +546,9 @@ class BulkText(BulkBase):
                 ans = set(original_value)
                 ans -= set([v.strip() for v in
                             unicode(self.removing_widget.tags_box.text()).split(',')])
-            ans |= set([v.strip() for v in
-                            unicode(self.adding_widget.text()).split(',')])
+            txt = unicode(self.adding_widget.text())
+            if txt:
+                ans |= set([v.strip() for v in txt.split(',')])
             return ans # returning a set instead of a list works, for now at least.
         val = unicode(self.widgets[1].currentText()).strip()
         if not val:
