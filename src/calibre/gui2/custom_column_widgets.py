@@ -408,7 +408,7 @@ class BulkBase(Base):
             for book_id in book_ids:
                 val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
                 new_val = self.getter(val)
-                if set(val) != new_val or True:
+                if set(val) != new_val:
                     self.db.set_custom(book_id, new_val, num=self.col_id, notify=notify)
         else:
             val = self.getter()
