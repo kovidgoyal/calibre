@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-15 05:27+0000\n"
-"PO-Revision-Date: 2010-08-14 09:12+0000\n"
+"PO-Revision-Date: 2010-08-15 14:56+0000\n"
 "Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-15 06:14+0000\n"
+"X-Launchpad-Export-Date: 2010-08-16 06:37+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -172,7 +172,7 @@ msgstr "Katalog generator"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:359
 msgid "User Interface Action"
-msgstr ""
+msgstr "Brugergrænseflade aktion"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:16
 msgid ""
@@ -3378,21 +3378,23 @@ msgstr "Vælg calibre-bibliotek at arbejde med"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:81
 msgid "Switch to library..."
-msgstr ""
+msgstr "Skift til bibliotek..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:88
 msgid "Quick switch"
-msgstr ""
+msgstr "Hurtig skift"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:132
 msgid "No library found"
-msgstr ""
+msgstr "Intet bibliotek fundet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:133
 msgid ""
 "No existing calibre library was found at %s. It will be removed from the "
 "list of known libraries."
 msgstr ""
+"Intet eksisterende calibre-bibliotek blev fundet ved %s. Stien vil blive "
+"fjernet fra listen af kendte biblioteker."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "C"
@@ -3544,7 +3546,7 @@ msgstr "Opsætning af e-mail baseseret bogdeling"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:97
 msgid "D"
-msgstr ""
+msgstr "D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:97
 msgid "Send to device"
@@ -3730,7 +3732,7 @@ msgstr "Åben mappe herover"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/open.py:15
 msgid "O"
-msgstr ""
+msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:17
 msgid "Ctrl+P"
@@ -3766,7 +3768,7 @@ msgstr "&Genstart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "Ctrl+R"
-msgstr ""
+msgstr "Ctrl+R"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
@@ -3841,7 +3843,7 @@ msgstr "Vis bogdetaljer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:17
 msgid "I"
-msgstr ""
+msgstr "I"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:24
 msgid "No detailed info available"
@@ -3857,7 +3859,7 @@ msgstr "Lignende bøger..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:22
 msgid "Alt+A"
-msgstr ""
+msgstr "Alt+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:22
 msgid "Books by same author"
@@ -3873,7 +3875,7 @@ msgstr "Bøger i denne serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Alt+P"
-msgstr ""
+msgstr "Alt+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Books by this publisher"
@@ -3881,7 +3883,7 @@ msgstr "Bøger fra denne udgiver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Alt+T"
-msgstr ""
+msgstr "Alt+T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Books with the same tags"
@@ -5810,11 +5812,11 @@ msgstr "Ingen placering valgt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:84
 msgid "Bad location"
-msgstr ""
+msgstr "Ikke brugbar placering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:85
 msgid "%s is not an existing folder"
-msgstr ""
+msgstr "%s er ikke en eksisterende mappe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:66
 msgid "Choose your calibre library"

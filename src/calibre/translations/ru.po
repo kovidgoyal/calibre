@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-08-15 05:27+0000\n"
-"PO-Revision-Date: 2010-08-15 06:01+0000\n"
+"PO-Revision-Date: 2010-08-16 05:37+0000\n"
 "Last-Translator: HelioS <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-15 06:15+0000\n"
+"X-Launchpad-Export-Date: 2010-08-16 06:39+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -3562,7 +3562,7 @@ msgstr " и удалить из библиотеки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:80
 msgid "Setup email based sharing of books"
-msgstr ""
+msgstr "Настроить общий доступ к книгам на основе электронной почты"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:97
 msgid "D"
@@ -3622,11 +3622,11 @@ msgstr "Загрузить только социальные метаданны�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:49
 msgid "Merge into first selected book - delete others"
-msgstr ""
+msgstr "Объединить в первую выбранную книгу - удалить остальные"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:52
 msgid "Merge into first selected book - keep others"
-msgstr ""
+msgstr "Объединить в первую выбранную книгу - сохранить остальные"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:72
 msgid "Cannot download metadata"
@@ -3702,12 +3702,18 @@ msgid ""
 "second and subsequently selected books will be permanently <b>deleted</b> "
 "from your computer.<br><br>  Are you <b>sure</b> you want to proceed?"
 msgstr ""
+"Все книжные форматы и метаданные выбранных книг будут объединены с <b>первой "
+"выбранной книгой</b>.<br><br>После объединения вторая и последующие книги "
+"будут <b>удалены</b>. <br><br>Все форматы книг первой выбранной книги будут "
+"сохранены и любые дублирующиеся форматы во второй и последующих книгах будут "
+"навсегда <b>удалены</b> с вашего компьютера.<br><br>  Вы <b>уверены</b> что "
+"хотите продолжить?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:225
 msgid ""
 "You are about to merge more than 5 books.  Are you <b>sure</b> you want to "
 "proceed?"
-msgstr ""
+msgstr "Вы хотите объединить более 5 книг. Вы уверены что хотите продолжить?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:18
 msgid "F"
@@ -3727,15 +3733,15 @@ msgstr " загружено."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr ""
+msgstr "Просмотреть руководство пользователя Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "F1"
-msgstr ""
+msgstr "F1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Help"
-msgstr ""
+msgstr "Справка"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/open.py:14
 msgid "Open containing folder"
@@ -3779,7 +3785,7 @@ msgstr "&Перезапуск"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "Ctrl+R"
-msgstr ""
+msgstr "Ctrl+R"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."

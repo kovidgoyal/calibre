@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-15 05:27+0000\n"
-"PO-Revision-Date: 2010-08-15 05:24+0000\n"
+"PO-Revision-Date: 2010-08-15 18:27+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-15 06:13+0000\n"
+"X-Launchpad-Export-Date: 2010-08-16 06:37+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -198,13 +198,13 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
-"Sortu PMLZ fitxategi bat PML fitxategiarekin eta images (irudiak) edo "
-"pmlname_img direktorioan dauden irudi guztiekin. Gehigarri hau, liburutegira "
-"PML fitxategi bat  gehitzen duzun bakoitzean exekutatuko da."
+"Sortu PMLZ fitxategi bat PML fitxategiarekin eta irudi guztiekin pmlname_img "
+"direktorioan  edo irudiak direktorioan. Gehigarri hau, liburutegira PML "
+"fitxategi bat  gehitzen duzun bakoitzean exekutatuko da."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:93
 msgid "Extract cover from comic files"
-msgstr "Atera ezazu liburu-azala komiki fitxategietatik"
+msgstr "Erauzi ezazu liburu-azala komiki fitxategietatik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:120
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:131
@@ -602,11 +602,11 @@ msgstr "Jar zaitez harremanetan \"PocketBook 301 reader\" horrekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr "Abangoardiako lagun-taldea"
+msgstr "Adituen lagun-taldea"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr "Jar zaitez harremanetan Adituen Lagun-taldearekin"
+msgstr "Jar zaitez harremanetan adituen lagun-taldearekin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
@@ -2463,7 +2463,7 @@ msgstr "Descarga los metadatos de Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:51
 msgid "Metadata download"
-msgstr ""
+msgstr "Metadatuak deskargatu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:128
 msgid "ratings"
@@ -2897,7 +2897,7 @@ msgid ""
 "\n"
 "Get info about a PDF.\n"
 msgstr ""
-"fitxategi.pdf...\n"
+"fitxategia.pdf...\n"
 "\n"
 "PDF bati buruz informazioa lortu.\n"
 
@@ -2921,7 +2921,7 @@ msgstr "Orrialdeak"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:51
 msgid "File Size"
-msgstr "Fitxategiaren neurria"
+msgstr "Fitxategiaren tamaina"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:52
 msgid "PDF Version"
@@ -2951,7 +2951,7 @@ msgid ""
 "\n"
 "Reverse a PDF.\n"
 msgstr ""
-"[aukerak] fitxategi.pdf\n"
+"[aukerak] fitxategia.pdf\n"
 "\n"
 "PDF bat alderantziz jarri.\n"
 
@@ -2965,9 +2965,9 @@ msgid ""
 "\n"
 "Rotate pages of a PDF clockwise.\n"
 msgstr ""
-"fitxategi.pdf graduak\n"
+"fitxategia.pdf graduak\n"
 "\n"
-"Biratu egiten du PDFa erlojuaren norabidean.\n"
+"Biratu egiten du PDFa erlojuaren orratzen norabidean.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 msgid "Rotate Options:"
@@ -2988,20 +2988,20 @@ msgid ""
 "Split a PDF.\n"
 msgstr ""
 "\n"
-"%prog %%name [options] file.pdf page_to_split_on ...\n"
-"%prog %%name [options] file.pdf page_range_to_split_on ...\n"
+"%prog %%name [options] filtxategia.pdf page_to_split_on ...\n"
+"%prog %%name [options] filtxategia.pdf page_range_to_split_on ...\n"
 "\t\n"
 "Ex.\n"
 "\t\n"
-"%prog %%name file.pdf 6\n"
-"%prog %%name file.pdf 6-12\n"
-"%prog %%name file.pdf 6-12 8 10 9-20\n"
+"%prog %%name filtxategia.pdf 6\n"
+"%prog %%name filtxategia.pdf 6-12\n"
+"%prog %%name filtxategia.pdf 6-12 8 10 9-20\n"
 "\n"
-"Bereizi PDF bat.\n"
+"Zatitu eta bereizi PDF bat.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Split Options:"
-msgstr "Bereizteko aukerak:"
+msgstr "Zatitzeko eta bereizteko aukerak:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:31
 msgid ""
@@ -3009,24 +3009,24 @@ msgid ""
 "override the unit for margins!"
 msgstr ""
 "Neurtzeko unitatea. Lehenetsita: hazbetea (2,54 cm). Aukerak hauek dira: %s "
-"Oharra: honek ez du unitatea aldatuko bazterretarako!"
+"Oharra: honek ez du bazterretako unitatea aldatuko!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:36
 msgid ""
 "The size of the paper. This size will be overridden when an output profile "
 "is used. Default is letter. Choices are %s"
 msgstr ""
-"Paperaren neurria. Neurri hau alde batera utziko da helburu profila "
-"erabiltzen denean. Lehenetsiata dagoena: gutuna. Aukerak hauek dira: %s"
+"Paperaren neurria. Neurri hau alde batera utziko da helburu-profila "
+"erabiltzen denean. Lehenetsita dagoena: gutuna. Aukerak hauek dira: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:40
 msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
 msgstr ""
-"Pertsonalizatu paperaren neurria. Erabil ezazu luzexzabal, 'widthxheight', "
-"itxura EG. `123x321` zehazteko luzera eta zabalera. Honek alde batera utziko "
-"ditu zehaztutako paper-neurriak."
+"Pertsonalizatu paperaren neurria. Erabil ezazu 'luzexzabal' itxura, "
+"'widthxheight' itxura, adibidez `123x321` zehazteko luzera eta zabalera. "
+"Honek alde batera utziko ditu zehaztutako paper-neurriak."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:45
 msgid "The orientation of the page. Default is portrait. Choices are %s"
@@ -3043,8 +3043,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:55
 msgid "Could not find pdftohtml, check it is in your PATH"
 msgstr ""
-"Ezin izan da aurkitu pdftohtml; zoaz ikustera zure PATH horretan, zure BIDE "
-"horretan"
+"Ezin izan da aurkitu pdftohtml programarik pdf formatutik html formatura "
+"egiteko, zoaz ikustera zure PATH horretan, zure BIDE horretan"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/output.py:33
 msgid ""
@@ -3091,8 +3091,8 @@ msgid ""
 "Run the text input through the markdown pre-processor. To learn more about "
 "markdown see"
 msgstr ""
-"Run the text input through the markdown pre-processor. To learn more about "
-"markdown see"
+"Exekutatu sorburu-testua markdown aurre-prozesadorearen bidez. Gehiago "
+"ikasteko markdown horri buruz ikus"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:40
 msgid "Do not insert a Table of Contents into the output text."
@@ -3104,10 +3104,10 @@ msgid ""
 "for compatibility with Mac OS 9 and earlier. For Mac OS X use 'unix'. "
 "'system' will default to the newline type used by this OS."
 msgstr ""
-"Type of newline to use. Aukerak hauek dira: %s. Lehenetsita: 'system'. "
-"Erabil ezazu 'old_mac' bateragarritasuna izateko Mac OS 9 eta zaharragoekin. "
-"Mac OS X horrekin erabili 'unix'. 'system' will default to the newline type "
-"used by this OS."
+"Tekleatu erabiltzeko lerro-jauzi bat . Aukerak hauek dira: %s. Lehenetsita: "
+"'system'. Erabil ezazu 'old_mac' bateragarritasuna izateko Mac OS 9 eta "
+"zaharragoekin. Mac OS X horrekin erabili  'unix'. 'system' lehenetsita "
+"daukan OS horrek erabiltzen duen lerro-jauzia erabiliko du."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:30
 msgid ""
@@ -3125,9 +3125,10 @@ msgid ""
 "minimum of 25 characters. Use 0 to disable line splitting."
 msgstr ""
 "Lerro bakoitzeko onartuko den gehienezko karaktere kopurua. Hau zehaztutako "
-"balioaren aurreko lehen espazioan sartuko da If no space is found the line "
-"will be broken at the space after and will exceed the specified value. Also, "
-"there is a minimum of 25 characters. Use 0 to disable line splitting."
+"balioaren aurreko lehen espazioan sartuko da Ez bada espaziorik topatzen "
+"lerroa apurtuko da ezarritako maximoaren espazioaren ostean eta zehaztutako "
+"balioa gaindituko du. Gainera, badago 25 karaktere kopuru minimoa ere. "
+"Erabil ezazu 0 lerroaren apurketaren aukera bertan behera uzteko."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:45
 msgid ""
@@ -3519,7 +3520,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:132
 msgid "No library found"
-msgstr ""
+msgstr "Ez da liburutegirik aurkitu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:133
 msgid ""
@@ -3899,7 +3900,7 @@ msgstr "&Restart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "Ctrl+R"
-msgstr ""
+msgstr "Ctrl+R"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
@@ -3990,7 +3991,7 @@ msgstr "Similar books..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:22
 msgid "Alt+A"
-msgstr ""
+msgstr "Alt+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:22
 msgid "Books by same author"
@@ -3998,7 +3999,7 @@ msgstr "Books by same author"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:23
 msgid "Alt+S"
-msgstr ""
+msgstr "Alt+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:23
 msgid "Books in this series"
@@ -4006,7 +4007,7 @@ msgstr "Books in this series"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Alt+P"
-msgstr ""
+msgstr "Alt+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Books by this publisher"
@@ -4014,7 +4015,7 @@ msgstr "Books by this publisher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Alt+T"
-msgstr ""
+msgstr "Alt+T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Books with the same tags"
@@ -5940,11 +5941,11 @@ msgstr "Kokogunea hautatu gabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:84
 msgid "Bad location"
-msgstr ""
+msgstr "Txarto kokatua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:85
 msgid "%s is not an existing folder"
-msgstr ""
+msgstr "%s ez da existitzen den karpena"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:66
 msgid "Choose your calibre library"
