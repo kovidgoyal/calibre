@@ -4,6 +4,64 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.14
+  date: 2010-08-13
+
+  new features:
+    - title: "Device drivers for the: Teclast K-5, Samsung SNE-60 and Samsung i7500"
+
+    - title: "When showing cover browser in a separate window, remember the last used window size"
+
+    - title: "Add keyboard shortcuts to show/hide the Tag Browser, Book details and Cover Browser panels. Hover your mouse over the buttons that toggle them to see the shortcuts."
+
+    - title: "Calibre library: When the case of title or author is changed, automatically rename the folders to reflect the new case, even on case insensitive filesystems"
+
+    - title: "Metadata download: If downloaded title or author is all upper case, automatically fix the case"
+
+    - title: "Add method to add books by ISBN. Click the arrow next to Add Books to add from a list of ISBNs."
+      tickets: [6327]
+
+    - title: "Allow editing of tweaks via Preferences->Advanced"
+
+    - title: "Add button to the manage authors dialog to automatically reset all author sort values"
+
+  bug fixes:
+    - title: "Fix regression in 0.7.13 that broke changing libraries"
+
+    - title: "MOBI Output: When processing an input document that specifies non-existant files in the OPF guide, don't crash."
+      tickets: [6490]
+
+    - title: "E-book viewer: When opening consecutive documents in the same viewer, show the correct title in the titlebar"
+
+    - title: "Set screen size to 540x718 in Kobo output profile"
+
+    - title: "Dont allow calibredb to create custom columns with invalid labels."
+      tickets: [6487]
+
+    - title: "Fix preference to 'search as you type' not working"
+
+    - title: "iTunes driver: Fixed bug in PDF file name searching after adding to iTunes database (Windows only)"
+
+    - title: "Displaying HTML comments: Do not start a new paragraph at the period in words like Ph.D"
+      tickets: [6462]
+
+    - title: "Respect restriction in effect when refreshing book list"
+
+    - title: "Fix drives being reversed for softrooted nook"
+
+
+  new recipes:
+    - title: "Yahoo News, Skeptical Enquirer and Skeptic"
+      author: Startson17
+
+    - title: "Bolivian newspapers"
+      author: Darko Miletic
+
+  improved recipes:
+    - Esquire
+    - Big Oven
+    - NSPM
+
 - version: 0.7.13
   date: 2010-08-06
 

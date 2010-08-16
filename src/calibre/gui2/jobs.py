@@ -14,7 +14,8 @@ from Queue import Empty, Queue
 from PyQt4.Qt import QAbstractTableModel, QVariant, QModelIndex, Qt, \
     QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication, \
     QSize, QStyleOptionProgressBarV2, QString, QStyle, QToolTip, QFrame, \
-    QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication
+    QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication, QAction, \
+    QByteArray
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
@@ -175,6 +176,7 @@ class JobManager(QAbstractTableModel):
         self.jobs.append(job)
         self.jobs.sort()
         self.job_added.emit(len(self.unfinished_jobs()))
+        self.layoutChanged.emit()
 
     def done_jobs(self):
         return [j for j in self.jobs if j.is_finished]
@@ -198,8 +200,9 @@ class JobManager(QAbstractTableModel):
         return False
 
     def run_job(self, done, name, args=[], kwargs={},
-                           description=''):
+                           description='', core_usage=1):
         job = ParallelJob(name, description, done, args=args, kwargs=kwargs)
+        job.core_usage = core_usage
         self.add_job(job)
         self.server.add_job(job)
         return job
@@ -279,6 +282,7 @@ class JobsButton(QFrame):
         self.pi = ProgressIndicator(self, size)
         self._jobs = QLabel('<b>'+_('Jobs:')+' 0')
         self._jobs.mouseReleaseEvent = self.mouseReleaseEvent
+        self.shortcut = _('Shift+Alt+J')
 
         if horizontal:
             self.setLayout(QHBoxLayout())
@@ -295,15 +299,24 @@ class JobsButton(QFrame):
         self.layout().setMargin(0)
         self._jobs.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.setCursor(Qt.PointingHandCursor)
-        self.setToolTip(_('Click to see list of active jobs.'))
+        b = _('Click to see list of jobs')
+        self.setToolTip(b + u' (%s)'%self.shortcut)
+        self.action_toggle = QAction(b, parent)
+        parent.addAction(self.action_toggle)
+        self.action_toggle.setShortcut(self.shortcut)
+        self.action_toggle.triggered.connect(self.toggle)
 
     def initialize(self, jobs_dialog, job_manager):
         self.jobs_dialog = jobs_dialog
         job_manager.job_added.connect(self.job_added)
         job_manager.job_done.connect(self.job_done)
+        self.jobs_dialog.addAction(self.action_toggle)
 
 
     def mouseReleaseEvent(self, event):
+        self.toggle()
+
+    def toggle(self, *args):
         if self.jobs_dialog.isVisible():
             self.jobs_dialog.hide()
         else:
@@ -363,12 +376,26 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.jobs_view.setItemDelegateForColumn(2, self.pb_delegate)
         self.jobs_view.doubleClicked.connect(self.show_job_details)
         self.jobs_view.horizontalHeader().setMovable(True)
-        state = gprefs.get('jobs view column layout', None)
-        if state is not None:
-            try:
-                self.jobs_view.horizontalHeader().restoreState(bytes(state))
-            except:
-                pass
+        self.restore_state()
+
+    def restore_state(self):
+        try:
+            geom = gprefs.get('jobs_dialog_geometry', bytearray(''))
+            self.restoreGeometry(QByteArray(geom))
+            state = gprefs.get('jobs view column layout', bytearray(''))
+            self.jobs_view.horizontalHeader().restoreState(QByteArray(state))
+        except:
+            pass
+
+    def save_state(self):
+        try:
+            state = bytearray(self.jobs_view.horizontalHeader().saveState())
+            gprefs['jobs view column layout'] = state
+            geom = bytearray(self.saveGeometry())
+            gprefs['jobs_dialog_geometry'] = geom
+        except:
+            pass
+
 
     def show_job_details(self, index):
         row = index.row()
@@ -392,9 +419,13 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.model.kill_all_jobs()
 
     def closeEvent(self, e):
-        try:
-            state = bytearray(self.jobs_view.horizontalHeader().saveState())
-            gprefs['jobs view column layout'] = state
-        except:
-            pass
-        e.accept()
+        self.save_state()
+        return QDialog.closeEvent(self, e)
+
+    def show(self, *args):
+        self.restore_state()
+        return QDialog.show(self, *args)
+
+    def hide(self, *args):
+        self.save_state()
+        return QDialog.hide(self, *args)

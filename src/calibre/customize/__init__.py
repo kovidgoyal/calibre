@@ -351,3 +351,12 @@ class CatalogPlugin(Plugin):
         # Default implementation does nothing
         raise NotImplementedError('CatalogPlugin.generate_catalog() default '
                 'method, should be overridden in subclass')
+
+class InterfaceActionBase(Plugin):
+
+    supported_platforms = ['windows', 'osx', 'linux']
+    author         = 'Kovid Goyal'
+    type = _('User Interface Action')
+    can_be_disabled = False
+
+    actual_plugin = None

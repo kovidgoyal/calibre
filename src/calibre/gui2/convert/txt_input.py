@@ -11,9 +11,10 @@ class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('TXT Input')
     HELP = _('Options specific to')+' TXT '+_('input')
+    COMMIT_NAME = 'txt_input'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'txt_input',
+        Widget.__init__(self, parent,
             ['single_line_paras', 'print_formatted_paras', 'markdown',
                 'markdown_disable_toc', 'preserve_spaces'])
         self.db, self.book_id = db, book_id

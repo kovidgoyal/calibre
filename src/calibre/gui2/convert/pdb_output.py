@@ -15,9 +15,10 @@ class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('PDB Output')
     HELP = _('Options specific to')+' PDB '+_('output')
+    COMMIT_NAME = 'pdb_output'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'pdb_output', ['format', 'inline_toc'])
+        Widget.__init__(self, parent, ['format', 'inline_toc'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
 

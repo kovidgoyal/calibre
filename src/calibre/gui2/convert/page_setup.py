@@ -33,9 +33,10 @@ class ProfileModel(QAbstractListModel):
 class PageSetupWidget(Widget, Ui_Form):
 
     TITLE = _('Page Setup')
+    COMMIT_NAME = 'page_setup'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'page_setup',
+        Widget.__init__(self, parent,
                 ['margin_top', 'margin_left', 'margin_right', 'margin_bottom',
                     'input_profile', 'output_profile']
                 )
