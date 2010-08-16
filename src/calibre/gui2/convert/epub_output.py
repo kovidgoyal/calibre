@@ -14,9 +14,10 @@ class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('EPUB Output')
     HELP  = _('Options specific to')+' EPUB '+_('output')
+    COMMIT_NAME = 'epub_output'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'epub_output',
+        Widget.__init__(self, parent,
                 ['dont_split_on_page_breaks', 'flow_size',
                     'no_default_epub_cover', 'no_svg_cover',
                     'preserve_cover_aspect_ratio',]

@@ -30,8 +30,8 @@ Environment variables
 Tweaks
 ------------
 
-Tweaks are small changes that you can specify to control various aspects of |app|'s behavior. You specify them by editing the 2tweaks.py file in the config directory.
-The default tweaks.py file is reproduced below
+Tweaks are small changes that you can specify to control various aspects of |app|'s behavior. You can change them by going to Preferences->Advanced->Tweaks.
+The default values for the tweaks are reproduced below
 
 .. literalinclude:: ../../../resources/default_tweaks.py
 

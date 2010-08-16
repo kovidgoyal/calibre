@@ -42,9 +42,10 @@ class MetadataWidget(Widget, Ui_Form):
     ICON  = I('dialog_information.svg')
     HELP  = _('Set the metadata. The output file will contain as much of this '
             'metadata as possible.')
+    COMMIT_NAME = 'metadata'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'metadata', ['prefer_metadata_cover'])
+        Widget.__init__(self, parent, ['prefer_metadata_cover'])
         self.db, self.book_id = db, book_id
         self.cover_changed = False
         self.cover_data = None

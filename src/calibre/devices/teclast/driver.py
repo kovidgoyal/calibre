@@ -6,9 +6,9 @@ from calibre.devices.usbms.driver import USBMS
 
 class TECLAST_K3(USBMS):
 
-    name           = 'Teclast K3 Device Interface'
-    gui_name       = 'K3'
-    description    = _('Communicate with the Teclast K3 reader.')
+    name           = 'Teclast K3/K5 Device Interface'
+    gui_name       = 'K3/K5'
+    description    = _('Communicate with the Teclast K3/K5 reader.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -17,11 +17,10 @@ class TECLAST_K3(USBMS):
 
     VENDOR_ID   = [0x071b]
     PRODUCT_ID  = [0x3203]
-    BCD         = [0x0000]
+    BCD         = [0x0000, 0x0100]
 
     VENDOR_NAME      = 'TECLAST'
-    WINDOWS_MAIN_MEM = 'DIGITAL_PLAYER'
-    WINDOWS_CARD_A_MEM = 'DIGITAL_PLAYER'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['DIGITAL_PLAYER', 'TL-K5']
 
     MAIN_MEMORY_VOLUME_LABEL  = 'K3 Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'K3 Storage Card'

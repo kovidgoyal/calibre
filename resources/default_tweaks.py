@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 '''
 Contains various tweaks that affect calibre behavior. Only edit this file if
-you know what you are dong. If you delete this file, it will be recreated from
+you know what you are doing. If you delete this file, it will be recreated from
 defaults.
 '''
 

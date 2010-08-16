@@ -61,7 +61,7 @@ class Kindle(Device):
 
     output_profile = 'kindle'
     output_format  = 'MOBI'
-    name = 'Kindle 1 or 2'
+    name = 'Kindle 1, 2 or 3'
     manufacturer = 'Amazon'
     id = 'kindle'
 
@@ -675,9 +675,7 @@ class Wizard(QWizard):
         self.connect(self.library_page, SIGNAL('retranslate()'),
                 self.retranslate)
         self.finish_page = FinishPage()
-        bt = unicode(self.buttonText(self.FinishButton)).replace('&', '')
-        t = unicode(self.finish_page.finish_text.text())
-        self.finish_page.finish_text.setText(t%bt)
+        self.set_finish_text()
         self.kindle_page = KindlePage()
         self.stanza_page = StanzaPage()
         self.word_player_page = WordPlayerPage()
@@ -702,6 +700,7 @@ class Wizard(QWizard):
         for pid in self.pageIds():
             page = self.page(pid)
             page.retranslateUi(page)
+        self.set_finish_text()
 
     def accept(self):
         pages = map(self.page, self.visitedPages())
@@ -714,6 +713,13 @@ class Wizard(QWizard):
 
     def completed(self, newloc):
         return QWizard.accept(self)
+
+    def set_finish_text(self, *args):
+        bt = unicode(self.buttonText(self.FinishButton)).replace('&', '')
+        t = unicode(self.finish_page.finish_text.text())
+        if '%s' in t:
+            self.finish_page.finish_text.setText(t%bt)
+
 
 def wizard(parent=None):
     w = Wizard(parent)

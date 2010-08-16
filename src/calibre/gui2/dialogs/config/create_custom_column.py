@@ -100,11 +100,11 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
 
     def accept(self):
-        col = unicode(self.column_name_box.text()).lower()
+        col = unicode(self.column_name_box.text())
         if not col:
             return self.simple_error('', _('No lookup name was provided'))
-        if re.match('^\w*$', col) is None or not col[0].isalpha():
-            return self.simple_error('', _('The label must contain only letters, digits and underscores, and start with a letter'))
+        if re.match('^\w*$', col) is None or not col[0].isalpha() or col.lower() != col:
+            return self.simple_error('', _('The lookup name must contain only lower case letters, digits and underscores, and start with a letter'))
         col_heading = unicode(self.column_heading_box.text())
         col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
         if col_type == '*text':
@@ -130,8 +130,6 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 bad_head = True
         if bad_head:
             return self.simple_error('', _('The heading %s is already used')%col_heading)
-        if ':' in col or ' ' in col or col.lower() != col:
-            return self.simple_error('', _('The lookup name must be lower case and cannot contain ":"s or spaces'))
 
         date_format = {}
         if col_type == 'datetime':

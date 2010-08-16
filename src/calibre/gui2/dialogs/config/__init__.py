@@ -18,7 +18,7 @@ from calibre.gui2 import error_dialog, config, gprefs, \
         open_url, open_local_file, \
         ALL_COLUMNS, NONE, info_dialog, choose_files, \
         warning_dialog, ResizableDialog, question_dialog
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, read_raw_tweaks, write_tweaks
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
 from calibre.library.server import server_config
@@ -29,12 +29,14 @@ from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin
                                  input_format_plugins, \
                                  output_format_plugins, available_output_formats
 from calibre.utils.smtp import config as smtp_prefs
+from calibre.gui2.convert import config_widget_for_input_plugin
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.ebooks.conversion.plumber import Plumber
 from calibre.utils.logging import Log
 from calibre.gui2.convert.toc import TOCWidget
+
 
 class ConfigTabs(QTabWidget):
 
@@ -58,15 +60,10 @@ class ConfigTabs(QTabWidget):
         self.widgets = [lf, ps, sd, toc]
 
         for plugin in input_format_plugins():
-            name = plugin.name.lower().replace(' ', '_')
-            try:
-                input_widget = __import__('calibre.gui2.convert.'+name,
-                        fromlist=[1])
-                pw = input_widget.PluginWidget
+            pw = config_widget_for_input_plugin(plugin)
+            if pw is not None:
                 pw.ICON = I('forward.svg')
                 self.widgets.append(widget_factory(pw))
-            except ImportError:
-                continue
 
         for plugin in output_format_plugins():
             name = plugin.name.lower().replace(' ', '_')
@@ -514,7 +511,17 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.opt_toolbar_text.setCurrentIndex(idx)
         self.reset_confirmation_button.clicked.connect(self.reset_confirmation)
 
+        deft, curt = read_raw_tweaks()
+        self.current_tweaks.setPlainText(curt.decode('utf-8'))
+        self.default_tweaks.setPlainText(deft.decode('utf-8'))
+        self.restore_tweaks_to_default_button.clicked.connect(self.restore_tweaks_to_default)
+
         self.category_view.setCurrentIndex(self.category_view.model().index_for_name(initial_category))
+
+    def restore_tweaks_to_default(self, *args):
+        deft, curt = read_raw_tweaks()
+        self.current_tweaks.setPlainText(deft.decode('utf-8'))
+
 
     def reset_confirmation(self):
         from calibre.gui2 import dynamic
@@ -687,6 +694,21 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             self.input_order.insertItem(idx-1, self.input_order.takeItem(idx))
             self.input_order.setCurrentRow(idx-1)
 
+    def set_tweaks(self):
+        raw = unicode(self.current_tweaks.toPlainText()).encode('utf-8')
+        try:
+            exec raw
+        except:
+            import traceback
+            error_dialog(self, _('Invalid tweaks'),
+                    _('The tweaks you entered are invalid, try resetting the'
+                        ' tweaks to default and changing them one by one until'
+                        ' you find the invalid setting.'),
+                    det_msg=traceback.format_exc(), show=True)
+            return False
+        write_tweaks(raw)
+        return True
+
     def down_input(self):
         idx = self.input_order.currentRow()
         if idx < self.input_order.count()-1:
@@ -851,6 +873,8 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         if not self.conversion_options.commit():
             return
         if not self.add_save.save_settings():
+            return
+        if not self.set_tweaks():
             return
         wl = self.opt_worker_limit.value()
         if wl%2 != 0:

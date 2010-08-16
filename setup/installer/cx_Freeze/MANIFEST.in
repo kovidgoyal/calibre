@@ -1,6 +1,0 @@
-include MANIFEST.in
-include *.txt
-recursive-include doc *.html
-recursive-include initscripts *.py
-recursive-include samples *.py
-recursive-include source *.c *.rc

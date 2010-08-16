@@ -112,6 +112,10 @@ class InputFormatPlugin(Plugin):
     #: convenience method, :meth:`get_image_collection`.
     is_image_collection = False
 
+    #: Number of CPU cores used by this plugin
+    #: A value of -1 means that it uses all available cores
+    core_usage = 1
+
     #: If set to True, the input plugin will perform special processing
     #: to make its output suitable for viewing
     for_viewer = False

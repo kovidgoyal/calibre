@@ -12,7 +12,7 @@ from ctypes import Structure as _Structure, c_char_p, c_uint, c_void_p, POINTER,
 from tempfile import NamedTemporaryFile
 from StringIO import StringIO
 
-from calibre import iswindows, load_library, CurrentDir, prints
+from calibre import iswindows, load_library, CurrentDir
 from calibre.ptempfile import TemporaryDirectory
 
 _librar_name = 'libunrar'
@@ -239,7 +239,7 @@ def _extract_member(path, match, name):
                 PFCode = _libunrar.RARProcessFileW(arc_data, RAR_EXTRACT, None, None)
                 if PFCode != 0:
                     raise UnRARException(_interpret_process_file_error(PFCode))
-                abspath = os.path.abspath(*file_name.split('/'))
+                abspath = os.path.abspath(os.path.join(*file_name.split('/')))
                 return abspath
             else:
                 PFCode = _libunrar.RARProcessFileW(arc_data, RAR_SKIP, None, None)

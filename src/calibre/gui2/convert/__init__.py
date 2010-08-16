@@ -16,18 +16,39 @@ from calibre.ebooks.conversion.config import load_defaults, \
         save_defaults as save_defaults_, \
     load_specifics, GuiRecommendations
 from calibre import prepare_string_for_xml
+from calibre.customize.ui import plugin_for_input_format
+
+def config_widget_for_input_plugin(plugin):
+    name = plugin.name.lower().replace(' ', '_')
+    try:
+        return __import__('calibre.gui2.convert.'+name,
+                fromlist=[1]).PluginWidget
+    except ImportError:
+        pass
+
+def bulk_defaults_for_input_format(fmt):
+    plugin = plugin_for_input_format(fmt)
+    if plugin is not None:
+        w = config_widget_for_input_plugin(plugin)
+        if w is not None:
+            return load_defaults(w.COMMIT_NAME)
+    return {}
+
+
 
 class Widget(QWidget):
 
     TITLE = _('Unknown')
     ICON  = I('config.svg')
     HELP  = ''
+    COMMIT_NAME = None
 
-    def __init__(self, parent, name, options):
+    def __init__(self, parent, options):
         QWidget.__init__(self, parent)
         self.setupUi(self)
         self._options = options
-        self._name = name
+        self._name = self.commit_name = self.COMMIT_NAME
+        assert self._name is not None
         self._icon = QIcon(self.ICON)
         for name in self._options:
             if not hasattr(self, 'opt_'+name):
@@ -58,7 +79,7 @@ class Widget(QWidget):
     def commit_options(self, save_defaults=False):
         recs = self.create_recommendations()
         if save_defaults:
-            save_defaults_(self._name, recs)
+            save_defaults_(self.commit_name, recs)
         return recs
 
     def create_recommendations(self):

@@ -5,11 +5,13 @@ __docformat__ = 'restructuredtext en'
 
 ''''''
 
-from PyQt4.Qt import QDialog, SIGNAL, Qt
+from PyQt4.Qt import QDialog, pyqtSignal, Qt
 
 from calibre.gui2.dialogs.progress_ui import Ui_Dialog
 
 class ProgressDialog(QDialog, Ui_Dialog):
+
+    canceled_signal = pyqtSignal()
 
     def __init__(self, title, msg='', min=0, max=99, parent=None):
         QDialog.__init__(self, parent)
@@ -23,7 +25,7 @@ class ProgressDialog(QDialog, Ui_Dialog):
         self.bar.setValue(min)
         self.canceled = False
 
-        self.connect(self.button_box, SIGNAL('rejected()'), self._canceled)
+        self.button_box.rejected.connect(self._canceled)
 
     def set_msg(self, msg=''):
         self.message.setText(msg)
@@ -50,7 +52,7 @@ class ProgressDialog(QDialog, Ui_Dialog):
         self.canceled = True
         self.button_box.setDisabled(True)
         self.title.setText(_('Aborting...'))
-        self.emit(SIGNAL('canceled()'))
+        self.canceled_signal.emit()
 
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_Escape:

@@ -16,9 +16,10 @@ class TOCWidget(Widget, Ui_Form):
     TITLE = _('Table of\nContents')
     ICON  = I('series.svg')
     HELP  = _('Control the creation/conversion of the Table of Contents.')
+    COMMIT_NAME = 'toc'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'toc',
+        Widget.__init__(self, parent,
                 ['level1_toc', 'level2_toc', 'level3_toc',
                 'toc_threshold', 'max_toc_links', 'no_chapters_in_toc',
                 'use_auto_toc', 'toc_filter',

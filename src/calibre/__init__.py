@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, re, logging, time, mimetypes, \
+import uuid, sys, os, re, logging, time, mimetypes, \
        __builtin__, warnings, multiprocessing
 from urllib import getproxies
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
@@ -22,6 +22,8 @@ from calibre.constants import iswindows, isosx, islinux, isfreebsd, isfrozen, \
 from calibre.startup import winutil, winutilerror
 
 import mechanize
+
+uuid.uuid4() # Imported before PyQt4 to workaround PyQt4 util-linux conflict on gentoo
 
 if False:
     winutil, winutilerror, __appname__, islinux, __version__

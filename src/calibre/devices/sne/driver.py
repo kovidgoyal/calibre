@@ -20,20 +20,19 @@ class SNE(USBMS):
 
     # Ordered list of supported formats
     # Be sure these have an entry in calibre.devices.mime
-    FORMATS     = ['epub', 'txt']
+    FORMATS     = ['epub', 'pdf', 'txt']
 
     VENDOR_ID   = [0x04e8]
-    PRODUCT_ID  = [0x2051]
+    PRODUCT_ID  = [0x2051, 0x2053]
     BCD         = [0x0323]
 
-    VENDOR_NAME = ''
-    #WINDOWS_MAIN_MEM = 'MASS_STORAGE'
-    #WINDOWS_CARD_A_MEM = 'MASS_STORAGE'
+    VENDOR_NAME = 'SAMSUNG'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'SNE-60'
 
     MAIN_MEMORY_VOLUME_LABEL  = 'SNE Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'SNE Storage Card'
 
-    EBOOK_DIR_MAIN = 'Book'
+    EBOOK_DIR_MAIN = 'Books'
     SUPPORTS_SUB_DIRS = True
 
 

@@ -15,9 +15,10 @@ class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('TXT Output')
     HELP = _('Options specific to')+' TXT '+_('output')
+    COMMIT_NAME = 'txt_output'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'txt_output',
+        Widget.__init__(self, parent,
         ['newline', 'max_line_length', 'force_max_line_length',
         'inline_toc'])
         self.db, self.book_id = db, book_id

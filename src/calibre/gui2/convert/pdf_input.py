@@ -11,9 +11,10 @@ class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('PDF Input')
     HELP = _('Options specific to')+' PDF '+_('input')
+    COMMIT_NAME = 'pdf_input'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'pdf_input',
+        Widget.__init__(self, parent,
             ['no_images', 'unwrap_factor'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
