@@ -120,8 +120,6 @@ class ParseRtf:
             script tries to output to directory where is script is exectued.)
             'deb_dir' --debug directory. If a debug_dir is provided, the script
             will copy each run through as a file to examine in the debug_dir
-            'perl_script'--use perl to make tokens. This runs just a bit faster.
-            (I will probably phase this out.)
             'check_brackets' -- make sure the brackets match up after each run
             through a file. Only for debugging.
         Returns: Nothing
@@ -142,7 +140,7 @@ class ParseRtf:
         self.__convert_wingdings = convert_wingdings
         self.__convert_zapf = convert_zapf
         self.__run_level = run_level
-        #self.__exit_level = 0
+        #self.__exit_level = 0 See what this means and if it is consistent
         self.__indent = indent
         self.__replace_illegals = replace_illegals
         self.__form_lists = form_lists
@@ -184,19 +182,15 @@ class ParseRtf:
             A parsed file in XML, either to standard output or to a file,
             depending on the value of 'output' when the instance was created.
         """
-        self.__temp_file = self.__make_temp_file(self.__file)
         #Check to see if the file is correct ascii first
         check_encoding_obj = check_encoding.CheckEncoding(
                 bug_handler = RtfInvalidCodeException,
                     )
         if check_encoding_obj.check_encoding(self.__file):
-            try:
-                os.remove(self.__temp_file)
-            except OSError:
-                pass
             sys.stderr.write('File "%s" does not appear to be ascii.\n' \
                  % self.__file if isinstance(self.__file, str) else self.__file.encode('utf-8'))
             raise InvalidRtfException
+        self.__temp_file = self.__make_temp_file(self.__file)
         # if the self.__deb_dir is true, then create a copy object,
         # set the directory to write to, remove files, and copy
         # the new temporary file to this directory
@@ -223,7 +217,6 @@ class ParseRtf:
                 replace_illegals = self.__replace_illegals,
                 )
         line_obj.fix_endings()
-        #return_value = line_obj.fix_endings() #calibre: no return in this function, why keep it?
         #self.__return_code(return_value)
         tokenize_obj = tokenize.Tokenize(
                 bug_handler = RtfInvalidCodeException,
@@ -550,6 +543,7 @@ class ParseRtf:
         write_file="rtf_write_file"
         read_obj = file if hasattr(file, 'read') else open(file,'r')
         write_obj = open(write_file, 'wb')
-        write_obj.write(read_obj.read())
+        for line in read_obj:
+            write_obj.write(line)
         write_obj.close()
         return write_file

@@ -23,6 +23,7 @@ class Copy:
     def __init__(self, bug_handler, file = None, deb_dir = None, ):
         self.__file = file
         self.__bug_handler = bug_handler
+
     def set_dir(self, deb_dir):
         """Set the temporary directory to write files to"""
         if deb_dir is None:
@@ -33,19 +34,11 @@ class Copy:
             message = "%(deb_dir)s is not a directory" % vars()
             raise self.__bug_handler , message
         Copy.__dir = deb_dir
+
     def remove_files(self ):
         """Remove files from directory"""
         self.__remove_the_files(Copy.__dir)
-        """
-        list_of_files = os.listdir(Copy.__dir)
-        list_of_files = os.listdir(the_dir)
-        for file in list_of_files:
-            rem_file = os.path.join(Copy.__dir,file)
-            if os.path.isdir(rem_file):
-                self.remove_files(rem_file)
-            else:
-                os.remove(rem_file)
-        """
+
     def __remove_the_files(self, the_dir):
         """Remove files from directory"""
         list_of_files = os.listdir(the_dir)
@@ -58,6 +51,7 @@ class Copy:
                     os.remove(rem_file)
                 except OSError:
                     pass
+
     def copy_file(self, file, new_file):
         """
         Copy the file to a new name

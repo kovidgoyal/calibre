@@ -14,10 +14,10 @@ class CheckEncoding:
                 sys.stderr.write(str(msg) + '\n')
     def check_encoding(self, path, encoding='us-ascii'):
         read_obj = open(path, 'r')
-        input_file = read_obj.read()
-        read_obj.close()
+        
         line_num = 0
-        for line in input_file:
+        error_found = False
+        for line in read_obj:
             line_num += 1
             try:
                 line.decode(encoding)
@@ -26,8 +26,9 @@ class CheckEncoding:
                     self.__get_position_error(line, encoding, line_num)
                 else:
                     sys.stderr.write('line: %d has bad encoding\n'%line_num)
-                return True
-        return False
+                error_found = True
+        read_obj.close()
+        return error_found
 
 if __name__ == '__main__':
     check_encoding_obj = CheckEncoding()

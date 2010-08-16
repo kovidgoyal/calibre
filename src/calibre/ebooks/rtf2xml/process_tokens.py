@@ -735,8 +735,94 @@ class ProcessTokens:
         pre, token, action = self.dict_token.get(token, (None, None, None))
         if action:
             return action(pre, token, num)
-    # unused function
-    def initiate_token_actions(self):
+    
+    def __check_brackets(self, in_file):
+        self.__check_brack_obj = check_brackets.CheckBrackets\
+            (file = in_file)
+        good_br =  self.__check_brack_obj.check_brackets()[0]
+        if not good_br:
+            return 1
+    def process_tokens(self):
+        """Main method for handling other methods. """
+        
+        read_obj= open(self.__file, 'r')
+        write_obj = open(self.__write_to, 'wb')
+        
+        '''first_token = 0
+        second_token = 0'''
+        line_count = 0
+        
+        for line in read_obj:
+            token = line.replace("\n","")
+            #calibre not necessary normaly, fixed in tokenize
+            '''if not token:
+                continue'''
+            line_count += 1
+            #calibre not necessary, encoding checked before 
+            """try:
+                token.decode('us-ascii')
+            except UnicodeError, msg:
+                msg = str(msg)
+                msg += 'Invalid RTF: File not ascii encoded.\n'
+                raise self.__exception_handler, msg"""
+            #calibre: with tokenize, should be first and second line, why bother?
+            """if not first_token:
+                if token != '\\{':
+                    msg = 'Invalid RTF: document doesn\'t start with {\n'
+                    raise self.__exception_handler, msg
+                first_token = 1
+            elif line_count ==  and not second_token:
+                if token[0:4] != '\\rtf':
+                    msg ='Invalid RTF: document doesn\'t start with \\rtf \n'
+                    raise self.__exception_handler, msg
+                second_token = 1"""
+            if line_count == 1 and token != '\\{':
+                    msg = 'Invalid RTF: document doesn\'t start with {\n'
+                    raise self.__exception_handler, msg
+            elif line_count == 2 and token[0:4] != '\\rtf':
+                    msg ='Invalid RTF: document doesn\'t start with \\rtf \n'
+                    raise self.__exception_handler, msg
+            
+            ##token = self.evaluate_token(token)
+            the_index = token.find('\\ ')
+            if token is not None and  the_index > -1:
+                msg ='Invalid RTF: token "\\ " not valid.\n'
+                raise self.__exception_handler, msg
+            elif token[:1] == "\\":
+                line = self.process_cw(token)
+                if line is not None:
+                    write_obj.write(line)
+            else:
+                fields = re.split(self.__utf_exp, token)
+                for field in fields:
+                    if not field:
+                        continue
+                    if field[0:1] == '&':
+                        write_obj.write('tx<ut<__________<%s\n' % field)
+                    else:
+                        write_obj.write('tx<nu<__________<%s\n' % field)
+        
+        read_obj.close()
+        write_obj.close()
+        
+        if not line_count:
+            msg ='Invalid RTF: file appears to be empty.\n'
+            raise self.__exception_handler, msg
+        
+        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        if self.__copy:
+            copy_obj.copy_file(self.__write_to, "processed_tokens.data")
+        copy_obj.rename(self.__write_to, self.__file)
+        os.remove(self.__write_to)
+        
+        bad_brackets = self.__check_brackets(self.__file)
+        if bad_brackets:
+            msg = 'Invalid RTF: document does not have matching brackets.\n'
+            raise self.__exception_handler, msg
+        else:
+            return self.__return_code
+
+    '''def initiate_token_actions(self):
         self.action_for_token={
         '{'     :   self.ob_func,
         '}'     :   self.cb_func,
@@ -752,75 +838,4 @@ class ProcessTokens:
             line = action(token)
             return line
         else :
-            return  'tx<nu<nu<nu<nu<%s\n' % token
-    def __check_brackets(self, in_file):
-        self.__check_brack_obj = check_brackets.CheckBrackets\
-            (file = in_file)
-        good_br =  self.__check_brack_obj.check_brackets()[0]
-        if not good_br:
-            return 1
-    def process_tokens(self):
-        """Main method for handling other methods. """
-        first_token = 0
-        second_token = 0
-        read_obj = open(self.__file, 'r')
-        write_obj = open(self.__write_to, 'w')
-        line_to_read = "dummy"
-        line_count = 0
-        while line_to_read:
-            line_to_read = read_obj.readline()
-            token = line_to_read
-            token = token.replace("\n","")
-            if not token:
-                continue
-            line_count += 1
-            try:
-                token.decode('us-ascii')
-            except UnicodeError, msg:
-                msg = str(msg)
-                msg += 'Invalid RTF: File not ascii encoded.\n'
-                raise self.__exception_handler, msg
-            if not first_token:
-                if token != '\\{':
-                    msg = 'Invalid RTF: document doesn\'t start with {\n'
-                    raise self.__exception_handler, msg
-                first_token = 1
-            elif first_token and not second_token:
-                if token[0:4] != '\\rtf':
-                    msg ='Invalid RTF: document doesn\'t start with \\rtf \n'
-                    raise self.__exception_handler, msg
-                second_token = 1
-            ##token = self.evaluate_token(token)
-            the_index = token.find('\\ ')
-            if token != None and  the_index > -1:
-                msg ='Invalid RTF: token "\\ " not valid. \n'
-                raise self.__exception_handler, msg
-            elif token[0:1] == "\\":
-                line = self.process_cw(token)
-                if line != None:
-                    write_obj.write(line)
-            else:
-                fields = re.split(self.__utf_exp, token)
-                for field in fields:
-                    if not field:
-                        continue
-                    if field[0:1] == '&':
-                        write_obj.write('tx<ut<__________<%s\n' % field)
-                    else:
-                        write_obj.write('tx<nu<__________<%s\n' % field)
-        read_obj.close()
-        write_obj.close()
-        if not line_count:
-            msg ='Invalid RTF: file appears to be empty. \n'
-            raise self.__exception_handler, msg
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
-        if self.__copy:
-            copy_obj.copy_file(self.__write_to, "processed_tokens.data")
-        copy_obj.rename(self.__write_to, self.__file)
-        os.remove(self.__write_to)
-        bad_brackets = self.__check_brackets(self.__file)
-        if bad_brackets:
-            msg = 'Invalid RTF: document does not have matching brackets.\n'
-            raise self.__exception_handler, msg
-        else:
-            return self.__return_code
+            return  'tx<nu<nu<nu<nu<%s\n' % token'''
