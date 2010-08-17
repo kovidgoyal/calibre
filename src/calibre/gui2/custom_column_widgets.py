@@ -11,7 +11,7 @@ from functools import partial
 from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
         QDate, QGroupBox, QVBoxLayout, QPlainTextEdit, QSizePolicy, \
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL, \
-        QPushButton
+        QPushButton, QCoreApplication
 
 from calibre.utils.date import qt_to_dt, now
 from calibre.gui2.widgets import TagsLineEdit, EnComboBox
@@ -406,6 +406,7 @@ class BulkBase(Base):
     def commit(self, book_ids, notify=False):
         if self.process_each_book():
             for book_id in book_ids:
+                QCoreApplication.processEvents()
                 val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
                 new_val = self.getter(val)
                 if set(val) != new_val:
@@ -415,6 +416,7 @@ class BulkBase(Base):
             val = self.normalize_ui_val(val)
             if val != self.initial_val:
                 for book_id in book_ids:
+                    QCoreApplication.processEvents()
                     self.db.set_custom(book_id, val, num=self.col_id, notify=notify)
 
 class BulkBool(BulkBase, Bool):
@@ -433,6 +435,7 @@ class BulkDateTime(BulkBase, DateTime):
     pass
 
 class BulkSeries(BulkBase):
+
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
@@ -458,6 +461,7 @@ class BulkSeries(BulkBase):
         update_indices = self.idx_widget.checkState()
         if val != '':
             for book_id in book_ids:
+                QCoreApplication.processEvents()
                 if update_indices:
                     if tweaks['series_index_auto_increment'] == 'next':
                         s_index = self.db.get_next_cc_series_num_for\
