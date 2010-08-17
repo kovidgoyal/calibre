@@ -26,7 +26,7 @@ from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
-
+from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.utils.config import prefs, tweaks
@@ -116,6 +116,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # so that various code taht connects directly will not complain about
         # missing functions
         self.books_list_filter = self.conn.create_dynamic_filter('books_list_filter')
+        # Store temporary tables in memory
+        self.conn.execute('pragma temp_store=2')
+        self.conn.commit()
 
     @classmethod
     def exists_at(cls, path):
@@ -1369,6 +1372,80 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return set([])
         return set([r[0] for r in result])
 
+    @classmethod
+    def cleanup_tags(cls, tags):
+        tags = [x.strip() for x in tags if x.strip()]
+        tags = [x.decode(preferred_encoding, 'replace') \
+                    if isbytestring(x) else x for x in tags]
+        tags = [u' '.join(x.split()) for x in tags]
+        ans, seen = [], set([])
+        for tag in tags:
+            if tag.lower() not in seen:
+                seen.add(tag.lower())
+                ans.append(tag)
+        return ans
+
+    def bulk_modify_tags(self, ids, add=[], remove=[], notify=False):
+        add = self.cleanup_tags(add)
+        remove = self.cleanup_tags(remove)
+        remove = set(remove) - set(add)
+        if not ids or (not add and not remove):
+            return
+
+        # Add tags that do not already exist into the tag table
+        all_tags = self.all_tags()
+        lt = [t.lower() for t in all_tags]
+        new_tags = [t for t in add if t.lower() not in lt]
+        if new_tags:
+            self.conn.executemany('INSERT INTO tags(name) VALUES (?)', [(x,) for x in
+                new_tags])
+
+        # Create the temporary tables to store the ids for books and tags
+        # to be operated on
+        tables = ('temp_bulk_tag_edit_books', 'temp_bulk_tag_edit_add',
+                    'temp_bulk_tag_edit_remove')
+        drops = '\n'.join(['DROP TABLE IF EXISTS %s;'%t for t in tables])
+        creates = '\n'.join(['CREATE TEMP TABLE %s(id INTEGER PRIMARY KEY);'%t
+                for t in tables])
+        self.conn.executescript(drops + creates)
+
+        # Populate the books temp table
+        self.conn.executemany(
+            'INSERT INTO temp_bulk_tag_edit_books VALUES (?)',
+                [(x,) for x in ids])
+
+        # Populate the add/remove tags temp tables
+        for table, tags in enumerate([add, remove]):
+            if not tags:
+                continue
+            table = tables[table+1]
+            insert = ('INSERT INTO %s(id) SELECT tags.id FROM tags WHERE name=?'
+                     ' COLLATE PYNOCASE LIMIT 1')
+            self.conn.executemany(insert%table, [(x,) for x in tags])
+
+        if remove:
+            self.conn.execute(
+              '''DELETE FROM books_tags_link WHERE
+                    book IN (SELECT id FROM %s) AND
+                    tag IN (SELECT id FROM %s)'''
+              % (tables[0], tables[2]))
+
+        if add:
+            self.conn.execute(
+            '''
+            INSERT INTO books_tags_link(book, tag) SELECT {0}.id, {1}.id FROM
+            {0}, {1}
+            '''.format(tables[0], tables[1])
+            )
+        self.conn.executescript(drops)
+        self.conn.commit()
+
+        for x in ids:
+            tags = u','.join(self.get_tags(x))
+            self.data.set(x, self.FIELD_MAP['tags'], tags, row_is_id=True)
+        if notify:
+            self.notify('metadata', ids)
+
     def set_tags(self, id, tags, append=False, notify=True):
         '''
         @param tags: list of strings
@@ -1378,10 +1455,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
             self.conn.execute('DELETE FROM tags WHERE (SELECT COUNT(id) FROM books_tags_link WHERE tag=tags.id) < 1')
         otags = self.get_tags(id)
-        tags = [x.strip() for x in tags if x.strip()]
-        tags = [x.decode(preferred_encoding, 'replace') if not isinstance(x,
-            unicode) else x for x in tags]
-        tags = [u' '.join(x.split()) for x in tags]
+        tags = self.cleanup_tags(tags)
         for tag in (set(tags)-otags):
             tag = tag.strip()
             if not tag:
@@ -1407,7 +1481,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)',
                               (id, tid))
         self.conn.commit()
-        tags = ','.join(self.get_tags(id))
+        tags = u','.join(self.get_tags(id))
         self.data.set(id, self.FIELD_MAP['tags'], tags, row_is_id=True)
         if notify:
             self.notify('metadata', [id])

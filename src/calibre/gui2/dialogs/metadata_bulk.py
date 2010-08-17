@@ -27,8 +27,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.changed = False
         QObject.connect(self.button_box, SIGNAL("accepted()"), self.sync)
 
-        self.tags.update_tags_cache(self.db.all_tags())
-        self.remove_tags.update_tags_cache(self.db.all_tags())
+        all_tags = self.db.all_tags()
+        self.tags.update_tags_cache(all_tags)
+        self.remove_tags.update_tags_cache(all_tags)
 
         self.initialize_combos()
 
@@ -103,6 +104,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.remove_tags.update_tags_cache(self.db.all_tags())
 
     def sync(self):
+        remove = unicode(self.remove_tags.text()).strip().split(',')
+        add = unicode(self.tags.text()).strip().split(',')
+        self.db.bulk_modify_tags(self.ids, add=add, remove=remove)
+
+
         for id in self.ids:
             au = unicode(self.authors.text())
             if au:
@@ -120,14 +126,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             pub = unicode(self.publisher.text())
             if pub:
                 self.db.set_publisher(id, pub, notify=False)
-            remove_tags = unicode(self.remove_tags.text()).strip()
-            if remove_tags:
-                remove_tags = [i.strip() for i in remove_tags.split(',')]
-                self.db.unapply_tags(id, remove_tags, notify=False)
-            tags = unicode(self.tags.text()).strip()
-            if tags:
-                tags = map(lambda x: x.strip(), tags.split(','))
-                self.db.set_tags(id, tags, append=True, notify=False)
             if self.write_series:
                 series = unicode(self.series.currentText()).strip()
                 next = self.db.get_next_series_num_for(series)
