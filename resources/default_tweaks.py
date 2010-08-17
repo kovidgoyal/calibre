@@ -81,8 +81,3 @@ title_series_sorting = 'library_order'
 # strictly_alphabetic, it would remain "The Client".
 save_template_title_series_sorting = 'library_order'
 
-# Specify a restriction to apply when calibre starts or when change library is
-# used. Provide the name of a saved search. It is ignored if the saved search
-# does not exist in the library being opened. The value '' means no restriction.
-restrict_at_startup = ''
-
