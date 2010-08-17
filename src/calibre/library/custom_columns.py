@@ -313,6 +313,87 @@ class CustomColumns(object):
             self.conn.commit()
         return changed
 
+    def set_custom_bulk(self, ids, add=[], remove=[],
+                        label=None, num=None, notify=False):
+        '''
+        Fast algorithm for updating custom column is_multiple datatypes.
+        Do not use with other custom column datatypes.
+        '''
+        if label is not None:
+            data = self.custom_column_label_map[label]
+        if num is not None:
+            data = self.custom_column_num_map[num]
+        if not data['editable']:
+            raise ValueError('Column %r is not editable'%data['label'])
+        if data['datatype'] != 'text' or not data['is_multiple']:
+            raise ValueError('Column %r is not text/multiple'%data['label'])
+
+        add = self.cleanup_tags(add)
+        remove = self.cleanup_tags(remove)
+        remove = set(remove) - set(add)
+        if not ids or (not add and not remove):
+            return
+        # get custom table names
+        cust_table, link_table = self.custom_table_names(data['num'])
+
+        # Add tags that do not already exist into the custom cust_table
+        all_tags = self.all_custom(num=data['num'])
+        lt = [t.lower() for t in all_tags]
+        new_tags = [t for t in add if t.lower() not in lt]
+        if new_tags:
+            self.conn.executemany('INSERT INTO %s(value) VALUES (?)'%cust_table,
+                                  [(x,) for x in new_tags])
+
+        # Create the temporary temp_tables to store the ids for books and tags
+        # to be operated on
+        temp_tables = ('temp_bulk_tag_edit_books', 'temp_bulk_tag_edit_add',
+                    'temp_bulk_tag_edit_remove')
+        drops = '\n'.join(['DROP TABLE IF EXISTS %s;'%t for t in temp_tables])
+        creates = '\n'.join(['CREATE TEMP TABLE %s(id INTEGER PRIMARY KEY);'%t
+                for t in temp_tables])
+        self.conn.executescript(drops + creates)
+
+        # Populate the books temp cust_table
+        self.conn.executemany(
+            'INSERT INTO temp_bulk_tag_edit_books VALUES (?)',
+                [(x,) for x in ids])
+
+        # Populate the add/remove tags temp temp_tables
+        for table, tags in enumerate([add, remove]):
+            if not tags:
+                continue
+            table = temp_tables[table+1]
+            insert = ('INSERT INTO {tt}(id) SELECT {ct}.id FROM {ct} WHERE value=?'
+                     ' COLLATE PYNOCASE LIMIT 1').format(tt=table, ct=cust_table)
+            self.conn.executemany(insert, [(x,) for x in tags])
+
+        # now do the real work -- removing and adding the tags
+        if remove:
+            self.conn.execute(
+              '''DELETE FROM %s WHERE
+                    book IN (SELECT id FROM %s) AND
+                    value IN (SELECT id FROM %s)'''
+              % (link_table, temp_tables[0], temp_tables[2]))
+        if add:
+            self.conn.execute(
+            '''
+            INSERT INTO {0}(book, value) SELECT {1}.id, {2}.id FROM {1}, {2}
+            '''.format(link_table, temp_tables[0], temp_tables[1])
+            )
+        # get rid of the temp tables
+        self.conn.executescript(drops)
+        self.conn.commit()
+
+        # set the in-memory copies of the tags
+        for x in ids:
+            tags = self.conn.get(
+                    'SELECT custom_%s FROM meta2 WHERE id=?'%data['num'],
+                    (x,), all=False)
+            self.data.set(x, self.FIELD_MAP[data['num']], tags, row_is_id=True)
+
+        if notify:
+            self.notify('metadata', ids)
+
     def set_custom(self, id_, val, label=None, num=None,
                    append=False, notify=True, extra=None):
         if label is not None:

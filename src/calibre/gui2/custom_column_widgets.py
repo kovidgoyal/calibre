@@ -394,30 +394,18 @@ class BulkBase(Base):
             ans = list(ans)
         return ans
 
-    def process_each_book(self):
-        return False
-
     def initialize(self, book_ids):
-        if not self.process_each_book():
-            self.initial_val = val = self.get_initial_value(book_ids)
-            val = self.normalize_db_val(val)
-            self.setter(val)
+        self.initial_val = val = self.get_initial_value(book_ids)
+        val = self.normalize_db_val(val)
+        self.setter(val)
 
     def commit(self, book_ids, notify=False):
-        if self.process_each_book():
+        val = self.getter()
+        val = self.normalize_ui_val(val)
+        if val != self.initial_val:
             for book_id in book_ids:
                 QCoreApplication.processEvents()
-                val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
-                new_val = self.getter(val)
-                if set(val) != new_val:
-                    self.db.set_custom(book_id, new_val, num=self.col_id, notify=notify)
-        else:
-            val = self.getter()
-            val = self.normalize_ui_val(val)
-            if val != self.initial_val:
-                for book_id in book_ids:
-                    QCoreApplication.processEvents()
-                    self.db.set_custom(book_id, val, num=self.col_id, notify=notify)
+                self.db.set_custom(book_id, val, num=self.col_id, notify=notify)
 
 class BulkBool(BulkBase, Bool):
     pass
@@ -473,9 +461,6 @@ class BulkSeries(BulkBase):
                                                        index_is_id=True)
                 self.db.set_custom(book_id, val, extra=s_index,
                                    num=self.col_id, notify=notify)
-
-    def process_each_book(self):
-        return True
 
 class RemoveTags(QWidget):
 
@@ -539,8 +524,30 @@ class BulkText(BulkBase):
             if idx is not None:
                 self.widgets[1].setCurrentIndex(idx)
 
-    def process_each_book(self):
-        return self.col_metadata['is_multiple']
+    def commit(self, book_ids, notify=False):
+        if self.col_metadata['is_multiple']:
+            remove = set()
+            if self.removing_widget.checkbox.isChecked():
+                for book_id in book_ids:
+                    remove |= set(self.db.get_custom(book_id, num=self.col_id,
+                                                     index_is_id=True))
+            else:
+                txt = unicode(self.removing_widget.tags_box.text())
+                if txt:
+                    remove = set([v.strip() for v in txt.split(',')])
+            txt = unicode(self.adding_widget.text())
+            if txt:
+                add = set([v.strip() for v in txt.split(',')])
+            else:
+                add = set()
+            self.db.set_custom_bulk(book_ids, add=add, remove=remove, num=self.col_id)
+        else:
+            val = self.getter()
+            val = self.normalize_ui_val(val)
+            if val != self.initial_val:
+                for book_id in book_ids:
+                    QCoreApplication.processEvents()
+                    self.db.set_custom(book_id, val, num=self.col_id, notify=notify)
 
     def getter(self, original_value = None):
         if self.col_metadata['is_multiple']:
