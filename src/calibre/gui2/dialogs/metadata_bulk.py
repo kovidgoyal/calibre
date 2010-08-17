@@ -194,6 +194,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         finally:
             pd.hide()
 
+        self.db.clean()
         return QDialog.accept(self)
 
 

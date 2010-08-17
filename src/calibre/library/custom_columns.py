@@ -315,6 +315,10 @@ class CustomColumns(object):
 
     def set_custom_bulk(self, ids, add=[], remove=[],
                         label=None, num=None, notify=False):
+        '''
+        Fast algorithm for updating custom column is_multiple datatypes.
+        Do not use with other custom column datatypes.
+        '''
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
@@ -378,10 +382,6 @@ class CustomColumns(object):
             )
         # get rid of the temp tables
         self.conn.executescript(drops)
-        # Remove any dreg tags -- ones with no references
-        self.conn.execute(
-            '''DELETE FROM %s WHERE (SELECT COUNT(id) FROM %s WHERE
-                value=%s.id) < 1''' % (cust_table, link_table, cust_table))
         self.conn.commit()
 
         # set the in-memory copies of the tags

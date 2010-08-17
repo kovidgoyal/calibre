@@ -21,7 +21,7 @@ from PyQt4.Qt import Qt, SIGNAL, QTimer, \
 from calibre import  prints
 from calibre.constants import __appname__, isosx
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.config import prefs, dynamic, tweaks
+from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.library.database2 import LibraryDatabase2
 from calibre.customize.ui import interface_actions
@@ -230,8 +230,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         ######################### Search Restriction ##########################
         SearchRestrictionMixin.__init__(self)
-        if tweaks['restrict_at_startup']:
-            self.apply_named_search_restriction(tweaks['restrict_at_startup'])
 
         ########################### Cover Flow ################################
 
@@ -375,8 +373,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.set_window_title()
         self.apply_named_search_restriction('') # reset restriction to null
         self.saved_searches_changed() # reload the search restrictions combo box
-        if tweaks['restrict_at_startup']:
-            self.apply_named_search_restriction(tweaks['restrict_at_startup'])
 
     def set_window_title(self):
         self.setWindowTitle(__appname__ + u' - ||%s||'%self.iactions['Choose Library'].library_name())
