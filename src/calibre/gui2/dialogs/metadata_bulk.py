@@ -4,13 +4,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Dialog to edit metadata in bulk'''
 
 from PyQt4.Qt import SIGNAL, QObject, QDialog, QGridLayout, \
-    QProgressDialog, QCoreApplication, QString
+    QCoreApplication
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, \
     authors_to_string
 from calibre.gui2.custom_column_widgets import populate_metadata_page
+from calibre.gui2.dialogs.progress import ProgressDialog
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
@@ -106,12 +107,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if len(self.ids) < 1:
             return QDialog.accept(self)
 
-        pd = QProgressDialog(
+        pd = ProgressDialog(_('Working'),
                 _('Applying changes to %d books. This may take a while.')%len(self.ids),
-                QString(), 0, 0, self)
+                0, 0, self, cancelable=False)
         pd.setModal(True)
         pd.show()
-        pd.setValue(0)
         def upd():
             QCoreApplication.processEvents()
 
@@ -164,7 +164,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
                 if rating != -1:
                     self.db.set_rating(id, 2*rating, notify=False)
-                upd()
 
                 if pub:
                     self.db.set_publisher(id, pub, notify=False)
@@ -181,10 +180,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     self.db.remove_format(id, remove_format, index_is_id=True, notify=False)
                 upd()
 
-
                 if do_remove_conv:
                     self.db.delete_conversion_options(id, 'PIPE')
-                upd()
 
             upd()
             for w in getattr(self, 'custom_column_widgets', []):
@@ -195,7 +192,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
 
         finally:
-            pd.cancel()
+            pd.hide()
 
         return QDialog.accept(self)
 

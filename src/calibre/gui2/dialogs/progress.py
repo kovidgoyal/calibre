@@ -13,7 +13,8 @@ class ProgressDialog(QDialog, Ui_Dialog):
 
     canceled_signal = pyqtSignal()
 
-    def __init__(self, title, msg='', min=0, max=99, parent=None):
+    def __init__(self, title, msg='', min=0, max=99, parent=None,
+            cancelable=True):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.setWindowTitle(title)
@@ -26,6 +27,9 @@ class ProgressDialog(QDialog, Ui_Dialog):
         self.canceled = False
 
         self.button_box.rejected.connect(self._canceled)
+        if not cancelable:
+            self.button_box.setVisible(False)
+        self.cancelable = cancelable
 
     def set_msg(self, msg=''):
         self.message.setText(msg)
@@ -54,8 +58,14 @@ class ProgressDialog(QDialog, Ui_Dialog):
         self.title.setText(_('Aborting...'))
         self.canceled_signal.emit()
 
+    def reject(self):
+        if not self.cancelable:
+            return
+        QDialog.reject(self)
+
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_Escape:
-            self._canceled()
+            if self.cancelable:
+                self._canceled()
         else:
             QDialog.keyPressEvent(self, ev)
