@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-08-15 05:27+0000\n"
-"PO-Revision-Date: 2010-08-16 05:37+0000\n"
+"PO-Revision-Date: 2010-08-16 10:10+0000\n"
 "Last-Translator: HelioS <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-16 06:39+0000\n"
+"X-Launchpad-Export-Date: 2010-08-17 06:54+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -3873,7 +3873,7 @@ msgstr "Похожие книги..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:22
 msgid "Alt+A"
-msgstr ""
+msgstr "Alt+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:22
 msgid "Books by same author"
@@ -3889,7 +3889,7 @@ msgstr "Книги той же серии"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Alt+P"
-msgstr ""
+msgstr "Alt+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Books by this publisher"
@@ -3897,7 +3897,7 @@ msgstr "Книги того же издателя"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Alt+T"
-msgstr ""
+msgstr "Alt+T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Books with the same tags"
@@ -4148,18 +4148,21 @@ msgstr "..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:67
 msgid "Handle multiple files per book"
-msgstr ""
+msgstr "Обрабатывать множество файлов как одну книгу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:68
 msgid ""
 "&One book per folder, assumes every ebook file in a folder is the same book "
 "in a different format"
 msgstr ""
+"Одна книга в папке, т.е. каждый файл представляет собой одну и ту же книгу в "
+"разных форматах"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:69
 msgid ""
 "&Multiple books per folder, assumes every ebook file is a different book"
 msgstr ""
+"Несколько книг в папке, т.е. каждый файл представляет собой уникальную книгу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:23
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:45
@@ -4336,7 +4339,7 @@ msgstr "книга"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:94
 msgid "Create a citation tag?"
-msgstr ""
+msgstr "Создать метку-цитату?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:95
 msgid "Expression to form the BibTeX citation tag:"
@@ -4683,7 +4686,7 @@ msgstr "Выровнять влево"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:33
 msgid "Justify text"
-msgstr ""
+msgstr "Выровнять текст"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:120
 msgid "&Disable font size rescaling"
@@ -4712,7 +4715,7 @@ msgstr "Удалить пробелы между абзацами"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:130
 msgid "Indent size:"
-msgstr ""
+msgstr "Размер отступа:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:131
 msgid ""
@@ -4730,7 +4733,7 @@ msgstr " em"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:133
 msgid "Text justification:"
-msgstr ""
+msgstr "Выравнивание текста:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:134
 msgid "&Linearize tables"
@@ -4738,11 +4741,11 @@ msgstr "Линеаризировать таблицы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:135
 msgid "Extra &CSS"
-msgstr ""
+msgstr "Дополнительные &CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:136
 msgid "&Transliterate unicode characters to ASCII"
-msgstr ""
+msgstr "Транслитерировать символы юникода в ASCII"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:137
 msgid "Insert &blank line"
