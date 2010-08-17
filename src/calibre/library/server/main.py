@@ -33,7 +33,8 @@ def option_parser():
     parser.add_option('--daemonize', default=False, action='store_true',
             help='Run process in background as a daemon. No effect on windows.')
     parser.add_option('--restriction', default=None,
-            help='Specifies a restriction to be used for this invocation.')
+            help=_('Specifies a restriction to be used for this invocation. '
+                   'This option overrides the default set in the GUI'))
     return parser
 
 def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
@@ -85,9 +86,7 @@ def main(args=sys.argv):
     if opts.with_library is None:
         opts.with_library = prefs['library_path']
     db = LibraryDatabase2(opts.with_library)
-    server = LibraryServer(db, opts, ignore_search_restriction=False)
-    if opts.restriction:
-        db.data.set_search_restriction('search:' + opts.restriction)
+    server = LibraryServer(db, opts)
     server.start()
     return 0
 

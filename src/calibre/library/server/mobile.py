@@ -181,8 +181,7 @@ class MobileServer(object):
             num = int(num)
         except ValueError:
             raise cherrypy.HTTPError(400, 'num: %s is not an integer'%num)
-        ids = self.db.search(search, return_matches=True,
-                             ignore_search_restriction=self.ignore_search_restriction)
+        ids = self.db.search_getting_ids(search, self.search_restriction)
         FM = self.db.FIELD_MAP
         items = [r for r in iter(self.db) if r[FM['id']] in ids]
         if sort is not None:

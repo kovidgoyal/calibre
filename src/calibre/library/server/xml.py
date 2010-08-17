@@ -45,15 +45,13 @@ class XMLServer(object):
 
         order = order.lower().strip() == 'ascending'
 
-        ids = self.db.search(search, return_matches=True,
-                             ignore_search_restriction=self.ignore_search_restriction)
+        ids = self.db.search_getting_ids(search, self.search_restriction)
 
         FM = self.db.FIELD_MAP
 
         items = [r for r in iter(self.db) if r[FM['id']] in ids]
         if sort is not None:
             self.sort(items, sort, order)
-
 
         books = []
 

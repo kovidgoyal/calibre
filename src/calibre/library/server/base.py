@@ -57,15 +57,13 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache):
 
     server_name = __appname__ + '/' + __version__
 
-    def __init__(self, db, opts, embedded=False, show_tracebacks=True,
-                 ignore_search_restriction=True):
+    def __init__(self, db, opts, embedded=False, show_tracebacks=True):
         self.db = db
         for item in self.db:
             item
             break
         self.opts = opts
         self.embedded = embedded
-        self.ignore_search_restriction=ignore_search_restriction
         self.state_callback = None
         self.max_cover_width, self.max_cover_height = \
                         map(int, self.opts.max_cover.split('x'))
@@ -97,8 +95,18 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache):
                       'tools.digest_auth.users' : {opts.username.strip():opts.password.strip()},
                       }
 
+        self.set_search_restriction(db.prefs.get('cs_restriction', ''))
+        if opts.restriction is not None:
+            self.set_search_restriction(opts.restriction)
+
         self.is_running = False
         self.exception = None
+
+    def set_search_restriction(self, restriction):
+        if restriction:
+            self.search_restriction = 'search:'+restriction
+        else:
+            self.search_restriction = ''
 
     def setup_loggers(self):
         access_file = log_access_file

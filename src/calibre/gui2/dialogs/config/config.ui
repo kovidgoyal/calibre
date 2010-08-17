@@ -1040,6 +1040,26 @@
                  </property>
                 </widget>
                </item>
+               <item row="7" column="1">
+                <widget class="QLineEdit" name="opt_restriction">
+                 <property name="toolTip">
+                  <string>Provides a restriction to be used by the content server</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="0">
+                <widget class="QLabel" name="label_164">
+                 <property name="text">
+                  <string>Restriction (saved search) to apply:</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>opt_restriction</cstring>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </item>
              <item>

@@ -447,6 +447,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.password.setText(opts.password if opts.password else '')
         self.opt_max_opds_items.setValue(opts.max_opds_items)
         self.opt_max_opds_ungrouped_items.setValue(opts.max_opds_ungrouped_items)
+        self.opt_restriction.setText(self.db.prefs.get('cs_restriction', ''))
         self.auto_launch.setChecked(config['autolaunch_server'])
         self.systray_icon.setChecked(config['systray_icon'])
         self.sync_news.setChecked(config['upload_news_to_device'])
@@ -906,6 +907,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         sc.set('max_opds_items', self.opt_max_opds_items.value())
         sc.set('max_opds_ungrouped_items',
                 self.opt_max_opds_ungrouped_items.value())
+        self.db.prefs.set('cs_restriction', unicode(self.opt_restriction.text()))
         config['delete_news_from_library_on_upload'] = self.delete_news.isChecked()
         config['upload_news_to_device'] = self.sync_news.isChecked()
         config['search_as_you_type'] = self.search_as_you_type.isChecked()
