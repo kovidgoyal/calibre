@@ -5,9 +5,10 @@ __docformat__ = 'restructuredtext en'
 
 ''''''
 
-from PyQt4.Qt import QDialog, pyqtSignal, Qt
+from PyQt4.Qt import QDialog, pyqtSignal, Qt, QVBoxLayout, QLabel, QFont
 
 from calibre.gui2.dialogs.progress_ui import Ui_Dialog
+from calibre.gui2.progress_indicator import ProgressIndicator
 
 class ProgressDialog(QDialog, Ui_Dialog):
 
@@ -69,3 +70,37 @@ class ProgressDialog(QDialog, Ui_Dialog):
                 self._canceled()
         else:
             QDialog.keyPressEvent(self, ev)
+
+class BlockingBusy(QDialog):
+
+    def __init__(self, msg, parent=None, window_title=_('Working')):
+        QDialog.__init__(self, parent)
+
+        self._layout = QVBoxLayout()
+        self.setLayout(self._layout)
+        self.msg = QLabel(msg)
+        #self.msg.setWordWrap(True)
+        self.font = QFont()
+        self.font.setPointSize(self.font.pointSize() + 8)
+        self.msg.setFont(self.font)
+        self.pi = ProgressIndicator(self)
+        self.pi.setDisplaySize(100)
+        self._layout.addWidget(self.pi, 0, Qt.AlignHCenter)
+        self._layout.addSpacing(15)
+        self._layout.addWidget(self.msg, 0, Qt.AlignHCenter)
+        self.start()
+        self.setWindowTitle(window_title)
+        self.resize(self.sizeHint())
+
+    def start(self):
+        self.pi.startAnimation()
+
+    def stop(self):
+        self.pi.stopAnimation()
+
+    def accept(self):
+        self.stop()
+        return QDialog.accept(self)
+
+    def reject(self):
+        pass # Cannot cancel this dialog
