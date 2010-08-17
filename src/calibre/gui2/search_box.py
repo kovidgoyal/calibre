@@ -382,8 +382,7 @@ class SearchBoxMixin(object):
 
 class SavedSearchBoxMixin(object):
 
-    def __init__(self, db):
-        self.db = db
+    def __init__(self):
         self.connect(self.saved_search, SIGNAL('changed()'), self.saved_searches_changed)
         self.saved_searches_changed()
         self.connect(self.clear_button, SIGNAL('clicked()'), self.saved_search.clear_to_help)
@@ -402,10 +401,6 @@ class SavedSearchBoxMixin(object):
             b = getattr(self, x+'_search_button')
             b.setStatusTip(b.toolTip())
 
-    def set_database(self, db):
-        self.db = db
-        self.saved_searches_changed()
-
     def saved_searches_changed(self):
         p = saved_searches().names()
         p.sort()
@@ -415,13 +410,8 @@ class SavedSearchBoxMixin(object):
         self.tags_view.recount()
         for s in p:
             self.search_restriction.addItem(s)
-        if t:
-            if t in p: # redo the current restriction, if there was one
-                self.search_restriction.setCurrentIndex(self.search_restriction.findText(t))
-                # self.tags_view.set_search_restriction(t)
-            else:
-                self.search_restriction.setCurrentIndex(0)
-                self.apply_search_restriction('')
+        if t: # redo the search restriction if there was one
+            self.apply_named_search_restriction(t)
 
     def do_saved_search_edit(self, search):
         d = SavedSearchEditor(self, search)
