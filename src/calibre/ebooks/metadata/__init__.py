@@ -38,7 +38,7 @@ def author_to_author_sort(author):
     author = _bracket_pat.sub('', author).strip()
     tokens = author.split()
     tokens = tokens[-1:] + tokens[:-1]
-    if len(tokens) > 1:
+    if len(tokens) > 1 and method != 'nocomma':
         tokens[0] += ','
     return ' '.join(tokens)
 

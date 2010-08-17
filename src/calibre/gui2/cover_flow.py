@@ -196,6 +196,7 @@ class CoverFlowMixin(object):
 
     def show_cover_browser(self):
         d = CBDialog(self, self.cover_flow)
+        d.addAction(self.cb_splitter.action_toggle)
         self.cover_flow.setVisible(True)
         self.cover_flow.setFocus(Qt.OtherFocusReason)
         d.show()

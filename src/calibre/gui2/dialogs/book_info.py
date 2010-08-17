@@ -48,11 +48,11 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.refresh(row)
 
     def open_book_path(self, path):
-        if os.sep in unicode(path):
+        path = unicode(path)
+        if os.sep in path:
             open_local_file(path)
         else:
-            format = unicode(path)
-            path = self.view.model().db.format_abspath(self.current_row, format)
+            path = self.view.model().db.format_abspath(self.current_row, path)
             if path is not None:
                 open_local_file(path)
 

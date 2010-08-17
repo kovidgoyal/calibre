@@ -57,7 +57,7 @@
      <item>
       <widget class="QCheckBox" name="fit_cover">
        <property name="text">
-        <string>Fit &amp;cover to view</string>
+        <string>Fit &amp;cover within view</string>
        </property>
       </widget>
      </item>
