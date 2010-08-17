@@ -541,7 +541,7 @@ class EPUB_MOBI(CatalogPlugin):
                            "Default: '%default'None\n"
                            "Applies to: ePub, MOBI output formats")),
                    Option('--exclude-genre',
-                          default='\[[\w ]*\]',
+                          default='\[.+\]',
                           dest='exclude_genre',
                           action = None,
                           help=_("Regex describing tags to exclude as genres.\n" "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
