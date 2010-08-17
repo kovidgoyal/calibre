@@ -174,8 +174,14 @@ class EditMetadataAction(InterfaceAction):
                     _('No books selected'))
             d.exec_()
             return
-        if MetadataBulkDialog(self.gui, rows,
-                self.gui.library_view.model().db).changed:
+        # Prevent the TagView from updating due to signals from the database
+        self.gui.tags_view.blockSignals(True)
+        try:
+            changed = MetadataBulkDialog(self.gui, rows,
+                self.gui.library_view.model().db).changed
+        finally:
+            self.gui.tags_view.blockSignals(False)
+        if changed:
             self.gui.library_view.model().resort(reset=False)
             self.gui.library_view.model().research()
             self.gui.tags_view.recount()
