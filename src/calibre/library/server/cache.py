@@ -18,7 +18,7 @@ class Cache(object):
         old = self._search_cache.pop(search, None)
         if old is None or old[0] <= self.db.last_modified():
             matches = self.db.data.search(search, return_matches=True,
-                    ignore_search_restriction=True)
+                    ignore_search_restriction=self.ignore_search_restriction)
             if not matches:
                 matches = []
             self._search_cache[search] = (utcnow(), frozenset(matches))

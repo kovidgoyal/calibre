@@ -57,13 +57,15 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache):
 
     server_name = __appname__ + '/' + __version__
 
-    def __init__(self, db, opts, embedded=False, show_tracebacks=True):
+    def __init__(self, db, opts, embedded=False, show_tracebacks=True,
+                 ignore_search_restriction=True):
         self.db = db
         for item in self.db:
             item
             break
         self.opts = opts
         self.embedded = embedded
+        self.ignore_search_restriction=ignore_search_restriction
         self.state_callback = None
         self.max_cover_width, self.max_cover_height = \
                         map(int, self.opts.max_cover.split('x'))

@@ -45,7 +45,8 @@ class XMLServer(object):
 
         order = order.lower().strip() == 'ascending'
 
-        ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
+        ids = self.db.search(search, return_matches=True,
+                             ignore_search_restriction=self.ignore_search_restriction)
 
         FM = self.db.FIELD_MAP
 
