@@ -77,12 +77,7 @@ class Worker(Thread):
             if do_remove_conv:
                 self.db.delete_conversion_options(id, 'PIPE')
         self.db.conn.commit()
-
-        for w in getattr(self, 'custom_column_widgets', []):
-            w.commit(self.ids)
-        self.db.bulk_modify_tags(self.ids, add=add, remove=remove,
-                notify=False)
-        self.db.clean()
+        self.db.bulk_modify_tags(self.ids, add=add, remove=remove, notify=False)
 
     def run(self):
         try:
@@ -229,6 +224,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             return error_dialog(self, _('Failed'),
                     self.worker.error[0], det_msg=self.worker.error[1],
                     show=True)
+
+        for w in getattr(self, 'custom_column_widgets', []):
+            w.commit(self.ids)
+        self.db.clean()
+
         return QDialog.accept(self)
 
 
