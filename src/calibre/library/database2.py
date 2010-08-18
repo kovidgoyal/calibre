@@ -1438,7 +1438,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if add:
             self.conn.execute(
             '''
-            INSERT INTO books_tags_link(book, tag) SELECT {0}.id, {1}.id FROM
+            INSERT OR REPLACE INTO books_tags_link(book, tag) SELECT {0}.id, {1}.id FROM
             {0}, {1}
             '''.format(tables[0], tables[1])
             )
