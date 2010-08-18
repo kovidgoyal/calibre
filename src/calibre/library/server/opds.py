@@ -518,7 +518,7 @@ class OPDSServer(object):
 
         if category == 'search':
             try:
-                ids = self.search_cache(which)
+                ids = self.search_cache('search:"%s"'%which)
             except:
                 raise cherrypy.HTTPError(404, 'Search: %r not understood'%which)
             return self.get_opds_acquisition_feed(ids, offset, page_url,
