@@ -17,13 +17,14 @@ from calibre.gui2 import error_dialog, Dispatcher
 
 class Worker(Thread):
 
-    def __init__(self, args, db, ids, callback):
+    def __init__(self, args, db, ids, cc_widgets, callback):
         Thread.__init__(self)
         self.args = args
         self.db = db
         self.ids = ids
         self.error = None
         self.callback = callback
+        self.cc_widgets = cc_widgets
 
     def doit(self):
         remove, add, au, aus, do_aus, rating, pub, do_series, \
@@ -76,8 +77,13 @@ class Worker(Thread):
 
             if do_remove_conv:
                 self.db.delete_conversion_options(id, 'PIPE')
-        self.db.conn.commit()
-        self.db.bulk_modify_tags(self.ids, add=add, remove=remove, notify=False)
+        self.db.doit.commit()
+
+        for w in self.cc_widgets:
+            w.commit(self.ids)
+        self.db.bulk_modify_tags(self.ids, add=add, remove=remove,
+                notify=False)
+        self.db.clean()
 
     def run(self):
         try:
@@ -215,8 +221,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         bb = BlockingBusy(_('Applying changes to %d books. This may take a while.')
                 %len(self.ids), parent=self)
-        self.worker = Worker(args, self.db, self.ids, Dispatcher(bb.accept,
-            parent=bb))
+        self.worker = Worker(args, self.db, self.ids,
+                getattr(self, 'custom_column_widgets', []),
+                Dispatcher(bb.accept, parent=bb))
         self.worker.start()
         bb.exec_()
 
