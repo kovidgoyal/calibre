@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-15 05:27+0000\n"
-"PO-Revision-Date: 2010-08-15 12:46+0000\n"
-"Last-Translator: Otto van der Velden <Unknown>\n"
+"PO-Revision-Date: 2010-08-17 20:15+0000\n"
+"Last-Translator: Linda Polman <linda.polman@gmail.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-16 06:37+0000\n"
+"X-Launchpad-Export-Date: 2010-08-18 06:49+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:365
@@ -3604,7 +3604,7 @@ msgstr "Stel het delen van boeken via email in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:97
 msgid "D"
-msgstr ""
+msgstr "D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:97
 msgid "Send to device"
@@ -3792,7 +3792,7 @@ msgstr "Open betreffende map"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/open.py:15
 msgid "O"
-msgstr ""
+msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:17
 msgid "Ctrl+P"
@@ -3828,7 +3828,7 @@ msgstr "&Herstarten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "Ctrl+R"
-msgstr ""
+msgstr "Ctrl+R"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
@@ -3876,6 +3876,9 @@ msgid ""
 "corruption of your library. Save to disk is meant to export files from your "
 "calibre library elsewhere."
 msgstr ""
+"U probeert bestanden op te slaan in de Calibre bibliotheek. Dit kan "
+"corruptie van de bibliotheek veroorzaken. De optie 'Opslaan naar schijf' is "
+"ervoor om bestanden uit uw Calibre bibliotheek naar elders te exporteren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:135
 msgid "Error while saving"
@@ -3900,7 +3903,7 @@ msgstr "Laat boek details zien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:17
 msgid "I"
-msgstr ""
+msgstr "I"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:24
 msgid "No detailed info available"
@@ -3916,7 +3919,7 @@ msgstr "Vergelijkbare boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:22
 msgid "Alt+A"
-msgstr ""
+msgstr "Alt+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:22
 msgid "Books by same author"
@@ -3932,7 +3935,7 @@ msgstr "Boeken in deze serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Alt+P"
-msgstr ""
+msgstr "Alt+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Books by this publisher"
@@ -3940,7 +3943,7 @@ msgstr "Boeken van deze uitgever"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Alt+T"
-msgstr ""
+msgstr "Alt+T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Books with the same tags"
@@ -5350,7 +5353,7 @@ msgstr "&Maximum regel lengte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:49
 msgid "Force maximum line length"
-msgstr ""
+msgstr "Forceer maximale regellengte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:65
@@ -5774,7 +5777,7 @@ msgstr "Bewaar &sjabloon:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:43
 msgid "Add books by ISBN"
-msgstr ""
+msgstr "Voeg boeken toe met behulp van ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:44
 msgid ""
@@ -5783,10 +5786,14 @@ msgid ""
 "metadata and covers for them.<p>Any invalid ISBNs in the list will be "
 "ignored."
 msgstr ""
+"<p>Schrijf een lijst van ISBN codes in het linkervak, 1 code per regel. "
+"Calibre zal automatisch records creëren voor de boeken aan de hand van de "
+"ISBN codes en de gedownloade metadata en omslagen. <p>Ongeldige ISBN codes "
+"worden genegeerd."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:45
 msgid "&Paste from clipboard"
-msgstr ""
+msgstr "&Plak van klembord"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:68
 msgid "Fit &cover to view"
@@ -5866,19 +5873,19 @@ msgstr "De map %s is niet leeg. Kies a.u.b. een lege map"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:80
 msgid "No location"
-msgstr ""
+msgstr "Geen locatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:80
 msgid "No location selected"
-msgstr ""
+msgstr "Geen locatie geselecteerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:84
 msgid "Bad location"
-msgstr ""
+msgstr "Ongeldige locatie geselecteerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:85
 msgid "%s is not an existing folder"
-msgstr ""
+msgstr "%s is geen bestaande map"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:66
 msgid "Choose your calibre library"
@@ -6125,13 +6132,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:704
 msgid "Invalid tweaks"
-msgstr ""
+msgstr "Ongeldige aanpassing"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:705
 msgid ""
 "The tweaks you entered are invalid, try resetting the tweaks to default and "
 "changing them one by one until you find the invalid setting."
 msgstr ""
+"De aanpassingen die u maakt zijn ongeldig. Probeer de aanpassingen te "
+"resetten en deze vervolgens één voor één weer te veranderen tot u de "
+"ongeldige aanpassing vind."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:735
 msgid "You must select a column to delete it"
@@ -6572,29 +6582,31 @@ msgstr "Installeer commando regel tools"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:639
 msgid "&Miscellaneous"
-msgstr ""
+msgstr "&Overige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:640
 msgid ""
 "Values for the tweaks are shown below. Edit them to change the behavior of "
 "calibre"
 msgstr ""
+"De waarden van de aanpassingen staan hieronder weergegeven. Wijzig deze om "
+"het gedrag van Calibre aan te passen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:641
 msgid "All available tweaks"
-msgstr ""
+msgstr "Alle beschikbare aanpassingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:642
 msgid "&Current tweaks"
-msgstr ""
+msgstr "&Huidige aanpassingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:643
 msgid "&Restore to defaults"
-msgstr ""
+msgstr "&Reset naar standaardwaarden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:644
 msgid "&Tweaks"
-msgstr ""
+msgstr "&Aanpassingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:645
 msgid ""
@@ -6835,6 +6847,8 @@ msgid ""
 "The lookup name must contain only lower case letters, digits and "
 "underscores, and start with a letter"
 msgstr ""
+"De zoekterm mag slechts kleine letters, cijfers en underscores bevatten en "
+"moet beginnen met een letter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:116
 msgid "No column heading was provided"
@@ -7002,7 +7016,7 @@ msgstr "Gesorteerd op auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:68
 msgid "Sort by author sort"
-msgstr ""
+msgstr "Sorteer op auteurssoort"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:69
 msgid ""
@@ -7010,10 +7024,13 @@ msgid ""
 "author. Exactly how this value is automatically generated can be controlled "
 "via Preferences->Advanced->Tweaks"
 msgstr ""
+"Reset alle auteurssorteerwaarden naar een waarde die automatisch gegenereerd "
+"is van de auteursnaam. De manier waarop deze waarde precies gegenereerd "
+"wordt kan gecontroleerd worden via Voorkeuren->Geavanceerd->Aanpassingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:70
 msgid "Recalculate all author sort values"
-msgstr ""
+msgstr "Herbereken alle auteurssorteerwaarden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:60
 msgid "Author Sort"
@@ -7248,6 +7265,7 @@ msgstr "Geef titel en auteur"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:152
 msgid "You must specify a title and author before generating a cover"
 msgstr ""
+"U moet een titel en auteur specificeren voordat u en omslag genereert."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:164
 msgid "Choose formats for "
@@ -7341,6 +7359,7 @@ msgstr ""
 msgid ""
 "For the error message from each cover source, click Show details below."
 msgstr ""
+"Klik hieronder op Details om de foutmeldingen van elke omslagbron in te zien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:611
 msgid "Bad cover"
@@ -7461,11 +7480,11 @@ msgstr "Download &omslag afbeelding"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:408
 msgid "Generate a default cover based on the title and author"
-msgstr ""
+msgstr "Genereer een standaard omslag aan de hand van de titel en auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:409
 msgid "&Generate cover"
-msgstr ""
+msgstr "&Genereer omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:56
 msgid "Password needed"
@@ -8271,7 +8290,7 @@ msgstr "Omslagbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:109
 msgid "Shift+Alt+B"
-msgstr ""
+msgstr "Shift+Alt+B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:123
 msgid "Tag Browser"
@@ -8279,7 +8298,7 @@ msgstr "Labelbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:125
 msgid "Shift+Alt+T"
-msgstr ""
+msgstr "Shift+Alt+T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:145
 msgid "version"
@@ -8304,11 +8323,11 @@ msgstr "Details van het boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:219
 msgid "Alt+D"
-msgstr ""
+msgstr "Alt+D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:229
 msgid "Shift+Alt+D"
-msgstr ""
+msgstr "Shift+Alt+D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:60
 msgid "Job"
@@ -9608,7 +9627,7 @@ msgstr "Verberg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:917
 msgid "Toggle"
-msgstr ""
+msgstr "Omschakelen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:370
 msgid ""
@@ -10692,7 +10711,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:434
 msgid "No label was provided"
-msgstr ""
+msgstr "Er is geen label opgegeven"
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:436
 msgid ""

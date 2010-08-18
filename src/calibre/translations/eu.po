@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-15 05:27+0000\n"
-"PO-Revision-Date: 2010-08-15 18:27+0000\n"
+"PO-Revision-Date: 2010-08-18 01:57+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-16 06:37+0000\n"
+"X-Launchpad-Export-Date: 2010-08-18 06:49+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -172,7 +172,7 @@ msgstr "Katalogo sortzailea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:359
 msgid "User Interface Action"
-msgstr ""
+msgstr "Erabiltzailearen interfaze ekintza"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:16
 msgid ""
@@ -399,9 +399,9 @@ msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
-"Profil hau \"SONY PRS 300\" horretara zuzendurik dago. 500/505/600/700 eta "
-"abar orrialdea horizontal moduan erakutsita. Batez ere komikietan "
-"erabilgarria."
+"Profil hau \"SONY PRS 300\" horretara eta antzekoetara zuzendurik dago. "
+"500/505/600/700 eta abar orrialdea horizontal moduan erakutsita. Batez ere "
+"komikietan erabilgarria."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:566
 msgid "This profile is intended for the Amazon Kindle DX."
@@ -445,7 +445,7 @@ msgid ""
 msgstr ""
 "    %prog aukerak\n"
 "\n"
-"    Pertsonalizatu Calibre kanpoko gehigarriak kargatuz.\n"
+"    Pertsonalizatu calibre kanpoko gehigarriak kargatuz.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:528
@@ -898,7 +898,8 @@ msgstr "Gailuak onartuko dituen formatuen zerrenda ordenatua."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:41
 msgid "Place files in sub directories if the device supports them"
-msgstr "Gailuak onartzen badu, jarri fitxategiak azpidirektorioetan."
+msgstr ""
+"Gailuak formatuei eusten badie, jarri fitxategiak azpidirektorioetan."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:81
@@ -3512,11 +3513,11 @@ msgstr "Choose calibre library to work with"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:81
 msgid "Switch to library..."
-msgstr ""
+msgstr "Aldatu liburutegira..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:88
 msgid "Quick switch"
-msgstr ""
+msgstr "Aldaketa azkarra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:132
 msgid "No library found"
@@ -3527,6 +3528,8 @@ msgid ""
 "No existing calibre library was found at %s. It will be removed from the "
 "list of known libraries."
 msgstr ""
+"Ez da %s horretan liburutegirik topatu. Ezagutzen diren liburutegien "
+"zerrendatik ezabatu egingo da."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "C"
