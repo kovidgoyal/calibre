@@ -95,8 +95,8 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache):
                       'tools.digest_auth.users' : {opts.username.strip():opts.password.strip()},
                       }
 
-        sr = db.prefs.get('cs_restriction', '') if opts.restriction is None \
-                else opts.restriction
+        sr = getattr(opts, 'restriction', None)
+        sr = db.prefs.get('cs_restriction', '') if sr is None else sr
         self.set_search_restriction(sr)
 
         self.is_running = False
