@@ -4,14 +4,33 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Dialog to edit metadata in bulk'''
 
 from PyQt4.Qt import SIGNAL, QObject, QDialog, QGridLayout, \
-    QCoreApplication
+    QThread, Qt
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, \
     authors_to_string
 from calibre.gui2.custom_column_widgets import populate_metadata_page
-from calibre.gui2.dialogs.progress import ProgressDialog
+from calibre.gui2.dialogs.progress import BlockingBusy
+from calibre.gui2 import error_dialog
+
+class Worker(QThread):
+
+    def __init__(self, func, parent=None):
+        QThread.__init__(self, parent)
+        self.func = func
+        self.error = None
+
+    def run(self):
+        try:
+            self.func()
+        except Exception, err:
+            import traceback
+            try:
+                err = unicode(err)
+            except:
+                err = repr(err)
+            self.error = (err, traceback.format_exc())
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
@@ -107,35 +126,29 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if len(self.ids) < 1:
             return QDialog.accept(self)
 
-        pd = ProgressDialog(_('Working'),
-                _('Applying changes to %d books. This may take a while.')%len(self.ids),
-                0, 0, self, cancelable=False)
-        pd.setModal(True)
-        pd.show()
-        def upd():
-            QCoreApplication.processEvents()
+        remove = unicode(self.remove_tags.text()).strip().split(',')
+        add = unicode(self.tags.text()).strip().split(',')
+        au = unicode(self.authors.text())
+        aus = unicode(self.author_sort.text())
+        do_aus = self.author_sort.isEnabled()
+        rating = self.rating.value()
+        pub = unicode(self.publisher.text())
+        do_series = self.write_series
+        series = unicode(self.series.currentText()).strip()
+        do_autonumber = self.autonumber_series.isChecked()
+        do_remove_format = self.remove_format.currentIndex() > -1
+        remove_format = unicode(self.remove_format.currentText())
+        do_swap_ta = self.swap_title_and_author.isChecked()
+        do_remove_conv = self.remove_conversion_settings.isChecked()
+        do_auto_author = self.auto_author_sort.isChecked()
+        self.changed = bool(self.ids)
+        # Cache values from GUI so that Qt widgets are not used in
+        # non GUI thread
+        for w in getattr(self, 'custom_column_widgets', []):
+            w.gui_val
 
-        try:
-            remove = unicode(self.remove_tags.text()).strip().split(',')
-            add = unicode(self.tags.text()).strip().split(',')
-            au = unicode(self.authors.text())
-            aus = unicode(self.author_sort.text())
-            do_aus = self.author_sort.isEnabled()
-            rating = self.rating.value()
-            pub = unicode(self.publisher.text())
-            do_series = self.write_series
-            series = unicode(self.series.currentText()).strip()
-            do_autonumber = self.autonumber_series.isChecked()
-            do_remove_format = self.remove_format.currentIndex() > -1
-            remove_format = unicode(self.remove_format.currentText())
-            do_swap_ta = self.swap_title_and_author.isChecked()
-            do_remove_conv = self.remove_conversion_settings.isChecked()
-            do_auto_author = self.auto_author_sort.isChecked()
-
-            upd()
-            self.changed = bool(self.ids)
+        def doit():
             for id in self.ids:
-                upd()
                 if do_swap_ta:
                     title = self.db.title(id, index_is_id=True)
                     aum = self.db.authors(id, index_is_id=True)
@@ -146,55 +159,54 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     if title:
                         new_authors = string_to_authors(title)
                         self.db.set_authors(id, new_authors, notify=False)
-                upd()
 
                 if au:
                     self.db.set_authors(id, string_to_authors(au), notify=False)
-                upd()
 
                 if do_auto_author:
                     x = self.db.author_sort_from_book(id, index_is_id=True)
                     if x:
                         self.db.set_author_sort(id, x, notify=False)
-                upd()
 
                 if aus and do_aus:
                     self.db.set_author_sort(id, aus, notify=False)
-                upd()
 
                 if rating != -1:
                     self.db.set_rating(id, 2*rating, notify=False)
 
                 if pub:
                     self.db.set_publisher(id, pub, notify=False)
-                upd()
 
                 if do_series:
                     next = self.db.get_next_series_num_for(series)
                     self.db.set_series(id, series, notify=False)
                     num = next if do_autonumber and series else 1.0
                     self.db.set_series_index(id, num, notify=False)
-                upd()
 
                 if do_remove_format:
                     self.db.remove_format(id, remove_format, index_is_id=True, notify=False)
-                upd()
 
                 if do_remove_conv:
                     self.db.delete_conversion_options(id, 'PIPE')
 
-            upd()
             for w in getattr(self, 'custom_column_widgets', []):
                 w.commit(self.ids)
             self.db.bulk_modify_tags(self.ids, add=add, remove=remove,
                     notify=False)
-            upd()
+            self.db.clean()
 
+        self.worker = Worker(doit, self)
+        self.worker.start()
 
-        finally:
-            pd.hide()
+        bb = BlockingBusy(_('Applying changes to %d books. This may take a while.')
+                %len(self.ids), parent=self)
+        self.worker.finished.connect(bb.accept, type=Qt.QueuedConnection)
+        bb.exec_()
 
-        self.db.clean()
+        if self.worker.error is not None:
+            return error_dialog(self, _('Failed'),
+                    self.worker.error[0], det_msg=self.worker.error[1],
+                    show=True)
         return QDialog.accept(self)
 
 

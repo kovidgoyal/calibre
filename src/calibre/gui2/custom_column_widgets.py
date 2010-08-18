@@ -11,7 +11,7 @@ from functools import partial
 from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
         QDate, QGroupBox, QVBoxLayout, QPlainTextEdit, QSizePolicy, \
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL, \
-        QPushButton, QCoreApplication
+        QPushButton
 
 from calibre.utils.date import qt_to_dt, now
 from calibre.gui2.widgets import TagsLineEdit, EnComboBox
@@ -32,8 +32,13 @@ class Base(object):
         val = self.normalize_db_val(val)
         self.setter(val)
 
+    @property
+    def gui_val(self):
+        return self.getter()
+
+
     def commit(self, book_id, notify=False):
-        val = self.getter()
+        val = self.gui_val
         val = self.normalize_ui_val(val)
         if val != self.initial_val:
             self.db.set_custom(book_id, val, num=self.col_id, notify=notify)
@@ -284,10 +289,14 @@ class Series(Base):
         if idx is not None:
             self.widgets[1].setCurrentIndex(idx)
 
+    def getter(self):
+        n = unicode(self.name_widget.currentText()).strip()
+        i = self.idx_widget.value()
+        return n, i
+
     def commit(self, book_id, notify=False):
-        val = unicode(self.name_widget.currentText()).strip()
+        val, s_index = self.gui_val
         val = self.normalize_ui_val(val)
-        s_index = self.idx_widget.value()
         if val != self.initial_val or s_index != self.initial_index:
             if s_index == 0.0:
                 if tweaks['series_index_auto_increment'] == 'next':
@@ -378,6 +387,13 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
 
 class BulkBase(Base):
 
+    @property
+    def gui_val(self):
+        if not hasattr(self, '_cached_gui_val_'):
+            self._cached_gui_val_ = self.getter()
+        return self._cached_gui_val_
+
+
     def get_initial_value(self, book_ids):
         values = set([])
         for book_id in book_ids:
@@ -400,11 +416,10 @@ class BulkBase(Base):
         self.setter(val)
 
     def commit(self, book_ids, notify=False):
-        val = self.getter()
+        val = self.gui_val
         val = self.normalize_ui_val(val)
         if val != self.initial_val:
             for book_id in book_ids:
-                QCoreApplication.processEvents()
                 self.db.set_custom(book_id, val, num=self.col_id, notify=notify)
 
 class BulkBool(BulkBase, Bool):
@@ -443,13 +458,16 @@ class BulkSeries(BulkBase):
             self.name_widget.addItem(c)
         self.name_widget.setEditText('')
 
+    def getter(self):
+        n = unicode(self.name_widget.currentText()).strip()
+        i = self.idx_widget.checkState()
+        return n, i
+
     def commit(self, book_ids, notify=False):
-        val = unicode(self.name_widget.currentText()).strip()
+        val, update_indices = self.gui_val
         val = self.normalize_ui_val(val)
-        update_indices = self.idx_widget.checkState()
         if val != '':
             for book_id in book_ids:
-                QCoreApplication.processEvents()
                 if update_indices:
                     if tweaks['series_index_auto_increment'] == 'next':
                         s_index = self.db.get_next_cc_series_num_for\
@@ -526,41 +544,35 @@ class BulkText(BulkBase):
 
     def commit(self, book_ids, notify=False):
         if self.col_metadata['is_multiple']:
+            remove_all, adding, rtext = self.gui_val
             remove = set()
-            if self.removing_widget.checkbox.isChecked():
+            if remove_all:
                 for book_id in book_ids:
                     remove |= set(self.db.get_custom(book_id, num=self.col_id,
                                                      index_is_id=True))
             else:
-                txt = unicode(self.removing_widget.tags_box.text())
+                txt = rtext
                 if txt:
                     remove = set([v.strip() for v in txt.split(',')])
-            txt = unicode(self.adding_widget.text())
+            txt = adding
             if txt:
                 add = set([v.strip() for v in txt.split(',')])
             else:
                 add = set()
             self.db.set_custom_bulk(book_ids, add=add, remove=remove, num=self.col_id)
         else:
-            val = self.getter()
+            val = self.gui_val
             val = self.normalize_ui_val(val)
             if val != self.initial_val:
                 for book_id in book_ids:
-                    QCoreApplication.processEvents()
                     self.db.set_custom(book_id, val, num=self.col_id, notify=notify)
 
-    def getter(self, original_value = None):
+    def getter(self):
         if self.col_metadata['is_multiple']:
-            if self.removing_widget.checkbox.isChecked():
-                ans = set()
-            else:
-                ans = set(original_value)
-                ans -= set([v.strip() for v in
-                            unicode(self.removing_widget.tags_box.text()).split(',')])
-            txt = unicode(self.adding_widget.text())
-            if txt:
-                ans |= set([v.strip() for v in txt.split(',')])
-            return ans # returning a set instead of a list works, for now at least.
+            return self.removing_widget.checkbox.isChecked(), \
+                    unicode(self.adding_widget.text()), \
+                    unicode(self.removing_widget.tags_box.text())
+
         val = unicode(self.widgets[1].currentText()).strip()
         if not val:
             val = None
