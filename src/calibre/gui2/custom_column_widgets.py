@@ -419,8 +419,7 @@ class BulkBase(Base):
         val = self.gui_val
         val = self.normalize_ui_val(val)
         if val != self.initial_val:
-            for book_id in book_ids:
-                self.db.set_custom(book_id, val, num=self.col_id, notify=notify)
+            self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
 
 class BulkBool(BulkBase, Bool):
     pass
@@ -467,17 +466,20 @@ class BulkSeries(BulkBase):
         val, update_indices = self.gui_val
         val = self.normalize_ui_val(val)
         if val != '':
+            extras = []
+            next_index = self.db.get_next_cc_series_num_for(val, num=self.col_id)
             for book_id in book_ids:
                 if update_indices:
                     if tweaks['series_index_auto_increment'] == 'next':
-                        s_index = self.db.get_next_cc_series_num_for\
-                                                        (val, num=self.col_id)
+                        s_index = next_index
+                        next_index += 1
                     else:
                         s_index = 1.0
                 else:
                     s_index = self.db.get_custom_extra(book_id, num=self.col_id,
                                                        index_is_id=True)
-                self.db.set_custom(book_id, val, extra=s_index,
+                extras.append(s_index)
+            self.db.set_custom_bulk(book_ids, val, extras=extras,
                                    num=self.col_id, notify=notify)
 
 class RemoveTags(QWidget):
@@ -559,13 +561,13 @@ class BulkText(BulkBase):
                 add = set([v.strip() for v in txt.split(',')])
             else:
                 add = set()
-            self.db.set_custom_bulk(book_ids, add=add, remove=remove, num=self.col_id)
+            self.db.set_custom_bulk_multiple(book_ids, add=add, remove=remove,
+                                            num=self.col_id)
         else:
             val = self.gui_val
             val = self.normalize_ui_val(val)
             if val != self.initial_val:
-                for book_id in book_ids:
-                    self.db.set_custom(book_id, val, num=self.col_id, notify=notify)
+                self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
 
     def getter(self):
         if self.col_metadata['is_multiple']:
