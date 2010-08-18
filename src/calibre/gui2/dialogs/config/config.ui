@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
+    <width>1001</width>
     <height>730</height>
    </rect>
   </property>
@@ -89,8 +89,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>720</width>
-          <height>679</height>
+          <width>725</width>
+          <height>683</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_7">
@@ -573,7 +573,7 @@
              <item row="1" column="0">
               <widget class="QLabel" name="label_170">
                <property name="text">
-                <string>Restriction to apply when the current library is opened (startup or change library):</string>
+                <string>Restriction to apply when the current library is opened:</string>
                </property>
                <property name="buddy">
                 <cstring>opt_gui_restriction</cstring>
@@ -587,6 +587,15 @@
                  <width>250</width>
                  <height>16777215</height>
                 </size>
+               </property>
+               <property name="toolTip">
+                <string>Apply this restriction on calibre startup if the current library is being used. Also applied when switching to this library. Note that this setting is per library. </string>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+               </property>
+               <property name="minimumContentsLength">
+                <number>20</number>
                </property>
               </widget>
              </item>
@@ -1060,23 +1069,23 @@
                  </property>
                 </widget>
                </item>
-               <item row="7" column="1">
-                <widget class="QLineEdit" name="opt_cs_restriction">
-                 <property name="toolTip">
-                  <string>Provides a restriction to be used by the content server</string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
                <item row="7" column="0">
                 <widget class="QLabel" name="label_164">
                  <property name="text">
                   <string>Restriction (saved search) to apply:</string>
                  </property>
-                 <property name="buddy">
-                  <cstring>opt_cs_restriction</cstring>
+                </widget>
+               </item>
+               <item row="7" column="1">
+                <widget class="QComboBox" name="opt_cs_restriction">
+                 <property name="toolTip">
+                  <string>This restriction (based on a saved search) will restrict the books the content server makes available to those matching the search. This setting is per library (i.e. you can have a different restriction per library).</string>
+                 </property>
+                 <property name="sizeAdjustPolicy">
+                  <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+                 </property>
+                 <property name="minimumContentsLength">
+                  <number>20</number>
                  </property>
                 </widget>
                </item>

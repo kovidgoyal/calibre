@@ -34,7 +34,8 @@ def option_parser():
             help='Run process in background as a daemon. No effect on windows.')
     parser.add_option('--restriction', default=None,
             help=_('Specifies a restriction to be used for this invocation. '
-                   'This option overrides the default set in the GUI'))
+                   'This option overrides any per-library settings specified'
+                   ' in the GUI'))
     return parser
 
 def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):

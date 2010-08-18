@@ -626,10 +626,10 @@ class DeviceMixin(object): # {{{
         self.default_thumbnail = (pixmap.width(), pixmap.height(),
                 pixmap_to_data(pixmap))
 
-    def connect_to_folder_named(self, dir):
-        if os.path.isdir(dir):
-            kls = FOLDER_DEVICE
-            self.device_manager.mount_device(kls=kls, kind='folder', path=dir)
+    def connect_to_folder_named(self, folder):
+        if os.path.exists(folder) and os.path.isdir(folder):
+            self.device_manager.mount_device(kls=FOLDER_DEVICE, kind='folder',
+                    path=folder)
 
     def connect_to_folder(self):
         dir = choose_dir(self, 'Select Device Folder',
