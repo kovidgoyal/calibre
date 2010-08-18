@@ -313,7 +313,7 @@ class CustomColumns(object):
             self.conn.commit()
         return changed
 
-    def set_custom_bulk(self, ids, add=[], remove=[],
+    def set_custom_bulk_multiple(self, ids, add=[], remove=[],
                         label=None, num=None, notify=False):
         '''
         Fast algorithm for updating custom column is_multiple datatypes.
@@ -394,7 +394,30 @@ class CustomColumns(object):
         if notify:
             self.notify('metadata', ids)
 
-    def set_custom(self, id_, val, label=None, num=None,
+    def set_custom_bulk(self, ids, val, label=None, num=None,
+                   append=False, notify=True, extras=None):
+        '''
+        Change the value of a column for a set of books. The ids parameter is a
+        list of book ids to change. The extra field must be None or a list the
+        same length as ids.
+        '''
+        if extras is not None and len(extras) != len(ids):
+            raise ValueError('Lentgh of ids and extras is not the same')
+        ev = None
+        for idx,id in enumerate(ids):
+            if extras is not None:
+                ev = extras[idx]
+            self._set_custom(id, val, label=label, num=num, append=append,
+                             notify=notify, extra=ev)
+        self.conn.commit()
+
+    def set_custom(self, id, val, label=None, num=None,
+                   append=False, notify=True, extra=None):
+        self._set_custom(id, val, label=label, num=num, append=append,
+                         notify=notify, extra=extra)
+        self.conn.commit()
+
+    def _set_custom(self, id_, val, label=None, num=None,
                    append=False, notify=True, extra=None):
         if label is not None:
             data = self.custom_column_label_map[label]
@@ -450,7 +473,6 @@ class CustomColumns(object):
                         self.conn.execute(
                             '''INSERT INTO %s(book, value)
                                 VALUES (?,?)'''%lt, (id_, xid))
-            self.conn.commit()
             nval = self.conn.get(
                     'SELECT custom_%s FROM meta2 WHERE id=?'%data['num'],
                     (id_,), all=False)
@@ -462,7 +484,6 @@ class CustomColumns(object):
                 self.conn.execute(
                         'INSERT INTO %s(book,value) VALUES (?,?)'%table,
                     (id_, val))
-            self.conn.commit()
             nval = self.conn.get(
                     'SELECT custom_%s FROM meta2 WHERE id=?'%data['num'],
                     (id_,), all=False)
