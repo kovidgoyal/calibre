@@ -438,7 +438,7 @@ from calibre.ebooks.txt.output import TXTOutput
 from calibre.customize.profiles import input_profiles, output_profiles
 
 from calibre.devices.apple.driver import ITUNES
-from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX
+from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
@@ -567,6 +567,7 @@ plugins += [
     MENTOR,
     SWEEX,
     PDNOVEL,
+    SPECTRA,
     ITUNES,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
