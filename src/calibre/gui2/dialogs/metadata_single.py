@@ -668,9 +668,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                             self.tags.setText(', '.join(book.tags))
                         if book.series is not None:
                             if self.series.text() is None or self.series.text() == '':
-                               self.series.setText(book.series)
-                               if book.series_index is not None:
-                                  self.series_index.setValue(book.series_index)
+                                self.series.setText(book.series)
+                                if book.series_index is not None:
+                                    self.series_index.setValue(book.series_index)
         else:
             error_dialog(self, _('Cannot fetch metadata'),
                          _('You must specify at least one of ISBN, Title, '
@@ -719,24 +719,31 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 self.db.set_authors(self.id, string_to_authors(au), notify=False)
             aus = unicode(self.author_sort.text())
             if aus:
-                self.db.set_author_sort(self.id, aus, notify=False)
+                self.db.set_author_sort(self.id, aus, notify=False, commit=False)
             self.db.set_isbn(self.id,
-                    re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text())), notify=False)
-            self.db.set_rating(self.id, 2*self.rating.value(), notify=False)
-            self.db.set_publisher(self.id, unicode(self.publisher.currentText()), notify=False)
+                             re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text())),
+                             notify=False, commit=False)
+            self.db.set_rating(self.id, 2*self.rating.value(), notify=False,
+                               commit=False)
+            self.db.set_publisher(self.id, unicode(self.publisher.currentText()),
+                                  notify=False, commit=False)
             self.db.set_tags(self.id, [x.strip() for x in
-                unicode(self.tags.text()).split(',')], notify=False)
+                unicode(self.tags.text()).split(',')], notify=False, commit=False)
             self.db.set_series(self.id,
-                    unicode(self.series.currentText()).strip(), notify=False)
-            self.db.set_series_index(self.id, self.series_index.value(), notify=False)
-            self.db.set_comment(self.id, unicode(self.comments.toPlainText()), notify=False)
+                    unicode(self.series.currentText()).strip(), notify=False,
+                    commit=False)
+            self.db.set_series_index(self.id, self.series_index.value(),
+                                     notify=False, commit=False)
+            self.db.set_comment(self.id, unicode(self.comments.toPlainText()),
+                                notify=False, commit=False)
             d = self.pubdate.date()
             d = qt_to_dt(d)
-            self.db.set_pubdate(self.id, d, notify=False)
+            self.db.set_pubdate(self.id, d, notify=False, commit=False)
             d = self.date.date()
             d = qt_to_dt(d)
             if d.date() != self.orig_timestamp.date():
-                self.db.set_timestamp(self.id, d, notify=False)
+                self.db.set_timestamp(self.id, d, notify=False, commit=False)
+            self.db.conn.commit()
 
             if self.cover_changed:
                 if self.cover_data is not None:
@@ -745,6 +752,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     self.db.remove_cover(self.id)
             for w in getattr(self, 'custom_column_widgets', []):
                 w.commit(self.id)
+            self.db.conn.commit()
         except IOError, err:
             if err.errno == 13: # Permission denied
                 fname = err.filename if err.filename else 'file'
@@ -769,9 +777,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         wg = dynamic.get('metasingle_window_geometry', None)
         ss = dynamic.get('metasingle_splitter_state', None)
         if wg is not None:
-          self.restoreGeometry(wg)
+            self.restoreGeometry(wg)
         if ss is not None:
-          self.splitter.restoreState(ss)
+            self.splitter.restoreState(ss)
 
     def save_state(self):
         dynamic.set('metasingle_window_geometry', bytes(self.saveGeometry()))
