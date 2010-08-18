@@ -231,11 +231,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             return error_dialog(self, _('Failed'),
                     self.worker.error[0], det_msg=self.worker.error[1],
                     show=True)
-
-        for w in getattr(self, 'custom_column_widgets', []):
-            w.commit(self.ids)
-        self.db.clean()
-
         return QDialog.accept(self)
 
 
