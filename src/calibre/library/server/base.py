@@ -104,7 +104,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache):
 
     def set_search_restriction(self, restriction):
         if restriction:
-            self.search_restriction = 'search:'+restriction
+            self.search_restriction = 'search:"%s"'%restriction
         else:
             self.search_restriction = ''
 
