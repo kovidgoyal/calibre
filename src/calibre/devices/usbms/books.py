@@ -181,7 +181,7 @@ class CollectionsBookList(BookList):
                     if lpath not in collections_lpaths[category]:
                         collections_lpaths[category].add(lpath)
                         collections[category].append(book)
-                    if attr == 'series':
+                    if attr == 'series' or getattr(book, 'series', None) == category:
                         series_categories.add(category)
         # Sort collections
         for category, books in collections.items():
