@@ -402,8 +402,7 @@ class SavedSearchBoxMixin(object):
             b.setStatusTip(b.toolTip())
 
     def saved_searches_changed(self):
-        p = saved_searches().names()
-        p.sort()
+        p = sorted(saved_searches().names(), cmp=lambda x,y: cmp(x.lower(), y.lower()))
         t = unicode(self.search_restriction.currentText())
         self.search_restriction.clear() # rebuild the restrictions combobox using current saved searches
         self.search_restriction.addItem('')

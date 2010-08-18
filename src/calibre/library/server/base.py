@@ -95,8 +95,18 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache):
                       'tools.digest_auth.users' : {opts.username.strip():opts.password.strip()},
                       }
 
+        sr = db.prefs.get('cs_restriction', '') if opts.restriction is None \
+                else opts.restriction
+        self.set_search_restriction(sr)
+
         self.is_running = False
         self.exception = None
+
+    def set_search_restriction(self, restriction):
+        if restriction:
+            self.search_restriction = 'search:"%s"'%restriction
+        else:
+            self.search_restriction = ''
 
     def setup_loggers(self):
         access_file = log_access_file

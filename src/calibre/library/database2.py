@@ -296,6 +296,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.book_on_device_func = None
         self.data    = ResultCache(self.FIELD_MAP, self.field_metadata)
         self.search  = self.data.search
+        self.search_getting_ids  = self.data.search_getting_ids
         self.refresh = functools.partial(self.data.refresh, self)
         self.sort    = self.data.sort
         self.index   = self.data.index
