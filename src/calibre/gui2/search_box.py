@@ -146,7 +146,8 @@ class SearchBox2(QComboBox):
             self._in_a_search = False
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             self.do_search()
-        self.timer.start(1500)
+        if self.as_you_type:
+            self.timer.start(1500)
 
     def mouse_released(self, event):
         self.normalize_state()
@@ -372,6 +373,7 @@ class SearchBoxMixin(object):
         self.set_number_of_books_shown()
 
     def search_box_changed(self):
+        self.saved_search.clear_to_help()
         self.tags_view.clear()
 
     def do_advanced_search(self, *args):
@@ -381,8 +383,7 @@ class SearchBoxMixin(object):
 
 class SavedSearchBoxMixin(object):
 
-    def __init__(self, db):
-        self.db = db
+    def __init__(self):
         self.connect(self.saved_search, SIGNAL('changed()'), self.saved_searches_changed)
         self.saved_searches_changed()
         self.connect(self.clear_button, SIGNAL('clicked()'), self.saved_search.clear_to_help)
@@ -401,26 +402,16 @@ class SavedSearchBoxMixin(object):
             b = getattr(self, x+'_search_button')
             b.setStatusTip(b.toolTip())
 
-    def set_database(self, db):
-        self.db = db
-        self.saved_searches_changed()
-
     def saved_searches_changed(self):
-        p = saved_searches().names()
-        p.sort()
+        p = sorted(saved_searches().names(), cmp=lambda x,y: cmp(x.lower(), y.lower()))
         t = unicode(self.search_restriction.currentText())
         self.search_restriction.clear() # rebuild the restrictions combobox using current saved searches
         self.search_restriction.addItem('')
         self.tags_view.recount()
         for s in p:
             self.search_restriction.addItem(s)
-        if t:
-            if t in p: # redo the current restriction, if there was one
-                self.search_restriction.setCurrentIndex(self.search_restriction.findText(t))
-                # self.tags_view.set_search_restriction(t)
-            else:
-                self.search_restriction.setCurrentIndex(0)
-                self.apply_search_restriction('')
+        if t: # redo the search restriction if there was one
+            self.apply_named_search_restriction(t)
 
     def do_saved_search_edit(self, search):
         d = SavedSearchEditor(self, search)

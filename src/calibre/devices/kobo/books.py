@@ -84,7 +84,7 @@ class Book(MetaInformation):
     def thumbnail(self):
         return None
 
-    def smart_update(self, other):
+    def smart_update(self, other, replace_metadata=False):
         '''
         Merge the information in C{other} into self. In case of conflicts, the information
         in C{other} takes precedence, unless the information in C{other} is NULL.

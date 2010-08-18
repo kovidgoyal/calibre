@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, re, logging, time, mimetypes, \
+import uuid, sys, os, re, logging, time, mimetypes, \
        __builtin__, warnings, multiprocessing
 from urllib import getproxies
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
@@ -22,6 +22,8 @@ from calibre.constants import iswindows, isosx, islinux, isfreebsd, isfrozen, \
 from calibre.startup import winutil, winutilerror
 
 import mechanize
+
+uuid.uuid4() # Imported before PyQt4 to workaround PyQt4 util-linux conflict on gentoo
 
 if False:
     winutil, winutilerror, __appname__, islinux, __version__
@@ -413,15 +415,13 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252',
         return check("'")
     if ent == 'hellips':
         ent = 'hellip'
-    if ent.lower().startswith(u'#x'):
-        num = int(ent[2:], 16)
-        if encoding is None or num > 255:
-            return check(my_unichr(num))
-        return check(chr(num).decode(encoding))
-    if ent.startswith(u'#'):
+    if ent.startswith('#'):
         try:
-            num = int(ent[1:])
-        except ValueError:
+            if ent[1] in ('x', 'X'):
+                num = int(ent[2:], 16)
+            else:
+                num = int(ent[1:])
+        except:
             return '&'+ent+';'
         if encoding is None or num > 255:
             return check(my_unichr(num))

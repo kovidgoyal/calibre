@@ -103,7 +103,7 @@ class Server(Thread):
                 authkey=self.auth_key, backlog=4)
         self.add_jobs_queue, self.changed_jobs_queue = Queue(), Queue()
         self.kill_queue = Queue()
-        self.waiting_jobs, self.processing_jobs = deque(), deque()
+        self.waiting_jobs = []
         self.pool, self.workers = deque(), deque()
         self.launched_worker_count = 0
         self._worker_launch_lock = RLock()
@@ -167,7 +167,7 @@ class Server(Thread):
                 job = self.add_jobs_queue.get(True, 0.2)
                 if job is None:
                     break
-                self.waiting_jobs.append(job)
+                self.waiting_jobs.insert(0, job)
             except Empty:
                 pass
 
@@ -202,8 +202,9 @@ class Server(Thread):
                     pass
 
             # Start waiting jobs
-            if len(self.pool) > 0 and len(self.waiting_jobs) > 0:
-                job = self.waiting_jobs.pop()
+            sj = self.suitable_waiting_job()
+            if sj is not None:
+                job = self.waiting_jobs.pop(sj)
                 job.start_time = time.time()
                 if job.kill_on_start:
                     job.duration = 0.0
@@ -223,6 +224,24 @@ class Server(Thread):
                     self._kill_job(j)
                 except Empty:
                     break
+
+    def suitable_waiting_job(self):
+        available_workers = len(self.pool)
+        for worker in self.workers:
+            job = worker.job
+            if job.core_usage == -1:
+                available_workers = 0
+            elif job.core_usage > 1:
+                available_workers -= job.core_usage - 1
+            if available_workers < 1:
+                return None
+
+        for i, job in enumerate(self.waiting_jobs):
+            if job.core_usage == -1:
+                if available_workers >= self.pool_size:
+                    return i
+            elif job.core_usage <= available_workers:
+                return i
 
     def kill_job(self, job):
         self.kill_queue.put(job)

@@ -30,10 +30,12 @@ class Starbulletin(BasicNewsRecipe):
                         }
 
     remove_tags_before = dict(attrs={'id':'storyTitle'})
-    remove_tags_after  = dict(name='div', attrs={'class':'storytext'})
+    remove_tags_after  = dict(name='div',attrs={'class':'storytext'})
     remove_tags = [
-                     dict(name=['object','link'])
+                     dict(name=['object','link','script','span'])
                     ,dict(attrs={'class':'insideStoryImage'})
+					,dict(attrs={'name':'fb_share'})
+					,dict(name='div',attrs={'class':'storytext'})
                   ]
 
     feeds = [

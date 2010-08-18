@@ -6,18 +6,19 @@ import os, shutil, traceback, functools, sys, re
 from contextlib import closing
 
 from calibre.customize import Plugin, CatalogPlugin, FileTypePlugin, \
-                              MetadataReaderPlugin, MetadataWriterPlugin
+                              MetadataReaderPlugin, MetadataWriterPlugin, \
+                              InterfaceActionBase as InterfaceAction
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.profiles import InputProfile, OutputProfile
 from calibre.customize.builtins import plugins as builtin_plugins
 from calibre.constants import numeric_version as version, iswindows, isosx
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.covers import CoverDownload
 from calibre.ebooks.metadata.fetch import MetadataSource
 from calibre.utils.config import make_config_dir, Config, ConfigProxy, \
                                  plugin_dir, OptionParser, prefs
 from calibre.ebooks.epub.fix import ePubFixer
-
 
 platform = 'linux'
 if iswindows:
@@ -234,6 +235,26 @@ def migrate_isbndb_key():
     if key:
         prefs.set('isbndb_com_key', '')
         set_isbndb_key(key)
+
+def cover_sources():
+    customization = config['plugin_customization']
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, CoverDownload):
+            if not is_disabled(plugin):
+                plugin.site_customization = customization.get(plugin.name, '')
+                yield plugin
+
+# }}}
+
+# Interface Actions # {{{
+
+def interface_actions():
+    customization = config['plugin_customization']
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, InterfaceAction):
+            if not is_disabled(plugin):
+                plugin.site_customization = customization.get(plugin.name, '')
+                yield plugin
 # }}}
 
 # Metadata read/write {{{

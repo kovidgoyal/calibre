@@ -233,18 +233,20 @@ class OutputProfile(Plugin):
                     'if you want to produce a document intended to be read at a '
                     'computer or on a range of devices.')
 
-    # The image size for comics
+    #: The image size for comics
     comic_screen_size = (584, 754)
 
-    # If True the MOBI renderer on the device supports MOBI indexing
+    #: If True the MOBI renderer on the device supports MOBI indexing
     supports_mobi_indexing = False
 
-    # If True output should be optimized for a touchscreen interface
+    #: If True output should be optimized for a touchscreen interface
     touchscreen = False
     touchscreen_news_css = ''
-    # A list of extra (beyond CSS 2.1) modules supported by the device
-    # Format is a cssutils profile dictionary (see iPad for example)
+    #: A list of extra (beyond CSS 2.1) modules supported by the device
+    #: Format is a cssutils profile dictionary (see iPad for example)
     extra_css_modules = []
+    #: If True, the date is appended to the title of downloaded news
+    periodical_date_in_title = True
 
     @classmethod
     def tags_to_string(cls, tags):
@@ -424,7 +426,7 @@ class KoboReaderOutput(OutputProfile):
 
     description = _('This profile is intended for the Kobo Reader.')
 
-    screen_size               = (590, 775)
+    screen_size               = (540, 718)
     comic_screen_size         = (540, 718)
     dpi                       = 168.451
     fbase                     = 12
@@ -550,6 +552,7 @@ class KindleOutput(OutputProfile):
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
     supports_mobi_indexing = True
+    periodical_date_in_title = False
 
     @classmethod
     def tags_to_string(cls, tags):
@@ -567,6 +570,7 @@ class KindleDXOutput(OutputProfile):
     dpi                       = 150.0
     comic_screen_size         = (741, 1022)
     supports_mobi_indexing = True
+    periodical_date_in_title = False
 
     @classmethod
     def tags_to_string(cls, tags):

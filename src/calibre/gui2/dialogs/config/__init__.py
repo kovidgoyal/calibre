@@ -18,7 +18,7 @@ from calibre.gui2 import error_dialog, config, gprefs, \
         open_url, open_local_file, \
         ALL_COLUMNS, NONE, info_dialog, choose_files, \
         warning_dialog, ResizableDialog, question_dialog
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, read_raw_tweaks, write_tweaks
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
 from calibre.library.server import server_config
@@ -29,12 +29,15 @@ from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin
                                  input_format_plugins, \
                                  output_format_plugins, available_output_formats
 from calibre.utils.smtp import config as smtp_prefs
+from calibre.gui2.convert import config_widget_for_input_plugin
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.ebooks.conversion.plumber import Plumber
 from calibre.utils.logging import Log
 from calibre.gui2.convert.toc import TOCWidget
+from calibre.utils.search_query_parser import saved_searches
+
 
 class ConfigTabs(QTabWidget):
 
@@ -58,15 +61,10 @@ class ConfigTabs(QTabWidget):
         self.widgets = [lf, ps, sd, toc]
 
         for plugin in input_format_plugins():
-            name = plugin.name.lower().replace(' ', '_')
-            try:
-                input_widget = __import__('calibre.gui2.convert.'+name,
-                        fromlist=[1])
-                pw = input_widget.PluginWidget
+            pw = config_widget_for_input_plugin(plugin)
+            if pw is not None:
                 pw.ICON = I('forward.svg')
                 self.widgets.append(widget_factory(pw))
-            except ImportError:
-                continue
 
         for plugin in output_format_plugins():
             name = plugin.name.lower().replace(' ', '_')
@@ -496,6 +494,14 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             if x == config['gui_layout']:
                 li = i
         self.opt_gui_layout.setCurrentIndex(li)
+        restrictions = sorted(saved_searches().names(),
+                              cmp=lambda x,y: cmp(x.lower(), y.lower()))
+        restrictions.insert(0, '')
+        for x in ('gui', 'cs'):
+            w = getattr(self, 'opt_%s_restriction'%x)
+            w.addItems(restrictions)
+            idx = w.findText(self.db.prefs.get(x+'_restriction', ''))
+            w.setCurrentIndex(0 if idx < 0 else idx)
         self.opt_disable_animations.setChecked(config['disable_animations'])
         self.opt_show_donate_button.setChecked(config['show_donate_button'])
         idx = 0
@@ -512,8 +518,27 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
                 idx = i
             self.opt_toolbar_text.addItem(x[0], x[1])
         self.opt_toolbar_text.setCurrentIndex(idx)
+        self.reset_confirmation_button.clicked.connect(self.reset_confirmation)
+
+        deft, curt = read_raw_tweaks()
+        self.current_tweaks.setPlainText(curt.decode('utf-8'))
+        self.default_tweaks.setPlainText(deft.decode('utf-8'))
+        self.restore_tweaks_to_default_button.clicked.connect(self.restore_tweaks_to_default)
 
         self.category_view.setCurrentIndex(self.category_view.model().index_for_name(initial_category))
+
+    def restore_tweaks_to_default(self, *args):
+        deft, curt = read_raw_tweaks()
+        self.current_tweaks.setPlainText(deft.decode('utf-8'))
+
+
+    def reset_confirmation(self):
+        from calibre.gui2 import dynamic
+        for key in dynamic.keys():
+            if key.endswith('_again') and dynamic[key] is False:
+                dynamic[key] = True
+        info_dialog(self, _('Done'),
+                _('Confirmation dialogs have all been reset'), show=True)
 
     def check_port_value(self, *args):
         port = self.port.value()
@@ -677,6 +702,21 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         if idx > 0:
             self.input_order.insertItem(idx-1, self.input_order.takeItem(idx))
             self.input_order.setCurrentRow(idx-1)
+
+    def set_tweaks(self):
+        raw = unicode(self.current_tweaks.toPlainText()).encode('utf-8')
+        try:
+            exec raw
+        except:
+            import traceback
+            error_dialog(self, _('Invalid tweaks'),
+                    _('The tweaks you entered are invalid, try resetting the'
+                        ' tweaks to default and changing them one by one until'
+                        ' you find the invalid setting.'),
+                    det_msg=traceback.format_exc(), show=True)
+            return False
+        write_tweaks(raw)
+        return True
 
     def down_input(self):
         idx = self.input_order.currentRow()
@@ -843,6 +883,8 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             return
         if not self.add_save.save_settings():
             return
+        if not self.set_tweaks():
+            return
         wl = self.opt_worker_limit.value()
         if wl%2 != 0:
             wl += 1
@@ -894,6 +936,9 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['internally_viewed_formats'] = fmts
         val = self.opt_gui_layout.itemData(self.opt_gui_layout.currentIndex()).toString()
         config['gui_layout'] = unicode(val)
+        for x in ('gui', 'cs'):
+            w = getattr(self, 'opt_%s_restriction'%x)
+            self.db.prefs.set(x+'_restriction', unicode(w.currentText()))
 
         if must_restart:
             warning_dialog(self, _('Must restart'),

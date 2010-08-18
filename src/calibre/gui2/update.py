@@ -31,7 +31,7 @@ class CheckForUpdates(QThread):
                         'win' if iswindows else 'osx' if isosx else 'oth')
                 req.add_header('CALIBRE_INSTALL_UUID', prefs['installation_uuid'])
                 version = br.open(req).read().strip()
-                if version and version != __version__:
+                if version and version != __version__ and len(version) < 10:
                     self.update_found.emit(version)
             except:
                 traceback.print_exc()

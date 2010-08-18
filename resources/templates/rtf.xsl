@@ -262,7 +262,7 @@
         </xsl:if>
         <xsl:if test="@line-spacing">
             <xsl:text>line-height:</xsl:text>
-            <xsl:value-of select="@line-height"/>
+            <xsl:value-of select="@line-spacing"/>
             <xsl:text>pt;</xsl:text>
         </xsl:if>
         <xsl:if test="(@align = 'just')">
@@ -411,6 +411,10 @@
         <xsl:element name="br">
             <xsl:attribute name="style">page-break-after:always</xsl:attribute>
         </xsl:element>
+    </xsl:template>
+    
+    <xsl:template match="rtf:hardline-break">
+        <xsl:element name="br"/>
     </xsl:template>
 
     <xsl:template match="rtf:rtf-definition|rtf:font-table|rtf:color-table|rtf:style-table|rtf:page-definition|rtf:list-table|rtf:override-table|rtf:override-list|rtf:list-text"/>

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json
+import json, re
 from functools import partial
 from math import floor
 
@@ -313,7 +313,112 @@ class CustomColumns(object):
             self.conn.commit()
         return changed
 
-    def set_custom(self, id_, val, label=None, num=None,
+    def set_custom_bulk_multiple(self, ids, add=[], remove=[],
+                        label=None, num=None, notify=False):
+        '''
+        Fast algorithm for updating custom column is_multiple datatypes.
+        Do not use with other custom column datatypes.
+        '''
+        if label is not None:
+            data = self.custom_column_label_map[label]
+        if num is not None:
+            data = self.custom_column_num_map[num]
+        if not data['editable']:
+            raise ValueError('Column %r is not editable'%data['label'])
+        if data['datatype'] != 'text' or not data['is_multiple']:
+            raise ValueError('Column %r is not text/multiple'%data['label'])
+
+        add = self.cleanup_tags(add)
+        remove = self.cleanup_tags(remove)
+        remove = set(remove) - set(add)
+        if not ids or (not add and not remove):
+            return
+        # get custom table names
+        cust_table, link_table = self.custom_table_names(data['num'])
+
+        # Add tags that do not already exist into the custom cust_table
+        all_tags = self.all_custom(num=data['num'])
+        lt = [t.lower() for t in all_tags]
+        new_tags = [t for t in add if t.lower() not in lt]
+        if new_tags:
+            self.conn.executemany('INSERT INTO %s(value) VALUES (?)'%cust_table,
+                                  [(x,) for x in new_tags])
+
+        # Create the temporary temp_tables to store the ids for books and tags
+        # to be operated on
+        temp_tables = ('temp_bulk_tag_edit_books', 'temp_bulk_tag_edit_add',
+                    'temp_bulk_tag_edit_remove')
+        drops = '\n'.join(['DROP TABLE IF EXISTS %s;'%t for t in temp_tables])
+        creates = '\n'.join(['CREATE TEMP TABLE %s(id INTEGER PRIMARY KEY);'%t
+                for t in temp_tables])
+        self.conn.executescript(drops + creates)
+
+        # Populate the books temp cust_table
+        self.conn.executemany(
+            'INSERT INTO temp_bulk_tag_edit_books VALUES (?)',
+                [(x,) for x in ids])
+
+        # Populate the add/remove tags temp temp_tables
+        for table, tags in enumerate([add, remove]):
+            if not tags:
+                continue
+            table = temp_tables[table+1]
+            insert = ('INSERT INTO {tt}(id) SELECT {ct}.id FROM {ct} WHERE value=?'
+                     ' COLLATE PYNOCASE LIMIT 1').format(tt=table, ct=cust_table)
+            self.conn.executemany(insert, [(x,) for x in tags])
+
+        # now do the real work -- removing and adding the tags
+        if remove:
+            self.conn.execute(
+              '''DELETE FROM %s WHERE
+                    book IN (SELECT id FROM %s) AND
+                    value IN (SELECT id FROM %s)'''
+              % (link_table, temp_tables[0], temp_tables[2]))
+        if add:
+            self.conn.execute(
+            '''
+            INSERT OR REPLACE INTO {0}(book, value) SELECT {1}.id, {2}.id FROM {1}, {2}
+            '''.format(link_table, temp_tables[0], temp_tables[1])
+            )
+        # get rid of the temp tables
+        self.conn.executescript(drops)
+        self.conn.commit()
+
+        # set the in-memory copies of the tags
+        for x in ids:
+            tags = self.conn.get(
+                    'SELECT custom_%s FROM meta2 WHERE id=?'%data['num'],
+                    (x,), all=False)
+            self.data.set(x, self.FIELD_MAP[data['num']], tags, row_is_id=True)
+
+        if notify:
+            self.notify('metadata', ids)
+
+    def set_custom_bulk(self, ids, val, label=None, num=None,
+                   append=False, notify=True, extras=None):
+        '''
+        Change the value of a column for a set of books. The ids parameter is a
+        list of book ids to change. The extra field must be None or a list the
+        same length as ids.
+        '''
+        if extras is not None and len(extras) != len(ids):
+            raise ValueError('Lentgh of ids and extras is not the same')
+        ev = None
+        for idx,id in enumerate(ids):
+            if extras is not None:
+                ev = extras[idx]
+            self._set_custom(id, val, label=label, num=num, append=append,
+                             notify=notify, extra=ev)
+        self.conn.commit()
+
+    def set_custom(self, id, val, label=None, num=None,
+                   append=False, notify=True, extra=None, commit=True):
+        self._set_custom(id, val, label=label, num=num, append=append,
+                         notify=notify, extra=extra)
+        if commit:
+            self.conn.commit()
+
+    def _set_custom(self, id_, val, label=None, num=None,
                    append=False, notify=True, extra=None):
         if label is not None:
             data = self.custom_column_label_map[label]
@@ -369,7 +474,6 @@ class CustomColumns(object):
                         self.conn.execute(
                             '''INSERT INTO %s(book, value)
                                 VALUES (?,?)'''%lt, (id_, xid))
-            self.conn.commit()
             nval = self.conn.get(
                     'SELECT custom_%s FROM meta2 WHERE id=?'%data['num'],
                     (id_,), all=False)
@@ -381,7 +485,6 @@ class CustomColumns(object):
                 self.conn.execute(
                         'INSERT INTO %s(book,value) VALUES (?,?)'%table,
                     (id_, val))
-            self.conn.commit()
             nval = self.conn.get(
                     'SELECT custom_%s FROM meta2 WHERE id=?'%data['num'],
                     (id_,), all=False)
@@ -430,6 +533,10 @@ class CustomColumns(object):
 
     def create_custom_column(self, label, name, datatype, is_multiple,
             editable=True, display={}):
+        if not label:
+            raise ValueError(_('No label was provided'))
+        if re.match('^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
+            raise ValueError(_('The label must contain only lower case letters, digits and underscores, and start with a letter'))
         if datatype not in self.CUSTOM_DATA_TYPES:
             raise ValueError('%r is not a supported data type'%datatype)
         normalized  = datatype not in ('datetime', 'comments', 'int', 'bool',

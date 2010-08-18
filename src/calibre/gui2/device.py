@@ -33,7 +33,7 @@ from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 
 # }}}
 
@@ -118,6 +118,7 @@ class DeviceManager(Thread): # {{{
         self.jobs           = Queue.Queue(0)
         self.keep_going     = True
         self.job_manager    = job_manager
+        self.reported_errors = set([])
         self.current_job    = None
         self.scanner        = DeviceScanner()
         self.connected_device = None
@@ -141,13 +142,16 @@ class DeviceManager(Thread): # {{{
         for dev, detected_device in connected_devices:
             if dev.OPEN_FEEDBACK_MESSAGE is not None:
                 self.open_feedback_slot(dev.OPEN_FEEDBACK_MESSAGE)
-            dev.reset(detected_device=detected_device,
-                    report_progress=self.report_progress)
             try:
+                dev.reset(detected_device=detected_device,
+                    report_progress=self.report_progress)
                 dev.open()
             except:
-                prints('Unable to open device', str(dev))
-                traceback.print_exc()
+                tb = traceback.format_exc()
+                if DEBUG or tb not in self.reported_errors:
+                    self.reported_errors.add(tb)
+                    prints('Unable to open device', str(dev))
+                    prints(tb)
                 continue
             self.connected_device = dev
             self.connected_device_kind = device_kind
@@ -192,11 +196,13 @@ class DeviceManager(Thread): # {{{
             if possibly_connected_devices:
                 if not self.do_connect(possibly_connected_devices,
                                        device_kind='device'):
-                    prints('Connect to device failed, retrying in 5 seconds...')
+                    if DEBUG:
+                        prints('Connect to device failed, retrying in 5 seconds...')
                     time.sleep(5)
                     if not self.do_connect(possibly_connected_devices,
                                        device_kind='usb'):
-                        prints('Device connect failed again, giving up')
+                        if DEBUG:
+                            prints('Device connect failed again, giving up')
 
     # Mount devices that don't use USB, such as the folder device and iTunes
     # This will be called on the GUI thread. Because of this, we must store
@@ -602,13 +608,13 @@ class DeviceMixin(object): # {{{
         self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
-        self.share_conn_menu.connect_to_folder.connect(self.connect_to_folder)
-        self.share_conn_menu.connect_to_itunes.connect(self.connect_to_itunes)
         self.emailer = Emailer()
         self.emailer.start()
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
                 self.job_manager, Dispatcher(self.status_bar.show_message))
         self.device_manager.start()
+        if tweaks['auto_connect_to_folder']:
+            self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
 
     def set_default_thumbnail(self, height):
         r = QSvgRenderer(I('book.svg'))
@@ -619,6 +625,11 @@ class DeviceMixin(object): # {{{
         p.end()
         self.default_thumbnail = (pixmap.width(), pixmap.height(),
                 pixmap_to_data(pixmap))
+
+    def connect_to_folder_named(self, folder):
+        if os.path.exists(folder) and os.path.isdir(folder):
+            self.device_manager.mount_device(kls=FOLDER_DEVICE, kind='folder',
+                    path=folder)
 
     def connect_to_folder(self):
         dir = choose_dir(self, 'Select Device Folder',
@@ -641,20 +652,18 @@ class DeviceMixin(object): # {{{
 
     def create_device_menu(self):
         self._sync_menu = DeviceMenu(self)
-        self.share_conn_menu.build_email_entries(self._sync_menu)
-        self.action_sync.setMenu(self._sync_menu)
+        self.iactions['Send To Device'].qaction.setMenu(self._sync_menu)
+        self.iactions['Connect Share'].build_email_entries()
         self.connect(self._sync_menu,
                 SIGNAL('sync(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                 self.dispatch_sync_event)
-        self._sync_menu.fetch_annotations.connect(self.fetch_annotations)
+        self._sync_menu.fetch_annotations.connect(
+                self.iactions['Fetch Annotations'].fetch_annotations)
         self._sync_menu.disconnect_mounted_device.connect(self.disconnect_mounted_device)
+        self.iactions['Connect Share'].set_state(self.device_connected)
         if self.device_connected:
-            self.share_conn_menu.connect_to_folder_action.setEnabled(False)
-            self.share_conn_menu.connect_to_itunes_action.setEnabled(False)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
         else:
-            self.share_conn_menu.connect_to_folder_action.setEnabled(True)
-            self.share_conn_menu.connect_to_itunes_action.setEnabled(True)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
 
     def device_job_exception(self, job):
@@ -690,17 +699,14 @@ class DeviceMixin(object): # {{{
     # Device connected {{{
 
     def set_device_menu_items_state(self, connected):
+        self.iactions['Connect Share'].set_state(connected)
         if connected:
-            self.share_conn_menu.connect_to_folder_action.setEnabled(False)
-            self.share_conn_menu.connect_to_itunes_action.setEnabled(False)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
             self._sync_menu.enable_device_actions(True,
                     self.device_manager.device.card_prefix(),
                     self.device_manager.device)
             self.eject_action.setEnabled(True)
         else:
-            self.share_conn_menu.connect_to_folder_action.setEnabled(True)
-            self.share_conn_menu.connect_to_itunes_action.setEnabled(True)
             self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
             self._sync_menu.enable_device_actions(False)
             self.eject_action.setEnabled(False)
@@ -785,8 +791,9 @@ class DeviceMixin(object): # {{{
             self.device_job_exception(job)
             return
 
-        if self.delete_memory.has_key(job):
-            paths, model = self.delete_memory.pop(job)
+        dm = self.iactions['Remove Books'].delete_memory
+        if dm.has_key(job):
+            paths, model = dm.pop(job)
             self.device_manager.remove_books_from_metadata(paths,
                     self.booklists())
             model.paths_deleted(paths)
@@ -918,7 +925,7 @@ class DeviceMixin(object): # {{{
                     _('Auto convert the following books before sending via '
                         'email?'), det_msg=autos,
                     buttons=QMessageBox.Yes|QMessageBox.Cancel):
-                    self.auto_convert_mail(to, fmts, delete_from_library, auto, format)
+                    self.iactions['Convert Books'].auto_convert_mail(to, fmts, delete_from_library, auto, format)
 
         if bad:
             bad = '\n'.join('%s'%(i,) for i in bad)
@@ -1020,7 +1027,7 @@ class DeviceMixin(object): # {{{
                         _('Auto convert the following books before uploading to '
                             'the device?'), det_msg=autos,
                         buttons=QMessageBox.Yes|QMessageBox.Cancel):
-                        self.auto_convert_catalogs(auto, format)
+                        self.iactions['Convert Books'].auto_convert_catalogs(auto, format)
             files = [f for f in files if f is not None]
             if not files:
                 dynamic.set('catalogs_to_be_synced', set([]))
@@ -1082,7 +1089,7 @@ class DeviceMixin(object): # {{{
                         _('Auto convert the following books before uploading to '
                             'the device?'), det_msg=autos,
                         buttons=QMessageBox.Yes|QMessageBox.Cancel):
-                        self.auto_convert_news(auto, format)
+                        self.iactions['Convert Books'].auto_convert_news(auto, format)
             files = [f for f in files if f is not None]
             for f in files:
                 f.deleted_after_upload = del_on_upload
@@ -1201,7 +1208,7 @@ class DeviceMixin(object): # {{{
                     _('Auto convert the following books before uploading to '
                         'the device?'), det_msg=autos,
                     buttons=QMessageBox.Yes|QMessageBox.Cancel):
-                    self.auto_convert(auto, on_card, format)
+                    self.iactions['Convert Books'].auto_convert(auto, on_card, format)
 
         if bad:
             bad = '\n'.join('%s'%(i,) for i in bad)

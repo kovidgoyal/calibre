@@ -80,6 +80,15 @@ class HANLINV3(USBMS):
             drives['carda'] = main
         return drives
 
+class SPECTRA(HANLINV3):
+
+    name = 'Spectra'
+    gui_name = 'Spectra'
+    PRODUCT_ID  = [0xa4a5]
+
+    FORMATS = ['epub', 'mobi', 'fb2', 'lit', 'prc', 'djvu', 'pdf', 'rtf', 'txt']
+
+    SUPPORTS_SUB_DIRS = True
 
 class HANLINV5(HANLINV3):
     name           = 'Hanlin V5 driver'

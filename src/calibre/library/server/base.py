@@ -64,6 +64,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache):
             break
         self.opts = opts
         self.embedded = embedded
+        self.state_callback = None
         self.max_cover_width, self.max_cover_height = \
                         map(int, self.opts.max_cover.split('x'))
         path = P('content_server')
@@ -94,8 +95,18 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache):
                       'tools.digest_auth.users' : {opts.username.strip():opts.password.strip()},
                       }
 
+        sr = getattr(opts, 'restriction', None)
+        sr = db.prefs.get('cs_restriction', '') if sr is None else sr
+        self.set_search_restriction(sr)
+
         self.is_running = False
         self.exception = None
+
+    def set_search_restriction(self, restriction):
+        if restriction:
+            self.search_restriction = 'search:"%s"'%restriction
+        else:
+            self.search_restriction = ''
 
     def setup_loggers(self):
         access_file = log_access_file
@@ -159,11 +170,22 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache):
                 import traceback
                 cherrypy.log.error('Failed to stop BonJour:')
                 cherrypy.log.error(traceback.format_exc())
+            try:
+                if callable(self.state_callback):
+                    self.state_callback(self.is_running)
+            except:
+                pass
 
     def exit(self):
         try:
             cherrypy.engine.exit()
         finally:
             cherrypy.server.httpserver = None
+            self.is_running = False
+            try:
+                if callable(self.state_callback):
+                    self.state_callback(self.is_running)
+            except:
+                pass
 
 

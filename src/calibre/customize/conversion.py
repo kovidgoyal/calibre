@@ -28,7 +28,7 @@ class ConversionOption(object):
 
     def validate_parameters(self):
         '''
-        Validate the parameters passed to :method:`__init__`.
+        Validate the parameters passed to :meth:`__init__`.
         '''
         if re.match(r'[a-zA-Z_]([a-zA-Z0-9_])*', self.name) is None:
             raise ValueError(self.name + ' is not a valid Python identifier')
@@ -96,7 +96,7 @@ class InputFormatPlugin(Plugin):
     InputFormatPlugins are responsible for converting a document into
     HTML+OPF+CSS+etc.
     The results of the conversion *must* be encoded in UTF-8.
-    The main action happens in :method:`convert`.
+    The main action happens in :meth:`convert`.
     '''
 
     type = _('Conversion Input')
@@ -109,15 +109,19 @@ class InputFormatPlugin(Plugin):
 
     #: If True, this input plugin generates a collection of images,
     #: one per HTML file. You can obtain access to the images via
-    #: convenience method, :method:`get_image_collection`.
+    #: convenience method, :meth:`get_image_collection`.
     is_image_collection = False
+
+    #: Number of CPU cores used by this plugin
+    #: A value of -1 means that it uses all available cores
+    core_usage = 1
 
     #: If set to True, the input plugin will perform special processing
     #: to make its output suitable for viewing
     for_viewer = False
 
     #: Options shared by all Input format plugins. Do not override
-    #: in sub-classes. Use :member:`options` instead. Every option must be an
+    #: in sub-classes. Use :attr:`options` instead. Every option must be an
     #: instance of :class:`OptionRecommendation`.
     common_options = set([
         OptionRecommendation(name='input_encoding',
@@ -173,7 +177,6 @@ class InputFormatPlugin(Plugin):
         returns.
 
         :param stream:   A file like object that contains the input file.
-
         :param options:  Options to customize the conversion process.
                          Guaranteed to have attributes corresponding
                          to all the options declared by this plugin. In
@@ -182,14 +185,11 @@ class InputFormatPlugin(Plugin):
                          mean be more verbose. Another useful attribute is
                          ``input_profile`` that is an instance of
                          :class:`calibre.customize.profiles.InputProfile`.
-
         :param file_ext: The extension (without the .) of the input file. It
                          is guaranteed to be one of the `file_types` supported
                          by this plugin.
-
         :param log: A :class:`calibre.utils.logging.Log` object. All output
                     should use this object.
-
         :param accelarators: A dictionary of various information that the input
                              plugin can get easily that would speed up the
                              subsequent stages of the conversion.
@@ -235,7 +235,7 @@ class OutputFormatPlugin(Plugin):
     (OPF+HTML) into an output ebook.
 
     The OEB document can be assumed to be encoded in UTF-8.
-    The main action happens in :method:`convert`.
+    The main action happens in :meth:`convert`.
     '''
 
     type = _('Conversion Output')
@@ -247,7 +247,7 @@ class OutputFormatPlugin(Plugin):
     file_type     = None
 
     #: Options shared by all Input format plugins. Do not override
-    #: in sub-classes. Use :member:`options` instead. Every option must be an
+    #: in sub-classes. Use :attr:`options` instead. Every option must be an
     #: instance of :class:`OptionRecommendation`.
     common_options = set([
         OptionRecommendation(name='pretty_print',
@@ -277,17 +277,15 @@ class OutputFormatPlugin(Plugin):
         :class:`calibre.ebooks.oeb.OEBBook` to the file specified by output.
 
         :param output: Either a file like object or a string. If it is a string
-        it is the path to a directory that may or may not exist. The output
-        plugin should write its output into that directory. If it is a file like
-        object, the output plugin should write its output into the file.
-
+                       it is the path to a directory that may or may not exist. The output
+                       plugin should write its output into that directory. If it is a file like
+                       object, the output plugin should write its output into the file.
         :param input_plugin: The input plugin that was used at the beginning of
-        the conversion pipeline.
-
+                             the conversion pipeline.
         :param opts: Conversion options. Guaranteed to have attributes
-        corresponding to the OptionRecommendations of this plugin.
-
+                     corresponding to the OptionRecommendations of this plugin.
         :param log: The logger. Print debug/info messages etc. using this.
+
         '''
         raise NotImplementedError
 

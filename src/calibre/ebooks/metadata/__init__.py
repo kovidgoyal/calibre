@@ -38,7 +38,7 @@ def author_to_author_sort(author):
     author = _bracket_pat.sub('', author).strip()
     tokens = author.split()
     tokens = tokens[-1:] + tokens[:-1]
-    if len(tokens) > 1:
+    if len(tokens) > 1 and method != 'nocomma':
         tokens[0] += ','
     return ' '.join(tokens)
 
@@ -46,6 +46,7 @@ def authors_to_sort_string(authors):
     return ' & '.join(map(author_to_author_sort, authors))
 
 _title_pat = re.compile('^(A|The|An)\s+', re.IGNORECASE)
+
 def title_sort(title):
     match = _title_pat.search(title)
     if match:

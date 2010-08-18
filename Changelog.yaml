@@ -4,6 +4,187 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.14
+  date: 2010-08-13
+
+  new features:
+    - title: "Device drivers for the: Teclast K-5, Samsung SNE-60 and Samsung i7500"
+
+    - title: "When showing cover browser in a separate window, remember the last used window size"
+
+    - title: "Add keyboard shortcuts to show/hide the Tag Browser, Book details and Cover Browser panels. Hover your mouse over the buttons that toggle them to see the shortcuts."
+
+    - title: "Calibre library: When the case of title or author is changed, automatically rename the folders to reflect the new case, even on case insensitive filesystems"
+
+    - title: "Metadata download: If downloaded title or author is all upper case, automatically fix the case"
+
+    - title: "Add method to add books by ISBN. Click the arrow next to Add Books to add from a list of ISBNs."
+      tickets: [6327]
+
+    - title: "Allow editing of tweaks via Preferences->Advanced"
+
+    - title: "Add button to the manage authors dialog to automatically reset all author sort values"
+
+  bug fixes:
+    - title: "Fix regression in 0.7.13 that broke changing libraries"
+
+    - title: "MOBI Output: When processing an input document that specifies non-existant files in the OPF guide, don't crash."
+      tickets: [6490]
+
+    - title: "E-book viewer: When opening consecutive documents in the same viewer, show the correct title in the titlebar"
+
+    - title: "Set screen size to 540x718 in Kobo output profile"
+
+    - title: "Dont allow calibredb to create custom columns with invalid labels."
+      tickets: [6487]
+
+    - title: "Fix preference to 'search as you type' not working"
+
+    - title: "iTunes driver: Fixed bug in PDF file name searching after adding to iTunes database (Windows only)"
+
+    - title: "Displaying HTML comments: Do not start a new paragraph at the period in words like Ph.D"
+      tickets: [6462]
+
+    - title: "Respect restriction in effect when refreshing book list"
+
+    - title: "Fix drives being reversed for softrooted nook"
+
+
+  new recipes:
+    - title: "Yahoo News, Skeptical Enquirer and Skeptic"
+      author: Startson17
+
+    - title: "Bolivian newspapers"
+      author: Darko Miletic
+
+  improved recipes:
+    - Esquire
+    - Big Oven
+    - NSPM
+
+- version: 0.7.13
+  date: 2010-08-06
+
+  new features:
+    - title: "Add a button to the edit metadata dialog to generate a cover based on the book metadata"
+      tickets: [5959]
+
+    - title: "When using series or title in a save template to generate a file path, remove leading prepositions. This behavior can be controlled via a tweak."
+
+    - title: "News download: When downloading news for the Kindle, do not add date to the title, to allow the Kindle's periodical archiving to work."
+      tickets: [6411]
+
+    - title: "Content Server OPDS feeds: Grouping of items by first alphabet is now case-insensitive."
+
+    - title: "Do not allow the user to use save to disk to save files into the calibre library"
+      tickets: [6392]
+
+    - title: "Switch to a new C based API for using ImageMagick. More robust and a minor speedup when doing image manipulations"
+
+    - title: "Move cover downloading to a plugin based API. You can now add new cover sources to calibre using plugins."
+
+  bug fixes:
+    - title: "Content server OPDS feeds: Handle the case when the author field is blank"
+      tickets: [6371]
+
+    - title: "TXT Input: Strip out illegal chars from txt files."
+      tickets: [6335]
+
+    - title: "Save to disk/send to device templates: Always render {series_index} as an empty string when the book has no series."
+      tickets: [6409]
+
+    - title: "PD Novel driver: Remove covers when deleting books"
+
+
+  new recipes:
+    - title: "Snopes"
+      author: Startson17
+
+    - title: "dr.dk and Balkan Insight"
+      author: Darko Miletic
+
+    - title: Folha de Sao Paulo
+      author: Saverio Palmieri Neto
+
+  improved recipes:
+    - Honolulu Star Advertiser
+    - Nature News
+    - Associated Press
+    - Scientific American
+    - New Scientist
+
+- version: 0.7.12
+  date: 2010-07-30
+
+  bug fixes:
+    - title: "Fix a typo that caused a harmless error message after setting preferences"
+
+    - title: "Linux build system: No longer search for poppler-qt4 libraries as they are not needed"
+
+- version: 0.7.11
+  date: 2010-07-30
+
+  new features:
+    - title: "EPUB metadata: When setting metadata in an EPUB file, if it has a well defined image based cover, update it"
+
+    - title: "Support for Droid X, Samsung Vibrant and Promedia ebook reader"
+
+    - title: "Add entry to Connect/share menu to conveniently stop and start the Content Server"
+
+    - title: "News download: Make the navbars on the section index pages more useful, adding links to net and previous section"
+
+    - title: "Add a button to reset confirm dialogs to Preferences->General"
+
+
+  bug fixes:
+    - title: "Fix crash in edit metadata dialog if you click OK before cover download completes"
+      tickets: [6337]
+
+    - title: "Kobo driver: Show a warning when the user tries to export/view .kobo files. Also add support for the new sofroot vendor id"
+
+    - title: "Update check. Do not be fooled by a redirecting proxy when checking for new version"
+      tickets: [6325]
+
+    - title: "Add book count to tooltip of library button in toolbar"
+      tickets: [6340]
+
+    - title: "Content server: When serving OPDS feeds send the correct content-type header."
+      tickets: [6329]
+
+    - title: "PDF Output: Don't insert blank pages before every individual HTML file in the ebook."
+      tickets: [6315]
+
+    - title: "Fix saving of cover when path to book folder contains non ascii characters"
+      tickets: [6328]
+
+    - title: "Fix regression that broke showing send to actions for multiple email accounts"
+
+    - title: "Fix bug in handlling of hexadecimal entities"
+      tickets: [6305]
+
+    - title: "SONY driver: More fixes to handle broken media.xml files"
+      tickets: [6296]
+
+    - title: "Linux installer: Fix rendering of viewer icon and restrict all icons to 128x128 since GNOME can't handle large icons"
+
+    - title: "RTF Input: Fix handling of hard linebreaks"
+      tickets: [6208]
+
+    - title: "RTF Output: Fix regression that broke rendering of bold and italic text"
+      tickets: [6098]
+
+  new recipes:
+    - title: "Draw and Cook"
+      author: Startson17
+
+  improved recipes:
+    - La Nacion
+    - Vecernje Novosti
+    - Der Tagesspiegel
+    - Die Zeit Nachrichten
+    - Toms Hardware (DE)
+    - Welt Online
+
 - version: 0.7.10
   date: 2010-07-23
 

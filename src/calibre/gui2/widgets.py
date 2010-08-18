@@ -5,7 +5,7 @@ Miscellaneous widgets used in the GUI
 '''
 import re, os, traceback
 
-from PyQt4.Qt import QIcon, QFont, QLabel, QListWidget, \
+from PyQt4.Qt import QIcon, QFont, QLabel, QListWidget, QAction, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
                         QPixmap, QSplitterHandle, QToolButton, \
@@ -855,7 +855,7 @@ class SplitterHandle(QSplitterHandle):
 
 class LayoutButton(QToolButton):
 
-    def __init__(self, icon, text, splitter, parent=None):
+    def __init__(self, icon, text, splitter, parent=None, shortcut=None):
         QToolButton.__init__(self, parent)
         self.label = text
         self.setIcon(QIcon(icon))
@@ -864,18 +864,21 @@ class LayoutButton(QToolButton):
         self.splitter = splitter
         splitter.state_changed.connect(self.update_state)
         self.setCursor(Qt.PointingHandCursor)
+        self.shortcut = ''
+        if shortcut:
+            self.shortcut = shortcut
 
     def set_state_to_show(self, *args):
         self.setChecked(False)
         label =_('Show')
-        self.setText(label + ' ' + self.label)
+        self.setText(label + ' ' + self.label + u' (%s)'%self.shortcut)
         self.setToolTip(self.text())
         self.setStatusTip(self.text())
 
     def set_state_to_hide(self, *args):
         self.setChecked(True)
         label = _('Hide')
-        self.setText(label + ' ' + self.label)
+        self.setText(label + ' ' + self.label+ u' (%s)'%self.shortcut)
         self.setToolTip(self.text())
         self.setStatusTip(self.text())
 
@@ -891,7 +894,7 @@ class Splitter(QSplitter):
 
     def __init__(self, name, label, icon, initial_show=True,
             initial_side_size=120, connect_button=True,
-            orientation=Qt.Horizontal, side_index=0, parent=None):
+            orientation=Qt.Horizontal, side_index=0, parent=None, shortcut=None):
         QSplitter.__init__(self, parent)
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)
@@ -906,9 +909,20 @@ class Splitter(QSplitter):
         self.initial_side_size = initial_side_size
         self.initial_show = initial_show
         self.splitterMoved.connect(self.splitter_moved, type=Qt.QueuedConnection)
-        self.button = LayoutButton(icon, label, self)
+        self.button = LayoutButton(icon, label, self, shortcut=shortcut)
         if connect_button:
             self.button.clicked.connect(self.double_clicked)
+
+        if shortcut is not None:
+            self.action_toggle = QAction(QIcon(icon), _('Toggle') + ' ' + label,
+                    self)
+            self.action_toggle.triggered.connect(self.toggle_triggered)
+            self.action_toggle.setShortcut(shortcut)
+            if parent is not None:
+                parent.addAction(self.action_toggle)
+
+    def toggle_triggered(self, *args):
+        self.toggle_side_pane()
 
     def createHandle(self):
         return SplitterHandle(self.orientation(), self)
@@ -927,7 +941,10 @@ class Splitter(QSplitter):
     @property
     def is_side_index_hidden(self):
         sizes = list(self.sizes())
-        return sizes[self.side_index] == 0
+        try:
+            return sizes[self.side_index] == 0
+        except IndexError:
+            return True
 
     @property
     def save_name(self):

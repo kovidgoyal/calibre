@@ -244,14 +244,20 @@ def info_dialog(parent, title, msg, det_msg='', show=False):
 
 
 class Dispatcher(QObject):
-    '''Convenience class to ensure that a function call always happens in the
-    thread the receiver was created in.'''
+    '''
+    Convenience class to use Qt signals with arbitrary python callables.
+    By default, ensures that a function call always happens in the
+    thread this Dispatcher was created in.
+    '''
     dispatch_signal = pyqtSignal(object, object)
 
-    def __init__(self, func):
-        QObject.__init__(self)
+    def __init__(self, func, queued=True, parent=None):
+        QObject.__init__(self, parent)
         self.func = func
-        self.dispatch_signal.connect(self.dispatch, type=Qt.QueuedConnection)
+        typ = Qt.QueuedConnection
+        if not queued:
+            typ = Qt.AutoConnection if queued is None else Qt.DirectConnection
+        self.dispatch_signal.connect(self.dispatch, type=typ)
 
     def __call__(self, *args, **kwargs):
         self.dispatch_signal.emit(args, kwargs)
@@ -329,6 +335,7 @@ class FileIconProvider(QFileIconProvider):
              'epub'    : 'epub',
              'fb2'     : 'fb2',
              'rtf'     : 'rtf',
+             'odt'     : 'odt',
              }
 
     def __init__(self):

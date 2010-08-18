@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 '''
 Contains various tweaks that affect calibre behavior. Only edit this file if
-you know what you are dong. If you delete this file, it will be recreated from
+you know what you are doing. If you delete this file, it will be recreated from
 defaults.
 '''
 
@@ -24,6 +24,7 @@ series_index_auto_increment = 'next'
 #  invert: use "fn ln" -> "ln, fn" (the original algorithm)
 #  copy  : copy author to author_sort without modification
 #  comma : use 'copy' if there is a ',' in the name, otherwise use 'invert'
+#  nocomma : "fn ln" -> "ln fn" (without the comma)
 author_sort_copy_method = 'invert'
 
 
@@ -72,4 +73,19 @@ gui_pubdate_display_format = 'MMM yyyy'
 # without changing anything is sufficient to change the sort.
 title_series_sorting = 'library_order'
 
+# Control how title and series names are formatted when saving to disk/sending
+# to device. If set to library_order, leading articles such as The and A will
+# be put at the end
+# If set to 'strictly_alphabetic', the titles will be sorted without processing
+# For example, with library_order, "The Client" will become "Client, The". With
+# strictly_alphabetic, it would remain "The Client".
+save_template_title_series_sorting = 'library_order'
 
+# Specify a folder that calibre should connect to at startup using
+# connect_to_folder. This must be a full path to the folder. If the folder does
+# not exist when calibre starts, it is ignored. If there are '\' characters in
+# the path (such as in Windows paths), you must double them.
+# Examples:
+#     auto_connect_to_folder = 'C:\\Users\\someone\\Desktop\\testlib'
+#     auto_connect_to_folder = '/home/dropbox/My Dropbox/someone/library'
+auto_connect_to_folder = ''

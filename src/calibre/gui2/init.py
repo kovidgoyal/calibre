@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import functools, sys, os
 
-from PyQt4.Qt import QMenu, Qt, QStackedWidget, \
+from PyQt4.Qt import Qt, QStackedWidget, QMenu, \
         QSize, QSizePolicy, QStatusBar, QLabel, QFont
 
 from calibre.utils.config import prefs
@@ -27,69 +27,35 @@ def partial(*args, **kwargs):
     _keep_refs.append(ans)
     return ans
 
+LIBRARY_CONTEXT_MENU = (
+        'Edit Metadata', 'Send To Device', 'Save To Disk', 'Connect Share', None,
+        'Convert Books', 'View', 'Open Folder', 'Show Book Details', None,
+        'Remove Books',
+        )
+
+DEVICE_CONTEXT_MENU = ('View', 'Save To Disk', None, 'Remove Books', None,
+                       'Add To Library', 'Edit Collections',
+        )
+
 class LibraryViewMixin(object): # {{{
 
     def __init__(self, db):
-        similar_menu = QMenu(_('Similar books...'))
-        similar_menu.addAction(self.action_books_by_same_author)
-        similar_menu.addAction(self.action_books_in_this_series)
-        similar_menu.addAction(self.action_books_with_the_same_tags)
-        similar_menu.addAction(self.action_books_by_this_publisher)
-        self.action_books_by_same_author.setShortcut(Qt.ALT + Qt.Key_A)
-        self.action_books_in_this_series.setShortcut(Qt.ALT + Qt.Key_S)
-        self.action_books_by_this_publisher.setShortcut(Qt.ALT + Qt.Key_P)
-        self.action_books_with_the_same_tags.setShortcut(Qt.ALT+Qt.Key_T)
-        self.addAction(self.action_books_by_same_author)
-        self.addAction(self.action_books_by_this_publisher)
-        self.addAction(self.action_books_in_this_series)
-        self.addAction(self.action_books_with_the_same_tags)
-        self.similar_menu = similar_menu
-        self.action_books_by_same_author.triggered.connect(
-                partial(self.show_similar_books, 'authors'))
-        self.action_books_in_this_series.triggered.connect(
-                partial(self.show_similar_books, 'series'))
-        self.action_books_with_the_same_tags.triggered.connect(
-                partial(self.show_similar_books, 'tag'))
-        self.action_books_by_this_publisher.triggered.connect(
-                partial(self.show_similar_books, 'publisher'))
+        lm = QMenu(self)
+        def populate_menu(m, items):
+            for what in items:
+                if what is None:
+                    m.addSeparator()
+                elif what in self.iactions:
+                    m.addAction(self.iactions[what].qaction)
+        populate_menu(lm, LIBRARY_CONTEXT_MENU)
+        dm = QMenu(self)
+        populate_menu(dm, DEVICE_CONTEXT_MENU)
+        ec = self.iactions['Edit Collections'].qaction
+        self.library_view.set_context_menu(lm, ec)
+        for v in (self.memory_view, self.card_a_view, self.card_b_view):
+            v.set_context_menu(dm, ec)
 
-        self.library_view.set_context_menu(self.action_edit, self.action_sync,
-                                        self.action_convert, self.action_view,
-                                        self.action_save,
-                                        self.action_open_containing_folder,
-                                        self.action_show_book_details,
-                                        self.action_del,
-                                        self.action_conn_share,
-                                        add_to_library = None,
-                                        edit_device_collections=None,
-                                        similar_menu=similar_menu)
-        add_to_library = (_('Add books to library'), self.add_books_from_device)
-
-        edit_device_collections = (_('Manage collections'),
-                            partial(self.edit_device_collections, oncard=None))
-        self.memory_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None,
-                self.action_del, None,
-                add_to_library=add_to_library,
-                edit_device_collections=edit_device_collections)
-
-        edit_device_collections = (_('Manage collections'),
-                            partial(self.edit_device_collections, oncard='carda'))
-        self.card_a_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None,
-                self.action_del, None,
-                add_to_library=add_to_library,
-                edit_device_collections=edit_device_collections)
-
-        edit_device_collections = (_('Manage collections'),
-                            partial(self.edit_device_collections, oncard='cardb'))
-        self.card_b_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None,
-                self.action_del, None,
-                add_to_library=add_to_library,
-                edit_device_collections=edit_device_collections)
-
-        self.library_view.files_dropped.connect(self.files_dropped, type=Qt.QueuedConnection)
+        self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.QueuedConnection)
         for func, args in [
                              ('connect_to_search_box', (self.search,
                                  self.search_done)),
@@ -116,36 +82,9 @@ class LibraryViewMixin(object): # {{{
 
         for view in ('library', 'memory', 'card_a', 'card_b'):
             view = getattr(self, view+'_view')
-            view.verticalHeader().sectionDoubleClicked.connect(self.view_specific_book)
+            view.verticalHeader().sectionDoubleClicked.connect(self.iactions['View'].view_specific_book)
 
 
-
-    def show_similar_books(self, type, *args):
-        search, join = [], ' '
-        idx = self.library_view.currentIndex()
-        if not idx.isValid():
-            return
-        row = idx.row()
-        if type == 'series':
-            series = idx.model().db.series(row)
-            if series:
-                search = ['series:"'+series+'"']
-        elif type == 'publisher':
-            publisher = idx.model().db.publisher(row)
-            if publisher:
-                search = ['publisher:"'+publisher+'"']
-        elif type == 'tag':
-            tags = idx.model().db.tags(row)
-            if tags:
-                search = ['tag:"='+t+'"' for t in tags.split(',')]
-        elif type in ('author', 'authors'):
-            authors = idx.model().db.authors(row)
-            if authors:
-                search = ['author:"='+a.strip().replace('|', ',')+'"' \
-                                for a in authors.split(',')]
-                join = ' or '
-        if search:
-            self.search.set_search_string(join.join(search))
 
     def search_done(self, view, ok):
         if view is self.current_view():
@@ -166,7 +105,8 @@ class LibraryWidget(Splitter): # {{{
                 I('cover_flow.svg'),
                 orientation=orientation, parent=parent,
                 connect_button=not config['separate_cover_flow'],
-                side_index=idx, initial_side_size=size, initial_show=False)
+                side_index=idx, initial_side_size=size, initial_show=False,
+                shortcut=_('Shift+Alt+B'))
         parent.library_view = BooksView(parent)
         parent.library_view.setObjectName('library_view')
         self.addWidget(parent.library_view)
@@ -181,7 +121,8 @@ class Stack(QStackedWidget): # {{{
         self.tb_widget = TagBrowserWidget(parent)
         parent.tb_splitter = Splitter('tag_browser_splitter',
                 _('Tag Browser'), I('tags.svg'),
-                parent=parent, side_index=0, initial_side_size=200)
+                parent=parent, side_index=0, initial_side_size=200,
+                shortcut=_('Shift+Alt+T'))
         parent.tb_splitter.addWidget(self.tb_widget)
         parent.tb_splitter.addWidget(parent.cb_splitter)
         parent.tb_splitter.setCollapsible(parent.tb_splitter.other_index, False)
@@ -274,7 +215,8 @@ class LayoutMixin(object): # {{{
             self.stack = Stack(self)
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.svg'),
-                    orientation=Qt.Vertical, parent=self, side_index=1)
+                    orientation=Qt.Vertical, parent=self, side_index=1,
+                    shortcut=_('Alt+D'))
             self.bd_splitter.addWidget(self.stack)
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
@@ -283,7 +225,8 @@ class LayoutMixin(object): # {{{
         else: # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.svg'), initial_side_size=200,
-                    orientation=Qt.Horizontal, parent=self, side_index=1)
+                    orientation=Qt.Horizontal, parent=self, side_index=1,
+                    shortcut=_('Shift+Alt+D'))
             self.stack = Stack(self)
             self.bd_splitter.addWidget(self.stack)
             self.book_details = BookDetails(True, self)
@@ -304,10 +247,10 @@ class LayoutMixin(object): # {{{
 
     def finalize_layout(self):
         self.status_bar.initialize(self.system_tray_icon)
-        self.book_details.show_book_info.connect(self.show_book_info)
-        self.book_details.files_dropped.connect(self.files_dropped_on_book)
-        self.book_details.open_containing_folder.connect(self.view_folder_for_id)
-        self.book_details.view_specific_format.connect(self.view_format_by_id)
+        self.book_details.show_book_info.connect(self.iactions['Show Book Details'].show_book_info)
+        self.book_details.files_dropped.connect(self.iactions['Add Books'].files_dropped_on_book)
+        self.book_details.open_containing_folder.connect(self.iactions['View'].view_folder_for_id)
+        self.book_details.view_specific_format.connect(self.iactions['View'].view_format_by_id)
 
         m = self.library_view.model()
         if m.rowCount(None) > 0:

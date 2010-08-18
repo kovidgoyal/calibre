@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Read meta information from epub files'''
 
-import os, re
+import os, re, posixpath, shutil
 from cStringIO import StringIO
 from contextlib import closing
 
@@ -13,7 +13,7 @@ from calibre.utils.zipfile import ZipFile, BadZipfile, safe_replace
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.ptempfile import TemporaryDirectory
+from calibre.ptempfile import TemporaryDirectory, PersistentTemporaryFile
 from calibre import CurrentDir
 
 class EPubException(Exception):
@@ -126,7 +126,6 @@ class OCFDirReader(OCFReader):
         return open(os.path.join(self.root, path), *args, **kwargs)
 
 def get_cover(opf, opf_path, stream, reader=None):
-    import posixpath
     from calibre.ebooks import render_html_svg_workaround
     from calibre.utils.logging import default_log
     raster_cover = opf.raster_cover
@@ -185,7 +184,45 @@ def get_quick_metadata(stream):
 def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
     stream.seek(0)
     reader = OCFZipReader(stream, root=os.getcwdu())
+    raster_cover = reader.opf.raster_cover
     mi = MetaInformation(mi)
+    new_cdata = None
+    replacements = {}
+    try:
+        new_cdata = mi.cover_data[1]
+        if not new_cdata:
+            raise Exception('no cover')
+    except:
+        try:
+            new_cdata = open(mi.cover, 'rb').read()
+        except:
+            import traceback
+            traceback.print_exc()
+    if new_cdata and raster_cover:
+        try:
+            cpath = posixpath.join(posixpath.dirname(reader.opf_path),
+                    raster_cover)
+            cover_replacable = not reader.encryption_meta.is_encrypted(cpath) and \
+                    os.path.splitext(cpath)[1].lower() in ('.png', '.jpg', '.jpeg')
+            if cover_replacable:
+                from calibre.utils.magick.draw import save_cover_data_to, \
+                    identify
+                new_cover = PersistentTemporaryFile(suffix=os.path.splitext(cpath)[1])
+                resize_to = None
+                if False: # Resize new cover to same size as old cover
+                    shutil.copyfileobj(reader.open(cpath), new_cover)
+                    new_cover.close()
+                    width, height, fmt = identify(new_cover.name)
+                    resize_to = (width, height)
+                else:
+                    new_cover.close()
+                save_cover_data_to(new_cdata, new_cover.name,
+                        resize_to=resize_to)
+                replacements[cpath] = open(new_cover.name, 'rb')
+        except:
+            import traceback
+            traceback.print_exc()
+
     for x in ('guide', 'toc', 'manifest', 'spine'):
         setattr(mi, x, None)
     reader.opf.smart_update(mi)
@@ -200,5 +237,6 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
         reader.opf.timestamp = mi.timestamp
 
     newopf = StringIO(reader.opf.render())
-    safe_replace(stream, reader.container[OPF.MIMETYPE], newopf)
+    safe_replace(stream, reader.container[OPF.MIMETYPE], newopf,
+            extra_replacements=replacements)
 

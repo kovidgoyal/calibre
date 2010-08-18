@@ -1,17 +1,85 @@
 Notes on setting up the windows development environment
 ========================================================
 
-Set CMAKE_PREFIX_PATH to C:\cygwin\home\kovid\sw
+Overview
+----------
+
+calibre and all its dependencies are compiled using Visual Studio 2008 express edition (free from MS). All the following instructions must be run in a visual studio command prompt unless otherwise noted.
+
+calibre contains build script to automate the building of the calibre installer. These scripts make certain assumptions about where dependencies are installed. Your best best is to setup a VM and replicate the paths mentioned below exactly.
+
+Basic dependencies
+--------------------
+
+Install cygwin and setup sshd (optional). Used to enable automation of the calibre build VM from linux, not needed if you are building manually.
+
+Install MS Visual Studio 2008, cmake, python and WiX.
+
+Set CMAKE_PREFIX_PATH environment variable to C:\cygwin\home\kovid\sw
+
+This is where all dependencies will be installed.
+
+Add C:\Python26\Scripts and C:\Python26 to PATH 
+
+Install setuptools from http://pypi.python.org/pypi/setuptools
+If there are no windows binaries already compiled for the version of python you are using then download the source and run the following command in the folder where the source has been unpacked::
+
+     python setup.py install
+
+Run the following command to install python dependencies::
+
+    easy_install --always-unzip -U ipython mechanize BeautifulSoup pyreadline python-dateutil dnspython
+
+Qt
+--------
+
+Extract Qt sourcecode to C:\Qt\4.x.x. Run configure and make::
+
+    configure -opensource -qt-zlib -qt-gif -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc -no-qt3support -webkit -xmlpatterns -no-phonon
+    nmake
+
+SIP
+-----
+
+Available from: http://www.riverbankcomputing.co.uk/software/sip/download ::
+
+    python configure.py -p win32-msvc2008
+    nmake
+    nmake install
+
+PyQt4
+----------
+
+Compiling instructions::
+
+    python configure.py -c -j5 -e QtCore -e QtGui -e QtSvg -e QtNetwork -e QtWebKit -e QtXmlPatterns --verbose
+    nmake
+    nmake install
+
+Python Imaging Library
+------------------------
+
+Install as normal using provided installer.
+
+Libunrar
+----------
+
+http://www.rarlab.com/rar/UnRARDLL.exe install and add C:\Program Files\UnrarDLL to PATH
+
+lxml
+------
+
+http://pypi.python.org/pypi/lxml
 
 jpeg-7
 -------
 
-Copy 
-jconfig.vc to jconfig.h, makejsln.vc9 to jpeg.sln,
-makeasln.vc9 to apps.sln, makejvcp.vc9 to jpeg.vcproj,
-makecvcp.vc9 to cjpeg.vcproj, makedvcp.vc9 to djpeg.vcproj,
-maketvcp.vc9 to jpegtran.vcproj, makervcp.vc9 to rdjpgcom.vcproj, and
-makewvcp.vc9 to wrjpgcom.vcproj.  (Note that the renaming is critical!)
+Copy:: 
+    jconfig.vc to jconfig.h, makejsln.vc9 to jpeg.sln,
+    makeasln.vc9 to apps.sln, makejvcp.vc9 to jpeg.vcproj,
+    makecvcp.vc9 to cjpeg.vcproj, makedvcp.vc9 to djpeg.vcproj,
+    maketvcp.vc9 to jpegtran.vcproj, makervcp.vc9 to rdjpgcom.vcproj, and
+    makewvcp.vc9 to wrjpgcom.vcproj.  (Note that the renaming is critical!)
 
 Load jpeg.sln in Visual Studio
 
@@ -169,28 +237,10 @@ cp build/podofo/build/src/Release/podofo.exp lib/
 cp build/podofo/build/podofo_config.h include/podofo/
 cp -r build/podofo/src/* include/podofo/
 
-The following patch was required to get it to compile:
+You have to use >0.8.1 (>= revision 1269)
 
-Index: src/PdfImage.cpp
-===================================================================
---- src/PdfImage.cpp    (revision 1261)
-+++ src/PdfImage.cpp    (working copy)
-@@ -627,7 +627,7 @@
- 
-     long lLen = static_cast<long>(pInfo->rowbytes * height);
-     char* pBuffer = static_cast<char*>(malloc(sizeof(char) * lLen));
--    png_bytep pRows[height];
-+    png_bytepp pRows = static_cast<png_bytepp>(malloc(sizeof(png_bytep)*height));
-     for(int y=0; y<height; y++)
-     {
-         pRows[y] = reinterpret_cast<png_bytep>(pBuffer + (y * pInfo->rowbytes));
-@@ -672,6 +672,7 @@
-     this->SetImageData( width, height, pInfo->bit_depth, &stream );
-     
-     free(pBuffer);
-+       free(pRows);
- }
- #endif // PODOFO_HAVE_PNG_LIB
+The following patch (against -r1269) was required to get it to compile:
+
 
 Index: src/PdfFiltersPrivate.cpp
 ===================================================================
@@ -214,7 +264,7 @@ Edit VisualMagick/configure/configure.cpp to set
 
 int projectType = MULTITHREADEDDLL;
 
-Run configure.bat ina  visual studio command prompt
+Run configure.bat in a  visual studio command prompt
 
 Edit magick/magick-config.h
 
@@ -222,3 +272,19 @@ Undefine ProvideDllMain and MAGICKCORE_X11_DELEGATE
 
 Now open VisualMagick/VisualDynamicMT.sln set to Release
 Remove the CORE_xlib project
+
+calibre
+---------
+
+Take a linux calibre tree on which you have run the following command::
+
+    python setup.py stage1
+
+and copy it to windows.
+
+Run::
+
+    python setup.py build
+    python setup.py win32_freeze
+
+This will create the .msi in the dist directory.

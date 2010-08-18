@@ -29,6 +29,16 @@ class SearchRestrictionMixin(object):
         if self.restriction_in_effect:
             self.set_number_of_books_shown()
 
+    def apply_named_search_restriction(self, name):
+        if not name:
+            r = 0
+        else:
+            r = self.search_restriction.findText(name)
+            if r < 0:
+                r = 0
+        self.search_restriction.setCurrentIndex(r)
+        self.apply_search_restriction(r)
+
     def apply_search_restriction(self, i):
         r = unicode(self.search_restriction.currentText())
         if r is not None and r != '':

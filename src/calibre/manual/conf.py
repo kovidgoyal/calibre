@@ -23,9 +23,11 @@ custom
 # General configuration
 # ---------------------
 
+needs_sphinx = '1.0'
+
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.addons.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'custom']
+extensions = ['sphinx.ext.autodoc', 'custom', 'sphinx.ext.viewcode']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['templates']
@@ -35,6 +37,9 @@ source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
+
+# The language
+language = 'en'
 
 # General substitutions.
 project = __appname__
@@ -81,7 +86,6 @@ pygments_style = 'sphinx'
 # given in html_static_path.
 html_theme = 'default'
 html_theme_options = {'stickysidebar':'true', 'relbarbgcolor':'black'}
-html_style = 'calibre.css'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -100,8 +104,16 @@ html_use_smartypants = True
 html_title       = 'calibre User Manual'
 html_short_title = 'Start'
 html_logo        = 'resources/logo.png'
+
 epub_author      = 'Kovid Goyal'
-epub_cover       = 'resources/epub_cover.jpg'
+epub_cover       = 'epub_cover.jpg'
+epub_publisher   = 'Kovid Goyal'
+epub_identifier  = 'http://calibre-ebook.com/user_manual'
+epub_scheme      = 'url'
+epub_uid         = 'S54a88f8e9d42455e9c6db000e989225f'
+epub_tocdepth    = 4
+epub_tocdup      = True
+epub_pre_files    = [('epub_titlepage.html', 'Cover')]
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}

@@ -10,10 +10,10 @@ Module to implement the Cover Flow feature
 import sys, os, time
 
 from PyQt4.Qt import QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, \
-        QStackedLayout, QLabel
+        QStackedLayout, QLabel, QByteArray, pyqtSignal
 
 from calibre import plugins
-from calibre.gui2 import config, available_height, available_width
+from calibre.gui2 import config, available_height, available_width, gprefs
 
 pictureflow, pictureflowerror = plugins['pictureflow']
 
@@ -107,6 +107,28 @@ else:
     DatabaseImages = None
     FileSystemImages = None
 
+class CBDialog(QDialog):
+
+    closed = pyqtSignal()
+
+    def __init__(self, parent, cover_flow):
+        QDialog.__init__(self, parent)
+        self._layout = QStackedLayout()
+        self.setLayout(self._layout)
+        self.setWindowTitle(_('Browse by covers'))
+        self.layout().addWidget(cover_flow)
+
+        geom = gprefs.get('cover_browser_dialog_geometry', bytearray(''))
+        geom = QByteArray(geom)
+        if not self.restoreGeometry(geom):
+            h, w = available_height()-60, int(available_width()/1.5)
+            self.resize(w, h)
+
+    def closeEvent(self, *args):
+        geom = bytearray(self.saveGeometry())
+        gprefs['cover_browser_dialog_geometry'] = geom
+        self.closed.emit()
+
 class CoverFlowMixin(object):
 
     def __init__(self):
@@ -122,13 +144,15 @@ class CoverFlowMixin(object):
                     self.sync_cf_to_listview)
             self.db_images = DatabaseImages(self.library_view.model())
             self.cover_flow.setImages(self.db_images)
-            self.cover_flow.itemActivated.connect(self.view_specific_book)
+            self.cover_flow.itemActivated.connect(self.iactions['View'].view_specific_book)
         else:
             self.cover_flow = QLabel('<p>'+_('Cover browser could not be loaded')
                     +'<br>'+pictureflowerror)
             self.cover_flow.setWordWrap(True)
         if config['separate_cover_flow']:
             self.cb_splitter.button.clicked.connect(self.toggle_cover_browser)
+            self.cb_splitter.button.set_state_to_show()
+            self.cb_splitter.action_toggle.triggered.connect(self.toggle_cover_browser)
             if CoverFlow is not None:
                 self.cover_flow.stop.connect(self.hide_cover_browser)
         else:
@@ -137,7 +161,7 @@ class CoverFlowMixin(object):
                 self.cover_flow.stop.connect(self.cb_splitter.hide_side_pane)
         self.cb_splitter.button.toggled.connect(self.cover_browser_toggled)
 
-    def toggle_cover_browser(self):
+    def toggle_cover_browser(self, *args):
         cbd = getattr(self, 'cb_dialog', None)
         if cbd is not None:
             self.hide_cover_browser()
@@ -171,25 +195,27 @@ class CoverFlowMixin(object):
 
 
     def show_cover_browser(self):
-        d = QDialog(self)
-        ah, aw = available_height(), available_width()
-        d.resize(int(aw/1.5), ah-60)
-        d._layout = QStackedLayout()
-        d.setLayout(d._layout)
-        d.setWindowTitle(_('Browse by covers'))
-        d.layout().addWidget(self.cover_flow)
+        d = CBDialog(self, self.cover_flow)
+        d.addAction(self.cb_splitter.action_toggle)
         self.cover_flow.setVisible(True)
         self.cover_flow.setFocus(Qt.OtherFocusReason)
         d.show()
         self.cb_splitter.button.set_state_to_hide()
-        d.finished.connect(self.cb_splitter.button.set_state_to_show)
+        d.closed.connect(self.cover_browser_closed)
         self.cb_dialog = d
+        self.cb_splitter.button.set_state_to_hide()
 
-    def hide_cover_browser(self):
+    def cover_browser_closed(self, *args):
+        self.cb_dialog = None
+        self.cb_splitter.button.set_state_to_show()
+
+    def hide_cover_browser(self, *args):
         cbd = getattr(self, 'cb_dialog', None)
         if cbd is not None:
             cbd.accept()
             self.cb_dialog = None
+        self.cb_splitter.button.set_state_to_show()
+
 
     def sync_cf_to_listview(self, current, previous):
         if self.cover_flow_sync_flag and self.cover_flow.isVisible() and \

@@ -438,7 +438,7 @@ from calibre.ebooks.txt.output import TXTOutput
 from calibre.customize.profiles import input_profiles, output_profiles
 
 from calibre.devices.apple.driver import ITUNES
-from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX
+from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
@@ -467,12 +467,15 @@ from calibre.devices.kobo.driver import KOBO
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
     LibraryThing
 from calibre.ebooks.metadata.douban import DoubanBooks
+from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
+        LibraryThingCovers
 from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
 from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
 plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
-        LibraryThing, DoubanBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested, Epubcheck]
+        LibraryThing, DoubanBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
+        Epubcheck, OpenLibraryCovers, LibraryThingCovers]
 plugins += [
     ComicInput,
     EPUBInput,
@@ -564,6 +567,7 @@ plugins += [
     MENTOR,
     SWEEX,
     PDNOVEL,
+    SPECTRA,
     ITUNES,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
@@ -571,3 +575,97 @@ plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataWriter')]
 plugins += input_profiles + output_profiles
+
+from calibre.customize import InterfaceActionBase
+
+class ActionAdd(InterfaceActionBase):
+    name = 'Add Books'
+    actual_plugin = 'calibre.gui2.actions.add:AddAction'
+
+class ActionFetchAnnotations(InterfaceActionBase):
+    name = 'Fetch Annotations'
+    actual_plugin = 'calibre.gui2.actions.annotate:FetchAnnotationsAction'
+
+class ActionGenerateCatalog(InterfaceActionBase):
+    name = 'Generate Catalog'
+    actual_plugin = 'calibre.gui2.actions.catalog:GenerateCatalogAction'
+
+class ActionConvert(InterfaceActionBase):
+    name = 'Convert Books'
+    actual_plugin = 'calibre.gui2.actions.convert:ConvertAction'
+
+class ActionDelete(InterfaceActionBase):
+    name = 'Remove Books'
+    actual_plugin = 'calibre.gui2.actions.delete:DeleteAction'
+
+class ActionEditMetadata(InterfaceActionBase):
+    name = 'Edit Metadata'
+    actual_plugin = 'calibre.gui2.actions.edit_metadata:EditMetadataAction'
+
+class ActionView(InterfaceActionBase):
+    name = 'View'
+    actual_plugin = 'calibre.gui2.actions.view:ViewAction'
+
+class ActionFetchNews(InterfaceActionBase):
+    name = 'Fetch News'
+    actual_plugin = 'calibre.gui2.actions.fetch_news:FetchNewsAction'
+
+class ActionSaveToDisk(InterfaceActionBase):
+    name = 'Save To Disk'
+    actual_plugin = 'calibre.gui2.actions.save_to_disk:SaveToDiskAction'
+
+class ActionShowBookDetails(InterfaceActionBase):
+    name = 'Show Book Details'
+    actual_plugin = 'calibre.gui2.actions.show_book_details:ShowBookDetailsAction'
+
+class ActionRestart(InterfaceActionBase):
+    name = 'Restart'
+    actual_plugin = 'calibre.gui2.actions.restart:RestartAction'
+
+class ActionOpenFolder(InterfaceActionBase):
+    name = 'Open Folder'
+    actual_plugin = 'calibre.gui2.actions.open:OpenFolderAction'
+
+class ActionSendToDevice(InterfaceActionBase):
+    name = 'Send To Device'
+    actual_plugin = 'calibre.gui2.actions.device:SendToDeviceAction'
+
+class ActionConnectShare(InterfaceActionBase):
+    name = 'Connect Share'
+    actual_plugin = 'calibre.gui2.actions.device:ConnectShareAction'
+
+class ActionHelp(InterfaceActionBase):
+    name = 'Help'
+    actual_plugin = 'calibre.gui2.actions.help:HelpAction'
+
+class ActionPreferences(InterfaceActionBase):
+    name = 'Preferences'
+    actual_plugin = 'calibre.gui2.actions.preferences:PreferencesAction'
+
+class ActionSimilarBooks(InterfaceActionBase):
+    name = 'Similar Books'
+    actual_plugin = 'calibre.gui2.actions.similar_books:SimilarBooksAction'
+
+class ActionChooseLibrary(InterfaceActionBase):
+    name = 'Choose Library'
+    actual_plugin = 'calibre.gui2.actions.choose_library:ChooseLibraryAction'
+
+class ActionAddToLibrary(InterfaceActionBase):
+    name = 'Add To Library'
+    actual_plugin = 'calibre.gui2.actions.add_to_library:AddToLibraryAction'
+
+class ActionEditCollections(InterfaceActionBase):
+    name = 'Edit Collections'
+    actual_plugin = 'calibre.gui2.actions.edit_collections:EditCollectionsAction'
+
+class ActionCopyToLibrary(InterfaceActionBase):
+    name = 'Copy To Library'
+    actual_plugin = 'calibre.gui2.actions.copy_to_library:CopyToLibraryAction'
+
+plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
+        ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
+        ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
+        ActionRestart, ActionOpenFolder, ActionConnectShare,
+        ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
+        ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
+        ActionCopyToLibrary]

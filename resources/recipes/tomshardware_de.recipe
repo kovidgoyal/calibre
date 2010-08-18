@@ -50,12 +50,14 @@ class cdnet(BasicNewsRecipe):
 		   dict(name='div', attrs={'class':'greyBoxR clearfix'}),
 		   dict(name='div', attrs={'class':'greyBoxL clearfix'}),
 		   dict(name='div', attrs={'class':'greyBox clearfix'}),
+		   dict(name='div', attrs={'class':'labelized'}),
 		   dict(id='')]
     #remove_tags_before = [dict(id='header-news-title')]
-    remove_tags_after = [dict(name='div', attrs={'class':'btmGreyTables'})]
+    remove_tags_after = [dict(name='div', attrs={'class':'labelized'})]
     #remove_tags_after = [dict(name='div', attrs={'class':'intelliTXT'})]
 
     feeds =  [ ('tomshardware', 'http://www.tomshardware.com/de/feeds/rss2/tom-s-hardware-de,12-1.xml') ]
+
 
 
 

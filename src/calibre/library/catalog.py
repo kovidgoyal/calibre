@@ -10,7 +10,7 @@ from copy import deepcopy
 
 from xml.sax.saxutils import escape
 
-from calibre import filesystem_encoding, prints, prepare_string_for_xml, strftime
+from calibre import prints, prepare_string_for_xml, strftime
 from calibre.constants import preferred_encoding
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
@@ -541,7 +541,7 @@ class EPUB_MOBI(CatalogPlugin):
                            "Default: '%default'None\n"
                            "Applies to: ePub, MOBI output formats")),
                    Option('--exclude-genre',
-                          default='\[[\w ]*\]',
+                          default='\[.+\]',
                           dest='exclude_genre',
                           action = None,
                           help=_("Regex describing tags to exclude as genres.\n" "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
@@ -1202,9 +1202,7 @@ class EPUB_MOBI(CatalogPlugin):
                     self.generateHTMLByDateRead()
             self.generateHTMLByTags()
 
-            from calibre.utils.PythonMagickWand import ImageMagick
-            with ImageMagick():
-                self.generateThumbnails()
+            self.generateThumbnails()
 
             self.generateOPF()
             self.generateNCXHeader()
@@ -4057,29 +4055,15 @@ class EPUB_MOBI(CatalogPlugin):
             return ' '.join(translated)
 
         def generateThumbnail(self, title, image_dir, thumb_file):
-            import calibre.utils.PythonMagickWand as pw
+            from calibre.utils.magick import Image
             try:
-                img = pw.NewMagickWand()
-                if img < 0:
-                    raise RuntimeError('generateThumbnail(): Cannot create wand')
-                # Read the cover
-                if not pw.MagickReadImage(img,
-                        title['cover'].encode(filesystem_encoding)):
-                    self.opts.log.error('generateThumbnail(): Failed to read cover image from: %s' % title['cover'])
-                    raise IOError
-                thumb = pw.CloneMagickWand(img)
-                if thumb < 0:
-                    self.opts.log.error('generateThumbnail(): Cannot clone cover')
-                    raise RuntimeError
+                img = Image()
+                img.open(title['cover'])
                 # img, width, height
-                pw.MagickThumbnailImage(thumb, self.thumbWidth, self.thumbHeight)
-                pw.MagickWriteImage(thumb, os.path.join(image_dir, thumb_file))
-                pw.DestroyMagickWand(thumb)
-                pw.DestroyMagickWand(img)
-            except IOError:
-                self.opts.log.error("generateThumbnail(): IOError with %s" % title['title'])
-            except RuntimeError:
-                self.opts.log.error("generateThumbnail(): RuntimeError with %s" % title['title'])
+                img.thumbnail(self.thumbWidth, self.thumbHeight)
+                img.save(os.path.join(image_dir, thumb_file))
+            except:
+                self.opts.log.error("generateThumbnail(): Error with %s" % title['title'])
 
         def getMarkerTags(self):
             ''' Return a list of special marker tags to be excluded from genre list '''

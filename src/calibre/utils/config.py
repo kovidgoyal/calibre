@@ -703,16 +703,22 @@ if prefs['installation_uuid'] is None:
     prefs['installation_uuid'] = str(uuid.uuid4())
 
 # Read tweaks
-def read_tweaks():
+def read_raw_tweaks():
     make_config_dir()
-    default_tweaks = P('default_tweaks.py', data=True)
+    default_tweaks = P('default_tweaks.py', data=True,
+            allow_user_override=False)
     tweaks_file = os.path.join(config_dir, 'tweaks.py')
     if not os.path.exists(tweaks_file):
         with open(tweaks_file, 'wb') as f:
             f.write(default_tweaks)
+    with open(tweaks_file, 'rb') as f:
+        return default_tweaks, f.read()
+
+def read_tweaks():
+    default_tweaks, tweaks = read_raw_tweaks()
     l, g = {}, {}
     try:
-        exec open(tweaks_file, 'rb') in g, l
+        exec tweaks in g, l
     except:
         print 'Failed to load custom tweaks file'
         traceback.print_exc()
@@ -720,6 +726,13 @@ def read_tweaks():
     exec default_tweaks in dg, dl
     dl.update(l)
     return dl
+
+def write_tweaks(raw):
+    make_config_dir()
+    tweaks_file = os.path.join(config_dir, 'tweaks.py')
+    with open(tweaks_file, 'wb') as f:
+        f.write(raw)
+
 
 tweaks = read_tweaks()
 

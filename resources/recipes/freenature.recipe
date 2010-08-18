@@ -4,28 +4,23 @@ import re
 class NatureNews(BasicNewsRecipe):
     title          = u'Nature News'
     language       = 'en'
-    __author__     = 'Krittika Goyal'
+    __author__     = 'Krittika Goyal, Starson17'
     oldest_article = 31 #days
+    remove_empty_feeds    = True
     max_articles_per_feed = 50
-    #encoding = 'latin1'
 
     no_stylesheets = True
     remove_tags_before = dict(name='h1', attrs={'class':'heading entry-title'})
     remove_tags_after  = dict(name='h2', attrs={'id':'comments'})
     remove_tags = [
-       #dict(name='iframe'),
-       #dict(name='div', attrs={'class':['pt-box-title', 'pt-box-content']}),
-       #dict(name='div', attrs={'id':['block-td_search_160', 'block-cam_search_160']}),
        dict(name='h2', attrs={'id':'comments'}),
-       dict(name='ul', attrs={'class':'toolsmenu xoxo'}),
-    ]
+       dict(attrs={'alt':'Advertisement'}),
+       dict(name='div', attrs={'class':'ad'}),
+    ] 
 
     preprocess_regexps = [
-      (re.compile(r'<script.*?</script>', re.DOTALL), lambda m: '')
-    ]
+        (re.compile(r'<p>ADVERTISEMENT</p>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+        ]
 
     feeds = [('Nature News', 'http://feeds.nature.com/news/rss/most_recent')]
-
-    def get_article_url(self, article):
-        return article.get('id')
 

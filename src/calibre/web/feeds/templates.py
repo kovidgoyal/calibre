@@ -103,6 +103,32 @@ class IndexTemplate(Template):
 
 class FeedTemplate(Template):
 
+    def get_navbar(self, f, feeds, top=True):
+        if len(feeds) < 2:
+            return DIV()
+        navbar = DIV('| ', CLASS('calibre_navbar', 'calibre_rescale_70',
+            style='text-align:center'))
+        if not top:
+            hr = HR()
+            navbar.append(hr)
+            navbar.text = None
+            hr.tail = '| '
+
+        if f+1 < len(feeds):
+            link = A('Next section', href='../feed_%d/index.html'%(f+1))
+            link.tail = ' | '
+            navbar.append(link)
+        link = A('Main menu', href="../index.html")
+        link.tail = ' | '
+        navbar.append(link)
+        if f > 0:
+            link = A('Previous section', href='../feed_%d/index.html'%(f-1))
+            link.tail = ' |'
+            navbar.append(link)
+        if top:
+            navbar.append(HR())
+        return navbar
+
     def _generate(self, f, feeds, cutoff, extra_css=None, style=None):
         feed = feeds[f]
         head = HEAD(TITLE(feed.title))
@@ -111,6 +137,8 @@ class FeedTemplate(Template):
         if extra_css:
             head.append(STYLE(extra_css, type='text/css'))
         body = BODY(style='page-break-before:always')
+        body.append(self.get_navbar(f, feeds))
+
         div = DIV(
                 H2(feed.title,
                     CLASS('calibre_feed_title', 'calibre_rescale_160')),
@@ -144,12 +172,7 @@ class FeedTemplate(Template):
                     CLASS('article_description', 'calibre_rescale_70')))
             ul.append(li)
         div.append(ul)
-        navbar = DIV('| ', CLASS('calibre_navbar', 'calibre_rescale_70'))
-        link = A('Up one level', href="../index.html")
-        link.tail = ' |'
-        navbar.append(link)
-        div.append(navbar)
-
+        div.append(self.get_navbar(f, feeds, top=False))
         self.root = HTML(head, body)
 
 class NavBarTemplate(Template):

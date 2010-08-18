@@ -29,6 +29,8 @@ from calibre.utils.config import dynamic, prefs
 from calibre.gui2 import NONE, choose_dir, error_dialog
 from calibre.gui2.dialogs.progress import ProgressDialog
 
+# Devices {{{
+
 class Device(object):
 
     output_profile = 'default'
@@ -59,7 +61,7 @@ class Kindle(Device):
 
     output_profile = 'kindle'
     output_format  = 'MOBI'
-    name = 'Kindle 1 or 2'
+    name = 'Kindle 1, 2 or 3'
     manufacturer = 'Amazon'
     id = 'kindle'
 
@@ -166,9 +168,9 @@ class iPhone(Device):
 
 class Android(Device):
 
-    name = 'Adroid phone + WordPlayer'
+    name = 'Adroid phone + WordPlayer/Aldiko'
     output_format = 'EPUB'
-    manufacturer = 'Google/HTC'
+    manufacturer = 'Android'
     id = 'android'
 
 class HanlinV3(Device):
@@ -209,6 +211,7 @@ class EZReaderPP(HanlinV5):
     manufacturer = 'Astak'
     id = 'ezreader_pp'
 
+# }}}
 
 def get_devices():
     for x in globals().values():
@@ -672,9 +675,7 @@ class Wizard(QWizard):
         self.connect(self.library_page, SIGNAL('retranslate()'),
                 self.retranslate)
         self.finish_page = FinishPage()
-        bt = unicode(self.buttonText(self.FinishButton)).replace('&', '')
-        t = unicode(self.finish_page.finish_text.text())
-        self.finish_page.finish_text.setText(t%bt)
+        self.set_finish_text()
         self.kindle_page = KindlePage()
         self.stanza_page = StanzaPage()
         self.word_player_page = WordPlayerPage()
@@ -699,6 +700,7 @@ class Wizard(QWizard):
         for pid in self.pageIds():
             page = self.page(pid)
             page.retranslateUi(page)
+        self.set_finish_text()
 
     def accept(self):
         pages = map(self.page, self.visitedPages())
@@ -711,6 +713,13 @@ class Wizard(QWizard):
 
     def completed(self, newloc):
         return QWizard.accept(self)
+
+    def set_finish_text(self, *args):
+        bt = unicode(self.buttonText(self.FinishButton)).replace('&', '')
+        t = unicode(self.finish_page.finish_text.text())
+        if '%s' in t:
+            self.finish_page.finish_text.setText(t%bt)
+
 
 def wizard(parent=None):
     w = Wizard(parent)

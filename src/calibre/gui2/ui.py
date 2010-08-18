@@ -15,7 +15,7 @@ from threading import Thread
 from PyQt4.Qt import Qt, SIGNAL, QTimer, \
                      QPixmap, QMenu, QIcon, pyqtSignal, \
                      QDialog, \
-                     QSystemTrayIcon, QApplication, QKeySequence, QAction, \
+                     QSystemTrayIcon, QApplication, QKeySequence, \
                      QMessageBox, QHelpEvent
 
 from calibre import  prints
@@ -23,8 +23,10 @@ from calibre.constants import __appname__, isosx
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
+from calibre.library.database2 import LibraryDatabase2
+from calibre.customize.ui import interface_actions
 from calibre.gui2 import error_dialog, GetMetadata, open_local_file, \
-        gprefs, max_available_height, config, info_dialog
+        gprefs, max_available_height, config, info_dialog, Dispatcher
 from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.update import UpdateMixin
@@ -32,17 +34,10 @@ from calibre.gui2.main_window import MainWindow
 from calibre.gui2.layout import MainWindowMixin
 from calibre.gui2.device import DeviceMixin
 from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
-from calibre.gui2.dialogs.config import ConfigDialog
-
-from calibre.gui2.dialogs.book_info import BookInfo
-from calibre.library.database2 import LibraryDatabase2
 from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_view import TagBrowserMixin
-from calibre.gui2.actions import AnnotationsAction, AddAction, DeleteAction, \
-    EditMetadataAction, SaveToDiskAction, GenerateCatalogAction, FetchNewsAction, \
-    ConvertAction, ViewAction
 
 
 class Listener(Thread): # {{{
@@ -91,21 +86,33 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
-        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
-        AnnotationsAction, AddAction, DeleteAction,
-        EditMetadataAction, SaveToDiskAction, GenerateCatalogAction, FetchNewsAction,
-        ConvertAction, ViewAction):
+        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin
+        ):
     'The main GUI'
 
 
     def __init__(self, opts, parent=None):
         MainWindow.__init__(self, opts, parent)
         self.opts = opts
+        self.device_connected = None
+        acmap = {}
+        for action in interface_actions():
+            mod, cls = action.actual_plugin.split(':')
+            ac = getattr(__import__(mod, fromlist=['1'], level=0), cls)(self,
+                    action.site_customization)
+            if ac.name in acmap:
+                if ac.priority >= acmap[ac.name].priority:
+                    acmap[ac.name] = ac
+            else:
+                acmap[ac.name] = ac
+
+        self.iactions = acmap
 
     def initialize(self, library_path, db, listener, actions):
         opts = self.opts
         self.preferences_action, self.quit_action = actions
         self.library_path = library_path
+        self.content_server = None
         self.spare_servers = []
         self.must_restart_before_config = False
         # Initialize fontconfig in a separate thread as this can be a lengthy
@@ -118,12 +125,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
                 self.another_instance_wants_to_talk)
         self.check_messages_timer.start(1000)
 
+        for ac in self.iactions.values():
+            ac.do_genesis()
         MainWindowMixin.__init__(self, db)
 
         # Jobs Button {{{
         self.job_manager = JobManager()
         self.jobs_dialog = JobsDialog(self, self.job_manager)
-        self.jobs_button = JobsButton(horizontal=True)
+        self.jobs_button = JobsButton(horizontal=True, parent=self)
         self.jobs_button.initialize(self.jobs_dialog, self.job_manager)
         # }}}
 
@@ -139,14 +148,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.verbose = opts.verbose
         self.get_metadata = GetMetadata()
         self.upload_memory = {}
-        self.delete_memory = {}
-        self.conversion_jobs = {}
-        self.persistent_files = []
         self.metadata_dialogs = []
         self.default_thumbnail = None
         self.tb_wrapper = textwrap.TextWrapper(width=40)
         self.viewers = collections.deque()
-        self.content_server = None
         self.system_tray_icon = SystemTrayIcon(QIcon(I('library.png')), self)
         self.system_tray_icon.setToolTip('calibre')
         self.system_tray_icon.tooltip_requested.connect(
@@ -166,22 +171,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
                 QIcon(I('eject.svg')), _('&Eject connected device'))
         self.eject_action.setEnabled(False)
         self.addAction(self.quit_action)
-        self.action_restart = QAction(_('&Restart'), self)
-        self.addAction(self.action_restart)
         self.system_tray_menu.addAction(self.quit_action)
         self.quit_action.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Q))
-        self.action_restart.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_R))
-        self.action_show_book_details.setShortcut(QKeySequence(Qt.Key_I))
-        self.addAction(self.action_show_book_details)
         self.system_tray_icon.setContextMenu(self.system_tray_menu)
         self.connect(self.quit_action, SIGNAL('triggered(bool)'), self.quit)
         self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
         self.connect(self.restore_action, SIGNAL('triggered()'),
                         self.show_windows)
-        self.connect(self.action_show_book_details,
-                     SIGNAL('triggered(bool)'), self.show_book_info)
-        self.connect(self.action_restart, SIGNAL('triggered()'),
-                     self.restart)
         self.connect(self.system_tray_icon,
                      SIGNAL('activated(QSystemTrayIcon::ActivationReason)'),
                      self.system_tray_icon_activated)
@@ -199,7 +195,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         UpdateMixin.__init__(self, opts)
 
         ####################### Search boxes ########################
-        SavedSearchBoxMixin.__init__(self, db)
+        SavedSearchBoxMixin.__init__(self)
         SearchBoxMixin.__init__(self)
 
         ####################### Library view ########################
@@ -209,9 +205,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
-        for t in (self.tool_bar, ):
-            self.library_view.model().count_changed_signal.connect \
-                                            (t.count_changed)
+        self.library_view.model().count_changed_signal.connect(
+                self.iactions['Choose Library'].count_changed)
         if not gprefs.get('quick_start_guide_added', False):
             from calibre.ebooks.metadata import MetaInformation
             mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
@@ -235,6 +230,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         ######################### Search Restriction ##########################
         SearchRestrictionMixin.__init__(self)
+        self.apply_named_search_restriction(db.prefs.get('gui_restriction', ''))
 
         ########################### Cover Flow ################################
 
@@ -246,22 +242,28 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
 
         if config['autolaunch_server']:
-            from calibre.library.server.main import start_threaded_server
-            from calibre.library.server import server_config
-            self.content_server = start_threaded_server(
-                    db, server_config().parse())
-            self.test_server_timer = QTimer.singleShot(10000, self.test_server)
+            self.start_content_server()
 
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
-        AddAction.__init__(self)
+
 
         self.read_settings()
         self.finalize_layout()
         self.donate_button.start_animation()
+        self.set_window_title()
 
-        self.scheduler.delete_old_news.connect(
-                self.library_view.model().delete_books_by_id,
-                type=Qt.QueuedConnection)
+        for ac in self.iactions.values():
+            ac.initialization_complete()
+
+    def start_content_server(self):
+        from calibre.library.server.main import start_threaded_server
+        from calibre.library.server import server_config
+        self.content_server = start_threaded_server(
+                self.library_view.model().db, server_config().parse())
+        self.content_server.state_callback = Dispatcher(
+                self.iactions['Connect Share'].content_server_state_changed)
+        self.content_server.state_callback(True)
+        self.test_server_timer = QTimer.singleShot(10000, self.test_server)
 
 
     def resizeEvent(self, ev):
@@ -308,7 +310,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
                 setattr(window, '__systray_minimized', False)
 
     def test_server(self, *args):
-        if self.content_server.exception is not None:
+        if self.content_server is not None and \
+                self.content_server.exception is not None:
             error_dialog(self, _('Failed to start content server'),
                          unicode(self.content_server.exception)).exec_()
 
@@ -323,7 +326,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
             if len(argv) > 1:
                 path = os.path.abspath(argv[1])
                 if os.access(path, os.R_OK):
-                    self.add_filesystem_book(path)
+                    self.iactions['Add Books'].add_filesystem_book(path)
             self.setWindowState(self.windowState() & \
                     ~Qt.WindowMinimized|Qt.WindowActive)
             self.show_windows()
@@ -350,38 +353,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
-
-    def do_config(self, checked=False, initial_category='general'):
-        if self.job_manager.has_jobs():
-            d = error_dialog(self, _('Cannot configure'),
-                    _('Cannot configure while there are running jobs.'))
-            d.exec_()
-            return
-        if self.must_restart_before_config:
-            d = error_dialog(self, _('Cannot configure'),
-                    _('Cannot configure before calibre is restarted.'))
-            d.exec_()
-            return
-        d = ConfigDialog(self, self.library_view,
-                server=self.content_server, initial_category=initial_category)
-
-        d.exec_()
-        self.content_server = d.server
-        if d.result() == d.Accepted:
-            self.read_toolbar_settings()
-            self.search.search_as_you_type(config['search_as_you_type'])
-            self.save_menu.actions()[2].setText(
-                _('Save only %s format to disk')%
-                prefs['output_format'].upper())
-            self.save_menu.actions()[3].setText(
-                _('Save only %s format to disk in a single directory')%
-                prefs['output_format'].upper())
-            self.tags_view.set_new_model() # in case columns changed
-            self.tags_view.recount()
-            self.create_device_menu()
-            self.set_device_menu_items_state(bool(self.device_connected))
-            self.tool_bar.apply_settings()
-
     def library_moved(self, newloc):
         if newloc is None: return
         db = LibraryDatabase2(newloc)
@@ -396,18 +367,17 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.saved_search.clear_to_help()
         self.book_details.reset_info()
         self.library_view.model().count_changed()
-        self.scheduler.database_changed(db)
         prefs['library_path'] = self.library_path
+        db = self.library_view.model().db
+        for action in self.iactions.values():
+            action.library_changed(db)
+        self.set_window_title()
+        self.apply_named_search_restriction('') # reset restriction to null
+        self.saved_searches_changed() # reload the search restrictions combo box
+        self.apply_named_search_restriction(db.prefs.get('gui_restriction', ''))
 
-    def show_book_info(self, *args):
-        if self.current_view() is not self.library_view:
-            error_dialog(self, _('No detailed info available'),
-                _('No detailed information is available for books '
-                  'on the device.')).exec_()
-            return
-        index = self.library_view.currentIndex()
-        if index.isValid():
-            BookInfo(self, self.library_view, index).show()
+    def set_window_title(self):
+        self.setWindowTitle(__appname__ + u' - ||%s||'%self.iactions['Choose Library'].library_name())
 
     def location_selected(self, location):
         '''
@@ -419,26 +389,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         for x in ('tb', 'cb'):
             splitter = getattr(self, x+'_splitter')
             splitter.button.setEnabled(location == 'library')
+        for action in self.iactions.values():
+            action.location_selected(location)
         if location == 'library':
-            self.action_edit.setEnabled(True)
-            self.action_merge.setEnabled(True)
-            self.action_convert.setEnabled(True)
-            self.view_menu.actions()[1].setEnabled(True)
-            self.action_open_containing_folder.setEnabled(True)
-            self.action_sync.setEnabled(True)
             self.search_restriction.setEnabled(True)
-            for action in list(self.delete_menu.actions())[1:]:
-                action.setEnabled(True)
         else:
-            self.action_edit.setEnabled(False)
-            self.action_merge.setEnabled(False)
-            self.action_convert.setEnabled(False)
-            self.view_menu.actions()[1].setEnabled(False)
-            self.action_open_containing_folder.setEnabled(False)
-            self.action_sync.setEnabled(False)
             self.search_restriction.setEnabled(False)
-            for action in list(self.delete_menu.actions())[1:]:
-                action.setEnabled(False)
             # Reset the view in case something changed while it was invisible
             self.current_view().reset()
         self.set_number_of_books_shown()
@@ -493,16 +449,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         geometry = config['main_window_geometry']
         if geometry is not None:
             self.restoreGeometry(geometry)
-        self.read_toolbar_settings()
         self.read_layout_settings()
 
     def write_settings(self):
         config.set('main_window_geometry', self.saveGeometry())
         dynamic.set('sort_history', self.library_view.model().sort_history)
         self.save_layout_state()
-
-    def restart(self):
-        self.quit(restart=True)
 
     def quit(self, checked=True, restart=False):
         if not self.confirm_quit():
@@ -566,6 +518,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
 
     def shutdown(self, write_settings=True):
+        for action in self.iactions.values():
+            if not action.shutting_down():
+                return
         if write_settings:
             self.write_settings()
         self.check_messages_timer.stop()
@@ -583,7 +538,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         try:
             try:
                 if self.content_server is not None:
-                    self.content_server.exit()
+                    s = self.content_server
+                    self.content_server = None
+                    s.exit()
             except:
                 pass
             time.sleep(2)

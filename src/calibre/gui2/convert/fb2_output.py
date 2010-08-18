@@ -13,8 +13,9 @@ class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('FB2 Output')
     HELP = _('Options specific to')+' FB2 '+_('output')
+    COMMIT_NAME = 'fb2_output'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'fb2_output', ['inline_toc'])
+        Widget.__init__(self, parent, ['inline_toc'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
