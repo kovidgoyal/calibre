@@ -377,7 +377,7 @@ class CustomColumns(object):
         if add:
             self.conn.execute(
             '''
-            INSERT INTO {0}(book, value) SELECT {1}.id, {2}.id FROM {1}, {2}
+            INSERT OR REPLACE INTO {0}(book, value) SELECT {1}.id, {2}.id FROM {1}, {2}
             '''.format(link_table, temp_tables[0], temp_tables[1])
             )
         # get rid of the temp tables
