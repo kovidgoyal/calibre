@@ -30,6 +30,10 @@ class Worker(Thread):
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
             do_remove_conv, do_auto_author, series = self.args
 
+        # first loop: do author and title. These will commit at the end of each
+        # operation, because each operation modifies the file system. We want to
+        # try hard to keep the DB and the file system in sync, even in the face
+        # of exceptions or forced exits.
         for id in self.ids:
             if do_swap_ta:
                 title = self.db.title(id, index_is_id=True)
@@ -45,31 +49,34 @@ class Worker(Thread):
             if au:
                 self.db.set_authors(id, string_to_authors(au), notify=False)
 
+        # All of these just affect the DB, so we can tolerate a total rollback
+        for id in self.ids:
             if do_auto_author:
-                x = self.db.author_sort_from_book(id, index_is_id=True)
+                x = self.db.author_sort_from_book(id, index_is_id=True, commit=False)
                 if x:
-                    self.db.set_author_sort(id, x, notify=False)
+                    self.db.set_author_sort(id, x, notify=False, commit=False)
 
             if aus and do_aus:
-                self.db.set_author_sort(id, aus, notify=False)
+                self.db.set_author_sort(id, aus, notify=False, commit=False)
 
             if rating != -1:
-                self.db.set_rating(id, 2*rating, notify=False)
+                self.db.set_rating(id, 2*rating, notify=False, commit=False)
 
             if pub:
-                self.db.set_publisher(id, pub, notify=False)
+                self.db.set_publisher(id, pub, notify=False, commit=False)
 
             if do_series:
                 next = self.db.get_next_series_num_for(series)
-                self.db.set_series(id, series, notify=False)
+                self.db.set_series(id, series, notify=False, commit=False)
                 num = next if do_autonumber and series else 1.0
-                self.db.set_series_index(id, num, notify=False)
+                self.db.set_series_index(id, num, notify=False, commit=False)
 
             if do_remove_format:
-                self.db.remove_format(id, remove_format, index_is_id=True, notify=False)
+                self.db.remove_format(id, remove_format, index_is_id=True, notify=False, commit=False)
 
             if do_remove_conv:
                 self.db.delete_conversion_options(id, 'PIPE')
+        self.db.conn.commit()
 
         for w in getattr(self, 'custom_column_widgets', []):
             w.commit(self.ids)
