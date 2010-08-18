@@ -295,7 +295,7 @@
            </widget>
            <widget class="QWidget" name="page">
             <layout class="QGridLayout" name="gridLayout_8">
-             <item row="1" column="0">
+             <item row="2" column="0">
               <widget class="QCheckBox" name="roman_numerals">
                <property name="text">
                 <string>Use &amp;Roman numerals for series number</string>
@@ -305,35 +305,35 @@
                </property>
               </widget>
              </item>
-             <item row="2" column="0">
+             <item row="3" column="0">
               <widget class="QCheckBox" name="systray_icon">
                <property name="text">
                 <string>Enable system &amp;tray icon (needs restart)</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="1">
+             <item row="3" column="1">
               <widget class="QCheckBox" name="systray_notifications">
                <property name="text">
                 <string>Show &amp;notifications in system tray</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
+             <item row="4" column="0">
               <widget class="QCheckBox" name="show_splash_screen">
                <property name="text">
                 <string>Show &amp;splash screen at startup</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="0" colspan="2">
+             <item row="5" column="0" colspan="2">
               <widget class="QCheckBox" name="separate_cover_flow">
                <property name="text">
                 <string>Show cover &amp;browser in a separate window (needs restart)</string>
                </property>
               </widget>
              </item>
-             <item row="5" column="0" colspan="2">
+             <item row="6" column="0" colspan="2">
               <widget class="QCheckBox" name="show_avg_rating">
                <property name="text">
                 <string>Show &amp;average ratings in the tags browser</string>
@@ -343,7 +343,7 @@
                </property>
               </widget>
              </item>
-             <item row="6" column="0">
+             <item row="7" column="0">
               <widget class="QCheckBox" name="search_as_you_type">
                <property name="text">
                 <string>Search as you type</string>
@@ -353,21 +353,21 @@
                </property>
               </widget>
              </item>
-             <item row="8" column="0" colspan="2">
+             <item row="9" column="0" colspan="2">
               <widget class="QCheckBox" name="sync_news">
                <property name="text">
                 <string>Automatically send downloaded &amp;news to ebook reader</string>
                </property>
               </widget>
              </item>
-             <item row="9" column="0" colspan="2">
+             <item row="10" column="0" colspan="2">
               <widget class="QCheckBox" name="delete_news">
                <property name="text">
                 <string>&amp;Delete news from library when it is automatically sent to reader</string>
                </property>
               </widget>
              </item>
-             <item row="10" column="0" colspan="2">
+             <item row="11" column="0" colspan="2">
               <layout class="QHBoxLayout" name="horizontalLayout">
                <item>
                 <widget class="QLabel" name="label_6">
@@ -384,7 +384,7 @@
                </item>
               </layout>
              </item>
-             <item row="11" column="0" colspan="2">
+             <item row="12" column="0" colspan="2">
               <layout class="QHBoxLayout" name="horizontalLayout_7">
                <item>
                 <widget class="QGroupBox" name="groupBox">
@@ -570,7 +570,27 @@
                </property>
               </widget>
              </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_170">
+               <property name="text">
+                <string>Restriction to apply when the current library is opened (startup or change library):</string>
+               </property>
+               <property name="buddy">
+                <cstring>opt_gui_restriction</cstring>
+               </property>
+              </widget>
+             </item>
              <item row="1" column="1">
+              <widget class="QComboBox" name="opt_gui_restriction">
+               <property name="maximumSize">
+                <size>
+                 <width>250</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
               <widget class="QCheckBox" name="opt_disable_animations">
                <property name="toolTip">
                 <string>Disable all animations. Useful if you have a slow/old computer.</string>
@@ -580,14 +600,14 @@
                </property>
               </widget>
              </item>
-             <item row="3" column="1">
+             <item row="4" column="1">
               <widget class="QCheckBox" name="opt_show_donate_button">
                <property name="text">
                 <string>Show &amp;donate button (restart)</string>
                </property>
               </widget>
              </item>
-             <item row="7" column="0" colspan="2">
+             <item row="8" column="0" colspan="2">
               <widget class="QGroupBox" name="groupBox_2">
                <property name="title">
                 <string>&amp;Toolbar</string>
@@ -1041,7 +1061,7 @@
                 </widget>
                </item>
                <item row="7" column="1">
-                <widget class="QLineEdit" name="opt_restriction">
+                <widget class="QLineEdit" name="opt_cs_restriction">
                  <property name="toolTip">
                   <string>Provides a restriction to be used by the content server</string>
                  </property>
@@ -1056,7 +1076,7 @@
                   <string>Restriction (saved search) to apply:</string>
                  </property>
                  <property name="buddy">
-                  <cstring>opt_restriction</cstring>
+                  <cstring>opt_cs_restriction</cstring>
                  </property>
                 </widget>
                </item>

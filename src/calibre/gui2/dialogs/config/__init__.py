@@ -36,6 +36,7 @@ from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.ebooks.conversion.plumber import Plumber
 from calibre.utils.logging import Log
 from calibre.gui2.convert.toc import TOCWidget
+from calibre.utils.search_query_parser import saved_searches
 
 
 class ConfigTabs(QTabWidget):
@@ -447,7 +448,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.password.setText(opts.password if opts.password else '')
         self.opt_max_opds_items.setValue(opts.max_opds_items)
         self.opt_max_opds_ungrouped_items.setValue(opts.max_opds_ungrouped_items)
-        self.opt_restriction.setText(self.db.prefs.get('cs_restriction', ''))
+        self.opt_cs_restriction.setText(self.db.prefs.get('cs_restriction', ''))
         self.auto_launch.setChecked(config['autolaunch_server'])
         self.systray_icon.setChecked(config['systray_icon'])
         self.sync_news.setChecked(config['upload_news_to_device'])
@@ -494,6 +495,12 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             if x == config['gui_layout']:
                 li = i
         self.opt_gui_layout.setCurrentIndex(li)
+        restrictions = sorted(saved_searches().names(),
+                              cmp=lambda x,y: cmp(x.lower(), y.lower()))
+        restrictions.insert(0, '')
+        self.opt_gui_restriction.addItems(restrictions)
+        idx = self.opt_gui_restriction.findText(self.db.prefs.get('gui_restriction', ''))
+        self.opt_gui_restriction.setCurrentIndex(0 if idx < 0 else idx)
         self.opt_disable_animations.setChecked(config['disable_animations'])
         self.opt_show_donate_button.setChecked(config['show_donate_button'])
         idx = 0
@@ -907,7 +914,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         sc.set('max_opds_items', self.opt_max_opds_items.value())
         sc.set('max_opds_ungrouped_items',
                 self.opt_max_opds_ungrouped_items.value())
-        self.db.prefs.set('cs_restriction', unicode(self.opt_restriction.text()))
+        self.db.prefs.set('cs_restriction', unicode(self.opt_cs_restriction.text()))
         config['delete_news_from_library_on_upload'] = self.delete_news.isChecked()
         config['upload_news_to_device'] = self.sync_news.isChecked()
         config['search_as_you_type'] = self.search_as_you_type.isChecked()
@@ -929,6 +936,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['internally_viewed_formats'] = fmts
         val = self.opt_gui_layout.itemData(self.opt_gui_layout.currentIndex()).toString()
         config['gui_layout'] = unicode(val)
+        self.db.prefs.set('gui_restriction', unicode(self.opt_gui_restriction.currentText()))
 
         if must_restart:
             warning_dialog(self, _('Must restart'),
