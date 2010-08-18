@@ -148,6 +148,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             w.gui_val
 
         def doit():
+            # author and title changes cause file system changes as well as
+            # database changes. Do these as individual transactions, so that
+            # exceptions do the smallest amount of damage
             for id in self.ids:
                 if do_swap_ta:
                     title = self.db.title(id, index_is_id=True)
@@ -159,36 +162,39 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     if title:
                         new_authors = string_to_authors(title)
                         self.db.set_authors(id, new_authors, notify=False)
-
                 if au:
                     self.db.set_authors(id, string_to_authors(au), notify=False)
 
+            # all of the following are database-only operations, so do them
+            # as a single transaction
+            for id in self.ids:
                 if do_auto_author:
                     x = self.db.author_sort_from_book(id, index_is_id=True)
                     if x:
-                        self.db.set_author_sort(id, x, notify=False)
+                        self.db.set_author_sort(id, x, notify=False, commit=False)
 
                 if aus and do_aus:
-                    self.db.set_author_sort(id, aus, notify=False)
+                    self.db.set_author_sort(id, aus, notify=False, commit=False)
 
                 if rating != -1:
-                    self.db.set_rating(id, 2*rating, notify=False)
+                    self.db.set_rating(id, 2*rating, notify=False, commit=False)
 
                 if pub:
-                    self.db.set_publisher(id, pub, notify=False)
+                    self.db.set_publisher(id, pub, notify=False, commit=False)
 
                 if do_series:
                     next = self.db.get_next_series_num_for(series)
-                    self.db.set_series(id, series, notify=False)
+                    self.db.set_series(id, series, notify=False, commit=False)
                     num = next if do_autonumber and series else 1.0
-                    self.db.set_series_index(id, num, notify=False)
+                    self.db.set_series_index(id, num, notify=False, commit=False)
 
                 if do_remove_format:
-                    self.db.remove_format(id, remove_format, index_is_id=True, notify=False)
+                    self.db.remove_format(id, remove_format, index_is_id=True, notify=False, commit=False)
 
                 if do_remove_conv:
                     self.db.delete_conversion_options(id, 'PIPE')
 
+            self.db.conn.commit()
             for w in getattr(self, 'custom_column_widgets', []):
                 w.commit(self.ids)
             self.db.bulk_modify_tags(self.ids, add=add, remove=remove,
