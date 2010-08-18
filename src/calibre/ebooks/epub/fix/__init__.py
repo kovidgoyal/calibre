@@ -11,6 +11,14 @@ from calibre.customize import Plugin
 class InvalidEpub(ValueError):
     pass
 
+class ParseError(ValueError):
+
+    def __init__(self, name, desc):
+        self.name = name
+        self.desc = desc
+        ValueError.__init__(self,
+            _('Failed to parse: %s with error: %s')%(name, desc))
+
 class ePubFixer(Plugin):
 
     supported_platforms = ['windows', 'osx', 'linux']
