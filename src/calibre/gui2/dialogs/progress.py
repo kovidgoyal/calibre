@@ -94,11 +94,9 @@ class BlockingBusy(QDialog):
 
     def start(self):
         self.pi.startAnimation()
-        pass
 
     def stop(self):
         self.pi.stopAnimation()
-        pass
 
     def accept(self):
         self.stop()
