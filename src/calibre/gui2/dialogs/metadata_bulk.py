@@ -232,6 +232,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         return QDialog.accept(self)
 
 
-    def series_changed(self):
+    def series_changed(self, *args):
         self.write_series = True
 
