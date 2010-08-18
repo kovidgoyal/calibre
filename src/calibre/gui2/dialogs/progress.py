@@ -83,9 +83,9 @@ class BlockingBusy(QDialog):
         self.font = QFont()
         self.font.setPointSize(self.font.pointSize() + 8)
         self.msg.setFont(self.font)
-#        self.pi = ProgressIndicator(self)
-#        self.pi.setDisplaySize(100)
-#        self._layout.addWidget(self.pi, 0, Qt.AlignHCenter)
+        self.pi = ProgressIndicator(self)
+        self.pi.setDisplaySize(100)
+        self._layout.addWidget(self.pi, 0, Qt.AlignHCenter)
         self._layout.addSpacing(15)
         self._layout.addWidget(self.msg, 0, Qt.AlignHCenter)
         self.start()
@@ -93,11 +93,11 @@ class BlockingBusy(QDialog):
         self.resize(self.sizeHint())
 
     def start(self):
-#        self.pi.startAnimation()
+        self.pi.startAnimation()
         pass
 
     def stop(self):
-#        self.pi.stopAnimation()
+        self.pi.stopAnimation()
         pass
 
     def accept(self):
