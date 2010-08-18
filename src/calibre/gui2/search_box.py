@@ -373,6 +373,7 @@ class SearchBoxMixin(object):
         self.set_number_of_books_shown()
 
     def search_box_changed(self):
+        self.saved_search.clear_to_help()
         self.tags_view.clear()
 
     def do_advanced_search(self, *args):
