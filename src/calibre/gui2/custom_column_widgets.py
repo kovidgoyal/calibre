@@ -41,7 +41,8 @@ class Base(object):
         val = self.gui_val
         val = self.normalize_ui_val(val)
         if val != self.initial_val:
-            self.db.set_custom(book_id, val, num=self.col_id, notify=notify)
+            self.db.set_custom(book_id, val, num=self.col_id, notify=notify,
+                               commit=False)
 
     def normalize_db_val(self, val):
         return val
@@ -305,7 +306,7 @@ class Series(Base):
                 else:
                     s_index = None
             self.db.set_custom(book_id, val, extra=s_index,
-                               num=self.col_id, notify=notify)
+                               num=self.col_id, notify=notify, commit=False)
 
 widgets = {
         'bool' : Bool,
