@@ -81,3 +81,11 @@ title_series_sorting = 'library_order'
 # strictly_alphabetic, it would remain "The Client".
 save_template_title_series_sorting = 'library_order'
 
+# Specify a folder that calibre should connect to at startup using
+# connect_to_folder. This must be a full path to the folder. If the folder does
+# not exist when calibre starts, it is ignored. If there are '\' characters in
+# the path (such as in Windows paths), you must double them.
+# Examples:
+#     auto_connect_to_folder = 'C:\\Users\\someone\\Desktop\\testlib'
+#     auto_connect_to_folder = '/home/dropbox/My Dropbox/someone/library'
+auto_connect_to_folder = ''

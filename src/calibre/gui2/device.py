@@ -33,7 +33,7 @@ from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 
 # }}}
 
@@ -613,6 +613,8 @@ class DeviceMixin(object): # {{{
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
                 self.job_manager, Dispatcher(self.status_bar.show_message))
         self.device_manager.start()
+        if tweaks['auto_connect_to_folder']:
+            self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
 
     def set_default_thumbnail(self, height):
         r = QSvgRenderer(I('book.svg'))
@@ -623,6 +625,11 @@ class DeviceMixin(object): # {{{
         p.end()
         self.default_thumbnail = (pixmap.width(), pixmap.height(),
                 pixmap_to_data(pixmap))
+
+    def connect_to_folder_named(self, dir):
+        if os.path.isdir(dir):
+            kls = FOLDER_DEVICE
+            self.device_manager.mount_device(kls=kls, kind='folder', path=dir)
 
     def connect_to_folder(self):
         dir = choose_dir(self, 'Select Device Folder',
