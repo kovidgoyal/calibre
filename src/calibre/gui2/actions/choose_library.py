@@ -137,6 +137,8 @@ class ChooseLibraryAction(InterfaceAction):
         self.qaction.setEnabled(enabled)
 
     def switch_requested(self, location):
+        if not self.change_library_allowed():
+            return
         loc = location.replace('/', os.sep)
         exists = self.gui.library_view.model().db.exists_at(loc)
         if not exists:
@@ -164,9 +166,23 @@ class ChooseLibraryAction(InterfaceAction):
         a.setWhatsThis(tooltip)
 
     def choose_library(self, *args):
+        if not self.change_library_allowed():
+            return
         from calibre.gui2.dialogs.choose_library import ChooseLibrary
         db = self.gui.library_view.model().db
         c = ChooseLibrary(db, self.gui.library_moved, self.gui)
         c.exec_()
 
+    def change_library_allowed(self):
+        if self.gui.device_connected:
+            warning_dialog(self.gui, _('Not allowed'),
+                    _('You cannot change libraries when a device is'
+                        ' connected.'), show=True)
+            return False
+        if self.gui.job_manager.has_jobs():
+            warning_dialog(self.gui, _('Not allowed'),
+                    _('You cannot change libraries while jobs'
+                        ' are running.'), show=True)
+            return False
 
+        return True
