@@ -132,7 +132,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         # Jobs Button {{{
         self.job_manager = JobManager()
         self.jobs_dialog = JobsDialog(self, self.job_manager)
-        self.jobs_button = JobsButton(horizontal=True)
+        self.jobs_button = JobsButton(horizontal=True, parent=self)
         self.jobs_button.initialize(self.jobs_dialog, self.job_manager)
         # }}}
 
@@ -195,7 +195,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         UpdateMixin.__init__(self, opts)
 
         ####################### Search boxes ########################
-        SavedSearchBoxMixin.__init__(self, db)
+        SavedSearchBoxMixin.__init__(self)
         SearchBoxMixin.__init__(self)
 
         ####################### Library view ########################
@@ -230,6 +230,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         ######################### Search Restriction ##########################
         SearchRestrictionMixin.__init__(self)
+        self.apply_named_search_restriction(db.prefs.get('gui_restriction', ''))
 
         ########################### Cover Flow ################################
 
@@ -249,8 +250,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.read_settings()
         self.finalize_layout()
         self.donate_button.start_animation()
+        self.set_window_title()
 
-        self.iactions['Fetch News'].connect_scheduler()
+        for ac in self.iactions.values():
+            ac.initialization_complete()
 
     def start_content_server(self):
         from calibre.library.server.main import start_threaded_server
@@ -350,8 +353,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
-
-
     def library_moved(self, newloc):
         if newloc is None: return
         db = LibraryDatabase2(newloc)
@@ -366,9 +367,17 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.saved_search.clear_to_help()
         self.book_details.reset_info()
         self.library_view.model().count_changed()
-        self.iactions['Fetch News'].database_changed(db)
         prefs['library_path'] = self.library_path
+        db = self.library_view.model().db
+        for action in self.iactions.values():
+            action.library_changed(db)
+        self.set_window_title()
+        self.apply_named_search_restriction('') # reset restriction to null
+        self.saved_searches_changed() # reload the search restrictions combo box
+        self.apply_named_search_restriction(db.prefs.get('gui_restriction', ''))
 
+    def set_window_title(self):
+        self.setWindowTitle(__appname__ + u' - ||%s||'%self.iactions['Choose Library'].library_name())
 
     def location_selected(self, location):
         '''
@@ -509,6 +518,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
 
     def shutdown(self, write_settings=True):
+        for action in self.iactions.values():
+            if not action.shutting_down():
+                return
         if write_settings:
             self.write_settings()
         self.check_messages_timer.stop()

@@ -29,12 +29,15 @@ from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin
                                  input_format_plugins, \
                                  output_format_plugins, available_output_formats
 from calibre.utils.smtp import config as smtp_prefs
+from calibre.gui2.convert import config_widget_for_input_plugin
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.ebooks.conversion.plumber import Plumber
 from calibre.utils.logging import Log
 from calibre.gui2.convert.toc import TOCWidget
+from calibre.utils.search_query_parser import saved_searches
+
 
 class ConfigTabs(QTabWidget):
 
@@ -58,15 +61,10 @@ class ConfigTabs(QTabWidget):
         self.widgets = [lf, ps, sd, toc]
 
         for plugin in input_format_plugins():
-            name = plugin.name.lower().replace(' ', '_')
-            try:
-                input_widget = __import__('calibre.gui2.convert.'+name,
-                        fromlist=[1])
-                pw = input_widget.PluginWidget
+            pw = config_widget_for_input_plugin(plugin)
+            if pw is not None:
                 pw.ICON = I('forward.svg')
                 self.widgets.append(widget_factory(pw))
-            except ImportError:
-                continue
 
         for plugin in output_format_plugins():
             name = plugin.name.lower().replace(' ', '_')
@@ -496,6 +494,14 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             if x == config['gui_layout']:
                 li = i
         self.opt_gui_layout.setCurrentIndex(li)
+        restrictions = sorted(saved_searches().names(),
+                              cmp=lambda x,y: cmp(x.lower(), y.lower()))
+        restrictions.insert(0, '')
+        for x in ('gui', 'cs'):
+            w = getattr(self, 'opt_%s_restriction'%x)
+            w.addItems(restrictions)
+            idx = w.findText(self.db.prefs.get(x+'_restriction', ''))
+            w.setCurrentIndex(0 if idx < 0 else idx)
         self.opt_disable_animations.setChecked(config['disable_animations'])
         self.opt_show_donate_button.setChecked(config['show_donate_button'])
         idx = 0
@@ -930,6 +936,9 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['internally_viewed_formats'] = fmts
         val = self.opt_gui_layout.itemData(self.opt_gui_layout.currentIndex()).toString()
         config['gui_layout'] = unicode(val)
+        for x in ('gui', 'cs'):
+            w = getattr(self, 'opt_%s_restriction'%x)
+            self.db.prefs.set(x+'_restriction', unicode(w.currentText()))
 
         if must_restart:
             warning_dialog(self, _('Must restart'),

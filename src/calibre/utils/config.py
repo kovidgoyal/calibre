@@ -705,7 +705,8 @@ if prefs['installation_uuid'] is None:
 # Read tweaks
 def read_raw_tweaks():
     make_config_dir()
-    default_tweaks = P('default_tweaks.py', data=True)
+    default_tweaks = P('default_tweaks.py', data=True,
+            allow_user_override=False)
     tweaks_file = os.path.join(config_dir, 'tweaks.py')
     if not os.path.exists(tweaks_file):
         with open(tweaks_file, 'wb') as f:

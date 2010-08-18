@@ -46,7 +46,7 @@ class ANDROID(USBMS):
             # Eken?
             0x040d : { 0x0851 : [0x0001]},
             }
-    EBOOK_DIR_MAIN = ['wordplayer/calibretransfer', 'eBooks/import', 'Books']
+    EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
             'send e-books to on the device. The first one that exists will '
             'be used')
@@ -55,9 +55,9 @@ class ANDROID(USBMS):
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
-            '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD',
+            '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID']
-    WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD',
+    WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID']
 
     OSX_MAIN_MEM = 'HTC Android Phone Media'

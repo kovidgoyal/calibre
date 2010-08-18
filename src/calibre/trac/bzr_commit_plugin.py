@@ -26,18 +26,18 @@ import bzrlib
 
 
 class cmd_commit(_cmd_commit):
-    
+
     @classmethod
     def trac_url(self, username, password, url):
-        return url.replace('//', '//%s:%s@'%(username, password))+'/login/xmlrpc' 
-    
+        return url.replace('//', '//%s:%s@'%(username, password))+'/login/xmlrpc'
+
     def get_trac_summary(self, bug, url):
         print 'Getting bug summary for bug #%s'%bug,
         server = xmlrpclib.ServerProxy(url)
         attributes = server.ticket.get(int(bug))[-1]
         print attributes['summary']
         return attributes['summary']
-        
+
     def expand_bug(self, msg, nick, config, bug_tracker, type='trac'):
         prefix = '%s_%s_'%(type, nick)
         username = config.get_user_option(prefix+'username')
@@ -55,10 +55,10 @@ class cmd_commit(_cmd_commit):
             url = self.trac_url(username, password, bug_tracker)
             summary = self.get_trac_summary(bug, url)
         if summary:
-            msg = msg.replace('#%s'%bug, '#%s (%s)'%(bug, summary)) 
+            msg = msg.replace('#%s'%bug, '#%s (%s)'%(bug, summary))
         return msg, bug, url, action
-        
-        
+
+
     def get_bugtracker(self, basedir, type='trac'):
         config = os.path.join(basedir, '.bzr', 'branch', 'branch.conf')
         bugtracker, nick = None, None
@@ -69,16 +69,16 @@ class cmd_commit(_cmd_commit):
                     nick, bugtracker = match.group(1), match.group(2)
                     break
         return nick, bugtracker
-    
+
     def expand_message(self, msg, tree):
         nick, bugtracker = self.get_bugtracker(tree.basedir, type='trac')
         if not bugtracker:
             return msg
         config =  branch.Branch.open(tree.basedir).get_config()
         msg, bug, url, action = self.expand_bug(msg, nick, config, bugtracker)
-            
+
         return msg, bug, url, action, nick, config
-    
+
     def run(self, message=None, file=None, verbose=False, selected_list=None,
             unchanged=False, strict=False, local=False, fixes=None,
             author=None, show_diff=False, exclude=None):
@@ -89,18 +89,18 @@ class cmd_commit(_cmd_commit):
                     self.expand_message(message, tree_files(selected_list)[0])
             except ValueError:
                 pass
-        
+
             if nick and bug and not fixes:
                 fixes = [nick+':'+bug]
-        
-        ret = _cmd_commit.run(self, message=message, file=file, verbose=verbose, 
+
+        ret = _cmd_commit.run(self, message=message, file=file, verbose=verbose,
                               selected_list=selected_list, unchanged=unchanged,
-                              strict=strict, local=local, fixes=fixes, 
+                              strict=strict, local=local, fixes=fixes,
                               author=author, show_diff=show_diff, exclude=exclude)
         if message and bug and action and nick and config:
             self.close_bug(bug, action, url, config)
         return ret
-    
+
     def close_bug(self, bug, action, url, config):
         print 'Closing bug #%s'% bug
         nick = config.get_nickname()
@@ -110,8 +110,8 @@ class cmd_commit(_cmd_commit):
         action = action+'ed'
         msg = '%s in branch %s. %s'%(action, nick, suffix)
         server = xmlrpclib.ServerProxy(url)
-        server.ticket.update(int(bug), msg, 
-                             {'status':'closed', 'resolution':'fixed'}, 
+        server.ticket.update(int(bug), msg,
+                             {'status':'closed', 'resolution':'fixed'},
                              False)
-        
+
 bzrlib.commands.register_command(cmd_commit)

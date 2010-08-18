@@ -550,6 +550,8 @@ class OPDSServer(object):
                 (_('Title'), _('Title'), 'Otitle'),
                 ]
         for category in categories:
+            if len(categories[category]) == 0:
+                continue
             if category == 'formats':
                 continue
             meta = category_meta.get(category, None)

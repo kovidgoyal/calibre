@@ -871,14 +871,14 @@ class LayoutButton(QToolButton):
     def set_state_to_show(self, *args):
         self.setChecked(False)
         label =_('Show')
-        self.setText(label + ' ' + self.label + ' ' + self.shortcut)
+        self.setText(label + ' ' + self.label + u' (%s)'%self.shortcut)
         self.setToolTip(self.text())
         self.setStatusTip(self.text())
 
     def set_state_to_hide(self, *args):
         self.setChecked(True)
         label = _('Hide')
-        self.setText(label + ' ' + self.label+ ' ' + self.shortcut)
+        self.setText(label + ' ' + self.label+ u' (%s)'%self.shortcut)
         self.setToolTip(self.text())
         self.setStatusTip(self.text())
 
@@ -941,7 +941,10 @@ class Splitter(QSplitter):
     @property
     def is_side_index_hidden(self):
         sizes = list(self.sizes())
-        return sizes[self.side_index] == 0
+        try:
+            return sizes[self.side_index] == 0
+        except IndexError:
+            return True
 
     @property
     def save_name(self):

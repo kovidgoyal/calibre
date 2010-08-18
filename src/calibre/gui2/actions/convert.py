@@ -14,6 +14,7 @@ from calibre.gui2 import error_dialog, Dispatcher
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook
 from calibre.utils.config import prefs
 from calibre.gui2.actions import InterfaceAction
+from calibre.customize.ui import plugin_for_input_format
 
 class ConvertAction(InterfaceAction):
 
@@ -115,9 +116,19 @@ class ConvertAction(InterfaceAction):
     def queue_convert_jobs(self, jobs, changed, bad, rows, previous,
             converted_func, extra_job_args=[]):
         for func, args, desc, fmt, id, temp_files in jobs:
+            input_file = args[0]
+            input_fmt = os.path.splitext(input_file)[1]
+            core_usage = 1
+            if input_fmt:
+                input_fmt = input_fmt[1:]
+                plugin = plugin_for_input_format(input_fmt)
+                if plugin is not None:
+                    core_usage = plugin.core_usage
+
             if id not in bad:
                 job = self.gui.job_manager.run_job(Dispatcher(converted_func),
-                                            func, args=args, description=desc)
+                                            func, args=args, description=desc,
+                                            core_usage=core_usage)
                 args = [temp_files, fmt, id]+extra_job_args
                 self.conversion_jobs[job] = tuple(args)
 

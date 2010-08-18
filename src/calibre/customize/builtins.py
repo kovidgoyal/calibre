@@ -438,7 +438,7 @@ from calibre.ebooks.txt.output import TXTOutput
 from calibre.customize.profiles import input_profiles, output_profiles
 
 from calibre.devices.apple.driver import ITUNES
-from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX
+from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
@@ -567,6 +567,7 @@ plugins += [
     MENTOR,
     SWEEX,
     PDNOVEL,
+    SPECTRA,
     ITUNES,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
@@ -657,9 +658,14 @@ class ActionEditCollections(InterfaceActionBase):
     name = 'Edit Collections'
     actual_plugin = 'calibre.gui2.actions.edit_collections:EditCollectionsAction'
 
+class ActionCopyToLibrary(InterfaceActionBase):
+    name = 'Copy To Library'
+    actual_plugin = 'calibre.gui2.actions.copy_to_library:CopyToLibraryAction'
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
-        ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary]
+        ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
+        ActionCopyToLibrary]

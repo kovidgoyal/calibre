@@ -239,7 +239,7 @@ def _extract_member(path, match, name):
                 PFCode = _libunrar.RARProcessFileW(arc_data, RAR_EXTRACT, None, None)
                 if PFCode != 0:
                     raise UnRARException(_interpret_process_file_error(PFCode))
-                abspath = os.path.abspath(*file_name.split('/'))
+                abspath = os.path.abspath(os.path.join(*file_name.split('/')))
                 return abspath
             else:
                 PFCode = _libunrar.RARProcessFileW(arc_data, RAR_SKIP, None, None)

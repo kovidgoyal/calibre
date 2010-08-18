@@ -31,7 +31,12 @@ class FetchNewsAction(InterfaceAction):
         self.qaction.setMenu(self.scheduler.news_menu)
         self.qaction.triggered.connect(
                 self.scheduler.show_dialog)
-        self.database_changed = self.scheduler.database_changed
+
+    def library_changed(self, db):
+        self.scheduler.database_changed(db)
+
+    def initialization_complete(self):
+        self.connect_scheduler()
 
     def connect_scheduler(self):
         self.scheduler.delete_old_news.connect(
