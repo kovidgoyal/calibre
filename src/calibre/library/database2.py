@@ -1451,6 +1451,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('metadata', ids)
 
+    def commit(self):
+        self.conn.commit()
+
     def set_tags(self, id, tags, append=False, notify=True, commit=True):
         '''
         @param tags: list of strings

@@ -53,7 +53,7 @@ class Worker(Thread):
         # All of these just affect the DB, so we can tolerate a total rollback
         for id in self.ids:
             if do_auto_author:
-                x = self.db.author_sort_from_book(id, index_is_id=True, commit=False)
+                x = self.db.author_sort_from_book(id, index_is_id=True)
                 if x:
                     self.db.set_author_sort(id, x, notify=False, commit=False)
 
@@ -76,8 +76,8 @@ class Worker(Thread):
                 self.db.remove_format(id, remove_format, index_is_id=True, notify=False, commit=False)
 
             if do_remove_conv:
-                self.db.delete_conversion_options(id, 'PIPE')
-        self.db.doit.commit()
+                self.db.delete_conversion_options(id, 'PIPE', commit=False)
+        self.db.commit()
 
         for w in self.cc_widgets:
             w.commit(self.ids)
