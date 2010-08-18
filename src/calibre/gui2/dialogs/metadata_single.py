@@ -743,7 +743,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             d = qt_to_dt(d)
             if d.date() != self.orig_timestamp.date():
                 self.db.set_timestamp(self.id, d, notify=False, commit=False)
-            self.db.conn.commit()
+            self.db.commit()
 
             if self.cover_changed:
                 if self.cover_data is not None:
@@ -752,7 +752,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     self.db.remove_cover(self.id)
             for w in getattr(self, 'custom_column_widgets', []):
                 w.commit(self.id)
-            self.db.conn.commit()
+            self.db.commit()
         except IOError, err:
             if err.errno == 13: # Permission denied
                 fname = err.filename if err.filename else 'file'
