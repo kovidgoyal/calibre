@@ -412,10 +412,11 @@ class CustomColumns(object):
         self.conn.commit()
 
     def set_custom(self, id, val, label=None, num=None,
-                   append=False, notify=True, extra=None):
+                   append=False, notify=True, extra=None, commit=True):
         self._set_custom(id, val, label=label, num=num, append=append,
                          notify=notify, extra=extra)
-        self.conn.commit()
+        if commit:
+            self.conn.commit()
 
     def _set_custom(self, id_, val, label=None, num=None,
                    append=False, notify=True, extra=None):
