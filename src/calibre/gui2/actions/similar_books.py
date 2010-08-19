@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QMenu
+from PyQt4.Qt import QMenu, QToolButton
 
 from calibre.gui2.actions import InterfaceAction
 
@@ -15,6 +15,7 @@ class SimilarBooksAction(InterfaceAction):
 
     name = 'Similar Books'
     action_spec = (_('Similar books...'), None, None, None)
+    popup_type = QToolButton.InstantPopup
 
     def genesis(self):
         m = QMenu(self.gui)
