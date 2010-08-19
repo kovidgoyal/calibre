@@ -7,8 +7,8 @@ QProgressIndicator::QProgressIndicator(QWidget* parent, int size)
         m_angle(0),
         m_timerId(-1),
         m_delay(80),
-        m_displayedWhenStopped(true),
         m_displaySize(size),
+        m_displayedWhenStopped(true),
         m_color(Qt::black)
 {
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
