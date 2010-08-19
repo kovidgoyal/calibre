@@ -98,5 +98,16 @@ elif isosx:
 else:
     bdir = os.path.abspath(os.path.expanduser(os.environ.get('XDG_CONFIG_HOME', '~/.config')))
     config_dir = os.path.join(bdir, 'calibre')
+    if not os.access(config_dir, os.W_OK):
+        print 'No write acces to', config_dir, 'using a temporary dir instead'
+        import tempfile, atexit
+        config_dir = tempfile.mkdtemp(prefix='calibre-config-')
+        def cleanup_cdir():
+            try:
+                import shutil
+                shutil.rmtree(config_dir)
+            except:
+                pass
+        atexit.register(cleanup_cdir)
 # }}}
 
