@@ -21,7 +21,7 @@ class Item:
         return 'name=%s, label=%s, index=%s, exists='%(self.name, self.label, self.index, self.exists)
 
 class TagCategories(QDialog, Ui_TagCategories):
-    category_labels_orig =   ['', 'authors', 'series', 'publishers', 'tags']
+    category_labels_orig =   ['', 'authors', 'series', 'publisher', 'tags']
 
     def __init__(self, window, db, on_category=None):
         QDialog.__init__(self, window)
