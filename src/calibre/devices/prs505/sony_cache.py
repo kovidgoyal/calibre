@@ -15,7 +15,8 @@ from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.driver import debug_print
 from calibre.constants import DEBUG, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.ebooks.metadata import authors_to_string, title_sort
+from calibre.ebooks.metadata import authors_to_string, title_sort, \
+                                    authors_to_sort_string
 
 # Utility functions {{{
 EMPTY_CARD_CACHE = '''\
@@ -509,8 +510,13 @@ class XMLCache(object):
         if not ts:
             ts = title_sort(title)
         record.set('titleSorter', clean(ts))
-        if self.use_author_sort and book.author_sort is not None:
-            record.set('author', clean(book.author_sort))
+        if self.use_author_sort:
+            if book.author_sort:
+                aus = book.author_sort
+            else:
+                debug_print('Author_sort is None for book', book.lpath)
+                aus = authors_to_sort_string(book.authors)
+            record.set('author', clean(aus))
         else:
             record.set('author', clean(authors_to_string(book.authors)))
         ext = os.path.splitext(path)[1]
