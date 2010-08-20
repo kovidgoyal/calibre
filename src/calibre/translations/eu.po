@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-18 22:24+0000\n"
-"PO-Revision-Date: 2010-08-18 19:26+0000\n"
-"Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
+"PO-Revision-Date: 2010-08-19 22:29+0000\n"
+"Last-Translator: Bingen Markes <Unknown>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-19 03:44+0000\n"
+"X-Launchpad-Export-Date: 2010-08-20 03:34+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -198,9 +198,9 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
-"Sortu PMLZ fitxategi bat PML fitxategiarekin eta irudi guztiekin pmlname_img "
-"direktorioan edo irudiak direktorioan. Gehigarri hau, liburutegira PML "
-"fitxategi bat gehitzen duzun bakoitzean exekutatuko da."
+"Sortu PMLZ fitxategi bat PML fitxategiarekin eta \"images\" (irudiak) edo "
+"pmlname_img direktorioan dauden irudi guztiekin. Gehigarri hau, liburutegira "
+"PML fitxategi bat  gehitzen duzun bakoitzean exekutatuko da."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:93
 msgid "Extract cover from comic files"
@@ -3552,10 +3552,12 @@ msgstr "Not allowed"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:179
 msgid "You cannot change libraries when a device is connected."
 msgstr ""
+"Ezin dezakezu liburutegiak aldatu irakurgailua konektatua dagoen bitartean."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:184
 msgid "You cannot change libraries while jobs are running."
 msgstr ""
+"Ezin dezakezu liburutegiak aldatu lanak exekutatzen dauden bitartean."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "C"
@@ -3583,11 +3585,11 @@ msgstr "%d liburu(ar)en bihurketa abiatzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:15
 msgid "Copy to library"
-msgstr ""
+msgstr "Liburutegira kopiatu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:16
 msgid "Copy selected books to the specified library"
-msgstr ""
+msgstr "Kopiatu hautatutako liburuak adierazitako liburutegian"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:18
 msgid "Del"
@@ -3715,7 +3717,7 @@ msgstr "Setup email based sharing of books"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:97
 msgid "D"
-msgstr ""
+msgstr "D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:97
 msgid "Send to device"
@@ -3902,7 +3904,7 @@ msgstr "Open containing folder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/open.py:15
 msgid "O"
-msgstr ""
+msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:17
 msgid "Ctrl+P"
@@ -4009,7 +4011,7 @@ msgstr "Show book details"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:17
 msgid "I"
-msgstr ""
+msgstr "I"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:24
 msgid "No detailed info available"
@@ -6830,8 +6832,8 @@ msgid ""
 "Here you can customize the behavior of Calibre by controlling what plugins "
 "it uses."
 msgstr ""
-"Here you can customize the behavior of Calibre by controlling what plugins "
-"it uses."
+"Hemen Calibreren portaera pertsonalizatu dezakezu zeintzuk gehigarri "
+"erabiliko dituen kontrolatuz."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:685
 msgid "Enable/&Disable plugin"
@@ -7601,7 +7603,7 @@ msgstr ""
 msgid ""
 "The current saved search will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
-"The current saved search will be <b>permanently deleted</b>. Are you sure?"
+"Uneko gordetako bilaketa <b>betiko ezabatua</b> izango da. Ziur zaude?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:83
 msgid "Saved Search Editor"
@@ -7891,8 +7893,7 @@ msgstr " (not on any book)"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:166
 msgid ""
 "The current tag category will be <b>permanently deleted</b>. Are you sure?"
-msgstr ""
-"The current tag category will be <b>permanently deleted</b>. Are you sure?"
+msgstr "Uneko tag kategoria <b>betiko ezabatua</b> izango da. Ziur zaude?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:153
 msgid "User Categories Editor"
@@ -8880,7 +8881,7 @@ msgstr "Search"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:307
 msgid "The selected search will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
-"The selected search will be <b>permanently deleted</b>. Are you sure?"
+"Aukeratutako bilaketa <b>betirako ezabatua</b> izango da. Ziur zaude?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:349
 msgid "Search (For Advanced Search click the button to the left)"
