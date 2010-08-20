@@ -5,7 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QWidget, QAbstractListModel, Qt, QIcon, QVariant
+from PyQt4.Qt import QWidget, QAbstractListModel, Qt, QIcon, \
+        QVariant, QItemSelectionModel
 
 from calibre.gui2.dialogs.config.toolbar_ui import Ui_Form
 from calibre.gui2.layout import TOOLBAR_NO_DEVICE, TOOLBAR_DEVICE
@@ -45,7 +46,7 @@ class BaseModel(QAbstractListModel):
             return FakeAction(name, None)
         if name is None:
             return FakeAction('--- '+_('Separator')+' ---', None)
-        return self.gui.iactions[name]
+        return gui.iactions[name]
 
     def rowCount(self, parent):
         return len(self._data)
@@ -54,11 +55,16 @@ class BaseModel(QAbstractListModel):
         row = index.row()
         action = self._data[row].action_spec
         if role == Qt.DisplayRole:
-            return QVariant(action[0])
+            text = action[0]
+            text = text.replace('&', '')
+            if text == _('%d books'):
+                text = _('Choose library')
+            return QVariant(text)
         if role == Qt.DecorationRole:
             ic = action[1]
-            if ic is not None:
-                return QVariant(QIcon(ic))
+            if ic is None:
+                ic = 'blank.svg'
+            return QVariant(QIcon(I(ic)))
         if role == Qt.ToolTipRole and action[2] is not None:
             return QVariant(action[2])
         return NONE
@@ -82,6 +88,22 @@ class CurrentModel(BaseModel):
         BaseModel.__init__(self)
         current = gprefs.get('action-layout-'+key, DEFAULTS[key])
         self._data =  [self.name_to_action(x, gui) for x in current]
+
+    def move(self, idx, delta):
+        row = idx.row()
+        if row < 0 or row >= len(self._data):
+            return
+        nrow = row + delta
+        if nrow < 0 or nrow >= len(self._data):
+            return
+        t = self._data[row]
+        self._data[row] = self._data[nrow]
+        self._data[nrow] = t
+        ni = self.index(nrow)
+        self.dataChanged.emit(idx, idx)
+        self.dataChanged.emit(ni, ni)
+        return ni
+
 
 class ToolbarLayout(QWidget, Ui_Form):
 
@@ -125,16 +147,30 @@ class ToolbarLayout(QWidget, Ui_Form):
         pass
 
     def action_up(self, *args):
-        pass
+        ci = self.current_actions.currentIndex()
+        m = self.current_actions.model()
+        if ci.isValid():
+            ni = m.move(ci, -1)
+            if ni is not None:
+                self.current_actions.setCurrentIndex(ni)
+                self.current_actions.selectionModel().select(ni,
+                        QItemSelectionModel.ClearAndSelect)
 
     def action_down(self, *args):
-        pass
+        ci = self.current_actions.currentIndex()
+        m = self.current_actions.model()
+        if ci.isValid():
+            ni = m.move(ci, 1)
+            if ni is not None:
+                self.current_actions.setCurrentIndex(ni)
+                self.current_actions.selectionModel().select(ni,
+                        QItemSelectionModel.ClearAndSelect)
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     from calibre.gui2.ui import Main
-    m = Main(None)
     app=QApplication([])
+    m = Main(None)
     a = ToolbarLayout(m)
     a.show()
     app.exec_()

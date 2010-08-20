@@ -39,9 +39,6 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QListView" name="all_actions">
-        <property name="alternatingRowColors">
-         <bool>true</bool>
-        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::MultiSelection</enum>
         </property>
@@ -70,9 +67,6 @@
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QListView" name="current_actions">
-        <property name="alternatingRowColors">
-         <bool>true</bool>
-        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::MultiSelection</enum>
         </property>
@@ -81,6 +75,9 @@
           <width>32</width>
           <height>32</height>
          </size>
+        </property>
+        <property name="spacing">
+         <number>10</number>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
