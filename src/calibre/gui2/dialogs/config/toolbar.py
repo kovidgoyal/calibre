@@ -5,6 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from functools import partial
+
 from PyQt4.Qt import QWidget, QAbstractListModel, Qt, QIcon, \
         QVariant, QItemSelectionModel
 
@@ -132,8 +134,8 @@ class ToolbarLayout(QWidget, Ui_Form):
 
         self.add_action_button.clicked.connect(self.add_action)
         self.remove_action_button.clicked.connect(self.remove_action)
-        self.action_up_button.clicked.connect(self.action_up)
-        self.action_down_button.clicked.connect(self.action_down)
+        self.action_up_button.clicked.connect(partial(self.move, -1))
+        self.action_down_button.clicked.connect(partial(self.move, 1))
 
     def what_changed(self, idx):
         key = unicode(self.what.itemData(idx).toString())
@@ -146,21 +148,11 @@ class ToolbarLayout(QWidget, Ui_Form):
     def remove_action(self, *args):
         pass
 
-    def action_up(self, *args):
+    def move(self, delta, *args):
         ci = self.current_actions.currentIndex()
         m = self.current_actions.model()
         if ci.isValid():
-            ni = m.move(ci, -1)
-            if ni is not None:
-                self.current_actions.setCurrentIndex(ni)
-                self.current_actions.selectionModel().select(ni,
-                        QItemSelectionModel.ClearAndSelect)
-
-    def action_down(self, *args):
-        ci = self.current_actions.currentIndex()
-        m = self.current_actions.model()
-        if ci.isValid():
-            ni = m.move(ci, 1)
+            ni = m.move(ci, delta)
             if ni is not None:
                 self.current_actions.setCurrentIndex(ni)
                 self.current_actions.selectionModel().select(ni,
