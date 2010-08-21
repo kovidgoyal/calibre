@@ -549,5 +549,3 @@ main()
     ipshell = IPShellEmbed(user_ns=user_ns)
     ipshell()
     sys.argv = old_argv
-
-
