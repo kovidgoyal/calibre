@@ -71,6 +71,16 @@ class BaseModel(QAbstractListModel):
             return QVariant(action[2])
         return NONE
 
+    def names(self, indexes):
+        rows = [i.row() for i in indexes]
+        ans = []
+        for i in rows:
+            n = self._data[i].name
+            if n.startswith('---'):
+                n = None
+            ans.append(n)
+        return ans
+
 
 class AllModel(BaseModel):
 
@@ -84,12 +94,38 @@ class AllModel(BaseModel):
 
         self._data = all
 
+    def add(self, names):
+        actions = []
+        for name in actions:
+            if name is None or name.startswith('---'): continue
+            actions.append(self.name_to_action(name))
+        self._data.extend(actions)
+        self._data.sort()
+        self.reset()
+
+    def remove(self, indices, allowed):
+        rows = [i.row() for i in indices]
+        remove = set([])
+        for row in rows:
+            ac = self._data[row]
+            if ac.name.startswith('---'): continue
+            if ac.name in allowed:
+                remove.add(row)
+        ndata = []
+        for i, ac in enumerate(self._data):
+            if i not in remove:
+                ndata.append(ac)
+        self._data = ndata
+        self.reset()
+
+
 class CurrentModel(BaseModel):
 
     def __init__(self, key, gui):
         BaseModel.__init__(self)
         current = gprefs.get('action-layout-'+key, DEFAULTS[key])
         self._data =  [self.name_to_action(x, gui) for x in current]
+        self.key = key
 
     def move(self, idx, delta):
         row = idx.row()
@@ -105,6 +141,35 @@ class CurrentModel(BaseModel):
         self.dataChanged.emit(idx, idx)
         self.dataChanged.emit(ni, ni)
         return ni
+
+    def add(self, names):
+        actions = []
+        reject = set([])
+        for name in actions:
+            if name in UNADDABLE[self.key]:
+                reject.add(name)
+                continue
+            actions.append(self.name_to_action(name))
+
+        self._data.extend(actions)
+        self.reset()
+        return reject
+
+    def remove(self, indices):
+        rows = [i.row() for i in indices]
+        r = UNREMOVABLE[self.key]
+        remove, removed = set([]), set([])
+        for row in rows:
+            ac = self._data[row]
+            if ac.name in r: continue
+            remove.add(row)
+            removed.add(ac.name)
+        ndata = []
+        for i, ac in enumerate(self._data):
+            if i not in remove:
+                ndata.append(ac)
+        self._data = ndata
+        self.reset()
 
 
 class ToolbarLayout(QWidget, Ui_Form):
@@ -143,10 +208,19 @@ class ToolbarLayout(QWidget, Ui_Form):
         self.current_actions.setModel(self.models[key][1])
 
     def add_action(self, *args):
-        pass
+        x = self.all_actions.selectionModel().selectedIndexes()
+        names = self.all_actions.model().names(x)
+        if names:
+            not_added = self.current_actions.model().add(names)
+            added = set(names) - not_added
+            self.all_actions.model().remove(x, added)
 
     def remove_action(self, *args):
-        pass
+        x = self.current_actions.selectionModel().selectedIndexes()
+        names = self.current_actions.model().names(x)
+        if names:
+            self.current_actions.model().remove(x)
+            self.all_actions.model().add(names)
 
     def move(self, delta, *args):
         ci = self.current_actions.currentIndex()
