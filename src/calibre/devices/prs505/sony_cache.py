@@ -353,20 +353,22 @@ class XMLCache(object):
             debug_print('Updating XML Cache:', i)
             root = self.record_roots[i]
             lpath_map = self.build_lpath_map(root)
-            gtz_count = ltz_count = 0
+            gtz_count = ltz_count = otz_count = 0
             for book in booklist:
                 path = os.path.join(self.prefixes[i], *(book.lpath.split('/')))
                 record = lpath_map.get(book.lpath, None)
                 if record is None:
                     record = self.create_text_record(root, i, book.lpath)
-                (gtz_count, ltz_count) = self.update_text_record(record, book,
-                                                path, i, gtz_count, ltz_count)
+                (gtz_count, ltz_count, otz_count) = \
+                    self.update_text_record(record, book, path, i,
+                                            gtz_count, ltz_count, otz_count)
                 # Ensure the collections in the XML database are recorded for
                 # this book
                 if book.device_collections is None:
                     book.device_collections = []
                 book.device_collections = playlist_map.get(book.lpath, [])
-            debug_print('Timezone votes: %d GMT, %d LTZ'%(gtz_count, ltz_count))
+            debug_print('Timezone votes: %d GMT, %d LTZ, %d OTZ'%
+                        (gtz_count, ltz_count, otz_count))
             self.update_playlists(i, root, booklist, collections_attributes)
         # Update the device collections because update playlist could have added
         # some new ones.
@@ -464,7 +466,8 @@ class XMLCache(object):
         root.append(ans)
         return ans
 
-    def update_text_record(self, record, book, path, bl_index, gtz_count, ltz_count):
+    def update_text_record(self, record, book, path, bl_index,
+                           gtz_count, ltz_count, otz_count):
         '''
         Update the Sony database from the book. This is done if the timestamp in
         the db differs from the timestamp on the file.
@@ -493,6 +496,8 @@ class XMLCache(object):
                 gtz_count += 1
             elif strftime(timestamp, zone=time.localtime) == rec_date:
                 ltz_count += 1
+            else:
+                otz_count += 1
         else: # book is new. Set the time using the current votes
             if ltz_count >= gtz_count:
                 tz = time.localtime
@@ -532,7 +537,7 @@ class XMLCache(object):
         if 'id' not in record.attrib:
             num = self.max_id(record.getroottree().getroot())
             record.set('id', str(num+1))
-        return (gtz_count, ltz_count)
+        return (gtz_count, ltz_count, otz_count)
     # }}}
 
     # Writing the XML files {{{
