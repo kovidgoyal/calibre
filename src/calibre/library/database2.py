@@ -1754,7 +1754,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return (paths, formats, metadata), len(ids)
         return None, len(ids)
 
-    def import_book(self, mi, formats, notify=True):
+    def import_book(self, mi, formats, notify=True, import_hooks=True):
         series_index = 1.0 if mi.series_index is None else mi.series_index
         if not mi.title:
             mi.title = _('Unknown')
@@ -1779,7 +1779,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             ext = os.path.splitext(path)[1][1:].lower()
             if ext == 'opf':
                 continue
-            self.add_format_with_hooks(id, ext, path, index_is_id=True)
+            if import_hooks:
+                self.add_format_with_hooks(id, ext, path, index_is_id=True)
+            else:
+                with open(path, 'rb') as f:
+                    self.add_format(id, ext, f, index_is_id=True)
         self.conn.commit()
         self.data.refresh_ids(self, [id]) # Needed to update format list and size
         if notify:

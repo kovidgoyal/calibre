@@ -28,9 +28,10 @@ def partial(*args, **kwargs):
     return ans
 
 LIBRARY_CONTEXT_MENU = (
-        'Edit Metadata', 'Send To Device', 'Save To Disk', 'Connect Share', None,
-        'Convert Books', 'View', 'Open Folder', 'Show Book Details', None,
-        'Remove Books',
+        'Edit Metadata', 'Send To Device', 'Save To Disk',
+        'Connect Share', 'Copy To Library', None,
+        'Convert Books', 'View', 'Open Folder', 'Show Book Details',
+        'Similar Books', None, 'Remove Books',
         )
 
 DEVICE_CONTEXT_MENU = ('View', 'Save To Disk', None, 'Remove Books', None,

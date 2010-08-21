@@ -6,6 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import re
+
 from calibre.customize.conversion import InputFormatPlugin
 
 class LITInput(InputFormatPlugin):
@@ -48,4 +50,11 @@ class LITInput(InputFormatPlugin):
                     for elem in body:
                         ne = copy.deepcopy(elem)
                         pre.append(ne)
+
+
+	def preprocess_html(self, html):
+		chapdetect = re.compile(r'(?=</?(br|p|span))(</?(br|p|span)[^>]*>)?\s*(?P<chap>(<(i|b)><(i|b)>|<(i|b)>)?(.?Chapter|Epilogue|Prologue|Book|Part|Dedication)\s*([\d\w-]+(\s\w+)?)?(</(i|b)></(i|b)>|</(i|b)>)?)(</?(p|br|span)[^>]*>)', re.IGNORECASE)
+		html = chapdetect.sub('<h2>'+'\g<chap>'+'</h2>\n', html)
+		html = re.sub(r"(?<=.{65}[a-z,\IA])\s*</(span|p|div)>\s*(</(p|span|div)>\s*<p[^>]*>(\s*<(p|span|div)>\s*</(p|span|div)[^>]*>)?\s*(</(p|span|div)>\s*<p[^>]*>)?)?\s*<(span|div|p)[^>]*>", " ", html)
+		return html
 
