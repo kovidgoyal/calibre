@@ -72,6 +72,7 @@ class ChooseLibraryAction(InterfaceAction):
     name = 'Choose Library'
     action_spec = (_('%d books'), 'lt.png',
             _('Choose calibre library to work with'), None)
+    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
 
     def genesis(self):
         self.count_changed(0)

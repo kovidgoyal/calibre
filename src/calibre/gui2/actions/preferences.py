@@ -15,6 +15,7 @@ class PreferencesAction(InterfaceAction):
 
     name = 'Preferences'
     action_spec = (_('Preferences'), 'config.svg', None, _('Ctrl+P'))
+    dont_remove_from = frozenset(['toolbar'])
 
     def genesis(self):
         pm = QMenu()

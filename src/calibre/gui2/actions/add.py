@@ -22,7 +22,9 @@ from calibre.gui2.actions import InterfaceAction
 class AddAction(InterfaceAction):
 
     name = 'Add Books'
-    action_spec = (_('Add books'), 'add_book.svg', None, _('A'))
+    action_spec = (_('Add books'), 'add_book.svg',
+            _('Add books to the calibre library/device from files on your computer')
+            , _('A'))
 
     def genesis(self):
         self._add_filesystem_book = self.Dispatcher(self.__add_filesystem_book)
