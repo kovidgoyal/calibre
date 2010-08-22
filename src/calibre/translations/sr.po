@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-20 20:19+0000\n"
-"PO-Revision-Date: 2010-08-20 21:39+0000\n"
-"Last-Translator: Vladimir Oka <Unknown>\n"
+"PO-Revision-Date: 2010-08-22 03:39+0000\n"
+"Last-Translator: Rancher <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-21 03:52+0000\n"
+"X-Launchpad-Export-Date: 2010-08-22 03:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
-msgstr "Ne radi baš ništa"
+msgstr "Не ради баш ништа"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:72
@@ -148,31 +148,31 @@ msgstr "Ne radi baš ništa"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:50
 msgid "Unknown"
-msgstr "Nepoznato"
+msgstr "Непознато"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:64
 msgid "Base"
-msgstr "Osnova"
+msgstr "Основа"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:172
 msgid "File type"
-msgstr "Tip fajla"
+msgstr "Тип датотеке"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:206
 msgid "Metadata reader"
-msgstr "Čitač metapodataka"
+msgstr "Читач метаподатака"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:235
 msgid "Metadata writer"
-msgstr "Pisač metapodataka"
+msgstr "Писач метаподатака"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:263
 msgid "Catalog generator"
-msgstr "Generator kataloga"
+msgstr "Генератор каталога"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:359
 msgid "User Interface Action"
-msgstr "Akcija korisničkog interfejsa"
+msgstr "Радња корисничког сучеља"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:16
 msgid ""
@@ -180,16 +180,17 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Prati sve linkove u HTML fajlu i napravi ZIP fajl koji sadrži sve povezane "
-"fajlove. Ovaj dodatak se pokreće svaki put kad dodate HTML fajl u biblioteku."
+"Прати све везе у HTML датотеци и направи ZIP архиву која садржи све повезане "
+"датотеке. Овај додатак се покреће сваки пут када додате HTML датотеку у "
+"библиотеку."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:52
 msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
-"Kodni raspored za ulazne HTML fajlove. Najčešće korišćeni kodni rasporedi "
-"su: cp1252, latin1, iso-8859-1 i utf-8."
+"Кодни распоред за улазне HTML датотеке. Најчешће коришћени кодни распореди "
+"су: Windows-1252 (CP1252), Latin-1, ISO-8859 и UTF-8."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:59
 msgid ""

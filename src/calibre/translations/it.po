@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-08-20 20:19+0000\n"
-"PO-Revision-Date: 2010-08-20 21:14+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-08-21 14:12+0000\n"
+"Last-Translator: MeltingShell <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-21 03:51+0000\n"
+"X-Launchpad-Export-Date: 2010-08-22 03:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -768,7 +768,7 @@ msgstr "Comunica con il Sweex MM300."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Kogan"
-msgstr ""
+msgstr "Comunica con il Kogan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:87
 msgid "Communicate with the Pandigital Novel"
@@ -1708,7 +1708,7 @@ msgstr "Creazione in corso"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 msgid "Failed to parse: %s with error: %s"
-msgstr ""
+msgstr "Analisi fallita: %s con errore: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
@@ -3485,10 +3485,12 @@ msgstr "Non permesso"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:179
 msgid "You cannot change libraries when a device is connected."
 msgstr ""
+"Non è possibile cambiare biblioteca quando un dispositivo è connesso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:184
 msgid "You cannot change libraries while jobs are running."
 msgstr ""
+"Non è possibile cambiare biblioteca quando ci sono dei lavori in corso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "C"
@@ -3516,32 +3518,32 @@ msgstr "Conversione di %d libri avviata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:63
 msgid "Copy to library"
-msgstr ""
+msgstr "Copia nella biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:64
 msgid "Copy selected books to the specified library"
-msgstr ""
+msgstr "Copia i libri selezionati nella biblioteca specificata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:97
 msgid "Cannot copy"
-msgstr ""
+msgstr "Impossibile copiare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:102
 msgid "No library"
-msgstr ""
+msgstr "Nessuna biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:103
 msgid "No library found at %s"
-msgstr ""
+msgstr "Nessuna biblioteca trovata in %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:110
 msgid "Copying"
-msgstr ""
+msgstr "Copia in corso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:120
 msgid "Could not copy books: "
-msgstr ""
+msgstr "Impossibile copiare i libri: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:678
@@ -3551,7 +3553,7 @@ msgstr "Fallito"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:123
 msgid "Copied %d books to %s"
-msgstr ""
+msgstr "Copiati %d libri in %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:18
 msgid "Del"
@@ -4520,6 +4522,11 @@ msgid ""
 "- A regex pattern of a single dot excludes all genre tags, generating no "
 "Genre Section"
 msgstr ""
+"Suggerimenti modello:\n"
+"- Il modello predefinito - \\[.+\\] - esclude i tag di genere nella forma "
+"[tag], ad esempio [Amazon Freebie]\n"
+"- Un modello con un punto singolo esclude tutti i tag di genere, generando "
+"una sezione senza genere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:76
 msgid "Include 'Titles' Section"
@@ -5864,7 +5871,7 @@ msgstr "&Incolla dagli appunti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:68
 msgid "Fit &cover within view"
-msgstr ""
+msgstr "Adatta &copertina nella visuale"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:69
 msgid "&Previous"
@@ -6576,7 +6583,7 @@ msgstr "&Aspetto interfaccia grafica (richiede riavvio):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:640
 msgid "Restriction to apply when the current library is opened:"
-msgstr ""
+msgstr "Restrizione da applicare quando la biblioteca attuale è aperta:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:641
 msgid ""
@@ -6584,6 +6591,9 @@ msgid ""
 "used. Also applied when switching to this library. Note that this setting is "
 "per library. "
 msgstr ""
+"Applica questa restrizione all'avvio di calibre se la biblioteca attuale è "
+"in uso. Applica anche quando si seleziona questa biblioteca. Questa "
+"impostazione vale per biblioteca. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:642
 msgid "Disable all animations. Useful if you have a slow/old computer."
@@ -6753,7 +6763,7 @@ msgstr "Elementi OPDS &sparsi massimi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:675
 msgid "Restriction (saved search) to apply:"
-msgstr ""
+msgstr "Restrizione (ricerche salvate) da applicare:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:676
 msgid ""
@@ -6761,6 +6771,10 @@ msgid ""
 "content server makes available to those matching the search. This setting is "
 "per library (i.e. you can have a different restriction per library)."
 msgstr ""
+"Questa restrizione (basata sulle ricerche salvate) limiterà i libri "
+"corrispondenti alla ricerca che il server di contenuti metterà a "
+"disposizione. Questa impostazione è per biblioteca (cioè è possibile avere "
+"più restrizioni per biblioteca)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:677
 msgid "&Start Server"
@@ -7065,47 +7079,47 @@ msgstr "Scaricamento dei metadati sociali, attendere..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:50
 msgid "Separator"
-msgstr ""
+msgstr "Separatore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:63
 msgid "Choose library"
-msgstr ""
+msgstr "Seleziona biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:113
 msgid "The main toolbar"
-msgstr ""
+msgstr "La barra degli strumenti principale"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:114
 msgid "The main toolbar when a device is connected"
-msgstr ""
+msgstr "La barra degli strumenti principale quando un dispositivo è connesso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:115
 msgid "The context menu for the books in the calibre library"
-msgstr ""
+msgstr "Il menu contestuale per i libri nella biblioteca calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:117
 msgid "The context menu for the books on the device"
-msgstr ""
+msgstr "Il menu contestuale per i libri sul dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:94
 msgid "Customize the actions in:"
-msgstr ""
+msgstr "Personalizza le azioni in:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:95
 msgid "A&vailable actions"
-msgstr ""
+msgstr "Azioni &disponibili"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:96
 msgid "&Current actions"
-msgstr ""
+msgstr "Azioni &attuali"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:97
 msgid "Move selected action up"
-msgstr ""
+msgstr "Sposta azioni selezionate in alto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:99
 msgid "Move selected action down"
-msgstr ""
+msgstr "Sposta azioni selezionate in basso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:78
@@ -7114,11 +7128,11 @@ msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:102
 msgid "Add selected actions to toolbar"
-msgstr ""
+msgstr "Aggiungi azioni selezionate alla barra degli strumenti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:104
 msgid "Remove selected actions from toolbar"
-msgstr ""
+msgstr "Elimina azioni selezionate dalla barra degli strumenti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:50
 msgid "&Show this warning again"
@@ -7292,6 +7306,8 @@ msgstr "Modifica metadati per <b>%d libri</b>"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:222
 msgid "Applying changes to %d books. This may take a while."
 msgstr ""
+"Applicazione delle modifiche a %d libri. Questa operazione impiegherà "
+"qualche minuto."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:157
 msgid "Edit Meta information"
@@ -8517,11 +8533,11 @@ msgstr "Lavori:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:285
 msgid "Shift+Alt+J"
-msgstr ""
+msgstr "Shift+Alt+J"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:302
 msgid "Click to see list of jobs"
-msgstr ""
+msgstr "Fare clic per vedere la lista dei lavori"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:371
 msgid " - Jobs"
@@ -10840,38 +10856,48 @@ msgid ""
 "    replaced.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog saved_searches [opzioni] list\n"
+"    %prog saved_searches add nome ricerca\n"
+"    %prog saved_searches remove nome\n"
+"\n"
+"    Gestisce le ricerche salvate presenti in questo database.\n"
+"    Inserendo una ricerca già presente, questa verrà sostituita con la "
+"nuova.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:821
 msgid "Error: You must specify an action (add|remove|list)"
-msgstr ""
+msgstr "Errore: Specificare un'azione (add|remove|list)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:829
 msgid "Name:"
-msgstr ""
+msgstr "Nome:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:830
 msgid "Search string:"
-msgstr ""
+msgstr "Stringa di ricerca:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:836
 msgid "Error: You must specify a name and a search string"
-msgstr ""
+msgstr "Errore: Specificare un nome e una stringa di ricerca"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:839
 msgid "added"
-msgstr ""
+msgstr "aggiunto"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:844
 msgid "Error: You must specify a name"
-msgstr ""
+msgstr "Errore: Specificare un nome"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:847
 msgid "removed"
-msgstr ""
+msgstr "rimosso"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:851
 msgid "Error: Action %s not recognized, must be one of: (add|remove|list)"
 msgstr ""
+"Errore: Azione %s non riconosciuta, deve essere una tra: (add|remove|list)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:865
 msgid ""
@@ -11172,10 +11198,13 @@ msgid ""
 "Specifies a restriction to be used for this invocation. This option "
 "overrides any per-library settings specified in the GUI"
 msgstr ""
+"Specifica una restrizione da usare per questa chiamata. Questa opzione "
+"sovrascrive ogni impostazione per biblioteca specificata nell'interfaccia "
+"grafica"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:110
 msgid "%d book"
-msgstr ""
+msgstr "%d libro"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:129
 msgid "%d items"

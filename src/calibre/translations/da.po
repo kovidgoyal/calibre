@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-20 20:19+0000\n"
-"PO-Revision-Date: 2010-08-20 22:43+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-08-21 08:43+0000\n"
+"Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-21 03:49+0000\n"
+"X-Launchpad-Export-Date: 2010-08-22 03:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -765,7 +765,7 @@ msgstr "Kommunikér med Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Kogan"
-msgstr ""
+msgstr "Kommunikér med Kogan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:87
 msgid "Communicate with the Pandigital Novel"
@@ -1677,7 +1677,7 @@ msgstr "Opretter"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 msgid "Failed to parse: %s with error: %s"
-msgstr ""
+msgstr "Fejlede med at parse: %s med fejl: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
@@ -3159,7 +3159,7 @@ msgid ""
 "directory, assumes every ebook file is the same book in a different format)"
 msgstr ""
 "Tilføj bøger fra mapper, inklusiv undermapper (Én e-bog per mappe, formoder "
-"hver e-bogsfil er den samme e-bog i forskellge formater)"
+"hver e-bogsfil er den samme e-bog i forskellige formater)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:36
 msgid ""
@@ -3455,24 +3455,24 @@ msgstr "Kopiér udvalgte bøger til det angivne bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:97
 msgid "Cannot copy"
-msgstr ""
+msgstr "Kan ikke kopiere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:102
 msgid "No library"
-msgstr ""
+msgstr "Intet bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:103
 msgid "No library found at %s"
-msgstr ""
+msgstr "Intet bibliotek fundet ved %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:110
 msgid "Copying"
-msgstr ""
+msgstr "Kopiérer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:120
 msgid "Could not copy books: "
-msgstr ""
+msgstr "Kunne ikke kopiere bøger: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:678
@@ -3482,7 +3482,7 @@ msgstr "Fejlede"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:123
 msgid "Copied %d books to %s"
-msgstr ""
+msgstr "Kopiéret %d bøger til %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:18
 msgid "Del"
@@ -6983,27 +6983,27 @@ msgstr "Downloader sociale metadata, vent venligst..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:50
 msgid "Separator"
-msgstr ""
+msgstr "Separator"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:63
 msgid "Choose library"
-msgstr ""
+msgstr "Vælg bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:113
 msgid "The main toolbar"
-msgstr ""
+msgstr "Hovedværktøjslinjen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:114
 msgid "The main toolbar when a device is connected"
-msgstr ""
+msgstr "Hovedværktøjslinjen når en enhed er forbundet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:115
 msgid "The context menu for the books in the calibre library"
-msgstr ""
+msgstr "Kontekstmenuen til bøgerne i calibre-biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:117
 msgid "The context menu for the books on the device"
-msgstr ""
+msgstr "Kontekstmenuen til bøgerne i enheden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:94
 msgid "Customize the actions in:"
@@ -7011,19 +7011,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:95
 msgid "A&vailable actions"
-msgstr ""
+msgstr "&Tilgængelige aktioner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:96
 msgid "&Current actions"
-msgstr ""
+msgstr "&Aktuelle aktioner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:97
 msgid "Move selected action up"
-msgstr ""
+msgstr "Flyt udvalgte aktion op"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:99
 msgid "Move selected action down"
-msgstr ""
+msgstr "Flyt udvalgte aktion ned"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:78
@@ -7032,11 +7032,11 @@ msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:102
 msgid "Add selected actions to toolbar"
-msgstr ""
+msgstr "Tilføj udvalgte aktioner til værktøjslinjen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:104
 msgid "Remove selected actions from toolbar"
-msgstr ""
+msgstr "Fjern udvalgte aktioner fra værktøjslinjen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:50
 msgid "&Show this warning again"
@@ -10713,35 +10713,35 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:821
 msgid "Error: You must specify an action (add|remove|list)"
-msgstr ""
+msgstr "Fejl: Du skal angive en aktion (tilføj|fjern|liste)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:829
 msgid "Name:"
-msgstr ""
+msgstr "Navn:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:830
 msgid "Search string:"
-msgstr ""
+msgstr "Søgestreng:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:836
 msgid "Error: You must specify a name and a search string"
-msgstr ""
+msgstr "Fejl: Du skal angive et navn og en søgestreng"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:839
 msgid "added"
-msgstr ""
+msgstr "tilføjet"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:844
 msgid "Error: You must specify a name"
-msgstr ""
+msgstr "Fejl: Du skal angive et navn"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:847
 msgid "removed"
-msgstr ""
+msgstr "fjernet"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:851
 msgid "Error: Action %s not recognized, must be one of: (add|remove|list)"
-msgstr ""
+msgstr "Fejl: Aktion %s ikke genkendt, skal være en af: (tilføj|fjern|liste)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:865
 msgid ""
@@ -11038,7 +11038,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:110
 msgid "%d book"
-msgstr ""
+msgstr "%d bog"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:129
 msgid "%d items"
