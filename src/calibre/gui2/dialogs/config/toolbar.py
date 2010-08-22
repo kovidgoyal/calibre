@@ -11,21 +11,7 @@ from PyQt4.Qt import QWidget, QAbstractListModel, Qt, QIcon, \
         QVariant, QItemSelectionModel
 
 from calibre.gui2.dialogs.config.toolbar_ui import Ui_Form
-from calibre.gui2.layout import TOOLBAR_NO_DEVICE, TOOLBAR_DEVICE
-from calibre.gui2.init import LIBRARY_CONTEXT_MENU, DEVICE_CONTEXT_MENU
 from calibre.gui2 import gprefs, NONE, warning_dialog
-
-DEFAULTS = {
-        'toolbar': TOOLBAR_NO_DEVICE,
-        'toolbar-device': TOOLBAR_DEVICE,
-        'context-menu': LIBRARY_CONTEXT_MENU,
-        'context-menu-device': DEVICE_CONTEXT_MENU,
-}
-
-UNREMOVABLE = {
-        'toolbar': ['Preferences'],
-        'toolbar-device': ['Send To Device', 'Location Manager'],
-}
 
 
 class FakeAction(object):
@@ -86,7 +72,7 @@ class AllModel(BaseModel):
 
     def __init__(self, key, gui):
         BaseModel.__init__(self)
-        current = gprefs.get('action-layout-'+key, DEFAULTS[key])
+        current = gprefs['action-layout-'+key]
         all = list(gui.iactions.keys()) + ['Donate']
         all = [x for x in all if x not in current] + [None]
         all = [self.name_to_action(x, gui) for x in all]
@@ -125,7 +111,7 @@ class CurrentModel(BaseModel):
 
     def __init__(self, key, gui):
         BaseModel.__init__(self)
-        current = gprefs.get('action-layout-'+key, DEFAULTS[key])
+        current = gprefs['action-layout-'+key]
         self._data =  [self.name_to_action(x, gui) for x in current]
         self.key = key
         self.gui = gui
