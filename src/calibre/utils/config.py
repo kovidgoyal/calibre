@@ -496,6 +496,7 @@ class DynamicConfig(dict):
     def __init__(self, name='dynamic'):
         dict.__init__(self, {})
         self.name = name
+        self.defaults = {}
         self.file_path = os.path.join(config_dir, name+'.pickle')
         self.refresh()
 
@@ -520,7 +521,13 @@ class DynamicConfig(dict):
         try:
             return dict.__getitem__(self, key)
         except KeyError:
-            return None
+            return self.defaults.get(key, None)
+
+    def get(self, key, default=None):
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            return self.defaults.get(key, default)
 
     def __setitem__(self, key, val):
         dict.__setitem__(self, key, val)
@@ -555,6 +562,7 @@ class XMLConfig(dict):
 
     def __init__(self, rel_path_to_cf_file):
         dict.__init__(self)
+        self.defaults = {}
         self.file_path = os.path.join(config_dir,
                 *(rel_path_to_cf_file.split('/')))
         self.file_path = os.path.abspath(self.file_path)
@@ -592,7 +600,16 @@ class XMLConfig(dict):
                 ans = ans.data
             return ans
         except KeyError:
-            return None
+            return self.defaults.get(key, None)
+
+    def get(self, key, default=None):
+        try:
+            ans = dict.__getitem__(self, key)
+            if isinstance(ans, plistlib.Data):
+                ans = ans.data
+            return ans
+        except KeyError:
+            return self.defaults.get(key, default)
 
     def __setitem__(self, key, val):
         if isinstance(val, (bytes, str)):
@@ -648,7 +665,16 @@ class JSONConfig(XMLConfig):
         return json.dumps(self, indent=2, default=to_json)
 
     def __getitem__(self, key):
-        return dict.__getitem__(self, key)
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            return self.defaults[key]
+
+    def get(self, key, default=None):
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            return self.defaults.get(key, default)
 
     def __setitem__(self, key, val):
         dict.__setitem__(self, key, val)
