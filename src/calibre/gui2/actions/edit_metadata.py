@@ -16,6 +16,7 @@ from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.dialogs.progress import BlockingBusy
 
 class EditMetadataAction(InterfaceAction):
 
@@ -95,18 +96,19 @@ class EditMetadataAction(InterfaceAction):
             x = _('social metadata')
         else:
             x = _('covers') if covers and not set_metadata else _('metadata')
-        self.gui.progress_indicator.start(
-            _('Downloading %s for %d book(s)')%(x, len(ids)))
         self._book_metadata_download_check = QTimer(self.gui)
         self._book_metadata_download_check.timeout.connect(self.book_metadata_download_check,
                 type=Qt.QueuedConnection)
         self._book_metadata_download_check.start(100)
+        self._bb_dialog = BlockingBusy(_('Downloading %s for %d book(s)')%(x,
+            len(ids)), parent=self.gui)
+        self._bb_dialog.exec_()
 
     def book_metadata_download_check(self):
         if self._download_book_metadata.is_alive():
             return
         self._book_metadata_download_check.stop()
-        self.gui.progress_indicator.stop()
+        self._bb_dialog.accept()
         cr = self.gui.library_view.currentIndex().row()
         x = self._download_book_metadata
         self._download_book_metadata = None
@@ -174,8 +176,14 @@ class EditMetadataAction(InterfaceAction):
                     _('No books selected'))
             d.exec_()
             return
-        if MetadataBulkDialog(self.gui, rows,
-                self.gui.library_view.model().db).changed:
+        # Prevent the TagView from updating due to signals from the database
+        self.gui.tags_view.blockSignals(True)
+        try:
+            changed = MetadataBulkDialog(self.gui, rows,
+                self.gui.library_view.model().db).changed
+        finally:
+            self.gui.tags_view.blockSignals(False)
+        if changed:
             self.gui.library_view.model().resort(reset=False)
             self.gui.library_view.model().research()
             self.gui.tags_view.recount()

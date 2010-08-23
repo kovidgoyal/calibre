@@ -16,7 +16,7 @@ class PluginWidget(QWidget,Ui_Form):
 
     TITLE = _('E-book options')
     HELP  = _('Options specific to')+' EPUB/MOBI '+_('output')
-    OPTION_FIELDS = [('exclude_genre','\[[\w ]*\]'),
+    OPTION_FIELDS = [('exclude_genre','\[.+\]'),
                      ('exclude_tags','~,'+_('Catalog')),
                      ('generate_titles', True),
                      ('generate_recently_added', True),

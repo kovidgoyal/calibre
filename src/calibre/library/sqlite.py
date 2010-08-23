@@ -13,10 +13,12 @@ from threading import Thread
 from Queue import Queue
 from threading import RLock
 from datetime import datetime
+from functools import partial
 
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, isoformat
+from calibre import isbytestring
 
 global_lock = RLock()
 
@@ -98,6 +100,19 @@ def _author_to_author_sort(x):
     if not x: return ''
     return author_to_author_sort(x.replace('|', ','))
 
+def pynocase(one, two, encoding='utf-8'):
+    if isbytestring(one):
+        try:
+            one = one.decode(encoding, 'replace')
+        except:
+            pass
+    if isbytestring(two):
+        try:
+            two = two.decode(encoding, 'replace')
+        except:
+            pass
+    return cmp(one.lower(), two.lower())
+
 class DBThread(Thread):
 
     CLOSE = '-------close---------'
@@ -115,10 +130,13 @@ class DBThread(Thread):
     def connect(self):
         self.conn = sqlite.connect(self.path, factory=Connection,
                                    detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
+        encoding = self.conn.execute('pragma encoding').fetchone()[0]
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
         self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
         self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
+        self.conn.create_collation('PYNOCASE', partial(pynocase,
+            encoding=encoding))
         if tweaks['title_series_sorting'] == 'strictly_alphabetic':
             self.conn.create_function('title_sort', 1, lambda x:x)
         else:

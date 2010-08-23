@@ -1,0 +1,69 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1282101454(BasicNewsRecipe):
+    title = 'The AJC'
+    language = 'en'
+    __author__ = 'TonytheBookworm'
+    description = 'News from Atlanta and USA'
+    publisher = 'The Atlanta Journal'
+    category = 'news, politics, USA'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    extra_css = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt }'
+    masthead_url = 'http://gawand.org/wp-content/uploads/2010/06/ajc-logo.gif'
+    keep_only_tags    = [
+                       dict(name='div', attrs={'id':['cxArticleContent']})
+                       ,dict(attrs={'id':['cxArticleText','cxArticleBodyText']})
+                        ]
+    feeds          = [
+                      ('Breaking News', 'http://www.ajc.com/genericList-rss.do?source=61499'),
+                      # -------------------------------------------------------------------
+                      # Here are the different area feeds. Choose which ever one you wish to
+                      # read by simply removing the pound sign from it.  I currently have it
+                      # set to only get the Cobb area
+                      # --------------------------------------------------------------------
+                      ('Atlanta & Fulton', 'http://www.ajc.com/section-rss.do?source=atlanta'),
+                      #('Clayton', 'http://www.ajc.com/section-rss.do?source=clayton'),
+                      #('DeKalb', 'http://www.ajc.com/section-rss.do?source=dekalb'),
+                      #('Gwinnett', 'http://www.ajc.com/section-rss.do?source=gwinnett'),
+                      #('North Fulton', 'http://www.ajc.com/section-rss.do?source=north-fulton'),
+                      #('Metro', 'http://www.ajc.com/section-rss.do?source=news'),
+                      #('Cherokee', 'http://www.ajc.com/section-rss.do?source=cherokee'),
+                       ('Cobb', 'http://www.ajc.com/section-rss.do?source=cobb'),
+                      #('Fayette', 'http://www.ajc.com/section-rss.do?source=fayette'),
+                      #('Henry', 'http://www.ajc.com/section-rss.do?source=henry'),
+                      #('Q & A', 'http://www.ajc.com/genericList-rss.do?source=77197'),
+                       ('Opinions', 'http://www.ajc.com/section-rss.do?source=opinion'),
+                       ('Ga Politics', 'http://www.ajc.com/section-rss.do?source=georgia-politics-elections'),
+                      # ------------------------------------------------------------------------
+                      # Here are the different sports feeds. I only follow the Falcons, and Highschool
+                      # but again
+                      # You can enable which ever team you like by removing the pound sign
+                      # ------------------------------------------------------------------------
+                      ('Sports News', 'http://www.ajc.com/genericList-rss.do?source=61510'),
+                      #('Braves', 'http://www.ajc.com/genericList-rss.do?source=61457'),
+                       ('Falcons', 'http://www.ajc.com/genericList-rss.do?source=61458'),
+                      #('Hawks', 'http://www.ajc.com/genericList-rss.do?source=61522'),
+                      #('Dawgs', 'http://www.ajc.com/genericList-rss.do?source=61492'),
+                      #('Yellowjackets', 'http://www.ajc.com/genericList-rss.do?source=61523'),
+                       ('Highschool', 'http://www.ajc.com/section-rss.do?source=high-school'),
+                       ('Events', 'http://www.accessatlanta.com/section-rss.do?source=events'),
+                       ('Music', 'http://www.accessatlanta.com/section-rss.do?source=music'),
+                    ]
+
+
+
+
+    def print_version(self, url):
+        return url.partition('?')[0] +'?printArticle=y'
+
+
+
+
+
+
+
+
+
+

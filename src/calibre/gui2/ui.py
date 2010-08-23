@@ -195,7 +195,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         UpdateMixin.__init__(self, opts)
 
         ####################### Search boxes ########################
-        SavedSearchBoxMixin.__init__(self, db)
+        SavedSearchBoxMixin.__init__(self)
         SearchBoxMixin.__init__(self)
 
         ####################### Library view ########################
@@ -230,6 +230,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         ######################### Search Restriction ##########################
         SearchRestrictionMixin.__init__(self)
+        self.apply_named_search_restriction(db.prefs.get('gui_restriction', ''))
 
         ########################### Cover Flow ################################
 
@@ -371,6 +372,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         for action in self.iactions.values():
             action.library_changed(db)
         self.set_window_title()
+        self.apply_named_search_restriction('') # reset restriction to null
+        self.saved_searches_changed() # reload the search restrictions combo box
+        self.apply_named_search_restriction(db.prefs.get('gui_restriction', ''))
 
     def set_window_title(self):
         self.setWindowTitle(__appname__ + u' - ||%s||'%self.iactions['Choose Library'].library_name())

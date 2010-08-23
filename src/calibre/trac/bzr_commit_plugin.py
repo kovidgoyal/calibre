@@ -112,6 +112,6 @@ class cmd_commit(_cmd_commit):
         server = xmlrpclib.ServerProxy(url)
         server.ticket.update(int(bug), msg,
                              {'status':'closed', 'resolution':'fixed'},
-                             False)
+                             True)
 
 bzrlib.commands.register_command(cmd_commit)

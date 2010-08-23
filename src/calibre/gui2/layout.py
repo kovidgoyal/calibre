@@ -19,19 +19,6 @@ from calibre.gui2 import config, gprefs
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre import human_readable
 
-TOOLBAR_NO_DEVICE = (
-        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-        'Choose Library', 'Donate', None, 'Fetch News', 'Save To Disk',
-        'Connect Share', None, 'Remove Books', None, 'Help', 'Preferences',
-        )
-
-TOOLBAR_DEVICE = (
-        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
-        'Send To Device', None, None, 'Location Manager', None, None,
-        'Fetch News', 'Save To Disk', 'Connect Share', None,
-        'Remove Books', None, 'Help', 'Preferences',
-        )
-
 class LocationManager(QObject): # {{{
 
     locations_changed = pyqtSignal()
@@ -248,7 +235,8 @@ class ToolBar(QToolBar): # {{{
 
     def build_bar(self):
         showing_device = self.location_manager.has_device
-        actions = TOOLBAR_DEVICE if showing_device else TOOLBAR_NO_DEVICE
+        actions = '-device' if showing_device else ''
+        actions = gprefs['action-layout-toolbar'+actions]
 
         self.clear()
 

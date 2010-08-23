@@ -20,7 +20,7 @@ class ANDROID(USBMS):
     VENDOR_ID   = {
             # HTC
             0x0bb4 : { 0x0c02 : [0x100, 0x0227], 0x0c01 : [0x100, 0x0227], 0x0ff9
-                : [0x0100, 0x0227, 0x0226]},
+                : [0x0100, 0x0227, 0x0226], 0x0c87: [0x0100, 0x0227, 0x0226]},
 
             # Motorola
             0x22b8 : { 0x41d9 : [0x216], 0x2d67 : [0x100], 0x41db : [0x216],
@@ -55,9 +55,9 @@ class ANDROID(USBMS):
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
-            '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD',
+            '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID']
-    WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD',
+    WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID']
 
     OSX_MAIN_MEM = 'HTC Android Phone Media'

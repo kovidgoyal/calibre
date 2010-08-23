@@ -14,6 +14,8 @@ from calibre.utils.zipfile import ZipFile
 from calibre.utils.logging import default_log
 from calibre.customize.ui import epub_fixers
 from calibre.ebooks.epub.fix.container import Container
+from calibre.ebooks.epub.fix import ParseError
+
 
 def option_parser():
     parser = OptionParser(usage=_(
@@ -50,7 +52,11 @@ def main(args=sys.argv):
         default_log.error(_('You must specify an epub file'))
         return
     epub = os.path.abspath(args[1])
-    run(epub, opts, default_log)
+    try:
+        run(epub, opts, default_log)
+    except ParseError, err:
+        default_log.error(unicode(err))
+        raise SystemExit(1)
 
 if __name__ == '__main__':
     main()

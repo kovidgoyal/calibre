@@ -26,7 +26,7 @@ from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
-
+from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.utils.config import prefs, tweaks
@@ -116,6 +116,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # so that various code taht connects directly will not complain about
         # missing functions
         self.books_list_filter = self.conn.create_dynamic_filter('books_list_filter')
+        # Store temporary tables in memory
+        self.conn.execute('pragma temp_store=2')
+        self.conn.commit()
 
     @classmethod
     def exists_at(cls, path):
@@ -293,6 +296,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.book_on_device_func = None
         self.data    = ResultCache(self.FIELD_MAP, self.field_metadata)
         self.search  = self.data.search
+        self.search_getting_ids  = self.data.search_getting_ids
         self.refresh = functools.partial(self.data.refresh, self)
         self.sort    = self.data.sort
         self.index   = self.data.index
@@ -385,7 +389,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             path = path.lower()
         return path
 
-    def set_path(self, index, index_is_id=False):
+    def set_path(self, index, index_is_id=False, commit=True):
         '''
         Set the path to the directory containing this books files based on its
         current title and author. If there was a previous directory, its contents
@@ -424,7 +428,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 stream = cStringIO.StringIO(f)
                 self.add_format(id, format, stream, index_is_id=True, path=tpath)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
-        self.conn.commit()
+        if commit:
+            self.conn.commit()
         self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
         # Delete not needed directories
         if current_path and os.path.exists(spath):
@@ -725,7 +730,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('delete', [id])
 
-    def remove_format(self, index, format, index_is_id=False, notify=True):
+    def remove_format(self, index, format, index_is_id=False, notify=True, commit=True):
         id = index if index_is_id else self.id(index)
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
         if name:
@@ -735,7 +740,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except:
                 traceback.print_exc()
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
-            self.conn.commit()
+            if commit:
+                self.conn.commit()
             self.refresh_ids([id])
             if notify:
                 self.notify('metadata', [id])
@@ -1012,7 +1018,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.series:
             doit(self.set_series, id, mi.series, notify=False)
         if mi.cover_data[1] is not None:
-            doit(self.set_cover, id, mi.cover_data[1])
+            doit(self.set_cover, id, mi.cover_data[1]) # doesn't use commit
         elif mi.cover is not None and os.access(mi.cover, os.R_OK):
             doit(self.set_cover, id, open(mi.cover, 'rb'))
         if mi.tags:
@@ -1088,7 +1094,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                    (id, aid))
             except IntegrityError: # Sometimes books specify the same author twice in their metadata
                 pass
-        self.conn.commit()
         ss = self.author_sort_from_book(id, index_is_id=True)
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?',
                           (ss, id))
@@ -1117,24 +1122,26 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('metadata', [id])
 
-    def set_timestamp(self, id, dt, notify=True):
+    def set_timestamp(self, id, dt, notify=True, commit=True):
         if dt:
             self.conn.execute('UPDATE books SET timestamp=? WHERE id=?', (dt, id))
             self.data.set(id, self.FIELD_MAP['timestamp'], dt, row_is_id=True)
-            self.conn.commit()
+            if commit:
+                self.conn.commit()
             if notify:
                 self.notify('metadata', [id])
 
-    def set_pubdate(self, id, dt, notify=True):
+    def set_pubdate(self, id, dt, notify=True, commit=True):
         if dt:
             self.conn.execute('UPDATE books SET pubdate=? WHERE id=?', (dt, id))
             self.data.set(id, self.FIELD_MAP['pubdate'], dt, row_is_id=True)
-            self.conn.commit()
+            if commit:
+                self.conn.commit()
             if notify:
                 self.notify('metadata', [id])
 
 
-    def set_publisher(self, id, publisher, notify=True):
+    def set_publisher(self, id, publisher, notify=True, commit=True):
         self.conn.execute('DELETE FROM books_publishers_link WHERE book=?',(id,))
         self.conn.execute('DELETE FROM publishers WHERE (SELECT COUNT(id) FROM books_publishers_link WHERE publisher=publishers.id) < 1')
         if publisher:
@@ -1146,7 +1153,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 aid = self.conn.execute('INSERT INTO publishers(name) VALUES (?)', (publisher,)).lastrowid
             self.conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, aid))
-            self.conn.commit()
+            if commit:
+                self.conn.commit()
             self.data.set(id, self.FIELD_MAP['publisher'], publisher, row_is_id=True)
             if notify:
                 self.notify('metadata', [id])
@@ -1369,7 +1377,84 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return set([])
         return set([r[0] for r in result])
 
-    def set_tags(self, id, tags, append=False, notify=True):
+    @classmethod
+    def cleanup_tags(cls, tags):
+        tags = [x.strip() for x in tags if x.strip()]
+        tags = [x.decode(preferred_encoding, 'replace') \
+                    if isbytestring(x) else x for x in tags]
+        tags = [u' '.join(x.split()) for x in tags]
+        ans, seen = [], set([])
+        for tag in tags:
+            if tag.lower() not in seen:
+                seen.add(tag.lower())
+                ans.append(tag)
+        return ans
+
+    def bulk_modify_tags(self, ids, add=[], remove=[], notify=False):
+        add = self.cleanup_tags(add)
+        remove = self.cleanup_tags(remove)
+        remove = set(remove) - set(add)
+        if not ids or (not add and not remove):
+            return
+
+        # Add tags that do not already exist into the tag table
+        all_tags = self.all_tags()
+        lt = [t.lower() for t in all_tags]
+        new_tags = [t for t in add if t.lower() not in lt]
+        if new_tags:
+            self.conn.executemany('INSERT INTO tags(name) VALUES (?)', [(x,) for x in
+                new_tags])
+
+        # Create the temporary tables to store the ids for books and tags
+        # to be operated on
+        tables = ('temp_bulk_tag_edit_books', 'temp_bulk_tag_edit_add',
+                    'temp_bulk_tag_edit_remove')
+        drops = '\n'.join(['DROP TABLE IF EXISTS %s;'%t for t in tables])
+        creates = '\n'.join(['CREATE TEMP TABLE %s(id INTEGER PRIMARY KEY);'%t
+                for t in tables])
+        self.conn.executescript(drops + creates)
+
+        # Populate the books temp table
+        self.conn.executemany(
+            'INSERT INTO temp_bulk_tag_edit_books VALUES (?)',
+                [(x,) for x in ids])
+
+        # Populate the add/remove tags temp tables
+        for table, tags in enumerate([add, remove]):
+            if not tags:
+                continue
+            table = tables[table+1]
+            insert = ('INSERT INTO %s(id) SELECT tags.id FROM tags WHERE name=?'
+                     ' COLLATE PYNOCASE LIMIT 1')
+            self.conn.executemany(insert%table, [(x,) for x in tags])
+
+        if remove:
+            self.conn.execute(
+              '''DELETE FROM books_tags_link WHERE
+                    book IN (SELECT id FROM %s) AND
+                    tag IN (SELECT id FROM %s)'''
+              % (tables[0], tables[2]))
+
+        if add:
+            self.conn.execute(
+            '''
+            INSERT OR REPLACE INTO books_tags_link(book, tag) SELECT {0}.id, {1}.id FROM
+            {0}, {1}
+            '''.format(tables[0], tables[1])
+            )
+        self.conn.executescript(drops)
+        self.conn.commit()
+
+        for x in ids:
+            tags = u','.join(self.get_tags(x))
+            self.data.set(x, self.FIELD_MAP['tags'], tags, row_is_id=True)
+        if notify:
+            self.notify('metadata', ids)
+
+    def commit(self):
+        self.conn.commit()
+
+    def set_tags(self, id, tags, append=False, notify=True, commit=True):
         '''
         @param tags: list of strings
         @param append: If True existing tags are not removed
@@ -1378,10 +1463,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
             self.conn.execute('DELETE FROM tags WHERE (SELECT COUNT(id) FROM books_tags_link WHERE tag=tags.id) < 1')
         otags = self.get_tags(id)
-        tags = [x.strip() for x in tags if x.strip()]
-        tags = [x.decode(preferred_encoding, 'replace') if not isinstance(x,
-            unicode) else x for x in tags]
-        tags = [u' '.join(x.split()) for x in tags]
+        tags = self.cleanup_tags(tags)
         for tag in (set(tags)-otags):
             tag = tag.strip()
             if not tag:
@@ -1406,8 +1488,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         (id, tid), all=False):
                 self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)',
                               (id, tid))
-        self.conn.commit()
-        tags = ','.join(self.get_tags(id))
+        if commit:
+            self.conn.commit()
+        tags = u','.join(self.get_tags(id))
         self.data.set(id, self.FIELD_MAP['tags'], tags, row_is_id=True)
         if notify:
             self.notify('metadata', [id])
@@ -1445,7 +1528,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
                 self.conn.commit()
 
-    def set_series(self, id, series, notify=True):
+    def set_series(self, id, series, notify=True, commit=True):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
         self.conn.execute('DELETE FROM series WHERE (SELECT COUNT(id) FROM books_series_link WHERE series=series.id) < 1')
         if series:
@@ -1459,12 +1542,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
             self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
-        self.conn.commit()
+        if commit:
+            self.conn.commit()
         self.data.set(id, self.FIELD_MAP['series'], series, row_is_id=True)
         if notify:
             self.notify('metadata', [id])
 
-    def set_series_index(self, id, idx, notify=True):
+    def set_series_index(self, id, idx, notify=True, commit=True):
         if idx is None:
             idx = 1.0
         try:
@@ -1472,40 +1556,45 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         except:
             idx = 1.0
         self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (idx, id))
-        self.conn.commit()
+        if commit:
+            self.conn.commit()
         self.data.set(id, self.FIELD_MAP['series_index'], idx, row_is_id=True)
         if notify:
             self.notify('metadata', [id])
 
-    def set_rating(self, id, rating, notify=True):
+    def set_rating(self, id, rating, notify=True, commit=True):
         rating = int(rating)
         self.conn.execute('DELETE FROM books_ratings_link WHERE book=?',(id,))
         rat = self.conn.get('SELECT id FROM ratings WHERE rating=?', (rating,), all=False)
         rat = rat if rat else self.conn.execute('INSERT INTO ratings(rating) VALUES (?)', (rating,)).lastrowid
         self.conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rat))
-        self.conn.commit()
+        if commit:
+            self.conn.commit()
         self.data.set(id, self.FIELD_MAP['rating'], rating, row_is_id=True)
         if notify:
             self.notify('metadata', [id])
 
-    def set_comment(self, id, text, notify=True):
+    def set_comment(self, id, text, notify=True, commit=True):
         self.conn.execute('DELETE FROM comments WHERE book=?', (id,))
         self.conn.execute('INSERT INTO comments(book,text) VALUES (?,?)', (id, text))
-        self.conn.commit()
+        if commit:
+            self.conn.commit()
         self.data.set(id, self.FIELD_MAP['comments'], text, row_is_id=True)
         if notify:
             self.notify('metadata', [id])
 
-    def set_author_sort(self, id, sort, notify=True):
+    def set_author_sort(self, id, sort, notify=True, commit=True):
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?', (sort, id))
-        self.conn.commit()
+        if commit:
+            self.conn.commit()
         self.data.set(id, self.FIELD_MAP['author_sort'], sort, row_is_id=True)
         if notify:
             self.notify('metadata', [id])
 
-    def set_isbn(self, id, isbn, notify=True):
+    def set_isbn(self, id, isbn, notify=True, commit=True):
         self.conn.execute('UPDATE books SET isbn=? WHERE id=?', (isbn, id))
-        self.conn.commit()
+        if commit:
+            self.conn.commit()
         self.data.set(id, self.FIELD_MAP['isbn'], isbn, row_is_id=True)
         if notify:
             self.notify('metadata', [id])
@@ -1665,7 +1754,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return (paths, formats, metadata), len(ids)
         return None, len(ids)
 
-    def import_book(self, mi, formats, notify=True):
+    def import_book(self, mi, formats, notify=True, import_hooks=True):
         series_index = 1.0 if mi.series_index is None else mi.series_index
         if not mi.title:
             mi.title = _('Unknown')
@@ -1690,7 +1779,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             ext = os.path.splitext(path)[1][1:].lower()
             if ext == 'opf':
                 continue
-            self.add_format_with_hooks(id, ext, path, index_is_id=True)
+            if import_hooks:
+                self.add_format_with_hooks(id, ext, path, index_is_id=True)
+            else:
+                with open(path, 'rb') as f:
+                    self.add_format(id, ext, f, index_is_id=True)
         self.conn.commit()
         self.data.refresh_ids(self, [id]) # Needed to update format list and size
         if notify:
