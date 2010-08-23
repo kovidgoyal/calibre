@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-20 20:19+0000\n"
-"PO-Revision-Date: 2010-08-20 21:58+0000\n"
-"Last-Translator: Linda Polman <linda.polman@gmail.com>\n"
+"PO-Revision-Date: 2010-08-23 00:35+0000\n"
+"Last-Translator: Koen Mercken <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-22 03:44+0000\n"
+"X-Launchpad-Export-Date: 2010-08-23 03:54+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:365
@@ -659,7 +659,7 @@ msgstr "Communicatie met Elonex EB511 ebook reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
-msgstr "Communiceer met de IRex Illiad e-boek lezer."
+msgstr "Communiceer met de IRex Iliad e-boek lezer."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:18
@@ -765,7 +765,7 @@ msgstr "Communiceer met de Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Kogan"
-msgstr ""
+msgstr "Communiceer met de Kogan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:87
 msgid "Communicate with the Pandigital Novel"
@@ -905,7 +905,7 @@ msgstr "Gebruik de sortering op auteur instelling i.p.v. de auteur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:47
 msgid "Template to control how books are saved"
-msgstr "Sjabloon dat bepaald hoe boeken worden opgeslagen"
+msgstr "Sjabloon dat bepaalt hoe boeken worden opgeslagen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:84
@@ -1109,7 +1109,7 @@ msgid ""
 "experiment to see which format gives you optimal size and look on your "
 "device."
 msgstr ""
-"Het formaat dat de afbeeldingen in het gemaakte eboek naartoe worden "
+"Het formaat waarnaar afbeeldingen in het gemaakte eboek worden "
 "geconverteerd. U kunt experimenteren om te zien welk formaat de optimale "
 "grootte en visuele resultaten op uw apparaat genereren."
 
@@ -1639,7 +1639,7 @@ msgstr "Geef de uitgever op."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:457
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:60
 msgid "Set the series this ebook belongs to."
-msgstr "Geef de serie op waar dit eboek tot behoord."
+msgstr "Geef de serie op waar dit eboek toe behoort."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:461
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:62
@@ -1707,7 +1707,7 @@ msgstr "Aanmaken"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 msgid "Failed to parse: %s with error: %s"
-msgstr ""
+msgstr "Bewerking mislukt: %s met fout: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
@@ -1789,10 +1789,10 @@ msgid ""
 "turn off splitting on page breaks."
 msgstr ""
 "Deactiveer het splitsen op pagina eind. Normaal gesproken invoer bestanden "
-"worden automaitsch opgesplitst in twee bestanden bij iedere pagina einde. "
+"worden automatisch opgesplitst in twee bestanden bij iedere pagina einde. "
 "Dit resulteert in een eboek bestand dat sneller verwerkt kan worden met "
 "minder werk voor het systeem. Echter, het splitsen zelf is langzaam, en als "
-"je bron bestand een groot aantal paginas bevat dan kun je deze splitsing "
+"je bronbestand een groot aantal pagina's bevat dan kun je deze splitsing "
 "uitschakelen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:73
@@ -3473,10 +3473,12 @@ msgstr "Niet toegestaan"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:179
 msgid "You cannot change libraries when a device is connected."
 msgstr ""
+"Je kunt niet van bibliotheek wisselen wanneer het apparaat is aangesloten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:184
 msgid "You cannot change libraries while jobs are running."
 msgstr ""
+"Je kunt niet van bibliotheek wisselen wanneer taken worden uitgevoerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "C"
@@ -3504,32 +3506,32 @@ msgstr "Start conversie van %d boek(en)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:63
 msgid "Copy to library"
-msgstr ""
+msgstr "Kopieer naar bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:64
 msgid "Copy selected books to the specified library"
-msgstr ""
+msgstr "Kopieer geselecteerde boeken naar de aangegeven bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:97
 msgid "Cannot copy"
-msgstr ""
+msgstr "Kan niet kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:102
 msgid "No library"
-msgstr ""
+msgstr "Geen bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:103
 msgid "No library found at %s"
-msgstr ""
+msgstr "Geen bibliotheek gevonden op %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:110
 msgid "Copying"
-msgstr ""
+msgstr "Bezig met kopiëren van"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:120
 msgid "Could not copy books: "
-msgstr ""
+msgstr "Kan boeken niet kopieren: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:678
@@ -3539,7 +3541,7 @@ msgstr "Mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:123
 msgid "Copied %d books to %s"
-msgstr ""
+msgstr "%d boeken gekopieerd naar %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:18
 msgid "Del"
@@ -5620,7 +5622,7 @@ msgstr "Download boeken van apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:385
 msgid "View book on device"
-msgstr "Bekijk book op apparaat"
+msgstr "Bekijk boek op apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:419
 msgid "Set default send to device action"
@@ -5748,7 +5750,7 @@ msgstr ""
 msgid ""
 "Could not email the following books as no suitable formats were found:"
 msgstr ""
-"De voilgende boeken konden niet worden ge-emailed omdat geen beschikbare "
+"De volgende boeken konden niet worden ge-emailed omdat geen beschikbare "
 "formaten zijn gevonden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:951
@@ -7052,11 +7054,11 @@ msgstr "Download sociale metagegevens, even geduld...."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:50
 msgid "Separator"
-msgstr ""
+msgstr "Scheidingsteken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:63
 msgid "Choose library"
-msgstr ""
+msgstr "Kies bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:113
 msgid "The main toolbar"
@@ -7068,11 +7070,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:115
 msgid "The context menu for the books in the calibre library"
-msgstr ""
+msgstr "Het context menu voor de boeken in de Calibre bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:117
 msgid "The context menu for the books on the device"
-msgstr ""
+msgstr "Het context menu voor de boeken op het apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:94
 msgid "Customize the actions in:"
@@ -7279,7 +7281,7 @@ msgstr "Bewerk van <b>%d boeken</b de meta gegevens"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:222
 msgid "Applying changes to %d books. This may take a while."
-msgstr ""
+msgstr "Wijzigingen toepassen op %d boeken. Dit kan geruime tijd duren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:157
 msgid "Edit Meta information"
@@ -9117,7 +9119,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:789
 msgid "Manage &user categories"
-msgstr "Beheer &door de gebuiker gecreëerde categorien"
+msgstr "Beheer &door de gebruiker gecreëerde categorien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:792
 msgid "Add your own categories to the Tag Browser"
@@ -9916,8 +9918,8 @@ msgid ""
 "Choose a location for your books. When you add books to calibre, they will "
 "be copied here:"
 msgstr ""
-"Kies een locatie voor je boeken. Wanneer je boeken toevoegt aan celibre, dan "
-"zullen ze hier naar toe worden gecopieerd:"
+"Kies een locatie voor je boeken. Wanneer je boeken toevoegt aan Calibre, dan "
+"zullen ze hier naar toe worden gekopieerd:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:54
 msgid "&Change"
@@ -10850,19 +10852,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:829
 msgid "Name:"
-msgstr ""
+msgstr "Naam:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:830
 msgid "Search string:"
-msgstr ""
+msgstr "Zoekargument:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:836
 msgid "Error: You must specify a name and a search string"
-msgstr ""
+msgstr "Fout: je moet een naam en een zoekargument opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:839
 msgid "added"
-msgstr ""
+msgstr "toegevoegd"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:844
 msgid "Error: You must specify a name"
@@ -10870,7 +10872,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:847
 msgid "removed"
-msgstr ""
+msgstr "verwijderd"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:851
 msgid "Error: Action %s not recognized, must be one of: (add|remove|list)"
@@ -11026,7 +11028,7 @@ msgid ""
 "Normally, calibre will save the cover in a separate file along with the "
 "actual e-book file(s)."
 msgstr ""
-"Normaal gesproken zal calibre de omslag afbeeling opslaan in een apart "
+"Normaal gesproken zal calibre de omslag afbeelding opslaan in een apart "
 "bestand, samen met de daadwerkelijke e-boek bestanden."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:63
@@ -11174,7 +11176,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:110
 msgid "%d book"
-msgstr ""
+msgstr "%d boek"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:129
 msgid "%d items"
