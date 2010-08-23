@@ -11,41 +11,29 @@ from PyQt4.Qt import QWidget, QAbstractListModel, Qt, QIcon, \
         QVariant, QItemSelectionModel
 
 from calibre.gui2.dialogs.config.toolbar_ui import Ui_Form
-from calibre.gui2.layout import TOOLBAR_NO_DEVICE, TOOLBAR_DEVICE
-from calibre.gui2.init import LIBRARY_CONTEXT_MENU, DEVICE_CONTEXT_MENU
-from calibre.gui2 import gprefs, NONE
+from calibre.gui2 import gprefs, NONE, warning_dialog
 
-DEFAULTS = {
-        'toolbar': TOOLBAR_NO_DEVICE,
-        'toolbar-device': TOOLBAR_DEVICE,
-        'context-menu': LIBRARY_CONTEXT_MENU,
-        'context-menu-device': DEVICE_CONTEXT_MENU,
-}
-
-UNREMOVABLE = {
-        'toolbar': ['Preferences'],
-        'toolbar-device': ['Send To Device', 'Location Manager'],
-}
-
-UNADDABLE = {
-        'toolbar': ['Location Manager'],
-        'context-menu': ['Location Manager'],
-        'context-menu-device': ['Location Manager'],
-}
 
 class FakeAction(object):
 
-    def __init__(self, name, icon, tooltip=None):
+    def __init__(self, name, icon, tooltip=None,
+            dont_add_to=frozenset([]), dont_remove_from=frozenset([])):
         self.name = name
         self.action_spec = (name, icon, tooltip, None)
+        self.dont_remove_from = dont_remove_from
+        self.dont_add_to = dont_add_to
 
 class BaseModel(QAbstractListModel):
 
     def name_to_action(self, name, gui):
         if name == 'Donate':
-            return FakeAction(name, 'donate.svg')
+            return FakeAction(name, 'donate.svg',
+                    dont_add_to=frozenset(['context-menu',
+                        'context-menu-device']))
         if name == 'Location Manager':
-            return FakeAction(name, None)
+            return FakeAction(name, None,
+                    _('Switch between library and device views'),
+                    dont_remove_from=set(['toolbar-device']))
         if name is None:
             return FakeAction('--- '+_('Separator')+' ---', None)
         return gui.iactions[name]
@@ -71,25 +59,73 @@ class BaseModel(QAbstractListModel):
             return QVariant(action[2])
         return NONE
 
+    def names(self, indexes):
+        rows = [i.row() for i in indexes]
+        ans = []
+        for i in rows:
+            n = self._data[i].name
+            if n.startswith('---'):
+                n = None
+            ans.append(n)
+        return ans
+
 
 class AllModel(BaseModel):
 
     def __init__(self, key, gui):
         BaseModel.__init__(self)
-        current = gprefs.get('action-layout-'+key, DEFAULTS[key])
-        all = list(gui.iactions.keys()) + ['Donate']
-        all = [x for x in all if x not in current] + [None]
-        all = [self.name_to_action(x, gui) for x in all]
-        all.sort()
+        self.gprefs_name = 'action-layout-'+key
+        current = gprefs[self.gprefs_name]
+        self.gui = gui
+        self.key = key
+        self._data = self.get_all_actions(current)
 
-        self._data = all
+    def get_all_actions(self, current):
+        all = list(self.gui.iactions.keys()) + ['Donate']
+        all = [x for x in all if x not in current] + [None]
+        all = [self.name_to_action(x, self.gui) for x in all]
+        all = [x for x in all if self.key not in x.dont_add_to]
+        all.sort()
+        return all
+
+    def add(self, names):
+        actions = []
+        for name in names:
+            if name is None or name.startswith('---'): continue
+            actions.append(self.name_to_action(name, self.gui))
+        self._data.extend(actions)
+        self._data.sort()
+        self.reset()
+
+    def remove(self, indices, allowed):
+        rows = [i.row() for i in indices]
+        remove = set([])
+        for row in rows:
+            ac = self._data[row]
+            if ac.name.startswith('---'): continue
+            if ac.name in allowed:
+                remove.add(row)
+        ndata = []
+        for i, ac in enumerate(self._data):
+            if i not in remove:
+                ndata.append(ac)
+        self._data = ndata
+        self.reset()
+
+    def restore_defaults(self):
+        current = gprefs.defaults[self.gprefs_name]
+        self._data = self.get_all_actions(current)
+        self.reset()
 
 class CurrentModel(BaseModel):
 
     def __init__(self, key, gui):
         BaseModel.__init__(self)
-        current = gprefs.get('action-layout-'+key, DEFAULTS[key])
+        self.gprefs_name = 'action-layout-'+key
+        current = gprefs[self.gprefs_name]
         self._data =  [self.name_to_action(x, gui) for x in current]
+        self.key = key
+        self.gui = gui
 
     def move(self, idx, delta):
         row = idx.row()
@@ -105,6 +141,58 @@ class CurrentModel(BaseModel):
         self.dataChanged.emit(idx, idx)
         self.dataChanged.emit(ni, ni)
         return ni
+
+    def add(self, names):
+        actions = []
+        reject = set([])
+        for name in names:
+            ac = self.name_to_action(name, self.gui)
+            if self.key in ac.dont_add_to:
+                reject.add(ac)
+            else:
+                actions.append(ac)
+
+        self._data.extend(actions)
+        self.reset()
+        return reject
+
+    def remove(self, indices):
+        rows = [i.row() for i in indices]
+        remove, rejected = set([]), set([])
+        for row in rows:
+            ac = self._data[row]
+            if self.key in ac.dont_remove_from:
+                rejected.add(ac)
+                continue
+            remove.add(row)
+        ndata = []
+        for i, ac in enumerate(self._data):
+            if i not in remove:
+                ndata.append(ac)
+        self._data = ndata
+        self.reset()
+        return rejected
+
+    def commit(self):
+        old = gprefs[self.gprefs_name]
+        new = []
+        for x in self._data:
+            n = x.name
+            if n.startswith('---'):
+                n = None
+            new.append(n)
+        new = tuple(new)
+        if new != old:
+            defaults = gprefs.defaults[self.gprefs_name]
+            if defaults == new:
+                del gprefs[self.gprefs_name]
+            else:
+                gprefs[self.gprefs_name] = new
+
+    def restore_defaults(self):
+        current = gprefs.defaults[self.gprefs_name]
+        self._data =  [self.name_to_action(x, self.gui) for x in current]
+        self.reset()
 
 
 class ToolbarLayout(QWidget, Ui_Form):
@@ -134,6 +222,7 @@ class ToolbarLayout(QWidget, Ui_Form):
 
         self.add_action_button.clicked.connect(self.add_action)
         self.remove_action_button.clicked.connect(self.remove_action)
+        self.restore_defaults_button.clicked.connect(self.restore_defaults)
         self.action_up_button.clicked.connect(partial(self.move, -1))
         self.action_down_button.clicked.connect(partial(self.move, 1))
 
@@ -143,10 +232,36 @@ class ToolbarLayout(QWidget, Ui_Form):
         self.current_actions.setModel(self.models[key][1])
 
     def add_action(self, *args):
-        pass
+        x = self.all_actions.selectionModel().selectedIndexes()
+        names = self.all_actions.model().names(x)
+        if names:
+            not_added = self.current_actions.model().add(names)
+            ns = set([x.name for x in not_added])
+            added = set(names) - ns
+            self.all_actions.model().remove(x, added)
+            if not_added:
+                warning_dialog(self, _('Cannot add'),
+                        _('Cannot add the actions %s to this location') %
+                        ','.join([a.action_spec[0] for a in not_added]),
+                        show=True)
+            if added:
+                ca = self.current_actions
+                idx = ca.model().index(ca.model().rowCount(None)-1)
+                ca.scrollTo(idx)
 
     def remove_action(self, *args):
-        pass
+        x = self.current_actions.selectionModel().selectedIndexes()
+        names = self.current_actions.model().names(x)
+        if names:
+            not_removed = self.current_actions.model().remove(x)
+            ns = set([x.name for x in not_removed])
+            removed = set(names) - ns
+            self.all_actions.model().add(removed)
+            if not_removed:
+                warning_dialog(self, _('Cannot remove'),
+                        _('Cannot remove the actions %s from this location') %
+                        ','.join([a.action_spec[0] for a in not_removed]),
+                        show=True)
 
     def move(self, delta, *args):
         ci = self.current_actions.currentIndex()
@@ -158,6 +273,16 @@ class ToolbarLayout(QWidget, Ui_Form):
                 self.current_actions.selectionModel().select(ni,
                         QItemSelectionModel.ClearAndSelect)
 
+    def commit(self):
+        for am, cm in self.models.values():
+            cm.commit()
+
+    def restore_defaults(self, *args):
+        for am, cm in self.models.values():
+            cm.restore_defaults()
+            am.restore_defaults()
+
+
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     from calibre.gui2.ui import Main
@@ -166,4 +291,5 @@ if __name__ == '__main__':
     a = ToolbarLayout(m)
     a.show()
     app.exec_()
+    a.commit()
 

@@ -118,6 +118,8 @@ class LinuxFreeze(Command):
                 glob.glob('src/calibre/gui2/catalog/*.py')]
         includes += ['calibre.gui2.actions.'+x.split('/')[-1].rpartition('.')[0] for x in \
                 glob.glob('src/calibre/gui2/actions/*.py')]
+        includes += ['calibre.gui2.preferences.'+x.split('/')[-1].rpartition('.')[0] for x in \
+                glob.glob('src/calibre/gui2/preferences/*.py')]
 
 
         LOADER = '/tmp/loader.py'
