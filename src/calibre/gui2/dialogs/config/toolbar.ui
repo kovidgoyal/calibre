@@ -207,6 +207,13 @@
      </item>
     </layout>
    </item>
+   <item row="3" column="2">
+    <widget class="QPushButton" name="restore_defaults_button">
+     <property name="text">
+      <string>Restore to &amp;default</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources>

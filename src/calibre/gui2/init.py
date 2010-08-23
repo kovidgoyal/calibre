@@ -27,36 +27,10 @@ def partial(*args, **kwargs):
     _keep_refs.append(ans)
     return ans
 
-gprefs.defaults['action-layout-context-menu'] = (
-        'Edit Metadata', 'Send To Device', 'Save To Disk',
-        'Connect Share', 'Copy To Library', None,
-        'Convert Books', 'View', 'Open Folder', 'Show Book Details',
-        'Similar Books', None, 'Remove Books',
-        )
-
-gprefs.defaults['action-layout-context-menu-device'] = (
-        'View', 'Save To Disk', None, 'Remove Books', None,
-        'Add To Library', 'Edit Collections',
-        )
 
 class LibraryViewMixin(object): # {{{
 
     def __init__(self, db):
-        lm = QMenu(self)
-        def populate_menu(m, items):
-            for what in items:
-                if what is None:
-                    m.addSeparator()
-                elif what in self.iactions:
-                    m.addAction(self.iactions[what].qaction)
-        populate_menu(lm, gprefs['action-layout-context-menu'])
-        dm = QMenu(self)
-        populate_menu(dm, gprefs['action-layout-context-menu-device'])
-        ec = self.iactions['Edit Collections'].qaction
-        self.library_view.set_context_menu(lm, ec)
-        for v in (self.memory_view, self.card_a_view, self.card_b_view):
-            v.set_context_menu(dm, ec)
-
         self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.QueuedConnection)
         for func, args in [
                              ('connect_to_search_box', (self.search,
@@ -86,6 +60,23 @@ class LibraryViewMixin(object): # {{{
             view = getattr(self, view+'_view')
             view.verticalHeader().sectionDoubleClicked.connect(self.iactions['View'].view_specific_book)
 
+        self.build_context_menus()
+
+    def build_context_menus(self):
+        lm = QMenu(self)
+        def populate_menu(m, items):
+            for what in items:
+                if what is None:
+                    m.addSeparator()
+                elif what in self.iactions:
+                    m.addAction(self.iactions[what].qaction)
+        populate_menu(lm, gprefs['action-layout-context-menu'])
+        dm = QMenu(self)
+        populate_menu(dm, gprefs['action-layout-context-menu-device'])
+        ec = self.iactions['Edit Collections'].qaction
+        self.library_view.set_context_menu(lm, ec)
+        for v in (self.memory_view, self.card_a_view, self.card_b_view):
+            v.set_context_menu(dm, ec)
 
 
     def search_done(self, view, ok):

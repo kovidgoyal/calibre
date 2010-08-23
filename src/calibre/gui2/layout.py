@@ -19,19 +19,6 @@ from calibre.gui2 import config, gprefs
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre import human_readable
 
-gprefs.defaults['action-layout-toolbar'] = (
-        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-        'Choose Library', 'Donate', None, 'Fetch News', 'Save To Disk',
-        'Connect Share', None, 'Remove Books', None, 'Help', 'Preferences',
-        )
-
-gprefs.defaults['action-layout-toolbar-device'] = (
-        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
-        'Send To Device', None, None, 'Location Manager', None, None,
-        'Fetch News', 'Save To Disk', 'Connect Share', None,
-        'Remove Books', None, 'Help', 'Preferences',
-        )
-
 class LocationManager(QObject): # {{{
 
     locations_changed = pyqtSignal()

@@ -14,6 +14,7 @@ from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
 from calibre.constants import iswindows, isosx
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
 from calibre.gui2.dialogs.config.create_custom_column import CreateCustomColumn
+from calibre.gui2.dialogs.config.toolbar import ToolbarLayout
 from calibre.gui2 import error_dialog, config, gprefs, \
         open_url, open_local_file, \
         ALL_COLUMNS, NONE, info_dialog, choose_files, \
@@ -524,6 +525,9 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.current_tweaks.setPlainText(curt.decode('utf-8'))
         self.default_tweaks.setPlainText(deft.decode('utf-8'))
         self.restore_tweaks_to_default_button.clicked.connect(self.restore_tweaks_to_default)
+        self.toolbar_cm_widget = ToolbarLayout(parent, parent)
+        self.toolbar_cm_tab.addTab(self.toolbar_cm_widget,
+                _('Toolbars/Context menus'))
 
         self.category_view.setCurrentIndex(self.category_view.model().index_for_name(initial_category))
 
@@ -888,6 +892,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         wl = self.opt_worker_limit.value()
         if wl%2 != 0:
             wl += 1
+        self.toolbar_cm_widget.commit()
         config['worker_limit'] = wl
 
         config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())

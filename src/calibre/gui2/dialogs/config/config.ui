@@ -109,7 +109,7 @@
             <number>0</number>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="page_3">
             <layout class="QVBoxLayout" name="verticalLayout">
@@ -294,361 +294,371 @@
             </layout>
            </widget>
            <widget class="QWidget" name="page">
-            <layout class="QGridLayout" name="gridLayout_8">
-             <item row="2" column="0">
-              <widget class="QCheckBox" name="roman_numerals">
-               <property name="text">
-                <string>Use &amp;Roman numerals for series number</string>
+            <layout class="QGridLayout" name="gridLayout_12">
+             <item row="0" column="0">
+              <widget class="QTabWidget" name="toolbar_cm_tab">
+               <property name="currentIndex">
+                <number>0</number>
                </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QCheckBox" name="systray_icon">
-               <property name="text">
-                <string>Enable system &amp;tray icon (needs restart)</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QCheckBox" name="systray_notifications">
-               <property name="text">
-                <string>Show &amp;notifications in system tray</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QCheckBox" name="show_splash_screen">
-               <property name="text">
-                <string>Show &amp;splash screen at startup</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0" colspan="2">
-              <widget class="QCheckBox" name="separate_cover_flow">
-               <property name="text">
-                <string>Show cover &amp;browser in a separate window (needs restart)</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0" colspan="2">
-              <widget class="QCheckBox" name="show_avg_rating">
-               <property name="text">
-                <string>Show &amp;average ratings in the tags browser</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0">
-              <widget class="QCheckBox" name="search_as_you_type">
-               <property name="text">
-                <string>Search as you type</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="0" colspan="2">
-              <widget class="QCheckBox" name="sync_news">
-               <property name="text">
-                <string>Automatically send downloaded &amp;news to ebook reader</string>
-               </property>
-              </widget>
-             </item>
-             <item row="10" column="0" colspan="2">
-              <widget class="QCheckBox" name="delete_news">
-               <property name="text">
-                <string>&amp;Delete news from library when it is automatically sent to reader</string>
-               </property>
-              </widget>
-             </item>
-             <item row="11" column="0" colspan="2">
-              <layout class="QHBoxLayout" name="horizontalLayout">
-               <item>
-                <widget class="QLabel" name="label_6">
-                 <property name="text">
-                  <string>&amp;Number of covers to show in browse mode (needs restart):</string>
-                 </property>
-                 <property name="buddy">
-                  <cstring>cover_browse</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QSpinBox" name="cover_browse"/>
-               </item>
-              </layout>
-             </item>
-             <item row="12" column="0" colspan="2">
-              <layout class="QHBoxLayout" name="horizontalLayout_7">
-               <item>
-                <widget class="QGroupBox" name="groupBox">
-                 <property name="title">
-                  <string>Select visible &amp;columns in library view</string>
-                 </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_7">
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_3">
-                    <item>
-                     <widget class="QListWidget" name="columns">
-                      <property name="alternatingRowColors">
-                       <bool>true</bool>
+               <widget class="QWidget" name="tab_3">
+                <attribute name="title">
+                 <string>&amp;Miscellaneous</string>
+                </attribute>
+                <layout class="QGridLayout" name="gridLayout_8">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_17">
+                   <property name="text">
+                    <string>User Interface &amp;layout (needs restart):</string>
+                   </property>
+                   <property name="buddy">
+                    <cstring>opt_gui_layout</cstring>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QComboBox" name="opt_gui_layout">
+                   <property name="maximumSize">
+                    <size>
+                     <width>250</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_6">
+                   <property name="text">
+                    <string>&amp;Number of covers to show in browse mode (needs restart):</string>
+                   </property>
+                   <property name="buddy">
+                    <cstring>cover_browse</cstring>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QSpinBox" name="cover_browse"/>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_170">
+                   <property name="text">
+                    <string>Restriction to apply when the current library is opened:</string>
+                   </property>
+                   <property name="buddy">
+                    <cstring>opt_gui_restriction</cstring>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QComboBox" name="opt_gui_restriction">
+                   <property name="maximumSize">
+                    <size>
+                     <width>250</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>Apply this restriction on calibre startup if the current library is being used. Also applied when switching to this library. Note that this setting is per library. </string>
+                   </property>
+                   <property name="sizeAdjustPolicy">
+                    <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+                   </property>
+                   <property name="minimumContentsLength">
+                    <number>15</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QCheckBox" name="roman_numerals">
+                   <property name="text">
+                    <string>Use &amp;Roman numerals for series number</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QCheckBox" name="opt_disable_animations">
+                   <property name="toolTip">
+                    <string>Disable all animations. Useful if you have a slow/old computer.</string>
+                   </property>
+                   <property name="text">
+                    <string>Disable &amp;animations</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QCheckBox" name="systray_icon">
+                   <property name="text">
+                    <string>Enable system &amp;tray icon (needs restart)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QCheckBox" name="systray_notifications">
+                   <property name="text">
+                    <string>Show &amp;notifications in system tray</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="1">
+                  <widget class="QCheckBox" name="opt_show_donate_button">
+                   <property name="text">
+                    <string>Show &amp;donate button (restart)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="11" column="0" colspan="2">
+                  <widget class="QGroupBox" name="groupBox_2">
+                   <property name="title">
+                    <string>&amp;Toolbar</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout">
+                    <item row="0" column="1">
+                     <widget class="QComboBox" name="opt_toolbar_icon_size"/>
+                    </item>
+                    <item row="0" column="0">
+                     <widget class="QLabel" name="label">
+                      <property name="text">
+                       <string>&amp;Icon size:</string>
                       </property>
-                      <property name="selectionBehavior">
-                       <enum>QAbstractItemView::SelectRows</enum>
+                      <property name="buddy">
+                       <cstring>opt_toolbar_icon_size</cstring>
                       </property>
                      </widget>
                     </item>
-                    <item>
-                     <layout class="QVBoxLayout" name="verticalLayout_3">
+                    <item row="1" column="1">
+                     <widget class="QComboBox" name="opt_toolbar_text"/>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="label_4">
+                      <property name="text">
+                       <string>Show &amp;text under icons:</string>
+                      </property>
+                      <property name="buddy">
+                       <cstring>opt_toolbar_text</cstring>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item row="10" column="0" colspan="2">
+                  <widget class="QCheckBox" name="delete_news">
+                   <property name="text">
+                    <string>&amp;Delete news from library when it is automatically sent to reader</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="12" column="0" colspan="2">
+                  <layout class="QHBoxLayout" name="horizontalLayout_7">
+                   <item>
+                    <widget class="QGroupBox" name="groupBox">
+                     <property name="title">
+                      <string>Select visible &amp;columns in library view</string>
+                     </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_7">
                       <item>
-                       <widget class="QToolButton" name="column_up">
-                        <property name="text">
-                         <string>...</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="../../../../../resources/images.qrc">
-                          <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
-                        </property>
-                       </widget>
+                       <layout class="QHBoxLayout" name="horizontalLayout_3">
+                        <item>
+                         <widget class="QListWidget" name="columns">
+                          <property name="alternatingRowColors">
+                           <bool>true</bool>
+                          </property>
+                          <property name="selectionBehavior">
+                           <enum>QAbstractItemView::SelectRows</enum>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <layout class="QVBoxLayout" name="verticalLayout_3">
+                          <item>
+                           <widget class="QToolButton" name="column_up">
+                            <property name="text">
+                             <string>...</string>
+                            </property>
+                            <property name="icon">
+                             <iconset resource="../../../../../resources/images.qrc">
+                              <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="verticalSpacer_2">
+                            <property name="orientation">
+                             <enum>Qt::Vertical</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>20</width>
+                              <height>40</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item>
+                           <widget class="QToolButton" name="del_custcol_button">
+                            <property name="toolTip">
+                             <string>Remove a user-defined column</string>
+                            </property>
+                            <property name="text">
+                             <string>...</string>
+                            </property>
+                            <property name="icon">
+                             <iconset resource="../../../../../resources/images.qrc">
+                              <normaloff>:/images/minus.svg</normaloff>:/images/minus.svg</iconset>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="verticalSpacer_2">
+                            <property name="orientation">
+                             <enum>Qt::Vertical</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>20</width>
+                              <height>40</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item>
+                           <widget class="QToolButton" name="add_custcol_button">
+                            <property name="toolTip">
+                             <string>Add a user-defined column</string>
+                            </property>
+                            <property name="text">
+                             <string>...</string>
+                            </property>
+                            <property name="icon">
+                             <iconset resource="../../../../../resources/images.qrc">
+                              <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="verticalSpacer_2">
+                            <property name="orientation">
+                             <enum>Qt::Vertical</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>20</width>
+                              <height>40</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item>
+                           <widget class="QToolButton" name="edit_custcol_button">
+                            <property name="toolTip">
+                             <string>Edit settings of a user-defined column</string>
+                            </property>
+                            <property name="text">
+                             <string>...</string>
+                            </property>
+                            <property name="icon">
+                             <iconset resource="../../../../../resources/images.qrc">
+                              <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="verticalSpacer_2">
+                            <property name="orientation">
+                             <enum>Qt::Vertical</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>20</width>
+                              <height>40</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item>
+                           <widget class="QToolButton" name="column_down">
+                            <property name="text">
+                             <string>...</string>
+                            </property>
+                            <property name="icon">
+                             <iconset resource="../../../../../resources/images.qrc">
+                              <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
+                            </property>
+                           </widget>
+                          </item>
+                         </layout>
+                        </item>
+                       </layout>
                       </item>
-                      <item>
-                       <spacer name="verticalSpacer_2">
-                        <property name="orientation">
-                         <enum>Qt::Vertical</enum>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QGroupBox" name="groupBox_3">
+                     <property name="title">
+                      <string>Use internal &amp;viewer for:</string>
+                     </property>
+                     <layout class="QGridLayout" name="gridLayout_4">
+                      <item row="0" column="0">
+                       <widget class="QListWidget" name="viewer">
+                        <property name="alternatingRowColors">
+                         <bool>true</bool>
                         </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>20</width>
-                          <height>40</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item>
-                       <widget class="QToolButton" name="del_custcol_button">
-                        <property name="toolTip">
-                         <string>Remove a user-defined column</string>
-                        </property>
-                        <property name="text">
-                         <string>...</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="../../../../../resources/images.qrc">
-                          <normaloff>:/images/minus.svg</normaloff>:/images/minus.svg</iconset>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <spacer name="verticalSpacer_2">
-                        <property name="orientation">
-                         <enum>Qt::Vertical</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>20</width>
-                          <height>40</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item>
-                       <widget class="QToolButton" name="add_custcol_button">
-                        <property name="toolTip">
-                         <string>Add a user-defined column</string>
-                        </property>
-                        <property name="text">
-                         <string>...</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="../../../../../resources/images.qrc">
-                          <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <spacer name="verticalSpacer_2">
-                        <property name="orientation">
-                         <enum>Qt::Vertical</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>20</width>
-                          <height>40</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item>
-                       <widget class="QToolButton" name="edit_custcol_button">
-                        <property name="toolTip">
-                         <string>Edit settings of a user-defined column</string>
-                        </property>
-                        <property name="text">
-                         <string>...</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="../../../../../resources/images.qrc">
-                          <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <spacer name="verticalSpacer_2">
-                        <property name="orientation">
-                         <enum>Qt::Vertical</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>20</width>
-                          <height>40</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item>
-                       <widget class="QToolButton" name="column_down">
-                        <property name="text">
-                         <string>...</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="../../../../../resources/images.qrc">
-                          <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
+                        <property name="selectionMode">
+                         <enum>QAbstractItemView::NoSelection</enum>
                         </property>
                        </widget>
                       </item>
                      </layout>
-                    </item>
-                   </layout>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-               <item>
-                <widget class="QGroupBox" name="groupBox_3">
-                 <property name="title">
-                  <string>Use internal &amp;viewer for:</string>
-                 </property>
-                 <layout class="QGridLayout" name="gridLayout_4">
-                  <item row="0" column="0">
-                   <widget class="QListWidget" name="viewer">
-                    <property name="alternatingRowColors">
-                     <bool>true</bool>
-                    </property>
-                    <property name="selectionMode">
-                     <enum>QAbstractItemView::NoSelection</enum>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_17">
-               <property name="text">
-                <string>User Interface &amp;layout (needs restart):</string>
-               </property>
-               <property name="buddy">
-                <cstring>opt_gui_layout</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QComboBox" name="opt_gui_layout">
-               <property name="maximumSize">
-                <size>
-                 <width>250</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_170">
-               <property name="text">
-                <string>Restriction to apply when the current library is opened:</string>
-               </property>
-               <property name="buddy">
-                <cstring>opt_gui_restriction</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QComboBox" name="opt_gui_restriction">
-               <property name="maximumSize">
-                <size>
-                 <width>250</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>Apply this restriction on calibre startup if the current library is being used. Also applied when switching to this library. Note that this setting is per library. </string>
-               </property>
-               <property name="sizeAdjustPolicy">
-                <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
-               </property>
-               <property name="minimumContentsLength">
-                <number>20</number>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QCheckBox" name="opt_disable_animations">
-               <property name="toolTip">
-                <string>Disable all animations. Useful if you have a slow/old computer.</string>
-               </property>
-               <property name="text">
-                <string>Disable &amp;animations</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QCheckBox" name="opt_show_donate_button">
-               <property name="text">
-                <string>Show &amp;donate button (restart)</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="0" colspan="2">
-              <widget class="QGroupBox" name="groupBox_2">
-               <property name="title">
-                <string>&amp;Toolbar</string>
-               </property>
-               <layout class="QGridLayout" name="gridLayout">
-                <item row="0" column="1">
-                 <widget class="QComboBox" name="opt_toolbar_icon_size"/>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label">
-                  <property name="text">
-                   <string>&amp;Icon size:</string>
-                  </property>
-                  <property name="buddy">
-                   <cstring>opt_toolbar_icon_size</cstring>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QComboBox" name="opt_toolbar_text"/>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_4">
-                  <property name="text">
-                   <string>Show &amp;text under icons:</string>
-                  </property>
-                  <property name="buddy">
-                   <cstring>opt_toolbar_text</cstring>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="8" column="1">
+                  <widget class="QCheckBox" name="show_splash_screen">
+                   <property name="text">
+                    <string>Show &amp;splash screen at startup</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="0">
+                  <widget class="QCheckBox" name="sync_news">
+                   <property name="text">
+                    <string>Automatically send downloaded &amp;news to ebook reader</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="1">
+                  <widget class="QCheckBox" name="search_as_you_type">
+                   <property name="text">
+                    <string>Search as you type</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QCheckBox" name="show_avg_rating">
+                   <property name="text">
+                    <string>Show &amp;average ratings in the tags browser</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="0">
+                  <widget class="QCheckBox" name="separate_cover_flow">
+                   <property name="text">
+                    <string>Show cover &amp;browser in a separate window (needs restart)</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
               </widget>
              </item>
             </layout>

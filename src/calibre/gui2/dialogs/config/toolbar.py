@@ -27,7 +27,9 @@ class BaseModel(QAbstractListModel):
 
     def name_to_action(self, name, gui):
         if name == 'Donate':
-            return FakeAction(name, 'donate.svg')
+            return FakeAction(name, 'donate.svg',
+                    dont_add_to=frozenset(['context-menu',
+                        'context-menu-device']))
         if name == 'Location Manager':
             return FakeAction(name, None,
                     _('Switch between library and device views'),
@@ -72,15 +74,19 @@ class AllModel(BaseModel):
 
     def __init__(self, key, gui):
         BaseModel.__init__(self)
-        current = gprefs['action-layout-'+key]
-        all = list(gui.iactions.keys()) + ['Donate']
-        all = [x for x in all if x not in current] + [None]
-        all = [self.name_to_action(x, gui) for x in all]
-        all = [x for x in all if key not in x.dont_add_to]
-        all.sort()
+        self.gprefs_name = 'action-layout-'+key
+        current = gprefs[self.gprefs_name]
         self.gui = gui
+        self.key = key
+        self._data = self.get_all_actions(current)
 
-        self._data = all
+    def get_all_actions(self, current):
+        all = list(self.gui.iactions.keys()) + ['Donate']
+        all = [x for x in all if x not in current] + [None]
+        all = [self.name_to_action(x, self.gui) for x in all]
+        all = [x for x in all if self.key not in x.dont_add_to]
+        all.sort()
+        return all
 
     def add(self, names):
         actions = []
@@ -106,12 +112,17 @@ class AllModel(BaseModel):
         self._data = ndata
         self.reset()
 
+    def restore_defaults(self):
+        current = gprefs.defaults[self.gprefs_name]
+        self._data = self.get_all_actions(current)
+        self.reset()
 
 class CurrentModel(BaseModel):
 
     def __init__(self, key, gui):
         BaseModel.__init__(self)
-        current = gprefs['action-layout-'+key]
+        self.gprefs_name = 'action-layout-'+key
+        current = gprefs[self.gprefs_name]
         self._data =  [self.name_to_action(x, gui) for x in current]
         self.key = key
         self.gui = gui
@@ -162,6 +173,27 @@ class CurrentModel(BaseModel):
         self.reset()
         return rejected
 
+    def commit(self):
+        old = gprefs[self.gprefs_name]
+        new = []
+        for x in self._data:
+            n = x.name
+            if n.startswith('---'):
+                n = None
+            new.append(n)
+        new = tuple(new)
+        if new != old:
+            defaults = gprefs.defaults[self.gprefs_name]
+            if defaults == new:
+                del gprefs[self.gprefs_name]
+            else:
+                gprefs[self.gprefs_name] = new
+
+    def restore_defaults(self):
+        current = gprefs.defaults[self.gprefs_name]
+        self._data =  [self.name_to_action(x, self.gui) for x in current]
+        self.reset()
+
 
 class ToolbarLayout(QWidget, Ui_Form):
 
@@ -190,6 +222,7 @@ class ToolbarLayout(QWidget, Ui_Form):
 
         self.add_action_button.clicked.connect(self.add_action)
         self.remove_action_button.clicked.connect(self.remove_action)
+        self.restore_defaults_button.clicked.connect(self.restore_defaults)
         self.action_up_button.clicked.connect(partial(self.move, -1))
         self.action_down_button.clicked.connect(partial(self.move, 1))
 
@@ -230,7 +263,6 @@ class ToolbarLayout(QWidget, Ui_Form):
                         ','.join([a.action_spec[0] for a in not_removed]),
                         show=True)
 
-
     def move(self, delta, *args):
         ci = self.current_actions.currentIndex()
         m = self.current_actions.model()
@@ -241,6 +273,16 @@ class ToolbarLayout(QWidget, Ui_Form):
                 self.current_actions.selectionModel().select(ni,
                         QItemSelectionModel.ClearAndSelect)
 
+    def commit(self):
+        for am, cm in self.models.values():
+            cm.commit()
+
+    def restore_defaults(self, *args):
+        for am, cm in self.models.values():
+            cm.restore_defaults()
+            am.restore_defaults()
+
+
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     from calibre.gui2.ui import Main
@@ -249,4 +291,5 @@ if __name__ == '__main__':
     a = ToolbarLayout(m)
     a.show()
     app.exec_()
+    a.commit()
 

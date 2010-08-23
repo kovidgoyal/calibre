@@ -621,8 +621,9 @@ class XMLConfig(dict):
         self.__setitem__(key, val)
 
     def __delitem__(self, key):
-        dict.__delitem__(self, key)
-        self.commit()
+        if dict.has_key(self, key):
+            dict.__delitem__(self, key)
+            self.commit()
 
     def commit(self):
         if hasattr(self, 'file_path') and self.file_path:
