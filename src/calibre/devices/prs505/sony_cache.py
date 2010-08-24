@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time, datetime
+import os, time
 from base64 import b64decode
 from uuid import uuid4
 from lxml import etree
@@ -17,7 +17,6 @@ from calibre.constants import DEBUG, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, title_sort, \
                                     authors_to_sort_string
-from calibre.utils.date import fromtimestamp, utc_tz
 
 # Utility functions {{{
 EMPTY_CARD_CACHE = '''\
@@ -354,18 +353,20 @@ class XMLCache(object):
             debug_print('Updating XML Cache:', i)
             root = self.record_roots[i]
             lpath_map = self.build_lpath_map(root)
-            tz_offset = None
+            gtz_count = ltz_count = 0
             for book in booklist:
                 path = os.path.join(self.prefixes[i], *(book.lpath.split('/')))
                 record = lpath_map.get(book.lpath, None)
                 if record is None:
                     record = self.create_text_record(root, i, book.lpath)
-                tz_offset = self.update_text_record(record, book, path, i, tz_offset)
+                (gtz_count, ltz_count) = self.update_text_record(record, book,
+                                                path, i, gtz_count, ltz_count)
                 # Ensure the collections in the XML database are recorded for
                 # this book
                 if book.device_collections is None:
                     book.device_collections = []
                 book.device_collections = playlist_map.get(book.lpath, [])
+            debug_print('Timezone votes: %d GMT, %d LTZ'%(gtz_count, ltz_count))
             self.update_playlists(i, root, booklist, collections_attributes)
         # Update the device collections because update playlist could have added
         # some new ones.
@@ -463,11 +464,23 @@ class XMLCache(object):
         root.append(ans)
         return ans
 
-    def update_text_record(self, record, book, path, bl_index, tz_offset):
+    def update_text_record(self, record, book, path, bl_index, gtz_count, ltz_count):
         '''
         Update the Sony database from the book. This is done if the timestamp in
         the db differs from the timestamp on the file.
         '''
+
+        # It seems that a Sony device can sometimes know what timezone it is in,
+        # and apparently converts the dates to GMT when it writes them to the
+        # db. Unfortunately, we can't tell when it does this, so we use a
+        # horrible heuristic. First, set dates only for new books, trying to
+        # avoid upsetting the sony. Use the timezone determined through the
+        # voting described next. Second, voting: if a book is not new, compare
+        # its Sony DB date against localtime and gmtime. Count the matches. When
+        # we must set a date, use the one with the most matches. Use localtime
+        # if the case of a tie, and hope it is right.
+        timestamp = os.path.getmtime(path)
+        rec_date = record.get('date', None)
 
         def clean(x):
             if isbytestring(x):
@@ -475,37 +488,19 @@ class XMLCache(object):
             x.replace(u'\0', '')
             return x
 
-        # It seems that a Sony device can sometimes know what timezone it is in,
-        # and apparently converts the dates to GMT when it writes them to the
-        # db. The Sony assumes that the mtime is localtime, applies its TZ
-        # factor, then stores the resulting date string in its DB. We compensate
-        # for this by reversing the computation. We first convert the string in
-        # the DB to datetime, forcing it to UTC (offset 0:00:00). We next
-        # convert the mtime to a datetime assuming that it is UTC. The
-        # difference between these datetimes is the timezone factor that the
-        # Sony used.
-
-        timestamp = os.path.getmtime(path)
         if not getattr(book, '_new_book', False): # book is not new
-            rec_date = record.get('date', None)
-            if tz_offset is None and record.get('tz', None) == '0':
-                # All existing books should have the same offset, so simply use
-                # the first one we see. However, some (perhaps all) Sony DBs
-                # have an attribute called TZ, and it is not clear what this
-                # attribute means. Because it is set to "0" by the reader for
-                # books added by Calibre, to avoid confusion we will use the
-                # offset for the first book with that value.
-                tt = strptime(rec_date)
-                dt = datetime.datetime(tt.tm_year, tt.tm_mon, tt.tm_mday, tt.tm_hour,
-                                       tt.tm_min, tt.tm_sec, tzinfo=utc_tz)
-                tz_offset = dt - fromtimestamp(timestamp)
-                debug_print('Timezone offset:', tz_offset)
-        else: # book is new. Set the time using the current offset
-            if tz_offset is None:
-                # No existing books! Assume a zero offset
-                tz_offset = datetime.timedelta()
-                debug_print('Timezone offset: using default of ', tz_offset)
-            date = strftime(fromtimestamp(timestamp) - tz_offset)
+            if strftime(timestamp, zone=time.gmtime) == rec_date:
+                gtz_count += 1
+            elif strftime(timestamp, zone=time.localtime) == rec_date:
+                ltz_count += 1
+        else: # book is new. Set the time using the current votes
+            if ltz_count >= gtz_count:
+                tz = time.localtime
+                debug_print("Using localtime TZ for new book", book.lpath)
+            else:
+                tz = time.gmtime
+                debug_print("Using GMT TZ for new book", book.lpath)
+            date = strftime(timestamp, zone=tz)
             record.set('date', clean(date))
 
         record.set('size', clean(str(os.stat(path).st_size)))
@@ -537,7 +532,7 @@ class XMLCache(object):
         if 'id' not in record.attrib:
             num = self.max_id(record.getroottree().getroot())
             record.set('id', str(num+1))
-        return tz_offset
+        return (gtz_count, ltz_count)
     # }}}
 
     # Writing the XML files {{{
