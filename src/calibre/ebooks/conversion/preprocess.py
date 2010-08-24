@@ -54,7 +54,7 @@ def chap_head(match):
     if not title:
                return '<h1>'+chap+'</h1><br/>\n'
     else:
-               return '<h1>'+chap+'<br/>\n'+title+'</h1><br/>\n'
+               return '<h1>'+chap+'</h1>\n<h3>'+title+'</h3>\n'
 
 def wrap_lines(match):
     ital = match.group('ital')
@@ -63,7 +63,7 @@ def wrap_lines(match):
     else:
                return ital+' '
 
-def line_length(raw, percent):
+def line_length(format, raw, percent):
     '''
     raw is the raw text to find the line length to use for wrapping.
     percentage is a decimal number, 0 - 1 which is used to determine
@@ -72,7 +72,10 @@ def line_length(raw, percent):
     median value.
     '''
     raw = raw.replace('&nbsp;', ' ')
-    linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
+    if format == 'html':
+    	linere = re.compile('(?<=<p).*?(?=</p>)', re.DOTALL)
+    elif format == 'pdf':
+        linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
     lines = linere.findall(raw)
 
     lengths = []
@@ -206,7 +209,7 @@ class HTMLPreProcessor(object):
                   (re.compile(ur'\u00a0'), lambda match : ' '),
 
                   # Detect Chapters to match default XPATH in GUI
-                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<i><b>|<i>|<b>)?(Chapter|Epilogue|Prologue|Book|Part)\s*([\d\w-]+(\s\w+)?)?(</i></b>|</i>|</b>)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>(<i>)?\s*\w+(\s+\w+)?(</i>)?)(<br[^>]*>|</?p[^>]*>)))?', re.IGNORECASE), chap_head),
+                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<(i|b)>(<(i|b)>)?)?(.?Chapter|Epilogue|Prologue|Book|Part)\s*([\d\w-]+(\s\w+)?)?(</(i|b)>(</(i|b)>)?)?)</?(br|p)[^>]*>\s*(?P<title>(<(i|b)>)?\s*\w+(\s*\w+)?\s*(</(i|b)>)?\s*(</?(br|p)[^>]*>))?', re.IGNORECASE), chap_head),
                   (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>([A-Z \'"!]{5,})\s*(\d+|\w+)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
 
                   # Have paragraphs show better
@@ -289,7 +292,7 @@ class HTMLPreProcessor(object):
                 traceback.print_exc()
 
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
-            length = line_length(html, getattr(self.extra_opts, 'unwrap_factor'))
+            length = line_length('pdf', html, getattr(self.extra_opts, 'unwrap_factor'))
             if length:
                 end_rules.append(
                     # Un wrap using punctuation
