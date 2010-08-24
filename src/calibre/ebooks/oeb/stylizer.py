@@ -168,12 +168,18 @@ class Stylizer(object):
                         item.href))
                     continue
                 stylesheets.append(sitem.data)
-        for x in (extra_css, user_css):
+        csses = {'extra_css':extra_css, 'user_css':user_css}
+        for w, x in csses.items():
             if x:
-                text = XHTML_CSS_NAMESPACE + x
-                stylesheet = parser.parseString(text, href=cssname)
-                stylesheet.namespaces['h'] = XHTML_NS
-                stylesheets.append(stylesheet)
+                try:
+                    text = XHTML_CSS_NAMESPACE + x
+                    stylesheet = parser.parseString(text, href=cssname)
+                    stylesheet.namespaces['h'] = XHTML_NS
+                    stylesheets.append(stylesheet)
+                except:
+                    self.logger.exception('Failed to parse %s, ignoring.'%w)
+                    self.logger.debug('Bad css: ')
+                    self.logger.debug(x)
         rules = []
         index = 0
         self.stylesheets = set()

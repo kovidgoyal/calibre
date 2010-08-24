@@ -15,6 +15,7 @@ class ShowBookDetailsAction(InterfaceAction):
     name = 'Show Book Details'
     action_spec = (_('Show book details'), 'dialog_information.svg', None,
             _('I'))
+    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
 
     def genesis(self):
         self.qaction.triggered.connect(self.show_book_info)

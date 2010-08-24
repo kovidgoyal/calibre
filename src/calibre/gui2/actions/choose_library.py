@@ -8,12 +8,12 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import QMenu
+from PyQt4.Qt import QMenu, Qt
 
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.utils.config import prefs
-from calibre.gui2 import gprefs, warning_dialog
+from calibre.gui2 import gprefs, warning_dialog, Dispatcher
 from calibre.gui2.actions import InterfaceAction
 
 class LibraryUsageStats(object):
@@ -72,15 +72,18 @@ class ChooseLibraryAction(InterfaceAction):
     name = 'Choose Library'
     action_spec = (_('%d books'), 'lt.png',
             _('Choose calibre library to work with'), None)
+    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
 
     def genesis(self):
         self.count_changed(0)
-        self.qaction.triggered.connect(self.choose_library)
+        self.qaction.triggered.connect(self.choose_library,
+                type=Qt.QueuedConnection)
 
         self.stats = LibraryUsageStats()
         self.create_action(spec=(_('Switch to library...'), 'lt.png', None,
             None), attr='action_choose')
-        self.action_choose.triggered.connect(self.choose_library)
+        self.action_choose.triggered.connect(self.choose_library,
+                type=Qt.QueuedConnection)
         self.choose_menu = QMenu(self.gui)
         self.choose_menu.addAction(self.action_choose)
         self.qaction.setMenu(self.choose_menu)
@@ -94,7 +97,8 @@ class ChooseLibraryAction(InterfaceAction):
                     attr='switch_action%d'%i)
             self.switch_actions.append(ac)
             ac.setVisible(False)
-            ac.triggered.connect(partial(self.qs_requested, i))
+            ac.triggered.connect(partial(self.qs_requested, i),
+                    type=Qt.QueuedConnection)
             self.choose_menu.addAction(ac)
 
     def library_name(self):
@@ -120,8 +124,8 @@ class ChooseLibraryAction(InterfaceAction):
         self.quick_menu.clear()
         self.qs_locations = [i[1] for i in locations]
         for name, loc in locations:
-            self.quick_menu.addAction(name, partial(self.switch_requested,
-                loc))
+            self.quick_menu.addAction(name, Dispatcher(partial(self.switch_requested,
+                loc)))
 
         for i, x in enumerate(locations[:len(self.switch_actions)]):
             name, loc = x
