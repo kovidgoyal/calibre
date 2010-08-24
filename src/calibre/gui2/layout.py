@@ -15,7 +15,7 @@ from PyQt4.Qt import QIcon, Qt, QWidget, QToolBar, QSize, \
 from calibre.constants import __appname__
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
 from calibre.gui2.throbber import ThrobbingButton
-from calibre.gui2 import config, gprefs
+from calibre.gui2 import gprefs
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre import human_readable
 
@@ -207,14 +207,11 @@ class ToolBar(QToolBar): # {{{
         self.setOrientation(Qt.Horizontal)
         self.setAllowedAreas(Qt.TopToolBarArea|Qt.BottomToolBarArea)
         self.setStyleSheet('QToolButton:checked { font-weight: bold }')
-        self.donate = donate
+        self.donate_button = donate
         self.apply_settings()
 
         self.location_manager = location_manager
         self.location_manager.locations_changed.connect(self.build_bar)
-        self.d_widget = QWidget()
-        self.d_widget.setLayout(QVBoxLayout())
-        self.d_widget.layout().addWidget(donate)
         donate.setAutoRaise(True)
         donate.setCursor(Qt.PointingHandCursor)
         self.build_bar()
@@ -228,7 +225,7 @@ class ToolBar(QToolBar): # {{{
         if gprefs.get('toolbar_text', 'auto') == 'never':
             style = Qt.ToolButtonIconOnly
         self.setToolButtonStyle(style)
-        self.donate.set_normal_icon_size(sz, sz)
+        self.donate_button.set_normal_icon_size(sz, sz)
 
     def contextMenuEvent(self, *args):
         pass
@@ -247,7 +244,10 @@ class ToolBar(QToolBar): # {{{
                 for ac in self.location_manager.available_actions:
                     self.addAction(ac)
                     self.setup_tool_button(ac, QToolButton.MenuButtonPopup)
-            elif what == 'Donate' and config['show_donate_button']:
+            elif what == 'Donate':
+                self.d_widget = QWidget()
+                self.d_widget.setLayout(QVBoxLayout())
+                self.d_widget.layout().addWidget(self.donate_button)
                 self.addWidget(self.d_widget)
             elif what in self.gui.iactions:
                 action = self.gui.iactions[what]
@@ -278,7 +278,7 @@ class ToolBar(QToolBar): # {{{
 
 # }}}
 
-class MainWindowMixin(object):
+class MainWindowMixin(object): # {{{
 
     def __init__(self, db):
         self.setObjectName('MainWindow')
@@ -304,7 +304,7 @@ class MainWindowMixin(object):
         l = self.centralwidget.layout()
         l.addWidget(self.search_bar)
 
-
+# }}}
 
 
 

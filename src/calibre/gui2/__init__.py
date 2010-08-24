@@ -93,8 +93,6 @@ def _config():
     c.add_opt('default_send_to_device_action', default=None,
             help=_('Default action to perform when send to device button is '
                 'clicked'))
-    c.add_opt('show_donate_button', default=True,
-            help='Show donation button')
     c.add_opt('asked_library_thing_password', default=False,
             help='Asked library thing password at least once.')
     c.add_opt('search_as_you_type', default=True,
