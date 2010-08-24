@@ -97,6 +97,7 @@ class LocationManager(QObject): # {{{
         self.free[2] = fs[2] if fs[2] is not None and cpb is not None else -1
         self.update_tooltips()
         if self.has_device != had_device:
+            self.location_library.setChecked(True)
             self.locations_changed.emit()
             if not self.has_device:
                 self.location_library.trigger()
