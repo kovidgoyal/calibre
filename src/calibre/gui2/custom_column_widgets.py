@@ -550,9 +550,7 @@ class BulkText(BulkBase):
             remove_all, adding, rtext = self.gui_val
             remove = set()
             if remove_all:
-                for book_id in book_ids:
-                    remove |= set(self.db.get_custom(book_id, num=self.col_id,
-                                                     index_is_id=True))
+                remove = set(self.db.all_custom(num=self.col_id))
             else:
                 txt = rtext
                 if txt:

@@ -98,14 +98,14 @@ class DateDelegate(QStyledItemDelegate): # {{{
         d = val.toDate()
         if d <= UNDEFINED_QDATE:
             return ''
-        return format_date(d.toPyDate(), 'dd MMM yyyy')
+        format = tweaks['gui_timestamp_display_format']
+        if format is None:
+            format = 'dd MMM yyyy'
+        return format_date(d.toPyDate(), format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        stdformat = unicode(qde.displayFormat())
-        if 'yyyy' not in stdformat:
-            stdformat = stdformat.replace('yy', 'yyyy')
-        qde.setDisplayFormat(stdformat)
+        qde.setDisplayFormat('dd MMM yyyy')
         qde.setMinimumDate(UNDEFINED_QDATE)
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)

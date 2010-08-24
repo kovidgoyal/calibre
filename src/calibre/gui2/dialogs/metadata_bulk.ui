@@ -140,7 +140,7 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="4" column="1" colspan="2">
           <widget class="EnComboBox" name="publisher">
            <property name="editable">
             <bool>true</bool>
@@ -191,14 +191,23 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="1" colspan="2">
+         <item row="6" column="1">
           <widget class="TagsLineEdit" name="remove_tags">
            <property name="toolTip">
             <string>Comma separated list of tags to remove from the books. </string>
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
+         <item row="6" column="2">
+          <widget class="QCheckBox" name="remove_all_tags">
+           <property name="text">
+            <string>Remove all</string>
+           </property>
+           <property name="toolTip">
+            <string>Check this box to remove all tags from the books.</string>
+           </property>
+          </widget>
+         </item><item row="7" column="0">
           <widget class="QLabel" name="label_7">
            <property name="text">
             <string>&amp;Series:</string>
