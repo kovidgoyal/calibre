@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-20 20:19+0000\n"
-"PO-Revision-Date: 2010-08-22 22:38+0000\n"
+"PO-Revision-Date: 2010-08-23 19:59+0000\n"
 "Last-Translator: Bingen Markes <Unknown>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-23 03:53+0000\n"
+"X-Launchpad-Export-Date: 2010-08-24 03:35+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -774,7 +774,7 @@ msgstr "Jar zaitez harremanetan \"Sweex MM300\" horrekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Kogan"
-msgstr ""
+msgstr "Jar zaitez Koganekin harremanetan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:87
 msgid "Communicate with the Pandigital Novel"
@@ -1762,7 +1762,7 @@ msgstr "Sortzen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 msgid "Failed to parse: %s with error: %s"
-msgstr ""
+msgstr "Huts egin du prozesatzen: %s akatsarekin: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
@@ -2134,7 +2134,7 @@ msgid ""
 "Show/edit the metadata in an LRF file.\n"
 "\n"
 msgstr ""
-"%prog [options] mybook.lrf\n"
+"%prog [aukerak] nireliburua.lrf\n"
 "\n"
 "\n"
 "\n"
@@ -3607,24 +3607,24 @@ msgstr "Kopiatu hautatutako liburuak adierazitako liburutegian"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:97
 msgid "Cannot copy"
-msgstr ""
+msgstr "Ezin kopiatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:102
 msgid "No library"
-msgstr ""
+msgstr "Liburutegirik ez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:103
 msgid "No library found at %s"
-msgstr ""
+msgstr "Ez da liburutegirik topatu hemen %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:110
 msgid "Copying"
-msgstr ""
+msgstr "Kopiatzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:120
 msgid "Could not copy books: "
-msgstr ""
+msgstr "Ezin izan dira liburuak kopiatu: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:678
@@ -3634,7 +3634,7 @@ msgstr "Huts egin du"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:123
 msgid "Copied %d books to %s"
-msgstr ""
+msgstr "Kopiatuta %d liburuak hona %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:18
 msgid "Del"
@@ -5959,7 +5959,7 @@ msgstr "&Itsatsi arbeletik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:68
 msgid "Fit &cover within view"
-msgstr ""
+msgstr "Bateratu &liburu-azala bistaratzen denarekin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:69
 msgid "&Previous"
@@ -6651,7 +6651,7 @@ msgstr "User Interface &layout (needs restart):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:640
 msgid "Restriction to apply when the current library is opened:"
-msgstr ""
+msgstr "Oraingo liburutegian zabalik dagoenean aplikatzeko murrizketak:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:641
 msgid ""
@@ -6826,7 +6826,7 @@ msgstr "Max. OPDS &ungrouped items:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:675
 msgid "Restriction (saved search) to apply:"
-msgstr ""
+msgstr "Murrizketak (gordetako bilaketa) aplikatzeko:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:676
 msgid ""
@@ -7010,6 +7010,8 @@ msgid ""
 "The lookup name must contain only lower case letters, digits and "
 "underscores, and start with a letter"
 msgstr ""
+"Bilatzen ari garen izenak letra xeheak besterik ezin ditu izan eta zenbakiak "
+"eta azpi-marrak, hau da __; letra xehe batekin hasi beharko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:116
 msgid "No column heading was provided"
@@ -7136,47 +7138,47 @@ msgstr "Downloading social metadata, please wait..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:50
 msgid "Separator"
-msgstr ""
+msgstr "Bereizlea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:63
 msgid "Choose library"
-msgstr ""
+msgstr "Aukeratu liburutegia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:113
 msgid "The main toolbar"
-msgstr ""
+msgstr "Tresnabarra nagusia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:114
 msgid "The main toolbar when a device is connected"
-msgstr ""
+msgstr "Tresnabarra nagusia irakurgailua konektaturik dagoenean"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:115
 msgid "The context menu for the books in the calibre library"
-msgstr ""
+msgstr "calibreren liburutegiko liburuetako testuinguruko menua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:117
 msgid "The context menu for the books on the device"
-msgstr ""
+msgstr "Ez dago testuinguruko menurik irakurgailuko liburuentzat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:94
 msgid "Customize the actions in:"
-msgstr ""
+msgstr "Pertsonalizatu ekintzak hemen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:95
 msgid "A&vailable actions"
-msgstr ""
+msgstr "Egin&daitezkeen ekintzak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:96
 msgid "&Current actions"
-msgstr ""
+msgstr "&Oraingo ekintzak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:97
 msgid "Move selected action up"
-msgstr ""
+msgstr "Mugi ezazu gora hautatutako ekintza"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:99
 msgid "Move selected action down"
-msgstr ""
+msgstr "Mugi ezazu behera hautatutako ekintza"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:78
@@ -7185,11 +7187,11 @@ msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:102
 msgid "Add selected actions to toolbar"
-msgstr ""
+msgstr "Gehi itzazu hautatutako ekintzak tresnabarrara"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:104
 msgid "Remove selected actions from toolbar"
-msgstr ""
+msgstr "Ezaba itzazu hautatutako ekintzak tresnabarratik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:50
 msgid "&Show this warning again"
@@ -7355,6 +7357,7 @@ msgstr "Editing meta information for <b>%d books</b>"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:222
 msgid "Applying changes to %d books. This may take a while."
 msgstr ""
+"Aplikatu aldaketak %d liburuetara. Honek denbora une bat beharko du, agian."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:157
 msgid "Edit Meta information"
@@ -7699,7 +7702,7 @@ msgstr "Aborting..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:76
 msgid "Working"
-msgstr ""
+msgstr "Lanean"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:54
 msgid ""
@@ -8564,11 +8567,11 @@ msgstr "Jobs:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:285
 msgid "Shift+Alt+J"
-msgstr ""
+msgstr "Maiusk+Alt+J"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:302
 msgid "Click to see list of jobs"
-msgstr ""
+msgstr "Egin klik lanen zerrenda ikusteko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:371
 msgid " - Jobs"
@@ -10854,35 +10857,37 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:821
 msgid "Error: You must specify an action (add|remove|list)"
-msgstr ""
+msgstr "Errorea: ekintza bat zehaztu behar duzu (gehitu|ezabatu|zerrendatu)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:829
 msgid "Name:"
-msgstr ""
+msgstr "Izena:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:830
 msgid "Search string:"
-msgstr ""
+msgstr "Katea bilatzen:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:836
 msgid "Error: You must specify a name and a search string"
-msgstr ""
+msgstr "Errorea: zehaztu behar duzu izen bat eta bilaketa-kate bat"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:839
 msgid "added"
-msgstr ""
+msgstr "gehiturik"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:844
 msgid "Error: You must specify a name"
-msgstr ""
+msgstr "Errorea: izen bat zehaztu behar duzu"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:847
 msgid "removed"
-msgstr ""
+msgstr "ezabaturik"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:851
 msgid "Error: Action %s not recognized, must be one of: (add|remove|list)"
 msgstr ""
+"Errorea: %s ekintza ezezaguntzat hartu da, hauetako bat beharko: "
+"(gehitu|ezabatu|zerrendatu)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:865
 msgid ""
@@ -11178,7 +11183,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:110
 msgid "%d book"
-msgstr ""
+msgstr "%d liburua"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:129
 msgid "%d items"
@@ -11553,18 +11558,18 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 msgid "You"
-msgstr "You"
+msgstr "Zu"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:73
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:82
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:193
 msgid "Scheduled"
-msgstr "Scheduled"
+msgstr "Programatua"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:84
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:194
 msgid "Custom"
-msgstr "Custom"
+msgstr "Pertsonalizatua"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
 msgid ""
