@@ -209,7 +209,7 @@ class HTMLPreProcessor(object):
                   (re.compile(ur'\u00a0'), lambda match : ' '),
 
                   # Detect Chapters to match default XPATH in GUI
-                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<(i|b)>(<(i|b)>)?)?(.?Chapter|Epilogue|Prologue|Book|Part)\s*([\d\w-]+(\s\w+)?)?(</(i|b)>(</(i|b)>)?)?)</?(br|p)[^>]*>\s*(?P<title>(<(i|b)>)?\s*\w+(\s*\w+)?\s*(</(i|b)>)?\s*(</?(br|p)[^>]*>))?', re.IGNORECASE), chap_head),
+                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<(i|b)>(<(i|b)>)?)?(.?Chapter|Epilogue|Prologue|Book|Part|Dedication)\s*([\d\w-]+(\s\w+)?)?(</(i|b)>(</(i|b)>)?)?)</?(br|p)[^>]*>\s*(?P<title>(<(i|b)>)?\s*\w+(\s*\w+)?\s*(</(i|b)>)?\s*(</?(br|p)[^>]*>))?', re.IGNORECASE), chap_head),
                   (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>([A-Z \'"!]{5,})\s*(\d+|\w+)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
 
                   # Have paragraphs show better
