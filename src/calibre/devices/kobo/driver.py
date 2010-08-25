@@ -72,7 +72,7 @@ class KOBO(USBMS):
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
-        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID):
+        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus):
             changed = False
             # if path_to_ext(path) in self.FORMATS:
             try:
@@ -81,6 +81,13 @@ class KOBO(USBMS):
                     lpath = lpath[len(os.sep):]
                     lpath = lpath.replace('\\', '/')
 #                print "LPATH: " + lpath
+
+                playlist_map = {}
+
+                if readstatus == 1:
+                    if lpath not in playlist_map:
+                        playlist_map[lpath] = []
+                    playlist_map[lpath].append("I\'m Reading")
 
                 path = self.normalize_path(path)
                 # print "Normalized FileName: " + path
@@ -97,11 +104,13 @@ class KOBO(USBMS):
                         if self.update_metadata_item(bl[idx]):
                             # print 'update_metadata_item returned true'
                             changed = True
+                    bl[idx].device_collections = playlist_map.get(lpath, [])
                 else:
                     book = Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
                     # print 'Update booklist'
                     if bl.add_book(book, replace_metadata=False):
                         changed = True
+                    book.device_collections = playlist_map.get(book.lpath, [])
             except: # Probably a path encoding error
                 import traceback
                 traceback.print_exc()
@@ -117,7 +126,7 @@ class KOBO(USBMS):
         #cursor.close()
 
         query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID from content where BookID is Null'
+                'ImageID, ReadStatus from content where BookID is Null'
 
         cursor.execute (query)
 
@@ -129,10 +138,10 @@ class KOBO(USBMS):
             mime = mime_type_ext(path_to_ext(row[3]))
 
             if oncard != 'carda' and oncard != 'cardb' and not row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6])
+                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7])
                 # print "shortbook: " + path
             elif oncard == 'carda' and row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6])
+                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7])
 
             if changed:
                 need_sync = True
