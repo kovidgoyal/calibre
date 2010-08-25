@@ -19,6 +19,12 @@ class FB2Output(OutputFormatPlugin):
         OptionRecommendation(name='inline_toc',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Add Table of Contents to beginning of the book.')),
+        OptionRecommendation(name='sectionize_chapters',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Try to turn chapters into individual sections. ' \
+                   'WARNING: ' \
+                   'This option is experimental. It can cause conversion ' \
+                   'to fail. It can also produce unexpected output.')),
     ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
