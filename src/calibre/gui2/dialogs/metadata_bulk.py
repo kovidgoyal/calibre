@@ -199,7 +199,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         for w in getattr(self, 'custom_column_widgets', []):
             w.gui_val
 
-        remove = unicode(self.remove_tags.text()).strip().split(',')
+        if self.remove_all_tags.isChecked():
+            remove = self.db.all_tags()
+        else:
+            remove = unicode(self.remove_tags.text()).strip().split(',')
         add = unicode(self.tags.text()).strip().split(',')
         au = unicode(self.authors.text())
         aus = unicode(self.author_sort.text())

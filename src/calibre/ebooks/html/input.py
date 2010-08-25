@@ -491,7 +491,7 @@ class HTMLInput(InputFormatPlugin):
         return (None, raw)
 
 	def preprocess_html(self, html):
-		print "*********  Preprocessing HTML  *********\n"
+		self.log("*********  Preprocessing HTML  *********")
 		# Detect Chapters to match the xpath in the GUI
 		chapdetect = re.compile(r'(?=</?(br|p|span))(</?(br|p|span)[^>]*>)?\s*(?P<chap>(<(i|b)><(i|b)>|<(i|b)>)?(.?Chapter|Epilogue|Prologue|Book|Part|Dedication)\s*([\d\w-]+(\s\w+)?)?(</(i|b)></(i|b)>|</(i|b)>)?)(</?(p|br|span)[^>]*>)', re.IGNORECASE)
 		html = chapdetect.sub('<h2>'+'\g<chap>'+'</h2>\n', html)
@@ -500,7 +500,7 @@ class HTMLInput(InputFormatPlugin):
 		# Insert extra line feeds so the line length regex functions properly
 		html = re.sub(r"</p>", "</p>\n", html)
 		length = line_length('html', html, 0.4)
-		print "*** Median length is " + str(length) + " ***\n"
+		self.log.debug("*** Median length is " + str(length) + " ***")
 		unwrap = re.compile(r"(?<=.{%i}[a-z,;:\IA])\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
 		if length < 150:
 			html = unwrap.sub(' ', html)

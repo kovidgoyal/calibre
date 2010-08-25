@@ -229,13 +229,13 @@ class RTFInput(InputFormatPlugin):
             res = transform.tostring(result)
             res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
             if self.options.preprocess_html:
-                print "*********  Preprocessing HTML  *********\n"
+                self.log("*********  Preprocessing HTML  *********")
                 # Detect Chapters to match the xpath in the GUI
                 chapdetect = re.compile(r'<p[^>]*>\s*<span[^>]*>\s*(?P<chap>(<(i|b)>(<(i|b)>)?)?(.?Chapter|Epilogue|Prologue|Book|Part|Dedication)\s*([\d\w-]+(\s\w+)?)?(</(i|b)>(<(/i|b)>)?)?)\s*</span>\s*</p>', re.IGNORECASE)
                 res = chapdetect.sub('<h2>'+'\g<chap>'+'</h2>\n', res)
                 # Unwrap lines using punctation if the median length of all lines is less than 150
                 length = line_length('html', res, 0.4)
-                print "*** Median length is " + str(length) + " ***\n"
+                self.log("*** Median length is " + str(length) + " ***")
                 unwrap = re.compile(r"(?<=.{%i}[a-z,;:\IA])\s*</span>\s*</p>\s*(?P<up2threeblanks><p[^>]*>\s*(<span[^>]*>\s*</span>\s*)</p>\s*){0,3}\s*<p[^>]*>\s*<span[^>]*>\s*" % length, re.UNICODE)
                 if length < 150:
                     res = unwrap.sub(' ', res)

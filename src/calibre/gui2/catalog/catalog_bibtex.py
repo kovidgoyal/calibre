@@ -19,7 +19,7 @@ class PluginWidget(QWidget, Ui_Form):
                      ('bib_entry', 0), #mixed
                      ('bibfile_enc', 0), #utf-8
                      ('bibfile_enctag', 0), #strict
-                     ('impcit', True) ] 
+                     ('impcit', True) ]
 
     sync_enabled = False
     formats = set(['bib'])
@@ -52,7 +52,7 @@ class PluginWidget(QWidget, Ui_Form):
                 getattr(self, opt[0]).setText(opt_value)
 
     def options(self):
-        
+
         # Save the currently activated fields
         fields = []
         for x in xrange(self.db_fields.count()):
@@ -66,7 +66,7 @@ class PluginWidget(QWidget, Ui_Form):
             opts_dict = {'fields':[unicode(item.text()) for item in self.db_fields.selectedItems()]}
         else:
             opts_dict = {'fields':['all']}
-        
+
         # Save/return the current options
         # bib_cit stores as text
         # 'bibfile_enc','bibfile_enctag' stores as int (Indexes)
@@ -78,7 +78,7 @@ class PluginWidget(QWidget, Ui_Form):
             else :
                 opt_value = unicode(getattr(self, opt[0]).text())
             gprefs.set(self.name + '_' + opt[0], opt_value)
-            
+
             opts_dict[opt[0]] = opt_value
 
         return opts_dict

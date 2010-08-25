@@ -50,6 +50,8 @@ class Listener(Thread): # {{{
         self.start()
 
     def run(self):
+        if self.listener is None:
+            return
         while self._run:
             try:
                 conn = self.listener.accept()

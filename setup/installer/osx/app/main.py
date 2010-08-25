@@ -373,6 +373,7 @@ class Py2App(object):
                 CFBundleName=APPNAME,
                 CFBundleIdentifier='net.kovidgoyal.calibre',
                 CFBundleVersion=VERSION,
+                CFBundleShortVersionString=VERSION,
                 CFBundlePackageType='APPL',
                 CFBundleSignature='????',
                 CFBundleExecutable='calibre',
