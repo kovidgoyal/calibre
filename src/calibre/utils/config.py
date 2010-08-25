@@ -707,7 +707,7 @@ def _prefs():
     c.add_opt('output_format', default='EPUB',
               help=_('The default output format for ebook conversions.'))
     c.add_opt('input_format_order', default=['EPUB', 'MOBI', 'LIT', 'PRC',
-        'FB2', 'HTML', 'HTM', 'XHTM', 'SHTML', 'XHTML', 'ODT', 'RTF', 'PDF',
+        'FB2', 'HTML', 'HTM', 'XHTM', 'SHTML', 'XHTML', 'ZIP', 'ODT', 'RTF', 'PDF',
         'TXT'],
               help=_('Ordered list of formats to prefer for input.'))
     c.add_opt('read_file_metadata', default=True,
