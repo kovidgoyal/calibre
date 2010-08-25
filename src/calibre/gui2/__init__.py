@@ -19,7 +19,34 @@ from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
 
+# Setup gprefs {{{
 gprefs = JSONConfig('gui')
+
+gprefs.defaults['action-layout-toolbar'] = (
+        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
+        'Choose Library', 'Donate', None, 'Fetch News', 'Save To Disk',
+        'Connect Share', None, 'Remove Books', None, 'Help', 'Preferences',
+        )
+
+gprefs.defaults['action-layout-toolbar-device'] = (
+        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
+        'Send To Device', None, None, 'Location Manager', None, None,
+        'Fetch News', 'Save To Disk', 'Connect Share', None,
+        'Remove Books', None, 'Help', 'Preferences',
+        )
+
+gprefs.defaults['action-layout-context-menu'] = (
+        'Edit Metadata', 'Send To Device', 'Save To Disk',
+        'Connect Share', 'Copy To Library', None,
+        'Convert Books', 'View', 'Open Folder', 'Show Book Details',
+        'Similar Books', None, 'Remove Books',
+        )
+
+gprefs.defaults['action-layout-context-menu-device'] = (
+        'View', 'Save To Disk', None, 'Remove Books', None,
+        'Add To Library', 'Edit Collections',
+        )
+# }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
 UNDEFINED_QDATE = QDate(UNDEFINED_DATE)
@@ -66,8 +93,6 @@ def _config():
     c.add_opt('default_send_to_device_action', default=None,
             help=_('Default action to perform when send to device button is '
                 'clicked'))
-    c.add_opt('show_donate_button', default=True,
-            help='Show donation button')
     c.add_opt('asked_library_thing_password', default=False,
             help='Asked library thing password at least once.')
     c.add_opt('search_as_you_type', default=True,

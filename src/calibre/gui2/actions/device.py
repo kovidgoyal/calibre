@@ -19,6 +19,7 @@ class ShareConnMenu(QMenu): # {{{
     connect_to_itunes = pyqtSignal()
     config_email = pyqtSignal()
     toggle_server = pyqtSignal()
+    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -95,6 +96,8 @@ class SendToDeviceAction(InterfaceAction):
 
     name = 'Send To Device'
     action_spec = (_('Send to device'), 'sync.svg', None, _('D'))
+    dont_remove_from = frozenset(['toolbar-device'])
+    dont_add_to = frozenset(['toolbar', 'context-menu'])
 
     def genesis(self):
         self.qaction.triggered.connect(self.do_sync)

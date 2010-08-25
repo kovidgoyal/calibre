@@ -60,6 +60,17 @@ class InterfaceAction(QObject):
     #: shortcut must be a translated string if not None
     action_spec = ('text', 'icon', None, None)
 
+    #: Set of locations to which this action must not be added.
+    #: See :attr:`all_locations` for a list of possible locations
+    dont_add_to = frozenset([])
+
+    #: Set of locations from which this action must not be removed.
+    #: See :attr:`all_locations` for a list of possible locations
+    dont_remove_from = frozenset([])
+
+    all_locations = frozenset(['toolbar', 'toolbar-device', 'context-menu',
+        'context-menu-device'])
+
     def __init__(self, parent, site_customization):
         QObject.__init__(self, parent)
         self.setObjectName(self.name)
