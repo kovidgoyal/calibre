@@ -193,7 +193,7 @@ class KOBO(USBMS):
         connection.commit()
 
         cursor.close()
-        if ImageID != None:
+        if ImageID == None:
             print "Error condition ImageID was not found"
             print "You likely tried to delete a book that the kobo has not yet added to the database"
 
