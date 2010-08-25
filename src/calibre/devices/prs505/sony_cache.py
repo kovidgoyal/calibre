@@ -368,7 +368,7 @@ class XMLCache(object):
                 if book.device_collections is None:
                     book.device_collections = []
                 book.device_collections = playlist_map.get(book.lpath, [])
-            debug_print('Timezone votes: %d GMT, %d LTZ, use_tz_var='%
+            debug_print('Timezone votes: %d GMT, %d LTZ, use_tz_var= %d'%
                                         (gtz_count, ltz_count, use_tz_var))
             self.update_playlists(i, root, booklist, collections_attributes)
         # Update the device collections because update playlist could have added
