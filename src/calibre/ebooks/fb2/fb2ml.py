@@ -91,7 +91,7 @@ class FB2MLizer(object):
         return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
 
     def clean_text(self, text):
-        text = re.sub('<p>\s*</p>', '', text)
+        text = re.sub(r'<p>\s*</p>', '', text)
 
         return text
 
