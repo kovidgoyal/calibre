@@ -5,9 +5,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QWidget, pyqtSignal
+from PyQt4.Qt import QWidget, pyqtSignal, QCheckBox
 
 from calibre.customize.ui import preferences_plugins
+from calibre.utils.config import DynamicConfig, XMLConfig
 
 class ConfigWidgetInterface(object):
 
@@ -21,6 +22,51 @@ class ConfigWidgetInterface(object):
 
     def commit(self):
         pass
+
+class Setting(object):
+
+    def __init__(self, name, config_obj, widget, gui_name=None):
+        self.name, self.gui_name = name, gui_name
+        if gui_name is None:
+            self.gui_name = 'opt_'+name
+        self.config_obj = config_obj
+        self.gui_obj = getattr(widget, self.gui_name)
+
+        if isinstance(self.gui_obj, QCheckBox):
+            self.datatype = 'bool'
+            self.gui_obj.stateChanged.connect(lambda x:
+                    widget.changed_signal.emit())
+        else:
+            raise ValueError('Unknown data type')
+
+        if isinstance(config_obj, (DynamicConfig, XMLConfig)):
+            self.config_type = 'dict'
+        else:
+            raise ValueError('Unknown config type')
+
+    def initialize(self):
+        self.set_gui_val()
+
+    def commit(self):
+        self.set_config_val()
+
+    def restore_defaults(self):
+        self.set_gui_val(to_default=True)
+
+    def set_gui_val(self, to_default=False):
+        if self.config_type == 'dict':
+            if to_default:
+                val = self.config_obj.defaults[self.name]
+            else:
+                val = self.config_obj[self.name]
+        if self.datatype == 'bool':
+            self.gui_obj.setChecked(bool(val))
+
+    def set_config_val(self):
+        if self.datatype == 'bool':
+            val = bool(self.gui_obj.isChecked())
+        if self.config_type == 'dict':
+            self.config_obj[self.name] = val
 
 
 class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
