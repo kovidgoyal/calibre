@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-20 20:19+0000\n"
-"PO-Revision-Date: 2010-08-22 19:04+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-08-24 11:38+0000\n"
+"Last-Translator: Thomaz Rodrigues Botelho <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-23 03:57+0000\n"
+"X-Launchpad-Export-Date: 2010-08-25 03:50+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -3058,7 +3058,7 @@ msgstr "Sobrescrever autor e título com os novos metadados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:95
 msgid "Limit max simultaneous jobs to number of CPUs"
-msgstr ""
+msgstr "Limitar o máximo de tarefas simultâneas ao número de CPUs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:97
 msgid "tag browser categories not to display"
@@ -3371,6 +3371,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:184
 msgid "You cannot change libraries while jobs are running."
 msgstr ""
+"Você não pode mudar bibliotecas enquanto tarefas estão sendo executadas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "C"
@@ -3765,7 +3766,7 @@ msgstr "Não foi possível configurar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:33
 msgid "Cannot configure while there are running jobs."
-msgstr ""
+msgstr "Não pode ser configurado enquanto há tarefas sendo executadas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:38
 msgid "Cannot configure before calibre is restarted."
@@ -4176,7 +4177,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:56
 msgid "Click to open"
-msgstr ""
+msgstr "Clique para abrir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:305
@@ -4193,7 +4194,7 @@ msgstr "Nenhum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:310
 msgid "Click to open Book Details window"
-msgstr "Click para abrir a janela de Detalhes do Livro"
+msgstr "Clique para abrir a janela de Detalhes do Livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -6449,7 +6450,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:654
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
 msgstr ""
-"Limitar o máx. número de processos simultâneos ao número de nú&cleos da CPU"
+"Limitar o máx. número de tarefas simultâneos ao número de nú&cleos da CPU"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:655
 msgid "Debug &device detection"
@@ -7056,19 +7057,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:44
 msgid "Active Jobs"
-msgstr ""
+msgstr "Tarefas Ativas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:45
 msgid "&Stop selected job"
-msgstr ""
+msgstr "&Parar tarefa selecionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:46
 msgid "Show job &details"
-msgstr ""
+msgstr "Mostrar &detalhes da tarefa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:47
 msgid "Stop &all non device jobs"
-msgstr ""
+msgstr "Parar tod&as as tarefas que não são de dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:111
 msgid "Editing meta information for <b>%d books</b>"
@@ -8228,7 +8229,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:62
 msgid "Status"
-msgstr ""
+msgstr "Estado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:63
 msgid "Progress"
@@ -8236,7 +8237,7 @@ msgstr "Progresso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:64
 msgid "Running time"
-msgstr ""
+msgstr "Tempo de execução"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:76
 msgid "There are %d running jobs:"
@@ -8271,7 +8272,7 @@ msgstr "Indísponivel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:283
 msgid "Jobs:"
-msgstr "Trabalhos:"
+msgstr "Tarefas:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:285
 msgid "Shift+Alt+J"
@@ -8279,11 +8280,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:302
 msgid "Click to see list of jobs"
-msgstr ""
+msgstr "Clique para ver a lista de tarefas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:371
 msgid " - Jobs"
-msgstr ""
+msgstr " - Tarefas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:66
 msgid "Eject this device"
@@ -8511,12 +8512,12 @@ msgstr "Página Anterior"
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:188
 msgid "Back"
-msgstr ""
+msgstr "Voltar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:189
 msgid "Forward"
-msgstr ""
+msgstr "Avançar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:135
 msgid "Next match"
@@ -8969,7 +8970,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:511
 msgid "WARNING: Active jobs"
-msgstr ""
+msgstr "AVISO: Tarefas ativas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:569
 msgid ""
@@ -9057,11 +9058,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:156
 msgid "Se&rif family:"
-msgstr ""
+msgstr "Familia Se&rif:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:157
 msgid "&Sans family:"
-msgstr ""
+msgstr "Familia &Sans:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:158
 msgid "&Monospace family:"
@@ -9107,7 +9108,7 @@ msgstr "Máximo comprimento para &visualizar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:170
 msgid "H&yphenate (break line in the middle of large words)"
-msgstr ""
+msgstr "H&ifenizar (quebrar linha no meio de palavras grandes)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:171
 msgid ""
@@ -9119,7 +9120,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:172
 msgid "Default &language for hyphenation:"
-msgstr ""
+msgstr "&Linguagem padrão para hifenização"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:173
 msgid "&Resize images larger than the viewer window (needs restart)"
@@ -9129,7 +9130,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:174
 msgid "&User stylesheet"
-msgstr ""
+msgstr "Folha de estilo do &Usuário"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:175
 msgid "&General"
@@ -9141,7 +9142,7 @@ msgstr "Duplo clique para mudar um atalho do teclado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:177
 msgid "&Keyboard shortcuts"
-msgstr ""
+msgstr "Atalhos do &Teclado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
@@ -9175,7 +9176,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:49
 msgid "Hyphenate text"
-msgstr ""
+msgstr "Hifenizar texto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:51
 msgid "Default language for hyphenation rules"
@@ -9207,7 +9208,7 @@ msgstr "O tamanho da fonte monoespaçada em px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:62
 msgid "The standard font type"
-msgstr ""
+msgstr "O tipo padrão de fonte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:453
 msgid "&Lookup in dictionary"
@@ -9244,31 +9245,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
-msgstr ""
+msgstr "Rolar para a próxima página"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:15
 msgid "Scroll to the previous page"
-msgstr ""
+msgstr "Rolar para a página anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:18
 msgid "Scroll to the next section"
-msgstr ""
+msgstr "Rolar para a próxima seção"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:21
 msgid "Scroll to the previous section"
-msgstr ""
+msgstr "Rolar para a seção anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:24
 msgid "Scroll to the bottom of the section"
-msgstr ""
+msgstr "Rolar para o fim da seção"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:27
 msgid "Scroll to the top of the section"
-msgstr ""
+msgstr "Rolar para o início da seção"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:30
 msgid "Scroll to the end of the document"
-msgstr ""
+msgstr "Rolar para o fim do documento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:33
 msgid "Scroll to the start of the document"
@@ -9276,15 +9277,15 @@ msgstr "Rolar para o início do documento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:36
 msgid "Scroll down"
-msgstr ""
+msgstr "Rolar para baixo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:39
 msgid "Scroll up"
-msgstr ""
+msgstr "Rolar para cima"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:42
 msgid "Scroll left"
-msgstr ""
+msgstr "Rolar para a esquerda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:45
 msgid "Scroll right"
@@ -9301,6 +9302,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:192
 msgid "Go to a reference. To get reference numbers, use the reference mode."
 msgstr ""
+"Ir para uma referência. Para conseguir números de referência, use o Modo de "
+"Referência"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:200
 msgid "Search for text in book"
@@ -9433,7 +9436,7 @@ msgstr "Copiar para a área de transferência"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:202
 msgid "Reference Mode"
-msgstr ""
+msgstr "Modo de Referência"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:203
 msgid "Bookmark"
