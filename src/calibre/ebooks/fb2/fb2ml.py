@@ -91,8 +91,9 @@ class FB2MLizer(object):
         return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
 
     def clean_text(self, text):
-        text = re.sub(r'<p>\s*</p>', '', text)
-
+        text = re.sub(r'(?miu)<p>\s*</p>', '', text)
+        text = re.sub(r'(?miu)\s+</p>', '</p>', text)
+        text = re.sub(r'(?miu)</p><p>', '</p>\n\n<p>', text)
         return text
 
     def fb2_header(self):
