@@ -5,8 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools
-import re
+import functools, re
 
 from calibre import entity_to_unicode
 
@@ -73,7 +72,7 @@ def line_length(format, raw, percent):
     '''
     raw = raw.replace('&nbsp;', ' ')
     if format == 'html':
-    	linere = re.compile('(?<=<p).*?(?=</p>)', re.DOTALL)
+        linere = re.compile('(?<=<p).*?(?=</p>)', re.DOTALL)
     elif format == 'pdf':
         linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
     lines = linere.findall(raw)
@@ -205,9 +204,6 @@ class HTMLPreProcessor(object):
                   # Remove gray background
                   (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
 
-                  # Remove non breaking spaces
-                  (re.compile(ur'\u00a0'), lambda match : ' '),
-
                   # Detect Chapters to match default XPATH in GUI
                   (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<(i|b)>(<(i|b)>)?)?(.?Chapter|Epilogue|Prologue|Book|Part|Dedication)\s*([\d\w-]+(\s\w+)?)?(</(i|b)>(</(i|b)>)?)?)</?(br|p)[^>]*>\s*(?P<title>(<(i|b)>)?\s*\w+(\s*\w+)?\s*(</(i|b)>)?\s*(</?(br|p)[^>]*>))?', re.IGNORECASE), chap_head),
                   (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>([A-Z \'"!]{5,})\s*(\d+|\w+)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
@@ -254,20 +250,27 @@ class HTMLPreProcessor(object):
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
 
-    def __call__(self, html, remove_special_chars=None):
+    def __call__(self, html, remove_special_chars=None,
+            get_preprocess_html=False):
         if remove_special_chars is not None:
             html = remove_special_chars.sub('', html)
         html = html.replace('\0', '')
+        is_pdftohtml = self.is_pdftohtml(html)
         if self.is_baen(html):
             rules = []
         elif self.is_book_designer(html):
             rules = self.BOOK_DESIGNER
-        elif self.is_pdftohtml(html):
+        elif is_pdftohtml:
             rules = self.PDFTOHTML
         else:
             rules = []
 
-        if not self.extra_opts.keep_ligatures:
+        start_rules = []
+        if is_pdftohtml:
+            # Remove non breaking spaces
+            start_rules.append((re.compile(ur'\u00a0'), lambda match : ' '))
+
+        if not getattr(self.extra_opts, 'keep_ligatures', False):
             html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)
 
         end_rules = []
@@ -299,8 +302,34 @@ class HTMLPreProcessor(object):
                     (re.compile(r'(?<=.{%i}[a-z\.,;:)\-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
                 )
 
-        for rule in self.PREPROCESS + rules + end_rules:
+        for rule in self.PREPROCESS + start_rules:
             html = rule[0].sub(rule[1], html)
+
+        if get_preprocess_html:
+            return html
+
+        def dump(raw, where):
+            import os
+            dp = getattr(self.extra_opts, 'debug_pipeline', None)
+            if dp and os.path.exists(dp):
+                odir = os.path.join(dp, 'input')
+                if os.path.exists(odir):
+                    odir = os.path.join(odir, where)
+                    if not os.path.exists(odir):
+                        os.makedirs(odir)
+                    name, i = None, 0
+                    while not name or os.path.exists(os.path.join(odir, name)):
+                        i += 1
+                        name = '%04d.html'%i
+                    with open(os.path.join(odir, name), 'wb') as f:
+                        f.write(raw.encode('utf-8'))
+
+        #dump(html, 'pre-preprocess')
+
+        for rule in rules + end_rules:
+            html = rule[0].sub(rule[1], html)
+
+        #dump(html, 'post-preprocess')
 
         # Handle broken XHTML w/ SVG (ugh)
         if 'svg:' in html and SVG_NS not in html:

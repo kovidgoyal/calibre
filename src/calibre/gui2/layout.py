@@ -219,11 +219,11 @@ class ToolBar(QToolBar): # {{{
         self.preferred_width = self.sizeHint().width()
 
     def apply_settings(self):
-        sz = gprefs.get('toolbar_icon_size', 'medium')
+        sz = gprefs['toolbar_icon_size']
         sz = {'small':24, 'medium':48, 'large':64}[sz]
         self.setIconSize(QSize(sz, sz))
         style = Qt.ToolButtonTextUnderIcon
-        if gprefs.get('toolbar_text', 'auto') == 'never':
+        if gprefs['toolbar_text'] == 'never':
             style = Qt.ToolButtonIconOnly
         self.setToolButtonStyle(style)
         self.donate_button.set_normal_icon_size(sz, sz)
@@ -265,7 +265,7 @@ class ToolBar(QToolBar): # {{{
     def resizeEvent(self, ev):
         QToolBar.resizeEvent(self, ev)
         style = Qt.ToolButtonTextUnderIcon
-        p = gprefs.get('toolbar_text', 'auto')
+        p = gprefs['toolbar_text']
         if p == 'never':
             style = Qt.ToolButtonIconOnly
 

@@ -20,7 +20,7 @@ class Book(MetaInformation):
         'title_sort', 'comments', 'category', 'publisher', 'series',
         'series_index', 'rating', 'isbn', 'language', 'application_id',
         'book_producer', 'lccn', 'lcc', 'ddc', 'rights', 'publication_type',
-        'uuid',
+        'uuid', 'device_collections',
     ]
 
     def __init__(self, prefix, lpath, title, authors, mime, date, ContentType, thumbnail_name, other=None):

@@ -86,10 +86,12 @@ class FB2MLizer(object):
         output.append(self.fb2_footer())
         output = ''.join(output).replace(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk', self.get_toc())
         output = self.clean_text(output)
+        if self.opts.sectionize_chapters:
+            output = self.sectionize_chapters(output)
         return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
 
     def clean_text(self, text):
-        text = re.sub('<p>[ ]*</p>', '', text)
+        text = re.sub(r'<p>\s*</p>', '', text)
 
         return text
 
@@ -148,6 +150,11 @@ class FB2MLizer(object):
                 else:
                     self.oeb.warn('Ignoring toc item: %s not found in document.' % item)
         return ''.join(toc)
+
+    def sectionize_chapters(self, text):
+        text = re.sub(r'(?imsu)(?P<anchor><a\s+id="calibre_link-\d+"\s*/>)\s*(?P<strong>(<p>)*\s*<strong>.+?</strong>\s*(</p>)*)', lambda mo: '</section><section>%s<title>%s</title>' % (mo.group('anchor'), mo.group('strong')), text)
+        text = re.sub(r'(?imsu)<p>\s*(?P<anchor><a\s+id="calibre_link-\d+"\s*/>)\s*</p>\s*(?P<strong>(<p>)*\s*<strong>.+?</strong>\s*(</p>)*)', lambda mo: '</section><section>%s<title>%s</title>' % (mo.group('anchor'), mo.group('strong')), text)
+        return text
 
     def get_text(self):
         text = []

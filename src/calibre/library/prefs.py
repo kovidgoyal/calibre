@@ -15,6 +15,7 @@ class DBPrefs(dict):
     def __init__(self, db):
         dict.__init__(self)
         self.db = db
+        self.defaults = {}
         for key, val in self.db.conn.get('SELECT key,val FROM preferences'):
             val = self.raw_to_object(val)
             dict.__setitem__(self, key, val)
@@ -28,7 +29,10 @@ class DBPrefs(dict):
         return json.dumps(val, indent=2, default=to_json)
 
     def __getitem__(self, key):
-        return dict.__getitem__(self, key)
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            return self.defaults[key]
 
     def __delitem__(self, key):
         dict.__delitem__(self, key)

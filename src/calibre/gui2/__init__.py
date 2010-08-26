@@ -46,6 +46,11 @@ gprefs.defaults['action-layout-context-menu-device'] = (
         'View', 'Save To Disk', None, 'Remove Books', None,
         'Add To Library', 'Edit Collections',
         )
+
+gprefs.defaults['show_splash_screen'] = True
+gprefs.defaults['toolbar_icon_size'] = 'medium'
+gprefs.defaults['toolbar_text'] = 'auto'
+
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
