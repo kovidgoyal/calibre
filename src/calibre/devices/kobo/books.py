@@ -7,11 +7,11 @@ import os
 import re
 import time
 
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre import isbytestring
 
-class Book(MetaInformation):
+class Book(Metadata):
 
     BOOK_ATTRS = ['lpath', 'size', 'mime', 'device_collections', '_new_book']
 
@@ -23,9 +23,9 @@ class Book(MetaInformation):
         'uuid',
     ]
 
-    def __init__(self, prefix, lpath, title, authors, mime, date, ContentType, thumbnail_name, other=None):
-
-        MetaInformation.__init__(self, '')
+    def __init__(self, prefix, lpath, title, authors, mime, date, ContentType,
+                 thumbnail_name, other=None):
+        Metadata.__init__(self, '')
         self.device_collections = []
         self._new_book = False
 
@@ -34,7 +34,7 @@ class Book(MetaInformation):
             self.path = self.path.replace('/', '\\')
             self.lpath = lpath.replace('\\', '/')
         else:
-             self.lpath = lpath
+            self.lpath = lpath
 
         self.title = title
         if not authors:
@@ -52,10 +52,9 @@ class Book(MetaInformation):
             else:
                 self.datetime = time.gmtime(os.path.getctime(self.path))
         except:
-             self.datetime = time.gmtime()
-
-	if thumbnail_name is not None:
-	    self.thumbnail = ImageWrapper(thumbnail_name)
+            self.datetime = time.gmtime()
+        if thumbnail_name is not None:
+            self.thumbnail = ImageWrapper(thumbnail_name)
         self.tags = []
         if other:
             self.smart_update(other)
@@ -90,7 +89,7 @@ class Book(MetaInformation):
         in C{other} takes precedence, unless the information in C{other} is NULL.
         '''
 
-        MetaInformation.smart_update(self, other)
+        Metadata.smart_update(self, other)
 
         for attr in self.BOOK_ATTRS:
             if hasattr(other, attr):

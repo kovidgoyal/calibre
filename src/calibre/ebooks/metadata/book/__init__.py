@@ -24,6 +24,8 @@ SOCIAL_METADATA_FIELDS = frozenset([
     # For example: {'isbn':'123456789', 'doi':'xxxx', ... }
     'classifiers',
     'isbn', # Pseudo field for convenience, should get/set isbn classifier
+    # TODO: not sure what this is, but it is used by OPF
+    'category',
 
 ])
 
@@ -69,7 +71,8 @@ BOOK_STRUCTURE_FIELDS = frozenset([
     ])
 
 USER_METADATA_FIELDS = frozenset([
-    # A dict of a form to be specified
+    # A dict of dicts similar to field_metadata. Each field description dict
+    # also contains a value field with the key #value#.
     'user_metadata',
 ])
 
@@ -86,16 +89,42 @@ DEVICE_METADATA_FIELDS = frozenset([
 CALIBRE_METADATA_FIELDS = frozenset([
     # An application id
     # Semantics to be defined. Is it a db key? a db name + key? A uuid?
+    # (It is currently set to the db_id.)
     'application_id',
+    # the calibre primary key of the item. May want to remove this once Sony's no longer use it
+    'db_id',
     ]
 )
 
+ALL_METADATA_FIELDS =      SOCIAL_METADATA_FIELDS.union(
+                           PUBLICATION_METADATA_FIELDS).union(
+                           BOOK_STRUCTURE_FIELDS).union(
+                           USER_METADATA_FIELDS).union(
+                           DEVICE_METADATA_FIELDS).union(
+                           CALIBRE_METADATA_FIELDS)
 
-SERIALIZABLE_FIELDS = SOCIAL_METADATA_FIELDS.union(
-                      USER_METADATA_FIELDS).union(
-                      PUBLICATION_METADATA_FIELDS).union(
-                      CALIBRE_METADATA_FIELDS).union(
-        frozenset(['lpath'])) # I don't think we need device_collections
+# All fields except custom fields
+STANDARD_METADATA_FIELDS = SOCIAL_METADATA_FIELDS.union(
+                           PUBLICATION_METADATA_FIELDS).union(
+                           BOOK_STRUCTURE_FIELDS).union(
+                           DEVICE_METADATA_FIELDS).union(
+                           CALIBRE_METADATA_FIELDS)
+
+# Metadata fields that smart update should copy without special handling
+COPYABLE_METADATA_FIELDS = SOCIAL_METADATA_FIELDS.union(
+                           PUBLICATION_METADATA_FIELDS).union(
+                           BOOK_STRUCTURE_FIELDS).union(
+                           DEVICE_METADATA_FIELDS).union(
+                           CALIBRE_METADATA_FIELDS) - \
+                           frozenset(['title', 'authors', 'comments', 'cover_data'])
+
+SERIALIZABLE_FIELDS =      SOCIAL_METADATA_FIELDS.union(
+                           USER_METADATA_FIELDS).union(
+                           PUBLICATION_METADATA_FIELDS).union(
+                           CALIBRE_METADATA_FIELDS).union(
+                           DEVICE_METADATA_FIELDS) - \
+                           frozenset(['device_collections'])
+                      # I don't think we need device_collections
 
 # Serialization of covers/thumbnails will have to be handled carefully, maybe
 # as an option to the serializer class

@@ -34,25 +34,24 @@ class SaveTemplate(QWidget, Ui_Form):
         self.option_name = name
 
     def validate(self):
-        tmpl = preprocess_template(self.opt_template.text())
-        fa = {}
-        for x in FORMAT_ARG_DESCS.keys():
-            fa[x]='random long string'
-        try:
-            tmpl.format(**fa)
-        except Exception, err:
-            error_dialog(self, _('Invalid template'),
-                    '<p>'+_('The template %s is invalid:')%tmpl + \
-                    '<br>'+str(err), show=True)
-            return False
+        # TODO: I haven't figured out how to get the custom columns into here,
+        # so for the moment make all templates valid.
         return True
+#        tmpl = preprocess_template(self.opt_template.text())
+#        fa = {}
+#        for x in FORMAT_ARG_DESCS.keys():
+#            fa[x]='random long string'
+#        try:
+#            tmpl.format(**fa)
+#        except Exception, err:
+#            error_dialog(self, _('Invalid template'),
+#                    '<p>'+_('The template %s is invalid:')%tmpl + \
+#                    '<br>'+str(err), show=True)
+#            return False
+#        return True
 
     def save_settings(self, config, name):
         val = unicode(self.opt_template.text())
         config.set(name, val)
         self.opt_template.save_history(self.option_name+'_template_history')
-
-
-
-
 

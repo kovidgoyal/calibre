@@ -6,29 +6,18 @@ __docformat__ = 'restructuredtext en'
 
 import os, re, time, sys
 
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.interface import BookList as _BookList
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre import isbytestring
 from calibre.utils.config import prefs
 
-class Book(MetaInformation):
-
-    BOOK_ATTRS = ['lpath', 'size', 'mime', 'device_collections', '_new_book']
-
-    JSON_ATTRS = [
-        'lpath', 'title', 'authors', 'mime', 'size', 'tags', 'author_sort',
-        'title_sort', 'comments', 'category', 'publisher', 'series',
-        'series_index', 'rating', 'isbn', 'language', 'application_id',
-        'book_producer', 'lccn', 'lcc', 'ddc', 'rights', 'publication_type',
-        'uuid',
-    ]
-
+class Book(Metadata):
     def __init__(self, prefix, lpath, size=None, other=None):
         from calibre.ebooks.metadata.meta import path_to_ext
 
-        MetaInformation.__init__(self, '')
+        Metadata.__init__(self, '')
 
         self._new_book = False
         self.device_collections = []
@@ -71,32 +60,6 @@ class Book(MetaInformation):
     @dynamic_property
     def thumbnail(self):
         return None
-
-    def smart_update(self, other, replace_metadata=False):
-        '''
-        Merge the information in C{other} into self. In case of conflicts, the information
-        in C{other} takes precedence, unless the information in C{other} is NULL.
-        '''
-
-        MetaInformation.smart_update(self, other, replace_metadata)
-
-        for attr in self.BOOK_ATTRS:
-            if hasattr(other, attr):
-                val = getattr(other, attr, None)
-                setattr(self, attr, val)
-
-    def to_json(self):
-        json = {}
-        for attr in self.JSON_ATTRS:
-            val = getattr(self, attr)
-            if isbytestring(val):
-                enc = filesystem_encoding if attr == 'lpath' else preferred_encoding
-                val = val.decode(enc, 'replace')
-            elif isinstance(val, (list, tuple)):
-                val = [x.decode(preferred_encoding, 'replace') if
-                        isbytestring(x) else x for x in val]
-            json[attr] = val
-        return json
 
 class BookList(_BookList):
 

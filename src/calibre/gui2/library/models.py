@@ -372,7 +372,6 @@ class BooksModel(QAbstractTableModel): # {{{
         return ans
 
     def get_metadata(self, rows, rows_are_ids=False, full_metadata=False):
-        # Should this add the custom columns? It doesn't at the moment
         metadata, _full_metadata = [], []
         if not rows_are_ids:
             rows = [self.db.id(row.row()) for row in rows]
@@ -1053,7 +1052,7 @@ class DeviceBooksModel(BooksModel): # {{{
             if hasattr(cdata, 'image_path'):
                 img.load(cdata.image_path)
             else:
-                img.loadFromData(cdata)
+                img.loadFromData(cdata[2])
             if img.isNull():
                 img = self.default_image
             data['cover'] = img

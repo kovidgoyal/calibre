@@ -8,7 +8,7 @@ import sys, re
 from urllib import quote
 
 from calibre.utils.config import OptionParser
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 from calibre import browser
 
@@ -42,10 +42,10 @@ def fetch_metadata(url, max=100, timeout=5.):
     return books
 
 
-class ISBNDBMetadata(MetaInformation):
+class ISBNDBMetadata(Metadata):
 
     def __init__(self, book):
-        MetaInformation.__init__(self, None, [])
+        Metadata.__init__(self, None, [])
 
         self.isbn = book.get('isbn13', book.get('isbn'))
         self.title = book.find('titlelong').string

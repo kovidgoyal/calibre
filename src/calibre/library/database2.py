@@ -509,15 +509,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         Convenience method to return metadata as a L{MetaInformation} object.
         '''
-        aum = self.authors(idx, index_is_id=index_is_id)
-        if aum: aum = [a.strip().replace('|', ',') for a in aum.split(',')]
+        aut_list = self.authors_with_sort_strings(idx, index_is_id=index_is_id)
+        aum = []
+        aus = {}
+        for (author, author_sort) in aut_list:
+            aum.append(author)
+            aus[author] = author_sort
         mi = MetaInformation(self.title(idx, index_is_id=index_is_id), aum)
         mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)
-        if mi.authors:
-            mi.author_sort_map = {}
-            for name, sort in zip(mi.authors, self.authors_sort_strings(idx,
-                index_is_id)):
-                mi.author_sort_map[name] = sort
+        mi.author_sort_map = aus
         mi.comments    = self.comments(idx, index_is_id=index_is_id)
         mi.publisher   = self.publisher(idx, index_is_id=index_is_id)
         mi.timestamp   = self.timestamp(idx, index_is_id=index_is_id)
@@ -534,6 +534,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.isbn = self.isbn(idx, index_is_id=index_is_id)
         id = idx if index_is_id else self.id(idx)
         mi.application_id = id
+        for key,meta in self.field_metadata.iteritems():
+            if meta['is_custom']:
+                mi.set_user_metadata(key, meta)
+                mi.set(key, self.get_custom(idx, label=meta['label'], index_is_id=index_is_id))
         if get_cover:
             mi.cover = self.cover(id, index_is_id=True, as_path=True)
         return mi
@@ -1047,6 +1051,19 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         result = []
         for (sort,) in aut_strings:
             result.append(sort)
+        return result
+
+    # Given a book, return the map of author sort strings for the book's authors
+    def authors_with_sort_strings(self, id, index_is_id=False):
+        id = id if index_is_id else self.id(id)
+        aut_strings = self.conn.get('''
+                        SELECT authors.name, authors.sort
+                        FROM authors, books_authors_link as bl
+                        WHERE bl.book=? and authors.id=bl.author
+                        ORDER BY bl.id''', (id,))
+        result = []
+        for (author, sort,) in aut_strings:
+            result.append((author.replace('|', ','), sort))
         return result
 
     # Given a book, return the author_sort string for authors of the book
