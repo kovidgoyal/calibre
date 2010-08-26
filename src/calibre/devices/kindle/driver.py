@@ -165,11 +165,11 @@ class KINDLE(USBMS):
 
 class KINDLE2(KINDLE):
 
-    name           = 'Kindle 2 Device Interface'
-    description    = _('Communicate with the Kindle 2 eBook reader.')
+    name           = 'Kindle 2/3 Device Interface'
+    description    = _('Communicate with the Kindle 2/3 eBook reader.')
 
     FORMATS        = KINDLE.FORMATS + ['pdf']
-    PRODUCT_ID = [0x0002]
+    PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
 
     def books(self, oncard=None, end_session=True):
