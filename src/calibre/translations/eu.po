@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-20 20:19+0000\n"
-"PO-Revision-Date: 2010-08-23 19:59+0000\n"
+"PO-Revision-Date: 2010-08-25 17:50+0000\n"
 "Last-Translator: Bingen Markes <Unknown>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-24 03:35+0000\n"
+"X-Launchpad-Export-Date: 2010-08-26 03:52+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -2448,7 +2448,7 @@ msgstr "ISBN: %s ez da aurkitu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:117
 msgid "Download covers from librarything.com"
-msgstr "Descargar portadas de librarything.com"
+msgstr "Deskargatu liburu-azalak hemendik: librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:128
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:68
@@ -2473,7 +2473,7 @@ msgstr "Error del servidor LibraryThing.com. Pruebe de nuevo más tarde."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/douban.py:42
 msgid "Downloads metadata from Douban.com"
-msgstr "Descarga los metadatos de Douban.com"
+msgstr "Deskargatu metadatuak hemendik: Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:51
 msgid "Metadata download"
@@ -3296,31 +3296,32 @@ msgstr "A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:25
 msgid "Add books"
-msgstr "Add books"
+msgstr "Liburuak gehitu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:30
 msgid "Add books from a single directory"
-msgstr "Add books from a single directory"
+msgstr "Liburuak gehitu direktorio bakarretik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:32
 msgid ""
 "Add books from directories, including sub-directories (One book per "
 "directory, assumes every ebook file is the same book in a different format)"
 msgstr ""
-"Add books from directories, including sub-directories (One book per "
-"directory, assumes every ebook file is the same book in a different format)"
+"Liburuak gehitu direktorioetatik, azpi-direktorioak barne (Liburu bat "
+"direktorioko, ebook fitxategi guztiak liburu berdina direla formatu "
+"ezberdinetan suposatuz)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:36
 msgid ""
 "Add books from directories, including sub directories (Multiple books per "
 "directory, assumes every ebook file is a different book)"
 msgstr ""
-"Add books from directories, including sub directories (Multiple books per "
-"directory, assumes every ebook file is a different book)"
+"Liburuak gehitu direktorioetatik, azpi-direktorioak barne (Liburu anitz "
+"direktorioko, ebook fitxategi bakoitza liburu ezbedina dela suposatuz)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:40
 msgid "Add Empty book. (Book entry with no formats)"
-msgstr "Add Empty book. (Book entry with no formats)"
+msgstr "Liburu hutsa gehitu. (Liburu sarrera formaturik gabe)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:42
 msgid "Add from ISBN"
@@ -3431,7 +3432,7 @@ msgstr "Liburu fitxategirik ez da aurkitu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
-msgstr "Add books to library"
+msgstr "Liburuak gehitu liburutegira"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:499
@@ -3782,7 +3783,7 @@ msgstr "E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:24
 msgid "Edit metadata"
-msgstr "Edit metadata"
+msgstr "Metadatuak editatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:27
 msgid "Merge book records"
@@ -3794,27 +3795,27 @@ msgstr "M"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:30
 msgid "Edit metadata individually"
-msgstr "Edit metadata individually"
+msgstr "Metadatuak banaka editatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:33
 msgid "Edit metadata in bulk"
-msgstr "Edit metadata in bulk"
+msgstr "Metadatuak batera editatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:36
 msgid "Download metadata and covers"
-msgstr "Download metadata and covers"
+msgstr "Deskargatu metadatuak eta liburu-azalak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:39
 msgid "Download only metadata"
-msgstr "Download only metadata"
+msgstr "Deskargatu metadatuak bakarrik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:41
 msgid "Download only covers"
-msgstr "Download only covers"
+msgstr "Deskargatu liburu-azalak bakarrik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:44
 msgid "Download only social metadata"
-msgstr "Download only social metadata"
+msgstr "Deskargatu sozial-metadatuak bakarrik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:50
 msgid "Merge into first selected book - delete others"
@@ -4615,6 +4616,11 @@ msgid ""
 "- A regex pattern of a single dot excludes all genre tags, generating no "
 "Genre Section"
 msgstr ""
+"Regex tipoak:\n"
+"- Lehenetsitako regex - \\[.+\\] - itxuratik kanpo uzten ditu genero "
+"etiketak [tag], adibidez, [Amazon Freebie]\n"
+"-  dot sinple baten regex eredu batek kanpoan utziko ditu genero etiketa "
+"guztiak, Generorik Gabeko Saila sortuz."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:76
 msgid "Include 'Titles' Section"
@@ -6114,7 +6120,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:197
 msgid "General"
-msgstr "Orokorral"
+msgstr "Orokorra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:198
 msgid "Interface"
@@ -6169,8 +6175,9 @@ msgid ""
 "If checked, downloaded news will be automatically mailed <br>to this email "
 "address (provided it is in one of the listed formats)."
 msgstr ""
-"If checked, downloaded news will be automatically mailed <br>to this email "
-"address (provided it is in one of the listed formats)."
+"Markatuta badago, deskargatutako berriak automatikoki emailez bidaliko dira "
+"<br> email helbide honetara (Zerrendatutako formatuetariko batean onarrituko "
+"da)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:308
 msgid "new email address"
@@ -6510,6 +6517,15 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
+"<li><b>Eskuz kudeatzeko</b>: calibrek metadatuak eguneratzen ditu eta "
+"bildumak gehitzen ditu liburua igortzen denean bakarrik. Aukera honekin "
+"calibrek ez du inoiz bildumarik ezabatuko.</li>\n"
+"<li><b>Igortzerakoan bakarrik</b>: calibrek metadatuak eguneratzen ditu eta "
+"gehitu/ezabatu egingo ditu liburu bateko bildumak irakurgailura igorri eta "
+"gero bakarrik. </li>\n"
+"<li><b>Modu automatikoan kudeatzeko</b>: calibrek modu automatikoan gordeko "
+"ditu irakurgailuan metadatuak calibre liburutegiarekin sinkronizatu, "
+"konektatzen den bakoitzean</li></ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:162
 msgid ""
@@ -6531,7 +6547,7 @@ msgstr "Show notification when &new version is available"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:604
 msgid "Download &social metadata (tags/ratings/etc.) by default"
-msgstr "Download &social metadata (tags/ratings/etc.) by default"
+msgstr "Deskargatu &sozial metadatuak (tags/ratings/etc.) modu lehenetsian"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:605
 msgid "&Overwrite author and title by default when fetching metadata"
@@ -6615,7 +6631,7 @@ msgstr "Search as you type"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:626
 msgid "Automatically send downloaded &news to ebook reader"
-msgstr "Automatically send downloaded &news to ebook reader"
+msgstr "Automatikoki ebook irakurgailura bidali deskargatutako berriak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:627
 msgid "&Delete news from library when it is automatically sent to reader"
@@ -6659,6 +6675,9 @@ msgid ""
 "used. Also applied when switching to this library. Note that this setting is "
 "per library. "
 msgstr ""
+"Aplika ezazu murrizketa hau  calibre abiarazterakoan egungo liburutegia "
+"erabiltzen ari bada. Aplikatu egingo da liburutegi modura aldatzerakoan. "
+"Ohar zaitez ezarpen hau liburutegirako dela. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:642
 msgid "Disable all animations. Useful if you have a slow/old computer."
@@ -9944,8 +9963,8 @@ msgid ""
 "Choose a location for your books. When you add books to calibre, they will "
 "be copied here:"
 msgstr ""
-"Choose a location for your books. When you add books to calibre, they will "
-"be copied here:"
+"Aukeratu kokaleku bat zure liburuentzat. Liburu bat Calibren gehitzen "
+"duzunean, beraiek hemen kopiatuko dira:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:54
 msgid "&Change"
@@ -10504,8 +10523,8 @@ msgid ""
 "Add books to database even if they already exist. Comparison is done based "
 "on book titles."
 msgstr ""
-"Add books to database even if they already exist. Comparison is done based "
-"on book titles."
+"Liburuak datu-basera gehitu, nahiz eta jadanik bertan izan. Konparaketa "
+"liburuen izenburuetan oinarrituko da."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:282
 msgid "Add an empty book (a book with no formats)"
@@ -10854,6 +10873,16 @@ msgid ""
 "    replaced.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog saved_searches [aukerak] list\n"
+"    %prog saved_searches gehitu bilatzen den izena\n"
+"    %prog saved_searches ezabatu izena\n"
+"\n"
+"    Kudeatu datu-basean gordetako bilaketak.\n"
+"    Saiatzen bazara dagoeneko badagoen izenarekin galdera-bilaketa egiten, "
+"zera gertatuko da,\n"
+"    ordeztu egingo dela.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:821
 msgid "Error: You must specify an action (add|remove|list)"
@@ -11180,6 +11209,8 @@ msgid ""
 "Specifies a restriction to be used for this invocation. This option "
 "overrides any per-library settings specified in the GUI"
 msgstr ""
+"Murrizketa bat zehazten du aginte hau ematerakoan. Aukera honek aldera uzten "
+"ditu GUI horretan zehazten diren liburutegietako ezarpenak"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:110
 msgid "%d book"
