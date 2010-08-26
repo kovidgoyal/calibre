@@ -344,7 +344,7 @@ class Adder(QObject): # {{{
                         'books in smaller increments, until you '
                         'find the problem book.'), show=True)
 
-        if not self.continue_updating:
+        if self.continue_updating:
             QTimer.singleShot(200, self.update)
 
 
