@@ -280,19 +280,17 @@ class Adder(QObject): # {{{
         self.pd.set_min(0)
         self.pd.set_max(len(self.ids))
         self.pd.value = 0
-        self.timer = QTimer(self)
         self.db_adder = DBAdder(self.db, self.ids, self.nmap)
         self.db_adder.start()
-        self.connect(self.timer, SIGNAL('timeout()'), self.update)
         self.last_added_at = time.time()
         self.entry_count = len(self.ids)
-        self.timer.start(200)
+        self.continue_updating = True
+        QTimer.singleShot(200, self.update)
 
     def canceled(self):
+        self.continue_updating = False
         if self.rfind is not None:
             self.rfind.canceled = True
-        if self.timer is not None:
-            self.timer.stop()
         if self.worker is not None:
             self.worker.canceled = True
         if hasattr(self, 'db_adder'):
@@ -312,7 +310,7 @@ class Adder(QObject): # {{{
 
     def update(self):
         if self.entry_count <= 0:
-            self.timer.stop()
+            self.continue_updating = False
             self.pd.hide()
             self.process_duplicates()
             return
@@ -334,17 +332,20 @@ class Adder(QObject): # {{{
             pass
 
         if (time.time() - self.last_added_at) > self.ADD_TIMEOUT:
-            self.timer.stop()
+            self.continue_updating = False
             self.pd.hide()
             self.db_adder.end = True
             if not self.callback_called:
-               self.callback([], [], [])
-               self.callback_called = True
+                self.callback([], [], [])
+                self.callback_called = True
             error_dialog(self._parent, _('Adding failed'),
                     _('The add books process seems to have hung.'
                         ' Try restarting calibre and adding the '
                         'books in smaller increments, until you '
                         'find the problem book.'), show=True)
+
+        if not self.continue_updating:
+            QTimer.singleShot(200, self.update)
 
 
     def process_duplicates(self):
