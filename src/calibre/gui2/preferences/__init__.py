@@ -107,6 +107,7 @@ class Setting(object):
                 val = None
         elif self.datatype == 'choices':
             idx = self.gui_obj.currentIndex()
+            if idx < 0: idx = 0
             val = unicode(self.gui_obj.itemData(idx).toString())
         return val
 
@@ -121,8 +122,9 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
             self.setupUi(self)
         self.settings = {}
 
-    def register(self, name, config_obj, widget, gui_name=None):
-        setting = Setting(name, config_obj, widget, gui_name=gui_name)
+    def register(self, name, config_obj, gui_name=None, choices=None, setting=Setting):
+        setting = setting(name, config_obj, self, gui_name=gui_name,
+                choices=choices)
         self.register_setting(setting)
 
     def register_setting(self, setting):
@@ -165,18 +167,19 @@ def test_widget(category, name, gui=None): # {{{
     bb.button(bb.Apply).setEnabled(False)
     w.changed_signal.connect(lambda : bb.button(bb.Apply).setEnable(True))
     l = QVBoxLayout()
-    pl.setLayout(l)
+    d.setLayout(l)
     l.addWidget(w)
+    l.addWidget(bb)
     if gui is None:
         from calibre.gui2.ui import Main
         from calibre.gui2.main import option_parser
-        from calibre.library.db import db
+        from calibre.library import db
         parser = option_parser()
         opts, args = parser.parse_args([])
         actions = tuple(Main.create_application_menubar())
         db = db()
         gui = Main(opts)
-        gui.initialize(db.library_path, db, None, actions)
+        gui.initialize(db.library_path, db, None, actions, show_gui=False)
     w.genesis(gui)
     if d.exec_() == QDialog.Accepted:
         w.commit()
