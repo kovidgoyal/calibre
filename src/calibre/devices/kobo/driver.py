@@ -320,6 +320,7 @@ class KOBO(USBMS):
             book = Book(prefix, lpath, '', '', '', '', '', '', other=info)
             if book.size is None:
                 book.size = os.stat(self.normalize_path(path)).st_size
+            book._new_book = True # Must be before add_book
             booklists[blist].add_book(book, replace_metadata=True)
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
 
