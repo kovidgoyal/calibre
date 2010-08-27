@@ -5,7 +5,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import textwrap
 import os
 import glob
-from calibre.customize import FileTypePlugin, MetadataReaderPlugin, MetadataWriterPlugin
+from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
+    MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 
@@ -577,7 +578,7 @@ plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataWriter')]
 plugins += input_profiles + output_profiles
 
-from calibre.customize import InterfaceActionBase
+# Interface Actions {{{
 
 class ActionAdd(InterfaceActionBase):
     name = 'Add Books'
@@ -670,3 +671,20 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
         ActionCopyToLibrary]
+
+# }}}
+
+# Preferences Plugins {{{
+
+class LookAndFeel(PreferencesPlugin):
+    name = 'Look & Feel'
+    gui_name = _('Look and Feel')
+    category = _('Interface')
+    category_order = 1
+    name_order = 1
+    config_widget = 'calibre.gui2.preferences.look_feel'
+
+plugins += [LookAndFeel]
+
+#}}}
+

@@ -97,6 +97,7 @@ class LocationManager(QObject): # {{{
         self.free[2] = fs[2] if fs[2] is not None and cpb is not None else -1
         self.update_tooltips()
         if self.has_device != had_device:
+            self.location_library.setChecked(True)
             self.locations_changed.emit()
             if not self.has_device:
                 self.location_library.trigger()
@@ -218,11 +219,11 @@ class ToolBar(QToolBar): # {{{
         self.preferred_width = self.sizeHint().width()
 
     def apply_settings(self):
-        sz = gprefs.get('toolbar_icon_size', 'medium')
+        sz = gprefs['toolbar_icon_size']
         sz = {'small':24, 'medium':48, 'large':64}[sz]
         self.setIconSize(QSize(sz, sz))
         style = Qt.ToolButtonTextUnderIcon
-        if gprefs.get('toolbar_text', 'auto') == 'never':
+        if gprefs['toolbar_text'] == 'never':
             style = Qt.ToolButtonIconOnly
         self.setToolButtonStyle(style)
         self.donate_button.set_normal_icon_size(sz, sz)
@@ -231,6 +232,7 @@ class ToolBar(QToolBar): # {{{
         pass
 
     def build_bar(self):
+        self.showing_donate = False
         showing_device = self.location_manager.has_device
         actions = '-device' if showing_device else ''
         actions = gprefs['action-layout-toolbar'+actions]
@@ -249,6 +251,7 @@ class ToolBar(QToolBar): # {{{
                 self.d_widget.setLayout(QVBoxLayout())
                 self.d_widget.layout().addWidget(self.donate_button)
                 self.addWidget(self.d_widget)
+                self.showing_donate = True
             elif what in self.gui.iactions:
                 action = self.gui.iactions[what]
                 self.addAction(action.qaction)
@@ -264,7 +267,7 @@ class ToolBar(QToolBar): # {{{
     def resizeEvent(self, ev):
         QToolBar.resizeEvent(self, ev)
         style = Qt.ToolButtonTextUnderIcon
-        p = gprefs.get('toolbar_text', 'auto')
+        p = gprefs['toolbar_text']
         if p == 'never':
             style = Qt.ToolButtonIconOnly
 
@@ -291,7 +294,7 @@ class MainWindowMixin(object): # {{{
         self._central_widget_layout = QVBoxLayout()
         self.centralwidget.setLayout(self._central_widget_layout)
         self.resize(1012, 740)
-        self.donate_button = ThrobbingButton(self.centralwidget)
+        self.donate_button = ThrobbingButton()
         self.location_manager = LocationManager(self)
 
         self.iactions['Fetch News'].init_scheduler(db)

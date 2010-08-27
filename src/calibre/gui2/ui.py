@@ -50,6 +50,8 @@ class Listener(Thread): # {{{
         self.start()
 
     def run(self):
+        if self.listener is None:
+            return
         while self._run:
             try:
                 conn = self.listener.accept()
@@ -108,7 +110,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         self.iactions = acmap
 
-    def initialize(self, library_path, db, listener, actions):
+    def initialize(self, library_path, db, listener, actions, show_gui=True):
         opts = self.opts
         self.preferences_action, self.quit_action = actions
         self.library_path = library_path
@@ -201,7 +203,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         ####################### Library view ########################
         LibraryViewMixin.__init__(self, db)
 
-        self.show()
+        if show_gui:
+            self.show()
 
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
@@ -249,7 +252,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         self.read_settings()
         self.finalize_layout()
-        self.donate_button.start_animation()
+        if self.tool_bar.showing_donate:
+            self.donate_button.start_animation()
         self.set_window_title()
 
         for ac in self.iactions.values():

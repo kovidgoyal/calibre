@@ -7,7 +7,8 @@ from contextlib import closing
 
 from calibre.customize import Plugin, CatalogPlugin, FileTypePlugin, \
                               MetadataReaderPlugin, MetadataWriterPlugin, \
-                              InterfaceActionBase as InterfaceAction
+                              InterfaceActionBase as InterfaceAction, \
+                              PreferencesPlugin
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.profiles import InputProfile, OutputProfile
 from calibre.customize.builtins import plugins as builtin_plugins
@@ -252,6 +253,17 @@ def interface_actions():
     customization = config['plugin_customization']
     for plugin in _initialized_plugins:
         if isinstance(plugin, InterfaceAction):
+            if not is_disabled(plugin):
+                plugin.site_customization = customization.get(plugin.name, '')
+                yield plugin
+# }}}
+
+# Preferences Plugins # {{{
+
+def preferences_plugins():
+    customization = config['plugin_customization']
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, PreferencesPlugin):
             if not is_disabled(plugin):
                 plugin.site_customization = customization.get(plugin.name, '')
                 yield plugin

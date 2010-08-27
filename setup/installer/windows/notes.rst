@@ -230,14 +230,14 @@ SET(WANT_LIB64 FALSE)
 SET(PODOFO_BUILD_SHARED TRUE)
 SET(PODOFO_BUILD_STATIC FALSE)
 
-cp build/podofo/build/src/Release/podofo.dll bin/
-cp build/podofo/build/src/Release/podofo.lib lib/
-cp build/podofo/build/src/Release/podofo.exp lib/
+cp build/podofo-*/build/src/Release/podofo.dll bin/
+cp build/podofo-*/build/src/Release/podofo.lib lib/
+cp build/podofo-*/build/src/Release/podofo.exp lib/
 
-cp build/podofo/build/podofo_config.h include/podofo/
-cp -r build/podofo/src/* include/podofo/
+cp build/podofo-*/build/podofo_config.h include/podofo/
+cp -r build/podofo-*/src/* include/podofo/
 
-You have to use >0.8.1 (>= revision 1269)
+You have to use >=0.8.2
 
 The following patch (against -r1269) was required to get it to compile:
 
