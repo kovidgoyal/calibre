@@ -132,7 +132,7 @@ class KOBO(USBMS):
 
         changed = False
         for i, row in enumerate(cursor):
-         #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
+        #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
 
             path = self.path_from_contentid(row[3], row[5], oncard)
             mime = mime_type_ext(path_to_ext(row[3]))
