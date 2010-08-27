@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-08-20 20:19+0000\n"
-"PO-Revision-Date: 2010-08-20 23:48+0000\n"
-"Last-Translator: HelioS <Unknown>\n"
+"PO-Revision-Date: 2010-08-26 12:48+0000\n"
+"Last-Translator: Ilya Telegin <devi29rus@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-22 03:45+0000\n"
+"X-Launchpad-Export-Date: 2010-08-27 03:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -770,6 +770,9 @@ msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
+"Файлы \".kobo\" отсутствуют на устройстве в формате книг, они являются "
+"записями в БД sqlite. На текущий момент они не могут быть экспортированы или "
+"просмотрены."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:17
 msgid "Communicate with the Palm Pre"
@@ -785,7 +788,7 @@ msgstr "Устанавливает связь с Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Kogan"
-msgstr ""
+msgstr "Подключение к читалке Kogan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:87
 msgid "Communicate with the Pandigital Novel"
@@ -845,7 +848,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3/K5 reader."
-msgstr ""
+msgstr "Подключиться к читалке Teclast K3/K5"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:36
 msgid "Communicate with the Newsmy reader."
@@ -1710,7 +1713,7 @@ msgstr "Создаю"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 msgid "Failed to parse: %s with error: %s"
-msgstr ""
+msgstr "Не удалось разобрать: %s ошибка: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
@@ -1819,6 +1822,10 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
+"Не используйте файл SVG в качестве обложки. Используйте эту опцию только, "
+"если файл EPUB будет использоваться на устройстве не поддерживающем SVG, "
+"таком как iPhone или JetBook Lite. Без включенной опции, подобные устройства "
+"будут отображать обложку в виде пустой страницы."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
@@ -2345,12 +2352,12 @@ msgstr "Загрузка обложки"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:79
 msgid "Download covers from openlibrary.org"
-msgstr ""
+msgstr "Загрузка обложек с openlibrary.org"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:107
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:136
 msgid "ISBN: %s not found"
-msgstr ""
+msgstr "ISBN: %s не найден"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:117
 msgid "Download covers from librarything.com"
@@ -2512,7 +2519,7 @@ msgstr "Отказаться от сжатия содержимого файла
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:40
 msgid "Tag marking book to be filed with Personal Docs"
-msgstr ""
+msgstr "Тег маркировки книги с личными документами"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:108
 msgid "All articles"
@@ -3436,11 +3443,11 @@ msgstr "Запрещено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:179
 msgid "You cannot change libraries when a device is connected."
-msgstr ""
+msgstr "Вы не можете сменить библиотеку пока устройство подключено."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:184
 msgid "You cannot change libraries while jobs are running."
-msgstr ""
+msgstr "Вы не можете сменить библиотеку во время выполнения операции."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "C"
@@ -3468,32 +3475,32 @@ msgstr "Подготовка к конвертированию %d книг(и)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:63
 msgid "Copy to library"
-msgstr ""
+msgstr "Копировать в библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:64
 msgid "Copy selected books to the specified library"
-msgstr ""
+msgstr "Копировать выделенные книги указанной библиотеки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:97
 msgid "Cannot copy"
-msgstr ""
+msgstr "Не удается скопировать"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:102
 msgid "No library"
-msgstr ""
+msgstr "Нет библиотеки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:103
 msgid "No library found at %s"
-msgstr ""
+msgstr "Не найдено в библиотеке %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:110
 msgid "Copying"
-msgstr ""
+msgstr "Копирование"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:120
 msgid "Could not copy books: "
-msgstr ""
+msgstr "Невозможно скопировать книги: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:678
@@ -3503,7 +3510,7 @@ msgstr "Неудалось"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:123
 msgid "Copied %d books to %s"
-msgstr ""
+msgstr "Скопировано %d книг из %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:18
 msgid "Del"
@@ -10755,6 +10762,8 @@ msgid ""
 "Whenever you pass arguments to %prog that have spaces in them, enclose the "
 "arguments in quotation marks."
 msgstr ""
+"Всякий раз когда передаете аргументы содержащие пробелы в %prog, закрывайте "
+"аргументы в кавычки."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:663
 msgid "Path to the database in which books are stored"
@@ -10786,7 +10795,7 @@ msgstr "Формат книги по умолчанию после преобр�
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:679
 msgid "Ordered list of formats to prefer for input."
-msgstr ""
+msgstr "Упорядоченный список предпочитаемых форматов"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:681
 msgid "Read metadata from files"
@@ -10822,7 +10831,7 @@ msgstr "Ожидание..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:52
 msgid "Stopped"
-msgstr ""
+msgstr "Остановлено"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Finished"
@@ -10942,7 +10951,7 @@ msgstr "Контроль доставки электронной почты"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:118
 msgid "Unknown section"
-msgstr ""
+msgstr "Неизвестный раздел"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:140
 msgid "Unknown feed"
