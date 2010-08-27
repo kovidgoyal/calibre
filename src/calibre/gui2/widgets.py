@@ -11,7 +11,7 @@ from PyQt4.Qt import QIcon, QFont, QLabel, QListWidget, QAction, \
                         QPixmap, QSplitterHandle, QToolButton, \
                         QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal, \
                         QRegExp, QSettings, QSize, QSplitter, \
-                        QPainter, QLineEdit, QComboBox, \
+                        QPainter, QLineEdit, QComboBox, QPen, \
                         QMenu, QStringListModel, QCompleter, QStringList, \
                         QTimer, QRect
 
@@ -151,11 +151,14 @@ class FormatList(QListWidget):
 
 class ImageView(QWidget):
 
+    BORDER_WIDTH = 1
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self._pixmap = QPixmap(self)
         self.setMinimumSize(QSize(150, 200))
         self.setAcceptDrops(True)
+        self.draw_border = True
 
     # Drag 'n drop {{{
     DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS
@@ -229,6 +232,11 @@ class ImageView(QWidget):
         p = QPainter(self)
         p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
         p.drawPixmap(target, pmap)
+        pen = QPen()
+        pen.setWidth(self.BORDER_WIDTH)
+        p.setPen(pen)
+        if self.draw_border:
+            p.drawRect(target)
         p.end()
 
 
