@@ -27,7 +27,7 @@ class SimilarBooksAction(InterfaceAction):
             ac = self.create_action(spec=(text, icon, None, shortcut),
                     attr=target)
             m.addAction(ac)
-            m.triggered.connect(partial(self.show_similar_books, target))
+            ac.triggered.connect(partial(self.show_similar_books, target))
         self.qaction.setMenu(m)
         self.similar_menu = m
 
