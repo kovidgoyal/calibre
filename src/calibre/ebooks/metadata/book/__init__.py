@@ -11,50 +11,39 @@ an empty list/dictionary for complex types and (None, None) for cover_data
 '''
 
 SOCIAL_METADATA_FIELDS = frozenset([
-    'tags', # Ordered list
-    # A floating point number between 0 and 10
-    'rating',
-    # A simple HTML enabled string
-    'comments',
-    # A simple string
-    'series',
-    # A floating point number
-    'series_index',
+    'tags',             # Ordered list
+    'rating',           # A floating point number between 0 and 10
+    'comments',         # A simple HTML enabled string
+    'series',           # A simple string
+    'series_index',     # A floating point number
     # Of the form { scheme1:value1, scheme2:value2}
     # For example: {'isbn':'123456789', 'doi':'xxxx', ... }
     'classifiers',
-    'isbn', # Pseudo field for convenience, should get/set isbn classifier
-    # TODO: not sure what this is, but it is used by OPF
-    'category',
-
+    'isbn',     # Pseudo field for convenience, should get/set isbn classifier
+    'category', # TODO: not sure what this is, but it is used by OPF
 ])
 
 PUBLICATION_METADATA_FIELDS = frozenset([
-    # title must never be None. Should be _('Unknown')
-    'title',
+    'title',            # title must never be None. Should be _('Unknown')
     # Pseudo field that can be set, but if not set is auto generated
     # from title and languages
     'title_sort',
-    # Ordered list of authors. Must never be None, can be [_('Unknown')]
-    'authors',
-    # Map of sort strings for each author
-    'author_sort_map',
+    'authors',          # Ordered list. Must never be None, can be [_('Unknown')]
+    'author_sort_map',  # Map of sort strings for each author
     # Pseudo field that can be set, but if not set is auto generated
     # from authors and languages
     'author_sort',
     'book_producer',
-    # Dates and times must be timezone aware
-    'timestamp',
+    'timestamp',        # Dates and times must be timezone aware
     'pubdate',
     'rights',
     # So far only known publication type is periodical:calibre
     # If None, means book
     'publication_type',
-    # A UUID usually of type 4
-    'uuid',
-    'languages', # ordered list
-    # Simple string, no special semantics
-    'publisher',
+    'uuid',             # A UUID usually of type 4
+    'language',         # the primary language of this book
+    'languages',        # ordered list
+    'publisher',        # Simple string, no special semantics
     # Absolute path to image file encoded in filesystem_encoding
     'cover',
     # Of the form (format, data) where format is, for e.g. 'jpeg', 'png', 'gif'...
@@ -77,22 +66,18 @@ USER_METADATA_FIELDS = frozenset([
 ])
 
 DEVICE_METADATA_FIELDS = frozenset([
-    # Ordered list of strings
-    'device_collections',
-    'lpath', # Unicode, / separated
-    # In bytes
-    'size',
-    # Mimetype of the book file being represented
-    'mime',
+    'device_collections',   # Ordered list of strings
+    'lpath',                # Unicode, / separated
+    'size',                 # In bytes
+    'mime',                 # Mimetype of the book file being represented
+
 ])
 
 CALIBRE_METADATA_FIELDS = frozenset([
-    # An application id
-    # Semantics to be defined. Is it a db key? a db name + key? A uuid?
-    # (It is currently set to the db_id.)
-    'application_id',
-    # the calibre primary key of the item. May want to remove this once Sony's no longer use it
-    'db_id',
+    'application_id',   # An application id, currently set to the db_id.
+    # the calibre primary key of the item.
+    'db_id',            # the calibre primary key of the item.
+                        # TODO: May want to remove once Sony's no longer use it
     ]
 )
 
@@ -124,7 +109,4 @@ SERIALIZABLE_FIELDS =      SOCIAL_METADATA_FIELDS.union(
                            CALIBRE_METADATA_FIELDS).union(
                            DEVICE_METADATA_FIELDS) - \
                            frozenset(['device_collections'])
-                      # I don't think we need device_collections
-
-# Serialization of covers/thumbnails will have to be handled carefully, maybe
-# as an option to the serializer class
+                           # device_collections is rebuilt when needed

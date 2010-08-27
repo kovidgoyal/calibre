@@ -24,6 +24,7 @@ NULL_VALUES = {
                 'author_sort_map': {},
                 'authors'      : [_('Unknown')],
                 'title'        : _('Unknown'),
+                'language'     : 'und'
 }
 
 class Metadata(object):
@@ -68,14 +69,14 @@ class Metadata(object):
     def __setattr__(self, field, val):
         _data = object.__getattribute__(self, '_data')
         if field in STANDARD_METADATA_FIELDS:
-            if not val:
+            if val is None:
                 val = NULL_VALUES.get(field, None)
             _data[field] = val
         elif field in _data['user_metadata'].iterkeys():
             _data['user_metadata'][field]['#value#'] = val
         else:
             # You are allowed to stick arbitrary attributes onto this object as
-            # long as they dont conflict with global or user metadata names
+            # long as they don't conflict with global or user metadata names
             # Don't abuse this privilege
             self.__dict__[field] = val
 
@@ -294,12 +295,13 @@ class Metadata(object):
             fmt('Published', isoformat(self.pubdate))
         if self.rights is not None:
             fmt('Rights', unicode(self.rights))
-        if self.lccn:
-            fmt('LCCN', unicode(self.lccn))
-        if self.lcc:
-            fmt('LCC', unicode(self.lcc))
-        if self.ddc:
-            fmt('DDC', unicode(self.ddc))
+#        TODO: These are not in metadata. Should they be?
+#        if self.lccn:
+#            fmt('LCCN', unicode(self.lccn))
+#        if self.lcc:
+#            fmt('LCC', unicode(self.lcc))
+#        if self.ddc:
+#            fmt('DDC', unicode(self.ddc))
         # CUSTFIELD: What to do about custom fields?
         return u'\n'.join(ans)
 
@@ -311,12 +313,13 @@ class Metadata(object):
         ans += [(_('Producer'), unicode(self.book_producer))]
         ans += [(_('Comments'), unicode(self.comments))]
         ans += [('ISBN', unicode(self.isbn))]
-        if self.lccn:
-            ans += [('LCCN', unicode(self.lccn))]
-        if self.lcc:
-            ans += [('LCC', unicode(self.lcc))]
-        if self.ddc:
-            ans += [('DDC', unicode(self.ddc))]
+#        TODO: These are not in metadata. Should they be?
+#        if self.lccn:
+#            ans += [('LCCN', unicode(self.lccn))]
+#        if self.lcc:
+#            ans += [('LCC', unicode(self.lcc))]
+#        if self.ddc:
+#            ans += [('DDC', unicode(self.ddc))]
         ans += [(_('Tags'), u', '.join([unicode(t) for t in self.tags]))]
         if self.series:
             ans += [(_('Series'), unicode(self.series)+ ' #%s'%self.format_series_index())]
