@@ -25,7 +25,8 @@ system/userannotationlog
 
 collections.json refers to books via a SHA1 hash of the absolute path to the
 book (prefix is /mnt/us on my Kindle). The SHA1 hash may or may not be prefixed
-by some characters, use the last 40 characters.
+by some characters, use the last 40 characters. For books from Amazon, the ASIN
+is used instead.
 
 Changing the metadata and resending the file doesn't seem to affect collections
 
