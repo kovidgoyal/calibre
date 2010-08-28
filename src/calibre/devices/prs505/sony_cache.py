@@ -348,6 +348,7 @@ class XMLCache(object):
     # Update XML from JSON {{{
     def update(self, booklists, collections_attributes):
         debug_print('Starting update', collections_attributes)
+        use_tz_var = False
         for i, booklist in booklists.items():
             playlist_map = self.build_id_playlist_map(i)
             debug_print('Updating XML Cache:', i)
@@ -368,7 +369,7 @@ class XMLCache(object):
                 if book.device_collections is None:
                     book.device_collections = []
                 book.device_collections = playlist_map.get(book.lpath, [])
-            debug_print('Timezone votes: %d GMT, %d LTZ, use_tz_var='%
+            debug_print('Timezone votes: %d GMT, %d LTZ, use_tz_var=%s'%
                                         (gtz_count, ltz_count, use_tz_var))
             self.update_playlists(i, root, booklist, collections_attributes)
         # Update the device collections because update playlist could have added

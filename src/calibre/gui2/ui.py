@@ -252,7 +252,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         self.read_settings()
         self.finalize_layout()
-        self.donate_button.start_animation()
+        if self.tool_bar.showing_donate:
+            self.donate_button.start_animation()
         self.set_window_title()
 
         for ac in self.iactions.values():

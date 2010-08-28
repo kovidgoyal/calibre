@@ -81,7 +81,7 @@ Device Integration
 
 What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-At the moment |app| has full support for the SONY PRS 300/500/505/600/700/900, Barnes & Noble Nook, Cybook Gen 3/Opus, Amazon Kindle 1/2/DX, Entourage Edge, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook 360, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3, SpringDesign Alex, Kobo Reader, various Android phones and the iPhone/iPad. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
+At the moment |app| has full support for the SONY PRS 300/500/505/600/700/900, Barnes & Noble Nook, Cybook Gen 3/Opus, Amazon Kindle 1/2/3/DX/DXG, Entourage Edge, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook 360, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3, SpringDesign Alex, Kobo Reader, various Android phones and the iPhone/iPad. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
 
 How can I help get my device supported in |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -338,6 +338,16 @@ Why does |app| show only some of my fonts on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 There can be several causes for this:
 
+    * If you get an error about calibre not being able to open a file because it is in use by another program, do the following:
+
+       * Uninstall calibre
+       * Reboot your computer
+       * Re-install calibre. But do not start calibre from the installation wizard.
+       * Temporarily disable your antivirus program (disconnect from the internet before doing so, to be safe)
+       * Look inside the folder you chose for your calibre library. If you see a file named metadata.db, delete it.
+       * Start calibre
+       * From now on you should be able to start calibre normally. 
+
     * If you get an error about a Python function terminating unexpectedly after upgrading calibre, first uninstall calibre, then delete the folders (if they exists)
       :file:`C:\\Program Files\\Calibre` and :file:`C:\\Program Files\\Calibre2`. Now re-install and you should be fine.
     * If you get an error in the welcome wizard on an initial run of calibre, try choosing a folder like :file:`C:\\library` as the calibre library (calibre sometimes
@@ -394,4 +404,8 @@ Can I include |app| on a CD to be distributed with my product/magazine?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 |app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `from googlecode <http://code.google.com/p/calibre-ebook/downloads/list>`_.
 
+How do I run calibre from my USB stick?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A portable version of calibre is available at: `portableapps.com <http://portableapps.com/node/20518>`_. However, this is usually out of date. You can also setup your own portable calibre install by following :ref:`these instructions <portablecalibre>`.
 

@@ -232,6 +232,7 @@ class ToolBar(QToolBar): # {{{
         pass
 
     def build_bar(self):
+        self.showing_donate = False
         showing_device = self.location_manager.has_device
         actions = '-device' if showing_device else ''
         actions = gprefs['action-layout-toolbar'+actions]
@@ -250,6 +251,7 @@ class ToolBar(QToolBar): # {{{
                 self.d_widget.setLayout(QVBoxLayout())
                 self.d_widget.layout().addWidget(self.donate_button)
                 self.addWidget(self.d_widget)
+                self.showing_donate = True
             elif what in self.gui.iactions:
                 action = self.gui.iactions[what]
                 self.addAction(action.qaction)
@@ -292,7 +294,7 @@ class MainWindowMixin(object): # {{{
         self._central_widget_layout = QVBoxLayout()
         self.centralwidget.setLayout(self._central_widget_layout)
         self.resize(1012, 740)
-        self.donate_button = ThrobbingButton(self.centralwidget)
+        self.donate_button = ThrobbingButton()
         self.location_manager = LocationManager(self)
 
         self.iactions['Fetch News'].init_scheduler(db)

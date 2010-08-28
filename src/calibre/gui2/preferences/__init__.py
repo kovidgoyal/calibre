@@ -150,7 +150,7 @@ def get_plugin(category, name):
         if plugin.category == category and plugin.name == name:
             return plugin
     raise ValueError(
-            'No Preferences PLugin with category: %s and name: %s found' %
+            'No Preferences Plugin with category: %s and name: %s found' %
             (category, name))
 
 def test_widget(category, name, gui=None): # {{{

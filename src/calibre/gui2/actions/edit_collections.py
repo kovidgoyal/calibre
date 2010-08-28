@@ -14,10 +14,12 @@ class EditCollectionsAction(InterfaceAction):
             _('Manage the collections on this device'), None)
     dont_add_to = frozenset(['toolbar', 'context-menu'])
 
+    def genesis(self):
+        self.qaction.triggered.connect(self.edit_collections)
+
     def location_selected(self, loc):
         enabled = loc != 'library'
         self.qaction.setEnabled(enabled)
-        self.qaction.triggered.connect(self.edit_collections)
 
     def edit_collections(self, *args):
         oncard = None
