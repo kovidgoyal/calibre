@@ -115,7 +115,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     library_order = tweaks['save_template_title_series_sorting'] == 'library_order'
     tsfmt = title_sort if library_order else lambda x: x
     format_args = dict(**FORMAT_ARGS)
-    format_args.update(mi.all_attributes)
+    format_args.update(mi.get_all_non_none_attributes())
     if mi.title:
         format_args['title'] = tsfmt(mi.title)
     if mi.authors:
@@ -131,6 +131,8 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
             format_args['series_index'] = mi.format_series_index()
     else:
         template = re.sub(r'\{series_index[^}]*?\}', '', template)
+    ## TODO: format custom values. Check all the datatypes.
+
     if mi.rating is not None:
         format_args['rating'] = mi.format_rating()
     if hasattr(mi.timestamp, 'timetuple'):
@@ -138,15 +140,6 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     if hasattr(mi.pubdate, 'timetuple'):
         format_args['pubdate'] = strftime(timefmt, mi.pubdate.timetuple())
     format_args['id'] = str(id)
-
-    # These are not necessary any more. The values are set by
-    # 'format_args.update' above, and there is no special formatting
-#    if mi.author_sort:
-#        format_args['author_sort'] = mi.author_sort
-#    if mi.isbn:
-#        format_args['isbn'] = mi.isbn
-#    if mi.publisher:
-#        format_args['publisher'] = mi.publisher
 
     components = [x.strip() for x in template.split('/') if x.strip()]
     components = [safe_format(x, format_args) for x in components]

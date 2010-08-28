@@ -70,7 +70,7 @@ class JsonCodec(object):
 
     def encode_metadata_attr(self, book, key):
         if key == 'user_metadata':
-            meta = book.all_user_metadata
+            meta = book.get_all_user_metadata(make_copy=True)
             for k in meta:
                 if meta[k]['datatype'] == 'datetime':
                     meta[k]['#value#'] = datetime_to_string(meta[k]['#value#'])

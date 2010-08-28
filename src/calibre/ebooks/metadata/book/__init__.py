@@ -101,7 +101,9 @@ COPYABLE_METADATA_FIELDS = SOCIAL_METADATA_FIELDS.union(
                            BOOK_STRUCTURE_FIELDS).union(
                            DEVICE_METADATA_FIELDS).union(
                            CALIBRE_METADATA_FIELDS) - \
-                           frozenset(['title', 'authors', 'comments', 'cover_data'])
+                           frozenset(['title', 'title_sort', 'authors',
+                                      'author_sort', 'author_sort_map' 'comments',
+                                      'cover_data', 'tags', 'language'])
 
 SERIALIZABLE_FIELDS =      SOCIAL_METADATA_FIELDS.union(
                            USER_METADATA_FIELDS).union(

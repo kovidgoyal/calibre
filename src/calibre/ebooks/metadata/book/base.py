@@ -66,7 +66,7 @@ class Metadata(object):
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
 
-    def __setattr__(self, field, val):
+    def __setattr__(self, field, val, extra=None):
         _data = object.__getattribute__(self, '_data')
         if field in STANDARD_METADATA_FIELDS:
             if val is None:
@@ -74,17 +74,23 @@ class Metadata(object):
             _data[field] = val
         elif field in _data['user_metadata'].iterkeys():
             _data['user_metadata'][field]['#value#'] = val
+            _data['user_metadata'][field]['#extra#'] = extra
         else:
             # You are allowed to stick arbitrary attributes onto this object as
             # long as they don't conflict with global or user metadata names
             # Don't abuse this privilege
             self.__dict__[field] = val
 
-    def get(self, field):
+    def get(self, field, default=None):
+        if default is not None:
+            try:
+                return self.__getattribute__(field)
+            except AttributeError:
+                return default
         return self.__getattribute__(field)
 
-    def set(self, field, val):
-        self.__setattr__(field, val)
+    def set(self, field, val, extra=None):
+        self.__setattr__(field, val, extra)
 
     @property
     def user_metadata_keys(self):
@@ -92,31 +98,39 @@ class Metadata(object):
         _data = object.__getattribute__(self, '_data')
         return frozenset(_data['user_metadata'].iterkeys())
 
-    @property
-    def all_user_metadata(self):
+    def get_all_user_metadata(self, make_copy):
         '''
         return a dict containing all the custom field metadata associated with
-        the book. Return a deep copy, just in case the user wants to change
-        values in the dict (json does).
+        the book.
         '''
         _data = object.__getattribute__(self, '_data')
-        _data = _data['user_metadata']
+        user_metadata = _data['user_metadata']
+        if not make_copy:
+            return user_metadata
         res = {}
-        for k in _data:
-            res[k] = copy.deepcopy(_data[k])
+        for k in user_metadata:
+            res[k] = copy.deepcopy(user_metadata[k])
         return res
 
     def get_user_metadata(self, field):
         '''
         return field metadata from the object if it is there. Otherwise return
-        None. field is the key name, not the label. Return a shallow copy,
-        just in case the user wants to change values in the dict (json does).
+        None. field is the key name, not the label. Return a copy, just in case
+        the user wants to change values in the dict (json does).
         '''
         _data = object.__getattribute__(self, '_data')
         _data = _data['user_metadata']
         if field in _data:
             return copy.deepcopy(_data[field])
         return None
+
+    @classmethod
+    def get_user_metadata_value(user_mi):
+        return user_mi['#value#']
+
+    @classmethod
+    def get_user_metadata_extra(user_mi):
+        return user_mi['#extra#']
 
     def set_all_user_metadata(self, metadata):
         '''
@@ -139,21 +153,30 @@ class Metadata(object):
                 traceback.print_stack()
             metadata = copy.deepcopy(metadata)
             if '#value#' not in metadata:
-                metadata['#value#'] = None
+                if metadata['datatype'] == 'text' and metadata['is_multiple']:
+                    metadata['#value#'] = []
+                else:
+                    metadata['#value#'] = None
             _data = object.__getattribute__(self, '_data')
             _data['user_metadata'][field] = metadata
 
-    @property
-    def all_attributes(self):
+    def get_all_non_none_attributes(self):
+        '''
+        Return a dictionary containing all non-None metadata fields, including
+        the custom ones.
+        '''
         result = {}
         _data = object.__getattribute__(self, '_data')
         for attr in STANDARD_METADATA_FIELDS:
             v = _data.get(attr, None)
             if v is not None:
                 result[attr] = v
-        for attr in self.user_metadata_keys:
-            if self.get(attr) is not None:
-                result[attr] = self.get(attr)
+        for attr in _data['user_metadata'].iterkeys():
+            v = _data['user_metadata'][attr]['#value#']
+            if v is not None:
+                result[attr] = v
+                if _data['user_metadata'][attr]['datatype'] == 'series':
+                    result[attr+'_index'] = _data['user_metadata'][attr]['#extra#']
         return result
 
     # Old Metadata API {{{
@@ -184,45 +207,49 @@ class Metadata(object):
         '''
         if other.title and other.title != _('Unknown'):
             self.title = other.title
+            if hasattr(other, 'title_sort'):
+                self.title_sort = other.title_sort
 
         if other.authors and other.authors[0] != _('Unknown'):
             self.authors = other.authors
+            if hasattr(other, 'author_sort_map'):
+                self.author_sort_map = other.author_sort_map
+            if hasattr(other, 'author_sort'):
+                self.author_sort = other.author_sort
 
-        for attr in COPYABLE_METADATA_FIELDS:
-            if replace_metadata:
+        if replace_metadata:
+            for attr in COPYABLE_METADATA_FIELDS:
                 setattr(self, attr, getattr(other, attr, 1.0 if \
                         attr == 'series_index' else None))
-            elif hasattr(other, attr):
-                val = getattr(other, attr)
-                if val is not None:
-                    setattr(self, attr, copy.deepcopy(val))
-
-        if replace_metadata:
             self.tags = other.tags
-        elif other.tags:
-            self.tags += other.tags
-        self.tags = list(set(self.tags))
-
-        if getattr(other, 'author_sort_map', None):
-            self.author_sort_map.update(other.author_sort_map)
-
-        if getattr(other, 'cover_data', False):
-            other_cover = other.cover_data[-1]
-            self_cover = self.cover_data[-1] if self.cover_data else ''
-            if not self_cover: self_cover = ''
-            if not other_cover: other_cover = ''
-            if len(other_cover) > len(self_cover):
-                self.cover_data = other.cover_data
-
-        if getattr(other, 'user_metadata_keys', None):
-            for x in other.user_metadata_keys:
-                meta = other.get_user_metadata(x)
-                if meta is not None or replace_metadata:
-                    self.set_user_metadata(x, meta) # get... did the deepcopy
-
-        if replace_metadata:
+            self.cover_data = getattr(other, 'cover_data', '')
+            self.set_all_user_metadata(other.get_all_user_metadata(make_copy=True))
             self.comments = getattr(other, 'comments', '')
+            self.language = getattr(other, 'language', None)
         else:
+            for attr in COPYABLE_METADATA_FIELDS:
+                if hasattr(other, attr):
+                    val = getattr(other, attr)
+                    if val is not None:
+                        setattr(self, attr, copy.deepcopy(val))
+
+            if other.tags:
+                self.tags += list(set(self.tags + other.tags))
+
+            if getattr(other, 'cover_data', False):
+                other_cover = other.cover_data[-1]
+                self_cover = self.cover_data[-1] if self.cover_data else ''
+                if not self_cover: self_cover = ''
+                if not other_cover: other_cover = ''
+                if len(other_cover) > len(self_cover):
+                    self.cover_data = other.cover_data
+
+            if getattr(other, 'user_metadata_keys', None):
+                for x in other.user_metadata_keys:
+                    meta = other.get_user_metadata(x)
+                    if meta is not None:
+                        self.set_user_metadata(x, meta) # get... did the deepcopy
+
             my_comments = getattr(self, 'comments', '')
             other_comments = getattr(other, 'comments', '')
             if not my_comments:
@@ -232,10 +259,9 @@ class Metadata(object):
             if len(other_comments.strip()) > len(my_comments.strip()):
                 self.comments = other_comments
 
-        other_lang = getattr(other, 'language', None)
-        if other_lang and other_lang.lower() != 'und':
-            self.language = other_lang
-
+            other_lang = getattr(other, 'language', None)
+            if other_lang and other_lang.lower() != 'und':
+                self.language = other_lang
 
     def format_series_index(self):
         from calibre.ebooks.metadata import fmt_sidx

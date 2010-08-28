@@ -22,6 +22,7 @@ from calibre.library.sqlite import connect, IntegrityError, DBThread
 from calibre.library.prefs import DBPrefs
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, \
                                     MetaInformation
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
@@ -537,7 +538,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for key,meta in self.field_metadata.iteritems():
             if meta['is_custom']:
                 mi.set_user_metadata(key, meta)
-                mi.set(key, self.get_custom(idx, label=meta['label'], index_is_id=index_is_id))
+                mi.set(key, val=self.get_custom(idx, label=meta['label'],
+                                                index_is_id=index_is_id),
+                            extra=self.get_custom_extra(idx, label=meta['label'],
+                                                        index_is_id=index_is_id))
         if get_cover:
             mi.cover = self.cover(id, index_is_id=True, as_path=True)
         return mi
@@ -1038,6 +1042,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if getattr(mi, 'timestamp', None) is not None:
             doit(self.set_timestamp, id, mi.timestamp, notify=False)
         self.set_path(id, True)
+
+        user_mi = mi.get_all_user_metadata(make_copy=False)
+        for key in user_mi.iterkeys():
+            if key in self.field_metadata and \
+                    user_mi[key]['datatype'] == self.field_metadata[key]['datatype']:
+                doit(self.set_custom, id,
+                     val=Metadata.get_user_metadata_value(user_mi[key]),
+                     extra=Metadata.get_user_metadata_extra(user_mi[key]),
+                     label=user_mi[key]['label'])
         self.notify('metadata', [id])
 
     # Given a book, return the list of author sort strings for the book's authors
