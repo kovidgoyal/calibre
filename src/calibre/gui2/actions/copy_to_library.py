@@ -13,6 +13,9 @@ from PyQt4.Qt import QMenu, QToolButton
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import error_dialog, Dispatcher
 from calibre.gui2.dialogs.progress import ProgressDialog
+from calibre.utils.config import prefs
+import os, re
+
 
 class Worker(Thread):
 
@@ -24,6 +27,14 @@ class Worker(Thread):
         self.error = None
         self.progress = progress
         self.done = done
+        self.fuzzy_title_patterns = [(re.compile(pat), repl) for pat, repl in
+                [
+                    (r'[\[\](){}<>\'";,:#]', ''),
+                    (r'^(the|a|an) ', ''),
+                    (r'[-._]', ' '),
+                    (r'\s+', ' ')
+                ]
+        ]
 
     def run(self):
         try:
@@ -38,6 +49,41 @@ class Worker(Thread):
 
         self.done()
 
+    def add_formats(self, id, paths, newdb, replace=True):
+        for path in paths:
+            fmt = os.path.splitext(path)[-1].replace('.', '').upper()
+            with open(path, 'rb') as f:
+                newdb.add_format(id, fmt, f, index_is_id=True,
+                        notify=False, replace=replace)
+
+    def fuzzy_title(self, title):
+        title = title.strip().lower()
+        for pat, repl in self.fuzzy_title_patterns:
+            title = pat.sub(repl, title)
+        return title
+
+    def find_identical_books(self, mi, newdb):
+        identical_book_ids = set([])
+        if mi.authors:
+            try:
+                query = u' and '.join([u'author:"=%s"'%(a.replace('"', '')) for a in
+                    mi.authors])
+            except ValueError:
+                return identical_book_ids
+            try:
+                book_ids = newdb.data.parse(query)
+            except:
+                import traceback
+                traceback.print_exc()
+                return identical_book_ids
+            for book_id in book_ids:
+                fbook_title = newdb.title(book_id, index_is_id=True)
+                fbook_title = self.fuzzy_title(fbook_title)
+                mbook_title = self.fuzzy_title(mi.title)
+                if fbook_title == mbook_title:
+                    identical_book_ids.add(book_id)
+        return identical_book_ids
+
     def doit(self):
         from calibre.library.database2 import LibraryDatabase2
         newdb = LibraryDatabase2(self.loc)
@@ -49,12 +95,21 @@ class Worker(Thread):
             else: fmts = fmts.split(',')
             paths = [self.db.format_abspath(x, fmt, index_is_id=True) for fmt in
                     fmts]
-            newdb.import_book(mi, paths, notify=False, import_hooks=False)
-            co = self.db.conversion_options(x, 'PIPE')
-            if co is not None:
-                newdb.set_conversion_options(x, 'PIPE', co)
-
-
+            if prefs['add_formats_to_existing']:
+                identical_book_list = self.find_identical_books(mi, newdb)
+                if identical_book_list: # books with same author and nearly same title exist in newdb
+                    for identical_book in identical_book_list:
+                        self.add_formats(identical_book, paths, newdb, replace=False)
+                else:
+                    newdb.import_book(mi, paths, notify=False, import_hooks=False)
+                    co = self.db.conversion_options(x, 'PIPE')
+                    if co is not None:
+                        newdb.set_conversion_options(x, 'PIPE', co)
+            else:
+                newdb.import_book(mi, paths, notify=False, import_hooks=False)
+                co = self.db.conversion_options(x, 'PIPE')
+                if co is not None:
+                    newdb.set_conversion_options(x, 'PIPE', co)
 
 
 class CopyToLibraryAction(InterfaceAction):
