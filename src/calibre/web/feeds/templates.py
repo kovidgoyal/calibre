@@ -195,7 +195,8 @@ class NavBarTemplate(Template):
         if bottom:
             navbar.append(HR())
             text = 'This article was downloaded by '
-            p = PT(text, STRONG(__appname__), A(url, href=url), style='text-align:left')
+            p = PT(text, STRONG(__appname__), A(url, href=url),
+                    style='text-align:left; max-width: 100%; overflow: hidden;')
             p[0].tail = ' from '
             navbar.append(p)
             navbar.append(BR())
