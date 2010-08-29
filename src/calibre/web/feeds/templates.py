@@ -193,13 +193,14 @@ class NavBarTemplate(Template):
         navbar = DIV(CLASS('calibre_navbar', 'calibre_rescale_70',
             style='text-align:'+align))
         if bottom:
-            navbar.append(HR())
-            text = 'This article was downloaded by '
-            p = PT(text, STRONG(__appname__), A(url, href=url),
-                    style='text-align:left; max-width: 100%; overflow: hidden;')
-            p[0].tail = ' from '
-            navbar.append(p)
-            navbar.append(BR())
+            if not url.startswith('file://'):
+                navbar.append(HR())
+                text = 'This article was downloaded by '
+                p = PT(text, STRONG(__appname__), A(url, href=url),
+                        style='text-align:left; max-width: 100%; overflow: hidden;')
+                p[0].tail = ' from '
+                navbar.append(p)
+                navbar.append(BR())
             navbar.append(BR())
         else:
             next = 'feed_%d'%(feed+1) if art == number_of_articles_in_feed - 1 \

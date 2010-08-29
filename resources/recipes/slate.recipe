@@ -102,7 +102,6 @@ class PeriodicalNameHere(BasicNewsRecipe):
 
         todays_section = soup.find(True, attrs={'class':'todaydateline'})
         self.section_dates.append(self.tag_to_string(todays_section,use_alt=False))
-        self.section_dates.append(self.tag_to_string(todays_section,use_alt=False))
 
         older_section_dates = soup.findAll(True, attrs={'class':'maindateline'})
         for older_section in older_section_dates :
