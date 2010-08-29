@@ -135,6 +135,7 @@ class CollectionsBookList(BookList):
                 elif isinstance(val, unicode):
                     val = [val]
                 for category in val:
+                    # TODO: NEWMETA: format the custom fields
                     if attr == 'tags' and len(category) > 1 and \
                             category[0] == '[' and category[-1] == ']':
                         continue

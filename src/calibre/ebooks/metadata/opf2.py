@@ -1188,7 +1188,7 @@ def metadata_to_opf(mi, as_string=True):
     factory(DC('contributor'), mi.book_producer, __appname__, 'bkp')
     if hasattr(mi.pubdate, 'isoformat'):
         factory(DC('date'), isoformat(mi.pubdate))
-    if mi.category:
+    if hasattr(mi, 'category') and mi.category:
         factory(DC('type'), mi.category)
     if mi.comments:
         factory(DC('description'), mi.comments)

@@ -11,6 +11,7 @@ import traceback
 from calibre import prints
 from calibre.ebooks.metadata.book import COPYABLE_METADATA_FIELDS
 from calibre.ebooks.metadata.book import STANDARD_METADATA_FIELDS
+from calibre.ebooks.metadata.book import TOP_LEVEL_CLASSIFIERS
 from calibre.utils.date import isoformat
 
 
@@ -55,6 +56,8 @@ class Metadata(object):
 
     def __getattribute__(self, field):
         _data = object.__getattribute__(self, '_data')
+        if field in TOP_LEVEL_CLASSIFIERS:
+            return _data.get('classifiers').get(field, None)
         if field in STANDARD_METADATA_FIELDS:
             return _data.get(field, None)
         try:
@@ -68,7 +71,9 @@ class Metadata(object):
 
     def __setattr__(self, field, val, extra=None):
         _data = object.__getattribute__(self, '_data')
-        if field in STANDARD_METADATA_FIELDS:
+        if field in TOP_LEVEL_CLASSIFIERS:
+            _data['classifiers'].update({field: val})
+        elif field in STANDARD_METADATA_FIELDS:
             if val is None:
                 val = NULL_VALUES.get(field, None)
             _data[field] = val
@@ -301,8 +306,6 @@ class Metadata(object):
             fmt('Publisher', self.publisher)
         if getattr(self, 'book_producer', False):
             fmt('Book Producer', self.book_producer)
-        if self.category:
-            fmt('Category', self.category)
         if self.comments:
             fmt('Comments', self.comments)
         if self.isbn:
@@ -321,14 +324,7 @@ class Metadata(object):
             fmt('Published', isoformat(self.pubdate))
         if self.rights is not None:
             fmt('Rights', unicode(self.rights))
-#        TODO: These are not in metadata. Should they be?
-#        if self.lccn:
-#            fmt('LCCN', unicode(self.lccn))
-#        if self.lcc:
-#            fmt('LCC', unicode(self.lcc))
-#        if self.ddc:
-#            fmt('DDC', unicode(self.ddc))
-        # CUSTFIELD: What to do about custom fields?
+        # TODO: NEWMETA: What to do about custom fields?
         return u'\n'.join(ans)
 
     def to_html(self):
@@ -339,13 +335,6 @@ class Metadata(object):
         ans += [(_('Producer'), unicode(self.book_producer))]
         ans += [(_('Comments'), unicode(self.comments))]
         ans += [('ISBN', unicode(self.isbn))]
-#        TODO: These are not in metadata. Should they be?
-#        if self.lccn:
-#            ans += [('LCCN', unicode(self.lccn))]
-#        if self.lcc:
-#            ans += [('LCC', unicode(self.lcc))]
-#        if self.ddc:
-#            ans += [('DDC', unicode(self.ddc))]
         ans += [(_('Tags'), u', '.join([unicode(t) for t in self.tags]))]
         if self.series:
             ans += [(_('Series'), unicode(self.series)+ ' #%s'%self.format_series_index())]

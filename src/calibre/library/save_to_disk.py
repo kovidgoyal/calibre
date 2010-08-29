@@ -131,7 +131,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
             format_args['series_index'] = mi.format_series_index()
     else:
         template = re.sub(r'\{series_index[^}]*?\}', '', template)
-    ## TODO: format custom values. Check all the datatypes.
+    ## TODO: NEWMETA: format custom values. Check all the datatypes.
 
     if mi.rating is not None:
         format_args['rating'] = mi.format_rating()

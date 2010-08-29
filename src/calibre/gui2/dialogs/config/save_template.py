@@ -34,8 +34,8 @@ class SaveTemplate(QWidget, Ui_Form):
         self.option_name = name
 
     def validate(self):
-        # TODO: I haven't figured out how to get the custom columns into here,
-        # so for the moment make all templates valid.
+        # TODO: NEWMETA: I haven't figured out how to get the custom columns
+        # into here, so for the moment make all templates valid.
         return True
 #        tmpl = preprocess_template(self.opt_template.text())
 #        fa = {}

@@ -19,8 +19,14 @@ SOCIAL_METADATA_FIELDS = frozenset([
     # Of the form { scheme1:value1, scheme2:value2}
     # For example: {'isbn':'123456789', 'doi':'xxxx', ... }
     'classifiers',
-    'isbn',     # Pseudo field for convenience, should get/set isbn classifier
-    'category', # TODO: not sure what this is, but it is used by OPF
+])
+
+'''
+The list of names that convert to classifiers when in get and set.
+'''
+
+TOP_LEVEL_CLASSIFIERS = frozenset([
+    'isbn',
 ])
 
 PUBLICATION_METADATA_FIELDS = frozenset([
@@ -77,7 +83,7 @@ CALIBRE_METADATA_FIELDS = frozenset([
     'application_id',   # An application id, currently set to the db_id.
     # the calibre primary key of the item.
     'db_id',            # the calibre primary key of the item.
-                        # TODO: May want to remove once Sony's no longer use it
+                        # TODO: NEWMETA: May want to remove once Sony's no longer use it
     ]
 )
 
