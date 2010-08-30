@@ -212,9 +212,10 @@ metadata.
 You can build advanced search queries easily using the :guilabel:`Advanced Search Dialog`, accessed by 
 clicking the button |sbi|.
 
-Available fields for searching are: ``tag, title, author, publisher, series, rating, cover, comments, format,
-isbn, date, pubdate, search, size`` and custom columns. If a device is plugged in, the ``ondevice`` field
-becomes available. To find the search name for a custom column, hover your mouse over the column header.
+Available fields for searching are: ``tag, title, author, publisher, series, series_index, rating, cover,
+comments, format, isbn, date, pubdate, search, size`` and custom columns. If a device is plugged in, the
+``ondevice`` field becomes available. To find the search name for a custom column, hover your mouse over the
+column header.
 
 The syntax for searching for dates is::
 
@@ -223,9 +224,8 @@ The syntax for searching for dates is::
     pubdate:=2009 Will find all books published in 2009
 
 If the date is ambiguous, the current locale is used for date comparison. For example, in an mm/dd/yyyy
-locale, 2/1/2009 is interpreted as 1 Feb 2009. In a dd/mm/yyyy locale, it is interpreted as 2 Jan 2009.
-
-Some special date strings are available. The string ``today`` translates to today's date, whatever it is. The
+locale, 2/1/2009 is interpreted as 1 Feb 2009. In a dd/mm/yyyy locale, it is interpreted as 2 Jan 2009.  Some
+special date strings are available. The string ``today`` translates to today's date, whatever it is. The
 strings `yesterday`` and ``thismonth`` also work. In addition, the string ``daysago`` can be used to compare
 to a date some number of days ago, for example: date:>10daysago, date:<=45daysago.
 
@@ -234,9 +234,15 @@ You can search for books that have a format of a certain size like this::
     size:>1.1M Will find books with a format larger than 1.1MB
     size:<=1K  Will find books with a format smaller than 1KB
 
-Dates and numeric fields support the operators ``=`` (equals), ``>`` (greater than), ``>=`` (greater than or
-equal to), ``<`` (less than), ``<=`` (less than or equal to), and ``!=`` (not equal to).  Rating fields are
-considered to be numeric. For example, the search ``rating:>=3`` will find all books rated 3 or higher.
+Dates and numeric fields support the relational operators ``=`` (equals), ``>`` (greater than), ``>=``
+(greater than or equal to), ``<`` (less than), ``<=`` (less than or equal to), and ``!=`` (not equal to).
+Rating fields are considered to be numeric. For example, the search ``rating:>=3`` will find all books rated 3
+or higher.
+
+Series indices are searchable. For the standard series, the search name is 'series_index'. For
+custom series columns, use the column search name followed by _index. For example, to search the indices for a
+custom series column named ``#my_series``, you would use the search name ``#my_series_index``.
+Series indices are numbers, so you can use the relational operators described above.
 
 The special field ``search`` is used for saved searches. So if you save a search with the name
 "My spouse's books" you can enter ``search:"My spouse's books"`` in the search bar to reuse the saved
