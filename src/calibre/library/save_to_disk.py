@@ -14,6 +14,7 @@ from calibre.utils.filenames import shorten_components_to, supports_long_names, 
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import preferred_encoding, filesystem_encoding
+from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
 from calibre import strftime
 
@@ -131,8 +132,6 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
             format_args['series_index'] = mi.format_series_index()
     else:
         template = re.sub(r'\{series_index[^}]*?\}', '', template)
-    ## TODO: NEWMETA: format custom values. Check all the datatypes.
-
     if mi.rating is not None:
         format_args['rating'] = mi.format_rating()
     if hasattr(mi.timestamp, 'timetuple'):
@@ -140,6 +139,19 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     if hasattr(mi.pubdate, 'timetuple'):
         format_args['pubdate'] = strftime(timefmt, mi.pubdate.timetuple())
     format_args['id'] = str(id)
+    # Now format the custom fields
+    custom_metadata = mi.get_all_user_metadata(make_copy=False)
+    for key in custom_metadata:
+        if key in format_args:
+            ## TODO: NEWMETA: should ratings be divided by 2? The standard rating isn't...
+            if custom_metadata[key]['datatype'] == 'series':
+                format_args[key] = tsfmt(format_args[key])
+                if key+'_index' in format_args:
+                    format_args[key+'_index'] = fmt_sidx(format_args[key+'_index'])
+            elif custom_metadata[key]['datatype'] == 'datetime':
+                format_args[key] = strftime(timefmt, format_args[key].timetuple())
+            elif custom_metadata[key]['datatype'] == 'bool':
+                format_args[key] = _('yes') if format_args[key] else _('no')
 
     components = [x.strip() for x in template.split('/') if x.strip()]
     components = [safe_format(x, format_args) for x in components]
