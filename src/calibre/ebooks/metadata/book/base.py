@@ -185,17 +185,6 @@ class Metadata(object):
         return result
 
     # Old Metadata API {{{
-    @staticmethod
-    def copy(mi):
-        ans = Metadata(mi.title, mi.authors)
-        for attr in STANDARD_METADATA_FIELDS:
-            if hasattr(mi, attr):
-                setattr(ans, attr, copy.deepcopy(getattr(mi, attr)))
-        for x in mi.user_metadata_keys:
-            meta = mi.get_user_metadata(x)
-            if meta is not None:
-                ans.set_user_metadata(x, meta) # get... did the deep copy
-
     def print_all_attributes(self):
         for x in STANDARD_METADATA_FIELDS:
             prints('%s:'%x, getattr(self, x, 'None'))
@@ -347,7 +336,7 @@ class Metadata(object):
             ans += [(_('Rights'), unicode(self.rights))]
         for i, x in enumerate(ans):
             ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x
-        # CUSTFIELD: What to do about custom fields
+        # TODO: NEWMETA: What to do about custom fields
         return u'<table>%s</table>'%u'\n'.join(ans)
 
     def __str__(self):
