@@ -373,6 +373,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Download metadata and shortcuts
     * - :kbd:`Ctrl+R` 
       - Restart calibre
+    * - :kbd:`Ctrl+Q` 
+      - Quit calibre
 
 
 
