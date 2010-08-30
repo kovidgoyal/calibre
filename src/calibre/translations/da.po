@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-27 18:12+0000\n"
-"PO-Revision-Date: 2010-08-27 20:18+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-08-29 07:04+0000\n"
+"Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-28 03:36+0000\n"
+"X-Launchpad-Export-Date: 2010-08-30 03:53+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -258,7 +258,7 @@ msgstr "Sæt metadata fra %s filer"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:681
 msgid "Look and Feel"
-msgstr ""
+msgstr "Fremtoning"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:682
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:199
@@ -711,7 +711,7 @@ msgstr "Kommunikér med Kindle e-bogslæser."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:170
 msgid "Communicate with the Kindle 2/3 eBook reader."
-msgstr ""
+msgstr "Kommunikér med Kindle 2/3 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:211
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1851,6 +1851,9 @@ msgid ""
 "experimental. It can cause conversion to fail. It can also produce "
 "unexpected output."
 msgstr ""
+"Prøv at fortolke og omdanne kapitler til sektioner. ADVARSEL: Denne "
+"valgmulighed er eksperimentiel. Den kan forårsage at konverteringen fejler. "
+"Den kan også producere utilsigtet output."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:249
 msgid ""
@@ -3092,7 +3095,7 @@ msgstr "Ældste nyheder gemt i databasen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:89
 msgid "Show system tray icon"
-msgstr "Vis statusikon"
+msgstr "Vis systembakkeikon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:91
 msgid "Upload downloaded news to device"
@@ -3110,7 +3113,7 @@ msgstr "Vis omslag i et separat vindue, istedet for i calibres arbejdsvindue"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:97
 msgid "Disable notifications from the system tray icon"
-msgstr "Deaktivér adviseringer i systemstatusikonet"
+msgstr "Deaktivér adviseringer i systembakkeikonet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:99
 msgid "Default action to perform when send to device button is clicked"
@@ -3172,6 +3175,7 @@ msgstr "Tilføj bøger"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:26
 msgid "Add books to the calibre library/device from files on your computer"
 msgstr ""
+"Tilføj bøger til calibre-biblioteket/-enheden fra filer på din computer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:27
 msgid "A"
@@ -3313,7 +3317,7 @@ msgstr "Tilføj bøger til bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
-msgstr ""
+msgstr "Tilføj bøger til calibre-biblioteket fra den forbundne enhed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:499
@@ -3658,7 +3662,7 @@ msgstr "Administrér collections"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:14
 msgid "Manage the collections on this device"
-msgstr ""
+msgstr "Administrér collections på denne enhed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:24
 msgid "E"
@@ -4700,7 +4704,7 @@ msgstr "&indlejret indholdsfortegnelse"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:33
 msgid "Sectionize Chapters (Use with care!)"
-msgstr ""
+msgstr "Sektionér kapitler (Anvendes med forsigtighed!)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:99
 msgid "Font rescaling wizard"
@@ -6085,7 +6089,7 @@ msgstr "Aldrig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:529
 msgid "Toolbars/Context menus"
-msgstr ""
+msgstr "Værktøjslinjer/kontekstmenuer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:543
 msgid "Done"
@@ -6416,7 +6420,7 @@ msgstr "Sender til &enhed"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:606
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:128
 msgid "Show notification when &new version is available"
-msgstr "Giv besked når en &ny version er tilgængelig"
+msgstr "Vis advisering når en &ny version er tilgængelig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:607
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:127
@@ -6578,7 +6582,7 @@ msgstr "Søg mens du taster"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:643
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:107
 msgid "Use &Roman numerals for series"
-msgstr ""
+msgstr "Anvend &romerske tal til serier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:644
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:104
@@ -6607,7 +6611,7 @@ msgstr "Vis omslagfremviseren i et separat vindue (kræver genstart)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:649
 msgid "Show &notifications in system tray"
-msgstr "Vis beskeder i &statusfeltet"
+msgstr "Vis adviseringer i &systembakken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:650
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:662
@@ -7064,7 +7068,7 @@ msgstr "Downloader sociale metadata, vent venligst..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:35
 msgid "Switch between library and device views"
-msgstr ""
+msgstr "Skift mellem bibliotek og enheds visning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:38
 msgid "Separator"
@@ -7092,19 +7096,19 @@ msgstr "Kontekstmenuen til bøgerne i enheden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:243
 msgid "Cannot add"
-msgstr ""
+msgstr "Kan ikke tilføje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:244
 msgid "Cannot add the actions %s to this location"
-msgstr ""
+msgstr "Kan ikke tilføje aktionerne %s til denne placering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:261
 msgid "Cannot remove"
-msgstr ""
+msgstr "Kan ikke fjerne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:262
 msgid "Cannot remove the actions %s from this location"
-msgstr ""
+msgstr "Kan ikke fjerne aktionerne %s fra denne placering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:97
 msgid "Customize the actions in:"
@@ -7141,7 +7145,7 @@ msgstr "Fjern udvalgte aktioner fra værktøjslinjen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:109
 msgid "Restore to &default"
-msgstr ""
+msgstr "Gendan &standardinstillinger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:50
 msgid "&Show this warning again"
@@ -7375,11 +7379,11 @@ msgstr "Kommasepareret liste over mærker, der skal fjernes fra bøgerne. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:177
 msgid "Remove all"
-msgstr ""
+msgstr "Fjern alt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:178
 msgid "Check this box to remove all tags from the books."
-msgstr ""
+msgstr "Afkryds denne boks for at fjerne alle mærker fra bøgerne."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:182
 msgid "Remove &format:"
@@ -7637,7 +7641,7 @@ msgstr "Opdatér metadata fra metadata i det valgte format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:402
 msgid "&Browse"
-msgstr ""
+msgstr "&Gennemse"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:403
 msgid "Reset cover to default"
@@ -8949,14 +8953,17 @@ msgid ""
 "book list. You can hide columns by unchecking them. You can also create your "
 "own, custom columns."
 msgstr ""
+"Her kan du ændre søjle layoutet i calibre-bibliotekets bogliste. Du kan "
+"fjerne søjlevisning ved at fjerne afkrydsning af dem. Du kan også danne dine "
+"egne, brugerdefinerede søjler."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:86
 msgid "Add &custom column"
-msgstr ""
+msgstr "Tilføj &brugerdefineret søjle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:106
 msgid "Disable &notifications in system tray"
-msgstr ""
+msgstr "Deaktivér &adviseringer i systembakke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:255

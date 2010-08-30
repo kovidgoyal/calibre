@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-27 18:12+0000\n"
-"PO-Revision-Date: 2010-08-29 03:10+0000\n"
-"Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
+"PO-Revision-Date: 2010-08-29 17:35+0000\n"
+"Last-Translator: Bingen Markes <Unknown>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-29 03:42+0000\n"
+"X-Launchpad-Export-Date: 2010-08-30 03:52+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -3797,9 +3797,7 @@ msgstr " and delete from library"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:81
 msgid "Setup email based sharing of books"
-msgstr ""
-"Prestatu e-posta zerbitzu batean oinarritutako liburuen elkarbanatzea\r\n"
-"Prestatu e-postan oinarritutako liburu-konportitzea"
+msgstr "Prestatu e-postan oinarritutako liburu-konportitzea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:98
 msgid "D"
@@ -9517,7 +9515,7 @@ msgstr ""
 " irakurgailurarekin konektatzen!<br>\n"
 "                      Orain irteteak irakurgailuren kalterako izan "
 "daiteke.<br>\n"
-"                      Ziur zaude? Oso beharrezkoa duzu orain irtetea?"
+"                      Ziur zaude? Benetan irten nahi duzu?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:515
 msgid "WARNING: Active jobs"
@@ -9545,97 +9543,97 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
-msgstr "Edit bookmark"
+msgstr "Editatu laster-marka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "New title for bookmark:"
-msgstr "New title for bookmark:"
+msgstr "Laster-markaren izenburu berria"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:52
 msgid "Export Bookmarks"
-msgstr "Export Bookmarks"
+msgstr "Esportatu laster-markak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:54
 msgid "Saved Bookmarks (*.pickle)"
-msgstr "Saved Bookmarks (*.pickle)"
+msgstr "Gorde laster-markak (*.pickle)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:62
 msgid "Import Bookmarks"
-msgstr "Import Bookmarks"
+msgstr "Inportatu laster-markak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:62
 msgid "Pickled Bookmarks (*.pickle)"
-msgstr "Pickled Bookmarks (*.pickle)"
+msgstr "Pickle horrekin prozesatutako laster-markak (*.pickle)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:89
 msgid "Name"
-msgstr "Name"
+msgstr "Izena"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:56
 msgid "Bookmark Manager"
-msgstr "Bookmark Manager"
+msgstr "Laster-marken kudeatzailea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:57
 msgid "Actions"
-msgstr "Actions"
+msgstr "Ekintzak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:58
 msgid "Edit"
-msgstr "Edit"
+msgstr "Editatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:59
 msgid "Delete"
-msgstr "Delete"
+msgstr "Ezabatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:60
 msgid "Reset"
-msgstr "Reset"
+msgstr "Berrezarri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:61
 msgid "Export"
-msgstr "Export"
+msgstr "Esportatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:62
 msgid "Import"
-msgstr "Import"
+msgstr "Inportatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:154
 msgid "Configure Ebook viewer"
-msgstr "Configure Ebook viewer"
+msgstr "Liburu irakurgailua konfiguratu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:155
 msgid "&Font options"
-msgstr "&Font options"
+msgstr "&Letra-tipo aukerak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:156
 msgid "Se&rif family:"
-msgstr "Se&rif family:"
+msgstr "Se&rif familia:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:157
 msgid "&Sans family:"
-msgstr "&Sans family:"
+msgstr "&Sans familia:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:158
 msgid "&Monospace family:"
-msgstr "&Monospace family:"
+msgstr "&Monospace familia:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:159
 msgid "&Default font size:"
-msgstr "&Default font size:"
+msgstr "&Lehenetsitako letra-tipo tamaina:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:168
 msgid " px"
-msgstr " px"
+msgstr " pixelak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:161
 msgid "Monospace &font size:"
-msgstr "Monospace &font size:"
+msgstr "Monospace &letra-tipoaren tamaina:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:163
 msgid "S&tandard font:"
-msgstr "S&tandard font:"
+msgstr "Letra-tipo es&tandarra:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:164
 msgid "Serif"
@@ -9651,60 +9649,62 @@ msgstr "Monospace"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:167
 msgid "Remember last used &window size"
-msgstr "Remember last used &window size"
+msgstr "Gogoratu erabilitako azken &leiho tamaina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:169
 msgid "Maximum &view width:"
-msgstr "Maximum &view width:"
+msgstr "&bistaratze zabalera maximoa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:170
 msgid "H&yphenate (break line in the middle of large words)"
-msgstr "H&yphenate (break line in the middle of large words)"
+msgstr "G&idoia (hitz elkarketetan \" - \"erabiltzen dena)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:171
 msgid ""
 "The default language to use for hyphenation rules. If the book does not "
 "specify a language, this will be used."
 msgstr ""
-"The default language to use for hyphenation rules. If the book does not "
-"specify a language, this will be used."
+"Lehenetsitako hizkuntza gidoi kontuetako arauak izateko. Liburuak ez badu "
+"hizkuntzarik zehazten hauxe erabiliko da."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:172
 msgid "Default &language for hyphenation:"
-msgstr "Default &language for hyphenation:"
+msgstr "Lehenetsitako &hizkuntza gidoi kontuetarako:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:173
 msgid "&Resize images larger than the viewer window (needs restart)"
-msgstr "&Resize images larger than the viewer window (needs restart)"
+msgstr ""
+"&Berrezarri leiho ikuskatzailea baino handiagoak diren irudiak (berrabiarazi "
+"beharko)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:174
 msgid "&User stylesheet"
-msgstr "&User stylesheet"
+msgstr "&Erabiltzailearen estilo-orria"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:175
 msgid "&General"
-msgstr "&General"
+msgstr "&Orokorra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:176
 msgid "Double click to change a keyboard shortcut"
-msgstr "Double click to change a keyboard shortcut"
+msgstr "Egin klik birritan giltza laster-bidea aldatzeko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:177
 msgid "&Keyboard shortcuts"
-msgstr "&Keyboard shortcuts"
+msgstr "&Gilzadiko laster-bideak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
-msgstr "No results found for:"
+msgstr "Ez da emaitzik aurkitu honetarako:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:35
 msgid "Options to customize the ebook viewer"
-msgstr "Options to customize the ebook viewer"
+msgstr "Liburu elektronikoen irakurgailua pertsonalizatzeko aukerak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:676
 msgid "Remember last used window size"
-msgstr "Remember last used window size"
+msgstr "Gogoratu erabilitako azken leiho tamaina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:81
@@ -9712,219 +9712,227 @@ msgid ""
 "Set the user CSS stylesheet. This can be used to customize the look of all "
 "books."
 msgstr ""
-"Set the user CSS stylesheet. This can be used to customize the look of all "
-"books."
+"Ezarri CSS (Cascading Style Sheets) estiloa. Hau liburu guztien itxura "
+"pertsonalizatzeko erabil daiteke."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:46
 msgid "Maximum width of the viewer window, in pixels."
-msgstr "Maximum width of the viewer window, in pixels."
+msgstr "Zabalera maximoa ikustaileko leihoan, pixeletan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:48
 msgid "Resize images larger than the viewer window to fit inside it"
-msgstr "Resize images larger than the viewer window to fit inside it"
+msgstr ""
+"Ikustaileko leihoa baino handiagoak diren irudien neurriak aldatzen ditu, "
+"ikustaileko leihora doitzeko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:49
 msgid "Hyphenate text"
-msgstr "Hyphenate text"
+msgstr "Gidoidun \" - \"hitzak dituen testua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:51
 msgid "Default language for hyphenation rules"
-msgstr "Default language for hyphenation rules"
+msgstr ""
+"Lehenetsitako zein hizkuntzatako gidoiei buruzko arautegia dago ezarrita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:53
 msgid "Font options"
-msgstr "Font options"
+msgstr "Letra-tipoaren aukerak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:55
 msgid "The serif font family"
-msgstr "The serif font family"
+msgstr "Serif letra-tipokoen familia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:57
 msgid "The sans-serif font family"
-msgstr "The sans-serif font family"
+msgstr "Sans-serif letra-tipokoen familia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:59
 msgid "The monospaced font family"
-msgstr "The monospaced font family"
+msgstr "Monospaced letra-tipokoen familia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:60
 msgid "The standard font size in px"
-msgstr "The standard font size in px"
+msgstr "Letra-tipo tamaina estandarra pixeletan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:61
 msgid "The monospaced font size in px"
-msgstr "The monospaced font size in px"
+msgstr "Monospaced letra-tipo tamaina pixeletan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:62
 msgid "The standard font type"
-msgstr "The standard font type"
+msgstr "Letra-tipo estandarra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:453
 msgid "&Lookup in dictionary"
-msgstr "&Lookup in dictionary"
+msgstr "&Bilatu hiztegian"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:456
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:138
 msgid "Go to..."
-msgstr "Go to..."
+msgstr "Joan horra..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:468
 msgid "Next Section"
-msgstr "Next Section"
+msgstr "Hurrengo atala"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:469
 msgid "Previous Section"
-msgstr "Previous Section"
+msgstr "Aurreko atala"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:471
 msgid "Document Start"
-msgstr "Document Start"
+msgstr "Documentuaren hasiera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:472
 msgid "Document End"
-msgstr "Document End"
+msgstr "Documentuaren bukaera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:474
 msgid "Section Start"
-msgstr "Section Start"
+msgstr "Atalaren hasiera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:475
 msgid "Section End"
-msgstr "Section End"
+msgstr "Atalaren amaiera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
-msgstr "Scroll to the next page"
+msgstr "Lekualdatu hurrengo orrialdera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:15
 msgid "Scroll to the previous page"
-msgstr "Scroll to the previous page"
+msgstr "Lekualdatu aurreko orrialdera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:18
 msgid "Scroll to the next section"
-msgstr "Scroll to the next section"
+msgstr "Lekualdatu hurrengo atalera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:21
 msgid "Scroll to the previous section"
-msgstr "Scroll to the previous section"
+msgstr "Lekualdatu aurrreko atalera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:24
 msgid "Scroll to the bottom of the section"
-msgstr "Scroll to the bottom of the section"
+msgstr "Lekualdatu atalaren beheko bukaeraraino"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:27
 msgid "Scroll to the top of the section"
-msgstr "Scroll to the top of the section"
+msgstr "Lekualdatu atalaren goiko hasieraraino"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:30
 msgid "Scroll to the end of the document"
-msgstr "Scroll to the end of the document"
+msgstr "Lekualdatu dokumentuaren amaieraraino"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:33
 msgid "Scroll to the start of the document"
-msgstr "Scroll to the start of the document"
+msgstr "Lekualdatu dokumentuaren hasieraraino"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:36
 msgid "Scroll down"
-msgstr "Scroll down"
+msgstr "Lekualdatu beherantz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:39
 msgid "Scroll up"
-msgstr "Scroll up"
+msgstr "Lekualdatu gorantz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:42
 msgid "Scroll left"
-msgstr "Scroll left"
+msgstr "Lekualdatu ezkerretara"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:45
 msgid "Scroll right"
-msgstr "Scroll right"
+msgstr "Lekualdatu eskuinetara"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:115
 msgid "Book format"
-msgstr "Book format"
+msgstr "Liburu formatua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:185
 msgid "Position in book"
-msgstr "Position in book"
+msgstr "Liburuko kokagunea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:192
 msgid "Go to a reference. To get reference numbers, use the reference mode."
-msgstr "Go to a reference. To get reference numbers, use the reference mode."
+msgstr ""
+"Joan erreferentzia batera. Erreferentzia zenbakiak lortzeko, erreferentzia-"
+"modua erabili."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:200
 msgid "Search for text in book"
-msgstr "Search for text in book"
+msgstr "Bilatu testua liburuan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:269
 msgid "Print Preview"
-msgstr "Print Preview"
+msgstr "Inprimatze-aurrebista"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:300
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
-msgstr "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
+msgstr "Konektatzen dict.org horrekin hauxe bilatzeko: <b>%s</b>&hellip;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:399
 msgid "Choose ebook"
-msgstr "Choose ebook"
+msgstr "Aukeratu liburua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:400
 msgid "Ebooks"
-msgstr "Ebooks"
+msgstr "Liburu elektronikoak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:419
 msgid "Add bookmark"
-msgstr "Add bookmark"
+msgstr "Gehitu laster-marka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:419
 msgid "Enter title for bookmark:"
-msgstr "Enter title for bookmark:"
+msgstr "Sartu laster-markaren izenburua:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:442
 msgid "No matches found for: %s"
-msgstr "No matches found for: %s"
+msgstr "Ez da bat etortzerik aurkitu %s horretarako"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:479
 msgid "Loading flow..."
-msgstr "Loading flow..."
+msgstr "Jarioa kargatzen..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:515
 msgid "Laying out %s"
-msgstr "Laying out %s"
+msgstr "Bistarazten %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:544
 msgid "Manage Bookmarks"
-msgstr "Manage Bookmarks"
+msgstr "Kudeatu laster-markak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:579
 msgid "Loading ebook..."
-msgstr "Loading ebook..."
+msgstr "Liburu elektronikoa kargatzen..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:587
 msgid "DRM Error"
-msgstr "DRM Error"
+msgstr "DRM, Digital Rights Management, sistemak eragindako errorea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:588
 msgid "<p>This book is protected by <a href=\"%s\">DRM</a>"
-msgstr "<p>This book is protected by <a href=\"%s\">DRM</a>"
+msgstr ""
+"<p>Liburu hau irakurtzeko murriztapenak daude: <a href=\"%s\">DRM \"Digital "
+"Rights Management\"</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:592
 msgid "Could not open ebook"
-msgstr "Could not open ebook"
+msgstr "Ezin izan da liburua zabaldu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:666
 msgid "Options to control the ebook viewer"
-msgstr "Options to control the ebook viewer"
+msgstr "Liburu elektronikoen irakurgailua kontrolatzeko aukerak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:673
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr ""
-"If specified, viewer window will try to come to the front when started."
+"Zehazten bada, ikustailearen leihoa saiatuko da aurreko aldera etortzen "
+"hasterakoan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:678
 msgid "Print javascript alert and console messages to the console"
-msgstr "Print javascript alert and console messages to the console"
+msgstr "Inprimatu javascript alerta eta kontsola mezuak kontsolara"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:684
 msgid ""
@@ -9932,45 +9940,45 @@ msgid ""
 "\n"
 "View an ebook.\n"
 msgstr ""
-"%prog [options] file\n"
+"%prog [aukerak] fitxategia\n"
 "\n"
-"View an ebook.\n"
+"Ikusi liburu elektroniko bat.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:184
 msgid "E-book Viewer"
-msgstr "E-book Viewer"
+msgstr "Liburu elektronikoa irakurgailua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:185
 msgid "Close dictionary"
-msgstr "Close dictionary"
+msgstr "Itxi hiztegia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:187
 msgid "toolBar"
-msgstr "toolBar"
+msgstr "Tresna-barra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:190
 msgid "Next page"
-msgstr "Next page"
+msgstr "Hurrengo orrialdea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:191
 msgid "Previous page"
-msgstr "Previous page"
+msgstr "Aurreko orrialdea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:192
 msgid "Font size larger"
-msgstr "Font size larger"
+msgstr "Letra-tipoaren tamaina handiagoa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:193
 msgid "Font size smaller"
-msgstr "Font size smaller"
+msgstr "Letra-tipoaren tamaina txikiiagoa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:197
 msgid "Find next"
-msgstr "Find next"
+msgstr "Aurkitu hurrengoa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:198
 msgid "Find next occurrence"
-msgstr "Find next occurrence"
+msgstr "Biatu hurrengo gertaera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:199
 msgid "F3"
@@ -9978,79 +9986,79 @@ msgstr "F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:200
 msgid "Copy to clipboard"
-msgstr "Copy to clipboard"
+msgstr "Kopiatu arbelean"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:202
 msgid "Reference Mode"
-msgstr "Reference Mode"
+msgstr "Erreferentzia modua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:203
 msgid "Bookmark"
-msgstr "Bookmark"
+msgstr "Laster-marka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:204
 msgid "Toggle full screen"
-msgstr "Toggle full screen"
+msgstr "Aldatu pantaila osora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:205
 msgid "Print"
-msgstr "Print"
+msgstr "Inprimatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Find previous"
-msgstr "Find previous"
+msgstr "Aurkitu aurrekoa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:207
 msgid "Find previous occurrence"
-msgstr "Find previous occurrence"
+msgstr "Aurkitu aurreko gertaera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:208
 msgid "Shift+F3"
-msgstr "Shift+F3"
+msgstr "Maiusk.+F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:114
 msgid "Print eBook"
-msgstr "Print eBook"
+msgstr "Inprimatu liburu elektronikoa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:246
 msgid "Copy Image"
-msgstr "Copy Image"
+msgstr "Kopiatu irudia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:247
 msgid "Paste Image"
-msgstr "Paste Image"
+msgstr "Itsatsi irudia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:372
 msgid "Change Case"
-msgstr "Change Case"
+msgstr "Letra larriak/xeheak giltza aldatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:373
 msgid "Upper Case"
-msgstr "Upper Case"
+msgstr "Letra larriak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:374
 msgid "Lower Case"
-msgstr "Lower Case"
+msgstr "Letra xeheak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:375
 msgid "Swap Case"
-msgstr "Swap Case"
+msgstr "Trukatu leta xehe/larri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:376
 msgid "Title Case"
-msgstr "Title Case"
+msgstr "Izenburuaren letra mota (xehe/larri)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:846
 msgid "Drag to resize"
-msgstr "Drag to resize"
+msgstr "Herrestan eraman tamaina doitzeko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:881
 msgid "Show"
-msgstr "Show"
+msgstr "Erakutsi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:888
 msgid "Hide"
-msgstr "Hide"
+msgstr "Ezkutatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:925
 msgid "Toggle"
@@ -10062,17 +10070,17 @@ msgid ""
 "your calibre book collection directly on the device. To do this you have to "
 "turn on the content server."
 msgstr ""
-"If you use the WordPlayer e-book app on your Android phone, you can access "
-"your calibre book collection directly on the device. To do this you have to "
-"turn on the content server."
+"Zure Android telefonoan WordPlayer e-book app erabiltzen baduzu, irits "
+"zaitezke calibre liburu bildumara gailutik beratik. Hau egiteko gaitu egin "
+"beharko duzu edukien zerbitzaria."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:374
 msgid ""
 "Remember to leave calibre running as the server only runs as long as calibre "
 "is running."
 msgstr ""
-"Remember to leave calibre running as the server only runs as long as calibre "
-"is running."
+"Gogoratu calibre exekutatzen uztea, zerbitzaria ibiliko da calibre dabilen "
+"bitartean bakarrik."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:376
 msgid ""
@@ -10087,36 +10095,36 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:453
 msgid "Moving library..."
-msgstr "Moving library..."
+msgstr "Mugitzen liburutegia..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:469
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:470
 msgid "Failed to move library"
-msgstr "Failed to move library"
+msgstr "Huts egin du liburutegia mugitzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:524
 msgid "Invalid database"
-msgstr "Invalid database"
+msgstr "Datu base balio gabea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:525
 msgid ""
 "<p>An invalid library already exists at %s, delete it before trying to move "
 "the existing library.<br>Error: %s"
 msgstr ""
-"<p>An invalid library already exists at %s, delete it before trying to move "
-"the existing library.<br>Error: %s"
+"<p>Balio gabeko liburutegia dago %s horretan, ezabatu oraingo liburutegia "
+"mugitzen saiatu baino lehen.<br>Errorea: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:536
 msgid "Could not move library"
-msgstr "Could not move library"
+msgstr "Ezin izan da liburutegia mugitu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:590
 msgid "Select location for books"
-msgstr "Select location for books"
+msgstr "Hautatu liburuendako kokagunea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:665
 msgid "welcome wizard"
-msgstr "welcome wizard"
+msgstr "ongi-etorri laguntzailea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:49
@@ -10125,7 +10133,7 @@ msgstr "welcome wizard"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:42
 msgid "Welcome to calibre"
-msgstr "Welcome to calibre"
+msgstr "Ongi etorri calibrera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:43
@@ -10133,47 +10141,49 @@ msgstr "Welcome to calibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:43
 msgid "The one stop solution to all your e-book needs."
-msgstr "The one stop solution to all your e-book needs."
+msgstr ""
+"Liburu elektronikoekin dauzkazun behar guztiak asebetetzeko irtenbidea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:51
 msgid ""
 "Choose your book reader. This will set the conversion options to produce "
 "books optimized for your device."
 msgstr ""
-"Choose your book reader. This will set the conversion options to produce "
-"books optimized for your device."
+"Hautatu zure irakurgailua. Honek ezarriko ditu bihurketa aukerarik onenak, "
+"zure irakurgailurako egokien diren formatuetara bihurketak egiteko."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:52
 msgid "&Manufacturers"
-msgstr "&Manufacturers"
+msgstr "&Fabrikatzaileak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:53
 msgid "&Devices"
-msgstr "&Devices"
+msgstr "&Gailuak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:44
 msgid ""
 "<h2>Congratulations!</h2> You have successfully setup calibre. Press the %s "
 "button to apply your settings."
 msgstr ""
-"<h2>Congratulations!</h2> You have successfully setup calibre. Press the %s "
-"button to apply your settings."
+"<h2>Zorionak!</h2> Arrakastaz ezarri duzu calibre. Sakatu %s botoia zure "
+"ezarpenak martxan hasteko."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:45
 msgid ""
 "<h2>Demo videos</h2>Videos demonstrating the various features of calibre are "
 "available <a href=\"http://calibre-ebook.com/demo\">online</a>."
 msgstr ""
-"<h2>Demo videos</h2>Videos demonstrating the various features of calibre are "
-"available <a href=\"http://calibre-ebook.com/demo\">online</a>."
+"<h2>Demo bideoak</h2>Bideo hauetan ikus daitezke calibrek eskaintzen dituen "
+"hainbat aukera<a href=\"http://calibre-ebook.com/demo\">online</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:46
 msgid ""
 "<h2>User Manual</h2>A User Manual is also available <a href=\"http://calibre-"
 "ebook.com/user_manual\">online</a>."
 msgstr ""
-"<h2>User Manual</h2>A User Manual is also available <a href=\"http://calibre-"
-"ebook.com/user_manual\">online</a>."
+"<h2>User Manual (Erabiltzailearen eskuliburua)</h2>Badago eskura, oraingoz "
+"euskaratu gabe agian, Erabiltzailearen eskulibururik <a "
+"href=\"http://calibre-ebook.com/user_manual\">online</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:44
 msgid ""
@@ -10183,19 +10193,19 @@ msgid ""
 "button below. You will also have to register your gmail address in your "
 "Amazon account."
 msgstr ""
-"<p>calibre can automatically send books by email to your Kindle. To do that "
-"you have to setup email delivery below. The easiest way is to setup a free "
-"<a href=\"http://gmail.com\">gmail account</a> and click the Use gmail "
-"button below. You will also have to register your gmail address in your "
-"Amazon account."
+"<p>calibrek e-postaren bidez bidali ahal dizkio zure Kindle gailuari "
+"liburuak. Hori egiteko zure e-posta bidalketa sistema konfiguratu beharko "
+"duzu. Modurik errezena doako <a href=\"http://gmail.com\">gmail kontua</a> "
+"eta egin klik Erabili gmail botoia azpian. Zure gmail helbidea zure Amazon "
+"kontua erregistratu beharko, ere bai."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:45
 msgid "&Kindle email:"
-msgstr "&Kindle email:"
+msgstr "&Kindle e-posta:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:52
 msgid "Choose your &language:"
-msgstr "Choose your &language:"
+msgstr "Aukeratu zure &hizkuntza:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:53
 msgid ""
@@ -10215,124 +10225,133 @@ msgid ""
 "location. If a calibre library already exists at the new location, calibre "
 "will switch to using it."
 msgstr ""
-"If you have an existing calibre library, it will be copied to the new "
-"location. If a calibre library already exists at the new location, calibre "
-"will switch to using it."
+"Baldin badaukazu dagoeneko calibre liburutegia, kokaleku berrira kopiatuko "
+"da.  calibre liburutegia existitzen bada dagoeneko kokagune berrian, "
+"calibrek aldatuko du hori erabiltzeko."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:32
 msgid "Using: %s:%s@%s:%s and %s encryption"
-msgstr "Using: %s:%s@%s:%s and %s encryption"
+msgstr "Erabiltzen: %s:%s@%s:%s eta %s kodeketa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:37
 msgid "Sending..."
-msgstr "Sending..."
+msgstr "Bidaltzen..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:42
 msgid "Mail successfully sent"
-msgstr "Mail successfully sent"
+msgstr "E-posta arrakastaz igorria"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:114
 msgid "Finish gmail setup"
-msgstr "Finish gmail setup"
+msgstr "Bukatu gmail konfiguratzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:115
 msgid ""
 "Dont forget to enter your gmail username and password. You can sign up for a "
 "free gmail account at http://gmail.com"
 msgstr ""
-"Dont forget to enter your gmail username and password. You can sign up for a "
-"free gmail account at http://gmail.com"
+"Ez ahantzi zure gmail kontuko erabiltzaile izena eta pasahitza sartzen. "
+"Doaneko e-posta zerbitzuko kontua eskatzea duzu http://gmail.com horretan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:130
 msgid "Bad configuration"
-msgstr "Bad configuration"
+msgstr "Konfigurazio okerra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:124
 msgid "You must set the From email address"
-msgstr "You must set the From email address"
+msgstr "Aukeratu beharko duzu igorle e-posta helbidea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:131
 msgid "You must set the username and password for the mail server."
-msgstr "You must set the username and password for the mail server."
+msgstr ""
+"Zehaztu beharko duzu erabiltzaile izena eta pasahitza e-posta "
+"zerbitzariarentzat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:108
 msgid "Send email &from:"
-msgstr "Send email &from:"
+msgstr "Bidali e-posta &hemendik:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:109
 msgid ""
 "<p>This is what will be present in the From: field of emails sent by "
 "calibre.<br> Set it to your email address"
 msgstr ""
-"<p>This is what will be present in the From: field of emails sent by "
-"calibre.<br> Set it to your email address"
+"<p>Hauxe da Igorlearen eremuan erakutsiko dena: calibrek bidalitako e-posta "
+"mezuen igorlea.<br> Ezarri ezazu zure e-posta helbidearekin."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:110
 msgid ""
 "<p>A mail server is useful if the service you are sending mail to only "
 "accepts email from well know mail services."
 msgstr ""
-"<p>A mail server is useful if the service you are sending mail to only "
-"accepts email from well know mail services."
+"<p>E-posta zerbitzaria erabilgarria da batez ere zure mezua jasotzen ari den "
+"zerbitzuak bakarrik onartzen baditu oso ezagunak diren e-posta zerbitzuetako "
+"mezuak."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:111
 msgid "Mail &Server"
-msgstr "Mail &Server"
+msgstr "E-posta &Zerbitzaria"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:112
 msgid "calibre can <b>optionally</b> use a server to send mail"
-msgstr "calibre can <b>optionally</b> use a server to send mail"
+msgstr ""
+"calibrek erabil dezake, <b>hautazko</b>, horrelako zerbitzari bat mezua "
+"bidaltzeko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:113
 msgid "&Hostname:"
-msgstr "&Hostname:"
+msgstr "&Ostalariaren izena:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:114
 msgid "The hostname of your mail server. For e.g. smtp.gmail.com"
-msgstr "The hostname of your mail server. For e.g. smtp.gmail.com"
+msgstr ""
+"Zure e-posta zerbitzariaren ostalariaren izena. Esate baterako smtp.gmail.com"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:115
 msgid "&Port:"
-msgstr "&Port:"
+msgstr "&Portua:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:116
 msgid ""
 "The port your mail server listens for connections on. The default is 25"
 msgstr ""
-"The port your mail server listens for connections on. The default is 25"
+"Zure e-posta zerbitzariaren portua konexioen zain egongo da. Lehenetsita 25 "
+"da"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:118
 msgid "Your username on the mail server"
-msgstr "Your username on the mail server"
+msgstr "Zire erabiltzaile izena e-posta zerbitzarian"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:120
 msgid "Your password on the mail server"
-msgstr "Your password on the mail server"
+msgstr "Zire pasahitza e-posta zerbitzarian"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:121
 msgid "&Show"
-msgstr "&Show"
+msgstr "&Erakutsi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:122
 msgid "&Encryption:"
-msgstr "&Encryption:"
+msgstr "&Kodeketa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:123
 msgid ""
 "Use TLS encryption when connecting to the mail server. This is the most "
 "common."
 msgstr ""
-"Use TLS encryption when connecting to the mail server. This is the most "
-"common."
+"Erabil ezazu TLS encryption, Transport Layer Security kodeketa, zure e-"
+"postarekiko konexioan. Hauxe da erabiliena."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "&TLS"
-msgstr "&TLS"
+msgstr "&TLS (Transport Layer Security kodeketa)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:125
 msgid "Use SSL encryption when connecting to the mail server."
-msgstr "Use SSL encryption when connecting to the mail server."
+msgstr ""
+"Erabili SSL encryption, Secure Sockets Layer kodeketa, e-posta "
+"zerbitzariarekin konexioa egiterakoan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:126
 msgid "&SSL"
@@ -10340,11 +10359,11 @@ msgstr "&SSL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:127
 msgid "Use Gmail"
-msgstr "Use Gmail"
+msgstr "Erabili Gmail"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:128
 msgid "&Test email"
-msgstr "&Test email"
+msgstr "&Aztertu e-posta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:44
 msgid ""
@@ -10353,36 +10372,36 @@ msgid ""
 "directly on the device. To do this you have to turn on the calibre content "
 "server."
 msgstr ""
-"<p>If you use the <a href=\"http://www.lexcycle.com/download\">Stanza</a> e-"
-"book app on your iPhone/iTouch, you can access your calibre book collection "
-"directly on the device. To do this you have to turn on the calibre content "
-"server."
+"<p>Erabiltzen baduzu <a href=\"http://www.lexcycle.com/download\">Stanza</a> "
+"e-book app zure iPhone/iTouch, konekta dezakezu zure calibre liburu "
+"bildumarekin zure gailutik zuzenean. Horretarako gaitu egin beharko duzu "
+"zure calibreko edukien zerbitzaria."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:45
 msgid "Turn on the &content server"
-msgstr "Turn on the &content server"
+msgstr "Gaitu &edukien zerbitzaria"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:230
 msgid "today"
-msgstr "today"
+msgstr "gaur"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:233
 msgid "yesterday"
-msgstr "yesterday"
+msgstr "atzo"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:236
 msgid "thismonth"
-msgstr "thismonth"
+msgstr "hilabetehonetan"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:239
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:240
 msgid "daysago"
-msgstr "daysago"
+msgstr "duelaegunbatzuk"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:398
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:408
 msgid "no"
-msgstr "ez"
+msgstr "Ez"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:398
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:408
@@ -10415,11 +10434,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
-"The fields to output when cataloging books in the database.  Should be a "
-"comma-separated list of fields.\n"
-"Available fields: %s.\n"
-"Default: '%%default'\n"
-"Applies to: CSV, XML output formats"
+"Erakutsiko diren irteera eremuak datu basean liburuak katalogatu eta gero.  "
+"Izan beharko luke komen bidez bereiziriko eremu zerrenda bat.\n"
+"Eremu eskuragarriak: %s.\n"
+"Lehenetsita: '%%default'\n"
+"Aplikatu hauek: CSV, XML output formatuei"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:58
 msgid ""
@@ -10428,10 +10447,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
-"Output field to sort on.\n"
-"Available fields: author_sort, id, rating, size, timestamp, title.\n"
-"Default: '%default'\n"
-"Applies to: CSV, XML output formats"
+"Output eremua sailkatzeko.\n"
+"Eremu eskuragarriak: author_sort, id, rating, size, timestamp, title.\n"
+"Lehenetsita: '%default'\n"
+"Aplikatuko: CSV, XML output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:206
 msgid ""
@@ -10441,11 +10460,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"The fields to output when cataloging books in the database.  Should be a "
-"comma-separated list of fields.\n"
-"Available fields: %s.\n"
-"Default: '%%default'\n"
-"Applies to: BIBTEX output format"
+"Erakutsiko diren irteera eremuak datu basean liburuak katalogatu eta gero.  "
+"Izan beharko luke komen bidez bereiziriko eremu zerrenda bat.\n"
+"Eremu eskuragarriak: %s.\n"
+"Lehenetsita: '%%default'\n"
+"Aplikatu hauek: BIBTEX output formatuei"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:216
 msgid ""
@@ -10454,10 +10473,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"Output field to sort on.\n"
-"Available fields: author_sort, id, rating, size, timestamp, title.\n"
-"Default: '%default'\n"
-"Applies to: BIBTEX output format"
+"Output eremua sailkatzeko.\n"
+"Eremu eskuragarriak: author_sort, id, rating, size, timestamp, title.\n"
+"Lehenetsita: '%default'\n"
+"Aplikatuko: BIBTEX output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:225
 msgid ""
@@ -10466,10 +10485,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"Create a citation for BibTeX entries.\n"
-"Boolean value: True, False\n"
-"Default: '%default'\n"
-"Applies to: BIBTEX output format"
+"BibTeX sarreretarako aipua sortu.\n"
+"Boolear balioa: True, False\n"
+"Lehenetsita: '%default'\n"
+"Aplikatuko da: BIBTEX output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:234
 msgid ""
@@ -10479,11 +10498,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"The template for citation creation from database fields.\n"
-" Should be a template with {} enclosed fields.\n"
-"Available fields: %s.\n"
-"Default: '%%default'\n"
-"Applies to: BIBTEX output format"
+"Datu baseko eremuetatik sortzeko aipuen txantiloia.\n"
+" Izan beharko litzateke {} itxitako eremu dituen txantiloia.\n"
+"Eskuragarri dauden eremuak: %s.\n"
+"Lehenetsita: '%%default'\n"
+"Aplikatuko da: BIBTEX output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:244
 msgid ""
@@ -10492,10 +10511,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"BibTeX file encoding output.\n"
-"Available types: utf8, cp1252, ascii.\n"
-"Default: '%default'\n"
-"Applies to: BIBTEX output format"
+"BibTeX fitxategia kodetze outputa.\n"
+"Mota eskuragarriak: utf8, cp1252, ascii.\n"
+"Lehenetsita: '%default'\n"
+"Aplikatuko da: BIBTEX output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:253
 msgid ""
@@ -10504,10 +10523,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"BibTeX file encoding flag.\n"
-"Available types: strict, replace, ignore, backslashreplace.\n"
-"Default: '%default'\n"
-"Applies to: BIBTEX output format"
+"BibTeX fitxategietako kodetze marka.\n"
+"Mota eskuragarriak: strict, replace, ignore, backslashreplace.\n"
+"Lehenetsita: '%default'\n"
+"Aplikatuko da: BIBTEX output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:262
 msgid ""
@@ -10516,10 +10535,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"Entry type for BibTeX catalog.\n"
-"Available types: book, misc, mixed.\n"
-"Default: '%default'\n"
-"Applies to: BIBTEX output format"
+"Sartu mota BibTeX katalogorako.\n"
+"Mota eskuragarriak: book, misc, mixed.\n"
+"Lehenetsia: '%default'\n"
+"Aplikatuko da: BIBTEX output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:530
 msgid ""
@@ -10564,11 +10583,13 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Comma-separated list of tag words indicating book should be excluded from "
-"output.  Case-insensitive.\n"
-"--exclude-tags=skip will match 'skip this book' and 'Skip will like this'.\n"
-"Default: '%default'\n"
-"Applies to: ePub, MOBI output formats"
+"Komen bidez bereiziriko etiketa hitzen zerrenda zehazten outputetik kendu "
+"beharko litzatekeen liburua. Ez da letra xehe eta larrien artean bereiziko.\n"
+"--exclude-tags=skip, salto egin, etiketak 'skip this book' liburu hau "
+"saltatu etiketarekin bat egingo du eta baita 'Skip will like this' "
+"etiketarekin (hau ere saltatuko).\n"
+"Lehenetsita: '%default'\n"
+"Aplikatuko da: ePub, MOBI output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:561
 msgid ""
@@ -10576,9 +10597,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Include 'Titles' section in catalog.\n"
-"Default: '%default'\n"
-"Applies to: ePub, MOBI output formats"
+"Barnean harten du 'Titles' atala katalogoan (Izenburuak).\n"
+"Lehenetsia: '%default'\n"
+"Aplikatuko: ePub, MOBI output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:568
 msgid ""
@@ -10586,9 +10607,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Include 'Recently Added' section in catalog.\n"
-"Default: '%default'\n"
-"Applies to: ePub, MOBI output formats"
+"Barnean dauka 'Recently Added' atala katalogoan (Duela gutxi erantsiak).\n"
+"Lehenetsia: '%default'\n"
+"Aplikatuko da: ePub, MOBI output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:575
 msgid ""
@@ -10596,9 +10617,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Tag prefix for user notes, e.g. '*Jeff might enjoy reading this'.\n"
-"Default: '%default'\n"
-"Applies to: ePub, MOBI output formats"
+"Etiketa aurrizkia erabiltzailearen oharretarako, esate baterako. '*Jonek hau "
+"pozik irakurriko luke'.\n"
+"Lehenetsita: '%default'\n"
+"Applikatuko da: ePub, MOBI output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:582
 msgid ""
@@ -10608,11 +10630,12 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Sort titles with leading numbers as text, e.g.,\n"
-"'2001: A Space Odyssey' sorts as \n"
-"'Two Thousand One: A Space Odyssey'.\n"
-"Default: '%default'\n"
-"Applies to: ePub, MOBI output formats"
+"Ordenatu hasieran zenbakiak dauzkaten izenburuak baina testu legez , "
+"esaterako,\n"
+"'2001: Espazio odisea' ordenatuko da \n"
+"'Bi mila eta bat: Espazio odisea'.\n"
+"Lehentsita: '%default'\n"
+"Aplikatuko da: ePub, MOBI output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:589
 msgid ""
@@ -10623,12 +10646,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Specifies the output profile.  In some cases, an output profile is required "
-"to optimize the catalog for the device.  For example, 'kindle' or "
-"'kindle_dx' creates a structured Table of Contents with Sections and "
-"Articles.\n"
-"Default: '%default'\n"
-"Applies to: ePub, MOBI output formats"
+"Zehazten du outputaren profila.  Zenbait kasuta, output profila eskatuko da "
+"irakurgailuaren katalogoa optimizatzeko. Adibidez, 'kindle' edo 'kindle_dx' "
+"sortzen du Aurkibide estrukturatu bat atal eta artikuluekin.\n"
+"Lehenetsita: '%default'\n"
+"Aplikatuko da: ePub, MOBI output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:596
 msgid ""
@@ -10636,17 +10658,16 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Tag indicating book has been read.\n"
-"Default: '%default'\n"
-"Applies to: ePub, MOBI output formats"
+"Liburua irakurri egin dela adierazten duen etiketa.\n"
+"Lehenetsia: '%default'\n"
+"Aplikatuko da: ePub, MOBI output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:41
 msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
 msgstr ""
-"Path to the calibre library. Default is to use the path stored in the "
-"settings."
+"calibre liburutegirako bidea. Lehenetsita hauxe: ezarpenetan gordetako bidea."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:120
 msgid ""
@@ -10654,9 +10675,9 @@ msgid ""
 "\n"
 "List the books available in the calibre database.\n"
 msgstr ""
-"%prog list [options]\n"
+"%prog list [aukerak]\n"
 "\n"
-"List the books available in the calibre database.\n"
+"calibre datu basean eskuragarri dauden liburuen zerrenda.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:128
 msgid ""
@@ -10666,11 +10687,12 @@ msgid ""
 "Default: %%default. The special field \"all\" can be used to select all "
 "fields. Only has effect in the text output format."
 msgstr ""
-"The fields to display when listing books in the database. Should be a comma "
-"separated list of fields.\n"
-"Available fields: %s\n"
-"Default: %%default. The special field \"all\" can be used to select all "
-"fields. Only has effect in the text output format."
+"Liburuak datu basean erakusten direnerako eremuak. Komen bidez bereiziriko "
+"eremuen zerrenda izan beharko luke.\n"
+"Eskuragarri dauden eremuak: %s\n"
+"Lehenetsia: %%default.  \"all\" eremu berezia, \"dena\", erabil daiteke "
+"eremu guztiak batera hautatzeko. Testu output formatuetan besterik ez du "
+"efektua izango."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:135
 msgid ""
