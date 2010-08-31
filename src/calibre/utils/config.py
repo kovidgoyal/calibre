@@ -13,13 +13,11 @@ from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
 from collections import defaultdict
 
-from calibre.constants import terminal_controller, config_dir, \
+from calibre.constants import terminal_controller, config_dir, CONFIG_DIR_MODE, \
                               __appname__, __version__, __author__
 from calibre.utils.lock import LockError, ExclusiveFile
 
 plugin_dir = os.path.join(config_dir, 'plugins')
-
-CONFIG_DIR_MODE = 0700
 
 def make_config_dir():
     if not os.path.exists(plugin_dir):

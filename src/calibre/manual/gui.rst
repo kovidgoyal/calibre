@@ -166,7 +166,7 @@ Search & Sort
 
 The Search & Sort section allows you to perform several powerful actions on your book collections.
 
-    * You can sort them by title, author, date, rating etc. by clicking on the column titles.
+    * You can sort them by title, author, date, rating etc. by clicking on the column titles. You can also sub-sort (i.e. sort on multiple columns). For example, if you click on the title column and then the author column, the book will be sorted by author and then all the entries for the same author will be sorted by title.
                 
     * You can search for a particular book or set of books using the search bar. More on that below.
                 
@@ -315,6 +315,70 @@ Jobs
 .. image:: images/jobs.png
 
 The Jobs panel shows you the number of currently running jobs. Jobs are tasks that run in a separate process, they include converting ebooks and talking to your reader device. You can click on the jobs panel to access the list of jobs. Once a job has completed, by double-clicking it in the list, you can see a detailed log from that job. This is useful to debug jobs that may not have completed successfully.
+
+Keyboard Shortcuts
+---------------------
+
+Calibre has several keyboard shortcuts to save you time and mouse movement. These shortcuts are active in the book list view (when you're not editing the details of a particular book), and most of them affect the title you have selected. The |app| e-book viewer has its own shortcuts, which can be customised by clicking the Preferences button in the viewer.
+
+.. note::
+
+    Note: The Calibre keyboard shortcuts do not require a modifier key (Command, Option, Control etc.), unless specifically noted. You only need to press the letter key, e.g. E to edit.
+
+.. list-table:: Keyboard Shortcuts
+    :widths: 10 100
+    :header-rows: 1
+
+    * - Keyboard Shortcut
+      - Action
+    * - :kbd:`A` 
+      - Add Books
+    * - :kbd:`C` 
+      - Convert selected Books
+    * - :kbd:`D` 
+      - Send to device
+    * - :kbd:`Del` 
+      - Remove selected Books
+    * - :kbd:`E` 
+      - Edit metadata of selected books
+    * - :kbd:`I` 
+      - Show book details
+    * - :kbd:`M` 
+      - Merge selected records
+    * - :kbd:`O` 
+      - Open containing folder
+    * - :kbd:`S` 
+      - Save to Disk
+    * - :kbd:`V` 
+      - View
+    * - :kbd:`Alt+V/Cmd+V in OS X` 
+      - View specific format
+    * - :kbd:`Alt+Shift+J` 
+      - Toggle jobs list
+    * - :kbd:`Alt+Shift+B` 
+      - Toggle Cover Browser
+    * - :kbd:`Alt+Shift+T` 
+      - Toggle Tag Browser
+    * - :kbd:`Alt+A` 
+      - Show books by the Same author as the current book
+    * - :kbd:`Alt+T` 
+      - Show books with the same tags as current book
+    * - :kbd:`Alt+P` 
+      - Show books by the same publisher as current book
+    * - :kbd:`Alt+Shift+S` 
+      - Show books in the same series as current book
+    * - :kbd:`/, Ctrl+F` 
+      - Focus the search bar
+    * - :kbd:`Ctrl+D` 
+      - Download metadata and shortcuts
+    * - :kbd:`Ctrl+R` 
+      - Restart calibre
+    * - :kbd:`Ctrl+Q` 
+      - Quit calibre
+
+
+
+
 
 
 

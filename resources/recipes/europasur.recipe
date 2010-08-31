@@ -20,7 +20,7 @@ class Europasur(BasicNewsRecipe):
     delay                 = 2
     no_stylesheets        = True
     encoding              = 'cp1252'
-    language              = 'es_ES'
+    language              = 'es'
     publication_type      = 'newspaper'
     extra_css             = """ body{font-family: Verdana,Arial,Helvetica,sans-serif}
                                 h2{font-family: Georgia,Times New Roman,Times,serif}
