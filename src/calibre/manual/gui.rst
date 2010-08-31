@@ -166,7 +166,7 @@ Search & Sort
 
 The Search & Sort section allows you to perform several powerful actions on your book collections.
 
-    * You can sort them by title, author, date, rating etc. by clicking on the column titles.
+    * You can sort them by title, author, date, rating etc. by clicking on the column titles. You can also sub-sort (i.e. sort on multiple columns). For example, if you click on the title column and then the author column, the book will be sorted by author and then all the entries for the same author will be sorted by title.
                 
     * You can search for a particular book or set of books using the search bar. More on that below.
                 
