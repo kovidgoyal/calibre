@@ -401,7 +401,7 @@ class Py2App(object):
     @flush
     def add_podofo(self):
         info('\nAdding PoDoFo')
-        pdf = join(SW, 'lib', 'libpodofo.0.8.1.dylib')
+        pdf = join(SW, 'lib', 'libpodofo.0.8.2.dylib')
         self.install_dylib(pdf)
 
     @flush

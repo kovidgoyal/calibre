@@ -19,7 +19,7 @@ class NRO(BasicNewsRecipe):
     encoding              = 'utf-8'
     use_embedded_content  = True
     remove_javascript = True
-
+	
 
     conversion_options = {
                           'comment'   : description
@@ -34,17 +34,18 @@ class NRO(BasicNewsRecipe):
                   ]
 
     feeds = [
-
-              (u'National Review', u'http://www.nationalreview.com/index.xml'),
-              (u'The Corner', u'http://corner.nationalreview.com/corner.xml'),
-              (u'The Agenda', u'http://agenda.nationalreview.com/agenda.xml'),
-              (u'Bench Memos', u'http://bench.nationalreview.com/bench.xml'),
-              (u'Campaign Spot', u'http://campaignspot.nationalreview.com/campaignspot.xml'),
-              (u'Critical Care', u'http://healthcare.nationalreview.com/healthcare.xml'),
-              (u'Doctor, Doctor', u'http://www.nationalreview.com/doctor/doctor.xml'),
-              (u"Kudlow's Money Politic$", u'http://kudlow.nationalreview.com/kudlow.xml'),
-              (u'Media Blog', u'http://media.nationalreview.com/media.xml'),
-              (u'Phi Beta Cons', u'http://phibetacons.nationalreview.com/phibetacons.xml'),
-              (u'Planet Gore', u'http://planetgore.nationalreview.com/planetgore.xml')
-
+	
+               (u'National Review', u'http://www.nationalreview.com/articles/feed'),
+               (u'The Corner', u'http://www.nationalreview.com/corner/feed'),
+               (u'The Agenda', u'http://www.nationalreview.com/agenda/feed'),
+               (u'Bench Memos', u'http://www.nationalreview.com/bench-memos/feed'),
+               (u'Campaign Spot', u'http://www.nationalreview.com/campaign-spot/feed'),
+               (u'Battle 10', u'http://www.nationalreview.com/battle10/feed'),
+               (u'Critical Care', u'http://www.nationalreview.com/critical-condition/feed'),
+               (u"Kudlow's Money Politic$", u'http://www.nationalreview.com/kudlows-money-politics/feed'),
+               (u'Media Blog', u'http://www.nationalreview.com/media-blog/feed'),
+               (u'Exchequer', u'http://www.nationalreview.com/exchequer/feed'),
+               (u'Phi Beta Cons', u'http://www.nationalreview.com/phi-beta-cons/feed'),
+               (u'Planet Gore', u'http://www.nationalreview.com/planet-gore/feed')
+	
             ]

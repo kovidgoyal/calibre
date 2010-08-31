@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-20 20:19+0000\n"
-"PO-Revision-Date: 2010-08-20 22:07+0000\n"
-"Last-Translator: Eleftherios Kosmas <elkosmas@gmail.com>\n"
+"PO-Revision-Date: 2010-08-25 02:45+0000\n"
+"Last-Translator: Harry Mavroforakis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-22 03:44+0000\n"
+"X-Launchpad-Export-Date: 2010-08-26 03:52+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -607,7 +607,7 @@ msgstr "Επικοινωνία με το Sigmatek eBook reader."
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:30
 msgid "Use an arbitrary folder as a device."
-msgstr ""
+msgstr "Επιλογή τυχαίου φακέλου ως συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:26
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:14
@@ -757,7 +757,7 @@ msgstr "Επικοινωνία με το Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Kogan"
-msgstr ""
+msgstr "Επικοινωνία με το Kogan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:87
 msgid "Communicate with the Pandigital Novel"
@@ -1502,19 +1502,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:367
 msgid "Use a regular expression to try and remove the header."
-msgstr ""
+msgstr "Χρήση τυπικής εκφράσης για να αφαιρεθεί η κεφαλίδα."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:374
 msgid "The regular expression to use to remove the header."
-msgstr ""
+msgstr "Η τυπική έκφραση που θα χρησιμοποιηθεί για να αφαιρεθεί η κεφαλίδα."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:380
 msgid "Use a regular expression to try and remove the footer."
-msgstr ""
+msgstr "Χρήση τυπικής έκφρασης για να αφαιρεθεί το υποσέλιδο."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:387
 msgid "The regular expression to use to remove the footer."
 msgstr ""
+"Η τυπική έκφραση που θα χρησιμοποιηθεί για να αφαιρεθεί το υποσέλιδο."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:394
 msgid ""
@@ -1545,7 +1546,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
 msgid "Set the title."
-msgstr ""
+msgstr "Εισαγωγή τίτλου."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:432
 msgid "Set the authors. Multiple authors should be separated by ampersands."
@@ -1558,6 +1559,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:441
 msgid "String to be used when sorting by author. "
 msgstr ""
+"Η συμβολοσειρά που θα χρησιμοποιηθεί κατά την ταξινόμηση κατά όνομα "
+"συγγραφέα. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:445
 msgid "Set the cover to the specified file or URL"
@@ -1571,7 +1574,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:453
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:56
 msgid "Set the ebook publisher."
-msgstr ""
+msgstr "Εισαγωγή εκδότη του ηλεκτρονικού βιβλίου."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:457
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:60
@@ -1586,12 +1589,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:465
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:64
 msgid "Set the rating. Should be a number between 1 and 5."
-msgstr ""
+msgstr "Καταχώρηση βαθμολογίας. Επιλέξτε ένα νούμερο από 1 έως και 5."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:469
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:66
 msgid "Set the ISBN of the book."
-msgstr ""
+msgstr "Εισαγωγή του κωδικού ISBN του βιβλίου"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:473
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:68
@@ -1610,7 +1613,7 @@ msgstr "Ρυθμίστε την γλώσσα."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:485
 msgid "Set the publication date."
-msgstr ""
+msgstr "Εισαγωγή της ημερομηνίας έκδοσης."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:489
 msgid "Set the book timestamp (used by the date column in calibre)."
@@ -1618,7 +1621,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:589
 msgid "Could not find an ebook inside the archive"
-msgstr ""
+msgstr "Δε βρέθηκε ηλεκτρονικό βιβλίο στο αρχείο."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:647
 msgid "Values of series index and rating must be numbers. Ignoring"
@@ -1626,7 +1629,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:654
 msgid "Failed to parse date/time"
-msgstr ""
+msgstr "Αποτυχία ανάγνωσης ημερομηνίας/ώρας"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:809
 msgid "Converting input to HTML..."
@@ -1642,7 +1645,7 @@ msgstr "Δημιουργία"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 msgid "Failed to parse: %s with error: %s"
-msgstr ""
+msgstr "Αποτυχία ανάγνωσης: %s με σφάλμα: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
@@ -1673,7 +1676,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
-msgstr ""
+msgstr "Πρέπει να προσδιορίσετε ένα αρχείο epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"

@@ -105,6 +105,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             return self.simple_error('', _('No lookup name was provided'))
         if re.match('^\w*$', col) is None or not col[0].isalpha() or col.lower() != col:
             return self.simple_error('', _('The lookup name must contain only lower case letters, digits and underscores, and start with a letter'))
+        if col.endswith('_index'):
+            return self.simple_error('', _('Lookup names cannot end with _index, because these names are reserved for the index of a series column.'))
         col_heading = unicode(self.column_heading_box.text())
         col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
         if col_type == '*text':
