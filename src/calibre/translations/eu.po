@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-27 18:12+0000\n"
-"PO-Revision-Date: 2010-08-29 17:35+0000\n"
-"Last-Translator: Bingen Markes <Unknown>\n"
+"PO-Revision-Date: 2010-08-31 02:18+0000\n"
+"Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-30 03:52+0000\n"
+"X-Launchpad-Export-Date: 2010-08-31 03:53+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -3299,7 +3299,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:133
 msgid "Disable UI animations"
-msgstr "Desgaitu UI animazioak"
+msgstr "Desgaitu EI (erabiltzailearen interfazearen) animazioak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:479
@@ -3797,7 +3797,7 @@ msgstr " and delete from library"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:81
 msgid "Setup email based sharing of books"
-msgstr "Prestatu e-postan oinarritutako liburu-konportitzea"
+msgstr "Prestatu e-postaan oinarritutako liburuen partekatzea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:98
 msgid "D"
@@ -5365,8 +5365,8 @@ msgstr "Ez dago formatu eskuragarririk"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:84
 msgid "Cannot build regex using the GUI builder without a book."
 msgstr ""
-"GUI builder erabiliz ezin da regex \"ohiko adierazpen\" horietako bat sortu "
-"libururik gabe."
+"GUI builder (Graphical User Interface eraikitzailea) erabiliz ezin da regex "
+"\"ohiko adierazpen\" horietako bat sortu libururik gabe."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:103
 msgid "Open book"
@@ -7984,7 +7984,7 @@ msgstr "Gehitu pertsonalizatutako albiste iturri berri bat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:228
 msgid "Download all scheduled new sources"
-msgstr "Deskargatu programatutako albiste iturri guztiak"
+msgstr "Deskargatu planifikatutako albiste iturri guztiak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:328
 msgid "No internet connection"
@@ -8001,11 +8001,11 @@ msgstr "Formulak edo errezetak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:194
 msgid "Download all scheduled recipes at once"
-msgstr "Deskargatu programazio formula guztiak aldi berean"
+msgstr "Deskargatu planifikazio formula guztiak aldi berean"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:195
 msgid "Download &all scheduled"
-msgstr "Deskargatu programatutako &dena"
+msgstr "Deskargatu planifikatutako &dena"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:196
 msgid "blurb"
@@ -9181,7 +9181,8 @@ msgid ""
 "on windows where GUI apps do not have a output streams."
 msgstr ""
 "Berbideratu kontsolaren outputa elkarrizketa leihora (bai stdout bai "
-"stderr). Windowsen erabilgarria non GUI apps ez du output korronterik."
+"stderr). Windowsen erabilgarria non GUI apps horrek  (Graphical User "
+"Interface apps horrek) ez du output korronterik."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:61
 msgid "&Preferences"
@@ -10700,13 +10701,13 @@ msgid ""
 "Available fields: %s\n"
 "Default: %%default"
 msgstr ""
-"The field by which to sort the results.\n"
-"Available fields: %s\n"
-"Default: %%default"
+"Emaitzak ordenatzeko eremua.\n"
+"Eskuragarri dauden eremuak: %s\n"
+"Lehenetsia: %%default"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:137
 msgid "Sort results in ascending order"
-msgstr "Sort results in ascending order"
+msgstr "Ordenatu emaitzak goranzka"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:139
 msgid ""
@@ -10723,36 +10724,36 @@ msgid ""
 "The maximum width of a single line in the output. Defaults to detecting "
 "screen size."
 msgstr ""
-"The maximum width of a single line in the output. Defaults to detecting "
-"screen size."
+"Lerro sinple baten zabalera maximoa. Lehenetsitako balioa: pantailaren "
+"tamaina detektatzea."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:142
 msgid "The string used to separate fields. Default is a space."
-msgstr "The string used to separate fields. Default is a space."
+msgstr "Eremuak bereizteko erabiltzen den testua. Lehenetsia: espazio bat."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:143
 msgid ""
 "The prefix for all file paths. Default is the absolute path to the library "
 "folder."
 msgstr ""
-"The prefix for all file paths. Default is the absolute path to the library "
-"folder."
+"Fitxategi bide guztietarako aurrizkia. Lehenetsia: liburutegiko karpetarako "
+"bide hutsa."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:165
 msgid "Invalid fields. Available fields:"
-msgstr "Invalid fields. Available fields:"
+msgstr "Balio gabeko eremuak. Eskuragarri dauden eremuak:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:172
 msgid "Invalid sort field. Available fields:"
-msgstr "Invalid sort field. Available fields:"
+msgstr "Ordenatzeko eremu balio gabea. Eskuragarri dauden eremuak:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:244
 msgid ""
 "The following books were not added as they already exist in the database "
 "(see --duplicates option):"
 msgstr ""
-"The following books were not added as they already exist in the database "
-"(see --duplicates option):"
+"Hurrengo liburuak ez dira gehitu zeren dagoeneko datu basean bazeuden (ikus -"
+"-duplicates aukera: \"bikoiztuak\"):"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:267
 msgid ""
@@ -10762,23 +10763,23 @@ msgid ""
 "directories, see\n"
 "the directory related options below.\n"
 msgstr ""
-"%prog add [options] file1 file2 file3 ...\n"
+"%prog add [aukerak] fitxategi1 fitxategi2 fitxategi3 ...\n"
 "\n"
-"Add the specified files as books to the database. You can also specify "
-"directories, see\n"
-"the directory related options below.\n"
+"Gehitu zehaztutako fitxategiak datu basera. Direktorioak ere zehaztu "
+"daitezke, ikus itzazu\n"
+"direktorioei buruzko aukerak beherago.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:276
 msgid ""
 "Assume that each directory has only a single logical book and that all files "
 "in it are different e-book formats of that book"
 msgstr ""
-"Assume that each directory has only a single logical book and that all files "
-"in it are different e-book formats of that book"
+"Onartu direktorio bakoitzak liburu bakarra daukala loturik eta beraz "
+"karpetako fitxategi guztiak liburu beraren formatu desberdinak direla"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:278
 msgid "Process directories recursively"
-msgstr "Process directories recursively"
+msgstr "Prozesatu direktorioak modu errekurtsiboan"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:280
 msgid ""
@@ -10790,19 +10791,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:282
 msgid "Add an empty book (a book with no formats)"
-msgstr "Add an empty book (a book with no formats)"
+msgstr "Gehitu liburu huts bat (formaturik gabeko liburu bat)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:284
 msgid "Set the title of the added empty book"
-msgstr "Set the title of the added empty book"
+msgstr "Ezarri hutsik gehitu duzun liburuaren izenburua"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:286
 msgid "Set the authors of the added empty book"
-msgstr "Set the authors of the added empty book"
+msgstr "Ezarri hutsik gehitu duzun liburuaren egilearen izena"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:288
 msgid "Set the ISBN of the added empty book"
-msgstr "Set the ISBN of the added empty book"
+msgstr "Ezarri hutsik gehitu duzun liburuaren ISBNa"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:313
 msgid "You must specify at least one file to add"
@@ -11496,7 +11497,8 @@ msgid ""
 "overrides any per-library settings specified in the GUI"
 msgstr ""
 "Murrizketa bat zehazten du aginte hau ematerakoan. Aukera honek aldera uzten "
-"ditu GUI horretan zehazten diren liburutegietako ezarpenak"
+"ditu GUI  (Graphical User Interface) horretan zehazten diren liburutegietako "
+"ezarpenak"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:110
 msgid "%d book"
@@ -11888,7 +11890,7 @@ msgstr "Zu"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:82
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:193
 msgid "Scheduled"
-msgstr "Programatua"
+msgstr "Planifikatua"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:84
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:194
