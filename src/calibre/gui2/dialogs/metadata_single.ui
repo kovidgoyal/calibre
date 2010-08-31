@@ -613,12 +613,9 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QToolButton" name="cover_button">
-                        <property name="toolTip">
-                         <string>Browse for an image to use as the cover of this book.</string>
-                        </property>
+                       <widget class="QPushButton" name="cover_button">
                         <property name="text">
-                         <string>...</string>
+                         <string>&amp;Browse</string>
                         </property>
                         <property name="icon">
                          <iconset resource="../../../../resources/images.qrc">
@@ -750,7 +747,6 @@
   <tabstop>button_set_metadata</tabstop>
   <tabstop>formats</tabstop>
   <tabstop>cover_path</tabstop>
-  <tabstop>cover_button</tabstop>
   <tabstop>reset_cover</tabstop>
   <tabstop>fetch_cover_button</tabstop>
   <tabstop>generate_cover_button</tabstop>

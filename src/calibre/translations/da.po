@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-20 20:19+0000\n"
-"PO-Revision-Date: 2010-08-21 08:43+0000\n"
-"Last-Translator: Glenn <Unknown>\n"
+"PO-Revision-Date: 2010-08-22 19:19+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-22 03:44+0000\n"
+"X-Launchpad-Export-Date: 2010-08-23 03:54+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -168,7 +168,7 @@ msgstr "Metadataskriver"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:263
 msgid "Catalog generator"
-msgstr "Katalog generator"
+msgstr "Kataloggenerator"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:359
 msgid "User Interface Action"
@@ -413,7 +413,7 @@ msgstr "Opsætning af filtype udvidelsesmoduler"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Local plugin customization"
-msgstr "Tilpasning af lokal udvidelsesmodul"
+msgstr "Tilpasning af lokalt udvidelsesmodul"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:36
 msgid "Disabled plugins"
@@ -461,7 +461,7 @@ msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
 msgstr ""
-"Brugertilpas udvidelsesmodul. Angiv udvidelsesmodulnavn og "
+"Brugertilpasset udvidelsesmodul. Angiv udvidelsesmodulnavn og "
 "tilpasningstekststrenge adskilt af kommaer."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:534
@@ -4369,7 +4369,7 @@ msgstr "ignorér"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:89
 msgid "backslashreplace"
-msgstr ""
+msgstr "erstat omvendt skråstreg (\"\\\")"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:90
 msgid "BibTeX entry type:"
@@ -7007,7 +7007,7 @@ msgstr "Kontekstmenuen til bøgerne i enheden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:94
 msgid "Customize the actions in:"
-msgstr ""
+msgstr "Tilpas aktionerne i:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:95
 msgid "A&vailable actions"
@@ -10710,6 +10710,16 @@ msgid ""
 "    replaced.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog saved_searches [options] list\n"
+"    %prog saved_searches add name search\n"
+"    %prog saved_searches remove name\n"
+"\n"
+"    Administrér de gemte søgninger gemt i denne database.\n"
+"    Hvis du prøver at tilføje en søgning med et navn som allerede "
+"eksisterer,\n"
+"    vil den blive overskrevet.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:821
 msgid "Error: You must specify an action (add|remove|list)"

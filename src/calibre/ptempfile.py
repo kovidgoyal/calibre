@@ -5,17 +5,35 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Provides platform independent temporary files that persist even after
 being closed.
 """
-import tempfile, os, atexit, shutil
+import tempfile, os, atexit
 
 from calibre import __version__, __appname__
 
 def cleanup(path):
     try:
-        import os
-        if os.path.exists(path):
-            os.remove(path)
+        import os as oss
+        if oss.path.exists(path):
+            oss.remove(path)
     except:
         pass
+
+
+_base_dir = None
+
+def remove_dir(x):
+    try:
+        import shutil
+        shutil.rmtree(x, ignore_errors=True)
+    except:
+        pass
+
+def base_dir():
+    global _base_dir
+    if _base_dir is None:
+        _base_dir = tempfile.mkdtemp(prefix='%s_%s_tmp_'%(__appname__,
+            __version__))
+        atexit.register(remove_dir, _base_dir)
+    return _base_dir
 
 class PersistentTemporaryFile(object):
     """
@@ -27,6 +45,8 @@ class PersistentTemporaryFile(object):
     def __init__(self, suffix="", prefix="", dir=None, mode='w+b'):
         if prefix == None:
             prefix = ""
+        if dir is None:
+            dir = base_dir()
         fd, name = tempfile.mkstemp(suffix, __appname__+"_"+ __version__+"_" + prefix,
                                     dir=dir)
         self._file = os.fdopen(fd, mode)
@@ -56,8 +76,10 @@ def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
     Return the path to a newly created temporary directory that will
     be automatically deleted on application exit.
     '''
+    if dir is None:
+        dir = base_dir()
     tdir = tempfile.mkdtemp(suffix, __appname__+"_"+ __version__+"_" +prefix, dir)
-    atexit.register(shutil.rmtree, tdir, True)
+    atexit.register(remove_dir, tdir)
     return tdir
 
 class TemporaryDirectory(object):
@@ -67,6 +89,8 @@ class TemporaryDirectory(object):
     def __init__(self, suffix='', prefix='', dir=None, keep=False):
         self.suffix = suffix
         self.prefix = prefix
+        if dir is None:
+            dir = base_dir()
         self.dir = dir
         self.keep = keep
 
@@ -76,7 +100,7 @@ class TemporaryDirectory(object):
 
     def __exit__(self, *args):
         if not self.keep and os.path.exists(self.tdir):
-            shutil.rmtree(self.tdir, ignore_errors=True)
+            remove_dir(self.tdir)
 
 class TemporaryFile(object):
 
@@ -85,6 +109,8 @@ class TemporaryFile(object):
             prefix = ''
         if suffix is None:
             suffix = ''
+        if dir is None:
+            dir = base_dir()
         self.prefix, self.suffix, self.dir, self.mode = prefix, suffix, dir, mode
         self._file = None
 

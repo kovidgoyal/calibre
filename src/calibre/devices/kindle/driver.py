@@ -25,7 +25,8 @@ system/userannotationlog
 
 collections.json refers to books via a SHA1 hash of the absolute path to the
 book (prefix is /mnt/us on my Kindle). The SHA1 hash may or may not be prefixed
-by some characters, use the last 40 characters.
+by some characters, use the last 40 characters. For books from Amazon, the ASIN
+is used instead.
 
 Changing the metadata and resending the file doesn't seem to affect collections
 
@@ -165,11 +166,11 @@ class KINDLE(USBMS):
 
 class KINDLE2(KINDLE):
 
-    name           = 'Kindle 2 Device Interface'
-    description    = _('Communicate with the Kindle 2 eBook reader.')
+    name           = 'Kindle 2/3 Device Interface'
+    description    = _('Communicate with the Kindle 2/3 eBook reader.')
 
     FORMATS        = KINDLE.FORMATS + ['pdf']
-    PRODUCT_ID = [0x0002]
+    PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
 
     def books(self, oncard=None, end_session=True):

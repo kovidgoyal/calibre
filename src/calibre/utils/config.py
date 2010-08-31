@@ -13,13 +13,11 @@ from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
 from collections import defaultdict
 
-from calibre.constants import terminal_controller, config_dir, \
+from calibre.constants import terminal_controller, config_dir, CONFIG_DIR_MODE, \
                               __appname__, __version__, __author__
 from calibre.utils.lock import LockError, ExclusiveFile
 
 plugin_dir = os.path.join(config_dir, 'plugins')
-
-CONFIG_DIR_MODE = 0700
 
 def make_config_dir():
     if not os.path.exists(plugin_dir):
@@ -194,6 +192,7 @@ class OptionSet(object):
 
     def __init__(self, description=''):
         self.description = description
+        self.defaults = {}
         self.preferences = []
         self.group_list  = []
         self.groups      = {}
@@ -274,6 +273,7 @@ class OptionSet(object):
         if pref in self.preferences:
             raise ValueError('An option with the name %s already exists in this set.'%name)
         self.preferences.append(pref)
+        self.defaults[name] = default
 
     def option_parser(self, user_defaults=None, usage='', gui_mode=False):
         parser = OptionParser(usage, gui_mode=gui_mode)
@@ -465,6 +465,10 @@ class ConfigProxy(object):
     def __init__(self, config):
         self.__config = config
         self.__opts   = None
+
+    @property
+    def defaults(self):
+        return self.__config.option_set.defaults
 
     def refresh(self):
         self.__opts = self.__config.parse()
@@ -701,7 +705,7 @@ def _prefs():
     c.add_opt('output_format', default='EPUB',
               help=_('The default output format for ebook conversions.'))
     c.add_opt('input_format_order', default=['EPUB', 'MOBI', 'LIT', 'PRC',
-        'FB2', 'HTML', 'HTM', 'XHTM', 'SHTML', 'XHTML', 'ODT', 'RTF', 'PDF',
+        'FB2', 'HTML', 'HTM', 'XHTM', 'SHTML', 'XHTML', 'ZIP', 'ODT', 'RTF', 'PDF',
         'TXT'],
               help=_('Ordered list of formats to prefer for input.'))
     c.add_opt('read_file_metadata', default=True,
