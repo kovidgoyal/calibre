@@ -94,19 +94,19 @@ class KOBO(USBMS):
 
                 idx = bl_cache.get(lpath, None)
                 if idx is not None:
+                    bl_cache[lpath] = None
                     if ImageID is not None:
                         imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - NickelBookCover.parsed')
                         #print "Image name Normalized: " + imagename
                         if imagename is not None:
                             bl[idx].thumbnail = ImageWrapper(imagename)
-                    bl_cache[lpath] = None
                     if ContentType != '6':
                         if self.update_metadata_item(bl[idx]):
                             # print 'update_metadata_item returned true'
                             changed = True
                     bl[idx].device_collections = playlist_map.get(lpath, [])
                 else:
-                    book = Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
+                    book = self.book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
                     # print 'Update booklist'
                     if bl.add_book(book, replace_metadata=False):
                         changed = True
@@ -381,3 +381,19 @@ class KOBO(USBMS):
 
         return USBMS.get_file(self, path, *args, **kwargs)
 
+    @classmethod
+    def book_from_path(cls, prefix, lpath, title, authors, mime, date, ContentType, ImageID):
+        from calibre.ebooks.metadata import MetaInformation
+
+        if cls.settings().read_metadata or cls.MUST_READ_METADATA:
+            mi = cls.metadata_from_path(cls.normalize_path(os.path.join(prefix, lpath)))
+        else:
+            from calibre.ebooks.metadata.meta import metadata_from_filename
+            mi = metadata_from_filename(cls.normalize_path(os.path.basename(lpath)),
+                                        cls.build_template_regexp())
+        if mi is None:
+            mi = MetaInformation(os.path.splitext(os.path.basename(lpath))[0],
+                    [_('Unknown')])
+        size = os.stat(cls.normalize_path(os.path.join(prefix, lpath))).st_size
+        book =  Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=size, other=mi)
+        return book
