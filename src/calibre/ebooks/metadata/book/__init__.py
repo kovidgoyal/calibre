@@ -109,7 +109,7 @@ COPYABLE_METADATA_FIELDS = SOCIAL_METADATA_FIELDS.union(
                            CALIBRE_METADATA_FIELDS) - \
                            frozenset(['title', 'title_sort', 'authors',
                                       'author_sort', 'author_sort_map' 'comments',
-                                      'cover_data', 'tags', 'language'])
+                                      'cover_data', 'tags', 'language', 'lpath'])
 
 SERIALIZABLE_FIELDS =      SOCIAL_METADATA_FIELDS.union(
                            USER_METADATA_FIELDS).union(

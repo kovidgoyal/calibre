@@ -117,16 +117,18 @@ class Metadata(object):
             res[k] = copy.deepcopy(user_metadata[k])
         return res
 
-    def get_user_metadata(self, field):
+    def get_user_metadata(self, field, make_copy):
         '''
         return field metadata from the object if it is there. Otherwise return
-        None. field is the key name, not the label. Return a copy, just in case
-        the user wants to change values in the dict (json does).
+        None. field is the key name, not the label. Return a copy if requested,
+        just in case the user wants to change values in the dict.
         '''
         _data = object.__getattribute__(self, '_data')
         _data = _data['user_metadata']
         if field in _data:
-            return copy.deepcopy(_data[field])
+            if make_copy:
+                return copy.deepcopy(_data[field])
+            return _data[field]
         return None
 
     @classmethod
@@ -189,7 +191,7 @@ class Metadata(object):
         for x in STANDARD_METADATA_FIELDS:
             prints('%s:'%x, getattr(self, x, 'None'))
         for x in self.user_metadata_keys:
-            meta = self.get_user_metadata(x)
+            meta = self.get_user_metadata(x, make_copy=False)
             if meta is not None:
                 prints(x, meta)
         prints('--------------')
@@ -220,6 +222,9 @@ class Metadata(object):
             self.set_all_user_metadata(other.get_all_user_metadata(make_copy=True))
             self.comments = getattr(other, 'comments', '')
             self.language = getattr(other, 'language', None)
+            lpath = getattr(other, 'lpath', None)
+            if lpath is not None:
+                self.lpath = lpath
         else:
             for attr in COPYABLE_METADATA_FIELDS:
                 if hasattr(other, attr):
@@ -240,7 +245,7 @@ class Metadata(object):
 
             if getattr(other, 'user_metadata_keys', None):
                 for x in other.user_metadata_keys:
-                    meta = other.get_user_metadata(x)
+                    meta = other.get_user_metadata(x, make_copy=True)
                     if meta is not None:
                         self.set_user_metadata(x, meta) # get... did the deepcopy
 
