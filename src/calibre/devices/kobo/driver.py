@@ -316,7 +316,6 @@ class KOBO(USBMS):
                 lpath = lpath[1:]
             #print "path: " + lpath
             #book = self.book_class(prefix, lpath, other=info)
-            lpath = self.normalize_path(prefix + lpath)
             book = Book(prefix, lpath, '', '', '', '', '', '', other=info)
             if book.size is None:
                 book.size = os.stat(self.normalize_path(path)).st_size
