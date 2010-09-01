@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
 from functools import partial
 from threading import Thread
 
@@ -13,6 +14,7 @@ from PyQt4.Qt import QMenu, QToolButton
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import error_dialog, Dispatcher
 from calibre.gui2.dialogs.progress import ProgressDialog
+from calibre.utils.config import prefs
 
 class Worker(Thread):
 
@@ -38,6 +40,13 @@ class Worker(Thread):
 
         self.done()
 
+    def add_formats(self, id, paths, newdb, replace=True):
+        for path in paths:
+            fmt = os.path.splitext(path)[-1].replace('.', '').upper()
+            with open(path, 'rb') as f:
+                newdb.add_format(id, fmt, f, index_is_id=True,
+                        notify=False, replace=replace)
+
     def doit(self):
         from calibre.library.database2 import LibraryDatabase2
         newdb = LibraryDatabase2(self.loc)
@@ -49,12 +58,18 @@ class Worker(Thread):
             else: fmts = fmts.split(',')
             paths = [self.db.format_abspath(x, fmt, index_is_id=True) for fmt in
                     fmts]
-            newdb.import_book(mi, paths, notify=False, import_hooks=False)
-            co = self.db.conversion_options(x, 'PIPE')
-            if co is not None:
-                newdb.set_conversion_options(x, 'PIPE', co)
-
-
+            added = False
+            if prefs['add_formats_to_existing']:
+                identical_book_list = newdb.find_identical_books(mi)
+                if identical_book_list: # books with same author and nearly same title exist in newdb
+                    added = True
+                    for identical_book in identical_book_list:
+                        self.add_formats(identical_book, paths, newdb, replace=False)
+            if not added:
+                newdb.import_book(mi, paths, notify=False, import_hooks=False)
+                co = self.db.conversion_options(x, 'PIPE')
+                if co is not None:
+                    newdb.set_conversion_options(x, 'PIPE', co)
 
 
 class CopyToLibraryAction(InterfaceAction):
