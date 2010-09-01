@@ -229,6 +229,8 @@ class BooksView(QTableView): # {{{
     def cleanup_sort_history(self, sort_history):
         history = []
         for col, order in sort_history:
+            if col == 'date':
+                col = 'timestamp'
             if col in self.column_map and (not history or history[0][0] != col):
                 history.append([col, order])
         return history

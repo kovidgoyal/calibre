@@ -264,7 +264,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 # account for the series index column. Field_metadata knows that
                 # the series index is one larger than the series. If you change
                 # it here, be sure to change it there as well.
-                self.FIELD_MAP[str(col)+'_s_index'] = base = base+1
+                self.FIELD_MAP[str(col)+'_index'] = base = base+1
+                self.field_metadata.set_field_record_index(
+                            self.custom_column_num_map[col]['label']+'_index',
+                            base,
+                            prefer_custom=True)
 
         self.FIELD_MAP['cover'] = base+1
         self.field_metadata.set_field_record_index('cover', base+1, prefer_custom=False)

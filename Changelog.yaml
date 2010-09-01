@@ -45,7 +45,7 @@
     - title: "SONY driver: Use the tz field (available in newer readers) to set timestamps correctly, when available."
 
     - title: "Shortening file paths: Handle the case of very long filenames with periods in them."
-      title: [6566]
+      tickets: [6566]
 
   new recipes:
     - title: "The TMZ and Atlanta Journal Constitution"

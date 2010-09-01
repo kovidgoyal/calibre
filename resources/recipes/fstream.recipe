@@ -1,0 +1,64 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class FIELDSTREAM(BasicNewsRecipe):
+    title      = 'Field and Stream'
+    __author__ = 'Starson17 and Tonythebookworm'
+    description = 'Hunting and Fishing and Gun Talk'
+    language = 'en'
+    no_stylesheets = True
+    publisher           = 'Starson17 and Tonythebookworm'
+    category            = 'food recipes, hunting, fishing, guns'
+    use_embedded_content= False
+    no_stylesheets      = True
+    oldest_article      = 24
+    remove_javascript   = True
+    remove_empty_feeds  = True
+    masthead_url        = 'http://www.fieldandstream.com/sites/all/themes/fs/logo.png'
+    cover_url           = 'http://www.arrowheadflyangler.com/Portals/1/Articles/FieldStream/Field%20and%20Stream%20March%20Fishing%20Edition%20Article%20Cover.jpg'
+    # recursions          = 0
+    max_articles_per_feed = 10
+    INDEX = 'http://www.fieldandstream.com'
+
+    keep_only_tags     = [dict(name='div', attrs={'class':['interior-main']})
+                          ]
+    remove_tags = [dict(name='div', attrs={'id':['comments']})]
+
+    def parse_index(self):
+        feeds = []
+        for title, url in [
+                            (u"Wild Chef", u"http://www.fieldandstream.com/blogs/wild-chef"),
+                            (u"The Gun Nut", u"http://www.fieldandstream.com/blogs/gun-nut"),
+                            (u"Whitetail 365", u"http://www.fieldandstream.com/blogs/whitetail-365"),
+                            (u"Fly Talk",  u"http://www.fieldandstream.com/blogs/flytalk"),
+                            (u"Generation Wild",  u"http://www.fieldandstream.com/blogs/generation-wild"),
+                            (u"Conservationist",  u"http://www.fieldandstream.com/blogs/conservationist"),
+                            (u"Honest Angler",  u"http://www.fieldandstream.com/blogs/honest-angler"),
+                            (u"Mans Best Friend", u"http://www.fieldandstream.com/blogs/mans-best-friend"),
+
+                             ]:
+            articles = self.make_links(url)
+            if articles:
+                feeds.append((title, articles))
+        return feeds
+
+    def make_links(self, url):
+        title = 'Temp'
+        current_articles = []
+        soup = self.index_to_soup(url)
+        print 'The soup is: ', soup
+        for item in soup.findAll('h2'):
+            print 'item is: ', item
+            link = item.find('a')
+            print 'the link is: ', link
+            if link:
+                url         = self.INDEX + link['href']
+                title       = self.tag_to_string(link)
+                print 'the title is: ', title
+                print 'the url is: ', url
+                print 'the title is: ', title
+                current_articles.append({'title': title, 'url': url, 'description':'', 'date':''}) # append all this
+        return current_articles
+
+
+
+
