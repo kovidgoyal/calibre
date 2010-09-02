@@ -14,7 +14,7 @@ from PyQt4.Qt import QMenu, QToolButton
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import error_dialog, Dispatcher
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 
 class Worker(Thread):
 
@@ -67,7 +67,7 @@ class Worker(Thread):
                         self.add_formats(identical_book, paths, newdb, replace=False)
             if not added:
                 newdb.import_book(mi, paths, notify=False, import_hooks=False,
-                        apply_import_tags=False)
+                        apply_import_tags=tweaks['add_new_book_tags_when_importing_books'])
                 co = self.db.conversion_options(x, 'PIPE')
                 if co is not None:
                     newdb.set_conversion_options(x, 'PIPE', co)
