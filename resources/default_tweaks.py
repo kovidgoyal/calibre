@@ -105,3 +105,8 @@ auto_connect_to_folder = ''
 # case. 'MySearch' and 'mysearch' are the same term.
 grouped_search_terms = {}
 
+
+# Set this to True (not 'True') to ensure that tags in 'Tags to add when adding
+# a book' are added when copying books to another library
+add_new_book_tags_when_importing_books = False
+
