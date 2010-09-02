@@ -297,6 +297,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if len(saved_searches().names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
 
+        gst = tweaks['grouped_search_terms']
+        for t in gst:
+            try:
+                self.field_metadata._add_search_terms_to_map(gst[t], [t])
+            except ValueError:
+                traceback.print_exc()
+
         self.book_on_device_func = None
         self.data    = ResultCache(self.FIELD_MAP, self.field_metadata)
         self.search  = self.data.search
