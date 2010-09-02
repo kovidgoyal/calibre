@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-27 18:12+0000\n"
-"PO-Revision-Date: 2010-08-27 20:12+0000\n"
-"Last-Translator: Angel Spy <melissadilara@yahoo.com>\n"
+"PO-Revision-Date: 2010-09-01 16:33+0000\n"
+"Last-Translator: Selim Sumlu <selim@selimsumlu.com.tr>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-28 03:38+0000\n"
+"X-Launchpad-Export-Date: 2010-09-02 03:49+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -172,7 +172,7 @@ msgstr "Katalog oluşturucu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:366
 msgid "User Interface Action"
-msgstr ""
+msgstr "Kullanıcı Arayüzü Eylemi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:376
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:17
@@ -198,7 +198,7 @@ msgid ""
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
 "Girilecek HTML dosyaları için karakter kodlaması. Genel tercihler cp1252, "
-"latin1, iso-8859-1 and utf-8'dir."
+"latin1, iso-8859-1 ve utf-8'dir."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:60
 msgid ""
@@ -212,7 +212,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:94
 msgid "Extract cover from comic files"
-msgstr "Çizgi roman dosyalarından kapağı çıkart."
+msgstr "Çizgi roman dosyalarından kapağı çıkart"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:121
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:132
@@ -258,12 +258,12 @@ msgstr "%s dosyalarından metadata belirle"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:681
 msgid "Look and Feel"
-msgstr ""
+msgstr "Görünüm"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:682
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:199
 msgid "Interface"
-msgstr ""
+msgstr "Arayüz"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -392,11 +392,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:259
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr ""
+msgstr "768x1024 çözünürlüğe sahip iPad ve benzer cihazları hedefler."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:427
 msgid "This profile is intended for the Kobo Reader."
-msgstr ""
+msgstr "Bu profil Kobo Reader'ı hedefler."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:440
 msgid "This profile is intended for the SONY PRS-300."
@@ -436,7 +436,7 @@ msgstr "Çalışmayan eklentiler"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:38
 msgid "Enabled plugins"
-msgstr ""
+msgstr "Etkinleştirilmiş eklentiler"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:86
 msgid "No valid plugin found in "
@@ -498,6 +498,8 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
+"Aygıtta e-kitapların gönderileceğin klasörlerin virgülle ayrılmış listesi. "
+"Var olan ilk klasör kullanılacaktır."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:92
 msgid "Communicate with S60 phones."
@@ -505,11 +507,11 @@ msgstr "S60 telefonlar ile haberleş."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:87
 msgid "Communicate with iTunes/iBooks."
-msgstr ""
+msgstr "iTunes/iBooks ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:93
 msgid "Apple device detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "Apple aygıtı tespit edildi. iTunes açılıyor, lütfen bekleyin..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:246
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:249
@@ -523,21 +525,21 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2822
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2861
 msgid "%d of %d"
-msgstr ""
+msgstr "%d / %d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:369
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:962
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2867
 msgid "finished"
-msgstr ""
+msgstr "tamamlandı"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:544
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "Seri'yi iTunes/iBooks'ta Kategori olarak kullan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:546
 msgid "Cache covers from iTunes/iBooks"
-msgstr ""
+msgstr "iTunes/iBooks'taki kapakları önbelleğe al"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:558
 msgid ""
@@ -545,12 +547,17 @@ msgid ""
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Bazı kitaplar iTunes veritabanında bulunamadı.\n"
+"iBooks uygulamasını kullanarak silin.\n"
+"Listeyi görmek için \"Ayrıntıları Göster\"e tıklayın."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:886
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Bazı kapak görselleri dönüştürülemedi.\n"
+"Listeyi görmek için \"Ayrıntıları Göster\"e tıklayın."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2491
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:817
@@ -566,7 +573,7 @@ msgstr "Haberler"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2729
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "iTunes ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -592,15 +599,15 @@ msgstr "EB600 eBook reader ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr ""
+msgstr "Astak Mentor EB600 ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
-msgstr ""
+msgstr "PocketBook 301 reader ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr ""
+msgstr "Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
@@ -612,7 +619,7 @@ msgstr "ESlick eBook reader ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
-msgstr ""
+msgstr "Sigmatek eBook reader ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:30

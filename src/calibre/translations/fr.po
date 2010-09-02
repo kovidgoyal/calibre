@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-08-27 18:12+0000\n"
-"PO-Revision-Date: 2010-08-29 20:37+0000\n"
+"PO-Revision-Date: 2010-09-01 09:45+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-30 03:53+0000\n"
+"X-Launchpad-Export-Date: 2010-09-02 03:49+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -921,7 +921,7 @@ msgstr "Lire les métadonnées à partir des fichiers dans l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:45
 msgid "Use author sort instead of author"
-msgstr "Utiliser la clé de tri d'auteur au lieu de l'auteur"
+msgstr "Utiliser la clé de tri par auteur au lieu de l'auteur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:47
 msgid "Template to control how books are saved"
@@ -1735,7 +1735,7 @@ msgstr "Création"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 msgid "Failed to parse: %s with error: %s"
-msgstr ""
+msgstr "Echec de l'analyse de %s retournant l'erreur %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
@@ -3253,6 +3253,8 @@ msgstr "Ajouter des livres"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:26
 msgid "Add books to the calibre library/device from files on your computer"
 msgstr ""
+"Ajoutez des livres à la bibliothèque Calibre/à l'appareil à partir de "
+"fichiers présents sur votre ordinateur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:27
 msgid "A"
@@ -3997,6 +3999,10 @@ msgid ""
 "corruption of your library. Save to disk is meant to export files from your "
 "calibre library elsewhere."
 msgstr ""
+"Vous êtes en train d'essayer de sauvegarder des fichiers dans la "
+"bibliothèque Calibre. Ceci peut causer la corruption de votre bibliothèque. "
+"Sauvegarder sur le disque est prévu pour exporter des fichiers de la "
+"bibliothèque Calibre ailleurs."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:135
 msgid "Error while saving"
@@ -4790,7 +4796,7 @@ msgstr "TDM &intégrée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:33
 msgid "Sectionize Chapters (Use with care!)"
-msgstr ""
+msgstr "Découper les Chapitres (utiliser avec précaution!)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:99
 msgid "Font rescaling wizard"
@@ -5911,7 +5917,7 @@ msgstr "Utiliser les sous-répertoires"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:83
 msgid "Use author sort for author"
-msgstr "Utiliser la clé de tri d'auteur comme auteur"
+msgstr "Utiliser la clé de tri par auteur comme auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:85
 msgid "Save &template:"
@@ -6287,6 +6293,9 @@ msgid ""
 "The tweaks you entered are invalid, try resetting the tweaks to default and "
 "changing them one by one until you find the invalid setting."
 msgstr ""
+"Les réglages que vous avez rentrés sont incorrects, essayez de revenir aux "
+"réglages par défaut et de les modifier un par un jusqu'à trouver celui qui "
+"est incorrect."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:746
 msgid "You must select a column to delete it"
@@ -6792,6 +6801,8 @@ msgid ""
 "Values for the tweaks are shown below. Edit them to change the behavior of "
 "calibre"
 msgstr ""
+"Les valeurs des réglages sont affichées ci-dessous. Editez-les pour modifier "
+"le comportement de Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:664
 msgid "All available tweaks"
@@ -6874,7 +6885,7 @@ msgstr "Nombre max. d'articles OPDS &non groupés:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:678
 msgid "Restriction (saved search) to apply:"
-msgstr ""
+msgstr "Restrictions (recherche sauvegardée) à appliquer:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:679
 msgid ""
@@ -6882,6 +6893,10 @@ msgid ""
 "content server makes available to those matching the search. This setting is "
 "per library (i.e. you can have a different restriction per library)."
 msgstr ""
+"Cette restriction (basée sur une recherche sauvegardée) restreindra les "
+"livres disponibles sur le serveur de contenu à ceux correspondant au "
+"résultat de cette recherche. Ce réglage est dépendant de la bibliothèque "
+"(c.a.d. que vous pouvez utiliser une restriction différente par bibliothèque)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:680
 msgid "&Start Server"
@@ -7193,7 +7208,7 @@ msgstr "Téléchargement des métadonnées sociales, veuillez patienter..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:35
 msgid "Switch between library and device views"
-msgstr ""
+msgstr "Basculer entre les affichages bibliothèque et appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:38
 msgid "Separator"
@@ -7213,11 +7228,11 @@ msgstr "La barre d'outils principale quand un appareil est connecté"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:203
 msgid "The context menu for the books in the calibre library"
-msgstr ""
+msgstr "Le menu contextuel pour les livres dans la bibliothèque Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:205
 msgid "The context menu for the books on the device"
-msgstr ""
+msgstr "Le menu contextuel pour les livres dans l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar.py:243
 msgid "Cannot add"
@@ -7270,7 +7285,7 @@ msgstr "Supprimer les actions sélectionnées de la barre d'outils"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/toolbar_ui.py:109
 msgid "Restore to &default"
-msgstr ""
+msgstr "Revenir aux réglages par &défaut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:50
 msgid "&Show this warning again"
@@ -7303,7 +7318,7 @@ msgstr "Effacer de l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:33
 msgid "Author sort"
-msgstr "Clé de tri d'auteur"
+msgstr "Clé de tri par auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:66
 msgid "Manage authors"
@@ -7315,7 +7330,7 @@ msgstr "Trier par auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:68
 msgid "Sort by author sort"
-msgstr "Trier par clé de tri d'auteur"
+msgstr "Trier par clé de tri par auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:69
 msgid ""
@@ -7323,10 +7338,14 @@ msgid ""
 "author. Exactly how this value is automatically generated can be controlled "
 "via Preferences->Advanced->Tweaks"
 msgstr ""
+"Réinitialiser toutes les valeurs de la clé de tri par auteur à la valeur "
+"générée automatiquement à partir de l'auteur. La manière dont cette valeur "
+"est calculée automatiquement peut-être controllé via "
+"Péférences>Avancées>Réglages"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:70
 msgid "Recalculate all author sort values"
-msgstr "Recalculer toutes les valeurs de clés de tri d'auteur"
+msgstr "Recalculer toutes les valeurs de clés de tri par auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:60
 msgid "Author Sort"
@@ -7513,7 +7532,7 @@ msgstr "Tout supprimer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:178
 msgid "Check this box to remove all tags from the books."
-msgstr ""
+msgstr "Cocher cette cas pour supprimer toutes les étiquettes des livres."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:182
 msgid "Remove &format:"
@@ -9132,7 +9151,7 @@ msgstr "Ajouter des &colonnes personnalisées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:106
 msgid "Disable &notifications in system tray"
-msgstr ""
+msgstr "Désactiver l'affichage des alertes dans la zone de &notification"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:255
@@ -11056,10 +11075,20 @@ msgid ""
 "    replaced.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog saved_searches [options] list\n"
+"    %prog saved_searches add name search\n"
+"    %prog saved_searches remove name\n"
+"\n"
+"    Gére les recherches sauvegardées stockées dans la base de données.\n"
+"    Si vous tentez d'ajouter une requête avec un nom préexistant, elle sera\n"
+"    remplacée.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:821
 msgid "Error: You must specify an action (add|remove|list)"
 msgstr ""
+"Erreur: vous devez préciser l'action à effectuer (ajouter|supprimer|lister)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:829
 msgid "Name:"
@@ -11067,11 +11096,11 @@ msgstr "Nom:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:830
 msgid "Search string:"
-msgstr ""
+msgstr "Chaîne de recherche:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:836
 msgid "Error: You must specify a name and a search string"
-msgstr ""
+msgstr "Erreur: vous devez fournir un nom et une chaîne de recherche"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:839
 msgid "added"
@@ -11079,7 +11108,7 @@ msgstr "ajouté(e)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:844
 msgid "Error: You must specify a name"
-msgstr ""
+msgstr "Erreur: vous devez fournir un nom"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:847
 msgid "removed"
@@ -11088,6 +11117,8 @@ msgstr "supprimé(e)"
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:851
 msgid "Error: Action %s not recognized, must be one of: (add|remove|list)"
 msgstr ""
+"Erreur: l'action %s n'est pas reconnue, celle-ci doit faie parti de: "
+"(ajouter|supprimer|lister)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:865
 msgid ""
@@ -11388,10 +11419,12 @@ msgid ""
 "Specifies a restriction to be used for this invocation. This option "
 "overrides any per-library settings specified in the GUI"
 msgstr ""
+"Précisez une restriction à appliquer pour cet appel. Cette option prend le "
+"pas sur n'importe quel réglage de la bibliothèque spécifié dans l'UI"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:110
 msgid "%d book"
-msgstr ""
+msgstr "%d livre(s)"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:129
 msgid "%d items"
