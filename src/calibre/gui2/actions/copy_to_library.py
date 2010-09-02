@@ -66,7 +66,8 @@ class Worker(Thread):
                     for identical_book in identical_book_list:
                         self.add_formats(identical_book, paths, newdb, replace=False)
             if not added:
-                newdb.import_book(mi, paths, notify=False, import_hooks=False)
+                newdb.import_book(mi, paths, notify=False, import_hooks=False,
+                        apply_import_tags=False)
                 co = self.db.conversion_options(x, 'PIPE')
                 if co is not None:
                     newdb.set_conversion_options(x, 'PIPE', co)

@@ -1726,13 +1726,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return run_plugins_on_import(path, format)
 
     def _add_newbook_tag(self, mi):
-        tags = prefs['new_book_tags'].strip()
+        tags = prefs['new_book_tags']
         if tags:
-            for tag in [t.strip() for t in tags.split(',')]:
-                if mi.tags is None:
-                    mi.tags = [tag]
-                else:
-                    mi.tags.append(tag)
+            for tag in [t.strip() for t in tags]:
+                if tag:
+                    if mi.tags is None:
+                        mi.tags = [tag]
+                    else:
+                        mi.tags.append(tag)
 
     def create_book_entry(self, mi, cover=None, add_duplicates=True):
         self._add_newbook_tag(mi)
@@ -1813,9 +1814,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return (paths, formats, metadata), len(ids)
         return None, len(ids)
 
-    def import_book(self, mi, formats, notify=True, import_hooks=True):
+    def import_book(self, mi, formats, notify=True, import_hooks=True,
+            apply_import_tags=True):
         series_index = 1.0 if mi.series_index is None else mi.series_index
-        self._add_newbook_tag(mi)
+        if apply_import_tags:
+            self._add_newbook_tag(mi)
         if not mi.title:
             mi.title = _('Unknown')
         if not mi.authors:

@@ -62,7 +62,16 @@ class HTMLTOCAdder(object):
 
     def __call__(self, oeb, context):
         if 'toc' in oeb.guide:
-            return
+            # Ensure toc pointed to in <guide> is in spine
+            from calibre.ebooks.oeb.base import urlnormalize
+            href = urlnormalize(oeb.guide['toc'].href)
+            if href in oeb.manifest.hrefs:
+                item = oeb.manifest.hrefs[href]
+                if oeb.spine.index(item) < 0:
+                    oeb.spine.add(item, linear=False)
+                return
+            else:
+                oeb.guide.remove('toc')
         if not getattr(getattr(oeb, 'toc', False), 'nodes', False):
             return
         oeb.logger.info('Generating in-line TOC...')
