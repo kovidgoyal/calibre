@@ -91,3 +91,8 @@ save_template_title_series_sorting = 'library_order'
 #     auto_connect_to_folder = 'C:\\Users\\someone\\Desktop\\testlib'
 #     auto_connect_to_folder = '/home/dropbox/My Dropbox/someone/library'
 auto_connect_to_folder = ''
+
+
+# Specify a tag to be automatically applied when a book is added to the library.
+# Example: add_tag_to_new_books='ToDo'
+add_tag_to_new_books = ''
