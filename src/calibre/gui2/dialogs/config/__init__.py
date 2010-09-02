@@ -457,6 +457,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.priority.setCurrentIndex(p)
         self.priority.setVisible(iswindows)
         self.priority_label.setVisible(iswindows)
+        self.new_book_tags.setText(prefs['new_book_tags'])
         self._plugin_model = PluginModel()
         self.plugin_view.setModel(self._plugin_model)
         self.plugin_view.setStyleSheet(
@@ -906,6 +907,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['disable_tray_notification'] = not self.systray_notifications.isChecked()
         p = {0:'normal', 1:'high', 2:'low'}[self.priority.currentIndex()]
         prefs['worker_process_priority'] = p
+        prefs['new_book_tags'] = unicode(self.new_book_tags.text()).strip()
         prefs['output_format'] = unicode(self.output_format.currentText()).upper()
         config['cover_flow_queue_length'] = self.cover_browse.value()
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())

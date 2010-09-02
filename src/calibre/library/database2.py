@@ -1726,12 +1726,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return run_plugins_on_import(path, format)
 
     def _add_newbook_tag(self, mi):
-        tag = tweaks['add_tag_to_new_books']
-        if tag:
-            if mi.tags is None:
-                mi.tags = [tag]
-            else:
-                mi.tags.append(tag)
+        tags = prefs['new_book_tags'].strip()
+        if tags:
+            for tag in [t.strip() for t in tags.split(',')]:
+                if mi.tags is None:
+                    mi.tags = [tag]
+                else:
+                    mi.tags.append(tag)
 
     def create_book_entry(self, mi, cover=None, add_duplicates=True):
         self._add_newbook_tag(mi)

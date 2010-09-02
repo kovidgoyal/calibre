@@ -93,11 +93,6 @@ save_template_title_series_sorting = 'library_order'
 auto_connect_to_folder = ''
 
 
-# Specify a tag to be automatically applied when a book is added to the library.
-# Example: add_tag_to_new_books='ToDo'
-add_tag_to_new_books = ''
-
-
 # Create search terms to apply a query across several built-in search terms.
 # Syntax: {'new term':['existing term 1', 'term 2', ...], 'new':['old'...] ...}
 # Example: create the term 'myseries' that when used as myseries:foo would
