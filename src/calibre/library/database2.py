@@ -297,6 +297,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if len(saved_searches().names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
 
+        gst = tweaks['grouped_search_terms']
+        for t in gst:
+            try:
+                self.field_metadata._add_search_terms_to_map(gst[t], [t])
+            except ValueError:
+                traceback.print_exc()
+
         self.book_on_device_func = None
         self.data    = ResultCache(self.FIELD_MAP, self.field_metadata)
         self.search  = self.data.search
@@ -1718,7 +1725,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             path = path_or_stream
         return run_plugins_on_import(path, format)
 
+    def _add_newbook_tag(self, mi):
+        tags = prefs['new_book_tags']
+        if tags:
+            for tag in [t.strip() for t in tags]:
+                if tag:
+                    if mi.tags is None:
+                        mi.tags = [tag]
+                    else:
+                        mi.tags.append(tag)
+
     def create_book_entry(self, mi, cover=None, add_duplicates=True):
+        self._add_newbook_tag(mi)
         if not add_duplicates and self.has_book(mi):
             return None
         series_index = 1.0 if mi.series_index is None else mi.series_index
@@ -1757,6 +1775,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ids = []
         for path in paths:
             mi = metadata.next()
+            self._add_newbook_tag(mi)
             format = formats.next()
             if not add_duplicates and self.has_book(mi):
                 duplicates.append((path, format, mi))
@@ -1795,8 +1814,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return (paths, formats, metadata), len(ids)
         return None, len(ids)
 
-    def import_book(self, mi, formats, notify=True, import_hooks=True):
+    def import_book(self, mi, formats, notify=True, import_hooks=True,
+            apply_import_tags=True):
         series_index = 1.0 if mi.series_index is None else mi.series_index
+        if apply_import_tags:
+            self._add_newbook_tag(mi)
         if not mi.title:
             mi.title = _('Unknown')
         if not mi.authors:
