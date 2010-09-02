@@ -86,7 +86,7 @@ class SPECTRA(HANLINV3):
     gui_name = 'Spectra'
     PRODUCT_ID  = [0xa4a5]
 
-    FORMATS = ['epub', 'mobi', 'fb2', 'lit', 'prc', 'djvu', 'pdf', 'rtf', 'txt']
+    FORMATS = ['epub', 'mobi', 'fb2', 'lit', 'prc', 'chm', 'djvu', 'pdf', 'rtf', 'txt']
 
     SUPPORTS_SUB_DIRS = True
 

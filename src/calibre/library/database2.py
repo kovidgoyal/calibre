@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 The database used to store ebook metadata
 '''
-import os, sys, shutil, cStringIO, glob, time, functools, traceback
+import os, sys, shutil, cStringIO, glob, time, functools, traceback, re
 from itertools import repeat
 from math import floor
 
@@ -264,7 +264,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 # account for the series index column. Field_metadata knows that
                 # the series index is one larger than the series. If you change
                 # it here, be sure to change it there as well.
-                self.FIELD_MAP[str(col)+'_s_index'] = base = base+1
+                self.FIELD_MAP[str(col)+'_index'] = base = base+1
+                self.field_metadata.set_field_record_index(
+                            self.custom_column_num_map[col]['label']+'_index',
+                            base,
+                            prefer_custom=True)
 
         self.FIELD_MAP['cover'] = base+1
         self.field_metadata.set_field_record_index('cover', base+1, prefer_custom=False)
@@ -545,6 +549,43 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 title = title.decode(preferred_encoding, 'replace')
             return bool(self.conn.get('SELECT id FROM books where title=?', (title,), all=False))
         return False
+
+    def find_identical_books(self, mi):
+        fuzzy_title_patterns = [(re.compile(pat), repl) for pat, repl in
+                [
+                    (r'[\[\](){}<>\'";,:#]', ''),
+                    (r'^(the|a|an) ', ''),
+                    (r'[-._]', ' '),
+                    (r'\s+', ' ')
+                ]
+        ]
+
+        def fuzzy_title(title):
+            title = title.strip().lower()
+            for pat, repl in fuzzy_title_patterns:
+                title = pat.sub(repl, title)
+            return title
+
+        identical_book_ids = set([])
+        if mi.authors:
+            try:
+                query = u' and '.join([u'author:"=%s"'%(a.replace('"', '')) for a in
+                    mi.authors])
+            except ValueError:
+                return identical_book_ids
+            try:
+                book_ids = self.data.parse(query)
+            except:
+                import traceback
+                traceback.print_exc()
+                return identical_book_ids
+            for book_id in book_ids:
+                fbook_title = self.title(book_id, index_is_id=True)
+                fbook_title = fuzzy_title(fbook_title)
+                mbook_title = fuzzy_title(mi.title)
+                if fbook_title == mbook_title:
+                    identical_book_ids.add(book_id)
+        return identical_book_ids
 
     def has_cover(self, index, index_is_id=False):
         id = index if  index_is_id else self.id(index)

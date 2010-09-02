@@ -1,7 +1,7 @@
 '''
 UI for adding books to the database and saving books to disk
 '''
-import os, shutil, time, re
+import os, shutil, time
 from Queue import Queue, Empty
 from threading import Thread
 
@@ -94,14 +94,6 @@ class DBAdder(Thread): # {{{
         self.daemon = True
         self.input_queue = Queue()
         self.output_queue = Queue()
-        self.fuzzy_title_patterns = [(re.compile(pat), repl) for pat, repl in
-                [
-                    (r'[\[\](){}<>\'";,:#]', ''),
-                    (r'^(the|a|an) ', ''),
-                    (r'[-._]', ' '),
-                    (r'\s+', ' ')
-                ]
-        ]
         self.merged_books = set([])
 
     def run(self):
@@ -138,33 +130,6 @@ class DBAdder(Thread): # {{{
                 fmts[-1] = fmt
         return fmts
 
-    def fuzzy_title(self, title):
-        title = title.strip().lower()
-        for pat, repl in self.fuzzy_title_patterns:
-            title = pat.sub(repl, title)
-        return title
-
-    def find_identical_books(self, mi):
-        identical_book_ids = set([])
-        if mi.authors:
-            try:
-                query = u' and '.join([u'author:"=%s"'%(a.replace('"', '')) for a in
-                    mi.authors])
-            except ValueError:
-                return identical_book_ids
-            try:
-                book_ids = self.db.data.parse(query)
-            except:
-                import traceback
-                traceback.print_exc()
-                return identical_book_ids
-            for book_id in book_ids:
-                fbook_title = self.db.title(book_id, index_is_id=True)
-                fbook_title = self.fuzzy_title(fbook_title)
-                mbook_title = self.fuzzy_title(mi.title)
-                if fbook_title == mbook_title:
-                    identical_book_ids.add(book_id)
-        return identical_book_ids
 
     def add(self, id, opf, cover, name):
         formats = self.ids.pop(id)
@@ -191,7 +156,7 @@ class DBAdder(Thread): # {{{
             orig_formats = formats
             formats = [f for f in formats if not f.lower().endswith('.opf')]
             if prefs['add_formats_to_existing']:
-                identical_book_list = self.find_identical_books(mi)
+                identical_book_list = self.db.find_identical_books(mi)
 
                 if identical_book_list: # books with same author and nearly same title exist in db
                     self.merged_books.add(mi.title)
@@ -280,19 +245,17 @@ class Adder(QObject): # {{{
         self.pd.set_min(0)
         self.pd.set_max(len(self.ids))
         self.pd.value = 0
-        self.timer = QTimer(self)
         self.db_adder = DBAdder(self.db, self.ids, self.nmap)
         self.db_adder.start()
-        self.connect(self.timer, SIGNAL('timeout()'), self.update)
         self.last_added_at = time.time()
         self.entry_count = len(self.ids)
-        self.timer.start(200)
+        self.continue_updating = True
+        QTimer.singleShot(200, self.update)
 
     def canceled(self):
+        self.continue_updating = False
         if self.rfind is not None:
             self.rfind.canceled = True
-        if self.timer is not None:
-            self.timer.stop()
         if self.worker is not None:
             self.worker.canceled = True
         if hasattr(self, 'db_adder'):
@@ -312,7 +275,7 @@ class Adder(QObject): # {{{
 
     def update(self):
         if self.entry_count <= 0:
-            self.timer.stop()
+            self.continue_updating = False
             self.pd.hide()
             self.process_duplicates()
             return
@@ -334,17 +297,20 @@ class Adder(QObject): # {{{
             pass
 
         if (time.time() - self.last_added_at) > self.ADD_TIMEOUT:
-            self.timer.stop()
+            self.continue_updating = False
             self.pd.hide()
             self.db_adder.end = True
             if not self.callback_called:
-               self.callback([], [], [])
-               self.callback_called = True
+                self.callback([], [], [])
+                self.callback_called = True
             error_dialog(self._parent, _('Adding failed'),
                     _('The add books process seems to have hung.'
                         ' Try restarting calibre and adding the '
                         'books in smaller increments, until you '
                         'find the problem book.'), show=True)
+
+        if self.continue_updating:
+            QTimer.singleShot(200, self.update)
 
 
     def process_duplicates(self):

@@ -357,7 +357,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
 
         input_map = prefs['input_format_order']
         all_formats = set()
-        for fmt in all_input_formats():
+        for fmt in all_input_formats().union(set(['ZIP', 'RAR'])):
             all_formats.add(fmt.upper())
         for format in input_map + list(all_formats.difference(input_map)):
             item = QListWidgetItem(format, self.input_order)
