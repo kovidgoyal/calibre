@@ -1052,8 +1052,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if key in self.field_metadata and \
                     user_mi[key]['datatype'] == self.field_metadata[key]['datatype']:
                 doit(self.set_custom, id,
-                     val=Metadata.get_user_metadata_value(user_mi[key]),
-                     extra=Metadata.get_user_metadata_extra(user_mi[key]),
+                     val=mi.get(key),
+                     extra=mi.get_extra(key),
                      label=user_mi[key]['label'])
         self.notify('metadata', [id])
 
