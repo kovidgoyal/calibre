@@ -58,7 +58,7 @@ class Setting(object):
 
     def initialize(self):
         self.gui_obj.blockSignals(True)
-        if self.datatype == 'choices':
+        if self.datatype == 'choice':
             self.gui_obj.clear()
             for x in self.choices:
                 if isinstance(x, basestring):
@@ -90,7 +90,7 @@ class Setting(object):
             self.gui_obj.setValue(val)
         elif self.datatype == 'string':
             self.gui_obj.setText(val if val else '')
-        elif self.datatype == 'choices':
+        elif self.datatype == 'choice':
             idx = self.gui_obj.findData(QVariant(val))
             if idx == -1:
                 idx = 0
@@ -100,12 +100,12 @@ class Setting(object):
         if self.datatype == 'bool':
             val = bool(self.gui_obj.isChecked())
         elif self.datatype == 'number':
-            val = self.gui_obj.value(val)
+            val = self.gui_obj.value()
         elif self.datatype == 'string':
             val = unicode(self.gui_name.text()).strip()
             if self.empty_string_is_None and not val:
                 val = None
-        elif self.datatype == 'choices':
+        elif self.datatype == 'choice':
             idx = self.gui_obj.currentIndex()
             if idx < 0: idx = 0
             val = unicode(self.gui_obj.itemData(idx).toString())
@@ -135,7 +135,7 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
         for setting in self.settings.values():
             setting.initialize()
 
-    def commit(self):
+    def commit(self, *args):
         for setting in self.settings.values():
             setting.commit()
 
@@ -165,11 +165,13 @@ def test_widget(category, name, gui=None): # {{{
     w = pl.create_widget(d)
     bb.button(bb.RestoreDefaults).clicked.connect(w.restore_defaults)
     bb.button(bb.Apply).setEnabled(False)
-    w.changed_signal.connect(lambda : bb.button(bb.Apply).setEnable(True))
+    bb.button(bb.Apply).clicked.connect(d.accept)
+    w.changed_signal.connect(lambda : bb.button(bb.Apply).setEnabled(True))
     l = QVBoxLayout()
     d.setLayout(l)
     l.addWidget(w)
     l.addWidget(bb)
+    mygui = gui is None
     if gui is None:
         from calibre.gui2.ui import Main
         from calibre.gui2.main import option_parser
@@ -181,7 +183,10 @@ def test_widget(category, name, gui=None): # {{{
         gui = Main(opts)
         gui.initialize(db.library_path, db, None, actions, show_gui=False)
     w.genesis(gui)
+    w.initialize()
     if d.exec_() == QDialog.Accepted:
         w.commit()
+    if mygui:
+        gui.shutdown()
 # }}}
 

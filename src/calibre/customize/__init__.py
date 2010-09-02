@@ -391,6 +391,8 @@ class PreferencesPlugin(Plugin): # {{{
     #: The category this plugin should be in
     category = None
 
+    #: The category name displayed to the user for this plugin
+    gui_category = None
     #: The name displayed to the user for this plugin
     gui_name = None
 

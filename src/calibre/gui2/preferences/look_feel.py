@@ -32,10 +32,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                  if l != lang]
         if lang != 'en':
             items.append(('en', get_language('en')))
-        items.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        items.sort(cmp=lambda x, y: cmp(x[1].lower(), y[1].lower()))
         choices = [(y, x) for x, y in items]
         # Default language is the autodetected one
-        choices = [get_language(lang), lang] + choices
+        choices = [(get_language(lang), lang)] + choices
         r('language', prefs, choices=choices)
 
         r('show_avg_rating', config)
