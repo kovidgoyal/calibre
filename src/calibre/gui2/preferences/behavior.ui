@@ -256,7 +256,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
       <item row="0" column="0">
-       <widget class="QListWidget" name="opt_internal_viewer">
+       <widget class="QListWidget" name="opt_internally_viewed_formats">
         <property name="alternatingRowColors">
          <bool>true</bool>
         </property>

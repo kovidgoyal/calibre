@@ -17,6 +17,9 @@ class ConfigWidgetInterface(object):
     def genesis(self, gui):
         raise NotImplementedError()
 
+    def initialize(self):
+        raise NotImplementedError()
+
     def restore_defaults(self):
         pass
 
@@ -184,6 +187,7 @@ def test_widget(category, name, gui=None): # {{{
     pl = get_plugin(category, name)
     d = QDialog()
     d.resize(750, 550)
+    d.setWindowTitle(category + " - " + name)
     bb = QDialogButtonBox(d)
     bb.setStandardButtons(bb.Apply|bb.Cancel|bb.RestoreDefaults)
     bb.accepted.connect(d.accept)

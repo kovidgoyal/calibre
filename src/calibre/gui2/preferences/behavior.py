@@ -5,14 +5,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import re
+
+from PyQt4.Qt import Qt, QVariant, QListWidgetItem
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
     CommaSeparatedList
 from calibre.gui2.preferences.behavior_ui import Ui_Form
 from calibre.gui2 import config, info_dialog, dynamic
 from calibre.utils.config import prefs
-from calibre.customize.ui import available_output_formats
+from calibre.customize.ui import available_output_formats, all_input_formats
 from calibre.utils.search_query_parser import saved_searches
+from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.ebooks.oeb.iterator import is_supported
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -45,6 +50,100 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('gui_restriction', db.prefs, choices=choices)
         r('new_book_tags', prefs, setting=CommaSeparatedList)
         self.reset_confirmation_button.clicked.connect(self.reset_confirmation_dialogs)
+
+        self.input_up_button.clicked.connect(self.up_input)
+        self.input_down_button.clicked.connect(self.down_input)
+        for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
+            signal = getattr(self.opt_internally_viewed_formats, 'item'+signal)
+            signal.connect(self.internally_viewed_formats_changed)
+
+
+    def initialize(self):
+        ConfigWidgetBase.initialize(self)
+        self.init_input_order()
+        self.init_internally_viewed_formats()
+
+    def restore_defaults(self):
+        ConfigWidgetBase.restore_defaults(self)
+        self.init_input_order(defaults=True)
+        self.init_internally_viewed_formats(defaults=True)
+
+    def commit(self):
+        input_map = prefs['input_format_order']
+        input_cols = [unicode(self.input_order.item(i).data(Qt.UserRole).toString()) for i in range(self.input_order.count())]
+        if input_map != input_cols:
+            prefs['input_format_order'] = input_cols
+        fmts = self.current_internally_viewed_formats
+        old = config['internally_viewed_formats']
+        if fmts != old:
+            config['internally_viewed_formats'] = fmts
+        return ConfigWidgetBase.commit(self)
+
+    # Internally viewed formats {{{
+    def internally_viewed_formats_changed(self, *args):
+        fmts = self.current_internally_viewed_formats
+        old = config['internally_viewed_formats']
+        if fmts != old:
+            self.changed_signal.emit()
+
+    def init_internally_viewed_formats(self, defaults=False):
+        if defaults:
+            fmts = config.defaults['internally_viewed_formats']
+        else:
+            fmts = config['internally_viewed_formats']
+        viewer = self.opt_internally_viewed_formats
+        exts = set([])
+        for ext in BOOK_EXTENSIONS:
+            ext = ext.lower()
+            ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
+            if ext == 'lrf' or is_supported('book.'+ext):
+                exts.add(ext)
+
+        for ext in sorted(exts):
+            item = viewer.addItem(ext.upper())
+            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable)
+            item.setCheckState(Qt.Checked if
+                    ext.upper() in fmts else Qt.Unchecked)
+
+    @property
+    def current_internally_viewed_formats(self):
+        fmts = []
+        for i in range(self.viewer.count()):
+            if self.viewer.item(i).checkState() == Qt.Checked:
+                fmts.append(unicode(self.viewer.item(i).text()))
+        return fmts
+    # }}}
+
+    # Input format order {{{
+    def init_input_order(self, defaults=False):
+        if defaults:
+            input_map = prefs.defaults['input_format_order']
+        else:
+            input_map = prefs['input_format_order']
+        all_formats = set()
+        self.opt_input_order.clear()
+        for fmt in all_input_formats().union(set(['ZIP', 'RAR'])):
+            all_formats.add(fmt.upper())
+        for format in input_map + list(all_formats.difference(input_map)):
+            item = QListWidgetItem(format, self.opt_input_order)
+            item.setData(Qt.UserRole, QVariant(format))
+            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
+
+    def up_input(self, *args):
+        idx = self.opt_input_order.currentRow()
+        if idx > 0:
+            self.opt_input_order.insertItem(idx-1, self.opt_input_order.takeItem(idx))
+            self.opt_input_order.setCurrentRow(idx-1)
+            self.changed_signal.emit()
+
+    def down_input(self, *args):
+        idx = self.opt_input_order.currentRow()
+        if idx < self.opt_input_order.count()-1:
+            self.opt_input_order.insertItem(idx+1, self.opt_input_order.takeItem(idx))
+            self.opt_input_order.setCurrentRow(idx+1)
+            self.changed_signal.emit()
+
+    # }}}
 
     def reset_confirmation_dialogs(self, *args):
         for key in dynamic.keys():
