@@ -694,7 +694,16 @@ class Behavior(PreferencesPlugin):
     name_order = 2
     config_widget = 'calibre.gui2.preferences.behavior'
 
-plugins += [LookAndFeel, Behavior]
+class Columns(PreferencesPlugin):
+    name = 'Custom Columns'
+    gui_name = _('Add your own columns')
+    category = 'Interface'
+    gui_category = _('Interface')
+    category_order = 1
+    name_order = 3
+    config_widget = 'calibre.gui2.preferences.columns'
+
+plugins += [LookAndFeel, Behavior, Columns]
 
 #}}}
 
