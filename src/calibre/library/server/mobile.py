@@ -156,7 +156,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS):
 class MobileServer(object):
     'A view optimized for browsers in mobile devices'
 
-    MOBILE_UA = re.compile('(?i)(?:iPhone|Opera Mini|NetFront|webOS|Mobile|Android|imode|DoCoMo|Minimo|Blackberry|MIDP|Symbian|HD2)')
+    MOBILE_UA = re.compile('(?i)(?:iPhone|Opera Mini|NetFront|webOS|Mobile|Android|imode|DoCoMo|Minimo|Blackberry|MIDP|Symbian|HD2|Kindle)')
 
     def add_routes(self, connect):
         connect('mobile', '/mobile', self.mobile)
