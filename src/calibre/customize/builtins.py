@@ -679,7 +679,8 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
 class LookAndFeel(PreferencesPlugin):
     name = 'Look & Feel'
     gui_name = _('Look and Feel')
-    category = _('Interface')
+    category = 'Interface'
+    gui_category = _('Interface')
     category_order = 1
     name_order = 1
     config_widget = 'calibre.gui2.preferences.look_feel'
