@@ -110,3 +110,7 @@ grouped_search_terms = {}
 # a book' are added when copying books to another library
 add_new_book_tags_when_importing_books = False
 
+
+# Set the maximum number of tags to show per book in the content server
+max_content_server_tags_shown=5
+

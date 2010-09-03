@@ -13,11 +13,11 @@ from lxml import html
 from lxml.html.builder import HTML, HEAD, TITLE, LINK, DIV, IMG, BODY, \
         OPTION, SELECT, INPUT, FORM, SPAN, TABLE, TR, TD, A, HR
 
-from calibre.library.server.utils import strftime
+from calibre.library.server.utils import strftime, format_tag_string
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import __appname__
 from calibre import human_readable
-from calibre.utils.date import utcfromtimestamp
+from calibre.utils.date import utcfromtimestamp, format_date
 
 def CLASS(*args, **kwargs): # class is a reserved word in Python
     kwargs['class'] = ' '.join(args)
@@ -85,7 +85,7 @@ def build_navigation(start, num, total, url_base): # {{{
 
     # }}}
 
-def build_index(books, num, search, sort, order, start, total, url_base):
+def build_index(books, num, search, sort, order, start, total, url_base, CKEYS):
     logo = DIV(IMG(src='/static/calibre.png', alt=__appname__), id='logo')
 
     search_box = build_search_box(num, search, sort, order)
@@ -123,10 +123,16 @@ def build_index(books, num, search, sort, order, start, total, url_base):
 
         series = u'[%s - %s]'%(book['series'], book['series_index']) \
                 if book['series'] else ''
-        tags = u'[%s]'%book['tags'] if book['tags'] else ''
+        tags = u'Tags=[%s]'%book['tags'] if book['tags'] else ''
 
-        text = u'\u202f%s %s by %s - %s - %s %s' % (book['title'], series,
-                book['authors'], book['size'], book['timestamp'], tags)
+        ctext = ''
+        for key in CKEYS:
+            val = book.get(key, None)
+            if val:
+                ctext += '%s=[%s] '%tuple(val.split(':#:'))
+
+        text = u'\u202f%s %s by %s - %s - %s %s %s' % (book['title'], series,
+                book['authors'], book['size'], book['timestamp'], tags, ctext)
 
         if last is None:
             data.text = text
@@ -189,6 +195,10 @@ class MobileServer(object):
         if sort is not None:
             self.sort(items, sort, (order.lower().strip() == 'ascending'))
 
+        CFM = self.db.field_metadata
+        CKEYS = [key for key in sorted(CFM.get_custom_fields(),
+             cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
+                                 CFM[y]['name'].lower()))]
         books = []
         for record in items[(start-1):(start-1)+num]:
             book = {'formats':record[FM['formats']], 'size':record[FM['size']]}
@@ -203,12 +213,37 @@ class MobileServer(object):
             book['authors'] = authors
             book['series_index'] = fmt_sidx(float(record[FM['series_index']]))
             book['series'] = record[FM['series']]
-            book['tags'] = record[FM['tags']]
+            book['tags'] = format_tag_string(record[FM['tags']], ',')
             book['title'] = record[FM['title']]
             for x in ('timestamp', 'pubdate'):
                 book[x] = strftime('%Y/%m/%d %H:%M:%S', record[FM[x]])
             book['id'] = record[FM['id']]
             books.append(book)
+            for key in CKEYS:
+                def concat(name, val):
+                    return '%s:#:%s'%(name, unicode(val))
+                val = record[CFM[key]['rec_index']]
+                if val:
+                    datatype = CFM[key]['datatype']
+                    if datatype in ['comments']:
+                        continue
+                    name = CFM[key]['name']
+                    if datatype == 'text' and CFM[key]['is_multiple']:
+                        book[key] = concat(name, format_tag_string(val, '|'))
+                    elif datatype == 'series':
+                        book[key] = concat(name, '%s [%s]'%(val,
+                            fmt_sidx(record[CFM.cc_series_index_column_for(key)])))
+                    elif datatype == 'datetime':
+                        book[key] = concat(name,
+                            format_date(val, CFM[key]['display'].get('date_format','dd MMM yyyy')))
+                    elif datatype == 'bool':
+                        if val:
+                            book[key] = concat(name, __builtin__._('Yes'))
+                        else:
+                            book[key] = concat(name, __builtin__._('No'))
+                    else:
+                        book[key] = concat(name, val)
+
         updated = self.db.last_modified()
 
         cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf-8'
@@ -218,7 +253,7 @@ class MobileServer(object):
         url_base = "/mobile?search=" + search+";order="+order+";sort="+sort+";num="+str(num)
 
         return html.tostring(build_index(books, num, search, sort, order,
-                             start, len(ids), url_base),
+                             start, len(ids), url_base, CKEYS),
                              encoding='utf-8', include_meta_content_type=True,
                              pretty_print=True)
 
