@@ -18,6 +18,7 @@ from calibre.customize.ui import available_output_formats, all_input_formats
 from calibre.utils.search_query_parser import saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
+from calibre.constants import iswindows
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -57,6 +58,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             signal = getattr(self.opt_internally_viewed_formats, 'item'+signal)
             signal.connect(self.internally_viewed_formats_changed)
 
+        self.settings['worker_process_priority'].gui_obj.setVisible(iswindows)
+        self.priority_label.setVisible(iswindows)
+
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
@@ -70,7 +74,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def commit(self):
         input_map = prefs['input_format_order']
-        input_cols = [unicode(self.input_order.item(i).data(Qt.UserRole).toString()) for i in range(self.input_order.count())]
+        input_cols = [unicode(self.opt_input_order.item(i).data(Qt.UserRole).toString()) for
+                i in range(self.opt_input_order.count())]
         if input_map != input_cols:
             prefs['input_format_order'] = input_cols
         fmts = self.current_internally_viewed_formats
