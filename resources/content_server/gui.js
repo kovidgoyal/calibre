@@ -50,7 +50,7 @@ function render_book(book) {
     var comments = $.trim(book.text()).replace(/\n\n/, '<br/>');
     var formats = new Array();
     var size = (parseFloat(book.attr('size'))/(1024*1024)).toFixed(1);
-    var tags = book.attr('tags').replace(/,/g, ', ');
+    var tags = book.attr('tags')
     formats = book.attr("formats").split(",");
     if (formats.length > 0) {
         for (i=0; i < formats.length; i++) {

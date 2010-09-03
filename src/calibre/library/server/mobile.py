@@ -18,6 +18,7 @@ from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import __appname__
 from calibre import human_readable
 from calibre.utils.date import utcfromtimestamp, format_date
+from . import format_tag_string
 
 def CLASS(*args, **kwargs): # class is a reserved word in Python
     kwargs['class'] = ' '.join(args)
@@ -213,7 +214,7 @@ class MobileServer(object):
             book['authors'] = authors
             book['series_index'] = fmt_sidx(float(record[FM['series_index']]))
             book['series'] = record[FM['series']]
-            book['tags'] = record[FM['tags']]
+            book['tags'] = format_tag_string(record[FM['tags']], ',')
             book['title'] = record[FM['title']]
             for x in ('timestamp', 'pubdate'):
                 book[x] = strftime('%Y/%m/%d %H:%M:%S', record[FM[x]])
@@ -229,7 +230,7 @@ class MobileServer(object):
                         continue
                     name = CFM[key]['name']
                     if datatype == 'text' and CFM[key]['is_multiple']:
-                        book[key] = concat(name, ','.join(val.split('|')))
+                        book[key] = concat(name, format_tag_string(val, '|'))
                     elif datatype == 'series':
                         book[key] = concat(name, '%s [%s]'%(val,
                             fmt_sidx(record[CFM.cc_series_index_column_for(key)])))

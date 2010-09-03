@@ -16,6 +16,7 @@ from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import preferred_encoding
 from calibre import isbytestring
 from calibre.utils.date import format_date
+from . import format_tag_string
 
 E = ElementMaker()
 
@@ -84,6 +85,8 @@ class XMLServer(object):
             for x in ('isbn', 'formats', 'series', 'tags', 'publisher',
                     'comments'):
                 y = record[FM[x]]
+                if x == 'tags':
+                    y = format_tag_string(y, ',')
                 kwargs[x] = serialize(y) if y else ''
 
             c = kwargs.pop('comments')
@@ -105,7 +108,7 @@ class XMLServer(object):
                     name = CFM[key]['name']
                     custcols.append(k)
                     if datatype == 'text' and CFM[key]['is_multiple']:
-                        kwargs[k] = concat(name, ','.join(val.split('|')))
+                        kwargs[k] = concat(name, format_tag_string(val,'|'))
                     elif datatype == 'series':
                         kwargs[k] = concat(name, '%s [%s]'%(val,
                             fmt_sidx(record[CFM.cc_series_index_column_for(key)])))
