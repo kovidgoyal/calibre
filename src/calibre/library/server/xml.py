@@ -15,6 +15,7 @@ from calibre.library.server.utils import strftime
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import preferred_encoding
 from calibre import isbytestring
+from calibre.utils.date import format_date
 
 E = ElementMaker()
 
@@ -86,6 +87,39 @@ class XMLServer(object):
                 kwargs[x] = serialize(y) if y else ''
 
             c = kwargs.pop('comments')
+
+            CFM = self.db.field_metadata
+            CKEYS = [key for key in sorted(CFM.get_custom_fields(),
+                 cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
+                                     CFM[y]['name'].lower()))]
+            custcols = []
+            for key in CKEYS:
+                def concat(name, val):
+                    return '%s:#:%s'%(name, unicode(val))
+                val = record[CFM[key]['rec_index']]
+                if val:
+                    datatype = CFM[key]['datatype']
+                    if datatype in ['comments']:
+                        continue
+                    k = str('CF_'+key[1:])
+                    name = CFM[key]['name']
+                    custcols.append(k)
+                    if datatype == 'text' and CFM[key]['is_multiple']:
+                        kwargs[k] = concat(name, ', '.join(val.split('|')))
+                    elif datatype == 'series':
+                        kwargs[k] = concat(name, '%s [%s]'%(val,
+                            fmt_sidx(record[CFM.cc_series_index_column_for(key)])))
+                    elif datatype == 'datetime':
+                        kwargs[k] = concat(name,
+                            format_date(val, CFM[key]['display'].get('date_format','dd MMM yyyy')))
+                    elif datatype == 'bool':
+                        if val:
+                            kwargs[k] = concat(name, __builtin__._('Yes'))
+                        else:
+                            kwargs[k] = concat(name, __builtin__._('No'))
+                    else:
+                        kwargs[k] = concat(name, val)
+            kwargs['custcols'] = ','.join(custcols)
             books.append(E.book(c, **kwargs))
 
         updated = self.db.last_modified()
