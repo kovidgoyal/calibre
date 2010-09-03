@@ -5,15 +5,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, shutil
 from functools import partial
 
-from PyQt4.Qt import QMenu, Qt
+from PyQt4.Qt import QMenu, Qt, QInputDialog
 
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.utils.config import prefs
-from calibre.gui2 import gprefs, warning_dialog, Dispatcher
+from calibre.gui2 import gprefs, warning_dialog, Dispatcher, error_dialog, \
+    question_dialog
 from calibre.gui2.actions import InterfaceAction
 
 class LibraryUsageStats(object):
@@ -66,6 +67,13 @@ class LibraryUsageStats(object):
             loc = loc[:-1]
         return loc.split('/')[-1]
 
+    def rename(self, location, newloc):
+        newloc = self.canonicalize_path(newloc)
+        stats = self.stats.pop(location, None)
+        if stats is not None:
+            self.stats[newloc] = stats
+        self.write_stats()
+
 
 class ChooseLibraryAction(InterfaceAction):
 
@@ -80,7 +88,7 @@ class ChooseLibraryAction(InterfaceAction):
                 type=Qt.QueuedConnection)
 
         self.stats = LibraryUsageStats()
-        self.create_action(spec=(_('Switch to library...'), 'lt.png', None,
+        self.create_action(spec=(_('Switch/create library...'), 'lt.png', None,
             None), attr='action_choose')
         self.action_choose.triggered.connect(self.choose_library,
                 type=Qt.QueuedConnection)
@@ -90,7 +98,13 @@ class ChooseLibraryAction(InterfaceAction):
 
         self.quick_menu = QMenu(_('Quick switch'))
         self.quick_menu_action = self.choose_menu.addMenu(self.quick_menu)
-        self.qs_separator = self.choose_menu.addSeparator()
+        self.rename_menu = QMenu(_('Rename library'))
+        self.rename_menu_action = self.choose_menu.addMenu(self.rename_menu)
+        self.delete_menu = QMenu(_('Delete library'))
+        self.delete_menu_action = self.choose_menu.addMenu(self.delete_menu)
+
+        self.rename_separator = self.choose_menu.addSeparator()
+
         self.switch_actions = []
         for i in range(5):
             ac = self.create_action(spec=('', None, None, None),
@@ -123,9 +137,15 @@ class ChooseLibraryAction(InterfaceAction):
             ac.setVisible(False)
         self.quick_menu.clear()
         self.qs_locations = [i[1] for i in locations]
+        self.rename_menu.clear()
+        self.delete_menu.clear()
         for name, loc in locations:
             self.quick_menu.addAction(name, Dispatcher(partial(self.switch_requested,
                 loc)))
+            self.rename_menu.addAction(name, Dispatcher(partial(self.rename_requested,
+                name, loc)))
+            self.delete_menu.addAction(name, Dispatcher(partial(self.delete_requested,
+                name, loc)))
 
         for i, x in enumerate(locations[:len(self.switch_actions)]):
             name, loc = x
@@ -134,11 +154,49 @@ class ChooseLibraryAction(InterfaceAction):
             ac.setVisible(True)
 
         self.quick_menu_action.setVisible(bool(locations))
+        self.rename_menu_action.setVisible(bool(locations))
+        self.delete_menu_action.setVisible(bool(locations))
 
 
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+
+    def rename_requested(self, name, location):
+        loc = location.replace('/', os.sep)
+        base = os.path.dirname(loc)
+        newname, ok = QInputDialog.getText(self.gui, _('Rename') + ' ' + name,
+                '<p>'+_('Choose a new name for the library <b>%s</b>. ')%name +
+                '<p>'+_('Note that the actual library folder will be renamed.'),
+                text=name)
+        newname = unicode(newname)
+        if not ok or not newname or newname == name:
+            return
+        newloc = os.path.join(base, newname)
+        if os.path.exists(newloc):
+            return error_dialog(self.gui, _('Already exists'),
+                    _('The folder %s already exists. Delete it first.') %
+                    newloc, show=True)
+        os.rename(loc, newloc)
+        self.stats.rename(location, newloc)
+        self.build_menus()
+
+    def delete_requested(self, name, location):
+        loc = location.replace('/', os.sep)
+        if not question_dialog(self.gui, _('Are you sure?'), '<p>'+
+                _('All files from %s will be '
+                '<b>permanently deleted</b>. Are you sure?') % loc,
+                show_copy_button=False):
+            return
+        exists = self.gui.library_view.model().db.exists_at(loc)
+        if exists:
+            try:
+                shutil.rmtree(loc, ignore_errors=True)
+            except:
+                pass
+        self.stats.remove(location)
+        self.build_menus()
+
 
     def switch_requested(self, location):
         if not self.change_library_allowed():

@@ -1,0 +1,69 @@
+#!/usr/bin/env  python
+# -*- coding: utf-8 -*-
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Francisco Javier Nieto <frjanibo at gmail.com>'
+'''
+www.hoy.es
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+
+class Hoy(BasicNewsRecipe):
+    title                 = 'HOY'
+    __author__            = 'Fco Javier Nieto'
+    description           = u'Noticias desde Extremadura'
+    publisher             = 'HOY'
+    category              = 'news, politics, Spain, Extremadura'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    delay                 = 1
+    encoding              = 'cp1252'
+    language = 'es'
+
+    feeds              = [
+                            (u'Portada'         , u'http://www.hoy.es/portada.xml'   ),
+                            (u'Regional'        , u'http://www.hoy.es/rss/feeds/regional.xml'   ),
+                            (u'Prov de Badajoz' , u'http://www.hoy.es/rss/feeds/prov_badajoz.xml'   ),
+                            (u'Prov de Caceres' , u'http://www.hoy.es/rss/feeds/prov_caceres.xml'   ),
+                            (u'Badajoz'         , u'http://www.hoy.es/rss/feeds/badajoz.xml'      ),
+                            (u'Caceres'         , u'http://www.hoy.es/rss/feeds/caceres.xml'      ),
+                            (u'Merida'          , u'http://www.hoy.es/rss/feeds/merida.xml'      ),
+                            (u'Opinion'         , u'http://www.hoy.es/rss/feeds/opinion.xml'      ),
+                            (u'Nacional'        , u'http://www.hoy.es/rss/feeds/nacional.xml'      ),
+                            (u'Internacional'   , u'http://www.hoy.es/rss/feeds/internacional.xml'      ),
+                            (u'Economia'        , u'http://www.hoy.es/rss/feeds/economia.xml'      ),
+                            (u'Deportes'        , u'http://www.hoy.es/rss/feeds/deportes.xml'      ),
+                            (u'Sociedad'        , u'http://www.hoy.es/rss/feeds/sociedad.xml'      ),
+                            (u'Cultura'         , u'http://www.hoy.es/rss/feeds/cultura.xml'      ),
+                            (u'Television'      , u'http://www.hoy.es/rss/feeds/television.xml'      ),
+                            (u'contraportada'   , u'http://www.hoy.es/rss/feeds/contraportada.xml'      )
+                         ]
+
+
+    keep_only_tags = [
+                       dict(name='h1', attrs={'class':['headline']}),
+                       dict(name='h2', attrs={'class':['subhead']}),
+                       dict(name='div', attrs={'class':['text']})
+                     ]
+
+    remove_tags        = [
+                             dict(name=['object','link','script'])
+                            ,dict(name='div', attrs={'class':['colC_articulo','peu']})
+                         ]
+
+    remove_tags_after = [dict(name='div', attrs={'class':'text'})]
+
+    extra_css = '.headline {font: sans-serif 2em;}\n.subhead,h2{font: sans-serif 1.5em\n'
+
+    def preprocess_html(self, soup):
+        soup.html['dir' ] = self.direction
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
+        soup.head.insert(0,mcharset)
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+
