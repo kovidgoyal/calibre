@@ -229,7 +229,7 @@ class MobileServer(object):
                         continue
                     name = CFM[key]['name']
                     if datatype == 'text' and CFM[key]['is_multiple']:
-                        book[key] = concat(name, ', '.join(val.split('|')))
+                        book[key] = concat(name, ','.join(val.split('|')))
                     elif datatype == 'series':
                         book[key] = concat(name, '%s [%s]'%(val,
                             fmt_sidx(record[CFM.cc_series_index_column_for(key)])))

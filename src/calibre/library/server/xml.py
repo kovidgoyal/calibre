@@ -105,7 +105,7 @@ class XMLServer(object):
                     name = CFM[key]['name']
                     custcols.append(k)
                     if datatype == 'text' and CFM[key]['is_multiple']:
-                        kwargs[k] = concat(name, ', '.join(val.split('|')))
+                        kwargs[k] = concat(name, ','.join(val.split('|')))
                     elif datatype == 'series':
                         kwargs[k] = concat(name, '%s [%s]'%(val,
                             fmt_sidx(record[CFM.cc_series_index_column_for(key)])))
