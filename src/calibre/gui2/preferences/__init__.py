@@ -117,6 +117,21 @@ class Setting(object):
             val = unicode(self.gui_obj.itemData(idx).toString())
         return val
 
+class CommaSeparatedList(Setting):
+
+    def set_gui_val(self, val):
+        x = ''
+        if val:
+            x = u', '.join(val)
+        self.gui_obj.setText(x)
+
+    def get_gui_val(self):
+        val = unicode(self.gui_obj.text()).strip()
+        ans = []
+        if val:
+            ans = [x.strip() for x in val.split(',')]
+            ans = [x for x in ans if x]
+        return ans
 
 class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
 

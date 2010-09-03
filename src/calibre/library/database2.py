@@ -145,6 +145,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def initialize_dynamic(self):
         self.prefs = DBPrefs(self)
+        defs = self.prefs.defaults
+        defs['gui_restriction'] = defs['cs_restriction'] = ''
 
         # Migrate saved search and user categories to db preference scheme
         def migrate_preference(key, default):
