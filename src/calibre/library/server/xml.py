@@ -11,12 +11,11 @@ import cherrypy
 from lxml.builder import ElementMaker
 from lxml import etree
 
-from calibre.library.server.utils import strftime
+from calibre.library.server.utils import strftime, format_tag_string
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import preferred_encoding
 from calibre import isbytestring
 from calibre.utils.date import format_date
-from . import format_tag_string
 
 E = ElementMaker()
 

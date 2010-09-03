@@ -13,12 +13,11 @@ from lxml import html
 from lxml.html.builder import HTML, HEAD, TITLE, LINK, DIV, IMG, BODY, \
         OPTION, SELECT, INPUT, FORM, SPAN, TABLE, TR, TD, A, HR
 
-from calibre.library.server.utils import strftime
+from calibre.library.server.utils import strftime, format_tag_string
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import __appname__
 from calibre import human_readable
 from calibre.utils.date import utcfromtimestamp, format_date
-from . import format_tag_string
 
 def CLASS(*args, **kwargs): # class is a reserved word in Python
     kwargs['class'] = ' '.join(args)

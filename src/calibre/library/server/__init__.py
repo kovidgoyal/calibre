@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.utils.config import Config, StringConfig, config_dir, tweaks
+from calibre.utils.config import Config, StringConfig, config_dir
 
 
 listen_on = '0.0.0.0'
@@ -49,15 +49,3 @@ def server_config(defaults=None):
 def main():
     from calibre.library.server.main import main
     return main()
-
-def format_tag_string(tags, sep):
-    MAX = tweaks['max_content_server_tags_shown']
-    if tags:
-        tlist = [t.strip() for t in tags.split(sep)]
-    else:
-        tlist = []
-    tlist.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
-    if len(tlist) > MAX:
-        tlist = tlist[:MAX]+['...']
-    return u'%s'%(', '.join(tlist)) if tlist else ''
-

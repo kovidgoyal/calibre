@@ -685,7 +685,16 @@ class LookAndFeel(PreferencesPlugin):
     name_order = 1
     config_widget = 'calibre.gui2.preferences.look_feel'
 
-plugins += [LookAndFeel]
+class Behavior(PreferencesPlugin):
+    name = 'Behavior'
+    gui_name = _('Behavior')
+    category = 'Interface'
+    gui_category = _('Interface')
+    category_order = 1
+    name_order = 2
+    config_widget = 'calibre.gui2.preferences.behavior'
+
+plugins += [LookAndFeel, Behavior]
 
 #}}}
 

@@ -17,6 +17,9 @@ class ConfigWidgetInterface(object):
     def genesis(self, gui):
         raise NotImplementedError()
 
+    def initialize(self):
+        raise NotImplementedError()
+
     def restore_defaults(self):
         pass
 
@@ -117,6 +120,21 @@ class Setting(object):
             val = unicode(self.gui_obj.itemData(idx).toString())
         return val
 
+class CommaSeparatedList(Setting):
+
+    def set_gui_val(self, val):
+        x = ''
+        if val:
+            x = u', '.join(val)
+        self.gui_obj.setText(x)
+
+    def get_gui_val(self):
+        val = unicode(self.gui_obj.text()).strip()
+        ans = []
+        if val:
+            ans = [x.strip() for x in val.split(',')]
+            ans = [x for x in ans if x]
+        return ans
 
 class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
 
@@ -169,6 +187,7 @@ def test_widget(category, name, gui=None): # {{{
     pl = get_plugin(category, name)
     d = QDialog()
     d.resize(750, 550)
+    d.setWindowTitle(category + " - " + name)
     bb = QDialogButtonBox(d)
     bb.setStandardButtons(bb.Apply|bb.Cancel|bb.RestoreDefaults)
     bb.accepted.connect(d.accept)
