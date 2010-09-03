@@ -92,25 +92,29 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             fmts = config['internally_viewed_formats']
         viewer = self.opt_internally_viewed_formats
+        viewer.blockSignals(True)
         exts = set([])
         for ext in BOOK_EXTENSIONS:
             ext = ext.lower()
             ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
             if ext == 'lrf' or is_supported('book.'+ext):
                 exts.add(ext)
-
+        viewer.clear()
         for ext in sorted(exts):
-            item = viewer.addItem(ext.upper())
+            viewer.addItem(ext.upper())
+            item = viewer.item(viewer.count()-1)
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable)
             item.setCheckState(Qt.Checked if
                     ext.upper() in fmts else Qt.Unchecked)
+        viewer.blockSignals(False)
 
     @property
     def current_internally_viewed_formats(self):
         fmts = []
-        for i in range(self.viewer.count()):
-            if self.viewer.item(i).checkState() == Qt.Checked:
-                fmts.append(unicode(self.viewer.item(i).text()))
+        viewer = self.opt_internally_viewed_formats
+        for i in range(viewer.count()):
+            if viewer.item(i).checkState() == Qt.Checked:
+                fmts.append(unicode(viewer.item(i).text()))
         return fmts
     # }}}
 
