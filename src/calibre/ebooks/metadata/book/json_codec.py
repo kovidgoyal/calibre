@@ -9,7 +9,7 @@ import json
 import traceback
 from PIL import Image
 
-from . import SERIALIZABLE_FIELDS
+from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import parse_date, isoformat, UNDEFINED_DATE
