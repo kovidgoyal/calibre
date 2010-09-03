@@ -26,35 +26,35 @@ class ConfigWidgetInterface(object):
 class Setting(object):
 
     def __init__(self, name, config_obj, widget, gui_name=None,
-            empty_string_is_None=True, choices=None):
+            empty_string_is_None=True, choices=None, restart_required=False):
         self.name, self.gui_name = name, gui_name
         self.empty_string_is_None = empty_string_is_None
+        self.restart_required = restart_required
         self.choices = choices
         if gui_name is None:
             self.gui_name = 'opt_'+name
         self.config_obj = config_obj
         self.gui_obj = getattr(widget, self.gui_name)
+        self.widget = widget
 
         if isinstance(self.gui_obj, QCheckBox):
             self.datatype = 'bool'
-            self.gui_obj.stateChanged.connect(lambda x:
-                    widget.changed_signal.emit())
+            self.gui_obj.stateChanged.connect(self.changed)
         elif isinstance(self.gui_obj, QAbstractSpinBox):
             self.datatype = 'number'
-            self.gui_obj.valueChanged.connect(lambda x:
-                    widget.changed_signal.emit())
+            self.gui_obj.valueChanged.connect(self.changed)
         elif isinstance(self.gui_obj, QLineEdit):
             self.datatype = 'string'
-            self.gui_obj.textChanged.connect(lambda x:
-                    widget.changed_signal.emit())
+            self.gui_obj.textChanged.connect(self.changed)
         elif isinstance(self.gui_obj, QComboBox):
             self.datatype = 'choice'
-            self.gui_obj.editTextChanged.connect(lambda x:
-                    widget.changed_signal.emit())
-            self.gui_obj.currentIndexChanged.connect(lambda x:
-                    widget.changed_signal.emit())
+            self.gui_obj.editTextChanged.connect(self.changed)
+            self.gui_obj.currentIndexChanged.connect(self.changed)
         else:
             raise ValueError('Unknown data type')
+
+    def changed(self, *args):
+        self.widget.changed_signal.emit()
 
     def initialize(self):
         self.gui_obj.blockSignals(True)
@@ -66,9 +66,15 @@ class Setting(object):
                 self.gui_obj.addItem(x[0], QVariant(x[1]))
         self.set_gui_val(self.get_config_val(default=False))
         self.gui_obj.blockSignals(False)
+        self.initial_value = self.get_gui_val()
 
     def commit(self):
-        self.set_config_val(self.get_gui_val())
+        val = self.get_gui_val()
+        oldval = self.get_config_val()
+        changed = val != oldval
+        if changed:
+            self.set_config_val(self.get_gui_val())
+        return changed and self.restart_required
 
     def restore_defaults(self):
         self.set_gui_val(self.get_config_val(default=True))
@@ -122,10 +128,11 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
             self.setupUi(self)
         self.settings = {}
 
-    def register(self, name, config_obj, gui_name=None, choices=None, setting=Setting):
+    def register(self, name, config_obj, gui_name=None, choices=None,
+            restart_required=False, setting=Setting):
         setting = setting(name, config_obj, self, gui_name=gui_name,
-                choices=choices)
-        self.register_setting(setting)
+                choices=choices, restart_required=restart_required)
+        return self.register_setting(setting)
 
     def register_setting(self, setting):
         self.settings[setting.name] = setting
@@ -136,8 +143,12 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
             setting.initialize()
 
     def commit(self, *args):
+        restart_required = False
         for setting in self.settings.values():
-            setting.commit()
+            rr = setting.commit()
+            if rr:
+                restart_required = True
+        return restart_required
 
     def restore_defaults(self, *args):
         for setting in self.settings.values():
@@ -184,8 +195,12 @@ def test_widget(category, name, gui=None): # {{{
         gui.initialize(db.library_path, db, None, actions, show_gui=False)
     w.genesis(gui)
     w.initialize()
+    restart_required = False
     if d.exec_() == QDialog.Accepted:
-        w.commit()
+        restart_required = w.commit()
+    if restart_required:
+        from calibre.gui2 import warning_dialog
+        warning_dialog(gui, 'Restart required', 'Restart required', show=True)
     if mygui:
         gui.shutdown()
 # }}}
