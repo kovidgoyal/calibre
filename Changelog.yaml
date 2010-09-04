@@ -4,6 +4,63 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.17
+  date: 2010-09-03
+
+  new features:
+    - title: "Content server: Show custom column data in the book listing"
+
+    - title: "Add preference to automatically set a tag when adding books (Preferences->General)"
+
+    - title: "Add a tweak to create compound search terms. Show error message in tooltip when user inputs an invalid search query."
+
+    - title: "Managing multiple libraries: Allow renaming/deleting libraries from the Choose library menu"
+
+    - title: "Searching on series index is now possible. See the User Manual for details."
+
+  bug fixes:
+    - title: "Fix regression in 0.7.16 that broke conversion of HTML files with preprocess turned on"
+
+    - title: "MOBI Output: When converting an input document that specifies an inline TOC in the <guide> but not in the <spine>, add it correctly. Fixes #6661 (Conversion to MOBI fails to create TOC)"
+      tickets: [6661]
+
+    - title: "JetBook driver: Only use JetBook naming scheme for txt, pdf and fb2 files."
+      tickets: [6638]
+
+    - title: "Copy to library action now respects merge preferences"
+      tickets: [6641]
+
+    - title: "Fix bug in email sending when using an SSL connection"
+
+    - title: "Kobo driver: Fix bug that prevented metadata caching from working correctly"
+      tickets: [6015]
+
+    - title: "Fix regression in 0.7.16 that caused calibre to forget its preferences on each restart for new installs on linux"
+
+    - title: "News downloads: Cut off long downloaded from URLs"
+      tickets: [6649]
+
+  new recipes:
+    - title: "HOY"
+      author: Fco Javier Nieto
+
+    - title: "Milenio"
+      author: bmsleight
+
+    - title: "Winnipeg Free Press"
+      author: buyo
+
+    - title: "Field and stream blog, West Hawaii Today, Marietta Daily Journal"
+      author: Tony Stegall
+
+    - title: "Europa Sur"
+      author: "Darko Miletic"
+
+
+  improved recipes:
+    - La Jornada
+    - Slate
+
 - version: 0.7.16
   date: 2010-08-27
 

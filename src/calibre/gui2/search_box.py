@@ -90,6 +90,7 @@ class SearchBox2(QComboBox):
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
         self.setMinimumContentsLength(25)
         self._in_a_search = False
+        self.tool_tip_text = self.toolTip()
 
     def initialize(self, opt_name, colorize=False, help_text=_('Search')):
         self.as_you_type = config['search_as_you_type']
@@ -100,6 +101,7 @@ class SearchBox2(QComboBox):
         self.clear_to_help()
 
     def normalize_state(self):
+        self.setToolTip(self.tool_tip_text)
         if self.help_state:
             self.setEditText('')
             self.line_edit.setStyleSheet(
@@ -112,6 +114,7 @@ class SearchBox2(QComboBox):
                     self.normal_background)
 
     def clear_to_help(self):
+        self.setToolTip(self.tool_tip_text)
         if self.help_state:
             return
         self.help_state = True
@@ -131,6 +134,9 @@ class SearchBox2(QComboBox):
         self.clear_to_help()
 
     def search_done(self, ok):
+        if isinstance(ok, basestring):
+            self.setToolTip(ok)
+            ok = False
         if not unicode(self.currentText()).strip():
             return self.clear_to_help()
         self._in_a_search = ok
