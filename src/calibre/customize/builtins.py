@@ -712,7 +712,44 @@ class Toolbar(PreferencesPlugin):
     name_order = 4
     config_widget = 'calibre.gui2.preferences.toolbar'
 
-plugins += [LookAndFeel, Behavior, Columns, Toolbar]
+class InputOptions(PreferencesPlugin):
+    name = 'Input Options'
+    gui_name = _('Input Options')
+    category = 'Conversion'
+    gui_category = _('Conversion')
+    category_order = 2
+    name_order = 1
+    config_widget = 'calibre.gui2.preferences.conversion:InputOptions'
+
+class CommonOptions(PreferencesPlugin):
+    name = 'Common Options'
+    gui_name = _('Common Options')
+    category = 'Conversion'
+    gui_category = _('Conversion')
+    category_order = 2
+    name_order = 2
+    config_widget = 'calibre.gui2.preferences.conversion:CommonOptions'
+
+class OutputOptions(PreferencesPlugin):
+    name = 'Output Options'
+    gui_name = _('Output Options')
+    category = 'Conversion'
+    gui_category = _('Conversion')
+    category_order = 2
+    name_order = 3
+    config_widget = 'calibre.gui2.preferences.conversion:OutputOptions'
+
+class Adding(PreferencesPlugin):
+    name = 'Adding'
+    gui_name = _('Adding books')
+    category = 'Import/Export'
+    gui_category = _('Import/Export')
+    category_order = 3
+    name_order = 1
+    config_widget = 'calibre.gui2.preferences.adding'
+
+plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
+        CommonOptions, OutputOptions, Adding]
 
 #}}}
 

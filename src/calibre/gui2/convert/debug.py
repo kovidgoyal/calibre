@@ -17,7 +17,7 @@ from calibre.gui2 import error_dialog, choose_dir
 class DebugWidget(Widget, Ui_Form):
 
     TITLE = _('Debug')
-    ICON  = I('debug.svg')
+    ICON  = I('debug.png')
     HELP  = _('Debug the conversion process.')
     COMMIT_NAME = 'debug'
 

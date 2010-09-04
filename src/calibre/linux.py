@@ -334,7 +334,7 @@ class PostInstall:
 
             with TemporaryDirectory() as tdir:
                 with CurrentDir(tdir):
-                    render_img('mimetypes/lrf.svg', 'calibre-lrf.png')
+                    render_img('mimetypes/lrf.png', 'calibre-lrf.png')
                     check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
                     self.icon_resources.append(('mimetypes', 'application-lrf', '128'))
                     check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
@@ -343,7 +343,7 @@ class PostInstall:
                     render_img('lt.png', 'calibre-gui.png')
                     check_call('xdg-icon-resource install --noupdate --size 128 calibre-gui.png calibre-gui', shell=True)
                     self.icon_resources.append(('apps', 'calibre-gui', '128'))
-                    render_img('viewer.svg', 'calibre-viewer.png')
+                    render_img('viewer.png', 'calibre-viewer.png')
                     check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
                     self.icon_resources.append(('apps', 'calibre-viewer', '128'))
 

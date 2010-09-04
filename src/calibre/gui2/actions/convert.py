@@ -19,7 +19,7 @@ from calibre.customize.ui import plugin_for_input_format
 class ConvertAction(InterfaceAction):
 
     name = 'Convert Books'
-    action_spec = (_('Convert books'), 'convert.svg', None, _('C'))
+    action_spec = (_('Convert books'), 'convert.png', None, _('C'))
     dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
 
     def genesis(self):

@@ -16,7 +16,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../../../../resources/images.qrc">
-    <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
+    <normaloff>:/images/config.png</normaloff>:/images/config.png</iconset>
   </property>
   <layout class="QGridLayout">
    <item row="1" column="0">
@@ -273,7 +273,7 @@
                       </property>
                       <property name="icon">
                        <iconset resource="../../../../../resources/images.qrc">
-                        <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
+                        <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
                       </property>
                      </widget>
                     </item>
@@ -297,7 +297,7 @@
                       </property>
                       <property name="icon">
                        <iconset resource="../../../../../resources/images.qrc">
-                        <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
+                        <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
                       </property>
                      </widget>
                     </item>
@@ -465,7 +465,7 @@
                             </property>
                             <property name="icon">
                              <iconset resource="../../../../../resources/images.qrc">
-                              <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
+                              <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
                             </property>
                            </widget>
                           </item>
@@ -492,7 +492,7 @@
                             </property>
                             <property name="icon">
                              <iconset resource="../../../../../resources/images.qrc">
-                              <normaloff>:/images/minus.svg</normaloff>:/images/minus.svg</iconset>
+                              <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
                             </property>
                            </widget>
                           </item>
@@ -519,7 +519,7 @@
                             </property>
                             <property name="icon">
                              <iconset resource="../../../../../resources/images.qrc">
-                              <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
+                              <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
                             </property>
                            </widget>
                           </item>
@@ -546,7 +546,7 @@
                             </property>
                             <property name="icon">
                              <iconset resource="../../../../../resources/images.qrc">
-                              <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
+                              <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
                             </property>
                            </widget>
                           </item>
@@ -570,7 +570,7 @@
                             </property>
                             <property name="icon">
                              <iconset resource="../../../../../resources/images.qrc">
-                              <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
+                              <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
                             </property>
                            </widget>
                           </item>
@@ -699,7 +699,7 @@
                    </property>
                    <property name="icon">
                     <iconset resource="../../../../../resources/images.qrc">
-                     <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
+                     <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -726,7 +726,7 @@
                    </property>
                    <property name="icon">
                     <iconset resource="../../../../../resources/images.qrc">
-                     <normaloff>:/images/minus.svg</normaloff>:/images/minus.svg</iconset>
+                     <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -1289,7 +1289,7 @@
                     </property>
                     <property name="icon">
                      <iconset resource="../../../../../resources/images.qrc">
-                      <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
+                      <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
                     </property>
                    </widget>
                   </item>

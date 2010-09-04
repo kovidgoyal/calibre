@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.utils.magick import Image, DrawingWand, create_canvas
 from calibre.constants import __appname__, __version__
+from calibre import fit_image
 
 def save_cover_data_to(data, path, bgcolor='white', resize_to=None):
     '''
@@ -22,6 +23,17 @@ def save_cover_data_to(data, path, bgcolor='white', resize_to=None):
     canvas = create_canvas(img.size[0], img.size[1], bgcolor)
     canvas.compose(img)
     canvas.save(path)
+
+def thumbnail(data, width=120, height=120, bgcolor='white', fmt='jpg'):
+    img = Image()
+    img.load(data)
+    owidth, oheight = img.size
+    scaled, nwidth, nheight = fit_image(owidth, oheight, width, height)
+    if scaled:
+        img.size = (nwidth, nheight)
+    canvas = create_canvas(img.size[0], img.size[1], bgcolor)
+    canvas.compose(img)
+    return (canvas.size[0], canvas.size[1], canvas.export(fmt))
 
 def identify_data(data):
     '''

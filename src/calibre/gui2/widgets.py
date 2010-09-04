@@ -61,13 +61,24 @@ class ProgressIndicator(QWidget):
 
 class FilenamePattern(QWidget, Ui_Form):
 
+    changed_signal = pyqtSignal()
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
         self.connect(self.test_button, SIGNAL('clicked()'), self.do_test)
         self.connect(self.re, SIGNAL('returnPressed()'), self.do_test)
-        self.re.setText(prefs['filename_pattern'])
+        self.initialize()
+        self.re.textChanged.connect(lambda x: self.changed_signal.emit())
+
+    def initialize(self, defaults=False):
+        if defaults:
+            val = prefs.defaults['filename_pattern']
+        else:
+            val = prefs['filename_pattern']
+        self.re.setText(val)
+
 
     def do_test(self):
         try:
