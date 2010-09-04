@@ -757,8 +757,17 @@ class Saving(PreferencesPlugin):
     name_order = 2
     config_widget = 'calibre.gui2.preferences.saving'
 
+class Sending(PreferencesPlugin):
+    name = 'Sending'
+    gui_name = _('Sending books to devices')
+    category = 'Import/Export'
+    gui_category = _('Import/Export')
+    category_order = 3
+    name_order = 3
+    config_widget = 'calibre.gui2.preferences.sending'
+
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
-        CommonOptions, OutputOptions, Adding, Saving]
+        CommonOptions, OutputOptions, Adding, Saving, Sending]
 
 #}}}
 
