@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1010</width>
+    <height>339</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Here you can control how calibre will read metadata from the files you add to it. calibre can either read metadata from the contents of the file, or from the filename.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QCheckBox" name="opt_read_file_metadata">
+     <property name="text">
+      <string>Read metadata from &amp;file contents rather than file name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_add_formats_to_existing">
+     <property name="toolTip">
+      <string>If an existing book with a similar title and author is found that does not have the format being added, the format is added
+to the existing book, instead of creating a new entry. If the existing book already has the format, then it is silently ignored.
+
+Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc. Author match is exact.</string>
+     </property>
+     <property name="text">
+      <string>If books with similar titles and authors found, &amp;merge the new files automatically</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QGroupBox" name="metadata_box">
+     <property name="title">
+      <string>&amp;Configure metadata from file name</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>363</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QCheckBox" name="opt_swap_author_names">
+     <property name="toolTip">
+      <string>Swap the firstname and lastname of the author. This affects only metadata read from file names.</string>
+     </property>
+     <property name="text">
+      <string>&amp;Swap author firstname and lastname</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

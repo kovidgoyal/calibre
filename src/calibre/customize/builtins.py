@@ -739,8 +739,17 @@ class OutputOptions(PreferencesPlugin):
     name_order = 3
     config_widget = 'calibre.gui2.preferences.conversion:OutputOptions'
 
+class Adding(PreferencesPlugin):
+    name = 'Adding'
+    gui_name = _('Adding books')
+    category = 'Import/Export'
+    gui_category = _('Import/Export')
+    category_order = 3
+    name_order = 1
+    config_widget = 'calibre.gui2.preferences.adding'
+
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
-        CommonOptions, OutputOptions]
+        CommonOptions, OutputOptions, Adding]
 
 #}}}
 
