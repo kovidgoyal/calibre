@@ -81,7 +81,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.css.setToolTip(_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
         self.max_view_width.setValue(opts.max_view_width)
         pats = [os.path.basename(x).split('.')[0] for x in
-            glob.glob(P('viewer/hyphenate/patterns/*.js'))]
+            glob.glob(P('viewer/hyphenate/patterns/*.js',
+                allow_user_override=False))]
         names = list(map(get_language, pats))
         pmap = {}
         for i in range(len(pats)):

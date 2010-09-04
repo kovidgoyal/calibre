@@ -32,6 +32,10 @@ def option_parser():
             help=_('Write process PID to the specified file'))
     parser.add_option('--daemonize', default=False, action='store_true',
             help='Run process in background as a daemon. No effect on windows.')
+    parser.add_option('--restriction', default=None,
+            help=_('Specifies a restriction to be used for this invocation. '
+                   'This option overrides any per-library settings specified'
+                   ' in the GUI'))
     return parser
 
 def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):

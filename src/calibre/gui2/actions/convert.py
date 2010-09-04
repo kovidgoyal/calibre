@@ -20,6 +20,7 @@ class ConvertAction(InterfaceAction):
 
     name = 'Convert Books'
     action_spec = (_('Convert books'), 'convert.svg', None, _('C'))
+    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
 
     def genesis(self):
         cm = QMenu()

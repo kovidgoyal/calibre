@@ -5,8 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools
-import re
+import functools, re
 
 from calibre import entity_to_unicode
 
@@ -54,7 +53,7 @@ def chap_head(match):
     if not title:
                return '<h1>'+chap+'</h1><br/>\n'
     else:
-               return '<h1>'+chap+'<br/>\n'+title+'</h1><br/>\n'
+               return '<h1>'+chap+'</h1>\n<h3>'+title+'</h3>\n'
 
 def wrap_lines(match):
     ital = match.group('ital')
@@ -63,7 +62,7 @@ def wrap_lines(match):
     else:
                return ital+' '
 
-def line_length(raw, percent):
+def line_length(format, raw, percent):
     '''
     raw is the raw text to find the line length to use for wrapping.
     percentage is a decimal number, 0 - 1 which is used to determine
@@ -72,7 +71,10 @@ def line_length(raw, percent):
     median value.
     '''
     raw = raw.replace('&nbsp;', ' ')
-    linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
+    if format == 'html':
+        linere = re.compile('(?<=<p).*?(?=</p>)', re.DOTALL)
+    elif format == 'pdf':
+        linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
     lines = linere.findall(raw)
 
     lengths = []
@@ -202,11 +204,8 @@ class HTMLPreProcessor(object):
                   # Remove gray background
                   (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
 
-                  # Remove non breaking spaces
-                  (re.compile(ur'\u00a0'), lambda match : ' '),
-
                   # Detect Chapters to match default XPATH in GUI
-                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<i><b>|<i>|<b>)?(Chapter|Epilogue|Prologue|Book|Part)\s*([\d\w-]+)?(</i></b>|</i>|</b>)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>(<i>)?\s*\w+(\s+\w+)?(</i>)?)(<br[^>]*>|</?p[^>]*>)))?', re.IGNORECASE), chap_head),
+                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<(i|b)>(<(i|b)>)?)?(.?Chapter|Epilogue|Prologue|Book|Part)\s*([\d\w-]+(\s\w+)?)?(</(i|b)>(</(i|b)>)?)?)</?(br|p)[^>]*>\s*(?P<title>(<(i|b)>)?\s*\w+(\s*\w+)?\s*(</(i|b)>)?\s*(</?(br|p)[^>]*>))?', re.IGNORECASE), chap_head),
                   (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>([A-Z \'"!]{5,})\s*(\d+|\w+)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
 
                   # Have paragraphs show better
@@ -251,20 +250,27 @@ class HTMLPreProcessor(object):
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
 
-    def __call__(self, html, remove_special_chars=None):
+    def __call__(self, html, remove_special_chars=None,
+            get_preprocess_html=False):
         if remove_special_chars is not None:
             html = remove_special_chars.sub('', html)
         html = html.replace('\0', '')
+        is_pdftohtml = self.is_pdftohtml(html)
         if self.is_baen(html):
             rules = []
         elif self.is_book_designer(html):
             rules = self.BOOK_DESIGNER
-        elif self.is_pdftohtml(html):
+        elif is_pdftohtml:
             rules = self.PDFTOHTML
         else:
             rules = []
 
-        if not self.extra_opts.keep_ligatures:
+        start_rules = []
+        if is_pdftohtml:
+            # Remove non breaking spaces
+            start_rules.append((re.compile(ur'\u00a0'), lambda match : ' '))
+
+        if not getattr(self.extra_opts, 'keep_ligatures', False):
             html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)
 
         end_rules = []
@@ -289,15 +295,41 @@ class HTMLPreProcessor(object):
                 traceback.print_exc()
 
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
-            length = line_length(html, getattr(self.extra_opts, 'unwrap_factor'))
+            length = line_length('pdf', html, getattr(self.extra_opts, 'unwrap_factor'))
             if length:
                 end_rules.append(
                     # Un wrap using punctuation
                     (re.compile(r'(?<=.{%i}[a-z\.,;:)\-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
                 )
 
-        for rule in self.PREPROCESS + rules + end_rules:
+        for rule in self.PREPROCESS + start_rules:
             html = rule[0].sub(rule[1], html)
+
+        if get_preprocess_html:
+            return html
+
+        def dump(raw, where):
+            import os
+            dp = getattr(self.extra_opts, 'debug_pipeline', None)
+            if dp and os.path.exists(dp):
+                odir = os.path.join(dp, 'input')
+                if os.path.exists(odir):
+                    odir = os.path.join(odir, where)
+                    if not os.path.exists(odir):
+                        os.makedirs(odir)
+                    name, i = None, 0
+                    while not name or os.path.exists(os.path.join(odir, name)):
+                        i += 1
+                        name = '%04d.html'%i
+                    with open(os.path.join(odir, name), 'wb') as f:
+                        f.write(raw.encode('utf-8'))
+
+        #dump(html, 'pre-preprocess')
+
+        for rule in rules + end_rules:
+            html = rule[0].sub(rule[1], html)
+
+        #dump(html, 'post-preprocess')
 
         # Handle broken XHTML w/ SVG (ugh)
         if 'svg:' in html and SVG_NS not in html:

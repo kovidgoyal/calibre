@@ -13,6 +13,7 @@ class OpenFolderAction(InterfaceAction):
     name = 'Open Folder'
     action_spec = (_('Open containing folder'), 'document_open.svg', None,
             _('O'))
+    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
 
     def genesis(self):
         self.qaction.triggered.connect(self.gui.iactions['View'].view_folder)

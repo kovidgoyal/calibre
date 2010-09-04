@@ -8,7 +8,7 @@ from calibre.constants import numeric_version
 from calibre.ptempfile import PersistentTemporaryFile
 
 
-class Plugin(object):
+class Plugin(object): # {{{
     '''
     A calibre plugin. Useful members include:
 
@@ -147,9 +147,9 @@ class Plugin(object):
         if hasattr(it, '__exit__'):
             it.__exit__(*args)
 
+# }}}
 
-
-class FileTypePlugin(Plugin):
+class FileTypePlugin(Plugin): # {{{
     '''
     A plugin that is associated with a particular set of file types.
     '''
@@ -191,7 +191,9 @@ class FileTypePlugin(Plugin):
         # Default implementation does nothing
         return path_to_ebook
 
-class MetadataReaderPlugin(Plugin):
+# }}}
+
+class MetadataReaderPlugin(Plugin): # {{{
     '''
     A plugin that implements reading metadata from a set of file types.
     '''
@@ -219,8 +221,9 @@ class MetadataReaderPlugin(Plugin):
         :return: A :class:`calibre.ebooks.metadata.MetaInformation` object
         '''
         return None
+# }}}
 
-class MetadataWriterPlugin(Plugin):
+class MetadataWriterPlugin(Plugin): # {{{
     '''
     A plugin that implements reading metadata from a set of file types.
     '''
@@ -249,7 +252,9 @@ class MetadataWriterPlugin(Plugin):
         '''
         pass
 
-class CatalogPlugin(Plugin):
+# }}}
+
+class CatalogPlugin(Plugin): # {{{
     '''
     A plugin that implements a catalog generator.
     '''
@@ -352,7 +357,9 @@ class CatalogPlugin(Plugin):
         raise NotImplementedError('CatalogPlugin.generate_catalog() default '
                 'method, should be overridden in subclass')
 
-class InterfaceActionBase(Plugin):
+# }}}
+
+class InterfaceActionBase(Plugin): # {{{
 
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'Kovid Goyal'
@@ -360,3 +367,44 @@ class InterfaceActionBase(Plugin):
     can_be_disabled = False
 
     actual_plugin = None
+# }}}
+
+class PreferencesPlugin(Plugin): # {{{
+
+    supported_platforms = ['windows', 'osx', 'linux']
+    author         = 'Kovid Goyal'
+    type = _('Preferences')
+    can_be_disabled = False
+
+    #: Import path to module that contains a class named ConfigWidget
+    #: which implements the ConfigWidgetInterface. Used by
+    #: :meth:`create_widget`.
+    config_widget = None
+
+    #: Where in the list of categories the :attr:`category` of this plugin should be.
+    category_order = 100
+
+    #: Where in the list of names in a category, the :attr:`gui_name` of this
+    #: plugin should be
+    name_order = 100
+
+    #: The category this plugin should be in
+    category = None
+
+    #: The name displayed to the user for this plugin
+    gui_name = None
+
+    def create_widget(self, parent=None):
+        '''
+        Create and return the actual Qt widget used for setting this group of
+        preferences. The widget must implement the ConfigWidgetInterface.
+
+        The default implementation uses :attr:`config_widget` to instantiate
+        the widget.
+        '''
+        base = __import__(self.config_widget, fromlist=[1])
+        widget = base.ConfigWidget(parent)
+        return widget
+
+# }}}
+

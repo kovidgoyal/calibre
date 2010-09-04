@@ -50,6 +50,8 @@ class Listener(Thread): # {{{
         self.start()
 
     def run(self):
+        if self.listener is None:
+            return
         while self._run:
             try:
                 conn = self.listener.accept()
@@ -108,7 +110,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         self.iactions = acmap
 
-    def initialize(self, library_path, db, listener, actions):
+    def initialize(self, library_path, db, listener, actions, show_gui=True):
         opts = self.opts
         self.preferences_action, self.quit_action = actions
         self.library_path = library_path
@@ -195,13 +197,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         UpdateMixin.__init__(self, opts)
 
         ####################### Search boxes ########################
-        SavedSearchBoxMixin.__init__(self, db)
+        SavedSearchBoxMixin.__init__(self)
         SearchBoxMixin.__init__(self)
 
         ####################### Library view ########################
         LibraryViewMixin.__init__(self, db)
 
-        self.show()
+        if show_gui:
+            self.show()
 
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
@@ -230,6 +233,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         ######################### Search Restriction ##########################
         SearchRestrictionMixin.__init__(self)
+        self.apply_named_search_restriction(db.prefs.get('gui_restriction', ''))
 
         ########################### Cover Flow ################################
 
@@ -248,7 +252,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         self.read_settings()
         self.finalize_layout()
-        self.donate_button.start_animation()
+        if self.tool_bar.showing_donate:
+            self.donate_button.start_animation()
         self.set_window_title()
 
         for ac in self.iactions.values():
@@ -371,6 +376,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         for action in self.iactions.values():
             action.library_changed(db)
         self.set_window_title()
+        self.apply_named_search_restriction('') # reset restriction to null
+        self.saved_searches_changed() # reload the search restrictions combo box
+        self.apply_named_search_restriction(db.prefs.get('gui_restriction', ''))
 
     def set_window_title(self):
         self.setWindowTitle(__appname__ + u' - ||%s||'%self.iactions['Choose Library'].library_name())

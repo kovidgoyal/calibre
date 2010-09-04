@@ -8,8 +8,9 @@ __docformat__ = 'restructuredtext en'
 import os, posixpath, urllib, sys, re
 
 from lxml import etree
+from lxml.etree import XMLSyntaxError
 
-from calibre.ebooks.epub.fix import InvalidEpub
+from calibre.ebooks.epub.fix import InvalidEpub, ParseError
 from calibre import guess_type, prepare_string_for_xml
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.constants import iswindows
@@ -148,7 +149,10 @@ class Container(object):
             return self.cache[name]
         raw = self.get_raw(name)
         if name in self.mime_map:
-            raw = self._parse(raw, self.mime_map[name])
+            try:
+                raw = self._parse(raw, self.mime_map[name])
+            except XMLSyntaxError, err:
+                raise ParseError(name, unicode(err))
         self.cache[name] = raw
         return raw
 

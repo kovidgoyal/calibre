@@ -44,7 +44,7 @@ bool_custom_columns_are_tristate = 'yes'
 # title within authors.
 sort_columns_at_startup = None
 
-# Format to be used for publication date
+# Format to be used for publication date and the timestamp (date).
 #  A string controlling how the publication date is displayed in the GUI
 #  d    the day as number without a leading zero (1 to 31)
 #  dd    the day as number with a leading zero (01 to 31)
@@ -59,8 +59,10 @@ sort_columns_at_startup = None
 #  For example, given the date of 9 Jan 2010, the following formats show
 #  MMM yyyy ==> Jan 2010    yyyy ==> 2010       dd MMM yyyy ==> 09 Jan 2010
 #  MM/yyyy ==> 01/2010      d/M/yy ==> 9/1/10   yy ==> 10
-# default if not set: MMM yyyy
+# publication default if not set: MMM yyyy
+# timestamp default if not set: dd MMM yyyy
 gui_pubdate_display_format = 'MMM yyyy'
+gui_timestamp_display_format = 'dd MMM yyyy'
 
 # Control title and series sorting in the library view.
 # If set to 'library_order', Leading articles such as The and A will be ignored.
@@ -81,3 +83,11 @@ title_series_sorting = 'library_order'
 # strictly_alphabetic, it would remain "The Client".
 save_template_title_series_sorting = 'library_order'
 
+# Specify a folder that calibre should connect to at startup using
+# connect_to_folder. This must be a full path to the folder. If the folder does
+# not exist when calibre starts, it is ignored. If there are '\' characters in
+# the path (such as in Windows paths), you must double them.
+# Examples:
+#     auto_connect_to_folder = 'C:\\Users\\someone\\Desktop\\testlib'
+#     auto_connect_to_folder = '/home/dropbox/My Dropbox/someone/library'
+auto_connect_to_folder = ''

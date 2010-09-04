@@ -5,7 +5,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import textwrap
 import os
 import glob
-from calibre.customize import FileTypePlugin, MetadataReaderPlugin, MetadataWriterPlugin
+from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
+    MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 
@@ -438,7 +439,7 @@ from calibre.ebooks.txt.output import TXTOutput
 from calibre.customize.profiles import input_profiles, output_profiles
 
 from calibre.devices.apple.driver import ITUNES
-from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX
+from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
@@ -460,7 +461,7 @@ from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS
 from calibre.devices.sne.driver import SNE
-from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL
+from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 
@@ -566,7 +567,9 @@ plugins += [
     AVANT,
     MENTOR,
     SWEEX,
+    KOGAN,
     PDNOVEL,
+    SPECTRA,
     ITUNES,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
@@ -575,7 +578,7 @@ plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataWriter')]
 plugins += input_profiles + output_profiles
 
-from calibre.customize import InterfaceActionBase
+# Interface Actions {{{
 
 class ActionAdd(InterfaceActionBase):
     name = 'Add Books'
@@ -668,3 +671,20 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
         ActionCopyToLibrary]
+
+# }}}
+
+# Preferences Plugins {{{
+
+class LookAndFeel(PreferencesPlugin):
+    name = 'Look & Feel'
+    gui_name = _('Look and Feel')
+    category = _('Interface')
+    category_order = 1
+    name_order = 1
+    config_widget = 'calibre.gui2.preferences.look_feel'
+
+plugins += [LookAndFeel]
+
+#}}}
+

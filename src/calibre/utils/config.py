@@ -13,13 +13,11 @@ from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
 from collections import defaultdict
 
-from calibre.constants import terminal_controller, config_dir, \
+from calibre.constants import terminal_controller, config_dir, CONFIG_DIR_MODE, \
                               __appname__, __version__, __author__
 from calibre.utils.lock import LockError, ExclusiveFile
 
 plugin_dir = os.path.join(config_dir, 'plugins')
-
-CONFIG_DIR_MODE = 0700
 
 def make_config_dir():
     if not os.path.exists(plugin_dir):
@@ -194,6 +192,7 @@ class OptionSet(object):
 
     def __init__(self, description=''):
         self.description = description
+        self.defaults = {}
         self.preferences = []
         self.group_list  = []
         self.groups      = {}
@@ -274,6 +273,7 @@ class OptionSet(object):
         if pref in self.preferences:
             raise ValueError('An option with the name %s already exists in this set.'%name)
         self.preferences.append(pref)
+        self.defaults[name] = default
 
     def option_parser(self, user_defaults=None, usage='', gui_mode=False):
         parser = OptionParser(usage, gui_mode=gui_mode)
@@ -466,6 +466,10 @@ class ConfigProxy(object):
         self.__config = config
         self.__opts   = None
 
+    @property
+    def defaults(self):
+        return self.__config.option_set.defaults
+
     def refresh(self):
         self.__opts = self.__config.parse()
 
@@ -496,6 +500,7 @@ class DynamicConfig(dict):
     def __init__(self, name='dynamic'):
         dict.__init__(self, {})
         self.name = name
+        self.defaults = {}
         self.file_path = os.path.join(config_dir, name+'.pickle')
         self.refresh()
 
@@ -520,7 +525,13 @@ class DynamicConfig(dict):
         try:
             return dict.__getitem__(self, key)
         except KeyError:
-            return None
+            return self.defaults.get(key, None)
+
+    def get(self, key, default=None):
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            return self.defaults.get(key, default)
 
     def __setitem__(self, key, val):
         dict.__setitem__(self, key, val)
@@ -555,6 +566,7 @@ class XMLConfig(dict):
 
     def __init__(self, rel_path_to_cf_file):
         dict.__init__(self)
+        self.defaults = {}
         self.file_path = os.path.join(config_dir,
                 *(rel_path_to_cf_file.split('/')))
         self.file_path = os.path.abspath(self.file_path)
@@ -592,7 +604,16 @@ class XMLConfig(dict):
                 ans = ans.data
             return ans
         except KeyError:
-            return None
+            return self.defaults.get(key, None)
+
+    def get(self, key, default=None):
+        try:
+            ans = dict.__getitem__(self, key)
+            if isinstance(ans, plistlib.Data):
+                ans = ans.data
+            return ans
+        except KeyError:
+            return self.defaults.get(key, default)
 
     def __setitem__(self, key, val):
         if isinstance(val, (bytes, str)):
@@ -604,8 +625,9 @@ class XMLConfig(dict):
         self.__setitem__(key, val)
 
     def __delitem__(self, key):
-        dict.__delitem__(self, key)
-        self.commit()
+        if dict.has_key(self, key):
+            dict.__delitem__(self, key)
+            self.commit()
 
     def commit(self):
         if hasattr(self, 'file_path') and self.file_path:
@@ -648,7 +670,16 @@ class JSONConfig(XMLConfig):
         return json.dumps(self, indent=2, default=to_json)
 
     def __getitem__(self, key):
-        return dict.__getitem__(self, key)
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            return self.defaults[key]
+
+    def get(self, key, default=None):
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            return self.defaults.get(key, default)
 
     def __setitem__(self, key, val):
         dict.__setitem__(self, key, val)
@@ -674,7 +705,7 @@ def _prefs():
     c.add_opt('output_format', default='EPUB',
               help=_('The default output format for ebook conversions.'))
     c.add_opt('input_format_order', default=['EPUB', 'MOBI', 'LIT', 'PRC',
-        'FB2', 'HTML', 'HTM', 'XHTM', 'SHTML', 'XHTML', 'ODT', 'RTF', 'PDF',
+        'FB2', 'HTML', 'HTM', 'XHTM', 'SHTML', 'XHTML', 'ZIP', 'ODT', 'RTF', 'PDF',
         'TXT'],
               help=_('Ordered list of formats to prefer for input.'))
     c.add_opt('read_file_metadata', default=True,
@@ -705,7 +736,8 @@ if prefs['installation_uuid'] is None:
 # Read tweaks
 def read_raw_tweaks():
     make_config_dir()
-    default_tweaks = P('default_tweaks.py', data=True)
+    default_tweaks = P('default_tweaks.py', data=True,
+            allow_user_override=False)
     tweaks_file = os.path.join(config_dir, 'tweaks.py')
     if not os.path.exists(tweaks_file):
         with open(tweaks_file, 'wb') as f:

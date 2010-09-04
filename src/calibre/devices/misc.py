@@ -72,6 +72,15 @@ class SWEEX(USBMS):
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
 
+class KOGAN(SWEEX):
+
+    name           = 'Kogan Device Interface'
+    gui_name       = 'Kogan'
+    description    = _('Communicate with the Kogan')
+    VENDOR_NAME = 'LINUX'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
+    EBOOK_DIR_MAIN = 'Kogan eBooks'
+
 class PDNOVEL(USBMS):
     name = 'Pandigital Novel device interface'
     gui_name = 'PD Novel'

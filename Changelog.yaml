@@ -4,6 +4,137 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.16
+  date: 2010-08-27
+
+  new features:
+    - title: "Driver for the Kindle 3"
+
+    - title: "Users can now customize what actions appear in the toolbar and context menus via Preferences->Interface->Toolbars"
+
+    - title: "Draw a thin broder around the cover in the edit metadata dialog."
+      tickets: [6605]
+
+    - title: "Create (almost) all temporary files in a subdirectory so as not to clutter up temp directory"
+
+    - title: "FB2 Output: Add option to try to generate FB2 sections from the TOC. This may or may not work, depending on the file, so use with care."
+
+    - title: "Add an option to remove all tags from selected books in the bulk metadata editor."
+    
+    - title: "Add a tweak to control how the dates in the Date column are formatted."
+
+  bug fixes:
+    - title: "Fix regression in 0.7.15 that broke the Similar books action and the add books to library from device action"
+      tickets: [6630, 6576]
+
+    - title: "Add ZIP and RAR to the input format order preferences."
+      tickets: [5879]
+
+    - title: "Update podofo in all binary builds to 0.8.2. Should fix bug where setting metadata in some PDF files would cause file truncation."
+
+    - title: "Add/remove header wizard: When running on PDF input, replace non breaking spaces with normal spaces, since it is hard to write regexps to match non breaking spaces with the regex builder wizard."
+
+    - title: "Fix crash is user tries to switch libraries whiel a device is being detected"
+      tickets: [6589]
+
+    - title: "Title sort now ignores leading quite character. Only applies to newly added books."
+      tickets: [6594]
+
+    - title: "Conversion pipeline: Don't fail if parsing extra css raises an exception. Instead just ignore it."
+
+    - title: "SONY driver: Use the tz field (available in newer readers) to set timestamps correctly, when available."
+
+    - title: "Shortening file paths: Handle the case of very long filenames with periods in them."
+      tickets: [6566]
+
+  new recipes:
+    - title: "The TMZ and Atlanta Journal Constitution"
+      author: Tony Stegall
+
+    - title: "Consumerist and Gawker Media"
+      author: Trickery
+
+  improved recipes:
+    - National Review Online
+
+- version: 0.7.15
+  date: 2010-08-20
+
+  new features:
+    - title: "Multiple library support: Various improvements to make using multiple calibre libraries easier."
+      type: major
+      desc: >
+        "Now, when you switch libraries using the Choose Library button on the toolbar, entries are created in the menu of that button to easily switch to that library in the 
+        future. Also, you can now right click on a book in the calibre library and use the 'Copy to library' action to copy the book to another library,
+        that you have switched to at least once. The name of the current library is shown in the titlebar.
+        "
+
+    - title: "Content server: Allow setting a restriction so that the server shares only some of the books in the library."
+      type: major
+      desc: >
+        "You can now use a Saved Search as a restiction for the content server, via Preferences->Content Server. This will cause the
+        server to share only those books that match the saved search.
+        "
+
+    - title: "Speed up metadata editing. Small speed up for single book editing and major speedup for bulk editing."
+      tickets: [6472]
+
+    - title: "Drivers for the Kogan and Spectra e-book readers and the Samsung Captivate"
+
+    - title: "Allow calibredb to manage saved searches stored in the library."
+
+    - title: "Add a tweak to automatically connect to a folder on startup. Accessible via Preferences->Advanced->Tweaks"
+
+    - title: "You can specify a restriction based on a saved search to be applied on calibre startup"
+
+    - title: "All actions in toolbar/context menus have been refactored to become plugins"
+
+  bug fixes:
+
+    - title: "Content server: Fix Saved Search and User Category handling in the OPDS feeds."
+      tickets: [6549, 6551]
+
+    - title: "Fix regression that broke reading covers from CBR files"
+
+    - title: "Fix regression in 0.7.13 that broke Comic Input when image output format was set to JPEG"
+
+    - title: "Fix Comic Input default settings not being used when bulk converting comics"
+
+    - title: "SONY driver: Fix series order being lost when metadata management is set to manual"
+
+    - title: "Fix behavior of Tag Browser and search restictions when switching libraries"
+      tickets: [6511]
+
+    - title: "Do not allow the user to override the default tweaks or the hyphenate javascript. Also if a file is not found, do not use the user location as the default base."
+      tickets: [6524]
+
+    - title: "Catalog generation: Changed default regex for genre tags to allow punctuation within genre tags."
+
+    - title: "Linux environment: Use a temporary dir as the config directory if write access to the normal config directory is unavailable. Can be overriden by using the CALIBRE_CONFIG_DIRECTORY environment variable"
+
+    - title: "Jobs window now remebers its size and can be launched by a keyboard shortcut (Alt+Shift+J)"
+      tickets: [6505]
+
+    - title: "Fixing regression that broke clicking on links in the Book Details window"
+      tickets: [6509]
+
+    - title: "Parallel job management: Do not allow new jobs to start when all cores are used."
+
+    - title: "Fix a bug that could cause the jobs window to show details for the wrong job"
+      tickets: [6130]
+
+    - title: "Workaround for PyQt4/util-linux conflict on gentoo"
+
+  new recipes:
+    - title: "La Jornada"
+      author: rogliedoh
+
+    - title: "Futurismic"
+      author: Darko Miletic
+
+  improved recipes:
+    - GoComics
+
 - version: 0.7.14
   date: 2010-08-13
 
@@ -24,6 +155,7 @@
     - title: "Allow editing of tweaks via Preferences->Advanced"
 
     - title: "Add button to the manage authors dialog to automatically reset all author sort values"
+
 
   bug fixes:
     - title: "Fix regression in 0.7.13 that broke changing libraries"
@@ -52,7 +184,7 @@
 
   new recipes:
     - title: "Yahoo News, Skeptical Enquirer and Skeptic"
-      author: Startson17
+      author: Starson17
 
     - title: "Bolivian newspapers"
       author: Darko Miletic

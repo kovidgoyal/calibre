@@ -20,10 +20,10 @@ class Book(MetaInformation):
         'title_sort', 'comments', 'category', 'publisher', 'series',
         'series_index', 'rating', 'isbn', 'language', 'application_id',
         'book_producer', 'lccn', 'lcc', 'ddc', 'rights', 'publication_type',
-        'uuid',
+        'uuid', 'device_collections',
     ]
 
-    def __init__(self, prefix, lpath, title, authors, mime, date, ContentType, thumbnail_name, other=None):
+    def __init__(self, prefix, lpath, title, authors, mime, date, ContentType, thumbnail_name, size=None, other=None):
 
         MetaInformation.__init__(self, '')
         self.device_collections = []
@@ -42,10 +42,8 @@ class Book(MetaInformation):
         else:
             self.authors = [authors]
         self.mime = mime
-        try:
-            self.size = os.path.getsize(self.path)
-        except OSError:
-            self.size = 0
+
+        self.size = size # will be set later if None
         try:
             if ContentType == '6':
                 self.datetime = time.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")

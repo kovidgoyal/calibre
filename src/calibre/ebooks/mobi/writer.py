@@ -2151,6 +2151,26 @@ class MobiWriter(object):
         indxt.write(decint(self._ctoc_map[index]['titleOffset'], DECINT_FORWARD))	# vwi title offset in CNCX
         indxt.write(decint(0, DECINT_FORWARD))						# unknown byte
 
+    def _write_subchapter_node(self, indxt, indices, index, offset, length, count):
+        # This style works without a parent chapter, mimicking what KindleGen does,
+        # using a value of 0x0B for parentIndex
+        # Writes an INDX1 NCXEntry of entryType 0x1F - subchapter
+        if self.opts.verbose > 2:
+            # *** GR: Turn this off while I'm developing my code
+            #self._oeb.log.debug('Writing TOC node to IDXT:', node.title, 'href:', node.href)
+            pass
+
+        pos = 0xc0 + indxt.tell()
+        indices.write(pack('>H', pos))								# Save the offset for IDXTIndices
+        name = "%04X"%count
+        indxt.write(chr(len(name)) + name)							# Write the name
+        indxt.write(INDXT['subchapter'])						    # entryType [0x0F | 0xDF | 0xFF | 0x3F]
+        indxt.write(decint(offset, DECINT_FORWARD))					# offset
+        indxt.write(decint(length, DECINT_FORWARD))					# length
+        indxt.write(decint(self._ctoc_map[index]['titleOffset'], DECINT_FORWARD))	# vwi title offset in CNCX
+        indxt.write(decint(0, DECINT_FORWARD))						# unknown byte
+        indxt.write(decint(0xb, DECINT_FORWARD))				    # parentIndex - null
+
     def _compute_offset_length(self, i, node, entries) :
         h = node.href
         if h not in self._id_offsets:

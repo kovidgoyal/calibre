@@ -14,6 +14,7 @@ from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
 from calibre.constants import iswindows, isosx
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
 from calibre.gui2.dialogs.config.create_custom_column import CreateCustomColumn
+from calibre.gui2.dialogs.config.toolbar import ToolbarLayout
 from calibre.gui2 import error_dialog, config, gprefs, \
         open_url, open_local_file, \
         ALL_COLUMNS, NONE, info_dialog, choose_files, \
@@ -36,6 +37,7 @@ from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.ebooks.conversion.plumber import Plumber
 from calibre.utils.logging import Log
 from calibre.gui2.convert.toc import TOCWidget
+from calibre.utils.search_query_parser import saved_searches
 
 
 class ConfigTabs(QTabWidget):
@@ -355,7 +357,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
 
         input_map = prefs['input_format_order']
         all_formats = set()
-        for fmt in all_input_formats():
+        for fmt in all_input_formats().union(set(['ZIP', 'RAR'])):
             all_formats.add(fmt.upper())
         for format in input_map + list(all_formats.difference(input_map)):
             item = QListWidgetItem(format, self.input_order)
@@ -493,8 +495,15 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
             if x == config['gui_layout']:
                 li = i
         self.opt_gui_layout.setCurrentIndex(li)
+        restrictions = sorted(saved_searches().names(),
+                              cmp=lambda x,y: cmp(x.lower(), y.lower()))
+        restrictions.insert(0, '')
+        for x in ('gui', 'cs'):
+            w = getattr(self, 'opt_%s_restriction'%x)
+            w.addItems(restrictions)
+            idx = w.findText(self.db.prefs.get(x+'_restriction', ''))
+            w.setCurrentIndex(0 if idx < 0 else idx)
         self.opt_disable_animations.setChecked(config['disable_animations'])
-        self.opt_show_donate_button.setChecked(config['show_donate_button'])
         idx = 0
         for i, x in enumerate([(_('Small'), 'small'), (_('Medium'), 'medium'),
             (_('Large'), 'large')]):
@@ -515,6 +524,9 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.current_tweaks.setPlainText(curt.decode('utf-8'))
         self.default_tweaks.setPlainText(deft.decode('utf-8'))
         self.restore_tweaks_to_default_button.clicked.connect(self.restore_tweaks_to_default)
+        self.toolbar_cm_widget = ToolbarLayout(parent, parent)
+        self.toolbar_cm_tab.addTab(self.toolbar_cm_widget,
+                _('Toolbars/Context menus'))
 
         self.category_view.setCurrentIndex(self.category_view.model().index_for_name(initial_category))
 
@@ -879,6 +891,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         wl = self.opt_worker_limit.value()
         if wl%2 != 0:
             wl += 1
+        self.toolbar_cm_widget.commit()
         config['worker_limit'] = wl
 
         config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())
@@ -914,7 +927,6 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['overwrite_author_title_metadata'] = self.opt_overwrite_author_title_metadata.isChecked()
         config['enforce_cpu_limit'] = bool(self.opt_enforce_cpu_limit.isChecked())
         config['disable_animations'] = bool(self.opt_disable_animations.isChecked())
-        config['show_donate_button'] = bool(self.opt_show_donate_button.isChecked())
         gprefs['show_splash_screen'] = bool(self.show_splash_screen.isChecked())
         for x in ('toolbar_icon_size', 'toolbar_text'):
             w = getattr(self, 'opt_'+x)
@@ -927,6 +939,9 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['internally_viewed_formats'] = fmts
         val = self.opt_gui_layout.itemData(self.opt_gui_layout.currentIndex()).toString()
         config['gui_layout'] = unicode(val)
+        for x in ('gui', 'cs'):
+            w = getattr(self, 'opt_%s_restriction'%x)
+            self.db.prefs.set(x+'_restriction', unicode(w.currentText()))
 
         if must_restart:
             warning_dialog(self, _('Must restart'),

@@ -10,12 +10,16 @@ from calibre.gui2.actions import InterfaceAction
 class EditCollectionsAction(InterfaceAction):
 
     name = 'Edit Collections'
-    action_spec = (_('Manage collections'), None, None, None)
+    action_spec = (_('Manage collections'), None,
+            _('Manage the collections on this device'), None)
+    dont_add_to = frozenset(['toolbar', 'context-menu'])
+
+    def genesis(self):
+        self.qaction.triggered.connect(self.edit_collections)
 
     def location_selected(self, loc):
         enabled = loc != 'library'
         self.qaction.setEnabled(enabled)
-        self.qaction.triggered.connect(self.edit_collections)
 
     def edit_collections(self, *args):
         oncard = None

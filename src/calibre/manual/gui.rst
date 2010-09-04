@@ -166,7 +166,7 @@ Search & Sort
 
 The Search & Sort section allows you to perform several powerful actions on your book collections.
 
-    * You can sort them by title, author, date, rating etc. by clicking on the column titles.
+    * You can sort them by title, author, date, rating etc. by clicking on the column titles. You can also sub-sort (i.e. sort on multiple columns). For example, if you click on the title column and then the author column, the book will be sorted by author and then all the entries for the same author will be sorted by title.
                 
     * You can search for a particular book or set of books using the search bar. More on that below.
                 
@@ -212,9 +212,10 @@ metadata.
 You can build advanced search queries easily using the :guilabel:`Advanced Search Dialog`, accessed by 
 clicking the button |sbi|.
 
-Available fields for searching are: ``tag, title, author, publisher, series, rating, cover, comments, format,
-isbn, date, pubdate, search, size`` and custom columns. If a device is plugged in, the ``ondevice`` field
-becomes available. To find the search name for a custom column, hover your mouse over the column header.
+Available fields for searching are: ``tag, title, author, publisher, series, series_index, rating, cover,
+comments, format, isbn, date, pubdate, search, size`` and custom columns. If a device is plugged in, the
+``ondevice`` field becomes available. To find the search name for a custom column, hover your mouse over the
+column header.
 
 The syntax for searching for dates is::
 
@@ -223,9 +224,8 @@ The syntax for searching for dates is::
     pubdate:=2009 Will find all books published in 2009
 
 If the date is ambiguous, the current locale is used for date comparison. For example, in an mm/dd/yyyy
-locale, 2/1/2009 is interpreted as 1 Feb 2009. In a dd/mm/yyyy locale, it is interpreted as 2 Jan 2009.
-
-Some special date strings are available. The string ``today`` translates to today's date, whatever it is. The
+locale, 2/1/2009 is interpreted as 1 Feb 2009. In a dd/mm/yyyy locale, it is interpreted as 2 Jan 2009.  Some
+special date strings are available. The string ``today`` translates to today's date, whatever it is. The
 strings `yesterday`` and ``thismonth`` also work. In addition, the string ``daysago`` can be used to compare
 to a date some number of days ago, for example: date:>10daysago, date:<=45daysago.
 
@@ -234,9 +234,15 @@ You can search for books that have a format of a certain size like this::
     size:>1.1M Will find books with a format larger than 1.1MB
     size:<=1K  Will find books with a format smaller than 1KB
 
-Dates and numeric fields support the operators ``=`` (equals), ``>`` (greater than), ``>=`` (greater than or
-equal to), ``<`` (less than), ``<=`` (less than or equal to), and ``!=`` (not equal to).  Rating fields are
-considered to be numeric. For example, the search ``rating:>=3`` will find all books rated 3 or higher.
+Dates and numeric fields support the relational operators ``=`` (equals), ``>`` (greater than), ``>=``
+(greater than or equal to), ``<`` (less than), ``<=`` (less than or equal to), and ``!=`` (not equal to).
+Rating fields are considered to be numeric. For example, the search ``rating:>=3`` will find all books rated 3
+or higher.
+
+Series indices are searchable. For the standard series, the search name is 'series_index'. For
+custom series columns, use the column search name followed by _index. For example, to search the indices for a
+custom series column named ``#my_series``, you would use the search name ``#my_series_index``.
+Series indices are numbers, so you can use the relational operators described above.
 
 The special field ``search`` is used for saved searches. So if you save a search with the name
 "My spouse's books" you can enter ``search:"My spouse's books"`` in the search bar to reuse the saved
@@ -309,6 +315,70 @@ Jobs
 .. image:: images/jobs.png
 
 The Jobs panel shows you the number of currently running jobs. Jobs are tasks that run in a separate process, they include converting ebooks and talking to your reader device. You can click on the jobs panel to access the list of jobs. Once a job has completed, by double-clicking it in the list, you can see a detailed log from that job. This is useful to debug jobs that may not have completed successfully.
+
+Keyboard Shortcuts
+---------------------
+
+Calibre has several keyboard shortcuts to save you time and mouse movement. These shortcuts are active in the book list view (when you're not editing the details of a particular book), and most of them affect the title you have selected. The |app| e-book viewer has its own shortcuts, which can be customised by clicking the Preferences button in the viewer.
+
+.. note::
+
+    Note: The Calibre keyboard shortcuts do not require a modifier key (Command, Option, Control etc.), unless specifically noted. You only need to press the letter key, e.g. E to edit.
+
+.. list-table:: Keyboard Shortcuts
+    :widths: 10 100
+    :header-rows: 1
+
+    * - Keyboard Shortcut
+      - Action
+    * - :kbd:`A` 
+      - Add Books
+    * - :kbd:`C` 
+      - Convert selected Books
+    * - :kbd:`D` 
+      - Send to device
+    * - :kbd:`Del` 
+      - Remove selected Books
+    * - :kbd:`E` 
+      - Edit metadata of selected books
+    * - :kbd:`I` 
+      - Show book details
+    * - :kbd:`M` 
+      - Merge selected records
+    * - :kbd:`O` 
+      - Open containing folder
+    * - :kbd:`S` 
+      - Save to Disk
+    * - :kbd:`V` 
+      - View
+    * - :kbd:`Alt+V/Cmd+V in OS X` 
+      - View specific format
+    * - :kbd:`Alt+Shift+J` 
+      - Toggle jobs list
+    * - :kbd:`Alt+Shift+B` 
+      - Toggle Cover Browser
+    * - :kbd:`Alt+Shift+T` 
+      - Toggle Tag Browser
+    * - :kbd:`Alt+A` 
+      - Show books by the Same author as the current book
+    * - :kbd:`Alt+T` 
+      - Show books with the same tags as current book
+    * - :kbd:`Alt+P` 
+      - Show books by the same publisher as current book
+    * - :kbd:`Alt+Shift+S` 
+      - Show books in the same series as current book
+    * - :kbd:`/, Ctrl+F` 
+      - Focus the search bar
+    * - :kbd:`Ctrl+D` 
+      - Download metadata and shortcuts
+    * - :kbd:`Ctrl+R` 
+      - Restart calibre
+    * - :kbd:`Ctrl+Q` 
+      - Quit calibre
+
+
+
+
 
 
 

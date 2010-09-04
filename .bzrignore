@@ -26,3 +26,6 @@ nbproject/
 *.pidb
 *.sln
 *.userprefs
+.project
+.pydevproject
+.settings/

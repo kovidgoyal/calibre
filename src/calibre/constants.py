@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = 'calibre'
-__version__   = '0.7.14'
+__version__   = '0.7.16'
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 
 import re
@@ -84,6 +84,9 @@ if plugins is None:
 # }}}
 
 # config_dir {{{
+
+CONFIG_DIR_MODE = 0700
+
 if os.environ.has_key('CALIBRE_CONFIG_DIRECTORY'):
     config_dir = os.path.abspath(os.environ['CALIBRE_CONFIG_DIRECTORY'])
 elif iswindows:
@@ -98,5 +101,20 @@ elif isosx:
 else:
     bdir = os.path.abspath(os.path.expanduser(os.environ.get('XDG_CONFIG_HOME', '~/.config')))
     config_dir = os.path.join(bdir, 'calibre')
+    try:
+        os.makedirs(config_dir, mode=CONFIG_DIR_MODE)
+    except:
+        pass
+    if not os.access(config_dir, os.W_OK) or not os.access(config_dir, os.X_OK):
+        print 'No write acces to', config_dir, 'using a temporary dir instead'
+        import tempfile, atexit
+        config_dir = tempfile.mkdtemp(prefix='calibre-config-')
+        def cleanup_cdir():
+            try:
+                import shutil
+                shutil.rmtree(config_dir)
+            except:
+                pass
+        atexit.register(cleanup_cdir)
 # }}}
 

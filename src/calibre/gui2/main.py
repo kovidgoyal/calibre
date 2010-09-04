@@ -241,7 +241,7 @@ class GuiRunner(QObject):
         QApplication.instance().processEvents()
 
     def initialize(self, *args):
-        if gprefs.get('show_splash_screen', True):
+        if gprefs['show_splash_screen']:
             self.show_splash_screen()
 
         self.library_path = get_library_path(parent=self.splash_screen)

@@ -799,10 +799,66 @@ def command_remove_custom_column(args, dbpath):
     do_remove_custom_column(get_db(dbpath, opts), args[0], opts.force)
     return 0
 
+def saved_searches_option_parser():
+    parser = get_parser(_(
+    '''
+    %prog saved_searches [options] list
+    %prog saved_searches add name search
+    %prog saved_searches remove name
+
+    Manage the saved searches stored in this database.
+    If you try to add a query with a name that already exists, it will be
+    replaced.
+    '''))
+    return parser
+
+def command_saved_searches(args, dbpath):
+    parser = saved_searches_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) < 1:
+        parser.print_help()
+        print
+        prints(_('Error: You must specify an action (add|remove|list)'), file=sys.stderr)
+        return 1
+    from calibre.utils.search_query_parser import saved_searches
+    db = get_db(dbpath, opts)
+    db
+    ss = saved_searches()
+    if args[0] == 'list':
+        for name in ss.names():
+            prints(_('Name:'), name)
+            prints(_('Search string:'), ss.lookup(name))
+            print
+    elif args[0] == 'add':
+        if len(args) < 3:
+            parser.print_help()
+            print
+            prints(_('Error: You must specify a name and a search string'), file=sys.stderr)
+            return 1
+        ss.add(args[1], args[2])
+        prints(args[1], _('added'))
+    elif args[0] == 'remove':
+        if len(args) < 2:
+            parser.print_help()
+            print
+            prints(_('Error: You must specify a name'), file=sys.stderr)
+            return 1
+        ss.delete(args[1])
+        prints(args[1], _('removed'))
+    else:
+        parser.print_help()
+        print
+        prints(_('Error: Action %s not recognized, must be one '
+            'of: (add|remove|list)') % args[1], file=sys.stderr)
+        return 1
+
+    return 0
+
 
 COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
             'show_metadata', 'set_metadata', 'export', 'catalog',
-            'add_custom_column', 'custom_columns', 'remove_custom_column', 'set_custom')
+            'saved_searches', 'add_custom_column', 'custom_columns',
+            'remove_custom_column', 'set_custom')
 
 
 def option_parser():

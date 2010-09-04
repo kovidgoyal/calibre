@@ -25,29 +25,36 @@ class PathResolver(object):
                 pass
             return False
 
+        self.default_path = sys.resources_location
+
         dev_path = os.environ.get('CALIBRE_DEVELOP_FROM', None)
         if dev_path is not None:
             dev_path = os.path.join(os.path.abspath(
                 os.path.dirname(dev_path)), 'resources')
             if suitable(dev_path):
                 self.locations.insert(0, dev_path)
+                self.default_path = dev_path
 
         user_path = os.path.join(config_dir, 'resources')
+        self.user_path = None
         if suitable(user_path):
             self.locations.insert(0, user_path)
+            self.user_path = user_path
 
-    def __call__(self, path):
+    def __call__(self, path, allow_user_override=True):
         path = path.replace(os.sep, '/')
         ans = self.cache.get(path, None)
         if ans is None:
             for base in self.locations:
+                if not allow_user_override and base == self.user_path:
+                    continue
                 fpath = os.path.join(base, *path.split('/'))
                 if os.path.exists(fpath):
                     ans = fpath
                     break
 
             if ans is None:
-                ans = os.path.join(self.locations[0], *path.split('/'))
+                ans = os.path.join(self.default_path, *path.split('/'))
 
             self.cache[path] = ans
 
@@ -55,13 +62,13 @@ class PathResolver(object):
 
 _resolver = PathResolver()
 
-def get_path(path, data=False):
-    fpath = _resolver(path)
+def get_path(path, data=False, allow_user_override=True):
+    fpath = _resolver(path, allow_user_override=allow_user_override)
     if data:
         return open(fpath, 'rb').read()
     return fpath
 
-def get_image_path(path, data=False):
+def get_image_path(path, data=False, allow_user_override=True):
     return get_path('images/'+path, data=data)
 
 __builtin__.__dict__['P'] = get_path

@@ -19,6 +19,7 @@ from calibre.ebooks.metadata import fmt_sidx
 from calibre.library.comments import comments_to_html
 from calibre import guess_type
 from calibre.utils.ordered_dict import OrderedDict
+from calibre.utils.date import format_date
 
 BASE_HREFS = {
         0 : '/stanza',
@@ -99,17 +100,19 @@ def html_to_lxml(raw):
     raw = etree.tostring(root, encoding=None)
     return etree.fromstring(raw)
 
-def CATALOG_ENTRY(item, base_href, version, updated, ignore_count=False):
+def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
+                  ignore_count=False, add_kind=False):
     id_ = 'calibre:category:'+item.name
     iid = 'N' + item.name
     if item.id is not None:
         iid = 'I' + str(item.id)
+        iid += ':'+item_kind
     link = NAVLINK(href = base_href + '/' + hexlify(iid))
-    count = _('%d books')%item.count
+    count = (_('%d books') if item.count > 1 else _('%d book'))%item.count
     if ignore_count:
         count = ''
     return E.entry(
-            TITLE(item.name),
+            TITLE(item.name + ('' if not add_kind else ' (%s)'%item_kind)),
             ID(id_),
             UPDATED(updated),
             E.content(count, type='text'),
@@ -128,7 +131,7 @@ def CATALOG_GROUP_ENTRY(item, category, base_href, version, updated):
             link
             )
 
-def ACQUISITION_ENTRY(item, version, FM, updated):
+def ACQUISITION_ENTRY(item, version, FM, updated, CFM, CKEYS):
     title = item[FM['title']]
     if not title:
         title = _('Unknown')
@@ -151,6 +154,21 @@ def ACQUISITION_ENTRY(item, version, FM, updated):
         extra.append(_('SERIES: %s [%s]<br />')%\
                 (series,
                 fmt_sidx(float(item[FM['series_index']]))))
+    for key in CKEYS:
+        val = item[CFM[key]['rec_index']]
+        if val is not None:
+            name = CFM[key]['name']
+            datatype = CFM[key]['datatype']
+            if datatype == 'text' and CFM[key]['is_multiple']:
+                extra.append('%s: %s<br />'%(name, ', '.join(val.split('|'))))
+            elif datatype == 'series':
+                extra.append('%s: %s [%s]<br />'%(name, val,
+                              fmt_sidx(item[CFM.cc_series_index_column_for(key)])))
+            elif datatype == 'datetime':
+                extra.append('%s: %s<br />'%(name,
+                    format_date(val, CFM[key]['display'].get('date_format','dd MMM yyyy'))))
+            else:
+                extra.append('%s: %s <br />' % (CFM[key]['name'], val))
     comments = item[FM['comments']]
     if comments:
         comments = comments_to_html(comments)
@@ -258,22 +276,41 @@ class NavFeed(Feed):
 class AcquisitionFeed(NavFeed):
 
     def __init__(self, updated, id_, items, offsets, page_url, up_url, version,
-            FM):
+            FM, CFM):
         NavFeed.__init__(self, id_, updated, version, offsets, page_url, up_url)
+        CKEYS = [key for key in sorted(CFM.get_custom_fields(),
+                 cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
+                                     CFM[y]['name'].lower()))]
         for item in items:
-            self.root.append(ACQUISITION_ENTRY(item, version, FM, updated))
+            self.root.append(ACQUISITION_ENTRY(item, version, FM, updated,
+                                               CFM, CKEYS))
 
 class CategoryFeed(NavFeed):
 
-    def __init__(self, items, which, id_, updated, version, offsets, page_url, up_url):
+    def __init__(self, items, which, id_, updated, version, offsets, page_url, up_url, db):
         NavFeed.__init__(self, id_, updated, version, offsets, page_url, up_url)
         base_href = self.base_href + '/category/' + hexlify(which)
         ignore_count = False
         if which == 'search':
             ignore_count = True
+        uc = None
+        if which.endswith(':'):
+            # We have a user category. Translate back to original categories
+            uc = {}
+            try:
+                ucs = db.prefs['user_categories']
+                ucs = ucs.get(which[:-1])
+                for name, category, index in ucs:
+                    uc[name] = category
+            except:
+                import traceback
+                traceback.print_exc()
+                uc = None
         for item in items:
-            self.root.append(CATALOG_ENTRY(item, base_href, version, updated,
-                ignore_count=ignore_count))
+            if uc: which = uc.get(item.name, which)
+            self.root.append(CATALOG_ENTRY(item, which, base_href, version,
+                                           updated, ignore_count=ignore_count,
+                                           add_kind=uc is not None))
 
 class CategoryGroupFeed(NavFeed):
 
@@ -343,7 +380,7 @@ class OPDSServer(object):
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         cherrypy.response.headers['Content-Type'] = 'application/atom+xml;profile=opds-catalog'
         return str(AcquisitionFeed(updated, id_, items, offsets,
-            page_url, up_url, version, self.db.FIELD_MAP))
+            page_url, up_url, version, self.db.FIELD_MAP, self.db.field_metadata))
 
     def opds_search(self, query=None, version=0, offset=0):
         try:
@@ -418,7 +455,7 @@ class OPDSServer(object):
         cherrypy.response.headers['Content-Type'] = 'application/atom+xml'
 
         return str(CategoryFeed(items, category, id_, updated, version, offsets,
-            page_url, up_url))
+            page_url, up_url, self.db))
 
 
     def opds_navcatalog(self, which=None, version=0, offset=0):
@@ -461,7 +498,7 @@ class OPDSServer(object):
             offsets = OPDSOffsets(offset, max_items, len(items))
             items = list(items)[offsets.offset:offsets.offset+max_items]
             ans = CategoryFeed(items, which, id_, updated, version, offsets,
-                page_url, up_url)
+                page_url, up_url, self.db)
         else:
             class Group:
                 def __init__(self, text, count):
@@ -507,7 +544,9 @@ class OPDSServer(object):
         which = which[1:]
         if type_ == 'I':
             try:
-                which = int(which)
+                p = which.index(':')
+                category = which[p+1:]
+                which = int(which[:p])
             except:
                 raise cherrypy.HTTPError(404, 'Tag %r not found'%which)
 
@@ -518,7 +557,7 @@ class OPDSServer(object):
 
         if category == 'search':
             try:
-                ids = self.search_cache(which)
+                ids = self.search_cache('search:"%s"'%which)
             except:
                 raise cherrypy.HTTPError(404, 'Search: %r not understood'%which)
             return self.get_opds_acquisition_feed(ids, offset, page_url,
@@ -549,7 +588,12 @@ class OPDSServer(object):
                 (_('Newest'), _('Date'), 'Onewest'),
                 (_('Title'), _('Title'), 'Otitle'),
                 ]
-        for category in categories:
+        def getter(x):
+            return category_meta[x]['name'].lower()
+        for category in sorted(categories,
+                               cmp=lambda x,y: cmp(getter(x), getter(y))):
+            if len(categories[category]) == 0:
+                continue
             if category == 'formats':
                 continue
             meta = category_meta.get(category, None)
