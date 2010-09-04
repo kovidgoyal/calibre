@@ -2,8 +2,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     title = 'West Hawaii Today'
-    language = 'en'
     __author__ = 'Tony Stegall'
+    language = 'en'
     description = 'Westhawaiitoday.com'
     publisher = 'West Hawaii '
     category = 'news,Hawaii,USA'
@@ -22,7 +22,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
                        ('Local News',     'http://www.westhawaiitoday.com/?rss=local/'),
                        ('Local Sports',   'http://www.westhawaiitoday.com/?rss=sports/local_sports/'),
                        ('Big Fish List',  'http://www.westhawaiitoday.com/?rss=sports/big_fish_list/'),
-                       ('Local Features'  'http://www.westhawaiitoday.com/?rss=features/'),
+                       ('Local Features', 'http://www.westhawaiitoday.com/?rss=features/'),
                        ('Obituaries',     'http://www.westhawaiitoday.com/?rss=obituaries/'),
                        ('Letters To Editor',  'http://www.westhawaiitoday.com/?rss=opinion/letters_-_your_voice/'),
                        ('Editorial',     'http://www.westhawaiitoday.com/?rss=opinion/editorial/'),
