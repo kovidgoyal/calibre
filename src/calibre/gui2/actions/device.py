@@ -23,7 +23,7 @@ class ShareConnMenu(QMenu): # {{{
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
-        mitem = self.addAction(QIcon(I('devices/folder.svg')), _('Connect to folder'))
+        mitem = self.addAction(QIcon(I('devices/folder.png')), _('Connect to folder'))
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
         self.connect_to_folder_action = mitem

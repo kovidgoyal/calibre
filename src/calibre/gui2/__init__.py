@@ -372,7 +372,7 @@ class FileIconProvider(QFileIconProvider):
         QFileIconProvider.__init__(self)
         self.icons = {}
         for key in self.__class__.ICONS.keys():
-            self.icons[key] = I('mimetypes/')+self.__class__.ICONS[key]+'.svg'
+            self.icons[key] = I('mimetypes/')+self.__class__.ICONS[key]+'.png'
         for i in ('dir', 'default', 'zero'):
             self.icons[i] = QIcon(self.icons[i])
 
