@@ -39,7 +39,7 @@ def create_cover_file(db, book_id):
 class MetadataWidget(Widget, Ui_Form):
 
     TITLE = _('Metadata')
-    ICON  = I('dialog_information.svg')
+    ICON  = I('dialog_information.png')
     HELP  = _('Set the metadata. The output file will contain as much of this '
             'metadata as possible.')
     COMMIT_NAME = 'metadata'
@@ -89,7 +89,7 @@ class MetadataWidget(Widget, Ui_Form):
                 self.cover.setPixmap(pm)
                 self.cover_data = cover
         else:
-            self.cover.setPixmap(QPixmap(I('default_cover.svg')))
+            self.cover.setPixmap(QPixmap(I('default_cover.png')))
 
 
     def initialize_combos(self):

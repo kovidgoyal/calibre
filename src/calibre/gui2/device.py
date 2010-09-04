@@ -417,33 +417,33 @@ class DeviceMenu(QMenu): # {{{
         self._memory = []
 
         self.set_default_menu = QMenu(_('Set default send to device action'))
-        self.set_default_menu.setIcon(QIcon(I('config.svg')))
+        self.set_default_menu.setIcon(QIcon(I('config.png')))
 
 
         basic_actions = [
-                ('main:', False, False,  I('reader.svg'),
+                ('main:', False, False,  I('reader.png'),
                     _('Send to main memory')),
-                ('carda:0', False, False, I('sd.svg'),
+                ('carda:0', False, False, I('sd.png'),
                     _('Send to storage card A')),
-                ('cardb:0', False, False, I('sd.svg'),
+                ('cardb:0', False, False, I('sd.png'),
                     _('Send to storage card B')),
         ]
 
         delete_actions = [
-                ('main:', True, False,   I('reader.svg'),
+                ('main:', True, False,   I('reader.png'),
                     _('Main Memory')),
-                ('carda:0', True, False,  I('sd.svg'),
+                ('carda:0', True, False,  I('sd.png'),
                     _('Storage Card A')),
-                ('cardb:0', True, False,  I('sd.svg'),
+                ('cardb:0', True, False,  I('sd.png'),
                     _('Storage Card B')),
         ]
 
         specific_actions = [
-                ('main:', False, True,  I('reader.svg'),
+                ('main:', False, True,  I('reader.png'),
                     _('Main Memory')),
-                ('carda:0', False, True, I('sd.svg'),
+                ('carda:0', False, True, I('sd.png'),
                     _('Storage Card A')),
-                ('cardb:0', False, True, I('sd.svg'),
+                ('cardb:0', False, True, I('sd.png'),
                     _('Storage Card B')),
         ]
 
@@ -488,7 +488,7 @@ class DeviceMenu(QMenu): # {{{
         self.group.triggered.connect(self.change_default_action)
         self.addSeparator()
 
-        mitem = self.addAction(QIcon(I('eject.svg')), _('Eject device'))
+        mitem = self.addAction(QIcon(I('eject.png')), _('Eject device'))
         mitem.setEnabled(False)
         mitem.triggered.connect(lambda x : self.disconnect_mounted_device.emit())
         self.disconnect_mounted_device_action = mitem
@@ -617,7 +617,7 @@ class DeviceMixin(object): # {{{
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
 
     def set_default_thumbnail(self, height):
-        r = QSvgRenderer(I('book.svg'))
+        r = QSvgRenderer(I('book.png'))
         pixmap = QPixmap(height, height)
         pixmap.fill(QColor(255,255,255))
         p = QPainter(pixmap)

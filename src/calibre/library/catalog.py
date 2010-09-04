@@ -2594,7 +2594,7 @@ class EPUB_MOBI(CatalogPlugin):
                         from PyQt4.Qt import QImage, QColor, QPainter, Qt
 
                         # Convert .svg to .jpg
-                        cover_img = QImage(I('book.svg'))
+                        cover_img = QImage(I('book.png'))
                         i = QImage(cover_img.size(),
                                 QImage.Format_ARGB32_Premultiplied)
                         i.fill(QColor(Qt.white).rgb())

@@ -27,7 +27,7 @@ class BaseModel(QAbstractListModel):
 
     def name_to_action(self, name, gui):
         if name == 'Donate':
-            return FakeAction(name, 'donate.svg',
+            return FakeAction(name, 'donate.png',
                     dont_add_to=frozenset(['context-menu',
                         'context-menu-device']))
         if name == 'Location Manager':
@@ -53,7 +53,7 @@ class BaseModel(QAbstractListModel):
         if role == Qt.DecorationRole:
             ic = action[1]
             if ic is None:
-                ic = 'blank.svg'
+                ic = 'blank.png'
             return QVariant(QIcon(I(ic)))
         if role == Qt.ToolTipRole and action[2] is not None:
             return QVariant(action[2])

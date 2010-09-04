@@ -13,7 +13,7 @@ from calibre.gui2 import error_dialog
 class ShowBookDetailsAction(InterfaceAction):
 
     name = 'Show Book Details'
-    action_spec = (_('Show book details'), 'dialog_information.svg', None,
+    action_spec = (_('Show book details'), 'dialog_information.png', None,
             _('I'))
     dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
 

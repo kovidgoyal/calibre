@@ -40,7 +40,7 @@ def bulk_defaults_for_input_format(fmt):
 class Widget(QWidget):
 
     TITLE = _('Unknown')
-    ICON  = I('config.svg')
+    ICON  = I('config.png')
     HELP  = ''
     COMMIT_NAME = None
 

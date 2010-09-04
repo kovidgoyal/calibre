@@ -233,7 +233,7 @@ def warning_dialog(parent, title, msg, det_msg='', show=False,
     d = MessageBox(QMessageBox.Warning, 'WARNING: '+title, msg, QMessageBox.Ok,
                     parent, det_msg)
     d.setEscapeButton(QMessageBox.Ok)
-    d.setIconPixmap(QPixmap(I('dialog_warning.svg')))
+    d.setIconPixmap(QPixmap(I('dialog_warning.png')))
     if not show_copy_button:
         d.cb.setVisible(False)
     if show:
@@ -244,7 +244,7 @@ def error_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
     d = MessageBox(QMessageBox.Critical, 'ERROR: '+title, msg, QMessageBox.Ok,
                     parent, det_msg)
-    d.setIconPixmap(QPixmap(I('dialog_error.svg')))
+    d.setIconPixmap(QPixmap(I('dialog_error.png')))
     d.setEscapeButton(QMessageBox.Ok)
     if not show_copy_button:
         d.cb.setVisible(False)
@@ -256,7 +256,7 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=True,
         buttons=QMessageBox.Yes|QMessageBox.No):
     d = MessageBox(QMessageBox.Question, title, msg, buttons,
                     parent, det_msg)
-    d.setIconPixmap(QPixmap(I('dialog_question.svg')))
+    d.setIconPixmap(QPixmap(I('dialog_question.png')))
     d.setEscapeButton(QMessageBox.No)
     if not show_copy_button:
         d.cb.setVisible(False)
@@ -266,7 +266,7 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=True,
 def info_dialog(parent, title, msg, det_msg='', show=False):
     d = MessageBox(QMessageBox.Information, title, msg, QMessageBox.Ok,
                     parent, det_msg)
-    d.setIconPixmap(QPixmap(I('dialog_information.svg')))
+    d.setIconPixmap(QPixmap(I('dialog_information.png')))
     if show:
         return d.exec_()
     return d

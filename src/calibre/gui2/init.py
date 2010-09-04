@@ -95,7 +95,7 @@ class LibraryWidget(Splitter): # {{{
         idx = 0 if orientation == Qt.Vertical else 1
         size = 300 if orientation == Qt.Vertical else 550
         Splitter.__init__(self, 'cover_browser_splitter', _('Cover Browser'),
-                I('cover_flow.svg'),
+                I('cover_flow.png'),
                 orientation=orientation, parent=parent,
                 connect_button=not config['separate_cover_flow'],
                 side_index=idx, initial_side_size=size, initial_show=False,
@@ -113,7 +113,7 @@ class Stack(QStackedWidget): # {{{
         parent.cb_splitter = LibraryWidget(parent)
         self.tb_widget = TagBrowserWidget(parent)
         parent.tb_splitter = Splitter('tag_browser_splitter',
-                _('Tag Browser'), I('tags.svg'),
+                _('Tag Browser'), I('tags.png'),
                 parent=parent, side_index=0, initial_side_size=200,
                 shortcut=_('Shift+Alt+T'))
         parent.tb_splitter.addWidget(self.tb_widget)
@@ -207,7 +207,7 @@ class LayoutMixin(object): # {{{
             self.book_details = BookDetails(False, self)
             self.stack = Stack(self)
             self.bd_splitter = Splitter('book_details_splitter',
-                    _('Book Details'), I('book.svg'),
+                    _('Book Details'), I('book.png'),
                     orientation=Qt.Vertical, parent=self, side_index=1,
                     shortcut=_('Alt+D'))
             self.bd_splitter.addWidget(self.stack)
@@ -217,7 +217,7 @@ class LayoutMixin(object): # {{{
             # }}}
         else: # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
-                    _('Book Details'), I('book.svg'), initial_side_size=200,
+                    _('Book Details'), I('book.png'), initial_side_size=200,
                     orientation=Qt.Horizontal, parent=self, side_index=1,
                     shortcut=_('Shift+Alt+D'))
             self.stack = Stack(self)

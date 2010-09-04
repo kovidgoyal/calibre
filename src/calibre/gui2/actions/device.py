@@ -36,7 +36,7 @@ class ShareConnMenu(QMenu): # {{{
             mitem.setVisible(False)
         self.addSeparator()
         self.toggle_server_action = \
-            self.addAction(QIcon(I('network-server.svg')),
+            self.addAction(QIcon(I('network-server.png')),
             _('Start Content Server'))
         self.toggle_server_action.triggered.connect(lambda x:
                 self.toggle_server.emit())
@@ -63,9 +63,9 @@ class ShareConnMenu(QMenu): # {{{
             for account in keys:
                 formats, auto, default = opts.accounts[account]
                 dest = 'mail:'+account+';'+formats
-                action1 = DeviceAction(dest, False, False, I('mail.svg'),
+                action1 = DeviceAction(dest, False, False, I('mail.png'),
                         _('Email to')+' '+account)
-                action2 = DeviceAction(dest, True, False, I('mail.svg'),
+                action2 = DeviceAction(dest, True, False, I('mail.png'),
                         _('Email to')+' '+account+ _(' and delete from library'))
                 map(self.email_to_menu.addAction, (action1, action2))
                 map(self.memory.append, (action1, action2))
@@ -95,7 +95,7 @@ class ShareConnMenu(QMenu): # {{{
 class SendToDeviceAction(InterfaceAction):
 
     name = 'Send To Device'
-    action_spec = (_('Send to device'), 'sync.svg', None, _('D'))
+    action_spec = (_('Send to device'), 'sync.png', None, _('D'))
     dont_remove_from = frozenset(['toolbar-device'])
     dont_add_to = frozenset(['toolbar', 'context-menu'])
 
@@ -114,7 +114,7 @@ class SendToDeviceAction(InterfaceAction):
 class ConnectShareAction(InterfaceAction):
 
     name = 'Connect Share'
-    action_spec = (_('Connect/share'), 'connect_share.svg', None, None)
+    action_spec = (_('Connect/share'), 'connect_share.png', None, None)
     popup_type = QToolButton.InstantPopup
 
     def genesis(self):

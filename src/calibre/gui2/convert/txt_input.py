@@ -12,7 +12,7 @@ class PluginWidget(Widget, Ui_Form):
     TITLE = _('TXT Input')
     HELP = _('Options specific to')+' TXT '+_('input')
     COMMIT_NAME = 'txt_input'
-    ICON = I('mimetypes/txt.svg')
+    ICON = I('mimetypes/txt.png')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
