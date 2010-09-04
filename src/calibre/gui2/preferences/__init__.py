@@ -10,6 +10,9 @@ from PyQt4.Qt import QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox, \
 
 from calibre.customize.ui import preferences_plugins
 
+class AbortCommit(Exception):
+    pass
+
 class ConfigWidgetInterface(object):
 
     changed_signal = None
@@ -24,7 +27,13 @@ class ConfigWidgetInterface(object):
         pass
 
     def commit(self):
-        pass
+        '''
+        Save any changed settings. Return True if the changes require a
+        restart, False otherwise. Raise an :class:`AbortCommit` exception
+        to indicate that an error occurred. You are responsible for giving the
+        suer feedback about what the error is and how to correct it.
+        '''
+        return False
 
 class Setting(object):
 
@@ -184,8 +193,17 @@ def get_plugin(category, name):
 
 def test_widget(category, name, gui=None): # {{{
     from PyQt4.Qt import QDialog, QVBoxLayout, QDialogButtonBox
+    class Dialog(QDialog):
+        def set_widget(self, w): self.w = w
+        def accept(self):
+            try:
+                self.w.commit()
+            except AbortCommit:
+                return
+            QDialog.accept(self)
+
     pl = get_plugin(category, name)
-    d = QDialog()
+    d = Dialog()
     d.resize(750, 550)
     d.setWindowTitle(category + " - " + name)
     bb = QDialogButtonBox(d)
@@ -193,6 +211,7 @@ def test_widget(category, name, gui=None): # {{{
     bb.accepted.connect(d.accept)
     bb.rejected.connect(d.reject)
     w = pl.create_widget(d)
+    d.set_widget(w)
     bb.button(bb.RestoreDefaults).clicked.connect(w.restore_defaults)
     bb.button(bb.Apply).setEnabled(False)
     bb.button(bb.Apply).clicked.connect(d.accept)
