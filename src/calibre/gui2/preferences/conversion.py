@@ -107,6 +107,7 @@ class OutputOptions(Base):
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     app = QApplication([])
-    test_widget('Conversion', 'Input Options')
+    #test_widget('Conversion', 'Input Options')
     #test_widget('Conversion', 'Common Options')
+    test_widget('Conversion', 'Output Options')
 
