@@ -703,7 +703,16 @@ class Columns(PreferencesPlugin):
     name_order = 3
     config_widget = 'calibre.gui2.preferences.columns'
 
-plugins += [LookAndFeel, Behavior, Columns]
+class Toolbar(PreferencesPlugin):
+    name = 'Toolbar'
+    gui_name = _('Customize the toolbar')
+    category = 'Interface'
+    gui_category = _('Interface')
+    category_order = 1
+    name_order = 4
+    config_widget = 'calibre.gui2.preferences.toolbar'
+
+plugins += [LookAndFeel, Behavior, Columns, Toolbar]
 
 #}}}
 
