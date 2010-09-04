@@ -679,12 +679,40 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
 class LookAndFeel(PreferencesPlugin):
     name = 'Look & Feel'
     gui_name = _('Look and Feel')
-    category = _('Interface')
+    category = 'Interface'
+    gui_category = _('Interface')
     category_order = 1
     name_order = 1
     config_widget = 'calibre.gui2.preferences.look_feel'
 
-plugins += [LookAndFeel]
+class Behavior(PreferencesPlugin):
+    name = 'Behavior'
+    gui_name = _('Behavior')
+    category = 'Interface'
+    gui_category = _('Interface')
+    category_order = 1
+    name_order = 2
+    config_widget = 'calibre.gui2.preferences.behavior'
+
+class Columns(PreferencesPlugin):
+    name = 'Custom Columns'
+    gui_name = _('Add your own columns')
+    category = 'Interface'
+    gui_category = _('Interface')
+    category_order = 1
+    name_order = 3
+    config_widget = 'calibre.gui2.preferences.columns'
+
+class Toolbar(PreferencesPlugin):
+    name = 'Toolbar'
+    gui_name = _('Customize the toolbar')
+    category = 'Interface'
+    gui_category = _('Interface')
+    category_order = 1
+    name_order = 4
+    config_widget = 'calibre.gui2.preferences.toolbar'
+
+plugins += [LookAndFeel, Behavior, Columns, Toolbar]
 
 #}}}
 
