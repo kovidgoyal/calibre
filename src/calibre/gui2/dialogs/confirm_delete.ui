@@ -14,7 +14,7 @@
   </property>
   <property name="windowIcon" >
    <iconset resource="../../../../resources/images.qrc" >
-    <normaloff>:/images/dialog_warning.svg</normaloff>:/images/dialog_warning.svg</iconset>
+    <normaloff>:/images/dialog_warning.png</normaloff>:/images/dialog_warning.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout" >
    <item row="0" column="0" >
@@ -22,7 +22,7 @@
      <item>
       <widget class="QLabel" name="label" >
        <property name="pixmap" >
-        <pixmap resource="../../../../resources/images.qrc" >:/images/dialog_warning.svg</pixmap>
+        <pixmap resource="../../../../resources/images.qrc" >:/images/dialog_warning.png</pixmap>
        </property>
       </widget>
      </item>

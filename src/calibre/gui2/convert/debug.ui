@@ -41,7 +41,7 @@
      </property>
      <property name="icon">
       <iconset resource="../../../work/calibre/resources/images.qrc">
-       <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
+       <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
      </property>
     </widget>
    </item>
@@ -65,7 +65,7 @@
      </property>
      <property name="icon">
       <iconset resource="../../../work/calibre/resources/images.qrc">
-       <normaloff>:/images/clear_left.svg</normaloff>:/images/clear_left.svg</iconset>
+       <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
      </property>
     </widget>
    </item>

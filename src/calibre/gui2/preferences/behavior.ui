@@ -214,7 +214,7 @@
             </property>
             <property name="icon">
              <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
+              <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
             </property>
            </widget>
           </item>
@@ -238,7 +238,7 @@
             </property>
             <property name="icon">
              <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
+              <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
             </property>
            </widget>
           </item>

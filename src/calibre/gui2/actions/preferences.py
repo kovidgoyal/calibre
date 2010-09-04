@@ -14,13 +14,13 @@ from calibre.gui2 import error_dialog, config
 class PreferencesAction(InterfaceAction):
 
     name = 'Preferences'
-    action_spec = (_('Preferences'), 'config.svg', None, _('Ctrl+P'))
+    action_spec = (_('Preferences'), 'config.png', None, _('Ctrl+P'))
     dont_remove_from = frozenset(['toolbar'])
 
     def genesis(self):
         pm = QMenu()
-        pm.addAction(QIcon(I('config.svg')), _('Preferences'), self.do_config)
-        pm.addAction(QIcon(I('wizard.svg')), _('Run welcome wizard'),
+        pm.addAction(QIcon(I('config.png')), _('Preferences'), self.do_config)
+        pm.addAction(QIcon(I('wizard.png')), _('Run welcome wizard'),
                 self.gui.run_wizard)
         self.qaction.setMenu(pm)
         self.preferences_menu = pm

@@ -181,7 +181,7 @@ class Config(ResizableDialog, Ui_Dialog):
             output_widget = __import__('calibre.gui2.convert.'+name,
                         fromlist=[1])
             pw = output_widget.PluginWidget
-            pw.ICON = I('back.svg')
+            pw.ICON = I('back.png')
             pw.HELP = _('Options specific to the output format.')
             output_widget = widget_factory(pw)
         except ImportError:
@@ -192,7 +192,7 @@ class Config(ResizableDialog, Ui_Dialog):
             input_widget = __import__('calibre.gui2.convert.'+name,
                         fromlist=[1])
             pw = input_widget.PluginWidget
-            pw.ICON = I('forward.svg')
+            pw.ICON = I('forward.png')
             pw.HELP = _('Options specific to the input format.')
             input_widget = widget_factory(pw)
         except ImportError:

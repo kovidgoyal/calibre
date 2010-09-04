@@ -15,7 +15,7 @@ class PluginWidget(Widget, Ui_Form):
     TITLE = _('EPUB Output')
     HELP  = _('Options specific to')+' EPUB '+_('output')
     COMMIT_NAME = 'epub_output'
-    ICON = I('mimetypes/epub.svg')
+    ICON = I('mimetypes/epub.png')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
