@@ -5,10 +5,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import textwrap
+
 from PyQt4.Qt import QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox, \
     QLineEdit, QComboBox, QVariant
 
 from calibre.customize.ui import preferences_plugins
+from calibre.utils.config import ConfigProxy
 
 class AbortCommit(Exception):
     pass
@@ -65,6 +68,20 @@ class Setting(object):
         else:
             raise ValueError('Unknown data type')
 
+        if isinstance(self.config_obj, ConfigProxy) and \
+                not unicode(self.gui_obj.toolTip()):
+            h = self.config_obj.help(self.name)
+            if h:
+                self.gui_obj.setToolTip(h)
+        tt = unicode(self.gui_obj.toolTip())
+        if tt:
+            if not unicode(self.gui_obj.whatsThis()):
+                self.gui_obj.setWhatsThis(tt)
+            if not unicode(self.gui_obj.statusTip()):
+                self.gui_obj.setStatusTip(tt)
+            tt = '\n'.join(textwrap.wrap(tt, 70))
+            self.gui_obj.setToolTip(tt)
+
     def changed(self, *args):
         self.widget.changed_signal.emit()
 
@@ -120,7 +137,7 @@ class Setting(object):
         elif self.datatype == 'number':
             val = self.gui_obj.value()
         elif self.datatype == 'string':
-            val = unicode(self.gui_name.text()).strip()
+            val = unicode(self.gui_obj.text()).strip()
             if self.empty_string_is_None and not val:
                 val = None
         elif self.datatype == 'choice':
@@ -182,7 +199,6 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
             setting.restore_defaults()
 
 
-
 def get_plugin(category, name):
     for plugin in preferences_plugins():
         if plugin.category == category and plugin.name == name:
@@ -191,7 +207,21 @@ def get_plugin(category, name):
             'No Preferences Plugin with category: %s and name: %s found' %
             (category, name))
 
-def test_widget(category, name, gui=None): # {{{
+# Testing {{{
+
+def init_gui():
+    from calibre.gui2.ui import Main
+    from calibre.gui2.main import option_parser
+    from calibre.library import db
+    parser = option_parser()
+    opts, args = parser.parse_args([])
+    actions = tuple(Main.create_application_menubar())
+    db = db()
+    gui = Main(opts)
+    gui.initialize(db.library_path, db, None, actions, show_gui=False)
+    return gui
+
+def test_widget(category, name, gui=None):
     from PyQt4.Qt import QDialog, QVBoxLayout, QDialogButtonBox
     class Dialog(QDialog):
         def set_widget(self, w): self.w = w
@@ -222,15 +252,8 @@ def test_widget(category, name, gui=None): # {{{
     l.addWidget(bb)
     mygui = gui is None
     if gui is None:
-        from calibre.gui2.ui import Main
-        from calibre.gui2.main import option_parser
-        from calibre.library import db
-        parser = option_parser()
-        opts, args = parser.parse_args([])
-        actions = tuple(Main.create_application_menubar())
-        db = db()
-        gui = Main(opts)
-        gui.initialize(db.library_path, db, None, actions, show_gui=False)
+        gui = init_gui()
+        mygui = True
     w.genesis(gui)
     w.initialize()
     restart_required = False
@@ -241,5 +264,18 @@ def test_widget(category, name, gui=None): # {{{
         warning_dialog(gui, 'Restart required', 'Restart required', show=True)
     if mygui:
         gui.shutdown()
+
+def test_all():
+    from PyQt4.Qt import QApplication
+    app = QApplication([])
+    app
+    gui = init_gui()
+    for plugin in preferences_plugins():
+        test_widget(plugin.category, plugin.name, gui=gui)
+    gui.shutdown()
+
+if __name__ == '__main__':
+    test_all()
 # }}}
+
 
