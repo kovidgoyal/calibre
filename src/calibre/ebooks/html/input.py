@@ -494,7 +494,7 @@ class HTMLInput(InputFormatPlugin):
         if not hasattr(self, 'log'):
             from calibre.utils.logging import default_log
             self.log = default_log
-		self.log("*********  Preprocessing HTML  *********")
+		self.log("*********  Preprocessing HTML - HTML Input plugin *********")
 		# Detect Chapters to match the xpath in the GUI
 		chapdetect = re.compile(r'(?=</?(br|p|span))(</?(br|p|span)[^>]*>)?\s*(?P<chap>(<(i|b)><(i|b)>|<(i|b)>)?(.?Chapter|Epilogue|Prologue|Book|Part|Dedication)\s*([\d\w-]+(\s\w+)?)?(</(i|b)></(i|b)>|</(i|b)>)?)(</?(p|br|span)[^>]*>)', re.IGNORECASE)
 		html = chapdetect.sub('<h2>'+'\g<chap>'+'</h2>\n', html)

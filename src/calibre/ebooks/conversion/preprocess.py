@@ -62,6 +62,7 @@ def wrap_lines(match):
     else:
                return ital+' '
 
+
 def line_length(format, raw, percent):
     '''
     raw is the raw text to find the line length to use for wrapping.
@@ -191,32 +192,36 @@ class HTMLPreProcessor(object):
                   (re.compile(u'¸\s*(<br.*?>)*\s*c', re.UNICODE), lambda match: u'ç'),
                   (re.compile(u'¸\s*(<br.*?>)*\s*C', re.UNICODE), lambda match: u'Ç'),
 
+                  # If pdf printed from a browser then the header/footer has a reliable pattern
+                  (re.compile(r'((?<=</a>)\s*file:////?[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
+
+                  # Center separator lines
+                  (re.compile(u'<br>\s*(?P<break>([*#•]+\s*)+)\s*<br>'), lambda match: '<p>\n<p style="text-align:center">' + match.group(1) + '</p>'),
+
                   # Remove page links
                   (re.compile(r'<a name=\d+></a>', re.IGNORECASE), lambda match: ''),
                   # Remove <hr> tags
                   (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br />'),
                   # Replace <br><br> with <p>
-                  (re.compile(r'<br.*?>\s*<br.*?>', re.IGNORECASE), lambda match: '<p>'),
+                  # (re.compile(r'<br>\s*<br>', re.IGNORECASE), lambda match: '\n<p>'),
 
-                  # Remove hyphenation
-                  (re.compile(r'-<br.*?>\n\r?'), lambda match: ''),
+                  # unwrap hyphenation - don't delete the hyphen (often doesn't split words)
+                  (re.compile(r'(?<=[-–])\s*<br>\s*(?=[[a-z\d])'), lambda match: ''),
 
                   # Remove gray background
                   (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
 
                   # Detect Chapters to match default XPATH in GUI
-                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<(i|b)>(<(i|b)>)?)?(.?Chapter|Epilogue|Prologue|Book|Part|Dedication)\s*([\d\w-]+(\s\w+)?)?(</(i|b)>(</(i|b)>)?)?)</?(br|p)[^>]*>\s*(?P<title>(<(i|b)>)?\s*\w+(\s*\w+)?\s*(</(i|b)>)?\s*(</?(br|p)[^>]*>))?', re.IGNORECASE), chap_head),
-                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>([A-Z \'"!]{5,})\s*(\d+|\w+)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
+                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<(i|b)>(<(i|b)>)?)?(.?Chapter|Epilogue|Prologue|Book|Part|Dedication|Volume|Preface|Acknowledgments)\s*([\d\w-]+(\s\w+)?)?\s*(</(i|b)>(</(i|b)>)?)?)\s*(</?(br|p)[^>]*>\s*){1,3}\s*(?P<title>(<(i|b)>)?(\s*\w+){1,4}\s*(</(i|b)>)?\s*(</?(br|p)[^>]*>))?', re.IGNORECASE), chap_head),
 
                   # Have paragraphs show better
                   (re.compile(r'<br.*?>'), lambda match : '<p>'),
                   # Clean up spaces
                   (re.compile(u'(?<=[\.,;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
-                  # Connect paragraphs split by -
-                  (re.compile(u'(?<=[^\s][-–])[\s]*(</p>)*[\s]*(<p>)*\s*(?=[^\s])'), lambda match: ''),
                   # Add space before and after italics
                   (re.compile(u'(?<!“)<i>'), lambda match: ' <i>'),
                   (re.compile(r'</i>(?=\w)'), lambda match: '</i> '),
+                                   
                  ]
 
     # Fix Book Designer markup
@@ -293,6 +298,13 @@ class HTMLPreProcessor(object):
                 import traceback
                 print 'Failed to parse remove_footer regexp'
                 traceback.print_exc()
+        
+        # Make the more aggressive chapter marking regex optional with the preprocess option to reduce false positives
+        if getattr(self.extra_opts, 'preprocess_html', None):
+            if is_pdftohtml:
+                end_rules.append(
+                    (re.compile(r'(?=<(/?br|p|hr))(<(/?br|p|hr)[^>]*)?>\s*(<(i|b)>(<(i|b)>)?)?\s*(?P<chap>([A-Z-\'"!]{3,})\s*(\d+|[A-Z]+(\s*[A-Z]+)?)?)\s*(</(i|b)>(</(i|b)>)?)?\s*(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
+                )
 
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
             length = line_length('pdf', html, getattr(self.extra_opts, 'unwrap_factor'))
