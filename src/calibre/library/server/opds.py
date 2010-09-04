@@ -19,6 +19,7 @@ from calibre.ebooks.metadata import fmt_sidx
 from calibre.library.comments import comments_to_html
 from calibre import guess_type
 from calibre.utils.ordered_dict import OrderedDict
+from calibre.utils.date import format_date
 
 BASE_HREFS = {
         0 : '/stanza',
@@ -130,7 +131,7 @@ def CATALOG_GROUP_ENTRY(item, category, base_href, version, updated):
             link
             )
 
-def ACQUISITION_ENTRY(item, version, FM, updated):
+def ACQUISITION_ENTRY(item, version, FM, updated, CFM, CKEYS):
     title = item[FM['title']]
     if not title:
         title = _('Unknown')
@@ -153,6 +154,21 @@ def ACQUISITION_ENTRY(item, version, FM, updated):
         extra.append(_('SERIES: %s [%s]<br />')%\
                 (series,
                 fmt_sidx(float(item[FM['series_index']]))))
+    for key in CKEYS:
+        val = item[CFM[key]['rec_index']]
+        if val is not None:
+            name = CFM[key]['name']
+            datatype = CFM[key]['datatype']
+            if datatype == 'text' and CFM[key]['is_multiple']:
+                extra.append('%s: %s<br />'%(name, ', '.join(val.split('|'))))
+            elif datatype == 'series':
+                extra.append('%s: %s [%s]<br />'%(name, val,
+                              fmt_sidx(item[CFM.cc_series_index_column_for(key)])))
+            elif datatype == 'datetime':
+                extra.append('%s: %s<br />'%(name,
+                    format_date(val, CFM[key]['display'].get('date_format','dd MMM yyyy'))))
+            else:
+                extra.append('%s: %s <br />' % (CFM[key]['name'], val))
     comments = item[FM['comments']]
     if comments:
         comments = comments_to_html(comments)
@@ -260,10 +276,14 @@ class NavFeed(Feed):
 class AcquisitionFeed(NavFeed):
 
     def __init__(self, updated, id_, items, offsets, page_url, up_url, version,
-            FM):
+            FM, CFM):
         NavFeed.__init__(self, id_, updated, version, offsets, page_url, up_url)
+        CKEYS = [key for key in sorted(CFM.get_custom_fields(),
+                 cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
+                                     CFM[y]['name'].lower()))]
         for item in items:
-            self.root.append(ACQUISITION_ENTRY(item, version, FM, updated))
+            self.root.append(ACQUISITION_ENTRY(item, version, FM, updated,
+                                               CFM, CKEYS))
 
 class CategoryFeed(NavFeed):
 
@@ -360,7 +380,7 @@ class OPDSServer(object):
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         cherrypy.response.headers['Content-Type'] = 'application/atom+xml;profile=opds-catalog'
         return str(AcquisitionFeed(updated, id_, items, offsets,
-            page_url, up_url, version, self.db.FIELD_MAP))
+            page_url, up_url, version, self.db.FIELD_MAP, self.db.field_metadata))
 
     def opds_search(self, query=None, version=0, offset=0):
         try:
@@ -568,7 +588,10 @@ class OPDSServer(object):
                 (_('Newest'), _('Date'), 'Onewest'),
                 (_('Title'), _('Title'), 'Otitle'),
                 ]
-        for category in categories:
+        def getter(x):
+            return category_meta[x]['name'].lower()
+        for category in sorted(categories,
+                               cmp=lambda x,y: cmp(getter(x), getter(y))):
             if len(categories[category]) == 0:
                 continue
             if category == 'formats':

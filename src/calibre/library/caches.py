@@ -319,12 +319,18 @@ class ResultCache(SearchQueryParser):
                 matches.add(item[0])
         return matches
 
-    def get_matches(self, location, query):
+    def get_matches(self, location, query, allow_recursion=True):
         matches = set([])
         if query and query.strip():
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
             location = self.field_metadata.search_term_to_key(location.lower().strip())
+            if isinstance(location, list):
+                if allow_recursion:
+                    for loc in location:
+                        matches |= self.get_matches(loc, query, allow_recursion=False)
+                    return matches
+                raise ParseException(query, len(query), 'Recursive query group detected', self)
 
             # take care of dates special case
             if location in self.field_metadata and \

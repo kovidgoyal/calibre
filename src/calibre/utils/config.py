@@ -13,13 +13,11 @@ from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
 from collections import defaultdict
 
-from calibre.constants import terminal_controller, config_dir, \
+from calibre.constants import terminal_controller, config_dir, CONFIG_DIR_MODE, \
                               __appname__, __version__, __author__
 from calibre.utils.lock import LockError, ExclusiveFile
 
 plugin_dir = os.path.join(config_dir, 'plugins')
-
-CONFIG_DIR_MODE = 0700
 
 def make_config_dir():
     if not os.path.exists(plugin_dir):
@@ -719,6 +717,7 @@ def _prefs():
     c.add_opt('add_formats_to_existing', default=False,
             help=_('Add new formats to existing book records'))
     c.add_opt('installation_uuid', default=None, help='Installation UUID')
+    c.add_opt('new_book_tags', default=[], help=_('Tags to apply to books added to the library'))
 
     # these are here instead of the gui preferences because calibredb and
     # calibre server can execute searches

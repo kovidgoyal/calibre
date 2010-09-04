@@ -36,7 +36,7 @@ class FieldMetadata(dict):
     treated as a single term. If not None, it contains a string, and the field
     is assumed to contain a list of terms separated by that string
 
-    kind == standard: is a db field.
+    kind == field: is a db field.
     kind == category: standard tag category that isn't a field. see news.
     kind == user: user-defined tag category.
     kind == search: saved-searches category.
@@ -239,7 +239,7 @@ class FieldMetadata(dict):
                              'is_multiple':None,
                              'kind':'field',
                              'name':None,
-                             'search_terms':[],
+                             'search_terms':['series_index'],
                              'is_custom':False,
                              'is_category':False}),
             ('sort',      {'table':None,
@@ -395,6 +395,18 @@ class FieldMetadata(dict):
                              'is_editable': is_editable,}
         self._add_search_terms_to_map(key, [key])
         self.custom_label_to_key_map[label] = key
+        if datatype == 'series':
+            key += '_index'
+            self._tb_cats[key] = {'table':None,        'column':None,
+                                 'datatype':'float',   'is_multiple':False,
+                                 'kind':'field',       'name':'',
+                                 'search_terms':[key], 'label':label+'_index',
+                                 'colnum':None,        'display':{},
+                                 'is_custom':False,    'is_category':False,
+                                 'link_column':None,   'category_sort':None,
+                                 'is_editable': False,}
+            self._add_search_terms_to_map(key, [key])
+            self.custom_label_to_key_map[label+'_index'] = key
 
     def remove_custom_fields(self):
         for key in self.get_custom_fields():
@@ -463,9 +475,7 @@ class FieldMetadata(dict):
 #                 ])
 
     def get_search_terms(self):
-        s_keys = []
-        for v in self._tb_cats.itervalues():
-            map((lambda x:s_keys.append(x)), v['search_terms'])
+        s_keys = sorted(self._search_term_map.keys())
         for v in self.search_items:
             s_keys.append(v)
 #        if set(s_keys) != self.DEFAULT_LOCATIONS:
@@ -476,6 +486,9 @@ class FieldMetadata(dict):
     def _add_search_terms_to_map(self, key, terms):
         if terms is not None:
             for t in terms:
+                t = t.lower()
+                if t in self._search_term_map:
+                    raise ValueError('Attempt to add duplicate search term "%s"'%t)
                 self._search_term_map[t] = key
 
     def search_term_to_key(self, term):

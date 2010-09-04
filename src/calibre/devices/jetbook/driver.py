@@ -50,6 +50,8 @@ class JETBOOK(USBMS):
 
     def filename_callback(self, fname, mi):
         fileext = os.path.splitext(os.path.basename(fname))[1]
+        if fileext.lower() not in ('txt', 'pdf', 'fb2'):
+            return fname
         title = mi.title if mi.title else 'Unknown'
         title = title.replace(' ', '_')
         au = mi.format_authors()

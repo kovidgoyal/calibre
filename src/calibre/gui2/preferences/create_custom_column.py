@@ -9,7 +9,7 @@ from functools import partial
 from PyQt4.QtCore import SIGNAL
 from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant
 
-from calibre.gui2.dialogs.config.create_custom_column_ui import Ui_QCreateCustomColumn
+from calibre.gui2.preferences.create_custom_column_ui import Ui_QCreateCustomColumn
 from calibre.gui2 import error_dialog
 
 class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
@@ -64,12 +64,12 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             self.datatype_changed()
             self.exec_()
             return
-        idx = parent.columns.currentRow()
+        idx = parent.opt_columns.currentRow()
         if idx < 0:
             self.simple_error(_('No column selected'),
                     _('No column has been selected'))
             return
-        col = unicode(parent.columns.item(idx).data(Qt.UserRole).toString())
+        col = unicode(parent.opt_columns.item(idx).data(Qt.UserRole).toString())
         if col not in parent.custcols:
             self.simple_error('', _('Selected column is not a user-defined column'))
             return
@@ -140,9 +140,10 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             else:
                 date_format = {'date_format': None}
 
-        key = self.parent.db.field_metadata.custom_field_prefix+col
+        db = self.parent.gui.library_view.model().db
+        key = db.field_metadata.custom_field_prefix+col
         if not self.editing_col:
-            self.parent.db.field_metadata
+            db.field_metadata
             self.parent.custcols[key] = {
                     'label':col,
                     'name':col_heading,
@@ -153,13 +154,13 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     'colnum':None,
                     'is_multiple':is_multiple,
                 }
-            item = QListWidgetItem(col_heading, self.parent.columns)
+            item = QListWidgetItem(col_heading, self.parent.opt_columns)
             item.setData(Qt.UserRole, QVariant(key))
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
             item.setCheckState(Qt.Checked)
         else:
-            idx = self.parent.columns.currentRow()
-            item = self.parent.columns.item(idx)
+            idx = self.parent.opt_columns.currentRow()
+            item = self.parent.opt_columns.item(idx)
             item.setData(Qt.UserRole, QVariant(key))
             item.setText(col_heading)
             self.parent.custcols[self.orig_column_name]['label'] = col

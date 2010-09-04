@@ -1,0 +1,30 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class WinnipegFreePress(BasicNewsRecipe):
+    title          = u'Winnipeg Free Press'
+    __author__            = 'buyo'
+    description           = 'News from Winnipeg, Manitoba, Canada'
+    oldest_article = 1
+    max_articles_per_feed = 15
+    category              = 'News, Winnipeg, Canada'
+    cover_url             = 'http://media.winnipegfreepress.com/designimages/winnipegfreepress_WFP.gif'
+    no_stylesheets        = True
+    encoding              = 'UTF-8'
+    remove_javascript     = True
+    use_embedded_content  = False
+    language = 'en_CA'
+
+    feeds          = [(u'Breaking News', u'http://www.winnipegfreepress.com/rss?path=/breakingnews'),
+          (u'Local News',u'http://www.winnipegfreepress.com/rss?path=/local'),
+          (u'Breaking Business News',u'http://www.winnipegfreepress.com/rss?path=/business/finance'),
+          (u'Business',u'http://www.winnipegfreepress.com/rss?path=/business'),
+          (u'Editorials',u'http://www.winnipegfreepress.com/rss?path=/opinion/editorials'),
+          (u'Views from the West',u'http://www.winnipegfreepress.com/rss?path=/opinion/westview'),
+          (u'Life & Style',u'http://www.winnipegfreepress.com/rss?path=/life'),
+          (u'Food & Drink',u'http://www.winnipegfreepress.com/rss?path=/life/food')
+         ]
+
+    keep_only_tags = [
+              dict(name='div', attrs={'id':'article_header'}),
+                              dict(name='div', attrs={'class':'article'}),
+                              ]
