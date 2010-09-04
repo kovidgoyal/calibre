@@ -34,8 +34,6 @@ class Model(QStringListModel):
 
 class Base(ConfigWidgetBase, Ui_Form):
 
-    HAS_ICONS = False
-
     def genesis(self, gui):
         log = Log()
         log.outputs = []
@@ -56,10 +54,8 @@ class Base(ConfigWidgetBase, Ui_Form):
             w.changed_signal.connect(self.changed_signal)
             self.stack.addWidget(w)
 
-
-        #self.list.currentRowChanged.connect(self.stack.setCurrentIndex)
-        #self.list.setCurrentRow(0)
-
+        self.list.currentChanged = self.category_current_changed
+        self.list.setCurrentIndex(self.model.index(0))
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
@@ -70,15 +66,16 @@ class Base(ConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
 
     def commit(self):
-        for widget in self.conversion_widgets:
+        for widget in self.model.widgets:
             if not widget.pre_commit_check():
                 raise AbortCommit('abort')
             widget.commit(save_defaults=True)
         return ConfigWidgetBase.commit(self)
 
-class CommonOptions(Base):
+    def category_current_changed(self, n, p):
+        self.stack.setCurrentIndex(n.row())
 
-    HAS_ICONS = True
+class CommonOptions(Base):
 
     def load_conversion_widgets(self):
         self.conversion_widgets = [LookAndFeelWidget, PageSetupWidget,
@@ -110,5 +107,6 @@ class OutputOptions(Base):
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     app = QApplication([])
-    test_widget('Conversion', 'Common Options')
+    test_widget('Conversion', 'Input Options')
+    #test_widget('Conversion', 'Common Options')
 

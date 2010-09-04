@@ -65,7 +65,7 @@
       <enum>QListView::TopToBottom</enum>
      </property>
      <property name="spacing">
-      <number>20</number>
+      <number>10</number>
      </property>
      <property name="viewMode">
       <enum>QListView::ListMode</enum>

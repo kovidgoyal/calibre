@@ -14,6 +14,7 @@ class PluginWidget(Widget, Ui_Form):
     TITLE = _('RB Output')
     HELP = _('Options specific to')+' RB '+_('output')
     COMMIT_NAME = 'rb_output'
+    ICON = I('mimetypes/unknown.svg')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, ['inline_toc'])

@@ -12,6 +12,7 @@ class PluginWidget(Widget, Ui_Form):
     TITLE = _('PDB Input')
     HELP = _('Options specific to')+' PDB '+_('input')
     COMMIT_NAME = 'pdb_input'
+    ICON = I('mimetypes/unknown.svg')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,

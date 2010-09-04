@@ -15,6 +15,7 @@ class PluginWidget(Widget, Ui_Form):
     TITLE = _('Comic Input')
     HELP = _('Options specific to')+' comic '+_('input')
     COMMIT_NAME = 'comic_input'
+    ICON = I('mimetypes/png.svg')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
