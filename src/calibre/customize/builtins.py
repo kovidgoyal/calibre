@@ -793,9 +793,18 @@ class Plugins(PreferencesPlugin):
     name_order = 1
     config_widget = 'calibre.gui2.preferences.plugins'
 
+class Tweaks(PreferencesPlugin):
+    name = 'Tweaks'
+    gui_name = _('Tweaks')
+    category = 'Advanced'
+    gui_category = _('Advanced')
+    category_order = 5
+    name_order = 2
+    config_widget = 'calibre.gui2.preferences.tweaks'
+
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Email, Server,
-        Plugins]
+        Plugins, Tweaks]
 
 #}}}
 
