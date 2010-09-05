@@ -262,10 +262,11 @@ class Metadata(object):
             if other_lang and other_lang.lower() != 'und':
                 self.language = other_lang
 
-    def format_series_index(self):
+    def format_series_index(self, val=None):
         from calibre.ebooks.metadata import fmt_sidx
+        v = self.series_index if val is None else val
         try:
-            x = float(self.series_index)
+            x = float(v)
         except ValueError:
             x = 1
         return fmt_sidx(x)
@@ -296,7 +297,7 @@ class Metadata(object):
             if datatype == 'text' and cmeta['is_multiple']:
                 res = u', '.join(res)
             elif datatype == 'series':
-                res = res + ' [%s]'%self.format_series_index(self.get_extra(key))
+                res = res + ' [%s]'%self.format_series_index(val=self.get_extra(key))
             elif datatype == 'datetime':
                 res = format_date(res, cmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'bool':

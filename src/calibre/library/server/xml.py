@@ -89,7 +89,7 @@ class XMLServer(object):
                     'comments'):
                 y = record[FM[x]]
                 if x == 'tags':
-                    y = format_tag_string(y, ',')
+                    y = format_tag_string(y, ',', ignore_max=True)
                 kwargs[x] = serialize(y) if y else ''
 
             c = kwargs.pop('comments')
@@ -111,7 +111,9 @@ class XMLServer(object):
                     name = CFM[key]['name']
                     custcols.append(k)
                     if datatype == 'text' and CFM[key]['is_multiple']:
-                        kwargs[k] = concat(name, format_tag_string(val,'|'))
+                        kwargs[k] = concat('#T#'+name,
+                                           format_tag_string(val,'|',
+                                                             ignore_max=True))
                     elif datatype == 'series':
                         kwargs[k] = concat(name, '%s [%s]'%(val,
                             fmt_sidx(record[CFM.cc_series_index_column_for(key)])))
