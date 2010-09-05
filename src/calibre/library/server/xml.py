@@ -66,6 +66,10 @@ class XMLServer(object):
                 return x.decode(preferred_encoding, 'replace')
             return unicode(x)
 
+        # This method uses its own book dict, not the Metadata dict. The loop
+        # below could be changed to use db.get_metadata instead of reading
+        # info directly from the record made by the view, but it doesn't seem
+        # worth it at the moment.
         for record in items[start:start+num]:
             kwargs = {}
             aus = record[FM['authors']] if record[FM['authors']] else __builtin__._('Unknown')
@@ -137,7 +141,4 @@ class XMLServer(object):
 
         return etree.tostring(ans, encoding='utf-8', pretty_print=True,
                 xml_declaration=True)
-
-
-
 

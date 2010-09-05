@@ -199,6 +199,10 @@ class MobileServer(object):
         CKEYS = [key for key in sorted(CFM.get_custom_fields(),
              cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
                                  CFM[y]['name'].lower()))]
+        # This method uses its own book dict, not the Metadata dict. The loop
+        # below could be changed to use db.get_metadata instead of reading
+        # info directly from the record made by the view, but it doesn't seem
+        # worth it at the moment.
         books = []
         for record in items[(start-1):(start-1)+num]:
             book = {'formats':record[FM['formats']], 'size':record[FM['size']]}
