@@ -20,6 +20,8 @@ class ConfigWidgetInterface(object):
 
     changed_signal = None
     supports_restoring_to_defaults = True
+    restore_defaults_desc = _('Restore settings to default values. '
+            'You have to click Apply to actually save the default settings.')
 
     def genesis(self, gui):
         raise NotImplementedError()

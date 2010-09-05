@@ -5,15 +5,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import textwrap
 from functools import partial
 
 from PyQt4.Qt import QMainWindow, Qt, QIcon, QStatusBar, QFont, QWidget, \
         QScrollArea, QStackedWidget, QVBoxLayout, QLabel, QFrame, \
-        QToolBar, QSize, pyqtSignal
+        QToolBar, QSize, pyqtSignal, QHBoxLayout
 
 from calibre.constants import __appname__, __version__
-from calibre.gui2 import gprefs
-from calibre.gui2.preferences import init_gui
+from calibre.gui2 import gprefs, min_available_height, available_width, \
+    warning_dialog
+from calibre.gui2.preferences import init_gui, AbortCommit
 from calibre.customize.ui import preferences_plugins
 from calibre.utils.ordered_dict import OrderedDict
 
@@ -68,8 +70,8 @@ class Category(QWidget):
         for p in plugins:
             target = partial(self.triggered, p)
             ac = self.bar.addAction(QIcon(p.icon), p.gui_name, target)
-            ac.setToolTip(p.description)
-            ac.setWhatsThis(p.description)
+            ac.setToolTip(textwrap.fill(p.description))
+            ac.setWhatsThis(textwrap.fill(p.description))
             ac.setStatusTip(p.description)
             self.actions.append(ac)
             w = self.bar.widgetForAction(ac)
@@ -81,6 +83,8 @@ class Category(QWidget):
 
 
 class Browser(QScrollArea):
+
+    show_plugin = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QScrollArea.__init__(self, parent)
@@ -115,6 +119,7 @@ class Browser(QScrollArea):
             w = Category(name, plugins, self)
             self.widgets.append(w)
             self._layout.addWidget(w)
+            w.plugin_activated.connect(self.show_plugin.emit)
 
 
 
@@ -122,8 +127,18 @@ class Preferences(QMainWindow):
 
     def __init__(self, gui):
         QMainWindow.__init__(self, gui)
+        self.gui = gui
 
-        self.resize(780, 665)
+        self.resize(900, 700)
+        nh, nw = min_available_height()-25, available_width()-10
+        if nh < 0:
+            nh = 800
+        if nw < 0:
+            nw = 600
+        nh = min(self.height(), nh)
+        nw = min(self.width(), nw)
+        self.resize(nw, nh)
+
         geom = gprefs.get('preferences_window_geometry', None)
         if geom is not None:
             self.restoreGeometry(geom)
@@ -138,12 +153,86 @@ class Preferences(QMainWindow):
         self.stack = QStackedWidget(self)
         self.setCentralWidget(self.stack)
         self.browser = Browser(self)
+        self.browser.show_plugin.connect(self.show_plugin)
         self.stack.addWidget(self.browser)
         self.scroll_area = QScrollArea(self)
         self.stack.addWidget(self.scroll_area)
         self.scroll_area.setWidgetResizable(True)
 
+        self.bar = QToolBar(self)
+        self.addToolBar(self.bar)
+        self.bar.setVisible(False)
+        self.bar.setIconSize(QSize(32, 32))
+        self.bar.setMovable(False)
+        self.bar.setFloatable(False)
+        self.bar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.apply_action = self.bar.addAction(QIcon(I('ok.png')), _('&Apply'),
+                self.commit)
+        self.cancel_action = self.bar.addAction(QIcon(I('window-close.png')),
+                _('&Cancel'),                self.cancel)
+        self.bar_filler = QWidget()
+        self.bar_filler_ = QHBoxLayout()
+        self.bar_filler.setLayout(self.bar_filler_)
+        self.bar_filler_.addStretch(100)
+        self.bar.addWidget(self.bar_filler)
+        self.restore_action = self.bar.addAction(QIcon(I('clear_left.png')),
+                _('Restore &defaults'), self.restore_defaults)
+        for ac, tt in [('apply', _('Save changes')),
+                ('cancel', _('Cancel and return to overview'))]:
+            ac = getattr(self, ac+'_action')
+            ac.setToolTip(tt)
+            ac.setWhatsThis(tt)
+            ac.setStatusTip(tt)
+
         self.stack.setCurrentIndex(0)
+
+    def show_plugin(self, plugin):
+        self.showing_widget = plugin.create_widget(self.scroll_area)
+        self.showing_widget.genesis(self.gui)
+        self.showing_widget.initialize()
+        self.scroll_area.setWidget(self.showing_widget)
+        self.stack.setCurrentIndex(1)
+        self.showing_widget.show()
+        self.setWindowTitle(__appname__ + ' - ' + _('Preferences') + ' - ' +
+                plugin.gui_name)
+        self.apply_action.setEnabled(False)
+        self.showing_widget.changed_signal.connect(lambda :
+                self.apply_action.setEnabled(True))
+        self.restore_action.setEnabled(self.showing_widget.supports_restoring_to_defaults)
+        tt = self.showing_widget.restore_defaults_desc
+        if not self.restore_action.isEnabled():
+            tt = _('Restoring to defaults not supported for') + ' ' + \
+                plugin.gui_name
+        self.restore_action.setToolTip(textwrap.fill(tt))
+        self.restore_action.setWhatsThis(textwrap.fill(tt))
+        self.restore_action.setStatusTip(tt)
+        self.bar.setVisible(True)
+
+
+    def hide_plugin(self):
+        self.showing_widget = QWidget(self.scroll_area)
+        self.scroll_area.setWidget(self.showing_widget)
+        self.setWindowTitle(__appname__ + ' - ' + _('Preferences'))
+        self.bar.setVisible(False)
+        self.stack.setCurrentIndex(0)
+
+    def commit(self, *args):
+        try:
+            restart_needed = self.showing_widget.commit()
+        except AbortCommit:
+            return
+        if restart_needed:
+            warning_dialog(self, _('Restart needed'),
+                    _('Some of the changes you made require a restart.'
+                        ' Please restart calibre as soon as possible.'),
+                    show=True)
+        self.hide_plugin()
+
+    def cancel(self, *args):
+        self.hide_plugin()
+
+    def restore_defaults(self, *args):
+        self.showing_widget.restore_defaults()
 
     def closeEvent(self, *args):
         gprefs.set('preferences_window_geometry',
