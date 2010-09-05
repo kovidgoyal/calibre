@@ -872,7 +872,7 @@ class ITUNES(DriverBase):
         once uploaded to the device. len(names) == len(files)
         :return: A list of 3-element tuples. The list is meant to be passed
         to L{add_books_to_metadata}.
-        :metadata: If not None, it is a list of :class:`MetaInformation` objects.
+        :metadata: If not None, it is a list of :class:`Metadata` objects.
         The idea is to use the metadata to determine where on the device to
         put the book. len(metadata) == len(files). Apart from the regular
         cover (path to cover), there may also be a thumbnail attribute, which should
