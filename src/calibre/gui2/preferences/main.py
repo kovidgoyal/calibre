@@ -10,12 +10,12 @@ from functools import partial
 
 from PyQt4.Qt import QMainWindow, Qt, QIcon, QStatusBar, QFont, QWidget, \
         QScrollArea, QStackedWidget, QVBoxLayout, QLabel, QFrame, \
-        QToolBar, QSize, pyqtSignal, QHBoxLayout
+        QToolBar, QSize, pyqtSignal, QSizePolicy, QToolButton
 
 from calibre.constants import __appname__, __version__
 from calibre.gui2 import gprefs, min_available_height, available_width, \
     warning_dialog
-from calibre.gui2.preferences import init_gui, AbortCommit
+from calibre.gui2.preferences import init_gui, AbortCommit, get_plugin
 from calibre.customize.ui import preferences_plugins
 from calibre.utils.ordered_dict import OrderedDict
 
@@ -77,6 +77,7 @@ class Category(QWidget):
             w = self.bar.widgetForAction(ac)
             w.setStyleSheet('QToolButton { margin-right: 20px; min-width: 100px }')
             w.setCursor(Qt.PointingHandCursor)
+            w.setAutoRaise(True)
 
     def triggered(self, plugin, *args):
         self.plugin_activated.emit(plugin)
@@ -125,9 +126,10 @@ class Browser(QScrollArea):
 
 class Preferences(QMainWindow):
 
-    def __init__(self, gui):
+    def __init__(self, gui, initial_plugin=None):
         QMainWindow.__init__(self, gui)
         self.gui = gui
+        self.must_restart = False
 
         self.resize(900, 700)
         nh, nw = min_available_height()-25, available_width()-10
@@ -170,10 +172,12 @@ class Preferences(QMainWindow):
                 self.commit)
         self.cancel_action = self.bar.addAction(QIcon(I('window-close.png')),
                 _('&Cancel'),                self.cancel)
-        self.bar_filler = QWidget()
-        self.bar_filler_ = QHBoxLayout()
-        self.bar_filler.setLayout(self.bar_filler_)
-        self.bar_filler_.addStretch(100)
+        self.bar_filler = QLabel('')
+        self.bar_filler.setSizePolicy(QSizePolicy.Expanding,
+                QSizePolicy.Preferred)
+        self.bar_filler.setStyleSheet(
+            'QLabel { font-weight: bold }')
+        self.bar_filler.setAlignment(Qt.AlignHCenter | Qt.AlignCenter)
         self.bar.addWidget(self.bar_filler)
         self.restore_action = self.bar.addAction(QIcon(I('clear_left.png')),
                 _('Restore &defaults'), self.restore_defaults)
@@ -184,7 +188,19 @@ class Preferences(QMainWindow):
             ac.setWhatsThis(tt)
             ac.setStatusTip(tt)
 
+        for ch in self.bar.children():
+            if isinstance(ch, QToolButton):
+                ch.setCursor(Qt.PointingHandCursor)
+                ch.setAutoRaise(True)
+
         self.stack.setCurrentIndex(0)
+
+        if initial_plugin is not None:
+            category, name = initial_plugin
+            plugin = get_plugin(category, name)
+            if plugin is not None:
+                self.show_plugin(plugin)
+
 
     def show_plugin(self, plugin):
         self.showing_widget = plugin.create_widget(self.scroll_area)
@@ -206,6 +222,8 @@ class Preferences(QMainWindow):
         self.restore_action.setToolTip(textwrap.fill(tt))
         self.restore_action.setWhatsThis(textwrap.fill(tt))
         self.restore_action.setStatusTip(tt)
+        self.bar_filler.setText(plugin.gui_name)
+        self.setWindowIcon(QIcon(plugin.icon))
         self.bar.setVisible(True)
 
 
@@ -215,13 +233,15 @@ class Preferences(QMainWindow):
         self.setWindowTitle(__appname__ + ' - ' + _('Preferences'))
         self.bar.setVisible(False)
         self.stack.setCurrentIndex(0)
+        self.setWindowIcon(QIcon(I('config.png')))
 
     def commit(self, *args):
         try:
-            restart_needed = self.showing_widget.commit()
+            must_restart = self.showing_widget.commit()
         except AbortCommit:
             return
-        if restart_needed:
+        if must_restart:
+            self.must_restart = True
             warning_dialog(self, _('Restart needed'),
                     _('Some of the changes you made require a restart.'
                         ' Please restart calibre as soon as possible.'),
