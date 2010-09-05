@@ -1695,12 +1695,11 @@ class MobiWriter(object):
         header.write(pack('>I', 1))
 
         # 0x1c - 0x1f : Text encoding ?
-        # header.write(pack('>I', 650001))
-        # GR: This needs to be either 0xFDE9 or 0x4E4
-        header.write(pack('>I', 0xFDE9))
+        # GR: Language encoding for NCX entries (latin_1)
+        header.write(pack('>I', 0x4e4))
 
-        # 0x20 - 0x23 : Language code?
-        header.write(iana2mobi(str(self._oeb.metadata.language[0])))
+        # 0x20 - 0x23 : Mimicking kindleGen
+        header.write(pack('>I', 0xFFFFFFFF))
 
         # 0x24 - 0x27 : Number of TOC entries in INDX1
         header.write(pack('>I', indxt_count + 1))
@@ -1799,9 +1798,9 @@ class MobiWriter(object):
             text = text.strip()
             if not isinstance(text, unicode):
                 text = text.decode('utf-8', 'replace')
-            text = text.encode('utf-8')
+            text = text.encode('cp1252','replace')
         else :
-            text = "(none)".encode('utf-8')
+            text = text.encode('cp1252')
         return text
 
     def _add_to_ctoc(self, ctoc_str, record_offset):
