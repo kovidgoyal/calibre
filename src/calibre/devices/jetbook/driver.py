@@ -87,7 +87,7 @@ class MIBUK(USBMS):
     name           = 'MiBuk Wolder Device Interface'
     description    = _('Communicate with the MiBuk Wolder reader.')
     author         = 'Kovid Goyal'
-    supported_platforms = ['windows', 'osx', 'linux']
+    supported_platforms = ['windows']
 
     FORMATS     = ['epub', 'mobi', 'prc', 'fb2', 'txt', 'rtf', 'pdf']
 
