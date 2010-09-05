@@ -72,6 +72,9 @@ class Category(QWidget):
             ac.setWhatsThis(p.description)
             ac.setStatusTip(p.description)
             self.actions.append(ac)
+            w = self.bar.widgetForAction(ac)
+            w.setStyleSheet('QToolButton { margin-right: 20px; min-width: 100px }')
+            w.setCursor(Qt.PointingHandCursor)
 
     def triggered(self, plugin, *args):
         self.plugin_activated.emit(plugin)
