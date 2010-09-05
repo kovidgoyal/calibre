@@ -784,8 +784,18 @@ class Server(PreferencesPlugin):
     name_order = 2
     config_widget = 'calibre.gui2.preferences.server'
 
+class Plugins(PreferencesPlugin):
+    name = 'Plugins'
+    gui_name = _('Plugins')
+    category = 'Advanced'
+    gui_category = _('Advanced')
+    category_order = 5
+    name_order = 1
+    config_widget = 'calibre.gui2.preferences.plugins'
+
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
-        CommonOptions, OutputOptions, Adding, Saving, Sending, Email, Server]
+        CommonOptions, OutputOptions, Adding, Saving, Sending, Email, Server,
+        Plugins]
 
 #}}}
 
