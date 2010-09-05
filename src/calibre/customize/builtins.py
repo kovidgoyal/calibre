@@ -766,8 +766,17 @@ class Sending(PreferencesPlugin):
     name_order = 3
     config_widget = 'calibre.gui2.preferences.sending'
 
+class Email(PreferencesPlugin):
+    name = 'Email'
+    gui_name = _('Sending books by email')
+    category = 'Sharing'
+    gui_category = _('Sharing')
+    category_order = 4
+    name_order = 1
+    config_widget = 'calibre.gui2.preferences.emailp'
+
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
-        CommonOptions, OutputOptions, Adding, Saving, Sending]
+        CommonOptions, OutputOptions, Adding, Saving, Sending, Email]
 
 #}}}
 

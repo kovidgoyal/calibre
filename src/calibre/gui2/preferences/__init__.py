@@ -19,6 +19,7 @@ class AbortCommit(Exception):
 class ConfigWidgetInterface(object):
 
     changed_signal = None
+    supports_restoring_to_defaults = True
 
     def genesis(self, gui):
         raise NotImplementedError()
@@ -165,6 +166,7 @@ class CommaSeparatedList(Setting):
 class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
 
     changed_signal = pyqtSignal()
+    supports_restoring_to_defaults = True
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -243,6 +245,7 @@ def test_widget(category, name, gui=None):
     w = pl.create_widget(d)
     d.set_widget(w)
     bb.button(bb.RestoreDefaults).clicked.connect(w.restore_defaults)
+    bb.button(bb.RestoreDefaults).setEnabled(w.supports_restoring_to_defaults)
     bb.button(bb.Apply).setEnabled(False)
     bb.button(bb.Apply).clicked.connect(d.accept)
     w.changed_signal.connect(lambda : bb.button(bb.Apply).setEnabled(True))
