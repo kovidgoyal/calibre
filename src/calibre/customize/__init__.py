@@ -393,8 +393,15 @@ class PreferencesPlugin(Plugin): # {{{
 
     #: The category name displayed to the user for this plugin
     gui_category = None
+
     #: The name displayed to the user for this plugin
     gui_name = None
+
+    #: The icon for this plugin, should be an absolute path
+    icon = None
+
+    #: The description used for tooltips and the like
+    description = None
 
     def create_widget(self, parent=None):
         '''
