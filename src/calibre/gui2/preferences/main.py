@@ -130,6 +130,7 @@ class Preferences(QMainWindow):
         QMainWindow.__init__(self, gui)
         self.gui = gui
         self.must_restart = False
+        self.committed = False
 
         self.resize(900, 700)
         nh, nw = min_available_height()-25, available_width()-10
@@ -240,13 +241,16 @@ class Preferences(QMainWindow):
             must_restart = self.showing_widget.commit()
         except AbortCommit:
             return
+        self.committed = True
         if must_restart:
             self.must_restart = True
             warning_dialog(self, _('Restart needed'),
                     _('Some of the changes you made require a restart.'
                         ' Please restart calibre as soon as possible.'),
                     show=True)
+        self.showing_widget.refresh_gui(self.gui)
         self.hide_plugin()
+
 
     def cancel(self, *args):
         self.hide_plugin()

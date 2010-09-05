@@ -45,6 +45,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.save_template.save_settings(self.proxy, 'template')
         return ConfigWidgetBase.commit(self)
 
+    def refresh_gui(self, gui):
+        gui.iactions['Save To Disk'].reread_prefs()
+
+
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     app = QApplication([])

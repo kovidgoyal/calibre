@@ -41,6 +41,9 @@ class ConfigWidgetInterface(object):
         '''
         return False
 
+    def refresh_gui(self, gui):
+        pass
+
 class Setting(object):
 
     def __init__(self, name, config_obj, widget, gui_name=None,

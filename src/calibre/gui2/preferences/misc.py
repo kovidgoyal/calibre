@@ -93,7 +93,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.button_osx_symlinks.setVisible(isosx)
 
     def debug_device_detection(self, *args):
-        from calibre.gui2.dialogs.config.device_debug import DebugDevice
+        from calibre.gui2.preferences.device_debug import DebugDevice
         d = DebugDevice(self)
         d.exec_()
 

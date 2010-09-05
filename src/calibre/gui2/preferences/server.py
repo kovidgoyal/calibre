@@ -15,7 +15,8 @@ from calibre.gui2.preferences.server_ui import Ui_Form
 from calibre.utils.search_query_parser import saved_searches
 from calibre.library.server import server_config
 from calibre.utils.config import ConfigProxy
-from calibre.gui2 import error_dialog, config, open_url, warning_dialog
+from calibre.gui2 import error_dialog, config, open_url, warning_dialog, \
+        Dispatcher
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -120,6 +121,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 _('You need to restart the server for changes to'
                     ' take effect'), show=True)
         return False
+
+    def refresh_gui(self, gui):
+        gui.content_server = self.server
+        if gui.content_server is not None:
+            gui.content_server.state_callback = \
+                Dispatcher(gui.iactions['Connect Share'].content_server_state_changed)
+            gui.content_server.state_callback(gui.content_server.is_running)
 
 
 if __name__ == '__main__':
