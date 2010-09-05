@@ -775,8 +775,17 @@ class Email(PreferencesPlugin):
     name_order = 1
     config_widget = 'calibre.gui2.preferences.emailp'
 
+class Server(PreferencesPlugin):
+    name = 'Server'
+    gui_name = _('Sharing over the net')
+    category = 'Sharing'
+    gui_category = _('Sharing')
+    category_order = 4
+    name_order = 2
+    config_widget = 'calibre.gui2.preferences.server'
+
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
-        CommonOptions, OutputOptions, Adding, Saving, Sending, Email]
+        CommonOptions, OutputOptions, Adding, Saving, Sending, Email, Server]
 
 #}}}
 

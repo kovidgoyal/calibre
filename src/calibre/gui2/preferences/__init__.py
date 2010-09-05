@@ -175,9 +175,10 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
         self.settings = {}
 
     def register(self, name, config_obj, gui_name=None, choices=None,
-            restart_required=False, setting=Setting):
+            restart_required=False, empty_string_is_None=True, setting=Setting):
         setting = setting(name, config_obj, self, gui_name=gui_name,
-                choices=choices, restart_required=restart_required)
+                choices=choices, restart_required=restart_required,
+                empty_string_is_None=empty_string_is_None)
         return self.register_setting(setting)
 
     def register_setting(self, setting):
@@ -229,7 +230,7 @@ def test_widget(category, name, gui=None):
         def set_widget(self, w): self.w = w
         def accept(self):
             try:
-                self.w.commit()
+                self.restart_required = self.w.commit()
             except AbortCommit:
                 return
             QDialog.accept(self)
@@ -259,10 +260,8 @@ def test_widget(category, name, gui=None):
         mygui = True
     w.genesis(gui)
     w.initialize()
-    restart_required = False
-    if d.exec_() == QDialog.Accepted:
-        restart_required = w.commit()
-    if restart_required:
+    d.exec_()
+    if getattr(d, 'restart_required', False):
         from calibre.gui2 import warning_dialog
         warning_dialog(gui, 'Restart required', 'Restart required', show=True)
     if mygui:
