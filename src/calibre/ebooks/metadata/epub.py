@@ -196,8 +196,7 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
         try:
             new_cdata = open(mi.cover, 'rb').read()
         except:
-            import traceback
-            traceback.print_exc()
+            pass
     if new_cdata and raster_cover:
         try:
             cpath = posixpath.join(posixpath.dirname(reader.opf_path),

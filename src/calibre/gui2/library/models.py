@@ -236,8 +236,8 @@ class BooksModel(QAbstractTableModel): # {{{
     def search(self, text, reset=True):
         try:
             self.db.search(text)
-        except ParseException:
-            self.searched.emit(False)
+        except ParseException as e:
+            self.searched.emit(e.msg)
             return
         self.last_search = text
         if reset:

@@ -475,9 +475,7 @@ class FieldMetadata(dict):
 #                 ])
 
     def get_search_terms(self):
-        s_keys = []
-        for v in self._tb_cats.itervalues():
-            map((lambda x:s_keys.append(x)), v['search_terms'])
+        s_keys = sorted(self._search_term_map.keys())
         for v in self.search_items:
             s_keys.append(v)
 #        if set(s_keys) != self.DEFAULT_LOCATIONS:
@@ -488,6 +486,9 @@ class FieldMetadata(dict):
     def _add_search_terms_to_map(self, key, terms):
         if terms is not None:
             for t in terms:
+                t = t.lower()
+                if t in self._search_term_map:
+                    raise ValueError('Attempt to add duplicate search term "%s"'%t)
                 self._search_term_map[t] = key
 
     def search_term_to_key(self, term):
