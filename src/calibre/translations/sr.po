@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-03 19:17+0000\n"
-"PO-Revision-Date: 2010-09-03 18:27+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-09-04 07:38+0000\n"
+"Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-04 04:41+0000\n"
+"X-Launchpad-Export-Date: 2010-09-05 04:43+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -269,7 +269,7 @@ msgstr "Interfejs"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:690
 msgid "Behavior"
-msgstr ""
+msgstr "Ponašanje"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -3440,7 +3440,7 @@ msgstr "Izaberi calibre biblioteku za rad"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:91
 msgid "Switch/create library..."
-msgstr ""
+msgstr "Promeni/kreiraj biblioteku..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:99
 msgid "Quick switch"
@@ -3448,11 +3448,11 @@ msgstr "Brzi prelazak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:101
 msgid "Rename library"
-msgstr ""
+msgstr "Preimenuj biblioteku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:103
 msgid "Delete library"
-msgstr ""
+msgstr "Izbriši biblioteku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:168
 msgid "Rename"
@@ -3460,11 +3460,13 @@ msgstr "Preimenuj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:169
 msgid "Choose a new name for the library <b>%s</b>. "
-msgstr ""
+msgstr "Izaberite novo ime za biblioteku <b>%s</b>. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:170
 msgid "Note that the actual library folder will be renamed."
 msgstr ""
+"Obratite pažnju, biće promenjeno ime samog direktorijuma u kome je "
+"biblioteka."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:185
@@ -3473,7 +3475,7 @@ msgstr "Već postoji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:178
 msgid "The folder %s already exists. Delete it first."
-msgstr ""
+msgstr "Direktorijum %s već postoji. Morate ga prvo izbrisati."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:753
@@ -3484,6 +3486,7 @@ msgstr "Da li ste sigurni?"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:187
 msgid "All files from %s will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"Svi fajlovi iz %s% će biti <b>izbrisani zauvek</b>. Da li ste sigurni?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:207
 msgid "No library found"
@@ -4018,7 +4021,7 @@ msgstr "Knjige iz iste serije"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Alt+Shift+S"
-msgstr ""
+msgstr "Alt+Shift+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:26
 msgid "Alt+P"
@@ -6549,7 +6552,7 @@ msgstr "Poželjni izlazni f&ormat:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:625
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:153
 msgid "Tags to apply when adding a book:"
-msgstr ""
+msgstr "Etikete koje će biti dodate knjizi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:626
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:152
@@ -6557,6 +6560,8 @@ msgid ""
 "A comma-separated list of tags that will be applied to books added to the "
 "library"
 msgstr ""
+"Zarezima razdvojena lista etiketa koje će biti primenjene na knjige dodate u "
+"biblioteku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:627
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:154
@@ -7035,6 +7040,8 @@ msgid ""
 "Lookup names cannot end with _index, because these names are reserved for "
 "the index of a series column."
 msgstr ""
+"Imena za pretragu ne mogu završavati s _index, jer su takva imena "
+"rezervisana za kolonu za serije."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:118
 msgid "No column heading was provided"
@@ -11385,7 +11392,7 @@ msgstr "Dodaj nove formate za postojeće knjige"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:720
 msgid "Tags to apply to books added to the library"
-msgstr ""
+msgstr "Etikete koje će biti primenjene na knjige dodate u biblioteku"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:724
 msgid "List of named saved searches"

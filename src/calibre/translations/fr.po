@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-03 19:17+0000\n"
-"PO-Revision-Date: 2010-09-03 18:36+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-09-04 13:50+0000\n"
+"Last-Translator: M. F. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-04 04:38+0000\n"
+"X-Launchpad-Export-Date: 2010-09-05 04:42+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -270,7 +270,7 @@ msgstr "Interface"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:690
 msgid "Behavior"
-msgstr ""
+msgstr "Comportement"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -3518,7 +3518,7 @@ msgstr "Choisissez la bibliothèque Calibre aves laquelle travailler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:91
 msgid "Switch/create library..."
-msgstr ""
+msgstr "Créer/Changer de Bibliothèque ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:99
 msgid "Quick switch"
@@ -3526,11 +3526,11 @@ msgstr "Bascule rapide"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:101
 msgid "Rename library"
-msgstr ""
+msgstr "Renommer la bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:103
 msgid "Delete library"
-msgstr ""
+msgstr "Effacer la bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:168
 msgid "Rename"
@@ -3542,7 +3542,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:170
 msgid "Note that the actual library folder will be renamed."
-msgstr ""
+msgstr "Attention le dossier de la bibliothèque va être renommé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:185
@@ -3551,7 +3551,7 @@ msgstr "Existe déjà"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:178
 msgid "The folder %s already exists. Delete it first."
-msgstr ""
+msgstr "Le dossier %s existe déjà. Effacez le d'abord."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:753
@@ -3562,6 +3562,8 @@ msgstr "Etes vous sur ?"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:187
 msgid "All files from %s will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"Tout les fichiers de %s% seront <b>effacés définitivement</b>. Êtes vous sûr "
+"?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:207
 msgid "No library found"
@@ -4104,7 +4106,7 @@ msgstr "Livres dans cette série"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Alt+Shift+S"
-msgstr ""
+msgstr "Alt+Maj+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:26
 msgid "Alt+P"
@@ -6674,6 +6676,8 @@ msgid ""
 "A comma-separated list of tags that will be applied to books added to the "
 "library"
 msgstr ""
+"La liste des étiquettes, séparée par de virgule, a attacher aux livres "
+"ajoutés à la bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:627
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:154
@@ -11607,7 +11611,7 @@ msgstr "Ajouter des nouveaux formats aux enregistrements existants de livres"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:720
 msgid "Tags to apply to books added to the library"
-msgstr ""
+msgstr "Etiquette a attacher aux livre lors d'ajout à la bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:724
 msgid "List of named saved searches"

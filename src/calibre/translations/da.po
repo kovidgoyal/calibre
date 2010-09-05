@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-03 19:17+0000\n"
-"PO-Revision-Date: 2010-09-03 19:06+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-09-04 12:34+0000\n"
+"Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-04 04:38+0000\n"
+"X-Launchpad-Export-Date: 2010-09-05 04:42+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -269,7 +269,7 @@ msgstr "Brugergrænseflade"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:690
 msgid "Behavior"
-msgstr ""
+msgstr "Opførsel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -3430,7 +3430,7 @@ msgstr "Vælg calibre-bibliotek at arbejde med"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:91
 msgid "Switch/create library..."
-msgstr ""
+msgstr "Skift/opret bibliotek..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:99
 msgid "Quick switch"
@@ -3438,23 +3438,23 @@ msgstr "Hurtig skift"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:101
 msgid "Rename library"
-msgstr ""
+msgstr "Omdøb bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:103
 msgid "Delete library"
-msgstr ""
+msgstr "Slet bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:168
 msgid "Rename"
-msgstr ""
+msgstr "Omdøb"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:169
 msgid "Choose a new name for the library <b>%s</b>. "
-msgstr ""
+msgstr "Vælg et nyt navn til biblioteket <b>%s</b>. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:170
 msgid "Note that the actual library folder will be renamed."
-msgstr ""
+msgstr "Bemærk at den aktuelle biblioteksmappe vil blive omdøbt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:185
@@ -3463,7 +3463,7 @@ msgstr "Eksisterer allerede"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:178
 msgid "The folder %s already exists. Delete it first."
-msgstr ""
+msgstr "Mappen %s eksisterer allerede. Slet den først."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:753
@@ -3474,6 +3474,7 @@ msgstr "Er du sikker?"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:187
 msgid "All files from %s will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"Alle filerne fra %s vil blive <b>permanent slettet</b>. Er du sikker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:207
 msgid "No library found"
@@ -4008,7 +4009,7 @@ msgstr "Bøger i denne serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Alt+Shift+S"
-msgstr ""
+msgstr "Alt+Shift+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:26
 msgid "Alt+P"
@@ -6533,7 +6534,7 @@ msgstr "Foretrukken &output-format:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:625
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:153
 msgid "Tags to apply when adding a book:"
-msgstr ""
+msgstr "Mærker som skal anvendes, når en ny bog tilføjes:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:626
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:152
@@ -6541,6 +6542,8 @@ msgid ""
 "A comma-separated list of tags that will be applied to books added to the "
 "library"
 msgstr ""
+"En komma-separeret mærkeliste, der vil blive anvendt på bøger, som tilføjes "
+"til biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:627
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:154
@@ -7010,6 +7013,8 @@ msgid ""
 "Lookup names cannot end with _index, because these names are reserved for "
 "the index of a series column."
 msgstr ""
+"Opslagsord kan ikke ende med _index, fordi disse navne er forbeholdt til "
+"seriesøjle indekset."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:118
 msgid "No column heading was provided"
@@ -11350,7 +11355,7 @@ msgstr "Tilføj nye formater til eksisterende bogposter"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:720
 msgid "Tags to apply to books added to the library"
-msgstr ""
+msgstr "Mærker som skal anvendes på bøger tilføjet til biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:724
 msgid "List of named saved searches"

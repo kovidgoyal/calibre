@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-03 19:17+0000\n"
-"PO-Revision-Date: 2010-09-03 18:29+0000\n"
+"PO-Revision-Date: 2010-09-04 23:37+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-04 04:37+0000\n"
+"X-Launchpad-Export-Date: 2010-09-05 04:42+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -269,7 +269,7 @@ msgstr "Interfazea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:690
 msgid "Behavior"
-msgstr ""
+msgstr "Jokabidea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -3583,7 +3583,7 @@ msgstr "Choose calibre library to work with"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:91
 msgid "Switch/create library..."
-msgstr ""
+msgstr "Aldatu/sortu liburutegia..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:99
 msgid "Quick switch"
@@ -3591,23 +3591,24 @@ msgstr "Aldaketa azkarra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:101
 msgid "Rename library"
-msgstr ""
+msgstr "Liburutegiari izena aldatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:103
 msgid "Delete library"
-msgstr ""
+msgstr "Ezabatu liburutegia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:168
 msgid "Rename"
-msgstr ""
+msgstr "Aldatu izena"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:169
 msgid "Choose a new name for the library <b>%s</b>. "
-msgstr ""
+msgstr "Aukeratu liburutegirako izen berria <b>%s</b>. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:170
 msgid "Note that the actual library folder will be renamed."
 msgstr ""
+"Kontuan izan oraingo liburutegi karpetari izena aldatu egingo zaiola."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:185
@@ -3616,7 +3617,7 @@ msgstr "Hori badago dagoeneko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:178
 msgid "The folder %s already exists. Delete it first."
-msgstr ""
+msgstr "Dagoeneko badago %s izeneko karpeta. Ezaba ezazu lehen eta behin."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:753
@@ -3627,6 +3628,7 @@ msgstr "Ziur zaude?"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:187
 msgid "All files from %s will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"%s horretako fitxategi guztiak <b>betiko ezabatu</b> egingo dira. Ziur zaude?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:207
 msgid "No library found"
@@ -4165,7 +4167,7 @@ msgstr "Books in this series"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Alt+Shift+S"
-msgstr ""
+msgstr "Alt+Shift+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:26
 msgid "Alt+P"
@@ -6735,7 +6737,7 @@ msgstr "Hobetsitako &output formatua:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:625
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:153
 msgid "Tags to apply when adding a book:"
-msgstr ""
+msgstr "Liburu bat gehitzerekoan aplikatzeko etiketak:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:626
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:152
@@ -6743,6 +6745,8 @@ msgid ""
 "A comma-separated list of tags that will be applied to books added to the "
 "library"
 msgstr ""
+"Liburutegira gehituko diren liburuei erantsiko zaizkion komen bidez "
+"bereiziriko etiketen zerrenda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:627
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:154
@@ -7230,6 +7234,8 @@ msgid ""
 "Lookup names cannot end with _index, because these names are reserved for "
 "the index of a series column."
 msgstr ""
+"Bilatutako izenek ezin dute _index amaiera izan, izen horiek zutabe "
+"serieetarako erreserbaturik daudelako."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/create_custom_column.py:118
 msgid "No column heading was provided"
@@ -11667,7 +11673,7 @@ msgstr "Gehitu formatu berriak dagoeneko grabatuta dauden liburuetara"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:720
 msgid "Tags to apply to books added to the library"
-msgstr ""
+msgstr "Liburutegira gehitutako liburuei eransteko etiketak"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:724
 msgid "List of named saved searches"
