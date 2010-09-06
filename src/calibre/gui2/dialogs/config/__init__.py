@@ -64,7 +64,7 @@ class ConfigTabs(QTabWidget):
         for plugin in input_format_plugins():
             pw = config_widget_for_input_plugin(plugin)
             if pw is not None:
-                pw.ICON = I('forward.svg')
+                pw.ICON = I('forward.png')
                 self.widgets.append(widget_factory(pw))
 
         for plugin in output_format_plugins():
@@ -73,7 +73,7 @@ class ConfigTabs(QTabWidget):
                 output_widget = __import__('calibre.gui2.convert.'+name,
                         fromlist=[1])
                 pw = output_widget.PluginWidget
-                pw.ICON = I('forward.svg')
+                pw.ICON = I('forward.png')
                 self.widgets.append(widget_factory(pw))
             except ImportError:
                 continue
@@ -95,7 +95,7 @@ class PluginModel(QAbstractItemModel):
 
     def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
-        self.icon = QVariant(QIcon(I('plugins.svg')))
+        self.icon = QVariant(QIcon(I('plugins.png')))
         p = QIcon(self.icon).pixmap(32, 32, QIcon.Disabled, QIcon.On)
         self.disabled_icon = QVariant(QIcon(p))
         self._p = p
@@ -195,14 +195,14 @@ class PluginModel(QAbstractItemModel):
 class CategoryModel(QStringListModel):
 
     CATEGORIES = [
-             ('general', _('General'), 'dialog_information.svg'),
-             ('interface', _('Interface'), 'lookfeel.svg'),
-             ('conversion', _('Conversion'), 'convert.svg'),
-             ('email', _('Email\nDelivery'), 'mail.svg'),
-             ('add/save', _('Add/Save'), 'save.svg'),
-             ('advanced', _('Advanced'), 'view.svg'),
-             ('server', _('Content\nServer'), 'network-server.svg'),
-             ('plugins', _('Plugins'), 'plugins.svg'),
+             ('general', _('General'), 'dialog_information.png'),
+             ('interface', _('Interface'), 'lookfeel.png'),
+             ('conversion', _('Conversion'), 'convert.png'),
+             ('email', _('Email\nDelivery'), 'mail.png'),
+             ('add/save', _('Add/Save'), 'save.png'),
+             ('advanced', _('Advanced'), 'view.png'),
+             ('server', _('Content\nServer'), 'network-server.png'),
+             ('plugins', _('Plugins'), 'plugins.png'),
     ]
 
     def __init__(self, *args):

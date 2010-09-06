@@ -490,6 +490,9 @@ class ConfigProxy(object):
         setattr(self.__opts, key, val)
         return self.__config.set(key, val)
 
+    def help(self, key):
+        return self.__config.get_option(key).help
+
 class DynamicConfig(dict):
     '''
     A replacement for QSettings that supports dynamic config keys.

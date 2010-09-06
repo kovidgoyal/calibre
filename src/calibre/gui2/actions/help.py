@@ -13,7 +13,7 @@ from calibre.gui2.actions import InterfaceAction
 class HelpAction(InterfaceAction):
 
     name = 'Help'
-    action_spec = (_('Help'), 'help.svg', _('Browse the calibre User Manual'), _('F1'),)
+    action_spec = (_('Help'), 'help.png', _('Browse the calibre User Manual'), _('F1'),)
 
     def genesis(self):
         self.qaction.triggered.connect(self.show_help)

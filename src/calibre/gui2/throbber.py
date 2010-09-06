@@ -64,7 +64,7 @@ if __name__ == '__main__':
     w = QWidget()
     w.setLayout(QHBoxLayout())
     b = ThrobbingButton()
-    b.setIcon(QIcon(I('donate.svg')))
+    b.setIcon(QIcon(I('donate.png')))
     w.layout().addWidget(b)
     w.show()
     b.set_normal_icon_size(64, 64)

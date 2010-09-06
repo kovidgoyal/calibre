@@ -69,7 +69,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../../resources/images.qrc">
-         <normaloff>:/images/clear_left.svg</normaloff>:/images/clear_left.svg</iconset>
+         <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
        </property>
       </widget>
      </item>
@@ -110,7 +110,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../../resources/images.qrc">
-         <normaloff>:/images/clear_left.svg</normaloff>:/images/clear_left.svg</iconset>
+         <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
        </property>
       </widget>
      </item>

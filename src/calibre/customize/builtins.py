@@ -703,7 +703,108 @@ class Columns(PreferencesPlugin):
     name_order = 3
     config_widget = 'calibre.gui2.preferences.columns'
 
-plugins += [LookAndFeel, Behavior, Columns]
+class Toolbar(PreferencesPlugin):
+    name = 'Toolbar'
+    gui_name = _('Customize the toolbar')
+    category = 'Interface'
+    gui_category = _('Interface')
+    category_order = 1
+    name_order = 4
+    config_widget = 'calibre.gui2.preferences.toolbar'
+
+class InputOptions(PreferencesPlugin):
+    name = 'Input Options'
+    gui_name = _('Input Options')
+    category = 'Conversion'
+    gui_category = _('Conversion')
+    category_order = 2
+    name_order = 1
+    config_widget = 'calibre.gui2.preferences.conversion:InputOptions'
+
+class CommonOptions(PreferencesPlugin):
+    name = 'Common Options'
+    gui_name = _('Common Options')
+    category = 'Conversion'
+    gui_category = _('Conversion')
+    category_order = 2
+    name_order = 2
+    config_widget = 'calibre.gui2.preferences.conversion:CommonOptions'
+
+class OutputOptions(PreferencesPlugin):
+    name = 'Output Options'
+    gui_name = _('Output Options')
+    category = 'Conversion'
+    gui_category = _('Conversion')
+    category_order = 2
+    name_order = 3
+    config_widget = 'calibre.gui2.preferences.conversion:OutputOptions'
+
+class Adding(PreferencesPlugin):
+    name = 'Adding'
+    gui_name = _('Adding books')
+    category = 'Import/Export'
+    gui_category = _('Import/Export')
+    category_order = 3
+    name_order = 1
+    config_widget = 'calibre.gui2.preferences.adding'
+
+class Saving(PreferencesPlugin):
+    name = 'Saving'
+    gui_name = _('Saving books to disk')
+    category = 'Import/Export'
+    gui_category = _('Import/Export')
+    category_order = 3
+    name_order = 2
+    config_widget = 'calibre.gui2.preferences.saving'
+
+class Sending(PreferencesPlugin):
+    name = 'Sending'
+    gui_name = _('Sending books to devices')
+    category = 'Import/Export'
+    gui_category = _('Import/Export')
+    category_order = 3
+    name_order = 3
+    config_widget = 'calibre.gui2.preferences.sending'
+
+class Email(PreferencesPlugin):
+    name = 'Email'
+    gui_name = _('Sending books by email')
+    category = 'Sharing'
+    gui_category = _('Sharing')
+    category_order = 4
+    name_order = 1
+    config_widget = 'calibre.gui2.preferences.emailp'
+
+class Server(PreferencesPlugin):
+    name = 'Server'
+    gui_name = _('Sharing over the net')
+    category = 'Sharing'
+    gui_category = _('Sharing')
+    category_order = 4
+    name_order = 2
+    config_widget = 'calibre.gui2.preferences.server'
+
+class Plugins(PreferencesPlugin):
+    name = 'Plugins'
+    gui_name = _('Plugins')
+    category = 'Advanced'
+    gui_category = _('Advanced')
+    category_order = 5
+    name_order = 1
+    config_widget = 'calibre.gui2.preferences.plugins'
+
+class Tweaks(PreferencesPlugin):
+    name = 'Tweaks'
+    gui_name = _('Tweaks')
+    category = 'Advanced'
+    gui_category = _('Advanced')
+    category_order = 5
+    name_order = 2
+    config_widget = 'calibre.gui2.preferences.tweaks'
+
+plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
+        CommonOptions, OutputOptions, Adding, Saving, Sending, Email, Server,
+        Plugins, Tweaks]
 
 #}}}
 

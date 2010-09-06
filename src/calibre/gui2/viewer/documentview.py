@@ -444,12 +444,12 @@ class DocumentView(QWebView):
         self.connect(self.document, SIGNAL('animated_scroll_done()'),
                 self.animated_scroll_done, Qt.QueuedConnection)
         copy_action = self.pageAction(self.document.Copy)
-        copy_action.setIcon(QIcon(I('convert.svg')))
+        copy_action.setIcon(QIcon(I('convert.png')))
         d = self.document
         self.unimplemented_actions = list(map(self.pageAction,
             [d.DownloadImageToDisk, d.OpenLinkInNewWindow, d.DownloadLinkToDisk,
                 d.OpenImageInNewWindow, d.OpenLink]))
-        self.dictionary_action = QAction(QIcon(I('dictionary.svg')),
+        self.dictionary_action = QAction(QIcon(I('dictionary.png')),
                 _('&Lookup in dictionary'), self)
         self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)
         self.dictionary_action.triggered.connect(self.lookup)

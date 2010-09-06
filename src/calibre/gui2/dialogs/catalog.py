@@ -52,7 +52,7 @@ class Catalog(QDialog, Ui_Dialog):
                             fromlist=[1])
                     pw = catalog_widget.PluginWidget()
                     pw.initialize(name)
-                    pw.ICON = I('forward.svg')
+                    pw.ICON = I('forward.png')
                     self.widgets.append(pw)
                     [self.fmts.append([file_type.upper(), pw.sync_enabled,pw]) for file_type in plugin.file_types]
                 except ImportError:
@@ -83,7 +83,7 @@ class Catalog(QDialog, Ui_Dialog):
                         catalog_widget = __import__(name, fromlist=[1])
                         pw = catalog_widget.PluginWidget()
                         pw.initialize(name)
-                        pw.ICON = I('forward.svg')
+                        pw.ICON = I('forward.png')
                         self.widgets.append(pw)
                         [self.fmts.append([file_type.upper(), pw.sync_enabled,pw]) for file_type in plugin.file_types]
                     except ImportError:

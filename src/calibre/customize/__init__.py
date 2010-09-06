@@ -404,9 +404,12 @@ class PreferencesPlugin(Plugin): # {{{
         The default implementation uses :attr:`config_widget` to instantiate
         the widget.
         '''
-        base = __import__(self.config_widget, fromlist=[1])
-        widget = base.ConfigWidget(parent)
-        return widget
+        base, _, wc = self.config_widget.partition(':')
+        if not wc:
+            wc = 'ConfigWidget'
+        base = __import__(base, fromlist=[1])
+        widget = getattr(base, wc)
+        return widget(parent)
 
 # }}}
 

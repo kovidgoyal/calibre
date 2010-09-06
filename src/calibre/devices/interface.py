@@ -43,7 +43,7 @@ class DevicePlugin(Plugin):
     path_sep = os.sep
 
     #: Icon for this device
-    icon = I('reader.svg')
+    icon = I('reader.png')
 
     # Used by gui2.ui:annotations_fetched() and devices.kindle.driver:get_annotations()
     UserAnnotation = namedtuple('Annotation','type, value')

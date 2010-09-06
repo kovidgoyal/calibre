@@ -2587,24 +2587,8 @@ class EPUB_MOBI(CatalogPlugin):
                     # Check to see if thumbnail exists
                     thumb_fp = "%s/thumbnail_default.jpg" % (image_dir)
                     cover = "%s/DefaultCover.png" % (self.catalogPath)
-
-                    # Init Qt for image conversion
-                    from calibre.gui2 import is_ok_to_use_qt
-                    if is_ok_to_use_qt():
-                        from PyQt4.Qt import QImage, QColor, QPainter, Qt
-
-                        # Convert .svg to .jpg
-                        cover_img = QImage(I('book.svg'))
-                        i = QImage(cover_img.size(),
-                                QImage.Format_ARGB32_Premultiplied)
-                        i.fill(QColor(Qt.white).rgb())
-                        p = QPainter(i)
-                        p.drawImage(0, 0, cover_img)
-                        p.end()
-                        i.save(cover)
-                    else:
-                        if not os.path.exists(cover):
-                            shutil.copyfile(I('library.png'), cover)
+                    if not os.path.exists(cover):
+                        shutil.copyfile(I('book.png'), cover)
 
                     if os.path.isfile(thumb_fp):
                         # Check to see if default cover is newer than thumbnail
@@ -4065,6 +4049,12 @@ class EPUB_MOBI(CatalogPlugin):
             except:
                 self.opts.log.error("generateThumbnail(): Error with %s" % title['title'])
 
+        def getFriendlyGenreTag(self, genre):
+            # Find the first instance of friendly_tag matching genre
+            for friendly_tag in self.genre_tags_dict:
+                if self.genre_tags_dict[friendly_tag] == genre:
+                    return friendly_tag
+
         def getMarkerTags(self):
             ''' Return a list of special marker tags to be excluded from genre list '''
             markerTags = []
@@ -4078,12 +4068,6 @@ class EPUB_MOBI(CatalogPlugin):
                 return 'Symbols'
             else:
                 return char
-
-        def getFriendlyGenreTag(self, genre):
-            # Find the first instance of friendly_tag matching genre
-            for friendly_tag in self.genre_tags_dict:
-                if self.genre_tags_dict[friendly_tag] == genre:
-                    return friendly_tag
 
         def markdownComments(self, comments):
             '''
