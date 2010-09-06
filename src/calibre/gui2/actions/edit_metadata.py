@@ -51,7 +51,8 @@ class EditMetadataAction(InterfaceAction):
                 self.merge_books)
         mb.addSeparator()
         mb.addAction(_('Merge into first selected book - keep others'),
-                partial(self.merge_books, safe_merge=True))
+                partial(self.merge_books, safe_merge=True),
+                Qt.AltModifier+Qt.Key_M)
         self.merge_menu = mb
         self.action_merge.setMenu(mb)
         md.addSeparator()
