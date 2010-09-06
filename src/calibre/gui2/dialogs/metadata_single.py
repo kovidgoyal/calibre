@@ -760,7 +760,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         _('Could not open %s. Is it being used by another'
                         ' program?')%fname, show=True)
             raise
-        self.db.clean()
         self.save_state()
         QDialog.accept(self)
         if callable(self.accepted_callback):

@@ -332,7 +332,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
                      'publisher', 'rating', 'series', 'series_index', 'tags',
-                     'title', 'timestamp', 'uuid', 'pubdate'):
+                     'title', 'timestamp', 'uuid', 'pubdate', 'ondevice'):
             setattr(self, prop, functools.partial(get_property,
                     loc=self.FIELD_MAP['comments' if prop == 'comment' else prop]))
         setattr(self, 'title_sort', functools.partial(get_property,
