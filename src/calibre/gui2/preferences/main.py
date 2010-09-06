@@ -9,8 +9,8 @@ import textwrap
 from functools import partial
 
 from PyQt4.Qt import QMainWindow, Qt, QIcon, QStatusBar, QFont, QWidget, \
-        QScrollArea, QStackedWidget, QVBoxLayout, QLabel, QFrame, \
-        QToolBar, QSize, pyqtSignal, QSizePolicy, QToolButton
+        QScrollArea, QStackedWidget, QVBoxLayout, QLabel, QFrame, QKeySequence, \
+        QToolBar, QSize, pyqtSignal, QSizePolicy, QToolButton, QAction
 
 from calibre.constants import __appname__, __version__
 from calibre.gui2 import gprefs, min_available_height, available_width, \
@@ -41,7 +41,7 @@ class StatusBar(QStatusBar): # {{{
 
 # }}}
 
-class Category(QWidget):
+class Category(QWidget): # {{{
 
     plugin_activated = pyqtSignal(object)
 
@@ -82,8 +82,9 @@ class Category(QWidget):
     def triggered(self, plugin, *args):
         self.plugin_activated.emit(plugin)
 
+# }}}
 
-class Browser(QScrollArea):
+class Browser(QScrollArea): # {{{
 
     show_plugin = pyqtSignal(object)
 
@@ -122,7 +123,7 @@ class Browser(QScrollArea):
             self._layout.addWidget(w)
             w.plugin_activated.connect(self.show_plugin.emit)
 
-
+# }}}
 
 class Preferences(QMainWindow):
 
@@ -141,6 +142,10 @@ class Preferences(QMainWindow):
         nh = min(self.height(), nh)
         nw = min(self.width(), nw)
         self.resize(nw, nh)
+        self.esc_action = QAction(self)
+        self.addAction(self.esc_action)
+        self.esc_action.setShortcut(QKeySequence(Qt.Key_Escape))
+        self.esc_action.triggered.connect(self.esc)
 
         geom = gprefs.get('preferences_window_geometry', None)
         if geom is not None:
@@ -235,6 +240,12 @@ class Preferences(QMainWindow):
         self.bar.setVisible(False)
         self.stack.setCurrentIndex(0)
         self.setWindowIcon(QIcon(I('config.png')))
+
+    def esc(self, *args):
+        if self.stack.currentIndex() == 1:
+            self.hide_plugin()
+        elif self.stack.currentIndex() == 0:
+            self.close()
 
     def commit(self, *args):
         try:
