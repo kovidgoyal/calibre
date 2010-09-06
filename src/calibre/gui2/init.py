@@ -258,7 +258,9 @@ class LayoutMixin(object): # {{{
             getattr(self, x+'_view').save_state()
 
         for x in ('cb', 'tb', 'bd'):
-            getattr(self, x+'_splitter').save_state()
+            s = getattr(self, x+'_splitter')
+            s.update_desired_state()
+            s.save_state()
 
     def read_layout_settings(self):
         # View states are restored automatically when set_database is called
