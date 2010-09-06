@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt4.Qt import QMainWindow, Qt, QIcon, QStatusBar, QFont, QWidget, \
         QScrollArea, QStackedWidget, QVBoxLayout, QLabel, QFrame, QKeySequence, \
-        QToolBar, QSize, pyqtSignal, QSizePolicy, QToolButton, QAction, \
+        QToolBar, QSize, pyqtSignal, QPixmap, QToolButton, QAction, \
         QPushButton, QHBoxLayout
 
 from calibre.constants import __appname__, __version__, islinux, isosx
@@ -19,6 +19,8 @@ from calibre.gui2 import gprefs, min_available_height, available_width, \
 from calibre.gui2.preferences import init_gui, AbortCommit, get_plugin
 from calibre.customize.ui import preferences_plugins
 from calibre.utils.ordered_dict import OrderedDict
+
+ICON_SIZE = 32
 
 class StatusBar(QStatusBar): # {{{
 
@@ -41,6 +43,33 @@ class StatusBar(QStatusBar): # {{{
             self.showMessage(self.default_message)
 
 # }}}
+
+class BarTitle(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self._layout = QHBoxLayout()
+        self.setLayout(self._layout)
+        self._layout.addStretch(10)
+        self.icon = QLabel('')
+        self.icon.setMaximumHeight(ICON_SIZE)
+        self._layout.addWidget(self.icon)
+        self.title = QLabel('')
+        self.title.setStyleSheet('QLabel { font-weight: bold }')
+        self.title.setAlignment(Qt.AlignLeft | Qt.AlignCenter)
+        self._layout.addWidget(self.title)
+        self._layout.addStretch(10)
+
+    def show_plugin(self, plugin):
+        self.pmap = QPixmap(plugin.icon).scaled(ICON_SIZE, ICON_SIZE,
+                Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.icon.setPixmap(self.pmap)
+        self.title.setText(plugin.gui_name)
+        tt = plugin.description
+        self.setStatusTip(tt)
+        tt = textwrap.fill(tt)
+        self.setToolTip(tt)
+        self.setWhatsThis(tt)
 
 class Category(QWidget): # {{{
 
@@ -189,7 +218,7 @@ class Preferences(QMainWindow):
         self.bar = QToolBar(self)
         self.addToolBar(self.bar)
         self.bar.setVisible(False)
-        self.bar.setIconSize(QSize(32, 32))
+        self.bar.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.bar.setMovable(False)
         self.bar.setFloatable(False)
         self.bar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
@@ -197,13 +226,8 @@ class Preferences(QMainWindow):
                 self.commit)
         self.cancel_action = self.bar.addAction(QIcon(I('window-close.png')),
                 _('&Cancel'),                self.cancel)
-        self.bar_filler = QLabel('')
-        self.bar_filler.setSizePolicy(QSizePolicy.Expanding,
-                QSizePolicy.Preferred)
-        self.bar_filler.setStyleSheet(
-            'QLabel { font-weight: bold }')
-        self.bar_filler.setAlignment(Qt.AlignHCenter | Qt.AlignCenter)
-        self.bar.addWidget(self.bar_filler)
+        self.bar_title = BarTitle(self.bar)
+        self.bar.addWidget(self.bar_title)
         self.restore_action = self.bar.addAction(QIcon(I('clear_left.png')),
                 _('Restore &defaults'), self.restore_defaults)
         for ac, tt in [('apply', _('Save changes')),
@@ -247,7 +271,7 @@ class Preferences(QMainWindow):
         self.restore_action.setToolTip(textwrap.fill(tt))
         self.restore_action.setWhatsThis(textwrap.fill(tt))
         self.restore_action.setStatusTip(tt)
-        self.bar_filler.setText(plugin.gui_name)
+        self.bar_title.show_plugin(plugin)
         self.setWindowIcon(QIcon(plugin.icon))
         self.bar.setVisible(True)
 
