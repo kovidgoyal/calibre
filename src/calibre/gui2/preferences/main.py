@@ -125,7 +125,7 @@ class Browser(QScrollArea): # {{{
             self.close_button.clicked.connect(self.close_requested)
             self._osxl.addStretch(10)
             self._osxl.addWidget(self.close_button)
-            self._osxl.addStretch(10)
+            #self._osxl.addStretch(10)
             self._layout.addLayout(self._osxl)
 
         for name, plugins in self.category_map.items():
