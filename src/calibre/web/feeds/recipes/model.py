@@ -125,8 +125,8 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         QAbstractItemModel.__init__(self, *args)
         SearchQueryParser.__init__(self, locations=['all'])
         self.db = db
-        self.default_icon = QVariant(QIcon(I('news.svg')))
-        self.custom_icon = QVariant(QIcon(I('user_profile.svg')))
+        self.default_icon = QVariant(QIcon(I('news.png')))
+        self.custom_icon = QVariant(QIcon(I('user_profile.png')))
         self.builtin_recipe_collection = get_builtin_recipe_collection()
         self.scheduler_config = SchedulerConfig()
         self.do_refresh()

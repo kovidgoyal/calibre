@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../../../resources/images.qrc">
-    <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
+    <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -177,7 +177,7 @@
            </property>
            <property name="icon">
             <iconset resource="../../../../resources/images.qrc">
-             <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
+             <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
            </property>
           </widget>
          </item>

@@ -30,7 +30,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import qt_to_dt, local_tz, utcfromtimestamp
 from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
-from calibre.gui2.dialogs.config.social import SocialMetadata
+from calibre.gui2.preferences.social import SocialMetadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre import strftime
 
@@ -102,7 +102,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     view_format = pyqtSignal(object)
 
     def do_reset_cover(self, *args):
-        pix = QPixmap(I('default_cover.svg'))
+        pix = QPixmap(I('default_cover.png'))
         self.cover.setPixmap(pix)
         self.cover_changed = True
         self.cover_data = None
@@ -432,7 +432,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if cover:
             pm.loadFromData(cover)
         if pm.isNull():
-            pm = QPixmap(I('default_cover.svg'))
+            pm = QPixmap(I('default_cover.png'))
         else:
             self.cover_data = cover
         self.cover.setPixmap(pm)

@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../../../resources/images.qrc">
-    <normaloff>:/images/viewer.svg</normaloff>:/images/viewer.svg</iconset>
+    <normaloff>:/images/viewer.png</normaloff>:/images/viewer.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
@@ -84,7 +84,7 @@
              </property>
              <property name="icon">
               <iconset resource="../../../../resources/images.qrc">
-               <normaloff>:/images/window-close.svg</normaloff>:/images/window-close.svg</iconset>
+               <normaloff>:/images/window-close.png</normaloff>:/images/window-close.png</iconset>
              </property>
             </widget>
            </item>
@@ -147,7 +147,7 @@
   <action name="action_back">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/back.svg</normaloff>:/images/back.svg</iconset>
+     <normaloff>:/images/back.png</normaloff>:/images/back.png</iconset>
    </property>
    <property name="text">
     <string>Back</string>
@@ -156,7 +156,7 @@
   <action name="action_forward">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/forward.svg</normaloff>:/images/forward.svg</iconset>
+     <normaloff>:/images/forward.png</normaloff>:/images/forward.png</iconset>
    </property>
    <property name="text">
     <string>Forward</string>
@@ -165,7 +165,7 @@
   <action name="action_next_page">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/next.svg</normaloff>:/images/next.svg</iconset>
+     <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
    </property>
    <property name="text">
     <string>Next page</string>
@@ -174,7 +174,7 @@
   <action name="action_previous_page">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/previous.svg</normaloff>:/images/previous.svg</iconset>
+     <normaloff>:/images/previous.png</normaloff>:/images/previous.png</iconset>
    </property>
    <property name="text">
     <string>Previous page</string>
@@ -183,7 +183,7 @@
   <action name="action_font_size_larger">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/font_size_larger.svg</normaloff>:/images/font_size_larger.svg</iconset>
+     <normaloff>:/images/font_size_larger.png</normaloff>:/images/font_size_larger.png</iconset>
    </property>
    <property name="text">
     <string>Font size larger</string>
@@ -192,7 +192,7 @@
   <action name="action_font_size_smaller">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/font_size_smaller.svg</normaloff>:/images/font_size_smaller.svg</iconset>
+     <normaloff>:/images/font_size_smaller.png</normaloff>:/images/font_size_smaller.png</iconset>
    </property>
    <property name="text">
     <string>Font size smaller</string>
@@ -201,7 +201,7 @@
   <action name="action_table_of_contents">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
+     <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
    </property>
    <property name="text">
     <string>Table of Contents</string>
@@ -210,7 +210,7 @@
   <action name="action_metadata">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/dialog_information.svg</normaloff>:/images/dialog_information.svg</iconset>
+     <normaloff>:/images/dialog_information.png</normaloff>:/images/dialog_information.png</iconset>
    </property>
    <property name="text">
     <string>Metadata</string>
@@ -219,7 +219,7 @@
   <action name="action_open_ebook">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
+     <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
    </property>
    <property name="text">
     <string>Open ebook</string>
@@ -228,7 +228,7 @@
   <action name="action_find_next">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
+     <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
    </property>
    <property name="text">
     <string>Find next</string>
@@ -243,7 +243,7 @@
   <action name="action_copy">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/edit_copy.svg</normaloff>:/images/edit_copy.svg</iconset>
+     <normaloff>:/images/edit_copy.png</normaloff>:/images/edit_copy.png</iconset>
    </property>
    <property name="text">
     <string>Copy to clipboard</string>
@@ -252,7 +252,7 @@
   <action name="action_preferences">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
+     <normaloff>:/images/config.png</normaloff>:/images/config.png</iconset>
    </property>
    <property name="text">
     <string>Preferences</string>
@@ -261,7 +261,7 @@
   <action name="action_reference_mode">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/lookfeel.svg</normaloff>:/images/lookfeel.svg</iconset>
+     <normaloff>:/images/lookfeel.png</normaloff>:/images/lookfeel.png</iconset>
    </property>
    <property name="text">
     <string>Reference Mode</string>
@@ -270,7 +270,7 @@
   <action name="action_bookmark">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/bookmarks.svg</normaloff>:/images/bookmarks.svg</iconset>
+     <normaloff>:/images/bookmarks.png</normaloff>:/images/bookmarks.png</iconset>
    </property>
    <property name="text">
     <string>Bookmark</string>
@@ -279,7 +279,7 @@
   <action name="action_full_screen">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/page.svg</normaloff>:/images/page.svg</iconset>
+     <normaloff>:/images/page.png</normaloff>:/images/page.png</iconset>
    </property>
    <property name="text">
     <string>Toggle full screen</string>
@@ -288,7 +288,7 @@
   <action name="action_print">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/print.svg</normaloff>:/images/print.svg</iconset>
+     <normaloff>:/images/print.png</normaloff>:/images/print.png</iconset>
    </property>
    <property name="text">
     <string>Print</string>
@@ -297,7 +297,7 @@
   <action name="action_find_previous">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
+     <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
    </property>
    <property name="text">
     <string>Find previous</string>

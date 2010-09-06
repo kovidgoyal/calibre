@@ -26,7 +26,7 @@ var current_library_request = null;
 
 ////////////////////////////// GET BOOK LIST //////////////////////////////
 
-var LIBRARY_FETCH_TIMEOUT = 10000; // milliseconds
+var LIBRARY_FETCH_TIMEOUT = 30000; // milliseconds
 
 function create_table_headers() {
     var thead = $('table#book_list thead tr');

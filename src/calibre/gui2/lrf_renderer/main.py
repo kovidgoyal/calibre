@@ -310,7 +310,7 @@ def main(args=sys.argv, logger=None):
     pid = os.fork() if (islinux or isfreebsd) else -1
     if pid <= 0:
         app = Application(args)
-        app.setWindowIcon(QIcon(I('viewer.svg')))
+        app.setWindowIcon(QIcon(I('viewer.png')))
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
         opts = normalize_settings(parser, opts)
