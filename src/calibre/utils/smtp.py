@@ -50,8 +50,9 @@ def get_mx(host, verbose=0):
     if verbose:
         print 'Find mail exchanger for', host
     answers = list(dns.resolver.query(host, 'MX'))
-    answers.sort(cmp=lambda x, y: cmp(int(x.preference), int(y.preference)))
-    return [str(x.exchange) for x in answers]
+    answers.sort(cmp=lambda x, y: cmp(int(getattr(x, 'preference', sys.maxint)),
+                                      int(getattr(y, 'preference', sys.maxint))))
+    return [str(x.exchange) for x in answers if hasattr(x, 'exchange')]
 
 def sendmail_direct(from_, to, msg, timeout, localhost, verbose):
     import smtplib
