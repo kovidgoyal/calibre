@@ -11,7 +11,7 @@ from functools import partial
 from PyQt4.Qt import QMainWindow, Qt, QIcon, QStatusBar, QFont, QWidget, \
         QScrollArea, QStackedWidget, QVBoxLayout, QLabel, QFrame, QKeySequence, \
         QToolBar, QSize, pyqtSignal, QSizePolicy, QToolButton, QAction, \
-        QPushButton
+        QPushButton, QHBoxLayout
 
 from calibre.constants import __appname__, __version__, islinux, isosx
 from calibre.gui2 import gprefs, min_available_height, available_width, \
@@ -120,9 +120,13 @@ class Browser(QScrollArea): # {{{
         self.container.setLayout(self._layout)
         self.setWidget(self.container)
         if isosx:
+            self._osxl = QHBoxLayout()
             self.close_button = QPushButton(_('Close'))
             self.close_button.clicked.connect(self.close_requested)
-            self._layout.addWidget(self.close_button)
+            self._osxl.addStretch(10)
+            self._osxl.addWidget(self.close_button)
+            self._osxl.addStretch(10)
+            self._layout.addLayout(self._osxl)
 
         for name, plugins in self.category_map.items():
             w = Category(name, plugins, self)
