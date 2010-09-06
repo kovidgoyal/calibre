@@ -12,7 +12,7 @@ from PyQt4.Qt import QMainWindow, Qt, QIcon, QStatusBar, QFont, QWidget, \
         QScrollArea, QStackedWidget, QVBoxLayout, QLabel, QFrame, QKeySequence, \
         QToolBar, QSize, pyqtSignal, QSizePolicy, QToolButton, QAction
 
-from calibre.constants import __appname__, __version__
+from calibre.constants import __appname__, __version__, islinux
 from calibre.gui2 import gprefs, min_available_height, available_width, \
     warning_dialog
 from calibre.gui2.preferences import init_gui, AbortCommit, get_plugin
@@ -150,6 +150,10 @@ class Preferences(QMainWindow):
         geom = gprefs.get('preferences_window_geometry', None)
         if geom is not None:
             self.restoreGeometry(geom)
+
+        # Center
+        if islinux:
+            self.move(gui.rect().center() - self.rect().center())
 
         self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle(__appname__ + ' - ' + _('Preferences'))
