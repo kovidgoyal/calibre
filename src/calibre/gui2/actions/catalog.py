@@ -33,7 +33,7 @@ class GenerateCatalogAction(InterfaceAction):
                     show=True)
 
         # Calling gui2.tools:generate_catalog()
-        ret = generate_catalog(self.gui, dbspec, ids, self.gui.device_manager.device)
+        ret = generate_catalog(self.gui, dbspec, ids, self.gui.device_manager)
         if ret is None:
             return
 
