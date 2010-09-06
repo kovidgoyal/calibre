@@ -1126,7 +1126,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if not authors:
             authors = [_('Unknown')]
         self.conn.execute('DELETE FROM books_authors_link WHERE book=?',(id,))
-        self.conn.execute('DELETE FROM authors WHERE (SELECT COUNT(id) FROM books_authors_link WHERE author=authors.id) < 1')
         for a in authors:
             if not a:
                 continue
