@@ -147,7 +147,7 @@ class Preferences(QMainWindow):
         self.must_restart = False
         self.committed = False
 
-        self.resize(900, 700)
+        self.resize(900, 760 if isosx else 710)
         nh, nw = min_available_height()-25, available_width()-10
         if nh < 0:
             nh = 800
@@ -277,7 +277,7 @@ class Preferences(QMainWindow):
             warning_dialog(self, _('Restart needed'),
                     _('Some of the changes you made require a restart.'
                         ' Please restart calibre as soon as possible.'),
-                    show=True)
+                    show=True, show_copy_button=False)
         self.showing_widget.refresh_gui(self.gui)
         self.hide_plugin()
 
