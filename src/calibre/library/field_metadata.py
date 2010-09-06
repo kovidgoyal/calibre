@@ -306,7 +306,7 @@ class FieldMetadata(dict):
             self._tb_cats[k]['label'] = k
             self._tb_cats[k]['display'] = {}
             self._tb_cats[k]['is_editable'] = True
-            self._add_search_terms_to_map(k, self._tb_cats[k]['search_terms'])
+            self._add_search_terms_to_map(k, v['search_terms'])
         self.custom_field_prefix = '#'
         self.get = self._tb_cats.get
 
@@ -407,16 +407,6 @@ class FieldMetadata(dict):
                                  'is_editable': False,}
             self._add_search_terms_to_map(key, [key])
             self.custom_label_to_key_map[label+'_index'] = key
-
-    def remove_custom_fields(self):
-        for key in self.get_custom_fields():
-            del self._tb_cats[key]
-
-    def remove_dynamic_categories(self):
-        for key in list(self._tb_cats.keys()):
-            val = self._tb_cats[key]
-            if val['is_category'] and val['kind'] in ('user', 'search'):
-                del self._tb_cats[key]
 
     def cc_series_index_column_for(self, key):
         return self._tb_cats[key]['rec_index'] + 1

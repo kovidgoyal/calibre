@@ -144,6 +144,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.initialize_dynamic()
 
     def initialize_dynamic(self):
+        self.field_metadata = FieldMetadata() #Ensure we start with a clean copy
         self.prefs = DBPrefs(self)
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
@@ -2151,8 +2152,6 @@ books_series_link      feeds
             os.remove(self.dbpath)
             shutil.copyfile(dest, self.dbpath)
             self.connect()
-            self.field_metadata.remove_dynamic_categories()
-            self.field_metadata.remove_custom_fields()
             self.initialize_dynamic()
             self.refresh()
         if os.path.exists(dest):
