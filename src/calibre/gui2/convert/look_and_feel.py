@@ -14,7 +14,7 @@ from calibre.gui2.convert import Widget
 class LookAndFeelWidget(Widget, Ui_Form):
 
     TITLE = _('Look & Feel')
-    ICON  = I('lookfeel.svg')
+    ICON  = I('lookfeel.png')
     HELP  = _('Control the look and feel of the output')
     COMMIT_NAME = 'look_and_feel'
 

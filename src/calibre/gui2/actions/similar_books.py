@@ -20,11 +20,11 @@ class SimilarBooksAction(InterfaceAction):
     def genesis(self):
         m = QMenu(self.gui)
         for text, icon, target, shortcut in [
-        (_('Books by same author'), 'user_profile.svg', 'authors', _('Alt+A')),
-        (_('Books in this series'), 'books_in_series.svg', 'series',
+        (_('Books by same author'), 'user_profile.png', 'authors', _('Alt+A')),
+        (_('Books in this series'), 'books_in_series.png', 'series',
             _('Alt+Shift+S')),
         (_('Books by this publisher'), 'publisher.png', 'publisher', _('Alt+P')),
-        (_('Books with the same tags'), 'tags.svg', 'tag', _('Alt+T')),]:
+        (_('Books with the same tags'), 'tags.png', 'tag', _('Alt+T')),]:
             ac = self.create_action(spec=(text, icon, None, shortcut),
                     attr=target)
             m.addAction(ac)

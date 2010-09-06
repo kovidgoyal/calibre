@@ -36,6 +36,7 @@ class PageSetupWidget(Widget, Ui_Form):
     COMMIT_NAME = 'page_setup'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+        self.__connections = []
         Widget.__init__(self, parent,
                 ['margin_top', 'margin_left', 'margin_right', 'margin_bottom',
                     'input_profile', 'output_profile']
@@ -46,6 +47,10 @@ class PageSetupWidget(Widget, Ui_Form):
         self.output_model = ProfileModel(output_profiles())
         self.opt_input_profile.setModel(self.input_model)
         self.opt_output_profile.setModel(self.output_model)
+        for g, slot in self.__connections:
+            g.selectionModel().currentChanged.connect(slot)
+        del self.__connections
+
         for x in (self.opt_input_profile, self.opt_output_profile):
             x.setMouseTracking(True)
             self.connect(x, SIGNAL('entered(QModelIndex)'), self.show_desc)
@@ -55,11 +60,14 @@ class PageSetupWidget(Widget, Ui_Form):
         it = unicode(self.opt_output_profile.toolTip())
         self.opt_output_profile.setToolTip('<p>'+it.replace('t.','ce.\n<br>'))
 
-
-
     def show_desc(self, index):
         desc = index.model().data(index, Qt.StatusTipRole).toString()
         self.profile_description.setText(desc)
+
+    def connect_gui_obj_handler(self, g, slot):
+        if g not in (self.opt_input_profile, self.opt_output_profile):
+            raise NotImplementedError()
+        self.__connections.append((g, slot))
 
     def set_value_handler(self, g, val):
         if g in (self.opt_input_profile, self.opt_output_profile):

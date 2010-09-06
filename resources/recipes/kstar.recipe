@@ -1,0 +1,58 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1282101454(BasicNewsRecipe):
+    title = 'Kansascity Star'
+    language = 'en'
+    __author__ = 'TonytheBookworm'
+    description = 'www.kansascity.com feed'
+    publisher = 'Tony Stegall'
+    category = 'news, politics, USA, kansascity'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+
+    masthead_url = 'http://media.kansascity.com/images/site_logo_340x60.gif'
+    keep_only_tags    = [
+                         dict(attrs={'id':['storyTitle','sub_headline','byLine']})
+                        ,dict(name='div', attrs={'id':['storyDate-Links','storyBody']})
+
+                        ]
+    feeds          = [
+                      ('Kansas News', 'http://www.kansascity.com/105/index.xml'),
+
+                    ]
+
+
+
+
+    def print_version(self, url):
+        split1 = url.split("/")
+        #url1 = split1[0]
+        #url2 = split1[1]
+        url3 = split1[2]
+        url4 = split1[3]
+        url5 = split1[4]
+        url6 = split1[5]
+        url7 = split1[6]
+        url8 = split1[7]
+
+
+        #example of link to convert
+        #Original link: http://www.kansascity.com/2010/09/04/2199362/lees-summit-school-appears-to.html
+        #print version: http://www.kansascity.com/2010/09/04/v-print/2199362/lees-summit-school-appears-to.html
+
+        print_url = 'http://' + url3 + '/' + url4 + '/' + url5 + '/' + url6 + '/v-print/' + url7 + '/' + url8
+
+        return print_url
+
+
+
+
+
+
+
+
+
+
+
+

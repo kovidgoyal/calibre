@@ -146,11 +146,11 @@ class Wizard(QWizard): # {{{
         QWizard.__init__(self, parent)
         self.setModal(True)
         self.setWindowTitle(_('Add books to calibre'))
-        self.setWindowIcon(QIcon(I('add_book.svg')))
+        self.setWindowIcon(QIcon(I('add_book.png')))
         self.setPixmap(self.LogoPixmap, QPixmap(P('content_server/calibre.png')).scaledToHeight(80,
             Qt.SmoothTransformation))
         self.setPixmap(self.WatermarkPixmap,
-            QPixmap(I('welcome_wizard.svg')))
+            QPixmap(I('welcome_wizard.png')))
 
         self.register = {}
 

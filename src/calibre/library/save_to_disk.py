@@ -61,7 +61,7 @@ def config(defaults=None):
                 'actual e-book file(s).'))
     x('formats', default='all',
             help=_('Comma separated list of formats to save for each book.'
-                ' By default all available books are saved.'))
+                ' By default all available formats are saved.'))
     x('template', default=DEFAULT_TEMPLATE,
             help=_('The template to control the filename and directory structure of the saved files. '
                 'Default is "%s" which will save books into a per-author '

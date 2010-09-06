@@ -23,7 +23,7 @@
       <string/>
      </property>
      <property name="pixmap" >
-      <pixmap resource="../../../../resources/images.qrc" >:/images/dialog_error.svg</pixmap>
+      <pixmap resource="../../../../resources/images.qrc" >:/images/dialog_error.png</pixmap>
      </property>
     </widget>
    </item>

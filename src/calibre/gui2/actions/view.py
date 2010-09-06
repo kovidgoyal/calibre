@@ -21,7 +21,7 @@ from calibre.gui2.actions import InterfaceAction
 class ViewAction(InterfaceAction):
 
     name = 'View'
-    action_spec = (_('View'), 'view.svg', None, _('V'))
+    action_spec = (_('View'), 'view.png', None, _('V'))
 
     def genesis(self):
         self.persistent_files = []

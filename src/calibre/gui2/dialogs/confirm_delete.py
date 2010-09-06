@@ -25,7 +25,7 @@ class Dialog(QDialog, Ui_Dialog):
     def toggle(self, *args):
         dynamic[_config_name(self.name)] = self.again.isChecked()
 
-def confirm(msg, name, parent=None, pixmap='dialog_warning.svg'):
+def confirm(msg, name, parent=None, pixmap='dialog_warning.png'):
     if not dynamic.get(_config_name(name), True):
         return True
     d = Dialog(msg, name, parent)

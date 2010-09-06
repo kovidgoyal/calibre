@@ -118,7 +118,7 @@
      </property>
      <property name="icon">
       <iconset resource="../../../../resources/images.qrc">
-       <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
+       <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
      </property>
     </widget>
    </item>

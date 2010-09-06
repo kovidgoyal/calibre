@@ -15,7 +15,7 @@ from calibre.gui2.actions import InterfaceAction
 class DeleteAction(InterfaceAction):
 
     name = 'Remove Books'
-    action_spec = (_('Remove books'), 'trash.svg', None, _('Del'))
+    action_spec = (_('Remove books'), 'trash.png', None, _('Del'))
 
     def genesis(self):
         self.qaction.triggered.connect(self.delete_books)
