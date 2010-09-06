@@ -324,6 +324,7 @@ def do_remove(db, ids):
                 db.delete_book(y)
 
         send_message()
+    db.clean()
 
 def remove_option_parser():
     return get_parser(_(
@@ -449,6 +450,7 @@ def command_show_metadata(args, dbpath):
 def do_set_metadata(db, id, stream):
     mi = OPF(stream)
     db.set_metadata(id, mi)
+    db.clean()
     do_show_metadata(db, id, False)
     send_message()
 

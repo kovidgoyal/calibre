@@ -20,6 +20,8 @@ class ConfigWidgetInterface(object):
 
     changed_signal = None
     supports_restoring_to_defaults = True
+    restore_defaults_desc = _('Restore settings to default values. '
+            'You have to click Apply to actually save the default settings.')
 
     def genesis(self, gui):
         raise NotImplementedError()
@@ -38,6 +40,9 @@ class ConfigWidgetInterface(object):
         suer feedback about what the error is and how to correct it.
         '''
         return False
+
+    def refresh_gui(self, gui):
+        pass
 
 class Setting(object):
 

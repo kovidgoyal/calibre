@@ -1,0 +1,64 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+__author__    = 'somedayson & TonytheBookworm, revised by Cynthia Clavey'
+__copyright__ = '2010, Cynthia Clavey cynvision@yahoo.com'
+__version__   = '1.02'
+__date__      = '05, september 2010'
+__docformat__ = 'restructuredtext en'
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class AdvancedUserRecipe1283666183(BasicNewsRecipe):
+    title          = u'Journal Gazette Ft. Wayne IN'
+    __author__     = 'cynvision'
+    oldest_article = 1
+    max_articles_per_feed = 8
+    no_stylesheets = True
+    remove_javascript     = True
+    use_embedded_content  = False
+    keep_only_tags = [dict(name='div', attrs={'id':'mainContent'})]
+    extra_css = '#copyinfo { font-size: 6 ;} \n #photocredit { font-size: 6 ;} \n  .pubinfo { font-size: 6 ;}'
+    masthead_url          = 'http://www.journalgazette.net/img/icons/jgmini.gif'
+#    cover_url = 'http://www.journalgazette.net/img/icons/jgmini.gif'
+    encoding = 'cp1252'
+
+    feeds = [(u'Opinion', u'http://journalgazette.net/apps/pbcs.dll/section?Category=EDIT&template=blogrss&mime=xml'),
+             (u'Local News',u'http://journalgazette.net/apps/pbcs.dll/section?Category=LOCAL&template=blogrss&mime=xml') ,
+             (u'Sports',u'http://journalgazette.net/apps/pbcs.dll/section?Category=SPORTS&template=blogrss&mime=xml' ),
+             (u'Features',u'http://journalgazette.net/apps/pbcs.dll/section?Category=FEAT&template=blogrss&mime=xml'),
+             (u'Business',u'http://journalgazette.net/apps/pbcs.dll/section?Category=BIZ&template=blogrss&mime=xml'),
+             (u'Ice Chips',u'http://journalgazette.net/apps/pbcs.dll/section?Category=BLOGS11&template=blogrss&mime=xml '),
+             (u'Entertainment',u'http://journalgazette.net/apps/pbcs.dll/section?Category=ENT&template=blogrss&mime=xml'),
+             (u'Food',u'http://journalgazette.net/apps/pbcs.dll/section?Category=FOOD&template=blogrss&mime=xml')
+            ]
+
+
+
+
+    def print_version(self, url):
+        split1 = url.split("/")
+        #print 'THE SPLIT IS: ', split1
+        #url1 = split1[0]
+        #url2 = split1[1]
+        url3 = split1[2]
+        #url4 = split1[3]
+        url5 = split1[4]
+        url6 = split1[5]
+        url7 = split1[6]
+        #url8 = split1[7]
+
+  #need to convert to print_version
+  #originalversion is : http://www.journalgazette.net/article/20100905/EDIT10/309059959/1021/EDIT
+  #printversion should be: http://www.journalgazette.net/apps/pbcs.dll/article?AID=/20100905/EDIT10/309059959/-1/EDIT01&template=printart
+  #results of the split
+  #THE SPLIT IS:  [u'http:', u'', u'www.journalgazette.net', u'article', u'20100905', u'EDIT10', u'309059959', u'1021', u'EDIT']
+
+
+
+        print_url = 'http://' + url3 + '/apps/pbcs.dll/article?AID=/' + url5 + '/' + url6 + '/' + url7 + '/-1/EDIT01&template=printart'
+        #print 'THIS URL WILL PRINT: ', print_url # this is a test string to see what the url is it will return
+        return print_url
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup

@@ -144,6 +144,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.initialize_dynamic()
 
     def initialize_dynamic(self):
+        self.field_metadata = FieldMetadata() #Ensure we start with a clean copy
         self.prefs = DBPrefs(self)
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
@@ -331,7 +332,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
                      'publisher', 'rating', 'series', 'series_index', 'tags',
-                     'title', 'timestamp', 'uuid', 'pubdate'):
+                     'title', 'timestamp', 'uuid', 'pubdate', 'ondevice'):
             setattr(self, prop, functools.partial(get_property,
                     loc=self.FIELD_MAP['comments' if prop == 'comment' else prop]))
         setattr(self, 'title_sort', functools.partial(get_property,
@@ -1125,7 +1126,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if not authors:
             authors = [_('Unknown')]
         self.conn.execute('DELETE FROM books_authors_link WHERE book=?',(id,))
-        self.conn.execute('DELETE FROM authors WHERE (SELECT COUNT(id) FROM books_authors_link WHERE author=authors.id) < 1')
         for a in authors:
             if not a:
                 continue
@@ -2151,8 +2151,6 @@ books_series_link      feeds
             os.remove(self.dbpath)
             shutil.copyfile(dest, self.dbpath)
             self.connect()
-            self.field_metadata.remove_dynamic_categories()
-            self.field_metadata.remove_custom_fields()
             self.initialize_dynamic()
             self.refresh()
         if os.path.exists(dest):

@@ -522,6 +522,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
 
     def shutdown(self, write_settings=True):
+        try:
+            cf = self.library_view.model().db.clean
+        except:
+            pass
+        else:
+            cf()
         for action in self.iactions.values():
             if not action.shutting_down():
                 return
