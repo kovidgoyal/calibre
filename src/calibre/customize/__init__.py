@@ -393,8 +393,15 @@ class PreferencesPlugin(Plugin): # {{{
 
     #: The category name displayed to the user for this plugin
     gui_category = None
+
     #: The name displayed to the user for this plugin
     gui_name = None
+
+    #: The icon for this plugin, should be an absolute path
+    icon = None
+
+    #: The description used for tooltips and the like
+    description = None
 
     def create_widget(self, parent=None):
         '''
@@ -404,9 +411,12 @@ class PreferencesPlugin(Plugin): # {{{
         The default implementation uses :attr:`config_widget` to instantiate
         the widget.
         '''
-        base = __import__(self.config_widget, fromlist=[1])
-        widget = base.ConfigWidget(parent)
-        return widget
+        base, _, wc = self.config_widget.partition(':')
+        if not wc:
+            wc = 'ConfigWidget'
+        base = __import__(base, fromlist=[1])
+        widget = getattr(base, wc)
+        return widget(parent)
 
 # }}}
 

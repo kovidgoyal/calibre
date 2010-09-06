@@ -82,7 +82,7 @@ class CoverView(QWidget): # {{{
         self.setSizePolicy(QSizePolicy.Expanding if vertical else
                 QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.default_pixmap = QPixmap(I('book.svg'))
+        self.default_pixmap = QPixmap(I('book.png'))
         self.pixmap = self.default_pixmap
         self.pwidth = self.pheight = None
         self.data = {}

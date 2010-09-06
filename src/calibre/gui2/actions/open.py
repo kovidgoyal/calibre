@@ -11,7 +11,7 @@ from calibre.gui2.actions import InterfaceAction
 class OpenFolderAction(InterfaceAction):
 
     name = 'Open Folder'
-    action_spec = (_('Open containing folder'), 'document_open.svg', None,
+    action_spec = (_('Open containing folder'), 'document_open.png', None,
             _('O'))
     dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
 

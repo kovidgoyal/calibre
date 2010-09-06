@@ -9,9 +9,8 @@ from itertools import repeat
 from functools import partial
 from binascii import unhexlify
 
-from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, QPixmap, \
-                     Qt, pyqtSignal, QColor, QPainter, QDialog, QMessageBox
-from PyQt4.QtSvg import QSvgRenderer
+from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, \
+                     Qt, pyqtSignal, QDialog, QMessageBox
 
 from calibre.customize.ui import available_input_formats, available_output_formats, \
     device_plugins
@@ -21,7 +20,7 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
-                        pixmap_to_data, warning_dialog, \
+                        warning_dialog, \
                         question_dialog, info_dialog, choose_dir
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints
@@ -34,7 +33,7 @@ from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
 from calibre.utils.config import prefs, tweaks
-
+from calibre.utils.magick.draw import thumbnail
 # }}}
 
 class DeviceJob(BaseJob): # {{{
@@ -417,33 +416,33 @@ class DeviceMenu(QMenu): # {{{
         self._memory = []
 
         self.set_default_menu = QMenu(_('Set default send to device action'))
-        self.set_default_menu.setIcon(QIcon(I('config.svg')))
+        self.set_default_menu.setIcon(QIcon(I('config.png')))
 
 
         basic_actions = [
-                ('main:', False, False,  I('reader.svg'),
+                ('main:', False, False,  I('reader.png'),
                     _('Send to main memory')),
-                ('carda:0', False, False, I('sd.svg'),
+                ('carda:0', False, False, I('sd.png'),
                     _('Send to storage card A')),
-                ('cardb:0', False, False, I('sd.svg'),
+                ('cardb:0', False, False, I('sd.png'),
                     _('Send to storage card B')),
         ]
 
         delete_actions = [
-                ('main:', True, False,   I('reader.svg'),
+                ('main:', True, False,   I('reader.png'),
                     _('Main Memory')),
-                ('carda:0', True, False,  I('sd.svg'),
+                ('carda:0', True, False,  I('sd.png'),
                     _('Storage Card A')),
-                ('cardb:0', True, False,  I('sd.svg'),
+                ('cardb:0', True, False,  I('sd.png'),
                     _('Storage Card B')),
         ]
 
         specific_actions = [
-                ('main:', False, True,  I('reader.svg'),
+                ('main:', False, True,  I('reader.png'),
                     _('Main Memory')),
-                ('carda:0', False, True, I('sd.svg'),
+                ('carda:0', False, True, I('sd.png'),
                     _('Storage Card A')),
-                ('cardb:0', False, True, I('sd.svg'),
+                ('cardb:0', False, True, I('sd.png'),
                     _('Storage Card B')),
         ]
 
@@ -488,7 +487,7 @@ class DeviceMenu(QMenu): # {{{
         self.group.triggered.connect(self.change_default_action)
         self.addSeparator()
 
-        mitem = self.addAction(QIcon(I('eject.svg')), _('Eject device'))
+        mitem = self.addAction(QIcon(I('eject.png')), _('Eject device'))
         mitem.setEnabled(False)
         mitem.triggered.connect(lambda x : self.disconnect_mounted_device.emit())
         self.disconnect_mounted_device_action = mitem
@@ -617,14 +616,8 @@ class DeviceMixin(object): # {{{
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
 
     def set_default_thumbnail(self, height):
-        r = QSvgRenderer(I('book.svg'))
-        pixmap = QPixmap(height, height)
-        pixmap.fill(QColor(255,255,255))
-        p = QPainter(pixmap)
-        r.render(p)
-        p.end()
-        self.default_thumbnail = (pixmap.width(), pixmap.height(),
-                pixmap_to_data(pixmap))
+        img = I('book.png', data=True)
+        self.default_thumbnail = thumbnail(img, height, height)
 
     def connect_to_folder_named(self, folder):
         if os.path.exists(folder) and os.path.isdir(folder):
@@ -959,13 +952,12 @@ class DeviceMixin(object): # {{{
                 self.library_view.model().delete_books_by_id(remove)
 
     def cover_to_thumbnail(self, data):
-        p = QPixmap()
-        p.loadFromData(data)
-        if not p.isNull():
-            ht = self.device_manager.device.THUMBNAIL_HEIGHT \
-                    if self.device_manager else DevicePlugin.THUMBNAIL_HEIGHT
-            p = p.scaledToHeight(ht, Qt.SmoothTransformation)
-            return (p.width(), p.height(), pixmap_to_data(p))
+        ht = self.device_manager.device.THUMBNAIL_HEIGHT \
+                if self.device_manager else DevicePlugin.THUMBNAIL_HEIGHT
+        try:
+            return thumbnail(data, ht, ht)
+        except:
+            pass
 
     def email_news(self, id):
         opts = email_config().parse()

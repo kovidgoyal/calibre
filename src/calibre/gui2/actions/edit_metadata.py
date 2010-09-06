@@ -21,10 +21,10 @@ from calibre.gui2.dialogs.progress import BlockingBusy
 class EditMetadataAction(InterfaceAction):
 
     name = 'Edit Metadata'
-    action_spec = (_('Edit metadata'), 'edit_input.svg', None, _('E'))
+    action_spec = (_('Edit metadata'), 'edit_input.png', None, _('E'))
 
     def genesis(self):
-        self.create_action(spec=(_('Merge book records'), 'merge_books.svg',
+        self.create_action(spec=(_('Merge book records'), 'merge_books.png',
             None, _('M')), attr='action_merge')
         md = QMenu()
         md.addAction(_('Edit metadata individually'),

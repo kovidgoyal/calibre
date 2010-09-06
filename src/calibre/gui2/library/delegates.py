@@ -282,7 +282,7 @@ class CcBoolDelegate(QStyledItemDelegate): # {{{
     def createEditor(self, parent, option, index):
         editor = QComboBox(parent)
         items = [_('Y'), _('N'), ' ']
-        icons = [I('ok.svg'), I('list_remove.svg'), I('blank.svg')]
+        icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
         if tweaks['bool_custom_columns_are_tristate'] == 'no':
             items = items[:-1]
             icons = icons[:-1]

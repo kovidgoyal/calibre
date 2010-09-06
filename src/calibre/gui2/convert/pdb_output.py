@@ -16,6 +16,7 @@ class PluginWidget(Widget, Ui_Form):
     TITLE = _('PDB Output')
     HELP = _('Options specific to')+' PDB '+_('output')
     COMMIT_NAME = 'pdb_output'
+    ICON = I('mimetypes/unknown.png')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, ['format', 'inline_toc'])

@@ -8,19 +8,19 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import QIcon, QMenu
 
 from calibre.gui2.actions import InterfaceAction
-from calibre.gui2.dialogs.config import ConfigDialog
-from calibre.gui2 import error_dialog, config
+from calibre.gui2.preferences.main import Preferences
+from calibre.gui2 import error_dialog
 
 class PreferencesAction(InterfaceAction):
 
     name = 'Preferences'
-    action_spec = (_('Preferences'), 'config.svg', None, _('Ctrl+P'))
+    action_spec = (_('Preferences'), 'config.png', None, _('Ctrl+P'))
     dont_remove_from = frozenset(['toolbar'])
 
     def genesis(self):
         pm = QMenu()
-        pm.addAction(QIcon(I('config.svg')), _('Preferences'), self.do_config)
-        pm.addAction(QIcon(I('wizard.svg')), _('Run welcome wizard'),
+        pm.addAction(QIcon(I('config.png')), _('Preferences'), self.do_config)
+        pm.addAction(QIcon(I('wizard.png')), _('Run welcome wizard'),
                 self.gui.run_wizard)
         self.qaction.setMenu(pm)
         self.preferences_menu = pm
@@ -28,7 +28,7 @@ class PreferencesAction(InterfaceAction):
             x.triggered.connect(self.do_config)
 
 
-    def do_config(self, checked=False, initial_category='general'):
+    def do_config(self, checked=False, initial_plugin=None):
         if self.gui.job_manager.has_jobs():
             d = error_dialog(self.gui, _('Cannot configure'),
                     _('Cannot configure while there are running jobs.'))
@@ -39,20 +39,12 @@ class PreferencesAction(InterfaceAction):
                     _('Cannot configure before calibre is restarted.'))
             d.exec_()
             return
-        d = ConfigDialog(self.gui, self.gui.library_view,
-                server=self.gui.content_server, initial_category=initial_category)
+        d = Preferences(self.gui, initial_plugin=initial_plugin)
+        d.show()
 
-        d.exec_()
-        self.gui.content_server = d.server
-        if self.gui.content_server is not None:
-            self.gui.content_server.state_callback = \
-                self.Dispatcher(self.gui.iactions['Connect Share'].content_server_state_changed)
-            self.gui.content_server.state_callback(self.gui.content_server.is_running)
-
-        if d.result() == d.Accepted:
-            self.gui.search.search_as_you_type(config['search_as_you_type'])
+        if d.committed:
+            self.gui.must_restart_before_config = d.must_restart
             self.gui.tags_view.set_new_model() # in case columns changed
-            self.gui.iactions['Save To Disk'].reread_prefs()
             self.gui.tags_view.recount()
             self.gui.create_device_menu()
             self.gui.set_device_menu_items_state(bool(self.gui.device_connected))

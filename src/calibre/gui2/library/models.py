@@ -49,7 +49,7 @@ _default_image = None
 def default_image():
     global _default_image
     if _default_image is None:
-        _default_image = QImage(I('default_cover.svg'))
+        _default_image = QImage(I('default_cover.png'))
     return _default_image
 
 class BooksModel(QAbstractTableModel): # {{{
@@ -89,9 +89,9 @@ class BooksModel(QAbstractTableModel): # {{{
         self.alignment_map = {}
         self.buffer_size = buffer
         self.cover_cache = None
-        self.bool_yes_icon = QIcon(I('ok.svg'))
-        self.bool_no_icon = QIcon(I('list_remove.svg'))
-        self.bool_blank_icon = QIcon(I('blank.svg'))
+        self.bool_yes_icon = QIcon(I('ok.png'))
+        self.bool_no_icon = QIcon(I('list_remove.png'))
+        self.bool_blank_icon = QIcon(I('blank.png'))
         self.device_connected = False
         self.read_config()
 
