@@ -11,7 +11,7 @@ from functools import partial
 from PyQt4.Qt import QMainWindow, Qt, QIcon, QStatusBar, QFont, QWidget, \
         QScrollArea, QStackedWidget, QVBoxLayout, QLabel, QFrame, QKeySequence, \
         QToolBar, QSize, pyqtSignal, QPixmap, QToolButton, QAction, \
-        QPushButton, QHBoxLayout
+        QDialogButtonBox, QHBoxLayout
 
 from calibre.constants import __appname__, __version__, islinux, isosx
 from calibre.gui2 import gprefs, min_available_height, available_width, \
@@ -52,7 +52,6 @@ class BarTitle(QWidget):
         self.setLayout(self._layout)
         self._layout.addStretch(10)
         self.icon = QLabel('')
-        self.icon.setMaximumHeight(ICON_SIZE)
         self._layout.addWidget(self.icon)
         self.title = QLabel('')
         self.title.setStyleSheet('QLabel { font-weight: bold }')
@@ -117,7 +116,6 @@ class Category(QWidget): # {{{
 class Browser(QScrollArea): # {{{
 
     show_plugin = pyqtSignal(object)
-    close_signal = pyqtSignal()
 
     def __init__(self, parent=None):
         QScrollArea.__init__(self, parent)
@@ -148,14 +146,6 @@ class Browser(QScrollArea): # {{{
         self.container = QWidget(self)
         self.container.setLayout(self._layout)
         self.setWidget(self.container)
-        if isosx:
-            self._osxl = QHBoxLayout()
-            self.close_button = QPushButton(_('Close'))
-            self.close_button.clicked.connect(self.close_requested)
-            self._osxl.addStretch(10)
-            self._osxl.addWidget(self.close_button)
-            #self._osxl.addStretch(10)
-            self._layout.addLayout(self._osxl)
 
         for name, plugins in self.category_map.items():
             w = Category(name, plugins, self)
@@ -163,8 +153,6 @@ class Browser(QScrollArea): # {{{
             self._layout.addWidget(w)
             w.plugin_activated.connect(self.show_plugin.emit)
 
-    def close_requested(self, *args):
-        self.close_signal.emit()
 
 # }}}
 
@@ -206,9 +194,15 @@ class Preferences(QMainWindow):
         self.setStatusBar(self.status_bar)
 
         self.stack = QStackedWidget(self)
-        self.setCentralWidget(self.stack)
+        self.cw = QWidget(self)
+        self.cw.setLayout(QVBoxLayout())
+        self.cw.layout().addWidget(self.stack)
+        self.bb = QDialogButtonBox(QDialogButtonBox.Close)
+        self.cw.layout().addWidget(self.bb)
+        self.bb.rejected.connect(self.close, type=Qt.QueuedConnection)
+        self.setCentralWidget(self.cw)
+        self.bb.setVisible(isosx)
         self.browser = Browser(self)
-        self.browser.close_signal.connect(self.close, type=Qt.QueuedConnection)
         self.browser.show_plugin.connect(self.show_plugin)
         self.stack.addWidget(self.browser)
         self.scroll_area = QScrollArea(self)
