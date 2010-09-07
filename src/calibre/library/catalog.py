@@ -104,8 +104,7 @@ class CSV_XML(CatalogPlugin):
 
             # Output the entry fields
             for entry in data:
-                print "%s [%s]" % (entry['title'],entry['id'])
-                print "ondevice: %s" % db.ondevice(entry['id'], index_is_id=True)
+                print "%s [%s] ondevice: %s" % (entry['title'],entry['id'], repr(db.catalog_plugin_on_device_temp_mapping[entry['id']]))
                 outstr = []
                 for field in fields:
                     item = entry[field]
